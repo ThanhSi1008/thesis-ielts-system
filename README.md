@@ -262,14 +262,14 @@ ENVIRONMENT="development"
 ### Frontend Web (`frontend-web/.env.local`)
 
 ```env
-NEXT_PUBLIC_API_URL="http://localhost:3000"
+NEXT_PUBLIC_API_URL="http://localhost:3000/api/v1"
 NEXT_PUBLIC_WS_URL="ws://localhost:3000"
 ```
 
 ### Frontend Mobile (`frontend-mobile/.env`)
 
 ```env
-EXPO_PUBLIC_API_URL="http://localhost:3000"
+EXPO_PUBLIC_API_URL="http://localhost:3000/api/v1"
 ```
 
 ## 🌐 Accessing Services
