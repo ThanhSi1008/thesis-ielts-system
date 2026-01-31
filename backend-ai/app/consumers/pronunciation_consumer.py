@@ -138,7 +138,7 @@ class PronunciationConsumer:
             cursor.execute(
                 """
                 UPDATE pronunciation_attempts 
-                SET status = %s, updated_at = NOW() 
+                SET status = %s, "updatedAt" = NOW() 
                 WHERE id = %s
                 """,
                 (status, attempt_id)
@@ -173,11 +173,11 @@ class PronunciationConsumer:
             cursor.execute(
                 """
                 UPDATE pronunciation_attempts 
-                SET transcribed_text = %s,
+                SET "transcribedText" = %s,
                     score = %s,
                     feedback = %s::jsonb,
                     status = %s,
-                    updated_at = NOW()
+                    "updatedAt" = NOW()
                 WHERE id = %s
                 """,
                 (transcribed_text, score, feedback_json, status, attempt_id)
@@ -207,8 +207,8 @@ class PronunciationConsumer:
             
         except Exception as e:
             logger.error(f"❌ Error processing message: {e}")
-            # Reject and requeue message
-            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+            # Reject and discard message (don't requeue to avoid infinite loops)
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
     def start_consuming(self):
         """Start consuming messages"""

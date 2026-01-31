@@ -4,7 +4,68 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { vocabularyApi } from "@/services/learning.api";
+import { useAuth } from "@/contexts/AuthContext";
 import type { VocabularyUnitWithContent, VocabularyWord, SubmitExerciseResponse, SubmitQuestionsResponse } from "@/types";
+
+// ============================================================
+// WORD LIST FLIP CARD COMPONENT
+// ============================================================
+
+interface ScoreModalProps {
+  isOpen: boolean;
+  score: number;
+  totalQuestions: number;
+  isPassed: boolean;
+  onRetry: () => void;
+  onContinue: () => void;
+}
+
+function ScoreModal({ isOpen, score, totalQuestions, isPassed, onRetry, onContinue }: ScoreModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl transform scale-100 animate-in zoom-in-95 duration-300 text-center">
+        <div className="mb-6">
+          <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl shadow-lg mb-4 ${isPassed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+            {isPassed ? '🏆' : '💪'}
+          </div>
+          <h3 className="text-2xl font-bold mb-2">{isPassed ? 'Excellent Job!' : 'Keep Trying!'}</h3>
+          <p className="text-gray-600">
+            You scored <span className={`font-bold text-xl ${isPassed ? 'text-green-600' : 'text-red-600'}`}>{score}</span> out of {totalQuestions}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {isPassed ? (
+            <button
+              onClick={onContinue}
+              className="w-full bg-[#FFC600] hover:bg-yellow-400 text-black font-bold py-4 rounded-xl uppercase tracking-wide transition-colors shadow-md"
+            >
+              Continue Learning
+            </button>
+          ) : (
+            <button
+              onClick={onRetry}
+              className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-4 rounded-xl uppercase tracking-wide transition-colors shadow-md"
+            >
+              Try Again
+            </button>
+          )}
+          
+          {isPassed && (
+            <button
+              onClick={onRetry}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-colors"
+            >
+              Review Answers
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ============================================================
 // WORD LIST FLIP CARD COMPONENT
@@ -19,6 +80,7 @@ interface WordListFlipCardProps {
 }
 
 function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWord, onSkip }: WordListFlipCardProps) {
+  const { user } = useAuth();
   const [isFlipped, setIsFlipped] = useState(false);
 
   // Reset flip state when word changes
@@ -42,9 +104,14 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
   return (
     <div className="animate-in fade-in duration-300">
       {/* Progress bar */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="w-20 h-2 bg-gray-800 rounded-full" />
-        <span className="font-bold text-gray-600">{currentWordIndex + 1}/{totalWords}</span>
+      <div className="flex justify-between items-center mb-4 gap-4">
+        <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-[#FFC600] rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${(currentWordIndex / totalWords) * 100}%` }}
+          />
+        </div>
+        <span className="font-bold text-gray-600 min-w-[3rem] text-right">{currentWordIndex}/{totalWords}</span>
       </div>
       
       {/* Dev Skip Button */}
@@ -150,7 +217,7 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
 
               {/* Example */}
               {currentWord.example && (
-                <p className="text-gray-600">
+                <p className="text-gray-600 mb-6">
                   → {currentWord.example.split(currentWord.word).map((part, i, arr) => (
                     <React.Fragment key={i}>
                       {part}
@@ -161,7 +228,7 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
               )}
 
               {/* Hint to flip back */}
-              <p className="text-sm text-gray-400 mt-6">Click to flip back</p>
+              <p className="text-sm text-gray-400 mt-2">Click to flip back</p>
             </div>
           </div>
         </div>
@@ -407,19 +474,31 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
             <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-[#FFC600] pb-2 inline-block">Lessons</h3>
 
             <ul className="space-y-6">
-              <li className={`flex items-center gap-3 ${activeTab === 'word-list' ? 'text-black font-bold' : 'text-gray-500 font-medium'}`}>
+              <li 
+                className={`flex items-center gap-3 cursor-pointer ${activeTab === 'word-list' ? 'text-black font-bold' : 'text-gray-500 font-medium'}`}
+                onClick={() => setActiveTab('word-list')}
+              >
                 {getCompletionIcon(isWordListComplete)}
                 Word List ({wordsLearned}/{totalWords})
               </li>
-              <li className={`flex items-center gap-3 ${activeTab === 'exercise' ? 'text-black font-bold' : isExerciseUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}>
+              <li 
+                className={`flex items-center gap-3 ${isExerciseUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'exercise' ? 'text-black font-bold' : isExerciseUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
+                onClick={() => isExerciseUnlocked && setActiveTab('exercise')}
+              >
                 {getCompletionIcon(isExerciseComplete)}
                 Exercise
               </li>
-              <li className={`flex items-center gap-3 ${activeTab === 'reading' ? 'text-black font-bold' : isReadingUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}>
+              <li 
+                className={`flex items-center gap-3 ${isReadingUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'reading' ? 'text-black font-bold' : isReadingUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
+                onClick={() => isReadingUnlocked && setActiveTab('reading')}
+              >
                 {getCompletionIcon(isReadingCompleteFlag)}
                 Reading Comprehension
               </li>
-              <li className={`flex items-center gap-3 ${activeTab === 'questions' ? 'text-black font-bold' : isQuestionsUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}>
+              <li 
+                className={`flex items-center gap-3 ${isQuestionsUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'questions' ? 'text-black font-bold' : isQuestionsUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
+                onClick={() => isQuestionsUnlocked && setActiveTab('questions')}
+              >
                 {getCompletionIcon(isQuestionsComplete)}
                 Answer the questions
               </li>
@@ -500,40 +579,21 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                 </button>
               )}
 
-              {exerciseResult && (
-                <div className="mt-8">
-                  {/* Score feedback */}
-                  <div className={`p-4 rounded-xl mb-4 ${isExerciseComplete ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
-                    <p className="font-bold text-lg">
-                      Score: {exerciseResult.correctCount}/{exerciseResult.totalQuestions}
-                    </p>
-                    {isExerciseComplete ? (
-                      <p>🎉 Excellent! All answers correct. You can now proceed to Reading.</p>
-                    ) : (
-                      <p>⚠️ You must get all answers correct to proceed. Please review and try again.</p>
-                    )}
-                  </div>
-                  
-                  {isExerciseComplete ? (
-                    <button
-                      className="bg-[#5B9557] text-white font-bold py-3 px-8 rounded-xl uppercase tracking-wide hover:opacity-90"
-                      onClick={() => setActiveTab('reading')}
-                    >
-                      Continue to Reading
-                    </button>
-                  ) : (
-                    <button
-                      className="bg-[#E74C3C] text-white font-bold py-3 px-8 rounded-xl uppercase tracking-wide hover:opacity-90"
-                      onClick={() => {
-                        setExerciseResult(null);
-                        setExerciseAnswers({});
-                      }}
-                    >
-                      Try Again
-                    </button>
-                  )}
-                </div>
-              )}
+              <ScoreModal
+                isOpen={!!exerciseResult && showExerciseModal}
+                score={exerciseResult?.correctCount || 0}
+                totalQuestions={exerciseResult?.totalQuestions || 0}
+                isPassed={isExerciseComplete}
+                onRetry={() => {
+                  setShowExerciseModal(false);
+                  setExerciseResult(null);
+                  setExerciseAnswers({});
+                }}
+                onContinue={() => {
+                  setShowExerciseModal(false);
+                  setActiveTab('reading');
+                }}
+              />
             </div>
           )}
 

@@ -197,12 +197,15 @@ export interface GrammarRule { // From Lesson Service
 export interface PronunciationSound {
   id: string;
   symbol: string;
+  name?: string; // e.g. "Long e"
   type: string;
   word: string;
   description?: string;
   imageUrl?: string;
+  videoUrl?: string; // For mouth animation
   audioUrl?: string;
   voiced?: boolean;
+  exampleWords?: string[]; // Practice words
 }
 
 export interface PronunciationData {

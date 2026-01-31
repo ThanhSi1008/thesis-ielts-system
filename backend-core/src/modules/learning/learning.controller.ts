@@ -185,25 +185,32 @@ export class LearningController {
       );
       this.logger.log(`✅ Audio uploaded: ${audioUrl}`);
 
-      // Fetch vocabulary record to get target word
-      const vocabulary = await this.learningService[
-        "prisma"
-      ].vocabulary.findUnique({
-        where: { id: body.vocabularyId },
-      });
+      let targetWord = body.targetWord;
 
-      if (!vocabulary) {
-        throw new BadRequestException(
-          `Vocabulary with ID ${body.vocabularyId} not found`,
-        );
+      // If vocabularyId is provided, verify it and get the word
+      if (body.vocabularyId) {
+        const vocabulary = await this.learningService["prisma"].vocabulary.findUnique({
+          where: { id: body.vocabularyId },
+        });
+
+        if (!vocabulary) {
+          throw new BadRequestException(
+            `Vocabulary with ID ${body.vocabularyId} not found`,
+          );
+        }
+        targetWord = vocabulary.word;
+      }
+
+      if (!targetWord) {
+        throw new BadRequestException("Either vocabularyId or targetWord must be provided");
       }
 
       // Create pronunciation attempt record
       const attempt = await this.learningService.createPronunciationAttempt({
         userId: body.userId,
-        vocabularyId: body.vocabularyId,
+        vocabularyId: body.vocabularyId, // Can be undefined
         audioUrl,
-        targetWord: vocabulary.word,
+        targetWord: targetWord,
       });
 
       // Publish message to RabbitMQ pronunciation-check-queue
@@ -217,7 +224,7 @@ export class LearningController {
       const message = {
         attemptId: attempt.id,
         audioUrl,
-        targetWord: vocabulary.word,
+        targetWord: targetWord,
         userId: body.userId,
         vocabularyId: body.vocabularyId,
       };

@@ -83,3 +83,34 @@ export const pronunciationApi = {
     return data;
   },
 };
+
+// ============================================================
+// LEARNING API (General)
+// ============================================================
+
+export const learningApi = {
+  checkPronunciation: async (file: File, userId: string, options: { vocabularyId?: string; targetWord?: string }) => {
+    const formData = new FormData();
+    formData.append('audio', file);
+    formData.append('userId', userId);
+    
+    if (options.vocabularyId) {
+      formData.append('vocabularyId', options.vocabularyId);
+    }
+    
+    if (options.targetWord) {
+      formData.append('targetWord', options.targetWord);
+    }
+    
+    const { data } = await api.post('/learning/pronunciation/check', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  },
+  getUserPronunciationAttempts: async (userId: string) => {
+    const { data } = await api.get(`/learning/pronunciation/attempts/${userId}`);
+    return data;
+  },
+};
