@@ -3,6 +3,8 @@ import type {
   VocabularyBook, 
   VocabularyBookWithUnits, 
   VocabularyUnitWithContent,
+  VocabularyBookProgress,
+  SubmitExerciseResponse,
   GrammarBook,
   GrammarBookWithUnits,
   GrammarUnitWithContent,
@@ -25,6 +27,24 @@ export const vocabularyApi = {
   },
   getUnit: async (id: string) => {
     const { data } = await api.get<VocabularyUnitWithContent>(`/vocabulary/units/${id}`);
+    return data;
+  },
+  
+  // Progress tracking
+  getProgress: async (bookId: string) => {
+    const { data } = await api.get<VocabularyBookProgress>(`/vocabulary/progress/${bookId}`);
+    return data;
+  },
+  updateWordProgress: async (unitId: string, wordsLearned: number) => {
+    const { data } = await api.post('/vocabulary/progress/words', { unitId, wordsLearned });
+    return data;
+  },
+  submitExercise: async (unitId: string, answers: { exerciseId: string; answer: string }[]) => {
+    const { data } = await api.post<SubmitExerciseResponse>('/vocabulary/progress/exercise', { unitId, answers });
+    return data;
+  },
+  submitQuestions: async (unitId: string, answers: { questionId: string; answer: string }[]) => {
+    const { data } = await api.post<SubmitExerciseResponse>('/vocabulary/progress/questions', { unitId, answers });
     return data;
   },
 };
