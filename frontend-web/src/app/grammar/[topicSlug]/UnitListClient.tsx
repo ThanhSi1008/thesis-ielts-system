@@ -44,7 +44,7 @@ export default function UnitListClient({ units, topicSlug, bookColor, bookLevel 
                     >
                         <div className={`
               flex items-center justify-between p-4 rounded-xl transition-all duration-200
-              ${isCompleted ? 'bg-[#4CAF50] text-white hover:bg-[#43a047]' : 'bg-gray-100 text-black hover:bg-gray-200'}
+              ${isCompleted ? 'bg-success text-white hover:bg-success/90' : 'bg-gray-100 text-black hover:bg-gray-200'}
             `}>
                             <div className="flex items-center gap-4">
                                 <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-xs text-white font-bold uppercase shrink-0`} style={{ backgroundColor: isCompleted ? 'rgba(255,255,255,0.2)' : bookColor }}>

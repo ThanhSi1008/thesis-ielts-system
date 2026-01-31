@@ -136,7 +136,7 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
           <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-2xl w-full animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
             <h3 className="text-2xl font-bold mb-4 text-center">Exercise Results</h3>
             <div className="text-center mb-8">
-              <div className={`text-6xl font-bold mb-2 ${result.correct === result.total ? 'text-green-500' : 'text-[#FFC600]'}`}>
+              <div className={`text-6xl font-bold mb-2 ${result.correct === result.total ? 'text-success' : 'text-primary'}`}>
                 {result.correct}/{result.total}
               </div>
               <p className="text-gray-600">
@@ -171,7 +171,7 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
 
             <button
               onClick={() => setShowResult(false)}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="w-full bg-primary text-black font-bold py-3 rounded-lg hover:bg-primary transition-colors"
             >
               {result.correct === result.total ? "Awesome!" : "Try Again"}
             </button>
@@ -186,14 +186,14 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
         {/* Sidebar */}
         <div className="w-full lg:w-48 flex-shrink-0">
           <div className="sticky top-8">
-            <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-[#FFC600] pb-2 inline-block">Lessons</h3>
+            <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-primary pb-2 inline-block">Lessons</h3>
 
             <ul className="space-y-4">
               <li
                 className={`flex items-center gap-3 cursor-pointer group transition-all ${activeTab === 'theory' ? 'font-bold text-black' : 'text-gray-500 hover:text-black'}`}
                 onClick={() => setActiveTab('theory')}
               >
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${lessonProgress.theoryCompleted ? 'bg-green-500 border-green-500 text-white' : activeTab === 'theory' ? 'bg-[#FFC600] border-[#FFC600] text-white' : 'border-gray-200 group-hover:border-gray-400'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${lessonProgress.theoryCompleted ? 'bg-primary text-white' : activeTab === 'theory' ? 'bg-secondary border-primary text-white' : 'border-gray-200 group-hover:border-gray-400'}`}>
                   {lessonProgress.theoryCompleted ? '✓' : ''}
                 </div>
                 Theory
@@ -204,7 +204,7 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
                   if (lessonProgress.theoryCompleted) setActiveTab('exercise');
                 }}
               >
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${lessonProgress.exerciseCompleted ? 'bg-green-500 border-green-500 text-white' : activeTab === 'exercise' ? 'bg-[#FFC600] border-[#FFC600] text-white' : 'border-gray-200 group-hover:border-gray-400'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${lessonProgress.exerciseCompleted ? 'bg-primary text-white' : activeTab === 'exercise' ? 'bg-secondary border-primary text-white' : 'border-gray-200 group-hover:border-gray-400'}`}>
                   {lessonProgress.exerciseCompleted ? '✓' : ''}
                 </div>
                 Exercise
@@ -331,7 +331,7 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
                 </button>
                 <button
                   onClick={checkAnswers}
-                  className="bg-[#FFC600] hover:bg-[#ffd633] active:scale-95 text-black font-bold py-4 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all"
+                  className="bg-primary hover:bg-primary/90 active:scale-95 text-black font-bold py-4 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   Submit Answers
                 </button>
