@@ -1,6 +1,21 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { ExamsService } from './exams.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  CreateExamDto,
+  UpdateExamDto,
+  CreateSessionDto,
+  SubmitSessionDto,
+} from './dto/exams.dto';
 
 @Controller('exams')
 @UseGuards(JwtAuthGuard)
@@ -8,7 +23,7 @@ export class ExamsController {
   constructor(private readonly examsService: ExamsService) {}
 
   @Post()
-  create(@Body() createExamDto: any) {
+  create(@Body() createExamDto: CreateExamDto) {
     return this.examsService.create(createExamDto);
   }
 
@@ -23,7 +38,7 @@ export class ExamsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateExamDto: any) {
+  update(@Param('id') id: string, @Body() updateExamDto: UpdateExamDto) {
     return this.examsService.update(id, updateExamDto);
   }
 
@@ -33,13 +48,18 @@ export class ExamsController {
   }
 
   @Post(':id/sessions')
-  createSession(@Param('id') examId: string, @Body() createSessionDto: any) {
+  createSession(
+    @Param('id') examId: string,
+    @Body() createSessionDto: CreateSessionDto,
+  ) {
     return this.examsService.createSession(examId, createSessionDto);
   }
 
   @Post('sessions/:sessionId/submit')
-  submitSession(@Param('sessionId') sessionId: string, @Body() submitDto: any) {
+  submitSession(
+    @Param('sessionId') sessionId: string,
+    @Body() submitDto: SubmitSessionDto,
+  ) {
     return this.examsService.submitSession(sessionId, submitDto);
   }
 }
-

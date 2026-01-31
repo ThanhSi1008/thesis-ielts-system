@@ -1,6 +1,8 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { RegisterDto } from './dto/auth.dto';
+import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -10,7 +12,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<Omit<User, 'password'> | null> {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
@@ -19,7 +21,7 @@ export class AuthService {
     return null;
   }
 
-  async register(registerDto: any) {
+  async register(registerDto: RegisterDto): Promise<Omit<User, 'password'>> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     try {
       const user = await this.prisma.user.create({
@@ -28,7 +30,7 @@ export class AuthService {
           password: hashedPassword,
           firstName: registerDto.firstName,
           lastName: registerDto.lastName,
-          role: registerDto.role || 'STUDENT',
+          role: (registerDto.role as any) || 'STUDENT',
         },
       });
 

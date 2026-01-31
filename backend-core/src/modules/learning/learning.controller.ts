@@ -18,6 +18,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { CreateVocabularyDto } from "./dto/create-vocabulary.dto";
 import { CreateGrammarDto } from "./dto/create-grammar.dto";
+import { UpdateProgressDto } from "./dto/update-progress.dto";
 import { CheckPronunciationDto } from "./dto/check-pronunciation.dto";
 import { StorageService } from "../../common/storage/storage.service";
 import { AiClientService } from "../ai-client/ai-client.service";
@@ -55,7 +56,7 @@ export class LearningController {
   }
 
   @Post("progress")
-  updateProgress(@Body() updateProgressDto: any) {
+  updateProgress(@Body() updateProgressDto: UpdateProgressDto) {
     return this.learningService.updateProgress(updateProgressDto);
   }
 
