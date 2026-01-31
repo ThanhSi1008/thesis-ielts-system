@@ -227,7 +227,7 @@ model Grammar {
 model PronunciationAttempt {
   id              String                   @id @default(uuid())
   userId          String
-  vocabularyId    String
+  vocabularyId    String?
   audioUrl        String // User's recording URL
   transcribedText String? // AI-transcribed text
   targetWord      String // Expected word
@@ -239,7 +239,7 @@ model PronunciationAttempt {
 
   // Relations
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vocabulary Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  vocabulary Vocabulary? @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
 
   @@map("pronunciation_attempts")
 }
