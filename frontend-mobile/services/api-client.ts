@@ -6,7 +6,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, STORAGE_KEYS } from '../constants';
 
-class ApiClient {
+export class ApiClient {
   private baseUrl: string;
 
   constructor(baseUrl: string = API_BASE_URL) {

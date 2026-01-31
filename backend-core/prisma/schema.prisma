@@ -27,6 +27,7 @@ model User {
   results               Result[]
   progress              LearningProgress[]
   pronunciationAttempts PronunciationAttempt[]
+  vocabularyProgress    VocabularyProgress[]
 
   @@map("users")
 }
@@ -286,6 +287,7 @@ model VocabularyUnit {
   words VocabularyWord[]
   exercises VocabularyExercise[]
   questions VocabularyQuestion[]
+  progress  VocabularyProgress[]
 
   @@map("vocabulary_units")
 }
@@ -337,6 +339,28 @@ model VocabularyQuestion {
   unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@map("vocabulary_questions")
+}
+
+// Vocabulary Progress - tracks user learning progress per unit
+model VocabularyProgress {
+  id            String    @id @default(uuid())
+  userId        String
+  unitId        String
+  wordsLearned  Int       @default(0)
+  totalWords    Int       @default(20)
+  exerciseScore Int?      // Score out of 100
+  questionScore Int?      // Score out of 100
+  isCompleted   Boolean   @default(false)
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, unitId])
+  @@map("vocabulary_progress")
 }
 
 // Grammar Book (Cambridge Grammar in Use series)

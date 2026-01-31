@@ -3,6 +3,8 @@ import { PrismaService } from "../../common/prisma/prisma.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { CreateVocabularyDto } from "./dto/create-vocabulary.dto";
 import { CreateGrammarDto } from "./dto/create-grammar.dto";
+import { UpdateProgressDto } from "./dto/update-progress.dto";
+import { Vocabulary } from "@prisma/client";
 
 /**
  * Learning Service
@@ -37,7 +39,7 @@ export class LearningService {
     });
   }
 
-  async updateProgress(updateProgressDto: any) {
+  async updateProgress(updateProgressDto: UpdateProgressDto) {
     const { userId, materialId, progress, completed } = updateProgressDto;
 
     return this.prisma.learningProgress.upsert({
@@ -159,6 +161,17 @@ export class LearningService {
   }
 
   // ==================== VOCABULARY METHODS ====================
+
+  /**
+   * Get vocabulary by ID
+   * @param id - Vocabulary ID
+   * @returns Vocabulary or null
+   */
+  async getVocabularyById(id: string): Promise<Vocabulary | null> {
+    return this.prisma.vocabulary.findUnique({
+      where: { id },
+    });
+  }
 
   /**
    * Create a vocabulary item

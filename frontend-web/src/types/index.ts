@@ -84,11 +84,72 @@ export interface VocabularyBookWithUnits extends VocabularyBook {
 export interface VocabularyUnitWithContent extends VocabularyUnit {
   book: { id: string; name: string };
   words: VocabularyWord[];
-  exercises: any[];
-  questions: any[];
+  exercises: VocabularyExercise[];
+  questions: VocabularyQuestion[];
   storyTitle?: string;
   storyContent?: string;
   storyImageUrl?: string;
+}
+
+export interface VocabularyExercise {
+  id: string;
+  question: string;
+  answer: string;
+  options: string[];
+  order: number;
+}
+
+export interface VocabularyQuestion {
+  id: string;
+  question: string;
+  type: 'multiple_choice' | 'fill_blank';
+  options?: string[];
+  answer: string;
+  order: number;
+}
+
+export interface VocabularyUnitProgress {
+  id: string;
+  title: string;
+  order: number;
+  totalWords: number;
+  wordsLearned: number;
+  exerciseScore?: number;
+  questionScore?: number;
+  isCompleted: boolean;
+}
+
+export interface VocabularyBookProgress {
+  book: { id: string; name: string };
+  units: VocabularyUnitProgress[];
+}
+
+export interface ExerciseResult {
+  exerciseId: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+export interface QuestionResult {
+  questionId: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+export interface SubmitExerciseResponse {
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  results: ExerciseResult[];
+}
+
+export interface SubmitQuestionsResponse {
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  results: QuestionResult[];
 }
 
 // ==================== GRAMMAR ====================

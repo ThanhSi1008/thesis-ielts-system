@@ -8,6 +8,7 @@ import {
   Body,
   NotFoundException,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { VocabularyService } from './vocabulary.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -21,6 +22,11 @@ import {
   CreateVocabularyWordDto,
   UpdateVocabularyWordDto,
 } from './dto/vocabulary.dto';
+import {
+  UpdateWordProgressDto,
+  SubmitExerciseDto,
+  SubmitQuestionsDto,
+} from './dto/progress.dto';
 
 @Controller('vocabulary')
 export class VocabularyController {
@@ -45,6 +51,34 @@ export class VocabularyController {
     const unit = await this.vocabularyService.getUnitWithContent(id);
     if (!unit) throw new NotFoundException('Vocabulary unit not found');
     return unit;
+  }
+
+  // ==================== USER PROGRESS ENDPOINTS ====================
+
+  @Get('progress/:bookId')
+  @UseGuards(JwtAuthGuard)
+  async getUserProgress(@Param('bookId') bookId: string, @Request() req: any) {
+    const progress = await this.vocabularyService.getUserProgress(req.user.id, bookId);
+    if (!progress) throw new NotFoundException('Book not found');
+    return progress;
+  }
+
+  @Post('progress/words')
+  @UseGuards(JwtAuthGuard)
+  async updateWordProgress(@Body() dto: UpdateWordProgressDto, @Request() req: any) {
+    return this.vocabularyService.updateWordProgress(req.user.id, dto.unitId, dto.wordsLearned);
+  }
+
+  @Post('progress/exercise')
+  @UseGuards(JwtAuthGuard)
+  async submitExercise(@Body() dto: SubmitExerciseDto, @Request() req: any) {
+    return this.vocabularyService.submitExercise(req.user.id, dto.unitId, dto.answers);
+  }
+
+  @Post('progress/questions')
+  @UseGuards(JwtAuthGuard)
+  async submitQuestions(@Body() dto: SubmitQuestionsDto, @Request() req: any) {
+    return this.vocabularyService.submitQuestions(req.user.id, dto.unitId, dto.answers);
   }
 
   // ==================== ADMIN BOOK ENDPOINTS ====================
@@ -116,3 +150,4 @@ export class VocabularyController {
     return this.vocabularyService.deleteWord(id);
   }
 }
+

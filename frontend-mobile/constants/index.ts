@@ -3,7 +3,7 @@
  */
 
 // API Configuration
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.24:3000/api/v1';
 
 // Storage Keys
 export const STORAGE_KEYS = {
@@ -14,9 +14,15 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'language',
 } as const;
 
-// Colors - Design System
+// Colors - Design System (Synced with Web)
 export const COLORS = {
-  // Primary
+  // Brand Colors (Levels)
+  level1: '#FFC600', // Vocabulary (Yellow)
+  level2: '#5B9557', // Grammar (Green)
+  level3: '#E74C3C', // Advanced (Red)
+  level4: '#3B82F6', // Mastery (Blue)
+
+  // Primary (Default Blue for generic UI)
   primary: '#3B82F6',
   primaryDark: '#2563EB',
   primaryLight: '#60A5FA',
@@ -26,24 +32,19 @@ export const COLORS = {
   secondaryDark: '#059669',
   secondaryLight: '#34D399',
   
-  // Accent
-  accent: '#F59E0B',
-  accentDark: '#D97706',
-  accentLight: '#FBBF24',
-  
   // Neutral
-  background: '#F3F4F6',
-  surface: '#FFFFFF',
-  text: '#1F2937',
-  textSecondary: '#6B7280',
-  textMuted: '#9CA3AF',
-  border: '#E5E7EB',
+  background: '#FFFFFF',
+  surface: '#F8F9FA',
+  text: '#212529',
+  textSecondary: '#6C757D',
+  textMuted: '#ADB5BD',
+  border: '#DEE2E6',
   
   // Status
-  success: '#10B981',
-  warning: '#F59E0B',
+  success: '#4CAF50',
+  warning: '#FFC107',
   error: '#EF4444',
-  info: '#3B82F6',
+  info: '#0DCAF0',
 } as const;
 
 // Font Sizes

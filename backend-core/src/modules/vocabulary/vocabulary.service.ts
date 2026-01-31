@@ -154,4 +154,192 @@ export class VocabularyService {
   async invalidateCache(pattern?: string) {
     await this.redis.delByPattern(pattern || `${CACHE_PREFIX}:*`);
   }
+
+  // ==================== PROGRESS TRACKING ====================
+
+  /**
+   * Get user progress for all units in a book
+   */
+  async getUserProgress(userId: string, bookId: string) {
+    const book = await this.prisma.vocabularyBook.findUnique({
+      where: { id: bookId },
+      include: {
+        units: {
+          orderBy: { order: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            _count: { select: { words: true } },
+          },
+        },
+      },
+    });
+
+    if (!book) return null;
+
+    const progress = await this.prisma.vocabularyProgress.findMany({
+      where: {
+        userId,
+        unitId: { in: book.units.map((u) => u.id) },
+      },
+    });
+
+    const progressMap = new Map(progress.map((p) => [p.unitId, p]));
+
+    return {
+      book: {
+        id: book.id,
+        name: book.name,
+      },
+      units: book.units.map((unit) => {
+        const unitProgress = progressMap.get(unit.id);
+        return {
+          id: unit.id,
+          title: unit.title,
+          order: unit.order,
+          totalWords: unit._count.words,
+          wordsLearned: unitProgress?.wordsLearned || 0,
+          exerciseScore: unitProgress?.exerciseScore,
+          questionScore: unitProgress?.questionScore,
+          isCompleted: unitProgress?.isCompleted || false,
+        };
+      }),
+    };
+  }
+
+  /**
+   * Update word learning progress
+   */
+  async updateWordProgress(userId: string, unitId: string, wordsLearned: number) {
+    const unit = await this.prisma.vocabularyUnit.findUnique({
+      where: { id: unitId },
+      include: { _count: { select: { words: true } } },
+    });
+
+    if (!unit) return null;
+
+    return this.prisma.vocabularyProgress.upsert({
+      where: {
+        userId_unitId: { userId, unitId },
+      },
+      create: {
+        userId,
+        unitId,
+        wordsLearned,
+        totalWords: unit._count.words,
+      },
+      update: {
+        wordsLearned,
+      },
+    });
+  }
+
+  /**
+   * Submit and grade exercise answers
+   */
+  async submitExercise(
+    userId: string,
+    unitId: string,
+    answers: { exerciseId: string; answer: string }[],
+  ) {
+    // Get exercises for this unit
+    const exercises = await this.prisma.vocabularyExercise.findMany({
+      where: { unitId },
+    });
+
+    // Grade answers
+    let correctCount = 0;
+    const results = answers.map((a) => {
+      const exercise = exercises.find((e) => e.id === a.exerciseId);
+      const isCorrect = exercise?.answer.toLowerCase() === a.answer.toLowerCase();
+      if (isCorrect) correctCount++;
+      return {
+        exerciseId: a.exerciseId,
+        userAnswer: a.answer,
+        correctAnswer: exercise?.answer,
+        isCorrect,
+      };
+    });
+
+    const score = Math.round((correctCount / exercises.length) * 100);
+
+    // Update progress
+    await this.prisma.vocabularyProgress.upsert({
+      where: {
+        userId_unitId: { userId, unitId },
+      },
+      create: {
+        userId,
+        unitId,
+        exerciseScore: score,
+      },
+      update: {
+        exerciseScore: score,
+      },
+    });
+
+    return {
+      score,
+      correctCount,
+      totalQuestions: exercises.length,
+      results,
+    };
+  }
+
+  /**
+   * Submit and grade comprehension question answers
+   */
+  async submitQuestions(
+    userId: string,
+    unitId: string,
+    answers: { questionId: string; answer: string }[],
+  ) {
+    // Get questions for this unit
+    const questions = await this.prisma.vocabularyQuestion.findMany({
+      where: { unitId },
+    });
+
+    // Grade answers
+    let correctCount = 0;
+    const results = answers.map((a) => {
+      const question = questions.find((q) => q.id === a.questionId);
+      const isCorrect = question?.answer.toLowerCase() === a.answer.toLowerCase();
+      if (isCorrect) correctCount++;
+      return {
+        questionId: a.questionId,
+        userAnswer: a.answer,
+        correctAnswer: question?.answer,
+        isCorrect,
+      };
+    });
+
+    const score = Math.round((correctCount / questions.length) * 100);
+
+    // Update progress and mark as completed
+    await this.prisma.vocabularyProgress.upsert({
+      where: {
+        userId_unitId: { userId, unitId },
+      },
+      create: {
+        userId,
+        unitId,
+        questionScore: score,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+      update: {
+        questionScore: score,
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+
+    return {
+      score,
+      correctCount,
+      totalQuestions: questions.length,
+      results,
+    };
+  }
 }
