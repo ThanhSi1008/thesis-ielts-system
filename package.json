@@ -1,0 +1,37 @@
+{
+  "name": "toeic-master-ai",
+  "version": "1.0.0",
+  "description": "TOEIC learning and examination system with event-driven hybrid architecture",
+  "private": true,
+  "workspaces": [
+    "backend-core",
+    "frontend-web",
+    "frontend-mobile"
+  ],
+  "scripts": {
+    "infra:up": "docker-compose up -d",
+    "infra:down": "docker-compose down",
+    "infra:logs": "docker-compose logs -f",
+    "infra:clean": "docker-compose down -v",
+    "backend:dev": "cd backend-core && npm run start:dev",
+    "ai:dev": "cd backend-ai && python -m uvicorn app.main:app --reload",
+    "web:dev": "cd frontend-web && npm run dev",
+    "mobile:dev": "cd frontend-mobile && npm start",
+    "dev:all": "concurrently \"npm run backend:dev\" \"npm run ai:dev\" \"npm run web:dev\"",
+    "prisma:migrate": "cd backend-core && npx prisma migrate dev",
+    "prisma:studio": "cd backend-core && npx prisma studio"
+  },
+  "keywords": [
+    "toeic",
+    "education",
+    "ai",
+    "microservices",
+    "event-driven"
+  ],
+  "author": "TOEIC Master AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+

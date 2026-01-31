@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-ai-config
+  namespace: toeic-system
+data:
+  # Application configuration
+  APP_NAME: "TOEIC Master AI - AI Service"
+  APP_VERSION: "1.0.0"
+  LOG_LEVEL: "INFO"
+  # RabbitMQ configuration
+  RABBITMQ_HOST: "rabbitmq-service"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_QUEUE_GRADING: "exam-grading-queue"
+  # Database configuration
+  DATABASE_HOST: "cloud-sql-proxy-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "toeic_db"
+  # Storage configuration
+  STORAGE_PROVIDER: "gcs"
+  GCS_BUCKET_NAME: "toeic-audio-files"
+  # AI Model configuration
+  WHISPER_MODEL: "base"
+  WHISPER_DEVICE: "cpu"
+  WHISPER_COMPUTE_TYPE: "int8"
+  LLM_MODEL_NAME: "google/flan-t5-base"
+  LLM_DEVICE: "cpu"
+  # Worker configuration
+  MAX_WORKERS: "2"
+  CONSUMER_PREFETCH_COUNT: "1"
+

@@ -1,0 +1,111 @@
+# Traefik Dynamic Configuration
+# This file defines dynamic routing rules and middleware
+
+http:
+  # Routers
+  routers:
+    # Backend Core API Router
+    backend-core-router:
+      rule: "Host(`api.toeic-master-ai.example.com`) && PathPrefix(`/api/v1`)"
+      service: backend-core-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - cors-headers
+        - rate-limit
+        - security-headers
+      tls:
+        certResolver: letsencrypt
+    
+    # Backend AI Router
+    backend-ai-router:
+      rule: "Host(`api.toeic-master-ai.example.com`) && PathPrefix(`/ai`)"
+      service: backend-ai-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - cors-headers
+        - security-headers
+      tls:
+        certResolver: letsencrypt
+    
+    # Frontend Web Router
+    frontend-web-router:
+      rule: "Host(`toeic-master-ai.example.com`)"
+      service: frontend-web-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - security-headers
+      tls:
+        certResolver: letsencrypt
+
+  # Services
+  services:
+    backend-core-service:
+      loadBalancer:
+        servers:
+          - url: "http://backend-core-service.toeic-system.svc.cluster.local:3000"
+        healthCheck:
+          path: /api/v1/health
+          interval: 30s
+          timeout: 5s
+    
+    backend-ai-service:
+      loadBalancer:
+        servers:
+          - url: "http://backend-ai-service.toeic-system.svc.cluster.local:8000"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 10s
+    
+    frontend-web-service:
+      loadBalancer:
+        servers:
+          - url: "http://frontend-web-service.toeic-system.svc.cluster.local:3001"
+
+  # Middleware
+  middlewares:
+    # CORS Headers
+    cors-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        accessControlAllowHeaders:
+          - "*"
+        accessControlAllowOriginList:
+          - "https://toeic-master-ai.example.com"
+          - "http://localhost:3001"
+        accessControlMaxAge: 100
+        addVaryHeader: true
+    
+    # Security Headers
+    security-headers:
+      headers:
+        frameDeny: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        customResponseHeaders:
+          X-Powered-By: ""
+          Server: ""
+    
+    # Rate Limiting
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s
+    
+    # Compression
+    compression:
+      compress: {}
+

@@ -1,0 +1,44 @@
+/* 1. Import Farro from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Farro:wght@300;400;500;700&display=swap');
+
+/* 2. Import Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Bootstrap-inspired Color Palette */
+    --color-primary: #FFC600;
+    --color-secondary: #EDEDED;
+    --color-success: #4CAF50;
+    --color-danger: #F44336;
+    --color-info: #0dcaf0;
+    --color-warning: #ffc107;
+    --color-light: #f8f9fa;
+    --color-dark: #212529;
+    
+    /* Background and foreground */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    
+    /* Radius */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  body {
+    @apply bg-white text-gray-900;
+    font-family: 'Farro', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+

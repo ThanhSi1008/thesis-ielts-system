@@ -1,0 +1,109 @@
+# Standalone Grafana Helm Chart Values (if not using Prometheus stack)
+# Install with: helm install grafana grafana/grafana -f grafana-values.yaml -n toeic-system
+
+# Admin credentials
+adminUser: admin
+adminPassword: "CHANGE_ME_IN_PRODUCTION"
+
+# Persistence
+persistence:
+  enabled: true
+  type: pvc
+  size: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+# Resources
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "200m"
+
+# Ingress
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hosts:
+    - grafana.toeic-master-ai.example.com
+  tls:
+    - secretName: grafana-tls
+      hosts:
+        - grafana.toeic-master-ai.example.com
+
+# Datasources
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      # Prometheus datasource
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-kube-prometheus-prometheus.toeic-system.svc.cluster.local:9090
+        access: proxy
+        isDefault: true
+        editable: true
+      
+      # Loki datasource
+      - name: Loki
+        type: loki
+        url: http://loki.toeic-system.svc.cluster.local:3100
+        access: proxy
+        editable: true
+
+# Dashboard providers
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+# Pre-configured dashboards
+dashboards:
+  default:
+    # Kubernetes cluster monitoring
+    kubernetes-cluster:
+      gnetId: 7249
+      revision: 1
+      datasource: Prometheus
+    
+    # Node exporter
+    node-exporter:
+      gnetId: 1860
+      revision: 27
+      datasource: Prometheus
+    
+    # Traefik dashboard
+    traefik:
+      gnetId: 11462
+      revision: 1
+      datasource: Prometheus
+    
+    # RabbitMQ dashboard
+    rabbitmq:
+      gnetId: 10991
+      revision: 11
+      datasource: Prometheus
+
+# Plugins
+plugins:
+  - grafana-piechart-panel
+  - grafana-clock-panel
+
+# SMTP configuration (for alerting)
+smtp:
+  enabled: false
+  # host: smtp.gmail.com:587
+  # user: your-email@gmail.com
+  # password: your-password
+  # from_address: grafana@toeic-master-ai.example.com
+

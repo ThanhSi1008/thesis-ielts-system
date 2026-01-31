@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "TOEIC Master AI",
+    "slug": "toeic-master-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#3B82F6",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.toeicmasterai.app"
+    },
+    "android": {
+      "package": "com.toeicmasterai.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "toeic-master-ai"
+  }
+}

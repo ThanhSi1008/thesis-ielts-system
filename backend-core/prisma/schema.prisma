@@ -1,0 +1,408 @@
+// Prisma Schema for TOEIC Master AI
+// Database: PostgreSQL with pgvector extension
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with role-based access control
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  role      UserRole @default(STUDENT)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  examSessions          ExamSession[]
+  results               Result[]
+  progress              LearningProgress[]
+  pronunciationAttempts PronunciationAttempt[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  INSTRUCTOR
+}
+
+// Exam model - stores exam definitions
+model Exam {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  duration    Int // Duration in minutes
+  type        ExamType
+  difficulty  Difficulty
+  isPublished Boolean    @default(false)
+  questions   Json // Stores questions in JSON format
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  sessions ExamSession[]
+
+  @@map("exams")
+}
+
+enum ExamType {
+  FULL_TEST
+  READING
+  LISTENING
+  SPEAKING
+  WRITING
+  PRACTICE
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// ExamSession model - tracks individual exam attempts
+model ExamSession {
+  id          String        @id @default(uuid())
+  userId      String
+  examId      String
+  status      SessionStatus @default(IN_PROGRESS)
+  answers     Json // Stores user answers
+  startedAt   DateTime      @default(now())
+  submittedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam   Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  result Result?
+
+  @@map("exam_sessions")
+}
+
+enum SessionStatus {
+  IN_PROGRESS
+  SUBMITTED
+  GRADING
+  COMPLETED
+  ABANDONED
+}
+
+// Result model - stores exam scores and feedback
+model Result {
+  id              String   @id @default(uuid())
+  userId          String
+  sessionId       String   @unique
+  totalScore      Int
+  readingScore    Int?
+  listeningScore  Int?
+  speakingScore   Int?
+  writingScore    Int?
+  feedback        Json? // AI-generated feedback
+  gradedAt        DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("results")
+}
+
+// LearningMaterial model - stores learning content
+model LearningMaterial {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  content     Json // Stores content in structured format
+  type        MaterialType
+  difficulty  Difficulty
+  tags        String[]
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  progress LearningProgress[]
+
+  @@map("learning_materials")
+}
+
+enum MaterialType {
+  LESSON
+  VOCABULARY
+  GRAMMAR
+  PRACTICE
+  VIDEO
+  AUDIO
+}
+
+// LearningProgress model - tracks user progress
+model LearningProgress {
+  id         String   @id @default(uuid())
+  userId     String
+  materialId String
+  progress   Int      @default(0) // Progress percentage (0-100)
+  completed  Boolean  @default(false)
+  lastAccess DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  material LearningMaterial @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, materialId])
+  @@map("learning_progress")
+}
+
+// Lesson model - represents a learning lesson/unit
+model Lesson {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  difficulty  Difficulty
+  order       Int // For sequencing lessons
+  isPublished Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  vocabularies Vocabulary[]
+  grammars     Grammar[]
+
+  @@map("lessons")
+}
+
+// Vocabulary model - individual vocabulary items within a lesson
+model Vocabulary {
+  id           String   @id @default(uuid())
+  lessonId     String
+  word         String
+  meaning      String
+  ipa          String? // IPA phonetic transcription (e.g., "/həˈloʊ/")
+  audioUrl     String? // URL to pronunciation audio file in MinIO/GCS
+  example      String?
+  partOfSpeech String? // e.g., "noun", "verb", "adjective"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  lesson                Lesson                  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  pronunciationAttempts PronunciationAttempt[]
+
+  @@map("vocabularies")
+}
+
+// Grammar model - grammar rules/explanations within a lesson
+model Grammar {
+  id        String   @id @default(uuid())
+  lessonId  String
+  title     String // Grammar topic title (e.g., "Present Perfect Tense")
+  rule      String   @db.Text // Explanation of the grammar rule
+  example   String // Example sentences demonstrating the rule
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("grammars")
+}
+
+// PronunciationAttempt model - tracks user pronunciation practice attempts
+model PronunciationAttempt {
+  id              String                   @id @default(uuid())
+  userId          String
+  vocabularyId    String
+  audioUrl        String // User's recording URL
+  transcribedText String? // AI-transcribed text
+  targetWord      String // Expected word
+  score           Int? // 0-100
+  feedback        Json? // Detailed feedback
+  status          PronunciationStatus      @default(PENDING)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vocabulary Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+
+  @@map("pronunciation_attempts")
+}
+
+enum PronunciationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// ============================================================
+// LEARNING CONTENT MODELS (Vocabulary, Grammar, Pronunciation)
+// ============================================================
+
+// Vocabulary Book (e.g., "4000 Essential English Words Book 1")
+model VocabularyBook {
+  id        String   @id @default(uuid())
+  name      String
+  imageUrl  String
+  wordCount Int
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  units VocabularyUnit[]
+
+  @@map("vocabulary_books")
+}
+
+// Vocabulary Unit (e.g., "Unit 1: The Lion and the Rabbit")
+model VocabularyUnit {
+  id        String   @id @default(uuid())
+  bookId    String
+  title     String
+  order     Int
+  // Story content for reading comprehension
+  storyTitle   String?
+  storyContent String?  @db.Text
+  storyImageUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  book  VocabularyBook  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  words VocabularyWord[]
+  exercises VocabularyExercise[]
+  questions VocabularyQuestion[]
+
+  @@map("vocabulary_units")
+}
+
+// Vocabulary Word within a unit
+model VocabularyWord {
+  id           String   @id @default(uuid())
+  unitId       String
+  word         String
+  meaning      String
+  ipa          String?
+  partOfSpeech String?
+  example      String?
+  imageUrl     String?
+  audioUrl     String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@map("vocabulary_words")
+}
+
+// Vocabulary Exercise (definition matching quiz)
+model VocabularyExercise {
+  id       String @id @default(uuid())
+  unitId   String
+  question String // The definition
+  answer   String // The correct word
+  options  Json   // Array of word options
+  order    Int    @default(0)
+
+  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@map("vocabulary_exercises")
+}
+
+// Vocabulary Question (story comprehension)
+model VocabularyQuestion {
+  id       String @id @default(uuid())
+  unitId   String
+  question String
+  type     String // "multiple_choice" or "fill_blank"
+  options  Json?  // For multiple choice
+  answer   String
+  order    Int    @default(0)
+
+  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@map("vocabulary_questions")
+}
+
+// Grammar Book (Cambridge Grammar in Use series)
+model GrammarBook {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  author    String
+  level     String   // "Elementary", "Intermediate", "Advanced"
+  imageUrl  String
+  color     String   // Hex color for UI
+  unitCount Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  units GrammarUnit[]
+
+  @@map("grammar_books")
+}
+
+// Grammar Unit (e.g., "Unit 1: Present Continuous")
+model GrammarUnit {
+  id            String   @id @default(uuid())
+  bookId        String
+  title         String
+  order         Int
+  theoryContent String?  @db.Text // HTML or Markdown content
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  book      GrammarBook       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  exercises GrammarExercise[]
+
+  @@map("grammar_units")
+}
+
+// Grammar Exercise
+model GrammarExercise {
+  id       String @id @default(uuid())
+  unitId   String
+  section  String // "1.1", "1.2", etc.
+  question String @db.Text
+  type     String // "fill_blank", "match", "multiple_choice", "rewrite"
+  options  Json?
+  answer   String @db.Text
+  order    Int    @default(0)
+
+  unit GrammarUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@map("grammar_exercises")
+}
+
+// Pronunciation Sound (IPA symbols)
+model PronunciationSound {
+  id          String   @id @default(uuid())
+  symbol      String   @unique
+  type        String   // "monophthong", "diphthong", "consonant"
+  word        String   // Example word
+  description String?  @db.Text
+  imageUrl    String?  // Mouth position diagram
+  audioUrl    String?
+  voiced      Boolean? // For consonants
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("pronunciation_sounds")
+}
+
