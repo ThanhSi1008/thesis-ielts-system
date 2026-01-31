@@ -1,28 +1,22 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-// import { vocabularyBooks } from "../../data";
+import { grammarBooks } from "../../data";
 import GrammarLessonClient from "./GrammarLessonClient";
 
-// Mock data for topics since we are restructuring
-const grammarTopics = [
-  { id: "essential-grammar-in-use", title: "Essential Grammar in Use" },
-  { id: "english-grammar-in-use", title: "English Grammar in Use" },
-  { id: "advanced-grammar-in-use", title: "Advanced Grammar in Use" },
-];
-
-export default async function UnitPage({ 
-  params 
-}: { 
-  params: { topicSlug: string; lessonSlug: string } 
+export default async function UnitPage({
+  params
+}: {
+  params: { topicSlug: string; lessonSlug: string }
 }) {
   const { topicSlug, lessonSlug } = await params;
-  
-  const book = grammarTopics.find((b) => b.id === topicSlug || topicSlug.includes(b.id));
+
+  const book = grammarBooks.find((b) => b.id === topicSlug);
 
   // Extract unit ID
   const unitId = lessonSlug.replace("unit", "");
-  const unitTitle = "Present continuous"; // Hardcoded for demo matching design
+  const unit = book?.units.find(u => u.id === parseInt(unitId));
+  const unitTitle = unit?.title || "Grammar Lesson";
   const backLink = `/grammar/${topicSlug}`;
 
   return (
@@ -34,8 +28,9 @@ export default async function UnitPage({
         Back to Units
       </Link>
 
-      <GrammarLessonClient 
-        topicName={book?.title || "Grammar Book"}
+      <GrammarLessonClient
+        topicName={book?.name || "Grammar Book"}
+        topicSlug={topicSlug}
         unitId={unitId}
         unitTitle={unitTitle}
       />
