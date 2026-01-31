@@ -5,6 +5,7 @@ import type {
   VocabularyUnitWithContent,
   VocabularyBookProgress,
   SubmitExerciseResponse,
+  SubmitQuestionsResponse,
   GrammarBook,
   GrammarBookWithUnits,
   GrammarUnitWithContent,
@@ -44,7 +45,7 @@ export const vocabularyApi = {
     return data;
   },
   submitQuestions: async (unitId: string, answers: { questionId: string; answer: string }[]) => {
-    const { data } = await api.post<SubmitExerciseResponse>('/vocabulary/progress/questions', { unitId, answers });
+    const { data } = await api.post<SubmitQuestionsResponse>('/vocabulary/progress/questions', { unitId, answers });
     return data;
   },
 };

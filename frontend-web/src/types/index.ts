@@ -131,11 +131,25 @@ export interface ExerciseResult {
   isCorrect: boolean;
 }
 
+export interface QuestionResult {
+  questionId: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
 export interface SubmitExerciseResponse {
   score: number;
   correctCount: number;
   totalQuestions: number;
   results: ExerciseResult[];
+}
+
+export interface SubmitQuestionsResponse {
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  results: QuestionResult[];
 }
 
 // ==================== GRAMMAR ====================

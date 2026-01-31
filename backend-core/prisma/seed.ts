@@ -3,8 +3,93 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // ============================================================
-// SEED DATA - Migrated from frontend hardcoded data
+// VOCABULARY DATA - 4000 Essential English Words
 // ============================================================
+
+const unit1Words = [
+  { word: 'afraid', meaning: 'feeling fear', ipa: '/əˈfreɪd/', partOfSpeech: 'adj', example: 'The woman was afraid of what she saw.', imageUrl: 'https://img.freepik.com/free-photo/portrait-young-scared-asian-woman-looking-camera_171337-1496.jpg', order: 1 },
+  { word: 'agree', meaning: 'to say yes or to think the same way', ipa: '/əˈɡriː/', partOfSpeech: 'v', example: 'I agree with you.', order: 2 },
+  { word: 'angry', meaning: 'feeling upset or mad', ipa: '/ˈæŋɡri/', partOfSpeech: 'adj', example: 'The lion was angry when the rabbit arrived late.', order: 3 },
+  { word: 'arrive', meaning: 'to reach a place', ipa: '/əˈraɪv/', partOfSpeech: 'v', example: 'The bus will arrive soon.', order: 4 },
+  { word: 'attack', meaning: 'to try to fight or hurt', ipa: '/əˈtæk/', partOfSpeech: 'v', example: 'The lion jumped into the well to attack.', order: 5 },
+  { word: 'bottom', meaning: 'the lowest part', ipa: '/ˈbɒtəm/', partOfSpeech: 'n', example: 'The lion lives at the bottom of the well.', order: 6 },
+  { word: 'clever', meaning: 'smart or intelligent', ipa: '/ˈklevər/', partOfSpeech: 'adj', example: 'The rabbit was very clever.', order: 7 },
+  { word: 'cruel', meaning: 'bad or hurting others', ipa: '/ˈkruːəl/', partOfSpeech: 'adj', example: 'A cruel lion lived in the forest.', order: 8 },
+  { word: 'finally', meaning: 'at last or at the end', ipa: '/ˈfaɪnəli/', partOfSpeech: 'adv', example: 'Finally, it was the rabbit\'s turn.', order: 9 },
+  { word: 'hide', meaning: 'to not let others see', ipa: '/haɪd/', partOfSpeech: 'v', example: 'I was hiding from another lion.', order: 10 },
+  { word: 'hunt', meaning: 'to look for animals to kill', ipa: '/hʌnt/', partOfSpeech: 'v', example: 'You don\'t have to hunt and kill us.', order: 11 },
+  { word: 'lot', meaning: 'a large amount', ipa: '/lɒt/', partOfSpeech: 'n', example: 'He killed a lot of animals.', order: 12 },
+  { word: 'middle', meaning: 'the center of something', ipa: '/ˈmɪdl/', partOfSpeech: 'n', example: 'The well was in the middle of the forest.', order: 13 },
+  { word: 'moment', meaning: 'a very short time', ipa: '/ˈmoʊmənt/', partOfSpeech: 'n', example: 'Without waiting another moment, the lion jumped.', order: 14 },
+  { word: 'pleased', meaning: 'feeling happy', ipa: '/pliːzd/', partOfSpeech: 'adj', example: 'All animals were pleased with the rabbit.', order: 15 },
+  { word: 'promise', meaning: 'to say you will do something', ipa: '/ˈprɒmɪs/', partOfSpeech: 'v', example: 'If you promise to eat only one animal each day.', order: 16 },
+  { word: 'reply', meaning: 'to answer', ipa: '/rɪˈplaɪ/', partOfSpeech: 'v', example: 'The rabbit replied, "I will show you."', order: 17 },
+  { word: 'safe', meaning: 'not in danger', ipa: '/seɪf/', partOfSpeech: 'adj', example: 'All the other animals were safe.', order: 18 },
+  { word: 'trick', meaning: 'a clever idea to fool someone', ipa: '/trɪk/', partOfSpeech: 'n', example: 'They were pleased with the rabbit\'s clever trick.', order: 19 },
+  { word: 'well', meaning: 'a deep hole with water', ipa: '/wel/', partOfSpeech: 'n', example: 'The rabbit led the lion to an old well.', order: 20 },
+];
+
+const unit1Exercises = [
+  { question: 'bad or hurting others', answer: 'cruel', options: ['afraid', 'clever', 'cruel', 'hunt'], order: 1 },
+  { question: 'at last or at the end', answer: 'finally', options: ['angry', 'clever', 'finally', 'reply'], order: 2 },
+  { question: 'to try to fight or hurt', answer: 'attack', options: ['attack', 'middle', 'pleased', 'trick'], order: 3 },
+  { question: 'to not let others see', answer: 'hide', options: ['agree', 'hide', 'safe', 'well'], order: 4 },
+  { question: 'the lowest part', answer: 'bottom', options: ['bottom', 'lot', 'moment', 'promise'], order: 5 },
+];
+
+const unit1Questions = [
+  { question: 'What is this story about?', type: 'multiple_choice', options: ['How a clever rabbit tricked a cruel lion.', 'How rabbits learned to hide from lions.', 'How a rabbit pleased an angry lion.', 'How to be safe when you hunt in the forest.'], answer: 'How a clever rabbit tricked a cruel lion.', order: 1 },
+  { question: 'What did all the animals say to the lion?', type: 'multiple_choice', options: ['They said they wanted him to be their king.', 'They said that the rabbit would be there in a moment.', 'They said that they would allow him to eat one of them a day.', 'They said that they would hide at the bottom of the well.'], answer: 'They said that they would allow him to eat one of them a day.', order: 2 },
+  { question: 'Why did the rabbit take the lion to the well in the middle of the forest?', type: 'multiple_choice', options: ['So a lot of animals could see the rabbit walking with the lion.', 'So the lion could attack the "other" lion.', 'So the lion could drink water.', 'So the other animals would be afraid of the rabbit.'], answer: 'So the lion could attack the "other" lion.', order: 3 },
+  { question: 'Which of the following is true at the end of the story?', type: 'multiple_choice', options: ['The lion attacked another lion, and they both got hurt.', 'The lion cannot reply to the rabbit, so the rabbit wins.', 'The lion finally dies.', 'The lion is pleased by the rabbit\'s words, so it does not eat the rabbit.'], answer: 'The lion finally dies.', order: 4 },
+  { question: 'What did the lion see when it looked in the well?', type: 'fill_blank', answer: 'his own face', order: 5 },
+];
+
+const unit1Story = {
+  title: 'The Lion and the Rabbit',
+  content: `<p>A <strong>cruel</strong> lion lived in the forest. Every day, he killed and ate a <strong>lot</strong> of animals. The other animals were <strong>afraid</strong> the lion would kill them all.</p>
+<p>The animals told the lion, "Let's make a deal. If you <strong>promise</strong> to eat only one animal each day, then one of us will come to you every day. Then you don't have to <strong>hunt</strong> and kill us."</p>
+<p>The plan sounded <strong>well</strong> thought-out to the lion, so he <strong>agreed</strong>, but he also said, "If you don't come every day, I <strong>promise</strong> to kill all of you the next day!" Each day after that, one animal went to the lion so that the lion could eat it. Then, all the other animals were <strong>safe</strong>. <strong>Finally</strong>, it was the rabbit's turn to go to the lion. The rabbit went very slowly that day, so the lion was <strong>angry</strong> when the rabbit <strong>finally</strong> arrived.</p>
+<p>The lion angrily asked the rabbit, "Why are you late?"</p>
+<p>"I was <strong>hiding</strong> from another lion in the forest. That lion said he was the king, so I was <strong>afraid</strong>."</p>
+<p>The lion told the rabbit, "I am the only king here! Take me to that other lion, and I will kill him."</p>
+<p>The rabbit <strong>replied</strong>, "I will be happy to show you where he lives."</p>
+<p>The rabbit led the lion to an old well in the <strong>middle</strong> of the forest. The well was very deep with water at the <strong>bottom</strong>. The rabbit told the lion, "Look in there. The lion lives at the <strong>bottom</strong>."</p>
+<p>When the lion looked in the well, he could see his own face in the water. He thought that was the other lion. Without waiting another <strong>moment</strong>, the lion jumped into the well to <strong>attack</strong> the other lion. He never came out.</p>
+<p>All of the other animals in the forest were very <strong>pleased</strong> with the rabbit's <strong>clever</strong> <strong>trick</strong>.</p>`,
+  imageUrl: 'https://img.freepik.com/free-vector/lion-rabbit-forest-scene_1308-41088.jpg',
+};
+
+const unit2Words = [
+  { word: 'allow', meaning: 'to let someone do something', ipa: '/əˈlaʊ/', partOfSpeech: 'v', example: 'Allow me to help you.', order: 1 },
+  { word: 'apart', meaning: 'separated by distance or time', ipa: '/əˈpɑːrt/', partOfSpeech: 'adv', example: 'The two cities are far apart.', order: 2 },
+  { word: 'beside', meaning: 'next to', ipa: '/bɪˈsaɪd/', partOfSpeech: 'prep', example: 'He sat beside his friend.', order: 3 },
+  { word: 'cabinet', meaning: 'a piece of furniture with shelves', ipa: '/ˈkæbɪnət/', partOfSpeech: 'n', example: 'The plates are in the cabinet.', order: 4 },
+  { word: 'charge', meaning: 'to ask for money for something', ipa: '/tʃɑːrdʒ/', partOfSpeech: 'v', example: 'They charge $10 for parking.', order: 5 },
+  { word: 'cloth', meaning: 'material used for making clothes', ipa: '/klɒθ/', partOfSpeech: 'n', example: 'The cloth is soft.', order: 6 },
+  { word: 'compare', meaning: 'to examine for differences', ipa: '/kəmˈpeər/', partOfSpeech: 'v', example: 'Compare the two answers.', order: 7 },
+  { word: 'contain', meaning: 'to have something inside', ipa: '/kənˈteɪn/', partOfSpeech: 'v', example: 'The box contains books.', order: 8 },
+  { word: 'create', meaning: 'to make something new', ipa: '/kriˈeɪt/', partOfSpeech: 'v', example: 'Scientists create new medicines.', order: 9 },
+  { word: 'electric', meaning: 'powered by electricity', ipa: '/ɪˈlektrɪk/', partOfSpeech: 'adj', example: 'The car is electric.', order: 10 },
+  { word: 'experiment', meaning: 'a test to find out something', ipa: '/ɪkˈsperɪmənt/', partOfSpeech: 'n', example: 'The experiment was successful.', order: 11 },
+  { word: 'include', meaning: 'to have as part of a group', ipa: '/ɪnˈkluːd/', partOfSpeech: 'v', example: 'The price includes breakfast.', order: 12 },
+  { word: 'knife', meaning: 'a tool for cutting', ipa: '/naɪf/', partOfSpeech: 'n', example: 'Use a sharp knife.', order: 13 },
+  { word: 'laboratory', meaning: 'a room for scientific work', ipa: '/ləˈbɒrətri/', partOfSpeech: 'n', example: 'They work in a laboratory.', order: 14 },
+  { word: 'liquid', meaning: 'something that flows like water', ipa: '/ˈlɪkwɪd/', partOfSpeech: 'n', example: 'Water is a liquid.', order: 15 },
+  { word: 'measure', meaning: 'to find the size or amount', ipa: '/ˈmeʒər/', partOfSpeech: 'v', example: 'Measure the length.', order: 16 },
+  { word: 'medicine', meaning: 'something to treat illness', ipa: '/ˈmedɪsn/', partOfSpeech: 'n', example: 'Take the medicine three times a day.', order: 17 },
+  { word: 'pour', meaning: 'to make liquid flow', ipa: '/pɔːr/', partOfSpeech: 'v', example: 'Pour the water into the glass.', order: 18 },
+  { word: 'prove', meaning: 'to show something is true', ipa: '/pruːv/', partOfSpeech: 'v', example: 'Can you prove it?', order: 19 },
+  { word: 'smooth', meaning: 'having an even surface', ipa: '/smuːð/', partOfSpeech: 'adj', example: 'The table is smooth.', order: 20 },
+];
+
+const unit2Exercises = [
+  { question: 'a room for scientific work', answer: 'laboratory', options: ['cabinet', 'laboratory', 'medicine', 'liquid'], order: 1 },
+  { question: 'to make something new', answer: 'create', options: ['allow', 'compare', 'create', 'prove'], order: 2 },
+  { question: 'something that flows like water', answer: 'liquid', options: ['cloth', 'liquid', 'knife', 'charge'], order: 3 },
+  { question: 'a test to find out something', answer: 'experiment', options: ['apart', 'beside', 'experiment', 'smooth'], order: 4 },
+  { question: 'to find the size or amount', answer: 'measure', options: ['contain', 'include', 'measure', 'pour'], order: 5 },
+];
 
 const vocabularyBooks = [
   {
@@ -13,36 +98,12 @@ const vocabularyBooks = [
     wordCount: 600,
     order: 1,
     units: [
-      { title: "The Lion and the Rabbit", order: 1 },
-      { title: "The Laboratory", order: 2 },
+      { title: "The Lion and the Rabbit", order: 1, words: unit1Words, exercises: unit1Exercises, questions: unit1Questions, story: unit1Story },
+      { title: "The Laboratory", order: 2, words: unit2Words, exercises: unit2Exercises, questions: [], story: null },
       { title: "The Report", order: 3 },
       { title: "The Dog's Bell", order: 4 },
       { title: "The Jackal and the Sun Child", order: 5 },
       { title: "The Friendly Ghost", order: 6 },
-      { title: "The Best Prince", order: 7 },
-      { title: "How the Sun and the Moon Were Made", order: 8 },
-      { title: "The Starfish", order: 9 },
-      { title: "The First Peacock", order: 10 },
-      { title: "Princess Rose and the Creature", order: 11 },
-      { title: "The Crazy Artist", order: 12 },
-      { title: "The Farmer and the Cats", order: 13 },
-      { title: "A Magical Book", order: 14 },
-      { title: "The Big Race", order: 15 },
-      { title: "Adams County's Gold", order: 16 },
-      { title: "The Race for Water", order: 17 },
-      { title: "The Little Red Chicken", order: 18 },
-      { title: "Shipwrecked", order: 19 },
-      { title: "The Seven Cities of Gold", order: 20 },
-      { title: "Katy", order: 21 },
-      { title: "A Better Reward", order: 22 },
-      { title: "The Camp", order: 23 },
-      { title: "A Strong Friendship", order: 24 },
-      { title: "Joe's Pond", order: 25 },
-      { title: "Archie and His Donkey", order: 26 },
-      { title: "The Spider and the Bird", order: 27 },
-      { title: "The Party", order: 28 },
-      { title: "How the World Got Light", order: 29 },
-      { title: "Cats and Secrets", order: 30 },
     ],
   },
   {
@@ -55,12 +116,8 @@ const vocabularyBooks = [
       { title: "The Dragon", order: 2 },
       { title: "The Battle of Thermopylae", order: 3 },
       { title: "The Deer and His Image", order: 4 },
-      { title: "May 29,1953", order: 5 },
+      { title: "May 29, 1953", order: 5 },
       { title: "The Frog Prince", order: 6 },
-      { title: "A Beautiful Bird", order: 7 },
-      { title: "Tricky Turtle", order: 8 },
-      { title: "The Tale of Bartelby O'Boyle", order: 9 },
-      { title: "Blackbeard", order: 10 },
     ],
   },
   {
@@ -74,6 +131,7 @@ const vocabularyBooks = [
       { title: "The Boy and his Sled", order: 3 },
       { title: "Tiny Tina", order: 4 },
       { title: "Trick-or-treat!", order: 5 },
+      { title: "The Senator and the Worm", order: 6 },
     ],
   },
   {
@@ -85,6 +143,9 @@ const vocabularyBooks = [
       { title: "The History of Chocolate", order: 1 },
       { title: "Monkey Island", order: 2 },
       { title: "The Young Man and the Old Man", order: 3 },
+      { title: "The Tricky Fox", order: 4 },
+      { title: "The Magic Computer", order: 5 },
+      { title: "Jack Frost and the Pudding", order: 6 },
     ],
   },
   {
@@ -95,6 +156,10 @@ const vocabularyBooks = [
     units: [
       { title: "The Little Mice", order: 1 },
       { title: "The Helpful Abbey", order: 2 },
+      { title: "The Bachelor's Lesson", order: 3 },
+      { title: "The Corrupt Administrator", order: 4 },
+      { title: "A Famous Accident", order: 5 },
+      { title: "The Island", order: 6 },
     ],
   },
   {
@@ -105,6 +170,10 @@ const vocabularyBooks = [
     units: [
       { title: "The North Star", order: 1 },
       { title: "The Fossil Hunters", order: 2 },
+      { title: "Dressed to Excess", order: 3 },
+      { title: "The Butler's Bad Day", order: 4 },
+      { title: "A Bet", order: 5 },
+      { title: "Amazing Komodo Dragons", order: 6 },
     ],
   },
 ];
@@ -214,9 +283,11 @@ const pronunciationSounds = [
 ];
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log('🌱 Seeding database with comprehensive vocabulary data...');
 
   // Clear existing data
+  console.log('🗑️  Clearing existing data...');
+  await prisma.vocabularyProgress.deleteMany();
   await prisma.pronunciationSound.deleteMany();
   await prisma.grammarExercise.deleteMany();
   await prisma.grammarUnit.deleteMany();
@@ -227,7 +298,7 @@ async function main() {
   await prisma.vocabularyUnit.deleteMany();
   await prisma.vocabularyBook.deleteMany();
 
-  // Seed Vocabulary Books
+  // Seed Vocabulary Books with full content
   console.log('📚 Seeding vocabulary books...');
   for (const book of vocabularyBooks) {
     const createdBook = await prisma.vocabularyBook.create({
@@ -236,15 +307,67 @@ async function main() {
         imageUrl: book.imageUrl,
         wordCount: book.wordCount,
         order: book.order,
-        units: {
-          create: book.units.map(unit => ({
-            title: unit.title,
-            order: unit.order,
-          })),
-        },
       },
     });
-    console.log(`  ✓ Created: ${createdBook.name}`);
+
+    // Create units with words, exercises, questions
+    for (const unit of book.units) {
+      const createdUnit = await prisma.vocabularyUnit.create({
+        data: {
+          bookId: createdBook.id,
+          title: unit.title,
+          order: unit.order,
+          storyTitle: (unit as any).story?.title || null,
+          storyContent: (unit as any).story?.content || null,
+          storyImageUrl: (unit as any).story?.imageUrl || null,
+        },
+      });
+
+      // Add words
+      if ((unit as any).words) {
+        await prisma.vocabularyWord.createMany({
+          data: (unit as any).words.map((w: any) => ({
+            unitId: createdUnit.id,
+            word: w.word,
+            meaning: w.meaning,
+            ipa: w.ipa,
+            partOfSpeech: w.partOfSpeech,
+            example: w.example,
+            imageUrl: w.imageUrl || null,
+            order: w.order,
+          })),
+        });
+      }
+
+      // Add exercises
+      if ((unit as any).exercises) {
+        await prisma.vocabularyExercise.createMany({
+          data: (unit as any).exercises.map((e: any) => ({
+            unitId: createdUnit.id,
+            question: e.question,
+            answer: e.answer,
+            options: e.options,
+            order: e.order,
+          })),
+        });
+      }
+
+      // Add questions
+      if ((unit as any).questions && (unit as any).questions.length > 0) {
+        await prisma.vocabularyQuestion.createMany({
+          data: (unit as any).questions.map((q: any) => ({
+            unitId: createdUnit.id,
+            question: q.question,
+            type: q.type,
+            options: q.options || null,
+            answer: q.answer,
+            order: q.order,
+          })),
+        });
+      }
+    }
+
+    console.log(`  ✓ Created: ${createdBook.name} (${book.units.length} units)`);
   }
 
   // Seed Grammar Books
@@ -277,7 +400,19 @@ async function main() {
   });
   console.log(`  ✓ Created ${pronunciationSounds.length} sounds`);
 
-  console.log('✅ Database seeding completed!');
+  // Summary
+  const vocabCount = await prisma.vocabularyBook.count();
+  const unitCount = await prisma.vocabularyUnit.count();
+  const wordCount = await prisma.vocabularyWord.count();
+  const exerciseCount = await prisma.vocabularyExercise.count();
+  const questionCount = await prisma.vocabularyQuestion.count();
+
+  console.log('\n✅ Database seeding completed!');
+  console.log(`   📚 ${vocabCount} vocabulary books`);
+  console.log(`   📄 ${unitCount} units`);
+  console.log(`   📝 ${wordCount} words`);
+  console.log(`   ❓ ${exerciseCount} exercises`);
+  console.log(`   ❔ ${questionCount} questions`);
 }
 
 main()
