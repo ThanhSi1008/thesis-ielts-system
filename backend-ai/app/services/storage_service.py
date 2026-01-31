@@ -55,12 +55,22 @@ class StorageService:
             # Create directory if it doesn't exist
             os.makedirs(os.path.dirname(local_path), exist_ok=True)
             
-            # Download file
-            self.s3_client.download_file(
-                settings.storage_bucket,
-                object_key,
-                local_path
-            )
+            # Handle full URLs (e.g., Cloudinary)
+            if object_key.startswith('http://') or object_key.startswith('https://'):
+                import requests
+                logger.info(f"⬇️ Downloading from URL: {object_key}")
+                response = requests.get(object_key, stream=True)
+                response.raise_for_status()
+                with open(local_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            else:
+                # Download file from S3/MinIO
+                self.s3_client.download_file(
+                    settings.storage_bucket,
+                    object_key,
+                    local_path
+                )
             
             logger.info(f"✅ File downloaded: {local_path}")
             return local_path

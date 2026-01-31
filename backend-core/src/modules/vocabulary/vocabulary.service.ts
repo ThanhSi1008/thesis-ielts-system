@@ -248,36 +248,57 @@ export class VocabularyService {
       where: { unitId },
     });
 
+    console.log(`[SubmitExercise] User: ${userId}, Unit: ${unitId}, Found ${exercises.length} exercises`);
+
+    if (exercises.length === 0) {
+        console.warn(`[SubmitExercise] No exercises found for unit ${unitId}`);
+        return {
+            score: 0,
+            correctCount: 0,
+            totalQuestions: 0,
+            results: [],
+        };
+    }
+
     // Grade answers
     let correctCount = 0;
     const results = answers.map((a) => {
       const exercise = exercises.find((e) => e.id === a.exerciseId);
+      if (!exercise) {
+          console.warn(`[SubmitExercise] Exercise not found: ${a.exerciseId}`);
+      }
       const isCorrect = exercise?.answer.toLowerCase() === a.answer.toLowerCase();
       if (isCorrect) correctCount++;
       return {
         exerciseId: a.exerciseId,
         userAnswer: a.answer,
-        correctAnswer: exercise?.answer,
+        correctAnswer: exercise?.answer || 'Unknown',
         isCorrect,
       };
     });
 
-    const score = Math.round((correctCount / exercises.length) * 100);
+    const score = exercises.length > 0 ? Math.round((correctCount / exercises.length) * 100) : 0;
+    console.log(`[SubmitExercise] Score: ${score} (${correctCount}/${exercises.length})`);
 
     // Update progress
-    await this.prisma.vocabularyProgress.upsert({
-      where: {
-        userId_unitId: { userId, unitId },
-      },
-      create: {
-        userId,
-        unitId,
-        exerciseScore: score,
-      },
-      update: {
-        exerciseScore: score,
-      },
-    });
+    try {
+        await this.prisma.vocabularyProgress.upsert({
+        where: {
+            userId_unitId: { userId, unitId },
+        },
+        create: {
+            userId,
+            unitId,
+            exerciseScore: score,
+        },
+        update: {
+            exerciseScore: score,
+        },
+        });
+    } catch (error) {
+        console.error(`[SubmitExercise] Failed to update progress:`, error);
+        throw error;
+    }
 
     return {
       score,
@@ -300,27 +321,44 @@ export class VocabularyService {
       where: { unitId },
     });
 
+    console.log(`[SubmitQuestions] User: ${userId}, Unit: ${unitId}, Found ${questions.length} questions`);
+
+    if (questions.length === 0) {
+        console.warn(`[SubmitQuestions] No questions found for unit ${unitId}`);
+        return {
+            score: 0,
+            correctCount: 0,
+            totalQuestions: 0,
+            results: [],
+        };
+    }
+
     // Grade answers
     let correctCount = 0;
     const results = answers.map((a) => {
       const question = questions.find((q) => q.id === a.questionId);
+      if (!question) {
+          console.warn(`[SubmitQuestions] Question not found: ${a.questionId}`);
+      }
       const isCorrect = question?.answer.toLowerCase() === a.answer.toLowerCase();
       if (isCorrect) correctCount++;
       return {
         questionId: a.questionId,
         userAnswer: a.answer,
-        correctAnswer: question?.answer,
+        correctAnswer: question?.answer || 'Unknown',
         isCorrect,
       };
     });
 
-    const score = Math.round((correctCount / questions.length) * 100);
+    const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+    console.log(`[SubmitQuestions] Score: ${score} (${correctCount}/${questions.length})`);
 
     // Update progress and mark as completed
-    await this.prisma.vocabularyProgress.upsert({
-      where: {
-        userId_unitId: { userId, unitId },
-      },
+    try {
+        await this.prisma.vocabularyProgress.upsert({
+        where: {
+            userId_unitId: { userId, unitId },
+        },
       create: {
         userId,
         unitId,
@@ -334,6 +372,10 @@ export class VocabularyService {
         completedAt: new Date(),
       },
     });
+    } catch (error) {
+        console.error(`[SubmitQuestions] Failed to update progress:`, error);
+        throw error;
+    }
 
     return {
       score,

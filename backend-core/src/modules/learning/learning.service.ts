@@ -297,7 +297,7 @@ export class LearningService {
    */
   async createPronunciationAttempt(data: {
     userId: string;
-    vocabularyId: string;
+    vocabularyId?: string;
     audioUrl: string;
     targetWord: string;
   }) {

@@ -1,38 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 /**
- * Storage Service for MinIO/S3 operations
+ * Storage Service for Cloudinary operations
  * Handles file uploads, downloads, and URL generation
  */
 @Injectable()
 export class StorageService {
   private readonly logger = new Logger(StorageService.name);
-  private s3Client: S3Client;
-  private bucketName: string;
 
   constructor(private configService: ConfigService) {
-    const endpoint = this.configService.get<string>('STORAGE_ENDPOINT', 'http://localhost:9000');
-    const accessKeyId = this.configService.get<string>('STORAGE_ACCESS_KEY', 'minioadmin');
-    const secretAccessKey = this.configService.get<string>('STORAGE_SECRET_KEY', 'minioadmin');
-    const region = this.configService.get<string>('STORAGE_REGION', 'us-east-1');
-    this.bucketName = this.configService.get<string>('STORAGE_BUCKET', 'toeic-files');
-
-    this.s3Client = new S3Client({
-      endpoint,
-      region,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-      forcePathStyle: true, // Required for MinIO
+    cloudinary.config({
+        cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
+        api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
+        api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
     });
 
-    this.logger.log(`✅ Storage service initialized with bucket: ${this.bucketName}`);
+    this.logger.log(`✅ Storage service initialized with Cloudinary: ${this.configService.get<string>('CLOUDINARY_CLOUD_NAME')}`);
   }
 
   /**
@@ -42,44 +28,53 @@ export class StorageService {
    * @returns URL of the uploaded file
    */
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
-    try {
-      const fileExtension = path.extname(file.originalname);
-      const fileName = `${folder}/${uuidv4()}${fileExtension}`;
-
-      const command = new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: fileName,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      });
-
-      await this.s3Client.send(command);
-
-      const fileUrl = `${this.bucketName}/${fileName}`;
-      this.logger.log(`✅ File uploaded: ${fileUrl}`);
-      
-      return fileUrl;
-    } catch (error) {
-      this.logger.error(`❌ File upload failed: ${error.message}`);
-      throw new Error(`Failed to upload file: ${error.message}`);
-    }
+    return new Promise((resolve, reject) => {
+        const upload = cloudinary.uploader.upload_stream(
+            { 
+                folder: folder, 
+                resource_type: 'auto' 
+            },
+            (error, result) => {
+                if (error) {
+                    this.logger.error(`❌ File upload failed: ${error.message}`);
+                    return reject(error);
+                }
+                this.logger.log(`✅ File uploaded: ${result.secure_url}`);
+                resolve(result.secure_url);
+            }
+        );
+        Readable.from(file.buffer).pipe(upload);
+    });
   }
 
   /**
    * Delete a file from storage
-   * @param fileUrl - URL of the file to delete (format: bucket/path/to/file)
+   * @param fileUrl - URL of the file to delete
    */
   async deleteFile(fileUrl: string): Promise<void> {
     try {
-      // Extract key from URL (remove bucket name)
-      const key = fileUrl.replace(`${this.bucketName}/`, '');
+      // Extract public_id from URL
+      // Example: https://res.cloudinary.com/demo/image/upload/v1/folder/filename.jpg
+      // public_id: folder/filename (without extension)
+      
+      const urlParts = fileUrl.split('/');
+      const versionIndex = urlParts.findIndex(part => part.startsWith('v') && !isNaN(Number(part.substring(1))));
+      // If version is present, public_id starts after it. If not, it's safer to rely on regex or assumption.
+      // A common strategy is to store public_id in DB, but if we only have URL:
+      // Last segment is filename.ext
+      const filenameWithExt = urlParts[urlParts.length - 1];
+      const filename = filenameWithExt.split('.')[0];
+      const folder = urlParts[urlParts.length - 2]; 
+      // This parsing is brittle. Ideally we store public_id. 
+      // For now, let's assume 'folder/filename' structure from the upload.
+      
+      // Better approach: Cloudinary public_id extraction from URL is complex.
+      // For this specific app, we are uploading to `folder/uuid`.
+      // So public_id is `folder/uuid`.
+      
+      const publicId = `${folder}/${filename}`;
 
-      const command = new DeleteObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-      });
-
-      await this.s3Client.send(command);
+      await cloudinary.uploader.destroy(publicId);
       this.logger.log(`✅ File deleted: ${fileUrl}`);
     } catch (error) {
       this.logger.error(`❌ File deletion failed: ${error.message}`);
@@ -88,39 +83,22 @@ export class StorageService {
   }
 
   /**
-   * Get a temporary signed URL for accessing a file
-   * @param fileUrl - URL of the file (format: bucket/path/to/file)
-   * @param expiresIn - Expiration time in seconds (default: 3600)
-   * @returns Signed URL
+   * Get a temporary signed URL for accessing a file.
+   * Cloudinary URLs are public by default, but we can sign them for private assets.
+   * For this implementation, we return the public URL as most assets are public.
    */
   async getSignedUrl(fileUrl: string, expiresIn: number = 3600): Promise<string> {
-    try {
-      // Extract key from URL (remove bucket name)
-      const key = fileUrl.replace(`${this.bucketName}/`, '');
-
-      const command = new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-      });
-
-      const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn });
-      this.logger.log(`✅ Signed URL generated for: ${fileUrl}`);
-      
-      return signedUrl;
-    } catch (error) {
-      this.logger.error(`❌ Signed URL generation failed: ${error.message}`);
-      throw new Error(`Failed to generate signed URL: ${error.message}`);
-    }
+      // For Cloudinary, just return the URL if it's already a full URL
+      return fileUrl;
   }
 
   /**
    * Get the full URL for a file (for public access)
-   * @param fileUrl - URL of the file (format: bucket/path/to/file)
+   * @param fileUrl - URL of the file 
    * @returns Full URL
    */
   getPublicUrl(fileUrl: string): string {
-    const endpoint = this.configService.get<string>('STORAGE_ENDPOINT', 'http://localhost:9000');
-    return `${endpoint}/${fileUrl}`;
+    return fileUrl;
   }
 }
 
