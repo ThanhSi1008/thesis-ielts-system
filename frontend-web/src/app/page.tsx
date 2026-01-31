@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function HomePage() {
    return (
-      <div className="bg-[url('https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/8_ulba1f.png'),linear-gradient(#ededed,#ededed)] bg-cover w-full rounded-lg h-full py-4 min-h-screen">
+      <div className="bg-[url('https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/8_ulba1f.png'),linear-gradient(#ededed,#ededed)] bg-cover w-full rounded-lg h-full py-12 min-h-screen">
          <h2 className="text-3xl font-bold text-center py-4">Your TOEIC Learning Journey</h2>
          <div className="flex justify-center mb-4">
             <img src="https://demo2.pavothemes.com/gopet/wp-content/uploads/2021/11/h3_divider.png" alt="" />

@@ -1,15 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <header className={`
+      border-b border-gray-100 z-50 transition-all duration-300
+      ${isHome
+        ? "bg-transparent absolute w-full top-0 border-transparent shadow-none"
+        : "bg-white shadow-sm sticky top-0"}
+    `}>
       <div className="container mx-auto max-w-screen-xl px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
