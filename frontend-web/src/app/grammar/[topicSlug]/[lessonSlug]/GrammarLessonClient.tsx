@@ -4,197 +4,341 @@ import React, { useState } from "react";
 
 interface GrammarLessonClientProps {
   topicName: string;
+  topicSlug: string;
   unitId: string; // e.g. "1"
   unitTitle: string; // e.g. "Present continuous"
 }
 
-const grammarData = {
-  theory: `
-    <div class="space-y-6 text-gray-800">
-      <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-        <p class="font-medium">Sarah is in her car. She is on her way to work.</p>
-        <p>She's driving to work. (= She is driving ...)</p>
-        <p class="text-sm text-gray-600 mt-2">This means: she is driving now, at the time of speaking. The action is not finished.</p>
-      </div>
+import { intermediateUnitContent } from '../../data';
 
-      <div>
-        <h3 class="font-bold text-lg mb-2">am/is/are + -ing is the present continuous:</h3>
-        <table class="w-full text-sm border-collapse">
-            <tr class="bg-gray-100"><td class="p-2 border">I</td><td class="p-2 border">am</td><td class="p-2 border">(= I'm)</td><td class="p-2 border" rowspan="3">driving<br>working<br>doing etc.</td></tr>
-            <tr class="bg-white"><td class="p-2 border">he/she/it</td><td class="p-2 border">is</td><td class="p-2 border">(= he's etc.)</td></tr>
-            <tr class="bg-gray-100"><td class="p-2 border">we/you/they</td><td class="p-2 border">are</td><td class="p-2 border">(= we're etc.)</td></tr>
-        </table>
-      </div>
+const defaultData = {
+  theory: '<div class="p-4">Content coming soon...</div>',
+  exercises: []
+};
 
-      <div>
-        <h3 class="font-bold text-lg mb-2">Example:</h3>
-        <ul class="list-disc pl-5 space-y-2">
-           <li>Steve is talking to a friend on the phone. He says:<br>
-               "I'm reading..." <span class="text-gray-500">...but he is not reading the book at the time of speaking.</span><br>
-               He means that he has started reading the book but has not finished it yet. He is in the middle of reading it.
-           </li>
-        </ul>
-      </div>
-
-      <div class="bg-yellow-50 p-4 rounded-lg">
-         <p class="font-bold">I am doing something = I started doing it and I haven't finished; I'm in the middle of doing it.</p>
-         <ul class="list-disc pl-5 mt-2 space-y-1">
-           <li>Please don't make so much noise. I'm trying to work. (not I try)</li>
-           <li>"Where's Mark?" "He's having a shower." (not He has a shower)</li>
-           <li>Let's go out now. It isn't raining any more. (not It doesn't rain)</li>
-           <li>How's your new job? Are you enjoying it?</li>
-           <li>What's all that noise? What's going on? or What's happening?</li>
-         </ul>
-      </div>
-    </div>
-  `,
-  exercises: [
-    {
-      id: "1.1",
-      question: "What's happening in the pictures? Choose from these verbs:",
-      verbs: ["cross", "hide", "scratch", "take", "tie", "wave"],
-      items: [
-        { label: "1. She's taking a picture.", isExample: true },
-        { label: "2. He ________________ a shoelace.", answer: "is tying" },
-        { label: "3. ________________ the road.", answer: "They are crossing" },
-        { label: "4. ________________ his head.", answer: "He is scratching" },
-        { label: "5. ________________ behind a tree.", answer: "She is hiding" },
-        { label: "6. ________________ to somebody.", answer: "They are waving" }
-      ]
-    },
-    {
-      id: "1.2",
-      question: "The sentences on the right follow those on the left. Which sentence goes with which?",
-      matches: [
-        { left: "1. Please don't make so much noise.", right: "f. I'm trying to work.", isExample: true },
-        { left: "2. We need to leave soon.", right: "e. It's getting late." },
-        { left: "3. I don't have anywhere to live right now.", right: "g. I'm staying with friends." },
-        { left: "4. I need to eat something soon.", right: "a. I'm getting hungry." },
-        { left: "5. They don't need their car any more.", right: "d. They're trying to sell it." },
-        { left: "6. Things are not so good at work.", right: "h. The company is losing money." },
-        { left: "7. It isn't true what they say.", right: "b. They're lying." },
-        { left: "8. We're going to get wet.", right: "c. It's starting to rain." }
-      ]
-    },
-    {
-       id: "1.3",
-       question: "Write questions. Use the present continuous.",
-       items: [
-         { label: "1. What's all that noise? What's happening? (what / happen?)", isExample: true },
-         { label: "2. What's the matter? (why / you / cry?)", answer: "Why are you crying?" },
-         { label: "3. Where's your mother? (she / work / today?)", answer: "Is she working today?" },
-         { label: "4. I haven't seen you for ages. (what / you / do / these days?)", answer: "What are you doing these days?" }
-       ]
-    }
-  ]
-}
-
-export default function GrammarLessonClient({ topicName, unitId, unitTitle }: GrammarLessonClientProps) {
+export default function GrammarLessonClient({ topicName, topicSlug, unitId, unitTitle }: GrammarLessonClientProps) {
   const [activeTab, setActiveTab] = useState<'theory' | 'exercise'>('theory');
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [showResult, setShowResult] = useState(false);
+  const [result, setResult] = useState<{ correct: number; total: number; errors: any[] }>({ correct: 0, total: 0, errors: [] });
+  const [lessonProgress, setLessonProgress] = useState({ theoryCompleted: false, exerciseCompleted: false });
+  const [isLoaded, setIsLoaded] = useState(false);
+  const grammarData = intermediateUnitContent[unitId] || defaultData;
+
+  // Load progress
+  React.useEffect(() => {
+    const savedProgress = localStorage.getItem(`grammar_progress_${topicSlug}_${unitId}`);
+    if (savedProgress) {
+      setLessonProgress(JSON.parse(savedProgress));
+    }
+    setIsLoaded(true);
+  }, [topicSlug, unitId]);
+
+  // Save progress
+  React.useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem(`grammar_progress_${topicSlug}_${unitId}`, JSON.stringify(lessonProgress));
+    }
+  }, [lessonProgress, topicSlug, unitId, isLoaded]);
+
+  const handleInputChange = (id: string, value: string) => {
+    setAnswers(prev => ({ ...prev, [id]: value }));
+  };
+
+  const checkAnswers = () => {
+    let correctCount = 0;
+    let totalCount = 0;
+    const errors: any[] = [];
+
+    grammarData.exercises.forEach((ex: any) => {
+      if (ex.items) {
+        ex.items.forEach((item: any, idx: number) => {
+          if (!item.isExample) {
+            totalCount++;
+            const answerKey = `${ex.id}-${idx}`;
+            const userAnswer = answers[answerKey]?.trim().toLowerCase();
+            const correctAnswer = item.answer?.trim().toLowerCase();
+            if (userAnswer === correctAnswer) {
+              correctCount++;
+            } else {
+              errors.push({
+                questionId: ex.id,
+                label: item.label.replace(/________/g, '...'),
+                userAnswer: userAnswer || '(empty)',
+                correctAnswer: item.answer
+              });
+            }
+          }
+        });
+      }
+      if (ex.matches) {
+        ex.matches.forEach((m: any, idx: number) => {
+          if (!m.isExample) {
+            totalCount++;
+            const answerKey = `${ex.id}-match-${idx}`; // Input is on the left side
+            const userAnswer = answers[answerKey]?.trim().toLowerCase();
+            // Extract the letter from the right side answer (e.g., "f. I'm trying..." -> "f")
+            const correctAnswerLetter = m.right.split('.')[0].trim().toLowerCase();
+            if (userAnswer === correctAnswerLetter) {
+              correctCount++;
+            } else {
+              errors.push({
+                questionId: ex.id,
+                label: `Match: ${m.left}`,
+                userAnswer: userAnswer || '(empty)',
+                correctAnswer: m.right
+              });
+            }
+          }
+        });
+      }
+    });
+
+    setResult({ correct: correctCount, total: totalCount, errors });
+    if (correctCount === totalCount && totalCount > 0) {
+      setLessonProgress(prev => ({ ...prev, exerciseCompleted: true }));
+    }
+    setShowResult(true);
+  };
+
+  const fillCorrectAnswers = () => {
+    const devAnswers: Record<string, string> = {};
+    grammarData.exercises.forEach((ex: any) => {
+      if (ex.items) {
+        ex.items.forEach((item: any, idx: number) => {
+          if (!item.isExample) {
+            devAnswers[`${ex.id}-${idx}`] = item.answer;
+          }
+        });
+      }
+      if (ex.matches) {
+        ex.matches.forEach((m: any, idx: number) => {
+          if (!m.isExample) {
+            const letter = m.right.split('.')[0].trim();
+            devAnswers[`${ex.id}-match-${idx}`] = letter;
+          }
+        });
+      }
+    });
+    setAnswers(devAnswers);
+  };
+
+  const handleFinishTheory = () => {
+    setLessonProgress(prev => ({ ...prev, theoryCompleted: true }));
+    setActiveTab('exercise');
+  };
 
   return (
-    <div className="container mx-auto max-w-screen-xl px-4 py-8">
-       {/* Header */}
+    <div className="container mx-auto max-w-screen-xl px-4 py-8 relative">
+      {/* Result Modal */}
+      {showResult && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-2xl w-full animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-2xl font-bold mb-4 text-center">Exercise Results</h3>
+            <div className="text-center mb-8">
+              <div className={`text-6xl font-bold mb-2 ${result.correct === result.total ? 'text-success' : 'text-primary'}`}>
+                {result.correct}/{result.total}
+              </div>
+              <p className="text-gray-600">
+                {result.correct === result.total
+                  ? "Perfect! You've mastered this unit."
+                  : `You got ${result.correct} correct. Keep practicing to reach 100%!`}
+              </p>
+            </div>
+
+            {result.errors.length > 0 && (
+              <div className="mb-8 overflow-hidden rounded-lg border border-red-100">
+                <div className="bg-red-50 px-4 py-2 border-b border-red-100 font-bold text-red-800">Review Mistakes</div>
+                <div className="divide-y divide-red-50 max-h-60 overflow-y-auto">
+                  {result.errors.map((err, idx) => (
+                    <div key={idx} className="p-4 bg-white hover:bg-red-50 transition-colors">
+                      <p className="text-sm text-gray-500 mb-1">Ex {err.questionId}: {err.label}</p>
+                      <div className="flex flex-wrap gap-4 mt-2">
+                        <div className="flex-1">
+                          <span className="text-xs font-bold uppercase text-gray-400 block">Your Answer</span>
+                          <span className="text-red-600 line-through">{err.userAnswer}</span>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xs font-bold uppercase text-gray-400 block">Correct Answer</span>
+                          <span className="text-green-600 font-bold">{err.correctAnswer}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowResult(false)}
+              className="w-full bg-primary text-black font-bold py-3 rounded-lg hover:bg-primary transition-colors"
+            >
+              {result.correct === result.total ? "Awesome!" : "Try Again"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <h1 className="text-4xl font-bold mb-8">Grammar</h1>
 
       <div className="flex flex-col lg:flex-row gap-12">
         {/* Sidebar */}
         <div className="w-full lg:w-48 flex-shrink-0">
-           <div className="sticky top-8">
-             <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-[#FFC600] pb-2 inline-block">Lessons</h3>
-             
-             <ul className="space-y-4">
-               <li 
-                 className={`flex items-center gap-3 cursor-pointer ${activeTab === 'theory' ? 'font-bold text-black' : 'text-gray-500'}`}
-                 onClick={() => setActiveTab('theory')}
-               >
-                 <div className={`w-5 h-5 rounded-full border-2 ${activeTab === 'theory' ? 'bg-[#FFC600] border-[#FFC600] text-white flex items-center justify-center' : 'border-gray-200'}`}>
-                    {activeTab === 'theory' && '✓'}
-                 </div>
-                 Theory
-               </li>
-               <li 
-                 className={`flex items-center gap-3 cursor-pointer ${activeTab === 'exercise' ? 'font-bold text-black' : 'text-gray-500'}`}
-                 onClick={() => setActiveTab('exercise')}
-               >
-                 <div className={`w-5 h-5 rounded-full border-2 ${activeTab === 'exercise' ? 'bg-[#FFC600] border-[#FFC600] text-white flex items-center justify-center' : 'border-gray-200'}`}>
-                   {activeTab === 'exercise' && '✓'}
-                 </div>
-                 Exercise
-               </li>
-             </ul>
-           </div>
+          <div className="sticky top-8">
+            <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-primary pb-2 inline-block">Lessons</h3>
+
+            <ul className="space-y-4">
+              <li
+                className={`flex items-center gap-3 cursor-pointer group transition-all ${activeTab === 'theory' ? 'font-bold text-black' : 'text-gray-500 hover:text-black'}`}
+                onClick={() => setActiveTab('theory')}
+              >
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${lessonProgress.theoryCompleted ? 'bg-primary text-white' : activeTab === 'theory' ? 'bg-secondary border-primary text-white' : 'border-gray-200 group-hover:border-gray-400'}`}>
+                  {lessonProgress.theoryCompleted ? '✓' : ''}
+                </div>
+                Theory
+              </li>
+              <li
+                className={`flex items-center gap-3 transition-all ${!lessonProgress.theoryCompleted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:text-black group'} ${activeTab === 'exercise' ? 'font-bold text-black' : 'text-gray-500'}`}
+                onClick={() => {
+                  if (lessonProgress.theoryCompleted) setActiveTab('exercise');
+                }}
+              >
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${lessonProgress.exerciseCompleted ? 'bg-primary text-white' : activeTab === 'exercise' ? 'bg-secondary border-primary text-white' : 'border-gray-200 group-hover:border-gray-400'}`}>
+                  {lessonProgress.exerciseCompleted ? '✓' : ''}
+                </div>
+                Exercise
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Main Content */}
         <div className="flex-1 bg-white min-h-[600px] border-l border-gray-100 pl-0 lg:pl-12">
-           <div className="border-b border-gray-200 pb-4 mb-8">
-              <h2 className="text-xl font-bold">Unit {unitId}: {unitTitle}</h2>
-           </div>
+          <div className="border-b border-gray-200 pb-4 mb-8 flex justify-between items-center">
+            <h2 className="text-xl font-bold">Unit {unitId}: {unitTitle}</h2>
+            <div className="flex gap-2">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${lessonProgress.theoryCompleted ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                {lessonProgress.theoryCompleted ? 'Theory Done' : 'Reading Theory'}
+              </span>
+              {lessonProgress.theoryCompleted && (
+                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${lessonProgress.exerciseCompleted ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                  {lessonProgress.exerciseCompleted ? 'All Correct' : 'Exercises Incomplete'}
+                </span>
+              )}
+            </div>
+          </div>
 
-           {activeTab === 'theory' && (
-             <div className="animate-in fade-in duration-300">
-                <div dangerouslySetInnerHTML={{ __html: grammarData.theory }} />
-             </div>
-           )}
+          {activeTab === 'theory' && (
+            <div className="animate-in fade-in duration-300">
+              <div dangerouslySetInnerHTML={{ __html: grammarData.theory }} />
 
-           {activeTab === 'exercise' && (
-             <div className="animate-in fade-in duration-300 space-y-12">
-                {grammarData.exercises.map((ex) => (
-                   <div key={ex.id}>
-                      <h3 className="font-bold text-lg mb-4">{ex.id} {ex.question}</h3>
-                      {ex.verbs && (
-                        <div className="bg-gray-100 p-4 rounded-lg mb-4 flex flex-wrap gap-4 font-mono text-sm">
-                           {ex.verbs.map(v => <span key={v}>{v}</span>)}
+              <div className="mt-12 pt-8 border-t border-gray-100 flex justify-center">
+                <button
+                  onClick={handleFinishTheory}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-3 active:scale-95"
+                >
+                  Finish Theory & Start Exercises
+                  <span className="text-xl">→</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+
+          {activeTab === 'exercise' && (
+            <div className="animate-in fade-in duration-300 space-y-12">
+              {grammarData.exercises.map((ex: any) => (
+                <div key={ex.id}>
+                  <h3 className="font-bold text-lg mb-4 text-blue-900">{ex.id} {ex.question}</h3>
+                  {ex.verbs && (
+                    <div className="bg-gray-50 p-6 rounded-xl mb-6 flex flex-wrap gap-4 font-mono text-sm border border-gray-100">
+                      {ex.verbs.map((v: string) => <span key={v} className="px-3 py-1 bg-white rounded shadow-sm border border-gray-100">{v}</span>)}
+                    </div>
+                  )}
+
+                  <div className="space-y-6">
+                    {ex.items && ex.items.map((item: any, idx: number) => {
+                      const inputId = `${ex.id}-${idx}`;
+                      return (
+                        <div key={idx} className="flex flex-col md:flex-row md:items-center gap-3 p-2 hover:bg-blue-50/50 rounded-lg transition-colors">
+                          <span className="text-gray-700">{item.label.split('________')[0].replace('________', '')}</span>
+                          {!item.isExample ? (
+                            <input
+                              type="text"
+                              value={answers[inputId] || ''}
+                              onChange={(e) => handleInputChange(inputId, e.target.value)}
+                              className="border-b-2 border-gray-300 bg-transparent px-3 py-1 focus:border-blue-500 outline-none w-56 text-blue-600 font-bold text-center placeholder:font-normal placeholder:text-gray-200"
+                              placeholder=".............."
+                            />
+                          ) : (
+                            <span className="font-bold text-blue-800 bg-blue-50 px-3 py-1 rounded-md border-b-2 border-blue-200">{item.answer || item.value?.split(' ').slice(1).join(' ')}</span>
+                          )}
+                          <span className="text-gray-700">{item.label.split('________')[1]}</span>
                         </div>
-                      )}
-                      
-                      <div className="space-y-4">
-                         {ex.items && ex.items.map((item, idx) => (
-                           <div key={idx} className="flex flex-col md:flex-row md:items-center gap-2">
-                              <span>{item.label.split('___')[0]}</span>
-                              {!item.isExample && (
-                                <input 
-                                  type="text" 
-                                  className="border-b-2 border-gray-300 bg-transparent px-2 py-1 focus:border-blue-500 outline-none w-48"
-                                />
-                              )}
-                              <span>{item.label.split('___')[1]}</span>
-                           </div>
-                         ))}
-                         
-                         {ex.matches && (
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                              <div className="space-y-2">
-                                <h4 className="font-bold text-gray-500 text-sm uppercase">Left Sentence</h4>
-                                {ex.matches.map((m, idx) => (
-                                  <div key={idx} className="p-2 bg-white border rounded shadow-sm">
-                                     {m.left}
-                                  </div>
-                                ))}
-                              </div>
-                              <div className="space-y-2">
-                                <h4 className="font-bold text-gray-500 text-sm uppercase">Right Sentence</h4>
-                                {ex.matches.map((m, idx) => (
-                                  <div key={idx} className="p-2 bg-gray-50 border border-dashed rounded flex justify-between items-center group cursor-pointer hover:bg-blue-50">
-                                     <span>{m.right.substring(0, 30)}...</span>
-                                     <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-xs group-hover:border-blue-500">?</div>
-                                  </div>
-                                ))}
-                              </div>
-                           </div>
-                         )}
-                      </div>
-                   </div>
-                ))}
+                      )
+                    })}
 
-                <div className="pt-8 flex justify-end">
-                   <button className="bg-[#FFC600] hover:bg-[#ffd633] text-black font-bold py-3 px-8 rounded-lg shadow-sm transition-colors">
-                      Submit
-                   </button>
+                    {ex.matches && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-gray-400 text-xs uppercase tracking-widest pl-2">Left Sentence</h4>
+                          {ex.matches.map((m: any, idx: number) => {
+                            const inputId = `${ex.id}-match-${idx}`;
+                            return (
+                              <div key={idx} className="flex items-center gap-3 group">
+                                {!m.isExample ? (
+                                  <input
+                                    type="text"
+                                    maxLength={1}
+                                    className="w-10 h-10 border-2 rounded-lg text-center uppercase font-bold text-blue-600 focus:border-blue-500 outline-none transition-all shadow-sm"
+                                    placeholder="?"
+                                    value={answers[inputId] || ''}
+                                    onChange={(e) => handleInputChange(inputId, e.target.value)}
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center font-bold text-gray-500">
+                                    {m.right.split('.')[0]}
+                                  </div>
+                                )}
+                                <div className="p-3 bg-white border border-gray-100 rounded-xl shadow-sm flex-1 text-gray-700 group-hover:border-blue-200 transition-colors">
+                                  {m.left}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-gray-400 text-xs uppercase tracking-widest pl-2">Right Sentence</h4>
+                          {[...ex.matches].sort((a, b) => a.right.localeCompare(b.right)).map((m: any, idx: number) => (
+                            <div key={idx} className="p-3 bg-gray-50 border border-dashed border-gray-200 rounded-xl flex items-center transition-colors">
+                              <span className="text-gray-600 font-medium">{m.right}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-             </div>
-           )}
+              ))}
+
+              <div className="pt-12 flex justify-end gap-4">
+                <button
+                  onClick={fillCorrectAnswers}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-4 px-12 rounded-xl border border-gray-200 transition-all active:scale-95"
+                >
+                  Fill Correct Answers (Dev)
+                </button>
+                <button
+                  onClick={checkAnswers}
+                  className="bg-primary hover:bg-primary/90 active:scale-95 text-black font-bold py-4 px-12 rounded-xl shadow-lg hover:shadow-xl transition-all"
+                >
+                  Submit Answers
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
