@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { lessonService, type Lesson } from '@/services/lesson.service';
+import { lessonService } from '@/services/lesson.service';
+import type { Lesson } from '@/types';
 import Link from 'next/link';
 
 const difficultyColors = {

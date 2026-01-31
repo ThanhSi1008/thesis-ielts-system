@@ -33,6 +33,13 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export interface AuthResponse {
+  message: string;
+  access_token: string;
+  refresh_token: string;
+  user: User;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
