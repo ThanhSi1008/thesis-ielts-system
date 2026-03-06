@@ -7,6 +7,7 @@ import { pronunciationApi } from '@/services/learning.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { PronunciationRecorder } from '@/components/pronunciation/PronunciationRecorder';
 import type { PronunciationSound } from '@/types';
+import PageHeader from '@/components/PageHeader';
 
 export default function SoundDetailPage() {
   const params = useParams();
@@ -26,22 +27,22 @@ export default function SoundDetailPage() {
         // So we might fetch the sound metadata.
         // If the backend doesn't exist yet, we can mock it here for the UI demo.
         try {
-            const data = await pronunciationApi.getSound(symbol);
-            if (data) setSound(data);
-            else throw new Error('Sound not found');
+          const data = await pronunciationApi.getSound(symbol);
+          if (data) setSound(data);
+          else throw new Error('Sound not found');
         } catch (apiErr) {
-            // Fallback mock data if API fails or returns nothing (for development)
-            console.warn("API failed, using mock data", apiErr);
-            setSound({
-                id: 'mock-id',
-                symbol: symbol,
-                name: 'Long Vowel',
-                type: 'monophthong',
-                description: 'Open your mouth wide and stretch your lips.',
-                exampleWords: ['see', 'tree', 'me'], // We assume backend returns this now or we mock it
-                videoUrl: '',
-                audioUrl: '' 
-            } as any);
+          // Fallback mock data if API fails or returns nothing (for development)
+          console.warn("API failed, using mock data", apiErr);
+          setSound({
+            id: 'mock-id',
+            symbol: symbol,
+            name: 'Long Vowel',
+            type: 'monophthong',
+            description: 'Open your mouth wide and stretch your lips.',
+            exampleWords: ['see', 'tree', 'me'], // We assume backend returns this now or we mock it
+            videoUrl: '',
+            audioUrl: ''
+          } as any);
         }
       } catch (err: any) {
         setError(err.message);
@@ -76,22 +77,17 @@ export default function SoundDetailPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      {/* Header */}
-      <div className="bg-gray-900 text-white p-8 pt-24 text-center">
-        <div className="inline-block bg-[#FFC600] text-black text-6xl font-bold p-6 rounded-2xl shadow-lg mb-6">
-          {sound.symbol}
-        </div>
-        <h1 className="text-3xl font-bold mb-2">{sound.name}</h1>
-        <p className="text-gray-400 max-w-lg mx-auto">{sound.description}</p>
-      </div>
+      <PageHeader
+        title={`${sound.symbol} · ${sound.name}`}
+        backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772715265/788c018d-403b-4260-8b8d-710d0a3db342.png"
+        breadcrumbs={[
+          { label: 'Homepage', href: '/' },
+          { label: 'Pronunciation', href: '/pronunciation' },
+          { label: sound.symbol },
+        ]}
+      />
 
       <div className="max-w-4xl mx-auto p-6 md:p-12">
-        <Link href="/pronunciation" className="inline-flex items-center text-gray-500 hover:text-black mb-8 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-          Back to Chart
-        </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Demonstration Section */}
@@ -100,7 +96,7 @@ export default function SoundDetailPage() {
               <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">1</span>
               How to pronounce
             </h2>
-            
+
             <div className="aspect-video bg-gray-100 rounded-2xl flex items-center justify-center border-2 border-gray-200 mb-6 relative overflow-hidden group cursor-pointer">
               {/* Placeholder for video */}
               <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors" />
@@ -111,7 +107,7 @@ export default function SoundDetailPage() {
               </div>
               <p className="absolute bottom-4 text-gray-500 text-sm font-medium">Video Demonstration</p>
             </div>
-            
+
             <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
               <h3 className="font-bold text-blue-800 mb-2">Tip</h3>
               <p className="text-blue-700 leading-relaxed">
@@ -135,15 +131,15 @@ export default function SoundDetailPage() {
                     <h3 className="text-xl font-bold">{word}</h3>
                     <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                       </svg>
                     </button>
                   </div>
-                  
+
                   {user ? (
-                    <PronunciationRecorder 
-                      userId={user.id} 
-                      targetWord={word} 
+                    <PronunciationRecorder
+                      userId={user.id}
+                      targetWord={word}
                     />
                   ) : (
                     <div className="bg-gray-50 p-4 rounded text-center text-sm text-gray-500">

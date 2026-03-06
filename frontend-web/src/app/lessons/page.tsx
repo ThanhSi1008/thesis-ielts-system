@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { lessonService } from '@/services/lesson.service';
 import type { Lesson } from '@/types';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 const difficultyColors = {
   BEGINNER: 'bg-green-100 text-green-800 border-green-200',
@@ -33,8 +34,8 @@ export default function LessonsPage() {
     }
   };
 
-  const filteredLessons = filter === 'ALL' 
-    ? lessons 
+  const filteredLessons = filter === 'ALL'
+    ? lessons
     : lessons.filter(l => l.difficulty === filter);
 
   if (loading) {
@@ -50,23 +51,13 @@ export default function LessonsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="container mx-auto max-w-screen-xl px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-primary">TOEIC Lessons</h1>
-              <p className="text-gray-600 mt-1">Choose a lesson to start learning</p>
-            </div>
-            <button
-              onClick={() => window.location.href = '/'}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Lessons"
+        breadcrumbs={[
+          { label: 'Homepage', href: '/' },
+          { label: 'Lessons' },
+        ]}
+      />
 
       {/* Filters */}
       <div className="container mx-auto max-w-screen-xl px-4 py-6">
@@ -76,11 +67,10 @@ export default function LessonsPage() {
               <button
                 key={level}
                 onClick={() => setFilter(level)}
-                className={`px-5 py-2.5 rounded-2xl font-semibold transition-all ${
-                  filter === level
+                className={`px-5 py-2.5 rounded-2xl font-semibold transition-all ${filter === level
                     ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                }`}
+                  }`}
               >
                 {level}
               </button>
@@ -118,9 +108,8 @@ export default function LessonsPage() {
 
                 <div className="flex items-center justify-between mt-auto">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium border ${
-                      difficultyColors[lesson.difficulty]
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm font-medium border ${difficultyColors[lesson.difficulty]
+                      }`}
                   >
                     {lesson.difficulty}
                   </span>
