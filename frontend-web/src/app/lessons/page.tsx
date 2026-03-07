@@ -68,8 +68,8 @@ export default function LessonsPage() {
                 key={level}
                 onClick={() => setFilter(level)}
                 className={`px-5 py-2.5 rounded-2xl font-semibold transition-all ${filter === level
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                   }`}
               >
                 {level}

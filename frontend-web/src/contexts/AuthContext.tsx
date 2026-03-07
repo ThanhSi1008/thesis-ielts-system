@@ -45,8 +45,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, password: string, fullName: string) => {
     try {
-      await authService.register({ email, password, fullName });
-      // Optionally login after register or redirect
+      const nameParts = fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || firstName; // fallback if only one name
+      await authService.register({ email, password, firstName, lastName });
+      // Auto-login after successful registration
+      await login(email, password);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

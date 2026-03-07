@@ -37,7 +37,8 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   role?: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
 }
 

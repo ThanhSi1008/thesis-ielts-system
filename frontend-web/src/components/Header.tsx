@@ -35,7 +35,7 @@ export default function Header() {
               : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
             }
             alt="TOEIC Master AI Logo"
-            className="h-14 w-auto object-contain"
+            className="h-12 w-auto object-contain"
           />
         </Link>
 
@@ -54,14 +54,10 @@ export default function Header() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className={`font-medium transition-colors ${isOverlay ? 'text-white/80 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
-                Login
-              </Link>
-              <Link href="/register" className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg font-medium transition-colors">
-                Register
-              </Link>
-            </div>
+            <Link href="/login" className="flex items-center gap-2 group">
+              <img src="https://res.cloudinary.com/dalaaegob/image/upload/v1772879077/ae371d4a-9b66-4a55-abe6-06695c9f6986.png" alt="Sign In" className="h-8 w-8 object-contain" />
+              <span className={`font-semibold text-sm ${isOverlay ? 'text-white' : 'text-gray-700'}`}>Sign In</span>
+            </Link>
           )}
         </nav>
 
