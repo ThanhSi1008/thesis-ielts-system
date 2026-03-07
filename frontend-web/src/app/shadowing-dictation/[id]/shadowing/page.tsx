@@ -374,9 +374,13 @@ export default function ShadowingPracticePage() {
                                     {WAVEFORM_HEIGHTS.map((height, i) => (
                                         <div
                                             key={i}
-                                            className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary' : 'bg-gray-300'
+                                            className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
                                                 }`}
-                                            style={{ height: `${height}%`, minWidth: '2px' }}
+                                            style={{
+                                                height: `${height}%`,
+                                                minWidth: '2px',
+                                                animationDelay: isPlaying ? `${i * 0.05}s` : '0s'
+                                            }}
                                         />
                                     ))}
                                 </div>

@@ -26,6 +26,15 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      keyframes: {
+        waveform: {
+          '0%, 100%': { transform: 'scaleY(0.4)' },
+          '50%': { transform: 'scaleY(1)' },
+        }
+      },
+      animation: {
+        waveform: 'waveform 1s ease-in-out infinite',
+      }
     },
   },
   plugins: [],
