@@ -17,11 +17,11 @@
     --color-warning: #ffc107;
     --color-light: #f8f9fa;
     --color-dark: #212529;
-    
+
     /* Background and foreground */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    
+
     /* Radius */
     --radius: 0.5rem;
   }
@@ -36,9 +36,14 @@
   * {
     @apply border-gray-200;
   }
+
   body {
     @apply bg-white text-gray-900;
     font-family: 'Farro', ui-sans-serif, system-ui, sans-serif;
   }
-}
 
+  ::selection {
+    background-color: var(--color-primary);
+    color: #fff;
+  }
+}

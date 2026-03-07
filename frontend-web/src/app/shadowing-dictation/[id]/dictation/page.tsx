@@ -2,118 +2,12 @@
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import PageHeader from '@/components/PageHeader';
+import Tooltip from '@/components/Tooltip';
 
-// ──── Types ────
-interface DictationSentence {
-    id: number;
-    english: string;
-    vietnamese: string;
-    words: string[];
-    // Audio timestamps (start/end in seconds) – for sentence-level playback
-    audioStart: number;
-    audioEnd: number;
-}
+import { useParams, notFound } from 'next/navigation';
+import { SHADOWING_LESSONS, ShadowingSentence as DictationSentence } from '@/data/shadowing-lessons';
 
-// ──── Audio Source ────
-const AUDIO_URL = 'https://res.cloudinary.com/dalaaegob/video/upload/v1772874242/lesson-K5C-Rt6PJHdZNt0vkUpTp_1_lkoskg.mp3';
-
-// ──── Real Transcription Sentences with exact SRT timestamps ────
-const SENTENCES: DictationSentence[] = [
-    {
-        id: 1,
-        english: 'So, the last thing in the agenda before we wrap up our end of the year meeting is choosing the MVP of the year.',
-        vietnamese: 'Vậy, điều cuối cùng trong chương trình nghị sự trước khi chúng ta kết thúc cuộc họp cuối năm là chọn ra MVP của năm.',
-        words: ['So', 'the', 'last', 'thing', 'in', 'the', 'agenda', 'before', 'we', 'wrap', 'up', 'our', 'end', 'of', 'the', 'year', 'meeting', 'is', 'choosing', 'the', 'MVP', 'of', 'the', 'year'],
-        audioStart: 0, audioEnd: 10.6,
-    },
-    {
-        id: 2,
-        english: "I know we don't typically give the most valuable person award to someone who didn't work a complete year with us, but maybe we should make an exception.",
-        vietnamese: 'Tôi biết chúng ta thường không trao giải thưởng nhân viên xuất sắc nhất cho người chưa làm việc trọn năm với chúng ta, nhưng có lẽ chúng ta nên tạo một ngoại lệ.',
-        words: ['I', 'know', 'we', "don't", 'typically', 'give', 'the', 'most', 'valuable', 'person', 'award', 'to', 'someone', 'who', "didn't", 'work', 'a', 'complete', 'year', 'with', 'us', 'but', 'maybe', 'we', 'should', 'make', 'an', 'exception'],
-        audioStart: 10.6, audioEnd: 21.28,
-    },
-    {
-        id: 3,
-        english: 'Sarah Glassman has been phenomenal since she started with us.',
-        vietnamese: 'Sarah Glassman đã rất xuất sắc kể từ khi cô ấy bắt đầu làm việc với chúng tôi.',
-        words: ['Sarah', 'Glassman', 'has', 'been', 'phenomenal', 'since', 'she', 'started', 'with', 'us'],
-        audioStart: 21.28, audioEnd: 25.56,
-    },
-    {
-        id: 4,
-        english: 'Yes, she has done great.',
-        vietnamese: 'Vâng, cô ấy đã làm rất tốt.',
-        words: ['Yes', 'she', 'has', 'done', 'great'],
-        audioStart: 25.56, audioEnd: 29.2,
-    },
-    {
-        id: 5,
-        english: 'Despite not having experience in sales, she helped us reach our goal of over 350 sales in a month.',
-        vietnamese: 'Mặc dù không có kinh nghiệm bán hàng, cô ấy đã giúp chúng tôi đạt mục tiêu hơn 350 đơn hàng trong một tháng.',
-        words: ['Despite', 'not', 'having', 'experience', 'in', 'sales', 'she', 'helped', 'us', 'reach', 'our', 'goal', 'of', 'over', '350', 'sales', 'in', 'a', 'month'],
-        audioStart: 29.2, audioEnd: 38.72,
-    },
-    {
-        id: 6,
-        english: "This has been something we've strived for since we opened eight years ago.",
-        vietnamese: 'Đây là điều mà chúng tôi đã nỗ lực đạt được kể từ khi mở cửa 8 năm trước.',
-        words: ['This', 'has', 'been', 'something', "we've", 'strived', 'for', 'since', 'we', 'opened', 'eight', 'years', 'ago'],
-        audioStart: 38.72, audioEnd: 43.76,
-    },
-    {
-        id: 7,
-        english: 'Yes, and by looking at this graph, it is clear she was a great hire.',
-        vietnamese: 'Vâng, và nhìn vào biểu đồ này, rõ ràng cô ấy là một tuyển dụng tuyệt vời.',
-        words: ['Yes', 'and', 'by', 'looking', 'at', 'this', 'graph', 'it', 'is', 'clear', 'she', 'was', 'a', 'great', 'hire'],
-        audioStart: 43.76, audioEnd: 50.08,
-    },
-    {
-        id: 8,
-        english: 'Our sales have only continued to rise since she began.',
-        vietnamese: 'Doanh số bán hàng của chúng tôi chỉ tiếp tục tăng kể từ khi cô ấy bắt đầu.',
-        words: ['Our', 'sales', 'have', 'only', 'continued', 'to', 'rise', 'since', 'she', 'began'],
-        audioStart: 50.08, audioEnd: 54.08,
-    },
-    {
-        id: 9,
-        english: 'I just wonder if the rest of the team will be disappointed.',
-        vietnamese: 'Tôi chỉ tự hỏi liệu phần còn lại của đội có thất vọng không.',
-        words: ['I', 'just', 'wonder', 'if', 'the', 'rest', 'of', 'the', 'team', 'will', 'be', 'disappointed'],
-        audioStart: 54.08, audioEnd: 58.44,
-    },
-    {
-        id: 10,
-        english: "They are longtime employees and may feel like she doesn't have the seniority that typically comes with this reward.",
-        vietnamese: 'Họ là những nhân viên lâu năm và có thể cảm thấy cô ấy không có thâm niên thường đi kèm với phần thưởng này.',
-        words: ['They', 'are', 'longtime', 'employees', 'and', 'may', 'feel', 'like', 'she', "doesn't", 'have', 'the', 'seniority', 'that', 'typically', 'comes', 'with', 'this', 'reward'],
-        audioStart: 58.44, audioEnd: 66.84,
-    },
-    {
-        id: 11,
-        english: "Hmm, you may be right, but she gets along with everyone, and I believe everyone should recognize her value and hard work.",
-        vietnamese: 'Hmm, bạn có thể đúng, nhưng cô ấy hòa đồng với mọi người, và tôi tin rằng mọi người nên công nhận giá trị và sự chăm chỉ của cô ấy.',
-        words: ['Hmm', 'you', 'may', 'be', 'right', 'but', 'she', 'gets', 'along', 'with', 'everyone', 'and', 'I', 'believe', 'everyone', 'should', 'recognize', 'her', 'value', 'and', 'hard', 'work'],
-        audioStart: 66.84, audioEnd: 76.44,
-    },
-    {
-        id: 12,
-        english: 'If anything, it may inspire the rest of the team.',
-        vietnamese: 'Nếu có gì, điều đó có thể truyền cảm hứng cho phần còn lại của đội.',
-        words: ['If', 'anything', 'it', 'may', 'inspire', 'the', 'rest', 'of', 'the', 'team'],
-        audioStart: 76.44, audioEnd: 80.16,
-    },
-    {
-        id: 13,
-        english: 'Good point. OK, that is decided.',
-        vietnamese: 'Ý kiến hay. Được rồi, vậy là quyết định xong.',
-        words: ['Good', 'point', 'OK', 'that', 'is', 'decided'],
-        audioStart: 80.16, audioEnd: 83.76,
-    },
-];
-
-const LESSON_TITLE = "Sarah's Sales Success: MVP Debate";
-const TOTAL_SENTENCES = SENTENCES.length;
+// (Removed hardcoded SENTENCES and AUDIO_URL)
 const SPEED_PRESETS = [0.25, 0.5, 0.75, 1.0, 2.0];
 
 // Pre-generated waveform heights
@@ -124,8 +18,50 @@ const normalizeWord = (w: string) => w.toLowerCase().replace(/[.,!?'"]/g, '').tr
 
 // ──── Page Component ────
 export default function DictationPracticePage() {
+    const params = useParams();
+    const lesson = SHADOWING_LESSONS.find(l => l.id === params.id);
+
+    if (!lesson) {
+        notFound();
+    }
+
+    const AUDIO_URL = lesson.audioUrl;
+    const SENTENCES = lesson.sentences;
+    const LESSON_TITLE = lesson.title;
+    const TOTAL_SENTENCES = SENTENCES.length;
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [completedSentences, setCompletedSentences] = useState<number[]>([]);
+    const [progressLoaded, setProgressLoaded] = useState(false);
+
+    // ── Load and Save Progress ──
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(`dictation_progress_${params.id}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    setCompletedSentences(parsed);
+                    if (parsed.length > 0) {
+                        const maxCompleted = Math.max(...parsed);
+                        if (maxCompleted < TOTAL_SENTENCES - 1) {
+                            setCurrentIndex(maxCompleted + 1);
+                        } else {
+                            setCurrentIndex(TOTAL_SENTENCES - 1);
+                        }
+                    }
+                }
+            }
+        } catch (e) { }
+        setProgressLoaded(true);
+    }, [params.id]);
+
+    useEffect(() => {
+        if (progressLoaded) {
+            localStorage.setItem(`dictation_progress_${params.id}`, JSON.stringify(completedSentences));
+        }
+    }, [completedSentences, progressLoaded, params.id]);
+
     const [userInput, setUserInput] = useState('');
     const [showCompleted, setShowCompleted] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -134,11 +70,79 @@ export default function DictationPracticePage() {
     const [showAllWords, setShowAllWords] = useState(false);
     const [showSpeedPanel, setShowSpeedPanel] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+    const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>('Intermediate');
+    const [showDifficultyPanel, setShowDifficultyPanel] = useState(false);
+    const [isDifficultyLoaded, setIsDifficultyLoaded] = useState(false);
+
     const audioRef = useRef<HTMLAudioElement>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const currentSentence = SENTENCES[currentIndex];
     const progressCount = completedSentences.length;
+
+    // ── Load and Save Difficulty ──
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(`dictation_difficulty`);
+            if (saved && ['Beginner', 'Intermediate', 'Advanced', 'Expert'].includes(saved)) {
+                setDifficulty(saved as any);
+            }
+        } catch (e) { }
+        setIsDifficultyLoaded(true);
+    }, []);
+
+    useEffect(() => {
+        if (isDifficultyLoaded) {
+            localStorage.setItem('dictation_difficulty', difficulty);
+        }
+    }, [difficulty, isDifficultyLoaded]);
+
+    // ── Apply Difficulty Logic on Current Sentence Change ──
+    useEffect(() => {
+        if (!currentSentence) return;
+
+        const words = currentSentence.words;
+        const totalWords = words.length;
+        const newRevealed = new Set<number>();
+
+        // Always reveal punctuation if they are treated as separate words
+        words.forEach((w, i) => {
+            if (/^[.,!?'"]+$/.test(w)) {
+                newRevealed.add(i);
+            }
+        });
+
+        // Determine how many extra words to reveal based on difficulty
+        let targetRevealPercent = 0;
+        switch (difficulty) {
+            case 'Beginner': targetRevealPercent = 0.7; break;
+            case 'Intermediate': targetRevealPercent = 0.5; break;
+            case 'Advanced': targetRevealPercent = 0.3; break;
+            case 'Expert': targetRevealPercent = 0; break;
+        }
+
+        if (targetRevealPercent > 0) {
+            const targetCount = Math.floor(totalWords * targetRevealPercent);
+
+            // Try to favor revealing shorter words or common words first in a real scenario,
+            // but for simplicity, we'll pick pseudo-randomly based on the sentence string 
+            // so it's consistent for the same sentence.
+            const indices = Array.from({ length: totalWords }, (_, i) => i)
+                .filter(i => !newRevealed.has(i));
+
+            // Shuffle deterministically based on word length so shorter words are revealed first
+            indices.sort((a, b) => words[a].length - words[b].length);
+
+            for (let i = 0; i < targetCount && i < indices.length; i++) {
+                newRevealed.add(indices[i]);
+            }
+        }
+
+        setRevealedWords(newRevealed);
+        setUserInput('');
+        setSentenceCorrect(false);
+        setShowAllWords(false);
+    }, [currentIndex, currentSentence, difficulty]);
 
     // ── Split user input into words for real-time comparison ──
     const userWords = useMemo(() => {
@@ -180,7 +184,7 @@ export default function DictationPracticePage() {
         if (currentIndex < TOTAL_SENTENCES - 1) {
             setCurrentIndex(currentIndex + 1);
         }
-    }, [currentIndex]);
+    }, [currentIndex, TOTAL_SENTENCES]);
 
     // ── Auto-play audio when moving to next sentence ──
     const isFirstRender = useRef(true);
@@ -273,6 +277,43 @@ export default function DictationPracticePage() {
     const getAsterisks = (word: string) => {
         return '*'.repeat(word.length);
     };
+
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && !e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
+                if (sentenceCorrect && currentIndex < TOTAL_SENTENCES - 1) {
+                    e.preventDefault();
+                    handleNext();
+                }
+                return;
+            }
+
+            if (e.altKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'r':
+                        e.preventDefault();
+                        handleRepeat();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        setShowSpeedPanel(prev => !prev);
+                        break;
+                    case 'a':
+                        e.preventDefault();
+                        handleShowAll();
+                        break;
+                    case 'm':
+                        e.preventDefault();
+                        setShowDifficultyPanel(prev => !prev);
+                        break;
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentIndex, TOTAL_SENTENCES, handleNext, sentenceCorrect]);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -432,15 +473,17 @@ export default function DictationPracticePage() {
                                                 <span className="text-green-700 font-semibold">Correct! Well done 🎉</span>
                                             </div>
                                             {currentIndex < TOTAL_SENTENCES - 1 && (
-                                                <button
-                                                    onClick={handleNext}
-                                                    className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1.5"
-                                                >
-                                                    Next Sentence
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                    </svg>
-                                                </button>
+                                                <Tooltip content="Next Sentence" shortcut="Enter" position="top">
+                                                    <button
+                                                        onClick={handleNext}
+                                                        className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1.5"
+                                                    >
+                                                        Next Sentence
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </Tooltip>
                                             )}
                                         </div>
                                     )}
@@ -455,8 +498,8 @@ export default function DictationPracticePage() {
                                             onChange={(e) => setUserInput(e.target.value)}
                                             disabled={sentenceCorrect}
                                             className={`w-full border-2 rounded-xl px-4 py-3 text-gray-700 resize-none focus:outline-none transition-colors ${sentenceCorrect
-                                                    ? 'border-green-400 bg-green-50 cursor-not-allowed'
-                                                    : 'border-gray-200 focus:border-primary'
+                                                ? 'border-green-400 bg-green-50 cursor-not-allowed'
+                                                : 'border-gray-200 focus:border-primary'
                                                 }`}
                                         />
                                     </div>
@@ -464,35 +507,81 @@ export default function DictationPracticePage() {
                                     {/* Action Buttons */}
                                     <div className="flex items-center justify-end gap-3 mb-6 relative">
                                         {/* 1. Repeat Sentence */}
-                                        <button
-                                            onClick={handleRepeat}
-                                            className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-md"
-                                            title="Repeat sentence"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
+                                        <Tooltip content="Repeat Sentence" shortcut="Alt+R" position="top">
+                                            <button
+                                                onClick={handleRepeat}
+                                                className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-md"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </Tooltip>
 
                                         {/* 2. Speed Control */}
-                                        <button
-                                            onClick={() => setShowSpeedPanel(!showSpeedPanel)}
-                                            className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors shadow-md"
-                                            title="Playback speed"
-                                        >
-                                            <span className="text-xs font-bold">{playbackSpeed}x</span>
-                                        </button>
+                                        <Tooltip content="Playback Speed" shortcut="Alt+S" position="top">
+                                            <button
+                                                onClick={() => setShowSpeedPanel(!showSpeedPanel)}
+                                                className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors shadow-md"
+                                            >
+                                                <span className="text-xs font-bold">{playbackSpeed}x</span>
+                                            </button>
+                                        </Tooltip>
 
                                         {/* 3. Show All Words */}
-                                        <button
-                                            onClick={handleShowAll}
-                                            className="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-md"
-                                            title="Show all words"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
+                                        <Tooltip content="Show All Words" shortcut="Alt+A" position="top">
+                                            <button
+                                                onClick={handleShowAll}
+                                                className="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-md"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </Tooltip>
+
+                                        {/* 4. Difficulty Selector */}
+                                        <Tooltip content="Difficulty Level" shortcut="Alt+M" position="top">
+                                            <button
+                                                onClick={() => setShowDifficultyPanel(!showDifficultyPanel)}
+                                                className="h-10 px-4 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2 transition-colors shadow-md font-semibold text-sm"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
+                                                </svg>
+                                                <span>{difficulty}</span>
+                                            </button>
+                                        </Tooltip>
+
+                                        {/* Difficulty Panel Popup */}
+                                        {showDifficultyPanel && (
+                                            <div className="absolute bottom-14 right-0 bg-gray-800 text-white rounded-2xl p-4 shadow-2xl z-20 w-52 flex flex-col gap-2">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="font-semibold text-sm">Select Difficulty</span>
+                                                    <button onClick={() => setShowDifficultyPanel(false)} className="text-gray-400 hover:text-white">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                                    </button>
+                                                </div>
+                                                {(['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const).map(level => (
+                                                    <button
+                                                        key={level}
+                                                        onClick={() => {
+                                                            setDifficulty(level);
+                                                            setShowDifficultyPanel(false);
+                                                        }}
+                                                        className={`text-left px-3 py-2 rounded-lg text-sm transition-colors ${difficulty === level ? 'bg-orange-500 font-bold' : 'hover:bg-gray-700'}`}
+                                                    >
+                                                        {level}
+                                                        <span className="block text-xs text-gray-400 font-normal mt-0.5">
+                                                            {level === 'Beginner' && '30% words hidden'}
+                                                            {level === 'Intermediate' && '50% words hidden'}
+                                                            {level === 'Advanced' && '70% words hidden'}
+                                                            {level === 'Expert' && '100% words hidden'}
+                                                        </span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
 
                                         {/* Speed Panel Popup */}
                                         {showSpeedPanel && (

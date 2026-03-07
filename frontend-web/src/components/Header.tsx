@@ -45,7 +45,7 @@ export default function Header() {
           {/* Auth Buttons */}
           {user ? (
             <div className="flex items-center gap-4">
-              <span className={`text-sm font-semibold ${isOverlay ? 'text-white' : 'text-gray-900'}`}>Hello, {user.fullName || user.email}</span>
+              <span className={`text-sm font-semibold ${isOverlay ? 'text-white' : 'text-gray-900'}`}>Hello, {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</span>
               <button
                 onClick={logout}
                 className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -83,7 +83,7 @@ export default function Header() {
           <div className="border-t border-gray-100 pt-4 flex flex-col gap-3">
             {user ? (
               <>
-                <span className="text-sm font-semibold">Signed in as {user.email}</span>
+                <span className="text-sm font-semibold">Signed in as {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</span>
                 <button onClick={() => { logout(); setIsMenuOpen(false); }} className="text-left py-2 text-red-600 font-medium">Logout</button>
               </>
             ) : (

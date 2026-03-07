@@ -1,38 +1,50 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 
-// ──── Types ────
-interface VideoLesson {
-    id: string;
-    title: string;
-    category: string;
-    thumbnailUrl: string;
-    duration: string; // e.g. "1:24"
-}
+import { SHADOWING_LESSONS } from '@/data/shadowing-lessons';
 
-// ──── Sample Data ────
-const CATEGORIES = ['All', 'TOEIC', 'Politics', 'Religion', 'IELTS'];
-
-const SAMPLE_LESSONS: VideoLesson[] = [
-    { id: '1', title: "Sarah's Sales Success: MVP Debate", category: 'TOEIC', thumbnailUrl: 'https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/toeic_thumbnail_1_sddict.jpg', duration: '1:24' },
-    { id: '2', title: "Sarah's Sales Success: MVP Debate", category: 'TOEIC', thumbnailUrl: 'https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/toeic_thumbnail_1_sddict.jpg', duration: '1:24' },
-    { id: '3', title: "Sarah's Sales Success: MVP Debate", category: 'TOEIC', thumbnailUrl: 'https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/toeic_thumbnail_1_sddict.jpg', duration: '1:24' },
-    { id: '4', title: "Sarah's Sales Success: MVP Debate", category: 'TOEIC', thumbnailUrl: 'https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/toeic_thumbnail_1_sddict.jpg', duration: '1:24' },
-    { id: '5', title: "Sarah's Sales Success: MVP Debate", category: 'TOEIC', thumbnailUrl: 'https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/toeic_thumbnail_1_sddict.jpg', duration: '1:24' },
-    { id: '6', title: "Sarah's Sales Success: MVP Debate", category: 'TOEIC', thumbnailUrl: 'https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/toeic_thumbnail_1_sddict.jpg', duration: '1:24' },
-];
+// ──── Data ────
+const CATEGORIES = ['All', ...Array.from(new Set(SHADOWING_LESSONS.flatMap(lesson => lesson.tags)))];
 
 // ──── Page Component ────
 export default function ShadowingDictationPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
+    const [progress, setProgress] = useState<Record<string, { shadowing: number, dictation: number }>>({});
+
+    useEffect(() => {
+        const newProgress: Record<string, { shadowing: number, dictation: number }> = {};
+        SHADOWING_LESSONS.forEach(lesson => {
+            let shadowingCount = 0;
+            let dictationCount = 0;
+            try {
+                const s = localStorage.getItem(`shadowing_progress_${lesson.id}`);
+                if (s) {
+                    const parsed = JSON.parse(s);
+                    if (Array.isArray(parsed)) shadowingCount = parsed.length;
+                }
+                const d = localStorage.getItem(`dictation_progress_${lesson.id}`);
+                if (d) {
+                    const parsed = JSON.parse(d);
+                    if (Array.isArray(parsed)) dictationCount = parsed.length;
+                }
+            } catch (e) { }
+
+            const total = lesson.sentences.length;
+            newProgress[lesson.id] = {
+                shadowing: total > 0 ? Math.round((shadowingCount / total) * 100) : 0,
+                dictation: total > 0 ? Math.round((dictationCount / total) * 100) : 0
+            };
+        });
+        setProgress(newProgress);
+    }, []);
 
     const filteredLessons = useMemo(() => {
-        return SAMPLE_LESSONS.filter((lesson) => {
-            const matchesCategory = activeCategory === 'All' || lesson.category === activeCategory;
+        return SHADOWING_LESSONS.filter((lesson) => {
+            const matchesCategory = activeCategory === 'All' || lesson.tags.includes(activeCategory);
             const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
@@ -137,18 +149,46 @@ export default function ShadowingDictationPage() {
                                     </button>
                                 </div>
 
+                                {/* Progress Indicators */}
+                                <div className="mb-4 space-y-2">
+                                    <div>
+                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                            <span>Shadowing</span>
+                                            <span className="font-medium">{progress[lesson.id]?.shadowing || 0}%</span>
+                                        </div>
+                                        <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                            <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.shadowing || 0}%` }}></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                            <span>Dictation</span>
+                                            <span className="font-medium">{progress[lesson.id]?.dictation || 0}%</span>
+                                        </div>
+                                        <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                            <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.dictation || 0}%` }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* Action Buttons */}
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
                                     <Link
                                         href={`/shadowing-dictation/${lesson.id}/shadowing`}
-                                        className="px-4 py-1.5 border-2 border-primary text-primary rounded-full text-sm font-semibold hover:bg-primary hover:text-white transition-all"
+                                        className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-primary text-primary rounded-xl text-sm font-semibold hover:bg-primary hover:text-white transition-all"
                                     >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
+                                            <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                                        </svg>
                                         Shadowing
                                     </Link>
                                     <Link
                                         href={`/shadowing-dictation/${lesson.id}/dictation`}
-                                        className="px-4 py-1.5 border-2 border-gray-300 text-gray-600 rounded-full text-sm font-semibold hover:bg-gray-100 transition-all"
+                                        className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-gray-800 text-gray-800 rounded-xl text-sm font-semibold hover:bg-gray-800 hover:text-white transition-all"
                                     >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
+                                            <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                                        </svg>
                                         Dictation
                                     </Link>
                                 </div>

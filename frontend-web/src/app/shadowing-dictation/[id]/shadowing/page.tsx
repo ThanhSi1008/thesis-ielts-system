@@ -3,130 +3,12 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import PageHeader from '@/components/PageHeader';
 
-// ──── Types ────
-interface ShadowingSentence {
-    id: number;
-    english: string;
-    phonetic: string;
-    vietnamese: string;
-    words: string[];
-    audioStart: number;
-    audioEnd: number;
-}
+import { useParams, notFound } from 'next/navigation';
+import { SHADOWING_LESSONS, ShadowingSentence } from '@/data/shadowing-lessons';
+import DictionaryPopup from '@/components/DictionaryPopup';
+import Tooltip from '@/components/Tooltip';
 
-// ──── Audio Source ────
-const AUDIO_URL = 'https://res.cloudinary.com/dalaaegob/video/upload/v1772874242/lesson-K5C-Rt6PJHdZNt0vkUpTp_1_lkoskg.mp3';
-
-// ──── Real Transcription Sentences with exact SRT timestamps ────
-const SENTENCES: ShadowingSentence[] = [
-    {
-        id: 1,
-        english: 'So, the last thing in the agenda before we wrap up our end of the year meeting is choosing the MVP of the year.',
-        phonetic: 'soʊ, ðə læst θɪŋ ɪn ðə əˈdʒɛndə bɪˈfɔːr wi ræp ʌp aʊər ɛnd ʌv ðə jɪr ˈmiːtɪŋ ɪz ˈtʃuːzɪŋ ðə ɛm viː piː ʌv ðə jɪr',
-        vietnamese: 'Vậy, điều cuối cùng trong chương trình nghị sự trước khi chúng ta kết thúc cuộc họp cuối năm là chọn ra MVP của năm.',
-        words: ['So', 'the', 'last', 'thing', 'in', 'the', 'agenda', 'before', 'we', 'wrap', 'up', 'our', 'end', 'of', 'the', 'year', 'meeting', 'is', 'choosing', 'the', 'MVP', 'of', 'the', 'year'],
-        audioStart: 0, audioEnd: 10.6,
-    },
-    {
-        id: 2,
-        english: "I know we don't typically give the most valuable person award to someone who didn't work a complete year with us, but maybe we should make an exception.",
-        phonetic: "aɪ noʊ wi doʊnt ˈtɪpɪkli ɡɪv ðə moʊst ˈvæljəbl ˈpɜːrsən əˈwɔːrd tuː ˈsʌmwʌn huː ˈdɪdnt wɜːrk ə kəmˈpliːt jɪr wɪð ʌs bʌt ˈmeɪbi wi ʃʊd meɪk ən ɪkˈsɛpʃən",
-        vietnamese: 'Tôi biết chúng ta thường không trao giải thưởng nhân viên xuất sắc nhất cho người chưa làm việc trọn năm với chúng ta, nhưng có lẽ chúng ta nên tạo một ngoại lệ.',
-        words: ['I', 'know', 'we', "don't", 'typically', 'give', 'the', 'most', 'valuable', 'person', 'award', 'to', 'someone', 'who', "didn't", 'work', 'a', 'complete', 'year', 'with', 'us', 'but', 'maybe', 'we', 'should', 'make', 'an', 'exception'],
-        audioStart: 10.6, audioEnd: 21.28,
-    },
-    {
-        id: 3,
-        english: 'Sarah Glassman has been phenomenal since she started with us.',
-        phonetic: 'ˈsɛrə ˈɡlæsmən hæz biːn fəˈnɒmɪnəl sɪns ʃiː ˈstɑːrtɪd wɪð ʌs',
-        vietnamese: 'Sarah Glassman đã rất xuất sắc kể từ khi cô ấy bắt đầu làm việc với chúng tôi.',
-        words: ['Sarah', 'Glassman', 'has', 'been', 'phenomenal', 'since', 'she', 'started', 'with', 'us'],
-        audioStart: 21.28, audioEnd: 25.56,
-    },
-    {
-        id: 4,
-        english: 'Yes, she has done great.',
-        phonetic: 'jɛs ʃiː hæz dʌn ɡreɪt',
-        vietnamese: 'Vâng, cô ấy đã làm rất tốt.',
-        words: ['Yes', 'she', 'has', 'done', 'great'],
-        audioStart: 25.56, audioEnd: 29.2,
-    },
-    {
-        id: 5,
-        english: 'Despite not having experience in sales, she helped us reach our goal of over 350 sales in a month.',
-        phonetic: 'dɪˈspaɪt nɒt ˈhævɪŋ ɪkˈspɪriəns ɪn seɪlz ʃiː hɛlpt ʌs riːtʃ aʊər ɡoʊl ʌv ˈoʊvər θriː ˈhʌndrəd ˈfɪfti seɪlz ɪn ə mʌnθ',
-        vietnamese: 'Mặc dù không có kinh nghiệm bán hàng, cô ấy đã giúp chúng tôi đạt mục tiêu hơn 350 đơn hàng trong một tháng.',
-        words: ['Despite', 'not', 'having', 'experience', 'in', 'sales', 'she', 'helped', 'us', 'reach', 'our', 'goal', 'of', 'over', '350', 'sales', 'in', 'a', 'month'],
-        audioStart: 29.2, audioEnd: 38.72,
-    },
-    {
-        id: 6,
-        english: "This has been something we've strived for since we opened eight years ago.",
-        phonetic: "ðɪs hæz biːn ˈsʌmθɪŋ wiːv straɪvd fɔːr sɪns wi ˈoʊpənd eɪt jɪrz əˈɡoʊ",
-        vietnamese: 'Đây là điều mà chúng tôi đã nỗ lực đạt được kể từ khi mở cửa 8 năm trước.',
-        words: ['This', 'has', 'been', 'something', "we've", 'strived', 'for', 'since', 'we', 'opened', 'eight', 'years', 'ago'],
-        audioStart: 38.72, audioEnd: 43.76,
-    },
-    {
-        id: 7,
-        english: 'Yes, and by looking at this graph, it is clear she was a great hire.',
-        phonetic: 'jɛs ænd baɪ ˈlʊkɪŋ æt ðɪs ɡræf ɪt ɪz klɪr ʃiː wɒz ə ɡreɪt haɪər',
-        vietnamese: 'Vâng, và nhìn vào biểu đồ này, rõ ràng cô ấy là một tuyển dụng tuyệt vời.',
-        words: ['Yes', 'and', 'by', 'looking', 'at', 'this', 'graph', 'it', 'is', 'clear', 'she', 'was', 'a', 'great', 'hire'],
-        audioStart: 43.76, audioEnd: 50.08,
-    },
-    {
-        id: 8,
-        english: 'Our sales have only continued to rise since she began.',
-        phonetic: 'aʊər seɪlz hæv ˈoʊnli kənˈtɪnjuːd tuː raɪz sɪns ʃiː bɪˈɡæn',
-        vietnamese: 'Doanh số bán hàng của chúng tôi chỉ tiếp tục tăng kể từ khi cô ấy bắt đầu.',
-        words: ['Our', 'sales', 'have', 'only', 'continued', 'to', 'rise', 'since', 'she', 'began'],
-        audioStart: 50.08, audioEnd: 54.08,
-    },
-    {
-        id: 9,
-        english: 'I just wonder if the rest of the team will be disappointed.',
-        phonetic: 'aɪ dʒʌst ˈwʌndər ɪf ðə rɛst ʌv ðə tiːm wɪl biː ˌdɪsəˈpɔɪntɪd',
-        vietnamese: 'Tôi chỉ tự hỏi liệu phần còn lại của đội có thất vọng không.',
-        words: ['I', 'just', 'wonder', 'if', 'the', 'rest', 'of', 'the', 'team', 'will', 'be', 'disappointed'],
-        audioStart: 54.08, audioEnd: 58.44,
-    },
-    {
-        id: 10,
-        english: "They are longtime employees and may feel like she doesn't have the seniority that typically comes with this reward.",
-        phonetic: "ðeɪ ɑːr ˈlɒŋtaɪm ɪmˈplɔɪiːz ænd meɪ fiːl laɪk ʃiː ˈdʌznt hæv ðə ˌsiːniˈɒrɪti ðæt ˈtɪpɪkli kʌmz wɪð ðɪs rɪˈwɔːrd",
-        vietnamese: 'Họ là những nhân viên lâu năm và có thể cảm thấy cô ấy không có thâm niên thường đi kèm với phần thưởng này.',
-        words: ['They', 'are', 'longtime', 'employees', 'and', 'may', 'feel', 'like', 'she', "doesn't", 'have', 'the', 'seniority', 'that', 'typically', 'comes', 'with', 'this', 'reward'],
-        audioStart: 58.44, audioEnd: 66.84,
-    },
-    {
-        id: 11,
-        english: "Hmm, you may be right, but she gets along with everyone, and I believe everyone should recognize her value and hard work.",
-        phonetic: "hm juː meɪ biː raɪt bʌt ʃiː ɡɛts əˈlɒŋ wɪð ˈɛvriːwʌn ænd aɪ bɪˈliːv ˈɛvriːwʌn ʃʊd ˈrɛkəɡnaɪz hɜːr ˈvæljuː ænd hɑːrd wɜːrk",
-        vietnamese: 'Hmm, bạn có thể đúng, nhưng cô ấy hòa đồng với mọi người, và tôi tin rằng mọi người nên công nhận giá trị và sự chăm chỉ của cô ấy.',
-        words: ['Hmm', 'you', 'may', 'be', 'right', 'but', 'she', 'gets', 'along', 'with', 'everyone', 'and', 'I', 'believe', 'everyone', 'should', 'recognize', 'her', 'value', 'and', 'hard', 'work'],
-        audioStart: 66.84, audioEnd: 76.44,
-    },
-    {
-        id: 12,
-        english: 'If anything, it may inspire the rest of the team.',
-        phonetic: 'ɪf ˈɛniθɪŋ ɪt meɪ ɪnˈspaɪər ðə rɛst ʌv ðə tiːm',
-        vietnamese: 'Nếu có gì, điều đó có thể truyền cảm hứng cho phần còn lại của đội.',
-        words: ['If', 'anything', 'it', 'may', 'inspire', 'the', 'rest', 'of', 'the', 'team'],
-        audioStart: 76.44, audioEnd: 80.16,
-    },
-    {
-        id: 13,
-        english: 'Good point. OK, that is decided.',
-        phonetic: 'ɡʊd pɔɪnt oʊˈkeɪ ðæt ɪz dɪˈsaɪdɪd',
-        vietnamese: 'Ý kiến hay. Được rồi, vậy là quyết định xong.',
-        words: ['Good', 'point', 'OK', 'that', 'is', 'decided'],
-        audioStart: 80.16, audioEnd: 83.76,
-    },
-];
-
-const LESSON_TITLE = "Sarah's Sales Success: MVP Debate";
-const TOTAL_SENTENCES = SENTENCES.length;
+// (Removed hardcoded SENTENCES and AUDIO_URL)
 const SPEED_PRESETS = [0.25, 0.5, 0.75, 1.0, 2.0];
 
 // Pre-generated waveform heights (stable across re-renders)
@@ -137,8 +19,48 @@ const normalizeWord = (w: string) => w.toLowerCase().replace(/[.,!?'"]/g, '').tr
 
 // ──── Page Component ────
 export default function ShadowingPracticePage() {
+    const params = useParams();
+    const lesson = SHADOWING_LESSONS.find(l => l.id === params.id);
+    if (!lesson) {
+        notFound();
+    }
+    const AUDIO_URL = lesson.audioUrl;
+    const SENTENCES = lesson.sentences as ShadowingSentence[];
+    const LESSON_TITLE = lesson.title;
+    const TOTAL_SENTENCES = SENTENCES.length;
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [completedSentences, setCompletedSentences] = useState<number[]>([]);
+    const [progressLoaded, setProgressLoaded] = useState(false);
+
+    // ── Load and Save Progress ──
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(`shadowing_progress_${params.id}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    setCompletedSentences(parsed);
+                    if (parsed.length > 0) {
+                        const maxCompleted = Math.max(...parsed);
+                        if (maxCompleted < TOTAL_SENTENCES - 1) {
+                            setCurrentIndex(maxCompleted + 1);
+                        } else {
+                            setCurrentIndex(TOTAL_SENTENCES - 1);
+                        }
+                    }
+                }
+            }
+        } catch (e) { }
+        setProgressLoaded(true);
+    }, [params.id]);
+
+    useEffect(() => {
+        if (progressLoaded) {
+            localStorage.setItem(`shadowing_progress_${params.id}`, JSON.stringify(completedSentences));
+        }
+    }, [completedSentences, progressLoaded, params.id]);
+
     const [showCompleted, setShowCompleted] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
@@ -149,6 +71,9 @@ export default function ShadowingPracticePage() {
     const [sentenceCorrect, setSentenceCorrect] = useState(false);
     const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null);
     const [isPlayingRecorded, setIsPlayingRecorded] = useState(false);
+    // Dictionary Popup state
+    const [selectedDictionaryWord, setSelectedDictionaryWord] = useState<string | null>(null);
+    const [dictionaryPopupPosition, setDictionaryPopupPosition] = useState<{ x: number, y: number } | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
     const recordedAudioRef = useRef<HTMLAudioElement>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -357,10 +282,12 @@ export default function ShadowingPracticePage() {
         setResultStatus(null);
         setSentenceCorrect(false);
         setRecordedAudioUrl(null);
+        setSelectedDictionaryWord(null);
+        setDictionaryPopupPosition(null);
         if (currentIndex < TOTAL_SENTENCES - 1) {
             setCurrentIndex(currentIndex + 1);
         }
-    }, [currentIndex, recordedAudioUrl]);
+    }, [currentIndex, recordedAudioUrl, TOTAL_SENTENCES]);
 
     const handlePlayRecordedAudio = () => {
         const audio = recordedAudioRef.current;
@@ -370,6 +297,35 @@ export default function ShadowingPracticePage() {
         setIsPlayingRecorded(true);
         audio.onended = () => setIsPlayingRecorded(false);
     };
+
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && !e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
+                if (currentIndex < TOTAL_SENTENCES - 1) {
+                    e.preventDefault();
+                    handleNext();
+                }
+                return;
+            }
+
+            if (e.altKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'r':
+                        e.preventDefault();
+                        handleRepeat();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        setShowSpeedPanel(prev => !prev);
+                        break;
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentIndex, TOTAL_SENTENCES, handleNext]);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -516,9 +472,35 @@ export default function ShadowingPracticePage() {
                             ) : (
                                 <>
                                     {/* Current Sentence */}
-                                    <div className="mb-4">
-                                        <p className="text-lg font-bold text-gray-800 leading-relaxed mb-2">
-                                            {currentSentence.english}
+                                    <div className="mb-4 relative">
+                                        <p className="text-lg font-bold text-gray-800 leading-relaxed mb-2 flex flex-wrap gap-x-1.5 gap-y-1">
+                                            {currentSentence.words.map((word, idx) => (
+                                                <span
+                                                    key={idx}
+                                                    onClick={(e) => {
+                                                        const cleanWord = word.replace(/[.,!?'"]/g, '').toLowerCase();
+                                                        if (cleanWord) {
+                                                            const rect = e.currentTarget.getBoundingClientRect();
+                                                            setDictionaryPopupPosition({ x: rect.left, y: rect.bottom + window.scrollY });
+                                                            setSelectedDictionaryWord(cleanWord);
+                                                        }
+                                                    }}
+                                                    className="cursor-pointer hover:text-primary hover:underline underline-offset-4 decoration-2 transition-colors relative"
+                                                >
+                                                    {word}
+                                                </span>
+                                            ))}
+                                            {selectedDictionaryWord && dictionaryPopupPosition && (
+                                                <DictionaryPopup
+                                                    word={selectedDictionaryWord}
+                                                    sentence={currentSentence.english}
+                                                    position={dictionaryPopupPosition}
+                                                    onClose={() => {
+                                                        setSelectedDictionaryWord(null);
+                                                        setDictionaryPopupPosition(null);
+                                                    }}
+                                                />
+                                            )}
                                         </p>
                                         <p className="text-gray-500 text-sm leading-relaxed font-mono">
                                             {currentSentence.phonetic}
@@ -537,15 +519,17 @@ export default function ShadowingPracticePage() {
                                                 <span className="text-green-700 font-semibold">Correct! Well done 🎉</span>
                                             </div>
                                             {currentIndex < TOTAL_SENTENCES - 1 && (
-                                                <button
-                                                    onClick={handleNext}
-                                                    className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1.5"
-                                                >
-                                                    Next Sentence
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                    </svg>
-                                                </button>
+                                                <Tooltip content="Next Sentence" shortcut="Enter" position="top">
+                                                    <button
+                                                        onClick={handleNext}
+                                                        className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1.5"
+                                                    >
+                                                        Next Sentence
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </Tooltip>
                                             )}
                                         </div>
                                     )}
@@ -621,41 +605,44 @@ export default function ShadowingPracticePage() {
 
                                         <div className="flex items-center gap-3 relative">
                                             {/* Replay */}
-                                            <button
-                                                onClick={handleRepeat}
-                                                className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-md"
-                                                title="Repeat sentence"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-                                                </svg>
-                                            </button>
+                                            <Tooltip content="Repeat Sentence" shortcut="Alt+R" position="top">
+                                                <button
+                                                    onClick={handleRepeat}
+                                                    className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-md"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                            </Tooltip>
 
                                             {/* Speed Control */}
-                                            <button
-                                                onClick={() => setShowSpeedPanel(!showSpeedPanel)}
-                                                className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors shadow-md"
-                                                title="Playback speed"
-                                            >
-                                                <span className="text-xs font-bold">{playbackSpeed}x</span>
-                                            </button>
+                                            <Tooltip content="Playback Speed" shortcut="Alt+S" position="top">
+                                                <button
+                                                    onClick={() => setShowSpeedPanel(!showSpeedPanel)}
+                                                    className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors shadow-md"
+                                                >
+                                                    <span className="text-xs font-bold">{playbackSpeed}x</span>
+                                                </button>
+                                            </Tooltip>
 
                                             {/* Play Recorded Audio */}
-                                            <button
-                                                onClick={handlePlayRecordedAudio}
-                                                disabled={!recordedAudioUrl}
-                                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md ${recordedAudioUrl
-                                                    ? isPlayingRecorded
-                                                        ? 'bg-red-600 text-white animate-pulse'
-                                                        : 'bg-red-500 hover:bg-red-600 text-white'
-                                                    : 'bg-gray-300 text-gray-400 cursor-not-allowed'
-                                                    }`}
-                                                title="Play your recording"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                                                </svg>
-                                            </button>
+                                            <Tooltip content="Play Your Recording" position="top">
+                                                <button
+                                                    onClick={handlePlayRecordedAudio}
+                                                    disabled={!recordedAudioUrl}
+                                                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md ${recordedAudioUrl
+                                                        ? isPlayingRecorded
+                                                            ? 'bg-red-600 text-white animate-pulse'
+                                                            : 'bg-red-500 hover:bg-red-600 text-white'
+                                                        : 'bg-gray-300 text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                            </Tooltip>
 
                                             {/* Speed Panel Popup */}
                                             {showSpeedPanel && (
