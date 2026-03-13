@@ -7,12 +7,12 @@ import PageHeader from '@/components/PageHeader';
 import { SHADOWING_LESSONS } from '@/data/shadowing-lessons';
 
 // ──── Data ────
-const CATEGORIES = ['All', ...Array.from(new Set(SHADOWING_LESSONS.flatMap(lesson => lesson.tags)))];
+const CATEGORIES = ['All', 'TOEIC', 'YOUTUBE'];
 
 // ──── Page Component ────
 export default function ShadowingDictationPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeCategory, setActiveCategory] = useState('All');
+    const [activeCategory, setActiveCategory] = useState('TOEIC');
     const [progress, setProgress] = useState<Record<string, { shadowing: number, dictation: number }>>({});
 
     useEffect(() => {
@@ -63,21 +63,32 @@ export default function ShadowingDictationPage() {
 
             {/* Content Area */}
             <div className="container mx-auto max-w-screen-xl px-4 py-8">
-                {/* Search Bar */}
-                <div className="relative mb-6">
-                    <input
-                        id="search-lessons"
-                        type="text"
-                        placeholder="Search"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                    />
-                    <button className="absolute right-0 top-0 h-full px-4 bg-gray-100 border-l border-gray-300 rounded-r-lg hover:bg-gray-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                {/* Search Bar + Create Button */}
+                <div className="flex gap-3 mb-6">
+                    <div className="relative flex-1">
+                        <input
+                            id="search-lessons"
+                            type="text"
+                            placeholder="Search"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        />
+                        <button className="absolute right-0 top-0 h-full px-4 bg-gray-100 border-l border-gray-300 rounded-r-lg hover:bg-gray-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <Link
+                        href="/shadowing-dictation/my-videos"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all whitespace-nowrap"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
-                    </button>
+                        Create
+                    </Link>
                 </div>
 
                 {/* Category Filter Tabs */}
@@ -106,27 +117,36 @@ export default function ShadowingDictationPage() {
                             {/* Thumbnail */}
                             <div className="relative">
                                 <div className="w-full aspect-video bg-primary flex items-center justify-center overflow-hidden">
-                                    {/* Fallback TOEIC-style thumbnail */}
-                                    <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center relative">
-                                        {/* Letter blocks */}
-                                        <div className="flex gap-1.5">
-                                            {['T', 'O', 'E', 'I', 'C'].map((letter, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="w-10 h-12 bg-amber-100 border-2 border-amber-300 rounded flex items-center justify-center text-xl font-bold text-gray-800 shadow-sm"
-                                                    style={{ transform: `rotate(${(i - 2) * 3}deg)` }}
-                                                >
-                                                    {letter}
-                                                </div>
-                                            ))}
+                                    {lesson.youtubeVideoId ? (
+                                        /* YouTube thumbnail */
+                                        <img
+                                            src={`https://img.youtube.com/vi/${lesson.youtubeVideoId}/maxresdefault.jpg`}
+                                            alt={lesson.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        /* Fallback TOEIC-style thumbnail */
+                                        <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center relative">
+                                            {/* Letter blocks */}
+                                            <div className="flex gap-1.5">
+                                                {['T', 'O', 'E', 'I', 'C'].map((letter, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="w-10 h-12 bg-amber-100 border-2 border-amber-300 rounded flex items-center justify-center text-xl font-bold text-gray-800 shadow-sm"
+                                                        style={{ transform: `rotate(${(i - 2) * 3}deg)` }}
+                                                    >
+                                                        {letter}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {/* Scattered faint letters in background */}
+                                            <span className="absolute top-2 left-3 text-yellow-300/40 text-2xl font-bold rotate-12">F</span>
+                                            <span className="absolute top-3 right-6 text-yellow-300/40 text-lg font-bold -rotate-6">N</span>
+                                            <span className="absolute bottom-3 left-6 text-yellow-300/40 text-xl font-bold rotate-6">W</span>
+                                            <span className="absolute bottom-2 right-3 text-yellow-300/40 text-2xl font-bold -rotate-12">R</span>
+                                            <span className="absolute top-1 left-1/3 text-yellow-300/30 text-lg font-bold rotate-3">O</span>
                                         </div>
-                                        {/* Scattered faint letters in background */}
-                                        <span className="absolute top-2 left-3 text-yellow-300/40 text-2xl font-bold rotate-12">F</span>
-                                        <span className="absolute top-3 right-6 text-yellow-300/40 text-lg font-bold -rotate-6">N</span>
-                                        <span className="absolute bottom-3 left-6 text-yellow-300/40 text-xl font-bold rotate-6">W</span>
-                                        <span className="absolute bottom-2 right-3 text-yellow-300/40 text-2xl font-bold -rotate-12">R</span>
-                                        <span className="absolute top-1 left-1/3 text-yellow-300/30 text-lg font-bold rotate-3">O</span>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {/* Duration Badge */}

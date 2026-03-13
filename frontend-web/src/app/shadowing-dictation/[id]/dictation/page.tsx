@@ -10,22 +10,63 @@ import { SHADOWING_LESSONS, ShadowingSentence as DictationSentence } from '@/dat
 // (Removed hardcoded SENTENCES and AUDIO_URL)
 const SPEED_PRESETS = [0.25, 0.5, 0.75, 1.0, 2.0];
 
+// Declare global YT types
+declare global {
+    interface Window {
+        YT: any;
+        onYouTubeIframeAPIReady: (() => void) | undefined;
+    }
+}
+
 // Pre-generated waveform heights
 const WAVEFORM_HEIGHTS = Array.from({ length: 60 }, () => Math.max(15, Math.random() * 100));
 
 // Normalize a word for comparison (strip punctuation, lowercase)
 const normalizeWord = (w: string) => w.toLowerCase().replace(/[.,!?'"]/g, '').trim();
 
+// ── Helper: look up lesson from static data or localStorage ──
+function findLesson(id: string | string[] | undefined) {
+    if (!id || Array.isArray(id)) return undefined;
+    const staticLesson = SHADOWING_LESSONS.find(l => l.id === id);
+    if (staticLesson) return staticLesson;
+
+    // Check user-created videos in localStorage
+    if (typeof id === 'string' && id.startsWith('my-')) {
+        try {
+            const raw = localStorage.getItem('my_videos');
+            if (raw) {
+                const videos = JSON.parse(raw);
+                const found = videos.find((v: any) => v.id === id);
+                if (found) {
+                    return {
+                        id: found.id,
+                        title: found.title,
+                        audioUrl: '',
+                        youtubeVideoId: found.youtubeVideoId,
+                        image: `https://img.youtube.com/vi/${found.youtubeVideoId}/maxresdefault.jpg`,
+                        tags: ['YOUTUBE'],
+                        duration: found.duration,
+                        sentences: found.sentences,
+                    } as import('@/data/shadowing-lessons').ShadowingLesson;
+                }
+            }
+        } catch {}
+    }
+    return undefined;
+}
+
 // ──── Page Component ────
 export default function DictationPracticePage() {
     const params = useParams();
-    const lesson = SHADOWING_LESSONS.find(l => l.id === params.id);
+    const lesson = findLesson(params.id);
 
     if (!lesson) {
         notFound();
     }
 
     const AUDIO_URL = lesson.audioUrl;
+    const YOUTUBE_VIDEO_ID = lesson.youtubeVideoId;
+    const IS_YOUTUBE = !!YOUTUBE_VIDEO_ID;
     const SENTENCES = lesson.sentences;
     const LESSON_TITLE = lesson.title;
     const TOTAL_SENTENCES = SENTENCES.length;
@@ -76,6 +117,45 @@ export default function DictationPracticePage() {
 
     const audioRef = useRef<HTMLAudioElement>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const ytPlayerRef = useRef<any>(null);
+    const ytContainerRef = useRef<HTMLDivElement>(null);
+    const [ytReady, setYtReady] = useState(false);
+
+    // ── YouTube IFrame API Setup ──
+    useEffect(() => {
+        if (!IS_YOUTUBE) return;
+
+        const initPlayer = () => {
+            if (!ytContainerRef.current) return;
+            ytPlayerRef.current = new window.YT.Player(ytContainerRef.current, {
+                videoId: YOUTUBE_VIDEO_ID,
+                playerVars: {
+                    autoplay: 0,
+                    controls: 1,
+                    modestbranding: 1,
+                    rel: 0,
+                },
+                events: {
+                    onReady: () => setYtReady(true),
+                },
+            });
+        };
+
+        if (window.YT && window.YT.Player) {
+            initPlayer();
+        } else {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            document.head.appendChild(tag);
+            window.onYouTubeIframeAPIReady = () => initPlayer();
+        }
+
+        return () => {
+            if (ytPlayerRef.current && ytPlayerRef.current.destroy) {
+                try { ytPlayerRef.current.destroy(); } catch (e) { }
+            }
+        };
+    }, [IS_YOUTUBE, YOUTUBE_VIDEO_ID]);
 
     const currentSentence = SENTENCES[currentIndex];
     const progressCount = completedSentences.length;
@@ -195,47 +275,82 @@ export default function DictationPracticePage() {
         }
         // Play the new sentence after index changes
         const timeout = setTimeout(() => {
-            const audio = audioRef.current;
-            if (!audio || currentIndex >= TOTAL_SENTENCES) return;
+            if (currentIndex >= TOTAL_SENTENCES) return;
             if (timerRef.current) clearInterval(timerRef.current);
             const sentence = SENTENCES[currentIndex];
+
+            if (IS_YOUTUBE && ytPlayerRef.current && ytReady) {
+                const player = ytPlayerRef.current;
+                player.setPlaybackRate(playbackSpeed);
+                player.seekTo(sentence.audioStart, true);
+                player.playVideo();
+                setIsPlaying(true);
+                timerRef.current = setInterval(() => {
+                    const currentTime = player.getCurrentTime();
+                    if (currentTime >= sentence.audioEnd) {
+                        player.pauseVideo();
+                        setIsPlaying(false);
+                        if (timerRef.current) clearInterval(timerRef.current);
+                    }
+                }, 50);
+            } else {
+                const audio = audioRef.current;
+                if (!audio) return;
+                audio.playbackRate = playbackSpeed;
+                audio.currentTime = sentence.audioStart;
+                audio.play();
+                setIsPlaying(true);
+                timerRef.current = setInterval(() => {
+                    if (audio.currentTime >= sentence.audioEnd) {
+                        audio.pause();
+                        setIsPlaying(false);
+                        if (timerRef.current) clearInterval(timerRef.current);
+                    }
+                }, 50);
+            }
+        }, 300);
+        return () => clearTimeout(timeout);
+    }, [currentIndex, playbackSpeed, IS_YOUTUBE, ytReady]);
+
+    // ── Play current sentence audio segment ──
+    const playSentence = useCallback(() => {
+        // Clear any existing timer
+        if (timerRef.current) clearInterval(timerRef.current);
+
+        if (IS_YOUTUBE && ytPlayerRef.current && ytReady) {
+            const player = ytPlayerRef.current;
+            player.setPlaybackRate(playbackSpeed);
+            player.seekTo(currentSentence.audioStart, true);
+            player.playVideo();
+            setIsPlaying(true);
+
+            timerRef.current = setInterval(() => {
+                const currentTime = player.getCurrentTime();
+                if (currentTime >= currentSentence.audioEnd) {
+                    player.pauseVideo();
+                    setIsPlaying(false);
+                    if (timerRef.current) clearInterval(timerRef.current);
+                }
+            }, 50);
+        } else {
+            const audio = audioRef.current;
+            if (!audio) return;
+
             audio.playbackRate = playbackSpeed;
-            audio.currentTime = sentence.audioStart;
+            audio.currentTime = currentSentence.audioStart;
             audio.play();
             setIsPlaying(true);
+
+            // Poll to stop at sentence end
             timerRef.current = setInterval(() => {
-                if (audio.currentTime >= sentence.audioEnd) {
+                if (audio.currentTime >= currentSentence.audioEnd) {
                     audio.pause();
                     setIsPlaying(false);
                     if (timerRef.current) clearInterval(timerRef.current);
                 }
             }, 50);
-        }, 300);
-        return () => clearTimeout(timeout);
-    }, [currentIndex, playbackSpeed]);
-
-    // ── Play current sentence audio segment ──
-    const playSentence = useCallback(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
-
-        // Clear any existing timer
-        if (timerRef.current) clearInterval(timerRef.current);
-
-        audio.playbackRate = playbackSpeed;
-        audio.currentTime = currentSentence.audioStart;
-        audio.play();
-        setIsPlaying(true);
-
-        // Poll to stop at sentence end
-        timerRef.current = setInterval(() => {
-            if (audio.currentTime >= currentSentence.audioEnd) {
-                audio.pause();
-                setIsPlaying(false);
-                if (timerRef.current) clearInterval(timerRef.current);
-            }
-        }, 50);
-    }, [currentSentence, playbackSpeed]);
+        }
+    }, [currentSentence, playbackSpeed, IS_YOUTUBE, ytReady]);
 
     // Cleanup timer on unmount
     useEffect(() => {
@@ -318,7 +433,7 @@ export default function DictationPracticePage() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Hidden audio element */}
-            <audio ref={audioRef} src={AUDIO_URL} onEnded={handleAudioEnded} preload="auto" />
+            {!IS_YOUTUBE && <audio ref={audioRef} src={AUDIO_URL} onEnded={handleAudioEnded} preload="auto" />}
 
             <PageHeader
                 title={LESSON_TITLE}
@@ -336,45 +451,51 @@ export default function DictationPracticePage() {
 
                     {/* ══ LEFT COLUMN ══ */}
                     <div className="flex flex-col gap-6">
-                        {/* Source / Audio Player */}
+                        {/* Source / Audio or YouTube Player */}
                         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
                             <h2 className="text-lg font-bold text-gray-800 mb-4">Source</h2>
-                            <div className="flex items-center gap-3">
-                                {/* Play Button */}
-                                <button
-                                    onClick={playSentence}
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
-                                        ? 'bg-primary text-white'
-                                        : 'bg-green-50 text-green-600 hover:bg-green-100'
-                                        }`}
-                                >
-                                    {isPlaying ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                                        </svg>
-                                    )}
-                                </button>
-
-                                {/* Waveform Visualization */}
-                                <div className="flex-1 flex items-center gap-[2px] h-10 overflow-hidden">
-                                    {WAVEFORM_HEIGHTS.map((height, i) => (
-                                        <div
-                                            key={i}
-                                            className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
-                                                }`}
-                                            style={{
-                                                height: `${height}%`,
-                                                minWidth: '2px',
-                                                animationDelay: isPlaying ? `${i * 0.05}s` : '0s'
-                                            }}
-                                        />
-                                    ))}
+                            {IS_YOUTUBE ? (
+                                <div className="w-full aspect-video rounded-xl overflow-hidden">
+                                    <div ref={ytContainerRef} className="w-full h-full" />
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="flex items-center gap-3">
+                                    {/* Play Button */}
+                                    <button
+                                        onClick={playSentence}
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
+                                            ? 'bg-primary text-white'
+                                            : 'bg-green-50 text-green-600 hover:bg-green-100'
+                                            }`}
+                                    >
+                                        {isPlaying ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                            </svg>
+                                        )}
+                                    </button>
+
+                                    {/* Waveform Visualization */}
+                                    <div className="flex-1 flex items-center gap-[2px] h-10 overflow-hidden">
+                                        {WAVEFORM_HEIGHTS.map((height, i) => (
+                                            <div
+                                                key={i}
+                                                className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
+                                                    }`}
+                                                style={{
+                                                    height: `${height}%`,
+                                                    minWidth: '2px',
+                                                    animationDelay: isPlaying ? `${i * 0.05}s` : '0s'
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Completed Sentences */}
