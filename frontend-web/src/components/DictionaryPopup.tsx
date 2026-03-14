@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import AddCardModal from './AddCardModal';
 
 interface DictionaryPopupProps {
     word: string;
@@ -16,6 +17,7 @@ export default function DictionaryPopup({ word, sentence, position, onClose }: D
     const [loading, setLoading] = useState(true);
     const [dictData, setDictData] = useState<any>(null);
     const [viTranslation, setViTranslation] = useState('');
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null);
 
     // Audio playback for pronunciation
@@ -36,13 +38,18 @@ export default function DictionaryPopup({ word, sentence, position, onClose }: D
     // Close on outside click
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
+            // Do not close the dictionary popup if the AddCardModal is currently open
+            if (isAddModalOpen) {
+                return;
+            }
+
             if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
                 onClose();
             }
         }
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [onClose]);
+    }, [onClose, isAddModalOpen]);
 
     // Fetch data
     useEffect(() => {
@@ -109,6 +116,13 @@ export default function DictionaryPopup({ word, sentence, position, onClose }: D
                     )}
                 </div>
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition-colors"
+                        title="Add to Flashcards"
+                    >
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /></svg>
+                    </button>
                     <button
                         onClick={playAudio}
                         className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 transition-colors"
@@ -246,6 +260,13 @@ export default function DictionaryPopup({ word, sentence, position, onClose }: D
                     </>
                 )}
             </div>
+            {/* Add Card Modal */}
+            <AddCardModal 
+                isOpen={isAddModalOpen} 
+                onClose={() => setIsAddModalOpen(false)} 
+                initialFront={word} 
+                initialBack={`${dictData?.meanings?.[0]?.definitions?.[0]?.definition || viTranslation || ''}\n\nExample sentence: ${sentence}`}
+            />
         </div>
     );
 }

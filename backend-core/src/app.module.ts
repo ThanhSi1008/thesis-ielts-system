@@ -15,6 +15,7 @@ import { AiClientModule } from './modules/ai-client/ai-client.module';
 import { VocabularyModule } from './modules/vocabulary/vocabulary.module';
 import { GrammarModule } from './modules/grammar/grammar.module';
 import { PronunciationModule } from './modules/pronunciation/pronunciation.module';
+import { VocabLabModule } from './modules/vocab-lab/vocab-lab.module';
 
 // Import common modules
 import { PrismaModule } from './common/prisma/prisma.module';
@@ -46,6 +47,7 @@ import { CacheModule } from './common/cache/cache.module';
     VocabularyModule,
     GrammarModule,
     PronunciationModule,
+    VocabLabModule,
   ],
   controllers: [AppController],
   providers: [AppService],

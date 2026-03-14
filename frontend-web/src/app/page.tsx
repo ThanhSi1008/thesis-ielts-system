@@ -20,6 +20,7 @@ export default function HomePage() {
                <div className="absolute top-[15%] -left-full p-8 rounded-lg flex flex-col gap-3">
                   <h3 className="text-xl font-semibold text-center">Practice</h3>
                   <Link href="/shadowing-dictation" className="bg-success py-4 px-8 rounded-2xl text-white text-center hover:bg-opacity-90 transition-colors">Dictation & Shadowing</Link>
+                  <Link href="/vocab-lab" className="bg-success py-4 px-8 rounded-2xl text-white text-center hover:bg-opacity-90 transition-colors">Vocab Lab</Link>
                </div>
                <img src="https://res.cloudinary.com/dalaaegob/image/upload/v1769786381/roadmap_zxq0ki.png" alt="" className="w-72" />
             </span>
