@@ -14,7 +14,7 @@ torch
 faster-whisper==1.0.1
 transformers==4.36.0
 numpy
-scipy==1.11.4
+scipy
 
 # Cloud storage
 google-cloud-storage==2.14.0

@@ -10,23 +10,33 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  // Pages with no PageHeader (plain white nav)
+  const plainPages = ["/login", "/register"];
+  const isPlain = isHome || plainPages.includes(pathname);
+  // On all other pages the nav overlays the PageHeader hero
+  const isOverlay = !isPlain;
 
   return (
     <header className={`
-      border-b border-gray-100 z-50 transition-all duration-300
-      ${isHome
-        ? "bg-transparent absolute w-full top-0 border-transparent shadow-none"
-        : "bg-white shadow-sm sticky top-0"}
+      border-b z-50 transition-all duration-300
+      ${isPlain && !isOverlay
+        ? isHome
+          ? "bg-transparent absolute w-full top-0 border-transparent shadow-none"
+          : "bg-white shadow-sm sticky top-0 border-gray-100"
+        : "bg-transparent absolute w-full top-0 border-transparent shadow-none"
+      }
     `}>
       <div className="container mx-auto max-w-screen-xl px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xl group-hover:bg-primary transition-colors">
-            T
-          </div>
-          <h1 className="text-2xl font-bold group-hover:text-primary transition-colors">
-            TOEIC Master AI
-          </h1>
+          <img
+            src={isOverlay
+              ? "https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
+              : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+            }
+            alt="TOEIC Master AI Logo"
+            className="h-12 w-auto object-contain"
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -35,29 +45,25 @@ export default function Header() {
           {/* Auth Buttons */}
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-sm font-semibold">Hello, {user.fullName || user.email}</span>
+              <span className={`text-sm font-semibold ${isOverlay ? 'text-white' : 'text-gray-900'}`}>Hello, {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</span>
               <button
                 onClick={logout}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="text-gray-600 hover:text-black font-medium transition-colors">
-                Login
-              </Link>
-              <Link href="/register" className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg font-medium transition-colors">
-                Register
-              </Link>
-            </div>
+            <Link href="/login" className="flex items-center gap-2 group">
+              <img src="https://res.cloudinary.com/dalaaegob/image/upload/v1772879077/ae371d4a-9b66-4a55-abe6-06695c9f6986.png" alt="Sign In" className="h-8 w-8 object-contain" />
+              <span className={`font-semibold text-sm ${isOverlay ? 'text-white' : 'text-gray-700'}`}>Sign In</span>
+            </Link>
           )}
         </nav>
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 text-gray-600"
+          className={`md:hidden p-2 ${isOverlay ? 'text-white' : 'text-gray-600'}`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +83,7 @@ export default function Header() {
           <div className="border-t border-gray-100 pt-4 flex flex-col gap-3">
             {user ? (
               <>
-                <span className="text-sm font-semibold">Signed in as {user.email}</span>
+                <span className="text-sm font-semibold">Signed in as {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</span>
                 <button onClick={() => { logout(); setIsMenuOpen(false); }} className="text-left py-2 text-red-600 font-medium">Logout</button>
               </>
             ) : (

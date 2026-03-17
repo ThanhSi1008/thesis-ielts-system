@@ -37,7 +37,8 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   role?: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
 }
 
@@ -227,4 +228,55 @@ export interface Lesson {
   updatedAt: string;
   vocabularies?: VocabularyWord[];
   grammars?: GrammarRule[];
+}
+
+// ==================== VOCAB LAB (SM-2 Flashcards) ====================
+
+export type CardState = 'NEW' | 'LEARNING' | 'REVIEW';
+
+export interface Deck {
+  id: string;
+  userId: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DeckWithCounts extends Deck {
+  newCount: number;
+  learningCount: number;
+  dueCount: number;
+  totalCards: number;
+}
+
+export interface Flashcard {
+  id: string;
+  deckId: string;
+  front: string;
+  back: string;
+  tags: string[];
+  interval: number;
+  repetition: number;
+  easeFactor: number;
+  nextReviewDate: string;
+  cardState: CardState;
+  createdAt: string;
+  updatedAt: string;
+  deck?: { id: string; name: string };
+}
+
+export interface StudyCard extends Flashcard {
+  // Study session specific properties if needed
+}
+
+export interface SubmitReviewRequest {
+  flashcardId: string;
+  rating: number; // 0=Again, 3=Hard, 4=Good, 5=Easy
+}
+
+export interface VocabLabStats {
+  newCount: number;
+  learningCount: number;
+  reviewCount: number;
+  totalCount: number;
 }

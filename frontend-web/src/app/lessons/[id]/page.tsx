@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { lessonService, type Lesson, type Vocabulary, type Grammar } from '@/services/lesson.service';
+import { useParams } from 'next/navigation';
+import { lessonService } from '@/services/lesson.service';
+import type { Lesson, VocabularyWord, GrammarRule } from '@/types';
 import Link from 'next/link';
+import PageHeader from '@/components/PageHeader';
 
 export default function LessonDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const lessonId = params.id as string;
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [vocabulary, setVocabulary] = useState<Vocabulary[]>([]);
-  const [grammar, setGrammar] = useState<Grammar[]>([]);
+  const [vocabulary, setVocabulary] = useState<VocabularyWord[]>([]);
+  const [grammar, setGrammar] = useState<GrammarRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'vocabulary' | 'grammar'>('vocabulary');
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
@@ -76,19 +77,14 @@ export default function LessonDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <Link
-            href="/lessons"
-            className="text-blue-600 hover:text-blue-700 font-medium mb-2 inline-block"
-          >
-            ← Back to Lessons
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{lesson.title}</h1>
-          <p className="text-gray-600">{lesson.description}</p>
-        </div>
-      </header>
+      <PageHeader
+        title={lesson.title}
+        breadcrumbs={[
+          { label: 'Homepage', href: '/' },
+          { label: 'Lessons', href: '/lessons' },
+          { label: lesson.title },
+        ]}
+      />
 
       {/* Tabs */}
       <div className="container mx-auto px-4 py-6">
@@ -97,21 +93,19 @@ export default function LessonDetailPage() {
             <nav className="flex space-x-8 px-6" aria-label="Tabs">
               <button
                 onClick={() => setActiveTab('vocabulary')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
-                  activeTab === 'vocabulary'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${activeTab === 'vocabulary'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 Vocabulary ({vocabulary.length})
               </button>
               <button
                 onClick={() => setActiveTab('grammar')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
-                  activeTab === 'grammar'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${activeTab === 'grammar'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 Grammar ({grammar.length})
               </button>
@@ -129,9 +123,8 @@ export default function LessonDetailPage() {
                     className="relative h-48 cursor-pointer perspective"
                   >
                     <div
-                      className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
-                        flippedCards.has(word.id) ? 'rotate-y-180' : ''
-                      }`}
+                      className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${flippedCards.has(word.id) ? 'rotate-y-180' : ''
+                        }`}
                     >
                       {/* Front of card */}
                       <div className="absolute w-full h-full backface-hidden bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md p-6 flex flex-col justify-center items-center text-white">

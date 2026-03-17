@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { grammarBooks } from "../../data";
 import GrammarLessonClient from "./GrammarLessonClient";
+import PageHeader from "@/components/PageHeader";
 
 export default async function UnitPage({
   params
@@ -20,20 +21,26 @@ export default async function UnitPage({
   const backLink = `/grammar/${topicSlug}`;
 
   return (
-    <div className="container mx-auto max-w-screen-xl px-4 py-8">
-      <Link href={backLink} className="inline-flex items-center text-gray-500 hover:text-black mb-6 transition-colors font-medium">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        Back to Units
-      </Link>
-
-      <GrammarLessonClient
-        topicName={book?.name || "Grammar Book"}
-        topicSlug={topicSlug}
-        unitId={unitId}
-        unitTitle={unitTitle}
+    <>
+      <PageHeader
+        title={unitTitle}
+        backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772715179/7f460211-0961-4661-92cd-42f613d4afdd.png"
+        breadcrumbs={[
+          { label: 'Homepage', href: '/' },
+          { label: 'Grammar', href: '/grammar' },
+          { label: book?.level || 'Grammar', href: `/grammar/${topicSlug}` },
+          { label: unitTitle },
+        ]}
       />
-    </div>
+      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+
+        <GrammarLessonClient
+          topicName={book?.name || "Grammar Book"}
+          topicSlug={topicSlug}
+          unitId={unitId}
+          unitTitle={unitTitle}
+        />
+      </div>
+    </>
   );
 }

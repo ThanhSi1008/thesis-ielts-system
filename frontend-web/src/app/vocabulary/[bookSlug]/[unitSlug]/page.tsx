@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { vocabularyApi } from "@/services/learning.api";
 import { useAuth } from "@/contexts/AuthContext";
 import type { VocabularyUnitWithContent, VocabularyWord, SubmitExerciseResponse, SubmitQuestionsResponse } from "@/types";
+import PageHeader from "@/components/PageHeader";
 
 // ============================================================
 // WORD LIST FLIP CARD COMPONENT
@@ -52,7 +53,7 @@ function ScoreModal({ isOpen, score, totalQuestions, isPassed, onRetry, onContin
               Try Again
             </button>
           )}
-          
+
           {isPassed && (
             <button
               onClick={onRetry}
@@ -106,42 +107,42 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
       {/* Progress bar */}
       <div className="flex justify-between items-center mb-4 gap-4">
         <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-[#FFC600] rounded-full transition-all duration-300 ease-out"
             style={{ width: `${(currentWordIndex / totalWords) * 100}%` }}
           />
         </div>
         <span className="font-bold text-gray-600 min-w-[3rem] text-right">{currentWordIndex}/{totalWords}</span>
       </div>
-      
+
       {/* Dev Skip Button */}
       {onSkip && (
         <div className="flex justify-end mb-2">
-           <button 
-             onClick={(e) => { e.stopPropagation(); onSkip(); }}
-             className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-600 px-2 py-1 rounded"
-           >
-             SKIP (DEV)
-           </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onSkip(); }}
+            className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-600 px-2 py-1 rounded"
+          >
+            SKIP (DEV)
+          </button>
         </div>
       )}
 
       {/* Flip Card Container */}
-      <div 
+      <div
         className="perspective-1000 cursor-pointer"
         style={{ perspective: '1000px' }}
         onClick={handleCardClick}
       >
-        <div 
+        <div
           className="relative w-full transition-transform duration-500"
-          style={{ 
+          style={{
             transformStyle: 'preserve-3d',
             transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             minHeight: '450px'
           }}
         >
           {/* FRONT SIDE */}
-          <div 
+          <div
             className="absolute inset-0 w-full h-full backface-hidden"
             style={{ backfaceVisibility: 'hidden' }}
           >
@@ -157,12 +158,12 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
 
               {/* Word */}
               <h2 className="text-2xl font-bold mb-2">{currentWord.word}</h2>
-              
+
               {/* IPA + Part of Speech + Speaker */}
               <div className="flex items-center gap-2 text-gray-600">
                 <span>[{currentWord.ipa}]</span>
                 <span>{currentWord.partOfSpeech}.</span>
-                <button 
+                <button
                   onClick={handleSpeakWord}
                   className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                   title="Listen to pronunciation"
@@ -179,9 +180,9 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
           </div>
 
           {/* BACK SIDE */}
-          <div 
+          <div
             className="absolute inset-0 w-full h-full backface-hidden"
-            style={{ 
+            style={{
               backfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)'
             }}
@@ -201,7 +202,7 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
                 <span className="text-xl font-bold">{currentWord.word}</span>
                 <span className="text-gray-600">[{currentWord.ipa}]</span>
                 <span className="text-gray-600">{currentWord.partOfSpeech}.</span>
-                <button 
+                <button
                   onClick={handleSpeakWord}
                   className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                   title="Listen to pronunciation"
@@ -246,7 +247,7 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
           >
             {currentWordIndex < totalWords - 1 ? "ALREADY KNOW" : "GO TO EXERCISE"}
           </button>
-          <button 
+          <button
             className="bg-[#E74C3C] hover:bg-[#d64132] text-white font-bold py-4 rounded-xl uppercase tracking-wide transition-colors"
             onClick={(e) => e.stopPropagation()}
           >
@@ -304,33 +305,24 @@ export default function UnitPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-screen-xl px-4 py-8">
-      <Link
-        href={`/vocabulary/${bookId}`}
-        className="inline-flex items-center text-gray-500 hover:text-black mb-6 transition-colors font-medium"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 mr-1"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-        Back to Units
-      </Link>
-
-      <UnitLearningClient
-        unit={unit}
-        bookId={bookId}
+    <>
+      <PageHeader
+        title={unit.title}
+        backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772802169/8a8ef998-37c5-4f7a-ba32-06af3d4e35b2.png"
+        breadcrumbs={[
+          { label: 'Homepage', href: '/' },
+          { label: 'Vocabulary', href: '/vocabulary' },
+          { label: unit.book.name, href: `/vocabulary/${bookId}` },
+          { label: `Unit ${unit.order}: ${unit.title}` },
+        ]}
       />
-    </div>
+      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+        <UnitLearningClient
+          unit={unit}
+          bookId={bookId}
+        />
+      </div>
+    </>
   );
 }
 
@@ -347,20 +339,20 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
   const [activeTab, setActiveTab] = useState<'word-list' | 'exercise' | 'reading' | 'questions'>('word-list');
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [wordsLearned, setWordsLearned] = useState(0);
-  
+
   // Exercise state
   const [exerciseAnswers, setExerciseAnswers] = useState<Record<string, string>>({});
   const [exerciseResult, setExerciseResult] = useState<SubmitExerciseResponse | null>(null);
   const [exerciseSubmitting, setExerciseSubmitting] = useState(false);
-  
+
   // Questions state
   const [questionAnswers, setQuestionAnswers] = useState<Record<string, string>>({});
   const [questionResult, setQuestionResult] = useState<SubmitQuestionsResponse | null>(null);
   const [questionSubmitting, setQuestionSubmitting] = useState(false);
-  
+
   // Reading completion state
   const [readingComplete, setReadingComplete] = useState(false);
-  
+
   // Modal state for showing score popups
   const [showExerciseModal, setShowExerciseModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
@@ -374,7 +366,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
       setCurrentWordIndex(prev => prev + 1);
       const newLearned = Math.min(wordsLearned + 1, totalWords);
       setWordsLearned(newLearned);
-      
+
       // Update progress on server
       try {
         await vocabularyApi.updateWordProgress(unit.id, newLearned);
@@ -474,28 +466,28 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
             <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-[#FFC600] pb-2 inline-block">Lessons</h3>
 
             <ul className="space-y-6">
-              <li 
+              <li
                 className={`flex items-center gap-3 cursor-pointer ${activeTab === 'word-list' ? 'text-black font-bold' : 'text-gray-500 font-medium'}`}
                 onClick={() => setActiveTab('word-list')}
               >
                 {getCompletionIcon(isWordListComplete)}
                 Word List ({wordsLearned}/{totalWords})
               </li>
-              <li 
+              <li
                 className={`flex items-center gap-3 ${isExerciseUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'exercise' ? 'text-black font-bold' : isExerciseUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
                 onClick={() => isExerciseUnlocked && setActiveTab('exercise')}
               >
                 {getCompletionIcon(isExerciseComplete)}
                 Exercise
               </li>
-              <li 
+              <li
                 className={`flex items-center gap-3 ${isReadingUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'reading' ? 'text-black font-bold' : isReadingUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
                 onClick={() => isReadingUnlocked && setActiveTab('reading')}
               >
                 {getCompletionIcon(isReadingCompleteFlag)}
                 Reading Comprehension
               </li>
-              <li 
+              <li
                 className={`flex items-center gap-3 ${isQuestionsUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'questions' ? 'text-black font-bold' : isQuestionsUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
                 onClick={() => isQuestionsUnlocked && setActiveTab('questions')}
               >
@@ -539,17 +531,16 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                       <p className="font-semibold mb-3">{idx + 1}. {ex.question}</p>
                       <div className="space-y-1 ml-4">
                         {(ex.options as string[]).map((opt, optIdx) => (
-                          <label 
-                            key={optIdx} 
-                            className={`flex items-center gap-3 cursor-pointer p-2 rounded block ${
-                              result 
-                                ? (opt.toLowerCase().includes(result.correctAnswer.toLowerCase()) 
-                                    ? 'bg-green-100' 
-                                    : exerciseAnswers[ex.id] === opt && !result.isCorrect 
-                                      ? 'bg-red-100' 
-                                      : 'hover:bg-gray-50')
-                                : 'hover:bg-gray-50'
-                            }`}
+                          <label
+                            key={optIdx}
+                            className={`flex items-center gap-3 cursor-pointer p-2 rounded block ${result
+                              ? (opt.toLowerCase().includes(result.correctAnswer.toLowerCase())
+                                ? 'bg-green-100'
+                                : exerciseAnswers[ex.id] === opt && !result.isCorrect
+                                  ? 'bg-red-100'
+                                  : 'hover:bg-gray-50')
+                              : 'hover:bg-gray-50'
+                              }`}
                           >
                             <input
                               type="radio"
@@ -655,9 +646,8 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                         <div className="ml-4">
                           <input
                             type="text"
-                            className={`w-full bg-gray-100 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-[#FFC600] ${
-                              result ? (result.isCorrect ? 'bg-green-100' : 'bg-red-100') : ''
-                            }`}
+                            className={`w-full bg-gray-100 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-[#FFC600] ${result ? (result.isCorrect ? 'bg-green-100' : 'bg-red-100') : ''
+                              }`}
                             placeholder="Type your answer here..."
                             value={questionAnswers[q.id] || ''}
                             onChange={(e) => setQuestionAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
@@ -672,15 +662,14 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                           {q.options?.map((opt, optIdx) => (
                             <label
                               key={optIdx}
-                              className={`flex items-start gap-3 cursor-pointer p-2 rounded block ${
-                                result
-                                  ? (opt.toLowerCase().includes(result.correctAnswer.toLowerCase())
-                                      ? 'bg-green-100'
-                                      : questionAnswers[q.id] === opt && !result.isCorrect
-                                        ? 'bg-red-100'
-                                        : 'hover:bg-gray-50')
-                                  : 'hover:bg-gray-50'
-                              }`}
+                              className={`flex items-start gap-3 cursor-pointer p-2 rounded block ${result
+                                ? (opt.toLowerCase().includes(result.correctAnswer.toLowerCase())
+                                  ? 'bg-green-100'
+                                  : questionAnswers[q.id] === opt && !result.isCorrect
+                                    ? 'bg-red-100'
+                                    : 'hover:bg-gray-50')
+                                : 'hover:bg-gray-50'
+                                }`}
                             >
                               <input
                                 type="radio"
@@ -724,7 +713,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                       <p>⚠️ You must get all answers correct to complete this unit. Please review and try again.</p>
                     )}
                   </div>
-                  
+
                   {isQuestionsComplete ? (
                     <div className="bg-green-50 p-6 rounded-xl">
                       <h3 className="text-xl font-bold text-green-700 mb-2">🎉 Unit Completed!</h3>
@@ -809,7 +798,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
             {/* Modal Footer */}
             <div className="p-6 bg-gray-50 flex justify-between items-center">
               <p className={`font-medium ${isExerciseComplete ? 'text-green-700' : 'text-amber-700'}`}>
-                {isExerciseComplete 
+                {isExerciseComplete
                   ? '✓ All answers correct! You can proceed to Reading.'
                   : '⚠ You must get all answers correct to proceed.'
                 }
@@ -893,7 +882,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
             {/* Modal Footer */}
             <div className="p-6 bg-gray-50 flex justify-between items-center">
               <p className={`font-medium ${isQuestionsComplete ? 'text-green-700' : 'text-amber-700'}`}>
-                {isQuestionsComplete 
+                {isQuestionsComplete
                   ? '🎉 Congratulations! Unit completed!'
                   : '⚠ You must get all answers correct to complete this unit.'
                 }
