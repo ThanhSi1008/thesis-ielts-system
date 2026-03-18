@@ -58,7 +58,7 @@ function findLesson(id: string | string[] | undefined) {
 // ──── Page Component ────
 export default function DictationPracticePage() {
     const params = useParams();
-    const lesson = findLesson(params.id);
+    const lesson = useMemo(() => findLesson(params.id), [params.id]);
 
     if (!lesson) {
         notFound();
@@ -441,6 +441,9 @@ export default function DictationPracticePage() {
                 breadcrumbs={[
                     { label: 'Homepage', href: '/' },
                     { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
+                    ...(typeof params.id === 'string' && params.id.startsWith('my-')
+                        ? [{ label: 'My Videos', href: '/shadowing-dictation/my-videos' }]
+                        : []),
                     { label: LESSON_TITLE },
                 ]}
             />

@@ -48,10 +48,10 @@ export default function VocabLabPage() {
         </div>
 
         {/* Tab Content — all tabs stay mounted to prevent scroll jumps */}
-        <div className={activeTab === 'decks' ? '' : 'hidden'}><DecksTab /></div>
-        <div className={activeTab === 'add' ? '' : 'hidden'}><AddCardTab /></div>
-        <div className={activeTab === 'browse' ? '' : 'hidden'}><BrowseTab /></div>
-        <div className={activeTab === 'stats' ? '' : 'hidden'}><StatsTab /></div>
+        <div className={activeTab === 'decks' ? '' : 'hidden'}><DecksTab isActive={activeTab === 'decks'} /></div>
+        <div className={activeTab === 'add' ? '' : 'hidden'}><AddCardTab isActive={activeTab === 'add'} /></div>
+        <div className={activeTab === 'browse' ? '' : 'hidden'}><BrowseTab isActive={activeTab === 'browse'} /></div>
+        <div className={activeTab === 'stats' ? '' : 'hidden'}><StatsTab isActive={activeTab === 'stats'} /></div>
       </div>
     </div>
   );

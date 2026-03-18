@@ -280,3 +280,55 @@ export interface VocabLabStats {
   reviewCount: number;
   totalCount: number;
 }
+
+// ==================== IELTS EXAMS (Intensive Catalog) ====================
+
+export type IeltsSkill = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
+
+export interface IeltsIntensiveTestCard {
+  examId: string;
+  testNumber: number;
+  durationMinutes: number;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  myScore?: number;
+  participantsCount: number;
+  completedCount: number;
+}
+
+export interface IeltsIntensiveGroup {
+  id: string; // "cambridge-17"
+  title: string; // "Cambridge IELTS 17"
+  participantsCount: number;
+  completedCount: number;
+  tests: IeltsIntensiveTestCard[];
+}
+
+export interface IeltsIntensiveCatalogResponse {
+  skill: IeltsSkill;
+  groups: IeltsIntensiveGroup[];
+}
+
+export interface ExamDetail {
+  id: string;
+  title: string;
+  description?: string | null;
+  duration: number;
+  type: string;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  isPublished: boolean;
+  questions: any;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ExamSessionDetail {
+  id: string;
+  userId: string;
+  examId: string;
+  status: string;
+  answers: any;
+  startedAt: string;
+  submittedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}

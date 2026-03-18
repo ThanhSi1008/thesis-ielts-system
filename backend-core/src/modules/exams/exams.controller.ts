@@ -7,6 +7,8 @@ import {
   Param,
   Body,
   UseGuards,
+  Query,
+  Request,
 } from '@nestjs/common';
 import { ExamsService } from './exams.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -30,6 +32,14 @@ export class ExamsController {
   @Get()
   findAll() {
     return this.examsService.findAll();
+  }
+
+  @Get('intensive/catalog')
+  getIntensiveCatalog(@Request() req: any, @Query('skill') skill?: string) {
+    return this.examsService.getIntensiveCatalog({
+      userId: req.user.id,
+      skill,
+    });
   }
 
   @Get(':id')

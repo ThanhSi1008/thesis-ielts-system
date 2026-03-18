@@ -59,7 +59,7 @@ function findLesson(id: string | string[] | undefined) {
 // ──── Page Component ────
 export default function ShadowingPracticePage() {
     const params = useParams();
-    const lesson = findLesson(params.id);
+    const lesson = useMemo(() => findLesson(params.id), [params.id]);
     if (!lesson) {
         notFound();
     }
@@ -454,7 +454,10 @@ export default function ShadowingPracticePage() {
                 backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
                 breadcrumbs={[
                     { label: 'Homepage', href: '/' },
-                    { label: 'Shadowing & Dication', href: '/shadowing-dictation' },
+                    { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
+                    ...(typeof params.id === 'string' && params.id.startsWith('my-')
+                        ? [{ label: 'My Videos', href: '/shadowing-dictation/my-videos' }]
+                        : []),
                     { label: LESSON_TITLE },
                 ]}
             />

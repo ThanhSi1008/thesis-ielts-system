@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { vocabLabApi } from '@/services/vocabLab.api';
 import type { VocabLabStats } from '@/types';
 
-export function StatsTab() {
+export function StatsTab({ isActive }: { isActive: boolean }) {
   const [stats, setStats] = useState<VocabLabStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -19,8 +19,10 @@ export function StatsTab() {
         setLoading(false);
       }
     };
-    fetchStats();
-  }, []);
+    if (isActive) {
+      fetchStats();
+    }
+  }, [isActive]);
 
   if (loading || !stats) {
     return (

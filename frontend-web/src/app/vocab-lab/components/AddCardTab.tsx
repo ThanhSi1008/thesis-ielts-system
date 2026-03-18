@@ -4,7 +4,7 @@ import { useState, useEffect, KeyboardEvent } from 'react';
 import { vocabLabApi } from '@/services/vocabLab.api';
 import type { DeckWithCounts } from '@/types';
 
-export function AddCardTab() {
+export function AddCardTab({ isActive }: { isActive: boolean }) {
   const [decks, setDecks] = useState<DeckWithCounts[]>([]);
   const [deckId, setDeckId] = useState('');
   const [cardType, setCardType] = useState('basic');
@@ -27,8 +27,10 @@ export function AddCardTab() {
         console.error('Failed to fetch decks:', error);
       }
     };
-    fetchDecks();
-  }, []);
+    if (isActive) {
+      fetchDecks();
+    }
+  }, [isActive, deckId]);
 
   const handleAddTag = (e: KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {

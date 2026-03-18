@@ -3,6 +3,446 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // ============================================================
+// CAMBRIDGE IELTS (Intensive Mock Tests)
+// ============================================================
+
+const cambridgeIelts17ListeningTest1Questions = {
+  test_title: "Test 1",
+  section: "Listening",
+  parts: [
+    {
+      part_number: 1,
+      audio_url:
+        "https://res.cloudinary.com/dalaaegob/video/upload/v1773843893/ELT_IELTS17_t1_audio1_yaagme.mp3",
+      questions: "1–10",
+      instructions:
+        "Complete the notes below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      topic: "Buckworth Conservation Group",
+      question_type: "Note Completion",
+      content: [
+        {
+          heading: "Regular activities",
+          subsections: [
+            {
+              subheading: "Beach",
+              points: [
+                {
+                  question_number: 1,
+                  text: "making sure the beach does not have 1 .............................. on it",
+                  answer: "litter",
+                },
+                {
+                  question_number: 2,
+                  text: "no 2 ..............................",
+                  answer: "dogs",
+                },
+              ],
+            },
+            {
+              subheading: "Nature reserve",
+              points: [
+                { text: "maintaining paths" },
+                { text: "nesting boxes for birds installed" },
+                {
+                  question_number: 3,
+                  text: "next task is taking action to attract 3 .............................. to the place",
+                  answer: "insects",
+                },
+                {
+                  question_number: 4,
+                  text: "identifying types of 4 ..............................",
+                  answer: "butterflies",
+                },
+                {
+                  question_number: 5,
+                  text: "building a new 5 ..............................",
+                  answer: "wall",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          heading: "Forthcoming events",
+          subsections: [
+            {
+              subheading: "Saturday",
+              points: [
+                { text: "meet at Dunsmore Beach car park" },
+                {
+                  question_number: 6,
+                  text: "walk across the sands and reach the 6 ..............................",
+                  answer: "island",
+                },
+                { text: "take a picnic" },
+                {
+                  question_number: 7,
+                  text: "wear appropriate 7 ..............................",
+                  answer: "boots",
+                },
+              ],
+            },
+            {
+              subheading: "Woodwork session",
+              points: [
+                {
+                  question_number: 8,
+                  text: "suitable for 8 .............................. to participate in",
+                  answer: "beginners",
+                },
+                {
+                  question_number: 9,
+                  text: "making 9 .............................. out of wood",
+                  answer: "spoons",
+                },
+                { text: "17th, from 10 a.m. to 3 p.m." },
+                {
+                  question_number: 10,
+                  text: "cost of session (no camping): 10 £ ..............................",
+                  answer: "35 / thirty five",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      part_number: 2,
+      audio_url:
+        "https://res.cloudinary.com/dalaaegob/video/upload/v1773843894/ELT_IELTS17_t1_audio2_fshrgc.mp3",
+      questions: "11–20",
+      topic: "Boat trip round Tasmania",
+      question_groups: [
+        {
+          questions: "11–14",
+          instructions: "Choose the correct letter, A, B or C.",
+          question_type: "Multiple Choice (one answer)",
+          items: [
+            {
+              question_number: 11,
+              question_text:
+                "What is the maximum number of people who can stand on each side of the boat?",
+              options: { A: "9", B: "15", C: "18" },
+              answer: "A",
+            },
+            {
+              question_number: 12,
+              question_text: "What colour are the tour boats?",
+              options: { A: "dark red", B: "jet black", C: "light green" },
+              answer: "C",
+            },
+            {
+              question_number: 13,
+              question_text:
+                "Which lunchbox is suitable for someone who doesn’t eat meat or fish?",
+              options: { A: "Lunchbox 1", B: "Lunchbox 2", C: "Lunchbox 3" },
+              answer: "B",
+            },
+            {
+              question_number: 14,
+              question_text: "What should people do with their litter?",
+              options: {
+                A: "take it home",
+                B: "hand it to a member of staff",
+                C: "put it in the bins provided on the boat",
+              },
+              answer: "B",
+            },
+          ],
+        },
+        {
+          questions: "15–20",
+          instructions: "Choose TWO letters, A–E.",
+          question_type: "Multiple Choice (more than one answer)",
+          items: [
+            {
+              question_numbers: [15, 16],
+              question_text:
+                "Which TWO features of the lighthouse does Lou mention?",
+              options: {
+                A: "why it was built",
+                B: "who built it",
+                C: "how long it took to build",
+                D: "who staffed it",
+                E: "what it was built with",
+              },
+              answer: ["A", "D"],
+              grading_note: "IN EITHER ORDER",
+            },
+            {
+              question_numbers: [17, 18],
+              question_text:
+                "Which TWO types of creature might come close to the boat?",
+              options: {
+                A: "sea eagles",
+                B: "fur seals",
+                C: "dolphins",
+                D: "whales",
+                E: "penguins",
+              },
+              answer: ["B", "C"],
+              grading_note: "IN EITHER ORDER",
+            },
+            {
+              question_numbers: [19, 20],
+              question_text: "Which TWO points does Lou make about the caves?",
+              options: {
+                A: "Only large tourist boats can visit them.",
+                B: "The entrances to them are often blocked.",
+                C: "It is too dangerous for individuals to go near them.",
+                D: "Someone will explain what is inside them.",
+                E: "They cannot be reached on foot.",
+              },
+              answer: ["D", "E"],
+              grading_note: "IN EITHER ORDER",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      part_number: 3,
+      audio_url:
+        "https://res.cloudinary.com/dalaaegob/video/upload/v1773843896/ELT_IELTS17_t1_audio3_eidh3p.mp3",
+      questions: "21–30",
+      topic: "Work experience for veterinary science students",
+      question_groups: [
+        {
+          questions: "21–26",
+          instructions: "Choose the correct letter, A, B or C.",
+          question_type: "Multiple Choice (one answer)",
+          items: [
+            {
+              question_number: 21,
+              question_text:
+                "What problem did both Diana and Tim have when arranging their work experience?",
+              options: {
+                A: "making initial contact with suitable farms",
+                B: "organising transport to and from the farm",
+                C: "finding a placement for the required length of time",
+              },
+              answer: "A",
+            },
+            {
+              question_number: 22,
+              question_text: "Tim was pleased to be able to help",
+              options: {
+                A: "a lamb that had a broken leg.",
+                B: "a sheep that was having difficulty giving birth.",
+                C: "a newly born lamb that was having trouble feeding.",
+              },
+              answer: "B",
+            },
+            {
+              question_number: 23,
+              question_text: "Diana says the sheep on her farm",
+              options: {
+                A: "were of various different varieties.",
+                B: "were mainly reared for their meat.",
+                C: "had better quality wool than sheep on the hills.",
+              },
+              answer: "B",
+            },
+            {
+              question_number: 24,
+              question_text:
+                "What did the students learn about adding supplements to chicken feed?",
+              options: {
+                A: "These should only be given if specially needed.",
+                B: "It is worth paying extra for the most effective ones.",
+                C: "The amount given at one time should be limited.",
+              },
+              answer: "A",
+            },
+            {
+              question_number: 25,
+              question_text: "What happened when Diana was working with dairy cows?",
+              options: {
+                A: "She identified some cows incorrectly.",
+                B: "She accidentally threw some milk away.",
+                C: "She made a mistake when storing milk.",
+              },
+              answer: "C",
+            },
+            {
+              question_number: 26,
+              question_text: "What did both farmers mention about vets and farming?",
+              options: {
+                A: "Vets are failing to cope with some aspects of animal health.",
+                B: "There needs to be a fundamental change in the training of vets.",
+                C: "Some jobs could be done by the farmer rather than by a vet.",
+              },
+              answer: "C",
+            },
+          ],
+        },
+        {
+          questions: "27–30",
+          instructions:
+            "What opinion do the students give about each of the following modules on their veterinary science course? Choose FOUR answers from the box and write the correct letter, A–F, next to questions 27–30.",
+          question_type: "Matching",
+          options_box: {
+            title: "Opinions",
+            options: {
+              A: "Tim found this easier than expected.",
+              B: "Tim thought this was not very clearly organised.",
+              C: "Diana may do some further study on this.",
+              D: "They both found the reading required for this was difficult.",
+              E: "Tim was shocked at something he learned on this module.",
+              F: "They were both surprised how little is known about some aspects of this.",
+            },
+          },
+          items: [
+            { question_number: 27, prompt: "Medical terminology", answer: "A" },
+            { question_number: 28, prompt: "Diet and nutrition", answer: "E" },
+            { question_number: 29, prompt: "Animal disease", answer: "F" },
+            { question_number: 30, prompt: "Wildlife medication", answer: "C" },
+          ],
+        },
+      ],
+    },
+    {
+      part_number: 4,
+      audio_url:
+        "https://res.cloudinary.com/dalaaegob/video/upload/v1773843901/ELT_IELTS17_t1_audio4_yvhjwu.mp3",
+      questions: "31–40",
+      topic: "Labyrinths",
+      instructions:
+        "Complete the notes below. Write ONE WORD ONLY for each answer.",
+      question_type: "Note Completion",
+      content: [
+        {
+          heading: "Definition",
+          points: [{ text: "a winding spiral path leading to a central area" }],
+        },
+        {
+          heading: "Labyrinths compared with mazes",
+          points: [
+            {
+              question_number: 31,
+              text: "Mazes are a type of 31 ..............................",
+              answer: "puzzle",
+            },
+            {
+              question_number: 32,
+              text: "32 .............................. is needed to navigate through a maze",
+              answer: "logic",
+            },
+            {
+              question_number: 33,
+              text: "the word 'maze' is derived from a word meaning a feeling of 33 ..............................",
+              answer: "confusion",
+            },
+            { text: "Labyrinths represent a journey through life" },
+            {
+              question_number: 34,
+              text: "they have frequently been used in 34 .............................. and prayer",
+              answer: "meditation",
+            },
+          ],
+        },
+        {
+          heading: "Early examples of the labyrinth spiral",
+          points: [
+            {
+              question_number: 35,
+              text: "Ancient carvings on 35 .............................. have been found across many cultures",
+              answer: "stone",
+            },
+            {
+              text: "The Pima, a Native American tribe, wove the symbol on baskets",
+            },
+            {
+              question_number: 36,
+              text: "Ancient Greeks used the symbol on 36 ..............................",
+              answer: "coins",
+            },
+          ],
+        },
+        {
+          heading: "Walking labyrinths",
+          points: [
+            {
+              question_number: 37,
+              text: "The largest surviving example of a turf labyrinth once had a big 37 .............................. at its centre",
+              answer: "tree",
+            },
+          ],
+        },
+        {
+          heading: "Labyrinths nowadays",
+          points: [
+            {
+              question_number: 38,
+              text: "Believed to have a beneficial impact on mental and physical health, e.g., walking a maze can reduce a person's 38 .............................. rate",
+              answer: "breathing",
+            },
+            {
+              text: "Used in medical and health and fitness settings and also prisons",
+            },
+            {
+              text: "Popular with patients, visitors and staff in hospitals",
+            },
+            {
+              question_number: 39,
+              text: "patients who can't walk can use 'finger labyrinths' made from 39 ..............................",
+              answer: "paper",
+            },
+            {
+              question_number: 40,
+              text: "research has shown that Alzheimer's sufferers experience less 40 ..............................",
+              answer: "anxiety",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+async function upsertCambridgeExam(params: {
+  title: string;
+  type: "LISTENING" | "READING" | "WRITING" | "SPEAKING" | "FULL_TEST" | "PRACTICE";
+  difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  durationMinutes: number;
+  questions: any;
+  isPublished: boolean;
+}) {
+  const existing = await prisma.exam.findFirst({
+    where: { title: params.title, type: params.type as any },
+    select: { id: true },
+  });
+
+  if (existing) {
+    await prisma.exam.update({
+      where: { id: existing.id },
+      data: {
+        difficulty: params.difficulty as any,
+        duration: params.durationMinutes,
+        questions: params.questions,
+        isPublished: params.isPublished,
+      },
+    });
+    console.log(`  ✓ Updated exam: ${params.title}`);
+    return;
+  }
+
+  await prisma.exam.create({
+    data: {
+      title: params.title,
+      description: null,
+      type: params.type as any,
+      difficulty: params.difficulty as any,
+      duration: params.durationMinutes,
+      questions: params.questions,
+      isPublished: params.isPublished,
+    },
+  });
+  console.log(`  ✓ Created exam: ${params.title}`);
+}
+
+// ============================================================
 // VOCABULARY DATA - 4000 Essential English Words
 // ============================================================
 
@@ -399,6 +839,17 @@ async function main() {
     data: pronunciationSounds,
   });
   console.log(`  ✓ Created ${pronunciationSounds.length} sounds`);
+
+  // Seed Cambridge IELTS exams for Intensive Mock Tests
+  console.log('🧪 Seeding Cambridge IELTS exams...');
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 1",
+    type: "LISTENING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 27, // rounded from 26:28 (Exam.duration is integer minutes)
+    questions: cambridgeIelts17ListeningTest1Questions,
+    isPublished: true,
+  });
 
   // Summary
   const vocabCount = await prisma.vocabularyBook.count();
