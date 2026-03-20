@@ -1,0 +1,364 @@
+1
+00:00:00,000 --> 00:00:02,000
+Test 2
+
+2
+00:00:02,000 --> 00:00:05,000
+This is the IELTS listening test.
+
+3
+00:00:05,000 --> 00:00:11,000
+You will hear a number of different recordings and you will have to answer questions on what you hear.
+
+4
+00:00:11,000 --> 00:00:18,000
+There will be time for you to read the instructions and questions and you will have a chance to check your work.
+
+5
+00:00:18,000 --> 00:00:21,000
+All the recordings will be played once only.
+
+6
+00:00:21,000 --> 00:00:24,000
+The test is in four parts.
+
+7
+00:00:24,000 --> 00:00:30,000
+At the end of the test, you will be given ten minutes to transfer your answers to the answer sheet.
+
+8
+00:00:30,000 --> 00:00:33,000
+Now turn to part one.
+
+9
+00:00:37,000 --> 00:00:39,000
+Part one.
+
+10
+00:00:39,000 --> 00:00:45,000
+You will hear a man asking about voluntary work in the village that he has just moved to.
+
+11
+00:00:45,000 --> 00:00:49,000
+First, you have some time to look at questions one to seven.
+
+12
+00:01:24,000 --> 00:01:29,000
+Now listen carefully and answer questions one to seven.
+
+13
+00:01:31,000 --> 00:01:34,000
+Hello, Jane Fairbank speaking.
+
+14
+00:01:34,000 --> 00:01:40,000
+Oh, good morning. My name's Frank Pritchard. I've just retired and moved to Southo.
+
+15
+00:01:40,000 --> 00:01:46,000
+I'd like to become a volunteer and I gather you coordinate voluntary work in the village.
+
+16
+00:01:46,000 --> 00:01:48,000
+That's right.
+
+17
+00:01:48,000 --> 00:01:50,000
+What sort of thing could I do?
+
+18
+00:01:50,000 --> 00:01:53,000
+Well, we need help with the village library.
+
+19
+00:01:53,000 --> 00:01:59,000
+We borrow books from the town library and individuals also donate them.
+
+20
+00:01:59,000 --> 00:02:06,000
+So one thing you could do is get involved in collecting them, if you've got a car, that is.
+
+21
+00:02:06,000 --> 00:02:08,000
+Yes, that's no problem.
+
+22
+00:02:08,000 --> 00:02:13,000
+The times are pretty flexible, so we can arrange it to suit you.
+
+23
+00:02:13,000 --> 00:02:18,000
+Oh, another thing is the records that we keep of the books we're given
+
+24
+00:02:18,000 --> 00:02:22,000
+and those we borrow and need to return to the town library.
+
+25
+00:02:22,000 --> 00:02:27,000
+It would be very useful to have another person to help keep them up to date.
+
+26
+00:02:27,000 --> 00:02:33,000
+Right. I'm used to working on a computer. I presume their computerised?
+
+27
+00:02:33,000 --> 00:02:34,000
+Oh, yes.
+
+28
+00:02:34,000 --> 00:02:40,000
+Is the library purpose built? I haven't noticed it when I've walked around the village.
+
+29
+00:02:40,000 --> 00:02:46,000
+No, we simply have the use of a room in the village hall, the west room.
+
+30
+00:02:46,000 --> 00:02:48,000
+It's on the left as you go in.
+
+31
+00:02:48,000 --> 00:02:51,000
+I must go and have a look inside the hall.
+
+32
+00:02:51,000 --> 00:02:53,000
+Yes, it's a nice building.
+
+33
+00:02:53,000 --> 00:02:59,000
+Do you run a lunch club in the village for elderly people? I know a lot of places do.
+
+34
+00:02:59,000 --> 00:03:03,000
+Yes, we have a very successful club.
+
+35
+00:03:03,000 --> 00:03:06,000
+I could help with transport, if that's of any use.
+
+36
+00:03:06,000 --> 00:03:11,000
+Oh, definitely. People come to the club from neighbouring villages
+
+37
+00:03:11,000 --> 00:03:14,000
+and we're always in need of more drivers.
+
+38
+00:03:14,000 --> 00:03:19,000
+And does the club have groups that focus on a particular hobby too?
+
+39
+00:03:19,000 --> 00:03:25,000
+I could get involved in one or two, particularly if there are any art groups.
+
+40
+00:03:25,000 --> 00:03:30,000
+Excellent. I'll find out where we need help and get back to you.
+
+41
+00:03:30,000 --> 00:03:36,000
+Fine. What about help for individual residents? Do you arrange that at all?
+
+42
+00:03:36,000 --> 00:03:39,000
+Yes, we do it as a one-off.
+
+43
+00:03:39,000 --> 00:03:46,000
+Oh, in fact, there's Mrs Carol. She needs a lift to the hospital next week
+
+44
+00:03:46,000 --> 00:03:48,000
+and we're struggling to find someone.
+
+45
+00:03:48,000 --> 00:03:50,000
+When's her appointment?
+
+46
+00:03:50,000 --> 00:03:54,000
+On Tuesday. It would take the whole morning.
+
+47
+00:03:54,000 --> 00:03:55,000
+I could do that?
+
+48
+00:03:55,000 --> 00:03:58,000
+Oh, that would be great. Thank you.
+
+49
+00:03:58,000 --> 00:04:04,000
+And also next week, we're arranging to have some work done to Mr Selbury's house
+
+50
+00:04:04,000 --> 00:04:08,000
+before he moves, as he isn't healthy enough to do it himself.
+
+51
+00:04:08,000 --> 00:04:11,000
+We've got some people to decorate his kitchen,
+
+52
+00:04:11,000 --> 00:04:16,000
+but if you could do some weeding in his garden, that would be wonderful.
+
+53
+00:04:16,000 --> 00:04:23,000
+Okay, I'd enjoy that. And presumably the day and time are flexible.
+
+54
+00:04:23,000 --> 00:04:29,000
+Oh, yes. Just say when would suit you best and we'll let Mr Selbury know.
+
+55
+00:04:29,000 --> 00:04:30,000
+Good.
+
+56
+00:04:54,000 --> 00:04:58,000
+Now listen and answer questions eight to ten.
+
+57
+00:05:01,000 --> 00:05:05,000
+The Volunteers Group also organises monthly social events,
+
+58
+00:05:05,000 --> 00:05:09,000
+which is a great way to meet other people, of course.
+
+59
+00:05:09,000 --> 00:05:16,000
+So next month, on the 19th of October, we're holding a quiz.
+
+60
+00:05:16,000 --> 00:05:20,000
+A couple of residents are great at planning unusual ones,
+
+61
+00:05:20,000 --> 00:05:22,000
+and we always fill the village hall.
+
+62
+00:05:22,000 --> 00:05:26,000
+That sounds like fun. Can I do anything to help?
+
+63
+00:05:26,000 --> 00:05:33,000
+Well, because of the number of people, we need plenty of refreshments for halfway through.
+
+64
+00:05:33,000 --> 00:05:36,000
+So if you could provide any, we'd be grateful.
+
+65
+00:05:36,000 --> 00:05:41,000
+I'm sure I could. I'll think about what to make and let you know.
+
+66
+00:05:41,000 --> 00:05:42,000
+Thank you.
+
+67
+00:05:42,000 --> 00:05:49,000
+Then on November the 18th, we're holding a dance, also in the village hall.
+
+68
+00:05:49,000 --> 00:05:54,000
+We've booked a band that specialises in music of the 1930s.
+
+69
+00:05:54,000 --> 00:05:59,000
+They've been before, and we've had a lot of requests to bring them back.
+
+70
+00:05:59,000 --> 00:06:04,000
+I'm not really a dancer, but I'd like to do something to help.
+
+71
+00:06:04,000 --> 00:06:11,000
+Well, we sell tickets in advance, and having an extra person to check them at the door
+
+72
+00:06:11,000 --> 00:06:13,000
+as people arrive would be good.
+
+73
+00:06:13,000 --> 00:06:17,000
+It can be quite a bottleneck if everyone arrives at once.
+
+74
+00:06:17,000 --> 00:06:19,000
+Okay, I'm happy with that.
+
+75
+00:06:19,000 --> 00:06:23,000
+We're also arranging a New Year's Eve party.
+
+76
+00:06:23,000 --> 00:06:26,000
+We're expecting that to be a really big event,
+
+77
+00:06:26,000 --> 00:06:31,000
+so instead of the village hall, it'll be held in the Mountfort Hotel.
+
+78
+00:06:31,000 --> 00:06:32,000
+The...
+
+79
+00:06:32,000 --> 00:06:43,000
+Mountfort. M-O-U-N-T-F-O-R-T Hotel.
+
+80
+00:06:43,000 --> 00:06:48,000
+It isn't in Southo itself, but it's only a couple of miles away.
+
+81
+00:06:48,000 --> 00:06:53,000
+The hotel will be providing dinner, and we've booked a band.
+
+82
+00:06:53,000 --> 00:06:57,000
+The one thing we haven't got yet is a poster.
+
+83
+00:06:57,000 --> 00:07:00,000
+That isn't something you could do by any chance, is it?
+
+84
+00:07:00,000 --> 00:07:02,000
+Well, actually, yes.
+
+85
+00:07:02,000 --> 00:07:07,000
+Before I retired, I was a graphic designer, so that's right up my street.
+
+86
+00:07:07,000 --> 00:07:09,000
+Oh, perfect.
+
+87
+00:07:09,000 --> 00:07:14,000
+I'll give you the details, and then perhaps you could send me a draft?
+
+88
+00:07:14,000 --> 00:07:15,000
+Of course.
+
+89
+00:07:18,000 --> 00:07:20,000
+That is the end of Part One.
+
+90
+00:07:20,000 --> 00:07:25,000
+You now have half a minute to check your answers to Part One.
+
+91
+00:07:39,000 --> 00:07:42,000
+You
+

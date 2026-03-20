@@ -298,6 +298,7 @@ export interface IeltsIntensiveTestCard {
 export interface IeltsIntensiveGroup {
   id: string; // "cambridge-17"
   title: string; // "Cambridge IELTS 17"
+  imageUrl?: string;
   participantsCount: number;
   completedCount: number;
   tests: IeltsIntensiveTestCard[];
@@ -312,6 +313,7 @@ export interface ExamDetail {
   id: string;
   title: string;
   description?: string | null;
+  imageUrl?: string | null;
   duration: number;
   type: string;
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
@@ -329,6 +331,7 @@ export interface ExamSessionDetail {
   answers: any;
   startedAt: string;
   submittedAt?: string | null;
+  result?: any;
   createdAt?: string;
   updatedAt?: string;
 }

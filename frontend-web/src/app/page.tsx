@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative font-sans overflow-x-hidden" style={{ backgroundImage: "url('https://res.cloudinary.com/dalaaegob/image/upload/v1773729593/fbaa82c7-ae59-41c2-ad61-99ce0bd54014.png')" }}>
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative font-sans overflow-x-hidden" style={{ backgroundImage: "url('https://res.cloudinary.com/dalaaegob/image/upload/v1773916745/ca3ae396-1909-4543-b0d3-8a1c7424d3ce.png')" }}>
       <div className="relative z-10 container mx-auto pt-20 pb-20 flex flex-col lg:flex-row items-center justify-between min-h-[90vh]">
 
         {/* Left Side: Illustration / Interactive Cards */}

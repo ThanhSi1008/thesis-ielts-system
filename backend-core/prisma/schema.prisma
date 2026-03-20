@@ -29,6 +29,7 @@ model User {
   pronunciationAttempts PronunciationAttempt[]
   vocabularyProgress    VocabularyProgress[]
   decks                 Deck[]
+  questionNotes         QuestionNote[]
 
   @@map("users")
 }
@@ -44,6 +45,7 @@ model Exam {
   id          String     @id @default(uuid())
   title       String
   description String?
+  imageUrl    String?
   duration    Int // Duration in minutes
   type        ExamType
   difficulty  Difficulty
@@ -485,3 +487,22 @@ model FlashcardReview {
   @@map("flashcard_reviews")
 }
 
+
+// ============================================================
+// QUESTION NOTES (per-user, per-exam, per-question)
+// ============================================================
+
+model QuestionNote {
+  id             String   @id @default(uuid())
+  userId         String
+  examId         String
+  questionNumber Int
+  noteText       String   @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, examId, questionNumber])
+  @@map("question_notes")
+}

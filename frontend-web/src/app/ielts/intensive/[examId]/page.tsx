@@ -73,7 +73,7 @@ export default function IntensiveExamIntroPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const videoId = useMemo(() => extractYouTubeId("https://youtu.be/tBZZpM_TvQE"), []);
+  const videoId = useMemo(() => extractYouTubeId("https://youtu.be/UFjDeMuyPMs"), []);
 
   useEffect(() => {
     let mounted = true;
@@ -107,9 +107,9 @@ export default function IntensiveExamIntroPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto max-w-screen-xl px-4 py-8">
-        <Breadcrumbs current={title} />
+        {/* <Breadcrumbs current={title} /> */}
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-2 flex justify-center">
           <div className="w-full max-w-2xl bg-white rounded-3xl shadow-sm border border-gray-100 px-10 py-12">
             {loading ? (
               <div className="animate-pulse">

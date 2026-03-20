@@ -42,6 +42,11 @@ export class ExamsController {
     });
   }
 
+  @Get('history')
+  getHistory(@Request() req: any) {
+    return this.examsService.getHistory(req.user.id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.examsService.findOne(id);
@@ -63,6 +68,11 @@ export class ExamsController {
     @Body() createSessionDto: CreateSessionDto,
   ) {
     return this.examsService.createSession(examId, createSessionDto);
+  }
+
+  @Get('sessions/:sessionId')
+  getSession(@Param('sessionId') sessionId: string) {
+    return this.examsService.getSession(sessionId);
   }
 
   @Post('sessions/:sessionId/submit')

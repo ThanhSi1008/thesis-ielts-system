@@ -8,162 +8,10 @@ import type { ExamDetail } from "@/types";
 
 type AnswersState = Record<string, string | string[]>;
 
-type NormalizedItem =
-  | {
-      kind: "mc_single";
-      qn: number;
-      prompt: string;
-      options: Record<string, string>;
-    }
-  | {
-      kind: "mc_multi";
-      qns: number[]; // two questions share one multi-select
-      prompt: string;
-      options: Record<string, string>;
-      maxSelect: number;
-    }
-  | {
-      kind: "matching_group";
-      qns: number[];
-      prompts: string[];
-      options: Record<string, string>;
-      heading?: string;
-      instructions?: string;
-    }
-  | {
-      kind:
-        | "note_completion"
-        | "table_completion"
-        | "flowchart_completion"
-        | "sentence_completion"
-        | "short_answer";
-      qn: number;
-      text: string;
-    }
-  | {
-      kind: "plan_label";
-      qn: number;
-      imageUrl: string;
-      prompt?: string;
-    };
-
-function formatTime(totalSeconds: number) {
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-function clamp(n: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, n));
-}
+import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser";
 
 function getPartTitle(part: any) {
   return `Part ${part?.part_number ?? ""}`.trim();
-}
-
-function extractAllItemsFromPart(part: any): NormalizedItem[] {
-  // Based on your seeded JSON for IELTS17 Listening Test 1:
-  // - Note Completion: part.content[].subsections[].points[] with question_number + answer
-  // - MC: part.question_groups[].items[] with question_number OR question_numbers
-  // - Matching: part.question_groups[].items[] with question_number/prompt
-  const items: NormalizedItem[] = [];
-
-  // 1) Note completion-like structure: content -> subsections -> points
-  if (Array.isArray(part?.content)) {
-    for (const block of part.content) {
-      const subs = block?.subsections;
-      if (Array.isArray(subs)) {
-        for (const sub of subs) {
-          for (const p of sub?.points ?? []) {
-            if (typeof p?.question_number === "number") {
-              items.push({
-                kind: "note_completion",
-                qn: p.question_number,
-                text: p.text,
-              });
-            }
-          }
-        }
-      } else if (Array.isArray(block?.points)) {
-        for (const p of block.points) {
-          if (typeof p?.question_number === "number") {
-            items.push({
-              kind: "note_completion",
-              qn: p.question_number,
-              text: p.text,
-            });
-          }
-        }
-      }
-    }
-  }
-
-  // 2) Grouped questions (MC + matching + other)
-  if (Array.isArray(part?.question_groups)) {
-    for (const g of part.question_groups) {
-      const qt = String(g?.question_type || "").toLowerCase();
-      if (qt.includes("multiple choice") && Array.isArray(g?.items)) {
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-            items.push({
-              kind: "mc_single",
-              qn: it.question_number,
-              prompt: it.question_text || it.question || "",
-              options: it.options || {},
-            });
-          } else if (Array.isArray(it?.question_numbers)) {
-            items.push({
-              kind: "mc_multi",
-              qns: it.question_numbers,
-              prompt: it.question_text || it.question || "",
-              options: it.options || {},
-              maxSelect: 2,
-            });
-          }
-        }
-      } else if (qt.includes("matching") && Array.isArray(g?.items)) {
-        const options = g?.options_box?.options || {};
-        const qns: number[] = [];
-        const prompts: string[] = [];
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-             qns.push(it.question_number);
-             prompts.push(it.prompt || it.question_text || "");
-          }
-        }
-        if (qns.length > 0) {
-          items.push({
-            kind: "matching_group",
-            qns,
-            prompts,
-            options,
-            heading: g?.options_box?.heading || "",
-            instructions: g?.instructions || "",
-          });
-        }
-      } else if (Array.isArray(g?.items)) {
-        // Fallback: treat items as short answer if they have question_number + question_text
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-            items.push({
-              kind: "short_answer",
-              qn: it.question_number,
-              text: it.question_text || it.prompt || it.question || "",
-            });
-          }
-        }
-      }
-    }
-  }
-
-  // Ensure sorted
-  return items.sort((a, b) => {
-    const an = "qn" in a ? a.qn : a.qns[0];
-    const bn = "qn" in b ? b.qn : b.qns[0];
-    return an - bn;
-  });
 }
 
 function questionNumbersFromItems(items: NormalizedItem[]) {
@@ -218,42 +66,58 @@ function AnswerField({
     const parts = item.text.split(/_+|\.{3,}|\[blank\]/i);
 
     return (
-      <div id={`question-${item.qn}`} className="py-2 flex items-center gap-[6px] flex-wrap text-[#1a1a1a]">
-        {parts.length > 1 ? (
-          parts.map((p, idx) => (
-            <span key={idx} className="flex items-center gap-[6px]">
-              <span className="text-[17px] leading-relaxed">{p}</span>
-              {idx < parts.length - 1 && (
+      <div id={`question-${item.qn}`} className="py-2 flex flex-col gap-1 text-[#1a1a1a]">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-4 text-[#111111]">{item.topic}</div>}
+        {(item as any).heading && <div className="font-bold text-[16px] uppercase mt-2 mb-2">{(item as any).heading}</div>}
+        {(item as any).subheading && <div className="font-semibold text-[15px] mt-1 mb-2">{(item as any).subheading}</div>}
+        
+        {((item as any).precedingText || []).map((txt: string, i: number) => (
+           <div key={`pre-${i}`} className="flex gap-[8px] items-start mb-1">
+             <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
+             <span className="text-[17px] leading-relaxed">{txt}</span>
+           </div>
+        ))}
+
+        <div className="flex items-start gap-[8px]">
+          <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
+          <div className="flex items-center gap-[6px] flex-wrap flex-1">
+            {parts.length > 1 ? (
+              parts.map((p, idx) => (
+                <span key={idx} className="flex items-center gap-[6px]">
+                  <span className="text-[17px] leading-relaxed">{p}</span>
+                  {idx < parts.length - 1 && (
+                    <input
+                      value={value}
+                      onFocus={() => setFocusedQn(item.qn)}
+                      onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
+                      placeholder={String(item.qn)}
+                      className={`w-24 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${
+                        focusedQn === item.qn
+                          ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
+                          : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
+                      }`}
+                    />
+                  )}
+                </span>
+              ))
+            ) : (
+              <div className="flex items-center gap-[6px] flex-wrap">
+                <div className="text-[17px] font-medium leading-relaxed">{item.text}</div>
                 <input
                   value={value}
                   onFocus={() => setFocusedQn(item.qn)}
                   onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                   placeholder={String(item.qn)}
-                  className={`w-24 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${
+                  className={`w-36 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${
                     focusedQn === item.qn
                       ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
                       : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
                   }`}
                 />
-              )}
-            </span>
-          ))
-        ) : (
-          <>
-            <div className="text-[17px] font-medium leading-relaxed">{item.text}</div>
-            <input
-              value={value}
-              onFocus={() => setFocusedQn(item.qn)}
-              onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
-              placeholder={String(item.qn)}
-              className={`w-36 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${
-                focusedQn === item.qn
-                  ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
-                  : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
-              }`}
-            />
-          </>
-        )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -266,6 +130,7 @@ function AnswerField({
 
     return (
       <div id={`question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
         <div className="flex flex-col">
           <div className="flex items-start min-w-0">
             <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
@@ -337,6 +202,7 @@ function AnswerField({
 
     return (
       <div id={`question-${item.qns[0]}`} className="py-6 border-b border-[#e2e1df] last:border-0">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
         <div className="flex flex-col">
           <div className="flex items-start min-w-0">
             <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
@@ -392,6 +258,7 @@ function AnswerField({
 
     return (
       <div id={`question-${item.qns[0]}`} className="py-6 border-b border-[#e2e1df] last:border-0 relative">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
         <div className="flex flex-col text-[#1a1a1a]">
           
           <div className="font-bold text-[16px] mb-1">Question {headingQns}</div>
@@ -478,6 +345,7 @@ function AnswerField({
     const value = typeof answers[key] === "string" ? (answers[key] as string) : "";
     return (
       <div id={`question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
         <div className="flex items-start gap-4">
           <QnBadge n={item.qn} isFocused={focusedQn === item.qn} />
           <div className="flex-1 min-w-0">
@@ -503,6 +371,25 @@ function AnswerField({
   return null;
 }
 
+function getIeltsListeningBand(score: number): number {
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 32) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 26) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 18) return 5.5;
+  if (score >= 16) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
+  return 1.0;
+}
+
 export default function IntensiveExamTakePage() {
   const params = useParams();
   const router = useRouter();
@@ -517,6 +404,7 @@ export default function IntensiveExamTakePage() {
   const [answers, setAnswers] = useState<AnswersState>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitResult, setSubmitResult] = useState<any>(null);
   
   const [focusedQn, setFocusedQn] = useState<number | null>(null);
   const [hasStartedAudio, setHasStartedAudio] = useState(false);
@@ -618,11 +506,11 @@ export default function IntensiveExamTakePage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await examsApi.submitSession(sessionId, answers);
-      router.replace(`/ielts/intensive/${encodeURIComponent(examId)}`);
+      const resp = await examsApi.submitSession(sessionId, answers);
+      // Redirect to the dedicated result page
+      router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`);
     } catch (e: any) {
       setSubmitError(e?.message || "Submit failed");
-    } finally {
       setSubmitting(false);
     }
   };
@@ -697,7 +585,7 @@ export default function IntensiveExamTakePage() {
         ) : !exam ? (
           <div className="m-8 bg-amber-50 text-amber-800 border border-amber-100 rounded-lg p-6 w-full max-w-2xl mx-auto h-fit">Exam not found.</div>
         ) : (
-          <div id="main-scroll-container" className="w-full flex justify-center custom-scrollbar overflow-y-auto overflow-x-hidden relative" onClick={() => setFocusedQn(null)}>
+          <div key={activePartIdx} id="main-scroll-container" className="w-full flex justify-center custom-scrollbar overflow-y-auto overflow-x-hidden relative" onClick={() => setFocusedQn(null)}>
             <div className="w-full max-w-[1200px] bg-white pt-10 px-8 lg:px-12 pb-32" onClick={(e) => e.stopPropagation()}>
               
               {/* Part Instruction Box */}
@@ -866,6 +754,38 @@ export default function IntensiveExamTakePage() {
             </div>
             Play
           </button>
+        </div>
+      )}
+
+      {/* Submit Result Overlay */}
+      {submitResult && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-[#111111] px-6">
+          <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full flex flex-col items-center">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+               <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <h2 className="text-2xl font-extrabold mb-2 text-center text-gray-900">Test Completed</h2>
+            <div className="text-gray-500 mb-8 text-center font-medium">Your answers have been graded automatically.</div>
+            
+            <div className="flex gap-8 mb-8 w-full justify-center">
+               <div className="flex flex-col items-center">
+                  <div className="text-4xl font-black text-[#D51025]">{submitResult.totalScore}/40</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Raw Score</div>
+               </div>
+               <div className="w-px bg-gray-200"></div>
+               <div className="flex flex-col items-center">
+                  <div className="text-4xl font-black text-[#D51025]">{getIeltsListeningBand(submitResult.totalScore).toFixed(1)}</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Band Score</div>
+               </div>
+            </div>
+            
+            <button
+              onClick={() => router.replace(`/ielts/intensive/${encodeURIComponent(examId)}`)}
+              className="w-full py-3.5 bg-[#D51025] hover:bg-red-700 text-white rounded-xl font-bold text-[15px] transition-colors shadow-md uppercase tracking-wider"
+            >
+              Return to Dashboard
+            </button>
+          </div>
         </div>
       )}
 
