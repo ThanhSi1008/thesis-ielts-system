@@ -1,0 +1,58 @@
+**WOMAN:** Jack, I’m thinking of taking the kids to the seaside on a surfing holiday this summer and I wanted to ask your advice – as I know you’re such an expert.  
+**JACK:** Well, I don’t know about that, but yes, I’ve done a bit of surfing over the years. I’d thoroughly recommend it. <u>I think it’s the kind of holiday all the family can enjoy together</u> **[Q1]**. The thing about surfing is that it’s great for all ages and all abilities. My youngest started when he was only three!  
+
+**WOMAN:** Wow! But it’s quite physically demanding, isn’t it? I’ve heard you <u>need to be pretty fit</u> **[Q2]**.  
+**JACK:** Yes. You’ll certainly learn more quickly and won’t tire as easily.  
+
+**WOMAN:** Well – that should be OK for us. You’ve been surfing a few times in Ireland, haven’t you?  
+**JACK:** Yes. There’s some great surfing there, which people don’t always realise.  
+
+**WOMAN:** And which locations would you recommend? – there seem to be quite a few.  
+**JACK:** Yes, there are loads. Last year we went to County Donegal. There are several great places to surf there.  
+
+**WOMAN:** What about in County Clare? I read that’s also really good for surfing.  
+**JACK:** Yes, it is. I’ve been there a few times. Most people go to Lahinch. My kids love it there. The waves aren’t too challenging and the town is very lively.  
+
+**WOMAN:** <u>Are there good hotels there?</u> **[Q3]**  
+**JACK:** <u>Yes – some very nice ones</u> and there are also a few basic hostels and campsites. It’s great if you need lessons as the surf schools are excellent.  
+
+**WOMAN:** Sounds good.  
+**JACK:** Yes and there’s lots to see in the area – like those well-known cliffs – … I’ve forgotten the name of them …  
+
+**WOMAN:** Oh don’t worry – I can look them up.  
+**JACK:** I’ve also been surfing in County Mayo, which is less well-known for surfing, but we had a really good time. That was a few years ago when the kids were younger. <u>There’s a good surf school at Carrowniskey beach</u> **[Q4]**.  
+
+**WOMAN:** How do you spell that?  
+**JACK:** C-A-double R-O-W-N-I-S-K-E-Y  
+
+**WOMAN:** OK.  
+**JACK:** I put the kids into the surf camp they run during the summer for 10–16 year olds.  
+
+**WOMAN:** Oh right. How long was that for?  
+**JACK:** <u>Three hours every day for a week</u> **[Q5]**. It was perfect – they were so tired out after that.  
+
+**WOMAN:** I can imagine.  
+**JACK:** One thing we did while the kids were surfing was to rent some kayaks to <u>have a look around the bay which is nearby</u> **[Q6]**. It’s really beautiful.  
+
+**WOMAN:** Oh, I’d love to do that.  
+
+---
+
+**WOMAN:** Now the only time I went to Ireland it rained practically every day.  
+**JACK:** Mmm yes – that can be a problem – but you can surf in the rain, you know.  
+
+**WOMAN:** It doesn’t have the same appeal, somehow.  
+**JACK:** Well, the weather’s been fine the last couple of years when I’ve been there, but actually, it tends to rain more in August than in the spring or autumn. <u>September’s my favourite month because the water is warmer then</u> **[Q7]**.  
+
+---
+
+**WOMAN:** The only problem is that the kids are back to school then.  
+**JACK:** I know. But one good thing about Irish summers is that it doesn’t get too hot. <u>The average temperature is about 19 degrees</u> **[Q8]** and it usually doesn’t go above 25 degrees.  
+
+**WOMAN:** That sounds alright. Now what about costs?  
+**JACK:** Surfing is a pretty cheap holiday really – the only cost is the hire of equipment. You can expect to pay <u>a daily rate of about 30 euros for the hire of a wetsuit and board</u> **[Q9]** – but you can save about 40 euros if you hire by the week.  
+
+**WOMAN:** That’s not too bad.  
+**JACK:** No. It’s important to make sure you get good quality wetsuits – you’ll all get too cold if you don’t. And make sure you also <u>get boots. They keep your feet warm and it’s easier to surf with them on too</u> **[Q10]**.  
+
+**WOMAN:** OK. Well, thanks very much …

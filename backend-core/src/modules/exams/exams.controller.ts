@@ -82,4 +82,9 @@ export class ExamsController {
   ) {
     return this.examsService.submitSession(sessionId, submitDto);
   }
+
+  @Delete('sessions/:sessionId')
+  deleteSession(@Param('sessionId') sessionId: string) {
+    return this.examsService.deleteSession(sessionId);
+  }
 }

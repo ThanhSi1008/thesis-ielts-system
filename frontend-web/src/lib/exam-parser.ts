@@ -24,14 +24,22 @@ export type NormalizedItem = NormalizedItemBase & (
       options: Record<string, string>;
       heading?: string;
       instructions?: string;
+      timestamp?: number;
     }
   | {
-      kind: "note_completion" | "table_completion" | "flowchart_completion" | "sentence_completion" | "short_answer";
+      kind: "note_completion" | "flowchart_completion" | "sentence_completion" | "short_answer";
       qn: number;
       text: string;
       heading?: string;
       subheading?: string;
       precedingText?: string[];
+    }
+  | {
+      kind: "table_completion";
+      qns: number[];
+      rows: Array<Array<{ text: string; question_number?: number; timestamp?: number }>>;
+      headers?: string[];
+      title?: string;
     }
   | {
       kind: "plan_label";
@@ -84,15 +92,32 @@ export function extractAllItemsFromPart(part: any): NormalizedItem[] {
   };
 
   const parseTable = (tableObj: any) => {
-    if (Array.isArray(tableObj?.rows)) {
-      for (const row of tableObj.rows) {
-        if (Array.isArray(row)) {
-          for (const cell of row) {
-            if (typeof cell?.question_number === "number") {
-              items.push({ kind: "table_completion", qn: cell.question_number, text: cell.text || "", timestamp: cell.timestamp_seconds });
-            }
+    if (Array.isArray(tableObj?.rows) && tableObj.rows.length > 0) {
+      const qns: number[] = [];
+      const parsedRows = tableObj.rows.map((row: any) => {
+        if (!Array.isArray(row)) return [];
+        return row.map((cell: any) => {
+          if (typeof cell?.question_number === "number") {
+            qns.push(cell.question_number);
           }
-        }
+          return {
+            text: cell?.text || "",
+            question_number: cell?.question_number,
+            timestamp: cell?.timestamp_seconds,
+          };
+        });
+      });
+      const headers: string[] | undefined = Array.isArray(tableObj?.headers)
+        ? tableObj.headers.map((h: any) => String(h))
+        : undefined;
+      if (qns.length > 0 || parsedRows.length > 0) {
+        items.push({ 
+          kind: "table_completion", 
+          qns, 
+          rows: parsedRows,
+          headers,
+          title: tableObj?.title || tableObj?.name || tableObj?.heading || tableObj?.caption || "" 
+        });
       }
     }
   };
@@ -121,10 +146,18 @@ export function extractAllItemsFromPart(part: any): NormalizedItem[] {
         const options = g?.options_box?.options || {};
         const qns: number[] = [];
         const prompts: string[] = [];
+        let firstTimestamp: number | undefined = undefined;
+        
         for (const it of g.items) {
-          if (typeof it?.question_number === "number") { qns.push(it.question_number); prompts.push(it.prompt || it.question_text || ""); }
+          if (typeof it?.question_number === "number") {
+             qns.push(it.question_number);
+             prompts.push(it.question_text || it.question || "");
+             if (firstTimestamp === undefined && typeof it.timestamp_seconds === "number") {
+               firstTimestamp = it.timestamp_seconds;
+             }
+          }
         }
-        if (qns.length > 0) items.push({ kind: "matching_group", qns, prompts, options, heading: g?.options_box?.heading || "", instructions: g?.instructions || "" });
+        if (qns.length > 0) items.push({ kind: "matching_group", qns, prompts, options, heading: g?.heading || "", instructions: g?.instructions || "", timestamp: firstTimestamp });
       } else if (Array.isArray(g?.items)) {
         for (const it of g.items) {
           if (typeof it?.question_number === "number") {

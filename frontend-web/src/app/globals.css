@@ -47,3 +47,46 @@
     color: #fff;
   }
 }
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #fcfcfc; 
+  border-left: 1px solid #ececec;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cdcdcd; 
+  border: 3px solid #fcfcfc; 
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #b0b0b0; 
+}
+.custom-scrollbar::-webkit-scrollbar-button:single-button {
+  background-color: #fcfcfc;
+  display: block;
+  height: 14px;
+  width: 14px;
+  border-left: 1px solid #ececec;
+}
+.custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23757575" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 11px;
+}
+.custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
+  background-color: #f1f1f1;
+}
+.custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23757575" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 11px;
+}
+.custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:increment:hover {
+  background-color: #f1f1f1;
+}

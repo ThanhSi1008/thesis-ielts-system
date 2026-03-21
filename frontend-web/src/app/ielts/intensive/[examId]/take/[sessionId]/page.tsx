@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import type { ExamDetail } from "@/types";
+import ConfirmModal from "@/components/ConfirmModal";
 
 type AnswersState = Record<string, string | string[]>;
 
@@ -19,6 +20,7 @@ function questionNumbersFromItems(items: NormalizedItem[]) {
   for (const it of items) {
     if (it.kind === "mc_multi") nums.push(...it.qns);
     else if (it.kind === "matching_group") nums.push(...it.qns);
+    else if (it.kind === "table_completion") nums.push(...it.qns);
     else if ("qn" in it) nums.push(it.qn);
   }
   return Array.from(new Set(nums)).sort((a, b) => a - b);
@@ -54,14 +56,13 @@ function AnswerField({
   // Completion / short answer style input
   if (
     item.kind === "note_completion" ||
-    item.kind === "table_completion" ||
     item.kind === "flowchart_completion" ||
     item.kind === "sentence_completion" ||
     item.kind === "short_answer"
   ) {
     const key = String(item.qn);
     const value = typeof answers[key] === "string" ? (answers[key] as string) : "";
-    
+
     // Parse the text to split by blanks like '______' or '...'
     const parts = item.text.split(/_+|\.{3,}|\[blank\]/i);
 
@@ -70,12 +71,12 @@ function AnswerField({
         {item.topic && <div className="font-extrabold text-[18px] text-center mb-4 text-[#111111]">{item.topic}</div>}
         {(item as any).heading && <div className="font-bold text-[16px] uppercase mt-2 mb-2">{(item as any).heading}</div>}
         {(item as any).subheading && <div className="font-semibold text-[15px] mt-1 mb-2">{(item as any).subheading}</div>}
-        
+
         {((item as any).precedingText || []).map((txt: string, i: number) => (
-           <div key={`pre-${i}`} className="flex gap-[8px] items-start mb-1">
-             <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
-             <span className="text-[17px] leading-relaxed">{txt}</span>
-           </div>
+          <div key={`pre-${i}`} className="flex gap-[8px] items-start mb-1">
+            <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
+            <span className="text-[17px] leading-relaxed">{txt}</span>
+          </div>
         ))}
 
         <div className="flex items-start gap-[8px]">
@@ -91,11 +92,10 @@ function AnswerField({
                       onFocus={() => setFocusedQn(item.qn)}
                       onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                       placeholder={String(item.qn)}
-                      className={`w-24 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${
-                        focusedQn === item.qn
-                          ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
-                          : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
-                      }`}
+                      className={`w-24 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
+                        ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
+                        : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
+                        }`}
                     />
                   )}
                 </span>
@@ -108,11 +108,10 @@ function AnswerField({
                   onFocus={() => setFocusedQn(item.qn)}
                   onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                   placeholder={String(item.qn)}
-                  className={`w-36 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${
-                    focusedQn === item.qn
-                      ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
-                      : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
-                  }`}
+                  className={`w-36 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
+                    ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
+                    : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
+                    }`}
                 />
               </div>
             )}
@@ -122,7 +121,84 @@ function AnswerField({
     );
   }
 
-  // MC single
+  if (item.kind === "table_completion") {
+    return (
+      <div className="py-4 overflow-x-auto text-[#1a1a1a] w-full">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-4 text-[#111111]">{item.topic}</div>}
+        {(item as any).title && <div className="font-bold text-[16px] mb-3 text-center text-[#333333] uppercase leading-relaxed">{(item as any).title}</div>}
+        <table className="w-full border-collapse border border-[#d1d1d1] text-[15px]">
+          {item.headers && item.headers.length > 0 && (
+            <thead>
+              <tr className="bg-[#e8e8e8]">
+                {item.headers.map((h, i) => (
+                  <th key={i} className="border border-[#d1d1d1] px-3 py-3 text-left text-[14px] font-bold text-[#1a1a1a] uppercase tracking-wide">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+          )}
+          <tbody>
+            {item.rows.map((row, rIdx) => (
+              <tr key={rIdx} className="bg-white border-t border-[#d1d1d1]">
+                {row.map((cell, cIdx) => {
+                  if (typeof cell.question_number === "number") {
+                    const key = String(cell.question_number);
+                    const value = typeof answers[key] === "string" ? answers[key] : "";
+                    const parts = (cell.text || "").split(/_+|\.{3,}|\[blank\]/i);
+                    return (
+                      <td key={cIdx} className="border border-[#e2e1df] px-3 py-4 align-middle">
+                        <div id={`question-${cell.question_number}`} className="flex items-center gap-[6px] flex-wrap">
+                          {parts.length > 1 ? (
+                            parts.map((p, idx) => (
+                              <span key={idx} className="flex items-center gap-[6px]">
+                                {p && <span className="leading-relaxed">{p}</span>}
+                                {idx < parts.length - 1 && (
+                                  <input
+                                    value={value}
+                                    onFocus={() => setFocusedQn(cell.question_number!)}
+                                    onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
+                                    placeholder={String(cell.question_number)}
+                                    className={`w-28 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === cell.question_number
+                                      ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
+                                      : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
+                                      }`}
+                                  />
+                                )}
+                              </span>
+                            ))
+                          ) : (
+                            <>
+                              {cell.text && <span className="leading-relaxed">{cell.text}</span>}
+                              <input
+                                value={value}
+                                onFocus={() => setFocusedQn(cell.question_number!)}
+                                onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
+                                placeholder={String(cell.question_number)}
+                                className={`w-32 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === cell.question_number
+                                  ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
+                                  : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
+                                  }`}
+                              />
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td key={cIdx} className="border border-[#e2e1df] px-3 py-4 align-middle">
+                      <span className="leading-relaxed whitespace-pre-wrap">{cell.text}</span>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
   if (item.kind === "mc_single") {
     const key = String(item.qn);
     const value = typeof answers[key] === "string" ? (answers[key] as string) : "";
@@ -146,18 +222,17 @@ function AnswerField({
                 onClick={() => setFocusedQn(item.qn)}
               >
                 <div className="pt-[2px] flex-shrink-0">
-                  <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center transition-colors ${
-                    value === k ? "border-[#2181d8] bg-[#2181d8]" : "border-[#767676] group-hover:border-[#4b4b4b] bg-white"
-                  }`}>
+                  <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center transition-colors ${value === k ? "border-[#2181d8] bg-[#2181d8]" : "border-[#767676] group-hover:border-[#4b4b4b] bg-white"
+                    }`}>
                     {value === k && <div className="w-[6px] h-[6px] rounded-full bg-white" />}
                   </div>
-                  <input 
-                    type="radio" 
-                    name={key} 
-                    value={k} 
-                    checked={value === k} 
-                    onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })} 
-                    className="hidden" 
+                  <input
+                    type="radio"
+                    name={key}
+                    value={k}
+                    checked={value === k}
+                    onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
+                    className="hidden"
                   />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -227,9 +302,8 @@ function AnswerField({
                   }}
                 >
                   <div className="pt-[2px] flex-shrink-0">
-                    <div className={`w-[18px] h-[18px] rounded-[3px] border-[1.5px] flex items-center justify-center transition-colors ${
-                      active ? "border-[#2181d8] bg-[#2181d8]" : "border-[#767676] group-hover:border-[#4b4b4b] bg-white"
-                    }`}>
+                    <div className={`w-[18px] h-[18px] rounded-[3px] border-[1.5px] flex items-center justify-center transition-colors ${active ? "border-[#2181d8] bg-[#2181d8]" : "border-[#767676] group-hover:border-[#4b4b4b] bg-white"
+                      }`}>
                       {active && (
                         <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-white stroke-current stroke-[3] fill-none" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M20 6 9 17l-5-5" />
@@ -260,10 +334,10 @@ function AnswerField({
       <div id={`question-${item.qns[0]}`} className="py-6 border-b border-[#e2e1df] last:border-0 relative">
         {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
         <div className="flex flex-col text-[#1a1a1a]">
-          
+
           <div className="font-bold text-[16px] mb-1">Question {headingQns}</div>
           {(item as any).instructions && <div className="text-[16px] mb-4">{(item as any).instructions}</div>}
-          
+
           {/* Radio Grid */}
           <div className="mb-10 overflow-x-auto custom-scrollbar border border-[#999999] max-w-fit rounded-[2px]">
             <table className="min-w-max border-collapse bg-white">
@@ -282,10 +356,10 @@ function AnswerField({
                   const key = String(qNum);
                   const val = typeof answers[key] === "string" ? answers[key] : "";
                   const prompt = item.prompts[rIdx] || "";
-                  
+
                   return (
-                    <tr 
-                      key={qNum} 
+                    <tr
+                      key={qNum}
                       className="border-b border-[#e5e5e5] last:border-b-0 hover:bg-[#f9f9f9] transition-colors"
                       onClick={() => setFocusedQn(qNum)}
                     >
@@ -295,9 +369,9 @@ function AnswerField({
                       </td>
                       {letters.map((letter, i) => (
                         <td key={letter} className={`p-3 text-center border-l border-[#e5e5e5] ${i === 0 ? 'border-l-[#999999]' : ''}`}>
-                          <input 
-                            type="radio" 
-                            name={`match-${qNum}`} 
+                          <input
+                            type="radio"
+                            name={`match-${qNum}`}
                             value={letter}
                             checked={val === letter}
                             onChange={(e) => {
@@ -390,7 +464,7 @@ function getIeltsListeningBand(score: number): number {
   return 1.0;
 }
 
-export default function IntensiveExamTakePage() {
+export default function IntensiveTestTakePage() {
   const params = useParams();
   const router = useRouter();
   const examId = params?.examId as string;
@@ -405,14 +479,20 @@ export default function IntensiveExamTakePage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitResult, setSubmitResult] = useState<any>(null);
-  
+  const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
+
   const [focusedQn, setFocusedQn] = useState<number | null>(null);
   const [hasStartedAudio, setHasStartedAudio] = useState(false);
+
+  const [showLeaveWarning, setShowLeaveWarning] = useState(false);
+  const [leaveCallback, setLeaveCallback] = useState<(() => void) | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [timeTaken, setTimeTaken] = useState(0);
   const tickRef = useRef<number | null>(null);
+  const timeTakenTickRef = useRef<number | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -442,6 +522,40 @@ export default function IntensiveExamTakePage() {
     };
   }, [examId]);
 
+  // Trap refresh and close tab
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (submitting || submitResult || isConfirmingSubmit) return;
+      e.preventDefault();
+      e.returnValue = "Are you sure you want to leave? Your progress will not be saved.";
+      return e.returnValue;
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [submitting, submitResult, isConfirmingSubmit]);
+
+  // Trap back button
+  useEffect(() => {
+    if (submitting || submitResult) return;
+    // Push trap state
+    window.history.pushState(null, "", window.location.href);
+
+    const handlePopState = () => {
+      if (submitting || submitResult) return;
+      // Re-push state instantly so the URL doesn't actually change
+      window.history.pushState(null, "", window.location.href);
+      
+      setShowLeaveWarning(true);
+      setLeaveCallback(() => () => {
+        window.removeEventListener("popstate", handlePopState);
+        window.history.go(-2);
+      });
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [submitting, submitResult]);
+
   // Countdown
   useEffect(() => {
     if (secondsLeft === null) return;
@@ -459,6 +573,20 @@ export default function IntensiveExamTakePage() {
       tickRef.current = null;
     };
   }, [secondsLeft]);
+
+  // Active Time Tracker
+  useEffect(() => {
+    if (!hasStartedAudio || submitting || submitResult) return;
+
+    timeTakenTickRef.current = window.setInterval(() => {
+      setTimeTaken((t) => t + 1);
+    }, 1000);
+
+    return () => {
+      if (timeTakenTickRef.current) window.clearInterval(timeTakenTickRef.current);
+      timeTakenTickRef.current = null;
+    };
+  }, [hasStartedAudio, submitting, submitResult]);
 
   const parts = useMemo(() => (exam?.questions?.parts as any[]) || [], [exam]);
   const activePart = parts[activePartIdx] || null;
@@ -506,7 +634,7 @@ export default function IntensiveExamTakePage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const resp = await examsApi.submitSession(sessionId, answers);
+      const resp = await examsApi.submitSession(sessionId, answers, timeTaken);
       // Redirect to the dedicated result page
       router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`);
     } catch (e: any) {
@@ -519,21 +647,15 @@ export default function IntensiveExamTakePage() {
   // The user wants the layout exactly like the image.
   return (
     <div className="h-screen flex flex-col font-sans bg-[#F3F4F6] overflow-hidden text-[#1A1A1A]">
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 14px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-left: 1px solid #e1e1e1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border: 3px solid #f1f1f1; border-radius: 7px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-      `}} />
-      <audio 
-        ref={audioRef} 
-        src={audioSrc} 
-        preload="auto" 
+      <audio
+        ref={audioRef}
+        src={audioSrc}
+        preload="auto"
         autoPlay={hasStartedAudio}
         onEnded={handleAudioEnded}
-        className="hidden" 
+        className="hidden"
       />
-      
+
       {/* Top Bar matching image */}
       <header className="h-[60px] flex-shrink-0 bg-white border-b border-gray-300 flex items-center justify-between px-6 z-20 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-6">
@@ -543,7 +665,7 @@ export default function IntensiveExamTakePage() {
             {hasStartedAudio && (
               <div className="text-[11px] font-semibold text-gray-600 flex items-center gap-1.5 leading-tight mt-0.5">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13.5 4v16a1 1 0 0 1-1.58.81L7 17H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3l4.92-3.81A1 1 0 0 1 13.5 4zm2.5 4v8a1 1 0 0 0 1 1 6 6 0 0 0 0-10 1 1 0 0 0-1 1zm3-3.61v15.22a1 1 0 0 0 1.5.86 10 10 0 0 0 0-16.94 1 1 0 0 0-1.5.86z"/>
+                  <path d="M13.5 4v16a1 1 0 0 1-1.58.81L7 17H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3l4.92-3.81A1 1 0 0 1 13.5 4zm2.5 4v8a1 1 0 0 0 1 1 6 6 0 0 0 0-10 1 1 0 0 0-1 1zm3-3.61v15.22a1 1 0 0 0 1.5.86 10 10 0 0 0 0-16.94 1 1 0 0 0-1.5.86z" />
                 </svg>
                 Audio is playing
               </div>
@@ -554,17 +676,17 @@ export default function IntensiveExamTakePage() {
         {/* Right Icons matching image */}
         <div className="flex items-center gap-6 text-gray-700">
           <button className="hover:text-gray-900 transition-colors">
-            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M12 21c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V3c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 4.36 6 6.92 6 10v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M12 21c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V3c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 4.36 6 6.92 6 10v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" /></svg>
           </button>
           <button className="hover:text-gray-900 transition-colors">
-            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M8.5 16a5 5 0 0 1 7 0M12 20h.01"/></svg>
+            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M8.5 16a5 5 0 0 1 7 0M12 20h.01" /></svg>
           </button>
           <button className="hover:text-gray-900 transition-colors pl-2">
-            <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <button
-            onClick={submit}
-            disabled={submitting || loading}
+            onClick={() => setIsConfirmingSubmit(true)}
+            disabled={submitting || loading || submitResult}
             className="ml-2 px-4 py-1.5 text-xs font-bold rounded bg-[#D51025] hover:bg-red-700 text-white transition-colors disabled:opacity-60 uppercase"
           >
             {submitting ? "..." : "Finish"}
@@ -586,8 +708,8 @@ export default function IntensiveExamTakePage() {
           <div className="m-8 bg-amber-50 text-amber-800 border border-amber-100 rounded-lg p-6 w-full max-w-2xl mx-auto h-fit">Exam not found.</div>
         ) : (
           <div key={activePartIdx} id="main-scroll-container" className="w-full flex justify-center custom-scrollbar overflow-y-auto overflow-x-hidden relative" onClick={() => setFocusedQn(null)}>
-            <div className="w-full max-w-[1200px] bg-white pt-10 px-8 lg:px-12 pb-32" onClick={(e) => e.stopPropagation()}>
-              
+            <div className="w-full bg-white pt-10 px-6 pb-32" onClick={(e) => e.stopPropagation()}>
+
               {/* Part Instruction Box */}
               <div className="bg-[#f2f1ef] border border-[#e2e1df] rounded py-5 px-6 mb-8 text-[#1a1a1a]">
                 <div className="font-bold text-[17px] mb-1">{getPartTitle(activePart)}</div>
@@ -595,7 +717,7 @@ export default function IntensiveExamTakePage() {
                   Listen and answer questions {qNumbers.length > 0 ? `${qNumbers[0]} - ${qNumbers[qNumbers.length - 1]}` : ""}.
                 </div>
               </div>
-              
+
               {/* Group Instructions Placeholder - hidden to rely on individual question prompts/instructions */}
 
               {submitError && (
@@ -623,7 +745,8 @@ export default function IntensiveExamTakePage() {
 
         {/* Floating Next/Back Arrows mappings to Question navigation */}
         {!loading && !error && exam && (
-          <div className="absolute bottom-6 right-[max(32px,calc(50vw-600px+32px))] flex gap-1 z-10 opacity-90 transition-opacity hover:opacity-100">
+          <div className="absolute bottom-6 right-[max(12px,calc(50vw-700px+12px))] flex gap-1 z-10 opacity-90 transition-opacity hover:opacity-100">
+
             <button
               onClick={() => {
                 const idx = focusedQn ? qNumbers.indexOf(focusedQn) : 0;
@@ -639,7 +762,7 @@ export default function IntensiveExamTakePage() {
               <svg viewBox="0 0 24 24" className="w-8 h-8 text-white stroke-[#7f7f7f] stroke-[2.5] fill-none" strokeLinecap="round" strokeLinejoin="round"><path d="M15 19l-7-7 7-7" /></svg>
             </button>
             <button
-               onClick={() => {
+              onClick={() => {
                 const idx = focusedQn ? qNumbers.indexOf(focusedQn) : -1;
                 if (idx < qNumbers.length - 1) {
                   const next = qNumbers[idx + 1];
@@ -658,8 +781,8 @@ export default function IntensiveExamTakePage() {
 
       {/* Bottom Ribbon matching spaced Parts view */}
       {!loading && !error && exam && (
-        <footer className="h-[60px] flex-shrink-0 bg-[#f8f9fa] border-t border-gray-300 z-20 flex items-center px-4 w-full">
-          <div className="flex-1 flex items-center h-full justify-between gap-6 overflow-x-auto custom-scrollbar px-2 sm:px-[10%]">
+        <footer className="h-[60px] flex-shrink-0 bg-[#f8f9fa] border-t border-gray-300 z-20 flex items-center px-6 w-full">
+          <div className="flex-1 flex items-center h-full justify-between gap-6 overflow-x-auto custom-scrollbar">
             {parts.map((p, idx) => {
               const isActiveLocal = idx === activePartIdx;
               const partQNumbers = questionNumbersFromItems(extractAllItemsFromPart(p));
@@ -667,15 +790,15 @@ export default function IntensiveExamTakePage() {
               const isCompleted = answeredLocalCount === partQNumbers.length && partQNumbers.length > 0;
 
               return (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className={`flex flex-col h-full justify-center min-w-max relative gap-1.5 cursor-pointer hover:bg-[#f0f0f0] px-4 transition-colors ${isActiveLocal ? "" : "opacity-80"} pt-1`}
                   onClick={() => {
                     setActivePartIdx(idx);
                     if (partQNumbers.length > 0) setFocusedQn(partQNumbers[0]);
                   }}
                 >
-                  
+
                   {isActiveLocal && (
                     <div className="absolute top-0 left-0 w-full flex">
                       <div className="h-[3px] bg-[#dcdcdc] flex-1"></div>
@@ -685,35 +808,34 @@ export default function IntensiveExamTakePage() {
                   <div className="flex items-center gap-[6px]">
                     {isCompleted && (
                       <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#303030] fill-current mr-[-2px]" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                       </svg>
                     )}
                     <span className={`font-bold text-[14px] ${isActiveLocal ? "text-black" : "text-gray-600"} tracking-wide`}>
                       Part {idx + 1}
                     </span>
-                    
+
                     {isActiveLocal ? (
                       <div className="flex items-center gap-[1px] ml-2">
                         {partQNumbers.map((n) => {
-                           const answeredLocal = answeredSet.has(n);
-                           const isFocused = focusedQn === n;
-                           return (
-                             <div
-                               key={n}
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 setFocusedQn(n);
-                                 document.getElementById(`question-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                               }}
-                               className={`w-[24px] h-[24px] flex items-center justify-center text-[12px] font-medium transition-colors cursor-pointer ${
-                                 isFocused
-                                   ? "bg-white text-black border-[1.5px] border-[#2181d8]"
-                                   : "bg-white text-black border border-[#d2d2d2] hover:border-gray-500 hover:bg-gray-50"
-                               }`}
-                             >
-                               {n}
-                             </div>
-                           );
+                          const answeredLocal = answeredSet.has(n);
+                          const isFocused = focusedQn === n;
+                          return (
+                            <div
+                              key={n}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFocusedQn(n);
+                                document.getElementById(`question-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }}
+                              className={`w-[24px] h-[24px] flex items-center justify-center text-[12px] font-medium transition-colors cursor-pointer ${isFocused
+                                ? "bg-white text-black border-[1.5px] border-[#2181d8]"
+                                : "bg-white text-black border border-[#d2d2d2] hover:border-gray-500 hover:bg-gray-50"
+                                }`}
+                            >
+                              {n}
+                            </div>
+                          );
                         })}
                       </div>
                     ) : (
@@ -728,16 +850,80 @@ export default function IntensiveExamTakePage() {
           </div>
 
           <div className="w-16 h-full border-l border-gray-200 flex items-center justify-center bg-[#f2f1ef] cursor-pointer hover:bg-gray-200 transition-colors">
-            <svg viewBox="0 0 24 24" className="w-7 h-7 text-gray-700 font-extrabold" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            <svg viewBox="0 0 24 24" className="w-7 h-7 text-gray-700 font-extrabold" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
           </div>
         </footer>
+      )}
+
+      {/* Confirm Submit Overlay */}
+      {isConfirmingSubmit && !submitting && !submitResult && (
+        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-sm w-full mx-auto animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Submit Test?</h3>
+              <p className="text-gray-600">Are you sure you want to finish and submit the test? You will not be able to change your answers afterward.</p>
+            </div>
+            <div className="bg-gray-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-gray-100">
+              <button
+                onClick={() => setIsConfirmingSubmit(false)}
+                className="px-4 py-2 font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setIsConfirmingSubmit(false);
+                  submit();
+                }}
+                className="px-4 py-2 font-bold text-white bg-[#D51025] rounded hover:bg-red-700 transition-colors"
+              >
+                Yes, Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Submitting / Calculating Score Overlay */}
+      {submitting && (
+        <div className="fixed inset-0 z-[200] bg-[#0a0a0a]/90 backdrop-blur-md flex flex-col items-center justify-center px-4">
+          {/* Spinning ring */}
+          <div className="relative mb-10">
+            <div className="w-24 h-24 rounded-full border-[3px] border-white/10" />
+            <div className="absolute inset-0 w-24 h-24 rounded-full border-[3px] border-transparent border-t-[#D51025] animate-spin" />
+            <div className="absolute inset-[10px] w-[72px] h-[72px] rounded-full border-[2px] border-transparent border-t-white/30 animate-spin" style={{ animationDuration: "1.4s", animationDirection: "reverse" }} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current opacity-60" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+              </svg>
+            </div>
+          </div>
+
+          <h2 className="text-white text-2xl font-extrabold tracking-tight mb-2">
+            Calculating your score
+          </h2>
+          <p className="text-white/50 text-sm font-medium mb-8 text-center max-w-xs">
+            Grading your answers and computing your IELTS band score…
+          </p>
+
+          {/* Animated step dots */}
+          <div className="flex items-center gap-2">
+            {[0, 1, 2, 3].map(i => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full bg-white/30 animate-bounce"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Start Audio Overlay */}
       {!hasStartedAudio && !loading && !error && exam && (
         <div className="fixed inset-0 z-50 bg-black/70 flex flex-col items-center justify-center text-white px-6">
           <svg viewBox="0 0 24 24" className="w-[100px] h-[100px] mb-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
-             <path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h3v-8H5v-1a7 7 0 1 1 14 0v1h-3v8h3a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z"/>
+            <path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h3v-8H5v-1a7 7 0 1 1 14 0v1h-3v8h3a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z" />
           </svg>
           <div className="text-[20px] font-medium text-center max-w-3xl mb-6 leading-relaxed">
             You will be listening to an audio clip during this test. You will not be permitted to pause or rewind the audio while answering the questions.
@@ -750,7 +936,7 @@ export default function IntensiveExamTakePage() {
             className="flex items-center gap-3 bg-black hover:bg-[#1a1a1a] px-8 py-3.5 rounded-[3px] font-bold text-[18px] text-white transition-colors"
           >
             <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center pl-0.5">
-               <svg viewBox="0 0 24 24" className="w-4 h-4 text-black fill-current"><path d="M8 5v14l11-7z"/></svg>
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-black fill-current"><path d="M8 5v14l11-7z" /></svg>
             </div>
             Play
           </button>
@@ -762,23 +948,23 @@ export default function IntensiveExamTakePage() {
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-[#111111] px-6">
           <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full flex flex-col items-center">
             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
-               <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
             </div>
             <h2 className="text-2xl font-extrabold mb-2 text-center text-gray-900">Test Completed</h2>
             <div className="text-gray-500 mb-8 text-center font-medium">Your answers have been graded automatically.</div>
-            
+
             <div className="flex gap-8 mb-8 w-full justify-center">
-               <div className="flex flex-col items-center">
-                  <div className="text-4xl font-black text-[#D51025]">{submitResult.totalScore}/40</div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Raw Score</div>
-               </div>
-               <div className="w-px bg-gray-200"></div>
-               <div className="flex flex-col items-center">
-                  <div className="text-4xl font-black text-[#D51025]">{getIeltsListeningBand(submitResult.totalScore).toFixed(1)}</div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Band Score</div>
-               </div>
+              <div className="flex flex-col items-center">
+                <div className="text-4xl font-black text-[#D51025]">{submitResult.totalScore}/40</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Raw Score</div>
+              </div>
+              <div className="w-px bg-gray-200"></div>
+              <div className="flex flex-col items-center">
+                <div className="text-4xl font-black text-[#D51025]">{getIeltsListeningBand(submitResult.totalScore).toFixed(1)}</div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2">Band Score</div>
+              </div>
             </div>
-            
+
             <button
               onClick={() => router.replace(`/ielts/intensive/${encodeURIComponent(examId)}`)}
               className="w-full py-3.5 bg-[#D51025] hover:bg-red-700 text-white rounded-xl font-bold text-[15px] transition-colors shadow-md uppercase tracking-wider"
@@ -788,6 +974,21 @@ export default function IntensiveExamTakePage() {
           </div>
         </div>
       )}
+
+      {/* Leave Warning Modal */}
+      <ConfirmModal
+        isOpen={showLeaveWarning}
+        title="Leave Test?"
+        message="Are you sure you want to leave the test? Your progress will not be saved."
+        confirmText="Yes, leave"
+        cancelText="Cancel"
+        isDestructive
+        onConfirm={() => {
+          setShowLeaveWarning(false);
+          leaveCallback?.();
+        }}
+        onClose={() => setShowLeaveWarning(false)}
+      />
 
     </div>
   );

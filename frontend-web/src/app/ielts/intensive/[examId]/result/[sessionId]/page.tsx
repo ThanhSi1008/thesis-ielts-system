@@ -51,8 +51,12 @@ function extractCorrectAnswers(obj: any, map: Map<string, any>) {
     if ("question_number" in obj && "answer" in obj) {
       map.set(String(obj.question_number), obj.answer);
     } else if ("question_numbers" in obj && "answer" in obj) {
+      let ans = obj.answer;
+      if (typeof ans === "string" && ans.includes(",")) {
+        ans = ans.split(",").map(s => s.trim());
+      }
       for (const n of obj.question_numbers as number[]) {
-        map.set(String(n), obj.answer);
+        map.set(String(n), ans);
       }
     } else {
       Object.values(obj).forEach((v) => extractCorrectAnswers(v, map));
@@ -232,13 +236,19 @@ function AudioPlayer({ audioUrl, audioRef }: { audioUrl: string; audioRef: React
     const onTime = () => setCurrentTime(audio.currentTime);
     const onMeta = () => setDuration(audio.duration);
     const onEnded = () => setPlaying(false);
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("loadedmetadata", onMeta);
     audio.addEventListener("ended", onEnded);
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
     return () => {
       audio.removeEventListener("timeupdate", onTime);
       audio.removeEventListener("loadedmetadata", onMeta);
       audio.removeEventListener("ended", onEnded);
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
     };
   }, [audioRef]);
 
@@ -384,39 +394,7 @@ function QnBadge({ n, txt }: { n: number; txt?: string }) {
   return <span className="font-bold text-[#1a1a1a] mr-3 text-[15px]">{display}</span>;
 }
 
-function AnswerBox({ userAns, correctAns, isCorrect }: { userAns: string; correctAns: string; isCorrect: boolean | null }) {
-  const displayUser = userAns || "—";
-  if (isCorrect === true) {
-    return <span className="text-[15px] font-bold text-emerald-600 mx-1 leading-relaxed">{displayUser}</span>;
-  }
-  if (isCorrect === false) {
-    return (
-      <span className="mx-1 inline-flex items-center align-middle">
-        <span className="text-[15px] font-bold text-[#ef4444] line-through decoration-[#ef4444]/60 decoration-2 leading-relaxed">
-          {displayUser}
-        </span>
-        <span className="relative inline-flex items-center bg-[#ef4444] text-white text-[14px] font-bold px-2.5 py-0.5 rounded-[4px] ml-1.5 shadow-sm leading-relaxed">
-          <span className="absolute -left-[4px] top-1/2 -translate-y-1/2 w-0 h-0 border-y-[4px] border-y-transparent border-r-[5px] border-r-[#ef4444]"></span>
-          {correctAns}
-        </span>
-      </span>
-    );
-  }
-  if (displayUser === "—") {
-    return (
-      <span className="mx-1 inline-flex items-center align-middle">
-        <span className="text-[15px] font-bold text-[#ef4444] line-through decoration-[#ef4444]/60 decoration-2 leading-relaxed">—</span>
-        {correctAns && (
-          <span className="relative inline-flex items-center bg-[#ef4444] text-white text-[14px] font-bold px-2.5 py-0.5 rounded-[4px] ml-1.5 shadow-sm leading-relaxed">
-            <span className="absolute -left-[4px] top-1/2 -translate-y-1/2 w-0 h-0 border-y-[4px] border-y-transparent border-r-[5px] border-r-[#ef4444]"></span>
-            {correctAns}
-          </span>
-        )}
-      </span>
-    );
-  }
-  return <span className="text-[15px] font-medium text-slate-500 mx-1 leading-relaxed">{displayUser}</span>;
-}
+
 
 function ReviewActions({
   qNum, timestamp, onSeek, onLocate, onNoteToggle, hasNote, isNoteOpen
@@ -457,13 +435,39 @@ function ReviewItemField({
   onNoteReady: (note: QuestionNote) => void;
 }) {
   const [openNoteQn, setOpenNoteQn] = useState<number | null>(null);
-  const [showActions, setShowActions] = useState(false);
   const toggleNote = (q: number) => setOpenNoteQn(p => p === q ? null : q);
-  const handleToggleActions = () => setShowActions(p => !p);
 
+  // Helper to render the actions bar below a question group
+  const renderActions = (qNum: number, overrideTimestamp?: number) => {
+    const ts = overrideTimestamp !== undefined ? overrideTimestamp : item.timestamp;
+    return (
+      <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+        <ReviewActions 
+          qNum={qNum} 
+          timestamp={ts} 
+          onSeek={onSeek} 
+          onLocate={onLocate} 
+          onNoteToggle={() => toggleNote(qNum)} 
+          hasNote={noteMap.has(qNum)} 
+          isNoteOpen={openNoteQn === qNum} 
+        />
+        {openNoteQn === qNum && (
+          <div className="mt-3">
+            <NoteEditor questionNumber={qNum} examId={examId} userId={userId} initialNote={noteMap.get(qNum)} onSaved={onNoteReady} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const QnBadge = ({ n, txt }: { n: number, txt?: string }) => {
+    const display = txt || String(n);
+    return <span className="font-bold text-[#1a1a1a] mr-3 text-[15px]">{display}</span>;
+  };
+
+  // Completion / short answer style
   if (
     item.kind === "note_completion" ||
-    item.kind === "table_completion" ||
     item.kind === "flowchart_completion" ||
     item.kind === "sentence_completion" ||
     item.kind === "short_answer"
@@ -474,124 +478,450 @@ function ReviewItemField({
     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
     const parts = item.text.split(/_+|\.{3,}|\[blank\]/i);
 
+    const renderInputBox = () => {
+      if (isCorr === true) {
+        return (
+          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] bg-[#f0fdf4] border border-[#16a34a] text-[#16a34a] font-bold text-[15px] shadow-sm">
+            <span>{userAns || "—"}</span>
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+        );
+      }
+      return (
+        <div className="inline-flex items-center gap-1.5 bg-[#fef2f2] border border-[#ef4444] rounded-[3px] px-2 py-0.5 shadow-sm">
+          <span className="text-[#ef4444] font-bold text-[15px] line-through decoration-[#ef4444]/60 decoration-2">{userAns || "—"}</span>
+          <span className="text-gray-400 font-medium text-[13px]">→</span>
+          <span className="text-[#16a34a] font-bold text-[14px] bg-[#f0fdf4] px-1.5 rounded-[2px] border border-[#16a34a]/30">{correctAns}</span>
+        </div>
+      );
+    };
+
     return (
-      <div id={`review-question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0 text-[#1a1a1a]">
-        {item.topic && <div className="font-extrabold text-[16px] text-center mb-4 text-[#111111]">{item.topic}</div>}
-        {(item as any).heading && <div className="font-bold text-[14px] uppercase mt-2 mb-2">{(item as any).heading}</div>}
-        {(item as any).subheading && <div className="font-semibold text-[14px] mt-1 mb-2">{(item as any).subheading}</div>}
+      <div id={`review-question-${item.qn}`} className="py-4 text-[#1a1a1a] border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-4 text-[#111111]">{item.topic}</div>}
+        {(item as any).heading && <div className="font-bold text-[16px] uppercase mt-2 mb-2">{(item as any).heading}</div>}
+        {(item as any).subheading && <div className="font-semibold text-[15px] mt-1 mb-2">{(item as any).subheading}</div>}
 
         {((item as any).precedingText || []).map((txt: string, i: number) => (
-          <div key={`pre-${i}`} className="flex gap-[8px] items-start mb-1 cursor-pointer hover:bg-slate-50 p-1 -ml-1 rounded transition-colors" onClick={handleToggleActions}>
-            <span className="mt-[8px] w-1 h-1 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
-            <span className="text-[15px] leading-relaxed">{txt}</span>
+          <div key={`pre-${i}`} className="flex gap-[8px] items-start mb-1">
+            <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
+            <span className="text-[17px] leading-relaxed">{txt}</span>
           </div>
         ))}
 
-        <div className="flex items-start gap-[8px] cursor-pointer hover:bg-slate-50 p-1 -ml-1 rounded transition-colors" onClick={handleToggleActions}>
-          <span className="mt-[8px] w-1 h-1 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
+        <div className="flex items-start gap-[8px]">
+          <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
           <div className="flex items-center gap-[6px] flex-wrap flex-1">
             {parts.length > 1 ? (
               parts.map((p, idx) => (
                 <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
-                  <span className="text-[15px] leading-[2]">{p}</span>
-                  {idx < parts.length - 1 && (
-                    <AnswerBox userAns={userAns} correctAns={correctAns} isCorrect={isCorr} />
-                  )}
+                  <span className="text-[17px] leading-relaxed">{p}</span>
+                  {idx < parts.length - 1 && renderInputBox()}
                 </span>
               ))
             ) : (
               <div className="flex items-center gap-[6px] flex-wrap leading-relaxed">
-                <div className="text-[15px] font-medium leading-relaxed">{item.text}</div>
-                <AnswerBox userAns={userAns} correctAns={correctAns} isCorrect={isCorr} />
+                <div className="text-[17px] font-medium leading-relaxed">{item.text}</div>
+                {renderInputBox()}
               </div>
             )}
           </div>
         </div>
-        {showActions && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-300 pb-2">
-            <ReviewActions qNum={item.qn} timestamp={item.timestamp} onSeek={onSeek} onLocate={onLocate} onNoteToggle={() => toggleNote(item.qn)} hasNote={noteMap.has(item.qn)} isNoteOpen={openNoteQn === item.qn} />
-            {openNoteQn === item.qn && <div className="mt-3"><NoteEditor questionNumber={item.qn} examId={examId} userId={userId} initialNote={noteMap.get(item.qn)} onSaved={onNoteReady} /></div>}
-          </div>
-        )}
+        {renderActions(item.qn)}
       </div>
     );
   }
+
+  // Table completion
+  if (item.kind === "table_completion") {
+    return (
+      <div id={`review-table-${item.qns[0]}`} className="py-4 text-[#1a1a1a] border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded overflow-x-auto w-full">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-4 text-[#111111]">{item.topic}</div>}
+        {(item as any).title && <div className="font-bold text-[16px] mb-3 text-center text-[#333333] uppercase leading-relaxed">{(item as any).title}</div>}
+        <table className="w-full border-collapse border border-[#d1d1d1] text-[15px] mb-2">
+          {item.headers && item.headers.length > 0 && (
+            <thead>
+              <tr className="bg-[#e8e8e8]">
+                {item.headers.map((h, i) => (
+                  <th key={i} className="border border-[#d1d1d1] px-3 py-3 text-left text-[14px] font-bold text-[#1a1a1a] uppercase tracking-wide">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+          )}
+          <tbody>
+            {item.rows.map((row, rIdx) => (
+              <tr key={rIdx} className="bg-white border-t border-[#d1d1d1]">
+                {row.map((cell, cIdx) => {
+                  if (typeof cell.question_number === "number") {
+                    const qn = cell.question_number;
+                    const key = String(qn);
+                    const userAns = normalizeAnswer(userAnswers[key]);
+                    const correctAns = normalizeAnswer(correctMap.get(key));
+                    const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
+                    const parts = (cell.text || "").split(/_+|\.{3,}|\[blank\]/i);
+
+                    const renderInputBox = () => {
+                      if (isCorr === true) {
+                        return (
+                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] bg-[#f0fdf4] border border-[#16a34a] text-[#16a34a] font-bold text-[15px] shadow-sm">
+                            <span>{userAns || "—"}</span>
+                            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="inline-flex items-center gap-1.5 bg-[#fef2f2] border border-[#ef4444] rounded-[3px] px-2 py-0.5 shadow-sm">
+                          <span className="text-[#ef4444] font-bold text-[15px] line-through decoration-[#ef4444]/60 decoration-2">{userAns || "—"}</span>
+                          <span className="text-gray-400 font-medium text-[13px]">→</span>
+                          <span className="text-[#16a34a] font-bold text-[14px] bg-[#f0fdf4] px-1.5 rounded-[2px] border border-[#16a34a]/30">{correctAns}</span>
+                        </div>
+                      );
+                    };
+
+                    return (
+                      <td key={cIdx} className="border border-[#e2e1df] px-3 py-4 align-middle">
+                        <div id={`review-question-${qn}`} className="flex items-center gap-[6px] flex-wrap leading-[2]">
+                          {parts.length > 1 ? (
+                            parts.map((p, idx) => (
+                              <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
+                                {p && <span className="leading-relaxed">{p}</span>}
+                                {idx < parts.length - 1 && renderInputBox()}
+                              </span>
+                            ))
+                          ) : (
+                            <>
+                              {cell.text && <span className="leading-relaxed">{cell.text}</span>}
+                              {renderInputBox()}
+                            </>
+                          )}
+                        </div>
+                        <div className="mt-2">
+                          {renderActions(qn, cell.timestamp)}
+                        </div>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td key={cIdx} className="border border-[#e2e1df] px-3 py-4 align-middle">
+                      <span className="leading-relaxed whitespace-pre-wrap">{cell.text}</span>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // MC single
 
   if (item.kind === "mc_single") {
     const key = String(item.qn);
     const userAns = normalizeAnswer(userAnswers[key]);
     const correctAns = normalizeAnswer(correctMap.get(key));
-    const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
 
     return (
-      <div id={`review-question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0 text-[#1a1a1a]">
-        {item.topic && <div className="font-extrabold text-[16px] text-center mb-6 text-[#111111]">{item.topic}</div>}
-        <div className="flex flex-col cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded transition-colors" onClick={handleToggleActions}>
-          <div className="flex items-start min-w-0">
-            <div className="text-[#1a1a1a] leading-[1.6] text-[15px] font-medium">
+      <div id={`review-question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+        <div className="flex flex-col">
+          <div className="flex items-start min-w-0 mb-6">
+            <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
               <QnBadge n={item.qn} />
               {item.prompt}
-              <div className="mt-2 text-[14px] flex items-center gap-2"><strong>Your Answer:</strong> <AnswerBox userAns={userAns} correctAns={correctAns} isCorrect={isCorr} /></div>
             </div>
           </div>
-          <div className="space-y-[22px] mt-6 ml-2">
+          <div className="space-y-[22px] ml-2">
             {Object.entries(item.options || {}).map(([k, v]) => {
-              const checked = k === userAns;
-              const isCorrectOpt = k === correctAns;
+              const strK = String(k);
+              const checked = strK === userAns;
+              const isCorrectOpt = strK === correctAns;
+              
+              let ringColor = "border-[#767676] bg-white text-transparent";
+              let textColor = "text-[#1a1a1a]";
+              let itemOpacity = "opacity-90";
+              let icon = null;
+
+              if (isCorrectOpt) {
+                ringColor = "border-[#16a34a] bg-[#f0fdf4] text-[#16a34a]";
+                textColor = "text-[#16a34a] font-semibold";
+                itemOpacity = "opacity-100";
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current ml-auto shrink-0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>;
+              } else if (checked && !isCorrectOpt) {
+                ringColor = "border-[#ef4444] bg-[#fef2f2] text-[#ef4444]";
+                textColor = "text-[#ef4444] font-medium line-through decoration-[#ef4444]/40";
+                itemOpacity = "opacity-100";
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current ml-auto shrink-0"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>;
+              }
+
               return (
-                <div key={k} className="flex items-start gap-3 opacity-90">
+                <div key={k} className={`flex items-start gap-3 ${itemOpacity}`}>
                   <div className="pt-[2px] flex-shrink-0">
-                    <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center ${checked ? (isCorrectOpt ? "border-[#16a34a] bg-[#16a34a]" : "border-[#e11d48] bg-[#e11d48]") : isCorrectOpt ? "border-[#16a34a] bg-[#16a34a]" : "border-[#767676] bg-white"}`}>
-                      {(checked || isCorrectOpt) && <div className="w-[6px] h-[6px] rounded-full bg-white" />}
+                    <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center transition-colors ${ringColor} ${isCorrectOpt || checked ? 'border-[2px]' : ''}`}>
+                       {checked && <div className="w-[6px] h-[6px] rounded-full bg-current" />}
                     </div>
                   </div>
-                  <div className={`min-w-0 flex-1 font-normal text-[15px] leading-[1.4] pr-4 ${isCorrectOpt ? "text-[#16a34a] font-semibold" : "text-[#1a1a1a]"}`}>
-                    {v}
+                  <div className={`min-w-0 flex-1 flex items-start gap-2 ${textColor}`}>
+                    <div className="text-[16px] leading-[1.4]">{v}</div>
+                    {icon}
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
-        {showActions && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-300 pb-2">
-            <ReviewActions qNum={item.qn} timestamp={item.timestamp} onSeek={onSeek} onLocate={onLocate} onNoteToggle={() => toggleNote(item.qn)} hasNote={noteMap.has(item.qn)} isNoteOpen={openNoteQn === item.qn} />
-            {openNoteQn === item.qn && <div className="mt-3"><NoteEditor questionNumber={item.qn} examId={examId} userId={userId} initialNote={noteMap.get(item.qn)} onSaved={onNoteReady} /></div>}
-          </div>
-        )}
+        {renderActions(item.qn)}
       </div>
     );
   }
 
-  // Fallback for others (multi, matching, plan) - handled generically
-  const qns = 'qns' in item ? item.qns : [item.qn];
-  const qnStart = qns[0];
-  const qnLabel = qns.length > 1 ? `${qns[0]}-${qns[qns.length - 1]}` : String(qnStart);
+  // MC multi (two answers)
+  if (item.kind === "mc_multi") {
+    const keyA = String(item.qns[0]);
+    const keyB = String(item.qns[1]);
 
-  return (
-    <div className="py-6 border-b border-[#e2e1df] last:border-0 text-[#1a1a1a]">
-      <div className="cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded transition-colors" onClick={handleToggleActions}>
-        <div className="text-[15px] font-medium leading-relaxed mb-2">
-          <QnBadge n={qnStart} txt={qnLabel} />
-          {item.kind === 'mc_multi' ? item.prompt : item.kind === 'matching_group' ? (item as any).instructions : 'Question Group'}
+    const normSelection = (val: any) => {
+      if (typeof val === "string") return val.trim().toUpperCase();
+      if (Array.isArray(val)) return val.map(v => String(v).trim().toUpperCase());
+      return "";
+    };
+
+    const selA = normSelection(userAnswers[keyA]);
+    const selB = normSelection(userAnswers[keyB]);
+    const selected = new Set<string>([selA, selB].flat().filter(Boolean));
+    
+    const corrA = normSelection(correctMap.get(keyA));
+    const corrB = normSelection(correctMap.get(keyB));
+    
+    const correctsArray: string[] = [];
+    [corrA, corrB].flat().filter(Boolean).forEach(c => {
+      // if correct is "A, B" from a fallback we split it
+      if (c.includes(",")) c.split(",").forEach((x: string) => correctsArray.push(x.trim()));
+      else correctsArray.push(c);
+    });
+    const corrects = new Set<string>(correctsArray);
+
+    const rangeText = `${item.qns[0]}-${item.qns[item.qns.length - 1]}`;
+
+    return (
+      <div id={`review-question-${item.qns[0]}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+        <div className="flex flex-col">
+          <div className="flex items-start min-w-0 mb-6">
+            <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
+              <QnBadge n={item.qns[0]} txt={rangeText} />
+              {item.prompt}
+            </div>
+          </div>
+          <div className="space-y-[22px] ml-2">
+            {Object.entries(item.options || {}).map(([k, v]) => {
+              const strK = String(k).toUpperCase();
+              const active = selected.has(strK);
+              const isCorrectOpt = corrects.has(strK);
+
+              let ringColor = "border-[#767676] bg-white text-transparent";
+              let textColor = "text-[#1a1a1a]";
+              let itemOpacity = "opacity-90";
+              let icon = null;
+
+              if (isCorrectOpt) {
+                ringColor = "border-[#16a34a] bg-[#16a34a] text-white";
+                textColor = "text-[#16a34a] font-semibold";
+                itemOpacity = "opacity-100";
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] text-[#16a34a] fill-current ml-auto shrink-0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>;
+              } else if (active && !isCorrectOpt) {
+                ringColor = "border-[#ef4444] bg-[#ef4444] text-white";
+                textColor = "text-[#ef4444] font-medium line-through decoration-[#ef4444]/40";
+                itemOpacity = "opacity-100";
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] text-[#ef4444] fill-current ml-auto shrink-0"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>;
+              }
+
+              return (
+                <div key={k} className={`flex items-start gap-3 ${itemOpacity}`}>
+                  <div className="pt-[2px] flex-shrink-0">
+                    <div className={`w-[18px] h-[18px] rounded-[3px] border-[1.5px] flex items-center justify-center transition-colors ${ringColor}`}>
+                      {(active || isCorrectOpt) && (
+                         <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-current stroke-[3] fill-none" strokeLinecap="round" strokeLinejoin="round">
+                           <path d="M20 6 9 17l-5-5" />
+                         </svg>
+                      )}
+                    </div>
+                  </div>
+                  <div className={`min-w-0 flex-1 flex items-start gap-2 ${textColor}`}>
+                    <div className="text-[16px] leading-[1.4]">{v}</div>
+                    {icon}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="space-y-2 mt-4">
-          {qns.map(q => {
-            const uA = normalizeAnswer(userAnswers[String(q)]);
-            const cA = normalizeAnswer(correctMap.get(String(q)));
-            const iC = correctMap.has(String(q)) ? isCorrect(uA, cA) : null;
-            return <div key={q} className="text-[14px] flex items-center gap-2"><strong>Q{q}:</strong> <AnswerBox userAns={uA} correctAns={cA} isCorrect={iC} /></div>;
-          })}
-        </div>
+        {renderActions(item.qns[0])}
       </div>
-      {showActions && (
-        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-          <ReviewActions qNum={qnStart} timestamp={item.timestamp} onSeek={onSeek} onLocate={onLocate} onNoteToggle={() => toggleNote(qnStart)} hasNote={noteMap.has(qnStart)} isNoteOpen={openNoteQn === qnStart} />
-          {openNoteQn === qnStart && <div className="mt-3"><NoteEditor questionNumber={qnStart} examId={examId} userId={userId} initialNote={noteMap.get(qnStart)} onSaved={onNoteReady} /></div>}
+    );
+  }
+
+  // Matching Group (Grid)
+  if (item.kind === "matching_group") {
+    const letters = Object.keys(item.options || {});
+    const headingQns = item.qns.length > 1 ? `${item.qns[0]} - ${item.qns[item.qns.length - 1]}` : `${item.qns[0]}`;
+
+    return (
+      <div id={`review-question-${item.qns[0]}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded relative">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+        <div className="flex flex-col text-[#1a1a1a]">
+          
+          <div className="font-bold text-[16px] mb-1">Question {headingQns}</div>
+          {(item as any).instructions && <div className="text-[16px] mb-4">{(item as any).instructions}</div>}
+          
+          {/* Radio Grid (Read-only) */}
+          <div className="mb-6 overflow-x-auto custom-scrollbar border border-[#999999] max-w-fit rounded-[2px]">
+            <table className="min-w-max border-collapse bg-white">
+              <thead>
+                <tr className="border-b-[1.5px] border-black">
+                  <th className="p-3"></th>
+                  {letters.map((letter, i) => (
+                    <th key={letter} className={`p-4 w-[60px] text-center font-bold border-l border-[#d2d2d2] ${i === 0 ? 'border-l-[#999999]' : ''}`}>
+                      {letter}
+                    </th>
+                  ))}
+                  <th className="p-3 w-[80px] text-center font-bold border-l border-[#999999] bg-[#f9fafb]">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {item.qns.map((qNum, rIdx) => {
+                  const key = String(qNum);
+                  const userAns = typeof userAnswers[key] === "string" ? userAnswers[key] : "";
+                  const correctAns = typeof correctMap.get(key) === "string" ? correctMap.get(key) : "";
+                  const prompt = item.prompts[rIdx] || "";
+                  
+                  return (
+                    <tr key={qNum} className="border-b border-[#e5e5e5] last:border-b-0 hover:bg-[#f9f9f9] transition-colors">
+                      <td className="p-3 pl-5 pr-8 font-medium text-[15px] whitespace-nowrap min-w-[200px]">
+                        <QnBadge n={qNum} />
+                        {prompt}
+                      </td>
+                      {letters.map((letter, i) => {
+                        const isUserChoice = userAns === letter;
+                        const isCorrectChoice = correctAns === letter;
+                        
+                        let bgColor = "bg-white";
+                        let textColor = "text-transparent";
+                        if (isCorrectChoice) {
+                          bgColor = "bg-[#dcfce7]"; 
+                        } else if (isUserChoice && !isCorrectChoice) {
+                          bgColor = "bg-[#fee2e2]";
+                        }
+
+                        if (isUserChoice) textColor = isCorrectChoice ? "text-[#16a34a]" : "text-[#ef4444]";
+                        else if (isCorrectChoice) textColor = "text-[#16a34a]"; // show correct answer checkmark faintly if wanted? we'll just show actual selection
+
+                        return (
+                          <td key={letter} className={`p-3 text-center border-l border-[#e5e5e5] ${i === 0 ? 'border-l-[#999999]' : ''} ${bgColor}`}>
+                            {isUserChoice || isCorrectChoice ? (
+                              <div className="w-[18px] h-[18px] mx-auto rounded-full border-[2px] flex items-center justify-center border-current">
+                                {isUserChoice && <div className="w-[6px] h-[6px] rounded-full bg-current" />}
+                              </div>
+                            ) : (
+                              <div className="w-[18px] h-[18px] mx-auto rounded-full border-[1.5px] border-[#d4d4d4]" />
+                            )}
+                          </td>
+                        );
+                      })}
+                      <td className="p-3 text-center border-l bg-[#f9fafb] border-[#999999] font-bold">
+                        {userAns === correctAns ? (
+                          <div className="text-[#16a34a] flex items-center justify-center gap-1">
+                            {userAns} <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-1">
+                            <span className="text-[#ef4444] line-through decoration-2 text-sm">{userAns || "-"}</span>
+                            <span className="text-gray-400">→</span>
+                            <span className="text-[#16a34a]">{correctAns}</span>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Options Table */}
+          <div className="border border-[#d2d2d2] max-w-2xl bg-white rounded-[2px] overflow-hidden mb-2">
+            {item.heading && (
+              <div className="bg-[#fcfcfc] border-b border-[#d2d2d2] p-3.5 font-bold text-[14px] uppercase tracking-wide">
+                {item.heading}
+              </div>
+            )}
+            <table className="w-full border-collapse">
+              <tbody>
+                {Object.entries(item.options || {}).map(([k, v]) => (
+                  <tr key={k} className="border-b border-[#e5e5e5] last:border-0 hover:bg-[#f9f9f9] transition-colors">
+                    <td className="p-3.5 w-[56px] font-bold text-[16px] border-r border-[#d2d2d2] text-center">{k}</td>
+                    <td className="p-3.5 text-[15px]">{v}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
-      )}
-    </div>
-  );
+        {renderActions(item.qns[0])}
+      </div>
+    );
+  }
+
+  // Plan labeling placeholder (image + input)
+  if (item.kind === "plan_label") {
+    const key = String(item.qn);
+    const userAns = typeof userAnswers[key] === "string" ? userAnswers[key] : "";
+    const correctAns = typeof correctMap.get(key) === "string" ? correctMap.get(key) : "";
+    const isCorr = userAns.toLowerCase().trim() === correctAns.toLowerCase().trim();
+
+    return (
+      <div id={`review-question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+        <div className="flex flex-col lg:flex-row items-start gap-6">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-4 mb-4">
+              <QnBadge n={item.qn} />
+              <div className="text-gray-800 font-medium text-[16px]">{item.prompt}</div>
+            </div>
+            
+            <div className="max-w-sm mb-4">
+               {isCorr ? (
+                 <div className="flex items-center gap-2 px-3 py-2 bg-[#f0fdf4] border border-[#16a34a] rounded shadow-sm text-[#16a34a] font-bold">
+                   <span>{userAns || "—"}</span>
+                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current ml-auto"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                 </div>
+               ) : (
+                 <div className="flex flex-col gap-2">
+                   <div className="flex items-center gap-2 px-3 py-2 bg-[#fef2f2] border border-[#ef4444] rounded shadow-sm text-[#ef4444] font-medium line-through">
+                     <span>{userAns || "—"}</span>
+                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current ml-auto"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                   </div>
+                   <div className="flex items-center gap-2 px-3 py-2 bg-[#f0fdf4] border border-[#16a34a] rounded shadow-sm text-[#16a34a] font-bold">
+                     Correct: {correctAns}
+                   </div>
+                 </div>
+               )}
+            </div>
+          </div>
+          <div className="w-full lg:w-[320px] shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2">
+            <img src={item.imageUrl} alt="Plan/Map/Diagram" className="w-full h-auto rounded-lg" />
+          </div>
+        </div>
+        {renderActions(item.qn)}
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -718,7 +1048,7 @@ function ReviewSection({
             </div>
 
             {/* Right: Transcript */}
-            <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4">
+            <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
               <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
               {transcript.length === 0 ? (
                 <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
@@ -857,7 +1187,7 @@ export default function IeltsResultPage() {
 
   const submittedAt = session?.submittedAt ? new Date(session.submittedAt) : null;
   const startedAt = session?.startedAt ? new Date(session.startedAt) : null;
-  const timeTakenSecs = submittedAt && startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null;
+  const timeTakenSecs = session?.timeTaken ?? (submittedAt && startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null);
   const totalSecs = (exam?.duration ?? 0) * 60;
 
   function fmtTime(s: number) {
@@ -913,7 +1243,7 @@ export default function IeltsResultPage() {
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Completed</span>
-                            <span className="text-sm font-semibold text-slate-700">{submittedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} <span className="text-slate-400 mx-0.5">•</span> {submittedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</span>
+                            <span className="text-sm font-semibold text-slate-700">{submittedAt.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                           </div>
                         </div>
                       )}

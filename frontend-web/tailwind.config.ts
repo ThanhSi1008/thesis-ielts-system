@@ -30,11 +30,27 @@ const config: Config = {
         waveform: {
           '0%, 100%': { transform: 'scaleY(0.4)' },
           '50%': { transform: 'scaleY(1)' },
-        }
+        },
+        'slide-in-left': {
+          '0%':   { opacity: '0', transform: 'translateX(-80px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'slide-in-right': {
+          '0%':   { opacity: '0', transform: 'translateX(80px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'fade-up': {
+          '0%':   { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
-        waveform: 'waveform 1s ease-in-out infinite',
+        waveform:        'waveform 1s ease-in-out infinite',
+        'slide-in-left':  'slide-in-left  0.7s cubic-bezier(0.22,1,0.36,1) both',
+        'slide-in-right': 'slide-in-right 0.7s cubic-bezier(0.22,1,0.36,1) both',
+        'fade-up':        'fade-up        0.6s cubic-bezier(0.22,1,0.36,1) both',
       }
+
     },
   },
   plugins: [],

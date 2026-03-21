@@ -258,6 +258,7 @@ export class ExamsService {
       skill: s.exam.type,
       dateTaken: s.submittedAt ?? s.createdAt,
       durationMinutes: s.exam.duration,
+      timeTaken: s.timeTaken ?? null,
       rawScore: s.result?.totalScore ?? 0,
       maxScore: 40,
     }));
@@ -396,6 +397,7 @@ export class ExamsService {
       where: { id: sessionId },
       data: {
         answers: submitDto.answers,
+        timeTaken: submitDto.timeTaken,
         status,
         submittedAt: new Date(),
       },
@@ -453,5 +455,26 @@ export class ExamsService {
     }
 
     return session;
+  }
+
+  async deleteSession(sessionId: string) {
+    const session = await this.prisma.examSession.findUnique({
+      where: { id: sessionId },
+    });
+    if (!session) {
+      throw new BadRequestException('Session not found.');
+    }
+
+    // Delete associated result first (if any)
+    await this.prisma.result.deleteMany({
+      where: { sessionId },
+    });
+
+    // Delete the session
+    await this.prisma.examSession.delete({
+      where: { id: sessionId },
+    });
+
+    return { success: true };
   }
 }

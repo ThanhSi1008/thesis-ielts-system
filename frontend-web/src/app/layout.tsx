@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 import Header from "@/components/Header";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function RootLayout({
   children,
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <AuthProvider>
+          <ScrollToTop />
           <Header />
           {children}
         </AuthProvider>

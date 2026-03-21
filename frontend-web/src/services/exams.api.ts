@@ -24,9 +24,12 @@ export const examsApi = {
     const { data } = await api.get<ExamSessionDetail & { exam: any; result: any }>(`/exams/sessions/${encodeURIComponent(sessionId)}`);
     return data;
   },
-  submitSession: async (sessionId: string, answers: Record<string, string | number | string[]>) => {
-    const { data } = await api.post<ExamSessionDetail>(`/exams/sessions/${encodeURIComponent(sessionId)}/submit`, { answers });
+  submitSession: async (sessionId: string, answers: Record<string, string | number | string[]>, timeTaken?: number) => {
+    const { data } = await api.post<ExamSessionDetail>(`/exams/sessions/${encodeURIComponent(sessionId)}/submit`, { answers, timeTaken });
+    return data;
+  },
+  deleteSession: async (sessionId: string) => {
+    const { data } = await api.delete(`/exams/sessions/${encodeURIComponent(sessionId)}`);
     return data;
   },
 };
-

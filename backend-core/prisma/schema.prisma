@@ -82,6 +82,7 @@ model ExamSession {
   examId      String
   status      SessionStatus @default(IN_PROGRESS)
   answers     Json // Stores user answers
+  timeTaken   Int?          // Exact time spent in seconds
   startedAt   DateTime      @default(now())
   submittedAt DateTime?
   createdAt   DateTime      @default(now())

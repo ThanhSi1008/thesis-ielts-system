@@ -23,7 +23,7 @@ export default function VocabLabPage() {
         backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1773518563/4b145836-e585-4092-852e-2cbd64aec326.png"
       />
 
-      <div className={`mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10 ${activeTab === 'browse' ? 'max-w-[95%]' : 'max-w-6xl'}`}>
+      <div className={`mx-auto px-4 sm:px-6 lg:px-8 pt-8 ${activeTab === 'browse' ? 'max-w-[95%]' : 'max-w-6xl'}`}>
         {/* Tabs */}
         <div className="flex justify-center mb-8">
           <div className="bg-white rounded-full p-2 flex space-x-2 shadow-sm border border-gray-100">
