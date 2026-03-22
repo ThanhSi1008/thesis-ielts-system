@@ -77,4 +77,8 @@ export class SubmitSessionDto {
   @IsObject()
   @IsNotEmpty()
   answers: Record<string, string | number>;
+
+  @IsNumber()
+  @IsOptional()
+  timeTaken?: number;
 }

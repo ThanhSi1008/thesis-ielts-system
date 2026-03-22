@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
+import ConfirmModal from '@/components/ConfirmModal';
 import { ShadowingSentence } from '@/data/shadowing-lessons';
 import { parseSrtToSentences, extractYouTubeVideoId } from '@/utils/parseSrt';
 
@@ -65,6 +66,18 @@ export default function MyVideosPage() {
     const [videoTitle, setVideoTitle] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [createError, setCreateError] = useState('');
+
+    // Folder Edit / Delete state
+    const [editingFolder, setEditingFolder] = useState<string | null>(null);
+    const [editFolderName, setEditFolderName] = useState('');
+    const [folderToDelete, setFolderToDelete] = useState<string | null>(null);
+
+    // Video Delete / Edit state
+    const [videoToDelete, setVideoToDelete] = useState<string | null>(null);
+    const [editingVideo, setEditingVideo] = useState<MyVideo | null>(null);
+    const [editVideoTitle, setEditVideoTitle] = useState('');
+    const [editSelectedFolder, setEditSelectedFolder] = useState('');
+    const [editSelectedCategory, setEditSelectedCategory] = useState('');
 
     // Load data on mount
     useEffect(() => {
@@ -182,21 +195,80 @@ export default function MyVideosPage() {
         setShowFolderInput(false);
     }, [newFolderName, folders]);
 
-    // ── Delete video ──
+    // ── Folder CRUD ──
+    const handleRenameFolder = useCallback((oldName: string) => {
+        const newName = editFolderName.trim();
+        if (!newName || newName === oldName || folders.includes(newName)) {
+            setEditingFolder(null);
+            return;
+        }
+        const updatedFolders = folders.map(f => f === oldName ? newName : f);
+        setFolders(updatedFolders);
+        saveFolders(updatedFolders);
+
+        const updatedVideos = videos.map(v => v.folder === oldName ? { ...v, folder: newName } : v);
+        setVideos(updatedVideos);
+        saveVideos(updatedVideos);
+
+        if (activeFolder === oldName) setActiveFolder(newName);
+        setEditingFolder(null);
+    }, [editFolderName, folders, videos, activeFolder]);
+
+    const confirmDeleteFolder = useCallback(() => {
+        if (!folderToDelete) return;
+        const updatedFolders = folders.filter(f => f !== folderToDelete);
+        setFolders(updatedFolders);
+        saveFolders(updatedFolders);
+
+        const updatedVideos = videos.map(v => v.folder === folderToDelete ? { ...v, folder: 'All Videos' } : v);
+        setVideos(updatedVideos);
+        saveVideos(updatedVideos);
+
+        if (activeFolder === folderToDelete) setActiveFolder('All Videos');
+        setFolderToDelete(null);
+    }, [folderToDelete, folders, videos, activeFolder]);
+
+    // ── Video Edit / Delete ──
     const handleDeleteVideo = useCallback((id: string) => {
-        const updated = videos.filter(v => v.id !== id);
+        setVideoToDelete(id);
+        setMenuOpenId(null);
+    }, []);
+
+    const confirmDeleteVideo = useCallback(() => {
+        if (!videoToDelete) return;
+        const updated = videos.filter(v => v.id !== videoToDelete);
         setVideos(updated);
         saveVideos(updated);
-        setMenuOpenId(null);
-    }, [videos]);
+        setVideoToDelete(null);
+    }, [videoToDelete, videos]);
 
-    // ── Move to folder ──
     const handleMoveToFolder = useCallback((id: string, folder: string) => {
         const updated = videos.map(v => v.id === id ? { ...v, folder } : v);
         setVideos(updated);
         saveVideos(updated);
         setMenuOpenId(null);
     }, [videos]);
+
+    const openEditVideoModal = useCallback((video: MyVideo) => {
+        setEditingVideo(video);
+        setEditVideoTitle(video.title);
+        setEditSelectedFolder(video.folder);
+        setEditSelectedCategory(video.category);
+        setMenuOpenId(null);
+    }, []);
+
+    const handleUpdateVideo = useCallback(() => {
+        if (!editingVideo) return;
+        const updated = videos.map(v => v.id === editingVideo.id ? {
+            ...v,
+            title: editVideoTitle.trim() || 'Untitled Video',
+            folder: editSelectedFolder,
+            category: editSelectedCategory
+        } : v);
+        setVideos(updated);
+        saveVideos(updated);
+        setEditingVideo(null);
+    }, [editingVideo, editVideoTitle, editSelectedFolder, editSelectedCategory, videos]);
 
     return (
         <div className="min-h-screen bg-white">
@@ -282,23 +354,54 @@ export default function MyVideosPage() {
                                 </button>
 
                                 {folders.map(folder => (
-                                    <button
-                                        key={folder}
-                                        onClick={() => setActiveFolder(folder)}
-                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                                            activeFolder === folder
-                                                ? 'bg-primary/10 text-primary'
-                                                : 'text-gray-600 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                            </svg>
-                                            {folder}
-                                        </span>
-                                        <span className="text-xs text-gray-400">({folderCounts[folder] || 0})</span>
-                                    </button>
+                                    <div key={folder} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${activeFolder === folder ? 'bg-primary/10' : 'hover:bg-gray-50'}`}>
+                                        {editingFolder === folder ? (
+                                            <div className="flex flex-1 gap-2 items-center">
+                                                <input 
+                                                    autoFocus
+                                                    type="text"
+                                                    value={editFolderName}
+                                                    onChange={e => setEditFolderName(e.target.value)}
+                                                    onBlur={() => handleRenameFolder(folder)}
+                                                    onKeyDown={e => e.key === 'Enter' && handleRenameFolder(folder)}
+                                                    className="w-full px-2 py-1 text-sm border border-primary rounded focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    onClick={() => setActiveFolder(folder)}
+                                                    className={`flex-1 flex items-center justify-between text-sm font-medium ${activeFolder === folder ? 'text-primary' : 'text-gray-600'}`}
+                                                >
+                                                    <span className="flex items-center gap-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                                        </svg>
+                                                        <span className="truncate max-w-[120px] text-left">{folder}</span>
+                                                    </span>
+                                                </button>
+                                                <div className="flex items-center gap-1 group">
+                                                    <span className="text-xs text-gray-400 group-hover:hidden">({folderCounts[folder] || 0})</span>
+                                                    <div className="hidden group-hover:flex items-center gap-1">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setEditingFolder(folder); setEditFolderName(folder); }}
+                                                            className="p-1 text-gray-400 hover:text-primary transition-colors"
+                                                            title="Rename Folder"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setFolderToDelete(folder); }}
+                                                            className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                                                            title="Delete Folder"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -328,10 +431,10 @@ export default function MyVideosPage() {
                                 {filteredVideos.map(video => (
                                     <div
                                         key={video.id}
-                                        className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300"
+                                        className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col"
                                     >
                                         {/* Thumbnail */}
-                                        <div className="relative">
+                                        <div className="relative rounded-t-2xl overflow-hidden">
                                             <div className="w-full aspect-video bg-gray-100 overflow-hidden">
                                                 <img
                                                     src={`https://img.youtube.com/vi/${video.youtubeVideoId}/maxresdefault.jpg`}
@@ -371,10 +474,16 @@ export default function MyVideosPage() {
                                                                     onClick={() => handleMoveToFolder(video.id, f)}
                                                                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                                                 >
-                                                                    📁 {f}
+                                                                    📁 Move to: {f}
                                                                 </button>
                                                             ))}
                                                             {folders.length > 0 && <div className="border-t border-gray-100 my-1" />}
+                                                            <button
+                                                                onClick={() => openEditVideoModal(video)}
+                                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                                            >
+                                                                ✏️ Edit
+                                                            </button>
                                                             <button
                                                                 onClick={() => handleDeleteVideo(video.id)}
                                                                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
@@ -588,6 +697,121 @@ export default function MyVideosPage() {
                     </div>
                 </div>
             )}
+
+            {/* ══ EDIT VIDEO MODAL ══ */}
+            {editingVideo && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setEditingVideo(null)}>
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setEditingVideo(null)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+                            <div className="p-3 bg-primary/10 text-primary-dark rounded-xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-800">Edit Video Info</h2>
+                        </div>
+
+                        {/* Title Input */}
+                        <div className="mb-5">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Title</label>
+                            <input
+                                type="text"
+                                value={editVideoTitle}
+                                onChange={e => setEditVideoTitle(e.target.value)}
+                                className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all"
+                            />
+                        </div>
+
+                        {/* Category Dropdown */}
+                        <div className="mb-5">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
+                            <select
+                                value={editSelectedCategory}
+                                onChange={e => setEditSelectedCategory(e.target.value)}
+                                className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all appearance-none"
+                            >
+                                <option value="">Select Category</option>
+                                {CATEGORY_OPTIONS.map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Folder Dropdown */}
+                        <div className="mb-8">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Folder</label>
+                            <select
+                                value={editSelectedFolder}
+                                onChange={e => setEditSelectedFolder(e.target.value)}
+                                className="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all appearance-none"
+                            >
+                                <option value="All Videos">All Videos</option>
+                                {folders.map(f => (
+                                    <option key={f} value={f}>{f}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setEditingVideo(null)}
+                                className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleUpdateVideo}
+                                className="flex-[2] py-3 bg-primary text-gray-900 shadow-sm font-bold rounded-xl hover:bg-primary/90 transition-colors"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Folder Deletion ConfirmModal */}
+            <ConfirmModal
+                isOpen={!!folderToDelete}
+                title="Delete Folder"
+                message={
+                    <>
+                        Are you sure you want to delete the folder <strong className="text-gray-900">"{folderToDelete}"</strong>?
+                        <br /><br />
+                        The folder will be removed, but its videos will remain safely available in <strong>All Videos</strong>.
+                    </>
+                }
+                confirmText="Yes, delete folder"
+                cancelText="Cancel"
+                onConfirm={confirmDeleteFolder}
+                onClose={() => setFolderToDelete(null)}
+                isDestructive={true}
+            />
+
+            {/* Video Deletion ConfirmModal */}
+            <ConfirmModal
+                isOpen={!!videoToDelete}
+                title="Delete Video"
+                message="Are you sure you want to completely remove this video? This action cannot be undone and will permanently delete its dictation/shadowing progress."
+                confirmText="Yes, delete video"
+                cancelText="Cancel"
+                onConfirm={confirmDeleteVideo}
+                onClose={() => setVideoToDelete(null)}
+                isDestructive={true}
+            />
 
             {/* Click-outside handler for menus */}
             {menuOpenId && (

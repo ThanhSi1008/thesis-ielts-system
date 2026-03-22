@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { vocabLabApi } from '@/services/vocabLab.api';
 import type { DeckWithCounts } from '@/types';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import ConfirmModal from '@/components/ConfirmModal';
 
-export function DecksTab() {
+export function DecksTab({ isActive }: { isActive: boolean }) {
   const router = useRouter();
   const [decks, setDecks] = useState<DeckWithCounts[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +15,7 @@ export function DecksTab() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newDeckName, setNewDeckName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [deckToDelete, setDeckToDelete] = useState<{id: string, name: string} | null>(null);
 
   const fetchDecks = async () => {
     try {
@@ -27,8 +29,10 @@ export function DecksTab() {
   };
 
   useEffect(() => {
-    fetchDecks();
-  }, []);
+    if (isActive) {
+      fetchDecks();
+    }
+  }, [isActive]);
 
   const handleCreateDeck = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,13 +58,17 @@ export function DecksTab() {
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, deck: DeckWithCounts) => {
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this deck and all its cards?')) return;
+    setDeckToDelete({ id: deck.id, name: deck.name });
+  };
 
+  const confirmDelete = async () => {
+    if (!deckToDelete) return;
     try {
-      await vocabLabApi.deleteDeck(id);
+      await vocabLabApi.deleteDeck(deckToDelete.id);
       await fetchDecks();
+      setDeckToDelete(null);
     } catch (error) {
       console.error('Failed to delete deck:', error);
     }
@@ -109,7 +117,7 @@ export function DecksTab() {
                         {deck.name}
                       </span>
                       <button
-                        onClick={(e) => handleDelete(e, deck.id)}
+                        onClick={(e) => handleDeleteClick(e, deck)}
                         className="ml-3 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
                         title="Delete Deck"
                       >
@@ -199,6 +207,24 @@ export function DecksTab() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deckToDelete}
+        title="Delete Deck"
+        message={
+          <>
+            Are you sure you want to delete the deck <strong className="text-gray-900">"{deckToDelete?.name}"</strong>?
+            <br /><br />
+            This will permanently delete all flashcards inside this deck. This action cannot be undone.
+          </>
+        }
+        confirmText="Yes, delete deck"
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onClose={() => setDeckToDelete(null)}
+        isDestructive={true}
+      />
     </div>
   );
 }

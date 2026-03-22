@@ -1,0 +1,19 @@
+So, hello everyone. My name’s Lou Miller and I’m going to be your tour guide today as we take this fantastic boat trip around the Tasmanian coast. Before we set off, I just want to tell you a few things about our journey.
+
+Our boats aren’t huge as you can see. We already have three staff members on board and on top of that, we can transport a further fifteen people – that’s you – around the coastline. But please note <u>if there are more than nine people on either side of the boat, we'll move some of you over</u> **[Q11]**, otherwise all eighteen of us will end up in the sea!
+
+We’ve recently upgraded all our boats. They used to be jet black, but our new ones now have these comfortable dark red seats and a <u>light-green exterior</u> **[Q12]** in order to stand out from others and help promote our company. This gives our boats a rather unique appearance, don’t you think?
+
+We offer you a free lunchbox during the trip and we have three types. Lunchbox 1 contains ham and tomato sandwiches. <u>Lunchbox 2 contains a cheddar cheese roll</u> **[Q13]** and Lunchbox 3 is salad-based and also contains eggs and tuna. All three lunchboxes also have a packet of crisps and chocolate bar inside. Please let staff know which lunchbox you prefer.
+
+I’m sure I don’t have to ask you not to throw anything into the sea. We don’t have any bins to put litter in, but <u>Jess, myself or Ray, our other guide, will collect it from you</u> **[Q14]** after lunch and put it all in a large plastic sack.
+
+--------------------------------------------------------------------------------
+
+The engine on the boat makes quite a lot of noise so before we head off, let me tell you a few things about what you’re going to see.
+
+This area is famous for its ancient lighthouse, which you’ll see from the boat as we turn past the first little island. It was built in 1838 <u>to protect sailors as a number of shipwrecks had led to significant loss of life</u> **[Q15/16]**. The construction itself was complicated as some of the original drawings kept by the local council show. It sits right on top of the cliffs in a very isolated spot. In the nineteenth century there were many jobs there, such as polishing the brass lamps, chopping firewood and cleaning windows, that kept lighthouse keepers busy. <u>These workers were mainly prison convicts until the middle of that century when ordinary families willing to live in such circumstances took over</u> **[Q15/16]**.
+
+Some of you have asked me what creatures we can expect to see. I know everyone loves the penguins, but they’re very shy and, unfortunately, tend to hide from passing boats, but you might see birds in the distance, such as sea eagles, flying around the cliff edges where they nest. When we get to the rocky area inhabited by <u>fur seals, we'll stop and watch them swimming around the coast. They're inquisitive creatures so don't be surprised if one pops up right in front of you</u> **[Q17/18]**. Their predators, orca whales, hunt along the coastline too, but spotting one of these is rare. <u>Dolphins, on the other hand, can sometimes approach on their own or in groups as they ride the waves beside us</u> **[Q17/18]**.
+
+Lastly, I want to mention the caves. Tasmania is famous for its caves and the ones we’ll pass by are so amazing that people are lost for words when they see them. <u>They can only be approached by sea</u> **[Q19/20]**, but if you feel that you want to see more than we’re able to show you, then you can take a kayak into the area on another day and one of our staff will give you more information on that. What we’ll do is to go through a narrow channel, past some incredible rock formations and from there <u>we'll be able to see the openings to the caves, and at that point we'll talk to you about what lies beyond</u> **[Q19/20]**.

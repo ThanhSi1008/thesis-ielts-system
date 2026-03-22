@@ -1,0 +1,388 @@
+1
+00:00:00,000 --> 00:00:02,000
+Test 3
+
+2
+00:00:02,000 --> 00:00:04,000
+This is the IELTS listening test.
+
+3
+00:00:04,000 --> 00:00:10,000
+You will hear a number of different recordings and you will have to answer questions on what you hear.
+
+4
+00:00:10,000 --> 00:00:17,000
+There will be time for you to read the instructions and questions and you will have a chance to check your work.
+
+5
+00:00:17,000 --> 00:00:21,000
+All the recordings will be played once only.
+
+6
+00:00:21,000 --> 00:00:23,000
+The test is in four parts.
+
+7
+00:00:23,000 --> 00:00:30,000
+At the end of the test you will be given ten minutes to transfer your answers to the answer sheet.
+
+8
+00:00:30,000 --> 00:00:32,000
+Now turn to part one.
+
+9
+00:00:37,000 --> 00:00:38,000
+Part one.
+
+10
+00:00:38,000 --> 00:00:44,000
+You will hear a man called Jack giving advice to a friend about surfing holidays.
+
+11
+00:00:44,000 --> 00:00:49,000
+First you have some time to look at questions one to six.
+
+12
+00:01:24,000 --> 00:01:31,000
+Jack, I'm thinking of taking the kids to the seaside on a surfing holiday this summer.
+
+13
+00:01:31,000 --> 00:01:34,000
+And I wanted to ask your advice.
+
+14
+00:01:34,000 --> 00:01:36,000
+As I know you're such an expert.
+
+15
+00:01:36,000 --> 00:01:38,000
+Well, I don't know about that.
+
+16
+00:01:38,000 --> 00:01:41,000
+But yes, I've done a bit of surfing over the years.
+
+17
+00:01:41,000 --> 00:01:43,000
+I thoroughly recommend it.
+
+18
+00:01:43,000 --> 00:01:48,000
+I think it's the kind of holiday all the family can enjoy together.
+
+19
+00:01:48,000 --> 00:01:53,000
+The thing about surfing is that it's great for all ages and all abilities.
+
+20
+00:01:53,000 --> 00:01:56,000
+My youngest started when he was only three.
+
+21
+00:01:56,000 --> 00:01:57,000
+Wow!
+
+22
+00:01:57,000 --> 00:02:01,000
+But it's quite physically demanding, isn't it?
+
+23
+00:02:01,000 --> 00:02:04,000
+I've heard you need to be pretty fit.
+
+24
+00:02:04,000 --> 00:02:08,000
+Yes, you'll certainly learn more quickly and won't tire as easily.
+
+25
+00:02:08,000 --> 00:02:11,000
+Well, that should be okay for us.
+
+26
+00:02:11,000 --> 00:02:15,000
+You've been surfing a few times in Ireland, haven't you?
+
+27
+00:02:15,000 --> 00:02:16,000
+Yes.
+
+28
+00:02:16,000 --> 00:02:20,000
+There's some great surfing there which people don't always realise.
+
+29
+00:02:20,000 --> 00:02:24,000
+And which locations would you recommend?
+
+30
+00:02:24,000 --> 00:02:26,000
+There seem to be quite a few.
+
+31
+00:02:26,000 --> 00:02:27,000
+Yes, there are loads.
+
+32
+00:02:27,000 --> 00:02:30,000
+Last year we went to County Donegal.
+
+33
+00:02:30,000 --> 00:02:33,000
+There are several great places to surf there.
+
+34
+00:02:33,000 --> 00:02:36,000
+What about in County Clare?
+
+35
+00:02:36,000 --> 00:02:39,000
+I read that's also really good for surfing.
+
+36
+00:02:39,000 --> 00:02:41,000
+Yes, it is.
+
+37
+00:02:41,000 --> 00:02:43,000
+I've been there a few times.
+
+38
+00:02:43,000 --> 00:02:45,000
+Most people go to Le Hinch.
+
+39
+00:02:45,000 --> 00:02:46,000
+My kids love it there.
+
+40
+00:02:46,000 --> 00:02:50,000
+The waves aren't too challenging and the town is very lively.
+
+41
+00:02:50,000 --> 00:02:52,000
+Are there good hotels there?
+
+42
+00:02:52,000 --> 00:02:55,000
+Yes, some very nice ones.
+
+43
+00:02:55,000 --> 00:02:59,000
+And there are also a few basic hostels and campsites.
+
+44
+00:02:59,000 --> 00:03:03,000
+It's great if you need lessons as the surf schools are excellent.
+
+45
+00:03:03,000 --> 00:03:04,000
+Sounds good.
+
+46
+00:03:04,000 --> 00:03:09,000
+Yes, and there's lots to see in the area, like those well-known cliffs.
+
+47
+00:03:09,000 --> 00:03:11,000
+I've forgotten the name of them.
+
+48
+00:03:11,000 --> 00:03:12,000
+Oh, don't worry.
+
+49
+00:03:12,000 --> 00:03:14,000
+I can look them up.
+
+50
+00:03:14,000 --> 00:03:19,000
+I've also been surfing in County Mayo, which is less well-known for surfing,
+
+51
+00:03:19,000 --> 00:03:21,000
+but we had a really good time.
+
+52
+00:03:21,000 --> 00:03:24,000
+That was a few years ago when the kids were younger.
+
+53
+00:03:24,000 --> 00:03:28,000
+There's a good surf school at Karaniski Beach.
+
+54
+00:03:28,000 --> 00:03:30,000
+How do you spell that?
+
+55
+00:03:30,000 --> 00:03:37,000
+C-A-R-O-W-N-G.
+
+56
+00:03:37,000 --> 00:03:44,000
+W-N-I-S-K-E-Y.
+
+57
+00:03:44,000 --> 00:03:45,000
+Okay.
+
+58
+00:03:45,000 --> 00:03:50,000
+I put the kids into the surf camp they run during the summer for 10 to 16 year olds.
+
+59
+00:03:50,000 --> 00:03:52,000
+Oh, right.
+
+60
+00:03:52,000 --> 00:03:54,000
+How long was that for?
+
+61
+00:03:54,000 --> 00:03:56,000
+Three hours every day for a week.
+
+62
+00:03:56,000 --> 00:03:58,000
+It was perfect.
+
+63
+00:03:58,000 --> 00:04:00,000
+They were so tired out after that.
+
+64
+00:04:00,000 --> 00:04:02,000
+I can imagine.
+
+65
+00:04:02,000 --> 00:04:06,000
+One thing we did while the kids were surfing was to rent some kayaks
+
+66
+00:04:06,000 --> 00:04:09,000
+to have a look around the bay, which is nearby.
+
+67
+00:04:09,000 --> 00:04:11,000
+It's really beautiful.
+
+68
+00:04:11,000 --> 00:04:13,000
+Oh, I'd love to do that.
+
+69
+00:04:36,000 --> 00:04:49,000
+Now listen and answer questions 7 to 10.
+
+70
+00:04:49,000 --> 00:04:54,000
+Now the only time I went to Ireland, it rained practically every day.
+
+71
+00:04:54,000 --> 00:04:57,000
+Yes, that can be a problem.
+
+72
+00:04:57,000 --> 00:04:59,000
+But you can surf in the rain, you know.
+
+73
+00:04:59,000 --> 00:05:02,000
+It doesn't have the same appeal somehow.
+
+74
+00:05:02,000 --> 00:05:06,000
+Well, the weather's been fine the last couple of years when I've been there,
+
+75
+00:05:06,000 --> 00:05:11,000
+but actually it tends to rain more in August than in the spring or autumn.
+
+76
+00:05:11,000 --> 00:05:16,000
+September's my favourite month because the water is warmer then.
+
+77
+00:05:16,000 --> 00:05:20,000
+The only problem is that the kids are back to school then.
+
+78
+00:05:20,000 --> 00:05:21,000
+I know.
+
+79
+00:05:21,000 --> 00:05:26,000
+But one good thing about Irish summers is that it doesn't get too hot.
+
+80
+00:05:26,000 --> 00:05:30,000
+The average temperature is about 19 degrees
+
+81
+00:05:30,000 --> 00:05:34,000
+and it usually doesn't go above 25 degrees.
+
+82
+00:05:34,000 --> 00:05:36,000
+That sounds all right.
+
+83
+00:05:36,000 --> 00:05:38,000
+Now what about costs?
+
+84
+00:05:38,000 --> 00:05:41,000
+Surfing is a pretty cheap holiday really.
+
+85
+00:05:41,000 --> 00:05:44,000
+The only cost is the hire of equipment.
+
+86
+00:05:44,000 --> 00:05:51,000
+You can expect to pay a daily rate of about 30 euros for the hire of a wetsuit and board.
+
+87
+00:05:51,000 --> 00:05:55,000
+But you can save about 40 euros if you hire by the week.
+
+88
+00:05:55,000 --> 00:05:57,000
+That's not too bad.
+
+89
+00:05:57,000 --> 00:05:58,000
+No.
+
+90
+00:05:58,000 --> 00:06:02,000
+It's important to make sure you get good quality wetsuits.
+
+91
+00:06:02,000 --> 00:06:04,000
+You'll all get too cold if you don't.
+
+92
+00:06:04,000 --> 00:06:07,000
+And make sure you also get boots.
+
+93
+00:06:07,000 --> 00:06:12,000
+They keep your feet warm and it's easier to surf with them on too.
+
+94
+00:06:12,000 --> 00:06:16,000
+OK, well, thanks very much for that.
+
+95
+00:06:19,000 --> 00:06:21,000
+That is the end of part one.
+
+96
+00:06:21,000 --> 00:06:26,000
+You now have half a minute to check your answers to part one.
+
+97
+00:06:28,000 --> 00:06:30,000
+Thank you very much.
+

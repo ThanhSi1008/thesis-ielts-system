@@ -3,8 +3,9 @@
 import { useState, useEffect, KeyboardEvent } from 'react';
 import { vocabLabApi } from '@/services/vocabLab.api';
 import type { Flashcard, DeckWithCounts } from '@/types';
+import ConfirmModal from '@/components/ConfirmModal';
 
-export function BrowseTab() {
+export function BrowseTab({ isActive }: { isActive: boolean }) {
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [decks, setDecks] = useState<DeckWithCounts[]>([]);
   const [tags, setTags] = useState<string[]>([]);
@@ -21,14 +22,20 @@ export function BrowseTab() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
   useEffect(() => {
-    fetchInitialData();
-  }, []);
+    if (isActive) {
+      fetchInitialData();
+    }
+  }, [isActive]);
 
   useEffect(() => {
-    fetchCards();
-  }, [selectedDeck, selectedState, selectedTag]);
+    if (isActive) {
+      fetchCards();
+    }
+  }, [selectedDeck, selectedState, selectedTag, isActive]);
 
   const fetchInitialData = async () => {
     try {
@@ -90,32 +97,43 @@ export function BrowseTab() {
   const handleSaveCard = async () => {
     if (!selectedCard || saving) return;
     setSaving(true);
+    setMessage(null);
     try {
       await vocabLabApi.updateFlashcard(selectedCard.id, {
         front: editFront,
         back: editBack,
         tags: editTagsList,
       });
-      alert('Card updated successfully!');
+      setMessage({ type: 'success', text: 'Card updated successfully!' });
       await fetchCards();
       await fetchInitialData(); // Refresh tags if changed
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error('Failed to update card:', error);
-      alert('Failed to update card.');
+      setMessage({ type: 'error', text: 'Failed to update card.' });
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteCard = async () => {
-    if (!selectedCard || !confirm('Are you sure you want to delete this card?')) return;
+    if (!selectedCard) return;
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteCard = async () => {
+    if (!selectedCard) return;
     try {
       await vocabLabApi.deleteFlashcard(selectedCard.id);
       setSelectedCard(null);
+      setShowDeleteConfirm(false);
+      setMessage({ type: 'success', text: 'Card deleted successfully!' });
+      setTimeout(() => setMessage(null), 3000);
       await fetchCards();
       await fetchInitialData(); // Refresh tags and decks
     } catch (error) {
       console.error('Failed to delete card:', error);
+      setMessage({ type: 'error', text: 'Failed to delete card.' });
     }
   };
 
@@ -314,6 +332,18 @@ export function BrowseTab() {
       <div className="w-full md:w-[480px] bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 flex flex-col h-[700px] overflow-y-auto">
         {selectedCard ? (
           <>
+            {message && (
+              <div className={`p-3 rounded-lg mb-6 text-sm font-medium flex items-center gap-2 ${
+                message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'
+              }`}>
+                {message.type === 'success' ? (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                )}
+                {message.text}
+              </div>
+            )}
 
             {/* Editor formatting toolbar */}
             <div className="flex items-center gap-0.5 pb-3 border-b border-gray-100 mb-6">
@@ -433,6 +463,18 @@ export function BrowseTab() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Flashcard"
+        message="Are you sure you want to delete this flashcard? This action cannot be undone and will permanently remove your study history for this card."
+        confirmText="Yes, delete card"
+        cancelText="Cancel"
+        onConfirm={confirmDeleteCard}
+        onClose={() => setShowDeleteConfirm(false)}
+        isDestructive={true}
+      />
     </div>
   );
 }

@@ -1,0 +1,35 @@
+**PETER:** Hello?
+**JAN:** Oh hello. My name's Jan. Are you the right person to talk to about the Buckworth Conservation Group?
+**PETER:** Yes, I'm Peter. I'm the secretary.
+**JAN:** Good. I've just moved to this area, and I'm interested in getting involved. I was in a similar group where I used to live. Could you tell me something about your activities, please?
+**PETER:** Of course. Well, we have a mixture of regular activities and special events. One of the regular ones is trying to keep the beach free of <u>litter</u> **[Q1]**. A few of us spend a couple of hours a month on it, and it's awful how much there is to clear. I wish people would be more responsible and take it home with them.
+**JAN:** I totally agree. I'd be happy to help with that. Is it OK to take <u>dogs</u> **[Q2]**?
+**PETER:** I'm afraid not, as they're banned from the beach itself. You can take them along the cliffs, though. And children are welcome.
+**JAN:** Right.
+**PETER:** We also manage a nature reserve, and there's a lot to do there all year round. For example, because it's a popular place to visit, we spend a lot of time looking after the paths and making sure they're in good condition for walking.
+**JAN:** I could certainly help with that.
+**PETER:** Good. And we have a programme of creating new habitats there. We've just finished making and installing nesting boxes for birds to use, and next we're going to work on encouraging <u>insects</u> **[Q3]** – they're important for the biodiversity of the reserve.
+**JAN:** They certainly are.
+**PETER:** Oh, and we're also running a project to identify the different species of <u>butterflies</u> **[Q4]** that visit the reserve. You might be interested in taking part in that.
+**JAN:** Sure. I was involved in something similar where I used to live, counting all the species of moths. I'd enjoy that.
+**PETER:** Another job we're doing at the reserve is replacing the <u>wall</u> **[Q5]** on the southern side, between the parking area and our woodshed. It was badly damaged in a storm last month.
+**JAN:** OK.
+
+--------------------------------------------------------------------------------
+
+**PETER:** Then as I said, we have a programme of events as well, both at the weekend, and during the week.
+**JAN:** Right. I presume you have guided walks? I'd like to get to know the local countryside, as I'm new to the area.
+**PETER:** Yes, we do. The next walk is to Ruston Island, a week on Saturday. We'll be meeting in the car park at Dunsmore Beach at low tide – that's when the sands are dry enough for us to walk to the <u>island</u> **[Q6]** without getting wet.
+**JAN:** Sounds good.
+**PETER:** The island's a great place to explore. It's quite small, and it's got a range of habitats. It's also an ideal location for seeing seals just off the coast, or even on the beach.
+**JAN:** OK. And is there anything we should bring, like a picnic, for instance?
+**PETER:** Yes, do bring one, as it's a full-day walk. And of course it'll be wet walking across and back, so make sure your <u>boots</u> **[Q7]** are waterproof.
+**JAN:** I must buy a new pair – there's a hole in one of my current ones! Well, I'd definitely like to come on the walk.
+**PETER:** Great. Then later this month we're having a one-day woodwork session in Hopton Wood.
+**JAN:** I've never tried that before. Is it OK for <u>beginners</u> **[Q8]** to take part?
+**PETER:** Definitely. There'll be a couple of experts leading the session, and we keep the number of participants down, so you'll get as much help as you need.
+**JAN:** Excellent! I'd love to be able to make chairs.
+**PETER:** That's probably too ambitious for one day! You'll be starting with wooden <u>spoons</u> **[Q9]**, and of course learning how to use the tools. And anything you make is yours to take home with you.
+**JAN:** That sounds like fun. When is it?
+**PETER:** It's on the 17th, from 10 a.m. until 3. There's a charge of £<u>35</u> **[Q10]**, including lunch, or £40 if you want to camp in the wood.
+**JAN:** I should think I'll come home the same day. Well, I'd certainly like to join the group.

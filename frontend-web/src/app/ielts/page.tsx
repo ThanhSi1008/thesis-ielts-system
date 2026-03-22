@@ -1,0 +1,92 @@
+import Link from 'next/link';
+
+export default function IELTSHomePage() {
+   return (
+      <div className="bg-[url('https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/8_ulba1f.png'),linear-gradient(#ededed,#ededed)] bg-cover w-full rounded-lg h-full pt-32 pb-12 min-h-screen font-sans">
+         <div className="max-w-6xl mx-auto px-4">
+            <h2 className="text-4xl font-extrabold text-[#212529] text-center mb-6 uppercase tracking-wide">
+               YOUR IELTS LEARNING JOURNEY
+            </h2>
+            <div className="flex justify-center mb-4">
+               <img src="https://demo2.pavothemes.com/gopet/wp-content/uploads/2021/11/h3_divider.png" alt="" className="h-2" />
+            </div>
+
+            <div className="relative flex justify-center mt-0">
+               {/* Roadmap Background Image */}
+               <div className="relative">
+                  <img
+                     src="https://res.cloudinary.com/dalaaegob/image/upload/v1773837908/06ea1b8b-4b0f-48cb-9ae5-b883fb9a1f59.png"
+                     alt="IELTS Roadmap"
+                     className="w-[300px] h-auto"
+                  />
+
+                  {/* STEP 1: Foundation IELTS (Top Right) */}
+                  <div className="absolute top-[5%] -right-[120%] w-80 text-center">
+                     <div className="flex items-start gap-4">
+                        <div>
+                           <h3 className="text-xl font-extrabold text-success mb-1 uppercase">Foundation IELTS</h3>
+                           <p className="text-[#4CAF50] text-sm font-medium mb-4 leading-relaxed">
+                              Master the basics of English to<br />prepare effectively for the test
+                           </p>
+                           <div className="flex flex-col justify-center items-center gap-3 w-56">
+                              <Link href="/vocabulary" className="bg-success text-black font-bold py-3.5 px-6 rounded-xl text-center hover:bg-opacity-90 transition-all shadow-sm">
+                                 Vocabulary
+                              </Link>
+                              <Link href="/grammar" className="bg-success text-black font-bold py-3.5 px-6 rounded-xl text-center hover:bg-opacity-90 transition-all shadow-sm">
+                                 Grammar
+                              </Link>
+                              <Link href="/pronunciation" className="bg-success text-black font-bold py-3.5 px-6 rounded-xl text-center hover:bg-opacity-90 transition-all shadow-sm">
+                                 Pronunciation
+                              </Link>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* STEP 2: Basic IELTS (Middle Left) */}
+                  <div className="absolute top-[20%] -left-[120%] w-64 text-right">
+                     <div className="flex items-center justify-end gap-4">
+                        <h3 className="text-xl font-extrabold text-info uppercase">Basic IELTS</h3>
+                     </div>
+                  </div>
+
+                  {/* STEP 3: Advanced IELTS (Lower Right) */}
+                  <div className="absolute top-[60%] -right-[115%] w-64 text-left">
+                     <div className="flex items-center gap-4">
+                        <h3 className="text-xl font-extrabold text-warning uppercase">Advanced IELTS</h3>
+                     </div>
+                  </div>
+
+                  {/* STEP 4: Intensive IELTS (Bottom Left) */}
+                  <div className="absolute bottom-[2%] -left-[120%] w-80 text-center">
+                     <div className="flex items-start justify-end gap-4">
+                        <div className="order-1">
+                           <h3 className="text-xl font-extrabold text-danger mb-1 uppercase">Intensive IELTS</h3>
+                           <p className="text-danger text-sm font-medium mb-4 leading-relaxed">
+                              Take the test in real time with<br />instant feedback on your results
+                           </p>
+                           <Link
+                             href="/ielts/intensive"
+                             className="bg-danger text-white font-semibold py-2.5 px-7 rounded-full inline-flex items-center gap-2 hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-md group"
+                           >
+                              Get Started
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2.5}
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                              </svg>
+                           </Link>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   );
+}

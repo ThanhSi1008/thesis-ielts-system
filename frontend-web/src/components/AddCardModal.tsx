@@ -13,12 +13,14 @@ interface AddCardModalProps {
   initialTags?: string[];
 }
 
+const EMPTY_ARRAY: string[] = [];
+
 export default function AddCardModal({
   isOpen,
   onClose,
   initialFront = '',
   initialBack = '',
-  initialTags = []
+  initialTags = EMPTY_ARRAY
 }: AddCardModalProps) {
   const [decks, setDecks] = useState<DeckWithCounts[]>([]);
   const [deckId, setDeckId] = useState('');
