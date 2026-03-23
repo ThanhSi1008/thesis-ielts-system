@@ -7,54 +7,25 @@ import ConfirmModal from '@/components/ConfirmModal';
 import { ShadowingSentence } from '@/data/shadowing-lessons';
 import { parseSrtToSentences, extractYouTubeVideoId } from '@/utils/parseSrt';
 
-// ── Types ──
-interface MyVideo {
-    id: string;
-    title: string;
-    youtubeVideoId: string;
-    folder: string;
-    category: string;
-    duration: string;
-    sentences: ShadowingSentence[];
-    createdAt: string;
-}
-
-// ── LocalStorage helpers ──
-function loadVideos(): MyVideo[] {
-    try {
-        const raw = localStorage.getItem('my_videos');
-        return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-}
-
-function saveVideos(videos: MyVideo[]) {
-    localStorage.setItem('my_videos', JSON.stringify(videos));
-}
-
-function loadFolders(): string[] {
-    try {
-        const raw = localStorage.getItem('my_video_folders');
-        return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-}
-
-function saveFolders(folders: string[]) {
-    localStorage.setItem('my_video_folders', JSON.stringify(folders));
-}
+import { shadowingApi, ShadowingVideo } from '@/services/shadowing.api';
+import { useAuth } from '@/contexts/AuthContext';
 
 // ── Category options ──
 const CATEGORY_OPTIONS = ['Religion', 'Science', 'Education', 'Technology', 'Entertainment', 'News', 'Other'];
 
 // ── Page Component ──
 export default function MyVideosPage() {
-    const [videos, setVideos] = useState<MyVideo[]>([]);
+    const { isAuthenticated } = useAuth();
+    const [videos, setVideos] = useState<ShadowingVideo[]>([]);
     const [folders, setFolders] = useState<string[]>([]);
+    const [progress, setProgress] = useState<Record<string, { shadowing: number[]; dictation: number[] }>>({});
+    const [isLoading, setIsLoading] = useState(true);
+
     const [activeFolder, setActiveFolder] = useState('All Videos');
     const [searchQuery, setSearchQuery] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showFolderInput, setShowFolderInput] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
-    const [progress, setProgress] = useState<Record<string, { shadowing: number; dictation: number }>>({});
     const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
     // Create modal state
@@ -74,37 +45,34 @@ export default function MyVideosPage() {
 
     // Video Delete / Edit state
     const [videoToDelete, setVideoToDelete] = useState<string | null>(null);
-    const [editingVideo, setEditingVideo] = useState<MyVideo | null>(null);
+    const [editingVideo, setEditingVideo] = useState<ShadowingVideo | null>(null);
     const [editVideoTitle, setEditVideoTitle] = useState('');
     const [editSelectedFolder, setEditSelectedFolder] = useState('');
     const [editSelectedCategory, setEditSelectedCategory] = useState('');
 
     // Load data on mount
-    useEffect(() => {
-        setVideos(loadVideos());
-        setFolders(loadFolders());
-    }, []);
+    const loadData = useCallback(async () => {
+        if (!isAuthenticated) return;
+        setIsLoading(true);
+        try {
+            const [fetchedVideos, fetchedFolders, fetchedProgress] = await Promise.all([
+                shadowingApi.getVideos(),
+                shadowingApi.getFolders(),
+                shadowingApi.getAllProgress()
+            ]);
+            setVideos(fetchedVideos);
+            setFolders(fetchedFolders);
+            setProgress(fetchedProgress);
+        } catch (error) {
+            console.error('Failed to load shadowing data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isAuthenticated]);
 
-    // Load progress
     useEffect(() => {
-        const newProgress: Record<string, { shadowing: number; dictation: number }> = {};
-        videos.forEach(v => {
-            let shadowingCount = 0;
-            let dictationCount = 0;
-            try {
-                const s = localStorage.getItem(`shadowing_progress_${v.id}`);
-                if (s) { const p = JSON.parse(s); if (Array.isArray(p)) shadowingCount = p.length; }
-                const d = localStorage.getItem(`dictation_progress_${v.id}`);
-                if (d) { const p = JSON.parse(d); if (Array.isArray(p)) dictationCount = p.length; }
-            } catch { }
-            const total = v.sentences.length;
-            newProgress[v.id] = {
-                shadowing: total > 0 ? Math.round((shadowingCount / total) * 100) : 0,
-                dictation: total > 0 ? Math.round((dictationCount / total) * 100) : 0,
-            };
-        });
-        setProgress(newProgress);
-    }, [videos]);
+        loadData();
+    }, [loadData]);
 
     // Filtered videos
     const filteredVideos = useMemo(() => {
@@ -135,7 +103,7 @@ export default function MyVideosPage() {
     }, []);
 
     // ── Create Video ──
-    const handleCreateVideo = useCallback(() => {
+    const handleCreateVideo = useCallback(async () => {
         setCreateError('');
 
         // Validate
@@ -155,20 +123,16 @@ export default function MyVideosPage() {
             const secs = Math.floor(lastEnd % 60);
             const duration = `${mins}:${secs.toString().padStart(2, '0')}`;
 
-            const newVideo: MyVideo = {
-                id: `my-${Date.now()}`,
+            const created = await shadowingApi.createVideo({
                 title: videoTitle.trim() || 'Untitled Video',
                 youtubeVideoId: videoId,
                 folder: selectedFolder,
                 category: selectedCategory || 'Other',
                 duration,
                 sentences,
-                createdAt: new Date().toISOString(),
-            };
+            });
 
-            const updated = [...videos, newVideo];
-            setVideos(updated);
-            saveVideos(updated);
+            setVideos(prev => [...prev, created]);
 
             // Reset modal
             setYtLink('');
@@ -178,55 +142,57 @@ export default function MyVideosPage() {
             setSelectedFolder('All Videos');
             setSelectedCategory('');
             setShowCreateModal(false);
-        } catch {
-            setCreateError('Failed to parse the SRT file');
+        } catch (error: any) {
+            setCreateError(error.response?.data?.message || 'Failed to create video');
+        } finally {
+            setIsCreating(false);
         }
-        setIsCreating(false);
-    }, [ytLink, srtContent, videoTitle, selectedFolder, selectedCategory, videos]);
+    }, [ytLink, srtContent, videoTitle, selectedFolder, selectedCategory]);
 
     // ── Add folder ──
-    const handleAddFolder = useCallback(() => {
+    const handleAddFolder = useCallback(async () => {
         const name = newFolderName.trim();
         if (!name || folders.includes(name)) return;
-        const updated = [...folders, name];
-        setFolders(updated);
-        saveFolders(updated);
-        setNewFolderName('');
-        setShowFolderInput(false);
+        try {
+            await shadowingApi.createFolder(name);
+            setFolders(prev => [...prev, name]);
+            setNewFolderName('');
+            setShowFolderInput(false);
+        } catch (error) {
+            console.error('Failed to create folder:', error);
+        }
     }, [newFolderName, folders]);
 
     // ── Folder CRUD ──
-    const handleRenameFolder = useCallback((oldName: string) => {
+    const handleRenameFolder = useCallback(async (oldName: string) => {
         const newName = editFolderName.trim();
         if (!newName || newName === oldName || folders.includes(newName)) {
             setEditingFolder(null);
             return;
         }
-        const updatedFolders = folders.map(f => f === oldName ? newName : f);
-        setFolders(updatedFolders);
-        saveFolders(updatedFolders);
+        try {
+            await shadowingApi.renameFolder(oldName, newName);
+            setFolders(prev => prev.map(f => f === oldName ? newName : f));
+            setVideos(prev => prev.map(v => v.folder === oldName ? { ...v, folder: newName } : v));
+            if (activeFolder === oldName) setActiveFolder(newName);
+            setEditingFolder(null);
+        } catch (error) {
+            console.error('Failed to rename folder:', error);
+        }
+    }, [editFolderName, folders, activeFolder]);
 
-        const updatedVideos = videos.map(v => v.folder === oldName ? { ...v, folder: newName } : v);
-        setVideos(updatedVideos);
-        saveVideos(updatedVideos);
-
-        if (activeFolder === oldName) setActiveFolder(newName);
-        setEditingFolder(null);
-    }, [editFolderName, folders, videos, activeFolder]);
-
-    const confirmDeleteFolder = useCallback(() => {
+    const confirmDeleteFolder = useCallback(async () => {
         if (!folderToDelete) return;
-        const updatedFolders = folders.filter(f => f !== folderToDelete);
-        setFolders(updatedFolders);
-        saveFolders(updatedFolders);
-
-        const updatedVideos = videos.map(v => v.folder === folderToDelete ? { ...v, folder: 'All Videos' } : v);
-        setVideos(updatedVideos);
-        saveVideos(updatedVideos);
-
-        if (activeFolder === folderToDelete) setActiveFolder('All Videos');
-        setFolderToDelete(null);
-    }, [folderToDelete, folders, videos, activeFolder]);
+        try {
+            await shadowingApi.deleteFolder(folderToDelete);
+            setFolders(prev => prev.filter(f => f !== folderToDelete));
+            setVideos(prev => prev.map(v => v.folder === folderToDelete ? { ...v, folder: 'All Videos' } : v));
+            if (activeFolder === folderToDelete) setActiveFolder('All Videos');
+            setFolderToDelete(null);
+        } catch (error) {
+            console.error('Failed to delete folder:', error);
+        }
+    }, [folderToDelete, activeFolder]);
 
     // ── Video Edit / Delete ──
     const handleDeleteVideo = useCallback((id: string) => {
@@ -234,22 +200,30 @@ export default function MyVideosPage() {
         setMenuOpenId(null);
     }, []);
 
-    const confirmDeleteVideo = useCallback(() => {
+    const confirmDeleteVideo = useCallback(async () => {
         if (!videoToDelete) return;
-        const updated = videos.filter(v => v.id !== videoToDelete);
-        setVideos(updated);
-        saveVideos(updated);
-        setVideoToDelete(null);
+        try {
+            await shadowingApi.deleteVideo(videoToDelete);
+            const updated = videos.filter(v => v.id !== videoToDelete);
+            setVideos(updated);
+            setVideoToDelete(null);
+        } catch (error) {
+            console.error('Failed to delete video:', error);
+        }
     }, [videoToDelete, videos]);
 
-    const handleMoveToFolder = useCallback((id: string, folder: string) => {
-        const updated = videos.map(v => v.id === id ? { ...v, folder } : v);
-        setVideos(updated);
-        saveVideos(updated);
-        setMenuOpenId(null);
+    const handleMoveToFolder = useCallback(async (id: string, folder: string) => {
+        try {
+            await shadowingApi.updateVideo(id, { folder });
+            const updated = videos.map(v => v.id === id ? { ...v, folder } : v);
+            setVideos(updated);
+            setMenuOpenId(null);
+        } catch (error) {
+            console.error('Failed to move folder:', error);
+        }
     }, [videos]);
 
-    const openEditVideoModal = useCallback((video: MyVideo) => {
+    const openEditVideoModal = useCallback((video: ShadowingVideo) => {
         setEditingVideo(video);
         setEditVideoTitle(video.title);
         setEditSelectedFolder(video.folder);
@@ -257,17 +231,26 @@ export default function MyVideosPage() {
         setMenuOpenId(null);
     }, []);
 
-    const handleUpdateVideo = useCallback(() => {
+    const handleUpdateVideo = useCallback(async () => {
         if (!editingVideo) return;
-        const updated = videos.map(v => v.id === editingVideo.id ? {
-            ...v,
-            title: editVideoTitle.trim() || 'Untitled Video',
-            folder: editSelectedFolder,
-            category: editSelectedCategory
-        } : v);
-        setVideos(updated);
-        saveVideos(updated);
-        setEditingVideo(null);
+        try {
+            const newTitle = editVideoTitle.trim() || 'Untitled Video';
+            await shadowingApi.updateVideo(editingVideo.id, {
+                title: newTitle,
+                folder: editSelectedFolder,
+                category: editSelectedCategory
+            });
+            const updated = videos.map(v => v.id === editingVideo.id ? {
+                ...v,
+                title: newTitle,
+                folder: editSelectedFolder,
+                category: editSelectedCategory
+            } : v);
+            setVideos(updated);
+            setEditingVideo(null);
+        } catch (error) {
+            console.error('Failed to update video:', error);
+        }
     }, [editingVideo, editVideoTitle, editSelectedFolder, editSelectedCategory, videos]);
 
     return (
@@ -425,8 +408,12 @@ export default function MyVideosPage() {
                             </button>
                         </div>
 
-                        {/* Video Cards Grid */}
-                        {filteredVideos.length > 0 ? (
+                        {isLoading ? (
+                            <div className="flex items-center justify-center py-20 text-gray-500">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                                Loading videos...
+                            </div>
+                        ) : filteredVideos.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                 {filteredVideos.map(video => (
                                     <div
@@ -500,19 +487,33 @@ export default function MyVideosPage() {
                                                 <div>
                                                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                                                         <span>Shadowing</span>
-                                                        <span className="font-medium">{progress[video.id]?.shadowing || 0}%</span>
+                                                        <span className="font-medium">
+                                                            {video.sentences.length > 0 && progress[video.id]?.shadowing 
+                                                                ? Math.round((progress[video.id].shadowing.length / video.sentences.length) * 100)
+                                                                : 0}%
+                                                        </span>
                                                     </div>
                                                     <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                                        <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${progress[video.id]?.shadowing || 0}%` }} />
+                                                        <div 
+                                                            className="bg-primary h-full rounded-full transition-all duration-500" 
+                                                            style={{ width: `${video.sentences.length > 0 && progress[video.id]?.shadowing ? Math.round((progress[video.id].shadowing.length / video.sentences.length) * 100) : 0}%` }} 
+                                                        />
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                                                         <span>Dictation</span>
-                                                        <span className="font-medium">{progress[video.id]?.dictation || 0}%</span>
+                                                        <span className="font-medium">
+                                                            {video.sentences.length > 0 && progress[video.id]?.dictation 
+                                                                ? Math.round((progress[video.id].dictation.length / video.sentences.length) * 100)
+                                                                : 0}%
+                                                        </span>
                                                     </div>
                                                     <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                                        <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${progress[video.id]?.dictation || 0}%` }} />
+                                                        <div 
+                                                            className="bg-gray-800 h-full rounded-full transition-all duration-500" 
+                                                            style={{ width: `${video.sentences.length > 0 && progress[video.id]?.dictation ? Math.round((progress[video.id].dictation.length / video.sentences.length) * 100) : 0}%` }} 
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -687,7 +688,7 @@ export default function MyVideosPage() {
                         <button
                             onClick={handleCreateVideo}
                             disabled={isCreating}
-                            className="w-full max-w-xs mx-auto block py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 text-base disabled:opacity-50"
+                            className="w-full max-w-xs mx-auto flex py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all items-center justify-center gap-2 text-base disabled:opacity-50"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M12 3l1.912 5.813h6.113l-4.969 3.602 1.912 5.813L12 14.626l-4.968 3.602 1.912-5.813L4 8.813h6.113z" />

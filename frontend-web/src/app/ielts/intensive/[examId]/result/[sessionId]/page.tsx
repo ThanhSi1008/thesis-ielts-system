@@ -33,6 +33,26 @@ function getIeltsBand(score: number): number {
   return 1.0;
 }
 
+function getIeltsReadingBand(score: number): number {
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 33) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 27) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 19) return 5.5;
+  if (score >= 15) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
+  return 1.0;
+}
+
+
 function bandColor(band: number) {
   if (band >= 8.0) return { shield: "#22c55e", shieldDark: "#16a34a", bg: "bg-green-50", text: "text-green-700" };
   if (band >= 6.5) return { shield: "#3b82f6", shieldDark: "#1d4ed8", bg: "bg-blue-50", text: "text-blue-700" };
@@ -476,7 +496,7 @@ function ReviewItemField({
     const userAns = normalizeAnswer(userAnswers[key]);
     const correctAns = normalizeAnswer(correctMap.get(key));
     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
-    const parts = item.text.split(/_+|\.{3,}|\[blank\]/i);
+    const parts = (item.text || "").split(/_+|\.{3,}|\[blank\]/i);
 
     const renderInputBox = () => {
       if (isCorr === true) {
@@ -497,8 +517,8 @@ function ReviewItemField({
     };
 
     return (
-      <div id={`review-question-${item.qn}`} className="py-4 text-[#1a1a1a] border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        {item.topic && <div className="font-extrabold text-[18px] text-center mb-4 text-[#111111]">{item.topic}</div>}
+      <div id={`review-question-${item.qn}`} className="py-2 text-[#1a1a1a] hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        
         {(item as any).heading && <div className="font-bold text-[16px] uppercase mt-2 mb-2">{(item as any).heading}</div>}
         {(item as any).subheading && <div className="font-semibold text-[15px] mt-1 mb-2">{(item as any).subheading}</div>}
 
@@ -535,8 +555,8 @@ function ReviewItemField({
   // Table completion
   if (item.kind === "table_completion") {
     return (
-      <div id={`review-table-${item.qns[0]}`} className="py-4 text-[#1a1a1a] border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded overflow-x-auto w-full">
-        {item.topic && <div className="font-extrabold text-[18px] text-center mb-4 text-[#111111]">{item.topic}</div>}
+      <div id={`review-table-${item.qns[0]}`} className="py-4 text-[#1a1a1a] hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded overflow-x-auto w-full">
+        
         {(item as any).title && <div className="font-bold text-[16px] mb-3 text-center text-[#333333] uppercase leading-relaxed">{(item as any).title}</div>}
         <table className="w-full border-collapse border border-[#d1d1d1] text-[15px] mb-2">
           {item.headers && item.headers.length > 0 && (
@@ -625,8 +645,8 @@ function ReviewItemField({
     const correctAns = normalizeAnswer(correctMap.get(key));
 
     return (
-      <div id={`review-question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+      <div id={`review-question-${item.qn}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        
         <div className="flex flex-col">
           <div className="flex items-start min-w-0 mb-6">
             <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
@@ -707,8 +727,8 @@ function ReviewItemField({
     const rangeText = `${item.qns[0]}-${item.qns[item.qns.length - 1]}`;
 
     return (
-      <div id={`review-question-${item.qns[0]}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+      <div id={`review-question-${item.qns[0]}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        
         <div className="flex flex-col">
           <div className="flex items-start min-w-0 mb-6">
             <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
@@ -770,8 +790,8 @@ function ReviewItemField({
     const headingQns = item.qns.length > 1 ? `${item.qns[0]} - ${item.qns[item.qns.length - 1]}` : `${item.qns[0]}`;
 
     return (
-      <div id={`review-question-${item.qns[0]}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded relative">
-        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+      <div id={`review-question-${item.qns[0]}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded relative">
+            
         <div className="flex flex-col text-[#1a1a1a]">
           
           <div className="font-bold text-[16px] mb-1">Question {headingQns}</div>
@@ -884,8 +904,8 @@ function ReviewItemField({
     const isCorr = userAns.toLowerCase().trim() === correctAns.toLowerCase().trim();
 
     return (
-      <div id={`review-question-${item.qn}`} className="py-6 border-b border-[#e2e1df] last:border-0 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        {item.topic && <div className="font-extrabold text-[18px] text-center mb-6 text-[#111111]">{item.topic}</div>}
+      <div id={`review-question-${item.qn}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
+        
         <div className="flex flex-col lg:flex-row items-start gap-6">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-4 mb-4">
@@ -1030,7 +1050,8 @@ function ReviewSection({
           <div className="flex divide-x divide-gray-100" style={{ minHeight: 400, maxHeight: 600 }}>
             {/* Left: Question Review */}
             <div key={`left-${activePartIdx}`} className="flex-1 overflow-y-auto px-8 py-4 bg-white shrink-[2] min-w-[50%] custom-scrollbar">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Question Review</div>
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
+
               {partItems.map((item, i) => (
                 <ReviewItemField
                   key={i}
@@ -1047,13 +1068,32 @@ function ReviewSection({
               ))}
             </div>
 
-            {/* Right: Transcript */}
+            {/* Right: Transcript or Passage */}
             <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
-              {transcript.length === 0 ? (
-                <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
+              {exam?.type === "READING" ? (
+                <>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Reading Passage</div>
+                  <div className="text-[15px] text-[#1a1a1a] leading-relaxed space-y-5 pb-20">
+                    {((parts[activePartIdx] as any)?.passage_text || "Passage text not available.")
+                      .split('\n')
+                      .filter((para: string) => {
+                        const cleanPara = para.replace(/\*\*/g, '').trim().toLowerCase();
+                        const cleanTopic = ((parts[activePartIdx] as any)?.topic || "").trim().toLowerCase();
+                        return cleanPara !== cleanTopic && cleanPara.length > 0;
+                      })
+                      .map((para: string, i: number) => (
+                        <p key={i} dangerouslySetInnerHTML={{ __html: para.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                      ))}
+                  </div>
+                </>
               ) : (
-                <div className="space-y-3">
+                <>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
+                  {transcript.length === 0 ? (
+                    <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
+                  ) : (
+                    <div className="space-y-3">
+
                   {transcript.map((line: any, idx: number) => {
                     const hasQ = line.question_number != null;
                     return (
@@ -1118,6 +1158,8 @@ function ReviewSection({
                   })}
                 </div>
               )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1164,7 +1206,7 @@ export default function IeltsResultPage() {
 
   const rawScore = result?.totalScore ?? 0;
   const maxScore = correctMap.size > 0 ? correctMap.size : 40;
-  const band = getIeltsBand(rawScore);
+  const band = exam?.type === "READING" ? getIeltsReadingBand(rawScore) : getIeltsBand(rawScore);
   const color = bandColor(band);
 
   const parts = useMemo(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
@@ -294,7 +294,7 @@ function BandScoreChart({ points }: { points: { date: string; band: number; titl
   );
 }
 
-export default function IeltsIntensivePage() {
+function IeltsIntensiveContent() {
   const searchParams = useSearchParams();
   const [skill, setSkill] = useState<IeltsSkill>("LISTENING");
   const [data, setData] = useState<IeltsIntensiveCatalogResponse | null>(null);
@@ -542,12 +542,13 @@ export default function IeltsIntensivePage() {
                 <div className="bg-amber-50 text-amber-800 border border-amber-100 rounded-2xl p-5">
                   {hasActiveFilter
                     ? "No tests match your search or filters. Try adjusting them."
-                    : `No published Cambridge exams found for ${skill}. Make sure exam titles follow:`}
-                  {!hasActiveFilter && (
-                    <div className="mt-2 font-mono text-xs text-amber-900/80">
-                      Cambridge IELTS 17 - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test 1
-                    </div>
-                  )}
+                    : <>
+                        No published Cambridge exams found for {skill}. Make sure exam titles follow:
+                        <div className="mt-2 font-mono text-xs text-amber-900/80">
+                          Cambridge IELTS 17 - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test 1
+                        </div>
+                      </>
+                  }
                 </div>
               )}
 
@@ -614,5 +615,17 @@ export default function IeltsIntensivePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function IeltsIntensivePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+      </div>
+    }>
+      <IeltsIntensiveContent />
+    </Suspense>
   );
 }
