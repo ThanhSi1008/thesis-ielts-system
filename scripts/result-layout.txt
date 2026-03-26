@@ -1,0 +1,18 @@
+{/* Right: Transcript or Passage */}
+            <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+              {exam.type === "READING" ? (
+                <>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Reading Passage</div>
+                  <div className="text-[15px] text-[#1a1a1a] leading-relaxed font-serif text-justify space-y-4 pb-20">
+                    {((parts[activePartIdx] as any)?.passage_text || "Passage text not available.").split('\n').map((para: string, i: number) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
+                  {transcript.length === 0 ? (
+                    <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
+                  ) : (
+                    <div className="space-y-3">

@@ -4,9 +4,11 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import PageHeader from '@/components/PageHeader';
 
 import { useParams, notFound } from 'next/navigation';
-import { SHADOWING_LESSONS, ShadowingSentence } from '@/data/shadowing-lessons';
+import { SHADOWING_LESSONS, ShadowingSentence, ShadowingLesson } from '@/data/shadowing-lessons';
 import DictionaryPopup from '@/components/DictionaryPopup';
 import Tooltip from '@/components/Tooltip';
+import { shadowingApi, ShadowingVideo } from '@/services/shadowing.api';
+import { useAuth } from '@/contexts/AuthContext';
 
 // (Removed hardcoded SENTENCES and AUDIO_URL)
 const SPEED_PRESETS = [0.25, 0.5, 0.75, 1.0, 2.0];
@@ -25,33 +27,29 @@ const WAVEFORM_HEIGHTS = Array.from({ length: 60 }, () => Math.max(15, Math.rand
 // Normalize a word for comparison
 const normalizeWord = (w: string) => w.toLowerCase().replace(/[.,!?'"]/g, '').trim();
 
-// ── Helper: look up lesson from static data or localStorage ──
-function findLesson(id: string | string[] | undefined) {
+// ── Helper: look up lesson from static data or DB ──
+async function findLesson(id: string | string[] | undefined): Promise<ShadowingLesson | undefined> {
     if (!id || Array.isArray(id)) return undefined;
     const staticLesson = SHADOWING_LESSONS.find(l => l.id === id);
     if (staticLesson) return staticLesson;
 
-    // Check user-created videos in localStorage
-    if (typeof id === 'string' && id.startsWith('my-')) {
-        try {
-            const raw = localStorage.getItem('my_videos');
-            if (raw) {
-                const videos = JSON.parse(raw);
-                const found = videos.find((v: any) => v.id === id);
-                if (found) {
-                    return {
-                        id: found.id,
-                        title: found.title,
-                        audioUrl: '',
-                        youtubeVideoId: found.youtubeVideoId,
-                        image: `https://img.youtube.com/vi/${found.youtubeVideoId}/maxresdefault.jpg`,
-                        tags: ['YOUTUBE'],
-                        duration: found.duration,
-                        sentences: found.sentences,
-                    } as import('@/data/shadowing-lessons').ShadowingLesson;
-                }
-            }
-        } catch {}
+    // Check user-created videos via API
+    try {
+        const found = await shadowingApi.getVideoById(id);
+        if (found) {
+            return {
+                id: found.id,
+                title: found.title,
+                audioUrl: '',
+                youtubeVideoId: found.youtubeVideoId,
+                image: `https://img.youtube.com/vi/${found.youtubeVideoId}/maxresdefault.jpg`,
+                tags: ['YOUTUBE'],
+                duration: found.duration,
+                sentences: found.sentences,
+            } as ShadowingLesson;
+        }
+    } catch (error) {
+        // Will throw 404 if it's not a valid user video ID, which is fine
     }
     return undefined;
 }
@@ -59,48 +57,79 @@ function findLesson(id: string | string[] | undefined) {
 // ──── Page Component ────
 export default function ShadowingPracticePage() {
     const params = useParams();
-    const lesson = useMemo(() => findLesson(params.id), [params.id]);
-    if (!lesson) {
-        notFound();
-    }
-    const AUDIO_URL = lesson.audioUrl;
-    const YOUTUBE_VIDEO_ID = lesson.youtubeVideoId;
-    const IS_YOUTUBE = !!YOUTUBE_VIDEO_ID;
-    const SENTENCES = lesson.sentences as ShadowingSentence[];
-    const LESSON_TITLE = lesson.title;
-    const TOTAL_SENTENCES = SENTENCES.length;
+    const { isAuthenticated, loading: authLoading } = useAuth();
+    
+    // States for asynchronous initialization
+    const [lesson, setLesson] = useState<ShadowingLesson | null>(null);
+    const [isInitializing, setIsInitializing] = useState(true);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [completedSentences, setCompletedSentences] = useState<number[]>([]);
-    const [progressLoaded, setProgressLoaded] = useState(false);
 
-    // ── Load and Save Progress ──
-    useEffect(() => {
+    // ── Load Lesson and Progress on mount ──
+    const loadLessonAndProgress = useCallback(async () => {
+        if (authLoading) return;
+        setIsInitializing(true);
         try {
-            const saved = localStorage.getItem(`shadowing_progress_${params.id}`);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed)) {
+            // 1. Find lesson
+            const loadedLesson = await findLesson(params.id);
+            if (!loadedLesson) {
+                notFound();
+                return;
+            }
+            setLesson(loadedLesson);
+
+            // 2. Fetch progress if authenticated
+            if (isAuthenticated && typeof params.id === 'string') {
+                const progressData = await shadowingApi.getProgress(params.id);
+                if (progressData && progressData.shadowing) {
+                    const parsed = progressData.shadowing.completedSentences;
                     setCompletedSentences(parsed);
                     if (parsed.length > 0) {
                         const maxCompleted = Math.max(...parsed);
-                        if (maxCompleted < TOTAL_SENTENCES - 1) {
+                        if (maxCompleted < loadedLesson.sentences.length - 1) {
                             setCurrentIndex(maxCompleted + 1);
                         } else {
-                            setCurrentIndex(TOTAL_SENTENCES - 1);
+                            setCurrentIndex(loadedLesson.sentences.length - 1);
                         }
                     }
                 }
             }
-        } catch (e) { }
-        setProgressLoaded(true);
-    }, [params.id]);
+        } catch (error) {
+            console.error('Failed to init shadowing page:', error);
+        } finally {
+            setIsInitializing(false);
+        }
+    }, [params.id, isAuthenticated, authLoading]);
 
     useEffect(() => {
-        if (progressLoaded) {
-            localStorage.setItem(`shadowing_progress_${params.id}`, JSON.stringify(completedSentences));
+        loadLessonAndProgress();
+    }, [loadLessonAndProgress]);
+
+    // Save progress to DB whenever it changes
+    const isFirstLoad = useRef(true);
+    useEffect(() => {
+        if (isInitializing) return;
+        if (isFirstLoad.current) {
+            isFirstLoad.current = false;
+            return;
         }
-    }, [completedSentences, progressLoaded, params.id]);
+        if (!isAuthenticated || completedSentences.length === 0 || !lesson) return;
+        const saveProgress = async () => {
+            try {
+                if (typeof params.id === 'string') {
+                    await shadowingApi.upsertProgress({
+                        lessonId: params.id,
+                        type: 'shadowing',
+                        completedSentences
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to save progress:', error);
+            }
+        };
+        saveProgress();
+    }, [completedSentences, params.id, isAuthenticated, lesson]);
 
     const [showCompleted, setShowCompleted] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -127,7 +156,9 @@ export default function ShadowingPracticePage() {
 
     // ── YouTube IFrame API Setup ──
     useEffect(() => {
-        if (!IS_YOUTUBE) return;
+        if (!lesson || !lesson.youtubeVideoId) return;
+        
+        const YOUTUBE_VIDEO_ID = lesson.youtubeVideoId;
 
         const initPlayer = () => {
             if (!ytContainerRef.current) return;
@@ -159,17 +190,30 @@ export default function ShadowingPracticePage() {
                 try { ytPlayerRef.current.destroy(); } catch (e) { }
             }
         };
-    }, [IS_YOUTUBE, YOUTUBE_VIDEO_ID]);
+    }, [lesson]);
+
     const skipNextRecordingRef = useRef(false);
 
-    const currentSentence = SENTENCES[currentIndex];
+    const AUDIO_URL = lesson?.audioUrl || '';
+    const IS_YOUTUBE = !!lesson?.youtubeVideoId;
+    const SENTENCES = (lesson?.sentences as ShadowingSentence[]) || [];
+    const LESSON_TITLE = lesson?.title || '';
+    const TOTAL_SENTENCES = SENTENCES.length;
+
+    const currentSentenceRaw = SENTENCES[currentIndex] || { id: '', english: '', vietnamese: '', words: [], audioStart: 0, audioEnd: 0 };
+    const currentSentence = useMemo(() => ({
+        ...currentSentenceRaw,
+        words: (currentSentenceRaw.words && currentSentenceRaw.words.length > 0)
+            ? currentSentenceRaw.words
+            : ((currentSentenceRaw as any).text || currentSentenceRaw.english || '').split(' ').filter((w: string) => w.trim() !== '')
+    }), [currentSentenceRaw]);
     const progressCount = completedSentences.length;
-    const isFinished = completedSentences.length === TOTAL_SENTENCES;
+    const isFinished = TOTAL_SENTENCES > 0 && completedSentences.length === TOTAL_SENTENCES;
 
     // ── Word-level match status for result display ──
     const wordStatuses = useMemo(() => {
         if (!recordedResult) return [];
-        return currentSentence.words.map((correctWord, i) => {
+        return currentSentence.words.map((correctWord: string, i: number) => {
             if (i >= recordedResult.length) return 'missing' as const;
             const spoken = normalizeWord(recordedResult[i]);
             const correct = normalizeWord(correctWord);
@@ -180,6 +224,7 @@ export default function ShadowingPracticePage() {
 
     // ── Play current sentence audio segment ──
     const playSentence = useCallback(() => {
+        if (!lesson) return;
         if (timerRef.current) clearInterval(timerRef.current);
 
         if (IS_YOUTUBE && ytPlayerRef.current && ytReady) {
@@ -224,6 +269,7 @@ export default function ShadowingPracticePage() {
             return;
         }
         const timeout = setTimeout(() => {
+            if (!lesson) return;
             if (currentIndex >= TOTAL_SENTENCES) return;
             if (timerRef.current) clearInterval(timerRef.current);
             const sentence = SENTENCES[currentIndex];
@@ -299,14 +345,17 @@ export default function ShadowingPracticePage() {
             const allFinal = Array.from(event.results).every((r: any) => r.isFinal);
             if (allFinal && spokenWords.length > 0) {
                 const allCorrect = currentSentence.words.length === spokenWords.length &&
-                    currentSentence.words.every((w, i) =>
+                    currentSentence.words.every((w: string, i: number) => // Added types here
                         normalizeWord(spokenWords[i] || '') === normalizeWord(w)
                     );
 
                 if (allCorrect) {
                     setResultStatus('correct');
                     setSentenceCorrect(true);
-                    setCompletedSentences(prev => [...prev, currentIndex]);
+                    setCompletedSentences(prev => {
+                        if (prev.includes(currentIndex)) return prev;
+                        return [...prev, currentIndex];
+                    });
                 } else {
                     setResultStatus('incorrect');
                 }
@@ -443,6 +492,14 @@ export default function ShadowingPracticePage() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [currentIndex, TOTAL_SENTENCES, handleNext]);
 
+    if (isInitializing || !lesson) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Hidden audio elements */}
@@ -455,7 +512,7 @@ export default function ShadowingPracticePage() {
                 breadcrumbs={[
                     { label: 'Homepage', href: '/' },
                     { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
-                    ...(typeof params.id === 'string' && params.id.startsWith('my-')
+                    ...(typeof params.id === 'string' && !SHADOWING_LESSONS.some(l => l.id === params.id)
                         ? [{ label: 'My Videos', href: '/shadowing-dictation/my-videos' }]
                         : []),
                     { label: LESSON_TITLE },
@@ -495,7 +552,7 @@ export default function ShadowingPracticePage() {
                                         )}
                                     </button>
                                     <div className="flex-1 flex items-center gap-[2px] h-10 overflow-hidden">
-                                        {WAVEFORM_HEIGHTS.map((height, i) => (
+                                        {WAVEFORM_HEIGHTS.map((height, i: number) => (
                                             <div
                                                 key={i}
                                                 className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
@@ -603,7 +660,7 @@ export default function ShadowingPracticePage() {
                                     {/* Current Sentence */}
                                     <div className="mb-4 relative">
                                         <p className="text-lg font-bold text-gray-800 leading-relaxed mb-2 flex flex-wrap gap-x-1.5 gap-y-1">
-                                            {currentSentence.words.map((word, idx) => (
+                                            {currentSentence.words.map((word: string, idx: number) => (
                                                 <span
                                                     key={idx}
                                                     onClick={(e) => {
@@ -694,7 +751,7 @@ export default function ShadowingPracticePage() {
                                         <div className="mb-4">
                                             <p className="text-sm font-semibold text-gray-600 mb-3">Result:</p>
                                             <div className="flex flex-wrap gap-2 mb-4">
-                                                {recordedResult.map((word, i) => {
+                                                {recordedResult.map((word: string, i: number) => {
                                                     const status = wordStatuses[i];
                                                     return (
                                                         <span
@@ -709,7 +766,7 @@ export default function ShadowingPracticePage() {
                                                     );
                                                 })}
                                                 {/* Show missing words as gray placeholders */}
-                                                {currentSentence.words.slice(recordedResult.length).map((word, i) => (
+                                                {currentSentence.words.slice(recordedResult.length).map((word: string, i: number) => (
                                                     <span
                                                         key={`missing-${i}`}
                                                         className="px-3 py-1.5 rounded-lg text-sm font-medium border-2 border-gray-300 bg-gray-50 text-gray-400"

@@ -4,7 +4,7 @@ export default function IELTSHomePage() {
    return (
       <div className="bg-[url('https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/8_ulba1f.png'),linear-gradient(#ededed,#ededed)] bg-cover w-full rounded-lg h-full pt-32 pb-12 min-h-screen font-sans">
          <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-4xl font-extrabold text-[#212529] text-center mb-6 uppercase tracking-wide">
+            <h2 className="text-4xl font-extrabold text-gray-600 text-center mb-6 uppercase tracking-wide">
                YOUR IELTS LEARNING JOURNEY
             </h2>
             <div className="flex justify-center mb-4">
@@ -66,19 +66,19 @@ export default function IELTSHomePage() {
                               Take the test in real time with<br />instant feedback on your results
                            </p>
                            <Link
-                             href="/ielts/intensive"
-                             className="bg-danger text-white font-semibold py-2.5 px-7 rounded-full inline-flex items-center gap-2 hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-md group"
+                              href="/ielts/intensive"
+                              className="bg-danger text-white font-semibold py-2.5 px-7 rounded-full inline-flex items-center gap-2 hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-md group"
                            >
                               Get Started
                               <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2.5}
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 strokeWidth={2.5}
                               >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                               </svg>
                            </Link>
                         </div>

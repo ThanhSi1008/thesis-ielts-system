@@ -114,12 +114,21 @@ export default function IeltsHistoryPage() {
     return () => { mounted = false; };
   }, []);
 
+  const isWritingOrSpeaking = skill === "WRITING" || skill === "SPEAKING";
+
   const filteredHistory = useMemo(() => {
     const q = search.trim().toLowerCase();
 
     return historyItems
       .filter(h => h.skill === skill)
-      .map(h => ({ ...h, bandScore: getIeltsBand(h.rawScore) }))
+      .map(h => {
+        let band = getIeltsBand(h.rawScore);
+        if (h.skill === "WRITING" || h.skill === "SPEAKING") {
+          // writingScore is the AI-graded band (e.g. 6.5); rawScore is the same value cast to int
+          band = h.writingScore ?? h.rawScore;
+        }
+        return { ...h, bandScore: band };
+      })
       // search
       .filter(h => !q || h.examTitle?.toLowerCase().includes(q))
 
@@ -277,7 +286,9 @@ export default function IeltsHistoryPage() {
                       <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">Test Name</th>
                       <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">Date Taken</th>
                       <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">Time Taken</th>
-                      <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">Raw Score</th>
+                      {!isWritingOrSpeaking && (
+                        <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">Raw Score</th>
+                      )}
                       <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">Band Score</th>
                       <th className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">Action</th>
                     </tr>
@@ -316,9 +327,11 @@ export default function IeltsHistoryPage() {
                               }
                             </span>
                           </td>
-                          <td className="px-5 py-4 font-semibold text-gray-700">
-                            {item.rawScore}<span className="text-gray-400 font-normal">/{item.maxScore}</span>
-                          </td>
+                          {!isWritingOrSpeaking && (
+                            <td className="px-5 py-4 font-semibold text-gray-700">
+                              {item.rawScore}<span className="text-gray-400 font-normal">/{item.maxScore}</span>
+                            </td>
+                          )}
                           <td className="px-5 py-4">
                             <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-extrabold ${tone.bgLight} ${tone.text}`}>
                               {item.bandScore.toFixed(1)}

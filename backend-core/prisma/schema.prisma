@@ -29,7 +29,10 @@ model User {
   pronunciationAttempts PronunciationAttempt[]
   vocabularyProgress    VocabularyProgress[]
   decks                 Deck[]
-  questionNotes         QuestionNote[]
+  questionNotes             QuestionNote[]
+  shadowingVideos           ShadowingVideo[]
+  shadowingFolders          ShadowingFolder[]
+  shadowingDictationProgress ShadowingDictationProgress[]
 
   @@map("users")
 }
@@ -109,11 +112,11 @@ model Result {
   id              String   @id @default(uuid())
   userId          String
   sessionId       String   @unique
-  totalScore      Int
+  totalScore      Float
   readingScore    Int?
   listeningScore  Int?
-  speakingScore   Int?
-  writingScore    Int?
+  speakingScore   Float?
+  writingScore    Float?
   feedback        Json? // AI-generated feedback
   gradedAt        DateTime @default(now())
   createdAt       DateTime @default(now())
@@ -506,4 +509,56 @@ model QuestionNote {
 
   @@unique([userId, examId, questionNumber])
   @@map("question_notes")
+}
+
+// ============================================================
+// SHADOWING & DICTATION
+// ============================================================
+
+// User-uploaded videos for Shadowing/Dictation practice
+model ShadowingVideo {
+  id             String   @id @default(uuid())
+  userId         String
+  title          String
+  youtubeVideoId String
+  folder         String   @default("All Videos")
+  category       String   @default("Other")
+  duration       String
+  sentences      Json     // Array of ShadowingSentence {id, english, vietnamese, phonetic, words, audioStart, audioEnd}
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user     User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("shadowing_videos")
+}
+
+// User-created folders to organize their videos
+model ShadowingFolder {
+  id     String @id @default(uuid())
+  userId String
+  name   String
+  order  Int    @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@map("shadowing_folders")
+}
+
+// Progress tracking for both Shadowing and Dictation per lesson
+model ShadowingDictationProgress {
+  id                  String   @id @default(uuid())
+  userId              String
+  lessonId            String   // Static lesson ID (e.g. "toeic-1") or ShadowingVideo.id
+  type                String   // "shadowing" or "dictation"
+  completedSentences  Int[]    // Indices of completed sentences
+  dictationDifficulty String?  // "Beginner" | "Intermediate" | "Advanced" | "Expert" (dictation only)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId, type])
+  @@map("shadowing_dictation_progress")
 }

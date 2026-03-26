@@ -1,49 +1,74 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 
-import { SHADOWING_LESSONS } from '@/data/shadowing-lessons';
+import { SHADOWING_LESSONS, ShadowingLesson } from '@/data/shadowing-lessons';
+import { shadowingApi, ShadowingProgress, ShadowingVideo } from '@/services/shadowing.api';
+import { useAuth } from '@/contexts/AuthContext';
 
 // ──── Data ────
 const CATEGORIES = ['All', 'TOEIC', 'YOUTUBE'];
 
 // ──── Page Component ────
 export default function ShadowingDictationPage() {
+    const { isAuthenticated } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeCategory, setActiveCategory] = useState('TOEIC');
+    const [activeCategory, setActiveCategory] = useState('All');
     const [progress, setProgress] = useState<Record<string, { shadowing: number, dictation: number }>>({});
+    const [isLoading, setIsLoading] = useState(true);
+
+    const loadData = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            let combinedVideos: ShadowingLesson[] = [...SHADOWING_LESSONS];
+            const newProgress: Record<string, { shadowing: number, dictation: number }> = {};
+
+            if (isAuthenticated) {
+                // Fetch progress
+                const progressResponse = await shadowingApi.getAllProgress().catch(() => ({} as Record<string, { shadowing: number[]; dictation: number[] }>));
+
+                // Calculate progress percentages based on API data
+                combinedVideos.forEach(lesson => {
+                    const total = lesson.sentences.length;
+                    const lessonProgress = progressResponse[lesson.id];
+                    
+                    let shadowingCount = 0;
+                    let dictationCount = 0;
+                    
+                    if (lessonProgress) {
+                        if (lessonProgress.shadowing) shadowingCount = lessonProgress.shadowing.length;
+                        if (lessonProgress.dictation) dictationCount = lessonProgress.dictation.length;
+                    }
+
+                    newProgress[lesson.id] = {
+                        shadowing: total > 0 ? Math.round((shadowingCount / total) * 100) : 0,
+                        dictation: total > 0 ? Math.round((dictationCount / total) * 100) : 0
+                    };
+                });
+            } else {
+                // Unauthenticated: just calculate progress for static lessons as 0%
+                SHADOWING_LESSONS.forEach(lesson => {
+                    newProgress[lesson.id] = { shadowing: 0, dictation: 0 };
+                });
+            }
+            
+            setProgress(newProgress);
+        } catch (error) {
+            console.error('Failed to load shadowing dictation data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isAuthenticated]);
 
     useEffect(() => {
-        const newProgress: Record<string, { shadowing: number, dictation: number }> = {};
-        SHADOWING_LESSONS.forEach(lesson => {
-            let shadowingCount = 0;
-            let dictationCount = 0;
-            try {
-                const s = localStorage.getItem(`shadowing_progress_${lesson.id}`);
-                if (s) {
-                    const parsed = JSON.parse(s);
-                    if (Array.isArray(parsed)) shadowingCount = parsed.length;
-                }
-                const d = localStorage.getItem(`dictation_progress_${lesson.id}`);
-                if (d) {
-                    const parsed = JSON.parse(d);
-                    if (Array.isArray(parsed)) dictationCount = parsed.length;
-                }
-            } catch (e) { }
-
-            const total = lesson.sentences.length;
-            newProgress[lesson.id] = {
-                shadowing: total > 0 ? Math.round((shadowingCount / total) * 100) : 0,
-                dictation: total > 0 ? Math.round((dictationCount / total) * 100) : 0
-            };
-        });
-        setProgress(newProgress);
-    }, []);
+        loadData();
+    }, [loadData]);
 
     const filteredLessons = useMemo(() => {
-        return SHADOWING_LESSONS.filter((lesson) => {
+        const allLessons = [...SHADOWING_LESSONS];
+        return allLessons.filter((lesson) => {
             const matchesCategory = activeCategory === 'All' || lesson.tags.includes(activeCategory);
             const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
@@ -107,8 +132,16 @@ export default function ShadowingDictationPage() {
                     ))}
                 </div>
 
-                {/* Video Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Loading State */}
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20 text-gray-500">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                        Loading lessons...
+                    </div>
+                ) : (
+                    <>
+                        {/* Video Cards Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredLessons.map((lesson) => (
                         <div
                             key={lesson.id}
@@ -217,18 +250,20 @@ export default function ShadowingDictationPage() {
                     ))}
                 </div>
 
-                {/* Empty State */}
-                {filteredLessons.length === 0 && (
-                    <div className="text-center py-16">
-                        <div className="text-6xl mb-4">🎧</div>
-                        <p className="text-gray-500 text-lg">No lessons found matching your search</p>
-                        <button
-                            onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
-                            className="mt-4 text-primary font-semibold hover:underline"
-                        >
-                            Clear filters
-                        </button>
-                    </div>
+                        {/* Empty State */}
+                        {filteredLessons.length === 0 && (
+                            <div className="text-center py-16">
+                                <div className="text-6xl mb-4">🎧</div>
+                                <p className="text-gray-500 text-lg">No lessons found matching your search</p>
+                                <button
+                                    onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
+                                    className="mt-4 text-primary font-semibold hover:underline"
+                                >
+                                    Clear filters
+                                </button>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

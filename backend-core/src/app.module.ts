@@ -17,6 +17,7 @@ import { GrammarModule } from './modules/grammar/grammar.module';
 import { PronunciationModule } from './modules/pronunciation/pronunciation.module';
 import { VocabLabModule } from './modules/vocab-lab/vocab-lab.module';
 import { NotesModule } from './modules/notes/notes.module';
+import { ShadowingModule } from './modules/shadowing/shadowing.module';
 
 // Import common modules
 import { PrismaModule } from './common/prisma/prisma.module';
@@ -50,6 +51,7 @@ import { CacheModule } from './common/cache/cache.module';
     PronunciationModule,
     VocabLabModule,
     NotesModule,
+    ShadowingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

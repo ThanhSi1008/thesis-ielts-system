@@ -5,7 +5,9 @@ import PageHeader from '@/components/PageHeader';
 import Tooltip from '@/components/Tooltip';
 
 import { useParams, notFound } from 'next/navigation';
-import { SHADOWING_LESSONS, ShadowingSentence as DictationSentence } from '@/data/shadowing-lessons';
+import { SHADOWING_LESSONS, ShadowingSentence as DictationSentence, ShadowingLesson } from '@/data/shadowing-lessons';
+import { shadowingApi, ShadowingVideo } from '@/services/shadowing.api';
+import { useAuth } from '@/contexts/AuthContext';
 
 // (Removed hardcoded SENTENCES and AUDIO_URL)
 const SPEED_PRESETS = [0.25, 0.5, 0.75, 1.0, 2.0];
@@ -24,33 +26,29 @@ const WAVEFORM_HEIGHTS = Array.from({ length: 60 }, () => Math.max(15, Math.rand
 // Normalize a word for comparison (strip punctuation, lowercase)
 const normalizeWord = (w: string) => w.toLowerCase().replace(/[.,!?'"]/g, '').trim();
 
-// ── Helper: look up lesson from static data or localStorage ──
-function findLesson(id: string | string[] | undefined) {
+// ── Helper: look up lesson from static data or DB ──
+async function findLesson(id: string | string[] | undefined): Promise<ShadowingLesson | undefined> {
     if (!id || Array.isArray(id)) return undefined;
     const staticLesson = SHADOWING_LESSONS.find(l => l.id === id);
     if (staticLesson) return staticLesson;
 
-    // Check user-created videos in localStorage
-    if (typeof id === 'string' && id.startsWith('my-')) {
-        try {
-            const raw = localStorage.getItem('my_videos');
-            if (raw) {
-                const videos = JSON.parse(raw);
-                const found = videos.find((v: any) => v.id === id);
-                if (found) {
-                    return {
-                        id: found.id,
-                        title: found.title,
-                        audioUrl: '',
-                        youtubeVideoId: found.youtubeVideoId,
-                        image: `https://img.youtube.com/vi/${found.youtubeVideoId}/maxresdefault.jpg`,
-                        tags: ['YOUTUBE'],
-                        duration: found.duration,
-                        sentences: found.sentences,
-                    } as import('@/data/shadowing-lessons').ShadowingLesson;
-                }
-            }
-        } catch {}
+    // Check user-created videos via API
+    try {
+        const found = await shadowingApi.getVideoById(id);
+        if (found) {
+            return {
+                id: found.id,
+                title: found.title,
+                audioUrl: '',
+                youtubeVideoId: found.youtubeVideoId,
+                image: `https://img.youtube.com/vi/${found.youtubeVideoId}/maxresdefault.jpg`,
+                tags: ['YOUTUBE'],
+                duration: found.duration,
+                sentences: found.sentences,
+            } as ShadowingLesson;
+        }
+    } catch (error) {
+        // Will throw 404 if it's not a valid user video ID
     }
     return undefined;
 }
@@ -58,50 +56,85 @@ function findLesson(id: string | string[] | undefined) {
 // ──── Page Component ────
 export default function DictationPracticePage() {
     const params = useParams();
-    const lesson = useMemo(() => findLesson(params.id), [params.id]);
-
-    if (!lesson) {
-        notFound();
-    }
-
-    const AUDIO_URL = lesson.audioUrl;
-    const YOUTUBE_VIDEO_ID = lesson.youtubeVideoId;
-    const IS_YOUTUBE = !!YOUTUBE_VIDEO_ID;
-    const SENTENCES = lesson.sentences;
-    const LESSON_TITLE = lesson.title;
-    const TOTAL_SENTENCES = SENTENCES.length;
+    const { isAuthenticated, loading: authLoading } = useAuth();
+    
+    // States for asynchronous initialization
+    const [lesson, setLesson] = useState<ShadowingLesson | null>(null);
+    const [isInitializing, setIsInitializing] = useState(true);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [completedSentences, setCompletedSentences] = useState<number[]>([]);
-    const [progressLoaded, setProgressLoaded] = useState(false);
+    
+    const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>('Intermediate');
 
-    // ── Load and Save Progress ──
-    useEffect(() => {
+    // ── Load Lesson, Progress and Difficulty on mount ──
+    const loadLessonAndProgress = useCallback(async () => {
+        if (authLoading) return;
+        setIsInitializing(true);
         try {
-            const saved = localStorage.getItem(`dictation_progress_${params.id}`);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed)) {
+            // 1. Find lesson
+            const loadedLesson = await findLesson(params.id);
+            if (!loadedLesson) {
+                notFound();
+                return;
+            }
+            setLesson(loadedLesson);
+
+            // 2. Fetch progress if authenticated
+            if (isAuthenticated && typeof params.id === 'string') {
+                const progressData = await shadowingApi.getProgress(params.id);
+                if (progressData && progressData.dictation) {
+                    const parsed = progressData.dictation.completedSentences;
                     setCompletedSentences(parsed);
                     if (parsed.length > 0) {
                         const maxCompleted = Math.max(...parsed);
-                        if (maxCompleted < TOTAL_SENTENCES - 1) {
+                        if (maxCompleted < loadedLesson.sentences.length - 1) {
                             setCurrentIndex(maxCompleted + 1);
                         } else {
-                            setCurrentIndex(TOTAL_SENTENCES - 1);
+                            setCurrentIndex(loadedLesson.sentences.length - 1);
                         }
+                    }
+                    if (progressData.dictation.difficulty) {
+                        setDifficulty(progressData.dictation.difficulty as any);
                     }
                 }
             }
-        } catch (e) { }
-        setProgressLoaded(true);
-    }, [params.id]);
+        } catch (error) {
+            console.error('Failed to init dictation page:', error);
+        } finally {
+            setIsInitializing(false);
+        }
+    }, [params.id, isAuthenticated, authLoading]);
 
     useEffect(() => {
-        if (progressLoaded) {
-            localStorage.setItem(`dictation_progress_${params.id}`, JSON.stringify(completedSentences));
+        loadLessonAndProgress();
+    }, [loadLessonAndProgress]);
+
+    // Save progress and difficulty to DB whenever they change (and after initial load)
+    const isFirstLoad = useRef(true);
+    useEffect(() => {
+        if (isInitializing) return;
+        if (isFirstLoad.current) {
+            isFirstLoad.current = false;
+            return;
         }
-    }, [completedSentences, progressLoaded, params.id]);
+        if (!isAuthenticated || !lesson) return;
+        const saveProgress = async () => {
+            try {
+                if (typeof params.id === 'string') {
+                    await shadowingApi.upsertProgress({ 
+                        lessonId: params.id,
+                        type: 'dictation',
+                        completedSentences: completedSentences,
+                        dictationDifficulty: difficulty
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to save progress:', error);
+            }
+        };
+        saveProgress();
+    }, [completedSentences, difficulty, params.id, isAuthenticated, lesson]);
 
     const [userInput, setUserInput] = useState('');
     const [showCompleted, setShowCompleted] = useState(true);
@@ -111,9 +144,7 @@ export default function DictationPracticePage() {
     const [showAllWords, setShowAllWords] = useState(false);
     const [showSpeedPanel, setShowSpeedPanel] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
-    const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>('Intermediate');
     const [showDifficultyPanel, setShowDifficultyPanel] = useState(false);
-    const [isDifficultyLoaded, setIsDifficultyLoaded] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -123,7 +154,9 @@ export default function DictationPracticePage() {
 
     // ── YouTube IFrame API Setup ──
     useEffect(() => {
-        if (!IS_YOUTUBE) return;
+        if (!lesson || !lesson.youtubeVideoId) return;
+        
+        const YOUTUBE_VIDEO_ID = lesson.youtubeVideoId;
 
         const initPlayer = () => {
             if (!ytContainerRef.current) return;
@@ -155,38 +188,33 @@ export default function DictationPracticePage() {
                 try { ytPlayerRef.current.destroy(); } catch (e) { }
             }
         };
-    }, [IS_YOUTUBE, YOUTUBE_VIDEO_ID]);
+    }, [lesson]);
 
-    const currentSentence = SENTENCES[currentIndex];
+    const AUDIO_URL = lesson?.audioUrl || '';
+    const IS_YOUTUBE = !!lesson?.youtubeVideoId;
+    const SENTENCES = (lesson?.sentences as DictationSentence[]) || [];
+    const LESSON_TITLE = lesson?.title || '';
+    const TOTAL_SENTENCES = SENTENCES.length;
+
+    const currentSentenceRaw = SENTENCES[currentIndex] || { id: '', english: '', vietnamese: '', words: [], audioStart: 0, audioEnd: 0 };
+    const currentSentence = useMemo(() => ({
+        ...currentSentenceRaw,
+        words: (currentSentenceRaw.words && currentSentenceRaw.words.length > 0)
+            ? currentSentenceRaw.words
+            : ((currentSentenceRaw as any).text || currentSentenceRaw.english || '').split(' ').filter((w: string) => w.trim() !== '')
+    }), [currentSentenceRaw]);
     const progressCount = completedSentences.length;
-
-    // ── Load and Save Difficulty ──
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem(`dictation_difficulty`);
-            if (saved && ['Beginner', 'Intermediate', 'Advanced', 'Expert'].includes(saved)) {
-                setDifficulty(saved as any);
-            }
-        } catch (e) { }
-        setIsDifficultyLoaded(true);
-    }, []);
-
-    useEffect(() => {
-        if (isDifficultyLoaded) {
-            localStorage.setItem('dictation_difficulty', difficulty);
-        }
-    }, [difficulty, isDifficultyLoaded]);
 
     // ── Apply Difficulty Logic on Current Sentence Change ──
     useEffect(() => {
-        if (!currentSentence) return;
+        if (!lesson || !currentSentence || !currentSentence.words) return;
 
         const words = currentSentence.words;
         const totalWords = words.length;
         const newRevealed = new Set<number>();
 
         // Always reveal punctuation if they are treated as separate words
-        words.forEach((w, i) => {
+        words.forEach((w: string, i: number) => {
             if (/^[.,!?'"]+$/.test(w)) {
                 newRevealed.add(i);
             }
@@ -222,7 +250,7 @@ export default function DictationPracticePage() {
         setUserInput('');
         setSentenceCorrect(false);
         setShowAllWords(false);
-    }, [currentIndex, currentSentence, difficulty]);
+    }, [currentIndex, lesson, difficulty]);
 
     // ── Split user input into words for real-time comparison ──
     const userWords = useMemo(() => {
@@ -231,7 +259,7 @@ export default function DictationPracticePage() {
 
     // ── Word-level match status ──
     const wordStatuses = useMemo(() => {
-        return currentSentence.words.map((correctWord, i) => {
+        return currentSentence.words.map((correctWord: string, i: number) => {
             if (revealedWords.has(i) || showAllWords) return 'revealed' as const;
             if (i >= userWords.length) return 'pending' as const;
             const typed = normalizeWord(userWords[i]);
@@ -245,12 +273,15 @@ export default function DictationPracticePage() {
     useEffect(() => {
         if (sentenceCorrect) return; // already marked correct
         if (userWords.length === currentSentence.words.length) {
-            const allCorrect = currentSentence.words.every((w, i) =>
+            const allCorrect = currentSentence.words.length > 0 && currentSentence.words.every((w: string, i: number) =>
                 normalizeWord(userWords[i] || '') === normalizeWord(w)
             );
             if (allCorrect) {
                 setSentenceCorrect(true);
-                setCompletedSentences(prev => [...prev, currentIndex]);
+                setCompletedSentences(prev => {
+                    if (prev.includes(currentIndex)) return prev;
+                    return [...prev, currentIndex];
+                });
             }
         }
     }, [userWords, currentSentence.words, currentIndex, sentenceCorrect]);
@@ -275,6 +306,7 @@ export default function DictationPracticePage() {
         }
         // Play the new sentence after index changes
         const timeout = setTimeout(() => {
+            if (!lesson) return;
             if (currentIndex >= TOTAL_SENTENCES) return;
             if (timerRef.current) clearInterval(timerRef.current);
             const sentence = SENTENCES[currentIndex];
@@ -430,6 +462,14 @@ export default function DictationPracticePage() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [currentIndex, TOTAL_SENTENCES, handleNext, sentenceCorrect]);
 
+    if (isInitializing || !lesson) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Hidden audio element */}
@@ -441,7 +481,7 @@ export default function DictationPracticePage() {
                 breadcrumbs={[
                     { label: 'Homepage', href: '/' },
                     { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
-                    ...(typeof params.id === 'string' && params.id.startsWith('my-')
+                    ...(typeof params.id === 'string' && !SHADOWING_LESSONS.some(l => l.id === params.id)
                         ? [{ label: 'My Videos', href: '/shadowing-dictation/my-videos' }]
                         : []),
                     { label: LESSON_TITLE },
@@ -780,7 +820,7 @@ export default function DictationPracticePage() {
 
                                     {/* Word Hints – asterisks matching word length, real-time color feedback */}
                                     <div className="flex flex-wrap gap-x-4 gap-y-2">
-                                        {currentSentence.words.map((word, i) => {
+                                        {currentSentence.words.map((word: string, i: number) => {
                                             const status = wordStatuses[i];
                                             let display: string;
                                             let colorClass: string;

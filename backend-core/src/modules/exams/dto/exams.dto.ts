@@ -9,6 +9,7 @@ import {
   IsEnum,
   Min,
   Max,
+  Allow,
 } from 'class-validator';
 import { ExamType, Difficulty } from '@prisma/client';
 
@@ -76,9 +77,24 @@ export class CreateSessionDto {
 export class SubmitSessionDto {
   @IsObject()
   @IsNotEmpty()
+  @Allow()
   answers: Record<string, string | number>;
 
   @IsNumber()
   @IsOptional()
   timeTaken?: number;
+}
+
+export class WritingResultCallbackDto {
+  @IsNumber()
+  overallBand: number;
+
+  @IsNumber()
+  task1Band: number;
+
+  @IsNumber()
+  task2Band: number;
+
+  @IsObject()
+  feedback: Record<string, any>;
 }
