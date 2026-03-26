@@ -105,9 +105,15 @@ function TestCard({
   test: IeltsIntensiveGroup["tests"][number];
 }) {
   const rawScore = test.myScore ?? 0;
-  const band = getIeltsListeningBand(rawScore);
+  // WRITING/SPEAKING saves the band directly (e.g. 6.5); READING has its own table
+  const band = (skill === "WRITING" || skill === "SPEAKING")
+    ? rawScore
+    : skill === "READING"
+      ? getIeltsReadingBand(rawScore)
+      : getIeltsListeningBand(rawScore);
   const tone = toneByBandScore(rawScore, band);
   const cls = toneClasses(tone);
+
 
   return (
     <Link
@@ -203,7 +209,26 @@ function getIeltsBandFromScore(score: number): number {
   return 1.0;
 }
 
-function BandScoreChart({ points }: { points: { date: string; band: number; title: string }[] }) {
+function getIeltsReadingBand(score: number): number {
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 33) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 27) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 19) return 5.5;
+  if (score >= 15) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
+  return 1.0;
+}
+
+function BandScoreChart({ points, label }: { points: { date: string; band: number; title: string }[], label: string }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const W = 600; const H = 180; const PAD = { top: 24, right: 24, bottom: 36, left: 44 };
@@ -219,7 +244,7 @@ function BandScoreChart({ points }: { points: { date: string; band: number; titl
 
   const latestBand = points[points.length - 1]?.band ?? 0;
   const strokeColor = latestBand >= 7.0 ? '#22c55e' : latestBand >= 5.5 ? '#3b82f6' : '#f59e0b';
-  const gradId = 'band-grad';
+  const gradId = `band-grad-${label}`;
 
   const yLabels = [2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -229,7 +254,7 @@ function BandScoreChart({ points }: { points: { date: string; band: number; titl
         <div>
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" />
-            <span className="font-extrabold text-gray-900 text-sm">Listening Progress</span>
+            <span className="font-extrabold text-gray-900 text-sm">{label} Progress</span>
           </div>
           <div className="text-xs text-gray-400 mt-0.5">Band score over your last {points.length} attempt{points.length !== 1 ? 's' : ''}</div>
         </div>
@@ -302,6 +327,8 @@ function IeltsIntensiveContent() {
   const [error, setError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [historyPoints, setHistoryPoints] = useState<{ date: string; band: number; title: string }[]>([]);
+  const [readingPoints, setReadingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
+  const [writingPoints, setWritingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [view, setView] = useState<"dashboard" | "mock-test">(
     searchParams?.get("view") === "dashboard" ? "dashboard" : "mock-test"
   );
@@ -339,20 +366,33 @@ function IeltsIntensiveContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skill]);
 
-  // Load listening history for the chart
+  // Load history for the charts
   useEffect(() => {
     examsApi.getHistory()
       .then(items => {
-        const listeningItems = items
-          .filter((h: any) => h.skill === "LISTENING")
-          .sort((a: any, b: any) => new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime())
-          .slice(-10)
-          .map((h: any) => ({
-            date: h.dateTaken,
-            band: getIeltsBandFromScore(h.rawScore),
-            title: h.examTitle?.split(" - ")[1] ?? h.examTitle,
-          }));
-        setHistoryPoints(listeningItems);
+        const toPoints = (skill: string) =>
+          items
+            .filter((h: any) => h.skill === skill)
+            .sort((a: any, b: any) => new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime())
+            .slice(-10)
+            .map((h: any) => {
+               let band = 1.0;
+               if (skill === "WRITING") {
+                 band = h.writingScore ?? 0;
+               } else if (skill === "READING") {
+                 band = getIeltsReadingBand(h.rawScore); // Wait, looking at page.tsx originally it used getIeltsBandFromScore which is hardcoded for Listening.. Wait, let me fix it!
+               } else {
+                 band = getIeltsBandFromScore(h.rawScore);
+               }
+               return {
+                  date: h.dateTaken,
+                  band,
+                  title: h.examTitle?.split(" - ")[1] ?? h.examTitle,
+               };
+            });
+        setHistoryPoints(toPoints("LISTENING"));
+        setReadingPoints(toPoints("READING"));
+        setWritingPoints(toPoints("WRITING"));
       })
       .catch(() => { });
   }, []);
@@ -439,12 +479,30 @@ function IeltsIntensiveContent() {
               <div>
                 <div className="text-lg font-extrabold text-gray-900 mb-5">Dashboard</div>
                 {historyPoints.length >= 2 ? (
-                  <BandScoreChart points={historyPoints} />
+                  <BandScoreChart points={historyPoints} label="Listening" />
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400">
+                  <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 rounded-2xl mb-6">
                     <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
-                    <div className="font-semibold">No chart data yet</div>
+                    <div className="font-semibold">No Listening chart data yet</div>
                     <div className="text-sm mt-1">Complete at least 2 listening tests to see your progress chart.</div>
+                  </div>
+                )}
+                {readingPoints.length >= 2 ? (
+                  <BandScoreChart points={readingPoints} label="Reading" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 rounded-2xl mb-6">
+                    <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
+                    <div className="font-semibold">No Reading chart data yet</div>
+                    <div className="text-sm mt-1">Complete at least 2 reading tests to see your progress chart.</div>
+                  </div>
+                )}
+                {writingPoints.length >= 2 ? (
+                  <BandScoreChart points={writingPoints} label="Writing" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 rounded-2xl mb-6">
+                    <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
+                    <div className="font-semibold">No Writing chart data yet</div>
+                    <div className="text-sm mt-1">Complete at least 2 writing tests to see your progress chart.</div>
                   </div>
                 )}
               </div>

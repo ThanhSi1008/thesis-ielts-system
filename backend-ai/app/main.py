@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 import logging
 
 from app.config import get_settings
-from app.api import health, grading
+from app.api import health, grading, writing, speaking
 from app.consumers.grading_consumer import GradingConsumer
 from app.consumers.pronunciation_consumer import PronunciationConsumer
 
@@ -77,6 +77,8 @@ app.add_middleware(
 # Include routers
 app.include_router(health.router, tags=["Health"])
 app.include_router(grading.router, prefix="/api/v1/grading", tags=["Grading"])
+app.include_router(writing.router, prefix="/api/v1/writing", tags=["Writing"])
+app.include_router(speaking.router, prefix="/api/v1/speaking", tags=["Speaking"])
 
 
 @app.get("/")

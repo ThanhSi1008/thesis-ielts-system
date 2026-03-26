@@ -7,7 +7,8 @@ import { examsApi } from "@/services/exams.api";
 import { notesApi, type QuestionNote } from "@/services/notes.api";
 import { Calendar, Clock, ChevronDown, ChevronUp, Play, Pause, Volume2, SkipBack, SkipForward, Headphones, MapPin, Lightbulb, StickyNote } from "lucide-react";
 import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser";
-// ─────────────────────────────────────────────────────────────
+import WritingResultView from "@/components/WritingResultView";
+import SpeakingResultView from "@/components/SpeakingResultView";
 // Auth helpers
 // ─────────────────────────────────────────────────────────────
 
@@ -165,7 +166,7 @@ function Breadcrumbs() {
 // ─────────────────────────────────────────────────────────────
 // Band Score Badge
 // ─────────────────────────────────────────────────────────────
-function BandShield({ band, rawScore, maxScore, color }: { band: number; rawScore: number; maxScore: number; color: ReturnType<typeof bandColor> }) {
+function BandShield({ band, rawScore, maxScore, color }: { band: number; rawScore: number | null; maxScore: number | null; color: ReturnType<typeof bandColor> }) {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative w-[160px] h-[160px] flex flex-col items-center justify-center shrink-0">
@@ -181,9 +182,11 @@ function BandShield({ band, rawScore, maxScore, color }: { band: number; rawScor
           {band.toFixed(1)}
         </span>
       </div>
-      <div className={`px-3 py-1 rounded-full text-xs font-bold ${color.bg} ${color.text} border border-current border-opacity-10 opacity-70`}>
-        {rawScore} / {maxScore}
-      </div>
+      {rawScore !== null && maxScore !== null && (
+        <div className={`px-3 py-1 rounded-full text-xs font-bold ${color.bg} ${color.text} border border-current border-opacity-10 opacity-70`}>
+          {rawScore} / {maxScore}
+        </div>
+      )}
     </div>
   );
 }
@@ -425,7 +428,7 @@ function ReviewActions({
 }) {
   const btnClass = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#fdfaf0] hover:bg-[#fff7d9] text-[13px] font-semibold text-[#1a1a1a] shadow-sm border border-[#faeeb1] transition-colors focus:outline-none focus:ring-1 focus:ring-[#f6c604]";
   const activeBtnClass = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#faeeb1] text-[13px] font-semibold text-[#1a1a1a] shadow-md border border-[#f6c604] transition-colors focus:outline-none";
-  
+
   return (
     <div className="flex gap-2.5 flex-wrap mt-5">
       {timestamp !== undefined && (
@@ -462,14 +465,14 @@ function ReviewItemField({
     const ts = overrideTimestamp !== undefined ? overrideTimestamp : item.timestamp;
     return (
       <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
-        <ReviewActions 
-          qNum={qNum} 
-          timestamp={ts} 
-          onSeek={onSeek} 
-          onLocate={onLocate} 
-          onNoteToggle={() => toggleNote(qNum)} 
-          hasNote={noteMap.has(qNum)} 
-          isNoteOpen={openNoteQn === qNum} 
+        <ReviewActions
+          qNum={qNum}
+          timestamp={ts}
+          onSeek={onSeek}
+          onLocate={onLocate}
+          onNoteToggle={() => toggleNote(qNum)}
+          hasNote={noteMap.has(qNum)}
+          isNoteOpen={openNoteQn === qNum}
         />
         {openNoteQn === qNum && (
           <div className="mt-3">
@@ -503,7 +506,7 @@ function ReviewItemField({
         return (
           <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] bg-[#f0fdf4] border border-[#16a34a] text-[#16a34a] font-bold text-[15px] shadow-sm">
             <span>{userAns || "—"}</span>
-            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
           </div>
         );
       }
@@ -518,7 +521,7 @@ function ReviewItemField({
 
     return (
       <div id={`review-question-${item.qn}`} className="py-2 text-[#1a1a1a] hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        
+
         {(item as any).heading && <div className="font-bold text-[16px] uppercase mt-2 mb-2">{(item as any).heading}</div>}
         {(item as any).subheading && <div className="font-semibold text-[15px] mt-1 mb-2">{(item as any).subheading}</div>}
 
@@ -536,13 +539,21 @@ function ReviewItemField({
               parts.map((p, idx) => (
                 <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
                   <span className="text-[17px] leading-relaxed">{p}</span>
-                  {idx < parts.length - 1 && renderInputBox()}
+                  {idx < parts.length - 1 && (
+                    <span className="inline-flex items-center gap-1 mx-1 align-middle">
+                      <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{item.qn}</span>
+                      {renderInputBox()}
+                    </span>
+                  )}
                 </span>
               ))
             ) : (
               <div className="flex items-center gap-[6px] flex-wrap leading-relaxed">
                 <div className="text-[17px] font-medium leading-relaxed">{item.text}</div>
-                {renderInputBox()}
+                <span className="inline-flex items-center gap-1 mx-1 align-middle">
+                  <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{item.qn}</span>
+                  {renderInputBox()}
+                </span>
               </div>
             )}
           </div>
@@ -556,7 +567,7 @@ function ReviewItemField({
   if (item.kind === "table_completion") {
     return (
       <div id={`review-table-${item.qns[0]}`} className="py-4 text-[#1a1a1a] hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded overflow-x-auto w-full">
-        
+
         {(item as any).title && <div className="font-bold text-[16px] mb-3 text-center text-[#333333] uppercase leading-relaxed">{(item as any).title}</div>}
         <table className="w-full border-collapse border border-[#d1d1d1] text-[15px] mb-2">
           {item.headers && item.headers.length > 0 && (
@@ -587,7 +598,7 @@ function ReviewItemField({
                         return (
                           <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] bg-[#f0fdf4] border border-[#16a34a] text-[#16a34a] font-bold text-[15px] shadow-sm">
                             <span>{userAns || "—"}</span>
-                            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
                           </div>
                         );
                       }
@@ -607,13 +618,21 @@ function ReviewItemField({
                             parts.map((p, idx) => (
                               <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
                                 {p && <span className="leading-relaxed">{p}</span>}
-                                {idx < parts.length - 1 && renderInputBox()}
+                                {idx < parts.length - 1 && (
+                                  <span className="inline-flex items-center gap-1 mx-1 align-middle">
+                                    <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{qn}</span>
+                                    {renderInputBox()}
+                                  </span>
+                                )}
                               </span>
                             ))
                           ) : (
                             <>
                               {cell.text && <span className="leading-relaxed">{cell.text}</span>}
-                              {renderInputBox()}
+                              <span className="inline-flex items-center gap-1 mx-1 align-middle">
+                                <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{qn}</span>
+                                {renderInputBox()}
+                              </span>
                             </>
                           )}
                         </div>
@@ -637,6 +656,88 @@ function ReviewItemField({
     );
   }
 
+  // Summary Completion
+  if (item.kind === "summary_completion") {
+    const textPieces: React.ReactNode[] = [];
+    const regex = /(\d+)\s*\[blank\]/g;
+    let lastIndex = 0;
+    const str = item.text || "";
+    let match;
+
+    while ((match = regex.exec(str)) !== null) {
+      if (match.index > lastIndex) {
+        textPieces.push(<span key={`text-${lastIndex}`}>{str.substring(lastIndex, match.index)}</span>);
+      }
+      const qNum = parseInt(match[1]);
+      const key = String(qNum);
+      const userAns = normalizeAnswer(userAnswers[key]);
+      const correctAns = normalizeAnswer(correctMap.get(key));
+      const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
+
+      const hasOptions = item.options && Object.keys(item.options).length > 0;
+      const displayUser = hasOptions && item.options![userAns] ? item.options![userAns] : userAns;
+      const displayCorrect = hasOptions && item.options![correctAns] ? item.options![correctAns] : correctAns;
+
+      const renderInputBoxSummary = () => {
+        if (isCorr === true) {
+          return (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] bg-[#f0fdf4] border border-[#16a34a] text-[#16a34a] font-bold text-[15px] shadow-sm">
+              <span>{displayUser || "—"}</span>
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+            </div>
+          );
+        }
+        return (
+          <div className="inline-flex items-center gap-1.5 bg-[#fef2f2] border border-[#ef4444] rounded-[3px] px-2 py-0.5 shadow-sm">
+            <span className="text-[#ef4444] font-bold text-[15px] line-through decoration-[#ef4444]/60 decoration-2">{displayUser || "—"}</span>
+            <span className="text-gray-400 font-medium text-[13px]">→</span>
+            <span className="text-[#16a34a] font-bold text-[14px] bg-[#f0fdf4] px-1.5 rounded-[2px] border border-[#16a34a]/30">{displayCorrect}</span>
+          </div>
+        );
+      };
+
+      textPieces.push(
+        <span key={`input-${qNum}`} className="inline-flex items-center gap-1 mx-1 align-middle">
+          <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{qNum}</span>
+          {renderInputBoxSummary()}
+        </span>
+      );
+
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < str.length) {
+      textPieces.push(<span key={`text-${lastIndex}`}>{str.substring(lastIndex)}</span>);
+    }
+
+    const firstQn = item.qns[0];
+    return (
+      <div id={`review-question-${firstQn}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded relative">
+        <div className="flex flex-col text-[#1a1a1a]">
+          <div className="font-bold text-[18px] mb-1">
+            Questions {item.qns.length > 1 ? `${firstQn} - ${item.qns[item.qns.length - 1]}` : String(firstQn)}
+          </div>
+          {(item as any).instructions && (
+            <div
+              className="text-[16px] mb-4 text-[#333333]"
+              dangerouslySetInnerHTML={{
+                __html: (item as any).instructions
+                  .replace(/(ONE WORD ONLY|NO MORE THAN [A-Z]+ WORDS?( AND\/OR A NUMBER)?)/g, '<span class="font-bold uppercase">$1</span>')
+              }}
+            />
+          )}
+
+          <div className="mb-4 mt-2">
+            {item.heading && <div className="font-bold text-[16px] uppercase mb-4 text-center">{item.heading}</div>}
+            <div className="text-[16px] leading-[2.1] font-normal text-[#2d2d2d] text-justify whitespace-pre-wrap">
+              {textPieces}
+            </div>
+          </div>
+        </div>
+        {renderActions(firstQn)}
+      </div>
+    );
+  }
+
   // MC single
 
   if (item.kind === "mc_single") {
@@ -646,7 +747,7 @@ function ReviewItemField({
 
     return (
       <div id={`review-question-${item.qn}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        
+
         <div className="flex flex-col">
           <div className="flex items-start min-w-0 mb-6">
             <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
@@ -659,7 +760,7 @@ function ReviewItemField({
               const strK = String(k);
               const checked = strK === userAns;
               const isCorrectOpt = strK === correctAns;
-              
+
               let ringColor = "border-[#767676] bg-white text-transparent";
               let textColor = "text-[#1a1a1a]";
               let itemOpacity = "opacity-90";
@@ -669,19 +770,19 @@ function ReviewItemField({
                 ringColor = "border-[#16a34a] bg-[#f0fdf4] text-[#16a34a]";
                 textColor = "text-[#16a34a] font-semibold";
                 itemOpacity = "opacity-100";
-                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current ml-auto shrink-0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>;
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current ml-auto shrink-0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>;
               } else if (checked && !isCorrectOpt) {
                 ringColor = "border-[#ef4444] bg-[#fef2f2] text-[#ef4444]";
                 textColor = "text-[#ef4444] font-medium line-through decoration-[#ef4444]/40";
                 itemOpacity = "opacity-100";
-                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current ml-auto shrink-0"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>;
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current ml-auto shrink-0"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>;
               }
 
               return (
                 <div key={k} className={`flex items-start gap-3 ${itemOpacity}`}>
                   <div className="pt-[2px] flex-shrink-0">
                     <div className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center transition-colors ${ringColor} ${isCorrectOpt || checked ? 'border-[2px]' : ''}`}>
-                       {checked && <div className="w-[6px] h-[6px] rounded-full bg-current" />}
+                      {checked && <div className="w-[6px] h-[6px] rounded-full bg-current" />}
                     </div>
                   </div>
                   <div className={`min-w-0 flex-1 flex items-start gap-2 ${textColor}`}>
@@ -712,10 +813,10 @@ function ReviewItemField({
     const selA = normSelection(userAnswers[keyA]);
     const selB = normSelection(userAnswers[keyB]);
     const selected = new Set<string>([selA, selB].flat().filter(Boolean));
-    
+
     const corrA = normSelection(correctMap.get(keyA));
     const corrB = normSelection(correctMap.get(keyB));
-    
+
     const correctsArray: string[] = [];
     [corrA, corrB].flat().filter(Boolean).forEach(c => {
       // if correct is "A, B" from a fallback we split it
@@ -728,7 +829,7 @@ function ReviewItemField({
 
     return (
       <div id={`review-question-${item.qns[0]}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        
+
         <div className="flex flex-col">
           <div className="flex items-start min-w-0 mb-6">
             <div className="text-[#1a1a1a] leading-relaxed text-[16px] font-medium">
@@ -751,12 +852,12 @@ function ReviewItemField({
                 ringColor = "border-[#16a34a] bg-[#16a34a] text-white";
                 textColor = "text-[#16a34a] font-semibold";
                 itemOpacity = "opacity-100";
-                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] text-[#16a34a] fill-current ml-auto shrink-0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>;
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] text-[#16a34a] fill-current ml-auto shrink-0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>;
               } else if (active && !isCorrectOpt) {
                 ringColor = "border-[#ef4444] bg-[#ef4444] text-white";
                 textColor = "text-[#ef4444] font-medium line-through decoration-[#ef4444]/40";
                 itemOpacity = "opacity-100";
-                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] text-[#ef4444] fill-current ml-auto shrink-0"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>;
+                icon = <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] text-[#ef4444] fill-current ml-auto shrink-0"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>;
               }
 
               return (
@@ -764,9 +865,9 @@ function ReviewItemField({
                   <div className="pt-[2px] flex-shrink-0">
                     <div className={`w-[18px] h-[18px] rounded-[3px] border-[1.5px] flex items-center justify-center transition-colors ${ringColor}`}>
                       {(active || isCorrectOpt) && (
-                         <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-current stroke-[3] fill-none" strokeLinecap="round" strokeLinejoin="round">
-                           <path d="M20 6 9 17l-5-5" />
-                         </svg>
+                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-current stroke-[3] fill-none" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
                       )}
                     </div>
                   </div>
@@ -791,12 +892,12 @@ function ReviewItemField({
 
     return (
       <div id={`review-question-${item.qns[0]}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded relative">
-            
+
         <div className="flex flex-col text-[#1a1a1a]">
-          
+
           <div className="font-bold text-[16px] mb-1">Question {headingQns}</div>
           {(item as any).instructions && <div className="text-[16px] mb-4">{(item as any).instructions}</div>}
-          
+
           {/* Radio Grid (Read-only) */}
           <div className="mb-6 overflow-x-auto custom-scrollbar border border-[#999999] max-w-fit rounded-[2px]">
             <table className="min-w-max border-collapse bg-white">
@@ -817,7 +918,7 @@ function ReviewItemField({
                   const userAns = typeof userAnswers[key] === "string" ? userAnswers[key] : "";
                   const correctAns = typeof correctMap.get(key) === "string" ? correctMap.get(key) : "";
                   const prompt = item.prompts[rIdx] || "";
-                  
+
                   return (
                     <tr key={qNum} className="border-b border-[#e5e5e5] last:border-b-0 hover:bg-[#f9f9f9] transition-colors">
                       <td className="p-3 pl-5 pr-8 font-medium text-[15px] whitespace-nowrap min-w-[200px]">
@@ -827,11 +928,11 @@ function ReviewItemField({
                       {letters.map((letter, i) => {
                         const isUserChoice = userAns === letter;
                         const isCorrectChoice = correctAns === letter;
-                        
+
                         let bgColor = "bg-white";
                         let textColor = "text-transparent";
                         if (isCorrectChoice) {
-                          bgColor = "bg-[#dcfce7]"; 
+                          bgColor = "bg-[#dcfce7]";
                         } else if (isUserChoice && !isCorrectChoice) {
                           bgColor = "bg-[#fee2e2]";
                         }
@@ -854,7 +955,7 @@ function ReviewItemField({
                       <td className="p-3 text-center border-l bg-[#f9fafb] border-[#999999] font-bold">
                         {userAns === correctAns ? (
                           <div className="text-[#16a34a] flex items-center justify-center gap-1">
-                            {userAns} <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            {userAns} <svg viewBox="0 0 24 24" className="w-[14px] h-[14px] fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-1">
@@ -872,23 +973,25 @@ function ReviewItemField({
           </div>
 
           {/* Options Table */}
-          <div className="border border-[#d2d2d2] max-w-2xl bg-white rounded-[2px] overflow-hidden mb-2">
-            {item.heading && (
-              <div className="bg-[#fcfcfc] border-b border-[#d2d2d2] p-3.5 font-bold text-[14px] uppercase tracking-wide">
-                {item.heading}
-              </div>
-            )}
-            <table className="w-full border-collapse">
-              <tbody>
-                {Object.entries(item.options || {}).map(([k, v]) => (
-                  <tr key={k} className="border-b border-[#e5e5e5] last:border-0 hover:bg-[#f9f9f9] transition-colors">
-                    <td className="p-3.5 w-[56px] font-bold text-[16px] border-r border-[#d2d2d2] text-center">{k}</td>
-                    <td className="p-3.5 text-[15px]">{v}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {Object.values(item.options || {}).some(v => v.trim() !== "") && (
+            <div className="border border-[#d2d2d2] max-w-2xl bg-white rounded-[2px] overflow-hidden mb-2">
+              {item.heading && (
+                <div className="bg-[#fcfcfc] border-b border-[#d2d2d2] p-3.5 font-bold text-[14px] uppercase tracking-wide">
+                  {item.heading}
+                </div>
+              )}
+              <table className="w-full border-collapse">
+                <tbody>
+                  {Object.entries(item.options || {}).map(([k, v]) => (
+                    <tr key={k} className="border-b border-[#e5e5e5] last:border-0 hover:bg-[#f9f9f9] transition-colors">
+                      <td className="p-3.5 w-[56px] font-bold text-[16px] border-r border-[#d2d2d2] text-center">{k}</td>
+                      <td className="p-3.5 text-[15px]">{v}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
         </div>
         {renderActions(item.qns[0])}
@@ -905,31 +1008,31 @@ function ReviewItemField({
 
     return (
       <div id={`review-question-${item.qn}`} className="py-6 hover:bg-slate-50/50 transition-colors p-2 -mx-2 rounded">
-        
+
         <div className="flex flex-col lg:flex-row items-start gap-6">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-4 mb-4">
               <QnBadge n={item.qn} />
               <div className="text-gray-800 font-medium text-[16px]">{item.prompt}</div>
             </div>
-            
+
             <div className="max-w-sm mb-4">
-               {isCorr ? (
-                 <div className="flex items-center gap-2 px-3 py-2 bg-[#f0fdf4] border border-[#16a34a] rounded shadow-sm text-[#16a34a] font-bold">
-                   <span>{userAns || "—"}</span>
-                   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current ml-auto"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                 </div>
-               ) : (
-                 <div className="flex flex-col gap-2">
-                   <div className="flex items-center gap-2 px-3 py-2 bg-[#fef2f2] border border-[#ef4444] rounded shadow-sm text-[#ef4444] font-medium line-through">
-                     <span>{userAns || "—"}</span>
-                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current ml-auto"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                   </div>
-                   <div className="flex items-center gap-2 px-3 py-2 bg-[#f0fdf4] border border-[#16a34a] rounded shadow-sm text-[#16a34a] font-bold">
-                     Correct: {correctAns}
-                   </div>
-                 </div>
-               )}
+              {isCorr ? (
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#f0fdf4] border border-[#16a34a] rounded shadow-sm text-[#16a34a] font-bold">
+                  <span>{userAns || "—"}</span>
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current ml-auto"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-[#fef2f2] border border-[#ef4444] rounded shadow-sm text-[#ef4444] font-medium line-through">
+                    <span>{userAns || "—"}</span>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current ml-auto"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-[#f0fdf4] border border-[#16a34a] rounded shadow-sm text-[#16a34a] font-bold">
+                    Correct: {correctAns}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="w-full lg:w-[320px] shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2">
@@ -980,11 +1083,20 @@ function ReviewSection({
     }
   }, []);
 
-  // Locate = scroll transcript pane to that question's line
+  // Locate = scroll transcript or passage to that question's location
   const handleLocate = useCallback((qNum: number) => {
-    const el = transcriptRefs.current[qNum];
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, []);
+    if (exam?.type === "READING") {
+      const el = document.getElementById(`reading-loc-${qNum}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("bg-yellow-400", "scale-110", "transition-all", "duration-500", "shadow-md");
+        setTimeout(() => el.classList.remove("bg-yellow-400", "scale-110", "shadow-md"), 2000);
+      }
+    } else {
+      const el = transcriptRefs.current[qNum];
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [exam?.type]);
 
   const handleNoteReady = useCallback((note: QuestionNote) => {
     setNotes((prev) => {
@@ -1025,8 +1137,8 @@ function ReviewSection({
                   key={i}
                   onClick={() => { setActivePartIdx(i); if (audioRef.current) { audioRef.current.pause(); } }}
                   className={`flex flex-col items-center gap-1 py-3 text-sm font-semibold shrink-0 border-b-[3px] transition-colors ${active
-                      ? "border-primary text-primary"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -1074,16 +1186,89 @@ function ReviewSection({
                 <>
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Reading Passage</div>
                   <div className="text-[15px] text-[#1a1a1a] leading-relaxed space-y-5 pb-20">
-                    {((parts[activePartIdx] as any)?.passage_text || "Passage text not available.")
-                      .split('\n')
-                      .filter((para: string) => {
-                        const cleanPara = para.replace(/\*\*/g, '').trim().toLowerCase();
-                        const cleanTopic = ((parts[activePartIdx] as any)?.topic || "").trim().toLowerCase();
-                        return cleanPara !== cleanTopic && cleanPara.length > 0;
-                      })
-                      .map((para: string, i: number) => (
-                        <p key={i} dangerouslySetInnerHTML={{ __html: para.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
-                      ))}
+                    {(() => {
+                      const qTypeMap = new Map<number, string>();
+                      partItems.forEach((item) => {
+                        if ((item as any).qn) qTypeMap.set((item as any).qn, item.kind);
+                        if ((item as any).qns) ((item as any).qns as number[]).forEach((q) => qTypeMap.set(q, item.kind));
+                      });
+
+                      const getColor = (qNum: number) => {
+                        const kind = qTypeMap.get(qNum);
+                        if (!kind) return { bg: "bg-yellow-200", text: "text-yellow-900", sup: "text-amber-600" };
+                        if (kind.includes("completion") || kind === "diagram_label" || kind === "short_answer") return { bg: "bg-emerald-100", text: "text-emerald-900", sup: "text-emerald-700" };
+                        if (kind === "true_false" || kind === "yes_no") return { bg: "bg-blue-100", text: "text-blue-900", sup: "text-blue-700" };
+                        if (kind.startsWith("mc_")) return { bg: "bg-purple-100", text: "text-purple-900", sup: "text-purple-700" };
+                        if (kind.startsWith("matching_")) return { bg: "bg-orange-100", text: "text-orange-900", sup: "text-orange-700" };
+                        return { bg: "bg-yellow-200", text: "text-yellow-900", sup: "text-amber-600" };
+                      };
+
+                      return ((parts[activePartIdx] as any)?.passage_text || "Passage text not available.")
+                        .split('\n')
+                        .filter((para: string) => {
+                          const cleanPara = para.replace(/\*\*/g, '').trim().toLowerCase();
+                          const cleanTopic = ((parts[activePartIdx] as any)?.topic || "").trim().toLowerCase();
+                          return cleanPara !== cleanTopic && cleanPara.length > 0;
+                        })
+                        .map((para: string, i: number) => {
+                          let htmlPara = para
+                            // 1) Match bold evidence AND its trailing Q marker if present
+                            .replace(/\*\*(.*?)\*\*(\s*(?:\*)?\((Q\d+[^)]*)\)(?:\*)?)?/g, (match, rawContent, fullTrailing, innerQ) => {
+                              let content = rawContent.replace(/^\`|\`$/g, ''); // strip backticks
+
+                              if (content.trim().length === 1 && /[A-Za-z]/.test(content.trim()) && !fullTrailing) {
+                                return `<strong>${content}</strong>`;
+                              }
+
+                              let firstQ = -1;
+                              if (innerQ) {
+                                const m = innerQ.match(/Q(\d+)/);
+                                if (m) firstQ = parseInt(m[1], 10);
+                              }
+
+                              const color = getColor(firstQ);
+                              
+                              let replacement = `<mark class="${color.bg} ${color.text} px-0.5 rounded font-semibold transition-colors duration-500">${content}</mark>`;
+                              
+                              if (fullTrailing && innerQ) {
+                                const spans = (innerQ.match(/Q\d+/g) || []).map((m: string) => {
+                                  const numStr = m.replace('Q', '');
+                                  return `<sup id="reading-loc-${numStr}" class="ml-0.5 text-[11px] font-bold ${color.sup} cursor-help" title="${innerQ}">${m}</sup>`;
+                                }).join('');
+                                replacement += (fullTrailing.startsWith(' ') ? ' ' : '') + spans;
+                              }
+
+                              return replacement;
+                            })
+                            // 2) Catch any standalone Q markers
+                            .replace(/(?:\*)?\((Q\d+[^)]*)\)(?:\*)?/g, (match, innerContent) => {
+                               const firstMatch = innerContent.match(/Q(\d+)/);
+                               const firstQ = firstMatch ? parseInt(firstMatch[1], 10) : -1;
+                               const color = getColor(firstQ);
+                               
+                               const spans = (innerContent.match(/Q\d+/g) || []).map((m: string) => {
+                                 const numStr = m.replace('Q', '');
+                                 return `<sup id="reading-loc-${numStr}" class="ml-0.5 text-[11px] font-bold ${color.sup} cursor-help" title="${innerContent}">${m}</sup>`;
+                               }).join('');
+                               return spans ? spans : match;
+                            });
+
+                          // 3) If the paragraph has Q badges but NO <mark> highlight yet,
+                          //    wrap entire paragraph in highlight. Handles Matching Info & T/F/NG
+                          //    where Q marker is at end but whole paragraph is the evidence.
+                          if (htmlPara.includes('reading-loc-') && !htmlPara.includes('<mark ')) {
+                            const firstQMatch = htmlPara.match(/reading-loc-(\d+)/);
+                            const firstQNum = firstQMatch ? parseInt(firstQMatch[1], 10) : -1;
+                            const color = getColor(firstQNum);
+                            const supTagsMatch = htmlPara.match(/(<sup id="reading-loc-[^"]*"[^>]*>[\s\S]*?<\/sup>)/g) || [];
+                            const bodyText = htmlPara.replace(/(<sup id="reading-loc-[^"]*"[^>]*>[\s\S]*?<\/sup>)/g, '');
+                            const supTags = supTagsMatch.join('');
+                            htmlPara = `<mark class="${color.bg} ${color.text} px-0.5 rounded font-semibold transition-colors duration-500">${bodyText}</mark>${supTags}`;
+                          }
+
+                          return <p key={i} dangerouslySetInnerHTML={{ __html: htmlPara }} />;
+                        });
+                    })()}
                   </div>
                 </>
               ) : (
@@ -1094,70 +1279,70 @@ function ReviewSection({
                   ) : (
                     <div className="space-y-3">
 
-                  {transcript.map((line: any, idx: number) => {
-                    const hasQ = line.question_number != null;
-                    return (
-                      <div
-                        key={idx}
-                        ref={(el) => { if (hasQ) transcriptRefs.current[line.question_number] = el; }}
-                        className={`text-sm leading-relaxed ${hasQ ? "scroll-mt-4" : ""}`}
-                      >
-                        <span className="font-bold text-gray-500 mr-2 text-xs uppercase tracking-wide">{line.speaker}:</span>
-                        {hasQ ? (
-                          <span>
-                            {(() => {
-                              // Use the explicit question_markers (if multiple questions on this line) or the single highlight_text
-                              const markers = line.question_markers || [{ question_number: line.question_number, highlight_text: line.highlight_text }];
+                      {transcript.map((line: any, idx: number) => {
+                        const hasQ = line.question_number != null;
+                        return (
+                          <div
+                            key={idx}
+                            ref={(el) => { if (hasQ) transcriptRefs.current[line.question_number] = el; }}
+                            className={`text-sm leading-relaxed ${hasQ ? "scroll-mt-4" : ""}`}
+                          >
+                            <span className="font-bold text-gray-500 mr-2 text-xs uppercase tracking-wide">{line.speaker}:</span>
+                            {hasQ ? (
+                              <span>
+                                {(() => {
+                                  // Use the explicit question_markers (if multiple questions on this line) or the single highlight_text
+                                  const markers = line.question_markers || [{ question_number: line.question_number, highlight_text: line.highlight_text }];
 
-                              // We need to highlight all markers in the text.
-                              // To easily handle overlapping or sequential markers without complex regex, 
-                              // a robust method is splitting by each highlight_text iteratively or 
-                              // escaping them and building a combined regex.
-                              // For simplicity and avoiding nested highlights breaking, let's replace them sequentially
-                              // with a placeholder, then split and map.
+                                  // We need to highlight all markers in the text.
+                                  // To easily handle overlapping or sequential markers without complex regex, 
+                                  // a robust method is splitting by each highlight_text iteratively or 
+                                  // escaping them and building a combined regex.
+                                  // For simplicity and avoiding nested highlights breaking, let's replace them sequentially
+                                  // with a placeholder, then split and map.
 
-                              let resultElements: React.ReactNode[] = [line.text];
+                                  let resultElements: React.ReactNode[] = [line.text];
 
-                              markers.forEach((marker: any) => {
-                                if (!marker.highlight_text) return;
+                                  markers.forEach((marker: any) => {
+                                    if (!marker.highlight_text) return;
 
-                                const nextElements: React.ReactNode[] = [];
-                                const escaped = String(marker.highlight_text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                                const re = new RegExp(`(${escaped})`, "i");
+                                    const nextElements: React.ReactNode[] = [];
+                                    const escaped = String(marker.highlight_text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                                    const re = new RegExp(`(${escaped})`, "i");
 
-                                resultElements.forEach((el, index) => {
-                                  if (typeof el === "string") {
-                                    const parts = el.split(re);
-                                    parts.forEach((part, pi) => {
-                                      if (re.test(part)) {
-                                        nextElements.push(
-                                          <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-yellow-200 text-yellow-900 px-0.5 rounded font-semibold">
-                                            {part}
-                                            <sup className="ml-0.5 text-[10px] font-bold text-amber-600">Q{marker.question_number}</sup>
-                                          </mark>
-                                        );
+                                    resultElements.forEach((el, index) => {
+                                      if (typeof el === "string") {
+                                        const parts = el.split(re);
+                                        parts.forEach((part, pi) => {
+                                          if (re.test(part)) {
+                                            nextElements.push(
+                                              <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-yellow-200 text-yellow-900 px-0.5 rounded font-semibold">
+                                                {part}
+                                                <sup className="ml-0.5 text-[10px] font-bold text-amber-600">Q{marker.question_number}</sup>
+                                              </mark>
+                                            );
+                                          } else {
+                                            if (part) nextElements.push(part);
+                                          }
+                                        });
                                       } else {
-                                        if (part) nextElements.push(part);
+                                        nextElements.push(el); // already a React node (e.g., previous mark)
                                       }
                                     });
-                                  } else {
-                                    nextElements.push(el); // already a React node (e.g., previous mark)
-                                  }
-                                });
-                                resultElements = nextElements;
-                              });
+                                    resultElements = nextElements;
+                                  });
 
-                              return resultElements;
-                            })()}
-                          </span>
-                        ) : (
-                          <span className="text-gray-700">{line.text}</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                                  return resultElements;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-gray-700">{line.text}</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -1197,6 +1382,25 @@ export default function IeltsResultPage() {
   const exam = session?.exam;
   const result = session?.result;
   const userAnswers: Record<string, any> = session?.answers || {};
+  const isWriting = exam?.type === "WRITING";
+  const isSpeaking = exam?.type === "SPEAKING";
+  const aiGradingPending = (isWriting || isSpeaking) && session?.status === "SUBMITTED";
+  const feedbackRaw = result?.feedback || null;
+  const aiFeedback = typeof feedbackRaw === "string" ? JSON.parse(feedbackRaw) : feedbackRaw;
+
+  // Poll every 5s when grading is pending
+  useEffect(() => {
+    if (!aiGradingPending) return;
+    const interval = setInterval(() => {
+      examsApi.getSession(sessionId).then((s) => {
+        if (s?.status === "COMPLETED" || s?.result?.feedback) {
+          setSession(s);
+          clearInterval(interval);
+        }
+      }).catch(() => {});
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [aiGradingPending, sessionId]);
 
   const correctMap = useMemo(() => {
     const map = new Map<string, any>();
@@ -1206,15 +1410,40 @@ export default function IeltsResultPage() {
 
   const rawScore = result?.totalScore ?? 0;
   const maxScore = correctMap.size > 0 ? correctMap.size : 40;
-  const band = exam?.type === "READING" ? getIeltsReadingBand(rawScore) : getIeltsBand(rawScore);
+  
+  let band = 1.0;
+  if (isWriting) {
+    band = aiFeedback?.overall_band || 0;
+  } else if (isSpeaking) {
+    band = aiFeedback?.overall_band || 0;
+  } else if (exam?.type === "READING") {
+    band = getIeltsReadingBand(rawScore);
+  } else {
+    band = getIeltsBand(rawScore);
+  }
   const color = bandColor(band);
 
   const parts = useMemo(() => {
     const ps: Array<{ label: string; partRange: [number, number] }> = [];
+
+    // Helper: collect all question numbers mentioned in a part object recursively
+    function collectQNums(obj: any, acc: number[]) {
+      if (!obj || typeof obj !== "object") return;
+      if (Array.isArray(obj)) { obj.forEach((x) => collectQNums(x, acc)); return; }
+      if ("question_number" in obj && typeof obj.question_number === "number") acc.push(obj.question_number);
+      if ("question_numbers" in obj && Array.isArray(obj.question_numbers)) obj.question_numbers.forEach((n: number) => acc.push(n));
+      Object.values(obj).forEach((v) => collectQNums(v, acc));
+    }
+
     if (exam?.questions?.parts) {
       (exam.questions.parts as any[]).forEach((p, i) => {
-        const partLabel = `Part ${i + 1}: Q${i * 10 + 1}–${(i + 1) * 10}`;
-        ps.push({ label: partLabel, partRange: [i * 10 + 1, (i + 1) * 10] });
+        const qNums: number[] = [];
+        collectQNums(p, qNums);
+        const uniqueSorted = Array.from(new Set(qNums)).sort((a, b) => a - b);
+        const min = uniqueSorted.length > 0 ? uniqueSorted[0] : i * 10 + 1;
+        const max = uniqueSorted.length > 0 ? uniqueSorted[uniqueSorted.length - 1] : (i + 1) * 10;
+        const partLabel = `Part ${i + 1}: Q${min}–${max}`;
+        ps.push({ label: partLabel, partRange: [min, max] });
       });
     } else {
       for (let i = 0; i < 4; i++) {
@@ -1266,7 +1495,12 @@ export default function IeltsResultPage() {
                 <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-4">{error}</div>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-4">
-                  <BandShield band={band} rawScore={rawScore} maxScore={maxScore} color={color} />
+                  <BandShield 
+                    band={band} 
+                    rawScore={isWriting ? null : rawScore} 
+                    maxScore={isWriting ? null : maxScore} 
+                    color={color} 
+                  />
                   <div className="flex flex-col items-center sm:items-start gap-4 sm:ml-6">
                     <div className="text-center sm:text-left flex flex-col">
                       <div className="text-base text-slate-500 font-medium pb-2">
@@ -1276,7 +1510,7 @@ export default function IeltsResultPage() {
                         {shortTitle}
                       </h1>
                     </div>
-                    
+
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-2">
                       {submittedAt && (
                         <div className="flex items-center gap-3">
@@ -1308,8 +1542,41 @@ export default function IeltsResultPage() {
           )}
         </div>
 
-        {/* ── Answer Sheet Card ── */}
-        {!loading && !error && session && (
+        {/* ── AI Grading: Pending Banner ── */}
+        {!loading && (isWriting || isSpeaking) && aiGradingPending && (
+          <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+            <div className="px-8 py-10 flex flex-col items-center text-center gap-4">
+              <div className="w-14 h-14 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 mb-1">
+                  {isSpeaking ? "AI is grading your transcription…" : "AI is grading your essays…"}
+                </h2>
+                <p className="text-sm text-gray-500">This usually takes 15–30 seconds. The page will update automatically.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Writing: Full Result View ── */}
+        {!loading && isWriting && !aiGradingPending && aiFeedback && (
+          <WritingResultView
+            feedback={aiFeedback}
+            answers={userAnswers as any}
+            exam={exam}
+          />
+        )}
+
+        {/* ── Speaking: Full Result View ── */}
+        {!loading && isSpeaking && !aiGradingPending && aiFeedback && (
+          <SpeakingResultView
+            feedback={aiFeedback}
+            answers={userAnswers as any}
+            exam={exam}
+          />
+        )}
+
+        {/* ── Answer Sheet Card (Listening / Reading only) ── */}
+        {!loading && !error && session && !isWriting && !isSpeaking && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <button onClick={() => setAnswerSheetOpen(!answerSheetOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
               {answerSheetOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}

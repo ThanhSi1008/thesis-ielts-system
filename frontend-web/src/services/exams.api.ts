@@ -32,4 +32,12 @@ export const examsApi = {
     const { data } = await api.delete(`/exams/sessions/${encodeURIComponent(sessionId)}`);
     return data;
   },
+  uploadAudio: async (file: Blob, filename = 'audio.webm') => {
+    const formData = new FormData();
+    formData.append('audio', file, filename);
+    const { data } = await api.post<{ url: string }>('/exams/audio/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+  },
 };

@@ -9,7 +9,14 @@ import {
   UseGuards,
   Query,
   Request,
+  HttpCode,
+  HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { StorageService } from '../../common/storage/storage.service';
 import { ExamsService } from './exams.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
@@ -17,12 +24,16 @@ import {
   UpdateExamDto,
   CreateSessionDto,
   SubmitSessionDto,
+  WritingResultCallbackDto,
 } from './dto/exams.dto';
 
 @Controller('exams')
 @UseGuards(JwtAuthGuard)
 export class ExamsController {
-  constructor(private readonly examsService: ExamsService) {}
+  constructor(
+    private readonly examsService: ExamsService,
+    private readonly storageService: StorageService,
+  ) {}
 
   @Post()
   create(@Body() createExamDto: CreateExamDto) {
@@ -86,5 +97,15 @@ export class ExamsController {
   @Delete('sessions/:sessionId')
   deleteSession(@Param('sessionId') sessionId: string) {
     return this.examsService.deleteSession(sessionId);
+  }
+
+  @Post('audio/upload')
+  @UseInterceptors(FileInterceptor('audio'))
+  async uploadAudio(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Audio file is required');
+    }
+    const audioUrl = await this.storageService.uploadFile(file, 'exams_audio');
+    return { url: audioUrl };
   }
 }

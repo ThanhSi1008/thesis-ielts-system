@@ -112,11 +112,11 @@ model Result {
   id              String   @id @default(uuid())
   userId          String
   sessionId       String   @unique
-  totalScore      Int
+  totalScore      Float
   readingScore    Int?
   listeningScore  Int?
-  speakingScore   Int?
-  writingScore    Int?
+  speakingScore   Float?
+  writingScore    Float?
   feedback        Json? // AI-generated feedback
   gradedAt        DateTime @default(now())
   createdAt       DateTime @default(now())

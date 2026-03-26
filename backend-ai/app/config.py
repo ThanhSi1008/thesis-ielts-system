@@ -48,9 +48,14 @@ class Settings(BaseSettings):
     max_workers: int = 2
     consumer_prefetch_count: int = 1
 
+    # Gemini AI (for IELTS Writing grader)
+    gemini_api_key: str = ""
+    backend_core_url: str = "http://localhost:3000/api/v1"
+
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"
 
 
 @lru_cache()

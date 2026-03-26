@@ -22,6 +22,7 @@
       "@common/*": ["src/common/*"],
       "@config/*": ["src/config/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist", "scripts", "tmp_audio_deps", "prisma"]
 }
 

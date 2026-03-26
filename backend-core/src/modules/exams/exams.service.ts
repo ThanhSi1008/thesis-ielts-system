@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import {
   CreateExamDto,
   UpdateExamDto,
   CreateSessionDto,
   SubmitSessionDto,
+  WritingResultCallbackDto,
 } from './dto/exams.dto';
 import { Exam, ExamSession, ExamType, SessionStatus } from '@prisma/client';
 
@@ -260,6 +261,7 @@ export class ExamsService {
       durationMinutes: s.exam.duration,
       timeTaken: s.timeTaken ?? null,
       rawScore: s.result?.totalScore ?? 0,
+      writingScore: s.result?.writingScore ?? null,
       maxScore: 40,
     }));
   }
@@ -392,6 +394,13 @@ export class ExamsService {
       graded = true;
     }
 
+    // 2b. WRITING & SPEAKING: AI grading
+    const isWriting = existing.exam.type === ExamType.WRITING;
+    const isSpeaking = existing.exam.type === ExamType.SPEAKING;
+    if (isWriting || isSpeaking) {
+      status = 'SUBMITTED';
+    }
+
     // 3. Update session with answers and status
     const session = await this.prisma.examSession.update({
       where: { id: sessionId },
@@ -422,7 +431,167 @@ export class ExamsService {
       });
     }
 
-    return { ...session, result: resultRecord };
+    // 5. Synchronous AI grader for Writing
+    if (isWriting) {
+      try {
+        const aiResponse = await this.triggerWritingGrader(
+          session.id,
+          submitDto.answers as Record<string, any>,
+          existing.exam.questions,
+        );
+        const writingScore = aiResponse.overallBand || 0;
+        
+        const resultData = {
+          userId: existing.userId,
+          sessionId: session.id,
+          totalScore: writingScore,
+          listeningScore: null,
+          readingScore: null,
+          writingScore: writingScore,
+          feedback: aiResponse.feedback as any,
+          gradedAt: new Date(),
+        };
+
+        resultRecord = await this.prisma.result.upsert({
+          where: { sessionId: session.id },
+          update: resultData,
+          create: resultData,
+        });
+
+        status = 'COMPLETED';
+        graded = true;
+      } catch (err: any) {
+        console.error('[Writing] Synchronous grading failed:', err.message);
+        if (err.status === 503 || err.status === 429) {
+          throw new ServiceUnavailableException(err.message);
+        }
+        throw new BadRequestException('Writing grading failed: ' + err.message);
+      }
+    }
+
+    // 6. Synchronous AI grader for Speaking
+    if (isSpeaking) {
+      try {
+        const aiResponse = await this.triggerSpeakingGrader(
+          session.id,
+          submitDto.answers as Record<string, any>,
+          existing.exam.questions,
+        );
+        const speakingScore = aiResponse.overallBand || 0;
+        
+        const resultData = {
+          userId: existing.userId,
+          sessionId: session.id,
+          totalScore: speakingScore,
+          listeningScore: null,
+          readingScore: null,
+          writingScore: null,
+          speakingScore: speakingScore,
+          feedback: aiResponse.feedback as any,
+          gradedAt: new Date(),
+        };
+
+        resultRecord = await this.prisma.result.upsert({
+          where: { sessionId: session.id },
+          update: resultData,
+          create: resultData,
+        });
+
+        status = 'COMPLETED';
+        graded = true;
+      } catch (err: any) {
+        console.error('[Speaking] Synchronous grading failed:', err.message);
+        if (err.status === 503 || err.status === 429) {
+          throw new ServiceUnavailableException(err.message);
+        }
+        throw new BadRequestException('Speaking grading failed: ' + err.message);
+      }
+    }
+
+    const updatedSession = await this.prisma.examSession.update({
+      where: { id: sessionId },
+      data: {
+        status,
+      },
+      include: { result: true },
+    });
+
+    return updatedSession;
+  }
+
+  private async triggerWritingGrader(
+    sessionId: string,
+    answers: Record<string, any>,
+    questions: any,
+  ): Promise<any> {
+    const tasks = (questions?.tasks as any[]) || [];
+    const task1 = tasks.find((t: any) => t.task_number === 1);
+    const task2 = tasks.find((t: any) => t.task_number === 2);
+
+    const backendAiUrl = process.env.BACKEND_AI_URL || 'http://localhost:8000';
+    const payload = {
+      session_id: sessionId,
+      task1_prompt: task1?.prompt || '',
+      task2_prompt: task2?.prompt || '',
+      task1_image_url: task1?.image_url || '',
+      task1_essay: answers?.task1 || '',
+      task2_essay: answers?.task2 || '',
+    };
+
+    const res = await fetch(`${backendAiUrl}/api/v1/writing/grade`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      let errorDetail = errorText;
+      try {
+        const parsed = JSON.parse(errorText);
+        if (parsed.detail) errorDetail = parsed.detail;
+      } catch (e) {
+        // ignore JSON parse error
+      }
+      const error = new Error(errorDetail);
+      (error as any).status = res.status;
+      throw error;
+    }
+    return res.json();
+  }
+
+  private async triggerSpeakingGrader(
+    sessionId: string,
+    answers: Record<string, any>,
+    questions: any,
+  ): Promise<any> {
+    const backendAiUrl = process.env.BACKEND_AI_URL || 'http://localhost:8000';
+    const payload = {
+      session_id: sessionId,
+      exam_questions: questions,
+      audio_answers: answers,
+    };
+
+    const res = await fetch(`${backendAiUrl}/api/v1/speaking/grade`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      let errorDetail = errorText;
+      try {
+        const parsed = JSON.parse(errorText);
+        if (parsed.detail) errorDetail = parsed.detail;
+      } catch (e) {
+        // ignore
+      }
+      const error = new Error(errorDetail);
+      (error as any).status = res.status;
+      throw error;
+    }
+    return res.json();
   }
 
   async getSession(sessionId: string) {

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import type { ExamDetail } from "@/types";
 import ConfirmModal from "@/components/ConfirmModal";
+import WritingTaskBoard from "@/components/WritingTaskBoard";
+import SpeakingTaskBoard from "@/components/SpeakingTaskBoard";
 
 type AnswersState = Record<string, string | string[]>;
 
@@ -467,7 +469,7 @@ function AnswerField({
           </div>
 
           {item.options && Object.keys(item.options).length > 0 && (
-            <div className="mt-8 flex flex-wrap gap-3 justify-center items-center py-6 px-4 bg-white">
+            <div className="mt-8 flex flex-wrap gap-3 justify-center items-center py-4">
               {Object.entries(item.options).map(([k, v]) => {
                 const isUsed = item.qns.some(q => answers[String(q)] === k);
                 return (
@@ -561,9 +563,9 @@ function AnswerField({
 
           {/* Options Table */}
           {Object.values(item.options || {}).some(v => v.trim() !== "") && (
-            <div className="border border-[#d2d2d2] max-w-2xl bg-white rounded-[2px] overflow-hidden mb-2">
+            <div className="border border-[#d2d2d2] max-w-2xl rounded-[2px] overflow-hidden mb-2">
               {item.heading && (
-                <div className="bg-[#fcfcfc] border-b border-[#d2d2d2] p-3.5 font-bold text-[14px] uppercase tracking-wide">
+                <div className="border-b border-[#d2d2d2] p-3.5 font-bold text-[14px] uppercase tracking-wide">
                   {item.heading}
                 </div>
               )}
@@ -659,12 +661,33 @@ export default function IntensiveTestTakePage() {
   const [showLeaveWarning, setShowLeaveWarning] = useState(false);
   const [leaveCallback, setLeaveCallback] = useState<(() => void) | null>(null);
 
+  const [leftPaneWidth, setLeftPaneWidth] = useState(50);
+  const [isResizing, setIsResizing] = useState(false);
+
+  useEffect(() => {
+    if (!isResizing) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = (e.clientX / window.innerWidth) * 100;
+      if (newWidth > 20 && newWidth < 80) setLeftPaneWidth(newWidth);
+    };
+    const handleMouseUp = () => setIsResizing(false);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.body.style.userSelect = "none";
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing]);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [timeTaken, setTimeTaken] = useState(0);
   const tickRef = useRef<number | null>(null);
   const timeTakenTickRef = useRef<number | null>(null);
+  const writingAnswersRef = useRef({ task1: "", task2: "" });
 
   useEffect(() => {
     let mounted = true;
@@ -746,9 +769,18 @@ export default function IntensiveTestTakePage() {
     };
   }, [secondsLeft]);
 
+  // Auto-submit when time is up
+  useEffect(() => {
+    if (secondsLeft === 0 && !submitting && !submitResult) {
+      submit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft]);
+
   // Active Time Tracker
   useEffect(() => {
-    if (!hasStartedAudio || submitting || submitResult) return;
+    const isStarted = exam?.type === "READING" || exam?.type === "WRITING" ? true : hasStartedAudio;
+    if (!isStarted || submitting || submitResult) return;
 
     timeTakenTickRef.current = window.setInterval(() => {
       setTimeTaken((t) => t + 1);
@@ -758,9 +790,10 @@ export default function IntensiveTestTakePage() {
       if (timeTakenTickRef.current) window.clearInterval(timeTakenTickRef.current);
       timeTakenTickRef.current = null;
     };
-  }, [hasStartedAudio, submitting, submitResult]);
+  }, [hasStartedAudio, submitting, submitResult, exam?.type]);
 
   const parts = useMemo(() => (exam?.questions?.parts as any[]) || [], [exam]);
+  const writingTasks = useMemo(() => (exam?.questions?.tasks as any[]) || [], [exam]);
   const activePart = parts[activePartIdx] || null;
   const items = useMemo(() => (activePart ? extractAllItemsFromPart(activePart) : []), [activePart]);
   const qNumbers = useMemo(() => questionNumbersFromItems(items), [items]);
@@ -793,26 +826,50 @@ export default function IntensiveTestTakePage() {
 
   const answeredSet = useMemo(() => {
     const set = new Set<number>();
-    for (const n of qNumbers) {
-      const v = answers[String(n)];
+    for (const [key, v] of Object.entries(answers)) {
+      const n = Number(key);
+      if (isNaN(n)) continue;
       if (Array.isArray(v)) {
         if (v.filter(Boolean).length > 0) set.add(n);
       } else if (typeof v === "string" && v.trim()) set.add(n);
     }
     return set;
-  }, [answers, qNumbers]);
+  }, [answers]);
 
   const submit = async () => {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const resp = await examsApi.submitSession(sessionId, answers, timeTaken);
+      let finalAnswers = exam?.type === "WRITING" ? writingAnswersRef.current as any : answers;
+      
+      // Upload Speaking audio blobs to Cloudinary before submitting
+      if (exam?.type === "SPEAKING") {
+        const cloudinaryAnswers: Record<string, string> = {};
+        for (const [key, value] of Object.entries(finalAnswers)) {
+          if (value && typeof value === 'object' && 'blob' in value) {
+            const blob = (value as any).blob;
+            const res = await examsApi.uploadAudio(blob, `speaking-q${key}.webm`);
+            cloudinaryAnswers[key] = res.url;
+          }
+        }
+        finalAnswers = cloudinaryAnswers;
+      }
+
+      const resp = await examsApi.submitSession(sessionId, finalAnswers, timeTaken);
       // Redirect to the dedicated result page
       router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`);
     } catch (e: any) {
       setSubmitError(e?.message || "Submit failed");
       setSubmitting(false);
     }
+  };
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
   // We assume here that parts array has roughly 4 parts for IELTS Listening.
@@ -833,9 +890,12 @@ export default function IntensiveTestTakePage() {
         <div className="flex items-center gap-6">
           <div className="text-3xl font-extrabold tracking-tighter text-[#D51025]">IELTS</div>
           <div className="flex flex-col justify-center">
-            <div className="text-sm font-bold text-gray-900 leading-tight">Test taker ID</div>
-            {hasStartedAudio && (
-              <div className="text-[11px] font-semibold text-gray-600 flex items-center gap-1.5 leading-tight mt-0.5">
+            <div className="text-sm font-bold text-gray-900 leading-tight">Test taker ID<span className="text-[#1a1a1a] ml-1"></span></div>
+            <div className={`text-[13px] mt-0.5 leading-tight ${(secondsLeft !== null && secondsLeft < 600) ? 'text-red-600 animate-pulse' : 'text-muted'}`}>
+              {secondsLeft !== null ? formatTime(secondsLeft) : '--:--'}  minutes remaining
+            </div>
+            {hasStartedAudio && exam?.type === "LISTENING" && (
+              <div className="text-[11px] font-semibold text-[#319c28] flex items-center gap-1.5 leading-tight mt-1">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" xmlns="http://www.w3.org/2000/svg">
                   <path d="M13.5 4v16a1 1 0 0 1-1.58.81L7 17H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h3l4.92-3.81A1 1 0 0 1 13.5 4zm2.5 4v8a1 1 0 0 0 1 1 6 6 0 0 0 0-10 1 1 0 0 0-1 1zm3-3.61v15.22a1 1 0 0 0 1.5.86 10 10 0 0 0 0-16.94 1 1 0 0 0-1.5.86z" />
                 </svg>
@@ -847,14 +907,22 @@ export default function IntensiveTestTakePage() {
 
         {/* Right Icons matching image */}
         <div className="flex items-center gap-6 text-gray-700">
-          <button className="hover:text-gray-900 transition-colors">
-            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M12 21c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V3c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 4.36 6 6.92 6 10v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" /></svg>
+          <button className="hover:text-black transition-colors" title="Connection status">
+            {/* Wifi Icon */}
+            <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current text-black">
+              <path d="M1 9l2 2c5-4 13-4 18 0l2-2C16.9 3.9 7.1 3.9 1 9zm8 8l3 4 3-4c-1.7-2.2-4.3-2.2-6 0zm-4-4l2 2c2.5-2.2 6.5-2.2 9 0l2-2C14.3 9.4 9.7 9.4 5 13z" />
+            </svg>
           </button>
-          <button className="hover:text-gray-900 transition-colors">
-            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M8.5 16a5 5 0 0 1 7 0M12 20h.01" /></svg>
+          <button className="hover:text-black transition-colors">
+            {/* Bell Icon */}
+            <svg viewBox="0 0 24 24" className="w-6 h-6 fill-none stroke-current stroke-[2]" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
           </button>
-          <button className="hover:text-gray-900 transition-colors pl-2">
-            <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+          <button className="hover:text-black transition-colors pl-2 mr-2">
+            {/* Hamburger Icon */}
+            <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
           </button>
           <button
             onClick={() => setIsConfirmingSubmit(true)}
@@ -878,6 +946,38 @@ export default function IntensiveTestTakePage() {
           </div>
         ) : !exam ? (
           <div className="m-8 bg-amber-50 text-amber-800 border border-amber-100 rounded-lg p-6 w-full max-w-2xl mx-auto h-fit">Exam not found.</div>
+        ) : exam.type === "WRITING" ? (
+          <WritingTaskBoard
+            key="writing-board"
+            tasks={writingTasks}
+            examTitle={exam.title}
+            secondsLeft={secondsLeft}
+            formatTime={formatTime}
+            submitting={submitting}
+            onAnswersChange={(ans) => {
+              writingAnswersRef.current = ans;
+            }}
+            onSubmit={async ({ task1, task2 }) => {
+              setSubmitting(true);
+              setSubmitError(null);
+              try {
+                await examsApi.submitSession(sessionId, { task1, task2 } as any, timeTaken);
+                router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`);
+              } catch (e: any) {
+                setSubmitError(e?.message || "Submit failed");
+                setSubmitting(false);
+              }
+            }}
+          />
+        ) : exam.type === "SPEAKING" ? (
+          <SpeakingTaskBoard
+            exam={exam}
+            submitting={submitting}
+            onSubmit={async () => {
+              await submit();
+            }}
+            onAnswersChange={(ans) => setAnswers(ans)}
+          />
         ) : exam.type === "READING" ? (
           <div key={activePartIdx} id="main-split-container" className="w-full h-full flex flex-col overflow-hidden relative bg-[#faf9f8]" onClick={() => setFocusedQn(null)}>
 
@@ -893,7 +993,11 @@ export default function IntensiveTestTakePage() {
 
             <div className="flex-1 flex flex-row overflow-hidden w-full">
               {/* Left Pane - Passage */}
-              <div className="w-1/2 h-full overflow-y-auto custom-scrollbar border-r border-[#e2e1df] px-8 py-8 pb-16 bg-[#faf9f8]" onClick={(e) => e.stopPropagation()}>
+              <div
+                style={{ width: `${leftPaneWidth}%` }}
+                className="flex-shrink-0 h-full overflow-y-auto custom-scrollbar px-8 py-8 pb-16 bg-[#faf9f8]"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {(activePart as any).topic && (
                   <h2 className="text-2xl font-bold mb-6">{(activePart as any).topic}</h2>
                 )}
@@ -905,14 +1009,59 @@ export default function IntensiveTestTakePage() {
                       const cleanTopic = ((activePart as any).topic || "").trim().toLowerCase();
                       return cleanPara !== cleanTopic && cleanPara.length > 0;
                     })
-                    .map((para: string, i: number) => (
-                      <p key={i} dangerouslySetInnerHTML={{ __html: para.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
-                    ))}
+                    .map((para: string, i: number) => {
+                      // Strip all Q-markers, e.g. *(Q1)*, (Q14), *(Q11 - FALSE...)*, (Q25, Q26)
+                      let textForTake = para.replace(/\s*(?:\*)?\((Q\d+[^)]*)\)(?:\*)?/g, '');
+                      // Strip bold-code
+                      textForTake = textForTake.replace(/\*\*\`(.*?)\`\*\*/g, '$1');
+                      // Strip inline bold answers, but preserve paragraph letter headings like **A** at the start
+                      textForTake = textForTake.replace(/(^)?\*\*(.*?)\*\*/g, (match, isStart, content) => {
+                        if (isStart !== undefined && content.trim().length === 1 && /[A-Za-z]/.test(content.trim())) {
+                          return `**${content}**`; // keep paragraph letter
+                        }
+                        return content; // strip bold
+                      });
+
+                      let htmlContent = textForTake.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                      // Convert single-asterisk italic markers (*text*) to <em>
+                      htmlContent = htmlContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                      const matchBold = htmlContent.match(/^<strong>\s*([A-Za-z])\s*<\/strong>[\s\.]*(.*)/);
+                      if (matchBold) {
+                        return (
+                          <div key={i} className="mb-1">
+                            <div className="font-bold text-[17px] mb-2">{matchBold[1].toUpperCase()}</div>
+                            <p dangerouslySetInnerHTML={{ __html: matchBold[2] }} />
+                          </div>
+                        );
+                      }
+                      // Some datasets might just have "A " at the start without bold. But "A " is a common article.
+                      // We'll strictly match if it's bolded, as shown in the image where 'A' is bold.
+                      return <p key={i} dangerouslySetInnerHTML={{ __html: htmlContent }} />;
+                    })}
+                </div>
+              </div>
+
+              {/* Resize Handle */}
+              <div
+                className="w-1.5 cursor-col-resize bg-[#d8d8d8] hover:bg-[#2181d8] active:bg-[#1a65a9] transition-colors flex-shrink-0 z-50 relative flex justify-center items-center group"
+                onMouseDown={(e) => { e.preventDefault(); setIsResizing(true); }}
+              >
+                <div className="absolute w-[22px] h-[22px] bg-[#f8f9fa] border-[1.5px] border-[#666666] group-hover:border-[#2181d8] text-[#555555] group-hover:text-[#2181d8] flex items-center justify-center transition-colors">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
+                    <polyline points="9 16 5 12 9 8" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="15 16 19 12 15 8" />
+                  </svg>
                 </div>
               </div>
 
               {/* Right Pane - Questions */}
-              <div id="main-scroll-container" className="w-1/2 h-full flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden relative" onClick={(e) => e.stopPropagation()}>
+              <div
+                style={{ flex: 1 }}
+                id="main-scroll-container"
+                className="h-full flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden relative min-w-0"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="w-full bg-[#faf9f8] pt-4 px-8 pr- pb-16">
 
                   {submitError && (
@@ -975,7 +1124,7 @@ export default function IntensiveTestTakePage() {
         )}
 
         {/* Floating Next/Back Arrows mappings to Question navigation */}
-        {!loading && !error && exam && (
+        {!loading && !error && exam && exam.type !== "WRITING" && (
           <div className="absolute bottom-6 right-[max(12px,calc(50vw-700px+12px))] flex gap-1 z-10 opacity-90 transition-opacity hover:opacity-100">
 
             <button
@@ -1011,8 +1160,8 @@ export default function IntensiveTestTakePage() {
       </main>
 
       {/* Bottom Ribbon matching spaced Parts view */}
-      {!loading && !error && exam && (
-        <footer className="h-[60px] flex-shrink-0 bg-[#f8f9fa] border-t border-gray-300 z-20 flex items-center px-6 w-full">
+      {!loading && !error && exam && exam.type !== "WRITING" && (
+        <footer className="h-[60px] flex-shrink-0 bg-[#f8f9fa] z-20 flex items-center px-6 w-full">
           <div className="flex-1 flex items-center h-full justify-between gap-6 overflow-x-auto custom-scrollbar">
             {parts.map((p, idx) => {
               const isActiveLocal = idx === activePartIdx;
@@ -1023,58 +1172,62 @@ export default function IntensiveTestTakePage() {
               return (
                 <div
                   key={idx}
-                  className={`flex flex-col h-full justify-center min-w-max relative gap-1.5 cursor-pointer hover:bg-[#f0f0f0] px-4 transition-colors ${isActiveLocal ? "" : "opacity-80"} pt-1`}
+                  className={`flex h-full items-center min-w-max relative cursor-pointer hover:bg-[#f0f0f0] px-4 transition-colors ${isActiveLocal ? "" : "opacity-80"}`}
                   onClick={() => {
                     setActivePartIdx(idx);
                     if (partQNumbers.length > 0) setFocusedQn(partQNumbers[0]);
                   }}
                 >
+                  {isActiveLocal ? (
+                    <div className="flex items-center h-full">
+                      {/* Part Title Container */}
+                      <div className="relative h-full flex items-center pr-3">
+                        <div className={`absolute top-0 left-0 right-3 h-[3px] ${isCompleted ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />
+                        <span className="font-bold text-[14px] text-black tracking-wide">
+                          Part {idx + 1}
+                        </span>
+                      </div>
 
-                  {isActiveLocal && (
-                    <div className="absolute top-0 left-0 w-full flex">
-                      <div className="h-[3px] bg-[#dcdcdc] flex-1"></div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-[6px]">
-                    {isCompleted && (
-                      <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#303030] fill-current mr-[-2px]" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                      </svg>
-                    )}
-                    <span className={`font-bold text-[14px] ${isActiveLocal ? "text-black" : "text-gray-600"} tracking-wide`}>
-                      Part {idx + 1}
-                    </span>
-
-                    {isActiveLocal ? (
-                      <div className="flex items-center gap-[1px] ml-2">
+                      <div className="flex items-center h-full gap-1">
                         {partQNumbers.map((n) => {
                           const answeredLocal = answeredSet.has(n);
                           const isFocused = focusedQn === n;
                           return (
-                            <div
-                              key={n}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setFocusedQn(n);
-                                document.getElementById(`question-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                              }}
-                              className={`w-[24px] h-[24px] flex items-center justify-center text-[12px] font-medium transition-colors cursor-pointer ${isFocused
-                                ? "bg-white text-black border-[1.5px] border-[#2181d8]"
-                                : "bg-white text-black border border-[#d2d2d2] hover:border-gray-500 hover:bg-gray-50"
-                                }`}
-                            >
-                              {n}
+                            <div key={n} className="relative h-full flex items-center justify-center w-[26px]">
+                              <div className={`absolute top-0 left-0 w-full h-[3px] ${answeredLocal ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFocusedQn(n);
+                                  document.getElementById(`question-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }}
+                                className={`w-[24px] h-[24px] flex items-center justify-center text-[13.5px] transition-colors cursor-pointer ${isFocused
+                                  ? "bg-transparent text-black font-bold border-[1.5px] border-[#2181d8]"
+                                  : "bg-transparent hover:bg-[#e2e2e2]"
+                                  }`}
+                              >
+                                {n}
+                              </div>
                             </div>
                           );
                         })}
                       </div>
-                    ) : (
-                      <span className="text-[13px] text-gray-500 font-medium ml-2">
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-[6px]">
+                      {isCompleted && (
+                        <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#303030] fill-current mr-[-2px]" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                        </svg>
+                      )}
+                      <span className="font-medium text-[15px] text-[#1a1a1a]">
+                        Part {idx + 1}
+                      </span>
+                      <span className="text-[14px] text-gray-500 font-normal ml-3 tracking-wide">
                         {answeredLocalCount} of {partQNumbers.length}
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -1151,7 +1304,7 @@ export default function IntensiveTestTakePage() {
       )}
 
       {/* Start Audio Overlay */}
-      {!hasStartedAudio && !loading && !error && exam && (
+      {!hasStartedAudio && !loading && !error && exam && exam.type === "LISTENING" && (
         <div className="fixed inset-0 z-50 bg-black/70 flex flex-col items-center justify-center text-white px-6">
           <svg viewBox="0 0 24 24" className="w-[100px] h-[100px] mb-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h3v-8H5v-1a7 7 0 1 1 14 0v1h-3v8h3a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z" />
