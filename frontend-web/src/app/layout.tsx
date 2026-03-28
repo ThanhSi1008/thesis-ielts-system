@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { GradingProvider } from "@/contexts/GradingContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,9 +23,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <AuthProvider>
-          <ScrollToTop />
-          <Header />
-          {children}
+          <GradingProvider>
+            <ScrollToTop />
+            <Header />
+            {children}
+          </GradingProvider>
         </AuthProvider>
       </body>
     </html>

@@ -249,7 +249,7 @@ function BandScoreChart({ points, label }: { points: { date: string; band: numbe
   const yLabels = [2, 3, 4, 5, 6, 7, 8, 9];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-full flex flex-col justify-between">
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-2">
@@ -329,6 +329,7 @@ function IeltsIntensiveContent() {
   const [historyPoints, setHistoryPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [readingPoints, setReadingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [writingPoints, setWritingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
+  const [speakingPoints, setSpeakingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [view, setView] = useState<"dashboard" | "mock-test">(
     searchParams?.get("view") === "dashboard" ? "dashboard" : "mock-test"
   );
@@ -377,8 +378,8 @@ function IeltsIntensiveContent() {
             .slice(-10)
             .map((h: any) => {
                let band = 1.0;
-               if (skill === "WRITING") {
-                 band = h.writingScore ?? 0;
+               if (skill === "WRITING" || skill === "SPEAKING") {
+                 band = h.writingScore ?? h.rawScore ?? 0;
                } else if (skill === "READING") {
                  band = getIeltsReadingBand(h.rawScore); // Wait, looking at page.tsx originally it used getIeltsBandFromScore which is hardcoded for Listening.. Wait, let me fix it!
                } else {
@@ -393,6 +394,7 @@ function IeltsIntensiveContent() {
         setHistoryPoints(toPoints("LISTENING"));
         setReadingPoints(toPoints("READING"));
         setWritingPoints(toPoints("WRITING"));
+        setSpeakingPoints(toPoints("SPEAKING"));
       })
       .catch(() => { });
   }, []);
@@ -476,35 +478,50 @@ function IeltsIntensiveContent() {
           <main className="flex-1 min-w-0 bg-white rounded-2xl shadow-sm overflow-hidden px-8 py-4">
             {/* Dashboard view — chart only */}
             {view === "dashboard" && (
-              <div>
+              <div className="flex flex-col h-full">
                 <div className="text-lg font-extrabold text-gray-900 mb-5">Dashboard</div>
-                {historyPoints.length >= 2 ? (
-                  <BandScoreChart points={historyPoints} label="Listening" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 rounded-2xl mb-6">
-                    <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
-                    <div className="font-semibold">No Listening chart data yet</div>
-                    <div className="text-sm mt-1">Complete at least 2 listening tests to see your progress chart.</div>
-                  </div>
-                )}
-                {readingPoints.length >= 2 ? (
-                  <BandScoreChart points={readingPoints} label="Reading" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 rounded-2xl mb-6">
-                    <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
-                    <div className="font-semibold">No Reading chart data yet</div>
-                    <div className="text-sm mt-1">Complete at least 2 reading tests to see your progress chart.</div>
-                  </div>
-                )}
-                {writingPoints.length >= 2 ? (
-                  <BandScoreChart points={writingPoints} label="Writing" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 rounded-2xl mb-6">
-                    <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
-                    <div className="font-semibold">No Writing chart data yet</div>
-                    <div className="text-sm mt-1">Complete at least 2 writing tests to see your progress chart.</div>
-                  </div>
-                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                  {/* Listening */}
+                  {historyPoints.length >= 2 ? (
+                    <BandScoreChart points={historyPoints} label="Listening" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 bg-white rounded-2xl h-full min-h-[200px]">
+                      <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
+                      <div className="font-semibold">No Listening chart data yet</div>
+                      <div className="text-sm mt-1">Complete at least 2 listening tests.</div>
+                    </div>
+                  )}
+                  {/* Reading */}
+                  {readingPoints.length >= 2 ? (
+                    <BandScoreChart points={readingPoints} label="Reading" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 bg-white rounded-2xl h-full min-h-[200px]">
+                      <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
+                      <div className="font-semibold">No Reading chart data yet</div>
+                      <div className="text-sm mt-1">Complete at least 2 reading tests.</div>
+                    </div>
+                  )}
+                  {/* Writing */}
+                  {writingPoints.length >= 2 ? (
+                    <BandScoreChart points={writingPoints} label="Writing" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 bg-white rounded-2xl h-full min-h-[200px]">
+                      <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
+                      <div className="font-semibold">No Writing chart data yet</div>
+                      <div className="text-sm mt-1">Complete at least 2 writing tests.</div>
+                    </div>
+                  )}
+                  {/* Speaking */}
+                  {speakingPoints.length >= 2 ? (
+                    <BandScoreChart points={speakingPoints} label="Speaking" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 bg-white rounded-2xl h-full min-h-[200px]">
+                      <TrendingUp className="w-10 h-10 mb-3 opacity-30" />
+                      <div className="font-semibold">No Speaking chart data yet</div>
+                      <div className="text-sm mt-1">Complete at least 2 speaking tests.</div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

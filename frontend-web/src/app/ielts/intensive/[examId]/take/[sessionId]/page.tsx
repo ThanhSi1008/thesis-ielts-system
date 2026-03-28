@@ -8,6 +8,7 @@ import type { ExamDetail } from "@/types";
 import ConfirmModal from "@/components/ConfirmModal";
 import WritingTaskBoard from "@/components/WritingTaskBoard";
 import SpeakingTaskBoard from "@/components/SpeakingTaskBoard";
+import { useGrading } from "@/contexts/GradingContext";
 
 type AnswersState = Record<string, string | string[]>;
 
@@ -654,6 +655,17 @@ export default function IntensiveTestTakePage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitResult, setSubmitResult] = useState<any>(null);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
+  const { jobs, submitAndTrack, setSilencedSessionId } = useGrading();
+  
+  // Silence global toasts for this specific session while on this page
+  useEffect(() => {
+    setSilencedSessionId(sessionId);
+    return () => setSilencedSessionId(null);
+  }, [sessionId, setSilencedSessionId]);
+
+  // Find the live job for this session (drives overlay state)
+  const activeJob = jobs.find(j => j.sessionId === sessionId);
+  const isAiProcessing = activeJob && (activeJob.status === "SUBMITTING" || activeJob.status === "GRADING");
 
   const [focusedQn, setFocusedQn] = useState<number | null>(null);
   const [hasStartedAudio, setHasStartedAudio] = useState(false);
@@ -771,15 +783,22 @@ export default function IntensiveTestTakePage() {
 
   // Auto-submit when time is up
   useEffect(() => {
-    if (secondsLeft === 0 && !submitting && !submitResult) {
+    if (secondsLeft === 0 && !submitting && !submitResult && !activeJob) {
       submit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft]);
 
+  // Auto-redirect when AI grading finishes and user is still on this page
+  useEffect(() => {
+    if (activeJob?.status === "DONE") {
+      router.replace(activeJob.resultUrl);
+    }
+  }, [activeJob?.status]);
+
   // Active Time Tracker
   useEffect(() => {
-    const isStarted = exam?.type === "READING" || exam?.type === "WRITING" ? true : hasStartedAudio;
+    const isStarted = exam?.type === "READING" || exam?.type === "WRITING" || exam?.type === "SPEAKING" ? true : hasStartedAudio;
     if (!isStarted || submitting || submitResult) return;
 
     timeTakenTickRef.current = window.setInterval(() => {
@@ -836,31 +855,30 @@ export default function IntensiveTestTakePage() {
     return set;
   }, [answers]);
 
-  const submit = async () => {
-    setSubmitting(true);
-    setSubmitError(null);
-    try {
-      let finalAnswers = exam?.type === "WRITING" ? writingAnswersRef.current as any : answers;
-      
-      // Upload Speaking audio blobs to Cloudinary before submitting
-      if (exam?.type === "SPEAKING") {
-        const cloudinaryAnswers: Record<string, string> = {};
-        for (const [key, value] of Object.entries(finalAnswers)) {
-          if (value && typeof value === 'object' && 'blob' in value) {
-            const blob = (value as any).blob;
-            const res = await examsApi.uploadAudio(blob, `speaking-q${key}.webm`);
-            cloudinaryAnswers[key] = res.url;
-          }
-        }
-        finalAnswers = cloudinaryAnswers;
-      }
+  const resultUrl = `/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`;
 
-      const resp = await examsApi.submitSession(sessionId, finalAnswers, timeTaken);
-      // Redirect to the dedicated result page
-      router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`);
-    } catch (e: any) {
-      setSubmitError(e?.message || "Submit failed");
-      setSubmitting(false);
+  const submit = () => {
+    const isAiGraded = exam?.type === "SPEAKING" || exam?.type === "WRITING";
+    const answers4submit = exam?.type === "WRITING" ? (writingAnswersRef.current as any) : answers;
+
+    if (isAiGraded) {
+      // Fire-and-forget: context owns the async pipeline
+      submitAndTrack({
+        sessionId,
+        examId,
+        examType: exam!.type as "SPEAKING" | "WRITING",
+        answers: answers4submit,
+        timeTaken,
+        resultUrl,
+      });
+      setSubmitting(true); // hides normal UI while overlay shows
+    } else {
+      // Reading & Listening: classic async submit
+      setSubmitting(true);
+      setSubmitError(null);
+      examsApi.submitSession(sessionId, answers4submit, timeTaken)
+        .then(() => router.replace(resultUrl))
+        .catch((e: any) => { setSubmitError(e?.message || "Submit failed"); setSubmitting(false); });
     }
   };
 
@@ -871,6 +889,8 @@ export default function IntensiveTestTakePage() {
     if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
+
+
 
   // We assume here that parts array has roughly 4 parts for IELTS Listening.
   // The user wants the layout exactly like the image.
@@ -958,19 +978,20 @@ export default function IntensiveTestTakePage() {
               writingAnswersRef.current = ans;
             }}
             onSubmit={async ({ task1, task2 }) => {
+              submitAndTrack({
+                sessionId,
+                examId,
+                examType: "WRITING",
+                answers: { task1, task2 },
+                timeTaken,
+                resultUrl,
+              });
               setSubmitting(true);
-              setSubmitError(null);
-              try {
-                await examsApi.submitSession(sessionId, { task1, task2 } as any, timeTaken);
-                router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`);
-              } catch (e: any) {
-                setSubmitError(e?.message || "Submit failed");
-                setSubmitting(false);
-              }
             }}
           />
         ) : exam.type === "SPEAKING" ? (
           <SpeakingTaskBoard
+            key="speaking-board"
             exam={exam}
             submitting={submitting}
             onSubmit={async () => {
@@ -1124,7 +1145,7 @@ export default function IntensiveTestTakePage() {
         )}
 
         {/* Floating Next/Back Arrows mappings to Question navigation */}
-        {!loading && !error && exam && exam.type !== "WRITING" && (
+        {!loading && !error && exam && exam.type !== "WRITING" && exam.type !== "SPEAKING" && (
           <div className="absolute bottom-6 right-[max(12px,calc(50vw-700px+12px))] flex gap-1 z-10 opacity-90 transition-opacity hover:opacity-100">
 
             <button
@@ -1160,7 +1181,7 @@ export default function IntensiveTestTakePage() {
       </main>
 
       {/* Bottom Ribbon matching spaced Parts view */}
-      {!loading && !error && exam && exam.type !== "WRITING" && (
+      {!loading && !error && exam && exam.type !== "WRITING" && exam.type !== "SPEAKING" && (
         <footer className="h-[60px] flex-shrink-0 bg-[#f8f9fa] z-20 flex items-center px-6 w-full">
           <div className="flex-1 flex items-center h-full justify-between gap-6 overflow-x-auto custom-scrollbar">
             {parts.map((p, idx) => {
@@ -1268,42 +1289,63 @@ export default function IntensiveTestTakePage() {
         </div>
       )}
 
-      {/* Submitting / Calculating Score Overlay */}
-      {submitting && (
+      {/* ── AI Grading Overlay (Speaking & Writing) ── */}
+      {isAiProcessing && (
         <div className="fixed inset-0 z-[200] bg-[#0a0a0a]/90 backdrop-blur-md flex flex-col items-center justify-center px-4">
+
           {/* Spinning ring */}
           <div className="relative mb-10">
             <div className="w-24 h-24 rounded-full border-[3px] border-white/10" />
             <div className="absolute inset-0 w-24 h-24 rounded-full border-[3px] border-transparent border-t-[#D51025] animate-spin" />
             <div className="absolute inset-[10px] w-[72px] h-[72px] rounded-full border-[2px] border-transparent border-t-white/30 animate-spin" style={{ animationDuration: "1.4s", animationDirection: "reverse" }} />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current opacity-60" xmlns="http://www.w3.org/2000/svg">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current opacity-60">
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
               </svg>
             </div>
           </div>
 
           <h2 className="text-white text-2xl font-extrabold tracking-tight mb-2">
-            Calculating your score
+            {activeJob?.status === "SUBMITTING" ? "Submitting your test…" : "Calculating your score…"}
           </h2>
-          <p className="text-white/50 text-sm font-medium mb-8 text-center max-w-xs">
-            Grading your answers and computing your IELTS band score…
+          <p className="text-white/50 text-sm font-medium mb-2 text-center max-w-xs">
+            {activeJob?.status === "SUBMITTING"
+              ? (exam?.type === "SPEAKING" ? "Uploading your recordings and submitting…" : "Sending your answers…")
+              : "Our AI examiner is grading your responses. This may take a minute."}
           </p>
 
-          {/* Animated step dots */}
-          <div className="flex items-center gap-2">
+          {/* Animated dots */}
+          <div className="flex items-center gap-2 mb-10">
             {[0, 1, 2, 3].map(i => (
-              <div
-                key={i}
-                className="w-2 h-2 rounded-full bg-white/30 animate-bounce"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
+              <div key={i} className="w-2 h-2 rounded-full bg-white/30 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
             ))}
+          </div>
+
+          {/* Divider */}
+          <div className="w-[240px] border-t border-white/10 mb-8" />
+
+          {/* Two options */}
+          <div className="flex flex-col items-center gap-3 w-[280px]">
+            <p className="text-white/40 text-xs text-center mb-1">
+              You can leave now — we'll send a notification when your score is ready.
+            </p>
+            <Link
+              href="/ielts/intensive"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-white/10 hover:bg-white/15 text-white/80 hover:text-white rounded-xl font-semibold text-[14px] transition-colors border border-white/10"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-current stroke-2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Go back to mock tests
+            </Link>
+            <p className="text-white/25 text-[11px] text-center">
+              Or stay here — you'll be automatically redirected when done.
+            </p>
           </div>
         </div>
       )}
 
-      {/* Start Audio Overlay */}
+{/* Start Audio Overlay */}
       {!hasStartedAudio && !loading && !error && exam && exam.type === "LISTENING" && (
         <div className="fixed inset-0 z-50 bg-black/70 flex flex-col items-center justify-center text-white px-6">
           <svg viewBox="0 0 24 24" className="w-[100px] h-[100px] mb-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">

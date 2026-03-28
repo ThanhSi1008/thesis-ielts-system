@@ -2,22 +2,28 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import { useAuth } from "@/contexts/AuthContext";
+import SpeakingDeviceTest from "@/components/SpeakingDeviceTest";
 
 export default function IntensiveExamStartPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const examId = params?.examId as string;
+  const isSpeaking = searchParams?.get("type") === "SPEAKING";
+  
   const { user, loading: authLoading, isAuthenticated } = useAuth();
 
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [isDeviceTested, setIsDeviceTested] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
     if (!isAuthenticated) return;
+    if (isSpeaking && !isDeviceTested) return;
 
     let mounted = true;
     setCreating(true);
@@ -41,7 +47,7 @@ export default function IntensiveExamStartPage() {
     return () => {
       mounted = false;
     };
-  }, [authLoading, examId, isAuthenticated, router, user]);
+  }, [authLoading, examId, isAuthenticated, router, user, isSpeaking, isDeviceTested]);
 
   if (authLoading) {
     return (
@@ -80,6 +86,10 @@ export default function IntensiveExamStartPage() {
         </div>
       </div>
     );
+  }
+
+  if (isSpeaking && !isDeviceTested) {
+    return <SpeakingDeviceTest onComplete={() => setIsDeviceTested(true)} />;
   }
 
   return (

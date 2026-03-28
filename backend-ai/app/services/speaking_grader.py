@@ -197,7 +197,7 @@ async def grade_speaking(
     except Exception as e:
         logger.warning(f"[SpeakingGrader] fallback triggered ({e})")
         response = _client.models.generate_content(
-            model="gemini-1.5-pro",
+            model="gemini-2.0-flash",
             contents=contents,
             config=genai_types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
