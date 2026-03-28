@@ -932,11 +932,11 @@ Sporting arenas have always been central to the life and culture of cities. In e
           topic: "Roman amphitheatres",
           question_type: "Summary Completion",
           content: [
-            { text: "The Roman stadiums of Europe have proved very versatile. The amphitheatre of Arles, for example, was converted first into a 18 [blank],", answer: "18 fortress", points: [ { question_number: 18, answer: "fortress" } ] },
-            { text: "then into a residential area and finally into an arena where spectators could watch 19 [blank].", answer: "19 bullfights", points: [ { question_number: 19, answer: "bullfights" } ] },
-            { text: "Meanwhile, the arena in Verona, one of the oldest Roman amphitheatres, is famous today as a venue where 20 [blank] is performed.", answer: "20 opera", points: [ { question_number: 20, answer: "opera" } ] },
-            { text: "The site of Lucca's amphitheatre has also been used for many purposes over the centuries, including the storage of 21 [blank].", answer: "21 salt", points: [ { question_number: 21, answer: "salt" } ] },
-            { text: "It is now a market square with 22 [blank] and homes incorporated into the remains of the Roman amphitheatre.", answer: "22 shops", points: [ { question_number: 22, answer: "shops" } ] }
+            { text: "The Roman stadiums of Europe have proved very versatile. The amphitheatre of Arles, for example, was converted first into a 18 [blank],", answer: "18 fortress", points: [{ question_number: 18, answer: "fortress" }] },
+            { text: "then into a residential area and finally into an arena where spectators could watch 19 [blank].", answer: "19 bullfights", points: [{ question_number: 19, answer: "bullfights" }] },
+            { text: "Meanwhile, the arena in Verona, one of the oldest Roman amphitheatres, is famous today as a venue where 20 [blank] is performed.", answer: "20 opera", points: [{ question_number: 20, answer: "opera" }] },
+            { text: "The site of Lucca's amphitheatre has also been used for many purposes over the centuries, including the storage of 21 [blank].", answer: "21 salt", points: [{ question_number: 21, answer: "salt" }] },
+            { text: "It is now a market square with 22 [blank] and homes incorporated into the remains of the Roman amphitheatre.", answer: "22 shops", points: [{ question_number: 22, answer: "shops" }] }
           ]
         },
         {
@@ -1010,7 +1010,7 @@ The tantalising question left, in the end, is that of what it all meant. Would C
             }
           },
           content: [
-            { text: "Charles II's father was executed by the Parliamentarian forces in 1649. Charles II then formed a 27 [blank] with the Scots, and in order to become King of Scots, he abandoned an important 28 [blank] that was held by his father and had contributed to his father's death. The opposing sides then met outside Worcester in 1651. The battle led to a 29 [blank] for the Parliamentarians and Charles had to flee for his life. A 30 [blank] was offered for Charles's capture, but after six weeks spent in hiding, he eventually managed to reach the 31 [blank] of continental Europe.", points: [ { question_number: 27, answer: "H" }, { question_number: 28, answer: "J" }, { question_number: 29, answer: "F" }, { question_number: 30, answer: "B" }, { question_number: 31, answer: "D" } ] }
+            { text: "Charles II's father was executed by the Parliamentarian forces in 1649. Charles II then formed a 27 [blank] with the Scots, and in order to become King of Scots, he abandoned an important 28 [blank] that was held by his father and had contributed to his father's death. The opposing sides then met outside Worcester in 1651. The battle led to a 29 [blank] for the Parliamentarians and Charles had to flee for his life. A 30 [blank] was offered for Charles's capture, but after six weeks spent in hiding, he eventually managed to reach the 31 [blank] of continental Europe.", points: [{ question_number: 27, answer: "H" }, { question_number: 28, answer: "J" }, { question_number: 29, answer: "F" }, { question_number: 30, answer: "B" }, { question_number: 31, answer: "D" }] }
           ]
         },
         {
@@ -3019,7 +3019,7 @@ async function main() {
   console.log('🧪 Seeding Cambridge IELTS exams...');
   const cambridge17Image = "https://res.cloudinary.com/dalaaegob/image/upload/v1773932448/ed06fa88-6d9c-4142-9c7e-3bcd8613f175.png";
 
-await upsertCambridgeExam({
+  await upsertCambridgeExam({
     title: "Cambridge IELTS 17 - Reading Test 1",
     difficulty: "ADVANCED",
     durationMinutes: 60,
@@ -3061,7 +3061,7 @@ await upsertCambridgeExam({
   });
 
 
-await upsertCambridgeExam({
+  await upsertCambridgeExam({
     title: "Cambridge IELTS 17 - Listening Test 1",
     type: "LISTENING",
     difficulty: "INTERMEDIATE",
@@ -3244,7 +3244,11 @@ await upsertCambridgeExam({
     isPublished: true,
     questions: {
       type: "speaking",
-      video_url: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565957/CEO_Video_Generation_qbdzzo.mp4",
+      examiner: {
+        name: "Jim Hopper",
+        role: "IELTS Examiner",
+        avatarUrl: "https://res.cloudinary.com/dalaaegob/image/upload/v1774672658/jim-hopper_mawpyh.png"
+      },
       parts: [
         {
           part_number: 1,
@@ -3253,19 +3257,19 @@ await upsertCambridgeExam({
           questions: [
             {
               text: "What did you study in history lessons when you were at school?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774564717/ElevenLabs_2026-03-26T22_36_22_Dexter_Customer_Support_Pro_pvc_sp70_s50_sb75_se49_b_m2_1_bhnfuc.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651103/1-1_cas2xq.mp4"
             },
             {
               text: "Did you enjoy studying history at school? Why, or why not?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774564797/ElevenLabs_2026-03-26T22_39_23_Dexter_Customer_Support_Pro_pvc_sp70_s50_sb75_se49_b_m2_1_taajmi.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651101/1-2_waawji.mp4"
             },
             {
               text: "How often do you watch TV programmes about history now? Why, or why not?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565818/1.3_hemxiu.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651100/1-3_cw4cz4.mp4"
             },
             {
               text: "What period in history would you like to learn more about? Why?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565819/1.4_mopi2n.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651099/1-4_vfoyzx.mp4"
             }
           ]
         },
@@ -3274,7 +3278,8 @@ await upsertCambridgeExam({
           part_type: "Part 2: Long Turn (Cue Card)",
           topic: "Describe the neighbourhood you lived in when you were a child.",
           cue_card: "Describe the neighbourhood you lived in when you were a child.\nYou should say:\n- where in your town/city the neighbourhood was\n- what kind of people lived there\n- what it was like to live in this neighbourhood\n- and explain whether you would like to live in this neighbourhood in the future.",
-          audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565813/2_ytreom.mp3"
+          video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774667596/2-1_daeni9.mp4",
+          video2: "https://res.cloudinary.com/dalaaegob/video/upload/v1774667596/2-2_caanop.mp4"
         },
         {
           part_number: 3,
@@ -3283,27 +3288,108 @@ await upsertCambridgeExam({
           questions: [
             {
               text: "What sort of things can neighbours do to help each other?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565813/3.1_dzqte8.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651107/3-1_gjoj8d.mp4"
             },
             {
               text: "How well do people generally know their neighbours in your country?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565813/3.2_nrkn31.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651099/3-2_khqn7w.mp4"
             },
             {
               text: "How important do you think it is to have good neighbours?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565814/3.3_kdmnky.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651099/3-3_sambxo.mp4"
             },
             {
               text: "Which facilities are most important to people living in cities?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565815/3.4_uuv1bp.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651105/3-4_jzlys0.mp4"
             },
             {
               text: "How does shopping in small local shops differ from shopping in large city centre shops?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565816/3.5_vwlqsw.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651100/3-5_h7ckie.mp4"
             },
             {
               text: "Do you think that children should always go to the school nearest to where they live?",
-              audio: "https://res.cloudinary.com/dalaaegob/video/upload/v1774565817/3.6_p1dqcf.mp3"
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651100/3-6_j9dj5u.mp4"
+            }
+          ]
+        }
+      ]
+    }
+  });
+
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Speaking Test 2",
+    type: "SPEAKING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 15,
+    imageUrl: cambridge17Image,
+    isPublished: true,
+    questions: {
+      type: "speaking",
+      examiner: {
+        name: "Amber Bennett",
+        role: "IELTS Examiner",
+        avatarUrl: "https://res.cloudinary.com/dalaaegob/image/upload/v1774672202/amber-bennett_yhupu4.png"
+      },
+      parts: [
+        {
+          part_number: 1,
+          part_type: "Part 1: Reading",
+          topic: "Reading",
+          questions: [
+            {
+              text: "Did you have a favourite book when you were a child? Why/Why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669864/1.1_zsrotd.mp4"
+            },
+            {
+              text: "How much reading do you do for your work/studies? Why/Why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669860/1.2_ejqmb1.mp4"
+            },
+            {
+              text: "What kinds of books do you read for pleasure? Why/Why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669860/1.3_gs36fs.mp4"
+            },
+            {
+              text: "Do you prefer to read a newspaper or a magazine online, or to buy a copy? Why?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669862/1.4_xq5p4k.mp4"
+            }
+          ]
+        },
+        {
+          part_number: 2,
+          part_type: "Part 2: Long Turn (Cue Card)",
+          topic: "Describe a big city you would like to visit.",
+          cue_card: "Describe a big city you would like to visit.\nYou should say:\n- which big city you would like to visit\n- how you would travel there\n- what you would do there\n- and explain why you would like to visit this big city.",
+          video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669864/2.1_ckz0y8.mp4",
+          video2: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669863/2.2_cy5jf7.mp4"
+        },
+        {
+          part_number: 3,
+          part_type: "Part 3: Discussion Topics",
+          topic: "Discussion Topics",
+          questions: [
+            {
+              text: "What are the most interesting things to do while visiting cities on holiday?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669868/3.1_hhezku.mp4"
+            },
+            {
+              text: "Why can it be expensive to visit cities on holiday?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.2_ywkn6r.mp4"
+            },
+            {
+              text: "Do you think it is better to visit cities alone or in a group with friends?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.3_agpays.mp4"
+            },
+            {
+              text: "Why have cities increased in size in recent years?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669863/3.4_chcirv.mp4"
+            },
+            {
+              text: "What are the challenges created by ever-growing cities?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.5_bakekj.mp4"
+            },
+            {
+              text: "In what ways do you think cities of the future will be different to cities today?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.6_soujli.mp4"
             }
           ]
         }

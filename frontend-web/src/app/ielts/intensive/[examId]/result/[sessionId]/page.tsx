@@ -1051,16 +1051,20 @@ function ReviewItemField({
 // Review & Explanation Section
 // ─────────────────────────────────────────────────────────────
 function ReviewSection({
-  exam, correctMap, userAnswers, examId, userId,
+  exam, correctMap, userAnswers, examId, userId, aiFeedback,
 }: {
-  exam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string;
+  exam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any;
 }) {
   const [open, setOpen] = useState(true);
   const [activePartIdx, setActivePartIdx] = useState(0);
   const [notes, setNotes] = useState<QuestionNote[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const transcriptRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [openAudioQKey, setOpenAudioQKey] = useState<string | null>(null);
+  const [activeCriterion, setActiveCriterion] = useState<string>("fluency_and_coherence");
+  const criteriaScrollRef = useRef<HTMLDivElement | null>(null);
 
+  const isSpeaking = exam?.type === "SPEAKING";
   const parts: any[] = exam?.questions?.parts ?? [];
   const activePart = parts[activePartIdx];
   const audioUrl: string = activePart?.audio_url ?? "";
@@ -1113,6 +1117,20 @@ function ReviewSection({
   }, [notes]);
 
   const partTypeLabels = ["Basic Conversation", "Short Monologue", "Academic Discussion", "Academic Lecture"];
+  const speakingPartLabels = ["Introduction", "Cue Card Answer", "Discussion"];
+
+  const CRITERIA_KEYS = [
+    "fluency_and_coherence",
+    "lexical_resource",
+    "grammatical_range_and_accuracy",
+    "pronunciation",
+  ] as const;
+  const CRITERIA_LABELS_MAP: Record<string, string> = {
+    fluency_and_coherence: "Fluency & Coherence",
+    lexical_resource: "Lexical Resource",
+    grammatical_range_and_accuracy: "Grammatical Range & Accuracy",
+    pronunciation: "Pronunciation",
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -1128,225 +1146,371 @@ function ReviewSection({
       {open && (
         <div>
           {/* Part Tabs */}
-          <div className="flex px-6 gap-8 overflow-x-auto">
+          <div className="flex px-6 gap-2 overflow-x-auto">
             {parts.map((p: any, i: number) => {
               const active = i === activePartIdx;
-              const label = p.part_type ?? partTypeLabels[i] ?? `Part ${i + 1}`;
+              const label = isSpeaking
+                ? (speakingPartLabels[i] ?? `Part ${i + 1}`)
+                : (p.part_type ?? partTypeLabels[i] ?? `Part ${i + 1}`);
               return (
                 <button
                   key={i}
-                  onClick={() => { setActivePartIdx(i); if (audioRef.current) { audioRef.current.pause(); } }}
-                  className={`flex flex-col items-center gap-1 py-3 text-sm font-semibold shrink-0 border-b-[3px] transition-colors ${active
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                  onClick={() => { setActivePartIdx(i); setOpenAudioQKey(null); if (audioRef.current) { audioRef.current.pause(); } }}
+                  className={`flex items-center gap-3 px-4 py-4 text-left shrink-0 border-b-[3px] transition-all ${active
+                    ? "border-primary"
+                    : "border-transparent"
                     }`}
                 >
-                  <div className="flex items-center gap-2">
+                  {/* Icon */}
+                  <span className={`transition-colors ${active ? "text-primary" : "text-gray-400"}`}>
                     {PartIcons[i]}
-                    <span>Part {i + 1}</span>
-                  </div>
-                  <span className={`text-xs font-normal ${active ? "text-primary" : "text-gray-400"}`}>{label}</span>
+                  </span>
+                  {/* Labels */}
+                  <span className="flex flex-col items-start">
+                    <span className={`text-[14px] font-bold leading-tight ${active ? "text-primary" : "text-gray-600"}`}>Part {i + 1}</span>
+                    <span className={`text-[12px] font-normal leading-tight ${active ? "text-primary" : "text-gray-400"}`}>{label}</span>
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* Audio Player */}
-          {audioUrl && (
-            <div className="px-6 pt-5 pb-2">
-              <AudioPlayer audioUrl={audioUrl} audioRef={audioRef} />
-            </div>
-          )}
-
-          {/* Split panel */}
-          <div className="flex divide-x divide-gray-100" style={{ minHeight: 400, maxHeight: 600 }}>
-            {/* Left: Question Review */}
-            <div key={`left-${activePartIdx}`} className="flex-1 overflow-y-auto px-8 py-4 bg-white shrink-[2] min-w-[50%] custom-scrollbar">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
-
-              {partItems.map((item, i) => (
-                <ReviewItemField
-                  key={i}
-                  item={item}
-                  userAnswers={userAnswers}
-                  correctMap={correctMap}
-                  examId={examId}
-                  userId={userId}
-                  noteMap={noteMap}
-                  onSeek={handleSeek}
-                  onLocate={handleLocate}
-                  onNoteReady={handleNoteReady}
-                />
-              ))}
-            </div>
-
-            {/* Right: Transcript or Passage */}
-            <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
-              {exam?.type === "READING" ? (
-                <>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Reading Passage</div>
-                  <div className="text-[15px] text-[#1a1a1a] leading-relaxed space-y-5 pb-20">
-                    {(() => {
-                      const qTypeMap = new Map<number, string>();
-                      partItems.forEach((item) => {
-                        if ((item as any).qn) qTypeMap.set((item as any).qn, item.kind);
-                        if ((item as any).qns) ((item as any).qns as number[]).forEach((q) => qTypeMap.set(q, item.kind));
-                      });
-
-                      const getColor = (qNum: number) => {
-                        const kind = qTypeMap.get(qNum);
-                        if (!kind) return { bg: "bg-yellow-200", text: "text-yellow-900", sup: "text-amber-600" };
-                        if (kind.includes("completion") || kind === "diagram_label" || kind === "short_answer") return { bg: "bg-emerald-100", text: "text-emerald-900", sup: "text-emerald-700" };
-                        if (kind === "true_false" || kind === "yes_no") return { bg: "bg-blue-100", text: "text-blue-900", sup: "text-blue-700" };
-                        if (kind.startsWith("mc_")) return { bg: "bg-purple-100", text: "text-purple-900", sup: "text-purple-700" };
-                        if (kind.startsWith("matching_")) return { bg: "bg-orange-100", text: "text-orange-900", sup: "text-orange-700" };
-                        return { bg: "bg-yellow-200", text: "text-yellow-900", sup: "text-amber-600" };
-                      };
-
-                      return ((parts[activePartIdx] as any)?.passage_text || "Passage text not available.")
-                        .split('\n')
-                        .filter((para: string) => {
-                          const cleanPara = para.replace(/\*\*/g, '').trim().toLowerCase();
-                          const cleanTopic = ((parts[activePartIdx] as any)?.topic || "").trim().toLowerCase();
-                          return cleanPara !== cleanTopic && cleanPara.length > 0;
-                        })
-                        .map((para: string, i: number) => {
-                          let htmlPara = para
-                            // 1) Match bold evidence AND its trailing Q marker if present
-                            .replace(/\*\*(.*?)\*\*(\s*(?:\*)?\((Q\d+[^)]*)\)(?:\*)?)?/g, (match, rawContent, fullTrailing, innerQ) => {
-                              let content = rawContent.replace(/^\`|\`$/g, ''); // strip backticks
-
-                              if (content.trim().length === 1 && /[A-Za-z]/.test(content.trim()) && !fullTrailing) {
-                                return `<strong>${content}</strong>`;
+          {/* ── SPEAKING-SPECIFIC LAYOUT ── */}
+          {isSpeaking ? (
+            <div className="flex divide-x divide-gray-100" style={{ minHeight: 400, maxHeight: 700 }}>
+              {/* Left: Questions with recorded audio */}
+              <div className="w-1/2 overflow-y-auto px-6 py-4 custom-scrollbar">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
+                <div className="space-y-3">
+                  {(() => {
+                    // Normalize: Part 1 & 3 have questions[], Part 2 has a single cue_card
+                    const isCueCard = !activePart?.questions?.length && !!activePart?.cue_card;
+                    const questionList: { text: string }[] = activePart?.questions?.length
+                      ? activePart.questions
+                      : activePart?.cue_card
+                        ? [{ text: activePart.cue_card }]
+                        : [];
+                    return questionList.map((q: any, qi: number) => {
+                      const qKey = `${activePartIdx}-${qi}`;
+                      const audioAnswer = userAnswers?.[q.id] ?? userAnswers?.[qKey] ?? userAnswers?.[String(qi)] ?? null;
+                      const audioSrc: string | null = audioAnswer?.url ?? audioAnswer ?? null;
+                      const isOpen = openAudioQKey === qKey;
+                      return (
+                        <div key={qKey} className="border border-gray-100 rounded-xl overflow-hidden">
+                          <button
+                            onClick={() => setOpenAudioQKey(prev => prev === qKey ? null : qKey)}
+                            className="w-full flex items-start justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              {/* No number badge for Part 2 cue card */}
+                              {!isCueCard && (
+                                <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{qi + 1}</span>
+                              )}
+                              {/* Full text for Part 2, truncated for others */}
+                              <span className={`text-sm font-medium text-gray-800 ${isCueCard ? "whitespace-pre-line" : "line-clamp-2"}`}>{q.text}</span>
+                            </div>
+                            <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                              {audioSrc
+                                ? <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Recorded</span>
+                                : <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">No audio</span>
                               }
+                              {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                            </div>
+                          </button>
+                          {isOpen && (
+                            <div className="px-4 pb-4 bg-gray-50 border-t border-gray-100">
+                              {audioSrc ? (
+                                <audio controls src={audioSrc} className="w-full mt-3 h-9" />
+                              ) : (
+                                <p className="text-sm text-gray-400 italic mt-3">No recording available for this question.</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
 
-                              let firstQ = -1;
-                              if (innerQ) {
-                                const m = innerQ.match(/Q(\d+)/);
-                                if (m) firstQ = parseInt(m[1], 10);
-                              }
+              {/* Right: AI Feedback & Criteria (full view) + Transcript */}
+              <div className="w-1/2 overflow-y-auto custom-scrollbar flex flex-col">
+                {/* Full AI Feedback with pill nav */}
+                {aiFeedback?.criteria ? (
+                  <div className="flex flex-col h-full">
+                    {/* Sticky pill nav */}
+                    <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-3">
+                      <div className="inline-flex bg-gray-100/70 p-1 rounded-full items-center flex-wrap gap-1">
+                        {CRITERIA_KEYS.map((k) => {
+                          const ACRONYMS: Record<string, string> = { fluency_and_coherence: "FC", lexical_resource: "LR", grammatical_range_and_accuracy: "GRA", pronunciation: "PRON" };
+                          const isActive = activeCriterion === k;
+                          return (
+                            <button
+                              key={k}
+                              onClick={() => {
+                                setActiveCriterion(k);
+                                const el = document.getElementById(`review-crit-${k}`);
+                                if (el && criteriaScrollRef.current) {
+                                  criteriaScrollRef.current.scrollTo({ top: el.offsetTop - criteriaScrollRef.current.offsetTop, behavior: "smooth" });
+                                }
+                              }}
+                              className={`px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wider transition-all ${isActive ? "bg-primary text-white shadow-md scale-105" : "text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm"}`}
+                            >
+                              {ACRONYMS[k]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
 
-                              const color = getColor(firstQ);
-                              
-                              let replacement = `<mark class="${color.bg} ${color.text} px-0.5 rounded font-semibold transition-colors duration-500">${content}</mark>`;
-                              
-                              if (fullTrailing && innerQ) {
-                                const spans = (innerQ.match(/Q\d+/g) || []).map((m: string) => {
-                                  const numStr = m.replace('Q', '');
-                                  return `<sup id="reading-loc-${numStr}" class="ml-0.5 text-[11px] font-bold ${color.sup} cursor-help" title="${innerQ}">${m}</sup>`;
-                                }).join('');
-                                replacement += (fullTrailing.startsWith(' ') ? ' ' : '') + spans;
-                              }
-
-                              return replacement;
-                            })
-                            // 2) Catch any standalone Q markers
-                            .replace(/(?:\*)?\((Q\d+[^)]*)\)(?:\*)?/g, (match, innerContent) => {
-                               const firstMatch = innerContent.match(/Q(\d+)/);
-                               const firstQ = firstMatch ? parseInt(firstMatch[1], 10) : -1;
-                               const color = getColor(firstQ);
-                               
-                               const spans = (innerContent.match(/Q\d+/g) || []).map((m: string) => {
-                                 const numStr = m.replace('Q', '');
-                                 return `<sup id="reading-loc-${numStr}" class="ml-0.5 text-[11px] font-bold ${color.sup} cursor-help" title="${innerContent}">${m}</sup>`;
-                               }).join('');
-                               return spans ? spans : match;
-                            });
-
-                          // 3) If the paragraph has Q badges but NO <mark> highlight yet,
-                          //    wrap entire paragraph in highlight. Handles Matching Info & T/F/NG
-                          //    where Q marker is at end but whole paragraph is the evidence.
-                          if (htmlPara.includes('reading-loc-') && !htmlPara.includes('<mark ')) {
-                            const firstQMatch = htmlPara.match(/reading-loc-(\d+)/);
-                            const firstQNum = firstQMatch ? parseInt(firstQMatch[1], 10) : -1;
-                            const color = getColor(firstQNum);
-                            const supTagsMatch = htmlPara.match(/(<sup id="reading-loc-[^"]*"[^>]*>[\s\S]*?<\/sup>)/g) || [];
-                            const bodyText = htmlPara.replace(/(<sup id="reading-loc-[^"]*"[^>]*>[\s\S]*?<\/sup>)/g, '');
-                            const supTags = supTagsMatch.join('');
-                            htmlPara = `<mark class="${color.bg} ${color.text} px-0.5 rounded font-semibold transition-colors duration-500">${bodyText}</mark>${supTags}`;
-                          }
-
-                          return <p key={i} dangerouslySetInnerHTML={{ __html: htmlPara }} />;
-                        });
-                    })()}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
-                  {transcript.length === 0 ? (
-                    <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
-                  ) : (
-                    <div className="space-y-3">
-
-                      {transcript.map((line: any, idx: number) => {
-                        const hasQ = line.question_number != null;
+                    {/* Scrollable criterion cards */}
+                    <div ref={criteriaScrollRef} className="flex-1 overflow-y-auto px-6 py-5 space-y-6 bg-gray-50/50 custom-scrollbar">
+                      {CRITERIA_KEYS.map((key) => {
+                        const data = aiFeedback.criteria[key];
+                        const label = CRITERIA_LABELS_MAP[key] || key;
+                        const band: number = data?.band ?? 0;
+                        const bgClass = band > 7.5 ? "bg-emerald-50 text-emerald-700" : band > 6.0 ? "bg-blue-50 text-blue-700" : band > 4.5 ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700";
                         return (
                           <div
-                            key={idx}
-                            ref={(el) => { if (hasQ) transcriptRefs.current[line.question_number] = el; }}
-                            className={`text-sm leading-relaxed ${hasQ ? "scroll-mt-4" : ""}`}
+                            key={key}
+                            id={`review-crit-${key}`}
+                            className={`rounded-xl border-2 p-5 transition-all duration-300 bg-white shadow-sm ${activeCriterion === key ? "border-primary shadow-md" : "border-transparent"}`}
                           >
-                            <span className="font-bold text-gray-500 mr-2 text-xs uppercase tracking-wide">{line.speaker}:</span>
-                            {hasQ ? (
-                              <span>
-                                {(() => {
-                                  // Use the explicit question_markers (if multiple questions on this line) or the single highlight_text
-                                  const markers = line.question_markers || [{ question_number: line.question_number, highlight_text: line.highlight_text }];
-
-                                  // We need to highlight all markers in the text.
-                                  // To easily handle overlapping or sequential markers without complex regex, 
-                                  // a robust method is splitting by each highlight_text iteratively or 
-                                  // escaping them and building a combined regex.
-                                  // For simplicity and avoiding nested highlights breaking, let's replace them sequentially
-                                  // with a placeholder, then split and map.
-
-                                  let resultElements: React.ReactNode[] = [line.text];
-
-                                  markers.forEach((marker: any) => {
-                                    if (!marker.highlight_text) return;
-
-                                    const nextElements: React.ReactNode[] = [];
-                                    const escaped = String(marker.highlight_text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                                    const re = new RegExp(`(${escaped})`, "i");
-
-                                    resultElements.forEach((el, index) => {
-                                      if (typeof el === "string") {
-                                        const parts = el.split(re);
-                                        parts.forEach((part, pi) => {
-                                          if (re.test(part)) {
-                                            nextElements.push(
-                                              <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-yellow-200 text-yellow-900 px-0.5 rounded font-semibold">
-                                                {part}
-                                                <sup className="ml-0.5 text-[10px] font-bold text-amber-600">Q{marker.question_number}</sup>
-                                              </mark>
-                                            );
-                                          } else {
-                                            if (part) nextElements.push(part);
-                                          }
-                                        });
-                                      } else {
-                                        nextElements.push(el); // already a React node (e.g., previous mark)
-                                      }
-                                    });
-                                    resultElements = nextElements;
-                                  });
-
-                                  return resultElements;
-                                })()}
-                              </span>
-                            ) : (
-                              <span className="text-gray-700">{line.text}</span>
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-[16px] font-extrabold text-gray-900">{label}</h4>
+                              <span className={`inline-flex items-center justify-center w-10 h-7 rounded-md font-bold text-sm ${bgClass}`}>{band.toFixed(1)}</span>
+                            </div>
+                            {data?.strengths?.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-[12px] font-bold uppercase tracking-wide mb-1.5 text-green-600">Strengths</p>
+                                <ul className="space-y-1">
+                                  {data.strengths.map((s: string, i: number) => (
+                                    <li key={i} className="flex items-start gap-2 text-[13px] text-gray-700"><span className="mt-0.5 flex-shrink-0">✓</span><span>{s}</span></li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {data?.weak_areas?.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-[12px] font-bold uppercase tracking-wide mb-1.5 text-red-500">Weak Areas</p>
+                                <ul className="space-y-1">
+                                  {data.weak_areas.map((w: string, i: number) => (
+                                    <li key={i} className="flex items-start gap-2 text-[13px] text-gray-700"><span className="mt-0.5 flex-shrink-0">⚠</span><span>{w}</span></li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {data?.how_to_improve?.length > 0 && (
+                              <div>
+                                <p className="text-[12px] font-bold uppercase tracking-wide mb-1.5 text-blue-500">How to Improve</p>
+                                <ul className="space-y-1">
+                                  {data.how_to_improve.map((tip: string, i: number) => (
+                                    <li key={i} className="flex items-start gap-2 text-[13px] text-gray-700"><span className="mt-0.5 font-bold flex-shrink-0">{i + 1}.</span><span>{tip}</span></li>
+                                  ))}
+                                </ul>
+                              </div>
                             )}
                           </div>
                         );
                       })}
                     </div>
-                  )}
-                </>
-              )}
+                  </div>
+                ) : (
+                  <div className="px-6 py-4">
+                    <p className="text-sm text-gray-400 italic">AI feedback not yet available.</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            /* ── NON-SPEAKING LAYOUT (Listening / Reading) ── */
+            <div>
+              {/* Audio Player */}
+              {audioUrl && (
+                <div className="px-6 pt-5 pb-2">
+                  <AudioPlayer audioUrl={audioUrl} audioRef={audioRef} />
+                </div>
+              )}
+
+              {/* Split panel */}
+              <div className="flex divide-x divide-gray-100" style={{ minHeight: 400, maxHeight: 600 }}>
+                {/* Left: Question Review */}
+                <div key={`left-${activePartIdx}`} className="flex-1 overflow-y-auto px-8 py-4 bg-white shrink-[2] min-w-[50%] custom-scrollbar">
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
+
+                  {partItems.map((item, i) => (
+                    <ReviewItemField
+                      key={i}
+                      item={item}
+                      userAnswers={userAnswers}
+                      correctMap={correctMap}
+                      examId={examId}
+                      userId={userId}
+                      noteMap={noteMap}
+                      onSeek={handleSeek}
+                      onLocate={handleLocate}
+                      onNoteReady={handleNoteReady}
+                    />
+                  ))}
+                </div>
+
+                {/* Right: Transcript or Passage */}
+                <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+                  {exam?.type === "READING" ? (
+                    <>
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Reading Passage</div>
+                      <div className="text-[15px] text-[#1a1a1a] leading-relaxed space-y-5 pb-20">
+                        {(() => {
+                          const qTypeMap = new Map<number, string>();
+                          partItems.forEach((item) => {
+                            if ((item as any).qn) qTypeMap.set((item as any).qn, item.kind);
+                            if ((item as any).qns) ((item as any).qns as number[]).forEach((q) => qTypeMap.set(q, item.kind));
+                          });
+
+                          const getColor = (qNum: number) => {
+                            const kind = qTypeMap.get(qNum);
+                            if (!kind) return { bg: "bg-yellow-200", text: "text-yellow-900", sup: "text-amber-600" };
+                            if (kind.includes("completion") || kind === "diagram_label" || kind === "short_answer") return { bg: "bg-emerald-100", text: "text-emerald-900", sup: "text-emerald-700" };
+                            if (kind === "true_false" || kind === "yes_no") return { bg: "bg-blue-100", text: "text-blue-900", sup: "text-blue-700" };
+                            if (kind.startsWith("mc_")) return { bg: "bg-purple-100", text: "text-purple-900", sup: "text-purple-700" };
+                            if (kind.startsWith("matching_")) return { bg: "bg-orange-100", text: "text-orange-900", sup: "text-orange-700" };
+                            return { bg: "bg-yellow-200", text: "text-yellow-900", sup: "text-amber-600" };
+                          };
+
+                          return ((parts[activePartIdx] as any)?.passage_text || "Passage text not available.")
+                            .split('\n')
+                            .filter((para: string) => {
+                              const cleanPara = para.replace(/\*\*/g, '').trim().toLowerCase();
+                              const cleanTopic = ((parts[activePartIdx] as any)?.topic || "").trim().toLowerCase();
+                              return cleanPara !== cleanTopic && cleanPara.length > 0;
+                            })
+                            .map((para: string, i: number) => {
+                              let htmlPara = para
+                                .replace(/\*\*(.*?)\*\*(\s*(?:\*)?\((Q\d+[^)]*)\)(?:\*)?)?/g, (match, rawContent, fullTrailing, innerQ) => {
+                                  let content = rawContent.replace(/^\`|\`$/g, '');
+
+                                  if (content.trim().length === 1 && /[A-Za-z]/.test(content.trim()) && !fullTrailing) {
+                                    return `<strong>${content}</strong>`;
+                                  }
+
+                                  let firstQ = -1;
+                                  if (innerQ) {
+                                    const m = innerQ.match(/Q(\d+)/);
+                                    if (m) firstQ = parseInt(m[1], 10);
+                                  }
+
+                                  const color = getColor(firstQ);
+
+                                  let replacement = `<mark class="${color.bg} ${color.text} px-0.5 rounded font-semibold transition-colors duration-500">${content}</mark>`;
+
+                                  if (fullTrailing && innerQ) {
+                                    const spans = (innerQ.match(/Q\d+/g) || []).map((m: string) => {
+                                      const numStr = m.replace('Q', '');
+                                      return `<sup id="reading-loc-${numStr}" class="ml-0.5 text-[11px] font-bold ${color.sup} cursor-help" title="${innerQ}">${m}</sup>`;
+                                    }).join('');
+                                    replacement += (fullTrailing.startsWith(' ') ? ' ' : '') + spans;
+                                  }
+
+                                  return replacement;
+                                })
+                                .replace(/(?:\*)?\((Q\d+[^)]*)\)(?:\*)?/g, (match, innerContent) => {
+                                  const firstMatch = innerContent.match(/Q(\d+)/);
+                                  const firstQ = firstMatch ? parseInt(firstMatch[1], 10) : -1;
+                                  const color = getColor(firstQ);
+
+                                  const spans = (innerContent.match(/Q\d+/g) || []).map((m: string) => {
+                                    const numStr = m.replace('Q', '');
+                                    return `<sup id="reading-loc-${numStr}" class="ml-0.5 text-[11px] font-bold ${color.sup} cursor-help" title="${innerContent}">${m}</sup>`;
+                                  }).join('');
+                                  return spans ? spans : match;
+                                });
+
+                              if (htmlPara.includes('reading-loc-') && !htmlPara.includes('<mark ')) {
+                                const firstQMatch = htmlPara.match(/reading-loc-(\d+)/);
+                                const firstQNum = firstQMatch ? parseInt(firstQMatch[1], 10) : -1;
+                                const color = getColor(firstQNum);
+                                const supTagsMatch = htmlPara.match(/(<sup id="reading-loc-[^"]*"[^>]*>[\s\S]*?<\/sup>)/g) || [];
+                                const bodyText = htmlPara.replace(/(<sup id="reading-loc-[^"]*"[^>]*>[\s\S]*?<\/sup>)/g, '');
+                                const supTags = supTagsMatch.join('');
+                                htmlPara = `<mark class="${color.bg} ${color.text} px-0.5 rounded font-semibold transition-colors duration-500">${bodyText}</mark>${supTags}`;
+                              }
+
+                              return <p key={i} dangerouslySetInnerHTML={{ __html: htmlPara }} />;
+                            });
+                        })()}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
+                      {transcript.length === 0 ? (
+                        <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
+                      ) : (
+                        <div className="space-y-3">
+
+                          {transcript.map((line: any, idx: number) => {
+                            const hasQ = line.question_number != null;
+                            return (
+                              <div
+                                key={idx}
+                                ref={(el) => { if (hasQ) transcriptRefs.current[line.question_number] = el; }}
+                                className={`text-sm leading-relaxed ${hasQ ? "scroll-mt-4" : ""}`}
+                              >
+                                <span className="font-bold text-gray-500 mr-2 text-xs uppercase tracking-wide">{line.speaker}:</span>
+                                {hasQ ? (
+                                  <span>
+                                    {(() => {
+                                      // Use the explicit question_markers (if multiple questions on this line) or the single highlight_text
+                                      const markers = line.question_markers || [{ question_number: line.question_number, highlight_text: line.highlight_text }];
+
+                                      let resultElements: React.ReactNode[] = [line.text];
+
+                                      markers.forEach((marker: any) => {
+                                        if (!marker.highlight_text) return;
+
+                                        const nextElements: React.ReactNode[] = [];
+                                        const escaped = String(marker.highlight_text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                                        const re = new RegExp(`(${escaped})`, "i");
+
+                                        resultElements.forEach((el, index) => {
+                                          if (typeof el === "string") {
+                                            const parts = el.split(re);
+                                            parts.forEach((part, pi) => {
+                                              if (re.test(part)) {
+                                                nextElements.push(
+                                                  <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-yellow-200 text-yellow-900 px-0.5 rounded font-semibold">
+                                                    {part}
+                                                    <sup className="ml-0.5 text-[10px] font-bold text-amber-600">Q{marker.question_number}</sup>
+                                                  </mark>
+                                                );
+                                              } else {
+                                                if (part) nextElements.push(part);
+                                              }
+                                            });
+                                          } else {
+                                            nextElements.push(el);
+                                          }
+                                        });
+                                        resultElements = nextElements;
+                                      });
+
+                                      return resultElements;
+                                    })()}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-700">{line.text}</span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1397,7 +1561,7 @@ export default function IeltsResultPage() {
           setSession(s);
           clearInterval(interval);
         }
-      }).catch(() => {});
+      }).catch(() => { });
     }, 5000);
     return () => clearInterval(interval);
   }, [aiGradingPending, sessionId]);
@@ -1410,7 +1574,7 @@ export default function IeltsResultPage() {
 
   const rawScore = result?.totalScore ?? 0;
   const maxScore = correctMap.size > 0 ? correctMap.size : 40;
-  
+
   let band = 1.0;
   if (isWriting) {
     band = aiFeedback?.overall_band || 0;
@@ -1495,11 +1659,11 @@ export default function IeltsResultPage() {
                 <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-4">{error}</div>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-4">
-                  <BandShield 
-                    band={band} 
-                    rawScore={isWriting ? null : rawScore} 
-                    maxScore={isWriting ? null : maxScore} 
-                    color={color} 
+                  <BandShield
+                    band={band}
+                    rawScore={(isWriting || isSpeaking) ? null : rawScore}
+                    maxScore={(isWriting || isSpeaking) ? null : maxScore}
+                    color={color}
                   />
                   <div className="flex flex-col items-center sm:items-start gap-4 sm:ml-6">
                     <div className="text-center sm:text-left flex flex-col">
@@ -1608,6 +1772,7 @@ export default function IeltsResultPage() {
             userAnswers={userAnswers}
             examId={examId}
             userId={session?.user?.id ?? ""}
+            aiFeedback={aiFeedback}
           />
         )}
 

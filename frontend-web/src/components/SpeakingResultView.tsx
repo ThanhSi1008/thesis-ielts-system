@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Mic, Headphones } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -185,8 +185,6 @@ function CriterionCard({
 
 export default function SpeakingResultView({ feedback, answers, exam }: SpeakingResultViewProps) {
   const [detailedOpen, setDetailedOpen] = useState(true);
-  const [reviewOpen, setReviewOpen] = useState(true);
-  const [activeCriterion, setActiveCriterion] = useState<string | null>("fluency_and_coherence");
 
   const CRITERIA_KEYS = [
     "fluency_and_coherence",
@@ -229,63 +227,10 @@ export default function SpeakingResultView({ feedback, answers, exam }: Speaking
     </div>
   );
 
-  const ReviewExplanation = (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-      <button onClick={() => setReviewOpen(!reviewOpen)} className="w-full flex items-center gap-2 px-6 py-5 text-left transition-color bg-white border-b border-gray-50">
-        {reviewOpen ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
-        <span className="font-extrabold text-gray-900">AI Feedback & Criteria</span>
-      </button>
-      
-      {reviewOpen && (
-        <div className="flex flex-col bg-white overflow-hidden">
-          {/* NAV PILLS HEADER */}
-          <div className="flex flex-col md:flex-row bg-white/95 backdrop-blur z-10 sticky top-0 border-b border-gray-100 shadow-sm">
-            <div className="w-full py-4 px-8 flex justify-center items-center">
-              <div className="inline-flex bg-gray-100/70 p-1.5 rounded-full items-center flex-wrap justify-center gap-1">
-                {CRITERIA_KEYS.map((k) => {
-                  const idMapping: any = { fluency_and_coherence: "FC", lexical_resource: "LR", grammatical_range_and_accuracy: "GRA", pronunciation: "PRON" };
-                  const isActive = activeCriterion === k;
-                  return (
-                    <a
-                      key={k}
-                      href={`#speaking-crit-${k}`}
-                      onClick={() => setActiveCriterion(k)}
-                      className={`px-6 py-2 rounded-full text-[12px] font-bold tracking-widest transition-all ${isActive ? "bg-primary text-white shadow-md transform scale-105" : "text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm"}`}
-                    >
-                      {idMapping[k]} - {CRITERIA_LABELS[k]}
-                    </a>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row h-[600px]">
-            {/* LEFT PANE - Feedback Cards */}
-            <div className="w-full h-full overflow-y-auto px-8 py-8 space-y-8 scroll-smooth bg-gray-50/50">
-              {CRITERIA_KEYS.map((key) => (
-                <div 
-                  key={key} 
-                  id={`speaking-crit-${key}`}
-                  className={`transition-all duration-500 bg-white rounded-xl shadow-sm border-2 ${activeCriterion === key ? 'border-primary shadow-md' : 'border-transparent'}`}
-                >
-                  <CriterionCard
-                    criterionKey={key}
-                    data={feedback?.criteria?.[key] as any}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <div className="w-full space-y-6">
       {DetailedResult}
-      {ReviewExplanation}
     </div>
   );
 }
+

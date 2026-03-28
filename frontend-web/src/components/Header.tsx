@@ -28,7 +28,7 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (pathname.includes("/take/")) {
+  if (pathname.includes("/take/") || pathname.endsWith("/start")) {
     return null;
   }
 
