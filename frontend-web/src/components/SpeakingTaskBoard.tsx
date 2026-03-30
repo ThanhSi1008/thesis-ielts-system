@@ -176,6 +176,7 @@ export default function SpeakingTaskBoard({
   // Handle the play logic for the second video after React updates the src
   useEffect(() => {
     if (step === "PLAYING_2" && videoRef.current) {
+      videoRef.current.load();
       const playTimer = setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.currentTime = 0;

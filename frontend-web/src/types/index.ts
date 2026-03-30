@@ -234,6 +234,36 @@ export interface Lesson {
 
 export type CardState = 'NEW' | 'LEARNING' | 'REVIEW';
 
+// Note Types
+export interface NoteTypeField {
+  id: string;
+  name: string;
+  order: number;
+  description?: string | null;
+  noteTypeId: string;
+  createdAt: string;
+}
+
+export interface CardTemplate {
+  id: string;
+  name: string;
+  frontFields: string[]; // ordered field IDs
+  backFields: string[];  // ordered field IDs
+  noteTypeId: string;
+  createdAt: string;
+}
+
+export interface NoteType {
+  id: string;
+  name: string;
+  isBuiltIn: boolean;
+  fields: NoteTypeField[];
+  templates: CardTemplate[];
+  cardCount?: number;
+  userId?: string | null;
+  createdAt: string;
+}
+
 export interface Deck {
   id: string;
   userId: string;
@@ -260,6 +290,9 @@ export interface Flashcard {
   easeFactor: number;
   nextReviewDate: string;
   cardState: CardState;
+  noteTypeId?: string | null;
+  noteType?: NoteType | null;
+  fieldValues: Record<string, string>;
   createdAt: string;
   updatedAt: string;
   deck?: { id: string; name: string };

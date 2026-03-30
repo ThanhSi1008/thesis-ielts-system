@@ -9,6 +9,7 @@ import { Calendar, Clock, ChevronDown, ChevronUp, Play, Pause, Volume2, SkipBack
 import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser";
 import WritingResultView from "@/components/WritingResultView";
 import SpeakingResultView from "@/components/SpeakingResultView";
+import FloatingSelectionManager from "@/components/FloatingSelectionManager";
 // Auth helpers
 // ─────────────────────────────────────────────────────────────
 
@@ -1632,8 +1633,9 @@ export default function IeltsResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="container mx-auto max-w-screen-xl px-4 py-8 space-y-6">
+    <FloatingSelectionManager>
+      <div className="min-h-screen bg-gray-50 font-sans">
+        <div className="container mx-auto max-w-screen-xl px-4 py-8 space-y-6">
         <Breadcrumbs />
 
         {/* ── Result Card ── */}
@@ -1795,5 +1797,6 @@ export default function IeltsResultPage() {
         )}
       </div>
     </div>
+    </FloatingSelectionManager>
   );
 }

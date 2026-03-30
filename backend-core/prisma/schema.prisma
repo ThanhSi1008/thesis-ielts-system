@@ -471,11 +471,14 @@ model Flashcard {
   easeFactor     Float     @default(2.5)
   nextReviewDate DateTime  @default(now())
   cardState      CardState @default(NEW)
+  noteTypeId     String?
+  fieldValues    Json      @default("{}")
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  deck    Deck              @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  reviews FlashcardReview[]
+  deck     Deck              @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  noteType NoteType?         @relation(fields: [noteTypeId], references: [id])
+  reviews  FlashcardReview[]
 
   @@map("flashcards")
 }
@@ -489,6 +492,48 @@ model FlashcardReview {
   flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
 
   @@map("flashcard_reviews")
+}
+
+// Note Types (Card Types) — Anki-style field definitions
+model NoteType {
+  id        String   @id @default(uuid())
+  userId    String?  // null = built-in system type
+  name      String
+  isBuiltIn Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fields     NoteTypeField[]
+  templates  CardTemplate[]
+  flashcards Flashcard[]
+
+  @@map("note_types")
+}
+
+model NoteTypeField {
+  id          String   @id @default(uuid())
+  noteTypeId  String
+  name        String
+  order       Int
+  description String?
+  createdAt   DateTime @default(now())
+
+  noteType NoteType @relation(fields: [noteTypeId], references: [id], onDelete: Cascade)
+
+  @@map("note_type_fields")
+}
+
+model CardTemplate {
+  id          String   @id @default(uuid())
+  noteTypeId  String
+  name        String
+  frontFields String[] // ordered field IDs shown on front
+  backFields  String[] // ordered field IDs shown on back
+  createdAt   DateTime @default(now())
+
+  noteType NoteType @relation(fields: [noteTypeId], references: [id], onDelete: Cascade)
+
+  @@map("card_templates")
 }
 
 

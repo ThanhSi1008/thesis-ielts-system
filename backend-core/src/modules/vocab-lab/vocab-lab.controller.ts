@@ -3,22 +3,82 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Param,
   Body,
   Query,
   UseGuards,
   Request,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { VocabLabService } from './vocab-lab.service';
+import { StorageService } from '../../common/storage/storage.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateDeckDto, CreateFlashcardDto, UpdateFlashcardDto, SubmitReviewDto } from './dto/vocab-lab.dto';
+import {
+  CreateDeckDto, CreateFlashcardDto, UpdateFlashcardDto, SubmitReviewDto,
+  CreateNoteTypeDto, RenameNoteTypeDto,
+  CreateNoteTypeFieldDto, UpdateNoteTypeFieldDto, UpdateCardTemplateDto,
+} from './dto/vocab-lab.dto';
 import { CardState } from '@prisma/client';
 
 @Controller('vocab-lab')
 @UseGuards(JwtAuthGuard)
 export class VocabLabController {
-  constructor(private readonly vocabLabService: VocabLabService) { }
+  constructor(
+    private readonly vocabLabService: VocabLabService,
+    private readonly storageService: StorageService,
+  ) { }
+
+  // ==================== NOTE TYPE ENDPOINTS ====================
+
+  @Get('note-types')
+  async getNoteTypes(@Request() req: any) {
+    return this.vocabLabService.getNoteTypes(req.user.id);
+  }
+
+  @Post('note-types')
+  async createNoteType(@Request() req: any, @Body() dto: CreateNoteTypeDto) {
+    return this.vocabLabService.createNoteType(req.user.id, dto);
+  }
+
+  @Patch('note-types/:id')
+  async renameNoteType(@Request() req: any, @Param('id') id: string, @Body() dto: RenameNoteTypeDto) {
+    return this.vocabLabService.renameNoteType(req.user.id, id, dto);
+  }
+
+  @Delete('note-types/:id')
+  async deleteNoteType(@Request() req: any, @Param('id') id: string) {
+    return this.vocabLabService.deleteNoteType(req.user.id, id);
+  }
+
+  @Post('note-types/:id/fields')
+  async addField(@Request() req: any, @Param('id') id: string, @Body() dto: CreateNoteTypeFieldDto) {
+    return this.vocabLabService.addField(req.user.id, id, dto);
+  }
+
+  @Patch('note-types/:id/fields/:fid')
+  async updateField(@Request() req: any, @Param('id') id: string, @Param('fid') fid: string, @Body() dto: UpdateNoteTypeFieldDto) {
+    return this.vocabLabService.updateField(req.user.id, id, fid, dto);
+  }
+
+  @Delete('note-types/:id/fields/:fid')
+  async deleteField(@Request() req: any, @Param('id') id: string, @Param('fid') fid: string) {
+    return this.vocabLabService.deleteField(req.user.id, id, fid);
+  }
+
+  @Get('note-types/:id/templates')
+  async getTemplates(@Request() req: any, @Param('id') id: string) {
+    return this.vocabLabService.getTemplates(req.user.id, id);
+  }
+
+  @Patch('note-types/:id/templates/:tid')
+  async updateTemplate(@Request() req: any, @Param('id') id: string, @Param('tid') tid: string, @Body() dto: UpdateCardTemplateDto) {
+    return this.vocabLabService.updateTemplate(req.user.id, id, tid, dto);
+  }
 
   // ==================== DECK ENDPOINTS ====================
 
@@ -91,5 +151,15 @@ export class VocabLabController {
   @Get('tags')
   async getTags(@Request() req: any) {
     return this.vocabLabService.getTags(req.user.id);
+  }
+
+  // ==================== MEDIA UPLOAD ====================
+
+  @Post('media/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadMedia(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('File is required');
+    const url = await this.storageService.uploadFile(file, 'vocab_media');
+    return { url };
   }
 }

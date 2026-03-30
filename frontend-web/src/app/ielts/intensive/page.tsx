@@ -159,36 +159,7 @@ function TestCard({
   );
 }
 
-function Breadcrumbs({ current }: { current: string }) {
-  const items = useMemo(
-    () => [
-      { label: "Homepage", href: "/" },
-      { label: "IELTS", href: "/ielts" },
-      { label: current },
-    ],
-    [current]
-  );
 
-  return (
-    <nav className="text-sm font-semibold text-gray-700 flex items-center flex-wrap gap-2">
-      {items.map((it, idx) => {
-        const last = idx === items.length - 1;
-        return (
-          <span key={`${it.label}-${idx}`} className="flex items-center gap-2">
-            {last ? (
-              <span className="text-primary">{it.label}</span>
-            ) : (
-              <Link href={it.href!} className="hover:text-gray-900 transition-colors">
-                {it.label}
-              </Link>
-            )}
-            {!last && <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />}
-          </span>
-        );
-      })}
-    </nav>
-  );
-}
 
 function getIeltsBandFromScore(score: number): number {
   if (score >= 39) return 9.0;
@@ -428,10 +399,7 @@ function IeltsIntensiveContent() {
     <div className="min-h-screen bg-gray-50 font-sans">
       <div className="container mx-auto max-w-screen-xl px-4 py-8">
 
-        {/* Breadcrumb */}
-        <Breadcrumbs current="Intensive IELTS" />
-
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-4 mt-2">
           {/* Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
             <div className="h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -608,8 +576,14 @@ function IeltsIntensiveContent() {
               )}
 
               {!loading && error && (
-                <div className="bg-red-50 text-red-700 border border-red-100 rounded-2xl p-4">
-                  {error}
+                <div className="bg-red-50 text-red-700 border border-red-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center">
+                  <p className="font-semibold">{error}</p>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 font-bold rounded-xl transition-colors text-sm"
+                  >
+                    Reload Page
+                  </button>
                 </div>
               )}
 

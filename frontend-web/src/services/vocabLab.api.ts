@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import type { Deck, DeckWithCounts, Flashcard, SubmitReviewRequest, StudyCard, VocabLabStats } from '@/types';
+import type { Deck, DeckWithCounts, Flashcard, SubmitReviewRequest, StudyCard, VocabLabStats, NoteType, NoteTypeField, CardTemplate } from '@/types';
 
 export const vocabLabApi = {
   // ==================== DECK OPERATIONS ====================
@@ -21,11 +21,21 @@ export const vocabLabApi = {
   },
 
   // ==================== FLASHCARD OPERATIONS ====================
-  createFlashcard: async (payload: { deckId: string; front: string; back: string; tags?: string[] }) => {
+  createFlashcard: async (payload: {
+    deckId: string;
+    front?: string;
+    back?: string;
+    tags?: string[];
+    noteTypeId?: string;
+    fieldValues?: Record<string, string>;
+  }) => {
     const { data } = await api.post<Flashcard>('/vocab-lab/cards', payload);
     return data;
   },
-  updateFlashcard: async (id: string, payload: { deckId?: string; front?: string; back?: string; tags?: string[] }) => {
+  updateFlashcard: async (id: string, payload: {
+    deckId?: string; front?: string; back?: string; tags?: string[];
+    fieldValues?: Record<string, string>;
+  }) => {
     const { data } = await api.put<Flashcard>(`/vocab-lab/cards/${id}`, payload);
     return data;
   },
@@ -55,6 +65,58 @@ export const vocabLabApi = {
   },
   getTags: async () => {
     const { data } = await api.get<string[]>('/vocab-lab/tags');
+    return data;
+  },
+
+  // ==================== NOTE TYPE OPERATIONS ====================
+  getNoteTypes: async () => {
+    const { data } = await api.get<NoteType[]>('/vocab-lab/note-types');
+    return data;
+  },
+  createNoteType: async (name: string) => {
+    const { data } = await api.post<NoteType>('/vocab-lab/note-types', { name });
+    return data;
+  },
+  renameNoteType: async (id: string, name: string) => {
+    const { data } = await api.patch<NoteType>(`/vocab-lab/note-types/${id}`, { name });
+    return data;
+  },
+  deleteNoteType: async (id: string) => {
+    const { data } = await api.delete(`/vocab-lab/note-types/${id}`);
+    return data;
+  },
+
+  // ==================== FIELD OPERATIONS ====================
+  addField: async (noteTypeId: string, name: string, description?: string) => {
+    const { data } = await api.post<NoteTypeField>(`/vocab-lab/note-types/${noteTypeId}/fields`, { name, description });
+    return data;
+  },
+  updateField: async (noteTypeId: string, fieldId: string, payload: { name?: string; order?: number; description?: string }) => {
+    const { data } = await api.patch<NoteTypeField>(`/vocab-lab/note-types/${noteTypeId}/fields/${fieldId}`, payload);
+    return data;
+  },
+  deleteField: async (noteTypeId: string, fieldId: string) => {
+    const { data } = await api.delete(`/vocab-lab/note-types/${noteTypeId}/fields/${fieldId}`);
+    return data;
+  },
+
+  // ==================== TEMPLATE OPERATIONS ====================
+  getTemplates: async (noteTypeId: string) => {
+    const { data } = await api.get<CardTemplate[]>(`/vocab-lab/note-types/${noteTypeId}/templates`);
+    return data;
+  },
+  updateTemplate: async (noteTypeId: string, templateId: string, payload: { name?: string; frontFields?: string[]; backFields?: string[] }) => {
+    const { data } = await api.patch<CardTemplate>(`/vocab-lab/note-types/${noteTypeId}/templates/${templateId}`, payload);
+    return data;
+  },
+
+  // ==================== MEDIA UPLOAD ====================
+  uploadMedia: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    const { data } = await api.post<{ url: string }>('/vocab-lab/media/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return data;
   },
 };

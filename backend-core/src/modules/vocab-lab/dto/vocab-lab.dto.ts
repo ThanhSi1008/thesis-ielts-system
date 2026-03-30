@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsInt, IsArray, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsArray, Min, Max, IsObject, IsBoolean } from 'class-validator';
 
 // ==================== DECK DTOs ====================
 
@@ -14,15 +14,25 @@ export class CreateFlashcardDto {
   deckId: string;
 
   @IsString()
-  front: string;
+  @IsOptional()
+  front?: string;
 
   @IsString()
-  back: string;
+  @IsOptional()
+  back?: string;
 
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
   tags?: string[];
+
+  @IsString()
+  @IsOptional()
+  noteTypeId?: string;
+
+  @IsObject()
+  @IsOptional()
+  fieldValues?: Record<string, string>;
 }
 
 export class UpdateFlashcardDto {
@@ -42,6 +52,10 @@ export class UpdateFlashcardDto {
   @IsString()
   @IsOptional()
   deckId?: string;
+
+  @IsObject()
+  @IsOptional()
+  fieldValues?: Record<string, string>;
 }
 
 // ==================== REVIEW DTOs ====================
@@ -54,4 +68,55 @@ export class SubmitReviewDto {
   @Min(0)
   @Max(5)
   rating: number; // 0=Again, 3=Hard, 4=Good, 5=Easy
+}
+
+// ==================== NOTE TYPE DTOs ====================
+
+export class CreateNoteTypeDto {
+  @IsString()
+  name: string;
+}
+
+export class RenameNoteTypeDto {
+  @IsString()
+  name: string;
+}
+
+export class CreateNoteTypeFieldDto {
+  @IsString()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+export class UpdateNoteTypeFieldDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsInt()
+  @IsOptional()
+  order?: number;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+export class UpdateCardTemplateDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  frontFields?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  backFields?: string[];
 }
