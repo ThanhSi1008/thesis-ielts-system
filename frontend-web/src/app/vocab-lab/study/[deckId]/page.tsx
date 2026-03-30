@@ -16,6 +16,20 @@ export default function StudyPage() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bannerCollapsed, setBannerCollapsed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    const stored = localStorage.getItem('vocablab-banner-collapsed');
+    return stored === null ? true : stored === 'true';
+  });
+
+  const toggleBanner = () => {
+    setBannerCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('vocablab-banner-collapsed', String(next));
+      return next;
+    });
+  };
+
 
   useEffect(() => {
     const fetchStudyCards = async () => {
@@ -103,17 +117,55 @@ export default function StudyPage() {
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] pb-20">
-      <PageHeader
-        title="VOCAB LAB"
-        breadcrumbs={[
-          { label: 'Homepage', href: '/' },
-          { label: 'Vocab Lab' },
-        ]}
-        backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1773518563/4b145836-e585-4092-852e-2cbd64aec326.png"
-      />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-        {/* Tabs */}
+      {/* Banner — collapsible (same localStorage key as vocab-lab main page) */}
+      <div
+        className={`overflow-hidden transition-all duration-500 ease-in-out relative ${
+          bannerCollapsed
+            ? 'border-b transition-all duration-300 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-light top-0 border-primary/40 shadow-lg shadow-black/30 backdrop-blur-sm'
+            : ''
+        }`}
+        style={{ maxHeight: bannerCollapsed ? '80px' : '260px' }}
+      >
+        <PageHeader
+          title="VOCAB LAB"
+          breadcrumbs={[
+            { label: 'Homepage', href: '/' },
+            { label: 'Vocab Lab' },
+          ]}
+          backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1773518563/4b145836-e585-4092-852e-2cbd64aec326.png"
+        />
+        {/* Overlay — solid slate gradient when collapsed */}
+        <div
+          className="absolute inset-0 pointer-events-none transition-all duration-500"
+          style={{
+            opacity: bannerCollapsed ? 1 : 0,
+            background: 'linear-gradient(to right, #0f172a, #1e293b, #0f172a)',
+          }}
+        />
+      </div>
+
+      {/* Sticky toggle */}
+      <div className="top-0 z-30 bg-transparent">
+        <div className="container mx-auto max-w-screen-xl px-4 flex justify-end">
+          <button
+            onClick={toggleBanner}
+            title={bannerCollapsed ? 'Show banner' : 'Hide banner'}
+            className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 px-3 py-1 rounded-full transition-colors select-none"
+          >
+            <svg
+              className={`w-3.5 h-3.5 transition-transform duration-300 ${bannerCollapsed ? 'rotate-180' : ''}`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
+        {/* Tab pills — all navigate back to vocab-lab */}
         <div className="flex justify-center mb-8">
           <div className="bg-white rounded-full p-2 flex space-x-2 shadow-sm border border-gray-100">
             {tabs.map((tab) => (
@@ -191,16 +243,65 @@ export default function StudyPage() {
                 )}
 
                 {/* Front side */}
-                <div className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-8 leading-tight w-full whitespace-pre-wrap">
-                  {currentCard.front}
+                <div className="flex flex-col gap-4 w-full">
+                  {!currentCard.noteType ? (
+                    // Legacy fallback
+                    <div className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-8 leading-tight w-full whitespace-pre-wrap">
+                      {currentCard.front}
+                    </div>
+                  ) : (
+                    // New dynamic fields for front
+                    currentCard.noteType.templates[0]?.frontFields.map((fieldId) => {
+                      const field = currentCard.noteType?.fields.find(f => f.id === fieldId);
+                      const value = currentCard.fieldValues[fieldId] || (field?.name === 'Front' ? currentCard.front : '');
+                      if (!value) return null;
+                      const isHtml = /<[a-z]/i.test(value);
+                      return isHtml ? (
+                        <div
+                          key={fieldId}
+                          className="text-2xl sm:text-3xl font-semibold text-gray-900 leading-tight w-full prose max-w-none"
+                          dangerouslySetInnerHTML={{ __html: value }}
+                        />
+                      ) : (
+                        <div key={fieldId} className="text-2xl sm:text-3xl font-semibold text-gray-900 leading-tight w-full whitespace-pre-wrap">
+                          {value}
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
 
                 {/* Back side (conditionally rendered) */}
                 {showAnswer && (
                   <div className="w-full animate-fade-in">
                     <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-8 opacity-60"></div>
-                    <div className="text-xl sm:text-2xl text-gray-700 whitespace-pre-wrap leading-relaxed">
-                      {currentCard.back}
+                    <div className="flex flex-col gap-5 w-full">
+                      {!currentCard.noteType ? (
+                        // Legacy fallback
+                        <div className="text-xl sm:text-2xl text-gray-700 whitespace-pre-wrap leading-relaxed">
+                          {currentCard.back}
+                        </div>
+                      ) : (
+                        // New dynamic fields for back
+                        currentCard.noteType.templates[0]?.backFields.map((fieldId) => {
+                          const field = currentCard.noteType?.fields.find(f => f.id === fieldId);
+                          let value = currentCard.fieldValues[fieldId];
+                          if (!value && field?.name === 'Back') value = currentCard.back;
+                          if (!value) return null;
+                          const isHtml = /<[a-z]/i.test(value);
+                          return isHtml ? (
+                            <div
+                              key={fieldId}
+                              className="text-xl sm:text-2xl text-gray-700 leading-relaxed prose max-w-none"
+                              dangerouslySetInnerHTML={{ __html: value }}
+                            />
+                          ) : (
+                            <div key={fieldId} className="text-xl sm:text-2xl text-gray-700 whitespace-pre-wrap leading-relaxed">
+                              {value}
+                            </div>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 )}

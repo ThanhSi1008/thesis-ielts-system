@@ -207,11 +207,22 @@ async def grade_speaking(
 
     # 5. Output processing
     raw_text = response.text.strip()
-    clean_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
-    clean_text = re.sub(r"\s*```$", "", clean_text)
+    clean_text = raw_text
+    
+    # Extract JSON block if surrounded by markdown
+    if "```json" in clean_text:
+        clean_text = clean_text.split("```json")[-1]
+    elif "```" in clean_text:
+        clean_text = clean_text.split("```")[-1]
+        
+    if "```" in clean_text:
+        clean_text = clean_text.split("```")[0]
+        
+    clean_text = clean_text.strip()
 
     try:
-        result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text))
+        # strict=False allows unescaped control characters like literal newlines inside strings
+        result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text, strict=False))
     except json.JSONDecodeError as e:
         logger.warning(f"[SpeakingGrader] Initial JSON parse failed ({e}). Attempting recovery.")
         start_idx = clean_text.find('{')
@@ -219,7 +230,7 @@ async def grade_speaking(
         if start_idx != -1 and end_idx != -1:
             clean_text = clean_text[start_idx:end_idx+1]
         try:
-            result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text))
+            result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text, strict=False))
         except json.JSONDecodeError:
             logger.error(f"[SpeakingGrader] JSON recovery failed for raw response: {raw_text}")
             result = {

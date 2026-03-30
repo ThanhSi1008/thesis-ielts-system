@@ -190,11 +190,13 @@ export default function IntensiveExamIntroPage() {
                     </div>
                     <div>
                       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                        {isSpeaking ? "Structure" : "Questions"}
+                        {isSpeaking ? "Structure" : examType === "WRITING" ? "Tasks" : "Questions"}
                       </div>
                       <div className="text-base font-extrabold text-gray-900">
                         {isSpeaking
                           ? `3 Parts · ${speakingQuestionCount} questions`
+                          : examType === "WRITING"
+                          ? "2 tasks"
                           : "40 questions"}
                       </div>
                     </div>
@@ -204,7 +206,9 @@ export default function IntensiveExamIntroPage() {
                   <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-gray-600 text-sm font-medium leading-relaxed">
                     {isSpeaking
                       ? "Make sure your microphone is connected and allowed. Speak clearly and at a natural pace."
-                      : "Make sure your headphones or speakers are on. Audio will play automatically when you start."}
+                      : examType === "LISTENING"
+                      ? "Make sure your headphones or speakers are on. Audio will play automatically when you start."
+                      : "Ensure you have a quiet environment and are ready to focus for the duration of the test."}
                   </div>
                 </div>
               </div>
@@ -291,7 +295,12 @@ export default function IntensiveExamIntroPage() {
                     </p>
 
                     <div className="flex items-center justify-center gap-3 flex-wrap">
-                      {["4 Sections", "40 Questions", "Computer Based"].map(label => (
+                      {(examType === "WRITING"
+                        ? ["2 Tasks", "60 Minutes", "Computer Based"]
+                        : examType === "READING"
+                        ? ["3 Sections", "40 Questions", "Computer Based"]
+                        : ["4 Sections", "40 Questions", "Computer Based"]
+                      ).map(label => (
                         <span key={label} className="text-[11px] font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
                           {label}
                         </span>

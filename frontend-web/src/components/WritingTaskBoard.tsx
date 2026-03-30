@@ -92,7 +92,7 @@ export default function WritingTaskBoard({
       {currentTask && (
         <div className="bg-[#f1f2ec] border border-[#e2dcd2] rounded-[3px] py-3 px-5 mx-4 mt-3 mb-4 flex-shrink-0 shadow-sm relative overflow-hidden">
           <div className="relative z-10">
-            <div className="font-bold text-[16px] mb-1.5 text-black tracking-wide">Part {activeTask}</div>
+            <div className="font-bold text-[16px] mb-1.5 text-black tracking-wide">Task {activeTask}</div>
             <div className="text-[15px] font-medium text-[#222]">
               You should spend about {currentTask.time_advice || (activeTask === 1 ? '20' : '40')} minutes on this task. Write at least {currentTask.min_words} words.
             </div>
@@ -178,18 +178,18 @@ export default function WritingTaskBoard({
             onClick={() => setActiveTask(1)}
             className={`px-4 flex-1 flex items-center h-full w-full relative transition-colors ${activeTask === 1 ? 'bg-white font-bold' : 'hover:bg-[#f1f2ec] font-medium text-[#333]'}`}
           >
-            {task1Completed && <div className="absolute top-[-2px] left-0 w-full h-[3px] bg-[#319c28]" />}
+            {(task1Completed || activeTask === 1) && <div className={`absolute top-[-2px] left-0 w-full h-[3px] ${task1Completed ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />}
             {task1Completed && <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] text-[#319c28] fill-current mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>}
-            <span className="text-[14px] tracking-wide">Part 1</span>
+            <span className="text-[14px] tracking-wide">Task 1</span>
           </button>
 
           <button
             onClick={() => setActiveTask(2)}
             className={`px-4 flex-1 flex items-center h-full relative transition-colors ${activeTask === 2 ? 'bg-white font-bold' : 'hover:bg-[#f1f2ec] font-medium text-[#333]'}`}
           >
-            {task2Completed && <div className="absolute top-[-2px] left-0 w-full h-[3px] bg-[#319c28]" />}
+            {(task2Completed || activeTask === 2) && <div className={`absolute top-[-2px] left-0 w-full h-[3px] ${task2Completed ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />}
             {task2Completed && <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] text-[#319c28] fill-current mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>}
-            <span className="text-[14px] tracking-wide">Part 2</span>
+            <span className="text-[14px] tracking-wide">Task 2</span>
           </button>
         </div>
 

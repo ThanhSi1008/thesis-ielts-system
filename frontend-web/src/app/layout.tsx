@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
+import { Toaster } from "@/components/Toaster";
 
 export default function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default function RootLayout({
           <GradingProvider>
             <ScrollToTop />
             <Header />
+            <Toaster />
             {children}
           </GradingProvider>
         </AuthProvider>

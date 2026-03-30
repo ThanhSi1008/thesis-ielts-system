@@ -37,10 +37,10 @@ export default function Header() {
   const headerBgClass = isIeltsDashboard
     ? "bg-transparent absolute w-full top-0 border-transparent shadow-none"
     : isIelts
-    ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-light top-0 border-primary/40 shadow-lg shadow-black/30 backdrop-blur-sm"
-    : isPlain
-    ? "bg-white top-0 border-gray-100"
-    : "bg-transparent absolute w-full top-0 border-transparent shadow-none";
+      ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-light top-0 border-primary/40 shadow-lg shadow-black/30 backdrop-blur-sm"
+      : isPlain
+        ? "bg-white top-0 border-gray-100"
+        : "bg-transparent absolute w-full top-0 border-transparent shadow-none";
 
 
   // Derive display name and initials from user
@@ -56,8 +56,7 @@ export default function Header() {
     : "";
 
   const navLinkClass = (active: boolean) =>
-    `relative text-sm uppercase tracking-wider transition-colors pt-2 pb-1 group ${
-      active ? "text-primary" : isOverlay || isIelts ? "text-light" : "text-gray-600"
+    `relative text-sm uppercase tracking-wider transition-colors pt-2 pb-1 group ${active ? "text-primary" : isOverlay || isIelts ? "text-light" : "text-gray-600"
     }`;
 
   return (
@@ -98,7 +97,7 @@ export default function Header() {
               href="/shadowing-dictation"
               className={navLinkClass(
                 pathname === "/shadowing-dictation" ||
-                  pathname.startsWith("/shadowing-dictation/")
+                pathname.startsWith("/shadowing-dictation/")
               )}
             >
               SHADOWING &amp; DICTATION
@@ -112,13 +111,12 @@ export default function Header() {
           {/* Vocab Lab pill */}
           <Link
             href="/vocab-lab"
-            className={`group flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-md ${
-              pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/")
-                ? "bg-amber-400 text-white shadow-md shadow-amber-200"
-                : isOverlay || isIelts
+            className={`group flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-md ${pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/")
+              ? "bg-amber-400 text-white shadow-md shadow-amber-200"
+              : isOverlay || isIelts
                 ? "bg-white/15 text-white hover:bg-white/25 border border-white/20"
                 : "bg-amber-400/10 text-amber-600 hover:bg-amber-400 hover:text-white border border-amber-300"
-            }`}
+              }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -152,17 +150,15 @@ export default function Header() {
                 </span>
                 {/* Name */}
                 <span
-                  className={`text-sm font-semibold max-w-[140px] truncate ${
-                    isOverlay || isIelts ? "text-white" : "text-gray-800"
-                  }`}
+                  className={`text-sm font-semibold max-w-[140px] truncate ${isOverlay || isIelts ? "text-white" : "text-gray-800"
+                    }`}
                 >
                   {displayName}
                 </span>
                 {/* Chevron */}
                 <svg
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    isProfileOpen ? "rotate-180" : ""
-                  } ${isOverlay || isIelts ? "text-white/70" : "text-gray-400"}`}
+                  className={`w-4 h-4 transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""
+                    } ${isOverlay || isIelts ? "text-white/70" : "text-gray-400"}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -245,9 +241,8 @@ export default function Header() {
             <div className="flex items-center gap-3">
               <Link
                 href="/login"
-                className={`text-sm font-semibold transition-colors hover:text-primary ${
-                  isOverlay || isIelts ? "text-white" : "text-gray-700"
-                }`}
+                className={`text-sm font-semibold transition-colors hover:text-primary ${isOverlay || isIelts ? "text-white" : "text-gray-700"
+                  }`}
               >
                 Sign In
               </Link>
@@ -263,9 +258,8 @@ export default function Header() {
 
         {/* Mobile Menu Button */}
         <button
-          className={`md:hidden p-2 ${
-            isOverlay || isIelts ? "text-white" : "text-gray-600"
-          }`}
+          className={`md:hidden p-2 ${isOverlay || isIelts ? "text-white" : "text-gray-600"
+            }`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
         >
