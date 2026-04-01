@@ -234,12 +234,30 @@ export interface Lesson {
 
 export type CardState = 'NEW' | 'LEARNING' | 'REVIEW';
 
+// Per-field visual style
+export interface FieldStyle {
+  fontSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  fontWeight?: 'normal' | 'bold';
+  fontStyle?: 'normal' | 'italic';
+  textDecoration?: 'none' | 'underline';
+  color?: string;             // hex e.g. "#FF4500"
+  textAlign?: 'left' | 'center' | 'right';
+}
+
+// Card-level visual style (applies to the whole card container)
+export interface CardStyle {
+  backgroundColor?: string;   // hex
+  fontFamily?: 'sans' | 'serif' | 'mono';
+  textColor?: string;         // default text color override
+}
+
 // Note Types
 export interface NoteTypeField {
   id: string;
   name: string;
   order: number;
   description?: string | null;
+  fieldType: 'text' | 'media';
   noteTypeId: string;
   createdAt: string;
 }
@@ -249,6 +267,8 @@ export interface CardTemplate {
   name: string;
   frontFields: string[]; // ordered field IDs
   backFields: string[];  // ordered field IDs
+  fieldStyles: Record<string, FieldStyle>; // fieldId → style
+  cardStyle: CardStyle;
   noteTypeId: string;
   createdAt: string;
 }
@@ -293,6 +313,8 @@ export interface Flashcard {
   noteTypeId?: string | null;
   noteType?: NoteType | null;
   fieldValues: Record<string, string>;
+  fieldStyles?: Record<string, FieldStyle>;
+  cardStyle?: CardStyle;
   createdAt: string;
   updatedAt: string;
   deck?: { id: string; name: string };

@@ -473,6 +473,8 @@ model Flashcard {
   cardState      CardState @default(NEW)
   noteTypeId     String?
   fieldValues    Json      @default("{}")
+  fieldStyles    Json?
+  cardStyle      Json?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -516,6 +518,7 @@ model NoteTypeField {
   name        String
   order       Int
   description String?
+  fieldType   String   @default("text") // 'text' | 'media'
   createdAt   DateTime @default(now())
 
   noteType NoteType @relation(fields: [noteTypeId], references: [id], onDelete: Cascade)
@@ -529,6 +532,8 @@ model CardTemplate {
   name        String
   frontFields String[] // ordered field IDs shown on front
   backFields  String[] // ordered field IDs shown on back
+  fieldStyles Json     @default("{}") // Record<fieldId, FieldStyle>
+  cardStyle   Json     @default("{}") // CardStyle (bg, font family, etc.)
   createdAt   DateTime @default(now())
 
   noteType NoteType @relation(fields: [noteTypeId], references: [id], onDelete: Cascade)

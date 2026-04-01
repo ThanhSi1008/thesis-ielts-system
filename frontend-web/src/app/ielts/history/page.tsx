@@ -115,7 +115,7 @@ export default function IeltsHistoryPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+      <div className="container mx-auto max-w-screen-xl px-4 py-4">
         <div className="flex gap-4 mt-2">
           {/* Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
@@ -287,10 +287,10 @@ export default function IeltsHistoryPage() {
                               <Clock className="w-3.5 h-3.5 text-gray-400" />
                               {item.timeTaken != null
                                 ? (() => {
-                                    const m = Math.floor(item.timeTaken / 60);
-                                    const s = item.timeTaken % 60;
-                                    return m > 0 ? `${m}m ${s}s` : `${s}s`;
-                                  })()
+                                  const m = Math.floor(item.timeTaken / 60);
+                                  const s = item.timeTaken % 60;
+                                  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+                                })()
                                 : <span className="text-gray-300">—</span>
                               }
                             </span>
@@ -313,7 +313,7 @@ export default function IeltsHistoryPage() {
                               >
                                 Review <ChevronRight className="w-3.5 h-3.5" />
                               </Link>
-                              <button 
+                              <button
                                 onClick={() => setPendingDeleteId(item.id)}
                                 disabled={deletingId === item.id}
                                 className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"

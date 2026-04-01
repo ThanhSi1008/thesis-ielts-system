@@ -14,7 +14,7 @@
     "infra:logs": "docker-compose logs -f",
     "infra:clean": "docker-compose down -v",
     "backend:dev": "cd backend-core && npm run start:dev",
-    "ai:dev": "cd backend-ai && python -m uvicorn app.main:app --reload",
+    "ai:dev": "cd backend-ai && .\\venv\\Scripts\\python.exe -m uvicorn app.main:app --reload",
     "web:dev": "cd frontend-web && npm run dev",
     "mobile:dev": "cd frontend-mobile && npm start",
     "dev:all": "concurrently \"npm run backend:dev\" \"npm run ai:dev\" \"npm run web:dev\"",

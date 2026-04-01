@@ -52,7 +52,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
   const openAdd = () => { setAddVal(''); setIsAdding(true); };
   const confirmAdd = async () => {
     if (!addVal.trim()) return;
-    const newField = await vocabLabApi.addField(noteType.id, addVal.trim());
+    const newField = await vocabLabApi.addField(noteType.id, { name: addVal.trim() });
     setFields(prev => [...prev, newField].sort((a, b) => a.order - b.order));
     setSelectedId(newField.id);
     setDescVal(newField.description ?? '');

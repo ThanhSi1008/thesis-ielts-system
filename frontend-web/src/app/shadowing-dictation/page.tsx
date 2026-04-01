@@ -18,6 +18,19 @@ export default function ShadowingDictationPage() {
     const [activeCategory, setActiveCategory] = useState('All');
     const [progress, setProgress] = useState<Record<string, { shadowing: number, dictation: number }>>({});
     const [isLoading, setIsLoading] = useState(true);
+    const [bannerCollapsed, setBannerCollapsed] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return true;
+        const stored = localStorage.getItem('shadowing-banner-collapsed');
+        return stored === null ? true : stored === 'true';
+    });
+
+    const toggleBanner = () => {
+        setBannerCollapsed(prev => {
+            const next = !prev;
+            localStorage.setItem('shadowing-banner-collapsed', String(next));
+            return next;
+        });
+    };
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
@@ -33,10 +46,10 @@ export default function ShadowingDictationPage() {
                 combinedVideos.forEach(lesson => {
                     const total = lesson.sentences.length;
                     const lessonProgress = progressResponse[lesson.id];
-                    
+
                     let shadowingCount = 0;
                     let dictationCount = 0;
-                    
+
                     if (lessonProgress) {
                         if (lessonProgress.shadowing) shadowingCount = lessonProgress.shadowing.length;
                         if (lessonProgress.dictation) dictationCount = lessonProgress.dictation.length;
@@ -53,7 +66,7 @@ export default function ShadowingDictationPage() {
                     newProgress[lesson.id] = { shadowing: 0, dictation: 0 };
                 });
             }
-            
+
             setProgress(newProgress);
         } catch (error) {
             console.error('Failed to load shadowing dictation data:', error);
@@ -66,6 +79,10 @@ export default function ShadowingDictationPage() {
         loadData();
     }, [loadData]);
 
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: bannerCollapsed }));
+    }, [bannerCollapsed]);
+
     const filteredLessons = useMemo(() => {
         const allLessons = [...SHADOWING_LESSONS];
         return allLessons.filter((lesson) => {
@@ -76,18 +93,54 @@ export default function ShadowingDictationPage() {
     }, [searchQuery, activeCategory]);
 
     return (
-        <div className="min-h-screen bg-white">
-            <PageHeader
-                title="Shadowing & Dictation"
-                backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
-                breadcrumbs={[
-                    { label: 'Homepage', href: '/' },
-                    { label: 'Shadowing & Dictation' },
-                ]}
-            />
+        <div className="relative min-h-screen bg-gray-50 pb-20">
+
+            {/* Banner — collapsible */}
+            <div
+                className="overflow-hidden transition-all duration-500 ease-in-out relative origin-top"
+                style={{
+                    maxHeight: bannerCollapsed ? '0px' : '300px',
+                    opacity: bannerCollapsed ? 0 : 1
+                }}
+            >
+                <PageHeader
+                    title="Shadowing & Dictation"
+                    backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
+                    breadcrumbs={[
+                        { label: 'Homepage', href: '/' },
+                        { label: 'Shadowing & Dictation' },
+                    ]}
+                />
+                {/* Collapse button — inside banner so it paints above PageHeader */}
+                <button
+                    onClick={toggleBanner}
+                    title="Hide banner"
+                    className="absolute bottom-2 right-4 z-50 p-1.5 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors select-none"
+                >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* Show-banner button — only visible when collapsed, anchors to root relative div */}
+            {bannerCollapsed && (
+                <button
+                    onClick={toggleBanner}
+                    title="Show banner"
+                    className="fixed top-[68px] right-3 z-40 p-1 text-gray-300 hover:text-gray-500 transition-colors select-none"
+                >
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="15 3 21 3 21 9" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                    </svg>
+                </button>
+            )}
 
             {/* Content Area */}
-            <div className="container mx-auto max-w-screen-xl px-4 py-8">
+            <div className="container mx-auto max-w-screen-xl px-4 py-4">
                 {/* Search Bar + Create Button */}
                 <div className="flex gap-3 mb-6">
                     <div className="relative flex-1">
@@ -142,113 +195,113 @@ export default function ShadowingDictationPage() {
                     <>
                         {/* Video Cards Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredLessons.map((lesson) => (
-                        <div
-                            key={lesson.id}
-                            className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300"
-                        >
-                            {/* Thumbnail */}
-                            <div className="relative">
-                                <div className="w-full aspect-video bg-primary flex items-center justify-center overflow-hidden">
-                                    {lesson.youtubeVideoId ? (
-                                        /* YouTube thumbnail */
-                                        <img
-                                            src={`https://img.youtube.com/vi/${lesson.youtubeVideoId}/maxresdefault.jpg`}
-                                            alt={lesson.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        /* Fallback TOEIC-style thumbnail */
-                                        <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center relative">
-                                            {/* Letter blocks */}
-                                            <div className="flex gap-1.5">
-                                                {['T', 'O', 'E', 'I', 'C'].map((letter, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="w-10 h-12 bg-amber-100 border-2 border-amber-300 rounded flex items-center justify-center text-xl font-bold text-gray-800 shadow-sm"
-                                                        style={{ transform: `rotate(${(i - 2) * 3}deg)` }}
-                                                    >
-                                                        {letter}
+                            {filteredLessons.map((lesson) => (
+                                <div
+                                    key={lesson.id}
+                                    className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300"
+                                >
+                                    {/* Thumbnail */}
+                                    <div className="relative">
+                                        <div className="w-full aspect-video bg-primary flex items-center justify-center overflow-hidden">
+                                            {lesson.youtubeVideoId ? (
+                                                /* YouTube thumbnail */
+                                                <img
+                                                    src={`https://img.youtube.com/vi/${lesson.youtubeVideoId}/maxresdefault.jpg`}
+                                                    alt={lesson.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                /* Fallback TOEIC-style thumbnail */
+                                                <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center relative">
+                                                    {/* Letter blocks */}
+                                                    <div className="flex gap-1.5">
+                                                        {['T', 'O', 'E', 'I', 'C'].map((letter, i) => (
+                                                            <div
+                                                                key={i}
+                                                                className="w-10 h-12 bg-amber-100 border-2 border-amber-300 rounded flex items-center justify-center text-xl font-bold text-gray-800 shadow-sm"
+                                                                style={{ transform: `rotate(${(i - 2) * 3}deg)` }}
+                                                            >
+                                                                {letter}
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                ))}
+                                                    {/* Scattered faint letters in background */}
+                                                    <span className="absolute top-2 left-3 text-yellow-300/40 text-2xl font-bold rotate-12">F</span>
+                                                    <span className="absolute top-3 right-6 text-yellow-300/40 text-lg font-bold -rotate-6">N</span>
+                                                    <span className="absolute bottom-3 left-6 text-yellow-300/40 text-xl font-bold rotate-6">W</span>
+                                                    <span className="absolute bottom-2 right-3 text-yellow-300/40 text-2xl font-bold -rotate-12">R</span>
+                                                    <span className="absolute top-1 left-1/3 text-yellow-300/30 text-lg font-bold rotate-3">O</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Duration Badge */}
+                                        <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs font-semibold px-2 py-1 rounded">
+                                            {lesson.duration}
+                                        </span>
+                                    </div>
+
+                                    {/* Card Content */}
+                                    <div className="p-4">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <h3 className="text-base font-semibold text-gray-800 line-clamp-2 flex-1">
+                                                {lesson.title}
+                                            </h3>
+                                            {/* Three-dot menu */}
+                                            <button className="text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0 p-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        {/* Progress Indicators */}
+                                        <div className="mb-4 space-y-2">
+                                            <div>
+                                                <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                                    <span>Shadowing</span>
+                                                    <span className="font-medium">{progress[lesson.id]?.shadowing || 0}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                    <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.shadowing || 0}%` }}></div>
+                                                </div>
                                             </div>
-                                            {/* Scattered faint letters in background */}
-                                            <span className="absolute top-2 left-3 text-yellow-300/40 text-2xl font-bold rotate-12">F</span>
-                                            <span className="absolute top-3 right-6 text-yellow-300/40 text-lg font-bold -rotate-6">N</span>
-                                            <span className="absolute bottom-3 left-6 text-yellow-300/40 text-xl font-bold rotate-6">W</span>
-                                            <span className="absolute bottom-2 right-3 text-yellow-300/40 text-2xl font-bold -rotate-12">R</span>
-                                            <span className="absolute top-1 left-1/3 text-yellow-300/30 text-lg font-bold rotate-3">O</span>
+                                            <div>
+                                                <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                                    <span>Dictation</span>
+                                                    <span className="font-medium">{progress[lesson.id]?.dictation || 0}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                    <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.dictation || 0}%` }}></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
 
-                                {/* Duration Badge */}
-                                <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs font-semibold px-2 py-1 rounded">
-                                    {lesson.duration}
-                                </span>
-                            </div>
-
-                            {/* Card Content */}
-                            <div className="p-4">
-                                <div className="flex items-start justify-between mb-3">
-                                    <h3 className="text-base font-semibold text-gray-800 line-clamp-2 flex-1">
-                                        {lesson.title}
-                                    </h3>
-                                    {/* Three-dot menu */}
-                                    <button className="text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0 p-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                {/* Progress Indicators */}
-                                <div className="mb-4 space-y-2">
-                                    <div>
-                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                                            <span>Shadowing</span>
-                                            <span className="font-medium">{progress[lesson.id]?.shadowing || 0}%</span>
-                                        </div>
-                                        <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                            <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.shadowing || 0}%` }}></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                                            <span>Dictation</span>
-                                            <span className="font-medium">{progress[lesson.id]?.dictation || 0}%</span>
-                                        </div>
-                                        <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                            <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.dictation || 0}%` }}></div>
+                                        {/* Action Buttons */}
+                                        <div className="flex items-center gap-2">
+                                            <Link
+                                                href={`/shadowing-dictation/${lesson.id}/shadowing`}
+                                                className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-primary text-primary rounded-xl text-sm font-semibold hover:bg-primary hover:text-white transition-all"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
+                                                    <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                                                </svg>
+                                                Shadowing
+                                            </Link>
+                                            <Link
+                                                href={`/shadowing-dictation/${lesson.id}/dictation`}
+                                                className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-gray-800 text-gray-800 rounded-xl text-sm font-semibold hover:bg-gray-800 hover:text-white transition-all"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
+                                                    <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                                                </svg>
+                                                Dictation
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex items-center gap-2">
-                                    <Link
-                                        href={`/shadowing-dictation/${lesson.id}/shadowing`}
-                                        className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-primary text-primary rounded-xl text-sm font-semibold hover:bg-primary hover:text-white transition-all"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
-                                            <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
-                                        </svg>
-                                        Shadowing
-                                    </Link>
-                                    <Link
-                                        href={`/shadowing-dictation/${lesson.id}/dictation`}
-                                        className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-gray-800 text-gray-800 rounded-xl text-sm font-semibold hover:bg-gray-800 hover:text-white transition-all"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
-                                            <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
-                                        </svg>
-                                        Dictation
-                                    </Link>
-                                </div>
-                            </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
 
                         {/* Empty State */}
                         {filteredLessons.length === 0 && (

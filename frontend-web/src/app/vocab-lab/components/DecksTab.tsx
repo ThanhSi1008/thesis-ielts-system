@@ -15,7 +15,7 @@ export function DecksTab({ isActive }: { isActive: boolean }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newDeckName, setNewDeckName] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [deckToDelete, setDeckToDelete] = useState<{id: string, name: string} | null>(null);
+  const [deckToDelete, setDeckToDelete] = useState<{ id: string, name: string } | null>(null);
 
   const fetchDecks = async () => {
     try {
