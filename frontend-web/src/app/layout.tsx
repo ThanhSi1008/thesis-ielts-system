@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Toaster } from "@/components/Toaster";
+import { GlobalVocabFab } from "@/components/GlobalVocabFab";
+import { GlobalAIChatFab } from "@/components/GlobalAIChatFab";
 
 export default function RootLayout({
   children,
@@ -28,6 +30,8 @@ export default function RootLayout({
             <ScrollToTop />
             <Header />
             <Toaster />
+            <GlobalVocabFab />
+            <GlobalAIChatFab />
             {children}
           </GradingProvider>
         </AuthProvider>

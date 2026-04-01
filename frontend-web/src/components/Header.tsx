@@ -12,10 +12,24 @@ export default function Header() {
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const isIeltsDashboard = pathname === "/ielts";
-  const isIelts = pathname.startsWith("/ielts") && !isIeltsDashboard;
+  const isIeltsIntensive = pathname.startsWith("/ielts/intensive");
+  const isIeltsHistory = pathname.startsWith("/ielts/history");
+  const isIelts = pathname.startsWith("/ielts") && !isIeltsDashboard && !isIeltsIntensive && !isIeltsHistory;
+
+  const [forcePlain, setForcePlain] = useState(false);
+
+  useEffect(() => {
+    setForcePlain(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleSetForcePlain = (e: any) => setForcePlain(e.detail);
+    window.addEventListener('set-header-plain', handleSetForcePlain);
+    return () => window.removeEventListener('set-header-plain', handleSetForcePlain);
+  }, []);
 
   const plainPages = ["/login", "/register"];
-  const isPlain = plainPages.includes(pathname) || pathname.startsWith("/ielts/intensive");
+  const isPlain = plainPages.includes(pathname) || isIeltsIntensive || isIeltsHistory || forcePlain;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -39,7 +53,7 @@ export default function Header() {
     : isIelts
       ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-light top-0 border-primary/40 shadow-lg shadow-black/30 backdrop-blur-sm"
       : isPlain
-        ? "bg-white top-0 border-gray-100"
+        ? "bg-white/95 top-0 border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)] backdrop-blur-xl"
         : "bg-transparent absolute w-full top-0 border-transparent shadow-none";
 
 
@@ -56,7 +70,7 @@ export default function Header() {
     : "";
 
   const navLinkClass = (active: boolean) =>
-    `relative text-sm uppercase tracking-wider transition-colors pt-2 pb-1 group ${active ? "text-primary" : isOverlay || isIelts ? "text-light" : "text-gray-600"
+    `relative text-sm uppercase tracking-wider transition-colors pt-2 pb-1 group hover:text-primary ${active ? "text-primary" : isOverlay || isIelts ? "text-light" : "text-gray-600"
     }`;
 
   return (

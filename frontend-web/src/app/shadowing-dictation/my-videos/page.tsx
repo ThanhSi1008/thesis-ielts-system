@@ -20,6 +20,19 @@ export default function MyVideosPage() {
     const [folders, setFolders] = useState<string[]>([]);
     const [progress, setProgress] = useState<Record<string, { shadowing: number[]; dictation: number[] }>>({});
     const [isLoading, setIsLoading] = useState(true);
+    const [bannerCollapsed, setBannerCollapsed] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return true;
+        const stored = localStorage.getItem('my-videos-banner-collapsed');
+        return stored === null ? true : stored === 'true';
+    });
+
+    const toggleBanner = () => {
+        setBannerCollapsed(prev => {
+            const next = !prev;
+            localStorage.setItem('my-videos-banner-collapsed', String(next));
+            return next;
+        });
+    };
 
     const [activeFolder, setActiveFolder] = useState('All Videos');
     const [searchQuery, setSearchQuery] = useState('');
@@ -73,6 +86,10 @@ export default function MyVideosPage() {
     useEffect(() => {
         loadData();
     }, [loadData]);
+
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: bannerCollapsed }));
+    }, [bannerCollapsed]);
 
     // Filtered videos
     const filteredVideos = useMemo(() => {
@@ -254,20 +271,49 @@ export default function MyVideosPage() {
     }, [editingVideo, editVideoTitle, editSelectedFolder, editSelectedCategory, videos]);
 
     return (
-        <div className="min-h-screen bg-white">
-            <PageHeader
-                title="My Videos"
-                backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
-                breadcrumbs={[
-                    { label: 'Homepage', href: '/' },
-                    { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
-                    { label: 'My Videos' },
-                ]}
-            />
+        <div className="min-h-screen bg-gray-50 pb-20">
 
-            <div className="container mx-auto max-w-screen-xl px-4 py-8">
+            {/* Banner — collapsible */}
+            <div
+                className="overflow-hidden transition-all duration-500 ease-in-out relative origin-top"
+                style={{
+                    maxHeight: bannerCollapsed ? '0px' : '300px',
+                    opacity: bannerCollapsed ? 0 : 1
+                }}
+            >
+                <PageHeader
+                    title="My Videos"
+                    backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
+                    breadcrumbs={[
+                        { label: 'Homepage', href: '/' },
+                        { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
+                        { label: 'My Videos' },
+                    ]}
+                />
+            </div>
+
+            {/* Sticky bar — collapse toggle */}
+            <div className={`top-0 z-30 bg-transparent transition-all duration-300 ${bannerCollapsed ? '' : 'pt-2 pb-2'}`}>
+                <div className="container mx-auto max-w-screen-xl px-4 flex justify-end">
+                    <button
+                        onClick={toggleBanner}
+                        title={bannerCollapsed ? 'Show banner' : 'Hide banner'}
+                        className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 px-3 py-1 rounded-full transition-colors select-none"
+                    >
+                        <svg
+                            className={`w-3.5 h-3.5 transition-transform duration-300 ${bannerCollapsed ? 'rotate-180' : ''}`}
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div className="container mx-auto max-w-screen-xl px-4 py-4">
                 <div className="flex gap-8">
-                    
+
                     {/* ══ LEFT SIDEBAR ══ */}
                     <div className="w-72 flex-shrink-0">
                         {/* Upload Videos */}
@@ -321,11 +367,10 @@ export default function MyVideosPage() {
                             <div className="space-y-1">
                                 <button
                                     onClick={() => setActiveFolder('All Videos')}
-                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                                        activeFolder === 'All Videos'
+                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeFolder === 'All Videos'
                                             ? 'bg-primary/10 text-primary'
                                             : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
+                                        }`}
                                 >
                                     <span className="flex items-center gap-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -340,7 +385,7 @@ export default function MyVideosPage() {
                                     <div key={folder} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${activeFolder === folder ? 'bg-primary/10' : 'hover:bg-gray-50'}`}>
                                         {editingFolder === folder ? (
                                             <div className="flex flex-1 gap-2 items-center">
-                                                <input 
+                                                <input
                                                     autoFocus
                                                     type="text"
                                                     value={editFolderName}
@@ -366,14 +411,14 @@ export default function MyVideosPage() {
                                                 <div className="flex items-center gap-1 group">
                                                     <span className="text-xs text-gray-400 group-hover:hidden">({folderCounts[folder] || 0})</span>
                                                     <div className="hidden group-hover:flex items-center gap-1">
-                                                        <button 
+                                                        <button
                                                             onClick={(e) => { e.stopPropagation(); setEditingFolder(folder); setEditFolderName(folder); }}
                                                             className="p-1 text-gray-400 hover:text-primary transition-colors"
                                                             title="Rename Folder"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={(e) => { e.stopPropagation(); setFolderToDelete(folder); }}
                                                             className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                                                             title="Delete Folder"
@@ -488,15 +533,15 @@ export default function MyVideosPage() {
                                                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                                                         <span>Shadowing</span>
                                                         <span className="font-medium">
-                                                            {video.sentences.length > 0 && progress[video.id]?.shadowing 
+                                                            {video.sentences.length > 0 && progress[video.id]?.shadowing
                                                                 ? Math.round((progress[video.id].shadowing.length / video.sentences.length) * 100)
                                                                 : 0}%
                                                         </span>
                                                     </div>
                                                     <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                                        <div 
-                                                            className="bg-primary h-full rounded-full transition-all duration-500" 
-                                                            style={{ width: `${video.sentences.length > 0 && progress[video.id]?.shadowing ? Math.round((progress[video.id].shadowing.length / video.sentences.length) * 100) : 0}%` }} 
+                                                        <div
+                                                            className="bg-primary h-full rounded-full transition-all duration-500"
+                                                            style={{ width: `${video.sentences.length > 0 && progress[video.id]?.shadowing ? Math.round((progress[video.id].shadowing.length / video.sentences.length) * 100) : 0}%` }}
                                                         />
                                                     </div>
                                                 </div>
@@ -504,15 +549,15 @@ export default function MyVideosPage() {
                                                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                                                         <span>Dictation</span>
                                                         <span className="font-medium">
-                                                            {video.sentences.length > 0 && progress[video.id]?.dictation 
+                                                            {video.sentences.length > 0 && progress[video.id]?.dictation
                                                                 ? Math.round((progress[video.id].dictation.length / video.sentences.length) * 100)
                                                                 : 0}%
                                                         </span>
                                                     </div>
                                                     <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                                        <div 
-                                                            className="bg-gray-800 h-full rounded-full transition-all duration-500" 
-                                                            style={{ width: `${video.sentences.length > 0 && progress[video.id]?.dictation ? Math.round((progress[video.id].dictation.length / video.sentences.length) * 100) : 0}%` }} 
+                                                        <div
+                                                            className="bg-gray-800 h-full rounded-full transition-all duration-500"
+                                                            style={{ width: `${video.sentences.length > 0 && progress[video.id]?.dictation ? Math.round((progress[video.id].dictation.length / video.sentences.length) * 100) : 0}%` }}
                                                         />
                                                     </div>
                                                 </div>
@@ -585,7 +630,7 @@ export default function MyVideosPage() {
                         <div className="mb-5">
                             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-600" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                 </svg>
                                 Youtube Link
                             </label>

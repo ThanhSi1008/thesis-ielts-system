@@ -348,19 +348,19 @@ function IeltsIntensiveContent() {
             .sort((a: any, b: any) => new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime())
             .slice(-10)
             .map((h: any) => {
-               let band = 1.0;
-               if (skill === "WRITING" || skill === "SPEAKING") {
-                 band = h.writingScore ?? h.rawScore ?? 0;
-               } else if (skill === "READING") {
-                 band = getIeltsReadingBand(h.rawScore); // Wait, looking at page.tsx originally it used getIeltsBandFromScore which is hardcoded for Listening.. Wait, let me fix it!
-               } else {
-                 band = getIeltsBandFromScore(h.rawScore);
-               }
-               return {
-                  date: h.dateTaken,
-                  band,
-                  title: h.examTitle?.split(" - ")[1] ?? h.examTitle,
-               };
+              let band = 1.0;
+              if (skill === "WRITING" || skill === "SPEAKING") {
+                band = h.writingScore ?? h.rawScore ?? 0;
+              } else if (skill === "READING") {
+                band = getIeltsReadingBand(h.rawScore); // Wait, looking at page.tsx originally it used getIeltsBandFromScore which is hardcoded for Listening.. Wait, let me fix it!
+              } else {
+                band = getIeltsBandFromScore(h.rawScore);
+              }
+              return {
+                date: h.dateTaken,
+                band,
+                title: h.examTitle?.split(" - ")[1] ?? h.examTitle,
+              };
             });
         setHistoryPoints(toPoints("LISTENING"));
         setReadingPoints(toPoints("READING"));
@@ -397,7 +397,7 @@ function IeltsIntensiveContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+      <div className="container mx-auto max-w-screen-xl px-4 py-4">
 
         <div className="flex gap-4 mt-2">
           {/* Sidebar */}
@@ -407,8 +407,8 @@ function IeltsIntensiveContent() {
                 <button
                   onClick={() => setView("dashboard")}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-colors ${view === "dashboard"
-                      ? "font-bold bg-primary/10 text-primary"
-                      : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "font-bold bg-primary/10 text-primary"
+                    : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -420,8 +420,8 @@ function IeltsIntensiveContent() {
                 <button
                   onClick={() => setView("mock-test")}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-colors ${view === "mock-test"
-                      ? "font-bold bg-primary/10 text-primary"
-                      : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "font-bold bg-primary/10 text-primary"
+                    : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -578,7 +578,7 @@ function IeltsIntensiveContent() {
               {!loading && error && (
                 <div className="bg-red-50 text-red-700 border border-red-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center">
                   <p className="font-semibold">{error}</p>
-                  <button 
+                  <button
                     onClick={() => window.location.reload()}
                     className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 font-bold rounded-xl transition-colors text-sm"
                   >
@@ -592,11 +592,11 @@ function IeltsIntensiveContent() {
                   {hasActiveFilter
                     ? "No tests match your search or filters. Try adjusting them."
                     : <>
-                        No published Cambridge exams found for {skill}. Make sure exam titles follow:
-                        <div className="mt-2 font-mono text-xs text-amber-900/80">
-                          Cambridge IELTS 17 - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test 1
-                        </div>
-                      </>
+                      No published Cambridge exams found for {skill}. Make sure exam titles follow:
+                      <div className="mt-2 font-mono text-xs text-amber-900/80">
+                        Cambridge IELTS 17 - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test 1
+                      </div>
+                    </>
                   }
                 </div>
               )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PageHeader from '@/components/PageHeader';
 import { DecksTab } from './components/DecksTab';
 import { AddCardTab } from './components/AddCardTab';
@@ -25,14 +25,22 @@ export default function VocabLabPage() {
     });
   };
 
+
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('set-header-plain', { detail: bannerCollapsed }));
+  }, [bannerCollapsed]);
+
   return (
-    <div className="min-h-screen bg-[#F3F4F6] pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
 
       {/* Banner — collapsible */}
       <div
-        className={`overflow-hidden transition-all duration-500 ease-in-out relative ${bannerCollapsed ? 'border-b transition-all duration-300 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-light top-0 border-primary/40 shadow-lg shadow-black/30 backdrop-blur-sm' : ''
-          }`}
-        style={{ maxHeight: bannerCollapsed ? '80px' : '260px' }}
+        className="overflow-hidden transition-all duration-500 ease-in-out relative origin-top"
+        style={{
+          maxHeight: bannerCollapsed ? '0px' : '300px',
+          opacity: bannerCollapsed ? 0 : 1
+        }}
       >
         <PageHeader
           title="VOCAB LAB"
@@ -42,18 +50,10 @@ export default function VocabLabPage() {
           ]}
           backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1773518563/4b145836-e585-4092-852e-2cbd64aec326.png"
         />
-        {/* Overlay — solid /ielts/intensive-style slate gradient when collapsed */}
-        <div
-          className="absolute inset-0 pointer-events-none transition-all duration-500"
-          style={{
-            opacity: bannerCollapsed ? 1 : 0,
-            background: 'linear-gradient(to right, #0f172a, #1e293b, #0f172a)',
-          }}
-        />
       </div>
 
       {/* Sticky bar — only the collapse toggle */}
-      <div className="top-0 z-30 bg-transparent">
+      <div className={`top-0 z-30 bg-transparent transition-all duration-300 ${bannerCollapsed ? '' : 'pt-2 pb-2'}`}>
         <div className="container mx-auto max-w-screen-xl px-4 flex justify-end">
           <button
             onClick={toggleBanner}

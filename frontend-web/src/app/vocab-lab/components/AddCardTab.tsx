@@ -12,7 +12,59 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
   const [noteType, setNoteType] = useState<NoteType | null>(null);
   const [isNoteTypeChooserOpen, setIsNoteTypeChooserOpen] = useState(false);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
-  const [tagsList, setTagsList] = useState<string[]>([]);
+  const [fieldStyles, setFieldStyles] = useState<Record<string, any>>({});
+  const [tagsList, setTagsList] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vocablab-last-tags');
+      if (saved) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+    return [];
+  });
+
+  // Global selection prefill listener
+  useEffect(() => {
+    const handlePrefill = (e: any) => {
+      const { word, context, AINoteType, AIFieldValues } = e.detail;
+
+      if (AINoteType && AIFieldValues) {
+        // Advanced prefill from AI Generator
+        setNoteType(AINoteType);
+        
+        const mappedVals: Record<string, string> = {};
+        // Initialize empty strings for all fields first
+        AINoteType.fields.forEach((f: any) => { mappedVals[f.id] = ''; });
+        // Fill in generated ones
+        AINoteType.fields.forEach((f: any) => {
+          if (AIFieldValues[f.name]) {
+             mappedVals[f.id] = AIFieldValues[f.name];
+          }
+        });
+        
+        setFieldValues(mappedVals);
+        return;
+      }
+
+      if (noteType) {
+        const sortedFields = [...noteType.fields].sort((a, b) => a.order - b.order);
+        if (sortedFields.length >= 2) {
+          setFieldValues(prev => ({
+            ...prev,
+            [sortedFields[0].id]: word || '',
+            [sortedFields[1].id]: context || ''
+          }));
+        } else if (sortedFields.length === 1) {
+          setFieldValues(prev => ({
+            ...prev,
+            [sortedFields[0].id]: word || ''
+          }));
+        }
+      }
+    };
+    window.addEventListener('vocab-lab-prefill', handlePrefill);
+    return () => window.removeEventListener('vocab-lab-prefill', handlePrefill);
+  }, [noteType]);
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,9 +118,11 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
 
   // When noteType changes, reset fieldValues with empty strings per field
   const initFieldValues = (nt: NoteType) => {
-    const init: Record<string, string> = {};
-    nt.fields.forEach(f => { init[f.id] = ''; });
-    setFieldValues(init);
+    const initVals: Record<string, string> = {};
+    const initSty: Record<string, any> = {};
+    nt.fields.forEach(f => { initVals[f.id] = ''; initSty[f.id] = {}; });
+    setFieldValues(initVals);
+    setFieldStyles(initSty);
   };
 
   useEffect(() => {
@@ -76,7 +130,11 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
       try {
         const data = await vocabLabApi.getDecks();
         setDecks(data);
-        if (data.length > 0 && !deckId) setDeckId(data[0].id);
+        if (data.length > 0 && !deckId) {
+          const lastDeck = localStorage.getItem('vocablab-last-deck-id');
+          if (lastDeck && data.some(d => d.id === lastDeck)) setDeckId(lastDeck);
+          else setDeckId(data[0].id);
+        }
       } catch (error) {
         console.error('Failed to fetch decks:', error);
       }
@@ -84,12 +142,30 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
     const fetchNoteTypes = async () => {
       try {
         const types = await vocabLabApi.getNoteTypes();
-        const basic = types.find(t => t.isBuiltIn) ?? types[0];
-        if (basic && !noteType) { setNoteType(basic); initFieldValues(basic); }
+        if (!noteType) {
+          const lastNt = localStorage.getItem('vocablab-last-notetype-id');
+          const savedNt = types.find(t => t.id === lastNt);
+          const basic = types.find(t => t.isBuiltIn) ?? types[0];
+          const targetNt = savedNt ?? basic;
+          if (targetNt) { setNoteType(targetNt); initFieldValues(targetNt); }
+        }
       } catch { }
     };
     if (isActive) { fetchDecks(); fetchNoteTypes(); }
   }, [isActive]);
+
+  // Sync to localStorage when these values change
+  useEffect(() => {
+    if (deckId) localStorage.setItem('vocablab-last-deck-id', deckId);
+  }, [deckId]);
+
+  useEffect(() => {
+    if (noteType) localStorage.setItem('vocablab-last-notetype-id', noteType.id);
+  }, [noteType]);
+
+  useEffect(() => {
+    localStorage.setItem('vocablab-last-tags', JSON.stringify(tagsList));
+  }, [tagsList]);
 
   const handleAddTag = (e: KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
@@ -128,6 +204,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         tags: tagsList.length > 0 ? tagsList : undefined,
         noteTypeId: noteType.id,
         fieldValues,
+        fieldStyles: Object.keys(fieldStyles).some(k => Object.keys(fieldStyles[k]).length > 0) ? fieldStyles : undefined,
       });
       toast.success('Card added successfully!');
       if (noteType) initFieldValues(noteType);
@@ -174,13 +251,13 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
     }
   };
 
-  const ToolbarButton = ({ children, title, onClick }: { children: React.ReactNode; title: string; onClick?: () => void }) => (
+  const ToolbarButton = ({ children, title, onClick, isActive, disabled }: { children: React.ReactNode; title: string; onClick?: () => void; isActive?: boolean, disabled?: boolean }) => (
     <button
       type="button"
       title={title}
       onClick={onClick}
-      disabled={isUploading}
-      className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed text-gray-400' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}
+      disabled={isUploading || disabled}
+      className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${isUploading || disabled ? 'opacity-50 cursor-not-allowed text-gray-400' : isActive ? 'bg-gray-900 text-white shadow-inner' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}
     >
       {children}
     </button>
@@ -188,8 +265,42 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
 
   const ToolbarDivider = () => <div className="w-px h-5 bg-gray-200 mx-0.5" />;
 
+  const toggleStyle = (key: string, val: string) => {
+    if (!activeFieldId) { toast.error('Click inside a field first to style it.'); return; }
+    setFieldStyles(prev => {
+      const current = prev[activeFieldId] || {};
+      return {
+        ...prev,
+        [activeFieldId]: { ...current, [key]: current[key] === val ? undefined : val }
+      };
+    });
+  };
+
+  const setStyle = (key: string, val: string) => {
+    if (!activeFieldId) return;
+    setFieldStyles(prev => ({
+      ...prev,
+      [activeFieldId]: { ...(prev[activeFieldId] || {}), [key]: val }
+    }));
+  };
+
+  const isActiveStyle = (key: string, val: string) => activeFieldId ? fieldStyles[activeFieldId]?.[key] === val : false;
+
+  function fieldStyleToCSS(s?: Record<string, string>): React.CSSProperties {
+    if (!s) return {};
+    const alignItems = s.textAlign === 'left' ? 'flex-start' : s.textAlign === 'right' ? 'flex-end' : 'center';
+    return {
+      fontSize: s.fontSize === 'sm' ? '13px' : s.fontSize === 'md' ? '16px' : s.fontSize === 'lg' ? '22px' : s.fontSize === 'xl' ? '30px' : s.fontSize === '2xl' ? '38px' : undefined,
+      fontWeight: s.fontWeight === 'bold' ? 'bold' : undefined,
+      fontStyle: s.fontStyle === 'italic' ? 'italic' : undefined,
+      textDecoration: s.textDecoration === 'underline' ? 'underline' : undefined,
+      color: s.color || undefined,
+      textAlign: (s.textAlign as React.CSSProperties['textAlign']) || undefined,
+    };
+  }
+
   return (
-    <div className="max-w-3xl mx-auto mt-2">
+    <div className="max-w-3xl mx-auto">
       <input type="file" ref={imageInputRef} className="hidden" accept="image/*" onChange={e => handleFileUpload(e, 'image')} />
       <input type="file" ref={audioInputRef} className="hidden" accept="audio/*,video/*" onChange={e => handleFileUpload(e, 'audio')} />
       <form
@@ -200,20 +311,20 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
             handleSubmit(e as any);
           }
         }}
-        className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col mb-10"
+        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col"
       >
 
         {/* Header Bar: Deck & Note Type Selectors */}
-        <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="px-4 md:px-5 py-3.5 bg-transparent border-b border-gray-100/60 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <span className="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Add to</span>
+            <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Add to</span>
             {decks.length === 0 ? (
               <span className="text-[13px] text-red-500 italic">Create a deck first</span>
             ) : (
               <button
                 type="button"
                 onClick={openDeckChooser}
-                className="flex items-center justify-between min-w-[170px] h-9 px-3 bg-white border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm text-[13px] font-medium text-gray-800 transition-colors focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="flex items-center justify-between min-w-[170px] h-9 px-3 bg-transparent hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-[13px] font-medium text-gray-700 transition-colors focus:ring-2 focus:ring-gray-200 focus:border-gray-400"
               >
                 <span className="truncate max-w-[130px] text-left">{decks.find(d => d.id === deckId)?.name || 'Select deck'}</span>
                 <svg className="h-4 w-4 text-gray-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
@@ -222,11 +333,11 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <span className="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Type</span>
+            <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Type</span>
             <button
               type="button"
               onClick={() => setIsNoteTypeChooserOpen(true)}
-              className="flex items-center gap-2 min-w-[140px] h-9 px-3 bg-white border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm text-[13px] font-medium text-gray-800 transition-colors focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="flex items-center gap-2 min-w-[140px] h-9 px-3 bg-transparent hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-[13px] font-medium text-gray-700 transition-colors focus:ring-2 focus:ring-gray-200 focus:border-gray-400"
             >
               <svg className="h-3.5 w-3.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
               {noteType?.name ?? 'Basic'}
@@ -235,29 +346,33 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         </div>
 
         {/* Main Editor Body */}
-        <div className="p-6 md:p-8 flex flex-col gap-6 bg-white">
+        <div className="px-4 md:px-5 py-4 flex flex-col gap-4 bg-transparent">
 
           {/* Minimal Formatting Toolbar */}
-          <div className="flex items-center gap-0.5 px-2 py-1.5 w-max bg-gray-50 border border-gray-100 rounded-lg">
-            <ToolbarButton title="Bold"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" /><path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" /></svg></ToolbarButton>
-            <ToolbarButton title="Italic"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="19" y1="4" x2="10" y2="4" /><line x1="14" y1="20" x2="5" y2="20" /><line x1="15" y1="4" x2="9" y2="20" /></svg></ToolbarButton>
-            <ToolbarButton title="Underline"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3" /><line x1="4" y1="21" x2="20" y2="21" /></svg></ToolbarButton>
+          <div className="flex items-center gap-0.5 px-1 py-1 w-max shrink-0 overflow-x-auto max-w-full">
+            <ToolbarButton title="Bold" isActive={isActiveStyle('fontWeight', 'bold')} onClick={() => toggleStyle('fontWeight', 'bold')}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6z" /><path d="M6 12h9a4 4 0 014 4 4 4 0 01-4 4H6z" /></svg></ToolbarButton>
+            <ToolbarButton title="Italic" isActive={isActiveStyle('fontStyle', 'italic')} onClick={() => toggleStyle('fontStyle', 'italic')}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="19" y1="4" x2="10" y2="4" /><line x1="14" y1="20" x2="5" y2="20" /><line x1="15" y1="4" x2="9" y2="20" /></svg></ToolbarButton>
+            <ToolbarButton title="Underline" isActive={isActiveStyle('textDecoration', 'underline')} onClick={() => toggleStyle('textDecoration', 'underline')}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3" /><line x1="4" y1="21" x2="20" y2="21" /></svg></ToolbarButton>
 
             <ToolbarDivider />
 
-            <ToolbarButton title="Text Color">
+            <label className="relative flex items-center justify-center w-8 h-8 rounded-md hover:bg-gray-100 cursor-pointer transition-colors" title="Text Color">
               <span className="flex flex-col items-center leading-none">
-                <span className="text-[11px] font-bold">A</span>
-                <span className="w-3.5 h-[3px] bg-red-500 rounded-sm -mt-px"></span>
+                <span className="text-[11px] font-bold" style={{ color: activeFieldId ? fieldStyles[activeFieldId]?.color || '#6b7280' : '#6b7280' }}>A</span>
+                <span className="w-3.5 h-[3px] rounded-sm -mt-px" style={{ backgroundColor: activeFieldId ? fieldStyles[activeFieldId]?.color || '#ef4444' : '#ef4444' }}></span>
               </span>
-            </ToolbarButton>
-            <ToolbarButton title="Highlight"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></ToolbarButton>
+              <input type="color" className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                value={activeFieldId ? fieldStyles[activeFieldId]?.color || '#000000' : '#000000'}
+                onChange={e => setStyle('color', e.target.value)}
+                onClick={(e) => { if (!activeFieldId) { e.preventDefault(); toast.error('Click inside a field first.'); } }}
+              />
+            </label>
 
             <ToolbarDivider />
 
-            <ToolbarButton title="Align Left"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="17" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="17" y1="18" x2="3" y2="18" /></svg></ToolbarButton>
-            <ToolbarButton title="Align Center"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="18" y1="10" x2="6" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="18" y1="18" x2="6" y2="18" /></svg></ToolbarButton>
-            <ToolbarButton title="Align Right"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="21" y1="10" x2="7" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="21" y1="18" x2="7" y2="18" /></svg></ToolbarButton>
+            <ToolbarButton title="Align Left" isActive={isActiveStyle('textAlign', 'left')} onClick={() => toggleStyle('textAlign', 'left')}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="17" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="17" y1="18" x2="3" y2="18" /></svg></ToolbarButton>
+            <ToolbarButton title="Align Center" isActive={isActiveStyle('textAlign', 'center')} onClick={() => toggleStyle('textAlign', 'center')}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="18" y1="10" x2="6" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="18" y1="18" x2="6" y2="18" /></svg></ToolbarButton>
+            <ToolbarButton title="Align Right" isActive={isActiveStyle('textAlign', 'right')} onClick={() => toggleStyle('textAlign', 'right')}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="21" y1="10" x2="7" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="21" y1="18" x2="7" y2="18" /></svg></ToolbarButton>
 
             <ToolbarDivider />
 
@@ -270,19 +385,26 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
           </div>
 
           {/* Dynamic Fields */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             {noteType && [...noteType.fields].sort((a, b) => a.order - b.order).map((field, idx) => {
               const value = fieldValues[field.id] ?? '';
               const hasMedia = /<(img|audio)\s/i.test(value);
 
-              // Split value into text parts and media parts so we can show both
-              const textOnly = value.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '').replace(/\n+/g, '\n').trim();
               const mediaMatches = [...value.matchAll(/<(img|audio)[^>]*>(<\/audio>)?/gi)].map(m => m[0]);
+              const mediaHtml = mediaMatches.join('\n');
+
+              let textOnly = value;
+              if (mediaHtml && value.endsWith('\n' + mediaHtml)) {
+                textOnly = value.slice(0, value.length - ('\n' + mediaHtml).length);
+              } else if (mediaHtml && value.endsWith(mediaHtml)) {
+                textOnly = value.slice(0, value.length - mediaHtml.length);
+              } else if (mediaHtml) {
+                textOnly = value.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '');
+              }
 
               return (
-                <div key={field.id} className="group flex flex-col relative" onClick={() => setActiveFieldId(field.id)}>
-                  {idx > 0 && <div className="h-px bg-gray-100 mb-6 absolute top-[-12px] left-0 right-0" />}
-                  <label className="text-[12px] font-bold text-gray-400/80 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-primary">
+                <div key={field.id} className="group flex flex-col relative bg-transparent border border-gray-200 rounded-xl p-3.5 shadow-sm transition-all focus-within:border-gray-300 focus-within:ring-1 focus-within:ring-gray-200 cursor-text" onClick={() => setActiveFieldId(field.id)}>
+                  <label className="text-[11px] font-semibold text-gray-500/80 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-gray-800 cursor-text select-none">
                     {field.name}
                   </label>
 
@@ -293,15 +415,18 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                     onFocus={() => setActiveFieldId(field.id)}
                     onChange={e => {
                       const newText = e.target.value;
-                      // Reconstruct: new text + existing media tags
-                      const mediaHtml = mediaMatches.join('\n');
-                      const newVal = [newText, mediaHtml].filter(Boolean).join('\n');
+                      // Reconstruct
+                      const newVal = mediaHtml ? `${newText}\n${mediaHtml}` : newText;
                       setFieldValues(prev => ({ ...prev, [field.id]: newVal }));
                       e.target.style.height = 'auto';
                       e.target.style.height = `${e.target.scrollHeight}px`;
                     }}
                     placeholder={hasMedia ? 'Add text (optional)...' : undefined}
-                    className="w-full bg-transparent border-none p-0 text-[16px] text-gray-900 placeholder:text-gray-300 focus:ring-0 focus:outline-none resize-none overflow-hidden placeholder:font-light"
+                    className="w-full bg-transparent border-none p-0 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-300 focus:ring-0 focus:outline-none resize-none overflow-hidden"
+                    style={fieldStyleToCSS({
+                      ...(noteType.templates[0]?.fieldStyles?.[field.id] as any || {}),
+                      ...(fieldStyles[field.id] || {})
+                    })}
                     required={idx === 0 && !hasMedia}
                   />
 
@@ -352,57 +477,54 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
           </div>
 
           {/* Tags */}
-          <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-6">
-            <div className="flex items-center gap-2 text-[12px] font-bold text-gray-400/80 uppercase tracking-wider">
-              <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
-              Tags
-            </div>
-            <div className="flex items-center flex-wrap gap-2 min-h-[32px]">
+          <div className="mt-2 flex flex-col gap-2">
+            <div className="flex items-center flex-wrap gap-2 p-3 bg-transparent border border-gray-200 rounded-xl shadow-sm focus-within:border-gray-300 focus-within:ring-1 focus-within:ring-gray-200 transition-all cursor-text min-h-[50px]" onClick={() => document.getElementById('tags-input')?.focus()}>
               {tagsList.map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-[13px] text-gray-700 font-medium group transition-colors shadow-sm">
+                <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-[12px] text-gray-700 font-medium group transition-colors">
                   {tag}
                   <button
                     type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="text-gray-400 group-hover:text-red-500 transition-colors"
+                    onClick={(e) => { e.stopPropagation(); handleRemoveTag(tag); }}
+                    className="text-gray-400 group-hover:text-gray-600 transition-colors focus:outline-none"
                   >
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                   </button>
                 </span>
               ))}
               <input
+                id="tags-input"
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleAddTag}
-                placeholder={tagsList.length === 0 ? 'Type a tag and press Enter...' : 'Add another tag...'}
-                className="bg-transparent border-none text-[14px] outline-none focus:ring-0 text-gray-800 placeholder-gray-300 min-w-[200px]"
+                placeholder={tagsList.length === 0 ? 'Tags (optional) - press Enter...' : 'Add another tag...'}
+                className="bg-transparent border-none p-0 text-[13.5px] outline-none focus:ring-0 text-gray-800 placeholder-gray-400 min-w-[160px] flex-1"
               />
             </div>
           </div>
         </div>
 
         {/* Footer Card */}
-        <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-          <div className="hidden sm:flex items-center gap-1.5 text-[12px] text-gray-400 font-medium tracking-wide">
-            <kbd className="px-1.5 py-0.5 border border-gray-200 rounded bg-white font-sans text-[11px] shadow-sm">Ctrl</kbd>
+        <div className="px-5 md:px-6 py-4 bg-transparent border-t border-gray-100/60 flex items-center justify-between">
+          <div className="hidden sm:flex items-center gap-1.5 text-[12px] text-gray-400 font-medium">
+            <kbd className="px-1.5 py-0.5 border border-gray-200 rounded font-sans text-[10px] text-gray-500">Ctrl</kbd>
             <span>+</span>
-            <kbd className="px-1.5 py-0.5 border border-gray-200 rounded bg-white font-sans text-[11px] shadow-sm">Enter</kbd>
+            <kbd className="px-1.5 py-0.5 border border-gray-200 rounded font-sans text-[10px] text-gray-500">Enter</kbd>
             <span className="ml-1">to add quickly</span>
           </div>
           <button
             type="submit"
             disabled={isSubmitting || decks.length === 0}
-            className="px-6 py-2.5 bg-primary text-gray-900 font-bold text-[14px] rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center shadow-sm hover:shadow-md active:scale-[0.98] min-w-[140px]"
+            className="px-5 py-2.5 bg-gray-900 text-white font-medium text-[13.5px] rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 flex items-center justify-center shadow-sm active:scale-95 min-w-[120px]"
           >
             {isSubmitting ? (
               <>
-                <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                <svg className="animate-spin h-3.5 w-3.5 mr-2" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
                 Adding...
               </>
             ) : (
               <>
-                <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                <svg className="h-4 w-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
                 Add Card
               </>
             )}

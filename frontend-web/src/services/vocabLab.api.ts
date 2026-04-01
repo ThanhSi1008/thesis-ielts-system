@@ -1,5 +1,18 @@
 import api from '@/lib/api';
-import type { Deck, DeckWithCounts, Flashcard, SubmitReviewRequest, StudyCard, VocabLabStats, NoteType, NoteTypeField, CardTemplate } from '@/types';
+import type { Deck, DeckWithCounts, Flashcard, SubmitReviewRequest, StudyCard, VocabLabStats, NoteType, NoteTypeField, CardTemplate, FieldStyle, CardStyle } from '@/types';
+
+export interface CreateNoteTypeFieldPayload {
+  name: string;
+  description?: string;
+  fieldType?: 'text' | 'media';
+}
+
+export interface UpdateNoteTypeFieldPayload {
+  name?: string;
+  order?: number;
+  description?: string;
+  fieldType?: 'text' | 'media';
+}
 
 export const vocabLabApi = {
   // ==================== DECK OPERATIONS ====================
@@ -28,6 +41,8 @@ export const vocabLabApi = {
     tags?: string[];
     noteTypeId?: string;
     fieldValues?: Record<string, string>;
+    fieldStyles?: Record<string, FieldStyle>;
+    cardStyle?: CardStyle;
   }) => {
     const { data } = await api.post<Flashcard>('/vocab-lab/cards', payload);
     return data;
@@ -35,6 +50,8 @@ export const vocabLabApi = {
   updateFlashcard: async (id: string, payload: {
     deckId?: string; front?: string; back?: string; tags?: string[];
     fieldValues?: Record<string, string>;
+    fieldStyles?: Record<string, FieldStyle>;
+    cardStyle?: CardStyle;
   }) => {
     const { data } = await api.put<Flashcard>(`/vocab-lab/cards/${id}`, payload);
     return data;
@@ -87,11 +104,11 @@ export const vocabLabApi = {
   },
 
   // ==================== FIELD OPERATIONS ====================
-  addField: async (noteTypeId: string, name: string, description?: string) => {
-    const { data } = await api.post<NoteTypeField>(`/vocab-lab/note-types/${noteTypeId}/fields`, { name, description });
+  addField: async (noteTypeId: string, payload: CreateNoteTypeFieldPayload) => {
+    const { data } = await api.post<NoteTypeField>(`/vocab-lab/note-types/${noteTypeId}/fields`, payload);
     return data;
   },
-  updateField: async (noteTypeId: string, fieldId: string, payload: { name?: string; order?: number; description?: string }) => {
+  updateField: async (noteTypeId: string, fieldId: string, payload: UpdateNoteTypeFieldPayload) => {
     const { data } = await api.patch<NoteTypeField>(`/vocab-lab/note-types/${noteTypeId}/fields/${fieldId}`, payload);
     return data;
   },
@@ -105,7 +122,13 @@ export const vocabLabApi = {
     const { data } = await api.get<CardTemplate[]>(`/vocab-lab/note-types/${noteTypeId}/templates`);
     return data;
   },
-  updateTemplate: async (noteTypeId: string, templateId: string, payload: { name?: string; frontFields?: string[]; backFields?: string[] }) => {
+  updateTemplate: async (noteTypeId: string, templateId: string, payload: {
+    name?: string;
+    frontFields?: string[];
+    backFields?: string[];
+    fieldStyles?: Record<string, FieldStyle>;
+    cardStyle?: CardStyle;
+  }) => {
     const { data } = await api.patch<CardTemplate>(`/vocab-lab/note-types/${noteTypeId}/templates/${templateId}`, payload);
     return data;
   },

@@ -123,7 +123,15 @@ export class VocabLabService {
     await this.assertNoteTypeOwner(userId, noteTypeId);
     const maxOrder = await this.prisma.noteTypeField.aggregate({ where: { noteTypeId }, _max: { order: true } });
     const nextOrder = (maxOrder._max.order ?? -1) + 1;
-    return this.prisma.noteTypeField.create({ data: { noteTypeId, name: dto.name, order: nextOrder, description: dto.description } });
+    return this.prisma.noteTypeField.create({
+      data: {
+        noteTypeId,
+        name: dto.name,
+        order: nextOrder,
+        description: dto.description,
+        fieldType: dto.fieldType || 'text',
+      }
+    });
   }
 
   async updateField(userId: string, noteTypeId: string, fieldId: string, dto: UpdateNoteTypeFieldDto) {
@@ -134,6 +142,7 @@ export class VocabLabService {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.order !== undefined && { order: dto.order }),
         ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.fieldType !== undefined && { fieldType: dto.fieldType }),
       },
     });
   }
@@ -165,6 +174,8 @@ export class VocabLabService {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.frontFields !== undefined && { frontFields: dto.frontFields }),
         ...(dto.backFields !== undefined && { backFields: dto.backFields }),
+        ...(dto.fieldStyles !== undefined && { fieldStyles: dto.fieldStyles }),
+        ...(dto.cardStyle !== undefined && { cardStyle: dto.cardStyle }),
       },
     });
   }
@@ -192,8 +203,10 @@ export class VocabLabService {
 
     const now = new Date();
     return decks.map((deck) => {
-      const newCount = deck.flashcards.filter((f) => f.cardState === CardState.NEW).length;
-      const learningCount = deck.flashcards.filter((f) => f.cardState === CardState.LEARNING).length;
+      const newCount = Math.min(20, deck.flashcards.filter((f) => f.cardState === CardState.NEW).length);
+      const learningCount = deck.flashcards.filter(
+        (f) => f.cardState === CardState.LEARNING && f.nextReviewDate <= now,
+      ).length;
       const dueCount = deck.flashcards.filter(
         (f) => f.cardState === CardState.REVIEW && f.nextReviewDate <= now,
       ).length;
@@ -223,8 +236,10 @@ export class VocabLabService {
     if (!deck) throw new NotFoundException('Deck not found');
 
     const now = new Date();
-    const newCount = deck.flashcards.filter((f) => f.cardState === CardState.NEW).length;
-    const learningCount = deck.flashcards.filter((f) => f.cardState === CardState.LEARNING).length;
+    const newCount = Math.min(20, deck.flashcards.filter((f) => f.cardState === CardState.NEW).length);
+    const learningCount = deck.flashcards.filter(
+      (f) => f.cardState === CardState.LEARNING && f.nextReviewDate <= now,
+    ).length;
     const dueCount = deck.flashcards.filter(
       (f) => f.cardState === CardState.REVIEW && f.nextReviewDate <= now,
     ).length;
@@ -279,6 +294,8 @@ export class VocabLabService {
         tags: dto.tags || [],
         noteTypeId,
         fieldValues,
+        fieldStyles: dto.fieldStyles,
+        cardStyle: dto.cardStyle,
       },
       include: {
         noteType: {
@@ -308,6 +325,8 @@ export class VocabLabService {
         ...(dto.tags !== undefined && { tags: dto.tags }),
         ...(dto.deckId !== undefined && { deckId: dto.deckId }),
         ...(dto.fieldValues !== undefined && { fieldValues: dto.fieldValues }),
+        ...(dto.fieldStyles !== undefined && { fieldStyles: dto.fieldStyles }),
+        ...(dto.cardStyle !== undefined && { cardStyle: dto.cardStyle }),
       },
     });
   }

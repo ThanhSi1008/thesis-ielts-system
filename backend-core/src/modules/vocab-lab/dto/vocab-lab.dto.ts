@@ -33,6 +33,14 @@ export class CreateFlashcardDto {
   @IsObject()
   @IsOptional()
   fieldValues?: Record<string, string>;
+
+  @IsObject()
+  @IsOptional()
+  fieldStyles?: Record<string, object>; // Record<fieldId, FieldStyle>
+
+  @IsObject()
+  @IsOptional()
+  cardStyle?: object; // CardStyle
 }
 
 export class UpdateFlashcardDto {
@@ -56,6 +64,14 @@ export class UpdateFlashcardDto {
   @IsObject()
   @IsOptional()
   fieldValues?: Record<string, string>;
+
+  @IsObject()
+  @IsOptional()
+  fieldStyles?: Record<string, object>;
+
+  @IsObject()
+  @IsOptional()
+  cardStyle?: object;
 }
 
 // ==================== REVIEW DTOs ====================
@@ -89,6 +105,10 @@ export class CreateNoteTypeFieldDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @IsOptional()
+  fieldType?: string;
 }
 
 export class UpdateNoteTypeFieldDto {
@@ -103,6 +123,10 @@ export class UpdateNoteTypeFieldDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @IsOptional()
+  fieldType?: string;
 }
 
 export class UpdateCardTemplateDto {
@@ -119,4 +143,12 @@ export class UpdateCardTemplateDto {
   @IsString({ each: true })
   @IsOptional()
   backFields?: string[];
+
+  @IsObject()
+  @IsOptional()
+  fieldStyles?: Record<string, object>; // Record<fieldId, FieldStyle>
+
+  @IsObject()
+  @IsOptional()
+  cardStyle?: object; // CardStyle
 }
