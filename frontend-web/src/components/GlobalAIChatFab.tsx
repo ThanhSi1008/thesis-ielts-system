@@ -6,13 +6,28 @@ import axios from 'axios';
 import type { NoteType } from '@/types';
 import { vocabLabApi } from '@/services/vocabLab.api';
 
+type SuggestionMsg = {
+  id: string;
+  label: string;
+  actionType: 'EXPLAIN_NOTE' | 'ADD_VOCAB';
+  payload: any;
+};
+
 type Message = { 
   role: 'user' | 'model'; 
   content: string;
-  type?: 'text' | 'ui_card_selection';
-  noteTypes?: NoteType[];
-  highlightedWord?: string;
-  contextSentence?: string;
+  suggestions?: SuggestionMsg[];
+};
+
+const renderMessageContent = (text: string) => {
+  if (!text) return null;
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+    }
+    return <span key={i}>{part}</span>;
+  });
 };
 
 export function GlobalAIChatFab() {
@@ -29,13 +44,30 @@ export function GlobalAIChatFab() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }), 50);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping, isOpen]);
+    if (!isOpen) return;
+    
+    if (isTyping) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    } else if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.role === 'model') {
+        // Scroll so the top of the AI's reply sits beautifully at the top of the chatbox
+        const el = document.getElementById(`msg-${messages.length - 1}`);
+        if (el) {
+          setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+        }
+      } else {
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+      }
+    }
+  }, [messages.length, isTyping]);
 
   useEffect(() => {
     const handleOpen = async (e: any) => {
@@ -47,11 +79,13 @@ export function GlobalAIChatFab() {
             ...prev,
             { 
               role: 'model', 
-              content: `I see you highlighted the term **"${e.detail.word}"** from the context:\n*"${e.detail.context}"*\n\nWould you like me to create a flashcard for it? Please choose a format below:`,
-              type: 'ui_card_selection',
-              noteTypes: types,
-              highlightedWord: e.detail.word,
-              contextSentence: e.detail.context
+              content: `Hello! Curious about the word **"${e.detail.word}"** from your practice? I'm here to help.\n\nPlease choose a format below to explain it:`,
+              suggestions: types.map(t => ({
+                id: t.id,
+                label: `Explain as ${t.name}`,
+                actionType: 'EXPLAIN_NOTE',
+                payload: { word: e.detail.word, context: e.detail.context, noteType: t, allNoteTypes: types }
+              }))
             }
           ]);
         } catch (error) {
@@ -67,54 +101,104 @@ export function GlobalAIChatFab() {
     return () => window.removeEventListener('open-ai-chat-fab', handleOpen);
   }, []);
 
-  const handleNoteTypeSelect = async (noteType: NoteType, word: string, context: string) => {
-    const userMsg: Message = { role: 'user', content: `Create a ${noteType.name} card for "${word}"` };
-    setMessages(prev => [...prev, userMsg]);
+  const handleSuggestionClick = async (messageIndex: number, suggestion: SuggestionMsg) => {
+    // Remove only the clicked suggestion, keeping others visible
+    setMessages(prev => {
+      const newMsgs = [...prev];
+      const msg = { ...newMsgs[messageIndex] };
+      if (msg.suggestions) {
+        msg.suggestions = msg.suggestions.filter(s => s.id !== suggestion.id);
+      }
+      newMsgs[messageIndex] = msg;
+      // Add user message to show what they clicked
+      newMsgs.push({ role: 'user', content: suggestion.label });
+      return newMsgs;
+    });
+
     setIsTyping(true);
 
-    try {
-      const fieldsStr = noteType.fields.map(f => f.name).join(', ');
-      const prompt = `Act as an expert English Teacher. The user highlighted the word '${word}' from the sentence: "${context}". Generate content for an advanced flashcard based precisely on this schema: [${fieldsStr}]. Return a strictly formatted JSON object where the keys are exactly the field names ([${fieldsStr}]) and the values are strings of the generated, highly accurate content. Do not include markdown blocks, explanation text, or anything other than the raw JSON object. Ensure every field has a value.`;
+    if (suggestion.actionType === 'EXPLAIN_NOTE') {
+      const { word, context, noteType, allNoteTypes } = suggestion.payload;
+      const fieldsStr = noteType.fields.map((f: any) => f.name).join(', ');
 
-      const response = await axios.post('http://localhost:8000/api/v1/chat', {
-        messages: [{ role: 'user', content: prompt }]
-      });
+      try {
+        const prompt = `Act as an expert English Teacher. The user highlighted the word '${word}' from the sentence: "${context}". Explain this word in detail based precisely on these aspects from the ${noteType.name} template: [${fieldsStr}]. Make the explanation clear, conversational, and highly educational.`;
 
-      let jsonStr = response.data.response || '';
-      if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/```json\n?/, '');
-      if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/```\n?/, '');
-      jsonStr = jsonStr.replace(/```\n?$/, '');
+        const response = await axios.post('http://localhost:8000/api/v1/chat', {
+          messages: [{ role: 'user', content: prompt }]
+        });
 
-      const generatedFields = JSON.parse(jsonStr.trim());
-
-      setMessages(prev => [
-        ...prev, 
-        { 
-          role: 'model', 
-          content: `Awesome! I have generated the content. Opening your Vocab Lab so you can review and save it...`
-        }
-      ]);
-
-      // Open Vocab Lab immediately without closing AI Chat
-      window.dispatchEvent(new CustomEvent('open-vocab-fab'));
-
-      // Wait for Vocab Lab to mount before sending the prefill payload
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('vocab-lab-prefill', {
-          detail: { 
-             word: word, 
-             context: context, 
-             AINoteType: noteType, 
-             AIFieldValues: generatedFields 
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'model',
+            content: response.data.response,
+            suggestions: [
+              {
+                id: 'add-vocab',
+                label: `Add to Vocab Lab`,
+                actionType: 'ADD_VOCAB',
+                payload: { word, context, noteType }
+              },
+              ...(allNoteTypes || []).filter((t: any) => t.id !== noteType.id).map((t: any) => ({
+                id: t.id,
+                label: `Explain as ${t.name}`,
+                actionType: 'EXPLAIN_NOTE',
+                payload: { word, context, noteType: t, allNoteTypes }
+              }))
+            ]
           }
-        }));
-      }, 500);
+        ]);
+      } catch (error) {
+        console.error('Generation error:', error);
+        setMessages(prev => [...prev, { role: 'model', content: 'Sorry, I failed to generate the explanation. Please try again.' }]);
+      } finally {
+        setIsTyping(false);
+      }
+    } else if (suggestion.actionType === 'ADD_VOCAB') {
+      const { word, context, noteType } = suggestion.payload;
+      const fieldsStr = noteType.fields.map((f: any) => f.name).join(', ');
 
-    } catch (error) {
-      console.error('Generation error:', error);
-      setMessages(prev => [...prev, { role: 'model', content: 'Sorry, I failed to generate the card fields. This might be due to an AI response error. Please try again.' }]);
-    } finally {
-      setIsTyping(false);
+      try {
+        // Add a temporary matching response
+        setMessages(prev => [...prev, { role: 'model', content: 'Generating card data...' }]);
+
+        const prompt = `Act as an expert English Teacher generating a flashcard for the word '${word}' from the sentence: "${context}". Generate content based on this schema: [${fieldsStr}]. Return a strictly formatted JSON object where the keys are exactly the field names ([${fieldsStr}]) and the values are strings of the generated content. Do not include markdown blocks, explanation text, or anything other than the raw JSON object.`;
+
+        const response = await axios.post('http://localhost:8000/api/v1/chat', {
+          messages: [{ role: 'user', content: prompt }]
+        });
+
+        let jsonStr = response.data.response || '';
+        if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/```json\n?/, '');
+        if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/```\n?/, '');
+        jsonStr = jsonStr.replace(/```\n?$/, '');
+
+        const generatedFields = JSON.parse(jsonStr.trim());
+
+        setMessages(prev => {
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1] = { role: 'model', content: `Awesome! I have generated the content. Opening your Vocab Lab so you can review and save it...` };
+          return newMsgs;
+        });
+
+        window.dispatchEvent(new CustomEvent('open-vocab-fab'));
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('vocab-lab-prefill', {
+            detail: {
+              word: word,
+              context: context,
+              AINoteType: noteType,
+              AIFieldValues: generatedFields
+            }
+          }));
+        }, 500);
+      } catch (error) {
+        console.error('Generation error:', error);
+        setMessages(prev => [...prev, { role: 'model', content: 'Sorry, I failed to generate the card fields. This might be due to an AI response error. Please try again.' }]);
+      } finally {
+        setIsTyping(false);
+      }
     }
   };
 
@@ -246,38 +330,34 @@ export function GlobalAIChatFab() {
           {/* Chat Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
             {messages.map((message, idx) => (
-              <div key={idx} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
-                  <div
-                    className={`rounded-2xl px-4 py-2.5 shadow-sm text-[15px] ${message.role === 'user'
-                        ? 'bg-slate-800 text-white rounded-br-sm self-end'
-                        : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm self-start'
-                      }`}
-                    style={{ whiteSpace: 'pre-wrap' }}
-                  >
-                    {message.content}
-                  </div>
-                  
-                  {message.type === 'ui_card_selection' && message.noteTypes && (
-                    <div className="flex flex-col gap-2 mt-1 w-full min-w-[260px]">
-                      {message.noteTypes.map(nt => (
-                        <button
-                          key={nt.id}
-                          onClick={() => handleNoteTypeSelect(nt, message.highlightedWord!, message.contextSentence!)}
-                          className="w-full text-left bg-white border border-primary/30 hover:bg-primary/5 text-gray-800 px-4 py-3 rounded-xl shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 group"
-                        >
-                           <div className="font-semibold text-primary group-hover:text-primary/80 transition-colors text-[14px]">
-                             {nt.name}
-                           </div>
-                           <div className="text-[12px] text-gray-500 mt-0.5 line-clamp-1">
-                             Fields: {nt.fields.map(f => f.name).join(', ')}
-                           </div>
-                        </button>
-                      ))}
+              <div key={idx} id={`msg-${idx}`} className="flex flex-col gap-2 w-full">
+                <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
+                    <div
+                      className={`px-4 py-2.5 shadow-sm text-[14px] ${message.role === 'user'
+                          ? 'bg-[#111111] text-white rounded-[20px] self-end'
+                          : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm self-start'
+                        }`}
+                      style={{ whiteSpace: 'pre-wrap' }}
+                    >
+                      {renderMessageContent(message.content)}
                     </div>
-                  )}
-
+                  </div>
                 </div>
+                
+                {message.suggestions && message.suggestions.length > 0 && (
+                  <div className="flex flex-col gap-2 w-full items-end mt-1">
+                    {message.suggestions.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => handleSuggestionClick(idx, s)}
+                        className="text-right bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-4 py-2.5 rounded-[20px] shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 text-[14px] max-w-[85%]"
+                      >
+                         {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {isTyping && (
