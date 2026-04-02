@@ -19,6 +19,17 @@ type Message = {
   suggestions?: SuggestionMsg[];
 };
 
+const renderMessageContent = (text: string) => {
+  if (!text) return null;
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+    }
+    return <span key={i}>{part}</span>;
+  });
+};
+
 export function GlobalAIChatFab() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -303,7 +314,7 @@ export function GlobalAIChatFab() {
                       }`}
                     style={{ whiteSpace: 'pre-wrap' }}
                   >
-                    {message.content}
+                    {renderMessageContent(message.content)}
                   </div>
                   
                   {message.suggestions && message.suggestions.length > 0 && (
