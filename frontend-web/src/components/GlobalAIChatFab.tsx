@@ -85,11 +85,13 @@ export function GlobalAIChatFab() {
   }, []);
 
   const handleSuggestionClick = async (messageIndex: number, suggestion: SuggestionMsg) => {
-    // Remove suggestions from the clicked message
+    // Remove only the clicked suggestion, keeping others visible
     setMessages(prev => {
       const newMsgs = [...prev];
       const msg = { ...newMsgs[messageIndex] };
-      delete msg.suggestions;
+      if (msg.suggestions) {
+        msg.suggestions = msg.suggestions.filter(s => s.id !== suggestion.id);
+      }
       newMsgs[messageIndex] = msg;
       // Add user message to show what they clicked
       newMsgs.push({ role: 'user', content: suggestion.label });
@@ -309,7 +311,7 @@ export function GlobalAIChatFab() {
                 <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
                   <div
                     className={`px-4 py-2.5 shadow-sm text-[14px] ${message.role === 'user'
-                        ? 'bg-white text-gray-800 border border-gray-200 rounded-[20px] self-end hover:bg-gray-50 transition-colors'
+                        ? 'bg-[#111111] text-white rounded-[20px] self-end'
                         : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm self-start'
                       }`}
                     style={{ whiteSpace: 'pre-wrap' }}
