@@ -44,13 +44,30 @@ export function GlobalAIChatFab() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }), 50);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping, isOpen]);
+    if (!isOpen) return;
+    
+    if (isTyping) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    } else if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.role === 'model') {
+        // Scroll so the top of the AI's reply sits beautifully at the top of the chatbox
+        const el = document.getElementById(`msg-${messages.length - 1}`);
+        if (el) {
+          setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+        }
+      } else {
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+      }
+    }
+  }, [messages.length, isTyping]);
 
   useEffect(() => {
     const handleOpen = async (e: any) => {
@@ -67,7 +84,7 @@ export function GlobalAIChatFab() {
                 id: t.id,
                 label: `Explain as ${t.name}`,
                 actionType: 'EXPLAIN_NOTE',
-                payload: { word: e.detail.word, context: e.detail.context, noteType: t }
+                payload: { word: e.detail.word, context: e.detail.context, noteType: t, allNoteTypes: types }
               }))
             }
           ]);
@@ -101,7 +118,7 @@ export function GlobalAIChatFab() {
     setIsTyping(true);
 
     if (suggestion.actionType === 'EXPLAIN_NOTE') {
-      const { word, context, noteType } = suggestion.payload;
+      const { word, context, noteType, allNoteTypes } = suggestion.payload;
       const fieldsStr = noteType.fields.map((f: any) => f.name).join(', ');
 
       try {
@@ -122,7 +139,13 @@ export function GlobalAIChatFab() {
                 label: `Add to Vocab Lab`,
                 actionType: 'ADD_VOCAB',
                 payload: { word, context, noteType }
-              }
+              },
+              ...(allNoteTypes || []).filter((t: any) => t.id !== noteType.id).map((t: any) => ({
+                id: t.id,
+                label: `Explain as ${t.name}`,
+                actionType: 'EXPLAIN_NOTE',
+                payload: { word, context, noteType: t, allNoteTypes }
+              }))
             ]
           }
         ]);
@@ -307,7 +330,7 @@ export function GlobalAIChatFab() {
           {/* Chat Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
             {messages.map((message, idx) => (
-              <div key={idx} className="flex flex-col gap-2 w-full">
+              <div key={idx} id={`msg-${idx}`} className="flex flex-col gap-2 w-full">
                 <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
                     <div
