@@ -307,33 +307,34 @@ export function GlobalAIChatFab() {
           {/* Chat Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
             {messages.map((message, idx) => (
-              <div key={idx} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
-                  <div
-                    className={`px-4 py-2.5 shadow-sm text-[14px] ${message.role === 'user'
-                        ? 'bg-[#111111] text-white rounded-[20px] self-end'
-                        : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm self-start'
-                      }`}
-                    style={{ whiteSpace: 'pre-wrap' }}
-                  >
-                    {renderMessageContent(message.content)}
-                  </div>
-                  
-                  {message.suggestions && message.suggestions.length > 0 && (
-                    <div className="flex flex-col gap-2 mt-2 w-full items-end">
-                      {message.suggestions.map(s => (
-                        <button
-                          key={s.id}
-                          onClick={() => handleSuggestionClick(idx, s)}
-                          className="text-right bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-4 py-2.5 rounded-[20px] shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 text-[14px]"
-                        >
-                           {s.label}
-                        </button>
-                      ))}
+              <div key={idx} className="flex flex-col gap-2 w-full">
+                <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
+                    <div
+                      className={`px-4 py-2.5 shadow-sm text-[14px] ${message.role === 'user'
+                          ? 'bg-[#111111] text-white rounded-[20px] self-end'
+                          : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm self-start'
+                        }`}
+                      style={{ whiteSpace: 'pre-wrap' }}
+                    >
+                      {renderMessageContent(message.content)}
                     </div>
-                  )}
-
+                  </div>
                 </div>
+                
+                {message.suggestions && message.suggestions.length > 0 && (
+                  <div className="flex flex-col gap-2 w-full items-end mt-1">
+                    {message.suggestions.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => handleSuggestionClick(idx, s)}
+                        className="text-right bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-4 py-2.5 rounded-[20px] shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 text-[14px] max-w-[85%]"
+                      >
+                         {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {isTyping && (
