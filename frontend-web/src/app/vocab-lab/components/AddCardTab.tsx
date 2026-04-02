@@ -65,6 +65,17 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
     window.addEventListener('vocab-lab-prefill', handlePrefill);
     return () => window.removeEventListener('vocab-lab-prefill', handlePrefill);
   }, [noteType]);
+
+  // Auto-resize textareas when values change programmatically (e.g., AI prefill)
+  useEffect(() => {
+    const textareas = document.querySelectorAll('.vocab-lab-textarea');
+    textareas.forEach((textarea) => {
+      const ta = textarea as HTMLTextAreaElement;
+      ta.style.height = 'auto';
+      ta.style.height = `${ta.scrollHeight}px`;
+    });
+  }, [fieldValues]);
+
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -422,7 +433,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                       e.target.style.height = `${e.target.scrollHeight}px`;
                     }}
                     placeholder={hasMedia ? 'Add text (optional)...' : undefined}
-                    className="w-full bg-transparent border-none p-0 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-300 focus:ring-0 focus:outline-none resize-none overflow-hidden"
+                    className="vocab-lab-textarea w-full bg-transparent border-none p-0 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-300 focus:ring-0 focus:outline-none resize-none overflow-hidden"
                     style={fieldStyleToCSS({
                       ...(noteType.templates[0]?.fieldStyles?.[field.id] as any || {}),
                       ...(fieldStyles[field.id] || {})
