@@ -53,6 +53,14 @@ export class ExamsController {
     });
   }
 
+  @Get('intensive/practice-catalog')
+  getPracticeCatalog(@Request() req: any, @Query('skill') skill?: string) {
+    return this.examsService.getPracticeCatalog({
+      userId: req.user.id,
+      skill,
+    });
+  }
+
   @Get('history')
   getHistory(@Request() req: any) {
     return this.examsService.getHistory(req.user.id);

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
-import type { IeltsIntensiveCatalogResponse, IeltsIntensiveGroup, IeltsSkill } from "@/types";
+import type { IeltsIntensiveCatalogResponse, IeltsIntensiveGroup, IeltsSkill, PracticeCatalogResponse } from "@/types";
 
 import { Headphones, BookOpen, PenTool, Mic, Search, X, TrendingUp } from "lucide-react";
 
@@ -301,9 +301,13 @@ function IeltsIntensiveContent() {
   const [readingPoints, setReadingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [writingPoints, setWritingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [speakingPoints, setSpeakingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
-  const [view, setView] = useState<"dashboard" | "mock-test">(
-    searchParams?.get("view") === "dashboard" ? "dashboard" : "mock-test"
+  const [view, setView] = useState<"dashboard" | "mock-test" | "practice">(
+    searchParams?.get("view") === "dashboard" ? "dashboard" : 
+    searchParams?.get("view") === "practice" ? "practice" : "mock-test"
   );
+  const [practiceData, setPracticeData] = useState<PracticeCatalogResponse | null>(null);
+  const [practiceLoading, setPracticeLoading] = useState(true);
+  const [activePartNumber, setActivePartNumber] = useState(1);
 
   // Search & filter state
   const [search, setSearch] = useState("");
@@ -337,6 +341,25 @@ function IeltsIntensiveContent() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skill]);
+
+  useEffect(() => {
+    let mounted = true;
+    if (view !== "practice") return;
+    setPracticeLoading(true);
+    examsApi
+      .getPracticeCatalog(skill)
+      .then(res => {
+         if (!mounted) return;
+         setPracticeData(res);
+      })
+      .catch(e => console.error(e))
+      .finally(() => {
+         if (!mounted) return;
+         setPracticeLoading(false);
+      });
+      
+    return () => { mounted = false; };
+  }, [view, skill]);
 
   // Load history for the charts
   useEffect(() => {
@@ -430,15 +453,36 @@ function IeltsIntensiveContent() {
                   </div>
                 </button>
 
-                <Link
-                  href="/ielts/history"
-                  className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                <button
+                  onClick={() => setView("practice")}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-colors ${view === "practice"
+                    ? "font-bold bg-primary/10 text-primary"
+                    : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }`}
                 >
                   <div className="flex items-center gap-3">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    Test History
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                    Practice
                   </div>
-                </Link>
+                </button>
+
+                <div className="space-y-1">
+                  <div className="px-4 pt-1 pb-0.5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Test History</div>
+                  <Link
+                    href="/ielts/history?mode=mock"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                    Mock Test History
+                  </Link>
+                  <Link
+                    href="/ielts/history?mode=practice"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                    Practice History
+                  </Link>
+                </div>
               </div>
             </div>
           </aside>
@@ -660,6 +704,115 @@ function IeltsIntensiveContent() {
                 </div>
               )}
             </>)}
+
+            {view === "practice" && (
+              <>
+                <div className="flex items-center gap-8 mb-6 border-b border-gray-100">
+                  {SKILLS.map((s) => {
+                    const active = skill === s.key;
+                    return (
+                      <button
+                        key={s.key}
+                        onClick={() => { setSkill(s.key); setActivePartNumber(1); }}
+                        className={`relative py-4 text-sm font-bold flex items-center gap-2 transition-colors ${active ? "text-gray-900" : "text-gray-400 hover:text-gray-700"}`}
+                      >
+                        {s.icon}
+                        {s.label}
+                        <span className={`absolute left-0 -bottom-[1px] h-[3px] rounded-full bg-primary transition-all ${active ? "w-full" : "w-0"}`} />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-4 mb-8">
+                  {[1, 2, 3, 4].map((partNum) => {
+                     const active = activePartNumber === partNum;
+                     return (
+                        <button
+                          key={partNum}
+                          onClick={() => setActivePartNumber(partNum)}
+                          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl flex-1 border transition-colors ${active ? "bg-white border-primary shadow-sm text-primary font-bold" : "bg-gray-50/50 border-gray-100 text-gray-500 font-semibold hover:bg-gray-50"}`}
+                        >
+                          <svg viewBox="0 0 24 24" className={`w-5 h-5 ${active ? "text-primary" : "text-gray-400"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                          <div className="flex flex-col items-start gap-[1px]">
+                             <span className="text-sm">Part {partNum}</span>
+                             {skill === "LISTENING" && <span className="text-[10px] opacity-70 font-medium tracking-wide">
+                                {partNum === 1 ? "Basic Conversation" : partNum === 2 ? "Short Monologue" : partNum === 3 ? "Academic Discussion" : "Academic Lecture"}
+                             </span>}
+                          </div>
+                        </button>
+                     )
+                  })}
+                </div>
+
+                <div className="space-y-4">
+                   {practiceLoading && <div className="py-10 text-center text-gray-500 font-medium">Loading practice items...</div>}
+                   {!practiceLoading && practiceData?.items && (() => {
+                      const items = practiceData.items.filter(i => i.partNumber === activePartNumber);
+                      if (items.length === 0) return <div className="py-10 text-center text-gray-500 font-medium bg-gray-50 rounded-2xl border border-gray-100">No practice items found for this part.</div>;
+                      
+                      return items.map(item => (
+                         <div key={item.id} className="relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+                            
+                            <div className="flex gap-6 items-center flex-1">
+                               <div className={`relative shrink-0 w-16 h-16 rounded-full border-[3px] flex flex-col items-center justify-center bg-white ${item.myScore !== undefined ? "border-green-500 text-green-600" : "border-gray-200 text-gray-400"}`}>
+                                  {item.myScore !== undefined ? (
+                                     <>
+                                        <span className="font-black leading-none text-xl">{item.myScore}</span>
+                                        <span className="text-[10px] font-bold text-gray-400 mt-0.5">/ {item.totalQuestions}</span>
+                                     </>
+                                  ) : (
+                                     <span className="font-extrabold leading-none text-xl">-</span>
+                                  )}
+                               </div>
+
+                               <div className="flex flex-col gap-1.5 flex-1">
+                                  <div className="flex items-center gap-2">
+                                     <span className="px-2.5 py-[3px] rounded-md bg-gray-100 text-gray-700 text-[10px] font-bold tracking-wide uppercase">{item.testTitle}</span>
+                                  </div>
+                                  <h3 className="text-lg font-black text-gray-900 tracking-tight">{item.topic}</h3>
+                                  
+                                  <div className="flex items-center gap-3 text-xs mt-1">
+                                     {item.practicesCompleted > 0 ? (
+                                        <div className="flex items-center gap-2 font-medium">
+                                           <span className="text-gray-500">Practiced {item.practicesCompleted} times</span>
+                                        </div>
+                                     ) : item.latestSessionStatus === "IN_PROGRESS" ? (
+                                        <div className="flex items-center gap-2 font-medium">
+                                           <span className="text-amber-500 bg-amber-50 px-2 py-0.5 rounded-md text-[10px] flex items-center gap-1.5 font-bold">
+                                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> In Progress
+                                           </span>
+                                        </div>
+                                     ) : (
+                                        <span className="text-gray-400 bg-gray-50 px-2 py-0.5 rounded text-[10px] font-bold">Not started</span>
+                                     )}
+                                  </div>
+                               </div>
+                            </div>
+                            
+                            <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3 justify-end w-full md:w-auto">
+                               {item.practicesCompleted > 0 || item.latestSessionStatus === "IN_PROGRESS" ? (
+                                  <>
+                                    <button onClick={() => window.location.href = `/ielts/intensive/${item.examId}/start?practicePart=${item.partNumber}`} className="px-5 py-3 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-bold transition-all bg-white w-full sm:w-auto">
+                                       Start Fresh
+                                    </button>
+                                    <button onClick={() => window.location.href = `/ielts/intensive/${item.examId}/practice/${item.latestSessionId}`} className="px-6 py-3 rounded-xl bg-gray-900 hover:bg-black text-white text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2 group w-full sm:w-auto">
+                                       Continue Practice <svg className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </button>
+                                  </>
+                               ) : (
+                                  <button onClick={() => window.location.href = `/ielts/intensive/${item.examId}/start?practicePart=${item.partNumber}`} className="px-6 py-3 rounded-xl border-2 border-primary hover:border-primary hover:bg-primary/5 text-primary text-sm font-bold shadow-sm transition-all bg-white flex items-center justify-center gap-2">
+                                     Start Practice
+                                  </button>
+                               )}
+                            </div>
+                         </div>
+                      ));
+                   })()}
+                </div>
+              </>
+            )}
+
           </main>
         </div>
       </div>

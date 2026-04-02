@@ -86,7 +86,7 @@ export class ExamsService {
 
     const parsed = exams
       .map((e) => ({ exam: e, meta: this.parseCambridgeTitle(e.title) }))
-      .filter((x) => x.meta !== null) as Array<{
+      .filter((x) => x.meta !== null && x.meta.groupId !== 'cambridge-13') as Array<{
       exam: (typeof exams)[number];
       meta: NonNullable<ReturnType<ExamsService['parseCambridgeTitle']>>;
     }>;
@@ -211,6 +211,97 @@ export class ExamsService {
     return { skill, groups };
   }
 
+  async getPracticeCatalog(params: { userId: string; skill?: string }) {
+    const skill = this.normalizeSkill(params.skill);
+
+    const exams = await this.prisma.exam.findMany({
+      where: {
+        isPublished: true,
+        type: skill,
+      },
+      select: {
+        id: true,
+        title: true,
+        type: true,
+        questions: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const parsed = exams
+      .map((e) => ({ exam: e, meta: this.parseCambridgeTitle(e.title) }))
+      .filter((x) => x.meta !== null && x.meta.groupId === 'cambridge-13') as Array<{
+      exam: (typeof exams)[number];
+      meta: NonNullable<ReturnType<ExamsService['parseCambridgeTitle']>>;
+    }>;
+
+    const examIds = parsed.map((p) => p.exam.id);
+
+    // Get all sessions for these exams that have a practicePart
+    const sessions = await (this.prisma.examSession as any).findMany({
+      where: { examId: { in: examIds }, practicePart: { not: null } },
+      select: { id: true, examId: true, userId: true, status: true, practicePart: true, result: true },
+      orderBy: { createdAt: 'desc' },
+    }) as Array<{ id: string; examId: string; userId: string; status: string; practicePart: number | null; result: any }>;
+
+    const practiceItems: any[] = [];
+
+    for (const p of parsed) {
+      const q: any = p.exam.questions || {};
+      const partsArr = Array.isArray(q.parts) ? q.parts : 
+                       Array.isArray(q.passages) ? q.passages : 
+                       Array.isArray(q.tasks) ? q.tasks : [];
+                       
+      if (partsArr.length === 0) {
+        // Fallback if no parts found
+        continue;
+      }
+
+      for (const part of partsArr) {
+        const partNumber = part.part_number || part.passage_number || part.task_number || 1;
+        
+        // Find sessions for this part
+        const partSessions = sessions.filter(s => s.examId === p.exam.id && s.practicePart === partNumber);
+        
+        const mySessions = partSessions.filter(s => s.userId === params.userId);
+        const completedSessions = mySessions.filter(s => s.status === SessionStatus.COMPLETED);
+        
+        let highestScore = 0;
+        for (const cs of completedSessions) {
+           if (cs.result?.totalScore && cs.result.totalScore > highestScore) {
+              highestScore = cs.result.totalScore;
+           }
+        }
+        
+        const latestSession = mySessions.length > 0 ? mySessions[0] : null;
+
+        let totalQ = 10;
+        if (typeof part.questions === 'string') {
+           const match = part.questions.match(/(\d+)\s*[-–]\s*(\d+)/);
+           if (match) {
+             totalQ = parseInt(match[2]) - parseInt(match[1]) + 1;
+           }
+        }
+
+        practiceItems.push({
+          id: `${p.exam.id}-${partNumber}`,
+          examId: p.exam.id,
+          testTitle: `${p.meta.groupTitle} Test ${p.meta.testNumber}`,
+          partNumber,
+          partType: part.part_type || part.passage_type || part.task_type || `Part ${partNumber}`,
+          topic: part.topic || part.title || `Topic ${partNumber}`,
+          totalQuestions: totalQ,
+          myScore: completedSessions.length > 0 ? highestScore : undefined,
+          practicesCompleted: completedSessions.length,
+          latestSessionId: latestSession?.id,
+          latestSessionStatus: latestSession?.status,
+        });
+      }
+    }
+
+    return { skill, items: practiceItems };
+  }
+
   async create(createExamDto: CreateExamDto): Promise<Exam> {
     return this.prisma.exam.create({
       data: createExamDto,
@@ -263,6 +354,7 @@ export class ExamsService {
       rawScore: s.result?.totalScore ?? 0,
       writingScore: s.result?.writingScore ?? null,
       maxScore: 40,
+      practicePart: (s as any).practicePart ?? null,
     }));
   }
 
@@ -271,14 +363,15 @@ export class ExamsService {
     examId: string,
     createSessionDto: CreateSessionDto,
   ): Promise<ExamSession> {
-    return this.prisma.examSession.create({
+    return (this.prisma.examSession as any).create({
       data: {
         examId,
         userId: createSessionDto.userId,
         answers: {},
         status: 'IN_PROGRESS',
+        practicePart: createSessionDto.practicePart ?? null,
       },
-    });
+    }) as Promise<ExamSession>;
   }
 
   private parseIELTSAnswer(correct: string): string[] {

@@ -646,6 +646,7 @@ export default function IntensiveTestTakePage() {
   const sessionId = params?.sessionId as string;
 
   const [exam, setExam] = useState<ExamDetail | null>(null);
+  const [sessionInfo, setSessionInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -706,13 +707,20 @@ export default function IntensiveTestTakePage() {
     setLoading(true);
     setError(null);
 
-    examsApi
-      .getExam(examId)
-      .then((res) => {
+    Promise.all([
+      examsApi.getExam(examId),
+      examsApi.getSession(sessionId)
+    ])
+      .then(([res, session]) => {
         if (!mounted) return;
         setExam(res);
+        setSessionInfo(session);
         // Timer: exam.duration in minutes
         setSecondsLeft(res.duration * 60);
+        
+        if (session?.answers) {
+           setAnswers(session.answers as AnswersState);
+        }
       })
       .catch((e: any) => {
         if (!mounted) return;
@@ -811,7 +819,9 @@ export default function IntensiveTestTakePage() {
     };
   }, [hasStartedAudio, submitting, submitResult, exam?.type]);
 
-  const parts = useMemo(() => (exam?.questions?.parts as any[]) || [], [exam]);
+  const parts = useMemo(() => {
+     return (exam?.questions?.parts as any[]) || [];
+  }, [exam]);
   const writingTasks = useMemo(() => (exam?.questions?.tasks as any[]) || [], [exam]);
   const activePart = parts[activePartIdx] || null;
   const items = useMemo(() => (activePart ? extractAllItemsFromPart(activePart) : []), [activePart]);

@@ -364,6 +364,25 @@ export interface IeltsIntensiveCatalogResponse {
   groups: IeltsIntensiveGroup[];
 }
 
+export interface PracticeItem {
+  id: string; // "examId-partNumber"
+  examId: string;
+  testTitle: string; 
+  partNumber: number;
+  partType: string; // e.g. "Basic Conversation"
+  topic: string; // e.g. "Cookery Classes"
+  totalQuestions: number;
+  myScore?: number;
+  practicesCompleted: number;
+  latestSessionId?: string; // to resume
+  latestSessionStatus?: string;
+}
+
+export interface PracticeCatalogResponse {
+  skill: IeltsSkill;
+  items: PracticeItem[];
+}
+
 export interface ExamDetail {
   id: string;
   title: string;
@@ -387,6 +406,7 @@ export interface ExamSessionDetail {
   startedAt: string;
   submittedAt?: string | null;
   result?: any;
+  practicePart?: number | null;
   createdAt?: string;
   updatedAt?: string;
 }

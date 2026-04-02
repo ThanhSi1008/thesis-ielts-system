@@ -2571,6 +2571,1322 @@ const cambridgeIelts17ListeningTest4Questions = {
   ],
 };
 
+const cambridgeIelts13ListeningTest1Questions = {
+  "test_title": "Cambridge IELTS 13 - Listening Test 1",
+  "section": "Listening",
+  "parts": [
+    {
+      "part_number": 1,
+      "part_type": "Basic Conversation",
+      "audio_url": "https://res.cloudinary.com/dalaaegob/video/upload/v1775050442/IELTS13-Tests1-4CD1Track_01_dvevha.mp3",
+      "questions": "1–10",
+      "topic": "COOKERY CLASSES",
+      "transcript": [
+        {
+          "speaker": "OFFICIAL",
+          "text": "Hello, Tourist Information Centre, Mike speaking, how can I help you?"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "Oh, hi. I wanted to find out about cookery classes. I believe there are some one-day classes for tourists?"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Well, they're open to everyone, but tourists are always welcome. Ok, let me give you some details of what's available. There are several classes. One very popular one is at the Food Studio."
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "OK."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "They focus on seasonal products, and as well as teaching you how to cook them, they also show you how to choose them.",
+          "question_number": 1,
+          "highlight_text": "choose"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "Right, that sounds good. How big are the classes?"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "I'm not sure exactly, but they'll be quite small."
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "And could I get a private lesson there?",
+          "question_number": 2,
+          "highlight_text": "private"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "I think so... let me check, yes, they do offer those. Though in fact most of the people who attend the classes find it's a nice way of getting to know one another."
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "I suppose it must be, yes."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "And this company has a special deal for clients where they offer a discount of 20 percent if you return for a further class.",
+          "question_number": 3,
+          "highlight_text": "20 percent"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "OK. But you said there were several classes?"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "That's right. Another one you might be interested in is Bond's Cookery School. They're quite new, they just opened six months ago, but I've heard good things about them. They concentrate on teaching you to prepare healthy food, and they have quite a lot of specialist staff.",
+          "question_number": 4,
+          "highlight_text": "healthy"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "So is that food for people on a diet and things like that? I don't know if I'd be interested in that."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Well, I don't think they particularly focus on low calorie diets or weight loss. It's more to do with recipes that look at specific needs, like including ingredients that will help build up your bones and make them stronger, that sort of thing.",
+          "question_number": 5,
+          "highlight_text": "bones"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "I see. Well, I might be interested, I'm not sure. Do they have a website I could check?"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Yes, just key in the name of the school-- it'll come up. And if you want to know more about them, every Thursday evening they have a lecture at the school. It's free and you don't need to book or anything, just turn up at 7.30. And that might give you an idea of whether you want to go to an actual class.",
+          "question_number": 6,
+          "highlight_text": "lecture"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "OK, there's one more place you might be interested in. That's got a rather strange name, it's called The Arretsa Centre-- that's spelled A-R-R-E-T-S-A.",
+          "question_number": 7,
+          "highlight_text": "Arretsa"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "OK."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "They've got a very good reputation. They do a bit of meat and fish cookery but they mostly specialise in vegetarian dishes.",
+          "question_number": 8,
+          "highlight_text": "vegetarian"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "Right. That's certainly an area I'd like to learn more about. I've got lots of friends who don't eat meat. In fact, I think I might have seen that school today. Is it just by the market?",
+          "question_number": 9,
+          "highlight_text": "market"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "That's right. So they don't have any problem getting their ingredients. They're right next door. And they also offer a special two-hour course in how to use a knife. They cover all the different skills--buying them, sharpening, chopping techniques. It gets booked up quickly though so you'd need to check it was available.",
+          "question_number": 10,
+          "highlight_text": "knife"
+        },
+        {
+          "speaker": "WOMAN",
+          "text": "Right, well thank you very much. I'll go and ..."
+        }
+      ],
+      "question_groups": [
+        {
+          "questions": "1–10",
+          "instructions": "Complete the table below.\nWrite ONE WORD AND/OR A NUMBER for each answer.",
+          "topic": "COOKERY CLASSES",
+          "question_type": "Note Completion",
+          "content": [
+            {
+              "heading": "The Food Studio",
+              "points": [
+                {
+                  "text": "small classes"
+                },
+                {
+                  "text": "focus on how to 1 .............................. and cook with seasonal products",
+                  "question_number": 1,
+                  "answer": "choose",
+                  "timestamp_seconds": 209
+                },
+                {
+                  "text": "also offers 2 .............................. classes",
+                  "question_number": 2,
+                  "answer": "private",
+                  "timestamp_seconds": 218
+                },
+                {
+                  "text": "clients who return get a 3 .............................. discount",
+                  "question_number": 3,
+                  "answer": "20 / twenty percent",
+                  "timestamp_seconds": 236
+                }
+              ]
+            },
+            {
+              "heading": "Bond's Cookery School",
+              "points": [
+                {
+                  "text": "food that is 4 ..............................",
+                  "question_number": 4,
+                  "answer": "healthy",
+                  "timestamp_seconds": 253
+                },
+                {
+                  "text": "includes recipes to strengthen your 5 ..............................",
+                  "question_number": 5,
+                  "answer": "bones",
+                  "timestamp_seconds": 275
+                },
+                {
+                  "text": "they have a free 6 .............................. every Thursday",
+                  "question_number": 6,
+                  "answer": "lecture",
+                  "timestamp_seconds": 294
+                }
+              ]
+            },
+            {
+              "heading": "The 7 _________ Centre",
+              "points": [
+                {
+                  "text": "The name of the centre is 7 ..............................",
+                  "question_number": 7,
+                  "answer": "Arretsa",
+                  "timestamp_seconds": 348
+                },
+                {
+                  "text": "mainly 8 .............................. food",
+                  "question_number": 8,
+                  "answer": "vegetarian",
+                  "timestamp_seconds": 362
+                },
+                {
+                  "text": "located near the 9 ..............................",
+                  "question_number": 9,
+                  "answer": "market",
+                  "timestamp_seconds": 376
+                },
+                {
+                  "text": "a special course in skills with a 10 .............................. is sometimes available",
+                  "question_number": 10,
+                  "answer": "knife",
+                  "timestamp_seconds": 384
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "part_number": 2,
+      "part_type": "Monologue",
+      "topic": "Traffic Changes in Granford",
+      "audio_url": "https://res.cloudinary.com/dalaaegob/video/upload/v1775050438/IELTS13-Tests1-4CD1Track_02_fnhlgl.mp3",
+      "questions": "11–20",
+      "transcript": [
+        {
+          "speaker": "OFFICIAL",
+          "text": "You will hear the Chairman of the Highways Committee of Granford speaking to members"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "of the public about proposed changes to traffic and parking in the area."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "First, you have some time to look at questions 11 to 13."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Now listen carefully and answer questions 11 to 13."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Good evening everyone, my name's Phil Sutton and I'm Chairman of the Highways Committee."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "We've called this meeting to inform members of the public about the new regulations for traffic"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "and parking we're proposing for Granford. I'll start by summarising these changes"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "before we open the meeting to questions. So why do we need to make these changes"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "to traffic systems in Granford? Well, we're very aware that traffic is becoming an increasing"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "problem. It's been especially noticeable with the increase in heavy traffic while they've been"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "building the new hospital. But it's the overall rise in the volume of traffic of all kinds that's",
+          "question_number": 11,
+          "highlight_text": "volume of traffic"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "concerning us. To date there's not been any increase in traffic accidents but that's not"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "something we want to see happen obviously. We recently carried out a survey of local residents"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "and their responses were interesting. People were very concerned about the lack of visibility on"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "some roads due to cars parked along the sides of the roads. We'd expected complaints about the",
+          "question_number": 12,
+          "highlight_text": "cars parked along the sides"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "congestion near the school when parents are dropping off their children or picking them up."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "But this was on top of the list and nor were noise and fumes from trucks and lorries,"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "though they were mentioned by some people. We think these new traffic regulations would make"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "a lot of difference but we still have a long way to go. We've managed to keep our proposals within"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "budget just so they can be covered by the council but of course it's no good introducing new"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "regulations if we don't have a way of making sure that everyone obeys them and that's an area we're",
+          "question_number": 13,
+          "highlight_text": "everyone obeys them"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "still working on with the help of representatives from the police force."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Before you hear the rest of the talk you have some time to look at questions 14 to 20."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Now listen and answer questions 14 to 20."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "Okay so this slide shows a map of the central area of Granford with the high street in the middle"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "and school road on the right. Now we already have a set of traffic lights in the high street at the"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "junction with station road but we're planning to have another set at the other end at the school road"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "junction to regulate the flow of traffic along the high street. We've decided we definitely need"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "a pedestrian crossing. We considered putting this on school road just outside the school but in the"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "end we decided that could lead to a lot of traffic congestion so we decided to locate it on the high"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "street crossing the road in front of the supermarket. That's a very busy area so it should help things",
+          "question_number": 15,
+          "highlight_text": "in front of the supermarket"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "there. We're proposing some changes to parking. At present parking isn't allowed on the high"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "street outside the library but we're going to change that and allow parking there but not at the"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "other end of the high street near school road. There'll be a new no parking sign on school road"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "just by the entrance to the school forbidding parking for 25 meters. This should improve visibility",
+          "question_number": 17,
+          "highlight_text": "forbidding parking for 25"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "for drivers and pedestrians especially on the bend just to the north of the school."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "As far as disabled drivers are concerned at present they have parking outside the supermarket"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "but lorries also use those spaces so we've got two new disabled parking spaces on the side road"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "up towards the bank. It's not ideal but probably better than the present arrangement."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "We also plan to widen the pavement on school road. We think we can manage to get an extra half",
+          "question_number": 19,
+          "highlight_text": "widen the pavement on school road"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "meter on the bend just before we get to the school on the same side of the road. Finally"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "we've introduced new restrictions on loading and unloading for the supermarket so lorries will only",
+          "question_number": 20,
+          "highlight_text": "loading and unloading for the supermarket"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "be allowed to stop there before 8 a.m. That's the supermarket on school road. We kept to the"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "existing arrangements with the high street supermarket. Okay so that's about it."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "That is the end of section two. You now have half a minute to check your answers."
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "You"
+        },
+        {
+          "speaker": "OFFICIAL",
+          "text": "now turn to section three."
+        }
+      ],
+      "question_groups": [
+        {
+          "questions": "11–13",
+          "instructions": "Choose the correct letter, A, B or C.",
+          "topic": "Traffic Changes in Granford",
+          "question_type": "Multiple Choice (one answer)",
+          "items": [
+            {
+              "question_number": 11,
+              "question_text": "Why are changes needed to traffic systems in Granford?",
+              "options": {
+                "A": "The number of traffic accidents has risen.",
+                "B": "The amount of traffic on the roads has increased.",
+                "C": "The types of vehicles on the roads have changed."
+              },
+              "answer": "B",
+              "timestamp_seconds": 96
+            },
+            {
+              "question_number": 12,
+              "question_text": "In a survey, local residents particularly complained about",
+              "options": {
+                "A": "dangerous driving by parents.",
+                "B": "pollution from trucks and lorries.",
+                "C": "inconvenience from parked cars."
+              },
+              "answer": "C",
+              "timestamp_seconds": 117
+            },
+            {
+              "question_number": 13,
+              "question_text": "According to the speaker, one problem with the new regulations will be",
+              "options": {
+                "A": "raising money to pay for them.",
+                "B": "finding a way to make people follow them.",
+                "C": "getting the support of the police."
+              },
+              "answer": "B",
+              "timestamp_seconds": 156
+            }
+          ]
+        },
+        {
+          "questions": "14–20",
+          "instructions": "Label the map below.\nWrite the correct letter, A-I, next to Questions 14-20.",
+          "question_type": "Map Labelling",
+          "topic": "Proposed traffic changes in Granford",
+          "image_url": "https://res.cloudinary.com/dalaaegob/image/upload/v1775051961/cam13-test2_f4co7d.png",
+          "items": [
+            {
+              "question_number": 14,
+              "question_text": "14 New traffic lights",
+              "answer": "E",
+              "timestamp_seconds": 232
+            },
+            {
+              "question_number": 15,
+              "question_text": "15 Pedestrian crossing",
+              "answer": "D",
+              "timestamp_seconds": 260
+            },
+            {
+              "question_number": 16,
+              "question_text": "16 Parking allowed",
+              "answer": "B",
+              "timestamp_seconds": 275
+            },
+            {
+              "question_number": 17,
+              "question_text": "17 New 'No Parking' sign",
+              "answer": "G",
+              "timestamp_seconds": 289
+            },
+            {
+              "question_number": 18,
+              "question_text": "18 New disabled parking spaces",
+              "answer": "C",
+              "timestamp_seconds": 309
+            },
+            {
+              "question_number": 19,
+              "question_text": "19 Widened pavement",
+              "answer": "H",
+              "timestamp_seconds": 322
+            },
+            {
+              "question_number": 20,
+              "question_text": "20 Lorry loading/unloading restrictions",
+              "answer": "I",
+              "timestamp_seconds": 335
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "part_number": 3,
+      "part_type": "Conversation",
+      "topic": "Seed Germination Experiment",
+      "audio_url": "https://res.cloudinary.com/dalaaegob/video/upload/v1775050438/IELTS13-Tests1-4CD1Track_03_oghpl4.mp3",
+      "questions": "21–30",
+      "transcript": [
+        {
+          "speaker": "JACK",
+          "text": "Section 3"
+        },
+        {
+          "speaker": "JACK",
+          "text": "You will hear two biology students called Emma and Jack"
+        },
+        {
+          "speaker": "JACK",
+          "text": "discussing an experiment they are going to do together."
+        },
+        {
+          "speaker": "JACK",
+          "text": "First, you have some time to look at questions 21 to 25."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Now listen carefully and answer questions 21 to 25."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "We've got to choose a topic for our experiment, haven't we, Jack?"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Were you thinking of something to do with seeds?"
+        },
+        {
+          "speaker": "JACK",
+          "text": "That's right. I thought we could look at seed germination, how a seed begins to grow."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Okay. Any particular reason?"
+        },
+        {
+          "speaker": "JACK",
+          "text": "I know you're hoping to work in plant science eventually."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Yeah, but practically everything we do is going to feed into that."
+        },
+        {
+          "speaker": "JACK",
+          "text": "No, there's an optional module on seed structure and function in the third year that I might do."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So I thought it might be useful for that.",
+          "question_number": 21,
+          "highlight_text": "useful for that"
+        },
+        {
+          "speaker": "JACK",
+          "text": "If I choose that option, I don't have to do a dissertation module."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Good idea."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Well, I thought for this experiment we could look at the relationship between seed size and the way the seeds are planted."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So we could plant different sized seeds in different ways and see which grow best."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Okay. We'd need to allow time for the seeds to come up.",
+          "question_number": 22,
+          "highlight_text": "allow time for the seeds to come up"
+        },
+        {
+          "speaker": "JACK",
+          "text": "That should be fine if we start now."
+        },
+        {
+          "speaker": "JACK",
+          "text": "A lot of the other possible experiments need quite a bit longer."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So that'd make it a good one to choose."
+        },
+        {
+          "speaker": "JACK",
+          "text": "And I don't suppose it'd need much equipment."
+        },
+        {
+          "speaker": "JACK",
+          "text": "We're not doing chemical analysis or anything."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Though that's not really an issue. We've got plenty of equipment in the laboratory."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Yeah. We need to have a word with the tutor if we're going to go ahead with it though."
+        },
+        {
+          "speaker": "JACK",
+          "text": "I'm sure our aim's okay. It's not very ambitious, but the assignment's only 10% of our final mark, isn't it?"
+        },
+        {
+          "speaker": "JACK",
+          "text": "But we need to be sure we're the only ones doing it.",
+          "question_number": 23,
+          "highlight_text": "sure we're the only ones doing it"
+        },
+        {
+          "speaker": "JACK",
+          "text": "Yeah. It's only 5% actually, but it'd be a bit boring if everyone was doing it."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Did you read that book on seed germination on our reading list?"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "The one by Graves."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Hmm."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "I looked through it for my last experiment, though it wasn't all that relevant there."
+        },
+        {
+          "speaker": "JACK",
+          "text": "It would be for this experiment though."
+        },
+        {
+          "speaker": "JACK",
+          "text": "I found it quite hard to follow, lots about the theory which I hadn't expected.",
+          "question_number": 24,
+          "highlight_text": "lots about the theory"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Yes. I'd been hoping for something more practical."
+        },
+        {
+          "speaker": "JACK",
+          "text": "It does include references to the recent findings on genetically modified seeds though."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Yes. That was interesting."
+        },
+        {
+          "speaker": "JACK",
+          "text": "I read an article about seed germination by Lee Hall."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "About seeds that lie in the ground for ages and only germinate after a fire."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Hmm. That's the one. I knew a bit about it already, but not about this research."
+        },
+        {
+          "speaker": "JACK",
+          "text": "His analysis of figures comparing the times of the fires and the proportion of seeds that germinated"
+        },
+        {
+          "speaker": "JACK",
+          "text": "was done in a lot of detail. Very impressive.",
+          "question_number": 25,
+          "highlight_text": "was done in a lot of detail"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Was that the article with the illustrations of early stages of plant development?"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "They were very clear."
+        },
+        {
+          "speaker": "JACK",
+          "text": "I think those diagrams were in another article."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Before you hear the rest of the discussion, you have some time to look at questions 26 to 30."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Now listen and answer questions 26 to 30."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Anyway, shall we have a look at the procedure for our experiment? We'll need to get going with it quite soon."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Right. So the first thing we have to do is find our seeds."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "I think vegetable seeds would be best and obviously they mustn't all be the same size."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "So how many sorts do we need? About four different ones?",
+          "question_number": 26,
+          "highlight_text": "four different ones"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "I think that would be enough. There'll be quite a large number of seeds for each one."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Then for each seed we need to find out how much it weighs and also measure its dimensions.",
+          "question_number": 27,
+          "highlight_text": "much it weighs"
+        },
+        {
+          "speaker": "JACK",
+          "text": "And we need to keep a careful record of all that."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "That'll be quite time consuming and we also need to decide how deep we're going to plant the seeds",
+          "question_number": 28,
+          "highlight_text": "how deep we're going to plant"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "right on the surface a few millimetres down or several centimetres."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Okay. So then we get planting. Do you think we can plant several seeds together in the same plant pot?"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "No. I think we need a different one for each seed.",
+          "question_number": 29,
+          "highlight_text": "different one for each seed"
+        },
+        {
+          "speaker": "JACK",
+          "text": "Right. And we'll need to label them. We can use different coloured labels."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Then we wait for the seeds to germinate. I reckon that'll be about three weeks depending on what the weather's like."
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Then we see if our plants have come up and write down how tall they've grown.",
+          "question_number": 30,
+          "highlight_text": "how tall they've grown"
+        },
+        {
+          "speaker": "EMMA",
+          "text": "Then all we have to do is look at our numbers and see if there's any relation between them."
+        },
+        {
+          "speaker": "JACK",
+          "text": "That's right."
+        },
+        {
+          "speaker": "JACK",
+          "text": "That is the end of section three. You now have half a minute to check your answers."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Now turn to section four."
+        }
+      ],
+      "question_groups": [
+        {
+          "questions": "21–25",
+          "instructions": "Choose the correct letter, A, B or C.",
+          "question_type": "Multiple Choice (one answer)",
+          "items": [
+            {
+              "question_number": 21,
+              "question_text": "Why is Jack interested in investigating seed germination?",
+              "options": {
+                "A": "He may do a module on a related topic later on.",
+                "B": "He wants to have a career in plant science.",
+                "C": "He is thinking of choosing this topic for his dissertation."
+              },
+              "answer": "A",
+              "timestamp_seconds": 92
+            },
+            {
+              "question_number": 22,
+              "question_text": "Jack and Emma agree the main advantage of their present experiment is that it can be",
+              "options": {
+                "A": "described very easily.",
+                "B": "carried out inside the laboratory.",
+                "C": "completed in the time available."
+              },
+              "answer": "C",
+              "timestamp_seconds": 125
+            },
+            {
+              "question_number": 23,
+              "question_text": "What do they decide to check with their tutor?",
+              "options": {
+                "A": "whether their aim is appropriate",
+                "B": "whether anyone else has chosen this topic",
+                "C": "whether the assignment contributes to their final grade"
+              },
+              "answer": "B",
+              "timestamp_seconds": 161
+            },
+            {
+              "question_number": 24,
+              "question_text": "They agree that Graves' book on seed germination is disappointing because",
+              "options": {
+                "A": "it fails to cover recent advances in seed science.",
+                "B": "the content is irrelevant for them.",
+                "C": "its focus is very theoretical."
+              },
+              "answer": "C",
+              "timestamp_seconds": 187
+            },
+            {
+              "question_number": 25,
+              "question_text": "What does Jack say about the article on seed germination by Lee Hall?",
+              "options": {
+                "A": "The diagrams of plant development are useful.",
+                "B": "The analysis of seed germination statistics is thorough.",
+                "C": "The findings on seed germination after fires are surprising."
+              },
+              "answer": "B",
+              "timestamp_seconds": 221
+            }
+          ]
+        },
+        {
+          "questions": "26–30",
+          "instructions": "Complete the flow-chart below.\nChoose FIVE answers from the box and write the correct letter, A-H, next to Questions 26-30.",
+          "question_type": "Flowchart Completion",
+          "topic": "Stages in the experiment",
+          "options_box": {
+            "title": "Options",
+            "options": {
+              "A": "container",
+              "B": "soil",
+              "C": "weight",
+              "D": "condition",
+              "E": "height",
+              "F": "colour",
+              "G": "types",
+              "H": "depths"
+            }
+          },
+          "content": [
+            {
+              "heading": "Stages in the experiment",
+              "points": [
+                {
+                  "text": "Select seeds of different 26 .............................. and sizes.",
+                  "question_number": 26,
+                  "answer": "G",
+                  "timestamp_seconds": 305
+                },
+                {
+                  "text": "Measure and record the 27 .............................. and size of each one.",
+                  "question_number": 27,
+                  "answer": "C",
+                  "timestamp_seconds": 315
+                },
+                {
+                  "text": "Decide on the 28 .............................. to be used.",
+                  "question_number": 28,
+                  "answer": "H",
+                  "timestamp_seconds": 327
+                },
+                {
+                  "text": "Use a different 29 .............................. for each seed and label it.",
+                  "question_number": 29,
+                  "answer": "A",
+                  "timestamp_seconds": 347
+                },
+                {
+                  "text": "After about 3 weeks, record the plant's 30 .............................. .",
+                  "question_number": 30,
+                  "answer": "E",
+                  "timestamp_seconds": 366
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "part_number": 4,
+      "part_type": "Lecture",
+      "topic": "Effects of urban environments on animals",
+      "audio_url": "https://res.cloudinary.com/dalaaegob/video/upload/v1775050440/IELTS13-Tests1-4CD1Track_04_hde68p.mp3",
+      "questions": "31–40",
+      "transcript": [
+        {
+          "speaker": "LECTURER",
+          "text": "Section 4 You will hear part of a lecture on an environmental"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "studies course about recent research on how animals are adapting to urban environments."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "First, you have some time to look at questions 31 to 40."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "you"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "now listen carefully and answer questions 31 to 40."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Hi, today we're going to be looking at animals in urban environments and I'm going to be"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "telling you about some research on how they're affected by these environments."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Now in evolutionary terms, urban environments represent huge upheavals, the sorts of massive"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "changes that usually happen over millions of years."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And we used to think that only a few species could adapt to this new environment."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "One species which is well known as being highly adaptable is the crow and there have been",
+          "question_number": 31,
+          "highlight_text": "adaptable is the crow"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "various studies about how they manage to learn new skills."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Another successful species is the pigeon because they're able to perch on ledges on"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "the walls of city buildings just like they once perched on cliffs by the sea.",
+          "question_number": 32,
+          "highlight_text": "perched on cliffs"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "But in fact, we're now finding that these early immigrants were just the start of a"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "more general movement of animals into cities and of adaptation by these animals to city"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "life."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And one thing that researchers are finding especially interesting is the speed with which",
+          "question_number": 33,
+          "highlight_text": "the speed with which"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "they're doing this."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "We're not talking about gradual evolution here."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "These animals are changing fast."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Let me tell you about some of the studies that have been carried out in this area."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "So in the University of Minnesota, a biologist called Emily Snellrude and her colleagues"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "looked at specimens of urbanized small mammals such as mice and gophers that had been collected"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "in Minnesota and that are now kept in museums there."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And she looked at specimens that had been collected over the last hundred years, which"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "is a very short time in evolutionary terms."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And she found that during that time, these small mammals had experienced a jump in brain",
+          "question_number": 34,
+          "highlight_text": "jump in brain"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "size when compared to rural mammals."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Now we can't be sure this means they're more intelligent, but since the sizes of other"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "parts of the body didn't change, it does suggest that something cognitive was going"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "on."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And Snellrude thinks that this change might reflect the cognitive demands of adjusting"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "to city life, having to look in different places to find food, for example, and coping",
+          "question_number": 35,
+          "highlight_text": "to find food"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "with a whole new set of dangers."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Then over in Germany, at the Max Planck Institute, there's another biologist called"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Katarina Miranda, who's done some experiments with blackbirds living in urban and rural"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "areas."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And she's been looking not at their anatomy, but at their behavior.",
+          "question_number": 36,
+          "highlight_text": "at their behavior"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "So as you might expect, she's found that the urban blackbirds tend to be quite bold."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "They're prepared to face up to a lot of threats that would frighten away their country counterparts."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "But there's one type of situation that does seem to frighten the urban blackbirds."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And that's anything new.",
+          "question_number": 37,
+          "highlight_text": "anything new"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Anything they haven't experienced before."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And if you think about it, that's quite sensible for a bird living in the city."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Jonathan Atwell, in Indiana University, is looking at how a range of animals respond"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "to urban environments."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "He's found that when they're under stress, their endocrine systems react by reducing"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "the amount of hormones such as corticosterone into their blood."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "It's a sensible seeming adaptation."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "A rat that gets scared every time a subway train rolls past won't be very successful."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "There's just one more study I'd like to mention, which is by Sarah Parton and her team."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And they've been looking at how squirrels communicate in an urban environment."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "And they've found that a routine part of their communication is carried out by waving"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "their tails."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "You do also see this in the country, but it's much more prevalent in cities, possibly"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "because it's effective in a noisy environment."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "So what are the long-term implications of this?"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "One possibility is that we may see completely new species developing in cities."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "But on the other hand, it's possible that not all of these adaptations will be permanent.",
+          "question_number": 40,
+          "highlight_text": "be permanent"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "Once the animal's got accustomed to its new environment, it may no longer need the features"
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "it's developed."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "So now we've had a look at adaptation."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "That is the end of section 4."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "You now have half a minute to check your answers."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "That is the end of the listening test."
+        },
+        {
+          "speaker": "LECTURER",
+          "text": "In the IELTS test, you would now have 10 minutes to transfer your answers to the answer sheet."
+        }
+      ],
+      "question_groups": [
+        {
+          "questions": "31–40",
+          "instructions": "Complete the notes below.\nWrite ONE WORD ONLY for each answer.",
+          "topic": "Effects of urban environments on animals",
+          "question_type": "Note Completion",
+          "content": [
+            {
+              "heading": "Introduction",
+              "points": [
+                {
+                  "text": "Recent urban developments represent massive environmental changes. It was previously thought that only a few animals were suitable for city life, e.g."
+                },
+                {
+                  "text": "the 31 .............................. — because of its general adaptability",
+                  "question_number": 31,
+                  "answer": "crow",
+                  "timestamp_seconds": 107
+                },
+                {
+                  "text": "the pigeon — because walls of city buildings are similar to 32 ..............................",
+                  "question_number": 32,
+                  "answer": "cliffs",
+                  "timestamp_seconds": 124
+                },
+                {
+                  "text": "In fact, many urban animals are adapting with unusual 33 .............................. .",
+                  "question_number": 33,
+                  "answer": "speed",
+                  "timestamp_seconds": 144
+                }
+              ]
+            },
+            {
+              "heading": "Recent research",
+              "points": [
+                {
+                  "text": "Emilie Snell-Rood studied small urbanised mammal specimens from museums in Minnesota."
+                },
+                {
+                  "text": "She found the size of their 34 .............................. had increased.",
+                  "question_number": 34,
+                  "answer": "brain(s)",
+                  "timestamp_seconds": 191
+                },
+                {
+                  "text": "She suggests this may be due to the need to locate new sources of 35 .............................. and to deal with new dangers.",
+                  "question_number": 35,
+                  "answer": "food",
+                  "timestamp_seconds": 219
+                },
+                {
+                  "text": "Catarina Miranda focused on the 36 .............................. of urban and rural blackbirds.",
+                  "question_number": 36,
+                  "answer": "behaviour(s) / behavior(s)",
+                  "timestamp_seconds": 242
+                },
+                {
+                  "text": "She found urban birds were often braver, but were afraid of situations that were 37 .............................. .",
+                  "question_number": 37,
+                  "answer": "new",
+                  "timestamp_seconds": 259
+                },
+                {
+                  "text": "Jonathan Atwell studies how animals respond to urban environments."
+                },
+                {
+                  "text": "He found that some animals respond to 38 .............................. by producing lower levels of hormones.",
+                  "question_number": 38,
+                  "answer": "stress",
+                  "timestamp_seconds": 287
+                },
+                {
+                  "text": "Sarah Partan's team found urban squirrels use their 39 .............................. to help them communicate.",
+                  "question_number": 39,
+                  "answer": "tail(s)",
+                  "timestamp_seconds": 318
+                }
+              ]
+            },
+            {
+              "heading": "Long-term possibilities",
+              "points": [
+                {
+                  "text": "Species of animals may develop which are unique to cities. However, some changes may not be 40 .............................. .",
+                  "question_number": 40,
+                  "answer": "permanent",
+                  "timestamp_seconds": 347
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
 
 
 async function upsertCambridgeExam(params: {
@@ -3100,6 +4416,19 @@ async function main() {
     questions: cambridgeIelts17ListeningTest4Questions,
     isPublished: true,
   });
+
+
+
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 13 - Listening Test 1",
+    type: "LISTENING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 30,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts13ListeningTest1Questions,
+    isPublished: true,
+  });
+
 
   // ─── Writing Tests ───────────────────────────────────────────
   await upsertCambridgeExam({
