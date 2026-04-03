@@ -390,6 +390,7 @@ export interface ExamDetail {
   imageUrl?: string | null;
   duration: number;
   type: string;
+  readingType?: 'ACADEMIC' | 'GENERAL';
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   isPublished: boolean;
   questions: any;

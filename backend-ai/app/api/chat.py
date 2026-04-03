@@ -41,8 +41,8 @@ async def chat_endpoint(request: ChatRequest):
                 )
             )
             
-        # Optional: gracefully fallback to gemini-2.0-flash if 2.5 errors out
-        model_name = "gemini-2.5-flash"
+        # Use gemini-2.0-flash as primary, fallback to gemini-1.5-flash
+        model_name = "gemini-2.0-flash"
         
         try:
             response = _client.models.generate_content(
@@ -54,9 +54,9 @@ async def chat_endpoint(request: ChatRequest):
                 ),
             )
         except Exception as api_err:
-            logger.warning(f"[Chat] Standard model {model_name} failed. Falling back to gemini-2.0-flash. Error: {api_err}")
+            logger.warning(f"[Chat] Model {model_name} failed. Falling back to gemini-1.5-flash. Error: {api_err}")
             response = _client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-1.5-flash",
                 contents=contents,
                 config=genai_types.GenerateContentConfig(
                     system_instruction=request.system_instruction,
