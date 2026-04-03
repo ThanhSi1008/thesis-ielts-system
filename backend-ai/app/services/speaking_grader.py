@@ -11,14 +11,16 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 load_dotenv()
 
-from google import genai
-from google.genai import types as genai_types
+from openai import AsyncOpenAI
 from app.services.transcription_service import get_transcription_service
 
 logger = logging.getLogger(__name__)
 
-_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-_client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
+_GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+_client = AsyncOpenAI(
+    api_key=_GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1",
+) if _GROQ_API_KEY else None
 
 SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the user's speaking test transcription according to the official IELTS Speaking band descriptors.
 
@@ -94,11 +96,11 @@ async def grade_speaking(
     """
     1. Decode Base64 audio answers
     2. Transcribe using Whisper
-    3. Grade using Gemini
+    3. Grade using DeepSeek
     """
     if not _client:
-        logger.warning("[SpeakingGrader] GEMINI_API_KEY is missing! Grading will fail.")
-        raise ValueError("GEMINI_API_KEY is missing.")
+        logger.warning("[SpeakingGrader] GROQ_API_KEY is missing! Grading will fail.")
+        raise ValueError("GROQ_API_KEY is missing.")
 
     transcription_svc = get_transcription_service()
     
@@ -168,7 +170,6 @@ async def grade_speaking(
     if not transcripts:
         text_part += "(No responses transcribed)\n\n"
     else:
-        # Sort based on numerical index if possible
         def sort_key(k):
             try:
                 return [int(x) for x in k.split("-")]
@@ -182,31 +183,22 @@ async def grade_speaking(
         
     logger.info(f"[SpeakingGrader] Formatted prompt length: {len(text_part)}")
     
-    contents = [text_part]
-    
-    # 4. Call Gemini
+    # 4. Call DeepSeek
     try:
-        response = _client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=contents,
-            config=genai_types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-                temperature=0.2,
-            ),
+        response = await _client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": text_part},
+            ],
+            temperature=0.2,
         )
     except Exception as e:
-        logger.warning(f"[SpeakingGrader] fallback triggered ({e})")
-        response = _client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=contents,
-            config=genai_types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-                temperature=0.2,
-            ),
-        )
+        logger.error(f"[SpeakingGrader] DeepSeek API call failed: {e}")
+        raise
 
     # 5. Output processing
-    raw_text = response.text.strip()
+    raw_text = response.choices[0].message.content.strip()
     clean_text = raw_text
     
     # Extract JSON block if surrounded by markdown
@@ -221,7 +213,6 @@ async def grade_speaking(
     clean_text = clean_text.strip()
 
     try:
-        # strict=False allows unescaped control characters like literal newlines inside strings
         result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text, strict=False))
     except json.JSONDecodeError as e:
         logger.warning(f"[SpeakingGrader] Initial JSON parse failed ({e}). Attempting recovery.")

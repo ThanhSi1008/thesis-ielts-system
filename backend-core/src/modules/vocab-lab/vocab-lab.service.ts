@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException 
 import { PrismaService } from '../../common/prisma/prisma.service';
 import {
   CreateDeckDto, CreateFlashcardDto, UpdateFlashcardDto, SubmitReviewDto,
-  CreateNoteTypeDto, RenameNoteTypeDto,
+  CreateNoteTypeDto, RenameNoteTypeDto, UpdateNoteTypeDescriptionDto,
   CreateNoteTypeFieldDto, UpdateNoteTypeFieldDto, UpdateCardTemplateDto,
 } from './dto/vocab-lab.dto';
 import { CardState } from '@prisma/client';
@@ -61,6 +61,7 @@ export class VocabLabService {
     return types.map(nt => ({
       id: nt.id,
       name: nt.name,
+      description: nt.description ?? null,
       isBuiltIn: nt.isBuiltIn,
       fields: nt.fields,
       templates: nt.templates,
@@ -73,6 +74,7 @@ export class VocabLabService {
       data: {
         userId,
         name: dto.name,
+        description: dto.description,
         fields: {
           create: [
             { name: 'Front', order: 0 },
@@ -94,6 +96,15 @@ export class VocabLabService {
     return this.prisma.noteType.findUnique({
       where: { id: nt.id },
       include: { fields: { orderBy: { order: 'asc' } }, templates: true },
+    });
+  }
+
+  async updateNoteTypeDescription(noteTypeId: string, dto: UpdateNoteTypeDescriptionDto) {
+    const nt = await this.prisma.noteType.findFirst({ where: { id: noteTypeId } });
+    if (!nt) throw new NotFoundException('Note type not found');
+    return this.prisma.noteType.update({
+      where: { id: noteTypeId },
+      data: { description: dto.description ?? null },
     });
   }
 

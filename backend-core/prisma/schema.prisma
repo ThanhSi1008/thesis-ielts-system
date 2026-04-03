@@ -499,12 +499,13 @@ model FlashcardReview {
 
 // Note Types (Card Types) — Anki-style field definitions
 model NoteType {
-  id        String   @id @default(uuid())
-  userId    String?  // null = built-in system type
-  name      String
-  isBuiltIn Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  userId      String?  // null = built-in system type
+  name        String
+  description String?  @db.Text // AI prompt context: what this card type is for
+  isBuiltIn   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   fields     NoteTypeField[]
   templates  CardTemplate[]

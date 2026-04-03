@@ -32,10 +32,17 @@ export function NoteTypeManagerModal({ onClose }: Props) {
 
   const load = () => vocabLabApi.getNoteTypes().then(data => {
     setNoteTypes(data);
-    if (!selectedId && data.length > 0) setSelectedId(data[0].id);
+    if (!selectedId && data.length > 0) {
+      setSelectedId(data[0].id);
+    }
   });
 
   useEffect(() => { load(); }, []);
+
+  const handleSelectRow = (nt: NoteType) => {
+    setSelectedId(nt.id);
+  };
+
 
   const handleAdd = async () => {
     const name = newName.trim();
@@ -111,8 +118,8 @@ export function NoteTypeManagerModal({ onClose }: Props) {
                     return (
                       <tr
                         key={nt.id}
-                        onClick={() => setSelectedId(nt.id)}
-                        onDoubleClick={() => { setSelectedId(nt.id); setEditTargetId(nt.id); }}
+                        onClick={() => handleSelectRow(nt)}
+                        onDoubleClick={() => { handleSelectRow(nt); setEditTargetId(nt.id); }}
                         className={`group cursor-pointer border-b border-gray-50 last:border-0 transition-colors ${
                           isSelected ? 'bg-primary/10' : 'hover:bg-gray-50'
                         }`}
@@ -187,6 +194,7 @@ export function NoteTypeManagerModal({ onClose }: Props) {
               </table>
             </div>
           </div>
+
 
           {/* Footer */}
           <div className="px-6 py-4 mt-3 border-t border-gray-100 flex justify-end">

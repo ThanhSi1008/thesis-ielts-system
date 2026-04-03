@@ -33,24 +33,26 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
   const [renameVal, setRenameVal] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [addVal, setAddVal] = useState('');
+  const [addDesc, setAddDesc] = useState('');
   const [addType, setAddType] = useState<'text' | 'media'>('text');
   const [deleteDialog, setDeleteDialog] = useState<'confirm' | 'alert' | null>(null);
-  const [descVal, setDescVal] = useState(fields[0]?.description ?? '');
 
   const selected = fields.find(f => f.id === selectedId);
 
   const handleSelect = (f: NoteTypeField) => {
     setSelectedId(f.id);
-    setDescVal(f.description ?? '');
   };
 
-  const openAdd = () => { setAddVal(''); setIsAdding(true); };
+  const openAdd = () => { setAddVal(''); setAddDesc(''); setIsAdding(true); };
   const confirmAdd = async () => {
     if (!addVal.trim()) return;
-    const newField = await vocabLabApi.addField(noteType.id, { name: addVal.trim(), fieldType: addType });
+    const newField = await vocabLabApi.addField(noteType.id, { 
+      name: addVal.trim(), 
+      fieldType: addType,
+      description: addDesc.trim() || undefined
+    });
     setFields(prev => [...prev, newField].sort((a, b) => a.order - b.order));
     setSelectedId(newField.id);
-    setDescVal(newField.description ?? '');
     setIsAdding(false);
     onRefresh?.();
   };
@@ -66,7 +68,6 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
     const next = fields.filter(f => f.id !== selectedId);
     setFields(next);
     setSelectedId(next[0]?.id ?? '');
-    setDescVal(next[0]?.description ?? '');
     setDeleteDialog(null);
     onRefresh?.();
   };
@@ -79,13 +80,22 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
     onRefresh?.();
   };
 
-  const handleSave = async () => {
-    if (!selected) { onClose(); return; }
+  const handleDescriptionChange = (id: string, val: string) => {
+    setFields(prev => prev.map(f => f.id === id ? { ...f, description: val } : f));
+  };
+
+  const handleDescriptionBlur = async (id: string, val: string) => {
     setSaving(true);
     try {
-      await vocabLabApi.updateField(noteType.id, selectedId, { description: descVal });
-      onClose();
-    } finally { setSaving(false); }
+      await vocabLabApi.updateField(noteType.id, id, { description: val });
+      onRefresh?.();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSave = () => {
+    onClose();
   };
 
   return (
@@ -97,9 +107,10 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
               <table className="w-full border-collapse">
                 <thead className="sticky top-0 bg-gray-50 z-10">
                   <tr className="border-b border-gray-100">
-                    <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider w-16">No.</th>
-                    <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Name</th>
+                    <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider w-12">No.</th>
+                    <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider w-40">Name</th>
                     <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider w-32">Type</th>
+                    <th className="text-left px-4 py-2.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Description</th>
                     <th className="text-right px-4 py-2.5 w-28 align-middle">
                       <button onClick={openAdd} disabled={noteType.isBuiltIn || saving}
                         className="text-[10px] font-bold text-gray-500 hover:text-gray-900 uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
@@ -149,6 +160,17 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
                             <option value="media">Media</option>
                           </select>
                         </td>
+                        <td className="px-4 py-2.5" onClick={e => e.stopPropagation()}>
+                          <input
+                            type="text"
+                            value={f.description ?? ''}
+                            onChange={(e) => handleDescriptionChange(f.id, e.target.value)}
+                            onBlur={(e) => handleDescriptionBlur(f.id, e.target.value)}
+                            disabled={!canModify}
+                            placeholder="Optional empty text..."
+                            className={`w-full h-8 px-2 text-[12px] bg-transparent border rounded text-gray-700 outline-none transition-colors ${!canModify ? 'border-transparent cursor-default text-gray-500 placeholder-transparent' : 'border-transparent hover:border-gray-200 focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary/50 placeholder-gray-300'}`}
+                          />
+                        </td>
                         <td className="px-3 py-2">
                           <div className="flex items-center justify-end gap-0.5">
                             <div className="relative flex items-center group/btn">
@@ -172,13 +194,7 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
 
         <div className="px-6 pb-2 pt-2 bg-white">
           <div className="border-t border-gray-100 pt-5 space-y-4">
-            <div className="flex items-center gap-4">
-              <label className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide shrink-0 w-24">Description</label>
-              <input value={descVal} onChange={e => setDescVal(e.target.value)} disabled={noteType.isBuiltIn}
-                placeholder="Text to show inside the field when it's empty"
-                className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary placeholder-gray-400 disabled:opacity-60 transition-colors" />
-            </div>
-            <div className="flex items-center gap-2 pl-[calc(6rem+1rem)]">
+            <div className="flex items-center gap-2 pl-[4.5rem]">
               <input type="radio" id="sortByField" name="sortOption" defaultChecked className="accent-primary w-3.5 h-3.5" />
               <label htmlFor="sortByField" className="text-[13px] text-gray-600 font-medium">Sort by this field in the browser</label>
             </div>
@@ -188,10 +204,8 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
         <div className="flex-1 bg-white" />
 
         <div className="px-6 py-4 bg-white border-t border-gray-100 flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 text-[13px] font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-          <button onClick={handleSave} disabled={saving || noteType.isBuiltIn}
-            className="px-5 py-2 text-[13px] font-semibold bg-primary text-black rounded-lg hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            {saving ? 'Saving…' : 'Save'}
+          <button onClick={handleSave} className="px-5 py-2 text-[13px] font-semibold bg-primary text-black rounded-lg hover:bg-primary/90 transition-colors">
+            Done
           </button>
         </div>
       </div>
@@ -204,6 +218,13 @@ function FieldsTab({ noteType, onClose, onRefresh }: { noteType: NoteType; onClo
               <input autoFocus value={addVal} onChange={e => setAddVal(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') confirmAdd(); if (e.key === 'Escape') setIsAdding(false); }}
                 className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Description <span className="text-[9px] font-normal lowercase">(optional)</span></label>
+              <textarea value={addDesc} onChange={e => setAddDesc(e.target.value)}
+                placeholder="Give context to AI on what data to generate here"
+                rows={2}
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none placeholder-gray-300" />
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Field type</label>
@@ -705,43 +726,45 @@ export function NoteTypeEditorModal({ noteType: initialNoteType, onClose }: Prop
         : 'rounded-2xl shadow-2xl w-[1100px] max-h-[90vh]'
         }`}>
         {/* Header */}
-        <div className="px-6 pt-5 pb-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-[16px] font-semibold text-gray-900 tracking-tight">Edit Card Type</h2>
-            <span className="px-2 py-0.5 rounded-full bg-gray-100 text-[12px] font-medium text-gray-600 border border-gray-200">{noteType.name}</span>
-          </div>
-          {/* Window controls */}
-          <div className="flex items-center gap-1.5">
-            {/* Maximize / Restore */}
-            <button
-              onClick={() => setIsMaximized(v => !v)}
-              title={isMaximized ? 'Restore' : 'Maximize'}
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              {isMaximized ? (
-                /* Restore icon */
-                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                  <rect x="7" y="3" width="10" height="10" rx="1.5" />
-                  <path d="M13 7H4a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-9" strokeLinecap="round" />
+        <div className="px-6 pt-5 pb-0 shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-[16px] font-semibold text-gray-900 tracking-tight">Edit Card Type</h2>
+              <span className="px-2 py-0.5 rounded-full bg-gray-100 text-[12px] font-medium text-gray-600 border border-gray-200">{noteType.name}</span>
+            </div>
+            {/* Window controls */}
+            <div className="flex items-center gap-1.5">
+              {/* Maximize / Restore */}
+              <button
+                onClick={() => setIsMaximized(v => !v)}
+                title={isMaximized ? 'Restore' : 'Maximize'}
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                {isMaximized ? (
+                  /* Restore icon */
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                    <rect x="7" y="3" width="10" height="10" rx="1.5" />
+                    <path d="M13 7H4a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-9" strokeLinecap="round" />
+                  </svg>
+                ) : (
+                  /* Maximize icon */
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                    <rect x="3" y="3" width="14" height="14" rx="1.5" />
+                    <path d="M8 3v3H3M12 3v3h5M8 17v-3H3M12 17v-3h5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </button>
+              {/* Close */}
+              <button
+                onClick={onClose}
+                title="Close"
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
-              ) : (
-                /* Maximize icon */
-                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                  <rect x="3" y="3" width="14" height="14" rx="1.5" />
-                  <path d="M8 3v3H3M12 3v3h5M8 17v-3H3M12 17v-3h5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </button>
-            {/* Close */}
-            <button
-              onClick={onClose}
-              title="Close"
-              className="h-7 w-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
+              </button>
+            </div>
           </div>
         </div>
 

@@ -91,11 +91,21 @@ export class SubmitReviewDto {
 export class CreateNoteTypeDto {
   @IsString()
   name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }
 
 export class RenameNoteTypeDto {
   @IsString()
   name: string;
+}
+
+export class UpdateNoteTypeDescriptionDto {
+  @IsString()
+  @IsOptional()
+  description?: string;
 }
 
 export class CreateNoteTypeFieldDto {

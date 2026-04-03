@@ -69,25 +69,79 @@ export function GlobalAIChatFab() {
     }
   }, [messages.length, isTyping]);
 
+  const explainAsNoteType = async (word: string, context: string, noteType: any, allNoteTypes: any[]) => {
+    setIsTyping(true);
+    const fieldDescriptions = noteType.fields.map((f: any) => `"${f.name}"${f.description ? ` (${f.description})` : ''}`).join(', ');
+
+    try {
+      const prompt = `Act as an expert English Teacher. The user highlighted the word '${word}' from the sentence: "${context}". Use the **${noteType.name}** card type format to explain it. Cover precisely these aspects based on their descriptions: ${fieldDescriptions}. Make the explanation clear, conversational, and highly educational.`;
+
+      const response = await axios.post('http://localhost:8000/api/v1/chat', {
+        messages: [{ role: 'user', content: prompt }]
+      });
+
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'model',
+          content: response.data.response,
+          suggestions: [
+            {
+              id: 'add-vocab',
+              label: `Add to Vocab Lab`,
+              actionType: 'ADD_VOCAB' as const,
+              payload: { word, context, noteType }
+            },
+            ...(allNoteTypes || []).filter((t: any) => t.id !== noteType.id).map((t: any) => ({
+              id: t.id,
+              label: `Explain as ${t.name}`,
+              actionType: 'EXPLAIN_NOTE' as const,
+              payload: { word, context, noteType: t, allNoteTypes }
+            }))
+          ]
+        }
+      ]);
+      localStorage.setItem('preferredExplanationNoteTypeId', noteType.id);
+    } catch (error) {
+      console.error('Generation error:', error);
+      setMessages(prev => [...prev, { role: 'model', content: 'Sorry, I failed to generate the explanation. Please try again.' }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   useEffect(() => {
     const handleOpen = async (e: any) => {
       setIsOpen(true);
       if (e.detail?.word && e.detail?.context) {
         try {
           const types = await vocabLabApi.getNoteTypes();
-          setMessages(prev => [
-            ...prev,
-            { 
-              role: 'model', 
-              content: `Hello! Curious about the word **"${e.detail.word}"** from your practice? I'm here to help.\n\nPlease choose a format below to explain it:`,
-              suggestions: types.map(t => ({
-                id: t.id,
-                label: `Explain as ${t.name}`,
-                actionType: 'EXPLAIN_NOTE',
-                payload: { word: e.detail.word, context: e.detail.context, noteType: t, allNoteTypes: types }
-              }))
-            }
-          ]);
+          const preferredId = localStorage.getItem('preferredExplanationNoteTypeId');
+          const preferredType = types.find(t => t.id === preferredId);
+
+          if (preferredType) {
+            setMessages(prev => [
+              ...prev,
+              { role: 'user', content: `Explain "${e.detail.word}" as ${preferredType.name}` }
+            ]);
+            setTimeout(() => {
+              explainAsNoteType(e.detail.word, e.detail.context, preferredType, types);
+            }, 50);
+          } else {
+            setMessages(prev => [
+              ...prev,
+              { 
+                role: 'model', 
+                content: `Hello! Curious about the word **"${e.detail.word}"** from your practice? I'm here to help.\n\nPlease choose a format below to explain it:`,
+                suggestions: types.map((t: any) => ({
+                  id: t.id,
+                  label: `Explain as ${t.name}`,
+                  actionType: 'EXPLAIN_NOTE' as const,
+                  payload: { word: e.detail.word, context: e.detail.context, noteType: t, allNoteTypes: types }
+                }))
+              }
+            ]);
+          }
         } catch (error) {
           // Fallback if notetypes fail to load
           setMessages(prev => [
@@ -115,55 +169,20 @@ export function GlobalAIChatFab() {
       return newMsgs;
     });
 
-    setIsTyping(true);
-
     if (suggestion.actionType === 'EXPLAIN_NOTE') {
       const { word, context, noteType, allNoteTypes } = suggestion.payload;
-      const fieldsStr = noteType.fields.map((f: any) => f.name).join(', ');
+      await explainAsNoteType(word, context, noteType, allNoteTypes);
 
-      try {
-        const prompt = `Act as an expert English Teacher. The user highlighted the word '${word}' from the sentence: "${context}". Explain this word in detail based precisely on these aspects from the ${noteType.name} template: [${fieldsStr}]. Make the explanation clear, conversational, and highly educational.`;
-
-        const response = await axios.post('http://localhost:8000/api/v1/chat', {
-          messages: [{ role: 'user', content: prompt }]
-        });
-
-        setMessages(prev => [
-          ...prev,
-          {
-            role: 'model',
-            content: response.data.response,
-            suggestions: [
-              {
-                id: 'add-vocab',
-                label: `Add to Vocab Lab`,
-                actionType: 'ADD_VOCAB',
-                payload: { word, context, noteType }
-              },
-              ...(allNoteTypes || []).filter((t: any) => t.id !== noteType.id).map((t: any) => ({
-                id: t.id,
-                label: `Explain as ${t.name}`,
-                actionType: 'EXPLAIN_NOTE',
-                payload: { word, context, noteType: t, allNoteTypes }
-              }))
-            ]
-          }
-        ]);
-      } catch (error) {
-        console.error('Generation error:', error);
-        setMessages(prev => [...prev, { role: 'model', content: 'Sorry, I failed to generate the explanation. Please try again.' }]);
-      } finally {
-        setIsTyping(false);
-      }
     } else if (suggestion.actionType === 'ADD_VOCAB') {
       const { word, context, noteType } = suggestion.payload;
-      const fieldsStr = noteType.fields.map((f: any) => f.name).join(', ');
+      const fieldDescriptions = noteType.fields.map((f: any) => `"${f.name}"${f.description ? ` (${f.description})` : ''}`).join(', ');
+      const fieldKeys = noteType.fields.map((f: any) => f.name).join(', ');
 
       try {
         // Add a temporary matching response
         setMessages(prev => [...prev, { role: 'model', content: 'Generating card data...' }]);
 
-        const prompt = `Act as an expert English Teacher generating a flashcard for the word '${word}' from the sentence: "${context}". Generate content based on this schema: [${fieldsStr}]. Return a strictly formatted JSON object where the keys are exactly the field names ([${fieldsStr}]) and the values are strings of the generated content. Do not include markdown blocks, explanation text, or anything other than the raw JSON object.`;
+        const prompt = `Act as an expert English Teacher generating a flashcard for the word '${word}' from the sentence: "${context}". Use the **${noteType.name}** card type. Generate content fulfilling these fields: ${fieldDescriptions}. Return a strictly formatted JSON object where the keys are exactly these field names: [${fieldKeys}] and the values are strings of the generated content. Do not include markdown blocks, explanation text, or anything other than the raw JSON object.`;
 
         const response = await axios.post('http://localhost:8000/api/v1/chat', {
           messages: [{ role: 'user', content: prompt }]
@@ -338,7 +357,7 @@ export function GlobalAIChatFab() {
                           ? 'bg-[#111111] text-white rounded-[20px] self-end'
                           : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm self-start'
                         }`}
-                      style={{ whiteSpace: 'pre-wrap' }}
+                      style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
                     >
                       {renderMessageContent(message.content)}
                     </div>

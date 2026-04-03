@@ -20,7 +20,7 @@ import { StorageService } from '../../common/storage/storage.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   CreateDeckDto, CreateFlashcardDto, UpdateFlashcardDto, SubmitReviewDto,
-  CreateNoteTypeDto, RenameNoteTypeDto,
+  CreateNoteTypeDto, RenameNoteTypeDto, UpdateNoteTypeDescriptionDto,
   CreateNoteTypeFieldDto, UpdateNoteTypeFieldDto, UpdateCardTemplateDto,
 } from './dto/vocab-lab.dto';
 import { CardState } from '@prisma/client';
@@ -48,6 +48,11 @@ export class VocabLabController {
   @Patch('note-types/:id')
   async renameNoteType(@Request() req: any, @Param('id') id: string, @Body() dto: RenameNoteTypeDto) {
     return this.vocabLabService.renameNoteType(req.user.id, id, dto);
+  }
+
+  @Patch('note-types/:id/description')
+  async updateNoteTypeDescription(@Request() req: any, @Param('id') id: string, @Body() dto: UpdateNoteTypeDescriptionDto) {
+    return this.vocabLabService.updateNoteTypeDescription(id, dto);
   }
 
   @Delete('note-types/:id')

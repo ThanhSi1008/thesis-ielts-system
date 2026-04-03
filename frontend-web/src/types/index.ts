@@ -276,6 +276,7 @@ export interface CardTemplate {
 export interface NoteType {
   id: string;
   name: string;
+  description?: string | null;
   isBuiltIn: boolean;
   fields: NoteTypeField[];
   templates: CardTemplate[];

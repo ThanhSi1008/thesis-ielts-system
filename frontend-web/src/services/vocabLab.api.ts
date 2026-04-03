@@ -102,6 +102,10 @@ export const vocabLabApi = {
     const { data } = await api.delete(`/vocab-lab/note-types/${id}`);
     return data;
   },
+  updateNoteTypeDescription: async (id: string, description: string | null) => {
+    const { data } = await api.patch<NoteType>(`/vocab-lab/note-types/${id}/description`, { description });
+    return data;
+  },
 
   // ==================== FIELD OPERATIONS ====================
   addField: async (noteTypeId: string, payload: CreateNoteTypeFieldPayload) => {
