@@ -125,6 +125,9 @@ function getTheoryLessons(txtPath: string) {
   let currentLesson: any = null;
   
   let inQuizSection = false;
+  
+  let currentContentType = 'overview';
+  let currentContentTitle = 'Overview';
   let currentContent = '';
   
   let currentQuizQuestion: any = null;
@@ -136,7 +139,7 @@ function getTheoryLessons(txtPath: string) {
     if (titleMatch) {
       if (currentLesson) {
         if (currentContent.trim() && !inQuizSection) {
-          currentLesson.content.push({ type: 'markdown', content: currentContent.trim() });
+          currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
         }
         if (currentQuizQuestion) {
           currentLesson.quiz.push(currentQuizQuestion);
@@ -148,6 +151,8 @@ function getTheoryLessons(txtPath: string) {
       const title = titleMatch[1].trim();
       currentLesson = { title, content: [], quiz: [] };
       inQuizSection = false;
+      currentContentType = 'overview';
+      currentContentTitle = 'Overview';
       currentContent = '';
       continue;
     }
@@ -159,7 +164,7 @@ function getTheoryLessons(txtPath: string) {
       const sectionName = sectionMatch[1].trim();
       if (sectionName.toLowerCase() === 'quiz') {
         if (currentContent.trim()) {
-           currentLesson.content.push({ type: 'markdown', content: currentContent.trim() });
+           currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
            currentContent = '';
         }
         inQuizSection = true;
@@ -203,13 +208,38 @@ function getTheoryLessons(txtPath: string) {
       }
     } else {
       const trimmed = line.replace(/^ {12}/, '');
-      currentContent += trimmed + '\n';
+      
+      const subheadMatch = trimmed.match(/^###\s+(.*)$/);
+      if (subheadMatch) {
+        if (currentContent.trim()) {
+          currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
+          currentContent = '';
+        }
+        
+        const rawTitle = subheadMatch[1].trim();
+        const lowerTitle = rawTitle.toLowerCase();
+        
+        if (lowerTitle.includes('trap')) {
+          currentContentType = 'traps';
+        } else if (lowerTitle.includes('strategy') || lowerTitle.includes('step-by-step')) {
+          currentContentType = 'strategy';
+        } else if (lowerTitle.includes('tip') || lowerTitle.includes('pro-tip')) {
+          currentContentType = 'tips';
+        } else {
+          currentContentType = 'section'; 
+        }
+        
+        const pureTitleMatch = rawTitle.match(/[a-zA-Z0-9].*$/);
+        currentContentTitle = pureTitleMatch ? pureTitleMatch[0].replace(/\*+$/, '').trim() : rawTitle;
+      } else {
+        currentContent += trimmed + '\n';
+      }
     }
   }
   
   if (currentLesson) {
     if (currentContent.trim() && !inQuizSection) {
-      currentLesson.content.push({ type: 'markdown', content: currentContent.trim() });
+      currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
     }
     if (currentQuizQuestion) {
       currentLesson.quiz.push(currentQuizQuestion);
