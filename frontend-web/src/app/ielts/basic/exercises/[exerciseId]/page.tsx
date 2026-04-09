@@ -31,9 +31,25 @@ interface MCQuestion {
   explanation: string;
 }
 
+interface MCMultipleQuestion {
+  question_numbers: number[];
+  text: string;
+  options: MCOption[];
+  answers: string[];
+  num_correct: number;
+  explanation: string;
+}
+
 interface ContentGroup {
   type: string;
   questions: MCQuestion[];
+  // For multiple_choice_multiple
+  question_numbers?: number[];
+  text?: string;
+  options?: MCOption[];
+  answers?: string[];
+  num_correct?: number;
+  explanation?: string;
   // For table/map/other types - stored as-is for now
   [key: string]: unknown;
 }
@@ -229,6 +245,123 @@ function renderTranscriptWithHighlight(text: string, highlight: string, qNum: nu
       </mark>
       {text.slice(idx + highlight.length)}
     </span>
+  );
+}
+
+// ─── Multiple Choice Multiple (Checkboxes) ───────────────────────────────────
+
+function MCMultipleQuestionItem({
+  group,
+  selectedLetters,
+  onToggle,
+  submitted,
+}: {
+  group: MCMultipleQuestion;
+  selectedLetters: string[];
+  onToggle: (letter: string) => void;
+  submitted: boolean;
+}) {
+  const [showExplanation, setShowExplanation] = useState(false);
+  const numCorrect = group.num_correct ?? group.answers.length;
+  const correctSet = new Set(group.answers.map((a) => a.toUpperCase()));
+  const selectedSet = new Set(selectedLetters.map((s) => s.toUpperCase()));
+
+  const allCorrect = submitted && group.answers.every((a) => selectedSet.has(a.toUpperCase())) && selectedLetters.length === group.answers.length;
+
+  return (
+    <div className="mb-7">
+      {/* Question numbers badge row */}
+      <div className="flex items-start gap-2 mb-3">
+        <div className="flex gap-1 shrink-0 mt-0.5">
+          {group.question_numbers?.map((n) => (
+            <span key={n} id={`question-${n}`} className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold border ${
+              submitted
+                ? allCorrect ? "text-green-600" : "text-red-500"
+                : "text-gray-600"
+            }`}>
+              {n}
+            </span>
+          ))}
+        </div>
+        <p className="text-[14px] font-semibold text-gray-900 leading-snug">{group.text}</p>
+      </div>
+
+      <p className="text-[12px] text-gray-400 mb-3 ml-0 font-medium">
+        Choose <span className="font-bold text-gray-600">{numCorrect}</span> letters, A–{String.fromCharCode(64 + (group.options?.length ?? 5))}
+      </p>
+
+      <div className="space-y-2 ml-2">
+        {group.options?.map((opt) => {
+          const isSelected = selectedSet.has(opt.letter.toUpperCase());
+          const isCorrectAnswer = correctSet.has(opt.letter.toUpperCase());
+
+          let borderColor = "border-gray-300";
+          let bgColor = "bg-white";
+          let innerContent: React.ReactNode = null;
+
+          if (submitted) {
+            if (isCorrectAnswer && isSelected) {
+              borderColor = "border-green-500";
+              innerContent = <Check className="w-3 h-3 text-green-500" />;
+            } else if (isCorrectAnswer && !isSelected) {
+              borderColor = "border-green-500";
+              bgColor = "bg-green-50";
+              innerContent = <Check className="w-3 h-3 text-green-400" />;
+            } else if (!isCorrectAnswer && isSelected) {
+              borderColor = "border-red-400";
+              innerContent = <X className="w-3 h-3 text-red-400" />;
+            }
+          } else {
+            if (isSelected) {
+              borderColor = "border-[#FFC107]";
+              innerContent = <Check className="w-3 h-3 text-[#FFC107]" />;
+            }
+          }
+
+          return (
+            <button
+              key={opt.letter}
+              disabled={submitted}
+              onClick={() => {
+                if (!submitted) {
+                  // Enforce max selections
+                  if (!isSelected && selectedLetters.length >= numCorrect) return;
+                  onToggle(opt.letter);
+                }
+              }}
+              className={`flex items-center gap-3 text-left text-[14px] text-gray-700 w-full outline-none focus:outline-none ${
+                submitted ? "cursor-default" : "cursor-pointer"
+              }`}
+            >
+              <span className={`w-[18px] h-[18px] rounded border-2 ${borderColor} ${bgColor} flex items-center justify-center shrink-0 transition-all`}>
+                {innerContent}
+              </span>
+              <span className={
+                submitted && isCorrectAnswer ? "font-semibold text-green-700" :
+                submitted && isSelected && !isCorrectAnswer ? "text-red-500 line-through" : ""
+              }>
+                <span className="font-bold mr-1.5">{opt.letter}.</span>{opt.text}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {submitted && (
+        <button
+          onClick={() => setShowExplanation(!showExplanation)}
+          className="mt-3 ml-2 text-[12px] text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1"
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          {showExplanation ? "Hide" : "Show"} explanation
+        </button>
+      )}
+      {showExplanation && group.explanation && (
+        <div className="mt-2 ml-2 bg-blue-50 border border-blue-100 rounded-lg p-3 text-[13px] text-blue-800 leading-relaxed">
+          {group.explanation}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -482,6 +615,34 @@ export default function ListeningExercisePage() {
         {/* Left: Questions */}
         <div className={`overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${showTranscript ? "w-1/2 border-r border-gray-100" : "w-full"}`}>
           {exercise.content.map((group, gi) => {
+            // --- multiple_choice_multiple (checkbox multi-answer) ---
+            if (group.type === "multiple_choice_multiple") {
+              const mcmGroup = group as unknown as MCMultipleQuestion;
+              const key = `mcm-${gi}`;
+              const rawSelected: string = (answers[key] as unknown as string) ?? "";
+              const selectedLetters: string[] = rawSelected ? rawSelected.split(",") : [];
+
+              const handleToggle = (letter: string) => {
+                const upper = letter.toUpperCase();
+                const next = selectedLetters.includes(upper)
+                  ? selectedLetters.filter((l) => l !== upper)
+                  : [...selectedLetters, upper];
+                setAnswers((prev) => ({ ...prev, [key]: next.join(",") as unknown as string }));
+              };
+
+              return (
+                <div key={gi}>
+                  <MCMultipleQuestionItem
+                    group={mcmGroup}
+                    selectedLetters={selectedLetters}
+                    onToggle={handleToggle}
+                    submitted={submitted}
+                  />
+                </div>
+              );
+            }
+
+            // --- standard multiple_choice ---
             const questions = (Array.isArray(group.questions) ? group.questions : []) as MCQuestion[];
             const qNums = questions.map((q) => q.question_number);
             const rangeLabel = qNums.length > 0
