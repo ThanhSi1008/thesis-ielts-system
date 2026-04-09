@@ -55,7 +55,7 @@ interface LessonBlock {
 
 // ─── Theory Modal ─────────────────────────────────────────────────────────────
 
-function TheoryModal({ block, onClose }: { block: LessonBlock; onClose: () => void }) {
+function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: () => void }) {
   const config = {
     traps: {
       bg: "bg-[#FFF0F0]",
@@ -81,37 +81,27 @@ function TheoryModal({ block, onClose }: { block: LessonBlock; onClose: () => vo
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
+      className={`absolute top-[48px] right-0 z-50 w-[550px] max-w-[90vw] max-h-[70vh] overflow-y-auto rounded-2xl border ${c.bg} ${c.border} p-6 shadow-2xl origin-top-right animate-in fade-in zoom-in-95 duration-200`}
     >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
-
-      {/* Panel */}
-      <div
-        className={`relative z-10 w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border ${c.bg} ${c.border} p-7 shadow-2xl`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            {c.icon}
-            <h3 className="font-bold text-[15px] text-gray-900">
-              {block.title || c.default}
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4 text-gray-500" />
-          </button>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          {c.icon}
+          <h3 className="font-bold text-[15px] text-gray-900">
+            {block.title || c.default}
+          </h3>
         </div>
+        <button
+          onClick={onClose}
+          className="w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors shrink-0"
+        >
+          <X className="w-4 h-4 text-gray-500" />
+        </button>
+      </div>
 
-        {/* Content */}
-        <div className="prose prose-sm prose-gray max-w-none text-gray-800 leading-relaxed">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.content}</ReactMarkdown>
-        </div>
+      {/* Content */}
+      <div className="prose prose-sm prose-gray max-w-none text-gray-800 leading-relaxed">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.content}</ReactMarkdown>
       </div>
     </div>
   );
@@ -431,13 +421,7 @@ export default function ListeningExercisePage() {
     : null;
 
   return (
-    <>
-      {/* ── Theory Popup Modal ── */}
-      {modalBlock && (
-        <TheoryModal block={modalBlock} onClose={() => setActiveModal(null)} />
-      )}
-
-      <div className="flex flex-col h-full relative bg-white">
+    <div className="flex flex-col h-full relative bg-white">
 
       {/* ── Header ── */}
       <div className="border-b border-gray-100 px-6 pt-5 pb-4">
@@ -453,28 +437,33 @@ export default function ListeningExercisePage() {
             )}
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{exercise.topic}</h1>
           </div>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="relative flex items-center gap-2 mt-1">
             <button
-              onClick={() => setActiveModal("traps")}
-              className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center hover:bg-red-100 transition-colors"
+              onClick={() => setActiveModal(activeModal === "traps" ? null : "traps")}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "traps" ? "bg-red-200" : "bg-red-50 hover:bg-red-100"}`}
               title="Common Traps"
             >
-              <Flag className="w-4 h-4 text-red-400" />
+              <Flag className="w-4 h-4 text-red-500" />
             </button>
             <button
-              onClick={() => setActiveModal("strategy")}
-              className="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center hover:bg-yellow-100 transition-colors"
+              onClick={() => setActiveModal(activeModal === "strategy" ? null : "strategy")}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "strategy" ? "bg-yellow-200" : "bg-yellow-50 hover:bg-yellow-100"}`}
               title="Step-by-Step Strategy"
             >
-              <Bookmark className="w-4 h-4 text-yellow-400" />
+              <Bookmark className="w-4 h-4 text-yellow-500" />
             </button>
             <button
-              onClick={() => setActiveModal("tips")}
-              className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-colors"
+              onClick={() => setActiveModal(activeModal === "tips" ? null : "tips")}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "tips" ? "bg-blue-200" : "bg-blue-50 hover:bg-blue-100"}`}
               title="Pro-Tips for Test Day"
             >
-              <FileText className="w-4 h-4 text-blue-400" />
+              <FileText className="w-4 h-4 text-blue-500" />
             </button>
+
+            {/* ── Theory Popup ── */}
+            {modalBlock && (
+              <TheoryPopup block={modalBlock} onClose={() => setActiveModal(null)} />
+            )}
           </div>
         </div>
 
@@ -606,6 +595,5 @@ export default function ListeningExercisePage() {
       </div>
 
     </div>
-    </>
   );
 }
