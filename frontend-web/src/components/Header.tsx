@@ -15,7 +15,7 @@ export default function Header() {
   const isIeltsIntensive = pathname.startsWith("/ielts/intensive");
   const isIeltsHistory = pathname.startsWith("/ielts/history");
   const isIeltsBasic = pathname.startsWith("/ielts/basic");
-  const isIelts = pathname.startsWith("/ielts") && !isIeltsDashboard && !isIeltsIntensive && !isIeltsHistory;
+  const isIelts = pathname.startsWith("/ielts") && !isIeltsDashboard && !isIeltsIntensive && !isIeltsHistory && !isIeltsBasic;
 
   const [forcePlain, setForcePlain] = useState(false);
 
@@ -30,7 +30,7 @@ export default function Header() {
   }, []);
 
   const plainPages = ["/login", "/register"];
-  const isPlain = plainPages.includes(pathname) || isIeltsIntensive || isIeltsHistory || forcePlain;
+  const isPlain = plainPages.includes(pathname) || isIeltsIntensive || isIeltsHistory || isIeltsBasic || forcePlain;
 
   // Close dropdown when clicking outside
   useEffect(() => {
