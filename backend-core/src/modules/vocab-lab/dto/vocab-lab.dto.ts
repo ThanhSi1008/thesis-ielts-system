@@ -28,7 +28,7 @@ export class CreateFlashcardDto {
 
   @IsString()
   @IsOptional()
-  noteTypeId?: string;
+  cardTypeId?: string;
 
   @IsObject()
   @IsOptional()
@@ -86,9 +86,9 @@ export class SubmitReviewDto {
   rating: number; // 0=Again, 3=Hard, 4=Good, 5=Easy
 }
 
-// ==================== NOTE TYPE DTOs ====================
+// ==================== CARD TYPE DTOs ====================
 
-export class CreateNoteTypeDto {
+export class CreateCardTypeDto {
   @IsString()
   name: string;
 
@@ -97,18 +97,18 @@ export class CreateNoteTypeDto {
   description?: string;
 }
 
-export class RenameNoteTypeDto {
+export class RenameCardTypeDto {
   @IsString()
   name: string;
 }
 
-export class UpdateNoteTypeDescriptionDto {
+export class UpdateCardTypeDescriptionDto {
   @IsString()
   @IsOptional()
   description?: string;
 }
 
-export class CreateNoteTypeFieldDto {
+export class CreateCardTypeFieldDto {
   @IsString()
   name: string;
 
@@ -121,7 +121,7 @@ export class CreateNoteTypeFieldDto {
   fieldType?: string;
 }
 
-export class UpdateNoteTypeFieldDto {
+export class UpdateCardTypeFieldDto {
   @IsString()
   @IsOptional()
   name?: string;

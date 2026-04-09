@@ -1,0 +1,123 @@
+[
+  {
+    "questions": "4-7",
+    "instructions": "Answer the questions below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.",
+    "topic": "Pups for Pals Animal Shelter",
+    "question_type": "Short Answer",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562277/CH7_HP4-7_r1qzgw.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 2. You will hear a conversation between a radio host and a guest about an animal shelter."
+      },
+      {
+        "speaker": "Host",
+        "text": "This afternoon we are very happy to welcome Paul Eckhart from animal shelter Pups for Pals to our show. So, tell me a little bit about Pups for Pals, Paul."
+      },
+      {
+        "speaker": "Paul",
+        "text": "Well, we are a group of volunteers that run a shelter for homeless animals in the heart of London. We attempt to place stray or abandoned pets into good homes with caring owners."
+      },
+      {
+        "speaker": "Paul",
+        "text": "The shelter is 15 years old now and during the past few years we were able to find homes for more than 250 pets.",
+        "question_number": 4,
+        "highlight_text": "The shelter is 15 years old now"
+      },
+      {
+        "speaker": "Paul",
+        "text": "I started out with just myself and two other acquaintances. We now have our own facility and more than 30 volunteers. Actually, the shelter is completely run by volunteers."
+      },
+      {
+        "speaker": "Paul",
+        "text": "Last month we were awarded a grant from the government which will allow us to open a second branch. Right now our location is full to capacity and launching the new branch next month will give us space for far more animals.",
+        "question_number": 5,
+        "highlight_text": "launching the new branch next month"
+      },
+      {
+        "speaker": "Paul",
+        "text": "So, in the long run the other location will really help us a lot to save even more homeless animals."
+      },
+      {
+        "speaker": "Host",
+        "text": "Now, I'm certain that our listeners would be very eager to hear about the weekend programme you are planning. Could you give us some more details about that?"
+      },
+      {
+        "speaker": "Paul",
+        "text": "Sure. Well, what it is... previously, volunteers could only take care of pets in the shelter, but with our new programme they can take a pet home for the weekend.",
+        "question_number": 6,
+        "highlight_text": "with our new programme they can take a pet home"
+      },
+      {
+        "speaker": "Paul",
+        "text": "This both allows the dogs or cats some freedom from the shelter and also permits people to have a companion for those days. Those of us volunteering at the shelter try to interact with as many of the animals as possible, but pets also need more personal attention. This programme allows for more of that."
+      },
+      {
+        "speaker": "Paul",
+        "text": "And often we find that volunteers will keep the animals permanently. We've had dozens of animals adopted through this programme."
+      },
+      {
+        "speaker": "Paul",
+        "text": "So, it's really easy to help out at the shelter. You can volunteer on a regular basis at our location, or sign up to take a pet home for the weekend."
+      },
+      {
+        "speaker": "Paul",
+        "text": "And, of course, giving money is always welcome. Our costs – power, gas, food, medication – are all covered by donations.",
+        "question_number": 7,
+        "highlight_text": "are all covered by donations."
+      },
+      {
+        "speaker": "Paul",
+        "text": "It takes a lot of money to care for some of these animals so any financial help we get is always appreciated."
+      },
+      {
+        "speaker": "Host",
+        "text": "Thanks so much for that very informative..."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "short_answer",
+        "heading": "Animal Shelter Interview",
+        "questions": [
+          {
+            "question_number": 4,
+            "question_text": "How long ago was the Pups for Pals shelter founded?",
+            "answer": "15 years",
+            "acceptable_answers": ["15 years", "15 years old"],
+            "timestamp_seconds": 45.0,
+            "explanation": "Paul mentions that 'the shelter is 15 years old now'."
+          },
+          {
+            "question_number": 5,
+            "question_text": "When will the shelter open a new branch?",
+            "answer": "next month",
+            "acceptable_answers": ["next month"],
+            "timestamp_seconds": 78.0,
+            "explanation": "Paul states that 'launching the new branch next month will give us space for far more animals'."
+          },
+          {
+            "question_number": 6,
+            "question_text": "Where can volunteers take the pets under the new programme?",
+            "answer": "home",
+            "acceptable_answers": ["home", "their home", "their homes"],
+            "timestamp_seconds": 110.0,
+            "explanation": "Paul explains that with the new programme, volunteers 'can take a pet home for the weekend'."
+          },
+          {
+            "question_number": 7,
+            "question_text": "How does the shelter pay for its expenses?",
+            "answer": "donations",
+            "acceptable_answers": ["donations", "by donations"],
+            "timestamp_seconds": 150.0,
+            "explanation": "Paul notes that costs like power, gas, and food 'are all covered by donations'."
+          }
+        ]
+      }
+    ]
+  }
+]

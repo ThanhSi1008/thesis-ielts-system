@@ -1,0 +1,24 @@
+[00.00s -> 11.00s]  You will hear a conversation between a travel agent and a customer about a travel package.
+[11.00s -> 17.00s]  First, you have some time to read through questions one to three.
+[31.00s -> 39.00s]  Now, listen carefully and answer questions one to three.
+[39.00s -> 43.00s]  Good morning. This is Euro Travels. How can I help you?
+[43.00s -> 49.00s]  Hi there. I'm interested in travelling to Spain this summer. I heard you have some specials on right now.
+[49.00s -> 57.00s]  Yes, that is correct. Three of our travel packages to Spain are being offered at discount prices, but only for a limited time.
+[57.00s -> 61.00s]  The sale ends, um, next week Wednesday I believe.
+[61.00s -> 66.00s]  Well, I think there was one package that focused on coastal areas, wasn't there?
+[66.00s -> 72.00s]  Oh yes, that's our coastal package. It's one of our most popular packages to Spain.
+[72.00s -> 78.00s]  You'll get to visit a lot of nice beaches along the coast. The length of the trip is eight days.
+[78.00s -> 85.00s]  That's fine. I can only get ten days off work. So, what hotel would I be staying at?
+[85.00s -> 93.00s]  Oh, it's a lovely facility located in Marbella on the Costa del Sol. It's called the Los Parmas Resort.
+[93.00s -> 99.00s]  It's got beautiful views and beaches, excellent restaurants and is nearby a lot of interesting sites.
+[99.00s -> 102.00s]  And what is included in the package?
+[102.00s -> 107.00s]  Accommodation, air travel and meals and beverages are all inclusive.
+[107.00s -> 114.00s]  And the hotel can arrange local tours to historic sites, nature preserves and other beaches if you pay extra.
+[114.00s -> 117.00s]  Do you happen to know how much they charge for those?
+[117.00s -> 124.00s]  Well, they are relatively inexpensive. From what I remember, the hotel charges 40 euro for them.
+[124.00s -> 126.00s]  That all sounds good to me.
+[126.00s -> 133.00s]  Well, the total cost would be $820 and we require a $200 deposit to hold the booking.
+[133.00s -> 138.00s]  You can pay the rest two weeks before your departure. Would you like to make a booking?
+[138.00s -> 141.00s]  Um, I'd like to think about it first.
+[141.00s -> 148.00s]  Okay, not a problem. Call us back when you've made your decision.
+[148.00s -> 152.00s]  You now have 15 seconds to check your answers.

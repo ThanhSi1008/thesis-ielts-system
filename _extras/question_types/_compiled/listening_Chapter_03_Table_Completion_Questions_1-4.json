@@ -1,0 +1,175 @@
+[
+  {
+    "questions": "1–4",
+    "instructions": "Complete the table below. Write ONE WORD ONLY for each answer.",
+    "topic": "University Housing Options",
+    "question_type": "Table Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562308/CH3_HP1-4_ni1ktu.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear a university representative speaking with an international student about accommodation."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through Questions 1 to 4."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now, listen carefully and answer Questions 1 to 4."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Good morning. University Housing Services Office. What can I help you with?"
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "Hi. I'm interested in getting some information about a room in university halls such as availability, cost, and so on."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Sure. Are you a full-time student here?"
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "I am, yes. I'm actually on an exchange program from the United States. I would like to be close to campus, so I think staying in student halls would be perfect."
+      },
+      {
+        "speaker": "Staff",
+        "text": "I have some options for you then. But before we talk about that, may I ask for your name and contact number?"
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "Stephanie Mills. My mobile number is 543-2928."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Thanks, Stephanie. So let's talk about some of your preferences for the halls. First of all, how long would you like to stay for?"
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "Just for six months. I'll be returning to the United States for the summer holiday."
+      },
+      {
+        "speaker": "Staff",
+        "text": "So, one option I found is on Canton Road. It's a single room on the second floor of Westgate House, which used to be a shared room, so it's quite big.",
+        "question_number": 1,
+        "highlight_text": "It's a single room on the second floor of Westgate House"
+      },
+      {
+        "speaker": "Staff",
+        "text": "It is fully furnished and has a double bed and a desk. That costs £120 per week and is 10 minutes walk from campus just past the train station."
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "Does that include meals?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "No, it doesn't, I'm afraid. There is a shared kitchen space where you can cook your own food. The toilets are also shared, but there is a private sink in your room.",
+        "question_number": 2,
+        "highlight_text": "The toilets are also shared"
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "That's a little bit expensive for me then. Are there any other options?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "Let me see. Well, there is one space on Hill Yard Street. H-I-L-L-Y-A-R-D Street. Hill Yard. That is a shared room and strand house.",
+        "question_number": 3,
+        "highlight_text": "Well, there is one space on Hill Yard Street. H-I-L-L-Y-A-R-D Street. Hill Yard."
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "Thanks, and how much is that?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "That is £130 a week, but does include breakfast and lunch on weekdays. There is a canteen in the building, which is open to all residents. The room has a desk and a bed, only a single. It does include an en-suite toilet though, which you share with your roommate."
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "That sounds okay. I don't mind sharing. How far is that from campus?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "It's a bit further, about 20 minutes by foot, so it would be hard to walk to school. Although if you have a bike, it would take about 10 minutes.",
+        "question_number": 4,
+        "highlight_text": "if you have a bike, it would take about 10 minutes."
+      },
+      {
+        "speaker": "Staff",
+        "text": "There is a bike shed next to the halls. Before there is a bus, which takes about 5 minutes, so if you're running late, you can jump on that."
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "That sounds great. I will probably cycle most days. When can I move in?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "As soon as you're ready. Just come down to the office fast and we'll sort out the relevant paperwork."
+      },
+      {
+        "speaker": "Stephanie",
+        "text": "Wonderful. I'll be there later today. Thanks for your help."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "table",
+        "headers": ["Location", "Accommodation", "Residence Name", "Other Details"],
+        "rows": [
+          {
+            "Location": "Canton Road",
+            "Accommodation": "One 1 .............................. room",
+            "Residence Name": "West Gate House",
+            "Other Details": [
+              "£120 per week",
+              "10 minutes walk from campus",
+              "Shared kitchen and 2 .............................."
+            ],
+            "questions": {
+              "1": {
+                "answer": "single",
+                "timestamp_seconds": 110.0,
+                "explanation": "In the section related to the keyword (Canton Road - Accommodation), the Staff member says 'one option I found is on Canton Road. It's a single room' so single is the correct answer."
+              },
+              "2": {
+                "answer": "toilet(s)",
+                "timestamp_seconds": 142.0,
+                "explanation": "In the section related to the keyword (Canton Road - Other Details), the Staff member says 'There is a shared kitchen space where you can cook your own food. The toilets are also shared', so toilet(s) is the correct answer."
+              }
+            }
+          },
+          {
+            "Location": "3 .............................. Street",
+            "Accommodation": "One shared room",
+            "Residence Name": "Strand House",
+            "Other Details": [
+              "£130 per week",
+              "Breakfast and lunch included",
+              "10 minutes by 4 .............................."
+            ],
+            "questions": {
+              "3": {
+                "answer": "Hillyard",
+                "timestamp_seconds": 160.0,
+                "explanation": "In the section related to the keyword (Location), the Staff member spells out the street name 'H-I-L-L-Y-A-R-D Street. Hill Yard.', so Hillyard is the correct answer."
+              },
+              "4": {
+                "answer": "bike",
+                "timestamp_seconds": 202.0,
+                "explanation": "In the section related to the keyword (10 minutes by), the Staff member says 'if you have a bike, it would take about 10 minutes.', so bike is the correct answer."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

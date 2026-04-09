@@ -38,6 +38,10 @@ export const examsApi = {
     const { data } = await api.delete(`/exams/sessions/${encodeURIComponent(sessionId)}`);
     return data;
   },
+  saveSessionProgress: async (sessionId: string, answers: Record<string, any>, timeTaken?: number) => {
+    const { data } = await api.patch<ExamSessionDetail>(`/exams/sessions/${encodeURIComponent(sessionId)}/progress`, { answers, timeTaken });
+    return data;
+  },
   uploadAudio: async (file: Blob, filename = 'audio.webm') => {
     const formData = new FormData();
     formData.append('audio', file, filename);

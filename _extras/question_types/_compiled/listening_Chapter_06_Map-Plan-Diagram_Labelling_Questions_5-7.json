@@ -1,0 +1,107 @@
+[
+  {
+    "questions": "5-7",
+    "instructions": "Label the map below. Write NO MORE THAN TWO WORDS for each answer.",
+    "topic": "Hemsworth Wildlife Park Map",
+    "question_type": "Map Labelling",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562263/CH6_HP5-7_orgblz.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 2. You will hear a tour guide explaining the attractions of a wildlife park to visitors."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 5 to 7."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 5 to 7."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Before we begin, I'll give you a short explanation of our itinerary this morning. Please look at the park map on the wall and you'll see that we are now at the main entrance."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "As we enter the park, we will follow the footpath which will lead us to all of Hemsworth Park's major attractions. At each attraction, we will view the animals in our care and I'll offer you short explanations on some of the wildlife we have."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "First, you'll see Big Cat Country on the right hand side which is where we house a selection of wild cats including cougars, cheetahs and panthers."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Then, on the opposite side of the footpath from Big Cat Country is Bear Mountain. We currently have black, brown and grizzly bears at this attraction.",
+        "question_number": 5,
+        "highlight_text": "on the opposite side of the footpath from Big Cat Country is Bear Mountain."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "From there, walking east on the footpath, we will arrive at the African Zone which is our smallest animal attraction. You'll be able to get up close to giraffes, zebras and gazelles at this location."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "At this point, the footpath splits into two directions. We will take the northern route and head to the primate zone where you can observe chimps, monkeys and baboons."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "After that, we will return to the split in the footpath and take the southern route. On the right hand side is the park's elephant zone. We currently have three of them in our care and you can check out the audio visual displays of them as well.",
+        "question_number": 6,
+        "highlight_text": "On the right hand side is the park's elephant zone.",
+        "note": "Filling in 'Elephant' for '___ Zone'"
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Once we have finished there, you'll have some free time to explore for yourself. Now, over on the east side of the park, you can see this circular shape which is our large pond and to its left is a small forest."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "There are lots of walking trails in this area that you can explore and these two triangular shapes here are the park's bird garden. There are two connected enclosures that contain a variety of tropical birds and it is also next to the park's exit so it might be a good idea to make that your final destination.",
+        "question_number": 7,
+        "highlight_text": "these two triangular shapes here are the park's bird garden."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Naturally, you are also free to go back and explore all the other areas of the park following the tour."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "map_labelling",
+        "heading": "Hemsworth Wildlife Park",
+        "image_url": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1775562259/CH6_HP5-7_image_qey2cl.png",
+        "questions": [
+          {
+            "question_number": 5,
+            "label_context": "Opposite Big Cat Country",
+            "answer": "Bear Mountain",
+            "acceptable_answers": ["Bear Mountain"],
+            "timestamp_seconds": 81.0,
+            "explanation": "The guide states that on the opposite side of the footpath from Big Cat Country is 'Bear Mountain'."
+          },
+          {
+            "question_number": 6,
+            "label_context": "___ Zone (southern route)",
+            "answer": "Elephant",
+            "acceptable_answers": ["Elephant", "the elephant"],
+            "timestamp_seconds": 123.0,
+            "explanation": "The guide mentions that on the right hand side of the southern route is the 'elephant zone'."
+          },
+          {
+            "question_number": 7,
+            "label_context": "Triangular shapes near Exit",
+            "answer": "Bird garden",
+            "acceptable_answers": ["Bird garden", "Bird gardens", "the bird garden"],
+            "timestamp_seconds": 153.0,
+            "explanation": "The guide identifies the two triangular shapes as the 'bird garden'."
+          }
+        ]
+      }
+    ]
+  }
+]

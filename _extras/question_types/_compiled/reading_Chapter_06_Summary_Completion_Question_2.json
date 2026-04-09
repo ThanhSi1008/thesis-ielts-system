@@ -1,0 +1,44 @@
+{
+  "title": "History of Studs",
+  "passage": "Although attaching studs and spikes to clothing is today associated with the punk and metal subcultures of the 1980s, the practice is nothing new. In fact, studs and spikes have been around for as long as it has been necessary to protect oneself and exude a spirit of aggression. The medieval brigandine, for instance, was a form of armour that consisted of steel plates on top of fabric, and the plates were riveted there by fasteners that resembled the studs used in contemporary fashions. But apart from keeping the steel plates attached, they also helped absorb the shock from heavy blunt weapons and made it more difficult for blades to pierce through. The same idea was applied to the protective clothing put on animals. Hunting dogs, notably, were often put in spiked collars when their ancient Roman owners took them out to capture dangerous game, like lions and bears. This way, if a dog were to get bitten on the neck, the spikes would protect it and likely injure the more savage beast in the process. And because it was quite obvious that the only individuals who wore studded or spiked garments in the first place were warriors, intimidation was one of the reasons as well; people automatically stayed away from anyone in such clothing. Essentially, while studs and spikes may not serve many practical applications today, they live on as a symbol of ferocity and as a warning to others to keep their distance.",
+  "passage_with_locations": [
+    "Although attaching studs and spikes to clothing is today associated with the punk and metal subcultures of the 1980s, the practice is nothing new. In fact, studs and spikes have been around for as long as it has been necessary to protect oneself and exude a spirit of aggression. ",
+    {
+      "question_number": 3,
+      "text": "The medieval brigandine, for instance, was a form of armour that consisted of steel plates on top of fabric, and the plates were riveted there by fasteners that resembled the studs"
+    },
+    " used in contemporary fashions. But apart from keeping the steel plates attached, they also helped absorb the shock from heavy blunt weapons and made it more difficult for blades to pierce through. The same idea was applied to the protective clothing put on animals. Hunting dogs, notably, were often put in spiked collars when their ancient Roman owners took them out to capture dangerous game, like lions and bears. This way, if a dog were to get bitten on the neck, the spikes would protect it and likely injure the more savage beast in the process. And because it was quite obvious that ",
+    {
+      "question_number": 4,
+      "text": "the only individuals who wore studded or spiked garments in the first place were warriors"
+    },
+    ", intimidation was one of the reasons as well; people automatically stayed away from anyone in such clothing. Essentially, while studs and spikes may not serve many practical applications today, they live on as a symbol of ferocity and as a warning to others to keep their distance."
+  ],
+  "content": [
+    {
+      "type": "summary_completion",
+      "instruction": "Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+      "summary": "**History of Studs**\n\nStuds and spikes have been used throughout history for protection. On the type of medieval armour known as the brigandine they fastened steel plates to {{3}}, keeping people safe from injury. They were also used for intimidation; people in spiked or studded clothes were known to be dangerous because they were {{4}}, so others avoided them.",
+      "questions": [
+        {
+          "question_number": 3,
+          "answer": "fabric",
+          "explanation": {
+            "keyword": "fastened steel plates to",
+            "rationale": "The summary states 'they fastened steel plates to _____'. The text explains that the brigandine 'consisted of steel plates on top of fabric, and the plates were riveted [fastened] there'. Thus, the missing word is 'fabric'.",
+            "distractor_analysis": "'studded' or 'clothes' are incorrect. The word must be the exact material the plates were attached to ('fabric')."
+          }
+        },
+        {
+          "question_number": 4,
+          "answer": "warriors",
+          "explanation": {
+            "keyword": "because they were",
+            "rationale": "The summary points out people 'in spiked or studded clothes were known to be dangerous because they were _____'. The passage clarifies that 'the only individuals who wore studded or spiked garments in the first place were warriors'. So, 'warriors' fits perfectly.",
+            "distractor_analysis": "Words like 'dangerous' or 'individuals' don't specifically answer what they *were* that made them intimidating. 'Warriors' is the exact noun."
+          }
+        }
+      ]
+    }
+  ]
+}

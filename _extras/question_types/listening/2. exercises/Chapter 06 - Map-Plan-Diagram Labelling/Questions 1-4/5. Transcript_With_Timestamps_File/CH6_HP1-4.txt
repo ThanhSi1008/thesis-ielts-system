@@ -1,0 +1,31 @@
+[00.00s -> 10.00s]  You will hear a tour guide speaking to a group of visitors about an amusement park.
+[10.00s -> 15.00s]  First, you have some time to read through questions 1-4.
+[30.00s -> 41.00s]  Now listen carefully and answer questions 1-4.
+[41.00s -> 47.00s]  I'm glad you could all join us today at Fun Fortress Theme Park.
+[47.00s -> 54.00s]  As you may have already heard, this facility recently reopened after undergoing big improvements.
+[54.00s -> 59.00s]  So, first, I'll begin by explaining what visitors can do here.
+[59.00s -> 64.00s]  We are at the main gate at the moment, and there is a route you can follow from here
+[64.00s -> 67.00s]  to ensure you see most things in the park.
+[67.00s -> 74.00s]  After you enter the main gate, you will immediately see the public market on the right side of the road,
+[74.00s -> 79.00s]  where we sell a variety of souvenirs, snacks, and beverages.
+[79.00s -> 84.00s]  Directly across the street from that is our spacious main stage.
+[84.00s -> 93.00s]  On the main stage, you can watch re-enactments of battles with knights, performances by medieval musicians, or comedy shows.
+[93.00s -> 100.00s]  And if you follow the side path to the west, you will see bouncy castle at the end on your right.
+[100.00s -> 106.00s]  Now, if you're headed north from the main gate on the main route and take the second left,
+[106.00s -> 110.00s]  you'll come to our large rides area.
+[110.00s -> 119.00s]  This is where our most popular ride, the Dungeon Discovery Ride, and our newest ride, Castle Tower, can be found.
+[119.00s -> 126.00s]  The Dungeon Discovery Ride is the first one you see on the left as you enter the rides area.
+[126.00s -> 134.00s]  But Castle Tower is located in the far northwest corner, so you'll have to walk a bit more in that direction to find it.
+[134.00s -> 138.00s]  We also have a miniature village in the park.
+[138.00s -> 144.00s]  Get there, starting from the main entrance. Take the same route north toward the rides area.
+[144.00s -> 151.00s]  Go past the turning to the forest pathway, and you will reach another path that turns to the right.
+[151.00s -> 157.00s]  Take that path, and it will bend to the left and come to the entrance of the miniature village,
+[157.00s -> 161.00s]  located between the pathway and Queen's Pond.
+[161.00s -> 168.00s]  This includes a complete town and a range of famous landmarks and structures, all miniaturized of course.
+[168.00s -> 176.00s]  Now, if you're interested in watching a show or a movie, you can go to the park's fun fortress 3D theater.
+[176.00s -> 183.00s]  To get there, you head north on the main route. Take the first right and head up the forest pathway.
+[183.00s -> 190.00s]  You'll eventually come to a small bridge that crosses the stream, and on the other side is the theater.
+[190.00s -> 197.00s]  We have a wide selection of new releases and kids classics, most of which are in 3D.
+[197.00s -> 204.00s]  Alright, those who would like to follow the route can come with me, and we will start at...
+[207.00s -> 210.00s]  You now have 15 seconds to check your answers.
+[220.00s -> 223.00s]  You

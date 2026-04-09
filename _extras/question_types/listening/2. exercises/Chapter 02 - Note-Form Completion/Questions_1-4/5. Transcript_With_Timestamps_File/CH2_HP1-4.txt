@@ -1,0 +1,31 @@
+[00.00s -> 11.20s]  You will hear a conversation between a customer and an agent at an art academy.
+[11.20s -> 16.60s]  First, you have some time to read through questions one to four.
+[30.00s -> 41.00s]  Now listen carefully and answer questions one to four.
+[41.00s -> 50.00s]  Hello, this is the Ridley Art Academy. Come in. Can I help you with anything?
+[50.00s -> 57.00s]  Yes, I just moved to town and am interested in enrolling my child in an art programme.
+[57.00s -> 61.00s]  So I wanted to see what kinds of classes you offer.
+[61.00s -> 65.00s]  Wonderful! We have several art courses for children.
+[65.00s -> 72.00s]  If you could give me a few pieces of information first, I'd appreciate it. Could I get your name?
+[72.00s -> 79.00s]  Pablo Marquez, that's spelled M-A-R-Q-U-E-Z.
+[79.00s -> 82.00s]  And the age of your child?
+[82.00s -> 85.00s]  Just turned ten, about four months ago.
+[85.00s -> 89.00s]  Well, we have a few different courses for that age group.
+[89.00s -> 97.00s]  One is Introduction to Art, which includes painting, drawing and lots of fun activities.
+[97.00s -> 103.00s]  We also offer sculpture workshop where the children work with different sculpting materials
+[103.00s -> 109.00s]  and history of art where the children learn a bit about famous artists and art movements.
+[109.00s -> 113.00s]  I think the introductory class would be best.
+[113.00s -> 119.00s]  Good. Now, we currently have sixteen children enrolled in that course,
+[119.00s -> 124.00s]  but we have a teacher and two assistants with them at all times.
+[124.00s -> 127.00s]  Great! And how much do you charge?
+[127.00s -> 136.00s]  Actually, we charge per month. The cost would be £160 and you pay at the beginning of each month.
+[136.00s -> 144.00s]  But if you enroll for a period of a full year, the rate is only £120 per month.
+[144.00s -> 148.00s]  Really? Well, we plan to enroll for a year anyway.
+[148.00s -> 152.00s]  OK, I would like to go ahead if there is space.
+[152.00s -> 157.00s]  Absolutely. The classes will start this coming Tuesday.
+[157.00s -> 161.00s]  That's fine. So, that's February 2nd, right?
+[161.00s -> 169.00s]  That's correct. And payment is accepted by cash, credit card or check. Which do you prefer?
+[169.00s -> 172.00s]  I'll pay with my credit card. Thanks.
+[172.00s -> 180.00s]  Sure. Now, if I could just get you to fill in this enrolment form, I'll go ahead and take care of your payment.
+[180.00s -> 188.00s]  And then I'll get you a brochure about the academy and a copy of your child's art class schedule.
+[188.00s -> 196.00s]  Also, there is a list of our policies which you can look through and...
+[196.00s -> 200.00s]  You now have 15 seconds to check your answers.

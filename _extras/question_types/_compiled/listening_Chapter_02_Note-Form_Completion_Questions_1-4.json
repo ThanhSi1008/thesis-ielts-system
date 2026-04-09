@@ -1,0 +1,188 @@
+[
+  {
+    "questions": "1–4",
+    "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+    "topic": "Art Academy Enrolment",
+    "question_type": "Note Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562226/CH2_HP1-4_lekuxu.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear a conversation between a customer and an agent at an art academy."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions one to four."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions one to four."
+      },
+      {
+        "speaker": "W",
+        "text": "Hello, this is the Ridley Art Academy. Come in. Can I help you with anything?"
+      },
+      {
+        "speaker": "M",
+        "text": "Yes, I just moved to town and am interested in enrolling my child in an art programme."
+      },
+      {
+        "speaker": "M",
+        "text": "So I wanted to see what kinds of classes you offer."
+      },
+      {
+        "speaker": "W",
+        "text": "Wonderful! We have several art courses for children."
+      },
+      {
+        "speaker": "W",
+        "text": "If you could give me a few pieces of information first, I'd appreciate it. Could I get your name?",
+        "question_number": 1,
+        "highlight_text": "Could I get your name?"
+      },
+      {
+        "speaker": "M",
+        "text": "Pablo Marquez, that's spelled M-A-R-Q-U-E-Z.",
+        "question_number": 1,
+        "highlight_text": "Pablo Marquez, that's spelled M-A-R-Q-U-E-Z."
+      },
+      {
+        "speaker": "W",
+        "text": "And the age of your child?",
+        "question_number": 2,
+        "highlight_text": "And the age of your child?"
+      },
+      {
+        "speaker": "M",
+        "text": "Just turned ten, about four months ago.",
+        "question_number": 2,
+        "highlight_text": "Just turned ten, about four months ago."
+      },
+      {
+        "speaker": "W",
+        "text": "Well, we have a few different courses for that age group."
+      },
+      {
+        "speaker": "W",
+        "text": "One is Introduction to Art, which includes painting, drawing and lots of fun activities."
+      },
+      {
+        "speaker": "W",
+        "text": "We also offer sculpture workshop where the children work with different sculpting materials"
+      },
+      {
+        "speaker": "W",
+        "text": "and history of art where the children learn a bit about famous artists and art movements."
+      },
+      {
+        "speaker": "M",
+        "text": "I think the introductory class would be best."
+      },
+      {
+        "speaker": "W",
+        "text": "Good. Now, we currently have sixteen children enrolled in that course,"
+      },
+      {
+        "speaker": "W",
+        "text": "but we have a teacher and two assistants with them at all times."
+      },
+      {
+        "speaker": "M",
+        "text": "Great! And how much do you charge?"
+      },
+      {
+        "speaker": "W",
+        "text": "Actually, we charge per month. The cost would be £160 and you pay at the beginning of each month."
+      },
+      {
+        "speaker": "W",
+        "text": "But if you enroll for a period of a full year, the rate is only £120 per month.",
+        "question_number": 3,
+        "highlight_text": "if you enroll for a period of a full year, the rate is only £120 per month."
+      },
+      {
+        "speaker": "M",
+        "text": "Really? Well, we plan to enroll for a year anyway.",
+        "question_number": 3,
+        "highlight_text": "we plan to enroll for a year anyway."
+      },
+      {
+        "speaker": "M",
+        "text": "OK, I would like to go ahead if there is space."
+      },
+      {
+        "speaker": "W",
+        "text": "Absolutely. The classes will start this coming Tuesday.",
+        "question_number": 4,
+        "highlight_text": "The classes will start this coming Tuesday."
+      },
+      {
+        "speaker": "M",
+        "text": "That's fine. So, that's February 2nd, right?",
+        "question_number": 4,
+        "highlight_text": "that's February 2nd, right?"
+      },
+      {
+        "speaker": "W",
+        "text": "That's correct. And payment is accepted by cash, credit card or check. Which do you prefer?",
+        "question_number": 4,
+        "highlight_text": "That's correct."
+      },
+      {
+        "speaker": "M",
+        "text": "I'll pay with my credit card. Thanks."
+      },
+      {
+        "speaker": "W",
+        "text": "Sure. Now, if I could just get you to fill in this enrolment form, I'll go ahead and take care of your payment."
+      },
+      {
+        "speaker": "W",
+        "text": "And then I'll get you a brochure about the academy and a copy of your child's art class schedule."
+      },
+      {
+        "speaker": "W",
+        "text": "Also, there is a list of our policies which you can look through and..."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "heading": "Art Academy Enrolment",
+        "points": [
+          {
+            "question_number": 1,
+            "text": "Name of parent: Pablo 1 ..............................",
+            "answer": "Marquez",
+            "timestamp_seconds": 72.0,
+            "explanation": "In the section related to the keyword (Name of parent), the female character says 'Could I get your name?' and the male character replies 'Pablo Marquez, that's spelled M-A-R-Q-U-E-Z.', so Marquez is the correct answer."
+          },
+          {
+            "question_number": 2,
+            "text": "Age of child: 2 .............................. years old",
+            "answer": "10",
+            "timestamp_seconds": 82.0,
+            "explanation": "In the section related to the keyword (Age of child), the female character asks 'And the age of your child?' and the male character replies 'Just turned ten, about four months ago.', so 10 is the correct answer."
+          },
+          {
+            "question_number": 3,
+            "text": "Cost: £ 3 .............................. per month with a full year enrolment",
+            "answer": "120",
+            "timestamp_seconds": 136.0,
+            "explanation": "In the section related to the keyword (Cost - full year enrolment), the female character says 'if you enroll for a period of a full year, the rate is only £120 per month.', so 120 is the correct answer."
+          },
+          {
+            "question_number": 4,
+            "text": "Starting date: 4 ..............................",
+            "answer": "February 2nd",
+            "timestamp_seconds": 157.0,
+            "explanation": "In the section related to the keyword (Starting date), the female character says 'The classes will start this coming Tuesday.' and the male character asks 'So, that's February 2nd, right?' and the female character replies 'That's correct.', so February 2nd is the correct answer."
+          }
+        ]
+      }
+    ]
+  }
+]

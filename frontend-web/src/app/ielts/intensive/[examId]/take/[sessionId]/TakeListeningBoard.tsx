@@ -1,7 +1,8 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { type ExamDetail } from "@/types";
 import { type AnswersState, AnswerField, getPartTitle, questionNumbersFromItems } from "@/components/AnswerField";
@@ -37,12 +38,17 @@ export default function TakeListeningBoard({
   const [focusedQn, setFocusedQn] = useState<number | null>(null);
   const [hasStartedAudio, setHasStartedAudio] = useState(false);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingAudioIdx, setPlayingAudioIdx] = useState(0);
+  const searchParams = useSearchParams();
+  const autoSubmit = searchParams ? searchParams.get("autoSubmit") !== "false" : true;
 
   const parts = useMemo(() => {
     return (exam?.questions?.parts as any[]) || [];
   }, [exam]);
 
   const activePart = parts[activePartIdx] || null;
+  const playingAudioPart = parts[playingAudioIdx] || null;
   const items = useMemo(() => (activePart ? extractAllItemsFromPart(activePart) : []), [activePart]);
   const qNumbers = useMemo(() => questionNumbersFromItems(items), [items]);
 
@@ -58,18 +64,27 @@ export default function TakeListeningBoard({
 
 
   useEffect(() => {
-    if (!submitting && !submitResult && secondsLeft === 0 && !isConfirmingSubmit) {
+    if (autoSubmit && !submitting && !submitResult && secondsLeft === 0 && !isConfirmingSubmit) {
       handleFinalSubmit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsLeft, submitting, submitResult, isConfirmingSubmit]);
+  }, [secondsLeft, submitting, submitResult, isConfirmingSubmit, autoSubmit]);
 
   const handleStartAudio = async () => {
     setHasStartedAudio(true);
+    if (audioRef.current) {
+      audioRef.current.play().catch(() => { });
+    }
     try {
       await fetch("http://localhost:3000/api/external/elevenlabs/voices");
     } catch { }
   };
+
+  useEffect(() => {
+    if (hasStartedAudio && audioRef.current) {
+      audioRef.current.play().catch(() => { });
+    }
+  }, [hasStartedAudio, playingAudioIdx]);
 
   const handleFinalSubmit = () => {
     const timeTaken = (exam.duration * 60) - secondsLeft;
@@ -130,6 +145,17 @@ export default function TakeListeningBoard({
       </header>
 
       <main className="flex-1 min-h-0 bg-[#f5f5f5] relative overflow-hidden">
+        <audio
+          ref={audioRef}
+          src={playingAudioPart?.audio_url || playingAudioPart?.audioUrl}
+          autoPlay={hasStartedAudio}
+          onEnded={() => {
+            if (playingAudioIdx < parts.length - 1) {
+              setPlayingAudioIdx(prev => prev + 1);
+            }
+          }}
+          className="hidden"
+        />
         <div key={activePartIdx} id="main-scroll-container" className="h-full custom-scrollbar overflow-y-auto overflow-x-hidden relative" onClick={() => setFocusedQn(null)}>
           <div className="w-full mx-auto bg-white pt-10 px-8 pb-32 min-h-full border-x border-gray-200 shadow-sm" onClick={(e) => e.stopPropagation()}>
             <div className="bg-[#f2f1ef] border border-[#e2e1df] rounded py-3 px-4 mb-8 text-[#1a1a1a]">

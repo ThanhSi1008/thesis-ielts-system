@@ -1,0 +1,45 @@
+{
+  "title": "The Evolution and Utility of Drones",
+  "passage": "In the simplest terms, a drone is an unmanned, remote-controlled aircraft. The idea of using drones originated in the 1850s, during Austria's war against Italy. During this conflict, drones appeared in the form of balloons filled with bombs. But now that they are available to the general public, people are finding extremely innovative uses for them that not only make everyday tasks easier but also improve society as a whole. Because they are equipped with the highly efficient architecture of a smart phone, they are able to capture videos, take pictures, and use their GPS capacities to transmit data wirelessly. Adding all of these features, in addition to their ability to fly makes it possible to monitor forest fires, flash floods, and traffic flow, optimise agricultural production, and keep international borders secure. It is also possible to equip drones with other machinery to broaden their capabilities. For example, hospitals have successfully attached containers to drones tasked with transporting medicine and supplies to difficult-to-access areas. Meanwhile, some drones are outfitted with thermal sensors. The uses for drones of this type are myriad but as of now, they are proving invaluable to parks and wildlife management authorities. Because they are able to pick up signs of life as sensitive as a heartbeat, drones help keep endangered species safe by locating poachers who enter protected areas.\n\nWith technology improving on a daily basis, the future possibilities for drones seems limitless, but it is optimistic to expect that they will only be used for good. It is therefore vital that the Federal Aviation Administration (FAA) closely implement new legislation governing drones. This includes the prohibition of their use in heavily populated or secure areas and the requirement that registration of each drone be completed after purchase.",
+  "passage_with_locations": [
+    "In the simplest terms, a drone is an unmanned, remote-controlled aircraft. The idea of using drones originated in the 1850s, during Austria's war against Italy. ",
+    {
+      "question_number": 7,
+      "text": "During this conflict, drones appeared in the form of balloons filled with bombs."
+    },
+    " But now that they are available to the general public, people are finding extremely innovative uses for them that not only make everyday tasks easier but also improve society as a whole. Because they are equipped with the highly efficient architecture of a smart phone, they are able to capture videos, take pictures, and use their GPS capacities to transmit data wirelessly. Adding all of these features, in addition to their ability to fly makes it possible to monitor forest fires, flash floods, and traffic flow, optimise agricultural production, and keep international borders secure. It is also possible to equip drones with other machinery to broaden their capabilities. For example, hospitals have successfully attached containers to drones tasked with transporting medicine and supplies to difficult-to-access areas. Meanwhile, some drones are outfitted with thermal sensors. The uses for drones of this type are myriad but as of now, they are proving invaluable to parks and wildlife management authorities. Because they are able to pick up signs of life as sensitive as a heartbeat, drones help keep endangered species safe by ",
+    {
+      "question_number": 8,
+      "text": "locating poachers who enter protected areas."
+    },
+    "\n\nWith technology improving on a daily basis, the future possibilities for drones seems limitless, but it is optimistic to expect that they will only be used for good. It is therefore vital that the Federal Aviation Administration (FAA) closely implement new legislation governing drones. This includes the prohibition of their use in heavily populated or secure areas and the requirement that registration of each drone be completed after purchase."
+  ],
+  "content": [
+    {
+      "type": "short_answer",
+      "instruction": "Answer the questions below. Choose ONE WORD ONLY from the passage for each answer.",
+      "questions": [
+        {
+          "question_number": 7,
+          "text": "What did the first drones resemble?",
+          "answer": "balloons",
+          "explanation": {
+            "keyword": "appeared in the form of, balloons",
+            "rationale": "The text states that in the 1850s, 'drones appeared in the form of balloons'. 'Appeared in the form of' is a synonym for 'resembled'.",
+            "distractor_analysis": "While they were filled with bombs, the physical form they resembled was balloons."
+          }
+        },
+        {
+          "question_number": 8,
+          "text": "What do drones help find in order to protect animals?",
+          "answer": "poachers",
+          "explanation": {
+            "keyword": "locating, poachers, protect",
+            "rationale": "The passage says drones 'help keep endangered species safe [protect animals] by locating poachers'.",
+            "distractor_analysis": "Drones help monitor 'forest fires' and 'flash floods', but specifically for protecting animal species, they locate 'poachers'."
+          }
+        }
+      ]
+    }
+  ]
+}

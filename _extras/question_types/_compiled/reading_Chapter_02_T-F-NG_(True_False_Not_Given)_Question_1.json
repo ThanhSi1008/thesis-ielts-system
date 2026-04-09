@@ -1,0 +1,44 @@
+{
+  "title": "The Pueblo Indians",
+  "passage": "The Pueblo Indians were a major cultural influence in the United States' Four Corners region for over one thousand years. Initially, the civilisation was based in individual homesteads in the Colorado Plateau's highlands, where its members farmed and developed various handicrafts, such as pottery and blankets. However, during the 11th and 12th centuries the Pueblo moved into the neighbouring canyons and built the massive multifamily dwellings from which their names are derived. Archaeologist Kristen Kuckelman believes this occurred after persistent droughts made farming on plateau lands impossible. She believes that the region's inhabitants moved into the valleys because they were less impacted by the droughts. After they migrated, they had to learn how to produce food more effectively on less land, so they implemented a system of agricultural cooperation that eventually led to specialism. Once they settled in the canyons, the civilisation became increasingly more communal in order to maximise the returns on its labour.",
+  "passage_with_locations": [
+    "The Pueblo Indians were a major cultural influence in the United States' Four Corners region for over one thousand years. Initially, the civilisation was based in individual homesteads in the Colorado Plateau's highlands, where its members farmed and developed various handicrafts, such as pottery and blankets. However, during the 11th and 12th centuries the Pueblo moved into the neighbouring canyons and built the ",
+    {
+      "question_number": 1,
+      "text": "massive multifamily dwellings from which their names are derived"
+    },
+    ". Archaeologist Kristen Kuckelman believes this occurred after persistent droughts made farming on plateau lands impossible. She believes that the region's inhabitants moved into the valleys because they were less impacted by the droughts. ",
+    {
+      "question_number": 2,
+      "text": "After they migrated, they had to learn how to produce food more effectively on less land"
+    },
+    ", so they implemented a system of agricultural cooperation that eventually led to specialism. Once they settled in the canyons, the civilisation became increasingly more communal in order to maximise the returns on its labour."
+  ],
+  "content": [
+    {
+      "type": "true_false_not_given",
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "The Pueblo got their names from their style of housing.",
+          "answer": "TRUE",
+          "explanation": {
+            "keyword": "names / dwellings",
+            "rationale": "The text states that the Pueblo built 'massive multifamily dwellings from which their names are derived'. 'Dwellings' is a synonym for 'housing' and 'derived from' means 'got their names from'.",
+            "distractor_analysis": "The statement is a direct paraphrase of the evidentiary sentence, confirming it is TRUE."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "The Pueblo people moved into neighbouring communities with more farmland.",
+          "answer": "FALSE",
+          "explanation": {
+            "keyword": "moved / less land",
+            "rationale": "The passage says that after they migrated, they had to produce food 'on less land'. The question claim that they moved to an area with 'more farmland' directly contradicts this.",
+            "distractor_analysis": "The text explicitly mentions 'less land' as the constraint, making the 'more farmland' claim FALSE."
+          }
+        }
+      ]
+    }
+  ]
+}

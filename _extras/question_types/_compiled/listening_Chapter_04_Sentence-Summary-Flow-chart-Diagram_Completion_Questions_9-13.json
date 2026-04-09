@@ -1,0 +1,154 @@
+[
+  {
+    "questions": "9-13",
+    "instructions": "Complete the flow-chart below. Write ONE WORD ONLY for each answer.",
+    "topic": "The Process of Cleaning Moray Eels by Wrasse Fish",
+    "question_type": "Flow-chart Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562238/CH4_HP9-13_uu3fon.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 3. You will hear a conversation between two students about a biology assignment."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 9 to 13."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 9 to 13."
+      },
+      {
+        "speaker": "Greg",
+        "text": "Natalie, have you finished your outline for the report we've been assigned? You know, the one about the biology field trip to Hawthorne Oceanic Research Facility."
+      },
+      {
+        "speaker": "Natalie",
+        "text": "Hi Greg, I'm still thinking about what topic to focus on. I thought maybe the subject of symbiosis."
+      },
+      {
+        "speaker": "Greg",
+        "text": "Oh yes, I remember that the chapter about it in our textbook was really fascinating, particularly the symbiotic relationships involving cleaner fish, like the rasfish we studied."
+      },
+      {
+        "speaker": "Natalie",
+        "text": "And there were moray eels at the Hawthorne facilities, as well as rasfish. I can describe in detail the cleaning process between those two species."
+      },
+      {
+        "speaker": "Greg",
+        "text": "What did that involve again?"
+      },
+      {
+        "speaker": "Natalie",
+        "text": "Well, the moray eels and rasfish were in the same tank living on a reef. The rasfish gathered inside the reef and hung around until other fish showed up.",
+        "question_number": 9,
+        "highlight_text": "The rasfish gathered inside the reef and hung around"
+      },
+      {
+        "speaker": "Greg",
+        "text": "Ah, I remember. The eels went there to be cleaned."
+      },
+      {
+        "speaker": "Natalie",
+        "text": "Yes, Mr Horace explained that."
+      },
+      {
+        "speaker": "Greg",
+        "text": "He did. He said they usually gathered together near the cleaning station."
+      },
+      {
+        "speaker": "Natalie",
+        "text": "Yeah, and then the rasfish would approach the moray eels there while they were resting. And that's when they would start the cleaning process.",
+        "question_number": 10,
+        "highlight_text": "approach the moray eels there while they were resting."
+      },
+      {
+        "speaker": "Greg",
+        "text": "Right, I remember. First they clean up the eels' gills by eating parasites and bacteria.",
+        "question_number": 11,
+        "highlight_text": "clean up the eels' gills by eating parasites and bacteria."
+      },
+      {
+        "speaker": "Natalie",
+        "text": "Yes, they actually eat that stuff right off the eels. And they pick away the dead scales as well.",
+        "question_number": 12,
+        "highlight_text": "they pick away the dead scales as well."
+      },
+      {
+        "speaker": "Greg",
+        "text": "Actually, you might also want to mention that the eels really rely on the fish because the parasites they eat are quite dangerous."
+      },
+      {
+        "speaker": "Natalie",
+        "text": "Also, at the end, the moray eels would often open their mouths and let the rasfish swim inside to clean as well. I thought it was really fascinating to see that part of the process.",
+        "question_number": 13,
+        "highlight_text": "the moray eels would often open their mouths and let the rasfish swim inside to clean"
+      },
+      {
+        "speaker": "Natalie",
+        "text": "Now, all I have to do is come up with some other examples of symbiotic relationships."
+      },
+      {
+        "speaker": "Greg",
+        "text": "Check out the list of references on Mr Horace's course outline. I'm sure you can find something suitable on it."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "flow_chart",
+        "heading": "The Process of Cleaning Moray Eels by Wrasse Fish",
+        "steps": [
+          {
+            "text": "Wrasse fish get together 9 .............................. the reef and wait for other fish.",
+            "question": {
+              "question_number": 9,
+              "text_answer": "inside",
+              "timestamp_seconds": 98.0,
+              "explanation": "Natalie says 'The rasfish gathered inside the reef and hung around until other fish showed up.' So 'inside' is the correct answer."
+            }
+          },
+          {
+            "text": "Wrasse fish come towards the moray eels when they are 10 .............................. .",
+            "question": {
+              "question_number": 10,
+              "text_answer": "resting",
+              "timestamp_seconds": 120.0,
+              "explanation": "Natalie says 'the rasfish would approach the moray eels there while they were resting.' So 'resting' is the correct answer."
+            }
+          },
+          {
+            "text": "The cleaner fish eat parasites and 11 .............................. from the eels' gills.",
+            "question": {
+              "question_number": 11,
+              "text_answer": "bacteria",
+              "timestamp_seconds": 129.0,
+              "explanation": "Greg says 'First they clean up the eels' gills by eating parasites and bacteria.' So 'bacteria' is the correct answer."
+            }
+          },
+          {
+            "text": "Dead 12 .............................. are picked off the eels by the wrasse fish.",
+            "question": {
+              "question_number": 12,
+              "text_answer": "scales",
+              "timestamp_seconds": 136.0,
+              "explanation": "Natalie says 'they pick away the dead scales as well.' So 'scales' is the correct answer."
+            }
+          },
+          {
+            "text": "The eels allow the wrasse fish to clean the interiors of their 13 .............................. .",
+            "question": {
+              "question_number": 13,
+              "text_answer": "mouths",
+              "timestamp_seconds": 149.0,
+              "explanation": "Natalie says 'the moray eels would often open their mouths and let the rasfish swim inside to clean as well.' So 'mouths' is the correct answer."
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,65 @@
+{
+  "title": "The Carbon Cycle and the Oceans",
+  "passage": "A Carbon is found all around us today - in the air, the earth, and in all living things - but it is neither created nor destroyed. This is due to a process called the carbon cycle. About 99 per cent of Earth's carbon is trapped in the rocks of its crust, but through this process, it is slowly released into the atmosphere. Plants can then take in the carbon, as carbon dioxide, for photosynthesis and pass it along to animals when it is consumed. Eventually, as these animals die and their bodies decompose, the carbon is returned to the soil.\n\nB An often-overlooked aspect of the carbon cycle is that oceans are a highly significant factor in determining the level of carbon in the atmosphere. Our oceans act as large carbon sinks, or storage units. This occurs because carbon dioxide enters the ocean from the atmosphere, undergoes a chemical reaction, and becomes trapped there. Unfortunately, since the Industrial Revolution, the burning of fossil fuels has greatly increased the amount of carbon dioxide we release into the atmosphere, while the oceans' ability to take in more carbon dioxide has remained the same. This is resulting in a build-up of carbon dioxide in the atmosphere and leading to higher global temperatures.\n\nC The increased carbon dioxide levels in the oceans since the Industrial Revolution are also leading to problems for marine life. The chemical reactions that occur as carbon dioxide is dissolved into the seawater lowers the pH level of water at the surface. This acidification slows the growth of microscopic marine life such as plankton and coral. These tiny organisms form the base of the marine food web, so the acidification can have a negative impact on the entire system. And, since we also rely on the marine food web, our food supply is threatened as well.",
+  "passage_with_locations": [
+    "A Carbon is found all around us today - in the air, the earth, and in all living things - but it is neither created nor destroyed. This is due to a process called the carbon cycle. About 99 per cent of Earth's carbon is trapped in the rocks of its crust, but through this process, it is slowly released into the atmosphere. Plants can then take in the carbon, as carbon dioxide, for photosynthesis and pass it along to animals when it is consumed. ",
+    {
+      "question_number": 7,
+      "text": "Eventually, as these animals die and their bodies decompose, the carbon is returned to the soil."
+    },
+    "\n\n",
+    {
+      "question_number": 6,
+      "text": "B An often-overlooked aspect of the carbon cycle is that oceans are a highly significant factor in determining the level of carbon in the atmosphere. Our oceans act as large carbon sinks, or storage units."
+    },
+    " This occurs because carbon dioxide enters the ocean from the atmosphere, undergoes a chemical reaction, and becomes trapped there. Unfortunately, since the Industrial Revolution, the burning of fossil fuels has greatly increased the amount of carbon dioxide we release into the atmosphere, while the oceans' ability to take in more carbon dioxide has remained the same. This is resulting in a build-up of carbon dioxide in the atmosphere and leading to higher global temperatures.\n\n",
+    {
+      "question_number": 5,
+      "text": "C The increased carbon dioxide levels in the oceans... This acidification slows the growth of microscopic marine life such as plankton and coral. These tiny organisms form the base of the marine food web, so the acidification can have a negative impact on the entire system."
+    },
+    " And, since we also rely on the marine food web, our food supply is threatened as well."
+  ],
+  "content": [
+    {
+      "type": "matching_information",
+      "instruction": "The reading passage has three paragraphs, A-C. Which paragraph contains the following information?",
+      "options": [
+        { "letter": "A", "text": "Paragraph A" },
+        { "letter": "B", "text": "Paragraph B" },
+        { "letter": "C", "text": "Paragraph C" }
+      ],
+      "questions": [
+        {
+          "question_number": 5,
+          "text": "a reason why one process can influence a whole system",
+          "answer": "C",
+          "explanation": {
+            "keyword": "influence, whole system, food web",
+            "rationale": "Paragraph C explains that acidification impacts plankton and coral, which 'form the base of the marine food web', and thus 'acidification can have a negative impact on the entire system'.",
+            "distractor_analysis": "Paragraph B discusses global temperatures, but doesn't explain the mechanism of how one part affects the entire interconnected 'system' like the food web explanation in C."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "the role of oceans in the carbon cycle",
+          "answer": "B",
+          "explanation": {
+            "keyword": "oceans, carbon sinks, storage",
+            "rationale": "Paragraph B states that 'oceans are a highly significant factor in determining the level of carbon' and 'act as large carbon sinks, or storage units'.",
+            "distractor_analysis": "While Paragraph C discusses the problems *in* the ocean, the fundamental role of oceans in the carbon cycle (as storage/sinks) is established in B."
+          }
+        },
+        {
+          "question_number": 7,
+          "text": "how carbon gets put back into the earth",
+          "answer": "A",
+          "explanation": {
+            "keyword": "carbon, returned, soil",
+            "rationale": "Paragraph A describes that when animals die and decompose, 'the carbon is returned to the soil'. Returning to the soil is equivalent to being put back into the earth.",
+            "distractor_analysis": "Paragraph B discusses carbon entering the ocean, not the earth/soil."
+          }
+        }
+      ]
+    }
+  ]
+}

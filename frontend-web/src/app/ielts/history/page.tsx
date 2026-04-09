@@ -56,6 +56,8 @@ function HistoryContent() {
   const [activePart, setActivePart] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [mockTestOpen, setMockTestOpen] = useState(true);
+  const [testHistoryOpen, setTestHistoryOpen] = useState(true);
 
   const handleDelete = async () => {
     if (!pendingDeleteId) return;
@@ -137,36 +139,84 @@ function HistoryContent() {
           {/* Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
             <div className="h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-4 space-y-4">
+              <div className="p-4 space-y-1">
+                {/* Dashboard */}
                 <Link href="/ielts/intensive?view=dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                   Dashboard
                 </Link>
-                <Link href="/ielts/intensive" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                  Mock Test
-                </Link>
-                <Link href="/ielts/intensive?view=practice" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-                  Practice
-                </Link>
 
-                <div className="space-y-1">
-                  <div className="px-4 pt-1 pb-0.5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Test History</div>
-                  <Link
-                    href="/ielts/history?mode=mock"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors ${mockActive ? "font-bold bg-primary/10 text-primary" : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
+                {/* Mock Test accordion */}
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => setMockTestOpen(o => !o)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                    Mock Test History
-                  </Link>
-                  <Link
-                    href="/ielts/history?mode=practice"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors ${practiceActive ? "font-bold bg-primary/10 text-primary" : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                    Mock Test
+                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 transition-transform duration-200 ${mockTestOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+
+                  {mockTestOpen && (
+                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 ml-6">
+                      {/* Per Part */}
+                      <Link href="/ielts/intensive?view=practice" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        Per Part
+                      </Link>
+
+                      {/* Part Skill */}
+                      <Link href="/ielts/intensive" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h12M4 14h8"/></svg>
+                        Part Skill
+                      </Link>
+
+                      {/* Per Test — placeholder */}
+                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        Per Test
+                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 uppercase tracking-wide">Soon</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Test History accordion */}
+                <div className="space-y-0.5 pt-2">
+                  <button
+                    onClick={() => setTestHistoryOpen(o => !o)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-                    Practice History
-                  </Link>
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+                    Test History
+                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 transition-transform duration-200 ${testHistoryOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+
+                  {testHistoryOpen && (
+                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 ml-6">
+                      <Link
+                        href="/ielts/history?mode=practice"
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${practiceActive ? "font-bold bg-primary/10 text-primary" : "font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        Per Part
+                      </Link>
+
+                      <Link
+                        href="/ielts/history?mode=mock"
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${mockActive ? "font-bold bg-primary/10 text-primary" : "font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h12M4 14h8"/></svg>
+                        Part Skill
+                      </Link>
+
+                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        Per Test
+                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 uppercase tracking-wide">Soon</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

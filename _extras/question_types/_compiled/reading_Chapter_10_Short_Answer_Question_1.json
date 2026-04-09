@@ -1,0 +1,44 @@
+{
+  "title": "A History of Painting Surfaces",
+  "passage": "The mural, a type of artwork that involves applying paint directly to a wall, was the earliest kind of painting. Murals could not be detached, but later, the technique of painting on panels was developed. Panel paintings were done on thin strips of wood that were later put together. This production process also made it possible to quickly take them apart later. Quick disassembly was a feature which made these paintings highly portable. In the 14th century, painters began painting on fabric canvas, which was easy to work with and transport as it was lightweight. The surface of canvas held paint much better than wood did and was not prone to warping and cracking. However, the woven fabric affected the surface of paintings in a way that Renaissance artists disliked. They wanted to attain a glossy finish, and therefore went to great lengths to smooth the texture of the painting so that it had a similar feel to a photograph.",
+  "passage_with_locations": [
+    "The mural, a type of artwork that involves applying paint directly to a wall, was the earliest kind of painting. Murals could not be detached, but later, the technique of painting on panels was developed. Panel paintings were done on thin strips of wood that were later put together. This production process also made it possible to quickly take them apart later. ",
+    {
+      "question_number": 1,
+      "text": "Quick disassembly was a feature which made these paintings highly portable."
+    },
+    " In the 14th century, painters began painting on fabric canvas, which was easy to work with and transport as it was lightweight. The surface of canvas held paint much better than wood did and was not prone to warping and cracking. However, the woven fabric affected the surface of paintings in a way that Renaissance artists disliked. ",
+    {
+      "question_number": 2,
+      "text": "They wanted to attain a glossy finish, and therefore went to great lengths to smooth the texture of the painting so that it had a similar feel to a photograph."
+    }
+  ],
+  "content": [
+    {
+      "type": "short_answer",
+      "instruction": "Answer the questions below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "What characteristic made panel paintings easy to move?",
+          "answer": "quick disassembly",
+          "explanation": {
+            "keyword": "highly portable, quick disassembly",
+            "rationale": "The passage states that 'Quick disassembly was a feature which made these paintings highly portable.' 'Highly portable' is a synonym for 'easy to move'.",
+            "distractor_analysis": "While they were made of wood strips, the specific reason given for portability is the quick disassembly."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "What texture did Renaissance artists want to achieve?",
+          "answer": "glossy finish",
+          "explanation": {
+            "keyword": "attain, glossy finish",
+            "rationale": "The text mentions that Renaissance artists 'wanted to attain a glossy finish'.",
+            "distractor_analysis": "They wanted it to have a 'similar feel to a photograph', but the specific texture they sought was 'glossy finish'."
+          }
+        }
+      ]
+    }
+  ]
+}

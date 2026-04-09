@@ -44,9 +44,30 @@ export default function IELTSHomePage() {
                   </div>
 
                   {/* STEP 2: Basic IELTS (Middle Left) */}
-                  <div className="absolute top-[20%] -left-[120%] w-64 text-right">
-                     <div className="flex items-center justify-end gap-4">
-                        <h3 className="text-xl font-extrabold text-info uppercase">Basic IELTS</h3>
+                  <div className="absolute top-[20%] -left-[120%] w-80 text-center">
+                     <div className="flex items-start justify-end gap-4">
+                        <div className="order-1">
+                           <h3 className="text-xl font-extrabold text-info mb-1 uppercase">Basic IELTS</h3>
+                           <p className="text-info text-sm font-medium mb-4 leading-relaxed">
+                              Learn everything you need to know<br />about the IELTS test step by step
+                           </p>
+                           <Link
+                              href="/ielts/basic"
+                              className="bg-info text-white font-semibold py-2.5 px-7 rounded-full inline-flex items-center gap-2 hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-md group"
+                           >
+                              Get Started
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 strokeWidth={2.5}
+                              >
+                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                              </svg>
+                           </Link>
+                        </div>
                      </div>
                   </div>
 

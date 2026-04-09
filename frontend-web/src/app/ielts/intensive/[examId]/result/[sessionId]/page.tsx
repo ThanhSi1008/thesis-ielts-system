@@ -1783,6 +1783,7 @@ export default function IeltsResultPage() {
             feedback={aiFeedback}
             answers={userAnswers as any}
             exam={exam}
+            practicePart={practicePart}
           />
         )}
 

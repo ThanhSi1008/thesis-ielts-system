@@ -1,0 +1,43 @@
+{
+  "title": "Language Comprehension",
+  "passage": "Some linguists believe that language comprehension is a learned skill and that adults will, therefore, be able to understand even unfamiliar language better than children. This theory rests on the idea that over time we develop the ability to understand both verbal and non-verbal clues when communicating. Since this is a learning process, it seems only logical that children would be less skilled at discerning meaning from context. However, this is unlikely to be true. In fact, recent studies by linguists at Germany's Bielefeld University have shown that although children do not accurately anticipate visual clues while listening to stories, they are able to rapidly interpret visual clues to assist with their overall language comprehension. This does not mean that their skills will not improve over time, but it does show that determining context from non-auditory clues is a basic element of language comprehension.",
+  "passage_with_locations": [
+    "Some linguists believe that language comprehension is a learned skill and that adults will, therefore, be able to understand even unfamiliar language better than children. This theory rests on the idea that over time we develop the ability to understand both verbal and non-verbal clues when communicating. ",
+    {
+      "question_number": 1,
+      "text": "Since this is a learning process, it seems only logical that children would be less skilled at discerning meaning from context. However, this is unlikely to be true."
+    },
+    " In fact, recent studies by linguists at Germany's Bielefeld University have shown that although children do not accurately anticipate visual clues while listening to stories, they are able to rapidly interpret visual clues to assist with their overall language comprehension. This does not mean that their skills will not improve over time, but it does show that ",
+    {
+      "question_number": 2,
+      "text": "determining context from non-auditory clues is a basic element of language comprehension."
+    }
+  ],
+  "content": [
+    {
+      "type": "yes_no_not_given",
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "Children are not able to determine meaning from context.",
+          "answer": "NO",
+          "explanation": {
+            "keyword": "children / meaning from context",
+            "rationale": "The writer mentions that while it 'seems logical' that children would be less skilled at this, studies show this is 'unlikely to be true'. The studies actually show children can rapidly interpret visual clues to assist comprehension.",
+            "distractor_analysis": "The statement directly contradicts the writer's claim that children CAN interpret context, making the answer NO."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "Understanding unspoken signals is a fundamental aspect of human language.",
+          "answer": "YES",
+          "explanation": {
+            "keyword": "unspoken signals / fundamental aspect",
+            "rationale": "The concluding sentence states that 'determining context from non-auditory clues is a basic element of language comprehension'. 'Non-auditory clues' refers to 'unspoken signals', and 'basic element' is a synonym for 'fundamental aspect'.",
+            "distractor_analysis": "The statement matches the writer's final claim about the importance of non-auditory context, making it YES."
+          }
+        }
+      ]
+    }
+  ]
+}

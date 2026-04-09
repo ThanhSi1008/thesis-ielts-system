@@ -2,15 +2,15 @@
 
 import { useState, useEffect, KeyboardEvent, useRef } from 'react';
 import { vocabLabApi } from '@/services/vocabLab.api';
-import type { DeckWithCounts, NoteType } from '@/types';
-import { NoteTypeChooserModal } from './NoteTypeChooserModal';
+import type { DeckWithCounts, CardType } from '@/types';
+import { CardTypeChooserModal } from './CardTypeChooserModal';
 import { toast } from '@/components/Toaster';
 
 export function AddCardTab({ isActive }: { isActive: boolean }) {
   const [decks, setDecks] = useState<DeckWithCounts[]>([]);
   const [deckId, setDeckId] = useState('');
-  const [noteType, setNoteType] = useState<NoteType | null>(null);
-  const [isNoteTypeChooserOpen, setIsNoteTypeChooserOpen] = useState(false);
+  const [cardType, setCardType] = useState<CardType | null>(null);
+  const [isCardTypeChooserOpen, setIsCardTypeChooserOpen] = useState(false);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [fieldStyles, setFieldStyles] = useState<Record<string, any>>({});
   const [tagsList, setTagsList] = useState<string[]>(() => {
@@ -26,17 +26,17 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
   // Global selection prefill listener
   useEffect(() => {
     const handlePrefill = (e: any) => {
-      const { word, context, AINoteType, AIFieldValues } = e.detail;
+      const { word, context, AICardType, AIFieldValues } = e.detail;
 
-      if (AINoteType && AIFieldValues) {
+      if (AICardType && AIFieldValues) {
         // Advanced prefill from AI Generator
-        setNoteType(AINoteType);
+        setCardType(AICardType);
         
         const mappedVals: Record<string, string> = {};
         // Initialize empty strings for all fields first
-        AINoteType.fields.forEach((f: any) => { mappedVals[f.id] = ''; });
+        AICardType.fields.forEach((f: any) => { mappedVals[f.id] = ''; });
         // Fill in generated ones
-        AINoteType.fields.forEach((f: any) => {
+        AICardType.fields.forEach((f: any) => {
           if (AIFieldValues[f.name]) {
              mappedVals[f.id] = AIFieldValues[f.name];
           }
@@ -46,8 +46,8 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         return;
       }
 
-      if (noteType) {
-        const sortedFields = [...noteType.fields].sort((a, b) => a.order - b.order);
+      if (cardType) {
+        const sortedFields = [...cardType.fields].sort((a, b) => a.order - b.order);
         if (sortedFields.length >= 2) {
           setFieldValues(prev => ({
             ...prev,
@@ -64,7 +64,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
     };
     window.addEventListener('vocab-lab-prefill', handlePrefill);
     return () => window.removeEventListener('vocab-lab-prefill', handlePrefill);
-  }, [noteType]);
+  }, [cardType]);
 
   // Auto-resize textareas when values change programmatically (e.g., AI prefill)
   useEffect(() => {
@@ -127,8 +127,8 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
 
   const filteredDecks = decks.filter(d => d.name.toLowerCase().includes(deckFilter.toLowerCase()));
 
-  // When noteType changes, reset fieldValues with empty strings per field
-  const initFieldValues = (nt: NoteType) => {
+  // When cardType changes, reset fieldValues with empty strings per field
+  const initFieldValues = (nt: CardType) => {
     const initVals: Record<string, string> = {};
     const initSty: Record<string, any> = {};
     nt.fields.forEach(f => { initVals[f.id] = ''; initSty[f.id] = {}; });
@@ -150,19 +150,19 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         console.error('Failed to fetch decks:', error);
       }
     };
-    const fetchNoteTypes = async () => {
+    const fetchCardTypes = async () => {
       try {
-        const types = await vocabLabApi.getNoteTypes();
-        if (!noteType) {
-          const lastNt = localStorage.getItem('vocablab-last-notetype-id');
+        const types = await vocabLabApi.getCardTypes();
+        if (!cardType) {
+          const lastNt = localStorage.getItem('vocablab-last-cardtype-id');
           const savedNt = types.find(t => t.id === lastNt);
           const basic = types.find(t => t.isBuiltIn) ?? types[0];
           const targetNt = savedNt ?? basic;
-          if (targetNt) { setNoteType(targetNt); initFieldValues(targetNt); }
+          if (targetNt) { setCardType(targetNt); initFieldValues(targetNt); }
         }
       } catch { }
     };
-    if (isActive) { fetchDecks(); fetchNoteTypes(); }
+    if (isActive) { fetchDecks(); fetchCardTypes(); }
   }, [isActive]);
 
   // Sync to localStorage when these values change
@@ -171,8 +171,8 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
   }, [deckId]);
 
   useEffect(() => {
-    if (noteType) localStorage.setItem('vocablab-last-notetype-id', noteType.id);
-  }, [noteType]);
+    if (cardType) localStorage.setItem('vocablab-last-cardtype-id', cardType.id);
+  }, [cardType]);
 
   useEffect(() => {
     localStorage.setItem('vocablab-last-tags', JSON.stringify(tagsList));
@@ -196,11 +196,11 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!deckId) { toast.error('Please select or create a deck first.'); return; }
-    if (!noteType) { toast.error('Please select a note type.'); return; }
+    if (!cardType) { toast.error('Please select a card type.'); return; }
 
     // For Basic (front/back), derive front and back from fieldValues
-    const fields = noteType.fields.sort((a, b) => a.order - b.order);
-    const template = noteType.templates[0];
+    const fields = cardType.fields.sort((a, b) => a.order - b.order);
+    const template = cardType.templates[0];
     const frontFieldId = template?.frontFields[0] ?? fields[0]?.id;
     const backFieldId = template?.backFields[0] ?? fields[1]?.id;
     const front = fieldValues[frontFieldId] ?? '';
@@ -213,12 +213,12 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         front,
         back,
         tags: tagsList.length > 0 ? tagsList : undefined,
-        noteTypeId: noteType.id,
+        cardTypeId: cardType.id,
         fieldValues,
         fieldStyles: Object.keys(fieldStyles).some(k => Object.keys(fieldStyles[k]).length > 0) ? fieldStyles : undefined,
       });
       toast.success('Card added successfully!');
-      if (noteType) initFieldValues(noteType);
+      if (cardType) initFieldValues(cardType);
     } catch {
       toast.error('Failed to add card. Please try again.');
     } finally {
@@ -325,7 +325,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col"
       >
 
-        {/* Header Bar: Deck & Note Type Selectors */}
+        {/* Header Bar: Deck & Card Type Selectors */}
         <div className="px-4 md:px-5 py-3.5 bg-transparent border-b border-gray-100/60 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Add to</span>
@@ -347,11 +347,11 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
             <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Type</span>
             <button
               type="button"
-              onClick={() => setIsNoteTypeChooserOpen(true)}
+              onClick={() => setIsCardTypeChooserOpen(true)}
               className="flex items-center gap-2 min-w-[140px] h-9 px-3 bg-transparent hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-[13px] font-medium text-gray-700 transition-colors focus:ring-2 focus:ring-gray-200 focus:border-gray-400"
             >
               <svg className="h-3.5 w-3.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-              {noteType?.name ?? 'Basic'}
+              {cardType?.name ?? 'Basic'}
             </button>
           </div>
         </div>
@@ -397,7 +397,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
 
           {/* Dynamic Fields */}
           <div className="flex flex-col gap-4">
-            {noteType && [...noteType.fields].sort((a, b) => a.order - b.order).map((field, idx) => {
+            {cardType && [...cardType.fields].sort((a, b) => a.order - b.order).map((field, idx) => {
               const value = fieldValues[field.id] ?? '';
               const hasMedia = /<(img|audio)\s/i.test(value);
 
@@ -435,7 +435,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                     placeholder={hasMedia ? 'Add text (optional)...' : undefined}
                     className="vocab-lab-textarea w-full bg-transparent border-none p-0 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-300 focus:ring-0 focus:outline-none resize-none overflow-hidden"
                     style={fieldStyleToCSS({
-                      ...(noteType.templates[0]?.fieldStyles?.[field.id] as any || {}),
+                      ...(cardType.templates[0]?.fieldStyles?.[field.id] as any || {}),
                       ...(fieldStyles[field.id] || {})
                     })}
                     required={idx === 0 && !hasMedia}
@@ -654,16 +654,16 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         </div>
       )}
 
-      {/* Note Type Chooser Modal */}
-      {isNoteTypeChooserOpen && (
-        <NoteTypeChooserModal
-          selectedNoteTypeId={noteType?.id ?? ''}
+      {/* Card Type Chooser Modal */}
+      {isCardTypeChooserOpen && (
+        <CardTypeChooserModal
+          selectedCardTypeId={cardType?.id ?? ''}
           onChoose={(nt) => {
-            setNoteType(nt);
+            setCardType(nt);
             initFieldValues(nt);
-            setIsNoteTypeChooserOpen(false);
+            setIsCardTypeChooserOpen(false);
           }}
-          onClose={() => setIsNoteTypeChooserOpen(false)}
+          onClose={() => setIsCardTypeChooserOpen(false)}
         />
       )}
     </div>

@@ -1,0 +1,59 @@
+{
+  "title": "History of the Typewriter",
+  "passage": "Industrialisation and corporate growth in the late 19th century created an environment in which business correspondence increased monumentally, calling for a way to transcribe messages more quickly and legibly than handwritten script. The first device capable of fulfilling this need was the Sholes and Glidden typewriter. However, before it would become a commercial success, certain issues needed to be remedied. For instance, the type bars in their earliest typewriters moved very sluggishly, and the keys and other components tended to jam often. To fix this problem, Sholes - the designer - rearranged the layout of the keyboard so that the letters in subsequent versions of his machine no longer appeared in alphabetical order. Instead, he placed the keys with the intention that the most commonly used letter combinations in the English language, like ST and TH, would be spread far apart from one another. This modification caused a dramatic decline in mechanical jams and typing errors because the new arrangement increased the time it took for users to locate letters. Thereby it ensured that each key had enough time to fall back into its position before the next one was struck. These seemingly small changes were key to making typewriters a useful transcription and correspondence device.",
+  "passage_with_locations": [
+    "Industrialisation and corporate growth in the late 19th century created an environment in which business correspondence increased monumentally, ",
+    {
+      "question_number": 5,
+      "text": "calling for a way to transcribe messages more quickly and legibly than handwritten script"
+    },
+    ". The first device capable of fulfilling this need was the Sholes and Glidden typewriter. However, before it would become a commercial success, certain issues needed to be remedied. For instance, ",
+    {
+      "question_number": 6,
+      "text": "the type bars in their earliest typewriters moved very sluggishly"
+    },
+    ", and the keys and other components tended to jam often. To fix this problem, Sholes - the designer - rearranged the layout of the keyboard so that the letters in subsequent versions of his machine no longer appeared in alphabetical order. Instead, he placed the keys with the intention that the most commonly used letter combinations in the English language, like ST and TH, would be spread far apart from one another. This modification caused a dramatic decline in mechanical jams and typing errors because ",
+    {
+      "question_number": 7,
+      "text": "the new arrangement increased the time it took for users to locate letters"
+    },
+    ". Thereby it ensured that each key had enough time to fall back into its position before the next one was struck. These seemingly small changes were key to making typewriters a useful transcription and correspondence device."
+  ],
+  "content": [
+    {
+      "type": "true_false_not_given",
+      "questions": [
+        {
+          "question_number": 5,
+          "text": "Industrialisation created a need for a writing method that was faster than handwriting.",
+          "answer": "TRUE",
+          "explanation": {
+            "keyword": "industrialisation / calling for",
+            "rationale": "The text states that industrialisation created an environment 'calling for a way to transcribe messages more quickly... than handwritten script'. 'Calling for' is a synonym for 'created a need', and 'transcribe more quickly' means 'faster'.",
+            "distractor_analysis": "The statement is a precise paraphrase of the first sentence, confirming it is TRUE."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "The type bars on early typewriters had to be replaced often.",
+          "answer": "NOT GIVEN",
+          "explanation": {
+            "keyword": "type bars / replaced",
+            "rationale": "The passage confirms that type bars 'moved very sluggishly', but it does not mention anything about them needing to be 'replaced'. Internal mechanical issues (sluggishness) were mentioned, but maintenance frequency (replacement) was not.",
+            "distractor_analysis": "There is no evidence in the text to support or contradict the claim about replacement, so the answer is NOT GIVEN."
+          }
+        },
+        {
+          "question_number": 7,
+          "text": "The redesign made locating letters more time-consuming.",
+          "answer": "TRUE",
+          "explanation": {
+            "keyword": "redesign / increased the time",
+            "rationale": "The text explicitly says that the 'new arrangement [the redesign] increased the time it took for users to locate letters'. This directly matches 'made locating letters more time-consuming'.",
+            "distractor_analysis": "The statement uses a direct paraphrase of the text's explanation of the redesign's effect, making it TRUE."
+          }
+        }
+      ]
+    }
+  ]
+}

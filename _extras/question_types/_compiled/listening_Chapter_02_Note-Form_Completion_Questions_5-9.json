@@ -1,0 +1,162 @@
+[
+  {
+    "questions": "5–9",
+    "instructions": "Complete the notes below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.",
+    "topic": "Medical Insurance Inquiry",
+    "question_type": "Note Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562304/CH2_HP5-9_uw5rgr.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear a telephone conversation between a customer and a receptionist from an insurance company about medical coverage."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First you have some time to read through questions 5 to 9."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 5 to 9."
+      },
+      {
+        "speaker": "W",
+        "text": "Midlands Health Coverage Services, this is Melanie speaking. How can I help you?"
+      },
+      {
+        "speaker": "M",
+        "text": "Hi, I'm planning to study abroad in Spain for September and October this year, and I'll need medical insurance."
+      },
+      {
+        "speaker": "W",
+        "text": "Certainly. I can help you. First, if you don't mind, I'll need to get some information from you. Could I first get your name and postal address, please?"
+      },
+      {
+        "speaker": "M",
+        "text": "Yes, it is Adam Harker. And I'm at 48 Bixteth Street in Liverpool. That's B-I-X-T-E-T-H.",
+        "question_number": 5,
+        "highlight_text": "I'm at 48 Bixteth Street in Liverpool. That's B-I-X-T-E-T-H."
+      },
+      {
+        "speaker": "W",
+        "text": "Aha. What is your post code?",
+        "question_number": 6,
+        "highlight_text": "What is your post code?"
+      },
+      {
+        "speaker": "M",
+        "text": "Um. It is L-3-4-E-W.",
+        "question_number": 6,
+        "highlight_text": "It is L-3-4-E-W."
+      },
+      {
+        "speaker": "W",
+        "text": "Oh, and I'll also need your home phone number."
+      },
+      {
+        "speaker": "M",
+        "text": "Sure. That's 0151 555 0143."
+      },
+      {
+        "speaker": "W",
+        "text": "Thanks. Got it. And could you tell me if you currently suffer from any medical conditions or diseases? Policy rates are a bit higher if you are already diagnosed with a medical problem."
+      },
+      {
+        "speaker": "M",
+        "text": "No, nothing that I know of. I had a check-up last month and everything was okay."
+      },
+      {
+        "speaker": "W",
+        "text": "Great. Well, we have a policy for those studying in continental Europe. It's a student policy for those aged 17 to 25 and it is for basic coverage and costs £88 per month. However, dental work and medication are not included. We also have comprehensive plans that cover everything, but they cost more.",
+        "question_number": 7,
+        "highlight_text": "It's a student policy for those aged 17 to 25"
+      },
+      {
+        "speaker": "M",
+        "text": "I'm 27, so I am not eligible for the cheaper plan. How much are the other policies?",
+        "question_number": 7,
+        "highlight_text": "I'm 27, so I am not eligible for the cheaper plan."
+      },
+      {
+        "speaker": "W",
+        "text": "Regular plans are £112 per month, and the comprehensive ones are £158.",
+        "question_number": 8,
+        "highlight_text": "Regular plans are £112 per month, and the comprehensive ones are £158."
+      },
+      {
+        "speaker": "M",
+        "text": "I have a limited budget, so I'd go for the less expensive option. I plan to travel around a few nearby countries in Europe as well, would that affect the price? And I might choose to stay in Spain an extra month, so would the rate be the same if I stayed 3 months instead of 2?",
+        "question_number": 8,
+        "highlight_text": "I'd go for the less expensive option."
+      },
+      {
+        "speaker": "M",
+        "text": "I have a limited budget, so I'd go for the less expensive option. I plan to travel around a few nearby countries in Europe as well, would that affect the price? And I might choose to stay in Spain an extra month, so would the rate be the same if I stayed 3 months instead of 2?",
+        "question_number": 9,
+        "highlight_text": "I might choose to stay in Spain an extra month, so would the rate be the same if I stayed 3 months instead of 2?"
+      },
+      {
+        "speaker": "W",
+        "text": "Actually, no. There would be a 10% discount, and there would be no change to the policy if you traveled to neighbouring countries."
+      },
+      {
+        "speaker": "M",
+        "text": "Well, that's good to know. Okay, so how do I make payment?"
+      },
+      {
+        "speaker": "W",
+        "text": "You can pay by credit card now. Or send us a direct deposit from your bank."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "heading": "Medical Insurance Inquiry",
+        "points": [
+          {
+            "question_number": 5,
+            "text": "Address: #48, 5 .............................. Street, Liverpool",
+            "answer": "Bixteth",
+            "timestamp_seconds": 78.72,
+            "explanation": "In the section related to the keyword (Address), the female receptionist asks 'Could I first get your name and postal address, please?' and the male customer replies 'I'm at 48 Bixteth Street in Liverpool. That's B-I-X-T-E-T-H.', so Bixteth is the correct answer."
+          },
+          {
+            "question_number": 6,
+            "text": "Postal Code: 6 ..............................",
+            "answer": "L34EW",
+            "timestamp_seconds": 88.0,
+            "explanation": "In the section related to the keyword (Postal Code), the female receptionist asks 'What is your post code?' and the male customer replies 'It is L-3-4-E-W.', so L34EW is the correct answer."
+          }
+        ]
+      },
+      {
+        "heading": "Notes",
+        "points": [
+          {
+            "question_number": 7,
+            "text": "27 years old, not 7 .............................. for a student policy",
+            "answer": "eligible",
+            "timestamp_seconds": 152.0,
+            "explanation": "In the section related to the keyword (student policy), the female receptionist says 'It's a student policy for those aged 17 to 25' and the male customer replies 'I'm 27, so I am not eligible for the cheaper plan.', so eligible is the correct answer."
+          },
+          {
+            "question_number": 8,
+            "text": "Most likely to sign up for the 8 ..............................",
+            "answer": "regular plan",
+            "timestamp_seconds": 158.92,
+            "explanation": "In the section related to the keyword (sign up for), the female receptionist says 'Regular plans are £112 per month, and the comprehensive ones are £158.' and the male customer replies 'I have a limited budget, so I'd go for the less expensive option.', so regular plan is the correct answer."
+          },
+          {
+            "question_number": 9,
+            "text": "Might stay in Spain for up to 9 ..............................",
+            "answer": "3 months",
+            "timestamp_seconds": 176.80,
+            "explanation": "In the section related to the keyword (stay in Spain), the male customer says 'I might choose to stay in Spain an extra month, so would the rate be the same if I stayed 3 months instead of 2?', so 3 months is the correct answer."
+          }
+        ]
+      }
+    ]
+  }
+]

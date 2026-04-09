@@ -1,0 +1,67 @@
+{
+  "title": "The Automobile and the American Dream",
+  "passage": "A During American history, perhaps nothing has had such an immense influence on the American lifestyle than the growth of personal car ownership. The automobile allowed Americans to easily travel across their immense nation and came to symbolise freedom. Car ownership became a rite of passage and as more and more Americans bought them, this caused a great shift in demographics in the country. With their increased mobility, Americans were able to move out of the cities and into the suburbs. For many, owning a suburban home with a yard and white picket fence came to symbolise the 'American Dream'.\n\nB However, some do not see the automobile as a great symbol of freedom. In fact, they consider our reliance upon automobiles to be a burden. For most people, the ever-increasing prices of automobiles make them large investments. Further, insurance, and maintenance costs can make them even more unaffordable. While this may seem like an individual problem, it has had a major negative impact on society as a whole. When the previously mentioned middle and upper class citizens who could afford private transportation, the overall income levels of the cities dropped. This led to a decline in tax revenue and caused widespread urban decay.\n\nC Interestingly, with more than 250 million cars currently on the roads of America, some believe that the country has reached what professor Phil Goodwin refers to as 'peak car'. This basically means that Americans are travelling less by car than they were before. One of the most commonly cited reasons for this is that people moving back into the cities. With this reurbanisation, citizens have increased access to affordable public transportation. After comparing the costs of purchasing and maintaining a car to this public transportation, many Americans have begun to forego car ownership altogether.",
+  "passage_with_locations": [
+    {
+      "question_number": 5,
+      "text": "A During American history, perhaps nothing has had such an immense influence on the American lifestyle than the growth of personal car ownership."
+    },
+    " The automobile allowed Americans to easily travel across their immense nation and came to symbolise freedom. Car ownership became a rite of passage and as more and more Americans bought them, this caused a great shift in demographics in the country. With their increased mobility, Americans were able to move out of the cities and into the suburbs. For many, owning a suburban home with a yard and white picket fence came to symbolise the 'American Dream'.\n\n",
+    {
+      "question_number": 6,
+      "text": "B However, some do not see the automobile as a great symbol of freedom. In fact, they consider our reliance upon automobiles to be a burden."
+    },
+    " For most people, the ever-increasing prices of automobiles make them large investments. Further, insurance, and maintenance costs can make them even more unaffordable. While this may seem like an individual problem, it has had a major negative impact on society as a whole. When the previously mentioned middle and upper class citizens who could afford private transportation, the overall income levels of the cities dropped. This led to a decline in tax revenue and caused widespread urban decay.\n\n",
+    {
+      "question_number": 7,
+      "text": "C Interestingly, with more than 250 million cars currently on the roads of America, some believe that the country has reached what professor Phil Goodwin refers to as 'peak car'. This basically means that Americans are travelling less by car than they were before."
+    },
+    " One of the most commonly cited reasons for this is that people moving back into the cities. With this reurbanisation, citizens have increased access to affordable public transportation. After comparing the costs of purchasing and maintaining a car to this public transportation, many Americans have begun to forego car ownership altogether."
+  ],
+  "content": [
+    {
+      "type": "matching_headings",
+      "instruction": "Choose the correct heading for each paragraph from the list of headings below.",
+      "options": [
+        { "letter": "i", "text": "Reasons for the rise in automobile sales" },
+        { "letter": "ii", "text": "Changes in automobile use in the United States" },
+        { "letter": "iii", "text": "The history of transportation in America" },
+        { "letter": "iv", "text": "Problems with car ownership" },
+        { "letter": "v", "text": "Seeking solutions for a transportation problem" },
+        { "letter": "vi", "text": "The impact of the automobile on America" }
+      ],
+      "questions": [
+        {
+          "question_number": 5,
+          "text": "Paragraph A",
+          "answer": "vi",
+          "explanation": {
+            "keyword": "immense influence, lifestyle, American lifestyle",
+            "rationale": "Paragraph A states that cars had an 'immense influence on the American lifestyle', which matches 'The impact of the automobile on America'.",
+            "distractor_analysis": "While it mentions the suburbs and the American Dream, it doesn't focus on *problems* (iv) or *changes in use* (ii) yet; it focuses on the fundamental impact."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "Paragraph B",
+          "answer": "iv",
+          "explanation": {
+            "keyword": "burden, prices, unaffordable, urban decay",
+            "rationale": "Paragraph B describes automobiles as a 'burden' and lists various negative aspects and costs, which corresponds to 'Problems with car ownership'.",
+            "distractor_analysis": "It mentions the negative impact on society, but the primary focus is the problems (costs, burden) that lead to that impact."
+          }
+        },
+        {
+          "question_number": 7,
+          "text": "Paragraph C",
+          "answer": "ii",
+          "explanation": {
+            "keyword": "peak car, travelling less, moving back, forego",
+            "rationale": "Paragraph C discusses 'peak car' and the fact that 'Americans are travelling less by car', representing 'Changes in automobile use'.",
+            "distractor_analysis": "It mentions public transportation, but as a reason for the change in car use, rather than as a primary 'solution' (v) being sought for a general problem."
+          }
+        }
+      ]
+    }
+  ]
+}

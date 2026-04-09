@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import type { ExamDetail } from "@/types";
 import PracticeListeningBoard from "./PracticeListeningBoard";
@@ -22,6 +22,8 @@ export default function PracticeTestTakePage() {
   const router = useRouter();
   const examId = params?.examId as string;
   const sessionId = params?.sessionId as string;
+  const searchParams = useSearchParams();
+  const customTime = searchParams?.get("customTime");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,7 @@ export default function PracticeTestTakePage() {
   const [sessionInfo, setSessionInfo] = useState<any>(null);
 
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [initialSeconds, setInitialSeconds] = useState(0);
   const [answers, setAnswers] = useState<AnswersState>({});
 
   const [submitting, setSubmitting] = useState(false);
@@ -48,7 +51,12 @@ export default function PracticeTestTakePage() {
 
         setExam(res);
         setSessionInfo(session);
-        setSecondsLeft(res.duration * 60);
+
+        if (!customTime) {
+          setSecondsLeft(res.duration * 60);
+        } else {
+          setSecondsLeft(parseInt(customTime) * 60);
+        }
 
         if (session?.answers) {
           setAnswers(session.answers as AnswersState);
@@ -103,6 +111,41 @@ export default function PracticeTestTakePage() {
     }
   };
 
+  const practicePart = sessionInfo?.practicePart as number | undefined;
+  const partIndex = practicePart !== undefined ? practicePart - 1 : undefined;
+
+  // Handle skill-specific initial durations for per-part practice
+  useEffect(() => {
+    if (exam && partIndex !== undefined) {
+      if (customTime) {
+        const dur = parseInt(customTime) * 60;
+        setSecondsLeft(dur);
+        setInitialSeconds(dur);
+        return;
+      }
+      let dur = 0;
+      if (exam.type === "READING") {
+        dur = 20 * 60;
+      } else if (exam.type === "WRITING") {
+        dur = partIndex === 0 ? 20 * 60 : 40 * 60;
+      } else if (exam.type === "SPEAKING") {
+        dur = partIndex === 1 ? 4 * 60 : 5 * 60;
+      }
+
+      if (dur > 0) {
+        setSecondsLeft(dur);
+        setInitialSeconds(dur);
+      }
+    } else if (exam && partIndex === undefined) {
+      if (customTime) {
+        setInitialSeconds(parseInt(customTime) * 60);
+        setSecondsLeft(parseInt(customTime) * 60);
+      } else {
+        setInitialSeconds(exam.duration * 60);
+      }
+    }
+  }, [exam, partIndex, customTime]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white">
@@ -125,6 +168,8 @@ export default function PracticeTestTakePage() {
     );
   }
 
+
+
   return (
     <>
       {exam.type === "WRITING" ? (
@@ -132,13 +177,17 @@ export default function PracticeTestTakePage() {
           exam={exam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
+          initialSeconds={initialSeconds}
           formatTime={formatTime}
+          partIndex={partIndex}
         />
       ) : exam.type === "SPEAKING" ? (
         <PracticeSpeakingBoard
           exam={exam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
+          initialSeconds={initialSeconds}
+          partIndex={partIndex}
         />
       ) : exam.type === "READING" ? (
         <PracticeReadingBoard
@@ -148,10 +197,12 @@ export default function PracticeTestTakePage() {
           setAnswers={setAnswers}
           formatTime={formatTime}
           secondsLeft={secondsLeft}
+          initialSeconds={initialSeconds}
           submitting={submitting}
           submitResult={submitResult}
           submitError={submitError}
           submitAndTrack={submitAndTrack}
+          partIndex={partIndex}
         />
       ) : (
         <PracticeListeningBoard
@@ -161,10 +212,18 @@ export default function PracticeTestTakePage() {
           setAnswers={setAnswers}
           formatTime={formatTime}
           secondsLeft={secondsLeft}
+          initialSeconds={initialSeconds}
           submitting={submitting}
           submitResult={submitResult}
           submitError={submitError}
           submitAndTrack={submitAndTrack}
+          partIndex={partIndex}
+          onDurationDetected={(duration) => {
+            if (secondsLeft === exam.duration * 60) {
+              setSecondsLeft(duration);
+              setInitialSeconds(duration);
+            }
+          }}
         />
       )}
     </>

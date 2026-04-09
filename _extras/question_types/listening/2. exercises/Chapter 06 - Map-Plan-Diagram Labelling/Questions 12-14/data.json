@@ -1,0 +1,119 @@
+[
+  {
+    "questions": "12-14",
+    "instructions": "Label the diagram below. Choose THREE answers from the box and write the correct letter, A-E, next to Questions 12-14.",
+    "topic": "Washing Machine Operation",
+    "question_type": "Diagram Labelling",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562264/CH6_HP12-14_asngej.mp3",
+    "transcript": [
+      {
+        "speaker": "Camille",
+        "text": "You've reached the Ruby Hotel front desk. This is Camille speaking. How may I assist you this evening?"
+      },
+      {
+        "speaker": "Guest",
+        "text": "Hello. I'm staying in room 310, but I'm making this call from the laundry room at the moment. I've been attempting to run the washing machine, but I can't seem to figure out how to operate it correctly."
+      },
+      {
+        "speaker": "Guest",
+        "text": "I just put the coins into the rectangular slot on the left side panel and pressed the start button below it, but nothing happened after that. Can you tell me what I might have done wrong?",
+        "question_number": 12,
+        "highlight_text": "pressed the start button below it"
+      },
+      {
+        "speaker": "Camille",
+        "text": "Well, first of all, have you checked if the power cord is plugged in? It should be right behind the machine. If it's plugged in, you should also be able to see the power light."
+      },
+      {
+        "speaker": "Camille",
+        "text": "There are two lights in the top right corner next to the door. The bigger one is the power light. Assuming the power is on, the next thing to check are the two rectangular buttons on the right panel."
+      },
+      {
+        "speaker": "Camille",
+        "text": "Those are for selecting water temperature and washing time before beginning the cycle. To start the machine, you have to choose the temperature by pressing the smaller one to the right and then select the time with the left hand button.",
+        "question_number": 13,
+        "highlight_text": "choose the temperature by pressing the smaller one to the right"
+      },
+      {
+        "speaker": "Guest",
+        "text": "Hmm, I've already checked all of that, but it's still not working, so what should I do?"
+      },
+      {
+        "speaker": "Camille",
+        "text": "There isn't a red light in the top right corner next to the door, is there? That's the smaller light below the power light. If that light is red, it means the door has not been secured. It has to be green."
+      },
+      {
+        "speaker": "Camille",
+        "text": "If it's not, then the machine won't run regardless of other inputs you may have made. You'll need to open and close the door again."
+      },
+      {
+        "speaker": "Camille",
+        "text": "Once you've done that, you should press the button right underneath the temperature and time controls on the top right panel. This will lock the door.",
+        "question_number": 14,
+        "highlight_text": "press the button right underneath the temperature and time controls... This will lock the door."
+      },
+      {
+        "speaker": "Camille",
+        "text": "Oh, and you won't need to put money into the machine again, by the way, if you were fretting about that."
+      },
+      {
+        "speaker": "Guest",
+        "text": "Right, that light is red, so that's what was causing the problem. Thanks."
+      },
+      {
+        "speaker": "Guest",
+        "text": "And just one other quick question. Do you have a change machine anywhere? I need some for the dryer."
+      },
+      {
+        "speaker": "Camille",
+        "text": "We don't, but we can certainly change money for you here at the desk."
+      },
+      {
+        "speaker": "Guest",
+        "text": "Great. I'll be up in a few minutes for that then. Thank you for your help."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "diagram_labelling",
+        "heading": "Washing Machine Components",
+        "image_url": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1775562258/CH6_HP12-14_image_fgtzto.png",
+        "options": [
+          { "letter": "A", "text": "lock button" },
+          { "letter": "B", "text": "door lock light" },
+          { "letter": "C", "text": "time control" },
+          { "letter": "D", "text": "temperature control" },
+          { "letter": "E", "text": "start button" }
+        ],
+        "items": [
+          {
+            "question_number": 12,
+            "answer": "E",
+            "timestamp_seconds": 65.0,
+            "explanation": "The guest mentions pressing the 'start button' located below the coin slot, which matches position 12."
+          },
+          {
+            "question_number": 13,
+            "answer": "D",
+            "timestamp_seconds": 110.0,
+            "explanation": "Camille identifies the rectangular buttons on the right for temperature and time, noting that the 'smaller one to the right' (position 13) is for temperature control."
+          },
+          {
+            "question_number": 14,
+            "answer": "A",
+            "timestamp_seconds": 153.0,
+            "explanation": "Camille instructs to press the button 'right underneath the temperature and time controls' (the circular button at 14) to 'lock the door'."
+          }
+        ],
+        "distractors": [
+          { "label": "B", "text": "Door Lock Light (the small square light between the power light and controls)" },
+          { "label": "C", "text": "Time Control (the left hand rectangular button on the right panel)" }
+        ]
+      }
+    ]
+  }
+]

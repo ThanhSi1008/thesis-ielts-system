@@ -1,0 +1,147 @@
+[
+  {
+    "questions": "14-19",
+    "instructions": "Complete the table below. Write NO MORE THAN THREE WORDS AND/OR A NUMBER for each answer.",
+    "topic": "History of Mining in Australia",
+    "question_type": "Table Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562236/CH3_HP14-19_foher2.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 4. You will hear a talk given by a professor about the history of mines in Australia."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 14 to 19."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now, listen carefully and answer questions 14 to 19."
+      },
+      {
+        "speaker": "Professor",
+        "text": "Today I'd like to explore a topic that is of increasing importance of the economy here in Australia mining I'll start by getting into how mining developed and look at how it's progressed into the multi-billion dollar industry it is now."
+      },
+      {
+        "speaker": "Professor",
+        "text": "In the late 1700s as you know Australia was first colonized by the British and life here was rough at first there was no industry on the continent and very little in the way of agricultural production.",
+        "question_number": 14,
+        "highlight_text": "Australia was first colonized by the British"
+      },
+      {
+        "speaker": "Professor",
+        "text": "Then in the mid 1800s everything changed. Silver was the first precious metal discovered and a few years later lead deposits were found.",
+        "question_number": 15,
+        "highlight_text": "Silver was the first precious metal discovered"
+      },
+      {
+        "speaker": "Professor",
+        "text": "In 1851 the real boom began because gold was found in New South Wales and Victoria. A gold rush immediately followed which caused the Australian population to triple within a decade and the country's economic fortunes would rely heavily on the mining industry.",
+        "question_number": 16,
+        "highlight_text": "A gold rush immediately followed which caused the Australian population to triple"
+      },
+      {
+        "speaker": "Professor",
+        "text": "Then forth the mining boom of the 1900s the one was still currently experiencing as a direct result of exploration in the Pilbara a region in western Australia. The resources in that area were first accessed by pioneering businessman Lang Hancock during the early 1950s. Hancock founded a company named Hancock prospecting which is now one of the major mining corporations in the Pilbara."
+      },
+      {
+        "speaker": "Professor",
+        "text": "The main resource companies were mining in Pilbara was iron ore and that's significant because that iron ore was used in the production of steel which is important for buildings cars roads railways and ships.",
+        "question_number": 17,
+        "highlight_text": "that iron ore was used in the production of steel"
+      },
+      {
+        "speaker": "Professor",
+        "text": "At first the vast majority of Australia's iron exports went to the west but in the 1990s there was a shift in international trade. China began opening up its economy and becoming more capitalist and its rapid industrial and manufacturing growth has created a huge demand for more materials like iron.",
+        "question_number": 18,
+        "highlight_text": "in the 1990s there was a shift in international trade."
+      },
+      {
+        "speaker": "Professor",
+        "text": "From the early 2000s onwards it became the biggest importer of Australian iron in the world. In fact over the first 10 years of the millennium China's demand grew so much that 70% of Australia's iron ore is now sent there.",
+        "question_number": 19,
+        "highlight_text": "70% of Australia's iron ore is now sent there"
+      },
+      {
+        "speaker": "Professor",
+        "text": "Now before I talk about some of the other major industries integral to the Australian economy let's look closer at the major mining companies that are found here."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "table",
+        "headers": ["Dates", "Events"],
+        "rows": [
+          {
+            "Dates": "1700s",
+            "Events": [
+              "There was little industry and farming in Australia when it was first 14 .............................. by the British."
+            ],
+            "questions": {
+              "14": {
+                "answer": "colonised",
+                "timestamp_seconds": 74.0,
+                "explanation": "In the section related to the keyword (by the British), the professor says 'Australia was first colonized by the British', so colonised (or colonized) is the correct answer."
+              }
+            }
+          },
+          {
+            "Dates": "1800s",
+            "Events": [
+              "15 .............................. was the first metal of value found.",
+              "16 .............................. in the 1850s caused a population boom and economic change."
+            ],
+            "questions": {
+              "15": {
+                "answer": "Silver",
+                "timestamp_seconds": 88.0,
+                "explanation": "In the section related to the keyword (first metal of value found), the professor says 'Silver was the first precious metal discovered', so Silver is the correct answer."
+              },
+              "16": {
+                "answer": "A gold rush",
+                "timestamp_seconds": 102.0,
+                "explanation": "In the section related to the keyword (caused a population boom), the professor says 'A gold rush immediately followed which caused the Australian population to triple within a decade', so A gold rush is the correct answer."
+              }
+            }
+          },
+          {
+            "Dates": "1900s",
+            "Events": [
+              "1950s - Iron ore from Pilbara was used as a source of 17 ..............................",
+              "1990s - There was a 18 .............................. in trade towards Asia."
+            ],
+            "questions": {
+              "17": {
+                "answer": "steel",
+                "timestamp_seconds": 146.0,
+                "explanation": "In the section related to the keyword (iron ore from Pilbara), the professor says 'iron ore was used in the production of steel', so steel is the correct answer."
+              },
+              "18": {
+                "answer": "shift",
+                "timestamp_seconds": 161.0,
+                "explanation": "In the section related to the keyword (in trade towards Asia), the professor says 'there was a shift in international trade.', so shift is the correct answer."
+              }
+            }
+          },
+          {
+            "Dates": "2000s",
+            "Events": [
+              "The proportion of Australian iron ore exports going to China increased to 19 .............................."
+            ],
+            "questions": {
+              "19": {
+                "answer": "70%",
+                "timestamp_seconds": 188.0,
+                "explanation": "In the section related to the keyword (increased to), the professor says '70% of Australia's iron ore is now sent there', so 70% (or 70 per cent) is the correct answer."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

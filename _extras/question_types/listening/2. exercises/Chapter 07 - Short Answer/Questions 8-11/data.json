@@ -1,0 +1,139 @@
+[
+  {
+    "questions": "8-11",
+    "instructions": "Answer the questions below. Write ONE WORD AND/OR A NUMBER for each answer.",
+    "topic": "Sarah's Play Direction Project",
+    "question_type": "Short Answer",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562254/CH6_HP8-11_jufkke.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear a conversation between a professor and a student about a play direction project."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 8 to 11."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now, listen carefully and answer questions 8 to 11."
+      },
+      {
+        "speaker": "Professor",
+        "text": "So you've been working on your one-act play project assigned for your directing course. Tell me what you've done so far, Sarah."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Well, at first I thought about directing a kind of Alaska by Harold Pinter. It has a small cast and wouldn't be too complicated to direct, so that would have been another advantage. But it is a very serious drama."
+      },
+      {
+        "speaker": "Professor",
+        "text": "Why would that be a problem?"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "There are a lot of other students in our course doing serious dramas, and I wanted to do something which would stand out a bit. So I decided to do a comedy.",
+        "question_number": 8,
+        "highlight_text": "So I decided to do a comedy."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "I read through several scripts of contemporary one-act works, but, uh, I didn't find anything that really appealed to me."
+      },
+      {
+        "speaker": "Professor",
+        "text": "Did you read any scripts that were older? You know, classic plays?"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "I did, and that's when I found a script called Dark Lady of the Sonnets by George Bernard Shaw."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "It was written about 100 years ago, but the story is about William Shakespeare in Elizabethan England in the late 1500s, so it is said about 500 years ago.",
+        "question_number": 9,
+        "highlight_text": "It was written about 100 years ago"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Anyway, I chose it in the end because it has a very classical feel, yet is still quite contemporary."
+      },
+      {
+        "speaker": "Professor",
+        "text": "Hmm, that sounds great, Sarah. I know the play well. Although it was written in the early 1900s, it does have a very contemporary point of view with regard to feminism. I think that would be very interesting, and it presents some exciting challenges in terms of direction."
+      },
+      {
+        "speaker": "Professor",
+        "text": "So, now, I guess you need to think about casting and set. Have you thought about those things yet?"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Ah, a bit. The original script calls for a complicated set, but it would take too much time to build something like that. I think I will do a very simple set.",
+        "question_number": 10,
+        "highlight_text": "I think I will do a very simple set."
+      },
+      {
+        "speaker": "Professor",
+        "text": "Yes, that's true, Sarah, but fortunately the university has an old set from Romeo and Juliet in storage. It includes a balcony, which is a necessary component of the play you will be directing.",
+        "question_number": 11,
+        "highlight_text": "It includes a balcony, which is a necessary component"
+      },
+      {
+        "speaker": "Professor",
+        "text": "It also features a fireplace, which would be interesting to use. All you have to do is set it all up."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "That may be true, but it is quite a large set. It would take a lot of time to assemble."
+      },
+      {
+        "speaker": "Professor",
+        "text": "Okay, I understand. So, Sarah, what types of actors will you need for the play?"
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "short_answer",
+        "heading": "Theatre Project Discussion",
+        "questions": [
+          {
+            "question_number": 8,
+            "question_text": "What type of play has Sarah chosen to direct?",
+            "answer": "comedy",
+            "acceptable_answers": ["comedy", "a comedy"],
+            "timestamp_seconds": 78.0,
+            "explanation": "Sarah decides to do something that stands out from the serious dramas others are doing, choosing a 'comedy'."
+          },
+          {
+            "question_number": 9,
+            "question_text": "How many years ago was Dark Lady of the Sonnets written?",
+            "answer": "100",
+            "acceptable_answers": ["100", "100 years", "one hundred", "one hundred years"],
+            "timestamp_seconds": 100.0,
+            "explanation": "Sarah mentions the script 'was written about 100 years ago'."
+          },
+          {
+            "question_number": 10,
+            "question_text": "How does Sarah describe the set she is going to build?",
+            "answer": "simple",
+            "acceptable_answers": ["simple", "a simple set"],
+            "timestamp_seconds": 150.0,
+            "explanation": "Sarah states she will do a 'very simple set' because a complicated one would take too much time."
+          },
+          {
+            "question_number": 11,
+            "question_text": "Which element of the old set is essential for Sarah?",
+            "answer": "balcony",
+            "acceptable_answers": ["balcony", "a balcony", "the balcony"],
+            "timestamp_seconds": 164.0,
+            "explanation": "The professor mentions the old set includes a 'balcony', which is a 'necessary component' for the play."
+          }
+        ]
+      }
+    ]
+  }
+]

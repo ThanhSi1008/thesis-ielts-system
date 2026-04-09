@@ -34,11 +34,26 @@ export default function IntensiveExamStartPage() {
       .then((session) => {
         if (!mounted) return;
         const practicePart = searchParams?.get("practicePart");
+        const customTime = searchParams?.get("customTime");
+        const autoSubmitParam = searchParams?.get("autoSubmit");
+        
+        let url = "";
+
         if (practicePart) {
-          router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/practice/${encodeURIComponent(session.id)}`);
+          url = `/ielts/intensive/${encodeURIComponent(examId)}/practice/${encodeURIComponent(session.id)}`;
         } else {
-          router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/take/${encodeURIComponent(session.id)}`);
+          url = `/ielts/intensive/${encodeURIComponent(examId)}/take/${encodeURIComponent(session.id)}`;
         }
+        
+        const extraParams = new URLSearchParams();
+        if (customTime) extraParams.set("customTime", customTime);
+        if (autoSubmitParam) extraParams.set("autoSubmit", autoSubmitParam);
+        
+        if (extraParams.toString()) {
+           url += `?${extraParams.toString()}`;
+        }
+        
+        router.replace(url);
       })
       .catch((e: any) => {
         if (!mounted) return;

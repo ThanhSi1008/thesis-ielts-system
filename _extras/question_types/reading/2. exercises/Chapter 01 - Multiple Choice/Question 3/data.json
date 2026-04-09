@@ -1,0 +1,90 @@
+{
+  "title": "The Luxury Goods Market",
+  "passage": "With an estimated 440 million consumers worldwide now spending approximately $1.2 trillion a year on top-of-the-line products like watches, jewellery, clothing, handbags, and cars, the luxury goods retail market is steadily expanding. Yet, as a large portion of these consumers is not among the very wealthy, it has become clear that people are spending beyond their means. What then, is driving them to do so?\n\nAccording to professors Niro Sivanathan and Nathan Petit, luxury items are indicators of success and thereby boost self-confidence. They have even conducted a survey that substantiates this idea. Participants in their study who had recently ended a relationship or missed out on a promotion, for instance, demonstrated much more of a desire to shop for high-end items as a means of consolation than those who were generally happy. The participants thought that purchasing luxury items would help them forget their failures and make them feel more successful. Retail therapy notwithstanding, many consumers simply believe that 'you get what you pay for' - that the most expensive items are of the highest quality and last the longest. For this reason, they are in high demand among shoppers. They feel that splurging on an item rather than buying a reasonably priced generic brand will result in significant savings on repair and replacement costs in the long run.",
+  "passage_with_locations": [
+    "With an estimated 440 million consumers worldwide now spending approximately $1.2 trillion a year on top-of-the-line products like watches, jewellery, clothing, handbags, and cars, the luxury goods retail market is steadily expanding. Yet, as a large portion of these consumers is not among the very wealthy, it has become clear that people are spending beyond their means. ",
+    {
+      "question_number": 5,
+      "text": "What then, is driving them to do so?"
+    },
+    "\n\nAccording to professors Niro Sivanathan and Nathan Petit, ",
+    {
+      "question_number": 5,
+      "text": "luxury items are indicators of success and thereby boost self-confidence"
+    },
+    ". They have even conducted a survey that substantiates this idea. Participants in their study who had recently ended a relationship or missed out on a promotion, for instance, demonstrated much more of a desire to shop for high-end items as a means of consolation than those who were generally happy. The participants thought that purchasing luxury items would help them forget their failures and make them feel more successful. Retail therapy notwithstanding, ",
+    {
+      "question_number": 5,
+      "text": "many consumers simply believe that 'you get what you pay for' - that the most expensive items are of the highest quality and last the longest"
+    },
+    ". For this reason, they are in high demand among shoppers. They feel that ",
+    {
+      "question_number": 6,
+      "text": "splurging on an item rather than buying a reasonably priced generic brand will result in significant savings on repair and replacement costs in the long run"
+    },
+    "."
+  ],
+  "content": [
+    {
+      "type": "multiple_choice",
+      "questions": [
+        {
+          "question_number": 5,
+          "text": "The main topic discussed in the text is",
+          "options": [
+            {
+              "letter": "A",
+              "text": "worldwide production of luxury goods."
+            },
+            {
+              "letter": "B",
+              "text": "the growth of a wealthy consumer class."
+            },
+            {
+              "letter": "C",
+              "text": "factors influencing reckless spending."
+            },
+            {
+              "letter": "D",
+              "text": "the role psychology plays in retail marketing."
+            }
+          ],
+          "answer": "C",
+          "explanation": {
+            "keyword": "main topic / driving them",
+            "rationale": "The text poses the question 'What then, is driving them [to spend beyond their means]?' and proceeds to list several psychological and practical factors (success indicators, consolation, quality beliefs). These are all factors influencing 'reckless spending'.",
+            "distractor_analysis": "Option A and B: While production and consumer numbers are mentioned, they serve as background context for the central discussion on *why* people spend. Option D: While psychology is involved, the focus is specifically on the *spending behavior* and its drivers, rather than retail marketing strategies."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "Buying a luxury item instead of a similar, cheaper one can",
+          "options": [
+            {
+              "letter": "A",
+              "text": "boost the economy."
+            },
+            {
+              "letter": "B",
+              "text": "lead to people buying multiple luxury items."
+            },
+            {
+              "letter": "C",
+              "text": "save money that would have been spent fixing it."
+            },
+            {
+              "letter": "D",
+              "text": "increase demand for other affordable items."
+            }
+          ],
+          "answer": "C",
+          "explanation": {
+            "keyword": "splurging / savings",
+            "rationale": "The text explicitly mentions that spending more on a luxury item can lead to 'significant savings on repair and replacement costs', which directly paraphrases 'save money that would have been spent fixing it'.",
+            "distractor_analysis": "Option A, B, and D: None of these outcomes are mentioned or suggested as benefits of buying luxury items in the passage."
+          }
+        }
+      ]
+    }
+  ]
+}

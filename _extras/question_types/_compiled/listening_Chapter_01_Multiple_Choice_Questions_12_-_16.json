@@ -1,0 +1,159 @@
+[
+  {
+    "questions": "12-16",
+    "instructions": "Choose TWO letters for 12-13; Choose the correct letter, A, B or C for 14-16.",
+    "topic": "Psychology Study Abroad Inquiry",
+    "question_type": "Mixed Multiple Choice",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562276/CH1_HP12-16_qi4u03.mp3",
+    "transcript": [
+      {
+        "speaker": "John",
+        "text": "Hello, Laura. Do you have a minute?"
+      },
+      {
+        "speaker": "Laura",
+        "text": "Sure, John. What's up?"
+      },
+      {
+        "speaker": "John",
+        "text": "I've been considering enrolling in the study abroad programme in Singapore for psychology that you completed last term. But I'm still unsure of some things."
+      },
+      {
+        "speaker": "Laura",
+        "text": "What things in particular?"
+      },
+      {
+        "speaker": "John",
+        "text": "Well, I couldn't find much information on the application process. What was it like?"
+      },
+      {
+        "speaker": "Laura",
+        "text": "Actually, it was a bit too complicated. There are a lot of steps to complete."
+      },
+      {
+        "speaker": "John",
+        "text": "I see. And what did you think about the lectures there?"
+      },
+      {
+        "speaker": "Laura",
+        "text": "They were excellent. I found all of them very informative and insightful.",
+        "question_number": 12,
+        "highlight_text": "They were excellent. I found all of them very informative and insightful."
+      },
+      {
+        "speaker": "John",
+        "text": "And the lecturers themselves?"
+      },
+      {
+        "speaker": "Laura",
+        "text": "They are all experts in their areas. A few of them are even published authors. Especially the professor of my psychometrics course, he was terrific. It was because of him that I chose the topic of psychometrics for my senior year thesis.",
+        "question_number": 13,
+        "highlight_text": "They are all experts in their areas."
+      },
+      {
+        "speaker": "John",
+        "text": "Oh, that sounds rather challenging!"
+      },
+      {
+        "speaker": "Laura",
+        "text": "Not at all. I was intimidated by the subject at first, but I didn't find it overly complicated as it was just an introductory course. I'd definitely recommend taking that one.",
+        "question_number": 14,
+        "highlight_text": "I didn't find it overly complicated as it was just an introductory course."
+      },
+      {
+        "speaker": "John",
+        "text": "I see. Which other courses do you recommend?"
+      },
+      {
+        "speaker": "Laura",
+        "text": "I know that you're focusing your studies on counselling, so you should take the adult counselling course that is offered as well.",
+        "question_number": 15,
+        "highlight_text": "you're focusing your studies on counselling, so you should take the adult counselling course"
+      },
+      {
+        "speaker": "John",
+        "text": "Yes, that would be good. Were there quite a lot of assignments or requirements for each class?"
+      },
+      {
+        "speaker": "Laura",
+        "text": "A fair amount. But instead of a long final paper, most of the classes I took concluded with a final test."
+      },
+      {
+        "speaker": "John",
+        "text": "Hmm... That sounds tough. Are there many differences between studying there and in the UK?"
+      },
+      {
+        "speaker": "Laura",
+        "text": "Definitely. The type of psychology they teach is very similar to statistics, lots of numbers, data and stuff like that. Far less of the theory and discussion we had in the UK and more science-based work, so it's a different sort of challenge. But it appealed to me, that's why I chose psychometrics...",
+        "question_number": 16,
+        "highlight_text": "Far less of the theory and discussion we had in the UK"
+      },
+      {
+        "speaker": "John",
+        "text": "Oh, that makes sense. I'm actually hoping to take some data analysis courses if I take part in the programme too. It would help with my minor in psycholinguistics."
+      },
+      {
+        "speaker": "Laura",
+        "text": "Speaking of which, I have some information about data courses in Singapore. Let's head to..."
+      }
+    ],
+    "content": [
+      {
+        "type": "multiple_choice_multiple",
+        "question_numbers": [12, 13],
+        "text": "Which TWO aspects of the programme was Laura particularly positive about?",
+        "options": [
+          { "letter": "A", "text": "the application process" },
+          { "letter": "B", "text": "the quality of the lectures" },
+          { "letter": "C", "text": "the advice on her thesis" },
+          { "letter": "D", "text": "the expertise of the professors" },
+          { "letter": "E", "text": "the field trips" }
+        ],
+        "answers": ["B", "D"],
+        "num_correct": 2,
+        "explanation": "Laura is highly positive about both the lectures ('excellent', 'informative') and the lecturers themselves ('all experts in their areas')."
+      },
+      {
+        "type": "multiple_choice",
+        "questions": [
+          {
+            "question_number": 14,
+            "text": "Laura says that the psychometrics course",
+            "options": [
+              { "letter": "A", "text": "involved difficult topics." },
+              { "letter": "B", "text": "was not too complex." },
+              { "letter": "C", "text": "was for advanced students." }
+            ],
+            "answer": "B",
+            "timestamp_seconds": 101.0,
+            "explanation": "She mentions that while it sounds challenging, it was just an 'introductory course' and not 'overly complicated'."
+          },
+          {
+            "question_number": 15,
+            "text": "Why does Laura recommend the adult counselling course to John?",
+            "options": [
+              { "letter": "A", "text": "It is the focus of John’s study." },
+              { "letter": "B", "text": "It is highly praised by the school." },
+              { "letter": "C", "text": "It involves fewer assignments." }
+            ],
+            "answer": "A",
+            "timestamp_seconds": 115.0,
+            "explanation": "She recommends it because she knows John is 'focusing [his] studies on counselling'."
+          },
+          {
+            "question_number": 16,
+            "text": "How does the psychology course differ in Singapore compared to the UK?",
+            "options": [
+              { "letter": "A", "text": "There is less data to learn." },
+              { "letter": "B", "text": "The course is less theoretical." },
+              { "letter": "C", "text": "They have to learn statistics." }
+            ],
+            "answer": "B",
+            "timestamp_seconds": 150.0,
+            "explanation": "Laura highlights that there is 'far less of the theory and discussion' in the Singapore course compared to the UK."
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "questions": "13-17",
+    "instructions": "Which behavioural trait does the professor identify for each type of primate? Choose FIVE answers from the box and write the correct letter, A-F, next to Questions 13-17.",
+    "topic": "Behavioural Traits of Primates",
+    "question_type": "Matching",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562256/CH5_HP13-17_stxqif.mp3",
+    "transcript": [
+      {
+        "speaker": "Professor",
+        "text": "Hello everyone. Last class, we learned a bit about the evolution of the gorilla over time. For today’s talk, I’ll focus on other primates by looking at the behavioural traits of several individual species."
+      },
+      {
+        "speaker": "Professor",
+        "text": "First, let’s look at the behaviour of different primate species in terms of food availability. Now, all primates eat both insects and plants but some species have developed a strong preference for fruits and leaves."
+      },
+      {
+        "speaker": "Professor",
+        "text": "The chimpanzees of the Congo rainforests, for example, have an abundance of fruits and leaves to choose from. These primates are interesting because they use rocks as tools to crack open nuts. Then they gather together in their nesting areas after collecting food.",
+        "question_number": 13,
+        "highlight_text": "they use rocks as tools to crack open nuts."
+      },
+      {
+        "speaker": "Professor",
+        "text": "In contrast, baboons live in the savannah, or grassy flatlands, where fruits and other edible plants are rare. To compensate for a lack of edible plants, baboons often use long blades of grass to catch ants as a food source.",
+        "question_number": 14,
+        "highlight_text": "baboons often use long blades of grass to catch ants as a food source."
+      },
+      {
+        "speaker": "Professor",
+        "text": "So, climate can significantly affect the behaviour of primates. The orangutans of Sumatra, for example, spend long days gathering food in the jungle. And after that, they spend nights cooling off, staying away from predators, and sleeping in the branches of trees.",
+        "question_number": 15,
+        "highlight_text": "sleeping in the branches of trees."
+      },
+      {
+        "speaker": "Professor",
+        "text": "The bonobos of Central Africa also have to cope with the weather, and endure cool nights. One way they do this is by sleeping together in nests to help keep one another warm. This is also a reason why they are known for being markedly social, along with their habit of helping one another out with the care of infants.",
+        "question_number": 16,
+        "highlight_text": "sleeping together in nests to help keep one another warm."
+      },
+      {
+        "speaker": "Professor",
+        "text": "Furthermore, squirrel monkeys are also known to use jungle canopy as shade when it’s too hot to forage. The macaques of Japan and primates living in the mountains of North Africa, on the other hand, have the opposite problem to contend with; fiercely cold winters mean they must regulate their metabolisms or gather together in hot springs for warmth.",
+        "question_number": 17,
+        "highlight_text": "gather together in hot springs for warmth."
+      }
+    ],
+    "content": [
+      {
+        "type": "matching",
+        "heading": "Primate Traits",
+        "description": "Which behavioural trait does the professor identify for each type of primate?",
+        "items": [
+          { "id": 13, "text": "13 use stones as tools" },
+          { "id": 14, "text": "14 utilise grass to capture insects" },
+          { "id": 15, "text": "15 sleep among tree branches" },
+          { "id": 16, "text": "16 get together in nests for warmth" },
+          { "id": 17, "text": "17 keep warm in hot springs" }
+        ],
+        "options": [
+          { "letter": "A", "text": "chimpanzees" },
+          { "letter": "B", "text": "squirrel monkeys" },
+          { "letter": "C", "text": "orangutans" },
+          { "letter": "D", "text": "baboons" },
+          { "letter": "E", "text": "bonobos" },
+          { "letter": "F", "text": "macaques" }
+        ],
+        "answers": {
+          "13": {
+            "letter": "A",
+            "timestamp_seconds": 60.0,
+            "explanation": "The professor notes that chimpanzees 'use rocks as tools to crack open nuts', which corresponds to using stones as tools."
+          },
+          "14": {
+            "letter": "D",
+            "timestamp_seconds": 85.0,
+            "explanation": "The professor explains that baboons 'use long blades of grass to catch ants', which is utilizing grass to capture insects."
+          },
+          "15": {
+            "letter": "C",
+            "timestamp_seconds": 110.0,
+            "explanation": "The professor mentions that orangutans spend nights 'sleeping in the branches of trees'."
+          },
+          "16": {
+            "letter": "E",
+            "timestamp_seconds": 135.0,
+            "explanation": "The professor says bonobos keep warm by 'sleeping together in nests'."
+          },
+          "17": {
+            "letter": "F",
+            "timestamp_seconds": 160.0,
+            "explanation": "The professor states that Japanese macaques 'gather together in hot springs for warmth'."
+          }
+        }
+      }
+    ]
+  }
+]

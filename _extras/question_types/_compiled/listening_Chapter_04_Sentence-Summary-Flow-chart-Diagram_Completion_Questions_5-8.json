@@ -1,0 +1,140 @@
+[
+  {
+    "questions": "5-8",
+    "instructions": "Complete the summary below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.",
+    "topic": "The decline in outdoor play",
+    "question_type": "Sentence-Summary Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562244/CH4_HP5-8_s7blhd.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 3. You will hear a conversation between a tutor and a graduate student at the College of Education."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 5 to 8."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 5 to 8."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Hi Sarah, come on in. You said you wanted to discuss the research project you're working on. You know the one on children's outdoor play."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Ah yes, it's going well. I've put together a plan and have set myself some research goals."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Great, what are they?"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Well, I mostly want to find out what the benefits of outdoor play are. Then I'd like to examine why it has decreased in recent years."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "That sounds good. Do you have evidence for the claim that children's play has decreased?"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "I do. I have government statistics showing that playgrounds are used 25% less often than they were a decade ago.",
+        "question_number": 5,
+        "highlight_text": "playgrounds are used 25% less often than they were a decade ago."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Okay, it sounds like you have some good research there."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Thanks, but the issue I'm having is how to find research on why children's outdoor play has decreased. There isn't much out there. What do you suggest?"
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Well, the best thing to do is to conduct a survey of your own. You can ask parents with children at local schools to answer it. I can put you in touch with a few head teachers who could help.",
+        "question_number": 6,
+        "highlight_text": "You can ask parents with children at local schools to answer it."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Great, I'll start thinking about some questions."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Yes, that will be the first step. Try and test out a few hypotheses through your survey. So have you got any ideas for why outdoor play is decreasing?"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "I have. I think that the increasing amount of media aimed at children, including television, apps, online games and so on, has something to do with it."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "And then, other things, like children being expected to devote more time to intense academic work after school could be factors.",
+        "question_number": 7,
+        "highlight_text": "children being expected to devote more time to intense academic work after school"
+      },
+      {
+        "speaker": "Sarah",
+        "text": "Also, there may be fewer playgrounds or green spaces for children to use."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Those all sound like plausible reasons. I think parents may also have an effect on this issue."
+      },
+      {
+        "speaker": "Sarah",
+        "text": "That could be. Perhaps parents are less willing to let children play alone outside than they once were.",
+        "question_number": 8,
+        "highlight_text": "Perhaps parents are less willing to let children play alone outside"
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Yes, that may be true. Okay. So for the first step, I think I should start writing the survey."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Yes, you can go ahead and begin that. When you're done, send it to me and I'll give you some feedback. And after that, we can get in touch with some teachers that may be able to circulate it."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "summary_completion",
+        "heading": "The decline in outdoor play",
+        "text": "The amount that children play outdoors is steadily declining with 5 {{5}} less use of playgrounds than ten years ago. People at 6 {{6}} will be given a survey to discover why outdoor play is decreasing. The increasing amount of exposure to media seems to play a role. The effect of more 7 {{7}} studying, and a general lack of green spaces for children to use could be causes for this decline. It is also possible that parents are more wary of letting children play alone 8 {{8}} without supervision.",
+        "questions": {
+          "5": {
+            "primary_answer": "25%",
+            "acceptable_answers": ["25%", "25 per cent"],
+            "timestamp_seconds": 81.24,
+            "explanation": "Sarah states: 'I have government statistics showing that playgrounds are used 25% less often...'"
+          },
+          "6": {
+            "primary_answer": "local schools",
+            "acceptable_answers": ["local schools", "schools"],
+            "timestamp_seconds": 104.68,
+            "explanation": "The Tutor suggests: 'You can ask parents with children at local schools to answer it.'"
+          },
+          "7": {
+            "primary_answer": "intense",
+            "acceptable_answers": ["intense"],
+            "timestamp_seconds": 139.0,
+            "explanation": "Sarah mentions: '...children being expected to devote more time to intense academic work after school...'"
+          },
+          "8": {
+            "primary_answer": "outside",
+            "acceptable_answers": ["outside"],
+            "timestamp_seconds": 159.0,
+            "explanation": "Sarah suggests: 'Perhaps parents are less willing to let children play alone outside than they once were.'"
+          }
+        }
+      }
+    ]
+  }
+]

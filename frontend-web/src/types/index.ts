@@ -251,14 +251,14 @@ export interface CardStyle {
   textColor?: string;         // default text color override
 }
 
-// Note Types
-export interface NoteTypeField {
+// Card Types
+export interface CardTypeField {
   id: string;
   name: string;
   order: number;
   description?: string | null;
   fieldType: 'text' | 'media';
-  noteTypeId: string;
+  cardTypeId: string;
   createdAt: string;
 }
 
@@ -269,16 +269,16 @@ export interface CardTemplate {
   backFields: string[];  // ordered field IDs
   fieldStyles: Record<string, FieldStyle>; // fieldId → style
   cardStyle: CardStyle;
-  noteTypeId: string;
+  cardTypeId: string;
   createdAt: string;
 }
 
-export interface NoteType {
+export interface CardType {
   id: string;
   name: string;
   description?: string | null;
   isBuiltIn: boolean;
-  fields: NoteTypeField[];
+  fields: CardTypeField[];
   templates: CardTemplate[];
   cardCount?: number;
   userId?: string | null;
@@ -311,8 +311,8 @@ export interface Flashcard {
   easeFactor: number;
   nextReviewDate: string;
   cardState: CardState;
-  noteTypeId?: string | null;
-  noteType?: NoteType | null;
+  cardTypeId?: string | null;
+  cardType?: CardType | null;
   fieldValues: Record<string, string>;
   fieldStyles?: Record<string, FieldStyle>;
   cardStyle?: CardStyle;

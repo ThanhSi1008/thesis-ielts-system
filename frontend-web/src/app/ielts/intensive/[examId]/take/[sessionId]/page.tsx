@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import type { ExamDetail } from "@/types";
 import TakeListeningBoard from "./TakeListeningBoard";
@@ -22,6 +22,8 @@ export default function IntensiveTestTakePage() {
   const router = useRouter();
   const examId = params?.examId as string;
   const sessionId = params?.sessionId as string;
+  const searchParams = useSearchParams();
+  const customTime = searchParams?.get("customTime");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,11 @@ export default function IntensiveTestTakePage() {
 
         setExam(res);
         setSessionInfo(session);
-        setSecondsLeft(res.duration * 60);
+        if (!customTime) {
+          setSecondsLeft(res.duration * 60);
+        } else {
+          setSecondsLeft(parseInt(customTime) * 60);
+        }
 
         if (session?.answers) {
           setAnswers(session.answers as AnswersState);

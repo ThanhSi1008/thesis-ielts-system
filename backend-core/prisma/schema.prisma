@@ -472,7 +472,7 @@ model Flashcard {
   easeFactor     Float     @default(2.5)
   nextReviewDate DateTime  @default(now())
   cardState      CardState @default(NEW)
-  noteTypeId     String?
+  cardTypeId     String?
   fieldValues    Json      @default("{}")
   fieldStyles    Json?
   cardStyle      Json?
@@ -480,7 +480,7 @@ model Flashcard {
   updatedAt      DateTime  @updatedAt
 
   deck     Deck              @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  noteType NoteType?         @relation(fields: [noteTypeId], references: [id])
+  cardType CardType?         @relation(fields: [cardTypeId], references: [id])
   reviews  FlashcardReview[]
 
   @@map("flashcards")
@@ -497,8 +497,8 @@ model FlashcardReview {
   @@map("flashcard_reviews")
 }
 
-// Note Types (Card Types) — Anki-style field definitions
-model NoteType {
+// Card Types (Anki-style field definitions)
+model CardType {
   id          String   @id @default(uuid())
   userId      String?  // null = built-in system type
   name        String
@@ -507,30 +507,30 @@ model NoteType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  fields     NoteTypeField[]
+  fields     CardTypeField[]
   templates  CardTemplate[]
   flashcards Flashcard[]
 
-  @@map("note_types")
+  @@map("card_types")
 }
 
-model NoteTypeField {
+model CardTypeField {
   id          String   @id @default(uuid())
-  noteTypeId  String
+  cardTypeId  String
   name        String
   order       Int
   description String?
   fieldType   String   @default("text") // 'text' | 'media'
   createdAt   DateTime @default(now())
 
-  noteType NoteType @relation(fields: [noteTypeId], references: [id], onDelete: Cascade)
+  cardType CardType @relation(fields: [cardTypeId], references: [id], onDelete: Cascade)
 
-  @@map("note_type_fields")
+  @@map("card_type_fields")
 }
 
 model CardTemplate {
   id          String   @id @default(uuid())
-  noteTypeId  String
+  cardTypeId  String
   name        String
   frontFields String[] // ordered field IDs shown on front
   backFields  String[] // ordered field IDs shown on back
@@ -538,7 +538,7 @@ model CardTemplate {
   cardStyle   Json     @default("{}") // CardStyle (bg, font family, etc.)
   createdAt   DateTime @default(now())
 
-  noteType NoteType @relation(fields: [noteTypeId], references: [id], onDelete: Cascade)
+  cardType CardType @relation(fields: [cardTypeId], references: [id], onDelete: Cascade)
 
   @@map("card_templates")
 }
@@ -609,8 +609,62 @@ model ShadowingDictationProgress {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
+  // Relations
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId, type])
   @@map("shadowing_dictation_progress")
+}
+
+// ============================================================
+// IELTS BASIC LEARNING MODELS
+// ============================================================
+
+model IeltsSkill {
+  id        String   @id @default(uuid())
+  name      String   @unique // "Listening", "Reading", "Writing", "Speaking"
+  order     Int
+  lessons   IeltsLesson[]
+  exercises IeltsExercise[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("ielts_skills")
+}
+
+model IeltsLesson {
+  id          String   @id @default(uuid())
+  skillId     String
+  chapter     String?  // e.g., "Chapter 01"
+  title       String   // e.g., "Multiple Choice"
+  content     Json     // Structured array of markdown, strategy boxes, tips, etc.
+  quiz        Json?    // Array of { question, options, answer, hint, explanation }
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  skill       IeltsSkill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  exercises   IeltsExercise[]
+
+  @@map("ielts_lessons")
+}
+
+model IeltsExercise {
+  id           String   @id @default(uuid())
+  skillId      String
+  lessonId     String?
+  topic        String   // e.g., "Melbourne City Tour Inquiry"
+  instructions String?
+  audioUrl     String?  // For Listening exercises
+  transcript   Json?    // Array of objects with speakers, text, highlight text, and timestamps
+  readingText  Json?    // For Reading exercises
+  content      Json     // The actual questions arrays
+  order        Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("ielts_exercises")
 }

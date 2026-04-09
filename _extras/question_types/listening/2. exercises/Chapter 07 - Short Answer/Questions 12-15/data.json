@@ -1,0 +1,119 @@
+[
+  {
+    "questions": "12-15",
+    "instructions": "Answer the questions below. Write NO MORE THAN THREE WORDS AND/OR A NUMBER for each answer.",
+    "topic": "Tribal Culture in Borneo",
+    "question_type": "Short Answer",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562273/CH7_HP12-15_kkyz9a.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 3. You will hear a conversation between two students about a report on tribal culture in Borneo."
+      },
+      {
+        "speaker": "Gordon",
+        "text": "Let's get started then, shall we Alice? So the piece about contemporary Borneo's tribes was really interesting – the one about current lifestyles of the tribal people."
+      },
+      {
+        "speaker": "Alice",
+        "text": "The article on the diversity of culture in tribal communities? Yeah, anthropologists were discovering shifts in food, hunting, harvesting; even music, dance and community structures are changing. It's quite unusual, isn't it Gordon?",
+        "question_number": 12,
+        "highlight_text": "It's quite unusual, isn't it"
+      },
+      {
+        "speaker": "Gordon",
+        "text": "Yes, the article definitely has material we can include in our report. At first I was confused about which tribes were being studied – as the island of Borneo is the territory of Malaysia..."
+      },
+      {
+        "speaker": "Alice",
+        "text": "...and Indonesia. Yes, but it seems they studied tribes from all over the island."
+      },
+      {
+        "speaker": "Gordon",
+        "text": "That's right. But as I understand it, the article focuses mostly on how tribal traditions are going through changes because of modern pop culture.",
+        "question_number": 13,
+        "highlight_text": "changes because of modern pop culture."
+      },
+      {
+        "speaker": "Alice",
+        "text": "Didn't the article say that was because of television?"
+      },
+      {
+        "speaker": "Gordon",
+        "text": "I think it was all media. Tribes in Indonesia, for example, would mostly get TV channels, radio stations, publications, and even web content from there. And many tribes had access to media from both countries and so they were being persuaded by both to alter their traditional way of living."
+      },
+      {
+        "speaker": "Alice",
+        "text": "Oh, yes. The author uses the concept ‘media influence’ to describe this phenomenon.",
+        "question_number": 14,
+        "highlight_text": "The author uses the concept ‘media influence’"
+      },
+      {
+        "speaker": "Gordon",
+        "text": "Using this concept, I thought we could do a comparison study. Find research data on tribal culture from the past, and compare it to more current data."
+      },
+      {
+        "speaker": "Alice",
+        "text": "OK, that sounds like a good approach. How should we start?"
+      },
+      {
+        "speaker": "Gordon",
+        "text": "So, we'd need to first see how much other information is out there... other articles or reports... or we could just track down actual tribal members currently living in Borneo. You know... use social media sites to collect current data."
+      },
+      {
+        "speaker": "Alice",
+        "text": "Or, do a bit of both. Not everyone will be able to access social media sites. So, it would be good to include statistics from other studies that included a broader selection of tribal members.",
+        "question_number": 15,
+        "highlight_text": "good to include statistics from other studies"
+      },
+      {
+        "speaker": "Gordon",
+        "text": "That's right. Then we might still need to gather older data regarding past traditions so that we can do the comparison. I did read another article about the tribal people in..."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "short_answer",
+        "heading": "Academic Discussion: Tribal Tribes",
+        "questions": [
+          {
+            "question_number": 12,
+            "question_text": "How does Alice describe the changes occurring within the tribes?",
+            "answer": "quite unusual",
+            "acceptable_answers": ["quite unusual", "unusual"],
+            "timestamp_seconds": 60.0,
+            "explanation": "Alice remarks that the community structure changes are 'quite unusual'."
+          },
+          {
+            "question_number": 13,
+            "question_text": "Which type of culture does the article focus on as a cause of the changes to tribal traditions?",
+            "answer": "modern pop",
+            "acceptable_answers": ["modern pop", "modern pop culture", "pop culture"],
+            "timestamp_seconds": 96.0,
+            "explanation": "Gordon notes the article focuses on changes caused by 'modern pop culture'."
+          },
+          {
+            "question_number": 14,
+            "question_text": "What term does the author of the article use for the reason tribal lifestyles have changed?",
+            "answer": "media influence",
+            "acceptable_answers": ["media influence"],
+            "timestamp_seconds": 125.0,
+            "explanation": "Alice clarifies that the author uses the concept 'media influence' to describe the phenomenon."
+          },
+          {
+            "question_number": 15,
+            " what do Alice and Gordon agree to include?": "statistics",
+            "answer": "statistics",
+            "acceptable_answers": ["statistics", "other studies statistics", "some statistics"],
+            "timestamp_seconds": 178.0,
+            "explanation": "Gordon agrees with Alice's suggestion to 'include statistics' from other studies."
+          }
+        ]
+      }
+    ]
+  }
+]

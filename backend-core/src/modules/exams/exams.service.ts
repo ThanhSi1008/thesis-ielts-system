@@ -11,7 +11,7 @@ import { Exam, ExamSession, ExamType, SessionStatus } from '@prisma/client';
 
 @Injectable()
 export class ExamsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private parseCambridgeTitle(input: string): {
     groupId: string;
@@ -87,9 +87,9 @@ export class ExamsService {
     const parsed = exams
       .map((e) => ({ exam: e, meta: this.parseCambridgeTitle(e.title) }))
       .filter((x) => x.meta !== null && x.meta.groupId !== 'cambridge-13') as Array<{
-      exam: (typeof exams)[number];
-      meta: NonNullable<ReturnType<ExamsService['parseCambridgeTitle']>>;
-    }>;
+        exam: (typeof exams)[number];
+        meta: NonNullable<ReturnType<ExamsService['parseCambridgeTitle']>>;
+      }>;
 
     const examIds = parsed.map((p) => p.exam.id);
 
@@ -231,9 +231,9 @@ export class ExamsService {
     const parsed = exams
       .map((e) => ({ exam: e, meta: this.parseCambridgeTitle(e.title) }))
       .filter((x) => x.meta !== null && x.meta.groupId === 'cambridge-13') as Array<{
-      exam: (typeof exams)[number];
-      meta: NonNullable<ReturnType<ExamsService['parseCambridgeTitle']>>;
-    }>;
+        exam: (typeof exams)[number];
+        meta: NonNullable<ReturnType<ExamsService['parseCambridgeTitle']>>;
+      }>;
 
     const examIds = parsed.map((p) => p.exam.id);
 
@@ -248,10 +248,10 @@ export class ExamsService {
 
     for (const p of parsed) {
       const q: any = p.exam.questions || {};
-      const partsArr = Array.isArray(q.parts) ? q.parts : 
-                       Array.isArray(q.passages) ? q.passages : 
-                       Array.isArray(q.tasks) ? q.tasks : [];
-                       
+      const partsArr = Array.isArray(q.parts) ? q.parts :
+        Array.isArray(q.passages) ? q.passages :
+          Array.isArray(q.tasks) ? q.tasks : [];
+
       if (partsArr.length === 0) {
         // Fallback if no parts found
         continue;
@@ -259,28 +259,28 @@ export class ExamsService {
 
       for (const part of partsArr) {
         const partNumber = part.part_number || part.passage_number || part.task_number || 1;
-        
+
         // Find sessions for this part
         const partSessions = sessions.filter(s => s.examId === p.exam.id && s.practicePart === partNumber);
-        
+
         const mySessions = partSessions.filter(s => s.userId === params.userId);
         const completedSessions = mySessions.filter(s => s.status === SessionStatus.COMPLETED);
-        
+
         let highestScore = 0;
         for (const cs of completedSessions) {
-           if (cs.result?.totalScore && cs.result.totalScore > highestScore) {
-              highestScore = cs.result.totalScore;
-           }
+          if (cs.result?.totalScore && cs.result.totalScore > highestScore) {
+            highestScore = cs.result.totalScore;
+          }
         }
-        
+
         const latestSession = mySessions.length > 0 ? mySessions[0] : null;
 
         let totalQ = 10;
         if (typeof part.questions === 'string') {
-           const match = part.questions.match(/(\d+)\s*[-–]\s*(\d+)/);
-           if (match) {
-             totalQ = parseInt(match[2]) - parseInt(match[1]) + 1;
-           }
+          const match = part.questions.match(/(\d+)\s*[-–]\s*(\d+)/);
+          if (match) {
+            totalQ = parseInt(match[2]) - parseInt(match[1]) + 1;
+          }
         }
 
         practiceItems.push({
@@ -377,7 +377,7 @@ export class ExamsService {
   private parseIELTSAnswer(correct: string): string[] {
     const parts = correct.split('/').map(p => p.trim());
     const results: string[] = [];
-    
+
     for (const part of parts) {
       if (part.includes('(') && part.includes(')')) {
         const match = part.match(/(.*)\((.*?)\)(.*)/);
@@ -394,13 +394,13 @@ export class ExamsService {
     }
     return results.map(s => s.toLowerCase().replace(/[^a-z0-9]/g, ''));
   }
-  
+
   private isAnswerCorrect(userAns: string, correctAns: any): boolean {
     if (!userAns || String(userAns).trim() === '') return false;
     const userNormalized = String(userAns).toLowerCase().replace(/[^a-z0-9]/g, '');
-    
+
     const correctArr = Array.isArray(correctAns) ? correctAns : [String(correctAns)];
-    
+
     for (const c of correctArr) {
       const validSet = this.parseIELTSAnswer(String(c));
       if (validSet.includes(userNormalized)) return true;
@@ -414,9 +414,9 @@ export class ExamsService {
         obj.forEach(x => this.extractCorrectAnswers(x, ansMap));
       } else {
         // Some nodes have "question_number," others "question_numbers"
-        const ans = obj.correct_answer !== undefined ? obj.correct_answer 
-                  : obj.answer !== undefined ? obj.answer 
-                  : obj.correct_answers;
+        const ans = obj.correct_answer !== undefined ? obj.correct_answer
+          : obj.answer !== undefined ? obj.answer
+            : obj.correct_answers;
         if (typeof obj.question_number === "number" && ans !== undefined) {
           ansMap.set(String(obj.question_number), ans);
         } else if (Array.isArray(obj.question_numbers) && ans !== undefined) {
@@ -457,13 +457,13 @@ export class ExamsService {
 
       for (const [key, correct] of ansMap.entries()) {
         const userAns = submitDto.answers[key];
-        
+
         if (key.includes(',')) {
           // Multi-select / multi-question mapping (e.g. "21,22")
           const qCount = key.split(',').length;
           const correctArr = Array.isArray(correct) ? correct : [String(correct)];
           const userArr = key.split(',').map(k => String(submitDto.answers[k] || '')).filter(v => v.trim() !== '');
-          
+
           let multiScore = 0;
           const correctNorm = correctArr.flatMap(c => this.parseIELTSAnswer(String(c)));
           for (const ua of userArr) {
@@ -482,7 +482,7 @@ export class ExamsService {
           }
         }
       }
-      
+
       status = 'COMPLETED';
       graded = true;
     }
@@ -533,7 +533,7 @@ export class ExamsService {
           existing.exam.questions,
         );
         const writingScore = aiResponse.overallBand || 0;
-        
+
         const resultData = {
           userId: existing.userId,
           sessionId: session.id,
@@ -571,7 +571,7 @@ export class ExamsService {
           existing.exam.questions,
         );
         const speakingScore = aiResponse.overallBand || 0;
-        
+
         const resultData = {
           userId: existing.userId,
           sessionId: session.id,
@@ -636,7 +636,7 @@ export class ExamsService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    
+
     if (!res.ok) {
       const errorText = await res.text();
       let errorDetail = errorText;
@@ -670,7 +670,7 @@ export class ExamsService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    
+
     if (!res.ok) {
       const errorText = await res.text();
       let errorDetail = errorText;

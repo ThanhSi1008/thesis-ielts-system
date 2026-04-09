@@ -1,0 +1,43 @@
+{
+  "title": "Trees and Air Pollution",
+  "passage": "We now know that trees and other vegetation play an invaluable role in reducing air pollution in cities. Not so long ago, in the early 1980s, chemists discovered that trees produce emissions. This prompted the then U.S. President Ronald Reagan to falsely declare, 'Trees cause more pollution than automobiles do.' This, of course, caused people to speculate that trees were harmful, despite the facts that the words 'emission' and 'pollution' are not synonymous and that the president's remark was not accurate. While it is true that trees and plants, like all living things, emit chemical substances as byproducts of their metabolisms, these emissions are not a threat, but instead include the oxygen we breathe and the various chemical compounds that give flowers and shrubs their fresh and fragrant scents. It is only in the presence of significant amounts of man-made pollution, like that caused by the emissions of automobiles, that plants and trees release volatile organic hydrocarbons. But when they do, they can become participants in the formation of such ground-level ozone pollution as photochemical smog.",
+  "passage_with_locations": [
+    "We now know that trees and other vegetation play an invaluable role in reducing air pollution in cities. Not so long ago, in the early 1980s, chemists discovered that trees produce emissions. ",
+    {
+      "question_number": 3,
+      "text": "This prompted the then U.S. President Ronald Reagan to falsely declare, 'Trees cause more pollution than automobiles do.'"
+    },
+    " This, of course, caused people to speculate that trees were harmful, despite the facts that the words 'emission' and 'pollution' are not synonymous and that the president's remark was not accurate. While it is true that trees and plants, like all living things, emit chemical substances as byproducts of their metabolisms, these emissions are not a threat, but instead include the oxygen we breathe and the various chemical compounds that give flowers and shrubs their fresh and fragrant scents. It is only in the presence of significant amounts of man-made pollution, like that caused by the emissions of automobiles, that plants and trees release volatile organic hydrocarbons. ",
+    {
+      "question_number": 4,
+      "text": "But when they do, they can become participants in the formation of such ground-level ozone pollution as photochemical smog."
+    }
+  ],
+  "content": [
+    {
+      "type": "true_false_not_given",
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "A politician in the 1980s incorrectly blamed plants for air pollution.",
+          "answer": "TRUE",
+          "explanation": {
+            "keyword": "politician / incorrectly blamed",
+            "rationale": "The text mentions that in the early 1980s, President Ronald Reagan (a politician) 'falsely declare[d]' that trees cause more pollution than cars. 'Falsely declare' is a direct synonym for 'incorrectly blamed'.",
+            "distractor_analysis": "The statement matches the details (timeframe, role, and action) provided in the passage, making it TRUE."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "Plants contribute to photochemical smog as much as automobiles.",
+          "answer": "NOT GIVEN",
+          "explanation": {
+            "keyword": "photochemical smog / as much as",
+            "rationale": "While the passage confirms that trees can 'become participants in the formation of... photochemical smog' in the presence of man-made pollution, it does not provide any comparison regarding the *amount* or *degree* of their contribution compared to automobiles.",
+            "distractor_analysis": "There is no information in the text to determine if the contribution is 'as much as' or less, so the answer must be NOT GIVEN."
+          }
+        }
+      ]
+    }
+  ]
+}

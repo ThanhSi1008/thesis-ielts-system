@@ -33,7 +33,7 @@ export class ExamsController {
   constructor(
     private readonly examsService: ExamsService,
     private readonly storageService: StorageService,
-  ) {}
+  ) { }
 
   @Post()
   create(@Body() createExamDto: CreateExamDto) {

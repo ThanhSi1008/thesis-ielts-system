@@ -1,0 +1,101 @@
+[
+  {
+    "questions": "1-3",
+    "instructions": "Which description matches each neighbourhood mentioned by the radio anchor? Choose THREE answers from the box and write the correct letter, A-E, next to Questions 1-3.",
+    "topic": "Urban Gardening Initiative in Vancouver",
+    "question_type": "Matching",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562250/CH5_HP1-3_tdw3ok.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear the anchor of a radio programme discussing urban gardens."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 1 to 3."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 1 to 3."
+      },
+      {
+        "speaker": "Anchor",
+        "text": "It's a beautiful morning here in Vancouver and we at Radio RZZT are pleased to give you an update on the city's community focus programme. Sue Butler, chairperson of the Urban Renewal Committee, made an announcement this morning about an urban gardening initiative being launched by the British Columbia Provincial Government."
+      },
+      {
+        "speaker": "Anchor",
+        "text": "In order to promote a more sustainable urban lifestyle, the government has developed a plan to set up urban gardens in three different communities in the city. Each garden will consist of around 20 plots. Due to the varying composition of the soil, the type of plants grown in each garden will differ for each neighbourhood."
+      },
+      {
+        "speaker": "Anchor",
+        "text": "Firstly, the west end is adjacent to the harbour. The government has recognised that the soil here is poor. So, they have decided that it is most suitable for growing herbs since these plants are very resilient. They plan to plant basil, thyme, coriander and a range of other herbs."
+      },
+      {
+        "speaker": "Anchor",
+        "text": "This neighbourhood also has many residents who already pursue growing plants as a hobby. The government plans to provide a vacant lot so that these people can expand their interest by growing herbs.",
+        "question_number": 1,
+        "highlight_text": "This neighbourhood also has many residents who already pursue growing plants as a hobby."
+      },
+      {
+        "speaker": "Anchor",
+        "text": "Then, you have Mount Pleasant, which they have decided is the most suitable place for growing woodland wildflowers. This area is shady so they think flowers will thrive here. Additionally, the area has a flower market near Vancouver Community College and the government intends to allow sellers to grow wildflowers in the Mount Pleasant plot.",
+        "question_number": 2,
+        "highlight_text": "the area has a flower market... and the government intends to allow sellers to grow wildflowers"
+      },
+      {
+        "speaker": "Anchor",
+        "text": "And lastly, Miss Butler noted that east Hastings' wide-open unused lots will be the most appropriate for growing produce. There is, unfortunately, a lack of affordable grocery stores within this section of our city. So, the government believes that encouraging the growth of produce will provide residents in this neighbourhood with easier access to fresh fruits and vegetables.",
+        "question_number": 3,
+        "highlight_text": "encouraging the growth of produce will provide residents in this neighbourhood with easier access to fresh fruits and vegetables."
+      },
+      {
+        "speaker": "Anchor",
+        "text": "Beyond the obvious benefit of having more greenery in each neighbourhood, the gardens can become spaces where the community gathers, increasing social interaction and encouraging a sense of shared responsibility among citizens."
+      },
+      {
+        "speaker": "Anchor",
+        "text": "For more information on the Urban Gardening Project and details from Miss Butler's press release, you may go to the Urban Renewal Committee's website now for a short break before our next program."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "matching",
+        "heading": "Urban Gardening Initiative",
+        "description": "Which description matches each neighbourhood mentioned by the radio anchor?",
+        "items": [
+          { "id": 1, "text": "1 West End" },
+          { "id": 2, "text": "2 Mount Pleasant" },
+          { "id": 3, "text": "3 East Hastings" }
+        ],
+        "options": [
+          { "letter": "A", "text": "has many grocery stores in the area" },
+          { "letter": "B", "text": "has a market that will benefit from the urban plan" },
+          { "letter": "C", "text": "has a botanical garden featuring woodland wildflowers" },
+          { "letter": "D", "text": "is expected to be another source of food for residents" },
+          { "letter": "E", "text": "has many residents already gardening" }
+        ],
+        "answers": {
+          "1": {
+            "letter": "E",
+            "timestamp_seconds": 108.32,
+            "explanation": "The anchor mentions that the West End 'has many residents who already pursue growing plants as a hobby', which matches option E."
+          },
+          "2": {
+            "letter": "B",
+            "timestamp_seconds": 134.72,
+            "explanation": "The anchor says Mount Pleasant 'has a flower market' and the government will allow sellers to grow flowers there, meaning the market benefits from the plan (option B)."
+          },
+          "3": {
+            "letter": "D",
+            "timestamp_seconds": 160.32,
+            "explanation": "The anchor states that East Hastings lacks affordable grocery stores and the produce garden will provide 'easier access to fresh fruits and vegetables', making it another food source (option D)."
+          }
+        }
+      }
+    ]
+  }
+]

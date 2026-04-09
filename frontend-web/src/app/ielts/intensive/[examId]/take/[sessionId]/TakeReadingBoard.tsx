@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { type ExamDetail } from "@/types";
 import { type AnswersState, AnswerField, getPartTitle, questionNumbersFromItems } from "@/components/AnswerField";
 import { extractAllItemsFromPart } from "@/lib/exam-parser";
@@ -35,7 +36,9 @@ export default function TakeReadingBoard({
   const [activePartIdx, setActivePartIdx] = useState(0);
   const [focusedQn, setFocusedQn] = useState<number | null>(null);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
-  
+  const searchParams = useSearchParams();
+  const autoSubmit = searchParams ? searchParams.get("autoSubmit") !== "false" : true;
+
   const [leftPaneWidth, setLeftPaneWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -59,11 +62,11 @@ export default function TakeReadingBoard({
 
 
   useEffect(() => {
-    if (!submitting && !submitResult && secondsLeft === 0 && !isConfirmingSubmit) {
+    if (autoSubmit && !submitting && !submitResult && secondsLeft === 0 && !isConfirmingSubmit) {
       handleFinalSubmit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsLeft, submitting, submitResult, isConfirmingSubmit]);
+  }, [secondsLeft, submitting, submitResult, isConfirmingSubmit, autoSubmit]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -148,131 +151,131 @@ export default function TakeReadingBoard({
 
       <main className="flex-1 min-h-0 bg-[#f5f5f5] relative overflow-hidden">
         <div key={activePartIdx} id="main-split-container" className="w-full h-full flex flex-col overflow-hidden relative" onClick={() => setFocusedQn(null)}>
-        <div className="w-full px-4 py-2">
-          <div className="bg-[#f2f1ef] border border-[#e2e1df] rounded py-3 px-4 text-[#1a1a1a]">
-            <div className="font-bold text-[17px] mb-1">{getPartTitle(activePart)}</div>
-            <div className="text-[16px]">
-              Read the text and answer questions {qNumbers.length > 0 ? `${qNumbers[0]}–${qNumbers[qNumbers.length - 1]}` : ""}.
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-row overflow-hidden w-full">
-          {/* Left Pane - Passage */}
-          <div
-            style={{ width: `${leftPaneWidth}%` }}
-            className="flex-shrink-0 h-full overflow-y-auto custom-scrollbar px-8 py-8 pb-16 bg-[#faf9f8]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {(activePart as any)?.topic && (
-              <h2 className="text-2xl font-bold mb-6">{(activePart as any).topic}</h2>
-            )}
-            <div className="text-[#1a1a1a] leading-relaxed text-[16px] space-y-5">
-              {((activePart as any)?.passage_text || "")
-                .split('\n')
-                .filter((para: string) => {
-                  const cleanPara = para.replace(/\*\*/g, '').trim().toLowerCase();
-                  const cleanTopic = ((activePart as any)?.topic || "").trim().toLowerCase();
-                  return cleanPara !== cleanTopic && cleanPara.length > 0;
-                })
-                .map((para: string, i: number) => {
-                  let textForTake = para.replace(/\s*(?:\*)?\((Q\d+[^)]*)\)(?:\*)?/g, '');
-                  textForTake = textForTake.replace(/\*\*\`(.*?)\`\*\*/g, '$1');
-                  textForTake = textForTake.replace(/(^)?\*\*(.*?)\*\*/g, (match, isStart, content) => {
-                    if (isStart !== undefined && content.trim().length === 1 && /[A-Za-z]/.test(content.trim())) {
-                      return `**${content}**`;
-                    }
-                  return content;
-                  });
-
-                  let htmlContent = textForTake.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                  htmlContent = htmlContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-                  const matchBold = htmlContent.match(/^<strong>\s*([A-Za-z])\s*<\/strong>[\s\.]*(.*)/);
-                  if (matchBold) {
-                    return (
-                      <div key={i} className="mb-1">
-                        <div className="font-bold text-[17px] mb-2">{matchBold[1].toUpperCase()}</div>
-                        <p dangerouslySetInnerHTML={{ __html: matchBold[2] }} />
-                      </div>
-                    );
-                  }
-                  return <p key={i} dangerouslySetInnerHTML={{ __html: htmlContent }} />;
-                })}
-            </div>
-          </div>
-
-          {/* Resize Handle */}
-          <div
-            className="w-1.5 cursor-col-resize bg-[#d8d8d8] hover:bg-[#2181d8] active:bg-[#1a65a9] transition-colors flex-shrink-0 z-50 relative flex justify-center items-center group"
-            onMouseDown={(e) => { e.preventDefault(); setIsResizing(true); }}
-          >
-            <div className="absolute w-[22px] h-[22px] bg-[#f8f9fa] border-[1.5px] border-[#666666] group-hover:border-[#2181d8] text-[#555555] group-hover:text-[#2181d8] flex items-center justify-center transition-colors">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
-                <polyline points="9 16 5 12 9 8" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="15 16 19 12 15 8" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Right Pane - Questions */}
-          <div
-            style={{ flex: 1 }}
-            id="main-scroll-container"
-            className="h-full flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden relative min-w-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-full bg-[#faf9f8] pt-4 px-8 pr- pb-16">
-              {submitError && (
-                <div className="mb-8 bg-red-50 text-red-700 border border-red-100 rounded p-4 font-medium">
-                  {submitError}
-                </div>
-              )}
-              <div className="space-y-6 text-[#1a1a1a] pb-10">
-                {items.length === 0 ? (
-                  <div className="py-12 border border-gray-200 border-dashed rounded bg-gray-50 text-center text-gray-500">
-                    No questions mapped.
-                  </div>
-                ) : (
-                  items.map((it, idx) => (
-                    <AnswerField key={String(idx)} item={it} answers={answers} setAnswers={setAnswers} focusedQn={focusedQn} setFocusedQn={setFocusedQn} />
-                  ))
-                )}
+          <div className="w-full px-4 py-2">
+            <div className="bg-[#f2f1ef] border border-[#e2e1df] rounded py-3 px-4 text-[#1a1a1a]">
+              <div className="font-bold text-[17px] mb-1">{getPartTitle(activePart)}</div>
+              <div className="text-[16px]">
+                Read the text and answer questions {qNumbers.length > 0 ? `${qNumbers[0]}–${qNumbers[qNumbers.length - 1]}` : ""}.
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="absolute bottom-6 right-6 flex gap-1 z-10 opacity-90 transition-opacity hover:opacity-100 hidden md:flex">
-          <button
-            onClick={() => {
-              const idx = focusedQn ? qNumbers.indexOf(focusedQn) : 0;
-              if (idx > 0) {
-                const prev = qNumbers[idx - 1];
-                setFocusedQn(prev);
-                document.getElementById(`question-${prev}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
-            }}
-            disabled={focusedQn === qNumbers[0]}
-            className="w-14 h-14 bg-[#f2f2f2] hover:bg-[#e0e0e0] border border-[#d6d6d6] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow"
-          >
-            <svg viewBox="0 0 24 24" className="w-8 h-8 text-white stroke-[#7f7f7f] stroke-[2.5] fill-none" strokeLinecap="round" strokeLinejoin="round"><path d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <button
-            onClick={() => {
-              const idx = focusedQn ? qNumbers.indexOf(focusedQn) : -1;
-              if (idx < qNumbers.length - 1) {
-                const next = qNumbers[idx + 1];
-                setFocusedQn(next);
-                document.getElementById(`question-${next}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
-            }}
-            disabled={focusedQn === qNumbers[qNumbers.length - 1]}
-            className="w-14 h-14 bg-black hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow"
-          >
-            <svg viewBox="0 0 24 24" className="w-8 h-8 text-white stroke-current stroke-[2.5] fill-none" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
-          </button>
-        </div>
+
+          <div className="flex-1 flex flex-row overflow-hidden w-full">
+            {/* Left Pane - Passage */}
+            <div
+              style={{ width: `${leftPaneWidth}%` }}
+              className="flex-shrink-0 h-full overflow-y-auto custom-scrollbar px-8 py-8 pb-16 bg-[#faf9f8]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(activePart as any)?.topic && (
+                <h2 className="text-2xl font-bold mb-6">{(activePart as any).topic}</h2>
+              )}
+              <div className="text-[#1a1a1a] leading-relaxed text-[16px] space-y-5">
+                {((activePart as any)?.passage_text || "")
+                  .split('\n')
+                  .filter((para: string) => {
+                    const cleanPara = para.replace(/\*\*/g, '').trim().toLowerCase();
+                    const cleanTopic = ((activePart as any)?.topic || "").trim().toLowerCase();
+                    return cleanPara !== cleanTopic && cleanPara.length > 0;
+                  })
+                  .map((para: string, i: number) => {
+                    let textForTake = para.replace(/\s*(?:\*)?\((Q\d+[^)]*)\)(?:\*)?/g, '');
+                    textForTake = textForTake.replace(/\*\*\`(.*?)\`\*\*/g, '$1');
+                    textForTake = textForTake.replace(/(^)?\*\*(.*?)\*\*/g, (match, isStart, content) => {
+                      if (isStart !== undefined && content.trim().length === 1 && /[A-Za-z]/.test(content.trim())) {
+                        return `**${content}**`;
+                      }
+                      return content;
+                    });
+
+                    let htmlContent = textForTake.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    htmlContent = htmlContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                    const matchBold = htmlContent.match(/^<strong>\s*([A-Za-z])\s*<\/strong>[\s\.]*(.*)/);
+                    if (matchBold) {
+                      return (
+                        <div key={i} className="mb-1">
+                          <div className="font-bold text-[17px] mb-2">{matchBold[1].toUpperCase()}</div>
+                          <p dangerouslySetInnerHTML={{ __html: matchBold[2] }} />
+                        </div>
+                      );
+                    }
+                    return <p key={i} dangerouslySetInnerHTML={{ __html: htmlContent }} />;
+                  })}
+              </div>
+            </div>
+
+            {/* Resize Handle */}
+            <div
+              className="w-1.5 cursor-col-resize bg-[#d8d8d8] hover:bg-[#2181d8] active:bg-[#1a65a9] transition-colors flex-shrink-0 z-50 relative flex justify-center items-center group"
+              onMouseDown={(e) => { e.preventDefault(); setIsResizing(true); }}
+            >
+              <div className="absolute w-[22px] h-[22px] bg-[#f8f9fa] border-[1.5px] border-[#666666] group-hover:border-[#2181d8] text-[#555555] group-hover:text-[#2181d8] flex items-center justify-center transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
+                  <polyline points="9 16 5 12 9 8" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="15 16 19 12 15 8" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Right Pane - Questions */}
+            <div
+              style={{ flex: 1 }}
+              id="main-scroll-container"
+              className="h-full flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden relative min-w-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-full bg-[#faf9f8] pt-4 px-8 pr- pb-16">
+                {submitError && (
+                  <div className="mb-8 bg-red-50 text-red-700 border border-red-100 rounded p-4 font-medium">
+                    {submitError}
+                  </div>
+                )}
+                <div className="space-y-6 text-[#1a1a1a] pb-10">
+                  {items.length === 0 ? (
+                    <div className="py-12 border border-gray-200 border-dashed rounded bg-gray-50 text-center text-gray-500">
+                      No questions mapped.
+                    </div>
+                  ) : (
+                    items.map((it, idx) => (
+                      <AnswerField key={String(idx)} item={it} answers={answers} setAnswers={setAnswers} focusedQn={focusedQn} setFocusedQn={setFocusedQn} />
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute bottom-6 right-6 hidden md:flex gap-1 z-10 opacity-90 transition-opacity hover:opacity-100">
+            <button
+              onClick={() => {
+                const idx = focusedQn ? qNumbers.indexOf(focusedQn) : 0;
+                if (idx > 0) {
+                  const prev = qNumbers[idx - 1];
+                  setFocusedQn(prev);
+                  document.getElementById(`question-${prev}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}
+              disabled={focusedQn === qNumbers[0]}
+              className="w-14 h-14 bg-[#f2f2f2] hover:bg-[#e0e0e0] border border-[#d6d6d6] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow"
+            >
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white stroke-[#7f7f7f] stroke-[2.5] fill-none" strokeLinecap="round" strokeLinejoin="round"><path d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button
+              onClick={() => {
+                const idx = focusedQn ? qNumbers.indexOf(focusedQn) : -1;
+                if (idx < qNumbers.length - 1) {
+                  const next = qNumbers[idx + 1];
+                  setFocusedQn(next);
+                  document.getElementById(`question-${next}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}
+              disabled={focusedQn === qNumbers[qNumbers.length - 1]}
+              className="w-14 h-14 bg-black hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shadow"
+            >
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-white stroke-current stroke-[2.5] fill-none" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </div>
 
         </div>
       </main>

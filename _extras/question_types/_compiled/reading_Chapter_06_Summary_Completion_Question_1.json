@@ -1,0 +1,44 @@
+{
+  "title": "Canadian National Policy",
+  "passage": "In 1879, the Canadian government enacted the National Policy, an economic programme that sought to safeguard Canadian manufacturers and promote settlement of Canada's western frontier. A primary goal of the programme's leading advocate, Prime Minister John Macdonald, was to decrease Canada's reliance on imported products. To achieve this, he instituted a high tariff on all manufactured goods that were imported. He argued that the tariff would lead to a higher standard of living and greater employment security for Canadians, and it did for those in the manufacturing sectors of the East, where Canada immediately experienced increased production and profits.\n\nHowever the ambition of western settlement was slow to be realised. Despite aggressive immigration campaigns, which tried to lure farmers from abroad with free or cheap land, Canada witnessed a decline in immigration in the 1880s. According to economist Ken Norrie, this shows that the influence of the National Policy on settlement of the West was mediocre. In fact, external factors, such as the development of improved agricultural techniques, and favourable economic conditions globally, were largely responsible. The price of wheat, for instance, quadrupled between 1891 and 1921, and this brought profit-seeking agriculturists to Canada's fruitful wheat-growing regions in droves.",
+  "passage_with_locations": [
+    "In 1879, the Canadian government enacted the National Policy, an economic programme that sought to safeguard Canadian manufacturers and promote settlement of Canada's western frontier. A primary goal of the programme's leading advocate, Prime Minister John Macdonald, was to decrease Canada's reliance on imported products. To achieve this, he instituted a high tariff on all manufactured goods that were imported. He argued that ",
+    {
+      "question_number": 1,
+      "text": "the tariff would lead to a higher standard of living and greater employment security for Canadians, and it did for those in the manufacturing sectors of the East"
+    },
+    ", where Canada immediately experienced increased production and profits.\n\nHowever the ambition of western settlement was slow to be realised. Despite aggressive immigration campaigns, which tried to lure farmers from abroad with free or cheap land, Canada witnessed a decline in immigration in the 1880s. According to economist Ken Norrie, this shows that the influence of the National Policy on settlement of the West was mediocre. In fact, external factors, such as ",
+    {
+      "question_number": 2,
+      "text": "the development of improved agricultural techniques, and favourable economic conditions"
+    },
+    " globally, were largely responsible. The price of wheat, for instance, quadrupled between 1891 and 1921, and this brought profit-seeking agriculturists to Canada's fruitful wheat-growing regions in droves."
+  ],
+  "content": [
+    {
+      "type": "summary_completion",
+      "instruction": "Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+      "summary": "The National Policy was designed to protect the manufacturing industry and encourage economic growth and western settlement. By using a high tariff, the prime minister increased living standards and job {{1}} in the eastern part of the country. But the goal of western settlement did not happen quickly. Actually, the National Policy had a modest effect on this. Better {{2}} in agriculture and a good world economy were of greater importance.",
+      "questions": [
+        {
+          "question_number": 1,
+          "answer": "security",
+          "explanation": {
+            "keyword": "high tariff, increased living standards, job",
+            "rationale": "The summary states 'the prime minister increased living standards and job _____'. The passage mentions that the prime minister argued the tariff 'would lead to a higher standard of living and greater employment security... and it did for those in the manufacturing sectors of the East'. Thus, 'employment security' maps to 'job security'.",
+            "distractor_analysis": "'employment' by itself is incorrect as it would be redundant ('job employment'); the missing word completing the collocation is 'security'."
+          }
+        },
+        {
+          "question_number": 2,
+          "answer": "techniques",
+          "explanation": {
+            "keyword": "Better _____ in agriculture",
+            "rationale": "The text explains that 'external factors, such as the development of improved agricultural techniques, and favourable economic conditions globally, were largely responsible' for western settlement. 'Better' paraphrases 'improved', and 'in agriculture' relates to 'agricultural'. The required word is 'techniques'.",
+            "distractor_analysis": "'development' is incorrect as it is better development *of* techniques. 'conditions' refers to the global economy ('world economy' in the summary), not agriculture specifically."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -2,12 +2,12 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException 
 import { PrismaService } from '../../common/prisma/prisma.service';
 import {
   CreateDeckDto, CreateFlashcardDto, UpdateFlashcardDto, SubmitReviewDto,
-  CreateNoteTypeDto, RenameNoteTypeDto, UpdateNoteTypeDescriptionDto,
-  CreateNoteTypeFieldDto, UpdateNoteTypeFieldDto, UpdateCardTemplateDto,
+  CreateCardTypeDto, RenameCardTypeDto, UpdateCardTypeDescriptionDto,
+  CreateCardTypeFieldDto, UpdateCardTypeFieldDto, UpdateCardTemplateDto,
 } from './dto/vocab-lab.dto';
 import { CardState } from '@prisma/client';
 
-const BASIC_NOTE_TYPE_NAME = 'Basic';
+const BASIC_CARD_TYPE_NAME = 'Basic';
 
 @Injectable()
 export class VocabLabService {
@@ -15,12 +15,12 @@ export class VocabLabService {
 
   // ==================== NOTE TYPE OPERATIONS ====================
 
-  async ensureBasicNoteType(): Promise<string> {
-    let basic = await this.prisma.noteType.findFirst({ where: { isBuiltIn: true, name: BASIC_NOTE_TYPE_NAME } });
+  async ensureBasicCardType(): Promise<string> {
+    let basic = await this.prisma.cardType.findFirst({ where: { isBuiltIn: true, name: BASIC_CARD_TYPE_NAME } });
     if (!basic) {
-      basic = await this.prisma.noteType.create({
+      basic = await this.prisma.cardType.create({
         data: {
-          name: BASIC_NOTE_TYPE_NAME,
+          name: BASIC_CARD_TYPE_NAME,
           isBuiltIn: true,
           fields: {
             create: [
@@ -37,7 +37,7 @@ export class VocabLabService {
       const backField = fields.find(f => f.name === 'Back');
       await this.prisma.cardTemplate.create({
         data: {
-          noteTypeId: basic.id,
+          cardType: { connect: { id: basic.id } },
           name: 'Card 1: Front → Back',
           frontFields: frontField ? [frontField.id] : [],
           backFields: backField ? [backField.id] : [],
@@ -47,9 +47,9 @@ export class VocabLabService {
     return basic.id;
   }
 
-  async getNoteTypes(userId: string) {
-    await this.ensureBasicNoteType();
-    const types = await this.prisma.noteType.findMany({
+  async getCardTypes(userId: string) {
+    await this.ensureBasicCardType();
+    const types = await this.prisma.cardType.findMany({
       where: { OR: [{ isBuiltIn: true }, { userId }] },
       include: {
         fields: { orderBy: { order: 'asc' } },
@@ -69,8 +69,8 @@ export class VocabLabService {
     }));
   }
 
-  async createNoteType(userId: string, dto: CreateNoteTypeDto) {
-    const nt = await this.prisma.noteType.create({
+  async createCardType(userId: string, dto: CreateCardTypeDto) {
+    const nt = await this.prisma.cardType.create({
       data: {
         userId,
         name: dto.name,
@@ -87,56 +87,58 @@ export class VocabLabService {
     const fields = nt.fields;
     await this.prisma.cardTemplate.create({
       data: {
-        noteTypeId: nt.id,
+        cardType: { connect: { id: nt.id } },
         name: 'Card 1: Front → Back',
         frontFields: [fields[0].id],
         backFields: [fields[1].id],
       },
     });
-    return this.prisma.noteType.findUnique({
+    return this.prisma.cardType.findUnique({
       where: { id: nt.id },
       include: { fields: { orderBy: { order: 'asc' } }, templates: true },
     });
   }
 
-  async updateNoteTypeDescription(noteTypeId: string, dto: UpdateNoteTypeDescriptionDto) {
-    const nt = await this.prisma.noteType.findFirst({ where: { id: noteTypeId } });
-    if (!nt) throw new NotFoundException('Note type not found');
-    return this.prisma.noteType.update({
-      where: { id: noteTypeId },
+  async updateCardTypeDescription(cardTypeId: string, dto: UpdateCardTypeDescriptionDto) {
+    const nt = await this.prisma.cardType.findFirst({ where: { id: cardTypeId } });
+    if (!nt) throw new NotFoundException('Card type not found');
+    return this.prisma.cardType.update({
+      where: { id: cardTypeId },
       data: { description: dto.description ?? null },
     });
   }
 
-  async renameNoteType(userId: string, noteTypeId: string, dto: RenameNoteTypeDto) {
-    const nt = await this.prisma.noteType.findFirst({ where: { id: noteTypeId } });
-    if (!nt) throw new NotFoundException('Note type not found');
-    if (nt.isBuiltIn) throw new ForbiddenException('Cannot rename built-in note types');
+  async renameCardType(userId: string, cardTypeId: string, dto: RenameCardTypeDto) {
+    const nt = await this.prisma.cardType.findFirst({ where: { id: cardTypeId } });
+    if (!nt) throw new NotFoundException('Card type not found');
+    if (nt.isBuiltIn) throw new ForbiddenException('Cannot rename built-in card types');
     if (nt.userId !== userId) throw new ForbiddenException('Not yours');
-    return this.prisma.noteType.update({ where: { id: noteTypeId }, data: { name: dto.name } });
+    return this.prisma.cardType.update({ where: { id: cardTypeId }, data: { name: dto.name } });
   }
 
-  async deleteNoteType(userId: string, noteTypeId: string) {
-    const nt = await this.prisma.noteType.findFirst({
-      where: { id: noteTypeId },
+  async deleteCardType(userId: string, cardTypeId: string) {
+    const nt = await this.prisma.cardType.findFirst({
+      where: { id: cardTypeId },
       include: { _count: { select: { flashcards: true } } },
     });
-    if (!nt) throw new NotFoundException('Note type not found');
-    if (nt.isBuiltIn) throw new ForbiddenException('Cannot delete built-in note types');
+    if (!nt) throw new NotFoundException('Card type not found');
+    if (nt.isBuiltIn) throw new ForbiddenException('Cannot delete built-in card types');
     if (nt.userId !== userId) throw new ForbiddenException('Not yours');
-    if ((nt as any)._count.flashcards > 0) throw new BadRequestException('Cannot delete a note type that has cards');
-    return this.prisma.noteType.delete({ where: { id: noteTypeId } });
+    if ((nt as any)._count.flashcards > 0) {
+      await this.prisma.flashcard.deleteMany({ where: { cardTypeId } });
+    }
+    return this.prisma.cardType.delete({ where: { id: cardTypeId } });
   }
 
   // ==================== NOTE TYPE FIELD OPERATIONS ====================
 
-  async addField(userId: string, noteTypeId: string, dto: CreateNoteTypeFieldDto) {
-    await this.assertNoteTypeOwner(userId, noteTypeId);
-    const maxOrder = await this.prisma.noteTypeField.aggregate({ where: { noteTypeId }, _max: { order: true } });
+  async addField(userId: string, cardTypeId: string, dto: CreateCardTypeFieldDto) {
+    await this.assertCardTypeOwner(userId, cardTypeId);
+    const maxOrder = await this.prisma.cardTypeField.aggregate({ where: { cardTypeId }, _max: { order: true } });
     const nextOrder = (maxOrder._max.order ?? -1) + 1;
-    return this.prisma.noteTypeField.create({
+    return this.prisma.cardTypeField.create({
       data: {
-        noteTypeId,
+        cardTypeId,
         name: dto.name,
         order: nextOrder,
         description: dto.description,
@@ -145,9 +147,9 @@ export class VocabLabService {
     });
   }
 
-  async updateField(userId: string, noteTypeId: string, fieldId: string, dto: UpdateNoteTypeFieldDto) {
-    await this.assertNoteTypeOwner(userId, noteTypeId);
-    return this.prisma.noteTypeField.update({
+  async updateField(userId: string, cardTypeId: string, fieldId: string, dto: UpdateCardTypeFieldDto) {
+    await this.assertCardTypeOwner(userId, cardTypeId);
+    return this.prisma.cardTypeField.update({
       where: { id: fieldId },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
@@ -158,27 +160,27 @@ export class VocabLabService {
     });
   }
 
-  async deleteField(userId: string, noteTypeId: string, fieldId: string) {
-    await this.assertNoteTypeOwner(userId, noteTypeId);
+  async deleteField(userId: string, cardTypeId: string, fieldId: string) {
+    await this.assertCardTypeOwner(userId, cardTypeId);
     const cardsWithField = await this.prisma.flashcard.findFirst({
-      where: { noteTypeId },
+      where: { cardTypeId },
     });
-    if (cardsWithField) throw new BadRequestException('Cannot delete a field while cards exist for this note type');
-    return this.prisma.noteTypeField.delete({ where: { id: fieldId } });
+    if (cardsWithField) throw new BadRequestException('Cannot delete a field while cards exist for this card type');
+    return this.prisma.cardTypeField.delete({ where: { id: fieldId } });
   }
 
   // ==================== CARD TEMPLATE OPERATIONS ====================
 
-  async getTemplates(userId: string, noteTypeId: string) {
-    const nt = await this.prisma.noteType.findFirst({
-      where: { id: noteTypeId, OR: [{ isBuiltIn: true }, { userId }] },
+  async getTemplates(userId: string, cardTypeId: string) {
+    const nt = await this.prisma.cardType.findFirst({
+      where: { id: cardTypeId, OR: [{ isBuiltIn: true }, { userId }] },
     });
-    if (!nt) throw new NotFoundException('Note type not found');
-    return this.prisma.cardTemplate.findMany({ where: { noteTypeId } });
+    if (!nt) throw new NotFoundException('Card type not found');
+    return this.prisma.cardTemplate.findMany({ where: { cardTypeId } });
   }
 
-  async updateTemplate(userId: string, noteTypeId: string, templateId: string, dto: UpdateCardTemplateDto) {
-    await this.assertNoteTypeOwner(userId, noteTypeId);
+  async updateTemplate(userId: string, cardTypeId: string, templateId: string, dto: UpdateCardTemplateDto) {
+    await this.assertCardTypeOwner(userId, cardTypeId);
     return this.prisma.cardTemplate.update({
       where: { id: templateId },
       data: {
@@ -191,9 +193,9 @@ export class VocabLabService {
     });
   }
 
-  private async assertNoteTypeOwner(userId: string, noteTypeId: string) {
-    const nt = await this.prisma.noteType.findFirst({ where: { id: noteTypeId } });
-    if (!nt) throw new NotFoundException('Note type not found');
+  private async assertCardTypeOwner(userId: string, cardTypeId: string) {
+    const nt = await this.prisma.cardType.findFirst({ where: { id: cardTypeId } });
+    if (!nt) throw new NotFoundException('Card type not found');
     if (nt.isBuiltIn) throw new ForbiddenException('Cannot modify built-in note types');
     if (nt.userId !== userId) throw new ForbiddenException('Not yours');
     return nt;
@@ -284,10 +286,10 @@ export class VocabLabService {
     const deck = await this.prisma.deck.findFirst({ where: { id: dto.deckId, userId } });
     if (!deck) throw new ForbiddenException('Deck not found or not yours');
 
-    // Resolve noteTypeId — use provided or fall back to built-in Basic
-    let noteTypeId = dto.noteTypeId;
-    if (!noteTypeId) {
-      noteTypeId = await this.ensureBasicNoteType();
+    // Resolve cardTypeId — use provided or fall back to built-in Basic
+    let cardTypeId = dto.cardTypeId;
+    if (!cardTypeId) {
+      cardTypeId = await this.ensureBasicCardType();
     }
 
     // If Basic (front/back fields), derive fieldValues from front+back if not already provided
@@ -303,13 +305,13 @@ export class VocabLabService {
         front: dto.front ?? '',
         back: dto.back ?? '',
         tags: dto.tags || [],
-        noteTypeId,
+        cardTypeId,
         fieldValues,
         fieldStyles: dto.fieldStyles,
         cardStyle: dto.cardStyle,
       },
       include: {
-        noteType: {
+        cardType: {
           include: { fields: { orderBy: { order: 'asc' } }, templates: true },
         },
       },
@@ -361,7 +363,7 @@ export class VocabLabService {
       where,
       include: {
         deck: { select: { id: true, name: true } },
-        noteType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
+        cardType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -380,7 +382,7 @@ export class VocabLabService {
       take: 20,
       orderBy: { createdAt: 'asc' },
       include: {
-        noteType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
+        cardType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
       },
     });
 
@@ -392,7 +394,7 @@ export class VocabLabService {
       },
       orderBy: { nextReviewDate: 'asc' },
       include: {
-        noteType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
+        cardType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
       },
     });
 

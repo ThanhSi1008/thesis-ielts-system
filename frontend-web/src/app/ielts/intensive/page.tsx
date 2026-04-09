@@ -301,17 +301,28 @@ function IeltsIntensiveContent() {
   const [readingPoints, setReadingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [writingPoints, setWritingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
   const [speakingPoints, setSpeakingPoints] = useState<{ date: string; band: number; title: string }[]>([]);
-  const [view, setView] = useState<"dashboard" | "mock-test" | "practice">(
-    searchParams?.get("view") === "dashboard" ? "dashboard" : 
-    searchParams?.get("view") === "practice" ? "practice" : "mock-test"
+  const [view, setView] = useState<"dashboard" | "mock-test" | "practice" | "custom-practice">(
+    searchParams?.get("view") === "dashboard" ? "dashboard" :
+      searchParams?.get("view") === "practice" ? "practice" :
+        searchParams?.get("view") === "custom-practice" ? "custom-practice" : "mock-test"
   );
   const [practiceData, setPracticeData] = useState<PracticeCatalogResponse | null>(null);
   const [practiceLoading, setPracticeLoading] = useState(true);
   const [activePartNumber, setActivePartNumber] = useState(1);
 
+  // Custom practice state
+  const [customExamId, setCustomExamId] = useState<string>("");
+  const [customPart, setCustomPart] = useState<number | "all">("all");
+  const [customTime, setCustomTime] = useState<number>(30); // in minutes
+  const [isCustomTimeMode, setIsCustomTimeMode] = useState<boolean>(false);
+  const [customTimeStr, setCustomTimeStr] = useState<string>("30");
+  const [customAutoSubmit, setCustomAutoSubmit] = useState<boolean>(true);
+
   // Search & filter state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [mockTestOpen, setMockTestOpen] = useState(true);
+  const [testHistoryOpen, setTestHistoryOpen] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -343,21 +354,35 @@ function IeltsIntensiveContent() {
   }, [skill]);
 
   useEffect(() => {
+    if (data?.groups) {
+      const allTests = data.groups.flatMap(g => g.tests);
+      if (allTests.length > 0 && (!customExamId || !allTests.find(t => t.examId === customExamId))) {
+        const ielts17 = data.groups.find(g => g.title.includes("17"));
+        if (ielts17 && ielts17.tests.length > 0) {
+          setCustomExamId(ielts17.tests[0].examId);
+        } else {
+          setCustomExamId(allTests[0].examId);
+        }
+      }
+    }
+  }, [data, customExamId]);
+
+  useEffect(() => {
     let mounted = true;
     if (view !== "practice") return;
     setPracticeLoading(true);
     examsApi
       .getPracticeCatalog(skill)
       .then(res => {
-         if (!mounted) return;
-         setPracticeData(res);
+        if (!mounted) return;
+        setPracticeData(res);
       })
       .catch(e => console.error(e))
       .finally(() => {
-         if (!mounted) return;
-         setPracticeLoading(false);
+        if (!mounted) return;
+        setPracticeLoading(false);
       });
-      
+
     return () => { mounted = false; };
   }, [view, skill]);
 
@@ -426,62 +451,114 @@ function IeltsIntensiveContent() {
           {/* Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
             <div className="h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-4 space-y-4">
+              <div className="p-4 space-y-1">
+                {/* Dashboard */}
                 <button
                   onClick={() => setView("dashboard")}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-colors ${view === "dashboard"
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${view === "dashboard"
                     ? "font-bold bg-primary/10 text-primary"
                     : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-                    Dashboard
-                  </div>
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                  Dashboard
                 </button>
 
+                {/* Custom Practice */}
                 <button
-                  onClick={() => setView("mock-test")}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-colors ${view === "mock-test"
+                  onClick={() => setView("custom-practice")}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${view === "custom-practice"
                     ? "font-bold bg-primary/10 text-primary"
                     : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21v-7" /><path d="M4 10V3" /><path d="M12 21v-9" /><path d="M12 8V3" /><path d="M20 21v-5" /><path d="M20 12V3" /><path d="M1 14h6" /><path d="M9 8h6" /><path d="M17 16h6" /></svg>
+                  Custom Practice
+                </button>
+
+                {/* Mock Test accordion */}
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => setMockTestOpen(o => !o)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors hover:bg-gray-50 ${view === "mock-test" || view === "practice" ? "text-primary" : "text-gray-700"}`}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                     Mock Test
-                  </div>
-                </button>
+                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 transition-transform duration-200 ${mockTestOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </button>
 
-                <button
-                  onClick={() => setView("practice")}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-colors ${view === "practice"
-                    ? "font-bold bg-primary/10 text-primary"
-                    : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-                    Practice
-                  </div>
-                </button>
+                  {mockTestOpen && (
+                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 ml-6">
+                      {/* Per Part sub-item */}
+                      <button
+                        onClick={() => setView("practice")}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${view === "practice"
+                          ? "font-bold bg-primary/10 text-primary"
+                          : "font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                          }`}
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                        Per Part
+                      </button>
 
-                <div className="space-y-1">
-                  <div className="px-4 pt-1 pb-0.5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Test History</div>
-                  <Link
-                    href="/ielts/history?mode=mock"
-                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                      {/* Part Skill sub-item */}
+                      <button
+                        onClick={() => setView("mock-test")}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${view === "mock-test"
+                          ? "font-bold bg-primary/10 text-primary"
+                          : "font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                          }`}
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h12M4 14h8" /></svg>
+                        Part Skill
+                      </button>
+
+                      {/* Per Test — coming soon placeholder */}
+                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                        Per Test
+                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 uppercase tracking-wide">Soon</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Test History accordion */}
+                <div className="space-y-0.5 pt-2">
+                  <button
+                    onClick={() => setTestHistoryOpen(o => !o)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                    Mock Test History
-                  </Link>
-                  <Link
-                    href="/ielts/history?mode=practice"
-                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                  >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-                    Practice History
-                  </Link>
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 3" /><circle cx="12" cy="12" r="9" /></svg>
+                    Test History
+                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 transition-transform duration-200 ${testHistoryOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </button>
+
+                  {testHistoryOpen && (
+                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 ml-6">
+                      <Link
+                        href="/ielts/history?mode=practice"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                        Per Part
+                      </Link>
+
+                      <Link
+                        href="/ielts/history?mode=mock"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h12M4 14h8" /></svg>
+                        Part Skill
+                      </Link>
+
+                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                        Per Test
+                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 uppercase tracking-wide">Soon</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -726,91 +803,209 @@ function IeltsIntensiveContent() {
 
                 <div className="flex items-center gap-4 mb-8">
                   {[1, 2, 3, 4].map((partNum) => {
-                     const active = activePartNumber === partNum;
-                     return (
-                        <button
-                          key={partNum}
-                          onClick={() => setActivePartNumber(partNum)}
-                          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl flex-1 border transition-colors ${active ? "bg-white border-primary shadow-sm text-primary font-bold" : "bg-gray-50/50 border-gray-100 text-gray-500 font-semibold hover:bg-gray-50"}`}
-                        >
-                          <svg viewBox="0 0 24 24" className={`w-5 h-5 ${active ? "text-primary" : "text-gray-400"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                          <div className="flex flex-col items-start gap-[1px]">
-                             <span className="text-sm">Part {partNum}</span>
-                             {skill === "LISTENING" && <span className="text-[10px] opacity-70 font-medium tracking-wide">
-                                {partNum === 1 ? "Basic Conversation" : partNum === 2 ? "Short Monologue" : partNum === 3 ? "Academic Discussion" : "Academic Lecture"}
-                             </span>}
-                          </div>
-                        </button>
-                     )
+                    const active = activePartNumber === partNum;
+                    return (
+                      <button
+                        key={partNum}
+                        onClick={() => setActivePartNumber(partNum)}
+                        className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl flex-1 border transition-colors ${active ? "bg-white border-primary shadow-sm text-primary font-bold" : "bg-gray-50/50 border-gray-100 text-gray-500 font-semibold hover:bg-gray-50"}`}
+                      >
+                        <svg viewBox="0 0 24 24" className={`w-5 h-5 ${active ? "text-primary" : "text-gray-400"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                        <div className="flex flex-col items-start gap-[1px]">
+                          <span className="text-sm">Part {partNum}</span>
+                          {skill === "LISTENING" && <span className="text-[10px] opacity-70 font-medium tracking-wide">
+                            {partNum === 1 ? "Basic Conversation" : partNum === 2 ? "Short Monologue" : partNum === 3 ? "Academic Discussion" : "Academic Lecture"}
+                          </span>}
+                        </div>
+                      </button>
+                    )
                   })}
                 </div>
 
                 <div className="space-y-4">
-                   {practiceLoading && <div className="py-10 text-center text-gray-500 font-medium">Loading practice items...</div>}
-                   {!practiceLoading && practiceData?.items && (() => {
-                      const items = practiceData.items.filter(i => i.partNumber === activePartNumber);
-                      if (items.length === 0) return <div className="py-10 text-center text-gray-500 font-medium bg-gray-50 rounded-2xl border border-gray-100">No practice items found for this part.</div>;
-                      
-                      return items.map(item => (
-                         <div key={item.id} className="relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
-                            
-                            <div className="flex gap-6 items-center flex-1">
-                               <div className={`relative shrink-0 w-16 h-16 rounded-full border-[3px] flex flex-col items-center justify-center bg-white ${item.myScore !== undefined ? "border-green-500 text-green-600" : "border-gray-200 text-gray-400"}`}>
-                                  {item.myScore !== undefined ? (
-                                     <>
-                                        <span className="font-black leading-none text-xl">{item.myScore}</span>
-                                        <span className="text-[10px] font-bold text-gray-400 mt-0.5">/ {item.totalQuestions}</span>
-                                     </>
-                                  ) : (
-                                     <span className="font-extrabold leading-none text-xl">-</span>
-                                  )}
-                               </div>
+                  {practiceLoading && <div className="py-10 text-center text-gray-500 font-medium">Loading practice items...</div>}
+                  {!practiceLoading && practiceData?.items && (() => {
+                    const items = practiceData.items.filter(i => i.partNumber === activePartNumber);
+                    if (items.length === 0) return <div className="py-10 text-center text-gray-500 font-medium bg-gray-50 rounded-2xl border border-gray-100">No practice items found for this part.</div>;
 
-                               <div className="flex flex-col gap-1.5 flex-1">
-                                  <div className="flex items-center gap-2">
-                                     <span className="px-2.5 py-[3px] rounded-md bg-gray-100 text-gray-700 text-[10px] font-bold tracking-wide uppercase">{item.testTitle}</span>
-                                  </div>
-                                  <h3 className="text-lg font-black text-gray-900 tracking-tight">{item.topic}</h3>
-                                  
-                                  <div className="flex items-center gap-3 text-xs mt-1">
-                                     {item.practicesCompleted > 0 ? (
-                                        <div className="flex items-center gap-2 font-medium">
-                                           <span className="text-gray-500">Practiced {item.practicesCompleted} times</span>
-                                        </div>
-                                     ) : item.latestSessionStatus === "IN_PROGRESS" ? (
-                                        <div className="flex items-center gap-2 font-medium">
-                                           <span className="text-amber-500 bg-amber-50 px-2 py-0.5 rounded-md text-[10px] flex items-center gap-1.5 font-bold">
-                                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> In Progress
-                                           </span>
-                                        </div>
-                                     ) : (
-                                        <span className="text-gray-400 bg-gray-50 px-2 py-0.5 rounded text-[10px] font-bold">Not started</span>
-                                     )}
-                                  </div>
-                               </div>
+                    return items.map(item => (
+                      <div key={item.id} className="relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+
+                        <div className="flex gap-6 items-center flex-1">
+                          <div className={`relative shrink-0 w-16 h-16 rounded-full border-[3px] flex flex-col items-center justify-center bg-white ${item.myScore !== undefined ? "border-green-500 text-green-600" : "border-gray-200 text-gray-400"}`}>
+                            {item.myScore !== undefined ? (
+                              <>
+                                <span className="font-black leading-none text-xl">{item.myScore}</span>
+                                <span className="text-[10px] font-bold text-gray-400 mt-0.5">/ {item.totalQuestions}</span>
+                              </>
+                            ) : (
+                              <span className="font-extrabold leading-none text-xl">-</span>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col gap-1.5 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2.5 py-[3px] rounded-md bg-gray-100 text-gray-700 text-[10px] font-bold tracking-wide uppercase">{item.testTitle}</span>
                             </div>
-                            
-                            <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3 justify-end w-full md:w-auto">
-                               {item.practicesCompleted > 0 || item.latestSessionStatus === "IN_PROGRESS" ? (
-                                  <>
-                                    <button onClick={() => window.location.href = `/ielts/intensive/${item.examId}/start?practicePart=${item.partNumber}`} className="px-5 py-3 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-bold transition-all bg-white w-full sm:w-auto">
-                                       Start Fresh
-                                    </button>
-                                    <button onClick={() => window.location.href = `/ielts/intensive/${item.examId}/practice/${item.latestSessionId}`} className="px-6 py-3 rounded-xl bg-gray-900 hover:bg-black text-white text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2 group w-full sm:w-auto">
-                                       Continue Practice <svg className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                    </button>
-                                  </>
-                               ) : (
-                                  <button onClick={() => window.location.href = `/ielts/intensive/${item.examId}/start?practicePart=${item.partNumber}`} className="px-6 py-3 rounded-xl border-2 border-primary hover:border-primary hover:bg-primary/5 text-primary text-sm font-bold shadow-sm transition-all bg-white flex items-center justify-center gap-2">
-                                     Start Practice
-                                  </button>
-                               )}
-                            </div>
-                         </div>
-                      ));
-                   })()}
+                            <h3 className="text-lg font-black text-gray-900 tracking-tight">{item.topic}</h3>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0 flex items-center justify-end w-full md:w-auto">
+                          <button
+                            onClick={() => window.location.href = `/ielts/intensive/${item.examId}/start?practicePart=${item.partNumber}`}
+                            className="px-6 py-3 rounded-xl border-2 border-primary hover:bg-primary hover:text-white text-primary text-sm font-bold shadow-sm transition-all bg-white flex items-center justify-center gap-2 group"
+                          >
+                            Start Test
+                            <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                          </button>
+                        </div>
+                      </div>
+                    ));
+                  })()}
                 </div>
               </>
+            )}
+
+            {view === "custom-practice" && (
+              <div className="flex flex-col h-full max-w-3xl">
+                <div className="text-xl font-extrabold text-gray-900 mb-2">Custom Practice</div>
+                <div className="text-gray-500 text-sm mb-8">Build your own practice session exactly the way you want.</div>
+
+                {/* Skill Selector */}
+                <div className="mb-8">
+                  <div className="font-bold text-gray-900 mb-3 text-sm">1. Select Skill</div>
+                  <div className="flex flex-wrap gap-3">
+                    {SKILLS.map((s) => {
+                      const active = skill === s.key;
+                      return (
+                        <button
+                          key={s.key}
+                          onClick={() => { setSkill(s.key); setCustomPart("all"); }}
+                          className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all border-2 ${active ? "border-primary bg-primary/5 text-gray-900 shadow-sm" : "border-gray-100 bg-white text-gray-400 hover:border-gray-200"}`}
+                        >
+                          {s.icon} {s.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Exam Selector */}
+                <div className="mb-8">
+                  <div className="font-bold text-gray-900 mb-3 text-sm">2. Select Exam Source</div>
+                  {loading && <div className="h-12 bg-gray-100 animate-pulse rounded-xl shadow-inner w-full" />}
+                  {!loading && (
+                    <div className="relative border-2 border-gray-100 rounded-xl bg-white shadow-sm hover:border-gray-200 transition overflow-hidden">
+                      <select
+                        value={customExamId}
+                        onChange={(e) => setCustomExamId(e.target.value)}
+                        className="w-full px-4 py-3 bg-transparent text-gray-800 font-bold focus:outline-none focus:ring-0 appearance-none cursor-pointer text-sm"
+                      >
+                        {data?.groups.map(g => (
+                          <optgroup key={g.id} label={g.title}>
+                            {g.tests.map(t => (
+                              <option key={t.examId} value={t.examId}>
+                                {g.title} - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test {t.testNumber}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                      <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                    </div>
+                  )}
+                </div>
+
+                {/* Parts Selector */}
+                <div className="mb-8">
+                  <div className="font-bold text-gray-900 mb-3 text-sm">3. Select Parts</div>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => setCustomPart("all")}
+                      className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${customPart === "all" ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                    >
+                      All Parts
+                    </button>
+                    {Array.from({ length: skill === "LISTENING" ? 4 : skill === "READING" ? 3 : skill === "WRITING" ? 2 : 3 }).map((_, i) => (
+                      <button
+                        key={i + 1}
+                        onClick={() => setCustomPart(i + 1)}
+                        className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${customPart === i + 1 ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                      >
+                        Part {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Time Limit */}
+                <div className="mb-8">
+                  <div className="font-bold text-gray-900 mb-3 text-sm">4. Time Limit</div>
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    {[10, 20, 30, 40, 60].map(mins => (
+                      <button
+                        key={mins}
+                        onClick={() => { setIsCustomTimeMode(false); setCustomTime(mins); }}
+                        className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${!isCustomTimeMode && customTime === mins ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                      >
+                        {mins} min
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setIsCustomTimeMode(true)}
+                      className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${isCustomTimeMode ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                    >
+                      Custom
+                    </button>
+                  </div>
+                  {isCustomTimeMode && (
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        value={customTimeStr}
+                        onChange={(e) => {
+                          setCustomTimeStr(e.target.value);
+                          const v = parseInt(e.target.value);
+                          if (!isNaN(v) && v > 0) setCustomTime(v);
+                        }}
+                        className="w-24 px-4 py-2.5 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none font-bold text-gray-900 text-center"
+                        min="1"
+                        max="180"
+                      />
+                      <span className="text-sm font-bold text-gray-500">minutes</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Auto Submit */}
+                <div className="mb-10 flex items-center gap-4 border-t border-gray-100 pt-6">
+                  <div className="flex-1">
+                    <div className="font-bold text-gray-900 text-sm">Auto-Submit when time is up</div>
+                    <div className="text-xs text-gray-500 mt-1">If turned off, you can continue practicing after the timer reaches zero.</div>
+                  </div>
+                  <button
+                    onClick={() => setCustomAutoSubmit(!customAutoSubmit)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${customAutoSubmit ? "bg-primary" : "bg-gray-200"}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${customAutoSubmit ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                </div>
+
+                <button
+                  disabled={!customExamId}
+                  onClick={() => {
+                    let url = `/ielts/intensive/${customExamId}/start?type=${skill}`;
+                    if (customPart !== "all") url += `&practicePart=${customPart}`;
+                    url += `&customTime=${customTime}&autoSubmit=${customAutoSubmit}`;
+                    window.location.href = url;
+                  }}
+                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gray-900 hover:bg-black text-white font-black shadow-lg shadow-gray-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  Start Custom Practice
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </button>
+              </div>
             )}
 
           </main>

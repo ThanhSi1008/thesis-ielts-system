@@ -1,0 +1,106 @@
+[
+  {
+    "questions": "8-11",
+    "instructions": "Choose the correct letter, A, B or C.",
+    "topic": "Devils Tower National Monument",
+    "question_type": "Multiple Choice",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562296/CH1_HP8-11_hsyfmv.mp3",
+    "transcript": [
+      {
+        "speaker": "Guide",
+        "text": "Welcome, everyone, to Devils Tower National Monument. Not only can you view the famous Devils Tower rock formation, but there are lots of great routes for hiking and rock-climbing here in the park. If you are interested, you can ask about those activities at our climbing office.",
+        "question_number": 8,
+        "highlight_text": "ask about those activities at our climbing office"
+      },
+      {
+        "speaker": "Guide",
+        "text": "You’ll find it conveniently located between our visitor centre and gift shop. Now, Devils Tower is situated in the picturesque Black Hills here in Wyoming. The formation itself is very imposing, standing at 867 feet, or 265 metres, from the base to the summit."
+      },
+      {
+        "speaker": "Guide",
+        "text": "To local Native Americans, this is a significant site. Because of that and its striking beauty, Devils Tower was made an official national monument over a century ago.",
+        "question_number": 9,
+        "highlight_text": "Devils Tower was made an official national monument"
+      },
+      {
+        "speaker": "Guide",
+        "text": "Since then, it has become a popular destination amongst rock climbers. So how did the rock formation get its unusual name? You might think it’s because it can be dangerous to hike up or climb. Actually, explorer Colonel Richard Irving led an expedition to the area in 1875."
+      },
+      {
+        "speaker": "Guide",
+        "text": "His interpreter is said to have made an error translating the native language, and said the unusual formation was named ‘Bad God’s Tower.’ Irving took that to mean the Devil’s Tower ... but many native people say that the formation was probably originally called ‘Bear Tower’ or ‘Bear’s Lodge.’",
+        "question_number": 10,
+        "highlight_text": "His interpreter is said to have made an error translating the native language"
+      },
+      {
+        "speaker": "Guide",
+        "text": "Anyway, what are we all going to see and do at the park today? First, we are going to take a short hike up to a ridge that will offer you panoramic views of the tower and the park. The route we will be taking is called the Joyner Ridge Trail, and it is a marked loop that’s a mile and a half long."
+      },
+      {
+        "speaker": "Guide",
+        "text": "Just a few safety reminders before we head out on the trail. First, please watch your step during our hike as the trail we are taking is unpaved. Also, please be reminded that food is only permitted in specified areas that are marked with signs, and it is vital that you do not feed animals you may encounter in the park.",
+        "question_number": 11,
+        "highlight_text": "it is vital that you do not feed animals you may encounter in the park"
+      },
+      {
+        "speaker": "Guide",
+        "text": "After our hike, I’ll take you to the visitor centre where you can check out our displays and browse through souvenirs in our gift shop. OK. So, could you all please come this way?"
+      }
+    ],
+    "content": [
+      {
+        "type": "multiple_choice",
+        "questions": [
+          {
+            "question_number": 8,
+            "text": "Guests can inquire about routes at the",
+            "options": [
+              { "letter": "A", "text": "visitor centre." },
+              { "letter": "B", "text": "climbing office." },
+              { "letter": "C", "text": "gift shop." }
+            ],
+            "answer": "B",
+            "timestamp_seconds": 60.2,
+            "explanation": "The guide explicitly instructs visitors interested in hiking or rock-climbing routes to 'ask about those activities at our climbing office'."
+          },
+          {
+            "question_number": 9,
+            "text": "Devils Tower was made a national monument because of its importance to",
+            "options": [
+              { "letter": "A", "text": "previous explorers." },
+              { "letter": "B", "text": "rock climbers." },
+              { "letter": "C", "text": "native people." }
+            ],
+            "answer": "C",
+            "timestamp_seconds": 83.8,
+            "explanation": "The speaker notes that the site is significant to local Native Americans, and this cultural importance was a key reason for its designation as a national monument."
+          },
+          {
+            "question_number": 10,
+            "text": "According to the speaker, why was the formation called Devils Tower?",
+            "options": [
+              { "letter": "A", "text": "Its name was misinterpreted." },
+              { "letter": "B", "text": "Its summit is difficult to reach." },
+              { "letter": "C", "text": "Its trails can be dangerous." }
+            ],
+            "answer": "A",
+            "timestamp_seconds": 116.74,
+            "explanation": "The name resulted from an interpreter's error in translating a native phrase as 'Bad God's Tower', which then became 'Devils Tower', meaning the name was misinterpreted."
+          },
+          {
+            "question_number": 11,
+            "text": "Visitors are not allowed to",
+            "options": [
+              { "letter": "A", "text": "bring food into the park." },
+              { "letter": "B", "text": "give food to wildlife." },
+              { "letter": "C", "text": "leave the marked trails." }
+            ],
+            "answer": "B",
+            "timestamp_seconds": 168.66,
+            "explanation": "The guide provides a vital safety reminder that visitors must not 'feed animals', which matches the prohibition on giving food to wildlife."
+          }
+        ]
+      }
+    ]
+  }
+]

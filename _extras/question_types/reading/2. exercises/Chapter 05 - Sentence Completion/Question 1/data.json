@@ -1,0 +1,52 @@
+{
+  "title": "Theatreland",
+  "passage": "A statue of Shakespeare, the world's most renowned playwright, stands in Leicester Square in London's West End. Rather appropriately, too, as the West End is a major attraction, boasting about 40 venues that show some of the highest quality theatre in the world. The area - also known as Theatreland - has a rich history, with many of the theatres dating back to the Victorian and Edwardian periods. These historic buildings now coexist with contemporary shops and offices in what is now one of London's busiest districts. The oldest of these West End theatres is Theatre Royal Drury Lane which opened in 1663, although it has been rebuilt several times due to fire. West End theatres continue to put on an array of shows including contemporary productions, revivals of classics, and, most famously, musicals. The latter draw the most viewers, and have been known to run for decades. This is the case with the Les Misérables and The Phantom of the Opera, which both opened in the mid-1980s and are among the highest grossing of all West End productions.",
+  "passage_with_locations": [
+    "A statue of Shakespeare, the world's most renowned playwright, stands in Leicester Square in London's West End. Rather appropriately, too, as the West End is a major attraction, boasting about 40 venues that show some of the highest quality theatre in the world. The area - also known as Theatreland - has a rich history, with many of the theatres dating back to the Victorian and Edwardian periods. ",
+    {
+      "question_number": 1,
+      "text": "These historic buildings now coexist with contemporary shops and offices"
+    },
+    " in what is now one of London's busiest districts. The oldest of these West End theatres is Theatre Royal Drury Lane which opened in 1663, although it has been rebuilt several times due to fire. West End theatres continue to put on an array of shows including contemporary productions, revivals of classics, and, most famously, musicals. ",
+    {
+      "question_number": 2,
+      "text": "The latter draw the most viewers, and have been known to run for decades."
+    },
+    " This is the case with the Les Misérables and The Phantom of the Opera, which both opened in the mid-1980s and are among the highest grossing of all West End productions."
+  ],
+  "content": [
+    {
+      "type": "matching_sentence_endings",
+      "instruction": "Complete each sentence with the correct ending, A-E, below.",
+      "options": [
+        { "id": "A", "text": "are set to be modernised soon." },
+        { "id": "B", "text": "have been running for decades." },
+        { "id": "C", "text": "do not show contemporary productions." },
+        { "id": "D", "text": "are located alongside modern structures." },
+        { "id": "E", "text": "are revivals of classics." }
+      ],
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "A lot of the theatres in the West End",
+          "answer": "D",
+          "explanation": {
+            "keyword": "theatres in the West End",
+            "rationale": "The text states 'These historic buildings [theatres] now coexist with contemporary shops and offices'. This concept of coexisting with contemporary shops is paraphrased in option D as 'are located alongside modern structures'.",
+            "distractor_analysis": "Option A is incorrect because coexisting with modern offices doesn't mean they are set for modernization. Option C is wrong because the text explicitly states they do show contemporary productions."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "The most popular West End plays",
+          "answer": "B",
+          "explanation": {
+            "keyword": "most popular",
+            "rationale": "The text discusses musicals and states 'The latter draw the most viewers [most popular], and have been known to run for decades'. This explicitly matches option B.",
+            "distractor_analysis": "While the passage mentions revivals of classics (Option E), the fact directly attributed to drawing the *most* viewers is their longevity ('run for decades')."
+          }
+        }
+      ]
+    }
+  ]
+}

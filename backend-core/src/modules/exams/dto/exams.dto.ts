@@ -72,7 +72,7 @@ export class CreateSessionDto {
   @IsString()
   @IsNotEmpty()
   userId: string;
-  
+
   @IsNumber()
   @IsOptional()
   practicePart?: number;

@@ -1,0 +1,49 @@
+{
+  "title": "The Discovery and Uses of Phosphorus",
+  "passage": "A German alchemist Hennig Brandt made an important discovery in the mid-1600s. By evaporating urine and heating the resulting residue, he distilled a new vapour, which he thought to be the Philosopher's Stone - a substance with which he could turn base metals into gold. Unfortunately for Brandt, the Philosopher's Stone was just a myth and what he had actually discovered was one form of the element phosphorus.\n\nB Through later experimentation, scientists made additional discoveries about the different forms of Brandt's mineral. For instance, in its purest state, white phosphorous is so combustible that it will burst into flames if it comes into contact with air, so it must be kept underwater. Also, it can only be handled with tools, as it is toxic and can cause severe burns. These properties may make white phosphorous seem useless, but they actually make it important in one field - munitions. Several incendiary weapons have been developed using this form of the element.\n\nC For most other uses, white phosphorous must be converted into the more stable red form by heating. The red phosphorous will not spontaneously ignite like the white form, but it is not without its dangers, such as producing toxic vapours when heated. Nonetheless, its use is quite common. We can see this in our own homes. The red material on the head of matches is a form of red phosphorus. Red phosphorous can also be ground into a powder and used as a fertiliser.",
+  "passage_with_locations": [
+    "A German alchemist Hennig Brandt made an important discovery in the mid-1600s. By evaporating urine and heating the resulting residue, he distilled a new vapour, which he thought to be the Philosopher's Stone - a substance with which he could turn base metals into gold. Unfortunately for Brandt, the Philosopher's Stone was just a myth and what he had actually discovered was one form of the element phosphorus.\n\n",
+    {
+      "question_number": 3,
+      "text": "B Through later experimentation, scientists made additional discoveries... in its purest state, white phosphorous is so combustible that it will burst into flames if it comes into contact with air, so it must be kept underwater."
+    },
+    " Also, it can only be handled with tools, as it is toxic and can cause severe burns. These properties may make white phosphorous seem useless, but they actually make it important in one field - munitions. Several incendiary weapons have been developed using this form of the element.\n\nC For most other uses, white phosphorous must be converted into the more stable red form by heating. The red phosphorous will not spontaneously ignite like the white form, but it is not without its dangers, such as producing toxic vapours when heated. Nonetheless, its use is quite common. We can see this in our own homes. The red material on the head of matches is a form of red phosphorus. ",
+    {
+      "question_number": 4,
+      "text": "Red phosphorous can also be ground into a powder and used as a fertiliser."
+    }
+  ],
+  "content": [
+    {
+      "type": "matching_information",
+      "instruction": "The reading passage has three paragraphs, A-C. Which paragraph contains the following information?",
+      "options": [
+        { "letter": "A", "text": "Paragraph A" },
+        { "letter": "B", "text": "Paragraph B" },
+        { "letter": "C", "text": "Paragraph C" }
+      ],
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "a description of the dangers of combining a chemical with air",
+          "answer": "B",
+          "explanation": {
+            "keyword": "combustible, burst into flames, contact with air",
+            "rationale": "Paragraph B explains that white phosphorus is 'so combustible that it will burst into flames if it comes into contact with air'. This describes the chemical danger of it reacting with air.",
+            "distractor_analysis": "While Paragraph C mentions dangers like toxic vapours when heated, the specific danger of reacting with air is only detailed in Paragraph B."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "a reference to the agricultural uses of a form of phosphorus",
+          "answer": "C",
+          "explanation": {
+            "keyword": "fertiliser, agricultural",
+            "rationale": "Paragraph C states that red phosphorus can be 'used as a fertiliser'. Fertilisers are primarily used in agriculture.",
+            "distractor_analysis": "Paragraph B mentions munitions/weapons, but no agricultural applications are discussed outside of Paragraph C."
+          }
+        }
+      ]
+    }
+  ]
+}

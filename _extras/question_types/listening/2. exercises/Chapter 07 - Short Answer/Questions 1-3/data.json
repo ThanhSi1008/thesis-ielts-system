@@ -1,0 +1,133 @@
+[
+  {
+    "questions": "1-3",
+    "instructions": "Answer the questions below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.",
+    "topic": "Euro Travels Coastal Package",
+    "question_type": "Short Answer",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562265/CH7_HP1-3_bvahon.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear a conversation between a travel agent and a customer about a travel package."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions one to three."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now, listen carefully and answer questions one to three."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Good morning. This is Euro Travels. How can I help you?"
+      },
+      {
+        "speaker": "Customer",
+        "text": "Hi there. I'm interested in travelling to Spain this summer. I heard you have some specials on right now."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Yes, that is correct. Three of our travel packages to Spain are being offered at discount prices, but only for a limited time. The sale ends, um, next week Wednesday I believe."
+      },
+      {
+        "speaker": "Customer",
+        "text": "Well, I think there was one package that focused on coastal areas, wasn't there?"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Oh yes, that's our coastal package. It's one of our most popular packages to Spain."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "You'll get to visit a lot of nice beaches along the coast. The length of the trip is eight days.",
+        "question_number": 1,
+        "highlight_text": "The length of the trip is eight days."
+      },
+      {
+        "speaker": "Customer",
+        "text": "That's fine. I can only get ten days off work. So, what hotel would I be staying at?"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Oh, it's a lovely facility located in Marbella on the Costa del Sol. It's called the Los Parmas Resort. It's got beautiful views and beaches, excellent restaurants and is nearby a lot of interesting sites."
+      },
+      {
+        "speaker": "Customer",
+        "text": "And what is included in the package?"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Accommodation, air travel and meals and beverages are all inclusive. And the hotel can arrange local tours to historic sites, nature preserves and other beaches if you pay extra.",
+        "question_number": 2,
+        "highlight_text": "hotel can arrange local tours... if you pay extra."
+      },
+      {
+        "speaker": "Customer",
+        "text": "Do you happen to know how much they charge for those?"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Well, they are relatively inexpensive. From what I remember, the hotel charges 40 euro for them."
+      },
+      {
+        "speaker": "Customer",
+        "text": "That all sounds good to me."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Well, the total cost would be $820 and we require a $200 deposit to hold the booking.",
+        "question_number": 3,
+        "highlight_text": "the total cost would be $820"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "You can pay the rest two weeks before your departure. Would you like to make a booking?"
+      },
+      {
+        "speaker": "Customer",
+        "text": "Um, I'd like to think about it first."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Okay, not a problem. Call us back when you've made your decision."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "short_answer",
+        "heading": "Coastal Package Details",
+        "questions": [
+          {
+            "question_number": 1,
+            "question_text": "How long does the coastal package last?",
+            "answer": "8 days",
+            "acceptable_answers": ["8 days", "eight days"],
+            "timestamp_seconds": 78.0,
+            "explanation": "The travel agent explicitly states that 'the length of the trip is eight days'."
+          },
+          {
+            "question_number": 2,
+            "question_text": "What does the hotel charge extra for?",
+            "answer": "local tours",
+            "acceptable_answers": ["local tours", "tours"],
+            "timestamp_seconds": 110.0,
+            "explanation": "The agent mentions that 'the hotel can arrange local tours... if you pay extra'."
+          },
+          {
+            "question_number": 3,
+            "question_text": "How much is the total cost of the package?",
+            "answer": "$820",
+            "acceptable_answers": ["$820", "820 dollars", "820"],
+            "timestamp_seconds": 130.0,
+            "explanation": "The agent confirms that 'the total cost would be $820'."
+          }
+        ]
+      }
+    ]
+  }
+]
