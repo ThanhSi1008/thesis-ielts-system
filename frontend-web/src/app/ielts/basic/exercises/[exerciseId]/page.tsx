@@ -194,13 +194,13 @@ function TranscriptPanel({
         {transcript.map((entry, idx) => {
           const isHighlighted = locatedQuestion !== null && entry.question_number === locatedQuestion;
           return (
-            <div key={idx} className="flex gap-2">
+            <div id={entry.question_number ? `transcript-q-${entry.question_number}` : undefined} key={idx} className={`flex gap-2 rounded-lg p-1.5 transition-colors duration-500 -ml-1.5 ${isHighlighted ? 'bg-[#FFF9E6]' : 'bg-transparent'}`}>
               {entry.speaker && (
                 <span className="font-bold text-gray-900 shrink-0 min-w-[3.5rem] uppercase text-xs mt-0.5">
                   {entry.speaker}:
                 </span>
               )}
-              <p className={isHighlighted ? "bg-yellow-100 rounded px-1" : ""}>
+              <p className="flex-1">
                 {entry.highlight_text && entry.question_number ? (
                   renderTranscriptWithHighlight(entry.text, entry.highlight_text, entry.question_number)
                 ) : (
@@ -390,6 +390,10 @@ export default function ListeningExercisePage() {
 
   const handleLocate = useCallback((qNum: number) => {
     setLocatedQuestion(qNum);
+    const el = document.getElementById(`transcript-q-${qNum}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     setTimeout(() => setLocatedQuestion(null), 3000);
   }, []);
 
