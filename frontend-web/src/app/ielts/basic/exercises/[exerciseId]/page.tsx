@@ -359,23 +359,26 @@ function MCMultipleQuestionItem({
         })}
       </div>
 
-      {/* Post-submit action buttons */}
+      {/* Post-submit action buttons — one row per question number */}
       {submitted && (
-        <div className="ml-2 mt-3 flex flex-wrap gap-2">
-          <button onClick={seekTo} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-            <Headphones className="w-3.5 h-3.5" /> Listen from here
-          </button>
-          {firstQNum && (
-            <button onClick={() => onLocate(firstQNum)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-              <MapPin className="w-3.5 h-3.5" /> Locate
-            </button>
-          )}
-          <button onClick={() => setShowExplanation(!showExplanation)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-            <MessageSquare className="w-3.5 h-3.5" /> Explain
-          </button>
-          <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-            <StickyNote className="w-3.5 h-3.5" /> Note
-          </button>
+        <div className="ml-2 mt-3 space-y-2">
+          {group.question_numbers?.map((qNum) => (
+            <div key={qNum} className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{qNum}</span>
+              <button onClick={seekTo} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+                <Headphones className="w-3.5 h-3.5" /> Listen from here
+              </button>
+              <button onClick={() => onLocate(qNum)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+                <MapPin className="w-3.5 h-3.5" /> Locate
+              </button>
+              <button onClick={() => setShowExplanation(!showExplanation)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+                <MessageSquare className="w-3.5 h-3.5" /> Explain
+              </button>
+              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+                <StickyNote className="w-3.5 h-3.5" /> Note
+              </button>
+            </div>
+          ))}
         </div>
       )}
 
