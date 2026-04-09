@@ -81,7 +81,7 @@ function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: () => vo
 
   return (
     <div
-      className={`absolute top-[48px] right-0 z-50 w-[550px] max-w-[90vw] max-h-[70vh] overflow-y-auto rounded-2xl border ${c.bg} ${c.border} p-6 shadow-2xl origin-top-right animate-in fade-in zoom-in-95 duration-200`}
+      className={`absolute top-[48px] right-0 z-50 w-[550px] max-w-[90vw] overflow-y-auto rounded-2xl border ${c.bg} ${c.border} p-6 shadow-2xl origin-top-right animate-in fade-in zoom-in-95 duration-200`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -250,11 +250,10 @@ function MCQuestionItem({
   return (
     <div className="mb-7">
       <p className="text-[14px] font-semibold text-gray-900 mb-3 leading-snug">
-        <span className={`inline-flex items-center justify-center w-6 h-6 rounded mr-2 text-xs font-bold border ${
-          submitted
+        <span className={`inline-flex items-center justify-center w-6 h-6 rounded mr-2 text-xs font-bold border ${submitted
             ? isCorrect ? "bg-green-500 text-white border-green-500" : "bg-red-400 text-white border-red-400"
             : "bg-white text-gray-700 border-gray-300"
-        }`}>
+          }`}>
           {q.question_number}
         </span>
         {q.text}
@@ -286,8 +285,8 @@ function MCQuestionItem({
               </span>
               <span className={
                 submitted && isAnswerKey ? "font-semibold text-green-700" :
-                submitted && isSelected && !isAnswerKey ? "text-red-500 line-through" :
-                ""
+                  submitted && isSelected && !isAnswerKey ? "text-red-500 line-through" :
+                    ""
               }>
                 {opt.text}
               </span>
@@ -360,8 +359,8 @@ export default function ListeningExercisePage() {
           const lessonRes = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}`);
           const blocks: LessonBlock[] = Array.isArray(lessonRes.data.content)
             ? lessonRes.data.content.filter((b: LessonBlock) =>
-                ["traps", "strategy", "tips"].includes(b.type)
-              )
+              ["traps", "strategy", "tips"].includes(b.type)
+            )
             : [];
           setLessonBlocks(blocks);
         }
@@ -532,11 +531,10 @@ export default function ListeningExercisePage() {
               <button
                 key={ex.id}
                 onClick={() => navigateTo(ex.id)}
-                className={`w-6 h-6 rounded text-xs font-bold transition-colors ${
-                  ex.id === exerciseId
+                className={`w-6 h-6 rounded text-xs font-bold transition-colors ${ex.id === exerciseId
                     ? "bg-[#111] text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {i + 1}
               </button>

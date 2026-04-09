@@ -48,29 +48,24 @@
   }
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 14px;
-  height: 14px;
+/* macOS-ish Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-.custom-scrollbar::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cecece; 
-  border: 4px solid transparent; 
-  background-clip: padding-box;
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2); 
   border-radius: 10px;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8; 
-  border: 4px solid transparent; 
-  background-clip: padding-box;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3); 
 }
-.custom-scrollbar::-webkit-scrollbar-button {
-  display: none;
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
-
 /* Fix: @tailwindcss/typography resets padding on first/last td and th to 0.
    Override with explicit !important to beat the :where() cascade. */
 .prose table td:first-child,
