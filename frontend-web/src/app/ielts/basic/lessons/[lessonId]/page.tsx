@@ -237,6 +237,17 @@ export default function TheoryPage() {
                 <div>{renderContent(block.content)}</div>
               </div>
             );
+          } else if (block.type === 'section' || block.type === 'overview') {
+            return (
+              <div key={idx} className="prose prose-gray max-w-none text-black pb-4">
+                {block.title && block.title !== 'Overview' && (
+                  <h2 className="text-2xl font-bold text-gray-900 border-b-2 border-gray-100 pb-2 mb-4 mt-8">
+                    {block.title}
+                  </h2>
+                )}
+                {renderContent(block.content)}
+              </div>
+            );
           } else {
             return (
               <div key={idx} className="prose prose-gray max-w-none text-black">

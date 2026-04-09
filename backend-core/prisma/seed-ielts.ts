@@ -135,6 +135,7 @@ function getTheoryLessons(txtPath: string) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     
+    // Match lesson title e.g. "    - Multiple Choice"
     const titleMatch = line.match(/^ {4}- (.*)$/);
     if (titleMatch) {
       if (currentLesson) {
@@ -159,6 +160,7 @@ function getTheoryLessons(txtPath: string) {
     
     if (!currentLesson) continue;
 
+    // Match sub-sections under a lesson like "- Content" or "- Quiz"
     const sectionMatch = line.match(/^ {8}- (.*)$/);
     if (sectionMatch) {
       const sectionName = sectionMatch[1].trim();
@@ -178,26 +180,29 @@ function getTheoryLessons(txtPath: string) {
       const trimmed = line.replace(/^ {12}/, '').trim();
       if (!trimmed) continue;
       
-      if (trimmed.match(/^\d+\.\s/)) {
+      // Matches standard "1. Question" and bold "**1. Question**"
+      if (trimmed.match(/^(?:\*\*)?\d+\.(?:\*\*)?\s/)) {
         if (currentQuizQuestion) {
           currentLesson.quiz.push(currentQuizQuestion);
         }
         currentQuizQuestion = {
-          question: trimmed.replace(/^\d+\.\s/, ''),
+          question: trimmed.replace(/^(?:\*\*)?\d+\.(?:\*\*)?\s/, ''),
           options: [],
           hint: '',
           answer: '',
           explanation: ''
         };
       } else if (currentQuizQuestion) {
-        if (trimmed.match(/^-?\s*[A-Z]\)/) || trimmed.match(/^[A-Z]\)/)) {
-          currentQuizQuestion.options.push(trimmed.replace(/^-?\s*/, ''));
-        } else if (trimmed.match(/^-?\s*Hint:/i)) {
-          currentQuizQuestion.hint = trimmed.replace(/^-?\s*Hint:\s*/i, '');
-        } else if (trimmed.match(/^-?\s*Answer:/i)) {
-          currentQuizQuestion.answer = trimmed.replace(/^-?\s*Answer:\s*/i, '');
-        } else if (trimmed.match(/^-?\s*Why:/i)) {
-          currentQuizQuestion.explanation = trimmed.replace(/^-?\s*Why:\s*/i, '');
+        if (trimmed.match(/^-?\s*(?:\*\*)?[A-Z]\)/) || trimmed.match(/^(?:\*\*)?[A-Z]\)/)) {
+          // Removes starting list dashes or bullet points, and the option letter
+          let opt = trimmed.replace(/^-?\s*(?:\*\*)?([A-Z]\))(?:\*\*)?\s*/, '$1 ');
+          currentQuizQuestion.options.push(opt);
+        } else if (trimmed.match(/^-?\s*(?:\*\*)?Hint:(?:\*\*)?/i)) {
+          currentQuizQuestion.hint = trimmed.replace(/^-?\s*(?:\*\*)?Hint:(?:\*\*)?\s*/i, '');
+        } else if (trimmed.match(/^-?\s*(?:\*\*)?Answer:(?:\*\*)?/i)) {
+          currentQuizQuestion.answer = trimmed.replace(/^-?\s*(?:\*\*)?Answer:(?:\*\*)?\s*/i, '');
+        } else if (trimmed.match(/^-?\s*(?:\*\*)?Why:(?:\*\*)?/i)) {
+          currentQuizQuestion.explanation = trimmed.replace(/^-?\s*(?:\*\*)?Why:(?:\*\*)?\s*/i, '');
         } else {
            if (currentQuizQuestion.explanation) {
               currentQuizQuestion.explanation += ' ' + trimmed;
@@ -209,7 +214,8 @@ function getTheoryLessons(txtPath: string) {
     } else {
       const trimmed = line.replace(/^ {12}/, '');
       
-      const subheadMatch = trimmed.match(/^###\s+(.*)$/);
+      // Match both <h2> and <h3> markdown headers
+      const subheadMatch = trimmed.match(/^#{2,3}\s+(.*)$/);
       if (subheadMatch) {
         if (currentContent.trim()) {
           currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
@@ -229,8 +235,11 @@ function getTheoryLessons(txtPath: string) {
           currentContentType = 'section'; 
         }
         
-        const pureTitleMatch = rawTitle.match(/[a-zA-Z0-9].*$/);
-        currentContentTitle = pureTitleMatch ? pureTitleMatch[0].replace(/\*+$/, '').trim() : rawTitle;
+        // Ensure emoji stripping works robustly but retains markdown asterisks if desired (or strip them)
+        const pureTitleMatch = rawTitle.replace(/^\*\*/, '').match(/[a-zA-Z0-9].*$/);
+        let cleanedTitle = pureTitleMatch ? pureTitleMatch[0] : rawTitle;
+        cleanedTitle = cleanedTitle.replace(/\*+$/, '').replace(/^\*+/, '').trim();
+        currentContentTitle = cleanedTitle;
       } else {
         currentContent += trimmed + '\n';
       }
