@@ -70,3 +70,14 @@
 .custom-scrollbar::-webkit-scrollbar-button {
   display: none;
 }
+
+/* Fix: @tailwindcss/typography resets padding on first/last td and th to 0.
+   Override with explicit !important to beat the :where() cascade. */
+.prose table td:first-child,
+.prose table th:first-child {
+  padding-left: 1.5em !important;
+}
+.prose table td:last-child,
+.prose table th:last-child {
+  padding-right: 1.5em !important;
+}
