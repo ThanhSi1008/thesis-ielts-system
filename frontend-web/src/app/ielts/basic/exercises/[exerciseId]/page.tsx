@@ -432,61 +432,69 @@ function FormCompletionGroup({
     audioRef.current.play();
   };
 
-  // Render the text with the answer blank inline
-  const renderText = (point: FormPoint) => {
-    // Pattern: the question_number appears before the blank in the text e.g. "Name: 1 ......."
-    const blankRegex = /\d+\s*\.{3,}/;
-    const parts = point.text.split(blankRegex);
-    const userAnswer = answers[point.question_number] ?? "";
+  // Render text with a bordered box input (IELTS exam paper style)
+  const renderBoxedText = (point: FormPoint) => {
+    const blankRegex = /\b(\d+)\s*\.{3,}/;
+    const match = point.text.match(blankRegex);
+    const userAnswer = (answers[point.question_number] as unknown as string) ?? "";
     const isCorrect = submitted && userAnswer.trim().toLowerCase() === point.answer.trim().toLowerCase();
-    const isWrong = submitted && !isCorrect && userAnswer.trim() !== "";
+
+    if (!match) return <span>{point.text}</span>;
+
+    const splitIdx = point.text.indexOf(match[0]);
+    const before = point.text.slice(0, splitIdx).trimEnd();
+    const after = point.text.slice(splitIdx + match[0].length).trimStart();
 
     return (
-      <span>
-        {parts[0]}
-        <span className="inline-flex items-center gap-1 mx-1">
-          <span className={`text-[11px] font-bold rounded-sm px-1 py-0.5 ${
-            submitted
-              ? isCorrect ? "bg-green-100 text-green-700" : "bg-red-100 text-red-500"
-              : "bg-[#FFF9E6] text-[#996600]"
+      <span className="leading-loose">
+        {before && <span>{before} </span>}
+        <span className={`inline-flex items-center border rounded px-2 py-0.5 mx-0.5 text-[13px] font-medium min-w-[110px] transition-colors ${
+          submitted
+            ? isCorrect ? "border-green-400 bg-green-50" : "border-red-300 bg-red-50"
+            : "border-gray-400 bg-white focus-within:border-[#FFC107]"
+        }`}>
+          <span className={`text-[11px] font-bold mr-1.5 shrink-0 ${
+            submitted ? (isCorrect ? "text-green-600" : "text-red-400") : "text-gray-400"
           }`}>{point.question_number}</span>
           {submitted ? (
-            <span className={`font-semibold text-[13px] border-b-2 px-1 min-w-[80px] inline-block ${
-              isCorrect ? "border-green-400 text-green-700" : "border-red-400 text-red-500 line-through"
+            <span className={`font-semibold ${
+              isCorrect ? "text-green-700" : "text-red-500 line-through"
             }`}>{userAnswer || "—"}</span>
           ) : (
             <input
               type="text"
               value={userAnswer}
               onChange={(e) => onAnswer(point.question_number, e.target.value)}
-              placeholder="..."
-              className="border-b-2 border-gray-300 focus:border-[#FFC107] outline-none bg-transparent text-[13px] text-gray-800 px-1 min-w-[80px] w-[120px] font-medium transition-colors"
+              className="outline-none bg-transparent text-gray-800 min-w-[60px] w-full font-medium caret-yellow-500"
             />
           )}
-          {submitted && !isCorrect && (
-            <span className="text-[12px] text-green-600 font-semibold">{point.answer}</span>
-          )}
         </span>
-        {parts[1]}
+        {submitted && !isCorrect && (
+          <span className="text-[12px] text-green-600 font-bold mx-1">({point.answer})</span>
+        )}
+        {after && <span> {after}</span>}
       </span>
     );
   };
 
   return (
-    <div className="mb-4">
-      {/* Form card */}
-      <div className="border border-gray-200 rounded-xl overflow-hidden">
-        <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5">
-          <h3 className="text-[13px] font-bold text-gray-800 text-center">{heading}</h3>
-        </div>
-        <div className="px-5 py-4 space-y-4">
-          {points.map((point) => (
-            <div id={`question-${point.question_number}`} key={point.question_number} className="text-[14px] text-gray-700 leading-relaxed">
-              {renderText(point)}
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="mb-6">
+      {heading && (
+        <h3 className="text-[15px] font-extrabold text-gray-900 mb-4">{heading}</h3>
+      )}
+
+      <ul className="space-y-3 pl-1">
+        {points.map((point) => (
+          <li
+            id={`question-${point.question_number}`}
+            key={point.question_number}
+            className="flex items-start gap-2.5 text-[14px] text-gray-800"
+          >
+            <span className="mt-[9px] w-1.5 h-1.5 rounded-full bg-gray-500 shrink-0" />
+            <div className="flex-1 leading-loose">{renderBoxedText(point)}</div>
+          </li>
+        ))}
+      </ul>
 
       {/* Action buttons per question */}
       {submitted && (
