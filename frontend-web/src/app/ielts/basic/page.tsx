@@ -22,11 +22,25 @@ interface Exercise {
 }
 
 export default function IeltsBasicPage() {
-  const [activeTab, setActiveTab] = useState<TabType>("Listening");
-  const [activeInnerTab, setActiveInnerTab] = useState<InnerTabType>("Lessons");
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("ielts_basic_tab") as TabType) || "Listening";
+    }
+    return "Listening";
+  });
+  const [activeInnerTab, setActiveInnerTab] = useState<InnerTabType>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("ielts_basic_inner_tab") as InnerTabType) || "Lessons";
+    }
+    return "Lessons";
+  });
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Persist tab state
+  useEffect(() => { localStorage.setItem("ielts_basic_tab", activeTab); }, [activeTab]);
+  useEffect(() => { localStorage.setItem("ielts_basic_inner_tab", activeInnerTab); }, [activeInnerTab]);
 
   useEffect(() => {
     const fetchData = async () => {
