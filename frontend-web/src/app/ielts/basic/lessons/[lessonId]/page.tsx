@@ -4,9 +4,19 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { AlertCircle, Lightbulb, Info } from "lucide-react";
+
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  hint: string;
+  answer: string;
+  explanation: string;
+}
 
 interface ContentBlock {
-  type: "markdown" | "strategy" | "warning" | "info";
+  type: "overview" | "traps" | "strategy" | "tips" | "section" | "markdown";
+  title?: string;
   content: string;
 }
 
@@ -16,7 +26,138 @@ interface Lesson {
   chapter: string | null;
   title: string;
   content: ContentBlock[];
+  quiz: QuizQuestion[];
 }
+
+const QuizSection = ({ quiz }: { quiz: QuizQuestion[] }) => {
+  const [currentQ, setCurrentQ] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [showHint, setShowHint] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  if (!quiz || quiz.length === 0) return null;
+
+  const isFinished = currentQ >= quiz.length;
+  if (isFinished) {
+    return (
+      <div className="mt-12 bg-green-50 rounded-2xl p-8 text-center border border-green-100">
+        <h2 className="text-2xl font-bold text-green-900 mb-2">Knowledge Check Completed! 🎉</h2>
+        <p className="text-green-700 font-medium">Great job reviewing the key concepts. You are fully prepared to tackle the reading/listening exercises!</p>
+      </div>
+    );
+  }
+
+  const question = quiz[currentQ];
+
+  const checkCorrectness = () => {
+    if (!selectedOption) return false;
+    const optionLetterMatch = selectedOption.match(/^([A-Z])\)/);
+    if (optionLetterMatch && question.answer) {
+       return optionLetterMatch[1].toLowerCase() === question.answer.toLowerCase().trim();
+    }
+    return selectedOption.toLowerCase().includes((question.answer || "").toLowerCase().trim());
+  };
+
+  const isCorrect = isSubmitted ? checkCorrectness() : false;
+
+  return (
+    <div className="mt-16 bg-white rounded-2xl p-8 border-2 border-gray-100 shadow-sm relative overflow-hidden mb-8">
+      {/* Progress Bar */}
+      <div className="absolute top-0 left-0 w-full h-1.5 bg-gray-100">
+        <div 
+          className="h-full bg-blue-500 transition-all duration-300 ease-out" 
+          style={{ width: `${(currentQ / quiz.length) * 100}%` }}
+        />
+      </div>
+      
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-xl font-extrabold text-black">Knowledge Check</h2>
+        <span className="text-sm font-bold text-gray-500">Question {currentQ + 1} of {quiz.length}</span>
+      </div>
+
+      <p className="text-lg font-bold text-gray-900 mb-6 leading-relaxed">{question.question}</p>
+
+      <div className="space-y-3 mb-8">
+        {question.options.map((opt, i) => {
+          const isSelected = selectedOption === opt;
+          return (
+            <button
+              key={i}
+              onClick={() => !isSubmitted && setSelectedOption(opt)}
+              disabled={isSubmitted}
+              className={`w-full text-left p-4 rounded-xl border-2 transition-all font-medium ${
+                 isSubmitted 
+                  ? isSelected 
+                      ? isCorrect ? 'border-green-500 bg-green-50 text-green-900' : 'border-red-500 bg-red-50 text-red-900'
+                      : 'border-gray-100 bg-gray-50 text-gray-400'
+                  : isSelected 
+                      ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-sm' 
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-800'
+              }`}
+            >
+              {opt}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Result Explanation */}
+      {isSubmitted && (
+         <div className={`p-6 rounded-xl mb-8 border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            <h4 className={`font-bold flex items-center gap-2 mb-3 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+               {isCorrect ? '✅ Correct!' : '❌ Incorrect'}
+            </h4>
+            <div 
+              dangerouslySetInnerHTML={{ __html: (question.explanation || "No explanation provided.").replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} 
+              className="text-sm text-gray-900 leading-relaxed" 
+            />
+         </div>
+      )}
+
+      {/* Hint Alert */}
+      {showHint && !isSubmitted && question.hint && (
+        <div className="p-4 bg-yellow-50 text-yellow-900 text-sm rounded-xl mb-8 border border-yellow-200 shadow-inner">
+           <strong className="text-yellow-700">💡 Hint:</strong> {question.hint}
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex gap-4">
+        {!isSubmitted ? (
+          <>
+            {question.hint && !showHint && (
+              <button 
+                onClick={() => setShowHint(true)}
+                className="px-6 py-3 rounded-full font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors focus:outline-none"
+              >
+                Need a hint?
+              </button>
+            )}
+            <button 
+              onClick={() => setIsSubmitted(true)}
+              disabled={!selectedOption}
+              className="flex-1 px-6 py-3 rounded-full font-bold bg-[#111111] text-[#FFCC00] hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none shadow-md"
+            >
+              Check Answer
+            </button>
+          </>
+        ) : (
+          <button 
+            onClick={() => {
+              setCurrentQ(q => q + 1);
+              setSelectedOption(null);
+              setIsSubmitted(false);
+              setShowHint(false);
+            }}
+            className="w-full px-6 py-3 rounded-full font-bold bg-[#FFCC00] text-black hover:bg-[#E6B800] transition-colors focus:outline-none shadow-md"
+          >
+            {currentQ + 1 === quiz.length ? 'Finish Quiz' : 'Next Question'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default function TheoryPage() {
   const { lessonId } = useParams();
@@ -49,92 +190,81 @@ export default function TheoryPage() {
     return <div className="p-10 text-center text-red-500 font-bold">Lesson not found.</div>;
   }
 
-  // Helper to render formatting
   const renderContent = (content: string) => {
-    return <div dangerouslySetInnerHTML={{ __html: content }} className="space-y-3 whitespace-pre-wrap" />;
+    const boldedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return <div dangerouslySetInnerHTML={{ __html: boldedContent }} className="space-y-3 whitespace-pre-wrap text-sm leading-relaxed" />;
   };
 
   return (
-    <div className="flex flex-col h-full bg-white relative pb-20">
+    <div className="flex flex-col min-h-screen bg-white relative pb-28">
       {/* Header */}
-      <div className="mb-8 border-b border-gray-100 pb-4">
-        <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-900 mb-4 inline-flex items-center gap-2 font-semibold transition-colors text-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Library
-        </button>
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          {lesson.chapter && <span className="text-[#FFC107] block text-base font-bold tracking-widest uppercase mb-1">{lesson.chapter}</span>}
+      <div className="pt-10 pb-6 text-center">
+        <h1 className="text-3xl font-extrabold text-black tracking-tight">
           {lesson.title}
         </h1>
       </div>
 
       {/* Content Blocks */}
-      <div className="flex-1 overflow-y-auto space-y-6 text-gray-700 leading-relaxed text-[15px]">
+      <div className="flex-1 overflow-y-auto px-8 lg:px-12 mx-auto max-w-5xl space-y-6 w-full text-black">
         {Array.isArray(lesson.content) ? lesson.content.map((block, idx) => {
-          switch (block.type) {
-            case "markdown":
-              return (
-                <div key={idx} className="prose prose-gray max-w-none prose-headings:font-bold prose-a:text-blue-600">
-                  {renderContent(block.content)}
+          if (block.type === 'traps') {
+            return (
+              <div key={idx} className="bg-[#FFF0F0] rounded-xl p-6 my-6 border border-[#FFE1E1]">
+                <div className="flex items-center gap-2 mb-3 text-red-500">
+                  <AlertCircle className="w-5 h-5 fill-red-100" />
+                  <h3 className="font-bold text-sm text-black">{block.title || "The Common Traps"}</h3>
                 </div>
-              );
-            case "strategy":
-              return (
-                <div key={idx} className="relative bg-[#FFFBEA] border-l-4 border-[#FFC107] rounded-r-xl p-5 my-6 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2 text-[#E0A800]">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" clipRule="evenodd" />
-                      <path fillRule="evenodd" d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" clipRule="evenodd" />
-                    </svg>
-                    <h3 className="font-extrabold text-sm uppercase tracking-wider">Strategy Highlight</h3>
-                  </div>
-                  <div className="text-gray-800 font-medium">{renderContent(block.content)}</div>
+                <div>{renderContent(block.content)}</div>
+              </div>
+            );
+          } else if (block.type === 'strategy') {
+            return (
+              <div key={idx} className="bg-[#FFF9E6] rounded-xl p-6 my-6 border border-[#FFF0C2]">
+                <div className="flex items-center gap-2 mb-3 text-[#E0A800]">
+                  <Lightbulb className="w-5 h-5 fill-[#FFF0C2]" />
+                  <h3 className="font-bold text-sm text-black">{block.title || "The Step-by-Step Strategy"}</h3>
                 </div>
-              );
-            case "warning":
-              return (
-                <div key={idx} className="relative bg-[#FEF2F2] border-l-4 border-red-500 rounded-r-xl p-5 my-6 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2 text-red-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    <h3 className="font-extrabold text-sm uppercase tracking-wider">Common Trap</h3>
-                  </div>
-                  <div className="text-gray-800 font-medium">{renderContent(block.content)}</div>
+                <div>{renderContent(block.content)}</div>
+              </div>
+            );
+          } else if (block.type === 'tips') {
+            return (
+              <div key={idx} className="bg-[#F0F7FF] rounded-xl p-6 my-6 border border-[#DCEBFF]">
+                <div className="flex items-center gap-2 mb-3 text-[#3B82F6]">
+                  <Info className="w-5 h-5 fill-[#DCEBFF]" />
+                  <h3 className="font-bold text-sm text-black">{block.title || "Pro-Tips for Test Day"}</h3>
                 </div>
-              );
-            case "info":
-              return (
-                <div key={idx} className="relative bg-[#F0F9FF] border-l-4 border-blue-400 rounded-r-xl p-5 my-6 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2 text-blue-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                    <h3 className="font-extrabold text-sm uppercase tracking-wider">Helpful Info</h3>
-                  </div>
-                  <div className="text-gray-800 font-medium">{renderContent(block.content)}</div>
-                </div>
-              );
-            default:
-              return <div key={idx}>{renderContent(block.content)}</div>;
+                <div>{renderContent(block.content)}</div>
+              </div>
+            );
+          } else {
+            return (
+              <div key={idx} className="prose prose-gray max-w-none text-black">
+                {renderContent(block.content)}
+              </div>
+            );
           }
         }) : (
-          <div className="prose max-w-none">{renderContent(JSON.stringify(lesson.content))}</div>
+          <div className="prose max-w-none text-black">{renderContent(JSON.stringify(lesson.content))}</div>
         )}
+
+        {/* --- DYNAMIC QUIZ SECTION --- */}
+        <QuizSection quiz={lesson.quiz} />
       </div>
 
       {/* Footer Navigation */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 pt-4 pb-2 flex justify-end">
+      <div className="fixed bottom-0 left-0 right-0 bg-white py-5 px-8 lg:px-12 flex gap-4 border-t border-gray-100 z-10">
+        <button 
+          onClick={() => router.back()} 
+          className="bg-[#FFCC00] text-black px-10 py-3 rounded-full font-bold shadow hover:bg-[#E6B800] transition-colors focus:outline-none"
+        >
+          Back
+        </button>
         <Link 
           href={`/ielts/basic`} 
-          className="bg-[#212121] text-white px-8 py-3 rounded-full font-bold shadow-md hover:bg-black transition-colors flex items-center gap-2"
+          className="bg-[#111111] text-[#FFCC00] px-10 py-3 rounded-full font-bold shadow hover:bg-black transition-colors focus:outline-none flex items-center justify-center"
         >
-          Next: Practice Exercise
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
+          Exercises
         </Link>
       </div>
     </div>
