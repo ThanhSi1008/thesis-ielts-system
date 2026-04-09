@@ -4,7 +4,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Flag, Bookmark, FileText, ChevronLeft, ChevronRight, Check, Headphones, MapPin, MessageSquare, StickyNote, Play, Pause } from "lucide-react";
+import { Flag, Bookmark, FileText, ChevronLeft, ChevronRight, Check, Headphones, MapPin, MessageSquare, StickyNote, Play, Pause, AlertCircle, Lightbulb, Info, X } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,6 +45,76 @@ interface Exercise {
   audioUrl: string;
   transcript: TranscriptEntry[];
   content: ContentGroup[];
+}
+
+interface LessonBlock {
+  type: "traps" | "strategy" | "tips" | "section" | "overview" | string;
+  title?: string;
+  content: string;
+}
+
+// ─── Theory Modal ─────────────────────────────────────────────────────────────
+
+function TheoryModal({ block, onClose }: { block: LessonBlock; onClose: () => void }) {
+  const config = {
+    traps: {
+      bg: "bg-[#FFF0F0]",
+      border: "border-[#FFE1E1]",
+      icon: <AlertCircle className="w-5 h-5 text-red-500" />,
+      default: "The Common Traps",
+    },
+    strategy: {
+      bg: "bg-[#FFF9E6]",
+      border: "border-[#FFF0C2]",
+      icon: <Lightbulb className="w-5 h-5 text-[#E0A800]" />,
+      default: "The Step-by-Step Strategy",
+    },
+    tips: {
+      bg: "bg-[#F0F7FF]",
+      border: "border-[#DCEBFF]",
+      icon: <Info className="w-5 h-5 text-[#3B82F6]" />,
+      default: "Pro-Tips for Test Day",
+    },
+  } as Record<string, { bg: string; border: string; icon: React.ReactNode; default: string }>;
+
+  const c = config[block.type] ?? config.tips;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+
+      {/* Panel */}
+      <div
+        className={`relative z-10 w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border ${c.bg} ${c.border} p-7 shadow-2xl`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            {c.icon}
+            <h3 className="font-bold text-[15px] text-gray-900">
+              {block.title || c.default}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="prose prose-sm prose-gray max-w-none text-gray-800 leading-relaxed">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.content}</ReactMarkdown>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── Audio Player ─────────────────────────────────────────────────────────────
@@ -273,11 +345,13 @@ export default function ListeningExercisePage() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [siblingExercises, setSiblingExercises] = useState<{ id: string; topic: string; order: number }[]>([]);
+  const [lessonBlocks, setLessonBlocks] = useState<LessonBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
+  const [activeModal, setActiveModal] = useState<"traps" | "strategy" | "tips" | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -291,6 +365,17 @@ export default function ListeningExercisePage() {
         ]);
         setExercise(exRes.data);
         setSiblingExercises(siblingsRes.data);
+
+        // Fetch lesson theory blocks for the popups
+        if (lessonId) {
+          const lessonRes = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}`);
+          const blocks: LessonBlock[] = Array.isArray(lessonRes.data.content)
+            ? lessonRes.data.content.filter((b: LessonBlock) =>
+                ["traps", "strategy", "tips"].includes(b.type)
+              )
+            : [];
+          setLessonBlocks(blocks);
+        }
       } catch (err) {
         console.error("Failed to fetch exercise:", err);
       } finally {
@@ -342,8 +427,18 @@ export default function ListeningExercisePage() {
     ? allQuestions.filter((q) => answers[q.question_number]?.toUpperCase() === q.answer?.toUpperCase()).length
     : 0;
 
+  const modalBlock = activeModal
+    ? lessonBlocks.find((b) => b.type === activeModal) ?? { type: activeModal, content: "_No content available for this section._" }
+    : null;
+
   return (
-    <div className="flex flex-col h-full relative bg-white">
+    <>
+      {/* ── Theory Popup Modal ── */}
+      {modalBlock && (
+        <TheoryModal block={modalBlock} onClose={() => setActiveModal(null)} />
+      )}
+
+      <div className="flex flex-col h-full relative bg-white">
 
       {/* ── Header ── */}
       <div className="border-b border-gray-100 px-6 pt-5 pb-4">
@@ -360,13 +455,25 @@ export default function ListeningExercisePage() {
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{exercise.topic}</h1>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <button className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center hover:bg-red-100 transition-colors" title="Flag">
+            <button
+              onClick={() => setActiveModal("traps")}
+              className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center hover:bg-red-100 transition-colors"
+              title="Common Traps"
+            >
               <Flag className="w-4 h-4 text-red-400" />
             </button>
-            <button className="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center hover:bg-yellow-100 transition-colors" title="Bookmark">
+            <button
+              onClick={() => setActiveModal("strategy")}
+              className="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center hover:bg-yellow-100 transition-colors"
+              title="Step-by-Step Strategy"
+            >
               <Bookmark className="w-4 h-4 text-yellow-400" />
             </button>
-            <button className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-colors" title="Note">
+            <button
+              onClick={() => setActiveModal("tips")}
+              className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-colors"
+              title="Pro-Tips for Test Day"
+            >
               <FileText className="w-4 h-4 text-blue-400" />
             </button>
           </div>
@@ -498,6 +605,6 @@ export default function ListeningExercisePage() {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
