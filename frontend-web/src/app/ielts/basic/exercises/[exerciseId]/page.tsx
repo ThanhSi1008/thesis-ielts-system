@@ -7,6 +7,16 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Flag, Bookmark, FileText, ChevronLeft, ChevronRight, Check, Headphones, MapPin, MessageSquare, StickyNote, Play, Pause, AlertCircle, Lightbulb, Info, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { FormPoint, FormCompletionGroup } from "../components/renderers/FormCompletionGroup";
+import { TableGroup, TableCompletionGroup } from "../components/renderers/TableCompletionGroup";
+import { FlowChartGroup, FlowChartCompletionGroup } from "../components/renderers/FlowChartCompletionGroup";
+import { MCOption, MCQuestion, MCQuestionItem } from "../components/renderers/MCQuestionItem";
+import { MCMultipleQuestion, MCMultipleQuestionItem } from "../components/renderers/MCMultipleQuestionItem";
+import { SummaryGroup, SummaryCompletionGroup } from "../components/renderers/SummaryCompletionGroup";
+import { MatchingGroup, MatchingCompletionGroup } from "../components/renderers/MatchingGroup";
+import { MapLabellingGroupType, MapLabellingGroup } from "../components/renderers/MapLabellingGroup";
+import { DiagramLabellingGroupType, DiagramLabellingGroup } from "../components/renderers/DiagramLabellingGroup";
+import { ShortAnswerGroupType, ShortAnswerGroup } from "../components/renderers/ShortAnswerGroup";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -15,30 +25,6 @@ interface TranscriptEntry {
   text: string;
   question_number?: number;
   highlight_text?: string;
-}
-
-interface MCOption {
-  letter: string;
-  text: string;
-}
-
-interface MCQuestion {
-  question_number: number;
-  text: string;
-  options: MCOption[];
-  answer: string;
-  timestamp_seconds: number;
-  explanation: string;
-}
-
-interface MCMultipleQuestion {
-  question_numbers: number[];
-  text: string;
-  options: MCOption[];
-  answers: string[];
-  num_correct: number;
-  explanation: string;
-  question_timestamps?: number[];   // optional per-question seek points
 }
 
 interface ContentGroup {
@@ -249,785 +235,7 @@ function renderTranscriptWithHighlight(text: string, highlight: string, qNum: nu
   );
 }
 
-// ─── Multiple Choice Multiple (Checkboxes) ───────────────────────────────────
 
-function MCMultipleQuestionItem({
-  group,
-  selectedLetters,
-  onToggle,
-  submitted,
-  audioRef,
-  onLocate,
-}: {
-  group: MCMultipleQuestion;
-  selectedLetters: string[];
-  onToggle: (letter: string) => void;
-  submitted: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
-  onLocate: (qNum: number) => void;
-}) {
-  const [showExplanation, setShowExplanation] = useState(false);
-  const numCorrect = group.num_correct ?? group.answers.length;
-  const correctSet = new Set(group.answers.map((a) => a.toUpperCase()));
-  const selectedSet = new Set(selectedLetters.map((s) => s.toUpperCase()));
-  const allCorrect = submitted && group.answers.every((a) => selectedSet.has(a.toUpperCase())) && selectedLetters.length === group.answers.length;
-
-  // Build a map: question_number → timestamp_seconds (if provided)
-  const timestampMap: Record<number, number> = {};
-  group.question_numbers?.forEach((n, i) => {
-    const ts = group.question_timestamps?.[i];
-    if (ts !== undefined) timestampMap[n] = ts;
-  });
-
-  const seekTo = (ts?: number) => {
-    if (!audioRef.current) return;
-    if (ts !== undefined) {
-      audioRef.current.currentTime = ts;
-    }
-    audioRef.current.play();
-  };
-
-  const firstQNum = group.question_numbers?.[0];
-
-  return (
-    <div className="mb-7">
-      {/* Question numbers badge row */}
-      <div className="flex items-start gap-2 mb-3">
-        <div className="flex gap-1 shrink-0 mt-0.5">
-          {group.question_numbers?.map((n) => (
-            <span key={n} id={`question-${n}`} className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold border ${
-              submitted
-                ? allCorrect ? "text-green-600" : "text-red-500"
-                : "text-gray-600"
-            }`}>
-              {n}
-            </span>
-          ))}
-        </div>
-        <p className="text-[14px] font-semibold text-gray-900 leading-snug">{group.text}</p>
-      </div>
-
-      <p className="text-[12px] text-gray-400 mb-3 ml-0 font-medium">
-        Choose <span className="font-bold text-gray-600">{numCorrect}</span> letters, A–{String.fromCharCode(64 + (group.options?.length ?? 5))}
-      </p>
-
-      <div className="space-y-2 ml-2">
-        {group.options?.map((opt) => {
-          const isSelected = selectedSet.has(opt.letter.toUpperCase());
-          const isCorrectAnswer = correctSet.has(opt.letter.toUpperCase());
-
-          let borderColor = "border-gray-300";
-          let bgColor = "bg-white";
-          let innerContent: React.ReactNode = null;
-
-          if (submitted) {
-            if (isCorrectAnswer && isSelected) {
-              borderColor = "border-green-500";
-              innerContent = <Check className="w-3 h-3 text-green-500" />;
-            } else if (isCorrectAnswer && !isSelected) {
-              borderColor = "border-green-500";
-              bgColor = "bg-green-50";
-              innerContent = <Check className="w-3 h-3 text-green-400" />;
-            } else if (!isCorrectAnswer && isSelected) {
-              borderColor = "border-red-400";
-              innerContent = <X className="w-3 h-3 text-red-400" />;
-            }
-          } else {
-            if (isSelected) {
-              borderColor = "border-[#FFC107]";
-              innerContent = <Check className="w-3 h-3 text-[#FFC107]" />;
-            }
-          }
-
-          return (
-            <button
-              key={opt.letter}
-              disabled={submitted}
-              onClick={() => {
-                if (!submitted) {
-                  // Enforce max selections
-                  if (!isSelected && selectedLetters.length >= numCorrect) return;
-                  onToggle(opt.letter);
-                }
-              }}
-              className={`flex items-center gap-3 text-left text-[14px] text-gray-700 w-full outline-none focus:outline-none ${
-                submitted ? "cursor-default" : "cursor-pointer"
-              }`}
-            >
-              <span className={`w-[18px] h-[18px] rounded border-2 ${borderColor} ${bgColor} flex items-center justify-center shrink-0 transition-all`}>
-                {innerContent}
-              </span>
-              <span className={
-                submitted && isCorrectAnswer ? "font-semibold text-green-700" :
-                submitted && isSelected && !isCorrectAnswer ? "text-red-500 line-through" : ""
-              }>
-                <span className="font-bold mr-1.5">{opt.letter}.</span>{opt.text}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Post-submit action buttons — one row per question number */}
-      {submitted && (
-        <div className="ml-2 mt-3 space-y-2">
-          {group.question_numbers?.map((qNum) => (
-            <div key={qNum} className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{qNum}</span>
-              <button onClick={() => onLocate(qNum)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <MapPin className="w-3.5 h-3.5" /> Locate
-              </button>
-              <button onClick={() => setShowExplanation(!showExplanation)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <MessageSquare className="w-3.5 h-3.5" /> Explain
-              </button>
-              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <StickyNote className="w-3.5 h-3.5" /> Note
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {showExplanation && group.explanation && (
-        <div className="mt-2 ml-2 bg-blue-50 border border-blue-100 rounded-lg p-3 text-[13px] text-blue-800 leading-relaxed">
-          {group.explanation}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Form / Note Completion ───────────────────────────────────────────────────
-
-interface FormPoint {
-  question_number: number;
-  text: string;
-  answer: string;
-  timestamp_seconds?: number;
-  explanation: string;
-}
-
-function FormCompletionGroup({
-  heading,
-  points,
-  answers,
-  onAnswer,
-  submitted,
-  audioRef,
-  onLocate,
-}: {
-  heading: string;
-  points: FormPoint[];
-  answers: Record<number, string>;
-  onAnswer: (qNum: number, val: string) => void;
-  submitted: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
-  onLocate: (qNum: number) => void;
-}) {
-  const [showExplanation, setShowExplanation] = useState<number | null>(null);
-
-  const seekTo = (ts?: number) => {
-    if (!audioRef.current) return;
-    if (ts !== undefined) audioRef.current.currentTime = ts;
-    audioRef.current.play();
-  };
-
-  // Render text with a bordered box input (IELTS exam paper style)
-  const renderBoxedText = (point: FormPoint) => {
-    const blankRegex = /\b(\d+)\s*\.{3,}/;
-    const match = point.text.match(blankRegex);
-    const userAnswer = (answers[point.question_number] as unknown as string) ?? "";
-    const isCorrect = submitted && userAnswer.trim().toLowerCase() === point.answer.trim().toLowerCase();
-
-    if (!match) return <span>{point.text}</span>;
-
-    const splitIdx = point.text.indexOf(match[0]);
-    const before = point.text.slice(0, splitIdx).trimEnd();
-    const after = point.text.slice(splitIdx + match[0].length).trimStart();
-
-    return (
-      <span className="leading-loose">
-        {before && <span>{before} </span>}
-        <span className={`inline-flex items-center border rounded px-2 py-0.5 mx-0.5 text-[13px] font-medium min-w-[110px] transition-colors ${
-          submitted
-            ? isCorrect ? "border-green-400 bg-green-50" : "border-red-300 bg-red-50"
-            : "border-gray-400 bg-white focus-within:border-[#FFC107]"
-        }`}>
-          <span className={`text-[11px] font-bold mr-1.5 shrink-0 ${
-            submitted ? (isCorrect ? "text-green-600" : "text-red-400") : "text-gray-400"
-          }`}>{point.question_number}</span>
-          {submitted ? (
-            <span className={`font-semibold ${
-              isCorrect ? "text-green-700" : "text-red-500 line-through"
-            }`}>{userAnswer || "—"}</span>
-          ) : (
-            <input
-              type="text"
-              value={userAnswer}
-              onChange={(e) => onAnswer(point.question_number, e.target.value)}
-              className="outline-none bg-transparent text-gray-800 min-w-[60px] w-full font-medium caret-yellow-500"
-            />
-          )}
-        </span>
-        {submitted && !isCorrect && (
-          <span className="text-[12px] text-green-600 font-bold mx-1">({point.answer})</span>
-        )}
-        {after && <span> {after}</span>}
-      </span>
-    );
-  };
-
-  return (
-    <div className="mb-6">
-      {heading && (
-        <h3 className="text-[15px] font-extrabold text-gray-900 mb-4">{heading}</h3>
-      )}
-
-      <ul className="space-y-3 pl-1">
-        {points.map((point) => (
-          <li
-            id={`question-${point.question_number}`}
-            key={point.question_number}
-            className="flex items-start gap-2.5 text-[14px] text-gray-800"
-          >
-            <span className="mt-[9px] w-1.5 h-1.5 rounded-full bg-gray-500 shrink-0" />
-            <div className="flex-1 leading-loose">{renderBoxedText(point)}</div>
-          </li>
-        ))}
-      </ul>
-
-      {/* Action buttons per question */}
-      {submitted && (
-        <div className="mt-3 space-y-2">
-          {points.map((point) => (
-            <div key={point.question_number} className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{point.question_number}</span>
-              <button onClick={() => seekTo(point.timestamp_seconds)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <Headphones className="w-3.5 h-3.5" /> Listen from here
-              </button>
-              <button onClick={() => onLocate(point.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <MapPin className="w-3.5 h-3.5" /> Locate
-              </button>
-              <button
-                onClick={() => setShowExplanation(showExplanation === point.question_number ? null : point.question_number)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
-              >
-                <MessageSquare className="w-3.5 h-3.5" /> Explain
-              </button>
-              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <StickyNote className="w-3.5 h-3.5" /> Note
-              </button>
-              {showExplanation === point.question_number && (
-                <div className="w-full mt-1.5 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
-                  {point.explanation}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Table Completion ─────────────────────────────────────────────────────────
-
-interface TableQuestion {
-  answer: string;
-  timestamp_seconds?: number;
-  explanation: string;
-}
-
-interface TableRow {
-  questions: Record<string, TableQuestion>;
-  [key: string]: string | string[] | Record<string, TableQuestion>;
-}
-
-interface TableGroup {
-  type: "table";
-  headers: string[];
-  rows: TableRow[];
-}
-
-function TableCompletionGroup({
-  group,
-  answers,
-  onAnswer,
-  submitted,
-  audioRef,
-  onLocate,
-}: {
-  group: TableGroup;
-  answers: Record<number, string>;
-  onAnswer: (qNum: number, val: string) => void;
-  submitted: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
-  onLocate: (qNum: number) => void;
-}) {
-  const [showExplanation, setShowExplanation] = useState<number | null>(null);
-
-  const seekTo = (ts?: number) => {
-    if (!audioRef.current) return;
-    if (ts !== undefined) audioRef.current.currentTime = ts;
-    audioRef.current.play();
-  };
-
-  // Collect all questions across rows for the action buttons
-  const allQs: (TableQuestion & { qNum: number })[] = group.rows.flatMap((row) =>
-    Object.entries(row.questions).map(([k, q]) => ({ qNum: Number(k), ...q }))
-  );
-
-  // Render a single cell value — may be a plain string, array, or contain blanks
-  const renderCellText = (text: string) => {
-    const blankRegex = /\b(\d+)\s*\.{3,}/g;
-    const parts: React.ReactNode[] = [];
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = blankRegex.exec(text)) !== null) {
-      const qNum = Number(match[1]);
-      const qData = allQs.find((q) => q.qNum === qNum);
-      const userAnswer = (answers[qNum] as unknown as string) ?? "";
-      const isCorrect = submitted && userAnswer.trim().toLowerCase() === (qData?.answer ?? "").trim().toLowerCase();
-
-      if (match.index > lastIndex) {
-        parts.push(<span key={`t-${lastIndex}`}>{text.slice(lastIndex, match.index)}</span>);
-      }
-
-      parts.push(
-        <span key={`box-${qNum}`} className={`inline-flex items-center border rounded px-1.5 py-0.5 mx-0.5 text-[12px] font-medium min-w-[90px] transition-colors ${
-          submitted
-            ? isCorrect ? "border-green-400 bg-green-50" : "border-red-300 bg-red-50"
-            : "border-gray-400 bg-white focus-within:border-[#FFC107]"
-        }`}>
-          <span className={`text-[10px] font-bold mr-1 shrink-0 ${
-            submitted ? (isCorrect ? "text-green-600" : "text-red-400") : "text-gray-400"
-          }`}>{qNum}</span>
-          {submitted ? (
-            <span className={`font-semibold ${isCorrect ? "text-green-700" : "text-red-500 line-through"}`}>
-              {userAnswer || "—"}
-            </span>
-          ) : (
-            <input
-              type="text"
-              value={userAnswer}
-              onChange={(e) => onAnswer(qNum, e.target.value)}
-              className="outline-none bg-transparent text-gray-800 min-w-[50px] w-full font-medium caret-yellow-500 text-[12px]"
-            />
-          )}
-        </span>
-      );
-
-      if (submitted && !isCorrect && qData) {
-        parts.push(
-          <span key={`ans-${qNum}`} className="text-[11px] text-green-600 font-bold mx-0.5">({qData.answer})</span>
-        );
-      }
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < text.length) {
-      parts.push(<span key={`end-${lastIndex}`}>{text.slice(lastIndex)}</span>);
-    }
-
-    return <>{parts}</>;
-  };
-
-  const renderCell = (value: string | string[] | Record<string, TableQuestion>) => {
-    if (Array.isArray(value)) {
-      return (
-        <ul className="space-y-1">
-          {value.map((item, i) => (
-            <li key={i} className="flex items-start gap-1.5">
-              <span className="mt-[6px] w-1 h-1 rounded-full bg-gray-400 shrink-0" />
-              <span>{renderCellText(item)}</span>
-            </li>
-          ))}
-        </ul>
-      );
-    }
-    if (typeof value === "string") return renderCellText(value);
-    return null;
-  };
-
-  return (
-    <div className="mb-6">
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300 text-[13px]">
-          {/* Header row */}
-          <thead>
-            <tr>
-              {group.headers.map((h) => (
-                <th
-                  key={h}
-                  className="border border-gray-300 px-3 py-2.5 text-left font-bold text-gray-900 bg-gray-50 text-[13px]"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {group.rows.map((row, ri) => (
-              <tr key={ri} className="align-top">
-                {group.headers.map((h) => {
-                  const val = row[h];
-                  return (
-                    <td
-                      key={h}
-                      className="border border-gray-300 px-3 py-3 text-gray-700 leading-relaxed"
-                    >
-                      {val !== undefined
-                        ? renderCell(val as string | string[])
-                        : null}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Per-question action buttons after submit */}
-      {submitted && (
-        <div className="mt-4 space-y-2">
-          {allQs.map(({ qNum, timestamp_seconds, explanation }) => (
-            <div key={qNum} className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{qNum}</span>
-              <button onClick={() => seekTo(timestamp_seconds)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <Headphones className="w-3.5 h-3.5" /> Listen from here
-              </button>
-              <button onClick={() => onLocate(qNum)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <MapPin className="w-3.5 h-3.5" /> Locate
-              </button>
-              <button
-                onClick={() => setShowExplanation(showExplanation === qNum ? null : qNum)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
-              >
-                <MessageSquare className="w-3.5 h-3.5" /> Explain
-              </button>
-              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <StickyNote className="w-3.5 h-3.5" /> Note
-              </button>
-              {showExplanation === qNum && (
-                <div className="w-full mt-1.5 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
-                  {explanation}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Flow Chart Completion ────────────────────────────────────────────────────
-
-interface FlowChartQuestion {
-  question_number: number;
-  letter_answer: string;
-  text_answer: string;
-  timestamp_seconds?: number;
-  explanation: string;
-}
-
-interface FlowChartStep {
-  text: string;
-  question?: FlowChartQuestion;
-}
-
-interface FlowChartOption {
-  letter: string;
-  text: string;
-}
-
-interface FlowChartGroup {
-  type: "flow_chart";
-  heading?: string;
-  options: FlowChartOption[];
-  steps: FlowChartStep[];
-}
-
-function FlowChartCompletionGroup({
-  group,
-  answers,
-  onAnswer,
-  submitted,
-  audioRef,
-  onLocate,
-}: {
-  group: FlowChartGroup;
-  answers: Record<string | number, string>;
-  onAnswer: (qNum: number, letter: string) => void;
-  submitted: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
-  onLocate: (qNum: number) => void;
-}) {
-  const [showExplanation, setShowExplanation] = useState<number | null>(null);
-
-  const seekTo = (ts?: number) => {
-    if (!audioRef.current) return;
-    if (ts !== undefined) audioRef.current.currentTime = ts;
-    audioRef.current.play();
-  };
-
-  const allQs = group.steps.filter((s) => s.question).map((s) => s.question!);
-
-  // Pick which letters have already been used
-  const usedLetters = Object.values(
-    Object.fromEntries(allQs.map((q) => [q.question_number, answers[q.question_number] ?? ""]))
-  ).filter(Boolean);
-
-  // Render a step text with an inline letter selector where the blank is
-  const renderStepText = (step: FlowChartStep) => {
-    if (!step.question) {
-      return <span>{step.text}</span>;
-    }
-
-    const { question_number, letter_answer, text_answer } = step.question;
-    const blankRegex = /\b(\d+)\s*\.{3,}/;
-    const match = step.text.match(blankRegex);
-    const selected = (answers[question_number] as string) ?? "";
-    const isCorrect = submitted && selected.toUpperCase() === letter_answer.toUpperCase();
-    const selectedOption = group.options.find((o) => o.letter.toUpperCase() === selected.toUpperCase());
-
-    if (!match) return <span>{step.text}</span>;
-
-    const splitIdx = step.text.indexOf(match[0]);
-    const before = step.text.slice(0, splitIdx).trimEnd();
-    const after = step.text.slice(splitIdx + match[0].length).trimStart();
-
-    return (
-      <span className="leading-loose">
-        {before && <span>{before} </span>}
-        {submitted ? (
-          <span className={`inline-flex items-center gap-1 border rounded px-2 py-0.5 mx-0.5 font-medium text-[12px] ${
-            isCorrect ? "border-green-400 bg-green-50" : "border-red-300 bg-red-50"
-          }`}>
-            <span className={`text-[10px] font-bold mr-0.5 ${isCorrect ? "text-green-600" : "text-red-400"}`}>{question_number}</span>
-            <span className={`font-bold ${isCorrect ? "text-green-700" : "text-red-500"}`}>{selected || "—"}</span>
-            {selectedOption && <span className={`text-[11px] ${isCorrect ? "text-green-600" : "text-red-500 line-through"}`}>({selectedOption.text})</span>}
-            {!isCorrect && <span className="text-green-600 font-bold text-[11px]">→ {letter_answer} ({text_answer})</span>}
-          </span>
-        ) : (
-          <span className={`inline-flex items-center border rounded px-1.5 py-0.5 mx-0.5 min-w-[70px] border-gray-400 bg-white focus-within:border-[#FFC107] transition-colors`}>
-            <span className="text-[10px] font-bold text-gray-400 mr-1 shrink-0">{question_number}</span>
-            <select
-              value={selected}
-              onChange={(e) => onAnswer(question_number, e.target.value)}
-              className="outline-none bg-transparent text-gray-800 text-[12px] font-semibold flex-1 cursor-pointer"
-            >
-              <option value="">–</option>
-              {group.options.map((opt) => (
-                <option key={opt.letter} value={opt.letter} disabled={usedLetters.includes(opt.letter) && selected !== opt.letter}>
-                  {opt.letter} – {opt.text}
-                </option>
-              ))}
-            </select>
-          </span>
-        )}
-        {after && <span> {after}</span>}
-      </span>
-    );
-  };
-
-  return (
-    <div className="mb-6">
-      {/* Options word bank */}
-      <div className="mb-5 flex flex-wrap gap-2 items-center">
-        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide mr-1">Options:</span>
-        {group.options.map((opt) => {
-          const isUsed = usedLetters.includes(opt.letter) && !submitted;
-          const isCorrectAns = submitted && allQs.some((q) => q.letter_answer === opt.letter);
-          return (
-            <span
-              key={opt.letter}
-              className={`inline-flex items-center gap-1 border rounded px-2.5 py-1 text-[12px] font-semibold transition-colors ${
-                submitted
-                  ? isCorrectAns ? "border-green-400 bg-green-50 text-green-700" : "border-gray-200 bg-gray-50 text-gray-400"
-                  : isUsed ? "border-yellow-300 bg-yellow-50 text-yellow-700" : "border-gray-300 bg-white text-gray-700"
-              }`}
-            >
-              <span className="font-bold">{opt.letter}</span>
-              <span className="text-gray-400">·</span>
-              {opt.text}
-            </span>
-          );
-        })}
-      </div>
-
-      {/* Flow steps */}
-      <div className="flex flex-col items-center gap-0 max-w-md">
-        {group.steps.map((step, si) => (
-          <div key={si} className="flex flex-col items-center w-full">
-            {/* Step box */}
-            <div className={`w-full border-2 rounded-lg px-4 py-3 text-[13px] text-gray-800 leading-loose text-center transition-colors ${
-              step.question ? "border-gray-400" : "border-gray-300 bg-gray-50/60"
-            }`}>
-              {renderStepText(step)}
-            </div>
-            {/* Arrow down (not after the last step) */}
-            {si < group.steps.length - 1 && (
-              <div className="flex flex-col items-center my-1">
-                <div className="w-0.5 h-4 bg-gray-400" />
-                <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-gray-400" />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Post-submit action buttons */}
-      {submitted && (
-        <div className="mt-4 space-y-2">
-          {allQs.map(({ question_number, timestamp_seconds, explanation }) => (
-            <div key={question_number} className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{question_number}</span>
-              <button onClick={() => seekTo(timestamp_seconds)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <Headphones className="w-3.5 h-3.5" /> Listen from here
-              </button>
-              <button onClick={() => onLocate(question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <MapPin className="w-3.5 h-3.5" /> Locate
-              </button>
-              <button
-                onClick={() => setShowExplanation(showExplanation === question_number ? null : question_number)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
-              >
-                <MessageSquare className="w-3.5 h-3.5" /> Explain
-              </button>
-              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <StickyNote className="w-3.5 h-3.5" /> Note
-              </button>
-              {showExplanation === question_number && (
-                <div className="w-full mt-1.5 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
-                  {explanation}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Multiple Choice Question ─────────────────────────────────────────────────
-
-function MCQuestionItem({
-  q,
-  selected,
-  onSelect,
-  submitted,
-  audioRef,
-  onLocate,
-}: {
-  q: MCQuestion;
-  selected: string | null;
-  onSelect: (letter: string) => void;
-  submitted: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
-  onLocate: (qNum: number) => void;
-}) {
-  const [showExplanation, setShowExplanation] = useState(false);
-  const isCorrect = selected?.toUpperCase() === q.answer?.toUpperCase();
-
-  const seekTo = () => {
-    if (audioRef.current && q.timestamp_seconds) {
-      audioRef.current.currentTime = q.timestamp_seconds;
-      audioRef.current.play();
-    }
-  };
-
-  return (
-    <div id={`question-${q.question_number}`} className="mb-7">
-      <p className="text-[14px] font-semibold text-gray-900 mb-3 leading-snug flex items-start">
-        <span className={`inline-block mr-2 font-bold ${submitted
-          ? isCorrect ? "text-green-600" : "text-red-500"
-          : "text-gray-900"
-          }`}>
-          {q.question_number}.
-        </span>
-        {q.text}
-      </p>
-
-      <div className="space-y-2 ml-8">
-        {q.options.map((opt) => {
-          const isSelected = selected?.toUpperCase() === opt.letter.toUpperCase();
-          const isAnswerKey = q.answer?.toUpperCase() === opt.letter.toUpperCase();
-          let circleClass = "w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-all ";
-          let innerContent = null;
-
-          if (submitted) {
-            if (isAnswerKey) {
-              circleClass += "border-green-500 bg-white";
-              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-green-500" />;
-            } else if (isSelected && !isAnswerKey) {
-              circleClass += "border-red-400 bg-white";
-              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-red-400" />;
-            } else {
-              circleClass += "border-gray-300 bg-white";
-            }
-          } else {
-            if (isSelected) {
-              circleClass += "border-[#FFC107] bg-white";
-              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-[#FFC107]" />;
-            } else {
-              circleClass += "border-gray-300 hover:border-gray-400 bg-white";
-            }
-          }
-
-          return (
-            <button
-              key={opt.letter}
-              disabled={submitted}
-              onClick={() => onSelect(opt.letter)}
-              className={`flex items-center gap-2.5 text-left text-[14px] text-gray-700 w-full outline-none focus:outline-none group ${submitted ? "cursor-default" : "cursor-pointer hover:text-gray-900"}`}
-            >
-              <span className={circleClass}>
-                {innerContent}
-              </span>
-              <span className={
-                submitted && isAnswerKey ? "font-semibold text-green-700" :
-                  submitted && isSelected && !isAnswerKey ? "text-red-500 line-through" :
-                    ""
-              }>
-                {opt.text}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Post-submit action buttons */}
-      {submitted && (
-        <div className="ml-8 mt-3 flex flex-wrap gap-2">
-          <button onClick={seekTo} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-            <Headphones className="w-3.5 h-3.5" /> Listen from here
-          </button>
-          <button onClick={() => onLocate(q.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-            <MapPin className="w-3.5 h-3.5" /> Locate
-          </button>
-          <button onClick={() => setShowExplanation(!showExplanation)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-            <MessageSquare className="w-3.5 h-3.5" /> Explain
-          </button>
-          <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-            <StickyNote className="w-3.5 h-3.5" /> Note
-          </button>
-        </div>
-      )}
-
-      {showExplanation && (
-        <div className="ml-8 mt-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
-          {q.explanation}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -1101,6 +309,28 @@ export default function ListeningExercisePage() {
         .filter((s) => s.question)
         .map((s) => ({ qNum: s.question!.question_number, groupKey: String(s.question!.question_number) }));
     }
+    if (g.type === "summary_completion") {
+      const sg = g as unknown as SummaryGroup;
+      return Object.keys(sg.questions).map(k => ({ qNum: Number(k), groupKey: k }));
+    }
+    if (g.type === "matching") {
+      const mg = g as unknown as MatchingGroup;
+      return mg.items.map(i => ({ qNum: i.id, groupKey: String(i.id) }));
+    }
+    if (g.type === "map_labelling" || g.type === "plan_labelling") {
+      const ml = g as unknown as MapLabellingGroupType;
+      if (ml.items) return ml.items.map(i => ({ qNum: i.question_number, groupKey: String(i.question_number) }));
+      const qs = (g as any).questions || [];
+      return qs.map((q: any) => ({ qNum: q.question_number, groupKey: String(q.question_number) }));
+    }
+    if (g.type === "diagram_labelling") {
+      const dg = g as unknown as DiagramLabellingGroupType;
+      return dg.items.map(i => ({ qNum: i.question_number, groupKey: String(i.question_number) }));
+    }
+    if (g.type === "short_answer") {
+      const qs = (g as unknown as ShortAnswerGroupType).questions;
+      return qs.map(q => ({ qNum: q.question_number, groupKey: String(q.question_number) }));
+    }
     const qs = Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : [];
     return qs.map((q) => ({ qNum: q.question_number, groupKey: String(q.question_number) }));
   }) ?? [];
@@ -1135,45 +365,88 @@ export default function ListeningExercisePage() {
 
   const score = submitted
     ? (() => {
-        let s = 0;
-        exercise?.content?.forEach((g, gi) => {
-          if (g.type === "multiple_choice_multiple") {
-            const answers_arr = (g.answers as string[] | undefined) ?? [];
-            const key = `mcm-${gi}`;
-            const raw = (answers[key] as unknown as string) ?? "";
-            const selected = raw ? raw.split(",").map((x) => x.toUpperCase()) : [];
-            const correct = new Set(answers_arr.map((a) => a.toUpperCase()));
-            const isCorrect = selected.length === correct.size && selected.every((s) => correct.has(s));
-            if (isCorrect) s++;
-          } else if (g.type === "table") {
-            const rows = (g as unknown as TableGroup).rows;
-            rows.forEach((row) => {
-              Object.entries(row.questions).forEach(([k, qData]) => {
-                const userAns = (answers[Number(k)] as unknown as string ?? "").trim().toLowerCase();
-                if (userAns === qData.answer.trim().toLowerCase()) s++;
-              });
+      let s = 0;
+      exercise?.content?.forEach((g, gi) => {
+        if (g.type === "multiple_choice_multiple") {
+          const answers_arr = (g.answers as string[] | undefined) ?? [];
+          const key = `mcm-${gi}`;
+          const raw = (answers[key] as unknown as string) ?? "";
+          const selected = raw ? raw.split(",").map((x) => x.toUpperCase()) : [];
+          const correct = new Set(answers_arr.map((a) => a.toUpperCase()));
+          const isCorrect = selected.length === correct.size && selected.every((s) => correct.has(s));
+          if (isCorrect) s++;
+        } else if (g.type === "table") {
+          const rows = (g as unknown as TableGroup).rows;
+          rows.forEach((row) => {
+            Object.entries(row.questions).forEach(([k, qData]) => {
+              const userAns = (answers[Number(k)] as unknown as string ?? "").trim().toLowerCase();
+              if (userAns === qData.answer.trim().toLowerCase()) s++;
             });
-          } else if (g.type === "flow_chart") {
-            const fc = g as unknown as FlowChartGroup;
-            fc.steps.filter((step) => step.question).forEach((step) => {
-              const q = step.question!;
-              const userLetter = (answers[q.question_number] as string ?? "").toUpperCase();
-              if (userLetter === q.letter_answer.toUpperCase()) s++;
+          });
+        } else if (g.type === "flow_chart") {
+          const fc = g as unknown as FlowChartGroup;
+          fc.steps.filter((step) => step.question).forEach((step) => {
+            const q = step.question! as unknown as { question_number: number, letter_answer?: string, text_answer?: string };
+            const userAns = (answers[q.question_number] as string ?? "");
+            if (q.letter_answer && userAns.toUpperCase() === q.letter_answer.toUpperCase()) s++;
+            else if (!q.letter_answer && q.text_answer && userAns.trim().toLowerCase() === q.text_answer.trim().toLowerCase()) s++;
+          });
+        } else if (!g.type && Array.isArray((g as any).points)) {
+          ((g as any).points as FormPoint[]).forEach((p) => {
+            const userAns = (answers[p.question_number] as unknown as string ?? "").trim().toLowerCase();
+            if (userAns === p.answer.trim().toLowerCase()) s++;
+          });
+        } else if (g.type === "summary_completion") {
+          const sg = g as unknown as SummaryGroup;
+          Object.entries(sg.questions).forEach(([k, qData]) => {
+            const userAns = (answers[Number(k)] as unknown as string ?? "").trim().toLowerCase();
+            const acceptable = qData.acceptable_answers ? qData.acceptable_answers.map(a => a.toLowerCase().trim()) : [qData.primary_answer.toLowerCase().trim()];
+            if (acceptable.includes(userAns)) s++;
+          });
+        } else if (g.type === "matching") {
+          const mg = g as unknown as MatchingGroup;
+          Object.entries(mg.answers).forEach(([k, qData]) => {
+            const userAns = (answers[Number(k)] as string ?? "").toUpperCase();
+            if (userAns === qData.letter.toUpperCase()) s++;
+          });
+        } else if (g.type === "map_labelling" || g.type === "plan_labelling") {
+          const ml = g as unknown as MapLabellingGroupType;
+          if (ml.items) {
+            ml.items.forEach((item) => {
+              const userAns = (answers[item.question_number] as string ?? "").toUpperCase();
+              if (userAns === item.answer.toUpperCase()) s++;
             });
-          } else if (!g.type && Array.isArray((g as any).points)) {
-            ((g as any).points as FormPoint[]).forEach((p) => {
-              const userAns = (answers[p.question_number] as unknown as string ?? "").trim().toLowerCase();
-              if (userAns === p.answer.trim().toLowerCase()) s++;
-            });
-          } else {
-            const qs = Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : [];
-            qs.forEach((q) => {
-              if (answers[q.question_number]?.toUpperCase() === q.answer?.toUpperCase()) s++;
+          } else if ((g as any).questions) {
+            (g as any).questions.forEach((q: any) => {
+              const userAns = (answers[q.question_number] as string ?? "").trim().toLowerCase();
+              const acceptable = q.acceptable_answers ? q.acceptable_answers.map((a: string) => a.toLowerCase().trim()) : [q.answer.toLowerCase().trim()];
+              if (acceptable.includes(userAns)) s++;
             });
           }
-        });
-        return s;
-      })()
+        } else if (g.type === "diagram_labelling") {
+          const dg = g as unknown as DiagramLabellingGroupType;
+          dg.items.forEach((item) => {
+            const userAns = (answers[item.question_number] as string ?? "").toUpperCase();
+            if (userAns === item.answer.toUpperCase()) s++;
+          });
+        } else if (g.type === "short_answer") {
+          const sg = g as unknown as ShortAnswerGroupType;
+          sg.questions.forEach((q) => {
+            const userAns = (answers[q.question_number] as string ?? "").trim().toLowerCase();
+            const acceptable = q.acceptable_answers
+              ? q.acceptable_answers.map(a => a.toLowerCase().trim())
+              : [q.answer.toLowerCase().trim()];
+            if (acceptable.includes(userAns)) s++;
+          });
+        } else {
+          const qs = Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : [];
+          qs.forEach((q) => {
+            if (answers[q.question_number]?.toUpperCase() === q.answer?.toUpperCase()) s++;
+          });
+        }
+      });
+      return s;
+    })()
     : 0;
 
   const modalBlock = activeModal
@@ -1276,6 +549,91 @@ export default function ListeningExercisePage() {
                     group={tg}
                     answers={answers as Record<number, string>}
                     onAnswer={(qNum, val) => !submitted && setAnswers((prev) => ({ ...prev, [qNum]: val as unknown as string }))}
+                    submitted={submitted}
+                    audioRef={audioRef}
+                    onLocate={handleLocate}
+                  />
+                </div>
+              );
+            }
+
+            // --- summary completion ---
+            if (group.type === "summary_completion") {
+              const sg = group as unknown as SummaryGroup;
+              return (
+                <div key={gi}>
+                  <SummaryCompletionGroup
+                    group={sg}
+                    answers={answers}
+                    onAnswer={(qNum, val) => !submitted && setAnswers((prev) => ({ ...prev, [qNum]: val }))}
+                    submitted={submitted}
+                    audioRef={audioRef}
+                    onLocate={handleLocate}
+                  />
+                </div>
+              );
+            }
+
+            // --- matching ---
+            if (group.type === "matching") {
+              const mg = group as unknown as MatchingGroup;
+              return (
+                <div key={gi}>
+                  <MatchingCompletionGroup
+                    group={mg}
+                    answers={answers}
+                    onAnswer={(qNum, val) => !submitted && setAnswers((prev) => ({ ...prev, [qNum]: val }))}
+                    submitted={submitted}
+                    audioRef={audioRef}
+                    onLocate={handleLocate}
+                  />
+                </div>
+              );
+            }
+
+            // --- map/plan labelling ---
+            if (group.type === "map_labelling" || group.type === "plan_labelling") {
+              const ml = group as unknown as MapLabellingGroupType;
+              return (
+                <div key={gi}>
+                  <MapLabellingGroup
+                    group={ml}
+                    answers={answers}
+                    onAnswer={(qNum, val) => !submitted && setAnswers((prev) => ({ ...prev, [qNum]: val }))}
+                    submitted={submitted}
+                    audioRef={audioRef}
+                    onLocate={handleLocate}
+                  />
+                </div>
+              );
+            }
+
+            // --- diagram labelling ---
+            if (group.type === "diagram_labelling") {
+              const dg = group as unknown as DiagramLabellingGroupType;
+              return (
+                <div key={gi}>
+                  <DiagramLabellingGroup
+                    group={dg}
+                    answers={answers}
+                    onAnswer={(qNum, val) => !submitted && setAnswers((prev) => ({ ...prev, [qNum]: val }))}
+                    submitted={submitted}
+                    audioRef={audioRef}
+                    onLocate={handleLocate}
+                  />
+                </div>
+              );
+            }
+
+            // --- short answer ---
+            if (group.type === "short_answer") {
+              const sg = group as unknown as ShortAnswerGroupType;
+              return (
+                <div key={gi}>
+                  <ShortAnswerGroup
+                    group={sg}
+                    answers={answers}
+                    onAnswer={(qNum, val) => !submitted && setAnswers((prev) => ({ ...prev, [qNum]: val }))}
                     submitted={submitted}
                     audioRef={audioRef}
                     onLocate={handleLocate}

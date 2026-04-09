@@ -103,8 +103,16 @@
       {
         "type": "map_labelling",
         "heading": "Fun Fortress Map",
-        "image_url": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1775562261/CH6_HP1-4_diagram-image_m1zv1u.png",
-        "labels": ["A", "B", "C", "D", "E", "F", "G"],
+        "image_url": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1775638317/chapter6-1_iuenao.png",
+        "labels": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G"
+        ],
         "items": [
           {
             "question_number": 1,
@@ -136,9 +144,18 @@
           }
         ],
         "distractors": [
-          { "label": "D", "text": "Dungeon Discovery Ride (first on the left in rides area)" },
-          { "label": "F", "text": "Bouncy Castle (at the end of the side path to the west)" },
-          { "label": "C", "text": "Unlabelled building on the forest pathway" }
+          {
+            "label": "D",
+            "text": "Dungeon Discovery Ride (first on the left in rides area)"
+          },
+          {
+            "label": "F",
+            "text": "Bouncy Castle (at the end of the side path to the west)"
+          },
+          {
+            "label": "C",
+            "text": "Unlabelled building on the forest pathway"
+          }
         ]
       }
     ]
