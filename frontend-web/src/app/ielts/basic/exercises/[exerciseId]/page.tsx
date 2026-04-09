@@ -554,6 +554,16 @@ export default function ListeningExercisePage() {
     Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : []
   ) ?? [];
 
+  // All question numbers across all group types (for tracker + score)
+  const allTrackerItems: { qNum: number; groupKey: string }[] = exercise?.content?.flatMap((g, gi) => {
+    if (g.type === "multiple_choice_multiple") {
+      const nums = (g.question_numbers as number[] | undefined) ?? [];
+      return nums.map((n) => ({ qNum: n, groupKey: `mcm-${gi}` }));
+    }
+    const qs = Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : [];
+    return qs.map((q) => ({ qNum: q.question_number, groupKey: String(q.question_number) }));
+  }) ?? [];
+
   const handleSubmit = () => {
     setSubmitted(true);
     setShowTranscript(true);
@@ -583,7 +593,26 @@ export default function ListeningExercisePage() {
   }
 
   const score = submitted
-    ? allQuestions.filter((q) => answers[q.question_number]?.toUpperCase() === q.answer?.toUpperCase()).length
+    ? (() => {
+        let s = 0;
+        exercise?.content?.forEach((g, gi) => {
+          if (g.type === "multiple_choice_multiple") {
+            const answers_arr = (g.answers as string[] | undefined) ?? [];
+            const key = `mcm-${gi}`;
+            const raw = (answers[key] as unknown as string) ?? "";
+            const selected = raw ? raw.split(",").map((x) => x.toUpperCase()) : [];
+            const correct = new Set(answers_arr.map((a) => a.toUpperCase()));
+            const isCorrect = selected.length === correct.size && selected.every((s) => correct.has(s));
+            if (isCorrect) s++;
+          } else {
+            const qs = Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : [];
+            qs.forEach((q) => {
+              if (answers[q.question_number]?.toUpperCase() === q.answer?.toUpperCase()) s++;
+            });
+          }
+        });
+        return s;
+      })()
     : 0;
 
   const modalBlock = activeModal
@@ -721,16 +750,16 @@ export default function ListeningExercisePage() {
         <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
           <span>Questions</span>
           <div className="flex flex-wrap items-center gap-1 ml-1 max-w-[60vw]">
-            {allQuestions.map((q) => {
-              const isAnswered = !!answers[q.question_number];
+            {allTrackerItems.map(({ qNum, groupKey }) => {
+              const isAnswered = !!answers[groupKey] || !!answers[qNum];
               return (
                 <button
-                  key={q.question_number}
-                  onClick={() => document.getElementById(`question-${q.question_number}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  key={qNum}
+                  onClick={() => document.getElementById(`question-${qNum}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                   className="w-7 h-9 flex flex-col items-center justify-between text-[13px] font-bold transition-all pt-1 text-gray-700 hover:bg-gray-50 outline-none focus:outline-none"
                 >
                   <div className={`w-4 h-[3px] rounded-full transition-colors ${isAnswered ? 'bg-[#4CAF50]' : 'bg-gray-200'}`} />
-                  <span className="mb-0.5">{q.question_number}</span>
+                  <span className="mb-0.5">{qNum}</span>
                 </button>
               );
             })}
@@ -741,7 +770,7 @@ export default function ListeningExercisePage() {
         <div className="flex items-center gap-2 shrink-0">
           {submitted ? (
             <span className="text-sm font-bold text-[#111] bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-              {score}/{allQuestions.length} correct
+              {score}/{allTrackerItems.length} correct
             </span>
           ) : (
             <button
