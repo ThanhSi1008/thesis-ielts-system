@@ -104,68 +104,15 @@ function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: () => vo
 // ─── Audio Player ─────────────────────────────────────────────────────────────
 
 function AudioPlayer({ src, audioRef }: { src: string; audioRef: React.RefObject<HTMLAudioElement> }) {
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  const toggle = () => {
-    if (!audioRef.current) return;
-    if (playing) { audioRef.current.pause(); } else { audioRef.current.play(); }
-    setPlaying(!playing);
-  };
-
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current || !audioRef.current.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const newProgress = Math.max(0, Math.min(1, clickX / rect.width));
-    audioRef.current.currentTime = newProgress * audioRef.current.duration;
-    setProgress(newProgress);
-  };
-
-  useEffect(() => {
-    const el = audioRef.current;
-    if (!el) return;
-    const onTime = () => setProgress(el.currentTime / (el.duration || 1));
-    const onEnded = () => setPlaying(false);
-    el.addEventListener("timeupdate", onTime);
-    el.addEventListener("ended", onEnded);
-    return () => { el.removeEventListener("timeupdate", onTime); el.removeEventListener("ended", onEnded); };
-  }, [audioRef]);
-
-  const bars = Array.from({ length: 80 }, (_, i) => i);
-
   return (
-    <div className="flex items-center p-2 gap-4">
-      <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
-      <button
-        onClick={toggle}
-        className="w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center shadow-md hover:bg-[#E0A800] transition-colors shrink-0"
-      >
-        {playing ? <Pause className="w-4 h-4 text-black fill-black" /> : <Play className="w-4 h-4 text-black fill-black ml-0.5" />}
-      </button>
-
-      {/* Waveform bars */}
-      <div 
-        className="flex-1 flex items-center justify-between h-8 overflow-hidden pr-3 cursor-pointer"
-        onClick={handleSeek}
-      >
-        {bars.map((i) => {
-          const filled = progress > 0 && i / bars.length < progress;
-          const heights = [3, 5, 8, 6, 10, 7, 12, 9, 6, 11, 8, 5, 9, 7, 13, 6, 8, 10, 5, 9, 7, 11, 6, 8, 10, 5, 7, 9, 6, 8, 5, 4];
-          const h = heights[i % heights.length];
-          return (
-            <div
-              key={i}
-              className={`w-[3px] rounded-full transition-all ${filled ? "bg-[#FFC107]" : playing ? "bg-[#FFC107]" : "bg-[#FFD97D]"}`}
-              style={{
-                height: `${h * 2}px`,
-                animation: playing ? `waveform 0.8s ease-in-out infinite` : "none",
-                animationDelay: playing ? `${(i % 8) * 0.1}s` : `${(i * 0.05) % 1}s`,
-              }}
-            />
-          );
-        })}
-      </div>
+    <div className="w-full py-2">
+      <audio
+        ref={audioRef}
+        src={src}
+        controls
+        preload="metadata"
+        className="w-full h-12 rounded-md outline-none"
+      />
     </div>
   );
 }
