@@ -5,6 +5,8 @@ import axios from "axios";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { AlertCircle, Lightbulb, Info } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface QuizQuestion {
   question: string;
@@ -191,8 +193,14 @@ export default function TheoryPage() {
   }
 
   const renderContent = (content: string) => {
-    const boldedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    return <div dangerouslySetInnerHTML={{ __html: boldedContent }} className="space-y-3 whitespace-pre-wrap text-sm leading-relaxed" />;
+    return (
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]} 
+        className="prose prose-sm md:prose-base prose-gray max-w-none text-black leading-relaxed"
+      >
+        {content}
+      </ReactMarkdown>
+    );
   };
 
   return (
