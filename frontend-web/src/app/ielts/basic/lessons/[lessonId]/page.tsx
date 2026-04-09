@@ -194,12 +194,11 @@ export default function TheoryPage() {
 
   const renderContent = (content: string) => {
     return (
-      <ReactMarkdown 
-        remarkPlugins={[remarkGfm]} 
-        className="prose prose-sm md:prose-base prose-gray max-w-none text-black leading-relaxed"
-      >
-        {content}
-      </ReactMarkdown>
+      <div className="prose prose-sm md:prose-base prose-gray max-w-none text-black leading-relaxed">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {content}
+        </ReactMarkdown>
+      </div>
     );
   };
 
