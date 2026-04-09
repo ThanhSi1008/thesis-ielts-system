@@ -4,7 +4,7 @@ import * as path from 'path';
 
 const prisma = new PrismaClient();
 
-const baseDir = path.resolve('../_extras/question_types/_compiled');
+const baseDir = path.join(__dirname, '../../_extras/question_types/_compiled');
 
 async function seed() {
   console.log('Seeding IELTS basic data...');
