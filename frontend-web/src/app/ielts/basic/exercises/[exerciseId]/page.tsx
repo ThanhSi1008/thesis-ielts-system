@@ -420,10 +420,10 @@ export default function ListeningExercisePage() {
     : null;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-120px)] min-h-[600px] relative bg-white">
+    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white -m-6 lg:-m-10 rounded-2xl">
 
       {/* ── Header ── */}
-      <div className="border-b border-gray-100 px-6 pt-5 pb-4">
+      <div className="border-b border-gray-100 px-6 lg:px-10 pt-6 pb-3">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{exercise.topic}</h1>
@@ -459,7 +459,7 @@ export default function ListeningExercisePage() {
         </div>
 
         {/* Audio player */}
-        <div className="mt-4">
+        <div className="mt-2">
           <AudioPlayer src={exercise.audioUrl} audioRef={audioRef} />
         </div>
       </div>
@@ -468,7 +468,7 @@ export default function ListeningExercisePage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* Left: Questions */}
-        <div className={`overflow-y-auto px-6 py-5 pb-24 transition-all duration-300 ${showTranscript ? "w-1/2 border-r border-gray-100" : "w-full"}`}>
+        <div className={`overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${showTranscript ? "w-1/2 border-r border-gray-100" : "w-full"}`}>
           {exercise.content.map((group, gi) => {
             const questions = (Array.isArray(group.questions) ? group.questions : []) as MCQuestion[];
             const qNums = questions.map((q) => q.question_number);
@@ -508,14 +508,14 @@ export default function ListeningExercisePage() {
 
         {/* Right: Transcript */}
         {showTranscript && exercise.transcript && (
-          <div className="w-1/2 overflow-hidden py-5">
+          <div className="w-1/2 overflow-hidden py-3 pr-6 lg:pr-10">
             <TranscriptPanel transcript={exercise.transcript} locatedQuestion={locatedQuestion} />
           </div>
         )}
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex items-center justify-between z-10 transition-all">
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 lg:px-10 py-3 flex items-center justify-between z-10 transition-all rounded-b-2xl">
         {/* Question pagination */}
         <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
           <span>Questions</span>
