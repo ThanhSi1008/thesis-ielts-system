@@ -251,22 +251,6 @@ export default function TheoryPage() {
         {/* --- DYNAMIC QUIZ SECTION --- */}
         <QuizSection quiz={lesson.quiz} />
       </div>
-
-      {/* Footer Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white py-5 px-8 lg:px-12 flex gap-4 border-t border-gray-100 z-10">
-        <button 
-          onClick={() => router.back()} 
-          className="bg-[#FFCC00] text-black px-10 py-3 rounded-full font-bold shadow hover:bg-[#E6B800] transition-colors focus:outline-none"
-        >
-          Back
-        </button>
-        <Link 
-          href={`/ielts/basic`} 
-          className="bg-[#111111] text-[#FFCC00] px-10 py-3 rounded-full font-bold shadow hover:bg-black transition-colors focus:outline-none flex items-center justify-center"
-        >
-          Exercises
-        </Link>
-      </div>
     </div>
   );
 }
