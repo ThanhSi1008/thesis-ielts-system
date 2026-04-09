@@ -123,7 +123,7 @@ const config: Config = {
             'thead th': {
               color: '#facc15',
               fontWeight: '700',
-              padding: '0.75em 1.25em',
+              padding: '1em 1.5em',
               textAlign: 'left',
               fontSize: '0.78rem',
               letterSpacing: '0.05em',
@@ -132,7 +132,7 @@ const config: Config = {
             'tbody tr': { borderBottom: '1px solid #f3f4f6' },
             'tbody tr:nth-child(even)': { backgroundColor: '#f9fafb' },
             'tbody tr:last-child': { border: 'none' },
-            td: { padding: '0.75em 1.25em', verticalAlign: 'top', color: '#1a1a1a' },
+            td: { padding: '1em 1.5em', verticalAlign: 'top', color: '#1a1a1a', lineHeight: '1.7' },
           },
         },
       },
