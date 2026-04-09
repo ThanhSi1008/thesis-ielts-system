@@ -81,7 +81,7 @@ function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: () => vo
 
   return (
     <div
-      className={`absolute top-[48px] right-0 z-50 w-[550px] max-w-[90vw] overflow-y-auto rounded-2xl border ${c.bg} ${c.border} p-6 shadow-2xl origin-top-right animate-in fade-in zoom-in-95 duration-200`}
+      className={`absolute top-[48px] right-0 z-50 w-[550px] max-w-[90vw] max-h-[70vh] overflow-y-auto rounded-2xl border ${c.bg} ${c.border} p-6 shadow-2xl origin-top-right animate-in fade-in zoom-in-95 duration-200`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -91,12 +91,6 @@ function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: () => vo
             {block.title || c.default}
           </h3>
         </div>
-        <button
-          onClick={onClose}
-          className="w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors shrink-0"
-        >
-          <X className="w-4 h-4 text-gray-500" />
-        </button>
       </div>
 
       {/* Content */}
@@ -248,11 +242,11 @@ function MCQuestionItem({
   };
 
   return (
-    <div className="mb-7">
+    <div id={`question-${q.question_number}`} className="mb-7">
       <p className="text-[14px] font-semibold text-gray-900 mb-3 leading-snug">
         <span className={`inline-flex items-center justify-center w-6 h-6 rounded mr-2 text-xs font-bold border ${submitted
-            ? isCorrect ? "bg-green-500 text-white border-green-500" : "bg-red-400 text-white border-red-400"
-            : "bg-white text-gray-700 border-gray-300"
+          ? isCorrect ? "bg-green-500 text-white border-green-500" : "bg-red-400 text-white border-red-400"
+          : "bg-white text-gray-700 border-gray-300"
           }`}>
           {q.question_number}
         </span>
@@ -332,7 +326,6 @@ export default function ListeningExercisePage() {
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [exercise, setExercise] = useState<Exercise | null>(null);
-  const [siblingExercises, setSiblingExercises] = useState<{ id: string; topic: string; order: number }[]>([]);
   const [lessonBlocks, setLessonBlocks] = useState<LessonBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -345,14 +338,8 @@ export default function ListeningExercisePage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [exRes, siblingsRes] = await Promise.all([
-          axios.get(`http://localhost:3000/api/v1/ielts/listening-exercises/${exerciseId}`),
-          lessonId
-            ? axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}/listening-exercises`)
-            : Promise.resolve({ data: [] }),
-        ]);
+        const exRes = await axios.get(`http://localhost:3000/api/v1/ielts/listening-exercises/${exerciseId}`);
         setExercise(exRes.data);
-        setSiblingExercises(siblingsRes.data);
 
         // Fetch lesson theory blocks for the popups
         if (lessonId) {
@@ -373,9 +360,6 @@ export default function ListeningExercisePage() {
     if (exerciseId) fetchData();
   }, [exerciseId, lessonId]);
 
-  const currentIndex = siblingExercises.findIndex((e) => e.id === exerciseId);
-  const prevEx = currentIndex > 0 ? siblingExercises[currentIndex - 1] : null;
-  const nextEx = currentIndex < siblingExercises.length - 1 ? siblingExercises[currentIndex + 1] : null;
 
   const allQuestions = exercise?.content?.flatMap((g) =>
     Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : []
@@ -391,13 +375,7 @@ export default function ListeningExercisePage() {
     setTimeout(() => setLocatedQuestion(null), 3000);
   }, []);
 
-  const navigateTo = (id: string) => {
-    const url = `/ielts/basic/exercises/${id}${lessonId ? `?lessonId=${lessonId}` : ""}`;
-    router.push(url);
-    setAnswers({});
-    setSubmitted(false);
-    setShowTranscript(false);
-  };
+
 
   if (loading) {
     return (
@@ -426,14 +404,6 @@ export default function ListeningExercisePage() {
       <div className="border-b border-gray-100 px-6 pt-5 pb-4">
         <div className="flex items-start justify-between">
           <div>
-            {lessonId && (
-              <Link
-                href={`/ielts/basic/lessons/${lessonId}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-gray-400 hover:text-gray-700 mb-2 transition-colors"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" /> Back to Lesson
-              </Link>
-            )}
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{exercise.topic}</h1>
           </div>
           <div className="relative flex items-center gap-2 mt-1">
@@ -493,15 +463,16 @@ export default function ListeningExercisePage() {
 
                 {group.type === "multiple_choice" ? (
                   questions.map((q) => (
-                    <MCQuestionItem
-                      key={q.question_number}
-                      q={q}
-                      selected={answers[q.question_number] ?? null}
-                      onSelect={(letter) => !submitted && setAnswers((prev) => ({ ...prev, [q.question_number]: letter }))}
-                      submitted={submitted}
-                      audioRef={audioRef}
-                      onLocate={handleLocate}
-                    />
+                    <div id={`question-${q.question_number}`} key={q.question_number}>
+                      <MCQuestionItem
+                        q={q}
+                        selected={answers[q.question_number] ?? null}
+                        onSelect={(letter) => !submitted && setAnswers((prev) => ({ ...prev, [q.question_number]: letter }))}
+                        submitted={submitted}
+                        audioRef={audioRef}
+                        onLocate={handleLocate}
+                      />
+                    </div>
                   ))
                 ) : (
                   <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 text-sm text-gray-500">
@@ -522,72 +493,44 @@ export default function ListeningExercisePage() {
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex items-center justify-between z-10">
-        {/* Part / exercise pagination */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex items-center justify-between z-10 transition-all">
+        {/* Question pagination */}
         <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
-          <span>Part {currentIndex + 1}</span>
-          <div className="flex items-center gap-1 ml-1">
-            {siblingExercises.map((ex, i) => (
-              <button
-                key={ex.id}
-                onClick={() => navigateTo(ex.id)}
-                className={`w-6 h-6 rounded text-xs font-bold transition-colors ${ex.id === exerciseId
-                    ? "bg-[#111] text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          <span>Questions</span>
+          <div className="flex flex-wrap items-center gap-1 ml-1 max-w-[60vw]">
+            {allQuestions.map((q) => {
+              const isAnswered = !!answers[q.question_number];
+              return (
+                <button
+                  key={q.question_number}
+                  onClick={() => document.getElementById(`question-${q.question_number}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className={`w-7 h-7 rounded text-xs font-bold transition-colors ${
+                    isAnswered
+                      ? "bg-[#111] text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+                >
+                  {q.question_number}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2">
-          {prevEx && (
-            <button onClick={() => navigateTo(prevEx.id)} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-          )}
-
+        <div className="flex items-center gap-2 shrink-0">
           {submitted ? (
-            <>
-              <span className="text-sm font-bold text-gray-700 mr-2">
-                {score}/{allQuestions.length} correct
-              </span>
-              {nextEx ? (
-                <button
-                  onClick={() => navigateTo(nextEx.id)}
-                  className="flex items-center gap-2 bg-[#111] text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-black transition-colors"
-                >
-                  Go to next item <ChevronRight className="w-4 h-4" />
-                </button>
-              ) : (
-                lessonId && (
-                  <Link
-                    href={`/ielts/basic/lessons/${lessonId}`}
-                    className="flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-green-700 transition-colors"
-                  >
-                    Back to Lesson <Check className="w-4 h-4" />
-                  </Link>
-                )
-              )}
-            </>
+            <span className="text-sm font-bold text-[#111] bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+              {score}/{allQuestions.length} correct
+            </span>
           ) : (
-            <>
-              {nextEx && (
-                <button onClick={() => navigateTo(nextEx.id)} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                  <ChevronRight className="w-5 h-5 text-gray-600" />
-                </button>
-              )}
-              <button
-                onClick={handleSubmit}
-                disabled={Object.keys(answers).length === 0}
-                className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Check className="w-5 h-5 text-white" />
-              </button>
-            </>
+             <button
+              onClick={handleSubmit}
+              disabled={Object.keys(answers).length === 0}
+              className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Check className="w-5 h-5 text-white" />
+            </button>
           )}
         </div>
       </div>
