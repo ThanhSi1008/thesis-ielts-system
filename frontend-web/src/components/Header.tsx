@@ -14,6 +14,7 @@ export default function Header() {
   const isIeltsDashboard = pathname === "/ielts";
   const isIeltsIntensive = pathname.startsWith("/ielts/intensive");
   const isIeltsHistory = pathname.startsWith("/ielts/history");
+  const isIeltsBasic = pathname.startsWith("/ielts/basic");
   const isIelts = pathname.startsWith("/ielts") && !isIeltsDashboard && !isIeltsIntensive && !isIeltsHistory;
 
   const [forcePlain, setForcePlain] = useState(false);
@@ -77,7 +78,7 @@ export default function Header() {
     <header
       className={`border-b z-50 transition-all duration-300 ${headerBgClass}`}
     >
-      <div className="container mx-auto max-w-screen-xl px-4 py-4 flex justify-between items-center">
+      <div className={`container mx-auto ${isIeltsBasic ? "max-w-[1500px] lg:px-8" : "max-w-screen-xl"} px-4 py-4 flex justify-between items-center`}>
         {/* Left: Logo + Nav */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2">

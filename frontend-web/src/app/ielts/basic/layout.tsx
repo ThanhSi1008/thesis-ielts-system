@@ -11,11 +11,11 @@ export default function IeltsBasicLayout({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] pt-24 pb-12 font-sans font-medium text-gray-800">
-      <div className="max-w-[1400px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row gap-6">
-        
+    <div className="min-h-screen bg-[#F8F9FB] py-8 font-sans font-medium text-gray-800">
+      <div className="max-w-[1500px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row gap-6">
+
         {/* Sidebar */}
-        <aside className="w-full md:w-72 flex-shrink-0 bg-white rounded-2xl p-6 shadow-sm min-h-[600px] border border-gray-100/50">
+        <aside className="w-full md:w-80 flex-shrink-0 bg-white rounded-2xl p-6 shadow-sm min-h-[600px] border border-gray-100/50">
           <p className="text-sm font-semibold leading-tight text-gray-900 mb-8 w-4/5 pt-2">
             Learn Everything You Need to Know about the IELTS Test
           </p>
@@ -27,11 +27,10 @@ export default function IeltsBasicLayout({
             <nav className="flex flex-col gap-1 mt-3">
               <Link
                 href="/ielts/basic"
-                className={`group flex items-center px-4 py-3 rounded-xl transition-all ${
-                  pathname.startsWith("/ielts/basic")
-                    ? "bg-[#FCF9EA] text-gray-900 font-bold relative"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`group flex items-center px-4 py-3 rounded-xl transition-all ${pathname.startsWith("/ielts/basic")
+                  ? "bg-[#FCF9EA] text-gray-900 font-bold relative"
+                  : "text-gray-600 hover:bg-gray-50"
+                  }`}
               >
                 {/* Yellow active bar indicator */}
                 {pathname.startsWith("/ielts/basic") && (
