@@ -190,7 +190,7 @@ function TranscriptPanel({
       <h2 className="text-base font-bold text-gray-900 mb-4 sticky top-0 bg-white py-2 border-b border-gray-100">
         Audio Transcript
       </h2>
-      <div className="space-y-3 text-[14px] leading-relaxed text-gray-700 pb-8">
+      <div className="space-y-3 text-[14px] leading-relaxed text-gray-700 pb-24">
         {transcript.map((entry, idx) => {
           const isHighlighted = locatedQuestion !== null && entry.question_number === locatedQuestion;
           return (
@@ -416,7 +416,7 @@ export default function ListeningExercisePage() {
     : null;
 
   return (
-    <div className="flex flex-col h-full relative bg-white">
+    <div className="flex flex-col h-[calc(100vh-120px)] min-h-[600px] relative bg-white">
 
       {/* ── Header ── */}
       <div className="border-b border-gray-100 px-6 pt-5 pb-4">
