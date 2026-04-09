@@ -851,7 +851,7 @@ export default function ListeningExercisePage() {
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [lessonBlocks, setLessonBlocks] = useState<LessonBlock[]>([]);
   const [loading, setLoading] = useState(true);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<string | number, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
