@@ -123,10 +123,10 @@ function AudioPlayer({ src, audioRef }: { src: string; audioRef: React.RefObject
     return () => { el.removeEventListener("timeupdate", onTime); el.removeEventListener("ended", onEnded); };
   }, [audioRef]);
 
-  const bars = Array.from({ length: 32 }, (_, i) => i);
+  const bars = Array.from({ length: 80 }, (_, i) => i);
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-4 w-full bg-gray-50/50 p-2 rounded-full border border-gray-100">
       <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
       <button
         onClick={toggle}
@@ -136,7 +136,7 @@ function AudioPlayer({ src, audioRef }: { src: string; audioRef: React.RefObject
       </button>
 
       {/* Waveform bars */}
-      <div className="flex items-center gap-[2px] h-8 overflow-hidden">
+      <div className="flex-1 flex items-center justify-between h-8 overflow-hidden pr-3">
         {bars.map((i) => {
           const filled = progress > 0 && i / bars.length < progress;
           const heights = [3, 5, 8, 6, 10, 7, 12, 9, 6, 11, 8, 5, 9, 7, 13, 6, 8, 10, 5, 9, 7, 11, 6, 8, 10, 5, 7, 9, 6, 8, 5, 4];
