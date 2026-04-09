@@ -163,9 +163,8 @@ function AudioPlayer({ src, audioRef }: { src: string; audioRef: React.RefObject
               className={`w-[3px] rounded-full transition-all ${filled ? "bg-[#FFC107]" : playing ? "bg-[#FFC107]" : "bg-[#FFD97D]"}`}
               style={{
                 height: `${h * 2}px`,
-                animationDelay: `${(i * 0.05) % 1}s`,
                 animation: playing ? `waveform 0.8s ease-in-out infinite` : "none",
-                animationDelay: playing ? `${(i % 8) * 0.1}s` : "0s",
+                animationDelay: playing ? `${(i % 8) * 0.1}s` : `${(i * 0.05) % 1}s`,
               }}
             />
           );
@@ -605,6 +604,8 @@ export default function ListeningExercisePage() {
           )}
         </div>
       </div>
+
+    </div>
     </>
   );
 }

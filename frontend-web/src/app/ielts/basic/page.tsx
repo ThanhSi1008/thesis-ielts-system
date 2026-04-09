@@ -50,7 +50,7 @@ export default function IeltsBasicPage() {
             const exResponses = await Promise.all(
               allLessons.map((l) =>
                 axios.get(`http://localhost:3000/api/v1/ielts/lessons/${l.id}/${endpoint}`)
-                  .then((r) => r.data.map((ex: Exercise) => ({ ...ex, lessonTitle: l.title })))
+                  .then((r) => r.data.map((ex: Exercise) => ({ ...ex, lessonTitle: l.title, lessonId: l.id })))
                   .catch(() => [])
               )
             );
@@ -192,7 +192,7 @@ export default function IeltsBasicPage() {
                   {/* Exercise cards in this group */}
                   <div className="flex flex-col gap-2">
                     {group.items.map((ex, idx) => (
-                      <Link key={ex.id} href={`/ielts/basic/exercises/${ex.id}`}>
+                      <Link key={ex.id} href={`/ielts/basic/exercises/${ex.id}${ex.lessonId ? `?lessonId=${ex.lessonId}` : ""}`}>
                         <div className="flex items-center gap-4 px-5 py-3.5 bg-[#F9F9F9] hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-transparent">
                           <span className="w-6 h-6 rounded-full bg-[#FFF3C2] text-[#A07000] font-bold text-xs flex items-center justify-center shrink-0">
                             {idx + 1}

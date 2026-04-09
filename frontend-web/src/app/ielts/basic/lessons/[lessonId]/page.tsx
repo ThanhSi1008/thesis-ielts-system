@@ -167,7 +167,6 @@ export default function TheoryPage() {
   const router = useRouter();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
-  const [exercises, setExercises] = useState<{ id: string; topic: string; order: number }[]>([]);
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -175,15 +174,6 @@ export default function TheoryPage() {
       try {
         const res = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}`);
         setLesson(res.data);
-        // Fetch exercises depending on skill type
-        const skillName = res.data.skill?.name?.toLowerCase();
-        if (skillName === 'listening') {
-          const exRes = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}/listening-exercises`);
-          setExercises(exRes.data);
-        } else if (skillName === 'reading') {
-          const exRes = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}/reading-exercises`);
-          setExercises(exRes.data);
-        }
       } catch (err) {
         console.error("Failed to fetch lesson:", err);
       } finally {
@@ -279,36 +269,6 @@ export default function TheoryPage() {
 
         {/* --- DYNAMIC QUIZ SECTION --- */}
         <QuizSection quiz={lesson.quiz} />
-
-        {/* --- EXERCISES SECTION --- */}
-        {exercises.length > 0 && (
-          <div className="mt-10 mb-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="h-6 w-1 bg-[#FFC107] rounded-full" />
-              <h2 className="text-xl font-extrabold text-gray-900">Practice Exercises</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {exercises.map((ex, i) => (
-                <Link
-                  key={ex.id}
-                  href={`/ielts/basic/exercises/${ex.id}?lessonId=${lessonId}`}
-                  className="group flex items-center gap-4 bg-[#F8F9FB] hover:bg-[#FFF9E6] border border-gray-100 hover:border-[#FFC107]/40 rounded-xl px-5 py-4 transition-all duration-200"
-                >
-                  <span className="w-9 h-9 rounded-full bg-[#FFC107]/15 group-hover:bg-[#FFC107]/30 flex items-center justify-center text-sm font-bold text-[#A07000] transition-colors shrink-0">
-                    {i + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{ex.topic}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Exercise {i + 1} of {exercises.length}</p>
-                  </div>
-                  <svg className="w-4 h-4 text-gray-300 group-hover:text-[#FFC107] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
