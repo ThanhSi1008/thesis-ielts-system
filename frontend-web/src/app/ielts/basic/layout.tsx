@@ -11,7 +11,7 @@ export default function IeltsBasicLayout({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] py-8 font-sans font-medium text-gray-800">
+    <div className="min-h-screen bg-[#F8F9FB] py-4 font-sans font-medium text-gray-800">
       <div className="max-w-[1500px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row gap-6">
 
         {/* Sidebar */}

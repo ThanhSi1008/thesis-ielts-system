@@ -164,28 +164,54 @@ export default function IeltsBasicPage() {
             {lessons.length === 0 && <p className="text-gray-400">No lessons seeded for this skill.</p>}
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-          {exercises.map((ex, idx) => (
-              <Link key={ex.id} href={`/ielts/basic/exercises/${ex.id}`}>
-                <div className="flex items-center gap-4 p-5 bg-[#F9F9F9] hover:bg-gray-100 transition-colors rounded-2xl cursor-pointer shadow-sm border border-transparent hover:border-gray-200">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF3C2] text-[#E0A800] font-extrabold text-sm shrink-0">
-                    {idx + 1}
+          <div className="flex flex-col gap-8">
+            {(() => {
+              // Group exercises by lessonTitle, preserving order
+              const groups: { title: string; items: Exercise[] }[] = [];
+              for (const ex of exercises) {
+                const groupTitle = ex.lessonTitle || "Other";
+                const existing = groups.find((g) => g.title === groupTitle);
+                if (existing) {
+                  existing.items.push(ex);
+                } else {
+                  groups.push({ title: groupTitle, items: [ex] });
+                }
+              }
+
+              return groups.map((group) => (
+                <div key={group.title}>
+                  {/* Group header */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-5 w-1 bg-[#FFC107] rounded-full shrink-0" />
+                    <h3 className="text-[14px] font-extrabold text-gray-800 tracking-wide">{group.title}</h3>
+                    <span className="text-[11px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                      {group.items.length} exercise{group.items.length !== 1 ? "s" : ""}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-[15px] font-extrabold text-gray-900 mb-0.5 leading-none truncate">{ex.topic}</h3>
-                    {ex.lessonTitle && (
-                      <p className="text-gray-400 text-[12px]">{ex.lessonTitle}</p>
-                    )}
-                  </div>
-                  <div className="ml-auto text-sm text-gray-400 font-medium shrink-0">
-                     Start →
+
+                  {/* Exercise cards in this group */}
+                  <div className="flex flex-col gap-2">
+                    {group.items.map((ex, idx) => (
+                      <Link key={ex.id} href={`/ielts/basic/exercises/${ex.id}`}>
+                        <div className="flex items-center gap-4 px-5 py-3.5 bg-[#F9F9F9] hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-transparent">
+                          <span className="w-6 h-6 rounded-full bg-[#FFF3C2] text-[#A07000] font-bold text-xs flex items-center justify-center shrink-0">
+                            {idx + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[14px] font-semibold text-gray-900 truncate leading-none">{ex.topic}</p>
+                          </div>
+                          <span className="text-xs text-gray-400 font-medium shrink-0 group-hover:text-[#FFC107]">Start →</span>
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 </div>
-              </Link>
-            ))}
-            {exercises.length === 0 && <p className="text-gray-400">No exercises found.</p>}
+              ));
+            })()}
+            {exercises.length === 0 && <p className="text-gray-400 text-sm">No exercises found for this skill.</p>}
           </div>
         )}
+
       </div>
     </div>
   );
