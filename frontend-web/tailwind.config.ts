@@ -117,8 +117,7 @@ const config: Config = {
               overflow: 'hidden',
               border: '1px solid #e5e7eb',
               boxShadow: '0 1px 4px 0 rgba(0,0,0,0.05)',
-              fontSize: '0.875rem',
-              padding: '1em 1.5em',
+              fontSize: '0.875rem'
             },
             thead: { backgroundColor: '#111111' },
             'thead th': {

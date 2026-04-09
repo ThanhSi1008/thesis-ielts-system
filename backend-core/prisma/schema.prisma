@@ -621,50 +621,71 @@ model ShadowingDictationProgress {
 // ============================================================
 
 model IeltsSkill {
-  id        String   @id @default(uuid())
-  name      String   @unique // "Listening", "Reading", "Writing", "Speaking"
-  order     Int
-  lessons   IeltsLesson[]
-  exercises IeltsExercise[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  id                 String                   @id @default(uuid())
+  name               String                   @unique // "Listening", "Reading", "Writing", "Speaking"
+  order              Int
+  lessons            IeltsLesson[]
+  listeningExercises IeltsListeningExercise[]
+  readingExercises   IeltsReadingExercise[]
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+
   @@map("ielts_skills")
 }
 
 model IeltsLesson {
-  id          String   @id @default(uuid())
-  skillId     String
-  chapter     String?  // e.g., "Chapter 01"
-  title       String   // e.g., "Multiple Choice"
-  content     Json     // Structured array of markdown, strategy boxes, tips, etc.
-  quiz        Json?    // Array of { question, options, answer, hint, explanation }
-  order       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String                   @id @default(uuid())
+  skillId            String
+  chapter            String?                  // e.g., "Chapter 01"
+  title              String                   // e.g., "Multiple Choice"
+  content            Json                     // Structured array of content blocks
+  quiz               Json?                    // Array of { question, options, answer, hint, explanation }
+  order              Int
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
 
-  skill       IeltsSkill @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  exercises   IeltsExercise[]
+  skill              IeltsSkill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  listeningExercises IeltsListeningExercise[]
+  readingExercises   IeltsReadingExercise[]
 
   @@map("ielts_lessons")
 }
 
-model IeltsExercise {
-  id           String   @id @default(uuid())
+model IeltsListeningExercise {
+  id           String      @id @default(uuid())
   skillId      String
   lessonId     String?
-  topic        String   // e.g., "Melbourne City Tour Inquiry"
+  topic        String      // e.g., "Melbourne City Tour Inquiry"
   instructions String?
-  audioUrl     String?  // For Listening exercises
-  transcript   Json?    // Array of objects with speakers, text, highlight text, and timestamps
-  readingText  Json?    // For Reading exercises
-  content      Json     // The actual questions arrays
+  audioUrl     String      // Always required for listening
+  transcript   Json        // Array of { speaker, text, question_number?, highlight_text? }
+  content      Json        // Array of question groups (type: multiple_choice | table | map_labelling | ...)
   order        Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
   lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
-  @@map("ielts_exercises")
+  @@map("ielts_listening_exercises")
 }
+
+model IeltsReadingExercise {
+  id                   String      @id @default(uuid())
+  skillId              String
+  lessonId             String?
+  topic                String      // e.g., "The Automobile and the American Dream"
+  instructions         String?
+  passage              String      // Plain text passage
+  passageWithLocations Json?       // Annotated array with inline question anchors
+  content              Json        // Array of question groups (type: multiple_choice | matching_headings | ...)
+  order                Int
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("ielts_reading_exercises")
+}
+

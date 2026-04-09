@@ -10,7 +10,8 @@ async function seed() {
   console.log('Seeding IELTS basic data...');
   
   // Clean existing data.
-  await prisma.ieltsExercise.deleteMany({});
+  await prisma.ieltsListeningExercise.deleteMany({});
+  await prisma.ieltsReadingExercise.deleteMany({});
   await prisma.ieltsLesson.deleteMany({});
   
   // 1. Ensure skills exist
@@ -73,23 +74,37 @@ async function seed() {
       let exOrder = 1;
       for (const ex of matchedExs) {
         if (ex.seeded) continue;
-        await prisma.ieltsExercise.create({
-          data: {
-            skillId: skillRecord.id,
-            lessonId: lesson.id,
-            topic: ex.topic,
-            instructions: ex.instructions,
-            audioUrl: ex.audioUrl,
-            transcript: ex.transcript,
-            readingText: ex.readingText,
-            content: ex.content,
-            order: exOrder++,
-          }
-        });
+        if (skillName === 'listening') {
+          await prisma.ieltsListeningExercise.create({
+            data: {
+              skillId: skillRecord.id,
+              lessonId: lesson.id,
+              topic: ex.topic,
+              instructions: ex.instructions,
+              audioUrl: ex.audioUrl!,
+              transcript: ex.transcript,
+              content: ex.content,
+              order: exOrder++,
+            }
+          });
+        } else {
+          await prisma.ieltsReadingExercise.create({
+            data: {
+              skillId: skillRecord.id,
+              lessonId: lesson.id,
+              topic: ex.topic,
+              instructions: ex.instructions,
+              passage: ex.passage!,
+              passageWithLocations: ex.passageWithLocations,
+              content: ex.content,
+              order: exOrder++,
+            }
+          });
+        }
         ex.seeded = true;
       }
     }
-    
+
     // Unmatched exercises linked to skill only
     let exOrderUnmatched = 100;
     const unmatched = exercisesArr.filter((e: any) => !e.seeded);
@@ -98,18 +113,31 @@ async function seed() {
     }
 
     for (const ex of unmatched) {
-      await prisma.ieltsExercise.create({
-        data: {
-          skillId: skillRecord.id,
-          topic: ex.topic,
-          instructions: ex.instructions,
-          audioUrl: ex.audioUrl,
-          transcript: ex.transcript,
-          readingText: ex.readingText,
-          content: ex.content,
-          order: exOrderUnmatched++,
-        }
-      });
+      if (skillName === 'listening') {
+        await prisma.ieltsListeningExercise.create({
+          data: {
+            skillId: skillRecord.id,
+            topic: ex.topic,
+            instructions: ex.instructions,
+            audioUrl: ex.audioUrl!,
+            transcript: ex.transcript,
+            content: ex.content,
+            order: exOrderUnmatched++,
+          }
+        });
+      } else {
+        await prisma.ieltsReadingExercise.create({
+          data: {
+            skillId: skillRecord.id,
+            topic: ex.topic,
+            instructions: ex.instructions,
+            passage: ex.passage!,
+            passageWithLocations: ex.passageWithLocations,
+            content: ex.content,
+            order: exOrderUnmatched++,
+          }
+        });
+      }
     }
   }
   
@@ -269,27 +297,34 @@ function getExercises(compiledDir: string, skillName: string) {
       try {
         const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
         
-        let contentData = [];
-        if (data.content && Array.isArray(data.content)) contentData = data.content;
-        else if (data.question_groups) contentData = data.question_groups;
-        else if (data.questions && Array.isArray(data.questions)) contentData = data.questions;
-        else contentData = [data];
+        // Listening files are arrays, reading files are plain objects — unwrap either
+        const root: any = Array.isArray(data) ? data[0] : data;
+        if (!root) continue;
+
+        let contentData: any[] = [];
+        if (root.content && Array.isArray(root.content)) contentData = root.content;
+        else if (root.question_groups) contentData = root.question_groups;
+        else if (root.questions && Array.isArray(root.questions)) contentData = root.questions;
+        else contentData = [root];
 
         const match = file.match(/^[a-z]+_(Chapter_\d+)_(.*?)_Question(s)?_/);
         let rawTitle = file;
         let chapterFolderName = '';
         if (match) {
-           chapterFolderName = match[1].replace('_', ' '); 
-           rawTitle = match[2].replace(/_/g, ' '); 
+          chapterFolderName = match[1].replace('_', ' ');
+          rawTitle = match[2].replace(/_/g, ' ');
         }
 
         exList.push({
           chapterFolderName: chapterFolderName + ' - ' + rawTitle,
-          topic: data.title || rawTitle,
-          instructions: data.instructions || '',
-          audioUrl: null,
-          transcript: data.transcript || null,
-          readingText: data.passage || null, 
+          topic: root.title || rawTitle,
+          instructions: root.instructions || '',
+          // Listening-specific
+          audioUrl: root.audio_url || null,
+          transcript: root.transcript || null,
+          // Reading-specific
+          passage: typeof root.passage === 'string' ? root.passage : null,
+          passageWithLocations: root.passage_with_locations || null,
           content: contentData,
           seeded: false
         });

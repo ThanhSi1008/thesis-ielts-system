@@ -40,25 +40,49 @@ export class IeltsService {
     return lesson;
   }
 
-  async findExercisesByLesson(lessonId: string) {
-    return this.prisma.ieltsExercise.findMany({
+  // ── Listening ──────────────────────────────────────────────────────────
+
+  async findListeningExercisesByLesson(lessonId: string) {
+    return this.prisma.ieltsListeningExercise.findMany({
       where: { lessonId },
       orderBy: { order: "asc" },
-      select: {
-        id: true,
-        topic: true,
-        order: true,
-      }
+      select: { id: true, topic: true, order: true },
     });
   }
 
-  async findExerciseById(exerciseId: string) {
-    const exercise = await this.prisma.ieltsExercise.findUnique({
+  async findListeningExerciseById(exerciseId: string) {
+    const exercise = await this.prisma.ieltsListeningExercise.findUnique({
       where: { id: exerciseId },
     });
 
     if (!exercise) {
-      throw new NotFoundException(`Exercise with ID ${exerciseId} not found`);
+      throw new NotFoundException(
+        `Listening exercise with ID ${exerciseId} not found`
+      );
+    }
+
+    return exercise;
+  }
+
+  // ── Reading ────────────────────────────────────────────────────────────
+
+  async findReadingExercisesByLesson(lessonId: string) {
+    return this.prisma.ieltsReadingExercise.findMany({
+      where: { lessonId },
+      orderBy: { order: "asc" },
+      select: { id: true, topic: true, order: true },
+    });
+  }
+
+  async findReadingExerciseById(exerciseId: string) {
+    const exercise = await this.prisma.ieltsReadingExercise.findUnique({
+      where: { id: exerciseId },
+    });
+
+    if (!exercise) {
+      throw new NotFoundException(
+        `Reading exercise with ID ${exerciseId} not found`
+      );
     }
 
     return exercise;
