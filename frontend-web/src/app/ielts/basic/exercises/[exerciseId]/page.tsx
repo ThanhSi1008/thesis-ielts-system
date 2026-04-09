@@ -374,9 +374,6 @@ function MCMultipleQuestionItem({
           {group.question_numbers?.map((qNum) => (
             <div key={qNum} className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{qNum}</span>
-              <button onClick={() => seekTo(timestampMap[qNum])} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
-                <Headphones className="w-3.5 h-3.5" /> Listen from here
-              </button>
               <button onClick={() => onLocate(qNum)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
                 <MapPin className="w-3.5 h-3.5" /> Locate
               </button>
@@ -394,6 +391,131 @@ function MCMultipleQuestionItem({
       {showExplanation && group.explanation && (
         <div className="mt-2 ml-2 bg-blue-50 border border-blue-100 rounded-lg p-3 text-[13px] text-blue-800 leading-relaxed">
           {group.explanation}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Form / Note Completion ───────────────────────────────────────────────────
+
+interface FormPoint {
+  question_number: number;
+  text: string;
+  answer: string;
+  timestamp_seconds?: number;
+  explanation: string;
+}
+
+function FormCompletionGroup({
+  heading,
+  points,
+  answers,
+  onAnswer,
+  submitted,
+  audioRef,
+  onLocate,
+}: {
+  heading: string;
+  points: FormPoint[];
+  answers: Record<number, string>;
+  onAnswer: (qNum: number, val: string) => void;
+  submitted: boolean;
+  audioRef: React.RefObject<HTMLAudioElement>;
+  onLocate: (qNum: number) => void;
+}) {
+  const [showExplanation, setShowExplanation] = useState<number | null>(null);
+
+  const seekTo = (ts?: number) => {
+    if (!audioRef.current) return;
+    if (ts !== undefined) audioRef.current.currentTime = ts;
+    audioRef.current.play();
+  };
+
+  // Render the text with the answer blank inline
+  const renderText = (point: FormPoint) => {
+    // Pattern: the question_number appears before the blank in the text e.g. "Name: 1 ......."
+    const blankRegex = /\d+\s*\.{3,}/;
+    const parts = point.text.split(blankRegex);
+    const userAnswer = answers[point.question_number] ?? "";
+    const isCorrect = submitted && userAnswer.trim().toLowerCase() === point.answer.trim().toLowerCase();
+    const isWrong = submitted && !isCorrect && userAnswer.trim() !== "";
+
+    return (
+      <span>
+        {parts[0]}
+        <span className="inline-flex items-center gap-1 mx-1">
+          <span className={`text-[11px] font-bold rounded-sm px-1 py-0.5 ${
+            submitted
+              ? isCorrect ? "bg-green-100 text-green-700" : "bg-red-100 text-red-500"
+              : "bg-[#FFF9E6] text-[#996600]"
+          }`}>{point.question_number}</span>
+          {submitted ? (
+            <span className={`font-semibold text-[13px] border-b-2 px-1 min-w-[80px] inline-block ${
+              isCorrect ? "border-green-400 text-green-700" : "border-red-400 text-red-500 line-through"
+            }`}>{userAnswer || "—"}</span>
+          ) : (
+            <input
+              type="text"
+              value={userAnswer}
+              onChange={(e) => onAnswer(point.question_number, e.target.value)}
+              placeholder="..."
+              className="border-b-2 border-gray-300 focus:border-[#FFC107] outline-none bg-transparent text-[13px] text-gray-800 px-1 min-w-[80px] w-[120px] font-medium transition-colors"
+            />
+          )}
+          {submitted && !isCorrect && (
+            <span className="text-[12px] text-green-600 font-semibold">{point.answer}</span>
+          )}
+        </span>
+        {parts[1]}
+      </span>
+    );
+  };
+
+  return (
+    <div className="mb-4">
+      {/* Form card */}
+      <div className="border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5">
+          <h3 className="text-[13px] font-bold text-gray-800 text-center">{heading}</h3>
+        </div>
+        <div className="px-5 py-4 space-y-4">
+          {points.map((point) => (
+            <div id={`question-${point.question_number}`} key={point.question_number} className="text-[14px] text-gray-700 leading-relaxed">
+              {renderText(point)}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Action buttons per question */}
+      {submitted && (
+        <div className="mt-3 space-y-2">
+          {points.map((point) => (
+            <div key={point.question_number} className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{point.question_number}</span>
+              <button onClick={() => seekTo(point.timestamp_seconds)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+                <Headphones className="w-3.5 h-3.5" /> Listen from here
+              </button>
+              <button onClick={() => onLocate(point.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+                <MapPin className="w-3.5 h-3.5" /> Locate
+              </button>
+              <button
+                onClick={() => setShowExplanation(showExplanation === point.question_number ? null : point.question_number)}
+                className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
+              >
+                <MessageSquare className="w-3.5 h-3.5" /> Explain
+              </button>
+              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+                <StickyNote className="w-3.5 h-3.5" /> Note
+              </button>
+              {showExplanation === point.question_number && (
+                <div className="w-full mt-1.5 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
+                  {point.explanation}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -569,6 +691,10 @@ export default function ListeningExercisePage() {
       const nums = (g.question_numbers as number[] | undefined) ?? [];
       return nums.map((n) => ({ qNum: n, groupKey: `mcm-${gi}` }));
     }
+    if (!g.type && Array.isArray((g as any).points)) {
+      // form_completion group
+      return ((g as any).points as FormPoint[]).map((p) => ({ qNum: p.question_number, groupKey: String(p.question_number) }));
+    }
     const qs = Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : [];
     return qs.map((q) => ({ qNum: q.question_number, groupKey: String(q.question_number) }));
   }) ?? [];
@@ -613,6 +739,11 @@ export default function ListeningExercisePage() {
             const correct = new Set(answers_arr.map((a) => a.toUpperCase()));
             const isCorrect = selected.length === correct.size && selected.every((s) => correct.has(s));
             if (isCorrect) s++;
+          } else if (!g.type && Array.isArray((g as any).points)) {
+            ((g as any).points as FormPoint[]).forEach((p) => {
+              const userAns = (answers[p.question_number] as unknown as string ?? "").trim().toLowerCase();
+              if (userAns === p.answer.trim().toLowerCase()) s++;
+            });
           } else {
             const qs = Array.isArray(g.questions) ? (g.questions as MCQuestion[]) : [];
             qs.forEach((q) => {
@@ -679,6 +810,25 @@ export default function ListeningExercisePage() {
         {/* Left: Questions */}
         <div className={`overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${showTranscript ? "w-1/2 border-r border-gray-100" : "w-full"}`}>
           {exercise.content.map((group, gi) => {
+            // --- form / note completion ---
+            if (!group.type && Array.isArray((group as any).points)) {
+              const pts = (group as any).points as FormPoint[];
+              const heading = (group as any).heading as string ?? "";
+              return (
+                <div key={gi}>
+                  <FormCompletionGroup
+                    heading={heading}
+                    points={pts}
+                    answers={answers as Record<number, string>}
+                    onAnswer={(qNum, val) => !submitted && setAnswers((prev) => ({ ...prev, [qNum]: val as unknown as string }))}
+                    submitted={submitted}
+                    audioRef={audioRef}
+                    onLocate={handleLocate}
+                  />
+                </div>
+              );
+            }
+
             // --- multiple_choice_multiple (checkbox multi-answer) ---
             if (group.type === "multiple_choice_multiple") {
               const mcmGroup = group as unknown as MCMultipleQuestion;
