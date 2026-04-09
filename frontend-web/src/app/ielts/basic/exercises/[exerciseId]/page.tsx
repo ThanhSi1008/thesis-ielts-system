@@ -126,7 +126,7 @@ function AudioPlayer({ src, audioRef }: { src: string; audioRef: React.RefObject
   const bars = Array.from({ length: 80 }, (_, i) => i);
 
   return (
-    <div className="flex items-center gap-4 w-full bg-gray-50/50 p-2 rounded-full border border-gray-100">
+    <div className="flex items-center p-2 gap-4">
       <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
       <button
         onClick={toggle}
@@ -504,11 +504,10 @@ export default function ListeningExercisePage() {
                 <button
                   key={q.question_number}
                   onClick={() => document.getElementById(`question-${q.question_number}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                  className={`w-7 h-7 rounded text-xs font-bold transition-colors ${
-                    isAnswered
-                      ? "bg-[#111] text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
+                  className={`w-7 h-7 rounded text-xs font-bold transition-colors ${isAnswered
+                    ? "bg-[#111] text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
                 >
                   {q.question_number}
                 </button>
@@ -524,7 +523,7 @@ export default function ListeningExercisePage() {
               {score}/{allQuestions.length} correct
             </span>
           ) : (
-             <button
+            <button
               onClick={handleSubmit}
               disabled={Object.keys(answers).length === 0}
               className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

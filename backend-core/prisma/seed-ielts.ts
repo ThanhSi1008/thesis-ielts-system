@@ -317,7 +317,7 @@ function getExercises(compiledDir: string, skillName: string) {
 
         exList.push({
           chapterFolderName: chapterFolderName + ' - ' + rawTitle,
-          topic: root.title || rawTitle,
+          topic: root.topic || root.title || rawTitle,
           instructions: root.instructions || '',
           // Listening-specific
           audioUrl: root.audio_url || null,
