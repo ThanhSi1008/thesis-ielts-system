@@ -124,21 +124,21 @@ function AudioPlayer({ src, audioRef }: { src: string; audioRef: React.RefObject
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
-    
+
     const onTimeUpdate = () => setCurrentTime(el.currentTime);
     const onLoadedMetadata = () => setDuration(el.duration);
     const onEnded = () => setPlaying(false);
-    
+
     el.addEventListener("timeupdate", onTimeUpdate);
     el.addEventListener("loadedmetadata", onLoadedMetadata);
     el.addEventListener("ended", onEnded);
-    
+
     if (el.duration) setDuration(el.duration);
 
-    return () => { 
-      el.removeEventListener("timeupdate", onTimeUpdate); 
+    return () => {
+      el.removeEventListener("timeupdate", onTimeUpdate);
       el.removeEventListener("loadedmetadata", onLoadedMetadata);
-      el.removeEventListener("ended", onEnded); 
+      el.removeEventListener("ended", onEnded);
     };
   }, [audioRef]);
 
@@ -263,8 +263,8 @@ function MCQuestionItem({
     <div id={`question-${q.question_number}`} className="mb-7">
       <p className="text-[14px] font-semibold text-gray-900 mb-3 leading-snug flex items-start">
         <span className={`inline-block mr-2 font-bold ${submitted
-            ? isCorrect ? "text-green-600" : "text-red-500"
-            : "text-gray-900"
+          ? isCorrect ? "text-green-600" : "text-red-500"
+          : "text-gray-900"
           }`}>
           {q.question_number}.
         </span>
@@ -274,6 +274,7 @@ function MCQuestionItem({
       <div className="space-y-2 ml-8">
         {q.options.map((opt) => {
           const isSelected = selected?.toUpperCase() === opt.letter.toUpperCase();
+          const isAnswerKey = q.answer?.toUpperCase() === opt.letter.toUpperCase();
           let circleClass = "w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-all ";
           let innerContent = null;
 
