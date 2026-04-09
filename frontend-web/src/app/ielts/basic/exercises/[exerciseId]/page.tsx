@@ -261,12 +261,12 @@ function MCQuestionItem({
 
   return (
     <div id={`question-${q.question_number}`} className="mb-7">
-      <p className="text-[14px] font-semibold text-gray-900 mb-3 leading-snug">
-        <span className={`inline-flex items-center justify-center w-6 h-6 rounded mr-2 text-xs font-bold border ${submitted
-          ? isCorrect ? "bg-green-500 text-white border-green-500" : "bg-red-400 text-white border-red-400"
-          : "bg-white text-gray-700 border-gray-300"
+      <p className="text-[14px] font-semibold text-gray-900 mb-3 leading-snug flex items-start">
+        <span className={`inline-block mr-2 font-bold ${submitted
+            ? isCorrect ? "text-green-600" : "text-red-500"
+            : "text-gray-900"
           }`}>
-          {q.question_number}
+          {q.question_number}.
         </span>
         {q.text}
       </p>
@@ -274,15 +274,26 @@ function MCQuestionItem({
       <div className="space-y-2 ml-8">
         {q.options.map((opt) => {
           const isSelected = selected?.toUpperCase() === opt.letter.toUpperCase();
-          const isAnswerKey = q.answer?.toUpperCase() === opt.letter.toUpperCase();
+          let circleClass = "w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-all ";
+          let innerContent = null;
 
-          let circleClass = "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ";
           if (submitted) {
-            if (isAnswerKey) circleClass += "bg-green-500 border-green-500";
-            else if (isSelected && !isAnswerKey) circleClass += "bg-red-400 border-red-400";
-            else circleClass += "border-gray-300";
+            if (isAnswerKey) {
+              circleClass += "border-green-500 bg-white";
+              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-green-500" />;
+            } else if (isSelected && !isAnswerKey) {
+              circleClass += "border-red-400 bg-white";
+              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-red-400" />;
+            } else {
+              circleClass += "border-gray-300 bg-white";
+            }
           } else {
-            circleClass += isSelected ? "border-[#FFC107] bg-[#FFC107]" : "border-gray-300 hover:border-gray-400";
+            if (isSelected) {
+              circleClass += "border-[#FFC107] bg-white";
+              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-[#FFC107]" />;
+            } else {
+              circleClass += "border-gray-300 hover:border-gray-400 bg-white";
+            }
           }
 
           return (
@@ -290,10 +301,10 @@ function MCQuestionItem({
               key={opt.letter}
               disabled={submitted}
               onClick={() => onSelect(opt.letter)}
-              className={`flex items-center gap-2.5 text-left text-[13px] text-gray-700 w-full group ${submitted ? "cursor-default" : "cursor-pointer hover:text-gray-900"}`}
+              className={`flex items-center gap-2.5 text-left text-[14px] text-gray-700 w-full outline-none focus:outline-none group ${submitted ? "cursor-default" : "cursor-pointer hover:text-gray-900"}`}
             >
               <span className={circleClass}>
-                {submitted && isAnswerKey && <Check className="w-2.5 h-2.5 text-white" />}
+                {innerContent}
               </span>
               <span className={
                 submitted && isAnswerKey ? "font-semibold text-green-700" :
@@ -526,12 +537,10 @@ export default function ListeningExercisePage() {
                 <button
                   key={q.question_number}
                   onClick={() => document.getElementById(`question-${q.question_number}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                  className={`w-7 h-7 rounded text-xs font-bold transition-colors ${isAnswered
-                    ? "bg-[#111] text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
+                  className="w-7 h-9 flex flex-col items-center justify-between text-[13px] font-bold transition-all pt-1 text-gray-700 hover:bg-gray-50 outline-none focus:outline-none"
                 >
-                  {q.question_number}
+                  <div className={`w-4 h-[3px] rounded-full transition-colors ${isAnswered ? 'bg-[#4CAF50]' : 'bg-gray-200'}`} />
+                  <span className="mb-0.5">{q.question_number}</span>
                 </button>
               );
             })}
