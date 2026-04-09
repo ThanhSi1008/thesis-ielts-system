@@ -17,6 +17,8 @@ interface Exercise {
   id: string;
   topic: string;
   order: number;
+  lessonTitle?: string;
+  lessonId?: string;
 }
 
 export default function IeltsBasicPage() {
@@ -30,25 +32,31 @@ export default function IeltsBasicPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        if (activeInnerTab === "Lessons") {
-          const res = await axios.get(
-            `http://localhost:3000/api/v1/ielts/skills/${activeTab}/lessons`
-          );
-          setLessons(res.data);
-        } else {
-          // fetch exercises (get lessons first, then exercises for each, or a specific endpoint)
-          // For simplicity, let's just fetch lessons and assume we have an endpoint for all exercises of a skill.
-          // Since we created GET /api/ielts/exercises/:id and GET /api/ielts/lessons/:id/exercises
-          // Let's just fetch lessons, then exercises for the first one as an example, or all exercises if we had that endpoint.
-          // For the mock, let's fetch lessons and then map through them to get exercises.
-          const res = await axios.get(
-            `http://localhost:3000/api/v1/ielts/skills/${activeTab}/lessons`
-          );
-          if (res.data.length > 0) {
-             const exRes = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${res.data[0].id}/exercises`);
-             setExercises(exRes.data);
+        // Always fetch lessons for the active skill
+        const lessonsRes = await axios.get(
+          `http://localhost:3000/api/v1/ielts/skills/${activeTab}/lessons`
+        );
+        const allLessons: Lesson[] = lessonsRes.data;
+        setLessons(allLessons);
+
+        if (activeInnerTab === "Exercise" && allLessons.length > 0) {
+          // Determine which exercise endpoint to use based on skill
+          const isListening = activeTab === "Listening";
+          const isReading = activeTab === "Reading";
+
+          if (isListening || isReading) {
+            const endpoint = isListening ? "listening-exercises" : "reading-exercises";
+            // Fetch exercises for each lesson in parallel
+            const exResponses = await Promise.all(
+              allLessons.map((l) =>
+                axios.get(`http://localhost:3000/api/v1/ielts/lessons/${l.id}/${endpoint}`)
+                  .then((r) => r.data.map((ex: Exercise) => ({ ...ex, lessonTitle: l.title })))
+                  .catch(() => [])
+              )
+            );
+            setExercises(exResponses.flat());
           } else {
-             setExercises([]);
+            setExercises([]);
           }
         }
       } catch (e) {
@@ -157,18 +165,20 @@ export default function IeltsBasicPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-             {exercises.map((ex, idx) => (
+          {exercises.map((ex, idx) => (
               <Link key={ex.id} href={`/ielts/basic/exercises/${ex.id}`}>
                 <div className="flex items-center gap-4 p-5 bg-[#F9F9F9] hover:bg-gray-100 transition-colors rounded-2xl cursor-pointer shadow-sm border border-transparent hover:border-gray-200">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#E3F2FD] text-[#2196F3] font-extrabold text-sm shrink-0">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF3C2] text-[#E0A800] font-extrabold text-sm shrink-0">
                     {idx + 1}
                   </div>
-                  <div>
-                    <h3 className="text-[16px] font-extrabold text-gray-900 mb-1 leading-none">{ex.topic}</h3>
-                    <p className="text-gray-400 text-[13px]">Practice multiple choice</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-[15px] font-extrabold text-gray-900 mb-0.5 leading-none truncate">{ex.topic}</h3>
+                    {ex.lessonTitle && (
+                      <p className="text-gray-400 text-[12px]">{ex.lessonTitle}</p>
+                    )}
                   </div>
-                  <div className="ml-auto text-sm text-gray-400 font-medium">
-                     Start Practice →
+                  <div className="ml-auto text-sm text-gray-400 font-medium shrink-0">
+                     Start →
                   </div>
                 </div>
               </Link>
