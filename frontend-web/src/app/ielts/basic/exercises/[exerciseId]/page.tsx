@@ -38,6 +38,7 @@ interface MCMultipleQuestion {
   answers: string[];
   num_correct: number;
   explanation: string;
+  question_timestamps?: number[];   // optional per-question seek points
 }
 
 interface ContentGroup {
@@ -271,11 +272,19 @@ function MCMultipleQuestionItem({
   const selectedSet = new Set(selectedLetters.map((s) => s.toUpperCase()));
   const allCorrect = submitted && group.answers.every((a) => selectedSet.has(a.toUpperCase())) && selectedLetters.length === group.answers.length;
 
-  const seekTo = () => {
-    if (audioRef.current && (group as any).timestamp_seconds) {
-      audioRef.current.currentTime = (group as any).timestamp_seconds;
-      audioRef.current.play();
+  // Build a map: question_number → timestamp_seconds (if provided)
+  const timestampMap: Record<number, number> = {};
+  group.question_numbers?.forEach((n, i) => {
+    const ts = group.question_timestamps?.[i];
+    if (ts !== undefined) timestampMap[n] = ts;
+  });
+
+  const seekTo = (ts?: number) => {
+    if (!audioRef.current) return;
+    if (ts !== undefined) {
+      audioRef.current.currentTime = ts;
     }
+    audioRef.current.play();
   };
 
   const firstQNum = group.question_numbers?.[0];
@@ -365,7 +374,7 @@ function MCMultipleQuestionItem({
           {group.question_numbers?.map((qNum) => (
             <div key={qNum} className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{qNum}</span>
-              <button onClick={seekTo} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+              <button onClick={() => seekTo(timestampMap[qNum])} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
                 <Headphones className="w-3.5 h-3.5" /> Listen from here
               </button>
               <button onClick={() => onLocate(qNum)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
