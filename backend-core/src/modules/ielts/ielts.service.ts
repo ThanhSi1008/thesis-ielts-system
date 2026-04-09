@@ -31,6 +31,7 @@ export class IeltsService {
   async findLessonById(lessonId: string) {
     const lesson = await this.prisma.ieltsLesson.findUnique({
       where: { id: lessonId },
+      include: { skill: { select: { name: true } } },
     });
 
     if (!lesson) {
