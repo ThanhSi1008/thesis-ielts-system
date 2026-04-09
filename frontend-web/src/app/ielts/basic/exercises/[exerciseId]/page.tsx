@@ -255,18 +255,30 @@ function MCMultipleQuestionItem({
   selectedLetters,
   onToggle,
   submitted,
+  audioRef,
+  onLocate,
 }: {
   group: MCMultipleQuestion;
   selectedLetters: string[];
   onToggle: (letter: string) => void;
   submitted: boolean;
+  audioRef: React.RefObject<HTMLAudioElement>;
+  onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState(false);
   const numCorrect = group.num_correct ?? group.answers.length;
   const correctSet = new Set(group.answers.map((a) => a.toUpperCase()));
   const selectedSet = new Set(selectedLetters.map((s) => s.toUpperCase()));
-
   const allCorrect = submitted && group.answers.every((a) => selectedSet.has(a.toUpperCase())) && selectedLetters.length === group.answers.length;
+
+  const seekTo = () => {
+    if (audioRef.current && (group as any).timestamp_seconds) {
+      audioRef.current.currentTime = (group as any).timestamp_seconds;
+      audioRef.current.play();
+    }
+  };
+
+  const firstQNum = group.question_numbers?.[0];
 
   return (
     <div className="mb-7">
@@ -347,15 +359,26 @@ function MCMultipleQuestionItem({
         })}
       </div>
 
+      {/* Post-submit action buttons */}
       {submitted && (
-        <button
-          onClick={() => setShowExplanation(!showExplanation)}
-          className="mt-3 ml-2 text-[12px] text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1"
-        >
-          <MessageSquare className="w-3.5 h-3.5" />
-          {showExplanation ? "Hide" : "Show"} explanation
-        </button>
+        <div className="ml-2 mt-3 flex flex-wrap gap-2">
+          <button onClick={seekTo} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+            <Headphones className="w-3.5 h-3.5" /> Listen from here
+          </button>
+          {firstQNum && (
+            <button onClick={() => onLocate(firstQNum)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+              <MapPin className="w-3.5 h-3.5" /> Locate
+            </button>
+          )}
+          <button onClick={() => setShowExplanation(!showExplanation)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+            <MessageSquare className="w-3.5 h-3.5" /> Explain
+          </button>
+          <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+            <StickyNote className="w-3.5 h-3.5" /> Note
+          </button>
+        </div>
       )}
+
       {showExplanation && group.explanation && (
         <div className="mt-2 ml-2 bg-blue-50 border border-blue-100 rounded-lg p-3 text-[13px] text-blue-800 leading-relaxed">
           {group.explanation}
@@ -637,6 +660,8 @@ export default function ListeningExercisePage() {
                     selectedLetters={selectedLetters}
                     onToggle={handleToggle}
                     submitted={submitted}
+                    audioRef={audioRef}
+                    onLocate={handleLocate}
                   />
                 </div>
               );
