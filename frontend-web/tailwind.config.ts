@@ -32,23 +32,23 @@ const config: Config = {
           '50%': { transform: 'scaleY(1)' },
         },
         'slide-in-left': {
-          '0%':   { opacity: '0', transform: 'translateX(-80px)' },
+          '0%': { opacity: '0', transform: 'translateX(-80px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         'slide-in-right': {
-          '0%':   { opacity: '0', transform: 'translateX(80px)' },
+          '0%': { opacity: '0', transform: 'translateX(80px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         'fade-up': {
-          '0%':   { opacity: '0', transform: 'translateY(24px)' },
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
       animation: {
-        waveform:         'waveform 1s ease-in-out infinite',
-        'slide-in-left':  'slide-in-left  0.7s cubic-bezier(0.22,1,0.36,1) both',
+        waveform: 'waveform 1s ease-in-out infinite',
+        'slide-in-left': 'slide-in-left  0.7s cubic-bezier(0.22,1,0.36,1) both',
         'slide-in-right': 'slide-in-right 0.7s cubic-bezier(0.22,1,0.36,1) both',
-        'fade-up':        'fade-up        0.6s cubic-bezier(0.22,1,0.36,1) both',
+        'fade-up': 'fade-up        0.6s cubic-bezier(0.22,1,0.36,1) both',
       },
       typography: {
         DEFAULT: {
@@ -90,7 +90,7 @@ const config: Config = {
               color: '#92400e',
             },
             'code::before': { content: '""' },
-            'code::after':  { content: '""' },
+            'code::after': { content: '""' },
 
             // Blockquote — yellow accent
             blockquote: {
@@ -118,6 +118,7 @@ const config: Config = {
               border: '1px solid #e5e7eb',
               boxShadow: '0 1px 4px 0 rgba(0,0,0,0.05)',
               fontSize: '0.875rem',
+              padding: '1em 1.5em',
             },
             thead: { backgroundColor: '#111111' },
             'thead th': {
@@ -133,6 +134,11 @@ const config: Config = {
             'tbody tr:nth-child(even)': { backgroundColor: '#f9fafb' },
             'tbody tr:last-child': { border: 'none' },
             td: { padding: '1em 1.5em', verticalAlign: 'top', color: '#1a1a1a', lineHeight: '1.7' },
+            // Override typography plugin's opinionated first/last-child padding resets
+            'td:first-child': { paddingLeft: '1.5em' },
+            'td:last-child': { paddingRight: '1.5em' },
+            'th:first-child': { paddingLeft: '1.5em' },
+            'th:last-child': { paddingRight: '1.5em' },
           },
         },
       },
