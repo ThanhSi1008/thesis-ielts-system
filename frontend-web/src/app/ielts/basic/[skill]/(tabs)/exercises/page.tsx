@@ -102,7 +102,7 @@ export default async function ExercisesPage({
             {group.items.map((ex, idx) => (
               <Link
                 key={ex.id}
-                href={`/ielts/basic/exercises/${ex.id}${
+                href={`/ielts/basic/${params.skill}/exercises/${ex.id}${
                   ex.lessonId ? `?lessonId=${ex.lessonId}` : ""
                 }`}
               >

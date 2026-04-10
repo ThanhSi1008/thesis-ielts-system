@@ -39,7 +39,7 @@ export default async function LessonsPage({
   return (
     <div className="flex flex-col gap-4">
       {lessons.map((lesson, idx) => (
-        <Link key={lesson.id} href={`/ielts/basic/lessons/${lesson.id}`}>
+        <Link key={lesson.id} href={`/ielts/basic/${params.skill}/lessons/${lesson.id}`}>
           <div className="flex items-center gap-4 p-5 bg-[#F9F9F9] hover:bg-gray-100 transition-colors rounded-2xl cursor-pointer shadow-sm border border-transparent hover:border-gray-200">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF3C2] text-[#E0A800] font-extrabold text-sm shrink-0">
               {idx + 1}
