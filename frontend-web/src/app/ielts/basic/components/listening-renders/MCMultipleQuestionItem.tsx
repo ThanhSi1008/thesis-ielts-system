@@ -17,6 +17,7 @@ export function MCMultipleQuestionItem({
   selectedLetters,
   onToggle,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -24,6 +25,7 @@ export function MCMultipleQuestionItem({
   selectedLetters: string[];
   onToggle: (letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -130,7 +132,7 @@ export function MCMultipleQuestionItem({
       </div>
 
       {/* Post-submit action buttons — one row per question number */}
-      {submitted && (
+      {showAnswers && (
         <div className="ml-2 mt-3 space-y-2">
           {group.question_numbers?.map((qNum) => (
             <div key={qNum} className="flex flex-wrap items-center gap-2">

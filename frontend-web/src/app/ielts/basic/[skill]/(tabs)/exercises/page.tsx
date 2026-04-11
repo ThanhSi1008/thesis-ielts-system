@@ -1,12 +1,5 @@
 import Link from "next/link";
-
-interface Exercise {
-  id: string;
-  topic: string;
-  order: number;
-  lessonTitle?: string;
-  lessonId?: string;
-}
+import ClientExerciseListGroup from "./ClientExerciseListGroup";
 
 export default async function ExercisesPage({
   params,
@@ -18,7 +11,7 @@ export default async function ExercisesPage({
   const skillCapitalized =
     params.skill.charAt(0).toUpperCase() + params.skill.slice(1).toLowerCase();
 
-  let exercises: Exercise[] = [];
+  let exercises: any[] = [];
 
   try {
     // 1. Fetch lessons for the skill to get lesson IDs
@@ -42,7 +35,7 @@ export default async function ExercisesPage({
             );
             if (exRes.ok) {
               const exData = await exRes.json();
-              return exData.map((ex: Exercise) => ({
+              return exData.map((ex: any) => ({
                 ...ex,
                 lessonTitle: l.title,
                 lessonId: l.id,
@@ -73,7 +66,7 @@ export default async function ExercisesPage({
   const toTypeLabel = (title: string) =>
     (title || "Other").replace(/^Chapter\s+\d+\s*[-–]\s*/i, "").trim() || "Other";
 
-  const groups: { title: string; items: Exercise[] }[] = [];
+  const groups: { title: string; items: any[] }[] = [];
   for (const ex of exercises) {
     const groupTitle = toTypeLabel(ex.lessonTitle || "Other");
     const existing = groups.find((g) => g.title === groupTitle);
@@ -84,46 +77,5 @@ export default async function ExercisesPage({
     }
   }
 
-  return (
-    <div className="flex flex-col gap-8">
-      {groups.map((group) => (
-        <div key={group.title}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-5 w-1 bg-[#FFC107] rounded-full shrink-0" />
-            <h3 className="text-[14px] font-extrabold text-gray-800 tracking-wide">
-              {group.title}
-            </h3>
-            <span className="text-[11px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-              {group.items.length} exercise{group.items.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            {group.items.map((ex, idx) => (
-              <Link
-                key={ex.id}
-                href={`/ielts/basic/${params.skill}/exercises/${ex.id}${
-                  ex.lessonId ? `?lessonId=${ex.lessonId}` : ""
-                }`}
-              >
-                <div className="flex items-center gap-4 px-5 py-3.5 bg-[#F9F9F9] hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-transparent">
-                  <span className="w-6 h-6 rounded-full bg-[#FFF3C2] text-[#A07000] font-bold text-xs flex items-center justify-center shrink-0">
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-gray-900 truncate leading-none">
-                      {ex.topic}
-                    </p>
-                  </div>
-                  <span className="text-xs text-gray-400 font-medium shrink-0 group-hover:text-[#FFC107]">
-                    Start →
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  return <ClientExerciseListGroup groups={groups} skill={params.skill} />;
 }

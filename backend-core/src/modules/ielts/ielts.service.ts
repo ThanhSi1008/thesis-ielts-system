@@ -88,4 +88,64 @@ export class IeltsService {
 
     return exercise;
   }
+
+  // ── Progress Tracking ──────────────────────────────────────────────────
+
+  async getUserProgress(userId: string) {
+    return this.prisma.ieltsBasicProgress.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        lessonId: true,
+        listeningExerciseId: true,
+        readingExerciseId: true,
+        isCompleted: true,
+      },
+    });
+  }
+
+  async markItemCompleted(
+    userId: string,
+    data: {
+      lessonId?: string;
+      listeningExerciseId?: string;
+      readingExerciseId?: string;
+    }
+  ) {
+    // Upsert to mark as completed.
+    // Since prisma requires unique constraint for upsert, and our unique constraint is on multiple nullable columns,
+    // we should use findFirst + create/update to be safe.
+    
+    const existing = await this.prisma.ieltsBasicProgress.findFirst({
+      where: {
+        userId,
+        lessonId: data.lessonId || null,
+        listeningExerciseId: data.listeningExerciseId || null,
+        readingExerciseId: data.readingExerciseId || null,
+      },
+    });
+
+    if (existing) {
+      return this.prisma.ieltsBasicProgress.update({
+        where: { id: existing.id },
+        data: { isCompleted: true },
+      });
+    }
+
+    return this.prisma.ieltsBasicProgress.create({
+      data: {
+        userId,
+        lessonId: data.lessonId,
+        listeningExerciseId: data.listeningExerciseId,
+        readingExerciseId: data.readingExerciseId,
+        isCompleted: true,
+      },
+    });
+  }
+
+  async resetProgress(userId: string) {
+    return this.prisma.ieltsBasicProgress.deleteMany({
+      where: { userId },
+    });
+  }
 }

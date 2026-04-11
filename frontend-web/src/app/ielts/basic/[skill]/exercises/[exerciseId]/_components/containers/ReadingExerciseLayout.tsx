@@ -1,22 +1,32 @@
 import { useState, useCallback } from "react";
-import { Flag, Bookmark, FileText, Check } from "lucide-react";
+import { ChevronLeft, Info, Bookmark, RefreshCcw, FileText, CheckCircle2, RotateCcw, ChevronRight, Flag, Check } from "lucide-react";
 import { ReadingExercise, LessonBlock } from "../utils/SharedExerciseTypes";
 import { TheoryPopup } from "../ui/TheoryModal";
 import { ReadingPassagePanel } from "../ui/ReadingPassagePanel";
 import { ReadingQuestionsPanel } from "../ui/ReadingQuestionsPanel";
 import { calcScore, getTrackerItems } from "../utils/SharedScoreUtils";
+import api from "@/lib/api";
 
 export function ReadingExerciseLayout({
   exercise,
   lessonBlocks,
+  onComplete,
+  onNext,
 }: {
   exercise: ReadingExercise;
   lessonBlocks: LessonBlock[];
+  onComplete?: () => void;
+  onNext?: () => void;
 }) {
   const [answers, setAnswers] = useState<Record<string | number, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<"traps" | "strategy" | "tips" | null>(null);
+
+  const allTrackerItems = getTrackerItems(exercise.content);
+  const score = submitted ? calcScore(exercise.content, answers) : 0;
+  const isPerfectScore = submitted && score === allTrackerItems.length;
+  const showAnswers = submitted && isPerfectScore;
 
   const handleLocate = useCallback((qNum: number) => {
     setLocatedQuestion(qNum);
@@ -25,11 +35,41 @@ export function ReadingExerciseLayout({
     setTimeout(() => setLocatedQuestion(null), 3000);
   }, []);
 
-  const handleSubmit = () => setSubmitted(true);
+  const handleSubmit = async () => {
+    setSubmitted(true);
+    const scoreVal = calcScore(exercise.content, answers);
+    if (scoreVal === allTrackerItems.length) {
+      try {
+        await api.post("/ielts/progress/mark-completed", { readingExerciseId: exercise.id });
+        if (onComplete) onComplete();
+      } catch (err) {
+        console.error("Failed to mark exercise completed", err);
+      }
+    }
+  };
 
-  const allTrackerItems = getTrackerItems(exercise.content);
-  const score = submitted ? calcScore(exercise.content, answers) : 0;
   const modalBlock = activeModal ? lessonBlocks.find((b) => b.type === activeModal) ?? { type: activeModal, content: "_No content available._" } : null;
+
+  const typeLabels: Record<string, string> = {
+    multiple_choice: "Multiple Choice",
+    multiple_choice_multiple: "Multiple Choice (Multiple)",
+    true_false_not_given: "True/False/Not Given",
+    yes_no_not_given: "Yes/No/Not Given",
+    note_completion: "Note Completion",
+    summary_completion: "Summary Completion",
+    flowchart_completion: "Flowchart Completion",
+    diagram_completion: "Diagram Completion",
+    matching_headings: "Matching Headings",
+    matching_information: "Matching Information",
+    matching_features: "Matching Features",
+    matching_sentence_endings: "Matching Sentence Endings",
+    short_answer: "Short Answer",
+  };
+
+  const exerciseTypes = Array.from(
+    new Set(exercise.content.map((g) => typeLabels[g.type] || g.type.replace(/_/g, " ")))
+  );
+  const breadcrumb = `Reading · ${exerciseTypes.join(" & ")}`;
 
   return (
     <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white -m-6 lg:-m-10 rounded-2xl">
@@ -38,7 +78,7 @@ export function ReadingExerciseLayout({
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-              Reading · Multiple Choice
+              {breadcrumb}
             </p>
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{exercise.topic}</h1>
           </div>
@@ -65,7 +105,7 @@ export function ReadingExerciseLayout({
             passageWithLocations={exercise.passageWithLocations}
             passage={exercise.passage}
             locatedQuestion={locatedQuestion}
-            submitted={submitted}
+            showAnswers={showAnswers}
           />
         </div>
 
@@ -75,6 +115,7 @@ export function ReadingExerciseLayout({
             exercise={exercise as any}
             answers={answers}
             submitted={submitted}
+            showAnswers={showAnswers}
             onAnswer={(key, val) => !submitted && setAnswers((prev) => ({ ...prev, [key]: val }))}
             onLocate={handleLocate}
           />
@@ -104,9 +145,38 @@ export function ReadingExerciseLayout({
 
         <div className="flex items-center gap-2 shrink-0">
           {submitted ? (
-            <span className="text-sm font-bold text-[#111] bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-              {score}/{allTrackerItems.length} correct
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold text-[#111] bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+                {score}/{allTrackerItems.length} correct
+              </span>
+              {!isPerfectScore ? (
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="px-4 py-2 rounded-lg bg-gray-900 text-white text-[13px] font-bold hover:bg-black transition-colors shadow-sm"
+                >
+                  Retry
+                </button>
+              ) : (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setSubmitted(false); setAnswers({}); }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all shadow-sm ${onNext ? "bg-gray-100 text-gray-700 hover:bg-gray-200" : "bg-[#FFC107] text-gray-900 hover:bg-[#E0A800]"}`}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Retry
+                  </button>
+                  {onNext && (
+                    <button
+                      onClick={onNext}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#FFC107] text-gray-900 rounded-lg font-bold hover:bg-[#E0A800] transition-all shadow-sm"
+                    >
+                      Next Step
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           ) : (
             <button
               onClick={handleSubmit}

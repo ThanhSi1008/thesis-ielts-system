@@ -22,6 +22,7 @@ export function MapLabellingGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -29,6 +30,7 @@ export function MapLabellingGroup({
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -41,7 +43,7 @@ export function MapLabellingGroup({
   };
 
   if (!group.labels || !group.items) {
-    return <MapCompletionGroup group={group} answers={answers} onAnswer={onAnswer} submitted={submitted} audioRef={audioRef} onLocate={onLocate} />;
+    return <MapCompletionGroup group={group} answers={answers} onAnswer={onAnswer} submitted={submitted} showAnswers={showAnswers} audioRef={audioRef} onLocate={onLocate} />;
   }
 
   const allQs = group.items;
@@ -94,7 +96,7 @@ export function MapLabellingGroup({
                         </span>
                         <span className="text-[13px] text-gray-800 font-medium">
                           {item.text}
-                          {submitted && !isCorrect && (
+                          {submitted && !isCorrect && showAnswers && (
                             <span className="ml-2 font-bold text-green-600">→ {item.answer}</span>
                           )}
                         </span>
@@ -140,7 +142,7 @@ export function MapLabellingGroup({
       </div>
 
       {/* Post-submit action buttons */}
-      {submitted && (
+      {showAnswers && (
         <div className="mt-6 space-y-2">
           {allQs.map(({ question_number, timestamp_seconds, explanation }) => (
             <div key={question_number} className="flex flex-wrap items-center gap-2">
@@ -184,6 +186,7 @@ function MapCompletionGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -191,6 +194,7 @@ function MapCompletionGroup({
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -254,7 +258,7 @@ function MapCompletionGroup({
                         : "border-[#1E3A8A] text-blue-900 focus:border-[#FFC107] focus:bg-blue-50/50"
                     }`}
                   />
-                  {submitted && !isCorrect && (
+                  {submitted && !isCorrect && showAnswers && (
                     <div className="absolute left-0 -bottom-5 text-green-600 font-bold text-[12px] whitespace-nowrap">
                       → {q.answer}
                     </div>
@@ -266,7 +270,7 @@ function MapCompletionGroup({
         </div>
       </div>
 
-      {submitted && (
+      {showAnswers && (
         <div className="mt-6 space-y-2">
           {qs.map(({ question_number, timestamp_seconds, explanation }: any) => (
             <div key={question_number} className="flex flex-wrap items-center gap-2">

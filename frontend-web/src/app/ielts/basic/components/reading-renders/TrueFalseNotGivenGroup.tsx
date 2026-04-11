@@ -19,12 +19,14 @@ export function TrueFalseNotGivenGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   onLocate,
 }: {
   group: TFNGGroup;
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
@@ -85,7 +87,7 @@ export function TrueFalseNotGivenGroup({
                   let textColorClass = "text-gray-700";
 
                   if (submitted) {
-                    if (isAnswerKey) {
+                    if (isAnswerKey && showAnswers) {
                       circleClass += "border-green-500 shadow-sm";
                       innerContent = <div className="w-[8px] h-[8px] rounded-full bg-green-500" />;
                       textColorClass = "text-green-700 font-bold";
@@ -93,6 +95,10 @@ export function TrueFalseNotGivenGroup({
                       circleClass += "border-red-400";
                       innerContent = <div className="w-[8px] h-[8px] rounded-full bg-red-400" />;
                       textColorClass = "text-red-500 line-through";
+                    } else if (isSelected && isAnswerKey && !showAnswers) {
+                      circleClass += "border-green-500 shadow-sm";
+                      innerContent = <div className="w-[8px] h-[8px] rounded-full bg-green-500" />;
+                      textColorClass = "text-green-700 font-bold";
                     } else {
                       circleClass += "border-gray-300 opacity-50";
                       textColorClass = "text-gray-400";
@@ -124,7 +130,7 @@ export function TrueFalseNotGivenGroup({
               </div>
 
               {/* Post-submit action buttons */}
-              {submitted && (
+              {showAnswers && (
                 <div className="ml-9 mt-3 flex flex-wrap gap-2">
                   <button onClick={() => onLocate(q.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md transition-colors shadow-sm">
                     <MapPin className="w-3 h-3" /> Locate

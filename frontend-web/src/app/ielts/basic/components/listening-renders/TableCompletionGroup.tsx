@@ -25,6 +25,7 @@ export function TableCompletionGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -32,6 +33,7 @@ export function TableCompletionGroup({
   answers: Record<number, string>;
   onAnswer: (qNum: number, val: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -89,7 +91,7 @@ export function TableCompletionGroup({
         </span>
       );
 
-      if (submitted && !isCorrect && qData) {
+      if (submitted && !isCorrect && qData && showAnswers) {
         parts.push(
           <span key={`ans-${qNum}`} className="text-[11px] text-green-600 font-bold mx-0.5">({qData.answer})</span>
         );
@@ -163,7 +165,7 @@ export function TableCompletionGroup({
       </div>
 
       {/* Per-question action buttons after submit */}
-      {submitted && (
+      {showAnswers && (
         <div className="mt-4 space-y-2">
           {allQs.map(({ qNum, timestamp_seconds, explanation }) => (
             <div key={qNum} className="flex flex-wrap items-center gap-2">

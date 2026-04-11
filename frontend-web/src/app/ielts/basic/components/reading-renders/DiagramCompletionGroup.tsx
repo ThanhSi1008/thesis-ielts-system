@@ -1,44 +1,40 @@
 import React, { useState } from 'react';
 import { MapPin, MessageSquare, StickyNote } from 'lucide-react';
 
-export interface FlowchartQuestion {
+export interface DiagramQuestion {
   question_number: number;
   answer: string;
   acceptable_answers?: string[];
   explanation?: any;
 }
 
-export interface FlowchartStage {
-  stage_name?: string;
-  text: string;
-}
-
-export interface FlowchartCompletionGroup {
-  type: 'flowchart_completion';
+export interface DiagramCompletionGroup {
+  type: 'diagram_completion';
   instruction?: string;
-  flowchart_title?: string;
-  stages: FlowchartStage[];
-  questions: FlowchartQuestion[];
+  diagram_title?: string;
+  image_url: string;
+  labels: string[];
+  questions: DiagramQuestion[];
 }
 
-// Parse a stage text like "Parrotfish enter the ocean as {{3}}."
-function parseStageText(
-  text: string,
-  qMap: Record<number, FlowchartQuestion>,
+// Parse "the {{5}}" into text + blank segments
+function parseLabel(
+  label: string,
+  qMap: Record<number, DiagramQuestion>,
   answers: Record<string | number, string>,
   submitted: boolean,
   showAnswers: boolean,
   onAnswer: (qNum: number, val: string) => void,
-  checkAnswer: (q: FlowchartQuestion, val: string) => boolean,
-): React.ReactNode[] {
+  checkAnswer: (q: DiagramQuestion, val: string) => boolean,
+): React.ReactNode {
   const regex = /\{\{(\d+)\}\}/g;
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = regex.exec(text)) !== null) {
+  while ((match = regex.exec(label)) !== null) {
     if (match.index > lastIndex) {
-      nodes.push(<span key={`t-${lastIndex}`}>{text.slice(lastIndex, match.index)}</span>);
+      nodes.push(<span key={`t-${lastIndex}`}>{label.slice(lastIndex, match.index)}</span>);
     }
 
     const qNum = Number(match[1]);
@@ -84,11 +80,11 @@ function parseStageText(
     lastIndex = match.index + match[0].length;
   }
 
-  if (lastIndex < text.length) {
-    nodes.push(<span key={`t-end`}>{text.slice(lastIndex)}</span>);
+  if (lastIndex < label.length) {
+    nodes.push(<span key="t-end">{label.slice(lastIndex)}</span>);
   }
 
-  return nodes;
+  return <span className="flex flex-wrap items-baseline gap-0.5">{nodes}</span>;
 }
 
 function getExplanationText(exp: any): string {
@@ -97,7 +93,7 @@ function getExplanationText(exp: any): string {
   return exp.rationale || JSON.stringify(exp);
 }
 
-export function FlowchartCompletionGroup({
+export function DiagramCompletionGroup({
   group,
   answers,
   onAnswer,
@@ -105,7 +101,7 @@ export function FlowchartCompletionGroup({
   showAnswers,
   onLocate,
 }: {
-  group: FlowchartCompletionGroup;
+  group: DiagramCompletionGroup;
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, val: string) => void;
   submitted: boolean;
@@ -116,7 +112,7 @@ export function FlowchartCompletionGroup({
 
   const qMap = Object.fromEntries(group.questions.map(q => [q.question_number, q]));
 
-  const checkAnswer = (q: FlowchartQuestion, userAns: string) => {
+  const checkAnswer = (q: DiagramQuestion, userAns: string) => {
     const acceptable = q.acceptable_answers
       ? q.acceptable_answers.map(a => a.toLowerCase().trim())
       : [q.answer.toLowerCase().trim()];
@@ -126,7 +122,7 @@ export function FlowchartCompletionGroup({
   const qNums = group.questions.map(q => q.question_number);
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 font-sans">
       {/* Header */}
       {qNums.length > 0 && (
         <p className="text-[13px] font-bold text-gray-900 mb-0.5">
@@ -134,47 +130,38 @@ export function FlowchartCompletionGroup({
         </p>
       )}
       <p className="text-[13px] text-gray-600 mb-4 leading-relaxed">
-        {group.instruction || 'Complete the flow-chart below.'}
+        {group.instruction || 'Label the diagram below.'}
       </p>
 
-      {/* Flowchart box */}
-      <div className="border border-gray-300 rounded-lg overflow-hidden mb-4">
-        {group.flowchart_title && (
-          <div className="bg-gray-100 border-b border-gray-300 px-4 py-2 text-center">
-            <span className="text-[13px] font-bold text-gray-800">{group.flowchart_title}</span>
+      <div className="flex flex-col gap-5 mb-4">
+        {/* Diagram Image — full width on top */}
+        <div className="bg-white border border-gray-200 p-2 overflow-hidden flex items-center justify-center rounded-lg">
+          <img
+            src={group.image_url}
+            alt={group.diagram_title || 'Diagram'}
+            className="max-w-full max-h-[420px] object-contain"
+          />
+        </div>
+
+        {/* Labels Panel — below the image */}
+        <div className="w-full flex flex-col gap-3">
+          {group.diagram_title && (
+            <h4 className="text-[13px] font-bold text-gray-800 border-b border-gray-200 pb-2">
+              {group.diagram_title}
+            </h4>
+          )}
+
+          <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-4">
+            <h5 className="text-[12px] font-bold text-gray-600 uppercase tracking-wide mb-3">Labels</h5>
+            <ul className="space-y-3">
+              {group.labels.map((label, li) => (
+                <li key={li} className="flex items-baseline gap-2 text-[13.5px] text-gray-800 leading-relaxed">
+                  <span className="mt-[5px] w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                  {parseLabel(label, qMap, answers, submitted, showAnswers, onAnswer, checkAnswer)}
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
-
-        {/* Stages */}
-        <div className="px-6 py-4 flex flex-col items-center gap-0">
-          {group.stages.map((stage, si) => {
-            const hasBlank = /\{\{\d+\}\}/.test(stage.text);
-            return (
-              <div key={si} className="flex flex-col items-center w-full">
-                {/* Stage box */}
-                <div className={`w-full border-2 rounded-lg px-4 py-3 text-[13px] text-gray-800 leading-loose text-center transition-colors ${
-                  hasBlank ? 'border-gray-400' : 'border-gray-300 bg-gray-50/60'
-                }`}>
-                  {stage.stage_name && (
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                      {stage.stage_name}
-                    </p>
-                  )}
-                  <span className="flex flex-wrap justify-center items-baseline gap-0.5">
-                    {parseStageText(stage.text, qMap, answers, submitted, showAnswers, onAnswer, checkAnswer)}
-                  </span>
-                </div>
-
-                {/* Arrow down (not after last) */}
-                {si < group.stages.length - 1 && (
-                  <div className="flex flex-col items-center my-1.5">
-                    <div className="w-0.5 h-4 bg-gray-400" />
-                    <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-gray-400" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
       </div>
 

@@ -20,6 +20,7 @@ export function SummaryCompletionGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -27,6 +28,7 @@ export function SummaryCompletionGroup({
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, val: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -115,7 +117,7 @@ export function SummaryCompletionGroup({
         {renderText(group.text)}
       </div>
 
-      {submitted && (
+      {showAnswers && (
         <div className="mt-5 space-y-2">
           {allQs.map(({ qNum, timestamp_seconds, explanation }) => (
             <div key={qNum} className="flex flex-wrap items-center gap-2">

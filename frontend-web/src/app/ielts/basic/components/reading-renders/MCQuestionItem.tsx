@@ -20,12 +20,14 @@ export function MCQuestionItem({
   selected,
   onSelect,
   submitted,
+  showAnswers,
   onLocate,
 }: {
   q: MCQuestion;
   selected: string | null;
   onSelect: (letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState(false);
@@ -49,12 +51,16 @@ export function MCQuestionItem({
           let innerContent = null;
 
           if (submitted) {
-            if (isAnswerKey) {
+            if (isAnswerKey && showAnswers) {
               circleClass += "border-green-500 bg-white";
               innerContent = <div className="w-[10px] h-[10px] rounded-full bg-green-500" />;
             } else if (isSelected && !isAnswerKey) {
               circleClass += "border-red-400 bg-white";
               innerContent = <div className="w-[10px] h-[10px] rounded-full bg-red-400" />;
+            } else if (isSelected && isAnswerKey && !showAnswers) {
+               // They got it right, but showAnswers is false. We can show it as green so they know it's correct.
+              circleClass += "border-green-500 bg-white";
+              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-green-500" />;
             } else {
               circleClass += "border-gray-300 bg-white";
             }
@@ -78,9 +84,10 @@ export function MCQuestionItem({
                 {innerContent}
               </span>
               <span className={
-                submitted && isAnswerKey ? "font-semibold text-green-700" :
-                  submitted && isSelected && !isAnswerKey ? "text-red-500 line-through" :
-                    ""
+                submitted && isAnswerKey && showAnswers ? "font-semibold text-green-700" :
+                  submitted && isSelected && isAnswerKey ? "font-semibold text-green-700" :
+                    submitted && isSelected && !isAnswerKey ? "text-red-500 line-through" :
+                      ""
               }>
                 {opt.text}
               </span>
@@ -90,7 +97,7 @@ export function MCQuestionItem({
       </div>
 
       {/* Post-submit action buttons */}
-      {submitted && (
+      {showAnswers && (
         <div className="ml-8 mt-3 flex flex-wrap gap-2">
           <button onClick={() => onLocate(q.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
             <MapPin className="w-3.5 h-3.5" /> Locate
@@ -104,9 +111,23 @@ export function MCQuestionItem({
         </div>
       )}
 
-      {showExplanation && (
-        <div className="ml-8 mt-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
-          {q.explanation}
+      {showExplanation && q.explanation && (
+        <div className="ml-8 mt-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed space-y-2">
+          {typeof q.explanation === "string" ? (
+            <p>{q.explanation}</p>
+          ) : (
+            <>
+              {(q.explanation as any).keyword && (
+                <p><span className="font-bold">🔑 Keyword:</span> {(q.explanation as any).keyword}</p>
+              )}
+              {(q.explanation as any).rationale && (
+                <p><span className="font-bold">💡 Rationale:</span> {(q.explanation as any).rationale}</p>
+              )}
+              {(q.explanation as any).distractor_analysis && (
+                <p><span className="font-bold">⚠️ Distractor:</span> {(q.explanation as any).distractor_analysis}</p>
+              )}
+            </>
+          )}
         </div>
       )}
     </div>

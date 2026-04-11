@@ -6,17 +6,27 @@ import { useParams, useSearchParams } from "next/navigation";
 import {
   Exercise,
   LessonBlock,
-} from "./_components/SharedExerciseTypes";
+} from "./_components/utils/SharedExerciseTypes";
 import { ReadingExerciseLayout } from "./_components/containers/ReadingExerciseLayout";
 import { ListeningExerciseLayout } from "./_components/containers/ListeningExerciseLayout";
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function ExerciseDetailPage() {
-  const { exerciseId, skill } = useParams() as { exerciseId: string; skill: string };
-  const searchParams = useSearchParams();
-  const lessonId = searchParams.get("lessonId");
+// ─── Main Content Component (Reusable for Roadmap) ──────────────────────────────
 
+export function ExerciseDetailContent({
+  exerciseId,
+  skill,
+  lessonId,
+  onComplete,
+  onNext,
+}: {
+  exerciseId: string;
+  skill: string;
+  lessonId?: string | null;
+  onComplete?: () => void;
+  onNext?: () => void;
+}) {
   const isReading = skill?.toLowerCase() === "reading";
   const isListening = skill?.toLowerCase() === "listening";
 
@@ -61,12 +71,20 @@ export default function ExerciseDetailPage() {
   }
 
   if (isReading) {
-    return <ReadingExerciseLayout exercise={exercise as any} lessonBlocks={lessonBlocks} />;
+    return <ReadingExerciseLayout exercise={exercise as any} lessonBlocks={lessonBlocks} onComplete={onComplete} onNext={onNext} />;
   }
 
   if (isListening) {
-    return <ListeningExerciseLayout exercise={exercise as any} lessonBlocks={lessonBlocks} />;
+    return <ListeningExerciseLayout exercise={exercise as any} lessonBlocks={lessonBlocks} onComplete={onComplete} onNext={onNext} />;
   }
 
   return <div className="p-10 font-medium text-gray-500">Skill type not supported for exercises yet.</div>;
+}
+
+export default function ExerciseDetailPage() {
+  const { exerciseId, skill } = useParams() as { exerciseId: string; skill: string };
+  const searchParams = useSearchParams();
+  const lessonId = searchParams.get("lessonId");
+
+  return <ExerciseDetailContent exerciseId={exerciseId} skill={skill} lessonId={lessonId} />;
 }

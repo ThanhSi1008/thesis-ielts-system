@@ -14,6 +14,7 @@ export function ListeningQuestionsPanel({
   exercise,
   answers,
   submitted,
+  showAnswers,
   onAnswer,
   audioRef,
   onLocate,
@@ -21,6 +22,7 @@ export function ListeningQuestionsPanel({
   exercise: Exercise;
   answers: Record<string | number, string>;
   submitted: boolean;
+  showAnswers: boolean;
   onAnswer: (key: string | number, val: string) => void;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
@@ -40,6 +42,7 @@ export function ListeningQuestionsPanel({
                 answers={answers}
                 onAnswer={(qNum: number, val: string) => !submitted && onAnswer(qNum, val)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -55,6 +58,7 @@ export function ListeningQuestionsPanel({
                 answers={answers}
                 onAnswer={(qNum, letter) => !submitted && onAnswer(qNum, letter)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -70,6 +74,7 @@ export function ListeningQuestionsPanel({
                 answers={answers as Record<number, string>}
                 onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val as unknown as string)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -85,6 +90,7 @@ export function ListeningQuestionsPanel({
                 answers={answers}
                 onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -100,6 +106,7 @@ export function ListeningQuestionsPanel({
                 answers={answers}
                 onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -115,6 +122,7 @@ export function ListeningQuestionsPanel({
                 answers={answers}
                 onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -130,6 +138,7 @@ export function ListeningQuestionsPanel({
                 answers={answers}
                 onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -145,6 +154,7 @@ export function ListeningQuestionsPanel({
                 answers={answers}
                 onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val)}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -170,6 +180,7 @@ export function ListeningQuestionsPanel({
                 selectedLetters={selectedLetters}
                 onToggle={handleToggle}
                 submitted={submitted}
+                showAnswers={showAnswers}
                 audioRef={audioRef}
                 onLocate={onLocate}
               />
@@ -200,6 +211,7 @@ export function ListeningQuestionsPanel({
                       !submitted && onAnswer(q.question_number, letter)
                     }
                     submitted={submitted}
+                    showAnswers={showAnswers}
                     audioRef={audioRef}
                 onLocate={onLocate}
                   />

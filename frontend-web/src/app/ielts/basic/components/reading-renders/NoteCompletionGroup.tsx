@@ -50,6 +50,7 @@ function NoteLine({
   qMap,
   answers,
   submitted,
+  showAnswers,
   onAnswer,
   checkAnswer,
 }: {
@@ -57,6 +58,7 @@ function NoteLine({
   qMap: Record<number, NoteQuestion>;
   answers: Record<string | number, string>;
   submitted: boolean;
+  showAnswers: boolean;
   onAnswer: (qNum: number, val: string) => void;
   checkAnswer: (q: NoteQuestion, userAns: string) => boolean;
 }) {
@@ -97,7 +99,7 @@ function NoteLine({
                   <span className={`text-[13px] font-semibold ${isCorrect ? 'text-green-700' : 'text-red-500 line-through'}`}>
                     {userAnswer || '—'}
                   </span>
-                  {!isCorrect && q && (
+                  {!isCorrect && q && showAnswers && (
                     <span className="ml-1.5 text-[12px] text-green-600 font-bold">({q.answer})</span>
                   )}
                 </>
@@ -124,12 +126,14 @@ export function NoteCompletionGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   onLocate,
 }: {
   group: NoteCompletionGroup;
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, val: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
@@ -179,6 +183,7 @@ export function NoteCompletionGroup({
                             qMap={qMap}
                             answers={answers}
                             submitted={submitted}
+                            showAnswers={showAnswers}
                             onAnswer={onAnswer}
                             checkAnswer={checkAnswer}
                           />
@@ -196,6 +201,7 @@ export function NoteCompletionGroup({
                       qMap={qMap}
                       answers={answers}
                       submitted={submitted}
+                      showAnswers={showAnswers}
                       onAnswer={onAnswer}
                       checkAnswer={checkAnswer}
                     />
@@ -208,7 +214,7 @@ export function NoteCompletionGroup({
       </div>
 
       {/* Post-submit action buttons per question */}
-      {submitted && (
+      {showAnswers && (
         <div className="mt-3 space-y-2">
           {group.questions.map(q => (
             <div key={q.question_number} className="flex flex-wrap items-center gap-2">

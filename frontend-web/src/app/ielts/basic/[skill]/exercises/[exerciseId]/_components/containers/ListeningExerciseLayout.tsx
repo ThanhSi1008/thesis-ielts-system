@@ -1,18 +1,23 @@
 import { useState, useCallback, useRef } from "react";
-import { Flag, Bookmark, FileText, Check } from "lucide-react";
+import { Flag, Bookmark, FileText, Check, ChevronRight, RotateCcw } from "lucide-react";
 import { ListeningExercise, LessonBlock } from "../utils/SharedExerciseTypes";
 import { TheoryPopup } from "../ui/TheoryModal";
 import { AudioPlayer } from "../ui/AudioPlayer";
 import { TranscriptPanel } from "../ui/TranscriptPanel";
 import { ListeningQuestionsPanel } from "../ui/ListeningQuestionsPanel";
 import { calcScore, getTrackerItems } from "../utils/SharedScoreUtils";
+import api from "@/lib/api";
 
 export function ListeningExerciseLayout({
   exercise,
   lessonBlocks,
+  onComplete,
+  onNext,
 }: {
   exercise: ListeningExercise;
   lessonBlocks: LessonBlock[];
+  onComplete?: () => void;
+  onNext?: () => void;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [answers, setAnswers] = useState<Record<string | number, string>>({});
@@ -21,6 +26,10 @@ export function ListeningExerciseLayout({
   const [activeModal, setActiveModal] = useState<"traps" | "strategy" | "tips" | null>(null);
   const [showSidePanel, setShowSidePanel] = useState(false);
 
+  const allTrackerItems = getTrackerItems(exercise.content);
+  const score = submitted ? calcScore(exercise.content, answers) : 0;
+  const isPerfectScore = submitted && score === allTrackerItems.length;
+
   const handleLocate = useCallback((qNum: number) => {
     setLocatedQuestion(qNum);
     const target = document.getElementById(`transcript-q-${qNum}`);
@@ -28,13 +37,18 @@ export function ListeningExerciseLayout({
     setTimeout(() => setLocatedQuestion(null), 3000);
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSubmitted(true);
-    setShowSidePanel(true);
+    const scoreVal = calcScore(exercise.content, answers);
+    if (scoreVal === allTrackerItems.length) {
+      try {
+        await api.post("/ielts/progress/mark-completed", { listeningExerciseId: exercise.id });
+        if (onComplete) onComplete();
+      } catch (err) {
+        console.error("Failed to mark exercise completed", err);
+      }
+    }
   };
-
-  const allTrackerItems = getTrackerItems(exercise.content);
-  const score = submitted ? calcScore(exercise.content, answers) : 0;
   const modalBlock = activeModal ? lessonBlocks.find((b) => b.type === activeModal) ?? { type: activeModal, content: "_No content available._" } : null;
 
   return (
@@ -72,19 +86,20 @@ export function ListeningExerciseLayout({
       {/* ── Body ── */}
       <div className="flex flex-1 overflow-hidden">
         {/* Questions column */}
-        <div className={`overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${showSidePanel ? "w-1/2" : "w-full"}`}>
+        <div className={`overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${submitted && isPerfectScore ? "w-1/2" : "w-full"}`}>
           <ListeningQuestionsPanel
             exercise={exercise as any}
             answers={answers}
             submitted={submitted}
+            showAnswers={isPerfectScore}
             onAnswer={(key, val) => !submitted && setAnswers((prev) => ({ ...prev, [key]: val }))}
             audioRef={audioRef}
             onLocate={handleLocate}
           />
         </div>
 
-        {/* Listening: Transcript on RIGHT after submit */}
-        {showSidePanel && exercise.transcript && (
+        {/* Listening: Transcript on RIGHT after submit - only if perfect score */}
+        {submitted && isPerfectScore && exercise.transcript && (
           <div className="w-1/2 overflow-hidden py-3 pr-6 lg:pr-10 border-l border-gray-100">
             <TranscriptPanel transcript={exercise.transcript} locatedQuestion={locatedQuestion} />
           </div>
@@ -114,9 +129,38 @@ export function ListeningExerciseLayout({
 
         <div className="flex items-center gap-2 shrink-0">
           {submitted ? (
-            <span className="text-sm font-bold text-[#111] bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-              {score}/{allTrackerItems.length} correct
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold text-[#111] bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+                {score}/{allTrackerItems.length} correct
+              </span>
+              {!isPerfectScore ? (
+                <button
+                  onClick={() => { setSubmitted(false); }}
+                  className="px-4 py-2 rounded-lg bg-gray-900 text-white text-[13px] font-bold hover:bg-black transition-colors shadow-sm"
+                >
+                  Retry
+                </button>
+              ) : (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setSubmitted(false); setAnswers({}); }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all shadow-sm ${onNext ? "bg-gray-100 text-gray-700 hover:bg-gray-200" : "bg-[#FFC107] text-gray-900 hover:bg-[#E0A800]"}`}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Retry
+                  </button>
+                  {onNext && (
+                    <button
+                      onClick={onNext}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#FFC107] text-gray-900 rounded-lg font-bold hover:bg-[#E0A800] transition-all shadow-sm"
+                    >
+                      Next Step
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           ) : (
             <button
               onClick={handleSubmit}

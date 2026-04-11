@@ -1,9 +1,14 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get, Param, Post, Body, UseGuards, Request } from "@nestjs/common";
+import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { IeltsService } from "./ielts.service";
+import { IeltsRoadmapService } from "./ielts-roadmap.service";
 
 @Controller("ielts")
 export class IeltsController {
-  constructor(private readonly ieltsService: IeltsService) {}
+  constructor(
+    private readonly ieltsService: IeltsService,
+    private readonly ieltsRoadmapService: IeltsRoadmapService
+  ) {}
 
   @Get("skills")
   async getSkills() {
@@ -42,5 +47,41 @@ export class IeltsController {
   @Get("reading-exercises/:id")
   async getReadingExercise(@Param("id") id: string) {
     return this.ieltsService.findReadingExerciseById(id);
+  }
+
+  // ── Progress Tracking ───────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard)
+  @Get("progress")
+  async getProgress(@Request() req: any) {
+    return this.ieltsService.getUserProgress(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("progress/mark-completed")
+  async markCompleted(
+    @Request() req: any,
+    @Body()
+    body: {
+      lessonId?: string;
+      listeningExerciseId?: string;
+      readingExerciseId?: string;
+    }
+  ) {
+    return this.ieltsService.markItemCompleted(req.user.id, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("progress/reset")
+  async resetProgress(@Request() req: any) {
+    return this.ieltsService.resetProgress(req.user.id);
+  }
+
+  // ── Roadmap ─────────────────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard)
+  @Get("roadmap")
+  async getRoadmap(@Request() req: any) {
+    return this.ieltsRoadmapService.generateRoadmap(req.user.id);
   }
 }

@@ -17,6 +17,7 @@ export function FormCompletionGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -25,6 +26,7 @@ export function FormCompletionGroup({
   answers: Record<number, string>;
   onAnswer: (qNum: number, val: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -73,7 +75,7 @@ export function FormCompletionGroup({
             />
           )}
         </span>
-        {submitted && !isCorrect && (
+        {submitted && !isCorrect && showAnswers && (
           <span className="text-[12px] text-green-600 font-bold mx-1">({point.answer})</span>
         )}
         {after && <span> {after}</span>}
@@ -101,7 +103,7 @@ export function FormCompletionGroup({
       </ul>
 
       {/* Action buttons per question */}
-      {submitted && (
+      {showAnswers && (
         <div className="mt-3 space-y-2">
           {points.map((point) => (
             <div key={point.question_number} className="flex flex-wrap items-center gap-2">

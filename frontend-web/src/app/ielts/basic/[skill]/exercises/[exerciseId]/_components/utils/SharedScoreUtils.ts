@@ -49,7 +49,7 @@ export function calcScore(
         const userAns = (answers[Number(k)] as unknown as string ?? "").trim().toLowerCase();
         const acceptable = qData.acceptable_answers
           ? qData.acceptable_answers.map((a) => a.toLowerCase().trim())
-          : [qData.primary_answer.toLowerCase().trim()];
+          : [((qData as any).primary_answer ?? (qData as any).answer ?? "").toLowerCase().trim()];
         if (acceptable.includes(userAns)) s++;
       });
     } else if (g.type === "matching") {
@@ -78,6 +78,36 @@ export function calcScore(
         const userAns = (answers[q.question_number] as string ?? "").trim().toLowerCase();
         const acceptable = q.acceptable_answers
           ? q.acceptable_answers.map((a) => a.toLowerCase().trim())
+          : [q.answer.toLowerCase().trim()];
+        if (acceptable.includes(userAns)) s++;
+      });
+    } else if (g.type === "short_answer" || g.type === "summary_completion") {
+      const qs = Array.isArray(g.questions) ? (g.questions as Array<{ question_number: number; answer: string; acceptable_answers?: string[] }>) : [];
+      qs.forEach((q) => {
+        const userAns = (answers[q.question_number] as string ?? "").trim().toLowerCase();
+        const acceptable = q.acceptable_answers
+          ? q.acceptable_answers.map(a => a.toLowerCase().trim())
+          : [q.answer.toLowerCase().trim()];
+        if (acceptable.includes(userAns)) s++;
+      });
+    } else if (g.type === "matching_features" || g.type === "matching_information" || g.type === "matching_headings") {
+      const qs = Array.isArray(g.questions) ? (g.questions as Array<{ question_number: number; answer: string }>) : [];
+      qs.forEach((q) => {
+        const userAns = (answers[q.question_number] as string ?? "").trim().toUpperCase();
+        if (userAns === q.answer.toUpperCase()) s++;
+      });
+    } else if (g.type === "matching_sentence_endings") {
+      const qs = Array.isArray(g.questions) ? (g.questions as Array<{ question_number: number; answer: string }>) : [];
+      qs.forEach((q) => {
+        const userAns = (answers[q.question_number] as string ?? "").toUpperCase();
+        if (userAns === q.answer.toUpperCase()) s++;
+      });
+    } else if (g.type === "diagram_completion") {
+      const qs = Array.isArray(g.questions) ? (g.questions as Array<{ question_number: number; answer: string; acceptable_answers?: string[] }>) : [];
+      qs.forEach((q) => {
+        const userAns = (answers[q.question_number] as string ?? "").trim().toLowerCase();
+        const acceptable = q.acceptable_answers
+          ? q.acceptable_answers.map(a => a.toLowerCase().trim())
           : [q.answer.toLowerCase().trim()];
         if (acceptable.includes(userAns)) s++;
       });
@@ -126,9 +156,11 @@ export function getTrackerItems(content: ContentGroup[]) {
       const fc = g as unknown as FlowChartGroup;
       return fc.steps.filter((s) => s.question).map((s) => ({ qNum: s.question!.question_number, groupKey: String(s.question!.question_number) }));
     }
-    if (g.type === "summary_completion") {
-      const sg = g as unknown as SummaryGroup;
-      return Object.keys(sg.questions).map((k) => ({ qNum: Number(k), groupKey: k }));
+    if (g.type === "summary_completion" || g.type === "diagram_completion" || g.type === "flowchart_completion") {
+      const qs = Array.isArray(g.questions) 
+        ? (g.questions as Array<{ question_number: number }>) 
+        : Object.entries((g as any).questions || {}).map(([k, q]: any) => ({ question_number: Number(k) }));
+      return qs.map((q) => ({ qNum: q.question_number, groupKey: String(q.question_number) }));
     }
     if (g.type === "matching") {
       const mg = g as unknown as MatchingGroup;

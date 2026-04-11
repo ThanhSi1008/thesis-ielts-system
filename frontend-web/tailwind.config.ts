@@ -56,8 +56,8 @@ const config: Config = {
             '--tw-prose-body': '#1a1a1a',
             '--tw-prose-headings': '#0f0f0f',
             '--tw-prose-bold': '#111111',
-            '--tw-prose-bullets': '#FFCC00',
-            '--tw-prose-counters': '#FFCC00',
+            '--tw-prose-bullets': '#94a3b8',
+            '--tw-prose-counters': '#64748b',
 
             // Paragraph
             p: { marginTop: '0.6em', marginBottom: '0.6em', lineHeight: '1.75' },
@@ -75,7 +75,7 @@ const config: Config = {
 
             // Lists
             li: { marginTop: '0.35em', marginBottom: '0.35em', lineHeight: '1.7' },
-            'ul > li::marker': { color: '#FFCC00' },
+            'ul > li::marker': { color: '#64748b' },
 
             // Bold
             strong: { fontWeight: '700', color: '#0f0f0f' },
@@ -92,14 +92,14 @@ const config: Config = {
             'code::before': { content: '""' },
             'code::after': { content: '""' },
 
-            // Blockquote — yellow accent
+            // Blockquote — slate accent
             blockquote: {
-              borderLeftColor: '#FFCC00',
+              borderLeftColor: '#cbd5e1',
               borderLeftWidth: '4px',
-              backgroundColor: '#fffbeb',
+              backgroundColor: '#f8fafc',
               borderRadius: '0 8px 8px 0',
               padding: '0.75em 1.25em',
-              color: '#78350f',
+              color: '#334155',
               fontStyle: 'normal',
               fontWeight: '500',
             },
@@ -119,9 +119,9 @@ const config: Config = {
               boxShadow: '0 1px 4px 0 rgba(0,0,0,0.05)',
               fontSize: '0.875rem'
             },
-            thead: { backgroundColor: '#111111' },
+            thead: { backgroundColor: '#f1f5f9' },
             'thead th': {
-              color: '#facc15',
+              color: '#334155',
               fontWeight: '700',
               padding: '1em 1.5em',
               textAlign: 'left',
@@ -129,8 +129,8 @@ const config: Config = {
               letterSpacing: '0.05em',
               textTransform: 'uppercase',
             },
-            'tbody tr': { borderBottom: '1px solid #f3f4f6' },
-            'tbody tr:nth-child(even)': { backgroundColor: '#f9fafb' },
+            'tbody tr': { borderBottom: '1px solid #f8fafc' },
+            'tbody tr:nth-child(even)': { backgroundColor: '#ffffff' },
             'tbody tr:last-child': { border: 'none' },
             td: { padding: '1em 1.5em', verticalAlign: 'top', color: '#1a1a1a', lineHeight: '1.7' },
             // Override typography plugin's opinionated first/last-child padding resets

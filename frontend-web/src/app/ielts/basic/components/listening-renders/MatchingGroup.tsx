@@ -31,6 +31,7 @@ export function MatchingCompletionGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -38,6 +39,7 @@ export function MatchingCompletionGroup({
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -112,7 +114,7 @@ export function MatchingCompletionGroup({
       </div>
 
       {/* Post-submit action buttons */}
-      {submitted && (
+      {showAnswers && (
         <div className="mt-4 space-y-2">
           {allQs.map(({ qNum, timestamp_seconds, explanation }) => (
             <div key={qNum} className="flex flex-wrap items-center gap-2">

@@ -20,6 +20,7 @@ export function MCQuestionItem({
   selected,
   onSelect,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -27,6 +28,7 @@ export function MCQuestionItem({
   selected: string | null;
   onSelect: (letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -60,12 +62,15 @@ export function MCQuestionItem({
           let innerContent = null;
 
           if (submitted) {
-            if (isAnswerKey) {
+            if (isAnswerKey && showAnswers) {
               circleClass += "border-green-500 bg-white";
               innerContent = <div className="w-[10px] h-[10px] rounded-full bg-green-500" />;
             } else if (isSelected && !isAnswerKey) {
               circleClass += "border-red-400 bg-white";
               innerContent = <div className="w-[10px] h-[10px] rounded-full bg-red-400" />;
+            } else if (isSelected && isAnswerKey && !showAnswers) {
+              circleClass += "border-green-500 bg-white";
+              innerContent = <div className="w-[10px] h-[10px] rounded-full bg-green-500" />;
             } else {
               circleClass += "border-gray-300 bg-white";
             }
@@ -89,9 +94,10 @@ export function MCQuestionItem({
                 {innerContent}
               </span>
               <span className={
-                submitted && isAnswerKey ? "font-semibold text-green-700" :
-                  submitted && isSelected && !isAnswerKey ? "text-red-500 line-through" :
-                    ""
+                submitted && isAnswerKey && showAnswers ? "font-semibold text-green-700" :
+                  submitted && isSelected && isAnswerKey ? "font-semibold text-green-700" :
+                    submitted && isSelected && !isAnswerKey ? "text-red-500 line-through" :
+                      ""
               }>
                 {opt.text}
               </span>
@@ -101,7 +107,7 @@ export function MCQuestionItem({
       </div>
 
       {/* Post-submit action buttons */}
-      {submitted && (
+      {showAnswers && (
         <div className="ml-8 mt-3 flex flex-wrap gap-2">
           <button onClick={seekTo} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
             <Headphones className="w-3.5 h-3.5" /> Listen from here

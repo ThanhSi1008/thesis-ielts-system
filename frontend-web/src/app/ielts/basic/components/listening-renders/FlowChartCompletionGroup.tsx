@@ -33,6 +33,7 @@ export function FlowChartCompletionGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -40,6 +41,7 @@ export function FlowChartCompletionGroup({
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, letter: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -173,7 +175,7 @@ export function FlowChartCompletionGroup({
       </div>
 
       {/* Post-submit action buttons */}
-      {submitted && (
+      {showAnswers && (
         <div className="mt-4 space-y-2">
           {allQs.map(({ question_number, timestamp_seconds, explanation }) => (
             <div key={question_number} className="flex flex-wrap items-center gap-2">

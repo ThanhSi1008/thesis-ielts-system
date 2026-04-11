@@ -21,6 +21,7 @@ export function ShortAnswerGroup({
   answers,
   onAnswer,
   submitted,
+  showAnswers,
   audioRef,
   onLocate,
 }: {
@@ -28,6 +29,7 @@ export function ShortAnswerGroup({
   answers: Record<string | number, string>;
   onAnswer: (qNum: number, val: string) => void;
   submitted: boolean;
+  showAnswers: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
   onLocate: (qNum: number) => void;
 }) {
@@ -115,7 +117,7 @@ export function ShortAnswerGroup({
       </ul>
 
       {/* Post-submit action buttons */}
-      {submitted && (
+      {showAnswers && (
         <div className="mt-3 space-y-2">
           {group.questions.map((q) => (
             <div key={q.question_number} className="flex flex-wrap items-center gap-2">
