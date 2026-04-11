@@ -4,67 +4,47 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from google import genai
-from google.genai import types as genai_types
+from openai import AsyncOpenAI
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-_client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
+_GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+_client = AsyncOpenAI(
+    api_key=_GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1",
+) if _GROQ_API_KEY else None
 
 class ChatMessage(BaseModel):
-    role: str  # "user" or "model"
+    role: str  # "user" or "model" (mapped to "assistant" for DeepSeek)
     content: str
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     system_instruction: Optional[str] = "You are a helpful, clear, and intelligent AI assistant. Provide concise and accurate answers."
 
-@router.post("/")
+@router.post("")
 async def chat_endpoint(request: ChatRequest):
     if not _client:
-        logger.error("[Chat] GEMINI_API_KEY is missing.")
-        raise HTTPException(status_code=500, detail="Gemini API is not configured on the server.")
+        logger.error("[Chat] GROQ_API_KEY is missing.")
+        raise HTTPException(status_code=500, detail="Groq API is not configured on the server.")
         
     try:
         logger.info(f"[Chat] Received request with {len(request.messages)} messages")
         
-        contents = []
+        messages = [{"role": "system", "content": request.system_instruction}]
         for msg in request.messages:
-            # Enforce valid role names
-            role = "model" if msg.role == "model" else "user"
-            contents.append(
-                genai_types.Content(
-                    role=role,
-                    parts=[genai_types.Part.from_text(text=msg.content)]
-                )
-            )
+            # Map "model" role (Gemini style) → "assistant" (OpenAI/DeepSeek style)
+            role = "assistant" if msg.role == "model" else "user"
+            messages.append({"role": role, "content": msg.content})
             
-        # Optional: gracefully fallback to gemini-2.0-flash if 2.5 errors out
-        model_name = "gemini-2.5-flash"
-        
-        try:
-            response = _client.models.generate_content(
-                model=model_name,
-                contents=contents,
-                config=genai_types.GenerateContentConfig(
-                    system_instruction=request.system_instruction,
-                    temperature=0.7,
-                ),
-            )
-        except Exception as api_err:
-            logger.warning(f"[Chat] Standard model {model_name} failed. Falling back to gemini-2.0-flash. Error: {api_err}")
-            response = _client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=contents,
-                config=genai_types.GenerateContentConfig(
-                    system_instruction=request.system_instruction,
-                    temperature=0.7,
-                ),
-            )
+        response = await _client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            temperature=0.7,
+        )
             
-        return {"response": response.text}
+        return {"response": response.choices[0].message.content}
         
     except Exception as e:
         logger.error(f"[Chat] Failed to generate chat response: {e}", exc_info=True)

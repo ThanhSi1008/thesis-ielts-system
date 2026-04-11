@@ -1,0 +1,67 @@
+{
+  "title": "Techniques of Bluegill Cuckolds",
+  "passage": "The bluegill is one of the most popular gaming fish in North America and is frequently found in freshwater lakes and ponds. This relatively small fish has been the subject of intense study by wildlife biologists for its unusual mating habits. While similar to other fish in that the male cares for the offspring, the bluegill is unique in that some males use deception and mimicry to inseminate eggs meant for a different, larger male. Around 20 per cent of bluegill males attempt to enter the mating process through trickery before they are fully grown. These fish, known as cuckolds or sneakers, will seek out a large parental male, hide in the weeds adjacent to the male's grounds, and wait for a school of female fish to pass over. Once a female chooses a partner, she will tilt her body and release roughly 30 eggs. Normally, the resident male would shower these eggs with his seed, but before he has a chance to reach them, the diminutive cuckold will leave his safety zone and dart into the nest of the larger male to inseminate the eggs himself, quickly returning to his point of origin without being caught.\n\nWith this tactic, the cuckold can fertilise as many of the eggs as possible before they settle into the hole, and then use his undersized body to escape undetected. This technique is only available to younger bluegills, however, since the size of adult bluegills precludes the agility required for this operation. Nonetheless, older cuckolds do adopt another method to achieve their goals. An adult cuckold is still smaller than most male bluegills and can easily be mistaken for a female. As they age, the cuckold will acquire a set of shaded areas and stripes on its body that is similar to that on females, which completely disguises them from other males and allows them to easily slip into schools of female fish unnoticed. In this fashion, they wait until a nearby female decides to release her eggs before swooping down and inseminating them. If a good selection is fertilised, then the cuckold has accomplished his reproductive duties.",
+  "passage_with_locations": [
+    "The bluegill is one of the most popular gaming fish in North America and is frequently found in freshwater lakes and ponds. This relatively small fish has been the subject of intense study by wildlife biologists for its unusual mating habits. While similar to other fish in that the male cares for the offspring, the bluegill is unique in that some males use deception and mimicry to inseminate eggs meant for a different, larger male. Around 20 per cent of bluegill males attempt to enter the mating process through trickery before they are fully grown. These fish, known as cuckolds or sneakers, will seek out a large parental male, ",
+    {
+      "question_number": 8,
+      "text": "hide in the weeds adjacent to the male's grounds"
+    },
+    ", and wait for a school of female fish to pass over. Once a female chooses a partner, she will tilt her body and release roughly 30 eggs. Normally, the resident male would shower these eggs with his seed, but before he has a chance to reach them, the diminutive cuckold will leave his safety zone and dart into the nest of the larger male to inseminate the eggs himself, quickly returning to his point of origin without being caught.\n\nWith this tactic, ",
+    {
+      "question_number": 9,
+      "text": "the cuckold can fertilise as many of the eggs as possible before they settle into the hole, and then use his undersized body to escape undetected"
+    },
+    ". This technique is only available to younger bluegills, however, since the size of adult bluegills precludes the agility required for this operation. Nonetheless, older cuckolds do adopt another method to achieve their goals. An adult cuckold is still smaller than most male bluegills and can easily be mistaken for a female. ",
+    {
+      "question_number": 10,
+      "text": "As they age, the cuckold will acquire a set of shaded areas and stripes on its body that is similar to that on females, which completely disguises them"
+    },
+    " from other males and allows them to easily slip into schools of female fish unnoticed. In this fashion, they wait until a nearby female decides to release her eggs before swooping down and inseminating them. If a good selection is fertilised, then the cuckold has accomplished his reproductive duties."
+  ],
+  "content": [
+    {
+      "type": "summary_completion",
+      "instruction": "Complete the summary using the list of words, A-G, below.",
+      "summary": "**Techniques of Bluegill Cuckolds**\n\nBluegill cuckolds cheat their way into fertilising eggs that are not meant for them. They do this by hiding near another male's {{8}} and darting into it at just the right moment. Because a cuckold has a much smaller {{9}} than most males, it can easily get out of danger quickly. Older cuckolds have another method. They are still not as big as most males, so they swim with female bluegills and wait for one to release its eggs. These cuckolds can avoid being noticed because they take on a {{10}} that looks like the one on females.",
+      "options": [
+        { "letter": "A", "text": "hole" },
+        { "letter": "B", "text": "colour" },
+        { "letter": "C", "text": "nest" },
+        { "letter": "D", "text": "pattern" },
+        { "letter": "E", "text": "seed" },
+        { "letter": "F", "text": "tail" },
+        { "letter": "G", "text": "body" }
+      ],
+      "questions": [
+        {
+          "question_number": 8,
+          "answer": "C",
+          "explanation": {
+            "keyword": "hiding near another male's",
+            "rationale": "The summary says 'hiding near another male's _____'. The text describes them as hiding 'in the weeds adjacent to the male's grounds' and later darting into the 'nest of the larger male'. 'grounds' aligns best with 'nest' (Option C).",
+            "distractor_analysis": "Words like 'hole' (A) refer to where eggs settle, not where they hide near. Thus C is correct."
+          }
+        },
+        {
+          "question_number": 9,
+          "answer": "G",
+          "explanation": {
+            "keyword": "much smaller _____ than most males",
+            "rationale": "The summary notes they have a 'much smaller _____'. The text explains the cuckold uses 'his undersized body to escape undetected'. 'undersized' means 'much smaller', so the answer is 'body' (Option G).",
+            "distractor_analysis": "None of the other options such as tail (F) or pattern (D) relate to being undersized to escape quickly."
+          }
+        },
+        {
+          "question_number": 10,
+          "answer": "D",
+          "explanation": {
+            "keyword": "looks like the one on females",
+            "rationale": "The summary says they 'take on a _____ that looks like the one on females'. The passage states they 'acquire a set of shaded areas and stripes on its body that is similar to that on females'. 'Shaded areas and stripes' describe a visual 'pattern' (Option D).",
+            "distractor_analysis": "While 'colour' (B) is visual, 'shaded areas and stripes' refers directly to a pattern."
+          }
+        }
+      ]
+    }
+  ]
+}

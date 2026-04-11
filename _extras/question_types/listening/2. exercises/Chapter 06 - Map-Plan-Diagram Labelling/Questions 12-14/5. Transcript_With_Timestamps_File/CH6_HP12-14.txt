@@ -1,0 +1,30 @@
+[00.00s -> 05.92s]  Section 2 You will hear a telephone conversation between
+[05.92s -> 11.00s]  a hotel receptionist and a guest about laundry facilities.
+[11.00s -> 16.40s]  First, you have some time to read through questions 12 to 14.
+[31.00s -> 37.00s]  Now listen carefully and answer questions 12 to 14.
+[38.00s -> 45.00s]  You've reached the Ruby Hotel front desk. This is Camille speaking. How may I assist you this evening?
+[45.00s -> 51.00s]  Hello. I'm staying in room 310, but I'm making this call from the laundry room at the moment.
+[51.00s -> 58.00s]  I've been attempting to run the washing machine, but I can't seem to figure out how to operate it correctly.
+[58.00s -> 65.00s]  I just put the coins into the rectangular slot on the left side panel and pressed the start button below it,
+[65.00s -> 70.00s]  but nothing happened after that. Can you tell me what I might have done wrong?
+[70.00s -> 78.00s]  Well, first of all, have you checked if the power cord is plugged in? It should be right behind the machine.
+[78.00s -> 83.00s]  If it's plugged in, you should also be able to see the power light.
+[83.00s -> 90.00s]  There are two lights in the top right corner next to the door. The bigger one is the power light.
+[90.00s -> 98.00s]  Assuming the power is on, the next thing to check are the two rectangular buttons on the right panel.
+[98.00s -> 104.00s]  Those are for selecting water temperature and washing time before beginning the cycle.
+[104.00s -> 110.00s]  To start the machine, you have to choose the temperature by pressing the smaller one to the right
+[110.00s -> 114.00s]  and then select the time with the left hand button.
+[114.00s -> 121.00s]  Hmm, I've already checked all of that, but it's still not working, so what should I do?
+[121.00s -> 126.00s]  There isn't a red light in the top right corner next to the door, is there?
+[126.00s -> 130.00s]  That's the smaller light below the power light.
+[130.00s -> 136.00s]  If that light is red, it means the door has not been secured. It has to be green.
+[136.00s -> 142.00s]  If it's not, then the machine won't run regardless of other inputs you may have made.
+[142.00s -> 145.00s]  You'll need to open and close the door again.
+[145.00s -> 153.00s]  Once you've done that, you should press the button right underneath the temperature and time controls on the top right panel.
+[153.00s -> 155.00s]  This will lock the door.
+[155.00s -> 162.00s]  Oh, and you won't need to put money into the machine again, by the way, if you were fretting about that.
+[162.00s -> 168.00s]  Right, that light is red, so that's what was causing the problem. Thanks.
+[168.00s -> 175.00s]  And just one other quick question. Do you have a change machine anywhere? I need some for the dryer.
+[175.00s -> 179.00s]  We don't, but we can certainly change money for you here at the desk.
+[179.00s -> 187.00s]  Great. I'll be up in a few minutes for that then. Thank you for your help.
+[187.00s -> 191.00s]  You now have 15 seconds to check your answers.

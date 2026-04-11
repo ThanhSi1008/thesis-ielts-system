@@ -20,8 +20,8 @@ import { StorageService } from '../../common/storage/storage.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   CreateDeckDto, CreateFlashcardDto, UpdateFlashcardDto, SubmitReviewDto,
-  CreateNoteTypeDto, RenameNoteTypeDto,
-  CreateNoteTypeFieldDto, UpdateNoteTypeFieldDto, UpdateCardTemplateDto,
+  CreateCardTypeDto, RenameCardTypeDto, UpdateCardTypeDescriptionDto,
+  CreateCardTypeFieldDto, UpdateCardTypeFieldDto, UpdateCardTemplateDto,
 } from './dto/vocab-lab.dto';
 import { CardState } from '@prisma/client';
 
@@ -35,47 +35,52 @@ export class VocabLabController {
 
   // ==================== NOTE TYPE ENDPOINTS ====================
 
-  @Get('note-types')
-  async getNoteTypes(@Request() req: any) {
-    return this.vocabLabService.getNoteTypes(req.user.id);
+  @Get('card-types')
+  async getCardTypes(@Request() req: any) {
+    return this.vocabLabService.getCardTypes(req.user.id);
   }
 
-  @Post('note-types')
-  async createNoteType(@Request() req: any, @Body() dto: CreateNoteTypeDto) {
-    return this.vocabLabService.createNoteType(req.user.id, dto);
+  @Post('card-types')
+  async createCardType(@Request() req: any, @Body() dto: CreateCardTypeDto) {
+    return this.vocabLabService.createCardType(req.user.id, dto);
   }
 
-  @Patch('note-types/:id')
-  async renameNoteType(@Request() req: any, @Param('id') id: string, @Body() dto: RenameNoteTypeDto) {
-    return this.vocabLabService.renameNoteType(req.user.id, id, dto);
+  @Patch('card-types/:id')
+  async renameCardType(@Request() req: any, @Param('id') id: string, @Body() dto: RenameCardTypeDto) {
+    return this.vocabLabService.renameCardType(req.user.id, id, dto);
   }
 
-  @Delete('note-types/:id')
-  async deleteNoteType(@Request() req: any, @Param('id') id: string) {
-    return this.vocabLabService.deleteNoteType(req.user.id, id);
+  @Patch('card-types/:id/description')
+  async updateCardTypeDescription(@Request() req: any, @Param('id') id: string, @Body() dto: UpdateCardTypeDescriptionDto) {
+    return this.vocabLabService.updateCardTypeDescription(id, dto);
   }
 
-  @Post('note-types/:id/fields')
-  async addField(@Request() req: any, @Param('id') id: string, @Body() dto: CreateNoteTypeFieldDto) {
+  @Delete('card-types/:id')
+  async deleteCardType(@Request() req: any, @Param('id') id: string) {
+    return this.vocabLabService.deleteCardType(req.user.id, id);
+  }
+
+  @Post('card-types/:id/fields')
+  async addField(@Request() req: any, @Param('id') id: string, @Body() dto: CreateCardTypeFieldDto) {
     return this.vocabLabService.addField(req.user.id, id, dto);
   }
 
-  @Patch('note-types/:id/fields/:fid')
-  async updateField(@Request() req: any, @Param('id') id: string, @Param('fid') fid: string, @Body() dto: UpdateNoteTypeFieldDto) {
+  @Patch('card-types/:id/fields/:fid')
+  async updateField(@Request() req: any, @Param('id') id: string, @Param('fid') fid: string, @Body() dto: UpdateCardTypeFieldDto) {
     return this.vocabLabService.updateField(req.user.id, id, fid, dto);
   }
 
-  @Delete('note-types/:id/fields/:fid')
+  @Delete('card-types/:id/fields/:fid')
   async deleteField(@Request() req: any, @Param('id') id: string, @Param('fid') fid: string) {
     return this.vocabLabService.deleteField(req.user.id, id, fid);
   }
 
-  @Get('note-types/:id/templates')
+  @Get('card-types/:id/templates')
   async getTemplates(@Request() req: any, @Param('id') id: string) {
     return this.vocabLabService.getTemplates(req.user.id, id);
   }
 
-  @Patch('note-types/:id/templates/:tid')
+  @Patch('card-types/:id/templates/:tid')
   async updateTemplate(@Request() req: any, @Param('id') id: string, @Param('tid') tid: string, @Body() dto: UpdateCardTemplateDto) {
     return this.vocabLabService.updateTemplate(req.user.id, id, tid, dto);
   }

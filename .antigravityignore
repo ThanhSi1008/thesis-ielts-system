@@ -1,0 +1,23 @@
+# Ignore heavy Node.js directories
+node_modules/
+**/node_modules/
+
+# Ignore build and output directories
+dist/
+build/
+.next/
+out/
+**/dist/
+**/build/
+
+# Ignore lockfiles and generated package files (frequent updates but not human content)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore python env caches if any
+__pycache__/
+.venv/
+
+# Ignore version control metadata
+.git/

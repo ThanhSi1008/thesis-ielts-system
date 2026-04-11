@@ -1,0 +1,51 @@
+{
+  "title": "Biomimicry and the Eastgate Centre",
+  "passage": "Zimbabwe's Eastgate Centre should be the model for modern midrise commercial architecture. It was constructed without mechanical air conditioning, resulting in savings of approximately 3 million pounds for the complex's owners. Surprisingly, the building is never uncomfortably hot or cold. This is because the architect utilised the process of biomimicry when designing it. Biomimicry involves humans studying a natural process and imitating it to solve a complex human problem. In this case, the designer, Mick Pearce, was inspired by termite mounds. These wood-eating pests build large mounds that can reach 25 metres in height. However, most termites do not inhabit the upper part of the mounds, but they live in a gallery at the base of it. The tall structure above is essentially a large chimney. It contains a central shaft that moves warmer air upward. This warm air then exits through holes near the mound's top. Radial vents at the base intensify this action by capturing the wind and cooling the air at the base of the mound, creating a convection cycle in the structure. After understanding this process, Pearce designed the Eastgate Centre's buildings as a series of rooms around a central shaft. Each room has ducts into the shaft and to the exterior resulting in heat dissipation as in the termite mound. Fans that pull air into the central shaft, producing continuous airflow, assist this system. Through this system, the offices in the Eastgate Centre have a stable internal temperature of approximately 23°C regardless of the external temperature.",
+  "passage_with_locations": [
+    "Zimbabwe's Eastgate Centre should be the model for modern midrise commercial architecture. It was constructed without mechanical air conditioning, resulting in savings of approximately 3 million pounds for the complex's owners. Surprisingly, the building is never uncomfortably hot or cold. This is because the architect utilised the process of biomimicry when designing it. Biomimicry involves humans studying a natural process and imitating it to solve a complex human problem. In this case, the designer, Mick Pearce, was inspired by termite mounds. These wood-eating pests build large mounds that can reach 25 metres in height. However, most termites do not inhabit the upper part of the mounds, but ",
+    {
+      "question_number": 5,
+      "text": "they live in a gallery at the base of it."
+    },
+    " The tall structure above is essentially a large chimney. It contains a central shaft that moves warmer air upward. This warm air then exits through holes near the mound's top. ",
+    {
+      "question_number": 6,
+      "text": "Radial vents at the base intensify this action by capturing the wind and cooling the air at the base of the mound"
+    },
+    ", creating a convection cycle in the structure. After understanding this process, Pearce designed the Eastgate Centre's buildings as a series of rooms around a central shaft. Each room has ducts into the shaft and to the exterior resulting in heat dissipation as in the termite mound. Fans that pull air into the central shaft, producing continuous airflow, assist this system. Through this system, the offices in the Eastgate Centre have a stable internal temperature of approximately 23°C regardless of the external temperature."
+  ],
+  "content": [
+    {
+      "type": "diagram_completion",
+      "instruction": "Label the diagram below. Choose ONE WORD from the passage for each answer.",
+      "diagram_title": "Termite Mound Layout",
+      "image_url": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1775658016/reading_sjnhgu.png",
+      "labels": [
+        "the {{5}}",
+        "radial {{6}}",
+        "central shaft",
+        "air holes"
+      ],
+      "questions": [
+        {
+          "question_number": 5,
+          "answer": "gallery",
+          "explanation": {
+            "keyword": "base of the mound",
+            "rationale": "The diagram points to the bottom section of the termite mound. The passage states that termites 'live in a gallery at the base of it'. Therefore, the missing word is 'gallery'.",
+            "distractor_analysis": "Words like 'chimney' or 'shaft' refer to the upper and central parts of the mound, not the base where they live."
+          }
+        },
+        {
+          "question_number": 6,
+          "answer": "vents",
+          "explanation": {
+            "keyword": "radial",
+            "rationale": "The label in the diagram has the word 'radial' right before the blank. In the text, it explicitly mentions 'Radial vents at the base intensify this action'. Thus, the missing word is 'vents'.",
+            "distractor_analysis": "'air holes' is already labeled elsewhere in the diagram and refers to holes near the top, not the radial openings at the base."
+          }
+        }
+      ]
+    }
+  ]
+}

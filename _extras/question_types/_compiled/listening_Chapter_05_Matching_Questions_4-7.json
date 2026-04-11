@@ -1,0 +1,123 @@
+[
+  {
+    "questions": "4-7",
+    "instructions": "Who are each resort's facilities geared towards? Write the correct letter, A, B or C, next to Questions 4-7.",
+    "topic": "New Holiday Resorts in the UK",
+    "question_type": "Matching",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562237/CH5_HP4-7_shakpc.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 2. You will hear a conversation between a radio host and a guest discussing new holiday resorts."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 4 to 7."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 4 to 7."
+      },
+      {
+        "speaker": "Audrey",
+        "text": "Good afternoon and thanks for listening to Holiday Talk. Our guest today is travel journalist and reviewer Simon Beattie."
+      },
+      {
+        "speaker": "Audrey",
+        "text": "He will be discussing some of the new vacation resorts that will be opening this year in the UK as many holiday makers are looking to travel locally rather than heading to other destinations that cost more money."
+      },
+      {
+        "speaker": "Audrey",
+        "text": "Thanks for joining us this afternoon Simon."
+      },
+      {
+        "speaker": "Simon",
+        "text": "And thank you for inviting me Audrey."
+      },
+      {
+        "speaker": "Audrey",
+        "text": "So I understand that there are several new holiday resorts that will be launching for the upcoming vacation season."
+      },
+      {
+        "speaker": "Simon",
+        "text": "Yes there are quite a few new establishments opening up. First we have the Blue Sands Resort opening in Brighton. It's a great place for young kids as there are lots of activities for them to do. It even has a small amusement park. So if you prefer not being around children it's probably not the best place for you. It opens in April.",
+        "question_number": 4,
+        "highlight_text": "It's a great place for young kids as there are lots of activities for them to do."
+      },
+      {
+        "speaker": "Simon",
+        "text": "Also opening that month is Shores Resort near Bournemouth. This facility has a lot of nightlife and entertainment so it is more geared to adult tourists. Kids are welcome but it doesn't sound like there is much for them to do there.",
+        "question_number": 5,
+        "highlight_text": "it is more geared to adult tourists. Kids are welcome but it doesn't sound like there is much for them to do there."
+      },
+      {
+        "speaker": "Simon",
+        "text": "Now the Peeland Hotel and Resorts has just opened to the public. It's got a massive water park and lots of fun activities just for children. However the resorts have specific areas reserved for adults only as well so there's something for everyone.",
+        "question_number": 6,
+        "highlight_text": "the resorts have specific areas reserved for adults only as well so there's something for everyone."
+      },
+      {
+        "speaker": "Simon",
+        "text": "And there are lots of other amusement parks and outdoor activities in the area too."
+      },
+      {
+        "speaker": "Audrey",
+        "text": "There are including water sports, hiking trails and beaches and then we move on to the Zone Fun Beach Resort in Selcombe."
+      },
+      {
+        "speaker": "Simon",
+        "text": "Now that facility is geared to university age travellers. It's got a nightclub, an outdoor stage and even a floating dance floor so it isn't particularly recommended for families and it will be launching in May.",
+        "question_number": 7,
+        "highlight_text": "university age travellers... it isn't particularly recommended for families"
+      },
+      {
+        "speaker": "Audrey",
+        "text": "So there are a lot of new options out there. Now could you tell us a bit about costs?"
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "matching",
+        "heading": "Resort Targeting",
+        "description": "Who are each resort's facilities geared towards?",
+        "items": [
+          { "id": 4, "text": "4 Blue Sands Resort" },
+          { "id": 5, "text": "5 Shores Resort" },
+          { "id": 6, "text": "6 Happyland Hotel and Resort" },
+          { "id": 7, "text": "7 Zone-Fun Beach Resort" }
+        ],
+        "options": [
+          { "letter": "A", "text": "primarily for adults" },
+          { "letter": "B", "text": "primarily for children" },
+          { "letter": "C", "text": "for both adults and children" }
+        ],
+        "answers": {
+          "4": {
+            "letter": "B",
+            "timestamp_seconds": 90.0,
+            "explanation": "Simon mentions Blue Sands is a 'great place for young kids' with an amusement park, and warns those who prefer not being around children away."
+          },
+          "5": {
+            "letter": "A",
+            "timestamp_seconds": 105.0,
+            "explanation": "Simon says Shores Resort has nightlife/entertainment and is 'more geared to adult tourists', with little for kids to do."
+          },
+          "6": {
+            "letter": "C",
+            "timestamp_seconds": 122.0,
+            "explanation": "Simon explains that Peeland (Happyland) has a water park for children but also specific areas reserved for adults, so 'there's something for everyone'."
+          },
+          "7": {
+            "letter": "A",
+            "timestamp_seconds": 144.0,
+            "explanation": "Simon states the resort is geared towards 'university age travellers' and is 'not particularly recommended for families'."
+          }
+        }
+      }
+    ]
+  }
+]

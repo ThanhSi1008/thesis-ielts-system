@@ -1,0 +1,42 @@
+[00.00s -> 02.00s]  语行 연습
+[02.00s -> 04.00s]  Section 1
+[04.00s -> 14.00s]  You will hear a university representative speaking with an international student about accommodation.
+[14.00s -> 20.00s]  First, you have some time to read through Questions 1 to 4.
+[30.00s -> 48.00s]  Now, listen carefully and answer Questions 1 to 4.
+[48.00s -> 54.00s]  Good morning. University Housing Services Office. What can I help you with?
+[54.00s -> 64.00s]  Hi. I'm interested in getting some information about a room in university halls such as availability, cost, and so on.
+[64.00s -> 67.00s]  Sure. Are you a full-time student here?
+[67.00s -> 74.00s]  I am, yes. I'm actually on an exchange program from the United States.
+[74.00s -> 80.00s]  I would like to be close to campus, so I think staying in student halls would be perfect.
+[80.00s -> 87.00s]  I have some options for you then. But before we talk about that, may I ask for your name and contact number?
+[87.00s -> 94.00s]  Stephanie Mills. My mobile number is 543-2928.
+[94.00s -> 100.00s]  Thanks, Stephanie. So let's talk about some of your preferences for the halls.
+[100.00s -> 103.00s]  First of all, how long would you like to stay for?
+[103.00s -> 110.00s]  Just for six months. I'll be returning to the United States for the summer holiday.
+[110.00s -> 122.00s]  So, one option I found is on Canton Road. It's a single room on the second floor of Westgate House, which used to be a shared room, so it's quite big.
+[122.00s -> 126.00s]  It is fully furnished and has a double bed and a desk.
+[126.00s -> 134.00s]  That costs £120 per week and is 10 minutes walk from campus just past the train station.
+[134.00s -> 136.00s]  Does that include meals?
+[136.00s -> 142.00s]  No, it doesn't, I'm afraid. There is a shared kitchen space where you can cook your own food.
+[142.00s -> 147.00s]  The toilets are also shared, but there is a private sink in your room.
+[147.00s -> 152.00s]  That's a little bit expensive for me then. Are there any other options?
+[152.00s -> 157.00s]  Let me see. Well, there is one space on Hill Yard Street.
+[157.00s -> 160.00s]  Sorry, how do you spell that street?
+[160.00s -> 168.00s]  H-I-L-L-Y-A-R-D Street. Hill Yard. That is a shared room and strand house.
+[168.00s -> 170.00s]  Thanks, and how much is that?
+[170.00s -> 177.00s]  That is £130 a week, but does include breakfast and lunch on weekdays.
+[177.00s -> 181.00s]  There is a canteen in the building, which is open to all residents.
+[181.00s -> 185.00s]  The room has a desk and a bed, only a single.
+[185.00s -> 190.00s]  It does include an en-suite toilet though, which you share with your roommate.
+[190.00s -> 196.00s]  That sounds okay. I don't mind sharing. How far is that from campus?
+[196.00s -> 202.00s]  It's a bit further, about 20 minutes by foot, so it would be hard to walk to school.
+[202.00s -> 205.00s]  Although if you have a bike, it would take about 10 minutes.
+[205.00s -> 208.00s]  There is a bike shed next to the halls.
+[208.00s -> 213.00s]  Before there is a bus, which takes about 5 minutes, so if you're running late, you can jump on that.
+[213.00s -> 219.00s]  That sounds great. I will probably cycle most days. When can I move in?
+[219.00s -> 225.00s]  As soon as you're ready. Just come down to the office fast and we'll sort out the relevant paperwork.
+[225.00s -> 230.00s]  Wonderful. I'll be there later today. Thanks for your help.
+[230.00s -> 232.00s]  No problem. See you later.
+[232.00s -> 234.00s]  Okay, bye.
+[234.00s -> 235.00s]  Goodbye.
+[238.00s -> 243.00s]  You now have 15 seconds to check your answers.

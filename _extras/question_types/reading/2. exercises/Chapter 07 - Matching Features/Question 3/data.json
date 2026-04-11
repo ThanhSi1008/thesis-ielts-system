@@ -1,0 +1,50 @@
+{
+  "title": "The Evolution of Sleep",
+  "passage": "Sleep is a necessity for all animals which, according to some scientists, could reveal something about our shared evolutionary ancestry. Because of its universality, many early sleep researchers felt that it must have begun very early in animal evolution. However, this view is contested by some scientists, such as Jerry Siegel of the University of California, who suggests that the need for sleep could have developed in each species separately. 'It could be more of a case of convergent evolution', he states, suggesting that sleep is 'an adaption to an animal's environment' rather than a trait inherited from a common evolutionary ancestor. Siegel's theory is backed up by the massive variation in sleep patterns across different species, from possums that can sleep for up to 18 hours a day, to birds that take hundreds of short naps every day. He has also discovered that dolphins, which are renowned for their ability to put one side of their brain to sleep at a time, have another unique sleep pattern. After an adult dolphin gives birth, neither she nor her offspring will sleep for an extended period of time. This practice, the opposite of what occurs in land mammals, suggests that animals adapt their own system of sleep, rather than inherit a universal one. Nonetheless many scientists still hope to find an overarching theory for why all animals need sleep. Paul Shaw, a researcher at Washington University in St. Louis, claims that because 'sleep is costly' in terms of vulnerability to ambush from other animals, there must be an underlying evolutionary reason for its universality. Shaw cites sleep research pioneer Alan Rechtschaffen, who stated, 'If sleep doesn't serve an absolutely vital function, it is the biggest mistake evolution ever made.'",
+  "passage_with_locations": [
+    "Sleep is a necessity for all animals which, according to some scientists, could reveal something about our shared evolutionary ancestry. Because of its universality, many early sleep researchers felt that it must have begun very early in animal evolution. However, this view is contested by some scientists, such as ",
+    {
+      "question_number": 7,
+      "text": "Jerry Siegel of the University of California, who suggests that the need for sleep could have developed in each species separately... sleep is 'an adaption to an animal's environment' rather than a trait inherited from a common evolutionary ancestor."
+    },
+    " Siegel's theory is backed up by the massive variation in sleep patterns across different species, from possums that can sleep for up to 18 hours a day, to birds that take hundreds of short naps every day. He has also discovered that dolphins, which are renowned for their ability to put one side of their brain to sleep at a time, have another unique sleep pattern. After an adult dolphin gives birth, neither she nor her offspring will sleep for an extended period of time. This practice, the opposite of what occurs in land mammals, suggests that animals adapt their own system of sleep, rather than inherit a universal one. Nonetheless many scientists still hope to find an overarching theory for why all animals need sleep. ",
+    {
+      "question_number": 8,
+      "text": "Paul Shaw, a researcher at Washington University in St. Louis, claims that because 'sleep is costly' in terms of vulnerability to ambush from other animals, there must be an underlying evolutionary reason for its universality."
+    },
+    " Shaw cites sleep research pioneer Alan Rechtschaffen, who stated, 'If sleep doesn't serve an absolutely vital function, it is the biggest mistake evolution ever made.'"
+  ],
+  "content": [
+    {
+      "type": "matching_features",
+      "instruction": "Look at the following findings (Questions 7-8) and the list of scientists below. Match each finding with the correct scientist, A, B or C.",
+      "options": [
+        { "letter": "A", "text": "Alan Rechtschaffen" },
+        { "letter": "B", "text": "Paul Shaw" },
+        { "letter": "C", "text": "Jerry Siegel" }
+      ],
+      "questions": [
+        {
+          "question_number": 7,
+          "text": "Animals developed unique sleep habits to match their specific surroundings, rather than inheriting a general trait.",
+          "answer": "C",
+          "explanation": {
+            "keyword": "Jerry Siegel, adaptation, surroundings",
+            "rationale": "Jerry Siegel suggests sleep developed in each species separately as 'an adaptation to an animal's environment [surroundings]' rather than being 'inherited from a common evolutionary ancestor [general trait]'.",
+            "distractor_analysis": "Paul Shaw (B) and Alan Rechtschaffen (A) lean more towards the universal importance of sleep, rather than species-specific environmental adaptation."
+          }
+        },
+        {
+          "question_number": 8,
+          "text": "The importance of sleep is evident when we consider how a sleeping animal is much more open to attack from a predator.",
+          "answer": "B",
+          "explanation": {
+            "keyword": "Paul Shaw, costly, ambush",
+            "rationale": "Paul Shaw claims sleep is 'costly' due to the 'vulnerability to ambush from other animals'. 'Vulnerability to ambush' is a direct paraphrase for being 'open to attack from a predator'.",
+            "distractor_analysis": "While Rechtschaffen (A) states sleep must serve a vital function, he doesn't explicitly mention the mechanism of predator vulnerability in the provided text."
+          }
+        }
+      ]
+    }
+  ]
+}

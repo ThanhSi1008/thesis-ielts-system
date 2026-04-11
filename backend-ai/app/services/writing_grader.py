@@ -3,27 +3,27 @@ import json
 import re
 import logging
 import httpx
+import typing
 
-# Ensure .env is loaded into os.environ
 from dotenv import load_dotenv
 load_dotenv()
 
-from google import genai
-from google.genai import types as genai_types
+from openai import AsyncOpenAI
 
 logger = logging.getLogger(__name__)
 
-import typing
+_GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+if not _GROQ_API_KEY:
+    logger.warning("[WritingGrader] GROQ_API_KEY is empty — grading will fail!")
 
-_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-if not _GEMINI_API_KEY:
-    logger.warning("[WritingGrader] GEMINI_API_KEY is empty — grading will fail!")
-
-_client = genai.Client(api_key=_GEMINI_API_KEY)
+_client = AsyncOpenAI(
+    api_key=_GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1",
+)
 
 SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the two writing tasks strictly according to the official IELTS band descriptors.
 
-For Task 1, you will be given the task image (chart/graph/map/diagram) alongside the text prompt. Use the image to verify whether the candidate has accurately described the data — correct values, trends, key features, and comparisons. Penalise under Task Achievement if the candidate misreads or ignores key data from the image.
+For Task 1, you will be given the task prompt (and image description if available). Use it to verify whether the candidate has accurately described the data — correct values, trends, key features, and comparisons. Penalise under Task Achievement if the candidate misreads or ignores key data.
 
 For EACH of the four criteria (Task Achievement/Response, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy), provide:
 - A band score from 1.0 to 9.0 (in 0.5 increments)
@@ -137,10 +137,15 @@ async def grade_writing(
     task2_essay: str,
     task1_image_url: str = "",
 ) -> dict:
-    """Call Gemini to grade both IELTS writing tasks and return structured feedback."""
-    logger.info("[WritingGrader] Calling Gemini API...")
+    """Call DeepSeek to grade both IELTS writing tasks and return structured feedback."""
+    logger.info("[WritingGrader] Calling DeepSeek API...")
 
-    text_part = f"""=== WRITING TASK 1 ===
+    # Build the user message text
+    image_note = ""
+    if task1_image_url:
+        image_note = f"\n[Task 1 chart image URL: {task1_image_url} — please consider chart data as described in the prompt]"
+
+    user_message = f"""=== WRITING TASK 1 ==={image_note}
 Task Prompt: {task1_prompt}
 Candidate's Response:
 {task1_essay or "(No response submitted)"}
@@ -150,54 +155,22 @@ Task Prompt: {task2_prompt}
 Candidate's Response:
 {task2_essay or "(No response submitted)"}"""
 
-    # Build multimodal content if image URL is provided
-    contents: list = []
-    if task1_image_url:
-        try:
-            async with httpx.AsyncClient(timeout=15) as http_client:
-                img_response = await http_client.get(task1_image_url)
-                img_response.raise_for_status()
-                image_bytes = img_response.content
-                content_type = img_response.headers.get("content-type", "image/png").split(";")[0].strip()
-            image_part = genai_types.Part.from_bytes(data=image_bytes, mime_type=content_type)
-            contents = [
-                image_part,
-                genai_types.Part.from_text(text=f"[Task 1 chart image provided above]\n\n{text_part}"),
-            ]
-            logger.info(f"[WritingGrader] Task 1 image fetched ({len(image_bytes)} bytes), building multimodal request")
-        except Exception as img_err:
-            logger.warning(f"[WritingGrader] Failed to fetch Task 1 image ({img_err}), falling back to text-only")
-            contents = [text_part]
-    else:
-        contents = [text_part]
-
     try:
-        response = _client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=contents,
-            config=genai_types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-                temperature=0.2,
-            ),
+        response = await _client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_message},
+            ],
+            temperature=0.2,
         )
     except Exception as e:
-        logger.warning(f"[WritingGrader] gemini-2.5-flash failed ({e}). Falling back to gemini-1.5-pro.")
-        try:
-            response = _client.models.generate_content(
-                model="gemini-1.5-pro",
-                contents=contents,
-                config=genai_types.GenerateContentConfig(
-                    system_instruction=SYSTEM_PROMPT,
-                    temperature=0.2,
-                ),
-            )
-        except Exception as fallback_e:
-            logger.error(f"[WritingGrader] Fallback model also failed: {fallback_e}")
-            raise e
+        logger.error(f"[WritingGrader] DeepSeek API call failed: {e}")
+        raise
 
     # Output processing
-    raw_text = response.text.strip()
-    logger.info(f"[WritingGrader] Gemini responded ({len(raw_text)} chars)")
+    raw_text = response.choices[0].message.content.strip()
+    logger.info(f"[WritingGrader] DeepSeek responded ({len(raw_text)} chars)")
 
     # 1. Strip markdown code fences if present
     clean_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
@@ -208,21 +181,15 @@ Candidate's Response:
         result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text))
     except json.JSONDecodeError as e:
         logger.warning(f"[WritingGrader] Initial JSON parse failed ({e}). Attempting to repair.")
-        # Sometimes Gemini adds trailing commas or forgets them. Let's try aggressive extraction:
-        # Find the first '{' and last '}'
         start_idx = clean_text.find('{')
         end_idx = clean_text.rfind('}')
         if start_idx != -1 and end_idx != -1:
             clean_text = clean_text[start_idx:end_idx+1]
-            
-        # Optional: very simplistic trailing comma removal right before closing brackets/braces
         clean_text = re.sub(r",\s*([\]}])", r"\1", clean_text)
-        
         try:
             result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text))
         except json.JSONDecodeError as e2:
             logger.error(f"[WritingGrader] JSON recovery failed: {e2}\nRaw text was: {raw_text}")
-            # If we STILL fail, format a fallback so the frontend doesn't crash completely.
             result = typing.cast(typing.Dict[str, typing.Any], {
                 "overall_band": 0,
                 "task1": {"band": 0, "criteria": {

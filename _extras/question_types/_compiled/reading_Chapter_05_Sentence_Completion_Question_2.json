@@ -1,0 +1,52 @@
+{
+  "title": "Animal Emotions",
+  "passage": "While pet owners have long believed that their animal companions display feelings such as empathy, jealousy, and guilt, scientists have historically said that this was impossible. They held that only humans felt emotions and that our recognition of them in other species was due to anthropomorphism, or the attribution of human traits to animals. However, recent research has shown that this may not actually be true. By utilising testing methods usually used on non-verbal infants, researchers Christine Harris and Caroline Prouvost of the University of California, San Diego found that dogs displayed jealous behaviours when their owners showed affection to other dogs. The discovery of demonstrable jealousy in another social species indicates that emotions are not likely a strictly human trait. Historical anthropologists like Laurel Braitman and Elizabeth Marshall Thomas take this further. They suggest that emotions have evolutionary value and that when we see a human emotion in animals, we may be recognising a common feature acquired long ago in our shared past.",
+  "passage_with_locations": [
+    "While pet owners have long believed that their animal companions display feelings such as empathy, jealousy, and guilt, ",
+    {
+      "question_number": 3,
+      "text": "scientists have historically said that this was impossible. They held that only humans felt emotions"
+    },
+    " and that our recognition of them in other species was due to anthropomorphism, or the attribution of human traits to animals. However, recent research has shown that this may not actually be true. By utilising testing methods usually used on non-verbal infants, researchers Christine Harris and Caroline Prouvost of the University of California, San Diego found that dogs displayed jealous behaviours when their owners showed affection to other dogs. ",
+    {
+      "question_number": 4,
+      "text": "The discovery of demonstrable jealousy in another social species indicates that emotions are not likely a strictly human trait."
+    },
+    " Historical anthropologists like Laurel Braitman and Elizabeth Marshall Thomas take this further. They suggest that emotions have evolutionary value and that when we see a human emotion in animals, we may be recognising a common feature acquired long ago in our shared past."
+  ],
+  "content": [
+    {
+      "type": "matching_sentence_endings",
+      "instruction": "Complete each sentence with the correct ending, A-E, below.",
+      "options": [
+        { "id": "A", "text": "communicate thoughts to other animals." },
+        { "id": "B", "text": "lack the emotions." },
+        { "id": "C", "text": "are present in more than one species." },
+        { "id": "D", "text": "separate feelings from emotions." },
+        { "id": "E", "text": "share an emotional bond with humans." }
+      ],
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "Scientists traditionally felt that animals",
+          "answer": "B",
+          "explanation": {
+            "keyword": "Scientists traditionally felt",
+            "rationale": "The text explicitly states 'scientists have historically said that this was impossible. They held that only humans felt emotions'. This implies that other species, such as animals, do not have emotions. The option that paraphrases this is B ('lack the emotions').",
+            "distractor_analysis": "Words like anthropomorphism indicate the *appearance* of human traits, confirming scientists didn't believe animals had actual feelings, making B the only logical conclusion over A, D, and E."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "Dogs showing envy proves that emotions",
+          "answer": "C",
+          "explanation": {
+            "keyword": "Dogs showing envy",
+            "rationale": "The passage notes 'The discovery of demonstrable jealousy in another social species indicates that emotions are not likely a strictly human trait'. If reading emotions is not strictly a human trait, it must mean emotions 'are present in more than one species', matching choice C.",
+            "distractor_analysis": "While the passage discusses the bond seen between owners and dogs (E), the specific *conclusion* (proof) drawn by the discovery is broader—that emotions extend beyond humans (C)."
+          }
+        }
+      ]
+    }
+  ]
+}

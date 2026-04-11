@@ -1,0 +1,163 @@
+[
+  {
+    "questions": "1-4",
+    "instructions": "Label the map below. Write the correct letter, A-G, next to Questions 1-4.",
+    "topic": "Fun Fortress Theme Park Map",
+    "question_type": "Map Labelling",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562267/CH6_HP1-4_j3phrz.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear a tour guide speaking to a group of visitors about an amusement park."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 1-4."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 1-4."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "I'm glad you could all join us today at Fun Fortress Theme Park. As you may have already heard, this facility recently reopened after undergoing big improvements."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "So, first, I'll begin by explaining what visitors can do here. We are at the main gate at the moment, and there is a route you can follow from here to ensure you see most things in the park."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "After you enter the main gate, you will immediately see the public market on the right side of the road, where we sell a variety of souvenirs, snacks, and beverages."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Directly across the street from that is our spacious main stage. On the main stage, you can watch re-enactments of battles with knights, performances by medieval musicians, or comedy shows.",
+        "question_number": 1,
+        "highlight_text": "Directly across the street from that is our spacious main stage."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "And if you follow the side path to the west, you will see bouncy castle at the end on your right."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Now, if you're headed north from the main gate on the main route and take the second left, you'll come to our large rides area."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "This is where our most popular ride, the Dungeon Discovery Ride, and our newest ride, Castle Tower, can be found."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "The Dungeon Discovery Ride is the first one you see on the left as you enter the rides area."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "But Castle Tower is located in the far northwest corner, so you'll have to walk a bit more in that direction to find it.",
+        "question_number": 2,
+        "highlight_text": "Castle Tower is located in the far northwest corner"
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "We also have a miniature village in the park. Get there, starting from the main entrance. Take the same route north toward the rides area."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Go past the turning to the forest pathway, and you will reach another path that turns to the right."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Take that path, and it will bend to the left and come to the entrance of the miniature village, located between the pathway and Queen's Pond.",
+        "question_number": 3,
+        "highlight_text": "entrance of the miniature village, located between the pathway and Queen's Pond."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "This includes a complete town and a range of famous landmarks and structures, all miniaturized of course."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Now, if you're interested in watching a show or a movie, you can go to the park's fun fortress 3D theater."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "To get there, you head north on the main route. Take the first right and head up the forest pathway. You'll eventually come to a small bridge that crosses the stream, and on the other side is the theater.",
+        "question_number": 4,
+        "highlight_text": "bridge that crosses the stream, and on the other side is the theater."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "We have a wide selection of new releases and kids classics, most of which are in 3D."
+      },
+      {
+        "speaker": "Tour Guide",
+        "text": "Alright, those who would like to follow the route can come with me, and we will start at..."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "map_labelling",
+        "heading": "Fun Fortress Map",
+        "image_url": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1775638317/chapter6-1_iuenao.png",
+        "labels": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G"
+        ],
+        "items": [
+          {
+            "question_number": 1,
+            "text": "Main stage",
+            "answer": "G",
+            "timestamp_seconds": 81.0,
+            "explanation": "The guide says the Public Market is on the right of the road, and the 'main stage' is 'directly across the street from that', which points to box G."
+          },
+          {
+            "question_number": 2,
+            "text": "Castle Tower",
+            "answer": "A",
+            "timestamp_seconds": 130.0,
+            "explanation": "The guide mentions that Castle Tower is 'located in the far northwest corner' of the rides area, which matches box A."
+          },
+          {
+            "question_number": 3,
+            "text": "Miniature Village",
+            "answer": "B",
+            "timestamp_seconds": 157.0,
+            "explanation": "The guide says the village is 'located between the pathway and Queen's Pond', which is exactly where box B is placed."
+          },
+          {
+            "question_number": 4,
+            "text": "Fun Fortress Theatre",
+            "answer": "E",
+            "timestamp_seconds": 188.0,
+            "explanation": "The guide instructions state: 'crosses the stream, and on the other side is the theater', which refers to box E located across the bridge."
+          }
+        ],
+        "distractors": [
+          {
+            "label": "D",
+            "text": "Dungeon Discovery Ride (first on the left in rides area)"
+          },
+          {
+            "label": "F",
+            "text": "Bouncy Castle (at the end of the side path to the west)"
+          },
+          {
+            "label": "C",
+            "text": "Unlabelled building on the forest pathway"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -39,6 +39,7 @@ interface WritingResultViewProps {
   feedback: WritingFeedback;
   answers?: { task1?: string; task2?: string };
   exam?: any;
+  practicePart?: number;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -219,10 +220,10 @@ function CriterionCard({
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export default function WritingResultView({ feedback, answers, exam }: WritingResultViewProps) {
+export default function WritingResultView({ feedback, answers, exam, practicePart }: WritingResultViewProps) {
   const [detailedOpen, setDetailedOpen] = useState(true);
   const [reviewOpen, setReviewOpen] = useState(true);
-  const [activeTask, setActiveTask] = useState<1 | 2>(1);
+  const [activeTask, setActiveTask] = useState<1 | 2>(practicePart === 2 ? 2 : 1);
   const [activeView, setActiveView] = useState<"Question" | "Answer">("Question");
   const [activeCriterion, setActiveCriterion] = useState<string | null>("task_achievement");
 
@@ -267,8 +268,8 @@ export default function WritingResultView({ feedback, answers, exam }: WritingRe
       </button>
       {detailedOpen && (
         <div className="px-8 mb-8 gap-4 grid grid-cols-1 md:grid-cols-2 bg-white">
-          <TaskDetailColumn taskName="Task 1" data={feedback.task1} isTask2={false} />
-          <TaskDetailColumn taskName="Task 2" data={feedback.task2} isTask2={true} />
+          {(!practicePart || practicePart === 1) && <TaskDetailColumn taskName="Task 1" data={feedback.task1} isTask2={false} />}
+          {(!practicePart || practicePart === 2) && <TaskDetailColumn taskName="Task 2" data={feedback.task2} isTask2={true} />}
         </div>
       )}
     </div>
@@ -290,26 +291,30 @@ export default function WritingResultView({ feedback, answers, exam }: WritingRe
         <div className="flex flex-col bg-white overflow-hidden">
           {/* TOP FULL-WIDTH HEADER: TASK TABS */}
           <div className="flex bg-white px-4 md:px-8">
-            <button
-              onClick={() => setActiveTask(1)}
-              className={`py-4 px-6 border-b-[2px] flex items-center justify-center lg:justify-start gap-3 transition-colors ${activeTask === 1 ? "border-[#ffc107] text-[#ffc107]" : "border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900"}`}
-            >
-              <BarChart className="w-6 h-6 flex-shrink-0" />
-              <div className="flex flex-col items-start leading-[1.1] text-left">
-                <span className="font-extrabold text-[15px] tracking-tight">Task 1</span>
-                <span className="text-[11px] font-bold tracking-tight">Diagram Report</span>
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTask(2)}
-              className={`py-4 px-6 border-b-[2px] flex items-center justify-center lg:justify-start gap-3 transition-colors ${activeTask === 2 ? "border-[#ffc107] text-[#ffc107]" : "border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900"}`}
-            >
-              <FileText className={`w-6 h-6 flex-shrink-0 ${activeTask === 2 ? "text-[#ffc107]" : "text-gray-600"}`} />
-              <div className="flex flex-col items-start leading-[1.1] text-left">
-                <span className={`font-extrabold text-[15px] tracking-tight ${activeTask === 2 ? "" : "text-gray-800"}`}>Task 2</span>
-                <span className={`text-[11px] font-bold tracking-tight ${activeTask === 2 ? "" : "text-gray-600"}`}>Essay Writing</span>
-              </div>
-            </button>
+            {(!practicePart || practicePart === 1) && (
+              <button
+                onClick={() => setActiveTask(1)}
+                className={`py-4 px-6 border-b-[2px] flex items-center justify-center lg:justify-start gap-3 transition-colors ${activeTask === 1 ? "border-[#ffc107] text-[#ffc107]" : "border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900"}`}
+              >
+                <BarChart className="w-6 h-6 flex-shrink-0" />
+                <div className="flex flex-col items-start leading-[1.1] text-left">
+                  <span className="font-extrabold text-[15px] tracking-tight">Task 1</span>
+                  <span className="text-[11px] font-bold tracking-tight">Diagram Report</span>
+                </div>
+              </button>
+            )}
+            {(!practicePart || practicePart === 2) && (
+              <button
+                onClick={() => setActiveTask(2)}
+                className={`py-4 px-6 border-b-[2px] flex items-center justify-center lg:justify-start gap-3 transition-colors ${activeTask === 2 ? "border-[#ffc107] text-[#ffc107]" : "border-transparent text-gray-700 hover:bg-gray-50 hover:text-gray-900"}`}
+              >
+                <FileText className={`w-6 h-6 flex-shrink-0 ${activeTask === 2 ? "text-[#ffc107]" : "text-gray-600"}`} />
+                <div className="flex flex-col items-start leading-[1.1] text-left">
+                  <span className={`font-extrabold text-[15px] tracking-tight ${activeTask === 2 ? "" : "text-gray-800"}`}>Task 2</span>
+                  <span className={`text-[11px] font-bold tracking-tight ${activeTask === 2 ? "" : "text-gray-600"}`}>Essay Writing</span>
+                </div>
+              </button>
+            )}
           </div>
 
           {/* SECOND FULL-WIDTH HEADER: TIMELINE NAV PILLS */}

@@ -30,10 +30,30 @@ export default function IntensiveExamStartPage() {
     setError(null);
 
     examsApi
-      .createSession(examId, user!.id)
+      .createSession(examId, user!.id, searchParams?.get("practicePart") ? parseInt(searchParams.get("practicePart")!) : undefined)
       .then((session) => {
         if (!mounted) return;
-        router.replace(`/ielts/intensive/${encodeURIComponent(examId)}/take/${encodeURIComponent(session.id)}`);
+        const practicePart = searchParams?.get("practicePart");
+        const customTime = searchParams?.get("customTime");
+        const autoSubmitParam = searchParams?.get("autoSubmit");
+        
+        let url = "";
+
+        if (practicePart) {
+          url = `/ielts/intensive/${encodeURIComponent(examId)}/practice/${encodeURIComponent(session.id)}`;
+        } else {
+          url = `/ielts/intensive/${encodeURIComponent(examId)}/take/${encodeURIComponent(session.id)}`;
+        }
+        
+        const extraParams = new URLSearchParams();
+        if (customTime) extraParams.set("customTime", customTime);
+        if (autoSubmitParam) extraParams.set("autoSubmit", autoSubmitParam);
+        
+        if (extraParams.toString()) {
+           url += `?${extraParams.toString()}`;
+        }
+        
+        router.replace(url);
       })
       .catch((e: any) => {
         if (!mounted) return;

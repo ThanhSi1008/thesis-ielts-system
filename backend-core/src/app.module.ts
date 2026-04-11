@@ -10,6 +10,7 @@ import { ExamsModule } from './modules/exams/exams.module';
 import { ResultsModule } from './modules/results/results.module';
 import { LearningModule } from './modules/learning/learning.module';
 import { AiClientModule } from './modules/ai-client/ai-client.module';
+import { IeltsModule } from './modules/ielts/ielts.module';
 
 // Learning content modules
 import { VocabularyModule } from './modules/vocabulary/vocabulary.module';
@@ -44,6 +45,7 @@ import { CacheModule } from './common/cache/cache.module';
     ResultsModule,
     LearningModule,
     AiClientModule,
+    IeltsModule,
 
     // Learning content modules
     VocabularyModule,

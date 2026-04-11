@@ -1,23 +1,23 @@
 'use client';
 import { useState } from 'react';
-import type { NoteType, CardTemplate } from '@/types';
+import type { CardType, CardTemplate } from '@/types';
 import { vocabLabApi } from '@/services/vocabLab.api';
 
-interface Props { noteType: NoteType; onClose: () => void; }
+interface Props { cardType: CardType; onClose: () => void; }
 
-export function CardTemplateEditorModal({ noteType, onClose }: Props) {
-  const [templates] = useState<CardTemplate[]>(noteType.templates);
+export function CardTemplateEditorModal({ cardType, onClose }: Props) {
+  const [templates] = useState<CardTemplate[]>(cardType.templates);
   const [selectedTemplateIdx, setSelectedTemplateIdx] = useState(0);
   const [frontFields, setFrontFields] = useState<Set<string>>(
-    new Set(noteType.templates[0]?.frontFields ?? [])
+    new Set(cardType.templates[0]?.frontFields ?? [])
   );
   const [backFields, setBackFields] = useState<Set<string>>(
-    new Set(noteType.templates[0]?.backFields ?? [])
+    new Set(cardType.templates[0]?.backFields ?? [])
   );
   const [saving, setSaving] = useState(false);
 
   const template = templates[selectedTemplateIdx];
-  const fields = [...noteType.fields].sort((a, b) => a.order - b.order);
+  const fields = [...cardType.fields].sort((a, b) => a.order - b.order);
 
   const toggleFront = (fieldId: string) => {
     setFrontFields(prev => {
@@ -45,7 +45,7 @@ export function CardTemplateEditorModal({ noteType, onClose }: Props) {
     if (!template) return;
     setSaving(true);
     try {
-      await vocabLabApi.updateTemplate(noteType.id, template.id, {
+      await vocabLabApi.updateTemplate(cardType.id, template.id, {
         frontFields: [...frontFields],
         backFields: [...backFields],
       });
@@ -64,7 +64,7 @@ export function CardTemplateEditorModal({ noteType, onClose }: Props) {
         <div className="px-4 py-2 flex items-center justify-between bg-white border-b border-gray-200">
           <div className="flex items-center gap-2">
             <svg className="h-4 w-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-            <span className="text-sm font-semibold text-gray-900">Card Types for {noteType.name}</span>
+            <span className="text-sm font-semibold text-gray-900">Card Types for {cardType.name}</span>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-black"><svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg></button>
         </div>
@@ -93,7 +93,7 @@ export function CardTemplateEditorModal({ noteType, onClose }: Props) {
                   {fields.map(f => (
                     <label key={f.id} className="flex items-center gap-2 cursor-pointer text-[13px] text-gray-800">
                       <input type="checkbox" checked={frontFields.has(f.id)} onChange={() => toggleFront(f.id)}
-                        disabled={noteType.isBuiltIn}
+                        disabled={cardType.isBuiltIn}
                         className="accent-blue-500 cursor-pointer" />
                       {f.name}
                     </label>
@@ -108,7 +108,7 @@ export function CardTemplateEditorModal({ noteType, onClose }: Props) {
                   {fields.map(f => (
                     <label key={f.id} className="flex items-center gap-2 cursor-pointer text-[13px] text-gray-800">
                       <input type="checkbox" checked={backFields.has(f.id)} onChange={() => toggleBack(f.id)}
-                        disabled={noteType.isBuiltIn}
+                        disabled={cardType.isBuiltIn}
                         className="accent-blue-500 cursor-pointer" />
                       {f.name}
                     </label>
@@ -138,12 +138,12 @@ export function CardTemplateEditorModal({ noteType, onClose }: Props) {
         {/* Footer */}
         <div className="px-4 py-3 bg-white border-t border-gray-200 flex items-center">
           <div className="flex gap-3">
-            <button onClick={handleFlip} disabled={noteType.isBuiltIn}
+            <button onClick={handleFlip} disabled={cardType.isBuiltIn}
               className="px-3 py-1 border border-[#8e8f8f] rounded text-[13.5px] bg-white text-black hover:border-blue-400 shadow-sm disabled:opacity-50">Flip</button>
           </div>
           <div className="flex-1" />
           <div className="flex gap-3">
-            <button onClick={handleSave} disabled={saving || noteType.isBuiltIn}
+            <button onClick={handleSave} disabled={saving || cardType.isBuiltIn}
               className="min-w-[70px] px-3 py-1 border border-[#8e8f8f] rounded text-[13.5px] bg-white text-black hover:border-blue-400 shadow-sm disabled:opacity-50 font-medium">
               {saving ? 'Saving…' : 'Save'}
             </button>

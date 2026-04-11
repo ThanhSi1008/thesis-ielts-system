@@ -1,0 +1,106 @@
+[
+  {
+    "questions": "8-11",
+    "instructions": "Label the plan below. Write the correct letter, A-G, next to Questions 8-11.",
+    "topic": "Castle Hill Hotel Lobby Plan",
+    "question_type": "Plan Labelling",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562254/CH6_HP8-11_jufkke.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 2. You will hear a hotel clerk give a talk to some new employees about the hotel facilities."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 8 to 11."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 8 to 11."
+      },
+      {
+        "speaker": "William",
+        "text": "Hello there. Nice to meet you both. My name is William and I'll be doing your training here at the Castle Hill Hotel for the next few days. Anyway, first I'll tell you a bit about the building and facilities and then we'll meet some of the other staff working here."
+      },
+      {
+        "speaker": "William",
+        "text": "So, the hotel was constructed a century ago, but has been through numerous renovations. We're outside the main entrance now and if you go in, you'll see the reception desk."
+      },
+      {
+        "speaker": "William",
+        "text": "Behind that, on the left side of the lobby, you'll see the lifts which lead up to our other five floors. Right next to that is Ms Loblaw's office. She's the hotel manager and if you ever need to speak with her, just go to reception to see if she is free.",
+        "question_number": 8,
+        "highlight_text": "Ms Loblaw's office. She's the hotel manager... Right next to [the lifts]"
+      },
+      {
+        "speaker": "William",
+        "text": "Now, if you turn right at the reception desk, there is a short corridor. If you go down the corridor, the entrance on the left leads to the hotel's restaurant. Inside, you'll see a stairway that leads up to the kitchen facilities.",
+        "question_number": 9,
+        "highlight_text": "entrance on the left leads to the hotel's restaurant. Inside, you'll see a stairway"
+      },
+      {
+        "speaker": "William",
+        "text": "The hotel also has a hotel porter's office, which is the first door on the left-hand side of the main entrance. Also, you'll see a second doorway once you're in the porter's office that leads to the baggage storage area.",
+        "question_number": 10,
+        "highlight_text": "second doorway once you're in the porter's office that leads to the baggage storage area."
+      },
+      {
+        "speaker": "William",
+        "text": "One new addition to our hotel has been the event room. If you just turn right from the reception desk, it's the first door on the right before you head down the corridor. It is opposite the lounge.",
+        "question_number": 11,
+        "highlight_text": "event room... first door on the right before you head down the corridor. It is opposite the lounge."
+      },
+      {
+        "speaker": "William",
+        "text": "Now, if you follow me, we will first head to..."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "plan_labelling",
+        "heading": "Hotel Lobby Plan",
+        "image_url": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1775638314/chapter6-3_bihgqq.png",
+        "labels": ["A", "B", "C", "D", "E", "F", "G"],
+        "items": [
+          {
+            "question_number": 8,
+            "text": "office of hotel manager",
+            "answer": "A",
+            "timestamp_seconds": 84.0,
+            "explanation": "William notes that the manager's office (Ms Loblaw's office) is 'right next to' the lifts, which corresponds to box A."
+          },
+          {
+            "question_number": 9,
+            "text": "hotel restaurant",
+            "answer": "B",
+            "timestamp_seconds": 99.0,
+            "explanation": "The restaurant is accessed via the corridor to the right of reception, with an entrance on the left that includes a stairway, matching box B."
+          },
+          {
+            "question_number": 10,
+            "text": "baggage storage",
+            "answer": "D",
+            "timestamp_seconds": 120.0,
+            "explanation": "The baggage storage is reached via a 'second doorway' inside the porter's office (box E), which leads to box D."
+          },
+          {
+            "question_number": 11,
+            "text": "event room",
+            "answer": "F",
+            "timestamp_seconds": 139.0,
+            "explanation": "The event room is the 'first door on the right' after turning right from reception, positioned 'opposite the lounge', which is box F."
+          }
+        ],
+        "distractors": [
+          { "label": "E", "text": "Hotel Porter's Office (first door on the left of the main entrance)" },
+          { "label": "C", "text": "Unlabelled room between the manager's office and the porter's office" },
+          { "label": "G", "text": "Unlabelled room further down the southern corridor" }
+        ]
+      }
+    ]
+  }
+]

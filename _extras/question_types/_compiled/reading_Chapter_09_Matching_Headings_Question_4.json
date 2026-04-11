@@ -1,0 +1,67 @@
+{
+  "title": "The Evolution of Management",
+  "passage": "A The Industrial Revolution caused a great shift in manufacturing from the late 18th to early 19th centuries. During this time, manufacturing moved from small home-based enterprises to large factories with many employees working with machines. Unfortunately, this change was not accompanied by a shift in management styles to maximise the new systems' efficiency. It was soon clear that mismanagement was resulting in financial losses that reduced the benefits of the increased output. Therefore, there was a pressing need for a new way of management.\n\nB One of the first people to address this problem was American engineer Frederick Winslow Taylor, whose experiments brought about a new way to direct the workforce - 'scientific management'. This new management style sought to organise companies in a more efficient and rational way. Through his work, Taylor identified several problems with management styles of the time. The lack of knowledge of the entire production process was the most basic of these. By giving managers more knowledge, Taylor felt they could better understand all aspects of the business and identify the inefficiencies of some manufacturing processes. He also thought the basic role of supervisors was incorrect. He preferred a white-collar managerial style, in which supervisors controlled employees' roles, methods, and time. Further, he developed formulas to determine peak employee efficiency by studying tasks and calculating the most efficient means of doing them. This included determining the ideal size of a shovelful of dirt and the speed at which employees should move when pushing a wheelbarrow.\n\nC Taylor's work led to a micromanaged hierarchy of power, but contemporary opinions do not suggest that this was a positive outcome. They claim that Taylor's management style leads to dehumanised and dissatisfied workers. And they also point out that it was exactly these feelings that led to workers movements in the early 1900s and brought about the first labour unions.",
+  "passage_with_locations": [
+    {
+      "question_number": 8,
+      "text": "A The Industrial Revolution caused a great shift... Unfortunately, this change was not accompanied by a shift in management styles... Therefore, there was a pressing need for a new way of management."
+    },
+    "\n\n",
+    {
+      "question_number": 9,
+      "text": "B One of the first people to address this problem was... Frederick Winslow Taylor... 'scientific management'. This new management style sought to organise companies in a more efficient and rational way."
+    },
+    " Through his work, Taylor identified several problems with management styles of the time. The lack of knowledge of the entire production process was the most basic of these. By giving managers more knowledge, Taylor felt they could better understand all aspects of the business and identify the inefficiencies of some manufacturing processes. He also thought the basic role of supervisors was incorrect. He preferred a white-collar managerial style, in which supervisors controlled employees' roles, methods, and time. Further, he developed formulas to determine peak employee efficiency by studying tasks and calculating the most efficient means of doing them. This included determining the ideal size of a shovelful of dirt and the speed at which employees should move when pushing a wheelbarrow.\n\n",
+    {
+      "question_number": 10,
+      "text": "C Taylor's work led to a micromanaged hierarchy of power, but contemporary opinions do not suggest that this was a positive outcome."
+    },
+    " They claim that Taylor's management style leads to dehumanised and dissatisfied workers. And they also point out that it was exactly these feelings that led to workers movements in the early 1900s and brought about the first labour unions."
+  ],
+  "content": [
+    {
+      "type": "matching_headings",
+      "instruction": "Choose the correct heading for each paragraph from the list of headings below.",
+      "options": [
+        { "letter": "i", "text": "Current views about a style of business administration" },
+        { "letter": "ii", "text": "The need to develop new management styles" },
+        { "letter": "iii", "text": "Conditions required to succeed in business management" },
+        { "letter": "iv", "text": "The contribution of the Industrial Revolution to business" },
+        { "letter": "v", "text": "The development of a new scheme for workplace organisation" },
+        { "letter": "vi", "text": "An explanation of early labour movements" }
+      ],
+      "questions": [
+        {
+          "question_number": 8,
+          "text": "Paragraph A",
+          "answer": "ii",
+          "explanation": {
+            "keyword": "pressing need, new way, management",
+            "rationale": "Paragraph A explains that the Industrial Revolution created a 'pressing need for a new way of management', matching 'The need to develop new management styles'.",
+            "distractor_analysis": "While it mentions the Industrial Revolution (iv), the focus is on the *need* for management change rather than the revolution's general contribution."
+          }
+        },
+        {
+          "question_number": 9,
+          "text": "Paragraph B",
+          "answer": "v",
+          "explanation": {
+            "keyword": "Taylor, scientific management, organise companies, efficient",
+            "rationale": "Paragraph B describes Taylor's 'scientific management' as a way to 'organise companies in a more efficient and rational way', matching 'The development of a new scheme for workplace organisation'.",
+            "distractor_analysis": "It provides Taylor's contribution (iv), but the paragraph details the *scheme* he developed."
+          }
+        },
+        {
+          "question_number": 10,
+          "text": "Paragraph C",
+          "answer": "i",
+          "explanation": {
+            "keyword": "contemporary opinions, dehumanised, labour unions",
+            "rationale": "Paragraph C presents 'contemporary opinions' (current views) which critique Taylor's style as dehumanising.",
+            "distractor_analysis": "It explains labour movements (vi), but as a evidence of the negative contemporary view of the management style."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "title": "The Silver State",
+  "passage": "The history of mining in Nevada, nicknamed the 'Silver State', is so intertwined with the history of the state that, at certain points, the two cannot be separated. In fact, were it not for mining, Nevada would probably not have achieved statehood until decades later than it did. As it was, the Silver State bought its way into the Union with silver mined in the famous Comstock Lode. In the mid-1800s, the area that would become Nevada was mostly a highway for those heading to search for gold in California. In 1859, however, the discovery of massive silver deposits quickly made Virginia City the most famous of all western mining camps. The rapid influx of prospectors and settlers resulted in the organisation of the Nevada Territory just two years later.\n\nIn the east, the American Civil War was brewing. Lincoln, realising the area's great mineral wealth could help the Union, and needing another state to support his proposed anti-slavery amendment to the Constitution, encouraged the territory to seek admission to the Union. Even though Nevada boasted only about one-fifth of the 127,381 people required for statehood, with the motto 'Battle Born', it was admitted as the 36th state in 1864. Since then, mining's impact on Nevada's economy has remained immense, both in the influx of money it has brought in boom times and in the noticeable economic downturns during periods of low demand.",
+  "passage_with_locations": [
+    "The history of mining in Nevada, nicknamed the 'Silver State', is so intertwined with the history of the state that, at certain points, the two cannot be separated. In fact, ",
+    {
+      "question_number": 7,
+      "text": "were it not for mining, Nevada would probably not have achieved statehood until decades later than it did. As it was, the Silver State bought its way into the Union with silver mined in the famous Comstock Lode."
+    },
+    " In the mid-1800s, the area that would become Nevada was mostly a highway for those heading to search for gold in California. In 1859, however, the discovery of massive silver deposits quickly made Virginia City the most famous of all western mining camps. The rapid influx of prospectors and settlers resulted in the organisation of the Nevada Territory just two years later.\n\nIn the east, the American Civil War was brewing. Lincoln, realising the area's great mineral wealth could help the Union, and ",
+    {
+      "question_number": 8,
+      "text": "needing another state to support his proposed anti-slavery amendment to the Constitution, encouraged the territory to seek admission to the Union."
+    },
+    " Even though Nevada boasted only about one-fifth of the 127,381 people required for statehood, with the motto 'Battle Born', it was admitted as the 36th state in 1864. Since then, ",
+    {
+      "question_number": 9,
+      "text": "mining's impact on Nevada's economy has remained immense, both in the influx of money it has brought in boom times and in the noticeable economic downturns during periods of low demand."
+    },
+    ""
+  ],
+  "content": [
+    {
+      "type": "multiple_choice",
+      "questions": [
+        {
+          "question_number": 7,
+          "text": "The writer mentions the Comstock Lode in order to illustrate",
+          "options": [
+            {
+              "letter": "A",
+              "text": "the reason that miners began moving westward."
+            },
+            {
+              "letter": "B",
+              "text": "a unique resource found in the region."
+            },
+            {
+              "letter": "C",
+              "text": "one of the sources the state used for building infrastructure."
+            },
+            {
+              "letter": "D",
+              "text": "the importance of mineral wealth in Nevada’s statehood."
+            }
+          ],
+          "answer": "D",
+          "explanation": {
+            "keyword": "Comstock Lode / statehood",
+            "rationale": "The text explains that silver from the Comstock Lode allowed Nevada to 'buy its way into the Union' (achieve statehood) much earlier than it otherwise would have. This illustrates the critical role minerals played in attaining statehood.",
+            "distractor_analysis": "Option A and B: While mining and silver are discussed, the specific mention of Comstock Lode is explicitly linked to the timing of statehood. Option C: There is no mention of building 'infrastructure' in the passage."
+          }
+        },
+        {
+          "question_number": 8,
+          "text": "Lincoln encouraged the Nevada territory to join the union in order to",
+          "options": [
+            {
+              "letter": "A",
+              "text": "gain additional support for his anti-slavery proposals."
+            },
+            {
+              "letter": "B",
+              "text": "raise more tax revenues for the country."
+            },
+            {
+              "letter": "C",
+              "text": "create a direct connection to the California gold mines."
+            },
+            {
+              "letter": "D",
+              "text": "increase the population of the state."
+            }
+          ],
+          "answer": "A",
+          "explanation": {
+            "keyword": "Lincoln / anti-slavery",
+            "rationale": "Lincoln needed 'another state to support his proposed anti-slavery amendment', which corresponds to gaining 'additional support'.",
+            "distractor_analysis": "Option B, C, and D: While the text mentions mineral wealth and California gold routes, Lincoln's *specific motive* cited for encouraging early statehood was constitutional support for the anti-slavery amendment."
+          }
+        },
+        {
+          "question_number": 9,
+          "text": "According to the writer, since 1864 mining in Nevada",
+          "options": [
+            {
+              "letter": "A",
+              "text": "has failed to generate money during economic downturns."
+            },
+            {
+              "letter": "B",
+              "text": "has become the leading employment sector in the state."
+            },
+            {
+              "letter": "C",
+              "text": "has had a diminished role in the state’s economy."
+            },
+            {
+              "letter": "D",
+              "text": "has continued to have a significant economic influence."
+            }
+          ],
+          "answer": "D",
+          "explanation": {
+            "keyword": "since 1864 / impact",
+            "rationale": "The passage states that since 1864, mining's impact on Nevada's economy 'has remained immense'. 'Remained immense' is a direct paraphrase of 'continued to have a significant economic influence'.",
+            "distractor_analysis": "Option A: The text says the impact is seen *during* downturns (as a source of downturn), not that it fails to generate money. Option B: Employment sectors are not detailed. Option C is the opposite of 'remained immense'."
+          }
+        }
+      ]
+    }
+  ]
+}

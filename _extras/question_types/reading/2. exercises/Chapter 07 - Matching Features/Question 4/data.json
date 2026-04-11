@@ -1,0 +1,65 @@
+{
+  "title": "The Science of Bitterness",
+  "passage": "In nature, most animals avoid eating things that have a bitter taste. This occurs, according to Oxford researcher J. Zhang, because bitterness often indicates toxicity. Therefore, animals can prolong their lives by avoiding bitter foods. Using this knowledge, some manufacturers have begun using bitter flavours to act as an animal repellent. In fact, researcher A. L. Riley showed in his research that applying bitter compounds to objects could train birds to avoid them. Interestingly, humans seem to have lost the aversion to bitterness that other animals display. This can be seen through our use of bitter flavours in commercial food production. Food manufacturers have developed 'bittering agents' specifically to add this flavour to certain foods.\n\nA good example of the use of these bittering agents occurs in the brewing of beer. The hops that brewers add to their product are meant to impart a bitter flavour to balance the sweetness of the sugars that ferment in the malt. This is also the reason that caffeine is added to colas. When its caffeine is removed, cola is simply cloying fizzy water and must be balanced with another bittering agent. One of these is liquid 'bitters' made from aromatic herbs and other plant materials. These commercially available liquids are now widely used in food and cocktail preparation, but they once had a very different use. They were seen as health tonics. This was exactly the case with the popular 'bitters' produced by the House of Angostura. Dr Johann Gottlieb Benjamin Siegert developed the concoction to ease seasickness and marketed the product to sailors. Over time, his product came to be used to cut the sweetness of drinks such as lemonade or the Sazerac cocktail.",
+  "passage_with_locations": [
+    "In nature, most animals avoid eating things that have a bitter taste. This occurs, according ",
+    {
+      "question_number": 10,
+      "text": "to Oxford researcher J. Zhang, because bitterness often indicates toxicity. Therefore, animals can prolong their lives by avoiding bitter foods."
+    },
+    " Using this knowledge, some manufacturers have begun using bitter flavours to act as an animal repellent. In fact, ",
+    {
+      "question_number": 11,
+      "text": "researcher A. L. Riley showed in his research that applying bitter compounds to objects could train birds to avoid them."
+    },
+    " Interestingly, humans seem to have lost the aversion to bitterness that other animals display. This can be seen through our use of bitter flavours in commercial food production. Food manufacturers have developed 'bittering agents' specifically to add this flavour to certain foods.\n\nA good example of the use of these bittering agents occurs in the brewing of beer. The hops that brewers add to their product are meant to impart a bitter flavour to balance the sweetness of the sugars that ferment in the malt. This is also the reason that caffeine is added to colas. When its caffeine is removed, cola is simply cloying fizzy water and must be balanced with another bittering agent. One of these is liquid 'bitters' made from aromatic herbs and other plant materials. These commercially available liquids are now widely used in food and cocktail preparation, but they once had a very different use. They were seen as health tonics. This was exactly the case with the popular 'bitters' produced by the House of Angostura. ",
+    {
+      "question_number": 9,
+      "text": "Dr Johann Gottlieb Benjamin Siegert developed the concoction to ease seasickness and marketed the product to sailors."
+    },
+    " Over time, his product came to be used to cut the sweetness of drinks such as lemonade or the Sazerac cocktail."
+  ],
+  "content": [
+    {
+      "type": "matching_features",
+      "instruction": "Look at the following statements (Questions 9-11) and the list of people below. Match each statement with the correct person, A, B or C.",
+      "options": [
+        { "letter": "A", "text": "Zhang" },
+        { "letter": "B", "text": "Riley" },
+        { "letter": "C", "text": "Siegert" }
+      ],
+      "questions": [
+        {
+          "question_number": 9,
+          "text": "developed a product to relieve a medical condition",
+          "answer": "C",
+          "explanation": {
+            "keyword": "Siegert, seasickness, medical condition",
+            "rationale": "Dr Johann Gottlieb Benjamin Siegert developed 'bitters' to 'ease seasickness'. Seasickness is a medical condition, and easing it means to relieve it.",
+            "distractor_analysis": "Zhang (A) and Riley (B) researched animal behavior and toxicity, not medical remedies for humans."
+          }
+        },
+        {
+          "question_number": 10,
+          "text": "explained why animals avoid food with a certain taste",
+          "answer": "A",
+          "explanation": {
+            "keyword": "Zhang, toxicity, bitter",
+            "rationale": "J. Zhang explains that animals avoid bitter tastes because 'bitterness often indicates toxicity'. This provides the evolutionary explanation for the behavior.",
+            "distractor_analysis": "While Riley (B) used this knowledge to train animals, it was Zhang who explained the underlying reason (toxicity)."
+          }
+        },
+        {
+          "question_number": 11,
+          "text": "conducted research into using bitter items to train animals",
+          "answer": "B",
+          "explanation": {
+            "keyword": "Riley, train, birds",
+            "rationale": "A. L. Riley showed that 'applying bitter compounds... could train birds to avoid them'. This is a direct match for using bitter items to train animals.",
+            "distractor_analysis": "Zhang explained the phenomenon, but Riley was the one conducting research on training applications."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -33,7 +33,7 @@ export class ExamsController {
   constructor(
     private readonly examsService: ExamsService,
     private readonly storageService: StorageService,
-  ) {}
+  ) { }
 
   @Post()
   create(@Body() createExamDto: CreateExamDto) {
@@ -48,6 +48,14 @@ export class ExamsController {
   @Get('intensive/catalog')
   getIntensiveCatalog(@Request() req: any, @Query('skill') skill?: string) {
     return this.examsService.getIntensiveCatalog({
+      userId: req.user.id,
+      skill,
+    });
+  }
+
+  @Get('intensive/practice-catalog')
+  getPracticeCatalog(@Request() req: any, @Query('skill') skill?: string) {
+    return this.examsService.getPracticeCatalog({
       userId: req.user.id,
       skill,
     });

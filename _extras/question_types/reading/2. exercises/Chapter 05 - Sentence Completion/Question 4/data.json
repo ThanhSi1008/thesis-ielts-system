@@ -1,0 +1,62 @@
+{
+  "title": "Weaver Ants",
+  "passage": "Found in Southeast Asia and Australia, weaver ants are most notable for their ability to construct nests from living leaves located high in the treetops. Like most ant varieties, a weaver ant's life revolves around providing for its queen. In fact, it is to serve her that they build their nests in the first place. It all starts with a queen founding a colony by laying a clutch of eggs on a leaf and raising the larvae until they become mature workers. In order to increase the size of the colony, the queen must lay more eggs, but this will require additional living space for the already mature ants. Thus, a nest must be built - a task that requires significant collaboration. First, a single ant reaches toward a distant leaf. Unable to get to it alone, the other ants hold onto the first ant, forming a chain until the leaf is finally grasped. Once they have it, they pull as one until both leaves have been drawn together. Keeping the leaves in place, they wait for other workers to arrive carrying larvae, which are capable of producing silk. The larvae are prompted to release the silk from their salivary glands, and the worker ants dab the sticky substance from one leaf to another, essentially binding them. Ultimately, the process is repeated until a nest large enough to accommodate the colony's growing population has been constructed, and the cycle is likewise repeated each time the queen lays more eggs.",
+  "passage_with_locations": [
+    "Found in Southeast Asia and Australia, weaver ants are most notable for their ability to construct nests from living leaves located high in the treetops. Like most ant varieties, a weaver ant's life revolves around providing for its queen. In fact, it is to serve her that they build their nests in the first place. It all starts with a ",
+    {
+      "question_number": 8,
+      "text": "queen founding a colony by laying a clutch of eggs"
+    },
+    " on a leaf and raising the larvae until they become mature workers. In order to increase the size of the colony, the queen must lay more eggs, but this will require additional living space for the already mature ants. Thus, a nest must be built - a task that requires significant collaboration. First, a single ant reaches toward a distant leaf. Unable to get to it alone, the other ants hold onto the first ant, ",
+    {
+      "question_number": 9,
+      "text": "forming a chain until the leaf is finally grasped."
+    },
+    " Once they have it, they pull as one until both leaves have been drawn together. Keeping the leaves in place, they wait for other workers to arrive carrying larvae, which are capable of producing silk. The ",
+    {
+      "question_number": 10,
+      "text": "larvae are prompted to release the silk from their salivary glands"
+    },
+    ", and the worker ants dab the sticky substance from one leaf to another, essentially binding them. Ultimately, the process is repeated until a nest large enough to accommodate the colony's growing population has been constructed, and the cycle is likewise repeated each time the queen lays more eggs."
+  ],
+  "content": [
+    {
+      "type": "sentence_completion",
+      "instruction": "Complete the sentences below. Choose ONE WORD ONLY from the passage for each answer.",
+      "sentences": [
+        "A {{8}} establishes a colony by laying eggs and raising young.",
+        "The ants connect to form a {{9}} in order to collect leaves.",
+        "The {{10}} of larvae sticks to the leaves of a nest."
+      ],
+      "questions": [
+        {
+          "question_number": 8,
+          "answer": "queen",
+          "explanation": {
+            "keyword": "establishes a colony by laying eggs",
+            "rationale": "The sentence asks what establishes a colony. The passage reads 'It all starts with a queen founding [establishing] a colony by laying a clutch of eggs'. The missing word is 'queen'.",
+            "distractor_analysis": "'ants' generally do not start the colony or lay eggs; that is explicitly the function of the queen."
+          }
+        },
+        {
+          "question_number": 9,
+          "answer": "chain",
+          "explanation": {
+            "keyword": "connect to form a / collect leaves",
+            "rationale": "The sentence asks what the connecting ants form. The passage describes how 'the other ants hold onto the first ant [connect], forming a chain until the leaf is finally grasped [collect leaves]'. Thus, 'chain' is the answer.",
+            "distractor_analysis": "Words like 'nest' or 'colony' are incorrect because 'chain' is the specific structure they form physically to grab the leaves."
+          }
+        },
+        {
+          "question_number": 10,
+          "answer": "silk",
+          "explanation": {
+            "keyword": "larvae sticks to the leaves",
+            "rationale": "The sentence asks what from the larvae sticks to the leaves. The text explains that 'larvae are prompted to release the silk... and the worker ants dab the sticky substance from one leaf to another'. Thus, it's the 'silk' that acts as the sticky substance.",
+            "distractor_analysis": "'sticky substance' is two words (the rule is ONE WORD ONLY) and it acts as a reference back to the noun 'silk'. 'saliva' or 'glands' are incorrect as it's the silk *from* the glands that sticks."
+          }
+        }
+      ]
+    }
+  ]
+}

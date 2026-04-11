@@ -1052,9 +1052,9 @@ function ReviewItemField({
 // Review & Explanation Section
 // ─────────────────────────────────────────────────────────────
 function ReviewSection({
-  exam, correctMap, userAnswers, examId, userId, aiFeedback,
+  exam, correctMap, userAnswers, examId, userId, aiFeedback, practicePart,
 }: {
-  exam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any;
+  exam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any; practicePart?: number;
 }) {
   const [open, setOpen] = useState(true);
   const [activePartIdx, setActivePartIdx] = useState(0);
@@ -1066,7 +1066,11 @@ function ReviewSection({
   const criteriaScrollRef = useRef<HTMLDivElement | null>(null);
 
   const isSpeaking = exam?.type === "SPEAKING";
-  const parts: any[] = exam?.questions?.parts ?? [];
+  const allParts: any[] = exam?.questions?.parts ?? [];
+  // For practice sessions, filter to only the practiced part
+  const parts: any[] = practicePart
+    ? allParts.filter((p: any) => (p.part_number || p.passage_number || p.task_number || 1) === practicePart)
+    : allParts;
   const activePart = parts[activePartIdx];
   const audioUrl: string = activePart?.audio_url ?? "";
   const transcript: any[] = activePart?.transcript ?? [];
@@ -1573,11 +1577,27 @@ export default function IeltsResultPage() {
     return map;
   }, [exam]);
 
+  const isPractice = !!session?.practicePart;
+  const practicePart = session?.practicePart as number | undefined;
+
+  // For practice sessions, only count questions from the specific part
+  const practiceCorrectMap = useMemo(() => {
+    if (!isPractice || !practicePart || !exam?.questions?.parts) return correctMap;
+    const partArr = exam.questions.parts as any[];
+    const part = partArr.find((p: any) => (p.part_number || p.passage_number || p.task_number || 1) === practicePart);
+    if (!part) return correctMap;
+    const partMap = new Map<string, any>();
+    extractCorrectAnswers(part, partMap);
+    return partMap;
+  }, [isPractice, practicePart, exam, correctMap]);
+
   const rawScore = result?.totalScore ?? 0;
-  const maxScore = correctMap.size > 0 ? correctMap.size : 40;
+  const maxScore = isPractice ? practiceCorrectMap.size || 10 : (correctMap.size > 0 ? correctMap.size : 40);
 
   let band = 1.0;
-  if (isWriting) {
+  if (isPractice) {
+    band = 0; // no band for practice
+  } else if (isWriting) {
     band = aiFeedback?.overall_band || 0;
   } else if (isSpeaking) {
     band = aiFeedback?.overall_band || 0;
@@ -1586,7 +1606,7 @@ export default function IeltsResultPage() {
   } else {
     band = getIeltsBand(rawScore);
   }
-  const color = bandColor(band);
+  const color = bandColor(Math.max(band, 1));
 
   const parts = useMemo(() => {
     const ps: Array<{ label: string; partRange: [number, number] }> = [];
@@ -1617,6 +1637,21 @@ export default function IeltsResultPage() {
     }
     return ps;
   }, [exam]);
+
+  // Answer sheet parts: filter to only the practice part if applicable
+  const answerSheetParts = useMemo(() => {
+    if (!isPractice || !practicePart) return parts;
+    return parts.filter((p) => {
+      const [min] = p.partRange;
+      // find which part index in the exam corresponds to practicePart
+      if (!exam?.questions?.parts) return true;
+      const examParts = exam.questions.parts as any[];
+      const idx = examParts.findIndex((ep: any) => (ep.part_number || ep.passage_number || ep.task_number || 1) === practicePart);
+      if (idx < 0) return true;
+      const refPart = parts[idx];
+      return refPart && p.label === refPart.label;
+    });
+  }, [isPractice, practicePart, parts, exam]);
 
   const examTitle = exam?.title ?? "Test";
   const shortTitle = examTitle.replace("Cambridge IELTS ", "Cambridge ");
@@ -1661,19 +1696,38 @@ export default function IeltsResultPage() {
                 <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-4">{error}</div>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-4">
-                  <BandShield
-                    band={band}
-                    rawScore={(isWriting || isSpeaking) ? null : rawScore}
-                    maxScore={(isWriting || isSpeaking) ? null : maxScore}
-                    color={color}
-                  />
+                  {isPractice ? (
+                    /* Practice score display – simple circle, no band */
+                    <div className="flex flex-col items-center gap-2">
+                      <div className={`relative w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center border-[6px] ${
+                        rawScore >= maxScore * 0.8 ? "border-green-400 bg-green-50" :
+                        rawScore >= maxScore * 0.5 ? "border-amber-400 bg-amber-50" :
+                        "border-red-400 bg-red-50"
+                      }`}>
+                        <span className={`text-[42px] font-black leading-none ${
+                          rawScore >= maxScore * 0.8 ? "text-green-600" :
+                          rawScore >= maxScore * 0.5 ? "text-amber-600" :
+                          "text-red-600"
+                        }`}>{rawScore}</span>
+                        <span className="text-sm font-bold text-gray-400 mt-1">/ {maxScore}</span>
+                      </div>
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Practice Score</span>
+                    </div>
+                  ) : (
+                    <BandShield
+                      band={band}
+                      rawScore={(isWriting || isSpeaking) ? null : rawScore}
+                      maxScore={(isWriting || isSpeaking) ? null : maxScore}
+                      color={color}
+                    />
+                  )}
                   <div className="flex flex-col items-center sm:items-start gap-4 sm:ml-6">
                     <div className="text-center sm:text-left flex flex-col">
                       <div className="text-base text-slate-500 font-medium pb-2">
                         {[session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(" ") || "Student"}
                       </div>
                       <h1 className="text-2xl sm:text-[28px] font-extrabold text-slate-800 tracking-tight leading-tight">
-                        {shortTitle}
+                        {shortTitle}{isPractice ? ` — Part ${practicePart} Practice` : ""}
                       </h1>
                     </div>
 
@@ -1729,6 +1783,7 @@ export default function IeltsResultPage() {
             feedback={aiFeedback}
             answers={userAnswers as any}
             exam={exam}
+            practicePart={practicePart}
           />
         )}
 
@@ -1751,12 +1806,12 @@ export default function IeltsResultPage() {
             {answerSheetOpen && (
               <div className="px-8 pb-6 pt-2">
                 <div className="flex flex-wrap gap-8">
-                  {parts.map((p) => (
+                  {answerSheetParts.map((p) => (
                     <AnswerColumn
                       key={p.label}
                       partLabel={p.label}
                       range={p.partRange}
-                      correctMap={correctMap}
+                      correctMap={isPractice ? practiceCorrectMap : correctMap}
                       userAnswers={userAnswers}
                     />
                   ))}
@@ -1770,28 +1825,31 @@ export default function IeltsResultPage() {
         {!loading && !error && session && exam?.questions?.parts && (
           <ReviewSection
             exam={exam}
-            correctMap={correctMap}
+            correctMap={isPractice ? practiceCorrectMap : correctMap}
             userAnswers={userAnswers}
             examId={examId}
             userId={session?.user?.id ?? ""}
             aiFeedback={aiFeedback}
+            practicePart={practicePart}
           />
         )}
 
         {/* ── Actions ── */}
         {!loading && !error && (
           <div className="flex gap-4">
-            <Link
-              href={`/ielts/intensive/${encodeURIComponent(examId)}`}
+          <Link
+              href={isPractice
+                ? `/ielts/intensive/${encodeURIComponent(examId)}/start?practicePart=${practicePart}`
+                : `/ielts/intensive/${encodeURIComponent(examId)}`}
               className="px-6 py-3 bg-primary hover:bg-yellow-400 text-gray-900 font-bold rounded-xl text-sm transition-colors shadow-sm"
             >
-              Try Again
+              {isPractice ? "Practice Again" : "Try Again"}
             </Link>
             <Link
-              href="/ielts/intensive"
+              href={isPractice ? "/ielts/intensive?view=practice" : "/ielts/intensive"}
               className="px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-colors"
             >
-              Back to Mock Tests
+              {isPractice ? "Back to Practice" : "Back to Mock Tests"}
             </Link>
           </div>
         )}

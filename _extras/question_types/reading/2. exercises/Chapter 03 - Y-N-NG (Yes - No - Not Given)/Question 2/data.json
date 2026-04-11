@@ -1,0 +1,44 @@
+{
+  "title": "History of Coins",
+  "passage": "When first introduced, coins were known as 'commodity money'. This means that the actual coin had an inherent monetary value because of the materials of which it was made. In the earliest coins from Anatolia - what is now Turkey - and ancient Greece, this was a natural alloy of gold and silver called electrum. By the 7th century, coins had begun to be manufactured from pure gold and silver in the Middle East. However, this eventually changed and coins began to be made of cheaper metals that had no intrinsic value. These types of coins were referred to as 'fiat currency' because the government single-handedly set and guaranteed their values. While this may seem illogical, it actually had several benefits. Perhaps the most obvious of these is that the value of the currency remained more stable, since it did not fluctuate with the price of the precious metals. Further, it conserved these valuable resources. The reason that gold and silver were valuable was because of their scarcity, so using them for minting coins reduced the world's supply of them. Finally, coins in the fiat system were less prone to manipulation, since their constituent metals were not all that valuable. For instance, when coins were made of gold or silver, people sometimes clipped off pieces of the coin and kept the valuable metals.",
+  "passage_with_locations": [
+    "When first introduced, coins were known as 'commodity money'. This means that ",
+    {
+      "question_number": 3,
+      "text": "the actual coin had an inherent monetary value because of the materials of which it was made."
+    },
+    " In the earliest coins from Anatolia - what is now Turkey - and ancient Greece, this was a natural alloy of gold and silver called electrum. By the 7th century, coins had begun to be manufactured from pure gold and silver in the Middle East. However, this eventually changed and coins began to be made of cheaper metals that had no intrinsic value. These types of coins were referred to as 'fiat currency' because the government single-handedly set and guaranteed their values. While this may seem illogical, it actually had several benefits. Perhaps the most obvious of these is that the value of the currency remained more stable, since it did not fluctuate with the price of the precious metals. Further, it conserved these valuable resources. ",
+    {
+      "question_number": 4,
+      "text": "The reason that gold and silver were valuable was because of their scarcity, so using them for minting coins reduced the world's supply of them."
+    },
+    " Finally, coins in the fiat system were less prone to manipulation, since their constituent metals were not all that valuable. For instance, when coins were made of gold or silver, people sometimes clipped off pieces of the coin and kept the valuable metals."
+  ],
+  "content": [
+    {
+      "type": "yes_no_not_given",
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "Coins originally had no value of their own due to the materials they were made of.",
+          "answer": "NO",
+          "explanation": {
+            "keyword": "originally / no value / materials",
+            "rationale": "The text states that originally coins had 'an inherent monetary value because of the materials of which [they were] made'. This directly contradicts the idea that they had no value.",
+            "distractor_analysis": "The statement claims a lack of internal value, but the text explicitly confirms the opposite, making the answer NO."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "Precious metals are now too rare to be currency.",
+          "answer": "NOT GIVEN",
+          "explanation": {
+            "keyword": "precious metals / too rare / currency",
+            "rationale": "The passage confirms that precious metals were valuable due to 'scarcity' and that using them for coins 'reduced the world's supply'. However, it does not state that they are *currently* so rare that they *cannot* be used as currency.",
+            "distractor_analysis": "The text provides background on scarcity but lacks a definitive modern-day claim about them being 'too rare' for use, so the answer is NOT GIVEN."
+          }
+        }
+      ]
+    }
+  ]
+}

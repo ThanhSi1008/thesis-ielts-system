@@ -1,0 +1,128 @@
+[
+  {
+    "questions": "14-17",
+    "instructions": "Complete the sentences below. Write ONE WORD AND/OR A NUMBER for each answer.",
+    "topic": "University Literature Degree",
+    "question_type": "Sentence Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562230/CH4_HP14-17_wvtc9o.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 3. You will hear a conversation between a tutor and a student about a university course."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 14 to 17."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 14 to 17."
+      },
+      {
+        "speaker": "Tom",
+        "text": "Hi, I've come to ask a few questions about the literature degree you offer."
+      },
+      {
+        "speaker": "Joanna",
+        "text": "Oh yes. Well, I'm a tutor for undergraduate literature students here at Southampton University. My name is Joanna. Could you give me your name?"
+      },
+      {
+        "speaker": "Tom",
+        "text": "My name's Tom. Tom Atkins. I'm hoping to enroll in a literature program this coming term."
+      },
+      {
+        "speaker": "Joanna",
+        "text": "Oh really? Are you working at the moment?"
+      },
+      {
+        "speaker": "Tom",
+        "text": "I am currently working part-time at a publishing company as an editing administrator for a monthly journal, but I work from home for only about 10 hours per week, so I have time to study."
+      },
+      {
+        "speaker": "Tom",
+        "text": "And I am particularly interested in the comparative literature course, especially the elements related to post-colonial literature. I studied that a bit in a previous literature class I took and I'm curious to learn more.",
+        "question_number": 14,
+        "highlight_text": "I am particularly interested in the comparative literature course"
+      },
+      {
+        "speaker": "Joanna",
+        "text": "That's my field of study too. So are you interested in studying full-time?"
+      },
+      {
+        "speaker": "Tom",
+        "text": "Yes, I am. And I'd like to know a bit more about the other requirements for the course, how long it will take, and what are the required courses and alternative courses?"
+      },
+      {
+        "speaker": "Joanna",
+        "text": "Of course. The degree takes three years to complete. In the first year, there are three modules you have to take, which are introductory courses in literature and literary theory, in addition to one optional module within the department.",
+        "question_number": 15,
+        "highlight_text": "In the first year, there are three modules you have to take, which are introductory courses"
+      },
+      {
+        "speaker": "Tom",
+        "text": "What are the subjects for the optional modules?"
+      },
+      {
+        "speaker": "Joanna",
+        "text": "They change every year, but past modules have been on topics like Indian literature, basically thematic courses.",
+        "question_number": 16,
+        "highlight_text": "past modules have been on topics like Indian literature"
+      },
+      {
+        "speaker": "Tom",
+        "text": "And I can only take one optional module?"
+      },
+      {
+        "speaker": "Joanna",
+        "text": "You won't have room in your schedule for any more during the first year, unfortunately. But in the second year, you have only one compulsory module and can take three optional ones. The second year's modules are much more specific and they will allow you to focus your studies before the dissertation the following year."
+      },
+      {
+        "speaker": "Tom",
+        "text": "And then in your third year, the modules will help determine the kind of research you do for your dissertation.",
+        "question_number": 17,
+        "highlight_text": "the modules will help determine the kind of research you do for your dissertation."
+      },
+      {
+        "speaker": "Tom",
+        "text": "That's very helpful actually. Also, I'm wondering about..."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "summary_completion",
+        "heading": "Questions 14-17",
+        "text": "14 Tom is mostly interested in taking a {{14}} literature course.\n15 Students are required to take {{15}} introductory modules during the first year.\n16 {{16}} literature is one example of a prior optional module topic.\n17 The modules influence students' decisions about {{17}} for dissertations in the final year.",
+        "questions": {
+          "14": {
+            "primary_answer": "comparative",
+            "acceptable_answers": ["comparative"],
+            "timestamp_seconds": 81.0,
+            "explanation": "Tom specifically mentions: 'I am particularly interested in the comparative literature course...'"
+          },
+          "15": {
+            "primary_answer": "3",
+            "acceptable_answers": ["3", "three"],
+            "timestamp_seconds": 111.48,
+            "explanation": "Joanna states: 'In the first year, there are three modules you have to take, which are introductory courses...'"
+          },
+          "16": {
+            "primary_answer": "Indian",
+            "acceptable_answers": ["Indian"],
+            "timestamp_seconds": 127.3,
+            "explanation": "Joanna notes: 'past modules have been on topics like Indian literature...'"
+          },
+          "17": {
+            "primary_answer": "research",
+            "acceptable_answers": ["research"],
+            "timestamp_seconds": 152.96,
+            "explanation": "Joanna says: 'in your third year, the modules will help determine the kind of research you do for your dissertation.' Since the limit is ONE WORD, 'research' is the correct answer."
+          }
+        }
+      }
+    ]
+  }
+]

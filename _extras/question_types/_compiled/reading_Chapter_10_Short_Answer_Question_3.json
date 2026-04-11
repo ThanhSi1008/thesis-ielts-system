@@ -1,0 +1,44 @@
+{
+  "title": "The Search for Planet X",
+  "passage": "In the early 1900s, astronomers noticed that an unknown object's gravity was affecting the orbits of Neptune and Uranus. They tentatively named whatever was responsible 'Planet X' and began their search for it. One of the scientists involved was Percival Lowell, and it was he that, through tireless calculations and observations, ultimately identified the area of the sky where this elusive celestial body would be found. When he died in 1916, other astronomers carried on his work; one of them, Clyde Tombaugh, systematically took photographs of various areas of the sky every few days and then analysed them using a machine called a blink comparator. This machine works by rapidly alternating from one image to the next, allowing users to find differences between any two photographs. He believed this technique would allow him to see if objects in the sky changed position. Finally, in 1930, he noticed a moving speck of light where Planet X had been predicted to be. Telescopic analysis over the ensuing months identified the object's orbit and confirmed its presence. Planet X was subsequently named Pluto, and it remained our solar system's ninth planet until it was recognised to be a dwarf planet.",
+  "passage_with_locations": [
+    "In the early 1900s, astronomers noticed that an unknown object's gravity was affecting the orbits of Neptune and Uranus. They tentatively named whatever was responsible 'Planet X' and began their search for it. One of the scientists involved was Percival Lowell, and it was he that, through tireless calculations and observations, ultimately identified the area of the sky where this elusive celestial body would be found. When he died in 1916, other astronomers carried on his work; one of them, Clyde Tombaugh, systematically took photographs of various areas of the sky every few days and then ",
+    {
+      "question_number": 5,
+      "text": "analysed them using a machine called a blink comparator."
+    },
+    " This machine works by rapidly alternating from one image to the next, allowing users to find differences between any two photographs. He believed this technique would allow him to see if objects in the sky changed position. Finally, in 1930, he noticed a moving speck of light where Planet X had been predicted to be. Telescopic analysis over the ensuing months identified the object's orbit and confirmed its presence. Planet X was subsequently named Pluto, and it remained our solar system's ninth planet until it was ",
+    {
+      "question_number": 6,
+      "text": "recognised to be a dwarf planet."
+    }
+  ],
+  "content": [
+    {
+      "type": "short_answer",
+      "instruction": "Answer the questions below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "questions": [
+        {
+          "question_number": 5,
+          "text": "What device did Clyde Tombaugh study his photos with?",
+          "answer": "blink comparator",
+          "explanation": {
+            "keyword": "analysed them, machine, blink comparator",
+            "rationale": "The text states that Clyde Tombaugh 'analysed them [photographs] using a machine called a blink comparator'.",
+            "distractor_analysis": "While he used a telescope for analysis later (Telescopic analysis), the specific machine for studying the initial photos was the blink comparator."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "What kind of planet was Pluto later identified as?",
+          "answer": "dwarf planet",
+          "explanation": {
+            "keyword": "recognised, dwarf planet",
+            "rationale": "The passage notes that Pluto was eventually 'recognised to be a dwarf planet'.",
+            "distractor_analysis": "It was originally thought to be the 'ninth planet', but was later re-identified as a 'dwarf planet'."
+          }
+        }
+      ]
+    }
+  ]
+}

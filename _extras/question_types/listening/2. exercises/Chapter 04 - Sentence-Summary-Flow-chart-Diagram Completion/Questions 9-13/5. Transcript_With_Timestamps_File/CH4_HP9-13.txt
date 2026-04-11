@@ -1,0 +1,21 @@
+[00.00s -> 06.36s]  Section 3 You will hear a conversation between two students
+[06.36s -> 14.36s]  about a biology assignment. First, you have some time to read through questions 9 to 13.
+[30.00s -> 45.00s]  Now listen carefully and answer questions 9 to 13.
+[45.00s -> 56.00s]  Natalie, have you finished your outline for the report we've been assigned? You know, the one about the biology field trip to Hawthorne Oceanic Research Facility.
+[56.00s -> 64.00s]  Hi Greg, I'm still thinking about what topic to focus on. I thought maybe the subject of symbiosis.
+[64.00s -> 76.00s]  Oh yes, I remember that the chapter about it in our textbook was really fascinating, particularly the symbiotic relationships involving cleaner fish, like the rasfish we studied.
+[76.00s -> 88.00s]  And there were moray eels at the Hawthorne facilities, as well as rasfish. I can describe in detail the cleaning process between those two species.
+[88.00s -> 90.00s]  What did that involve again?
+[90.00s -> 101.00s]  Well, the moray eels and rasfish were in the same tank living on a reef. The rasfish gathered inside the reef and hung around until other fish showed up.
+[101.00s -> 106.00s]  Ah, I remember. The eels went there to be cleaned.
+[106.00s -> 109.00s]  Yes, Mr Horace explained that.
+[109.00s -> 114.00s]  He did. He said they usually gathered together near the cleaning station.
+[114.00s -> 123.00s]  Yeah, and then the rasfish would approach the moray eels there while they were resting. And that's when they would start the cleaning process.
+[123.00s -> 129.00s]  Right, I remember. First they clean up the eels' gills by eating parasites and bacteria.
+[129.00s -> 136.00s]  Yes, they actually eat that stuff right off the eels. And they pick away the dead scales as well.
+[136.00s -> 144.00s]  Actually, you might also want to mention that the eels really rely on the fish because the parasites they eat are quite dangerous.
+[144.00s -> 155.00s]  Also, at the end, the moray eels would often open their mouths and let the rasfish swim inside to clean as well. I thought it was really fascinating to see that part of the process.
+[155.00s -> 161.00s]  Now, all I have to do is come up with some other examples of symbiotic relationships.
+[161.00s -> 168.00s]  Check out the list of references on Mr Horace's course outline. I'm sure you can find something suitable on it.
+[171.00s -> 175.00s]  You now have 15 seconds to check your answers.
+[185.00s -> 190.00s]  Thank you.

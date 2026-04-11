@@ -1,0 +1,148 @@
+[
+  {
+    "questions": "1-4",
+    "instructions": "Choose the correct letter, A, B or C.",
+    "topic": "Melbourne City Tour Inquiry",
+    "question_type": "Multiple Choice",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562282/CH1_HP1-4_evhurf.mp3",
+    "transcript": [
+      {
+        "speaker": "Travel Agent",
+        "text": "Thank you for contacting Sunwave Tours. How may I help you?"
+      },
+      {
+        "speaker": "Alex",
+        "text": "Hi. My name is Alex. I'm here in Melbourne for work until this Saturday, and I'd like to go on the city tour that I saw advertised in your flyer. I'm available on either Wednesday or Thursday."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "We can certainly accommodate that. What in our city are you interested in seeing?"
+      },
+      {
+        "speaker": "Alex",
+        "text": "Well, I am curious about both historical sites and contemporary culture. But I'm also interested in old architecture. So, I do want to tour some art galleries more than anything. I heard that there's a national art gallery in the city.",
+        "question_number": 1,
+        "highlight_text": "I do want to tour some art galleries more than anything."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Yes, there is. I'd actually recommend our 'Top Spots' tour. It starts just in front of our office on Elizabeth Street and concludes at the National Gallery of Victoria. And there are lots of places to get lunch in that area afterward."
+      },
+      {
+        "speaker": "Alex",
+        "text": "That really sounds ideal! And what does the tour cost?"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Let's see... It's $55 for the half-day... that runs for a total of about 5 hours. Or, there is our full-day tour that costs a bit more. It includes a 7-hour tour with a free lunch."
+      },
+      {
+        "speaker": "Alex",
+        "text": "Seems reasonable enough. What time does the half-day tour start?"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "It's from 9 am to 2 pm this Wednesday. The guide for this tour likes to start earlier in the day so that you can see the sunlight shines on the major landmarks at optimal times.",
+        "question_number": 2,
+        "highlight_text": "It's from 9 am to 2 pm this Wednesday."
+      },
+      {
+        "speaker": "Alex",
+        "text": "That might be a bit too early for me."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Then you might like the 'Major Views' full-day tour this Thursday. That tour also stops by the National Gallery of Victoria but takes you up to popular viewing spots where you can see the city's most famous landmarks. It starts in the morning too at 11 am, but the bulk of it takes place in the afternoon, ending at 6 pm. The guide will also take you to a nice restaurant for lunch."
+      },
+      {
+        "speaker": "Alex",
+        "text": "Oh, all right. Mmm, I reckon the Thursday tour will suit me best. What is the cost for that tour?"
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "It's $70 per person. But we have a special this month; you get $25 off if you make at least two bookings.",
+        "question_number": 3,
+        "highlight_text": "It's $70 per person."
+      },
+      {
+        "speaker": "Alex",
+        "text": "That seems reasonable. However, I'm the only person, so please book just one spot for me.",
+        "question_number": 3,
+        "highlight_text": "I'm the only person, so please book just one spot for me."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Great. What's your name and phone number?"
+      },
+      {
+        "speaker": "Alex",
+        "text": "Alex Fenway. F-E-N-W-A-Y. And my mobile number is 555 671 920."
+      },
+      {
+        "speaker": "Travel Agent",
+        "text": "Thank you, Alex. On the day of the tour, there will be a guide at Central Station to meet you. The guide will be holding a large sign and wearing a T-shirt with Sunwave Tours printed on it.",
+        "question_number": 4,
+        "highlight_text": "The guide will be holding a large sign"
+      },
+      {
+        "speaker": "Alex",
+        "text": "Great. Thanks for all your help."
+      }
+    ],
+    "content": [
+      {
+        "type": "multiple_choice",
+        "questions": [
+          {
+            "question_number": 1,
+            "text": "Alex is mostly interested in seeing",
+            "options": [
+              { "letter": "A", "text": "art galleries." },
+              { "letter": "B", "text": "contemporary culture." },
+              { "letter": "C", "text": "historical sites." }
+            ],
+            "answer": "A",
+            "timestamp_seconds": 75.0,
+            "explanation": "Alex says 'I do want to tour some art galleries more than anything', making A the correct answer. While he mentions historical sites and contemporary culture, the galleries are his top priority."
+          },
+          {
+            "question_number": 2,
+            "text": "The 'Top Spots' half-day tour begins at",
+            "options": [
+              { "letter": "A", "text": "7 am." },
+              { "letter": "B", "text": "9 am." },
+              { "letter": "C", "text": "2 pm." }
+            ],
+            "answer": "B",
+            "timestamp_seconds": 129.0,
+            "explanation": "The travel agent states that the 'Top Spots' tour runs 'from 9 am to 2 pm', so the beginning time is 9 am."
+          },
+          {
+            "question_number": 3,
+            "text": "How much will Alex have to pay for his tour?",
+            "options": [
+              { "letter": "A", "text": "$25" },
+              { "letter": "B", "text": "$45" },
+              { "letter": "C", "text": "$70" }
+            ],
+            "answer": "C",
+            "timestamp_seconds": 184.0,
+            "explanation": "The cost is $70 per person. Although there is a $25 discount for multiple bookings, Alex is the 'only person', so he must pay the full price of $70."
+          },
+          {
+            "question_number": 4,
+            "text": "What will the guide for the Thursday tour be doing at Central Station?",
+            "options": [
+              { "letter": "A", "text": "displaying a company sign" },
+              { "letter": "B", "text": "distributing apparel to participants" },
+              { "letter": "C", "text": "collecting payments from participants" }
+            ],
+            "answer": "A",
+            "timestamp_seconds": 217.0,
+            "explanation": "The agent explains that 'The guide will be holding a large sign', which corresponds to displaying a company sign (Sunwave Tours)."
+          }
+        ]
+      }
+    ]
+  }
+]

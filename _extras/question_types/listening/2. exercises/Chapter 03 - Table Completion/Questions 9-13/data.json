@@ -1,0 +1,149 @@
+[
+  {
+    "questions": "9-13",
+    "instructions": "Complete the table below. Write NO MORE THAN TWO WORDS for each answer.",
+    "topic": "Project Status Record: Aiko Watanabe, Gary Marks",
+    "question_type": "Table Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562227/CH3_HP9-13_dzzpod.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 3. You will hear two business students talking to their tutor about a research project on flexible work policies."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 9 to 13."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now, listen carefully and answer questions 9 to 13."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "I'm interested in hearing how your research on alternative work place policies. The last time we talked, you said you were going to focus on flex place and flex time?"
+      },
+      {
+        "speaker": "Gary",
+        "text": "Yes, that's right."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "So, what progress have you made?"
+      },
+      {
+        "speaker": "Gary",
+        "text": "Well, I looked through some case studies I found in the library showing that flex time policies, which basically let employees decide what hours they work, allow for less fatigue and illness. In addition, motivation among company workers was increased, and people were more enthusiastic about their work.",
+        "question_number": 9,
+        "highlight_text": "In addition, motivation among company workers was increased"
+      },
+      {
+        "speaker": "Tutor",
+        "text": "What conclusion did the studies reach?"
+      },
+      {
+        "speaker": "Gary",
+        "text": "It seems flex time is really great for employees, actually. They can adapt their work hours to public transportation schedules and road traffic, and even more importantly, they have opportunities to spend more time with their children. So, their work-life balance is greatly improved.",
+        "question_number": 10,
+        "highlight_text": "So, their work-life balance is greatly improved."
+      },
+      {
+        "speaker": "Gary",
+        "text": "I've discovered that, with flex time, parents don't have to give up their jobs to raise their kids. This has been a great advantage for mothers and fathers with very young children."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "That's all good. You should research more about how flex time has benefited employers since the project must cover that as well. I think you have enough material on employees' viewpoints. Could you add some details about that to your analysis?",
+        "question_number": 11,
+        "highlight_text": "You should research more about how flex time has benefited employers"
+      },
+      {
+        "speaker": "Gary",
+        "text": "Absolutely. And I'll read through some other studies I found proving that flex time employees make fewer errors and are more effective."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Great. Now, Aiko, to come back to you, have you found any similar results with regard to flex place?"
+      },
+      {
+        "speaker": "Aiko",
+        "text": "Well, there aren't as many case studies available about flex place, and it's a more recent phenomenon. I thought flex place would be inconvenient for workers, but I found out that increases in both wireless internet access and laptop affordability have made working from different locations more practical.",
+        "question_number": 12,
+        "highlight_text": "have made working from different locations more practical."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Sure, but I want you to look a bit more deeply into flex place than that. I know there are several companies in London offering flex place programs. Since you don't have many previously conducted company studies to rely on, how about interviewing some of their recruitment staff?",
+        "question_number": 13,
+        "highlight_text": "how about interviewing some of their recruitment staff?"
+      },
+      {
+        "speaker": "Aiko",
+        "text": "Oh, alright. That's an excellent idea. I'll do some research online and see what companies I can find."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Sounds good. And can you both send me a draft of your research report this week? Then let's meet again next Wednesday so I can give you some additional feedback on your findings."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "table",
+        "headers": ["Topic", "Research Completed", "Further Suggestions"],
+        "rows": [
+          {
+            "Topic": "Flextime",
+            "Research Completed": [
+              "led to less fatigue and illness and increased 9 ..............................",
+              "allows employees to have better 10 .............................. balance"
+            ],
+            "Further Suggestions": [
+              "Add information on how flextime helps 11 .............................."
+            ],
+            "questions": {
+              "9": {
+                "answer": "motivation",
+                "timestamp_seconds": 79.0,
+                "explanation": "In the section related to the keyword (increased), Gary says 'motivation among company workers was increased', so motivation is the correct answer."
+              },
+              "10": {
+                "answer": "work-life",
+                "timestamp_seconds": 102.0,
+                "explanation": "In the section related to the keyword (better ... balance), Gary says 'So, their work-life balance is greatly improved.', so work-life is the correct answer."
+              },
+              "11": {
+                "answer": "employers",
+                "timestamp_seconds": 118.0,
+                "explanation": "In the section related to the keyword (how flextime helps), the Tutor says 'You should research more about how flex time has benefited employers', so employers is the correct answer."
+              }
+            }
+          },
+          {
+            "Topic": "Flexplace",
+            "Research Completed": [
+              "has become more 12 .............................. due to wireless Internet access and laptop affordability"
+            ],
+            "Further Suggestions": [
+              "Do interviews with company 13 .............................. about flexplace programmes"
+            ],
+            "questions": {
+              "12": {
+                "answer": "practical",
+                "timestamp_seconds": 165.0,
+                "explanation": "In the section related to the keyword (has become more), Aiko says 'increases in both wireless internet access and laptop affordability have made working... more practical.', so practical is the correct answer."
+              },
+              "13": {
+                "answer": "recruitment staff",
+                "timestamp_seconds": 184.0,
+                "explanation": "In the section related to the keyword (interviews with company), the Tutor suggests 'how about interviewing some of their recruitment staff?', so recruitment staff is the correct answer."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

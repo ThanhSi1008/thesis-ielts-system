@@ -1,0 +1,27 @@
+[00.00s -> 08.82s]  Section 3. You will hear a conversation between a tutor and a student about a
+[08.82s -> 19.30s]  university course. First, you have some time to read through questions 14 to 17.
+[30.00s -> 42.72s]  Now listen carefully and answer questions 14 to 17.
+[42.72s -> 50.24s]  Hi, I've come to ask a few questions about the literature degree you offer.
+[50.24s -> 55.96s]  Oh yes. Well, I'm a tutor for undergraduate literature students here at Southampton University.
+[55.96s -> 58.88s]  My name is Joanna. Could you give me your name?
+[58.88s -> 64.76s]  My name's Tom. Tom Atkins. I'm hoping to enroll in a literature program this coming term.
+[64.76s -> 67.36s]  Oh really? Are you working at the moment?
+[67.36s -> 73.32s]  I am currently working part-time at a publishing company as an editing administrator for a monthly
+[73.32s -> 78.96s]  journal, but I work from home for only about 10 hours per week, so I have time to study.
+[78.96s -> 84.48s]  And I am particularly interested in the comparative literature course, especially the elements
+[84.48s -> 89.68s]  related to post-colonial literature. I studied that a bit in a previous literature class I
+[89.68s -> 95.68s]  took and I'm curious to learn more. That's my field of study too. So are you interested
+[95.68s -> 100.76s]  in studying full-time? Yes, I am. And I'd like to know a bit more about the other
+[100.76s -> 105.96s]  requirements for the course, how long it will take, and what are the required courses
+[105.96s -> 111.48s]  and alternative courses? Of course. The degree takes three years to complete. In
+[111.48s -> 115.76s]  the first year, there are three modules you have to take, which are introductory courses
+[115.76s -> 122.08s]  in literature and literary theory, in addition to one optional module within the department.
+[122.08s -> 127.30s]  What are the subjects for the optional modules? They change every year, but past modules
+[127.30s -> 133.16s]  have been on topics like Indian literature, basically thematic courses. And I can only
+[133.16s -> 137.48s]  take one optional module? You won't have room in your schedule for any more during
+[137.48s -> 142.88s]  the first year, unfortunately. But in the second year, you have only one compulsory module and
+[142.88s -> 148.24s]  can take three optional ones. The second year's modules are much more specific and they will
+[148.24s -> 152.96s]  allow you to focus your studies before the dissertation the following year. And then
+[152.96s -> 156.80s]  in your third year, the modules will help determine the kind of research you do for
+[156.80s -> 160.60s]  your dissertation. That's very helpful actually. Also, I'm
+[160.60s -> 170.60s]  wondering about... You now have 15 seconds to check your answers.

@@ -32,28 +32,120 @@ const config: Config = {
           '50%': { transform: 'scaleY(1)' },
         },
         'slide-in-left': {
-          '0%':   { opacity: '0', transform: 'translateX(-80px)' },
+          '0%': { opacity: '0', transform: 'translateX(-80px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         'slide-in-right': {
-          '0%':   { opacity: '0', transform: 'translateX(80px)' },
+          '0%': { opacity: '0', transform: 'translateX(80px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         'fade-up': {
-          '0%':   { opacity: '0', transform: 'translateY(24px)' },
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
       animation: {
-        waveform:        'waveform 1s ease-in-out infinite',
-        'slide-in-left':  'slide-in-left  0.7s cubic-bezier(0.22,1,0.36,1) both',
+        waveform: 'waveform 1s ease-in-out infinite',
+        'slide-in-left': 'slide-in-left  0.7s cubic-bezier(0.22,1,0.36,1) both',
         'slide-in-right': 'slide-in-right 0.7s cubic-bezier(0.22,1,0.36,1) both',
-        'fade-up':        'fade-up        0.6s cubic-bezier(0.22,1,0.36,1) both',
-      }
+        'fade-up': 'fade-up        0.6s cubic-bezier(0.22,1,0.36,1) both',
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            '--tw-prose-body': '#1a1a1a',
+            '--tw-prose-headings': '#0f0f0f',
+            '--tw-prose-bold': '#111111',
+            '--tw-prose-bullets': '#94a3b8',
+            '--tw-prose-counters': '#64748b',
 
+            // Paragraph
+            p: { marginTop: '0.6em', marginBottom: '0.6em', lineHeight: '1.75' },
+
+            // Headings
+            h2: {
+              fontSize: '1.15rem',
+              fontWeight: '700',
+              borderBottom: '2px solid #f3f4f6',
+              paddingBottom: '0.35em',
+              marginTop: '1.8em',
+              marginBottom: '0.75em',
+            },
+            h3: { fontSize: '1rem', fontWeight: '700', marginTop: '1.2em', marginBottom: '0.4em' },
+
+            // Lists
+            li: { marginTop: '0.35em', marginBottom: '0.35em', lineHeight: '1.7' },
+            'ul > li::marker': { color: '#64748b' },
+
+            // Bold
+            strong: { fontWeight: '700', color: '#0f0f0f' },
+
+            // Inline code — no backtick quotes
+            code: {
+              backgroundColor: '#fef3c7',
+              borderRadius: '4px',
+              padding: '0.15em 0.45em',
+              fontWeight: '600',
+              fontSize: '0.85em',
+              color: '#92400e',
+            },
+            'code::before': { content: '""' },
+            'code::after': { content: '""' },
+
+            // Blockquote — slate accent
+            blockquote: {
+              borderLeftColor: '#cbd5e1',
+              borderLeftWidth: '4px',
+              backgroundColor: '#f8fafc',
+              borderRadius: '0 8px 8px 0',
+              padding: '0.75em 1.25em',
+              color: '#334155',
+              fontStyle: 'normal',
+              fontWeight: '500',
+            },
+            'blockquote p': { margin: '0' },
+
+            // HR
+            hr: { borderColor: '#e5e7eb', marginTop: '2em', marginBottom: '2em' },
+
+            // Tables — dark header, zebra rows
+            table: {
+              width: '100%',
+              borderCollapse: 'separate',
+              borderSpacing: '0',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 4px 0 rgba(0,0,0,0.05)',
+              fontSize: '0.875rem'
+            },
+            thead: { backgroundColor: '#f1f5f9' },
+            'thead th': {
+              color: '#334155',
+              fontWeight: '700',
+              padding: '1em 1.5em',
+              textAlign: 'left',
+              fontSize: '0.78rem',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+            },
+            'tbody tr': { borderBottom: '1px solid #f8fafc' },
+            'tbody tr:nth-child(even)': { backgroundColor: '#ffffff' },
+            'tbody tr:last-child': { border: 'none' },
+            td: { padding: '1em 1.5em', verticalAlign: 'top', color: '#1a1a1a', lineHeight: '1.7' },
+            // Override typography plugin's opinionated first/last-child padding resets
+            'td:first-child': { paddingLeft: '1.5em' },
+            'td:last-child': { paddingRight: '1.5em' },
+            'th:first-child': { paddingLeft: '1.5em' },
+            'th:last-child': { paddingRight: '1.5em' },
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }
 export default config
 

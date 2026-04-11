@@ -24,6 +24,7 @@ interface SpeakingTaskBoardProps {
   onAnswersChange?: (ans: Record<string, any>) => void;
   onSubmit: (answers: Record<string, any>) => void;
   submitting: boolean;
+  partIndex?: number;
 }
 
 type StepState = "IDLE" | "LISTEN_CAPTION" | "PLAYING" | "THINK_CAPTION" | "THINKING" | "PLAYING_2" | "RECORDING" | "RECORDED";
@@ -32,12 +33,13 @@ export default function SpeakingTaskBoard({
   exam,
   onAnswersChange,
   onSubmit,
-  submitting
+  submitting,
+  partIndex,
 }: SpeakingTaskBoardProps) {
   const parts: SpeakingPart[] = exam?.questions?.parts || [];
 
   // Which part & question are we currently on?
-  const [activePartIdx, setActivePartIdx] = useState(0);
+  const [activePartIdx, setActivePartIdx] = useState(partIndex ?? 0);
   const [activeQnIdx, setActiveQnIdx] = useState(0);
   const [autoPlayNext, setAutoPlayNext] = useState(false);
 
@@ -249,8 +251,8 @@ export default function SpeakingTaskBoard({
       setActiveQnIdx(prev => prev + 1);
       setAutoPlayNext(true);
       setStep("IDLE");
-    } else if (activePartIdx < parts.length - 1) {
-      // Next part
+    } else if (partIndex === undefined && activePartIdx < parts.length - 1) {
+      // Next part (only allowed if not in per-part practice)
       setActivePartIdx(prev => prev + 1);
       setActiveQnIdx(0);
       setAutoPlayNext(true);
@@ -530,13 +532,14 @@ export default function SpeakingTaskBoard({
 
         {/* Parts Tabs */}
         <div className="w-full flex justify-between items-center h-full">
-          {parts.map((p, idx) => {
-            const isCompleted = activePartIdx > idx;
-            const isActive = activePartIdx === idx;
-            const isFuture = activePartIdx < idx;
+          {(partIndex !== undefined ? [parts[partIndex]].filter(Boolean) : parts).map((p, idx) => {
+            const actualIdx = partIndex !== undefined ? partIndex : idx;
+            const isCompleted = activePartIdx > actualIdx;
+            const isActive = activePartIdx === actualIdx;
+            const isFuture = activePartIdx < actualIdx;
 
             return (
-              <div key={idx} className={`w-full relative flex items-center h-full px-8 cursor-default transition-colors ${isActive ? 'bg-[#fafafa]' : ''}`}>
+              <div key={actualIdx} className={`w-full relative flex items-center h-full px-8 cursor-default transition-colors ${isActive ? 'bg-[#faf9f8]' : ''}`}>
                 <div className={`absolute top-[-1px] left-0 right-0 h-[3px] ${isCompleted ? 'bg-[#319c28]' : (isActive ? 'bg-[#bebebe]' : 'bg-transparent')}`} />
 
                 {isCompleted && (
@@ -546,7 +549,7 @@ export default function SpeakingTaskBoard({
                 )}
 
                 <span className={`text-[15px] ${isFuture ? 'text-[#666] font-medium' : 'text-[#1a1a1a] font-bold'}`}>
-                  Part {idx + 1}
+                  Part {actualIdx + 1}
                 </span>
               </div>
             );

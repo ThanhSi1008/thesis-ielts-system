@@ -1,9 +1,9 @@
 'use client';
 import { useState, useRef } from 'react';
-import type { NoteType, NoteTypeField } from '@/types';
+import type { CardType, CardTypeField } from '@/types';
 import { vocabLabApi } from '@/services/vocabLab.api';
 
-interface Props { noteType: NoteType; onClose: () => void; }
+interface Props { cardType: CardType; onClose: () => void; }
 
 // ── tiny shared dialog shell ──────────────────────────────────────────────────
 function MiniDialog({ title, children }: { title: string; children: React.ReactNode }) {
@@ -22,8 +22,8 @@ function MiniDialog({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-export function FieldsEditorModal({ noteType, onClose }: Props) {
-  const [fields, setFields] = useState<NoteTypeField[]>([...noteType.fields].sort((a, b) => a.order - b.order));
+export function FieldsEditorModal({ cardType, onClose }: Props) {
+  const [fields, setFields] = useState<CardTypeField[]>([...cardType.fields].sort((a, b) => a.order - b.order));
   const [selectedId, setSelectedId] = useState(fields[0]?.id ?? '');
   const [saving, setSaving] = useState(false);
 
@@ -43,7 +43,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
 
   const selected = fields.find(f => f.id === selectedId);
 
-  const handleSelect = (f: NoteTypeField) => {
+  const handleSelect = (f: CardTypeField) => {
     setSelectedId(f.id);
     setDescVal(f.description ?? '');
   };
@@ -52,7 +52,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
   const openAdd = () => { setAddVal(''); setIsAdding(true); };
   const confirmAdd = async () => {
     if (!addVal.trim()) return;
-    const newField = await vocabLabApi.addField(noteType.id, { name: addVal.trim() });
+    const newField = await vocabLabApi.addField(cardType.id, { name: addVal.trim() });
     setFields(prev => [...prev, newField].sort((a, b) => a.order - b.order));
     setSelectedId(newField.id);
     setDescVal(newField.description ?? '');
@@ -67,7 +67,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
   };
   const confirmDelete = async () => {
     if (!selected) return;
-    await vocabLabApi.deleteField(noteType.id, selectedId);
+    await vocabLabApi.deleteField(cardType.id, selectedId);
     const next = fields.filter(f => f.id !== selectedId);
     setFields(next);
     setSelectedId(next[0]?.id ?? '');
@@ -78,7 +78,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
   // ── Rename ───────────────────────────────────────────────────────────────────
   const handleRename = async () => {
     if (!selected || !renameVal.trim()) return;
-    const updated = await vocabLabApi.updateField(noteType.id, selectedId, { name: renameVal.trim() });
+    const updated = await vocabLabApi.updateField(cardType.id, selectedId, { name: renameVal.trim() });
     setFields(prev => prev.map(f => f.id === selectedId ? { ...f, name: updated.name } : f));
     setIsRenaming(false);
   };
@@ -88,7 +88,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
     if (!selected) return;
     setSaving(true);
     try {
-      await vocabLabApi.updateField(noteType.id, selectedId, { description: descVal });
+      await vocabLabApi.updateField(cardType.id, selectedId, { description: descVal });
       onClose();
     } finally { setSaving(false); }
   };
@@ -100,7 +100,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
         <div className="px-4 py-2 flex items-center justify-between bg-white border-b border-gray-200">
           <div className="flex items-center gap-2">
             <svg className="h-4 w-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-            <span className="text-sm font-semibold text-gray-900">Fields for {noteType.name}</span>
+            <span className="text-sm font-semibold text-gray-900">Fields for {cardType.name}</span>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-black"><svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg></button>
         </div>
@@ -123,9 +123,9 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
           {/* Field action buttons */}
           <div className="flex flex-col gap-2 w-24 shrink-0">
             {[
-              { label: 'Add',    action: openAdd,    disabled: noteType.isBuiltIn },
-              { label: 'Delete', action: openDelete, disabled: noteType.isBuiltIn || !selected },
-              { label: 'Rename', action: () => { setRenameVal(selected?.name ?? ''); setIsRenaming(true); }, disabled: noteType.isBuiltIn || !selected },
+              { label: 'Add',    action: openAdd,    disabled: cardType.isBuiltIn },
+              { label: 'Delete', action: openDelete, disabled: cardType.isBuiltIn || !selected },
+              { label: 'Rename', action: () => { setRenameVal(selected?.name ?? ''); setIsRenaming(true); }, disabled: cardType.isBuiltIn || !selected },
             ].map(({ label, action, disabled }) => (
               <button key={label} onClick={action} disabled={disabled}
                 className={`px-2 py-1.5 border rounded text-[13px] shadow-sm transition-colors text-center ${disabled ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed' : 'border-[#8e8f8f] bg-white text-black hover:border-blue-400'}`}>
@@ -139,7 +139,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
         <div className="px-4 pb-3 bg-white">
           <div className="border-t border-gray-200 pt-3 flex items-center gap-3">
             <label className="text-[13px] text-gray-600 shrink-0 w-24">Description</label>
-            <input value={descVal} onChange={e => setDescVal(e.target.value)} disabled={noteType.isBuiltIn}
+            <input value={descVal} onChange={e => setDescVal(e.target.value)} disabled={cardType.isBuiltIn}
               placeholder="Text to show inside the field when it's empty"
               className="flex-1 px-2.5 py-1.5 border border-gray-300 rounded text-[13px] focus:outline-none focus:border-blue-400 disabled:bg-gray-50 disabled:text-gray-400" />
           </div>
@@ -151,7 +151,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
 
         {/* Footer */}
         <div className="px-4 py-3 bg-white border-t border-gray-200 flex justify-center gap-4">
-          <button onClick={handleSave} disabled={saving || noteType.isBuiltIn}
+          <button onClick={handleSave} disabled={saving || cardType.isBuiltIn}
             className="min-w-[80px] px-3 py-1 border border-[#8e8f8f] rounded hover:border-blue-400 text-[13.5px] bg-white text-black disabled:opacity-50 shadow-sm font-medium">
             {saving ? 'Saving…' : 'Save'}
           </button>
@@ -199,7 +199,7 @@ export function FieldsEditorModal({ noteType, onClose }: Props) {
       {deleteDialog === 'alert' && (
         <MiniDialog title="Cannot Delete">
           <div className="p-4">
-            <p className="text-[13.5px] text-gray-700">A note type must have at least one field.</p>
+            <p className="text-[13.5px] text-gray-700">A card type must have at least one field.</p>
           </div>
           <div className="px-4 py-3 flex justify-end border-t border-gray-200">
             <button onClick={() => setDeleteDialog(null)} className="min-w-[60px] px-3 py-1 border border-[#8e8f8f] rounded text-[13.5px] bg-white hover:border-blue-400 shadow-sm">OK</button>

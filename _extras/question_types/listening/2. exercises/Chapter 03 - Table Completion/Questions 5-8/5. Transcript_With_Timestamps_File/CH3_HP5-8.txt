@@ -1,0 +1,42 @@
+[00.00s -> 05.96s]  Section 1 You will hear a telephone conversation between
+[05.96s -> 10.36s]  a sales agent for a ticketing office and a customer.
+[10.36s -> 15.32s]  First, you have some time to read through Questions 5 to 8.
+[30.00s -> 39.52s]  Now, listen carefully and answer Questions 5 to 8.
+[39.52s -> 48.92s]  Hello, this is the Leeds Arts Centre Ticketing Office. This is Carol McIntyre speaking. How
+[48.92s -> 50.56s]  may I assist you today?
+[50.56s -> 56.28s]  Yes, I'd like to inquire if you have any performances occurring at your facility in
+[56.28s -> 58.28s]  the month of October.
+[58.28s -> 62.72s]  Do you have a particular type of performance in mind that you want to see?
+[62.72s -> 67.20s]  I mostly fond of orchestra performances and ballets.
+[67.20s -> 72.20s]  Well, we have a performance from the Adelberg Symphony Orchestra.
+[72.20s -> 77.32s]  Could you spell the name of the orchestra? I just want to jot it down.
+[77.32s -> 87.00s]  Certainly. It's A-D-E-L-B-U-R-G-H. And the performance is next Thursday, October
+[87.72s -> 88.72s]  3rd.
+[88.72s -> 89.72s]  Thank you.
+[89.72s -> 92.80s]  Are you interested in purchasing tickets for that performance?
+[92.80s -> 98.88s]  I'm not sure. What time does it start and what are the ticket prices?
+[98.88s -> 104.52s]  That performance begins at 7pm. There are only tickets remaining in the second level
+[104.52s -> 110.16s]  balconies back most rows. It's quite comfortable, certainly better than the back row seats
+[110.16s -> 114.96s]  on the first level. Those are priced at £50 per ticket.
+[115.92s -> 122.72s]  I'd rather be a bit closer to the stage, actually. What about ballets in October?
+[122.72s -> 128.24s]  Oh, there will be a splendid ballet rendition of Romeo and Juliet given by the Royal Ballet
+[128.24s -> 135.04s]  Company. I highly recommend that one. That show is on the Monday of the last week of October.
+[135.04s -> 139.76s]  That sounds divine. That's October 30th, right?
+[139.76s -> 143.04s]  Actually, that's October 31st.
+[143.12s -> 146.88s]  Okay. Which section is closest to the stage?
+[146.88s -> 153.76s]  That would be the central section, where tickets are £200 per person. Unfortunately, those tickets
+[153.76s -> 159.68s]  are sold out. But I'd recommend the mezzanine, as it's the next nearest section to the stage.
+[160.48s -> 162.32s]  And how much are those tickets?
+[163.04s -> 169.60s]  They are £120 each. Oh, and I forgot to ask about one important thing.
+[169.60s -> 171.84s]  Would you happen to be a resident of Leeds?
+[172.64s -> 173.12s]  I am.
+[174.00s -> 179.52s]  Then you should also note that we host several events, especially for residents throughout the year,
+[180.24s -> 186.56s]  including performances by acclaimed opera singer Claudia Vento and the Leeds Boys Choir on the
+[186.56s -> 192.72s]  December 12th. We have all types of seats available for those. And we have less expensive
+[192.72s -> 196.24s]  drinks on those nights, and the performances are free of charge.
+[196.96s -> 203.44s]  Oh, wonderful. But I still need to ask my friend if the ticket prices for the October
+[203.44s -> 208.40s]  Ballot sound affordable for her. Can I call you back later to buy the tickets?
+[209.04s -> 213.52s]  Absolutely. Our office is open daily from 8am to 6pm.
+[214.24s -> 216.56s]  Great. Thanks for your help. Goodbye.
+[217.20s -> 217.68s]  Bye.
+[221.12s -> 224.08s]  You now have 15 seconds to check your answers.

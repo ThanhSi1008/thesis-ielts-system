@@ -1,0 +1,30 @@
+[00.00s -> 12.00s]  You will hear a talk by an organisation representative at a meeting about a charity event.
+[12.00s -> 17.00s]  First, you have some time to read through questions one to four.
+[30.00s -> 44.00s]  Now listen carefully and answer questions one to four.
+[44.00s -> 51.00s]  Good evening, ladies and gentlemen, and thank you for coming to this Ann-Marie charity member meeting.
+[51.00s -> 60.00s]  I'm so pleased to see so many members here tonight, and I always appreciate your generosity, compassion and concern.
+[60.00s -> 64.00s]  I know you are eager to hear about our institution's progress.
+[64.00s -> 72.00s]  Our annual charity bicycle tour raises money for medical research at the London Children's Hospital.
+[72.00s -> 81.00s]  Each year, a group of generous individuals dedicates ten days to cycling around England to raise both funds and awareness.
+[81.00s -> 85.00s]  And might I say that it's a fun time as well.
+[85.00s -> 92.00s]  Now, I know some of you are interested in participating and want to know how you can get involved.
+[92.00s -> 94.00s]  Well, it is fairly easy.
+[94.00s -> 100.00s]  First, you must register for the event, which you can do on the charity's website.
+[100.00s -> 103.00s]  You don't even have to visit our office.
+[103.00s -> 111.00s]  After that, you'll be asked to sign a form on which you will give us an estimate of how much money you plan to raise.
+[111.00s -> 121.00s]  We recommend our participants attempt to raise a minimum of £3,000, but we certainly encourage you to raise more than that.
+[121.00s -> 129.00s]  Next, you will need to find sponsors who agree to donate a predetermined amount of money to you should you finish the tour.
+[129.00s -> 138.00s]  It's always a good idea to start with friends and family first, but many participants have also raised funds from local businesses.
+[138.00s -> 145.00s]  And then you have to show up for the tour on June 12 at 6am with your bicycle, gear and equipment.
+[145.00s -> 152.00s]  You don't have to worry about bringing any documents, although something proving your identity might be helpful.
+[152.00s -> 157.00s]  I'll hand out a leaflet that will tell you everything you need to know.
+[157.00s -> 161.00s]  And you will also be given a number to pin onto the back of your shirt.
+[161.00s -> 165.00s]  This will allow us to track who successfully finishes.
+[165.00s -> 174.00s]  And once you've completed the tour, collect the donations from your various sponsors and give them to us by June 26.
+[174.00s -> 179.00s]  Finally, the charity will provide you with receipts by the end of June.
+[179.00s -> 184.00s]  You can give these to people who ask for them for tax purposes.
+[184.00s -> 189.00s]  It's mid-March now, so that means you have plenty of time to find sponsors.
+[189.00s -> 193.00s]  And we do offer support in the way of informational brochures.
+[193.00s -> 200.00s]  And of course, we will always be here to answer your questions or respond to your concerns.
+[200.00s -> 209.00s]  Now, before we go on to the next topic of discussion, are there any questions about this year's charity tour?
+[209.00s -> 213.00s]  You now have 15 seconds to check your answers.

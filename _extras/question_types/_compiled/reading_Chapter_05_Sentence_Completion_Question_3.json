@@ -1,0 +1,69 @@
+{
+  "title": "Corporate Social Responsibility",
+  "passage": "While companies were established to produce a product or perform a service for a profit, there is a general consensus that they should give back to the community as well. Many corporate owners and managers share this belief and feel that they have a responsibility to improve conditions for the disadvantaged. Some of these, such as Toms Shoes, were actually established with this in mind. Since its foundation, Toms has given one pair of shoes to a person in need for every pair sold. To date, this has resulted in the donation of more than 50 million pairs of shoes. The cosmetics company NuSkin is another example of a socially responsible company. They set up an initiative called Nourish the Children, which allows customers to donate healthy meals to impoverished children when making a purchase. These types of programmes are praiseworthy for their impact on poverty, but they also help the bottom line of companies who undertake them. By advertising these types of socially responsible programmes, companies boost profits. This is because the programmes make customers who are concerned about social issues feel that they are doing good in the world by patronising the company. Overall, these types of corporate programmes have a positive impact on everyone involved and should be an example for other companies to follow.",
+  "passage_with_locations": [
+    "While companies were established to produce a product or perform a service for a profit, there is a general consensus that they should give back to the community as well. ",
+    {
+      "question_number": 5,
+      "text": "Many corporate owners and managers share this belief and feel that they have a responsibility to improve conditions for the disadvantaged."
+    },
+    " Some of these, such as Toms Shoes, were actually established with this in mind. Since its foundation, Toms has given one pair of shoes to a person in need for every pair sold. To date, this has resulted in the donation of more than 50 million pairs of shoes. The cosmetics company NuSkin is another example of a socially responsible company. They set up an initiative called Nourish the Children, which allows customers to donate healthy meals to impoverished children when making a purchase. These types of programmes are praiseworthy for their impact on poverty, but they also help the bottom line of companies who undertake them. ",
+    {
+      "question_number": 6,
+      "text": "By advertising these types of socially responsible programmes, companies boost profits."
+    },
+    " ",
+    {
+      "question_number": 7,
+      "text": "This is because the programmes make customers who are concerned about social issues feel that they are doing good in the world by patronising the company."
+    },
+    " Overall, these types of corporate programmes have a positive impact on everyone involved and should be an example for other companies to follow."
+  ],
+  "content": [
+    {
+      "type": "matching_sentence_endings",
+      "instruction": "Complete each sentence with the correct ending, A-G, below.",
+      "options": [
+        { "id": "A", "text": "make companies more successful." },
+        { "id": "B", "text": "provide free items during economic depressions." },
+        { "id": "C", "text": "distribute profits to employees." },
+        { "id": "D", "text": "advertise changes in company policies." },
+        { "id": "E", "text": "support businesses with charitable programmes." },
+        { "id": "F", "text": "reduce the impact of customer purchases." },
+        { "id": "G", "text": "make better conditions for people in need." }
+      ],
+      "questions": [
+        {
+          "question_number": 5,
+          "text": "Some corporate leaders think that it is important to",
+          "answer": "G",
+          "explanation": {
+            "keyword": "corporate leaders",
+            "rationale": "The passage highlights 'Many corporate owners and managers [corporate leaders]... feel that they have a responsibility to improve conditions for the disadvantaged'. This aligns directly with Option G: 'make better conditions for people in need'.",
+            "distractor_analysis": "While leaders want their companies to be successful (A), the specific 'responsibility' they share is regarding improving conditions for the disadvantaged."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "Corporate giving programmes can",
+          "answer": "A",
+          "explanation": {
+            "keyword": "Corporate giving programmes",
+            "rationale": "The text states 'By advertising these types of socially responsible programmes, companies boost profits'. Boosting profits is synonymous with making companies 'more successful', pointing to Option A.",
+            "distractor_analysis": "While programmes involve donating items like shoes or meals, the text doesn't specifically link them to 'economic depressions' (B). They also don't distribute profits to employees (C)."
+          }
+        },
+        {
+          "question_number": 7,
+          "text": "Many consumers feel better when they",
+          "answer": "E",
+          "explanation": {
+            "keyword": "Many consumers feel better",
+            "rationale": "The passage explains that these programs make 'customers... feel that they are doing good in the world by patronising the company'. Patronising (buying from) a company with CSR programs equates to 'support businesses with charitable programmes' (Option E).",
+            "distractor_analysis": "Consumers don't reduce the impact of their purchases (F); instead, they actively support the business to participate in the charity."
+          }
+        }
+      ]
+    }
+  ]
+}

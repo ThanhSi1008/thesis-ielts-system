@@ -259,14 +259,14 @@ export default function StudyPage() {
               <div
                 className={`relative rounded-2xl shadow-md border border-gray-100 border-t-4 border-t-primary p-6 sm:p-8 min-h-[300px] flex flex-col items-center justify-center text-center transition-[opacity,transform] duration-300 ${isSubmitting ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}`}
                 style={cardStyleToCSS({
-                  ...(currentCard.noteType?.templates[0]?.cardStyle as Record<string, string> || {}),
+                  ...(currentCard.cardType?.templates[0]?.cardStyle as Record<string, string> || {}),
                   ...(currentCard.cardStyle as Record<string, string> || {})
                 })}
               >
 
                 {/* Tags display */}
                 {currentCard.tags && currentCard.tags.length > 0 && (
-                  <div className="absolute top-6 flex space-x-2">
+                  <div className="absolute -top-2 flex space-x-2">
                     {currentCard.tags.map(tag => (
                       <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs font-medium uppercase tracking-wider">
                         {tag}
@@ -277,18 +277,18 @@ export default function StudyPage() {
 
                 {/* Front side */}
                 <div className="flex flex-col gap-4 w-full">
-                  {!currentCard.noteType ? (
+                  {!currentCard.cardType ? (
                     // Legacy fallback
                     <div className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6 leading-tight w-full whitespace-pre-wrap">
                       {currentCard.front}
                     </div>
                   ) : (
                     // New dynamic fields for front
-                    currentCard.noteType.templates[0]?.frontFields.map((fieldId) => {
-                      const field = currentCard.noteType?.fields.find(f => f.id === fieldId);
+                    currentCard.cardType.templates[0]?.frontFields.map((fieldId) => {
+                      const field = currentCard.cardType?.fields.find(f => f.id === fieldId);
                       const value = currentCard.fieldValues[fieldId] || (field?.name === 'Front' ? currentCard.front : '');
                       if (!value) return null;
-                      const baseStyle = (currentCard.noteType?.templates[0]?.fieldStyles as Record<string, Record<string, string>> | undefined)?.[fieldId] || {};
+                      const baseStyle = (currentCard.cardType?.templates[0]?.fieldStyles as Record<string, Record<string, string>> | undefined)?.[fieldId] || {};
                       const overrideStyle = currentCard.fieldStyles?.[fieldId] as Record<string, string> || {};
                       const css = fieldStyleToCSS({ ...baseStyle, ...overrideStyle });
                       const isHtml = /<[a-z]/i.test(value);
@@ -308,19 +308,19 @@ export default function StudyPage() {
                   <div className="w-full animate-fade-in">
                     <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-8 opacity-60"></div>
                     <div className="flex flex-col gap-5 w-full">
-                      {!currentCard.noteType ? (
+                      {!currentCard.cardType ? (
                         // Legacy fallback
                         <div className="text-lg sm:text-xl text-gray-700 whitespace-pre-wrap leading-relaxed">
                           {currentCard.back}
                         </div>
                       ) : (
                         // New dynamic fields for back
-                        currentCard.noteType.templates[0]?.backFields.map((fieldId) => {
-                          const field = currentCard.noteType?.fields.find(f => f.id === fieldId);
+                        currentCard.cardType.templates[0]?.backFields.map((fieldId) => {
+                          const field = currentCard.cardType?.fields.find(f => f.id === fieldId);
                           let value = currentCard.fieldValues[fieldId];
                           if (!value && field?.name === 'Back') value = currentCard.back;
                           if (!value) return null;
-                          const baseStyle = (currentCard.noteType?.templates[0]?.fieldStyles as Record<string, Record<string, string>> | undefined)?.[fieldId] || {};
+                          const baseStyle = (currentCard.cardType?.templates[0]?.fieldStyles as Record<string, Record<string, string>> | undefined)?.[fieldId] || {};
                           const overrideStyle = currentCard.fieldStyles?.[fieldId] as Record<string, string> || {};
                           const css = fieldStyleToCSS({ ...baseStyle, ...overrideStyle });
                           const isHtml = /<[a-z]/i.test(value);

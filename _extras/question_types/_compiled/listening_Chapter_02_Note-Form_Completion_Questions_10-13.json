@@ -1,0 +1,107 @@
+[
+  {
+    "questions": "10–13",
+    "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
+    "topic": "Renovation of Queen's Theatre",
+    "question_type": "Note Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562222/CH2_HP10-13_kxe8hi.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 2. You will hear a radio broadcast about a renovation project."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 10 to 13."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 10 to 13."
+      },
+      {
+        "speaker": "Host",
+        "text": "Welcome everyone. Thanks for tuning in to Arts National – the weekly news show focused on the arts community. I'm your host, Adam Easton. Our top story this week is that Auckland will be celebrating the reopening of one of its oldest theatres, widely seen as a push to revive stage entertainment in the city. After a nearly 20-year wait, the famed Queen's Theatre will once again open to audiences."
+      },
+      {
+        "speaker": "Host",
+        "text": "The entertainment structure was originally built in 1857. What was the purpose of the facility at that time? Well, it ran stage plays and, later, movies as well as live performance."
+      },
+      {
+        "speaker": "Host",
+        "text": "But the theatre was forced to close in 1972 when attendance started dropping. Audiences were staying home and watching television, and the theatre was unable to stay in business.",
+        "question_number": 10,
+        "highlight_text": "the theatre was forced to close in 1972 when attendance started dropping."
+      },
+      {
+        "speaker": "Host",
+        "text": "However, there was renewed interest in the historical structure nearly 25 years later when the Auckland Theatre Association – an organisation consisting of Auckland's most renowned theatrical professionals – began petitioning the city to provide a permit for the theatre's renovations. It was granted in 1998, and a local construction crew began work to restore the theatre to its original condition.",
+        "question_number": 11,
+        "highlight_text": "began petitioning the city to provide a permit for the theatre's renovations. It was granted in 1998"
+      },
+      {
+        "speaker": "Host",
+        "text": "Progress stalled in 2000 due to a lack of funds, but in 2009 an anonymous donor provided the necessary money to complete the renovations. Efforts recommenced, and the restoration project was finally finished just last month."
+      },
+      {
+        "speaker": "Host",
+        "text": "According to Michelle McColl, director of the Auckland Theatre Association, their hope is that the reopened Queen's Theatre will provide a space for community, creativity, and youth engagement. A special programme will be held to celebrate the reopening this coming Saturday, including several short performances by theatrical troupes.",
+        "question_number": 12,
+        "highlight_text": "A special programme will be held to celebrate the reopening this coming Saturday"
+      },
+      {
+        "speaker": "Host",
+        "text": "And then our first scheduled show, a dramatic play entitled 'Clear Path Ahead', begins on Monday. Those from the general public who wish to attend the reopening performance may purchase tickets from the Auckland Theatre Association's website, or visit the Queen's Theatre box office between the hours of 11 am and 4 pm any weekday. Seating is limited, with a maximum capacity of 250 people, so a sold-out event is likely."
+      },
+      {
+        "speaker": "Host",
+        "text": "Advance booking is highly recommended.",
+        "question_number": 13,
+        "highlight_text": "Advance booking is highly recommended."
+      },
+      {
+        "speaker": "Host",
+        "text": "Head down to the Queen's Theatre next week for one, or all, of these great events. And don't forget, you can find more about the other plays and performances that are scheduled to appear in the theatre programme or online. On our next scheduled show, I will be reporting on a new exhibit at the Museum of Science, so tune in next week for..."
+      }
+    ],
+    "content": [
+      {
+        "heading": "History",
+        "points": [
+          {
+            "question_number": 10,
+            "text": "Shut down in 1972 due to low 10 ..............................",
+            "answer": "attendance",
+            "timestamp_seconds": 85.0,
+            "explanation": "In the section related to the keyword (Shut down in 1972), the broadcast says 'the theatre was forced to close in 1972 when attendance started dropping.', so attendance is the correct answer."
+          },
+          {
+            "question_number": 11,
+            "text": "The Auckland Theatre Association got a renovation 11 .............................. in 1998",
+            "answer": "permit",
+            "timestamp_seconds": 107.32,
+            "explanation": "In the section related to the keyword (1998), the broadcast says 'the Auckland Theatre Association began petitioning the city to provide a permit for the theatre's renovations. It was granted in 1998', so permit is the correct answer."
+          }
+        ]
+      },
+      {
+        "heading": "On the reopening date",
+        "points": [
+          {
+            "question_number": 12,
+            "text": "The theatre will host a celebratory performance on 12 ..............................",
+            "answer": "Saturday",
+            "timestamp_seconds": 145.36,
+            "explanation": "In the section related to the keyword (celebratory performance), the broadcast says 'A special programme will be held to celebrate the reopening this coming Saturday', so Saturday is the correct answer."
+          },
+          {
+            "question_number": 13,
+            "text": "13 .............................. ahead of time is suggested",
+            "answer": "Booking",
+            "timestamp_seconds": 181.76,
+            "explanation": "In the section related to the keyword (ahead of time), the broadcast says 'Advance booking is highly recommended.', so Booking (or Reservation) is the correct answer."
+          }
+        ]
+      }
+    ]
+  }
+]
