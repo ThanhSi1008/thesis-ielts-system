@@ -339,6 +339,15 @@ export function LessonDetailContent({
     if (lessonId) fetchLesson();
   }, [lessonId]);
 
+  const tocItems = useMemo(() => {
+    if (!lesson?.content || !Array.isArray(lesson.content)) return [];
+    return lesson.content.map((block, idx) => {
+      const cfg = blockConfig[block.type] ?? blockConfig.section;
+      const title = block.title || cfg.label;
+      return { title, id: `lesson-block-${idx}`, type: block.type };
+    }).filter(item => item.title);
+  }, [lesson]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400 animate-pulse font-medium">
@@ -358,20 +367,24 @@ export function LessonDetailContent({
   const hasQuiz = Array.isArray(lesson.quiz) && lesson.quiz.length > 0;
 
   return (
-    <div className="flex flex-col bg-white -m-6 lg:-m-10 rounded-2xl">
-      {/* Sticky Header */}
-      <div className="border-b border-gray-100 px-6 lg:px-12 pt-6 pb-4 bg-white shrink-0 flex flex-col items-center text-center">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-          {lesson.skill?.name} · {lesson.chapter}
-        </p>
-        <h1 className="text-2xl font-extrabold text-[#111] tracking-tight">
-          {lesson.title}
-        </h1>
-      </div>
+    <div className="flex flex-col lg:flex-row gap-6 w-full items-start relative min-h-[700px]">
+      
+      {/* Central Lesson Box */}
+      <div className="flex-1 flex flex-col w-full min-w-0 bg-white rounded-2xl shadow-sm border border-gray-100/50">
+        
+        {/* Sticky Header */}
+        <div className="border-b border-gray-100 px-6 lg:px-12 pt-6 pb-4 bg-white shrink-0 flex flex-col items-center text-center rounded-t-2xl">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+            {lesson.skill?.name} · {lesson.chapter}
+          </p>
+          <h1 className="text-2xl font-extrabold text-[#111] tracking-tight">
+            {lesson.title}
+          </h1>
+        </div>
 
-      {/* Content — flows naturally, parent layout scrolls */}
-      <div className="px-6 lg:px-12 py-8">
-        <div className="max-w-3xl mx-auto flex flex-col gap-6">
+        {/* Content — flows naturally, parent layout scrolls */}
+        <div className="px-6 lg:px-12 py-8 flex-1">
+          <div className="max-w-3xl mx-auto flex flex-col gap-6 w-full">
 
           {/* Theory Blocks */}
           {Array.isArray(lesson.content) &&
@@ -382,6 +395,7 @@ export function LessonDetailContent({
               return (
                 <div
                   key={idx}
+                  id={`lesson-block-${idx}`}
                   className={`rounded-xl ${cfg.bg} ${cfg.border} ${isSection ? "pt-2 pb-4" : "p-6"}`}
                 >
                   <div className={`flex items-start gap-2.5 ${isSection ? "mb-1" : "mb-3"}`}>
@@ -401,7 +415,7 @@ export function LessonDetailContent({
 
           {/* Quiz Section */}
           {hasQuiz && (
-            <div className="mt-4">
+            <div id="lesson-quiz-section" className="mt-4">
               <div className="flex items-center gap-3 mb-5">
                 <h2 className="text-[18px] font-extrabold text-gray-900">
                   Check Your Understanding
@@ -415,6 +429,61 @@ export function LessonDetailContent({
           <div className="h-4" />
         </div>
       </div>
+      </div>
+
+      {/* Table of Contents - Right Sidebar */}
+      {tocItems.length > 0 && (
+        <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 sticky top-0 bg-[#FAFAFA] rounded-2xl p-6 shadow-sm border border-gray-100/50">
+          <h3 className="text-[13px] font-extrabold text-gray-900 mb-6 tracking-tight uppercase">Table of contents</h3>
+          <div className="flex flex-col gap-4">
+            
+            {tocItems.map((item, idx) => {
+              const isMainHeading = item.type === 'section' || item.type === 'overview';
+              return (
+                <div key={idx} className="relative flex items-center">
+                  {/* The short yellow dash marker */}
+                  {isMainHeading && (
+                    <div className="absolute left-0 w-[3px] h-[18px] bg-[#FFC107] rounded-full" />
+                  )}
+                  <button
+                    onClick={() => {
+                      const el = document.getElementById(item.id);
+                      if (el) {
+                        const y = el.getBoundingClientRect().top + window.scrollY - 120;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                      }
+                    }}
+                    className={`text-left transition-colors ${
+                      isMainHeading 
+                        ? 'pl-4 text-[14px] font-bold text-gray-900 hover:text-[#E0A800] leading-snug' 
+                        : 'pl-4 text-[13px] font-medium text-gray-500 hover:text-[#E0A800] leading-snug'
+                    }`}
+                  >
+                    {item.title}
+                  </button>
+                </div>
+              );
+            })}
+            {hasQuiz && (
+              <div className="relative flex items-center">
+                <div className="absolute left-0 w-[3px] h-[18px] bg-[#FFC107] rounded-full" />
+                <button
+                  onClick={() => {
+                    const el = document.getElementById("lesson-quiz-section");
+                    if (el) {
+                      const y = el.getBoundingClientRect().top + window.scrollY - 120;
+                      window.scrollTo({ top: y, behavior: 'smooth' });
+                    }
+                  }}
+                  className="text-left pl-4 text-[14px] font-bold text-gray-900 hover:text-[#E0A800] transition-colors leading-snug"
+                >
+                  Check Your Understanding
+                </button>
+              </div>
+            )}
+          </div>
+        </aside>
+      )}
 
     </div>
   );

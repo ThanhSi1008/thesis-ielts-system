@@ -57,7 +57,7 @@ export default function IeltsBasicLayout({
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden min-h-[700px] p-6 lg:p-10">
+        <main className="flex-1 flex flex-col min-w-0 min-h-[700px]">
           {children}
         </main>
       </div>

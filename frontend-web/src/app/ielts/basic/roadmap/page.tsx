@@ -46,7 +46,7 @@ export default function RoadmapDashboard() {
 
   if (!type || !skill) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-10 animate-fade-in">
+      <div className="flex flex-col items-center justify-center h-full text-center p-10 animate-fade-in bg-white rounded-2xl shadow-sm border border-gray-100/50 flex-1">
         <div className="w-16 h-16 rounded-full bg-[#FFF9E6] flex items-center justify-center mb-6 shadow-sm border border-[#FFF0C2]">
           <Info className="w-8 h-8 text-[#E0A800]" />
         </div>

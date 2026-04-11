@@ -52,7 +52,7 @@ export function ListeningExerciseLayout({
   const modalBlock = activeModal ? lessonBlocks.find((b) => b.type === activeModal) ?? { type: activeModal, content: "_No content available._" } : null;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white -m-6 lg:-m-10 rounded-2xl">
+    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white rounded-2xl border border-gray-100/50 shadow-sm w-full overflow-hidden">
       {/* ── Header ── */}
       <div className="border-b border-gray-100 px-6 lg:px-10 pt-6 pb-3">
         <div className="flex items-start justify-between">

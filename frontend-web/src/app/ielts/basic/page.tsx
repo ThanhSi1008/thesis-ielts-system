@@ -95,7 +95,7 @@ export default function IeltsBasicPreparationPage() {
   }
 
   return (
-    <div className="flex flex-col items-start gap-8 w-full h-full p-2 md:p-4 shrink-0">
+    <div className="flex flex-col items-start gap-8 w-full h-full shrink-0 bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 lg:p-10 overflow-hidden">
       
       {/* Summary Section */}
       <div className="bg-gradient-to-br from-[#FFFDF8] to-[#FFF9E6] p-8 rounded-2xl shadow-sm border border-[#FFC107]/20 w-full">
