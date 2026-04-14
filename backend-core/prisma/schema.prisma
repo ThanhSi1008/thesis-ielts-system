@@ -34,6 +34,7 @@ model User {
   shadowingFolders          ShadowingFolder[]
   shadowingDictationProgress ShadowingDictationProgress[]
   ieltsBasicProgress         IeltsBasicProgress[]
+  ieltsWritingAnswers        IeltsWritingUserAnswer[]
 
   @@map("users")
 }
@@ -732,7 +733,25 @@ model IeltsWritingExercise {
   skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
   lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   progress     IeltsBasicProgress[]
+  userAnswers  IeltsWritingUserAnswer[]
 
   @@map("ielts_writing_exercises")
 }
 
+model IeltsWritingUserAnswer {
+  id                String   @id @default(uuid())
+  userId            String
+  writingExerciseId String
+  intro             String   @db.Text
+  overview          String   @db.Text
+  body1             String   @db.Text
+  body2             String   @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  writingExercise   IeltsWritingExercise @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, writingExerciseId])
+  @@map("ielts_writing_user_answers")
+}

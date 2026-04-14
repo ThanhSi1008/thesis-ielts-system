@@ -81,7 +81,7 @@ export function ExerciseDetailContent({
   }
 
   if (isWriting) {
-    return <WritingExerciseLayout exercise={exercise as any} onComplete={onComplete} onNext={onNext} />;
+    return <WritingExerciseLayout exercise={exercise as any} lessonBlocks={lessonBlocks} onComplete={onComplete} onNext={onNext} />;
   }
 
   return <div className="p-10 font-medium text-gray-500">Skill type not supported for exercises yet.</div>;

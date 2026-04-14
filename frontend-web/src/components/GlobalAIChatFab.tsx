@@ -640,14 +640,27 @@ export function GlobalAIChatFab() {
             onSubmit={handleSend}
             className="p-3 bg-white border-t border-gray-100 shrink-0"
           >
-            <div className="flex gap-2">
-              <input
-                type="text"
+            <div className="flex gap-2 items-end">
+              <textarea
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim() && !isTyping) {
+                      handleSend(e as any);
+                    }
+                  }
+                }}
                 placeholder="Ask me anything..."
-                className="flex-1 bg-gray-100 text-gray-900 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-white transition-all"
+                rows={1}
+                className="flex-1 bg-gray-100 text-gray-900 rounded-[20px] px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-white transition-all resize-none min-h-[44px] max-h-[120px] overflow-y-auto break-words leading-relaxed"
                 disabled={isTyping}
+                style={{ height: input ? undefined : 'auto' }}
               />
               <button
                 type="submit"

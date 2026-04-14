@@ -12,6 +12,7 @@ async function seed() {
   // Clean existing data.
   await prisma.ieltsListeningExercise.deleteMany({});
   await prisma.ieltsReadingExercise.deleteMany({});
+  await prisma.ieltsWritingExercise.deleteMany({});
   await prisma.ieltsLesson.deleteMany({});
 
   // 1. Ensure skills exist
@@ -140,6 +141,75 @@ async function seed() {
         });
       }
       // writing: no exercise model yet
+    }
+  }
+
+  // 3. Parse Writing Task 1 Exercises
+  const writingTask1ExercisesPath = path.join(baseDir, 'writing_task_1_exercises.txt');
+  if (fs.existsSync(writingTask1ExercisesPath)) {
+    console.log("Seeding Writing Task 1 Exercises...");
+    const text = fs.readFileSync(writingTask1ExercisesPath, 'utf-8').replace(/\r\n/g, '\n');
+    const lines = text.split('\n');
+    let currentTheme = '';
+    let currentSubcategory = '';
+    const exercisesToSeed = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.startsWith('    - ')) {
+        currentTheme = line.replace('    - ', '').trim();
+        currentSubcategory = '';
+      } else if (line.startsWith('        - ') && !line.includes('- Exercise')) {
+        currentSubcategory = line.replace('        - ', '').trim();
+      } else if (line.indexOf('- Exercise') !== -1) {
+        exercisesToSeed.push({ theme: currentTheme, subCategory: currentSubcategory, content: "" });
+      } else if (exercisesToSeed.length > 0) {
+        exercisesToSeed[exercisesToSeed.length - 1].content += line + "\n";
+      }
+    }
+
+    const writingSkillRecord = await prisma.ieltsSkill.findUnique({ where: { name: 'Writing' } });
+
+    if (writingSkillRecord) {
+      let exOrder = 1;
+      for (const exObj of exercisesToSeed) {
+        const { theme, subCategory, content } = exObj;
+        const promptMatch = content.match(/- Prompt\s+([\s\S]*?)\s+-(?: Diagram| Digram) Image Link/);
+        const diagramMatch = content.match(/-(?: Diagram| Digram) Image Link\s+([\s\S]*?)\s+- Answer/);
+        const introMatch = content.match(/- Introduction\s+([\s\S]*?)\s+- Overview/);
+        const overviewMatch = content.match(/- Overview\s+([\s\S]*?)\s+- Body 1/);
+        const body1Match = content.match(/- Body 1\s+([\s\S]*?)\s+- Body 2/);
+        const body2Match = content.match(/- Body 2\s+([\s\S]+)/);
+
+        const promptText = promptMatch ? promptMatch[1].trim() : "";
+        const diagramUrl = diagramMatch ? diagramMatch[1].trim() : "";
+        const intro = introMatch ? introMatch[1].trim() : "";
+        const overview = overviewMatch ? overviewMatch[1].trim() : "";
+        const body1 = body1Match ? body1Match[1].trim() : "";
+        const body2 = body2Match ? body2Match[1].trim() : "";
+
+        if (promptText) {
+          const topicName = subCategory ? `${theme} - ${subCategory}` : theme;
+
+          const lesson = await prisma.ieltsLesson.findFirst({
+            where: { skillId: writingSkillRecord.id, title: theme }
+          });
+
+          await prisma.ieltsWritingExercise.create({
+            data: {
+              skillId: writingSkillRecord.id,
+              lessonId: lesson ? lesson.id : null,
+              topic: topicName,
+              instructions: "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+              prompt: promptText,
+              diagramUrl: diagramUrl,
+              modelAnswer: { intro, overview, body1, body2 },
+              order: exOrder++
+            }
+          });
+          console.log(`Created writing exercise: ${topicName}`);
+        }
+      }
     }
   }
 

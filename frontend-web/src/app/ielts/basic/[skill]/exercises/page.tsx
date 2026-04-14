@@ -8,6 +8,7 @@ export default async function ExercisesPage({
 }) {
   const isListening = params.skill.toLowerCase() === "listening";
   const isReading = params.skill.toLowerCase() === "reading";
+  const isWriting = params.skill.toLowerCase() === "writing";
   const skillCapitalized =
     params.skill.charAt(0).toUpperCase() + params.skill.slice(1).toLowerCase();
 
@@ -23,8 +24,8 @@ export default async function ExercisesPage({
     if (lessonsRes.ok) {
       const allLessons = await lessonsRes.json();
 
-      if (allLessons.length > 0 && (isListening || isReading)) {
-        const endpoint = isListening ? "listening-exercises" : "reading-exercises";
+      if (allLessons.length > 0 && (isListening || isReading || isWriting)) {
+        const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : "reading-exercises";
 
         // 2. Fetch exercises for each lesson
         const exPromises = allLessons.map(async (l: any) => {

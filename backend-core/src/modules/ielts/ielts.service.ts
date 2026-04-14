@@ -284,4 +284,39 @@ export class IeltsService {
       exerciseType: type,
     };
   }
+  async saveWritingUserAnswer(userId: string, exerciseId: string, answers: { intro: string, overview: string, body1: string, body2: string }) {
+    return this.prisma.ieltsWritingUserAnswer.upsert({
+      where: {
+        userId_writingExerciseId: {
+          userId,
+          writingExerciseId: exerciseId,
+        }
+      },
+      update: {
+        intro: answers.intro,
+        overview: answers.overview,
+        body1: answers.body1,
+        body2: answers.body2,
+      },
+      create: {
+        userId,
+        writingExerciseId: exerciseId,
+        intro: answers.intro,
+        overview: answers.overview,
+        body1: answers.body1,
+        body2: answers.body2,
+      }
+    });
+  }
+
+  async getWritingUserAnswer(userId: string, exerciseId: string) {
+    return this.prisma.ieltsWritingUserAnswer.findUnique({
+      where: {
+        userId_writingExerciseId: {
+          userId,
+          writingExerciseId: exerciseId,
+        }
+      }
+    });
+  }
 }

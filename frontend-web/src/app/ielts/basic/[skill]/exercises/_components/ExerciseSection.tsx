@@ -46,34 +46,98 @@ export function ExerciseSection({
       {/* List Container with transition */}
       <div className={`flex flex-col mt-4 gap-2 overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? "max-h-[3000px] opacity-100 mb-8" : "max-h-0 opacity-0 mb-0 pointer-events-none"
         }`}>
-        {items.map((ex) => {
-          const isFinished = completedExerciseIds?.has(ex.id) || false;
+        {(() => {
+          const subGroups: { name: string; items: Exercise[] }[] = [];
+          const flatItems: Exercise[] = [];
+
+          items.forEach((ex) => {
+            if (ex.topic.includes(" - ")) {
+              const parts = ex.topic.split(" - ");
+              const subName = parts.slice(1).join(" - ").trim();
+              let sg = subGroups.find((g) => g.name === subName);
+              if (!sg) {
+                sg = { name: subName, items: [] };
+                subGroups.push(sg);
+              }
+              sg.items.push(ex);
+            } else {
+              flatItems.push(ex);
+            }
+          });
 
           return (
-            <Link
-              key={ex.id}
-              href={`/ielts/basic/${skill}/exercises/${ex.id}${ex.lessonId ? `?lessonId=${ex.lessonId}` : ""
-                }`}
-            >
-              <div className="flex items-center gap-4 px-5 py-3.5 bg-[#F9F9F9] hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-transparent group">
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-gray-900 truncate leading-none">
-                    {ex.topic}
-                  </p>
+            <>
+              {flatItems.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {flatItems.map((ex, i) => {
+                    const isFinished = completedExerciseIds?.has(ex.id) || false;
+                    const displayTitle = `Practice ${i + 1}`;
+                    return (
+                      <Link
+                        key={ex.id}
+                        href={`/ielts/basic/${skill}/exercises/${ex.id}${ex.lessonId ? `?lessonId=${ex.lessonId}` : ""}`}
+                      >
+                        <div className="flex items-center gap-4 px-5 py-3.5 bg-[#F9F9F9] hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-transparent group">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[14px] font-semibold text-gray-900 truncate leading-none">
+                              {displayTitle}
+                            </p>
+                          </div>
+                          {isFinished ? (
+                            <span className="text-xs text-green-500 font-bold shrink-0 transition-colors flex items-center gap-1">
+                              Completed ✓
+                            </span>
+                          ) : (
+                            <span className="text-xs text-gray-400 font-medium shrink-0 group-hover:text-[#FFC107] transition-colors">
+                              Start →
+                            </span>
+                          )}
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
-                {isFinished ? (
-                  <span className="text-xs text-green-500 font-bold shrink-0 transition-colors flex items-center gap-1">
-                    Completed ✓
-                  </span>
-                ) : (
-                  <span className="text-xs text-gray-400 font-medium shrink-0 group-hover:text-[#FFC107] transition-colors">
-                    Start →
-                  </span>
-                )}
-              </div>
-            </Link>
+              )}
+
+              {subGroups.map((sg) => (
+                <div key={sg.name} className="flex flex-col mt-3 mb-2">
+                  <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3">
+                    {sg.name}
+                  </h4>
+                  <div className="flex flex-col gap-2 border-l-2 border-gray-200 ml-2 pl-4">
+                    {sg.items.map((ex, i) => {
+                      const isFinished = completedExerciseIds?.has(ex.id) || false;
+                      const displayTitle = `Practice ${i + 1}`;
+                      return (
+                        <Link
+                          key={ex.id}
+                          href={`/ielts/basic/${skill}/exercises/${ex.id}${ex.lessonId ? `?lessonId=${ex.lessonId}` : ""}`}
+                        >
+                          <div className="flex items-center gap-4 px-5 py-3.5 bg-white hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-gray-100 shadow-sm group">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[14px] font-semibold text-gray-900 truncate leading-none">
+                                {displayTitle}
+                              </p>
+                            </div>
+                            {isFinished ? (
+                              <span className="text-xs text-green-500 font-bold shrink-0 transition-colors flex items-center gap-1">
+                                ✓
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-400 font-medium shrink-0 group-hover:text-[#FFC107] transition-colors">
+                                Start →
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </>
           );
-        })}
+        })()}
       </div>
     </div>
   );
