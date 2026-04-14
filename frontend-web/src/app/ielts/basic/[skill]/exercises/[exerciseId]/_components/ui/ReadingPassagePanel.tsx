@@ -30,17 +30,18 @@ export function ReadingPassagePanel({
 
   const renderContent = (content: string, qNum?: number, isHighlighted?: boolean) => {
     return (
-      <mark className={`rounded-md px-1.5 py-0.5 transition-all duration-700 inline-flex items-center gap-2 mx-0.5 border ${
-        isHighlighted
-          ? "bg-amber-100 text-amber-900 border-amber-300 shadow-md scale-[1.02] -translate-y-0.5"
-          : (qNum !== undefined ? "bg-amber-50/50 text-gray-800 border-amber-100/50" : "bg-transparent text-gray-800 border-transparent")
-        }`}>
+      <mark className={`transition-all duration-300 bg-transparent ${isHighlighted
+        ? "bg-[#FFF9E6] text-gray-900 rounded-[4px] px-1 shadow-[0_0_0_2px_#FFF9E6]"
+        : (qNum !== undefined ? "text-gray-800" : "text-gray-800")
+        }`}
+      >
         {qNum !== undefined && (
-          <span className="bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm leading-none shrink-0 tracking-tight uppercase">
+          <span className={`inline-flex items-center justify-center text-[9px] font-extrabold px-[5px] py-[2px] rounded-[3px] mx-1 tracking-wider align-middle select-none transition-colors ${isHighlighted ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-400 border border-gray-200"
+            }`}>
             Q{qNum}
           </span>
         )}
-        <span className={`${isHighlighted ? "font-semibold" : "font-normal"}`}>
+        <span className={`${isHighlighted ? "font-bold" : "font-normal"}`}>
           {cleanText(content)}
         </span>
       </mark>
@@ -63,24 +64,18 @@ export function ReadingPassagePanel({
 
   return (
     <div className="h-full overflow-y-auto pr-6 lg:pr-8 scroll-smooth custom-scrollbar">
-      <div className="sticky top-0 bg-white/80 backdrop-blur-md pb-4 pt-2 z-10 border-b border-gray-100 mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-[17px] font-black text-gray-900 tracking-tight">
-            Reading Passage
-          </h2>
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-            Official Text
-          </p>
-        </div>
+      <div className="top-0 bg-white/95 backdrop-blur-md pb-4 pt-1 z-10 border-b border-gray-100 mb-8 flex items-center justify-between">
+        <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">
+          Passage
+        </h2>
         {showAnswers && (
-          <div className="flex items-center gap-2 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100">
-            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-            <span className="text-[10px] font-black text-indigo-700 uppercase tracking-tight">Answer Keys Unlocked</span>
+          <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Answers Revealed</span>
           </div>
         )}
       </div>
 
-      <div className="text-[15px] leading-[1.9] text-gray-800 pb-32 whitespace-pre-wrap font-serif antialiased">
+      <div className="text-[15px] leading-[1.9] text-gray-800 pb-32 whitespace-pre-wrap antialiased">
         {!showAnswers ? (
           <div className="space-y-8">
             {(plainText || "").split('\n\n').map((para, pi) => {
@@ -137,7 +132,7 @@ export function ReadingPassagePanel({
               return (
                 <div key={pi} className="flex flex-col">
                   {label && (
-                     <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900 text-white font-black text-lg tracking-tight shadow-sm mb-2 mt-4 first:mt-0">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900 text-white font-black text-lg tracking-tight shadow-sm mb-2 mt-4 first:mt-0">
                       {label}
                     </span>
                   )}

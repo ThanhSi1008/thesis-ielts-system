@@ -75,53 +75,56 @@ const config: Config = {
 
             // Lists
             li: { marginTop: '0.35em', marginBottom: '0.35em', lineHeight: '1.7' },
-            'ul > li::marker': { color: '#64748b' },
+            'ul > li': { listStyleType: '"▸ "', paddingLeft: '0.25em' },
+            'ul > li::marker': { color: '#64748b', fontSize: '1.1em' },
+            'ul ul > li': { listStyleType: 'circle', paddingLeft: '0' },
+            'ul ul ul > li': { listStyleType: 'square' },
 
             // Bold
             strong: { fontWeight: '700', color: '#0f0f0f' },
 
             // Inline code — no backtick quotes
             code: {
-              backgroundColor: '#fef3c7',
+              backgroundColor: 'rgba(0,0,0,0.06)',
               borderRadius: '4px',
               padding: '0.15em 0.45em',
               fontWeight: '600',
               fontSize: '0.85em',
-              color: '#92400e',
+              color: 'inherit',
             },
             'code::before': { content: '""' },
             'code::after': { content: '""' },
 
-            // Blockquote — slate accent
+            // Blockquote — adaptive styling
             blockquote: {
-              borderLeftColor: '#cbd5e1',
+              borderLeftColor: 'rgba(0, 0, 0, 0.15)',
               borderLeftWidth: '4px',
-              backgroundColor: '#f8fafc',
-              borderRadius: '0 8px 8px 0',
-              padding: '0.75em 1.25em',
-              color: '#334155',
-              fontStyle: 'normal',
+              backgroundColor: 'rgba(0, 0, 0, 0.035)',
+              borderRadius: '4px',
+              padding: '0.85em 1.2em',
+              color: 'inherit',
+              fontStyle: 'italic',
               fontWeight: '500',
             },
             'blockquote p': { margin: '0' },
 
             // HR
-            hr: { borderColor: '#e5e7eb', marginTop: '2em', marginBottom: '2em' },
+            hr: { borderColor: 'rgba(0, 0, 0, 0.1)', marginTop: '2em', marginBottom: '2em' },
 
-            // Tables — dark header, zebra rows
+            // Tables — adaptive header, semi-transparent rows
             table: {
               width: '100%',
               borderCollapse: 'separate',
               borderSpacing: '0',
               borderRadius: '12px',
               overflow: 'hidden',
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 1px 4px 0 rgba(0,0,0,0.05)',
+              border: '1px solid rgba(0, 0, 0, 0.08)',
+              boxShadow: '0 1px 4px 0 rgba(0,0,0,0.03)',
               fontSize: '0.875rem'
             },
-            thead: { backgroundColor: '#f1f5f9' },
+            thead: { backgroundColor: 'rgba(0, 0, 0, 0.05)' },
             'thead th': {
-              color: '#334155',
+              color: 'inherit',
               fontWeight: '700',
               padding: '1em 1.5em',
               textAlign: 'left',
@@ -129,10 +132,10 @@ const config: Config = {
               letterSpacing: '0.05em',
               textTransform: 'uppercase',
             },
-            'tbody tr': { borderBottom: '1px solid #f8fafc' },
-            'tbody tr:nth-child(even)': { backgroundColor: '#ffffff' },
+            'tbody tr': { borderBottom: '1px solid rgba(0, 0, 0, 0.05)' },
+            'tbody tr:nth-child(even)': { backgroundColor: 'rgba(255, 255, 255, 0.4)' },
             'tbody tr:last-child': { border: 'none' },
-            td: { padding: '1em 1.5em', verticalAlign: 'top', color: '#1a1a1a', lineHeight: '1.7' },
+            td: { padding: '1em 1.5em', verticalAlign: 'top', color: 'inherit', lineHeight: '1.7' },
             // Override typography plugin's opinionated first/last-child padding resets
             'td:first-child': { paddingLeft: '1.5em' },
             'td:last-child': { paddingRight: '1.5em' },

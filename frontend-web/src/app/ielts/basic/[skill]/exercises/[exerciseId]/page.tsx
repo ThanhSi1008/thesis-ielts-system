@@ -9,6 +9,7 @@ import {
 } from "./_components/utils/SharedExerciseTypes";
 import { ReadingExerciseLayout } from "./_components/containers/ReadingExerciseLayout";
 import { ListeningExerciseLayout } from "./_components/containers/ListeningExerciseLayout";
+import { WritingExerciseLayout } from "./_components/containers/WritingExerciseLayout";
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ export function ExerciseDetailContent({
 }) {
   const isReading = skill?.toLowerCase() === "reading";
   const isListening = skill?.toLowerCase() === "listening";
+  const isWriting = skill?.toLowerCase() === "writing";
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [lessonBlocks, setLessonBlocks] = useState<LessonBlock[]>([]);
@@ -38,7 +40,7 @@ export function ExerciseDetailContent({
     const fetchData = async () => {
       setLoading(true);
       try {
-        const endpoint = isReading ? "reading-exercises" : "listening-exercises";
+        const endpoint = isReading ? "reading-exercises" : isWriting ? "writing-exercises" : "listening-exercises";
         const exRes = await axios.get(`http://localhost:3000/api/v1/ielts/${endpoint}/${exerciseId}`);
         setExercise(exRes.data);
 
@@ -76,6 +78,10 @@ export function ExerciseDetailContent({
 
   if (isListening) {
     return <ListeningExerciseLayout exercise={exercise as any} lessonBlocks={lessonBlocks} onComplete={onComplete} onNext={onNext} />;
+  }
+
+  if (isWriting) {
+    return <WritingExerciseLayout exercise={exercise as any} onComplete={onComplete} onNext={onNext} />;
   }
 
   return <div className="p-10 font-medium text-gray-500">Skill type not supported for exercises yet.</div>;

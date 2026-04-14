@@ -17,7 +17,7 @@ export default function IeltsBasicLayout({
 
         {/* Sidebar */}
         <aside className="w-full md:w-80 flex-shrink-0 bg-white rounded-2xl p-6 shadow-sm border border-gray-100/50 md:sticky md:top-0 flex flex-col h-[90vh]">
-          <p className="text-sm font-semibold leading-tight text-gray-900 mb-6 shrink-0 w-4/5 pt-2">
+          <p className="text-sm leading-tight text-gray-900 mb-6 shrink-0 w-4/5 pt-2">
             Learn Everything You Need to Know about the IELTS Test
           </p>
 
@@ -29,26 +29,20 @@ export default function IeltsBasicLayout({
                 <Link
                   href="/ielts/basic"
                   className={`group flex items-center px-4 py-3 rounded-xl transition-all ${pathname === "/ielts/basic"
-                    ? "bg-[#FFF9E6] text-gray-900 font-bold relative"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-primary/10 text-gray-900 font-bold"
+                    : "text-gray-500 hover:bg-primary/10 hover:text-gray-900 font-medium"
                     }`}
                 >
-                  {pathname === "/ielts/basic" && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-4/5 w-1.5 bg-[#FFC107] rounded-r-md"></div>
-                  )}
-                  <span className="text-[14px]">Preparation</span>
+                  <span className="text-[14px]">Roadmap</span>
                 </Link>
 
                 <Link
-                  href="/ielts/basic/listening/lessons"
-                  className={`group flex items-center px-4 py-3 rounded-xl transition-all ${pathname.startsWith("/ielts/basic/") && !pathname.startsWith("/ielts/basic/roadmap") && pathname !== "/ielts/basic"
-                    ? "bg-[#FFF9E6] text-gray-900 font-bold relative"
-                    : "text-gray-600 hover:bg-gray-50 font-semibold"
+                  href="/ielts/basic/library"
+                  className={`group flex items-center px-4 py-3 rounded-xl transition-all ${pathname.startsWith("/ielts/basic/library") || (pathname.startsWith("/ielts/basic/") && !pathname.startsWith("/ielts/basic/roadmap") && pathname !== "/ielts/basic")
+                    ? "bg-primary/10 text-gray-900 font-bold"
+                    : "text-gray-500 hover:bg-primary/10 hover:text-gray-900 font-medium"
                     }`}
                 >
-                  {pathname.startsWith("/ielts/basic/") && !pathname.startsWith("/ielts/basic/roadmap") && pathname !== "/ielts/basic" && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-4/5 w-1.5 bg-[#FFC107] rounded-r-md"></div>
-                  )}
                   <span className="text-[14px]">Library</span>
                 </Link>
               </nav>

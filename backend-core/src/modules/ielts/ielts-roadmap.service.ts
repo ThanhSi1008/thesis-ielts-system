@@ -21,7 +21,7 @@ export interface RoadmapStep {
 
 @Injectable()
 export class IeltsRoadmapService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async generateRoadmap(userId: string): Promise<{ steps: RoadmapStep[]; currentStep: number }> {
     const skills = await this.prisma.ieltsSkill.findMany({
@@ -31,7 +31,7 @@ export class IeltsRoadmapService {
     const progressRecords = await this.prisma.ieltsBasicProgress.findMany({
       where: { userId },
     });
-    
+
     // Quick lookup for completions
     const isCompleted = (type: 'lesson' | 'listeningExercise' | 'readingExercise', id: string) => {
       return progressRecords.some((p) => {
@@ -128,27 +128,40 @@ export class IeltsRoadmapService {
       });
     }
 
-    // Apply sequential item-level locking
-    let unlockNextItem = true;
+    // Apply sequential step-level locking:
+    // A step is unlocked only when the previous step is fully completed.
+    // Within an unlocked step, items unlock one-at-a-time sequentially.
+    let previousStepCompleted = true; // Step 1 is always unlocked
+
     for (const step of steps) {
-      let stepIsCompleted = step.items.length > 0;
+      if (!previousStepCompleted) {
+        // This whole step is locked
+        step.isLocked = true;
+        step.isCompleted = false;
+        step.items.forEach((item) => (item.isLocked = true));
+        continue;
+      }
+
+      // Step is reachable — unlock items one-at-a-time within the step
+      step.isLocked = false;
+      let stepFullyCompleted = true;
+      let foundIncomplete = false;
 
       for (const item of step.items) {
-        if (unlockNextItem) {
+        if (foundIncomplete) {
+          item.isLocked = true;
+          stepFullyCompleted = false;
+        } else {
           item.isLocked = false;
           if (!item.isCompleted) {
-            unlockNextItem = false;
-            stepIsCompleted = false;
+            foundIncomplete = true;
+            stepFullyCompleted = false;
           }
-        } else {
-          item.isLocked = true;
-          stepIsCompleted = false;
         }
       }
 
-      step.isCompleted = stepIsCompleted;
-      // Step is locked ONLY if ALL items within it are locked
-      step.isLocked = step.items.every((item) => item.isLocked);
+      step.isCompleted = stepFullyCompleted;
+      previousStepCompleted = stepFullyCompleted;
     }
 
     // Current step is the first step containing an unlocked, incomplete item.

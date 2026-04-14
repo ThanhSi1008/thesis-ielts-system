@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, UseGuards, Request } from "@nestjs/common";
+import { Controller, Get, Param, Post, Body, UseGuards, Request, Query } from "@nestjs/common";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { IeltsService } from "./ielts.service";
 import { IeltsRoadmapService } from "./ielts-roadmap.service";
@@ -8,7 +8,7 @@ export class IeltsController {
   constructor(
     private readonly ieltsService: IeltsService,
     private readonly ieltsRoadmapService: IeltsRoadmapService
-  ) {}
+  ) { }
 
   @Get("skills")
   async getSkills() {
@@ -49,6 +49,29 @@ export class IeltsController {
     return this.ieltsService.findReadingExerciseById(id);
   }
 
+  // ── Writing exercises ───────────────────────────────────────────────────
+
+  @Get("lessons/:id/writing-exercises")
+  async getWritingExercisesByLesson(@Param("id") id: string) {
+    return this.ieltsService.findWritingExercisesByLesson(id);
+  }
+
+  @Get("writing-exercises/:id")
+  async getWritingExercise(@Param("id") id: string) {
+    return this.ieltsService.findWritingExerciseById(id);
+  }
+
+  // ── Exercise Snippet (public — used for lesson examples) ────────────────
+
+  @Get("exercise-snippet")
+  async getExerciseSnippet(
+    @Query("type") type: string,
+    @Query("id") id: string,
+    @Query("groupIndex") groupIndex: string
+  ) {
+    return this.ieltsService.findExerciseSnippet(type, id, parseInt(groupIndex ?? "0", 10));
+  }
+
   // ── Progress Tracking ───────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard)
@@ -66,6 +89,7 @@ export class IeltsController {
       lessonId?: string;
       listeningExerciseId?: string;
       readingExerciseId?: string;
+      writingExerciseId?: string;
     }
   ) {
     return this.ieltsService.markItemCompleted(req.user.id, body);
@@ -75,6 +99,14 @@ export class IeltsController {
   @Post("progress/reset")
   async resetProgress(@Request() req: any) {
     return this.ieltsService.resetProgress(req.user.id);
+  }
+
+  // ── Library ──────────────────────────────────────────────────────────────
+
+  @UseGuards(JwtAuthGuard)
+  @Get("library/stats")
+  async getLibraryStats(@Request() req: any) {
+    return this.ieltsService.getLibraryStats(req.user.id);
   }
 
   // ── Roadmap ─────────────────────────────────────────────────────────────

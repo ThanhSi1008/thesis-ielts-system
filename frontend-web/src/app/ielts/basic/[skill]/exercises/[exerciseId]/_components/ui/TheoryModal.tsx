@@ -1,6 +1,7 @@
 import { AlertCircle, Lightbulb, Info } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { LessonBlock } from "../utils/SharedExerciseTypes";
 
 export function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: () => void }) {
@@ -36,7 +37,7 @@ export function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: (
         <h3 className="font-bold text-[15px] text-gray-900">{block.title || c.default}</h3>
       </div>
       <div className="prose prose-sm prose-gray max-w-none text-gray-800 leading-relaxed">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{block.content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
       </div>
     </div>
   );

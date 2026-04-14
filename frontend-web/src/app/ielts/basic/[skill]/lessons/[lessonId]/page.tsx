@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import api from "@/lib/api";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import { ExerciseExampleBlock } from "./ExerciseExampleBlock";
+import FloatingSelectionManager from "@/components/FloatingSelectionManager";
 import {
   ChevronLeft,
   AlertCircle,
@@ -23,9 +27,13 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface LessonBlock {
-  type: "traps" | "strategy" | "tips" | "section" | "overview" | string;
+  type: "traps" | "strategy" | "tips" | "section" | "overview" | "example" | string;
   title?: string;
-  content: string;
+  content?: string;
+  // Example block fields
+  exerciseType?: "listening" | "reading";
+  exerciseId?: string;
+  groupIndex?: number;
 }
 
 interface QuizQuestion {
@@ -111,29 +119,29 @@ function LessonQuizQuestion({
   });
 
   return (
-    <div className="bg-white rounded-2xl p-2 sm:p-5 shadow-sm">
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm relative overflow-hidden">
       <div className="mb-6">
-        <h3 className="font-bold text-gray-900 text-[15px] sm:text-[17px] leading-relaxed flex items-start">
-          <span className="text-gray-300 mr-3 mt-0.5 select-none">{index + 1}.</span>
-          <span className="flex-1 tracking-tight"><ReactMarkdown remarkPlugins={[remarkGfm]}>{q.question}</ReactMarkdown></span>
+        <h3 className="font-bold text-gray-900 text-[16px] sm:text-[17px] leading-relaxed flex items-start">
+          <span className="text-gray-300 mr-4 font-black text-xl select-none">{index + 1}.</span>
+          <span className="flex-1 tracking-tight mt-0.5"><ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{q.question}</ReactMarkdown></span>
         </h3>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         {q.options.map((opt, i) => {
           const letter = opt.match(/^([A-D])[.)]/)?.[1] ?? String.fromCharCode(65 + i);
           const isThisCorrect = opt === q.answer || letter === q.answer;
           const isThisSelected = selected === opt || selected === letter;
 
-          let style = "bg-gray-50 text-gray-700 hover:bg-gray-100";
+          let style = "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100/80 border border-transparent";
           if (submitted && isThisCorrect) {
-            style = "bg-green-100/50 text-green-900 ring-1 ring-green-200";
+            style = "bg-[#E6F4EA] text-green-900 border border-[#CEEAD6]";
           } else if (submitted && isThisSelected && !isThisCorrect) {
-            style = "bg-red-50 text-red-900 ring-1 ring-red-200";
+            style = "bg-[#FCE8E6] text-red-900 border border-[#FAD2CF]";
           } else if (submitted) {
-            style = "bg-transparent text-gray-400 cursor-not-allowed";
+            style = "bg-transparent text-gray-400 cursor-not-allowed border border-transparent";
           } else if (isThisSelected) {
-            style = "bg-[#FFC600]/10 text-gray-900 ring-1 ring-[#FFC600]/60";
+            style = "bg-[#FFF9E6] text-gray-900 border border-[#FFC107]/50";
           }
 
           return (
@@ -143,12 +151,12 @@ function LessonQuizQuestion({
               onClick={() => onSelect(letter)}
               className={`flex items-center gap-4 px-5 py-4 rounded-xl text-[14px] transition-all text-left ${style}`}
             >
-              <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0 ${isThisSelected && !submitted ? "bg-primary/30 text-gray-900 shadow-sm" : "bg-white border shadow-sm text-gray-500"}`}>
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 shadow-sm ${isThisSelected && !submitted ? "bg-white text-gray-900 ring-1 ring-gray-200" : "bg-white text-gray-500 ring-1 ring-gray-100"}`}>
                 {letter}
               </span>
-              <span className="flex-1 font-medium">{opt.replace(/^([A-D])[.)]\s*/, "")}</span>
-              {submitted && isThisCorrect && <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />}
-              {submitted && isThisSelected && !isThisCorrect && <XCircle className="w-4 h-4 text-red-400 shrink-0" />}
+              <span className="flex-1 font-semibold text-[14.5px]">{opt.replace(/^([A-D])[.)]\s*/, "")}</span>
+              {submitted && isThisCorrect && <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />}
+              {submitted && isThisSelected && !isThisCorrect && <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
             </button>
           );
         })}
@@ -156,25 +164,26 @@ function LessonQuizQuestion({
 
       {/* Actions and Hint/Answer rendering */}
       {!submitted && (
-        <div className="flex items-center gap-4 mt-5">
-          {q.hint && (
+        <div className="flex items-center justify-between w-full mt-6 pt-5 border-t border-gray-50 border-dashed">
+          {q.hint ? (
             <button
               onClick={() => setShowHint(!showHint)}
-              className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-wider"
+              className="flex items-center gap-1.5 text-[11px] font-extrabold text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-widest"
             >
               <HelpCircle className="w-3.5 h-3.5" />
               {showHint ? "Hide hint" : "Show hint"}
             </button>
-          )}
-          {!selected && (
+          ) : <div />}
+
+          {!selected ? (
             <button
               onClick={onShowAnswer}
-              className="flex items-center gap-1.5 text-[12px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-wider ml-auto"
+              className="flex items-center gap-1.5 text-[11px] font-extrabold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest"
             >
               <Eye className="w-3.5 h-3.5" />
               Show answer
             </button>
-          )}
+          ) : <div />}
         </div>
       )}
 
@@ -187,7 +196,7 @@ function LessonQuizQuestion({
       {submitted && q.explanation && (
         <div className={`mt-4 p-4 rounded-xl text-[13px] leading-relaxed shadow-sm flex items-start gap-3 ${isCorrect ? "bg-green-50 border border-green-100 text-green-800" : "bg-red-50 border border-red-100 text-red-800"}`}>
           <span className="font-bold shrink-0">{isCorrect ? "✅ Correct!" : "❌ Incorrect."}</span>
-          <div className="prose prose-sm"><ReactMarkdown remarkPlugins={[remarkGfm]}>{q.explanation}</ReactMarkdown></div>
+          <div className="prose prose-sm"><ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{q.explanation}</ReactMarkdown></div>
         </div>
       )}
     </div>
@@ -197,6 +206,12 @@ function LessonQuizQuestion({
 function LessonQuiz({ questions, onCompletion, onNext }: { questions: QuizQuestion[], onCompletion?: () => void, onNext?: () => void }) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
+
+  // Keep a ref so the effect below never has onCompletion as a dependency.
+  // Without this, every parent re-render (new lessonId prop → new function ref)
+  // would cause the effect to fire again with the old submitted=true state.
+  const onCompletionRef = useRef(onCompletion);
+  useEffect(() => { onCompletionRef.current = onCompletion; });
 
   const score = useMemo(() => {
     return questions.reduce((acc, q, idx) => {
@@ -211,13 +226,14 @@ function LessonQuiz({ questions, onCompletion, onNext }: { questions: QuizQuesti
     }, 0);
   }, [answers, questions]);
 
-  const passed = score === questions.length;
+  const passed = questions.length > 0 && score === questions.length;
 
   useEffect(() => {
-    if (submitted && passed && onCompletion) {
-      onCompletion();
+    if (submitted && passed) {
+      onCompletionRef.current?.();
     }
-  }, [submitted, passed, onCompletion]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitted, passed]); // intentionally omits onCompletion — use the ref instead
 
   const handleSubmit = () => {
     setSubmitted(true);
@@ -245,8 +261,8 @@ function LessonQuiz({ questions, onCompletion, onNext }: { questions: QuizQuesti
       ))}
 
       {/* Bottom Action Bar */}
-      <div className="sticky bottom-4 z-20 flex items-center justify-between bg-white border border-gray-200 px-5 py-3.5 rounded-2xl shadow-lg mt-2 mx-auto w-full md:max-w-2xl">
-        <div className="text-[14px] font-bold text-gray-400">
+      <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white border border-gray-100 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-4 mx-auto w-full md:max-w-2xl">
+        <div className="text-[14px] font-extrabold text-gray-400 tracking-tight">
           {Object.keys(answers).length} / {questions.length} Answered
         </div>
 
@@ -254,9 +270,9 @@ function LessonQuiz({ questions, onCompletion, onNext }: { questions: QuizQuesti
           <button
             onClick={handleSubmit}
             disabled={Object.keys(answers).length !== questions.length}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#FFC107] text-gray-900 rounded-xl font-bold hover:bg-[#E0A800] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#FFD54F] text-gray-900 rounded-xl font-bold hover:bg-[#FFC107] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <CheckCircle className="w-5 h-5" />
+            <CheckCircle className="w-4 h-4 opacity-70" />
             Submit Answers
           </button>
         ) : (
@@ -314,6 +330,7 @@ export function LessonDetailContent({
   const router = useRouter();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeId, setActiveId] = useState<string>("");
 
   const handleLessonCompletion = async () => {
     try {
@@ -348,6 +365,32 @@ export function LessonDetailContent({
     }).filter(item => item.title);
   }, [lesson]);
 
+  const hasQuiz = Array.isArray(lesson?.quiz) && (lesson?.quiz?.length || 0) > 0;
+
+  useEffect(() => {
+    if (tocItems.length === 0 && !hasQuiz) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Grab all currently intersecting elements this tick
+        const visibleEntries = entries.filter(e => e.isIntersecting);
+        if (visibleEntries.length > 0) {
+          setActiveId(visibleEntries[0].target.id);
+        }
+      },
+      { rootMargin: "-100px 0px -60% 0px", threshold: 0 }
+    );
+
+    tocItems.forEach(item => {
+      const el = document.getElementById(item.id);
+      if (el) observer.observe(el);
+    });
+    if (hasQuiz) {
+      const el = document.getElementById("lesson-quiz-section");
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [tocItems, hasQuiz, lesson]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400 animate-pulse font-medium">
@@ -364,128 +407,149 @@ export function LessonDetailContent({
     );
   }
 
-  const hasQuiz = Array.isArray(lesson.quiz) && lesson.quiz.length > 0;
-
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full items-start relative min-h-[700px]">
-      
-      {/* Central Lesson Box */}
-      <div className="flex-1 flex flex-col w-full min-w-0 bg-white rounded-2xl shadow-sm border border-gray-100/50">
-        
-        {/* Sticky Header */}
-        <div className="border-b border-gray-100 px-6 lg:px-12 pt-6 pb-4 bg-white shrink-0 flex flex-col items-center text-center rounded-t-2xl">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">
-            {lesson.skill?.name} · {lesson.chapter}
-          </p>
-          <h1 className="text-2xl font-extrabold text-[#111] tracking-tight">
-            {lesson.title}
-          </h1>
-        </div>
+    <FloatingSelectionManager>
+      <div className="flex flex-col lg:flex-row gap-6 w-full items-start relative min-h-[700px]">
 
-        {/* Content — flows naturally, parent layout scrolls */}
-        <div className="px-6 lg:px-12 py-8 flex-1">
-          <div className="max-w-3xl mx-auto flex flex-col gap-6 w-full">
+        {/* Central Lesson Box */}
+        <div className="flex-1 flex flex-col w-full min-w-0 bg-white rounded-2xl shadow-sm border border-gray-100/50">
 
-          {/* Theory Blocks */}
-          {Array.isArray(lesson.content) &&
-            lesson.content.map((block, idx) => {
-              const cfg = blockConfig[block.type] ?? blockConfig.section;
-              const isSection = block.type === "section" || !blockConfig[block.type];
-
-              return (
-                <div
-                  key={idx}
-                  id={`lesson-block-${idx}`}
-                  className={`rounded-xl ${cfg.bg} ${cfg.border} ${isSection ? "pt-2 pb-4" : "p-6"}`}
-                >
-                  <div className={`flex items-start gap-2.5 ${isSection ? "mb-1" : "mb-3"}`}>
-                    {cfg.icon}
-                    <h3 className={`font-bold text-gray-900 tracking-tight ${isSection ? "text-[20px] md:text-[22px] mb-2" : "text-[14px] uppercase text-gray-700 tracking-wider"}`}>
-                      {block.title || cfg.label}
-                    </h3>
-                  </div>
-                  <div className={`prose prose-sm prose-slate max-w-none text-gray-600 leading-relaxed ${!isSection ? "pl-7" : ""}`}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {block.content}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              );
-            })}
-
-          {/* Quiz Section */}
-          {hasQuiz && (
-            <div id="lesson-quiz-section" className="mt-4">
-              <div className="flex items-center gap-3 mb-5">
-                <h2 className="text-[18px] font-extrabold text-gray-900">
-                  Check Your Understanding
-                </h2>
-              </div>
-              <LessonQuiz questions={lesson.quiz!.slice(0, 4)} onCompletion={handleLessonCompletion} onNext={onNext} />
+          {/* Sticky Header */}
+          <div className="border-b border-gray-100 px-6 lg:px-12 pt-6 pb-4 bg-white shrink-0 flex flex-col items-center text-center rounded-t-2xl">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1 flex items-center justify-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
+              <Link href="/ielts/basic/library" className="hover:text-gray-900 transition-colors px-1">Library</Link>
+              <span className="opacity-30">/</span>
+              <Link href={`/ielts/basic/${skill?.toLowerCase() || 'listening'}/lessons`} className="hover:text-gray-900 transition-colors px-1">{lesson.skill?.name || skill}</Link>
+              <span className="opacity-30">/</span>
+              <span className="px-1 text-gray-300">{lesson.chapter}</span>
             </div>
-          )}
+            <h1 className="text-2xl font-extrabold text-[#111] tracking-tight">
+              {lesson.title}
+            </h1>
+          </div>
 
-          {/* Bottom spacing */}
-          <div className="h-4" />
+          {/* Content — flows naturally, parent layout scrolls */}
+          <div className="px-6 lg:px-12 py-8 flex-1">
+            <div className="max-w-3xl mx-auto flex flex-col gap-6 w-full">
+
+              {/* Theory & Example Blocks */}
+              {Array.isArray(lesson.content) &&
+                lesson.content.map((block, idx) => {
+                  // ── Example block ────────────────────────────────────────────
+                  if (block.type === "example" && block.exerciseId && block.exerciseType) {
+                    return (
+                      <ExerciseExampleBlock
+                        key={idx}
+                        id={`lesson-block-${idx}`}
+                        title={block.title}
+                        exerciseType={block.exerciseType}
+                        exerciseId={block.exerciseId}
+                        groupIndex={block.groupIndex ?? 0}
+                      />
+                    );
+                  }
+
+                  // ── Theory block ─────────────────────────────────────────────
+                  const cfg = blockConfig[block.type] ?? blockConfig.section;
+                  const isSection = block.type === "section" || !blockConfig[block.type];
+
+                  return (
+                    <div
+                      key={idx}
+                      id={`lesson-block-${idx}`}
+                      className={`rounded-xl ${cfg.bg} ${cfg.border} ${isSection ? "pt-2 pb-4" : "p-6"}`}
+                    >
+                      <div className={`flex items-start gap-2.5 ${isSection ? "mb-1" : "mb-3"}`}>
+                        {cfg.icon}
+                        <h3 className={`font-bold text-gray-900 tracking-tight ${isSection ? "text-[20px] md:text-[22px] mb-2" : "text-[14px] uppercase text-gray-700 tracking-wider"}`}>
+                          {block.title || cfg.label}
+                        </h3>
+                      </div>
+                      <div className={`prose prose-sm prose-slate max-w-none text-gray-600 leading-relaxed ${!isSection ? "pl-7" : ""}`}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                          {block.content ?? ""}
+                        </ReactMarkdown>
+                      </div>
+                    </div>
+                  );
+                })}
+
+              {/* Quiz Section */}
+              {hasQuiz && (
+                <div id="lesson-quiz-section" className="mt-4">
+                  <div className="flex items-center gap-3 mb-5">
+                    <h2 className="text-[18px] font-extrabold text-gray-900">
+                      Check Your Understanding
+                    </h2>
+                  </div>
+                  <LessonQuiz key={lesson.id} questions={lesson.quiz!.slice(0, 4)} onCompletion={handleLessonCompletion} onNext={onNext} />
+                </div>
+              )}
+
+              {/* Bottom spacing */}
+              <div className="h-4" />
+            </div>
+          </div>
         </div>
-      </div>
-      </div>
 
-      {/* Table of Contents - Right Sidebar */}
-      {tocItems.length > 0 && (
-        <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 sticky top-0 bg-[#FAFAFA] rounded-2xl p-6 shadow-sm border border-gray-100/50">
-          <h3 className="text-[13px] font-extrabold text-gray-900 mb-6 tracking-tight uppercase">Table of contents</h3>
-          <div className="flex flex-col gap-4">
-            
-            {tocItems.map((item, idx) => {
-              const isMainHeading = item.type === 'section' || item.type === 'overview';
-              return (
-                <div key={idx} className="relative flex items-center">
-                  {/* The short yellow dash marker */}
-                  {isMainHeading && (
-                    <div className="absolute left-0 w-[3px] h-[18px] bg-[#FFC107] rounded-full" />
-                  )}
+        {/* Table of Contents - Right Sidebar */}
+        {tocItems.length > 0 && (
+          <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 sticky top-10 self-start">
+            <h3 className="text-[11px] font-extrabold text-gray-400 mb-4 tracking-widest uppercase px-2">Table of contents</h3>
+            <div className="flex flex-col relative border-l border-gray-200 ml-2">
+
+              {tocItems.map((item, idx) => {
+                const isMainHeading = true; // all blocks are at the same level
+                const isActive = activeId === item.id;
+
+                return (
+                  <div key={idx} className="relative flex items-center">
+                    <button
+                      onClick={() => {
+                        const el = document.getElementById(item.id);
+                        if (el) {
+                          const y = el.getBoundingClientRect().top + window.scrollY - 100;
+                          window.scrollTo({ top: y, behavior: 'smooth' });
+                        }
+                      }}
+                      className={`text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full
+                      ${isActive
+                          ? 'border-gray-900 text-gray-900 font-extrabold'
+                          : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium'
+                        }
+                      ${isMainHeading ? 'pl-4 text-[13.5px]' : 'pl-6 text-[12.5px]'}
+                    `}
+                    >
+                      {item.title}
+                    </button>
+                  </div>
+                );
+              })}
+              {hasQuiz && (
+                <div className="relative flex items-center mt-2">
                   <button
                     onClick={() => {
-                      const el = document.getElementById(item.id);
+                      const el = document.getElementById("lesson-quiz-section");
                       if (el) {
-                        const y = el.getBoundingClientRect().top + window.scrollY - 120;
+                        const y = el.getBoundingClientRect().top + window.scrollY - 100;
                         window.scrollTo({ top: y, behavior: 'smooth' });
                       }
                     }}
-                    className={`text-left transition-colors ${
-                      isMainHeading 
-                        ? 'pl-4 text-[14px] font-bold text-gray-900 hover:text-[#E0A800] leading-snug' 
-                        : 'pl-4 text-[13px] font-medium text-gray-500 hover:text-[#E0A800] leading-snug'
-                    }`}
+                    className={`text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeId === "lesson-quiz-section"
+                        ? 'border-gray-900 text-gray-900 font-extrabold'
+                        : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium'
+                      }`}
                   >
-                    {item.title}
+                    Check Your Understanding
                   </button>
                 </div>
-              );
-            })}
-            {hasQuiz && (
-              <div className="relative flex items-center">
-                <div className="absolute left-0 w-[3px] h-[18px] bg-[#FFC107] rounded-full" />
-                <button
-                  onClick={() => {
-                    const el = document.getElementById("lesson-quiz-section");
-                    if (el) {
-                      const y = el.getBoundingClientRect().top + window.scrollY - 120;
-                      window.scrollTo({ top: y, behavior: 'smooth' });
-                    }
-                  }}
-                  className="text-left pl-4 text-[14px] font-bold text-gray-900 hover:text-[#E0A800] transition-colors leading-snug"
-                >
-                  Check Your Understanding
-                </button>
-              </div>
-            )}
-          </div>
-        </aside>
-      )}
+              )}
+            </div>
+          </aside>
+        )}
 
-    </div>
+      </div>
+    </FloatingSelectionManager>
   );
 }
 

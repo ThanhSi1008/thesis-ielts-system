@@ -21,7 +21,11 @@ export function calcScore(
       const raw = (answers[key] as unknown as string) ?? "";
       const selected = raw ? raw.split(",").map((x) => x.toUpperCase()) : [];
       const correct = new Set(answers_arr.map((a) => a.toUpperCase()));
-      if (selected.length === correct.size && selected.every((x) => correct.has(x))) s++;
+      let matchCount = 0;
+      selected.forEach((x) => {
+        if (correct.has(x)) matchCount++;
+      });
+      s += matchCount;
     } else if (g.type === "table") {
       const rows = (g as unknown as TableGroup).rows;
       rows.forEach((row) => {

@@ -77,5 +77,21 @@ export default async function ExercisesPage({
     }
   }
 
-  return <ClientExerciseListGroup groups={groups} skill={params.skill} />;
+  return (
+    <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-gray-100 p-6 lg:p-8">
+      <div className="flex flex-col items-start mb-8 pb-4 border-b border-gray-100">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
+          <Link href="/ielts/basic/library" className="hover:text-gray-900 transition-colors px-1">Library</Link>
+          <span className="opacity-30">/</span>
+          <span className="px-1 text-gray-300">{skillCapitalized}</span>
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          {skillCapitalized} Exercises
+        </h1>
+      </div>
+      <div className="flex-1 overflow-y-auto pr-2">
+        <ClientExerciseListGroup groups={groups} skill={params.skill} />
+      </div>
+    </div>
+  );
 }

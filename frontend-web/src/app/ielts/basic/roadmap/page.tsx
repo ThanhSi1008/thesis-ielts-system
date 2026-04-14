@@ -36,7 +36,12 @@ export default function RoadmapDashboard() {
       }
       
       if (nextItem) {
-        const idParam = nextItem.type === 'lesson' ? `lessonId=${nextItem.id}` : `exerciseId=${nextItem.id}`;
+        let idParam: string;
+        if (nextItem.type === 'lesson') {
+          idParam = `lessonId=${nextItem.id}`;
+        } else {
+          idParam = `exerciseId=${nextItem.id}${nextItem.lessonId ? `&lessonId=${nextItem.lessonId}` : ''}`;
+        }
         router.push(`/ielts/basic/roadmap?type=${nextItem.type}&skill=${nextItem.skill.toLowerCase()}&${idParam}`);
       }
     } catch (err) {

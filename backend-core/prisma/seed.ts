@@ -4726,6 +4726,22 @@ async function main() {
     }
   });
 
+  // Ensure every user has a 'Default' deck
+  const allUsers = await prisma.user.findMany();
+  for (const u of allUsers) {
+    const defaultDeck = await prisma.deck.findFirst({
+      where: { userId: u.id, name: 'Default' }
+    });
+    if (!defaultDeck) {
+      await prisma.deck.create({
+        data: {
+          userId: u.id,
+          name: 'Default'
+        }
+      });
+    }
+  }
+
 
   const vocabCount = await prisma.vocabularyBook.count();
   const unitCount = await prisma.vocabularyUnit.count();

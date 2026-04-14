@@ -628,6 +628,7 @@ model IeltsSkill {
   lessons            IeltsLesson[]
   listeningExercises IeltsListeningExercise[]
   readingExercises   IeltsReadingExercise[]
+  writingExercises   IeltsWritingExercise[]
   createdAt          DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
 
@@ -648,6 +649,7 @@ model IeltsLesson {
   skill              IeltsSkill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
   listeningExercises IeltsListeningExercise[]
   readingExercises   IeltsReadingExercise[]
+  writingExercises   IeltsWritingExercise[]
   progress           IeltsBasicProgress[]
 
   @@map("ielts_lessons")
@@ -699,6 +701,7 @@ model IeltsBasicProgress {
   lessonId            String?
   listeningExerciseId String?
   readingExerciseId   String?
+  writingExerciseId   String?
   isCompleted         Boolean  @default(false)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -707,8 +710,29 @@ model IeltsBasicProgress {
   lesson            IeltsLesson?            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   listeningExercise IeltsListeningExercise? @relation(fields: [listeningExerciseId], references: [id], onDelete: Cascade)
   readingExercise   IeltsReadingExercise?   @relation(fields: [readingExerciseId], references: [id], onDelete: Cascade)
+  writingExercise   IeltsWritingExercise?   @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, lessonId, listeningExerciseId, readingExerciseId], name: "user_item_unique")
+  @@unique([userId, lessonId, listeningExerciseId, readingExerciseId, writingExerciseId], name: "user_item_unique")
   @@map("ielts_basic_progress")
+}
+
+model IeltsWritingExercise {
+  id           String      @id @default(uuid())
+  skillId      String
+  lessonId     String?
+  topic        String
+  instructions String?
+  prompt       String      @db.Text
+  diagramUrl   String?
+  modelAnswer  Json
+  order        Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress     IeltsBasicProgress[]
+
+  @@map("ielts_writing_exercises")
 }
 

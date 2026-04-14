@@ -368,7 +368,7 @@ export interface IeltsIntensiveCatalogResponse {
 export interface PracticeItem {
   id: string; // "examId-partNumber"
   examId: string;
-  testTitle: string; 
+  testTitle: string;
   partNumber: number;
   partType: string; // e.g. "Basic Conversation"
   topic: string; // e.g. "Cookery Classes"
@@ -397,6 +397,23 @@ export interface ExamDetail {
   questions: any;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface IeltsWritingExercise {
+  id: string;
+  skillId: string;
+  lessonId?: string;
+  topic: string;
+  instructions?: string;
+  prompt: string;
+  diagramUrl?: string;
+  modelAnswer: {
+    intro?: string;
+    overview?: string;
+    body1?: string;
+    body2?: string;
+  };
+  order: number;
 }
 
 export interface ExamSessionDetail {
