@@ -4,9 +4,16 @@ export default function IELTSHomePage() {
    return (
       <div className="bg-[url('https://res.cloudinary.com/dalaaegob/image/upload/v1769788980/8_ulba1f.png'),linear-gradient(#ededed,#ededed)] bg-cover w-full rounded-lg h-full pt-32 pb-12 min-h-screen font-sans">
          <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-4xl font-extrabold text-gray-600 text-center mb-6 uppercase tracking-wide">
-               YOUR IELTS LEARNING JOURNEY
-            </h2>
+            <div className="relative mb-6">
+               <h2 className="text-4xl font-extrabold text-gray-600 text-center uppercase tracking-wide">
+                  YOUR IELTS LEARNING JOURNEY
+               </h2>
+               <div className="absolute right-0 top-0">
+                  <Link href="/ielts/statistics" className="bg-gray-800 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors shadow-sm">
+                     [Dev] Statistics
+                  </Link>
+               </div>
+            </div>
             <div className="flex justify-center mb-4">
                <img src="https://demo2.pavothemes.com/gopet/wp-content/uploads/2021/11/h3_divider.png" alt="" className="h-2" />
             </div>
@@ -72,9 +79,30 @@ export default function IELTSHomePage() {
                   </div>
 
                   {/* STEP 3: Advanced IELTS (Lower Right) */}
-                  <div className="absolute top-[60%] -right-[115%] w-64 text-left">
-                     <div className="flex items-center gap-4">
-                        <h3 className="text-xl font-extrabold text-warning uppercase">Advanced IELTS</h3>
+                  <div className="absolute top-[60%] -right-[100%] w-64 text-center">
+                     <div className="flex items-start justify-end gap-4">
+                        <div className="order-1">
+                           <h3 className="text-xl font-extrabold text-warning uppercase">Advanced IELTS</h3>
+                           <p className="text-warning text-sm font-medium mb-4 leading-relaxed">
+                              Practice to master each part of the the test
+                           </p>
+                           <Link
+                              href="/ielts/advanced"
+                              className="bg-warning text-white font-semibold py-2.5 px-7 rounded-full inline-flex items-center gap-2 hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-md group"
+                           >
+                              Get Started
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 strokeWidth={2.5}
+                              >
+                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                              </svg>
+                           </Link>
+                        </div>
                      </div>
                   </div>
 

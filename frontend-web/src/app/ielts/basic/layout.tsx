@@ -11,6 +11,20 @@ export default function IeltsBasicLayout({
 }) {
   const pathname = usePathname();
 
+  const isOnboarding = pathname === "/ielts/basic/onboarding";
+
+  if (isOnboarding) {
+    return (
+      <div className="min-h-[40vh] bg-[#F8F9FB] py-4 font-sans font-medium text-gray-800">
+        <div className="max-w-[1000px] mx-auto px-4 lg:px-8">
+          <main className="flex-1 flex flex-col min-w-0 min-h-[700px]">
+            {children}
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[40vh] bg-[#F8F9FB] py-4 font-sans font-medium text-gray-800">
       <div className="max-w-[1500px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row gap-6">

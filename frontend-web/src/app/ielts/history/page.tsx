@@ -218,6 +218,17 @@ function HistoryContent() {
                     </div>
                   )}
                 </div>
+
+                {/* Student/Teacher */}
+                <div className="pt-2">
+                  <Link
+                    href="/ielts/student-teacher"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Student/Teacher
+                  </Link>
+                </div>
               </div>
             </div>
           </aside>

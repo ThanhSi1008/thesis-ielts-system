@@ -4,11 +4,11 @@ import { Headphones, MapPin, MessageSquare, StickyNote, Check } from 'lucide-rea
 // ─── Form / Note Completion ───────────────────────────────────────────────────
 
 export interface FormPoint {
-  question_number: number;
+  question_number?: number;
   text: string;
-  answer: string;
+  answer?: string;
   timestamp_seconds?: number;
-  explanation: string;
+  explanation?: string;
 }
 
 export function FormCompletionGroup({
@@ -40,12 +40,14 @@ export function FormCompletionGroup({
 
   // Render text with a bordered box input (IELTS exam paper style)
   const renderBoxedText = (point: FormPoint) => {
-    const blankRegex = /\b(\d+)\s*\.{3,}/;
+    const blankRegex = /\b(\d+)\s*\.{3,}|\|G\|/;
     const match = point.text.match(blankRegex);
-    const userAnswer = (answers[point.question_number] as unknown as string) ?? "";
-    const isCorrect = submitted && userAnswer.trim().toLowerCase() === point.answer.trim().toLowerCase();
+    const qNum = point.question_number ?? 0;
+    const answerText = point.answer ?? "";
+    const userAnswer = (answers[qNum] as unknown as string) ?? "";
+    const isCorrect = submitted && userAnswer.trim().toLowerCase() === answerText.trim().toLowerCase();
 
-    if (!match) return <span>{point.text}</span>;
+    if (!match || !point.question_number) return <span>{point.text}</span>;
 
     const splitIdx = point.text.indexOf(match[0]);
     const before = point.text.slice(0, splitIdx).trimEnd();
@@ -68,15 +70,15 @@ export function FormCompletionGroup({
             }`}>{userAnswer || "—"}</span>
           ) : (
             <input
-              type="text"
+               type="text"
               value={userAnswer}
-              onChange={(e) => onAnswer(point.question_number, e.target.value)}
+              onChange={(e) => onAnswer(qNum, e.target.value)}
               className="outline-none bg-transparent text-gray-800 min-w-[60px] w-full font-medium caret-yellow-500"
             />
           )}
         </span>
         {submitted && !isCorrect && showAnswers && (
-          <span className="text-[12px] text-green-600 font-bold mx-1">({point.answer})</span>
+          <span className="text-[12px] text-green-600 font-bold mx-1">({answerText})</span>
         )}
         {after && <span> {after}</span>}
       </span>
@@ -89,23 +91,30 @@ export function FormCompletionGroup({
         <h3 className="text-[15px] font-extrabold text-gray-900 mb-4">{heading}</h3>
       )}
 
-      <ul className="space-y-3 pl-1">
-        {points.map((point) => (
-          <li
-            id={`question-${point.question_number}`}
-            key={point.question_number}
-            className="flex items-start gap-2.5 text-[14px] text-gray-800"
-          >
-            <span className="mt-[9px] w-1.5 h-1.5 rounded-full bg-gray-500 shrink-0" />
-            <div className="flex-1 leading-loose">{renderBoxedText(point)}</div>
-          </li>
-        ))}
+      <ul className="space-y-4 pl-1">
+        {points.map((point, idx) => {
+          const isHeader = !point.question_number;
+          return (
+            <li
+              id={point.question_number ? `question-${point.question_number}` : `heading-${idx}`}
+              key={point.question_number || `h-${idx}`}
+              className={`flex items-start gap-2.5 text-[14px] ${isHeader ? "mt-6 first:mt-0" : ""}`}
+            >
+              {!isHeader && (
+                <span className="mt-[9px] w-1.5 h-1.5 rounded-full bg-gray-500 shrink-0" />
+              )}
+              <div className={`flex-1 leading-loose ${isHeader ? "text-[15px] font-bold text-gray-900" : "text-gray-800"}`}>
+                {renderBoxedText(point)}
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
       {/* Action buttons per question */}
       {showAnswers && (
         <div className="mt-3 space-y-2">
-          {points.map((point) => (
+          {points.filter(p => !!p.question_number).map((point) => (
             <div key={point.question_number} className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{point.question_number}</span>
               <button onClick={() => seekTo(point.timestamp_seconds)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">

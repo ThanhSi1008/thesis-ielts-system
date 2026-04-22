@@ -35,6 +35,10 @@ model User {
   shadowingDictationProgress ShadowingDictationProgress[]
   ieltsBasicProgress         IeltsBasicProgress[]
   ieltsWritingAnswers        IeltsWritingUserAnswer[]
+  ieltsPracticeSessions      IeltsPracticeSession[]
+  ieltsProfile               IeltsProfile?
+  teacherLinks               StudentTeacherLink[] @relation("StudentLinks")
+  studentLinks               StudentTeacherLink[] @relation("TeacherLinks")
 
   @@map("users")
 }
@@ -755,3 +759,76 @@ model IeltsWritingUserAnswer {
   @@unique([userId, writingExerciseId])
   @@map("ielts_writing_user_answers")
 }
+
+// ============================================================
+// IELTS ADVANCED PRACTICE
+// ============================================================
+
+model IeltsPracticeListeningPart {
+  id             String   @id @default(uuid())
+  title          String   // e.g. "Cambridge 20 Test 4 - Listening Part 1"
+  partNumber     Int      // 1, 2, 3, 4
+  audioUrl       String
+  transcript     Json     // Speaker and text segments
+  content        Json     // Structure array using basic component types
+  questionTypes  String[] // e.g., ["form_completion", "multiple_choice"]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sessions       IeltsPracticeSession[]
+
+  @@map("ielts_practice_listening_parts")
+}
+
+model IeltsPracticeSession {
+  id             String   @id @default(uuid())
+  userId         String
+  partId         String
+  answers        Json     // User's submitted answers
+  scoreData      Json     // Detailed struct tracking correct/total by question type
+                           // e.g. {"form_completion": {"correct": 0, "total": 10}, "multiple_choice": ...}
+  totalScore     Int
+  totalQuestions Int
+  createdAt      DateTime @default(now())
+
+  part           IeltsPracticeListeningPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ielts_practice_sessions")
+}
+
+model IeltsProfile {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+
+  targetBand          Float?
+  dailyCommitmentMins Int?     @default(30)
+  placementScore      Int?
+  onboardingCompleted Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ielts_profiles")
+}
+
+// ============================================================
+// STUDENT-TEACHER LINKING
+// ============================================================
+
+model StudentTeacherLink {
+  id        String   @id @default(uuid())
+  studentId String
+  teacherId String
+  status    String   @default("LINKED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student   User @relation("StudentLinks", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher   User @relation("TeacherLinks", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, teacherId])
+  @@map("student_teacher_links")
+}
+

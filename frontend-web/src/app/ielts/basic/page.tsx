@@ -15,7 +15,11 @@ export default function IeltsBasicPreparationPage() {
 
   const fetchRoadmap = async () => {
     try {
-      const res = await api.get<{ steps: RoadmapStep[]; currentStep: number }>("/ielts/roadmap");
+      const res = await api.get<{ steps: RoadmapStep[]; currentStep: number; requiresOnboarding?: boolean }>("/ielts/roadmap");
+      if (res.data.requiresOnboarding) {
+        router.push("/ielts/basic/onboarding");
+        return; // wait here, do not set loading to false yet
+      }
       setSteps(res.data.steps);
       setCurrentStep(res.data.currentStep);
     } catch (err) {

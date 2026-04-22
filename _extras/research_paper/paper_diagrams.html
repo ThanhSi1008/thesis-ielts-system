@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Master AI — Architecture Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #1a237e; border-bottom: 3px solid #1a237e; padding-bottom: 10px; }
+        h2 { color: #283593; margin-top: 50px; }
+        .diagram-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid #1565c0;
+            padding: 12px 16px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+    <h1>IELTS Master AI — Architecture Diagrams for Research Paper</h1>
+    <p class="note">
+        <strong>Instructions:</strong> Open this file in a browser, then right-click each diagram → "Save image as" to export as PNG for your paper.
+        Alternatively, screenshot each diagram section.
+    </p>
+
+    <!-- ============================================================ -->
+    <h2>Figure 1: System Architecture Overview</h2>
+    <!-- ============================================================ -->
+    <div class="diagram-container">
+        <pre class="mermaid">
+graph TB
+    subgraph CLIENT["Client Layer"]
+        direction LR
+        WEB["🌐 Web Portal<br/>(Next.js 14 + TypeScript)"]
+        MOBILE["📱 Mobile App<br/>(React Native / Expo)"]
+    end
+
+    subgraph APP["Application Layer (K3s Kubernetes on GCP)"]
+        direction TB
+        
+        subgraph CORE["Core Backend (NestJS)"]
+            direction LR
+            AUTH["Auth Module<br/>(JWT + Guards)"]
+            EXAM["Exam Module<br/>(4-skill grading)"]
+            IELTS["IELTS Module<br/>(Basic + Advanced)"]
+            VOCAB["Vocab Lab<br/>(SM-2 SRS)"]
+            SHADOW["Shadowing<br/>Module"]
+            GRAMMAR["Grammar<br/>Module"]
+            PRON["Pronunciation<br/>Module"]
+        end
+
+        MQ["🐰 RabbitMQ<br/>(Message Broker)"]
+
+        subgraph AI["AI Service (FastAPI + Python)"]
+            direction LR
+            WHISPER["Faster-Whisper<br/>(Local STT)"]
+            LLM["LLM Grader<br/>(Llama 3.3 70B)"]
+            LEVIN["Levenshtein<br/>Scorer"]
+        end
+    end
+
+    subgraph DATA["Data Layer"]
+        direction LR
+        PG["🐘 PostgreSQL 16<br/>(35+ models via Prisma)"]
+        REDIS["⚡ Redis 7<br/>(Cache + Sessions)"]
+        MINIO["📦 MinIO / GCS<br/>(Audio + Media)"]
+    end
+
+    WEB --> CORE
+    MOBILE --> CORE
+    CORE -- "Publish Tasks" --> MQ
+    MQ -- "Consume Tasks" --> AI
+    AI -- "Direct DB Write" --> PG
+    CORE --> PG
+    CORE --> REDIS
+    CORE --> MINIO
+    AI --> MINIO
+
+    style CLIENT fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    style APP fill:#FFF3E0,stroke:#E65100,stroke-width:2px
+    style CORE fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
+    style AI fill:#FCE4EC,stroke:#C62828,stroke-width:2px
+    style DATA fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
+    style MQ fill:#FFF9C4,stroke:#F57F17,stroke-width:2px
+        </pre>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>Figure 3: AI Grading Pipeline</h2>
+    <!-- ============================================================ -->
+    <div class="diagram-container">
+        <pre class="mermaid">
+sequenceDiagram
+    participant U as Student
+    participant FE as Frontend<br/>(Next.js)
+    participant BE as Core Backend<br/>(NestJS)
+    participant MQ as RabbitMQ
+    participant AI as AI Service<br/>(FastAPI)
+    participant DB as PostgreSQL
+
+    Note over U,DB: Writing Grading Flow (Synchronous)
+    U->>FE: Submit Writing Exam
+    FE->>BE: POST /exams/sessions/:id/submit
+    BE->>BE: Grade Listening/Reading<br/>(deterministic)
+    BE->>AI: POST /api/v1/writing/grade
+    AI->>AI: LLM Inference<br/>(Llama 3.3 70B, ~10s)
+    AI-->>BE: JSON{criteria, bands, mistakes}
+    BE->>DB: Save result + feedback
+    BE-->>FE: Return complete result
+    FE-->>U: Display scores & feedback
+
+    Note over U,DB: Pronunciation Check Flow (Asynchronous)
+    U->>FE: Record pronunciation
+    FE->>BE: POST /pronunciation/attempt
+    BE->>DB: Create attempt (PENDING)
+    BE->>MQ: Publish to pronunciation-check-queue
+    BE-->>FE: Return attemptId immediately
+    MQ->>AI: Consume task
+    AI->>AI: Download audio from MinIO
+    AI->>AI: Whisper transcription (~3s)
+    AI->>AI: Levenshtein scoring
+    AI->>DB: UPDATE attempt (COMPLETED)
+    FE->>BE: Poll GET /pronunciation/attempt/:id
+    BE-->>FE: Return score + feedback
+    FE-->>U: Display result
+        </pre>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>Figure 4: Deployment Architecture</h2>
+    <!-- ============================================================ -->
+    <div class="diagram-container">
+        <pre class="mermaid">
+graph TB
+    subgraph DEV["Local Development (Docker Compose)"]
+        direction TB
+        DC_PG["PostgreSQL 16<br/>:5433"]
+        DC_REDIS["Redis 7<br/>:6379"]
+        DC_MQ["RabbitMQ 3<br/>:5672 / :15672"]
+        DC_MINIO["MinIO<br/>:9000 / :9001"]
+        DC_PGA["PgAdmin 4<br/>:5050"]
+    end
+
+    subgraph PROD["Production (GCP + K3s Kubernetes)"]
+        direction TB
+        TRAEFIK["Traefik Ingress<br/>(SSL + Routing)"]
+        
+        subgraph PODS["Kubernetes Pods"]
+            direction LR
+            P_CORE["Core Backend<br/>Deployment"]
+            P_AI["AI Service<br/>Deployment"]
+            P_WEB["Frontend<br/>Deployment"]
+        end
+        
+        subgraph INFRA["Managed Services"]
+            direction LR
+            GCS["Google Cloud<br/>Storage"]
+            SQL["Cloud SQL<br/>(PostgreSQL)"]
+        end
+        
+        subgraph K8S_RES["K8s Resources"]
+            direction LR
+            CM["ConfigMaps"]
+            SEC["Secrets"]
+            NS["Namespaces"]
+            SVC["Services"]
+        end
+    end
+
+    TRAEFIK --> PODS
+    PODS --> INFRA
+    K8S_RES -.-> PODS
+
+    style DEV fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
+    style PROD fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
+    style PODS fill:#FFF3E0,stroke:#E65100,stroke-width:2px
+    style INFRA fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
+    style K8S_RES fill:#FFF9C4,stroke:#F57F17,stroke-width:1px
+        </pre>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>Figure 2: Entity-Relationship Diagram (Key Entities)</h2>
+    <!-- ============================================================ -->
+    <div class="diagram-container">
+        <pre class="mermaid">
+erDiagram
+    User ||--o{ ExamSession : "takes"
+    User ||--o{ Deck : "owns"
+    User ||--o{ IeltsBasicProgress : "tracks"
+    User ||--o{ PronunciationAttempt : "records"
+    User ||--o{ ShadowingDictationProgress : "completes"
+    User ||--|| IeltsProfile : "has"
+    
+    Exam ||--o{ ExamSession : "has"
+    ExamSession ||--|| Result : "produces"
+    
+    IeltsSkill ||--o{ IeltsLesson : "contains"
+    IeltsLesson ||--o{ IeltsListeningExercise : "has"
+    IeltsLesson ||--o{ IeltsReadingExercise : "has"
+    
+    Deck ||--o{ Flashcard : "contains"
+    Flashcard ||--o{ FlashcardReview : "reviewed_in"
+    Flashcard }o--|| CardType : "uses"
+    CardType ||--o{ CardTypeField : "defines"
+    CardType ||--o{ CardTemplate : "renders_with"
+    
+    VocabularyBook ||--o{ VocabularyUnit : "contains"
+    VocabularyUnit ||--o{ VocabularyWord : "has"
+    VocabularyUnit ||--o{ VocabularyExercise : "has"
+    
+    GrammarBook ||--o{ GrammarUnit : "contains"
+    GrammarUnit ||--o{ GrammarExercise : "has"
+    
+    ShadowingVideo ||--o{ ShadowingDictationProgress : "tracked_by"
+
+    User {
+        string id PK
+        string email
+        string name
+        enum role "STUDENT | ADMIN | INSTRUCTOR"
+    }
+    
+    ExamSession {
+        string id PK
+        enum status "IN_PROGRESS | SUBMITTED | GRADING | COMPLETED"
+        json answers
+        datetime startedAt
+        datetime submittedAt
+    }
+    
+    Flashcard {
+        string id PK
+        string front
+        string back
+        float easeFactor "default 2.5"
+        int interval "days"
+        int repetition
+        enum cardState "NEW | LEARNING | REVIEW"
+        datetime nextReviewDate
+    }
+    
+    PronunciationAttempt {
+        string id PK
+        string targetWord
+        string transcribedText
+        int score "0-100"
+        enum status "PENDING | PROCESSING | COMPLETED | FAILED"
+    }
+        </pre>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>SM-2 Algorithm Flowchart</h2>
+    <!-- ============================================================ -->
+    <div class="diagram-container">
+        <pre class="mermaid">
+flowchart TD
+    START["Card shown to user"] --> RATE["User rates: q ∈ {0,1,2,3,4,5}"]
+    RATE --> CALC["Update EF: EF' = EF + (0.1 - (5-q) × (0.08 + (5-q) × 0.02))"]
+    CALC --> CHECK_EF{"EF' < 1.3?"}
+    CHECK_EF -- Yes --> SET_MIN["EF' = 1.3"]
+    CHECK_EF -- No --> QUALITY
+    SET_MIN --> QUALITY{"q < 3?"}
+    
+    QUALITY -- "Yes (Failed)" --> RESET["repetition = 0<br/>interval = 1 day<br/>state = LEARNING"]
+    QUALITY -- "No (Passed)" --> REP_CHECK{"repetition?"}
+    
+    REP_CHECK -- "0" --> INT1["interval = 1 day"]
+    REP_CHECK -- "1" --> INT6["interval = 6 days"]
+    REP_CHECK -- ">1" --> INT_CALC["interval = interval × EF'"]
+    
+    INT1 --> INC_REP["repetition++"]
+    INT6 --> INC_REP
+    INT_CALC --> INC_REP
+    
+    INC_REP --> STATE_CHECK{"repetition > 1?"}
+    STATE_CHECK -- Yes --> REVIEW_STATE["state = REVIEW"]
+    STATE_CHECK -- No --> LEARNING_STATE["state = LEARNING"]
+    
+    RESET --> SCHEDULE["Schedule next review"]
+    REVIEW_STATE --> SCHEDULE
+    LEARNING_STATE --> SCHEDULE
+    SCHEDULE --> END["Save to database"]
+
+    style START fill:#E3F2FD,stroke:#1565C0
+    style END fill:#E8F5E9,stroke:#2E7D32
+    style QUALITY fill:#FFF3E0,stroke:#E65100
+    style RESET fill:#FFEBEE,stroke:#C62828
+        </pre>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'default',
+            flowchart: { useMaxWidth: true, htmlLabels: true },
+            sequence: { useMaxWidth: true }
+        });
+    </script>
+</body>
+</html>

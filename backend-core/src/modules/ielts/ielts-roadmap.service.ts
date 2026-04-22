@@ -23,7 +23,15 @@ export interface RoadmapStep {
 export class IeltsRoadmapService {
   constructor(private prisma: PrismaService) { }
 
-  async generateRoadmap(userId: string): Promise<{ steps: RoadmapStep[]; currentStep: number }> {
+  async generateRoadmap(userId: string): Promise<{ steps: RoadmapStep[]; currentStep: number; requiresOnboarding?: boolean }> {
+    const profile = await this.prisma.ieltsProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!profile || !profile.onboardingCompleted) {
+      return { steps: [], currentStep: 1, requiresOnboarding: true };
+    }
+
     const skills = await this.prisma.ieltsSkill.findMany({
       orderBy: { order: 'asc' },
     });
@@ -44,7 +52,6 @@ export class IeltsRoadmapService {
 
     // Queues of items for each skill
     const queues: Record<string, RoadmapItem[]> = {};
-    let maxQueueLength = 0;
 
     for (const skill of skills) {
       const q: RoadmapItem[] = [];
@@ -102,47 +109,71 @@ export class IeltsRoadmapService {
       }
 
       queues[skill.name] = q;
-      if (q.length > maxQueueLength) {
-        maxQueueLength = q.length;
+    }
+
+    const dailyMinutes = profile.dailyCommitmentMins || 30;
+    const steps: RoadmapStep[] = [];
+    let currentStepNum = 1;
+
+    // Flatten all queues into a single linear queue, taking one from each skill in turn
+    const flattenedQueue: RoadmapItem[] = [];
+    let hasMore = true;
+    let i = 0;
+    while (hasMore) {
+      hasMore = false;
+      for (const skillName of Object.keys(queues)) {
+        if (i < queues[skillName].length) {
+          flattenedQueue.push(queues[skillName][i]);
+          hasMore = true;
+        }
+      }
+      i++;
+    }
+
+    // Now chunk the flattenedQueue by time
+    let currentStepItems: RoadmapItem[] = [];
+    let currentStepMins = 0;
+
+    for (const item of flattenedQueue) {
+      const itemMins = item.type === 'lesson' ? 10 : 15;
+
+      if (currentStepItems.length > 0 && currentStepMins + itemMins > dailyMinutes) {
+        // Step is full, push it and start a new one
+        steps.push({
+          step: currentStepNum++,
+          items: currentStepItems,
+          isLocked: false,
+          isCompleted: false,
+        });
+        currentStepItems = [item];
+        currentStepMins = itemMins;
+      } else {
+        // Add to current step
+        currentStepItems.push(item);
+        currentStepMins += itemMins;
       }
     }
 
-    // Zip into steps
-    const steps: RoadmapStep[] = [];
-    let currentStep = 1;
-
-    for (let i = 0; i < maxQueueLength; i++) {
-      const stepItems: RoadmapItem[] = [];
-
-      for (const skillName of Object.keys(queues)) {
-        if (i < queues[skillName].length) {
-          stepItems.push(queues[skillName][i]);
-        }
-      }
-
+    if (currentStepItems.length > 0) {
       steps.push({
-        step: i + 1,
-        items: stepItems,
+        step: currentStepNum++,
+        items: currentStepItems,
         isLocked: false,
         isCompleted: false,
       });
     }
 
     // Apply sequential step-level locking:
-    // A step is unlocked only when the previous step is fully completed.
-    // Within an unlocked step, items unlock one-at-a-time sequentially.
     let previousStepCompleted = true; // Step 1 is always unlocked
 
     for (const step of steps) {
       if (!previousStepCompleted) {
-        // This whole step is locked
         step.isLocked = true;
         step.isCompleted = false;
         step.items.forEach((item) => (item.isLocked = true));
         continue;
       }
 
-      // Step is reachable — unlock items one-at-a-time within the step
       step.isLocked = false;
       let stepFullyCompleted = true;
       let foundIncomplete = false;
@@ -165,10 +196,80 @@ export class IeltsRoadmapService {
     }
 
     // Current step is the first step containing an unlocked, incomplete item.
-    // If all are completed, default to the last step.
     const activeStep = steps.find((s) => s.items.some((item) => !item.isLocked && !item.isCompleted));
-    currentStep = activeStep ? activeStep.step : (steps.length > 0 ? steps[steps.length - 1].step : 1);
+    let currentStep = activeStep ? activeStep.step : (steps.length > 0 ? steps[steps.length - 1].step : 1);
 
     return { steps, currentStep };
+  }
+
+  async processOnboarding(
+    userId: string,
+    data: { targetBand: number; dailyCommitmentMins: number; takePlacement: boolean; placementScore?: number }
+  ) {
+    await this.prisma.ieltsProfile.upsert({
+      where: { userId },
+      update: {
+        targetBand: data.targetBand,
+        dailyCommitmentMins: data.dailyCommitmentMins,
+        placementScore: data.placementScore,
+        onboardingCompleted: true,
+      },
+      create: {
+        userId,
+        targetBand: data.targetBand,
+        dailyCommitmentMins: data.dailyCommitmentMins,
+        placementScore: data.placementScore,
+        onboardingCompleted: true,
+      },
+    });
+
+    if (data.takePlacement && data.placementScore && data.placementScore > 80) {
+      // Find the first few lessons and mark them completed
+      const basicLessons = await this.prisma.ieltsLesson.findMany({
+        orderBy: { order: 'asc' },
+        take: 3, // Completing first 3 basic lessons
+      });
+
+      for (const lesson of basicLessons) {
+        let existing = await this.prisma.ieltsBasicProgress.findFirst({
+          where: { userId, lessonId: lesson.id }
+        });
+        if (existing) {
+          await this.prisma.ieltsBasicProgress.update({ where: { id: existing.id }, data: { isCompleted: true } });
+        } else {
+          await this.prisma.ieltsBasicProgress.create({ data: { userId, lessonId: lesson.id, isCompleted: true } });
+        }
+
+        const listeningExercises = await this.prisma.ieltsListeningExercise.findMany({
+          where: { lessonId: lesson.id },
+        });
+        for (const ex of listeningExercises) {
+          let existingEx = await this.prisma.ieltsBasicProgress.findFirst({
+            where: { userId, listeningExerciseId: ex.id }
+          });
+          if (existingEx) {
+            await this.prisma.ieltsBasicProgress.update({ where: { id: existingEx.id }, data: { isCompleted: true } });
+          } else {
+            await this.prisma.ieltsBasicProgress.create({ data: { userId, listeningExerciseId: ex.id, isCompleted: true } });
+          }
+        }
+        
+        const readingExercises = await this.prisma.ieltsReadingExercise.findMany({
+          where: { lessonId: lesson.id },
+        });
+        for (const ex of readingExercises) {
+          let existingEx = await this.prisma.ieltsBasicProgress.findFirst({
+            where: { userId, readingExerciseId: ex.id }
+          });
+          if (existingEx) {
+            await this.prisma.ieltsBasicProgress.update({ where: { id: existingEx.id }, data: { isCompleted: true } });
+          } else {
+            await this.prisma.ieltsBasicProgress.create({ data: { userId, readingExerciseId: ex.id, isCompleted: true } });
+          }
+        }
+      }
+    }
+
+    return { success: true };
   }
 }
