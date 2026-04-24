@@ -232,7 +232,7 @@ export interface Lesson {
 
 // ==================== VOCAB LAB (SM-2 Flashcards) ====================
 
-export type CardState = 'NEW' | 'LEARNING' | 'REVIEW';
+export type CardState = 'NEW' | 'LEARNING' | 'REVIEW' | 'RELEARNING';
 
 // Per-field visual style
 export interface FieldStyle {
@@ -306,10 +306,16 @@ export interface Flashcard {
   front: string;
   back: string;
   tags: string[];
-  interval: number;
-  repetition: number;
-  easeFactor: number;
-  nextReviewDate: string;
+  // FSRS scheduling fields
+  due: string;
+  stability: number;
+  difficulty: number;
+  elapsedDays: number;
+  scheduledDays: number;
+  reps: number;
+  lapses: number;
+  lastReview?: string;
+  nextReviewDate: string; // Keeping for backward compatibility
   cardState: CardState;
   cardTypeId?: string | null;
   cardType?: CardType | null;
@@ -327,7 +333,7 @@ export interface StudyCard extends Flashcard {
 
 export interface SubmitReviewRequest {
   flashcardId: string;
-  rating: number; // 0=Again, 3=Hard, 4=Good, 5=Easy
+  rating: number; // 1=Again, 2=Hard, 3=Good, 4=Easy
 }
 
 export interface VocabLabStats {

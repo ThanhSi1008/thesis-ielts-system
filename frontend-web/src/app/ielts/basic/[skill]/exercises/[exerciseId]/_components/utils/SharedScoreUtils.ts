@@ -44,6 +44,7 @@ export function calcScore(
       });
     } else if (!g.type && Array.isArray((g as any).points)) {
       ((g as any).points as FormPoint[]).forEach((p) => {
+        if (!p.question_number || !p.answer) return;
         const userAns = (answers[p.question_number] as unknown as string ?? "").trim().toLowerCase();
         if (userAns === p.answer.trim().toLowerCase()) s++;
       });

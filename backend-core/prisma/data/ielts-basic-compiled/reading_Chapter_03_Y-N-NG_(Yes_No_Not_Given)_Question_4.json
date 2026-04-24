@@ -1,0 +1,59 @@
+{
+  "title": "Human Evolution",
+  "passage": "Over the course of time, members of the genus Homo have undergone a great deal of evolutionary change to morph into anatomically modern humans - members of the Homo sapiens species that have the physical features of modern humans. Today, it is commonly believed by the scientific community that earlier species of Homo sapiens evolved in eastern Africa around 200,000 years ago. In fact, the earliest anatomically modern human fossils were discovered there dating to about 195,000 years ago. Members of this species gradually migrated out of their African homeland and by 60,000 years ago one group had settled in Eurasia and the Middle East. This brought them in contact with another early human species that had previously left Africa, the Neanderthals. Some scientists believe that this interaction brought about violent clashes between the two groups, which eventually led to the extinction of the Neanderthals.\n\nHowever, separate evolution is probably a more likely explanation for their disappearance. Despite their shared heritage, these two groups of early humans had evolved quite differently, both physically and intellectually. In their time in more northerly climates, the Neanderthals had become broader, stronger, and more acclimated to cold than the early anatomically modern humans. In other words, they would have physically dominated the newly arrived Homo sapiens. However, differences in brain structure seemed to have had a bigger impact on the two species. Paleoanthropologist Chris Stringer says that Homo sapiens had larger frontal lobes, the area of the brain that produces abstract, creative thoughts, than Neanderthals. This would have allowed them to develop more efficient methods of hunting and gathering, as well as food processing techniques that saved energy. These more advanced skills would have given them enough of an advantage over the Neanderthals to prevail in the long term, and that appears to be what has happened.",
+  "passage_with_locations": [
+    "Over the course of time, members of the genus Homo have undergone a great deal of evolutionary change to morph into anatomically modern humans - members of the Homo sapiens species that have the physical features of modern humans. Today, it is commonly believed by the scientific community that earlier species of Homo sapiens evolved in eastern Africa around 200,000 years ago. In fact, the earliest anatomically modern human fossils were discovered there dating to about 195,000 years ago. ",
+    {
+      "question_number": 7,
+      "text": "Members of this species gradually migrated out of their African homeland and by 60,000 years ago one group had settled in Eurasia and the Middle East."
+    },
+    " This brought them in contact with another early human species that had previously left Africa, the Neanderthals. Some scientists believe that this interaction brought about violent clashes between the two groups, which eventually led to the extinction of the Neanderthals.\n\nHowever, separate evolution is probably a more likely explanation for their disappearance. Despite their shared heritage, ",
+    {
+      "question_number": 8,
+      "text": "these two groups of early humans had evolved quite differently, both physically and intellectually."
+    },
+    " In their time in more northerly climates, the Neanderthals had become broader, stronger, and more acclimated to cold than the early anatomically modern humans. In other words, they would have physically dominated the newly arrived Homo sapiens. However, differences in brain structure seemed to have had a bigger impact on the two species. Paleoanthropologist Chris Stringer says that Homo sapiens had larger frontal lobes, the area of the brain that produces abstract, creative thoughts, than Neanderthals. This would have allowed them to develop more efficient methods of hunting and gathering, as well as food processing techniques that saved energy. ",
+    {
+      "question_number": 9,
+      "text": "These more advanced skills would have given them enough of an advantage over the Neanderthals to prevail in the long term"
+    },
+    ", and that appears to be what has happened."
+  ],
+  "content": [
+    {
+      "type": "yes_no_not_given",
+      "questions": [
+        {
+          "question_number": 7,
+          "text": "Modern humans migrated to Africa from the Middle East.",
+          "answer": "NO",
+          "explanation": {
+            "keyword": "migrated / to Africa / from Middle East",
+            "rationale": "The passage states that modern humans evolved in Africa and 'gradually migrated out of their African homeland' to Eurasia and the Middle East. The claim that they migrated *to* Africa from the Middle East is the reverse of what actually happened.",
+            "distractor_analysis": "The statement completely reverses the direction of migration mentioned in the text, making the answer NO."
+          }
+        },
+        {
+          "question_number": 8,
+          "text": "Homo sapiens are intellectually superior to their evolutionary ancestors.",
+          "answer": "NOT GIVEN",
+          "explanation": {
+            "keyword": "intellectually superior / ancestors",
+            "rationale": "The writer notes that Homo sapiens and Neanderthals 'evolved quite differently... intellectually', and that Sapiens had larger frontal lobes. However, there is no mention or comparison of Sapiens' intellect relative to all their 'evolutionary ancestors'.",
+            "distractor_analysis": "The text only compares Sapiens to Neanderthals (a different species), not to their own ancestors, so the comparison is NOT GIVEN."
+          }
+        },
+        {
+          "question_number": 9,
+          "text": "The Neanderthals were less skilled than Homo sapiens.",
+          "answer": "YES",
+          "explanation": {
+            "keyword": "Neanderthals / less skilled",
+            "rationale": "The text explains that Homo sapiens had 'more advanced skills' which gave them 'enough of an advantage over the Neanderthals to prevail'. If Sapiens had more advanced skills, then Neanderthals were logically 'less skilled' in comparison.",
+            "distractor_analysis": "The statement matches the writer's comparison between the two species' skills and the resulting advantage, making the answer YES."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "title": "The Secrets of Biological Clocks",
+  "passage": "Animals have an internal mechanism that responds rhythmically to environmental cycles. A cycle can operate according to many different time frames, but the most obvious among them are those related to lunar phases, seasonal patterns, and the 24-hour cycle. The mechanism, called a biological clock, functions to make an animal aware of upcoming environmental events and to regulate when it sleeps, mates, and feeds. The kind of biological clock an organism has generally depends on its genetics rather than on external stimuli. Creatures such as crabs innately regulate their behaviours according to the rise and fall of the tides. Meanwhile, in areas of the world where there are dramatic changes in the length of the day and night as the weather gets colder, most animals are influenced by seasonal patterns. For instance, a brown bear's biological clock will perceive that the days are getting shorter as winter approaches and respond by eating large quantities of food before entering a state of hibernation.",
+  "passage_with_locations": [
+    "Animals have an internal mechanism that responds rhythmically to environmental cycles. A cycle can operate according to many different time frames, but the most obvious among them are those related to lunar phases, seasonal patterns, and the 24-hour cycle. The mechanism, called a biological clock, functions to make an animal aware of upcoming environmental events and to regulate when it sleeps, mates, and feeds. ",
+    {
+      "question_number": 3,
+      "text": "The kind of biological clock an organism has generally depends on its genetics rather than on external stimuli."
+    },
+    " ",
+    {
+      "question_number": 4,
+      "text": "Creatures such as crabs innately regulate their behaviours according to the rise and fall of the tides."
+    },
+    " Meanwhile, in areas of the world where there are dramatic changes in the length of the day and night as the weather gets colder, most animals are influenced by seasonal patterns. For instance, a brown bear's biological clock will perceive that the days are getting shorter as winter approaches and respond by eating large quantities of food before entering a state of hibernation."
+  ],
+  "content": [
+    {
+      "type": "short_answer",
+      "instruction": "Answer the questions below. Choose ONE WORD ONLY from the passage for each answer.",
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "What commonly determines the sort of biological clock animals have?",
+          "answer": "genetics",
+          "explanation": {
+            "keyword": "depends on, genetics",
+            "rationale": "The text states that the kind of biological clock an organism has 'generally depends on its genetics'. 'Generally depends on' is a paraphrase for 'commonly determines'.",
+            "distractor_analysis": "While external stimuli are mentioned, the passage explicitly says it depends on genetics *rather than* external stimuli."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "What causes some sea creatures to act differently according to its height?",
+          "answer": "tides",
+          "explanation": {
+            "keyword": "rise and fall, tides, height",
+            "rationale": "The passage mentions that crabs regulate their behaviours 'according to the rise and fall of the tides'. The 'rise and fall' refers to the height of the water.",
+            "distractor_analysis": "Crabs are an example of the sea creatures; the cause is the tides."
+          }
+        }
+      ]
+    }
+  ]
+}

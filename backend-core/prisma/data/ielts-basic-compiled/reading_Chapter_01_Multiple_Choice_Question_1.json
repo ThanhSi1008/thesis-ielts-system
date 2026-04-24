@@ -1,0 +1,80 @@
+{
+  "title": "The Mediterranean's History",
+  "passage": "Given that the Mediterranean Sea is in an extremely dry area of the world and that it receives the water from the Atlantic Ocean via the narrow Strait of Gibraltar, it is actually very vulnerable to evaporation. In fact, archeological evidence shows that global cooling about five million years ago caused parts of the Atlantic Ocean to freeze, resulting in the sea level dropping about 70 metres. This stemmed the flow of water from the Atlantic into the Strait of Gibraltar, thereby greatly reducing the amount of water the Mediterranean received. At the same time, the movement of tectonic plates resulted in Europe and Africa drawing closer to one another. This raised the land high enough to further block the Mediterranean from the Atlantic Ocean. It was not long before the warm water remaining in the Mediterranean Sea began to vanish, leaving behind nothing but salt.",
+  "passage_with_locations": [
+    "Given that the Mediterranean Sea is in an extremely dry area of the world and that it ",
+    {
+      "question_number": 1,
+      "text": "receives the water from the Atlantic Ocean via the narrow Strait of Gibraltar"
+    },
+    ", it is actually very vulnerable to evaporation. In fact, archeological evidence shows that global cooling about five million years ago caused parts of the Atlantic Ocean to freeze, ",
+    {
+      "question_number": 2,
+      "text": "resulting in the sea level dropping about 70 metres"
+    },
+    ". This stemmed the flow of water from the Atlantic into the Strait of Gibraltar, thereby greatly reducing the amount of water the Mediterranean received. At the same time, the movement of tectonic plates resulted in Europe and Africa drawing closer to one another. This raised the land high enough to further block the Mediterranean from the Atlantic Ocean. It was not long before the warm water remaining in the Mediterranean Sea began to vanish, leaving behind nothing but salt."
+  ],
+  "content": [
+    {
+      "type": "multiple_choice",
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "What is said about the Strait of Gibraltar?",
+          "options": [
+            {
+              "letter": "A",
+              "text": "It has a maximum depth of about 70 metres."
+            },
+            {
+              "letter": "B",
+              "text": "It froze over during an era of global cooling."
+            },
+            {
+              "letter": "C",
+              "text": "It evaporated due to tectonic plate movement."
+            },
+            {
+              "letter": "D",
+              "text": "It conveys water from the ocean into the sea."
+            }
+          ],
+          "answer": "D",
+          "explanation": {
+            "keyword": "Strait of Gibraltar",
+            "rationale": "The passage states that the Mediterranean receives water *via* (through) the Strait of Gibraltar. 'Conveys water from the ocean into the sea' is a direct paraphrase of this function.",
+            "distractor_analysis": "Option A confuses the 70-metre sea level drop with depth. Option B incorrectly implies the Strait froze, whereas the passage says parts of the Atlantic froze. Option C claims the Strait evaporated, but the passage says the Mediterranean Sea vanished/evaporated after being blocked."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "What diminished the amount of water the Mediterranean Sea received from the Atlantic Ocean?",
+          "options": [
+            {
+              "letter": "A",
+              "text": "A period of dry weather"
+            },
+            {
+              "letter": "B",
+              "text": "A sea level reduction"
+            },
+            {
+              "letter": "C",
+              "text": "A blockage of ice"
+            },
+            {
+              "letter": "D",
+              "text": "A rise in temperature"
+            }
+          ],
+          "answer": "B",
+          "explanation": {
+            "keyword": "diminished / reduced",
+            "rationale": "The text explicitly links the 'sea level dropping' to 'greatly reducing' (diminishing) the water inflow. 'Sea level reduction' is a synonymous phrase for 'sea level dropping'.",
+            "distractor_analysis": "Option A is mentioned as a general condition ('dry area') but not as the cause of the reduced flow. Option C is a common trap; while 'freezing' happened in the Atlantic, the specific mechanism for reduced flow was the resulting sea level drop, not a physical ice blockage in the Strait itself. Option D contradicts the 'global cooling' mentioned in the text."
+          }
+        }
+      ]
+    }
+  ]
+}

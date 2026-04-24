@@ -2,12 +2,14 @@ import { Controller, Get, Param, Post, Body, UseGuards, Request, Query } from "@
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { IeltsService } from "./ielts.service";
 import { IeltsRoadmapService } from "./ielts-roadmap.service";
+import { StreakService } from "./streak.service";
 
 @Controller("ielts")
 export class IeltsController {
   constructor(
     private readonly ieltsService: IeltsService,
-    private readonly ieltsRoadmapService: IeltsRoadmapService
+    private readonly ieltsRoadmapService: IeltsRoadmapService,
+    private readonly streakService: StreakService
   ) { }
 
   @Get("skills")
@@ -134,7 +136,10 @@ export class IeltsController {
   async getProfile(@Request() req: any) {
     // Will return null if they haven't onboarded yet, handled on frontend
     return this.ieltsRoadmapService["prisma"].ieltsProfile.findUnique({
-      where: { userId: req.user.id }
+      where: { userId: req.user.id },
+      include: {
+        user: { select: { firstName: true, lastName: true } }
+      }
     });
   }
 
@@ -142,14 +147,36 @@ export class IeltsController {
   @Post("onboarding")
   async processOnboarding(
     @Request() req: any,
-    @Body() body: { targetBand: number; dailyCommitmentMins: number; takePlacement: boolean; placementScore?: number }
+    @Body() body: {
+      targetBand: number;
+      dailyCommitmentMins: number;
+      examDate?: string;
+      takePlacement: boolean;
+      placementScore?: number;
+      placementListening?: number;
+      placementReading?: number;
+      placementWriting?: number;
+    }
   ) {
     return this.ieltsRoadmapService.processOnboarding(req.user.id, body);
+  }
+
+  @Get("placement-exercises")
+  async getPlacementExercises() {
+    return this.ieltsService.getPlacementExercises();
   }
 
   @UseGuards(JwtAuthGuard)
   @Get("roadmap")
   async getRoadmap(@Request() req: any) {
     return this.ieltsRoadmapService.generateRoadmap(req.user.id);
+  }
+
+  // ── Streak Tracking ──────────────────────────────────────────────────────
+  
+  @UseGuards(JwtAuthGuard)
+  @Get("streak")
+  async getStreak(@Request() req: any) {
+    return this.streakService.getStreak(req.user.id);
   }
 }

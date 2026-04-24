@@ -1,0 +1,44 @@
+{
+  "title": "History of the Pencil",
+  "passage": "While writing utensils have been around since antiquity, the pencil as we know it today only came into existence after the discovery of a large graphite deposit in the 1560s. According to the story, some English shepherds came across an unknown black substance stuck to the roots of a fallen tree, and handling it, found that it left behind a dark mark. Initially, they used it to draw brands on their livestock so that they could more easily differentiate whose sheep was whose, but they soon realised that the graphite, which they called 'black lead', could very easily be formed into sticks and used to write and draw. With string or twigs wrapped around it to reduce its brittleness, a stick of graphite not only required the user to apply less pressure than the metal alloy styluses then in use, but it also produced far darker lines. In addition, it was possible to erase graphite marks using a bit of soft bread and to draw on top of them with ink - neither of which could be done with lead or charcoal. It was not long before people began gluing bits of graphite into grooves cut into strips of wood, thereby creating the much sturdier wooden pencil we are now familiar with.",
+  "passage_with_locations": [
+    "While writing utensils have been around since antiquity, the pencil as we know it today only came into existence after the discovery of a large graphite deposit in the 1560s. According to the story, some English shepherds came across an unknown black substance stuck to the roots of a fallen tree, and handling it, found that it left behind a dark mark. Initially, they used it to draw brands on their livestock so that they could more easily differentiate whose sheep was whose, but they soon realised that the graphite, which they called 'black lead', could very easily be formed into sticks and used to write and draw. With string or twigs wrapped around it to reduce its brittleness, ",
+    {
+      "question_number": 8,
+      "text": "a stick of graphite not only required the user to apply less pressure than the metal alloy styluses then in use"
+    },
+    ", but it also produced far darker lines. In addition, ",
+    {
+      "question_number": 9,
+      "text": "it was possible to erase graphite marks using a bit of soft bread and to draw on top of them with ink"
+    },
+    " - neither of which could be done with lead or charcoal. It was not long before people began gluing bits of graphite into grooves cut into strips of wood, thereby creating the much sturdier wooden pencil we are now familiar with."
+  ],
+  "content": [
+    {
+      "type": "true_false_not_given",
+      "questions": [
+        {
+          "question_number": 8,
+          "text": "Writing with graphite sticks required more pressure than other writing tools.",
+          "answer": "FALSE",
+          "explanation": {
+            "keyword": "graphite / more pressure",
+            "rationale": "The passage states that a stick of graphite 'required the user to apply less pressure than the metal alloy styluses then in use'. This directly contradicts the claim that it required 'more pressure'.",
+            "distractor_analysis": "The statement is the opposite of the factual evidence in the text, making it FALSE."
+          }
+        },
+        {
+          "question_number": 9,
+          "text": "Users could not see graphite marks after they had been inked over.",
+          "answer": "NOT GIVEN",
+          "explanation": {
+            "keyword": "graphite / inked over",
+            "rationale": "The text confirms that it was possible to 'draw on top of them [graphite marks] with ink'. However, it does not mention anything about whether the graphite marks remained visible or were obscured after being inked over.",
+            "distractor_analysis": "The text only mentions the *possibility* of drawing over them, not the *visual outcome* of doing so, resulting in a NOT GIVEN answer."
+          }
+        }
+      ]
+    }
+  ]
+}

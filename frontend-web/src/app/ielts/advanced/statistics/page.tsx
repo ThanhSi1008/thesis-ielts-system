@@ -13,7 +13,7 @@ export default function IeltsAdvancedStatisticsPage() {
       withCredentials: true
     })
     .then(res => {
-      setStats(res.data);
+      setStats(res.data as Record<string, { correct: number; total: number; attempted: number }>);
       setLoading(false);
     })
     .catch(err => {

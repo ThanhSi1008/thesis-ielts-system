@@ -1,0 +1,44 @@
+{
+  "title": "The Threat of Deforestation",
+  "passage": "Today, about 30 per cent of the Earth's surface is covered by forestland. However, deforestation is dramatically reducing this percentage each year. Currently, human activity claims more than 13.7 million hectares of forestland annually - an area approximately equal to that of Greece. While it may be assumed that we are cutting down trees to meet our timber needs, the bigger culprit is actually agriculture. Earth's growing population has increased our need for agricultural products and farmers have begun clear-cutting forestland to convert it into farmland where they can plant crops.\n\nThis is especially true in countries such as Brazil and Indonesia, where large areas of forestland have been cleared for farmland for cash crops such as soybeans and oil palms. The intense farming methods used for these crops further compound the problem. Continuous crop production depletes the soil of its nutrients so that it can no longer support the biodiversity it once could, making it nearly impossible to return it to forestland in the future. This continued disappearance of the forests will have a major impact on our environment. Trees play an important role in removing carbon dioxide from the air and in returning water to the atmosphere. If the forests are allowed to further deteriorate, it could disrupt the life cycle of plants and animals, and even eliminate entire ecosystems. To avoid this outcome, we must find a way to conserve our forestlands and replace the trees that we remove each year.",
+  "passage_with_locations": [
+    "Today, about 30 per cent of the Earth's surface is covered by forestland. However, deforestation is dramatically reducing this percentage each year. Currently, human activity claims more than 13.7 million hectares of forestland annually - an area approximately equal to that of Greece. ",
+    {
+      "question_number": 5,
+      "text": "While it may be assumed that we are cutting down trees to meet our timber needs, the bigger culprit is actually agriculture."
+    },
+    " Earth's growing population has increased our need for agricultural products and farmers have begun clear-cutting forestland to convert it into farmland where they can plant crops.\n\nThis is especially true in countries such as Brazil and Indonesia, where large areas of forestland have been cleared for farmland for cash crops such as soybeans and oil palms. The intense farming methods used for these crops further compound the problem. Continuous crop production depletes the soil of its nutrients so that it can no longer support the biodiversity it once could, making it nearly impossible to return it to forestland in the future. This continued disappearance of the forests will have a major impact on our environment. Trees play an important role in removing carbon dioxide from the air and in returning water to the atmosphere. ",
+    {
+      "question_number": 6,
+      "text": "If the forests are allowed to further deteriorate, it could disrupt the life cycle of plants and animals, and even eliminate entire ecosystems."
+    },
+    " To avoid this outcome, we must find a way to conserve our forestlands and replace the trees that we remove each year."
+  ],
+  "content": [
+    {
+      "type": "yes_no_not_given",
+      "questions": [
+        {
+          "question_number": 5,
+          "text": "Timber is the most common reason for cutting down trees.",
+          "answer": "NO",
+          "explanation": {
+            "keyword": "timber / most common reason",
+            "rationale": "The writer mentions that while people might assume timber is the reason, 'the bigger culprit is actually agriculture'. This contradicts the claim that timber is the most common reason.",
+            "distractor_analysis": "The statement presents a common assumption which the text explicitly identifies as being surpassed by agriculture, making the answer NO."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "Clear-cutting forests threatens to destroy ecological systems.",
+          "answer": "YES",
+          "explanation": {
+            "keyword": "clear-cutting / destroy ecological systems",
+            "rationale": "The passage warns that if forests continue to deteriorate, it could 'even eliminate entire ecosystems'. 'Eliminate entire ecosystems' is a synonym for 'destroy ecological systems'.",
+            "distractor_analysis": "The statement accurately reflects the writer's warning about the long-term environmental consequences of deforestation, making it YES."
+          }
+        }
+      ]
+    }
+  ]
+}

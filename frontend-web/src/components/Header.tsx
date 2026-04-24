@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
+import api from "@/lib/api";
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -11,11 +13,10 @@ export default function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { toggleSidebar } = useIeltsSidebar();
   const isIeltsDashboard = pathname === "/ielts";
-  const isIeltsIntensive = pathname.startsWith("/ielts/intensive");
-  const isIeltsHistory = pathname.startsWith("/ielts/history");
-  const isIeltsBasic = pathname.startsWith("/ielts/basic");
-  const isIelts = pathname.startsWith("/ielts") && !isIeltsDashboard && !isIeltsIntensive && !isIeltsHistory && !isIeltsBasic;
+  const isIeltsInternal = pathname.startsWith("/ielts/");
+  const isIeltsPage = isIeltsDashboard || isIeltsInternal;
 
   const [forcePlain, setForcePlain] = useState(false);
 
@@ -30,7 +31,7 @@ export default function Header() {
   }, []);
 
   const plainPages = ["/login", "/register"];
-  const isPlain = plainPages.includes(pathname) || isIeltsIntensive || isIeltsHistory || isIeltsBasic || forcePlain;
+  const isPlain = plainPages.includes(pathname) || isIeltsInternal || forcePlain;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -43,6 +44,17 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Fetch streak
+  const [streak, setStreak] = useState<{ currentStreak: number; longestStreak: number } | null>(null);
+  
+  useEffect(() => {
+    if (user) {
+      api.get<{ currentStreak: number; longestStreak: number }>("/ielts/streak")
+        .then(res => setStreak(res.data))
+        .catch(err => console.error("Failed to load streak", err));
+    }
+  }, [user, pathname]); // Re-fetch occasionally when navigating around
+
   if (pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start")) {
     return null;
   }
@@ -51,11 +63,9 @@ export default function Header() {
 
   const headerBgClass = isIeltsDashboard
     ? "bg-transparent absolute w-full top-0 border-transparent shadow-none"
-    : isIelts
-      ? "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-light top-0 border-primary/40 shadow-lg shadow-black/30 backdrop-blur-sm"
-      : isPlain
-        ? "bg-white/95 top-0 border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)] backdrop-blur-xl"
-        : "bg-transparent absolute w-full top-0 border-transparent shadow-none";
+    : isPlain
+      ? `bg-white/95 top-0 ${isIeltsPage ? '' : 'border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
+      : "bg-transparent absolute w-full top-0 border-transparent shadow-none";
 
 
   // Derive display name and initials from user
@@ -71,29 +81,45 @@ export default function Header() {
     : "";
 
   const navLinkClass = (active: boolean) =>
-    `relative text-sm uppercase tracking-wider transition-colors pt-2 pb-1 group hover:text-primary ${active ? "text-primary" : isOverlay || isIelts ? "text-light" : "text-gray-600"
+    `relative text-sm uppercase tracking-wider transition-colors pt-2 pb-1 group hover:text-primary ${active ? "text-primary" : isOverlay ? "text-light" : "text-gray-600"
     }`;
+
+
 
   return (
     <header
-      className={`border-b z-50 transition-all duration-300 ${headerBgClass}`}
+      className={`sticky top-0 z-50 ${isIeltsPage ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
     >
-      <div className={`container mx-auto ${isIeltsBasic ? "max-w-[1500px] lg:px-8" : "max-w-screen-xl"} px-4 py-4 flex justify-between items-center`}>
-        {/* Left: Logo + Nav */}
-        <div className="flex items-center gap-6">
+      <div className={`${isIeltsPage ? "w-full max-w-none px-4" : "container mx-auto max-w-screen-xl px-4"} py-2 flex justify-between items-center`}>
+        {/* Left: Hamburger (IELTS) + Logo + Nav */}
+        <div className="flex items-center gap-4">
+          {/* Hamburger for IELTS pages */}
+          {isIeltsPage && (
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600 -ml-2"
+              aria-label="Toggle sidebar"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+          )}
           <Link href="/" className="flex items-center gap-2">
             <img
               src={
-                isOverlay || isIelts
+                isOverlay
                   ? "https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
                   : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
               }
               alt="TOEIC Master AI Logo"
-              className="h-12 w-auto object-contain"
+              className="h-10 w-auto object-contain"
             />
           </Link>
 
-          <nav className="hidden md:flex gap-10 font-bold items-center ml-10">
+          <nav className="hidden md:flex gap-8 font-bold items-center ml-8">
             <Link href="/" className={navLinkClass(pathname === "/")}>
               HOME
               <span className="absolute left-0 bottom-0 h-[2px] bg-primary transition-all duration-300 w-0 group-hover:w-full" />
@@ -128,7 +154,7 @@ export default function Header() {
             href="/vocab-lab"
             className={`group flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-md ${pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/")
               ? "bg-amber-400 text-white shadow-md shadow-amber-200"
-              : isOverlay || isIelts
+              : isOverlay
                 ? "bg-white/15 text-white hover:bg-white/25 border border-white/20"
                 : "bg-amber-400/10 text-amber-600 hover:bg-amber-400 hover:text-white border border-amber-300"
               }`}
@@ -151,21 +177,38 @@ export default function Header() {
           </Link>
 
           {user ? (
-            /* ── Logged-in: avatar + dropdown ── */
-            <div className="relative" ref={profileRef}>
-              <button
-                onClick={() => setIsProfileOpen((o) => !o)}
-                className="flex items-center gap-2.5 rounded-full pl-1 pr-3 py-1 transition-colors hover:bg-white/10 focus:outline-none"
-                aria-haspopup="true"
-                aria-expanded={isProfileOpen}
-              >
+            /* ── Logged-in: streak + avatar + dropdown ── */
+            <div className="flex items-center gap-3">
+              {streak && streak.currentStreak > 0 && (
+                <div 
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-bold shadow-sm cursor-help transition-all duration-300 hover:scale-105 ${
+                    isOverlay 
+                      ? "bg-white/10 border-white/20 text-white shadow-black/10 hover:bg-white/20" 
+                      : "bg-orange-50 border-orange-200 text-orange-600 shadow-orange-100/50 hover:bg-orange-100"
+                  }`}
+                  title={`🔥 ${streak.currentStreak}-day streak! Your longest: ${streak.longestStreak}`}
+                >
+                  <span className={`${streak.currentStreak >= 7 ? 'animate-pulse' : ''} text-orange-500 drop-shadow-sm`}>
+                    🔥
+                  </span>
+                  <span>{streak.currentStreak}</span>
+                </div>
+              )}
+              
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setIsProfileOpen((o) => !o)}
+                  className="flex items-center gap-2.5 rounded-full pl-1 pr-3 py-1 transition-colors hover:bg-black/5 focus:outline-none"
+                  aria-haspopup="true"
+                  aria-expanded={isProfileOpen}
+                >
                 {/* Avatar circle */}
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-xs font-bold select-none shrink-0">
                   {initials}
                 </span>
                 {/* Name */}
                 <span
-                  className={`text-sm font-semibold max-w-[140px] truncate ${isOverlay || isIelts ? "text-white" : "text-gray-800"
+                  className={`text-sm font-semibold max-w-[140px] truncate ${isOverlay ? "text-white" : "text-gray-800"
                     }`}
                 >
                   {displayName}
@@ -173,7 +216,7 @@ export default function Header() {
                 {/* Chevron */}
                 <svg
                   className={`w-4 h-4 transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""
-                    } ${isOverlay || isIelts ? "text-white/70" : "text-gray-400"}`}
+                    } ${isOverlay ? "text-white/70" : "text-gray-400"}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -251,12 +294,13 @@ export default function Header() {
                 </div>
               )}
             </div>
+            </div>
           ) : (
             /* ── Logged-out: Sign In + Register ── */
             <div className="flex items-center gap-3">
               <Link
                 href="/login"
-                className={`text-sm font-semibold transition-colors hover:text-primary ${isOverlay || isIelts ? "text-white" : "text-gray-700"
+                className={`text-sm font-semibold transition-colors hover:text-primary ${isOverlay ? "text-white" : "text-gray-700"
                   }`}
               >
                 Sign In
@@ -273,7 +317,7 @@ export default function Header() {
 
         {/* Mobile Menu Button */}
         <button
-          className={`md:hidden p-2 ${isOverlay || isIelts ? "text-white" : "text-gray-600"
+          className={`md:hidden p-2 ${isOverlay ? "text-white" : "text-gray-600"
             }`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"

@@ -1,13 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-import * as fs from 'fs';
-import * as path from 'path';
+import { PrismaClient } from "@prisma/client";
+import * as fs from "fs";
+import * as path from "path";
 
-const prisma = new PrismaClient();
-
-const baseDir = path.join(__dirname, '../../_extras/question_types/_compiled');
-
-async function seed() {
-  console.log('Seeding IELTS basic data...');
+export async function seedIeltsBasic(prisma: PrismaClient) {
+  const baseDir = path.join(__dirname, "..", "data", "ielts-basic-compiled");
+  console.log("  Seeding IELTS basic data from:", baseDir);
 
   // Clean existing data.
   await prisma.ieltsListeningExercise.deleteMany({});
@@ -17,10 +14,10 @@ async function seed() {
 
   // 1. Ensure skills exist
   const skillsData = [
-    { name: 'Listening', order: 1 },
-    { name: 'Reading', order: 2 },
-    { name: 'Writing', order: 3 },
-    { name: 'Speaking', order: 4 },
+    { name: "Listening", order: 1 },
+    { name: "Reading", order: 2 },
+    { name: "Writing", order: 3 },
+    { name: "Speaking", order: 4 },
   ];
 
   for (const s of skillsData) {
@@ -32,10 +29,12 @@ async function seed() {
   }
 
   // 2. Iterate through "listening" and "reading"
-  const activeSkills = ['listening', 'reading', 'writing'];
+  const activeSkills = ["listening", "reading", "writing"];
 
   for (const skillName of activeSkills) {
-    const skillRecord = await prisma.ieltsSkill.findUnique({ where: { name: skillName.charAt(0).toUpperCase() + skillName.slice(1) } });
+    const skillRecord = await prisma.ieltsSkill.findUnique({
+      where: { name: skillName.charAt(0).toUpperCase() + skillName.slice(1) },
+    });
     if (!skillRecord) continue;
 
     // Parse Theory
@@ -45,7 +44,9 @@ async function seed() {
     // Parse Exercises
     const exercisesArr = getExercises(baseDir, skillName);
 
-    console.log(`[${skillName}] Found ${theoryArr.length} theory lessons, ${exercisesArr.length} exercises.`);
+    console.log(
+      `  [${skillName}] Found ${theoryArr.length} theory lessons, ${exercisesArr.length} exercises.`,
+    );
 
     // Insert lessons
     let order = 1;
@@ -53,29 +54,35 @@ async function seed() {
       const lesson = await prisma.ieltsLesson.create({
         data: {
           skillId: skillRecord.id,
-          chapter: `Chapter ${String(order).padStart(2, '0')}`,
+          chapter: `Chapter ${String(order).padStart(2, "0")}`,
           title: theory.title,
           content: theory.content,
-          quiz: theory.quiz, // Injecting the extracted interactive quiz questions
+          quiz: theory.quiz,
           order: order++,
-        }
+        },
       });
-      console.log(`  -> Created lesson: ${lesson.title}`);
+      console.log(`    -> Created lesson: ${lesson.title}`);
 
-      // Robust matching between theory title and filename (ignores hyphens, slashes, spaces)
-      const cleanTheoryTitle = theory.title.replace(/[^a-zA-Z]/g, '').toLowerCase();
+      // Robust matching between theory title and filename
+      const cleanTheoryTitle = theory.title
+        .replace(/[^a-zA-Z]/g, "")
+        .toLowerCase();
 
-      const matchedExs = exercisesArr.filter(e => {
-        const cleanExTitle = e.chapterFolderName.replace(/[^a-zA-Z]/g, '').toLowerCase();
-        // Either it's a direct match within the string or partial prefix match
-        return cleanExTitle.includes(cleanTheoryTitle) ||
-          (cleanTheoryTitle.length > 5 && cleanExTitle.includes(cleanTheoryTitle.substring(0, 10)));
+      const matchedExs = exercisesArr.filter((e) => {
+        const cleanExTitle = e.chapterFolderName
+          .replace(/[^a-zA-Z]/g, "")
+          .toLowerCase();
+        return (
+          cleanExTitle.includes(cleanTheoryTitle) ||
+          (cleanTheoryTitle.length > 5 &&
+            cleanExTitle.includes(cleanTheoryTitle.substring(0, 10)))
+        );
       });
 
       let exOrder = 1;
       for (const ex of matchedExs) {
         if (ex.seeded) continue;
-        if (skillName === 'listening') {
+        if (skillName === "listening") {
           await prisma.ieltsListeningExercise.create({
             data: {
               skillId: skillRecord.id,
@@ -86,9 +93,9 @@ async function seed() {
               transcript: ex.transcript,
               content: ex.content,
               order: exOrder++,
-            }
+            },
           });
-        } else if (skillName === 'reading') {
+        } else if (skillName === "reading") {
           await prisma.ieltsReadingExercise.create({
             data: {
               skillId: skillRecord.id,
@@ -99,10 +106,9 @@ async function seed() {
               passageWithLocations: ex.passageWithLocations,
               content: ex.content,
               order: exOrder++,
-            }
+            },
           });
         }
-        // 'writing' lessons have no exercises yet — skip
         ex.seeded = true;
       }
     }
@@ -111,11 +117,13 @@ async function seed() {
     let exOrderUnmatched = 100;
     const unmatched = exercisesArr.filter((e: any) => !e.seeded);
     if (unmatched.length > 0) {
-      console.log(`  -> Found ${unmatched.length} unmatched exercises for ${skillName}. Linking directly to skill without lesson.`);
+      console.log(
+        `    -> Found ${unmatched.length} unmatched exercises for ${skillName}. Linking directly to skill without lesson.`,
+      );
     }
 
     for (const ex of unmatched) {
-      if (skillName === 'listening') {
+      if (skillName === "listening") {
         await prisma.ieltsListeningExercise.create({
           data: {
             skillId: skillRecord.id,
@@ -125,9 +133,9 @@ async function seed() {
             transcript: ex.transcript,
             content: ex.content,
             order: exOrderUnmatched++,
-          }
+          },
         });
-      } else if (skillName === 'reading') {
+      } else if (skillName === "reading") {
         await prisma.ieltsReadingExercise.create({
           data: {
             skillId: skillRecord.id,
@@ -137,47 +145,68 @@ async function seed() {
             passageWithLocations: ex.passageWithLocations,
             content: ex.content,
             order: exOrderUnmatched++,
-          }
+          },
         });
       }
-      // writing: no exercise model yet
     }
   }
 
   // 3. Parse Writing Task 1 Exercises
-  const writingTask1ExercisesPath = path.join(baseDir, 'writing_task_1_exercises.txt');
+  const writingTask1ExercisesPath = path.join(
+    baseDir,
+    "writing_task_1_exercises.txt",
+  );
   if (fs.existsSync(writingTask1ExercisesPath)) {
-    console.log("Seeding Writing Task 1 Exercises...");
-    const text = fs.readFileSync(writingTask1ExercisesPath, 'utf-8').replace(/\r\n/g, '\n');
-    const lines = text.split('\n');
-    let currentTheme = '';
-    let currentSubcategory = '';
+    console.log("  Seeding Writing Task 1 Exercises...");
+    const text = fs
+      .readFileSync(writingTask1ExercisesPath, "utf-8")
+      .replace(/\r\n/g, "\n");
+    const lines = text.split("\n");
+    let currentTheme = "";
+    let currentSubcategory = "";
     const exercisesToSeed = [];
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (line.startsWith('    - ')) {
-        currentTheme = line.replace('    - ', '').trim();
-        currentSubcategory = '';
-      } else if (line.startsWith('        - ') && !line.includes('- Exercise')) {
-        currentSubcategory = line.replace('        - ', '').trim();
-      } else if (line.indexOf('- Exercise') !== -1) {
-        exercisesToSeed.push({ theme: currentTheme, subCategory: currentSubcategory, content: "" });
+      if (line.startsWith("    - ")) {
+        currentTheme = line.replace("    - ", "").trim();
+        currentSubcategory = "";
+      } else if (
+        line.startsWith("        - ") &&
+        !line.includes("- Exercise")
+      ) {
+        currentSubcategory = line.replace("        - ", "").trim();
+      } else if (line.indexOf("- Exercise") !== -1) {
+        exercisesToSeed.push({
+          theme: currentTheme,
+          subCategory: currentSubcategory,
+          content: "",
+        });
       } else if (exercisesToSeed.length > 0) {
         exercisesToSeed[exercisesToSeed.length - 1].content += line + "\n";
       }
     }
 
-    const writingSkillRecord = await prisma.ieltsSkill.findUnique({ where: { name: 'Writing' } });
+    const writingSkillRecord = await prisma.ieltsSkill.findUnique({
+      where: { name: "Writing" },
+    });
 
     if (writingSkillRecord) {
       let exOrder = 1;
       for (const exObj of exercisesToSeed) {
         const { theme, subCategory, content } = exObj;
-        const promptMatch = content.match(/- Prompt\s+([\s\S]*?)\s+-(?: Diagram| Digram) Image Link/);
-        const diagramMatch = content.match(/-(?: Diagram| Digram) Image Link\s+([\s\S]*?)\s+- Answer/);
-        const introMatch = content.match(/- Introduction\s+([\s\S]*?)\s+- Overview/);
-        const overviewMatch = content.match(/- Overview\s+([\s\S]*?)\s+- Body 1/);
+        const promptMatch = content.match(
+          /- Prompt\s+([\s\S]*?)\s+-(?: Diagram| Digram) Image Link/,
+        );
+        const diagramMatch = content.match(
+          /-(?: Diagram| Digram) Image Link\s+([\s\S]*?)\s+- Answer/,
+        );
+        const introMatch = content.match(
+          /- Introduction\s+([\s\S]*?)\s+- Overview/,
+        );
+        const overviewMatch = content.match(
+          /- Overview\s+([\s\S]*?)\s+- Body 1/,
+        );
         const body1Match = content.match(/- Body 1\s+([\s\S]*?)\s+- Body 2/);
         const body2Match = content.match(/- Body 2\s+([\s\S]+)/);
 
@@ -192,7 +221,7 @@ async function seed() {
           const topicName = subCategory ? `${theme} - ${subCategory}` : theme;
 
           const lesson = await prisma.ieltsLesson.findFirst({
-            where: { skillId: writingSkillRecord.id, title: theme }
+            where: { skillId: writingSkillRecord.id, title: theme },
           });
 
           await prisma.ieltsWritingExercise.create({
@@ -200,47 +229,51 @@ async function seed() {
               skillId: writingSkillRecord.id,
               lessonId: lesson ? lesson.id : null,
               topic: topicName,
-              instructions: "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+              instructions:
+                "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
               prompt: promptText,
               diagramUrl: diagramUrl,
               modelAnswer: { intro, overview, body1, body2 },
-              order: exOrder++
-            }
+              order: exOrder++,
+            },
           });
-          console.log(`Created writing exercise: ${topicName}`);
+          console.log(`    Created writing exercise: ${topicName}`);
         }
       }
     }
   }
 
-  console.log('Seeding complete.');
+  console.log("  Finished seeding IELTS basic data.");
 }
 
 function getTheoryLessons(txtPath: string) {
   if (!fs.existsSync(txtPath)) return [];
-  const text = fs.readFileSync(txtPath, 'utf8');
-  const lines = text.replace(/\r/g, '').split('\n');
+  const text = fs.readFileSync(txtPath, "utf8");
+  const lines = text.replace(/\r/g, "").split("\n");
 
   const lessons: any[] = [];
   let currentLesson: any = null;
 
   let inQuizSection = false;
 
-  let currentContentType = 'overview';
-  let currentContentTitle = 'Overview';
-  let currentContent = '';
+  let currentContentType = "overview";
+  let currentContentTitle = "Overview";
+  let currentContent = "";
 
   let currentQuizQuestion: any = null;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Match lesson title e.g. "    - Multiple Choice"
     const titleMatch = line.match(/^ {4}- (.*)$/);
     if (titleMatch) {
       if (currentLesson) {
         if (currentContent.trim() && !inQuizSection) {
-          currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
+          currentLesson.content.push({
+            type: currentContentType,
+            title: currentContentTitle,
+            content: currentContent.trim(),
+          });
         }
         if (currentQuizQuestion) {
           currentLesson.quiz.push(currentQuizQuestion);
@@ -252,22 +285,25 @@ function getTheoryLessons(txtPath: string) {
       const title = titleMatch[1].trim();
       currentLesson = { title, content: [], quiz: [] };
       inQuizSection = false;
-      currentContentType = 'overview';
-      currentContentTitle = 'Overview';
-      currentContent = '';
+      currentContentType = "overview";
+      currentContentTitle = "Overview";
+      currentContent = "";
       continue;
     }
 
     if (!currentLesson) continue;
 
-    // Match sub-sections under a lesson like "- Content" or "- Quiz"
     const sectionMatch = line.match(/^ {8}- (.*)$/);
     if (sectionMatch) {
       const sectionName = sectionMatch[1].trim();
-      if (sectionName.toLowerCase() === 'quiz') {
+      if (sectionName.toLowerCase() === "quiz") {
         if (currentContent.trim()) {
-          currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
-          currentContent = '';
+          currentLesson.content.push({
+            type: currentContentType,
+            title: currentContentTitle,
+            content: currentContent.trim(),
+          });
+          currentContent = "";
         }
         inQuizSection = true;
       } else {
@@ -277,52 +313,72 @@ function getTheoryLessons(txtPath: string) {
     }
 
     if (inQuizSection) {
-      const trimmed = line.replace(/^ {12}/, '').trim();
+      const trimmed = line.replace(/^ {12}/, "").trim();
       if (!trimmed) continue;
 
-      // Matches standard "1. Question" and bold "**1. Question**"
       if (trimmed.match(/^(?:\*\*)?\d+\.(?:\*\*)?\s/)) {
         if (currentQuizQuestion) {
           currentLesson.quiz.push(currentQuizQuestion);
         }
         currentQuizQuestion = {
-          question: trimmed.replace(/^(?:\*\*)?\d+\.(?:\*\*)?\s/, ''),
+          question: trimmed.replace(/^(?:\*\*)?\d+\.(?:\*\*)?\s/, ""),
           options: [],
-          hint: '',
-          answer: '',
-          explanation: ''
+          hint: "",
+          answer: "",
+          explanation: "",
         };
       } else if (currentQuizQuestion) {
-        if (trimmed.match(/^-?\s*(?:\*\*)?[A-Z]\)/) || trimmed.match(/^(?:\*\*)?[A-Z]\)/)) {
-          // Removes starting list dashes or bullet points, and the option letter
-          let opt = trimmed.replace(/^-?\s*(?:\*\*)?([A-Z]\))(?:\*\*)?\s*/, '$1 ');
+        if (
+          trimmed.match(/^-?\s*(?:\*\*)?[A-Z]\)/) ||
+          trimmed.match(/^(?:\*\*)?[A-Z]\)/)
+        ) {
+          let opt = trimmed.replace(
+            /^-?\s*(?:\*\*)?([A-Z]\))(?:\*\*)?\s*/,
+            "$1 ",
+          );
           currentQuizQuestion.options.push(opt);
         } else if (trimmed.match(/^-?\s*(?:\*\*)?Hint:(?:\*\*)?/i)) {
-          currentQuizQuestion.hint = trimmed.replace(/^-?\s*(?:\*\*)?Hint:(?:\*\*)?\s*/i, '');
+          currentQuizQuestion.hint = trimmed.replace(
+            /^-?\s*(?:\*\*)?Hint:(?:\*\*)?\s*/i,
+            "",
+          );
         } else if (trimmed.match(/^-?\s*(?:\*\*)?Answer:(?:\*\*)?/i)) {
-          currentQuizQuestion.answer = trimmed.replace(/^-?\s*(?:\*\*)?Answer:(?:\*\*)?\s*/i, '');
+          currentQuizQuestion.answer = trimmed.replace(
+            /^-?\s*(?:\*\*)?Answer:(?:\*\*)?\s*/i,
+            "",
+          );
         } else if (trimmed.match(/^-?\s*(?:\*\*)?Why:(?:\*\*)?/i)) {
-          currentQuizQuestion.explanation = trimmed.replace(/^-?\s*(?:\*\*)?Why:(?:\*\*)?\s*/i, '');
+          currentQuizQuestion.explanation = trimmed.replace(
+            /^-?\s*(?:\*\*)?Why:(?:\*\*)?\s*/i,
+            "",
+          );
         } else {
           if (currentQuizQuestion.explanation) {
-            currentQuizQuestion.explanation += ' ' + trimmed;
-          } else if (currentQuizQuestion.question && currentQuizQuestion.options.length === 0) {
-            currentQuizQuestion.question += ' ' + trimmed;
+            currentQuizQuestion.explanation += " " + trimmed;
+          } else if (
+            currentQuizQuestion.question &&
+            currentQuizQuestion.options.length === 0
+          ) {
+            currentQuizQuestion.question += " " + trimmed;
           }
         }
       }
     } else {
-      const trimmed = line.replace(/^ {12,16}/, '');
+      const trimmed = line.replace(/^ {12,16}/, "");
 
-      // Match both <h2> and <h3> markdown headers
       let subheadMatch = trimmed.match(/^#{2,3}\s+(.*)$/);
 
-      // Also match specific IELTS writing subheadings formatted as list items
       if (!subheadMatch) {
         const listMatch = trimmed.match(/^- \s*(.*)$/);
         if (listMatch) {
           const text = listMatch[1].toLowerCase();
-          if (text.includes('task achievement') || text.includes('grammar') || text.includes('lexical') || text.includes('question type') || text.includes('quetion type')) {
+          if (
+            text.includes("task achievement") ||
+            text.includes("grammar") ||
+            text.includes("lexical") ||
+            text.includes("question type") ||
+            text.includes("quetion type")
+          ) {
             subheadMatch = listMatch;
           }
         }
@@ -330,37 +386,60 @@ function getTheoryLessons(txtPath: string) {
 
       if (subheadMatch) {
         if (currentContent.trim()) {
-          currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
-          currentContent = '';
+          currentLesson.content.push({
+            type: currentContentType,
+            title: currentContentTitle,
+            content: currentContent.trim(),
+          });
+          currentContent = "";
         }
 
         const rawTitle = subheadMatch[1].trim();
         const lowerTitle = rawTitle.toLowerCase();
 
-        if (lowerTitle.includes('trap') || lowerTitle.includes('task achievement')) {
-          currentContentType = 'traps';
-        } else if (lowerTitle.includes('strategy') || lowerTitle.includes('step-by-step') || lowerTitle.includes('grammar')) {
-          currentContentType = 'strategy';
-        } else if (lowerTitle.includes('tip') || lowerTitle.includes('pro-tip') || lowerTitle.includes('lexical')) {
-          currentContentType = 'tips';
+        if (
+          lowerTitle.includes("trap") ||
+          lowerTitle.includes("task achievement")
+        ) {
+          currentContentType = "traps";
+        } else if (
+          lowerTitle.includes("strategy") ||
+          lowerTitle.includes("step-by-step") ||
+          lowerTitle.includes("grammar")
+        ) {
+          currentContentType = "strategy";
+        } else if (
+          lowerTitle.includes("tip") ||
+          lowerTitle.includes("pro-tip") ||
+          lowerTitle.includes("lexical")
+        ) {
+          currentContentType = "tips";
         } else {
-          currentContentType = 'section';
+          currentContentType = "section";
         }
 
-        // Ensure emoji stripping works robustly but retains markdown asterisks if desired (or strip them)
-        const pureTitleMatch = rawTitle.replace(/^\*\*/, '').match(/[a-zA-Z0-9].*$/);
+        const pureTitleMatch = rawTitle
+          .replace(/^\*\*/, "")
+          .match(/[a-zA-Z0-9].*$/);
         let cleanedTitle = pureTitleMatch ? pureTitleMatch[0] : rawTitle;
-        cleanedTitle = cleanedTitle.replace(/\*+$/, '').replace(/^\*+/, '').trim();
+        cleanedTitle = cleanedTitle
+          .replace(/\*+$/, "")
+          .replace(/^\*+/, "")
+          .trim();
         currentContentTitle = cleanedTitle;
       } else {
-        currentContent += trimmed + '\n';
+        currentContent += trimmed + "\n";
       }
     }
   }
 
   if (currentLesson) {
     if (currentContent.trim() && !inQuizSection) {
-      currentLesson.content.push({ type: currentContentType, title: currentContentTitle, content: currentContent.trim() });
+      currentLesson.content.push({
+        type: currentContentType,
+        title: currentContentTitle,
+        content: currentContent.trim(),
+      });
     }
     if (currentQuizQuestion) {
       currentLesson.quiz.push(currentQuizQuestion);
@@ -376,48 +455,45 @@ function getExercises(compiledDir: string, skillName: string) {
   if (!fs.existsSync(compiledDir)) return exList;
   const files = fs.readdirSync(compiledDir);
   for (const file of files) {
-    if (file.startsWith(skillName + '_') && file.endsWith('.json')) {
+    if (file.startsWith(skillName + "_") && file.endsWith(".json")) {
       const dataFile = path.join(compiledDir, file);
       try {
-        const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+        const data = JSON.parse(fs.readFileSync(dataFile, "utf8"));
 
-        // Listening files are arrays, reading files are plain objects — unwrap either
         const root: any = Array.isArray(data) ? data[0] : data;
         if (!root) continue;
 
         let contentData: any[] = [];
-        if (root.content && Array.isArray(root.content)) contentData = root.content;
+        if (root.content && Array.isArray(root.content))
+          contentData = root.content;
         else if (root.question_groups) contentData = root.question_groups;
-        else if (root.questions && Array.isArray(root.questions)) contentData = root.questions;
+        else if (root.questions && Array.isArray(root.questions))
+          contentData = root.questions;
         else contentData = [root];
 
         const match = file.match(/^[a-z]+_(Chapter_\d+)_(.*?)_Question(s)?_/);
         let rawTitle = file;
-        let chapterFolderName = '';
+        let chapterFolderName = "";
         if (match) {
-          chapterFolderName = match[1].replace('_', ' ');
-          rawTitle = match[2].replace(/_/g, ' ');
+          chapterFolderName = match[1].replace("_", " ");
+          rawTitle = match[2].replace(/_/g, " ");
         }
 
         exList.push({
-          chapterFolderName: chapterFolderName + ' - ' + rawTitle,
+          chapterFolderName: chapterFolderName + " - " + rawTitle,
           topic: root.topic || root.title || rawTitle,
-          instructions: root.instructions || '',
-          // Listening-specific
+          instructions: root.instructions || "",
           audioUrl: root.audio_url || null,
           transcript: root.transcript || null,
-          // Reading-specific
-          passage: typeof root.passage === 'string' ? root.passage : null,
+          passage: typeof root.passage === "string" ? root.passage : null,
           passageWithLocations: root.passage_with_locations || null,
           content: contentData,
-          seeded: false
+          seeded: false,
         });
       } catch (e) {
-        console.error('Failed to parse', dataFile, e);
+        console.error("Failed to parse", dataFile, e);
       }
     }
   }
   return exList;
 }
-
-seed().catch(console.error).finally(() => prisma.$disconnect());

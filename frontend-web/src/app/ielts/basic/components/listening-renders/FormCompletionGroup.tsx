@@ -120,11 +120,11 @@ export function FormCompletionGroup({
               <button onClick={() => seekTo(point.timestamp_seconds)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
                 <Headphones className="w-3.5 h-3.5" /> Listen from here
               </button>
-              <button onClick={() => onLocate(point.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+              <button onClick={() => onLocate(point.question_number!)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
                 <MapPin className="w-3.5 h-3.5" /> Locate
               </button>
               <button
-                onClick={() => setShowExplanation(showExplanation === point.question_number ? null : point.question_number)}
+                onClick={() => setShowExplanation(showExplanation === point.question_number ? null : point.question_number!)}
                 className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
               >
                 <MessageSquare className="w-3.5 h-3.5" /> Explain

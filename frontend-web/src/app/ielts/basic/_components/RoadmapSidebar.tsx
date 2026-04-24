@@ -103,11 +103,11 @@ export function RoadmapSidebar() {
   return (
     <div className="flex flex-col h-full bg-white relative">
       <button 
-        onClick={() => router.push('/ielts/basic')}
+        onClick={() => router.push('/ielts/roadmap')}
         className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 font-extrabold mb-5 transition-colors w-fit group"
       >
         <ChevronLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
-        Library / Roadmap
+        Roadmap
       </button>
 
       <div className="flex-1 overflow-y-auto pr-2 space-y-4 pb-12 custom-scrollbar">

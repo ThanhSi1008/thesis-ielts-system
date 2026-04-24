@@ -1,0 +1,50 @@
+{
+  "title": "Parrots: Beloved Pets and Pests",
+  "passage": "A Today, there are more than 350 extant species of parrots. These intelligent birds come in a variety of sizes and vibrant colours. While they are prized as pets around the world for their ability to mimic speech, they are not always as beloved in their native lands.\n\nB One good example of this is Australia, which is home to the sulphur-crested cockatoo, a large parrot with vivid yellow feathers on its head. These birds move in large flocks and have become a nuisance to local inhabitants. Not only do their chatter and pre-dawn calls disturb humans, but they are also very destructive. Local farmers and homeowners often complain that they are decimating crops and destroying timber used in homebuilding by chewing on it. They are also expanding their territory, which displaces other native bird species.\n\nC To address these problems, sulphur-crested cockatoos have been declared a pest species in some areas. This prevents them from being imported into new areas and puts regulations on their ownership. In some regions, there are also regular culls to keep the populations in check and to prevent them from damaging the local ecosystem. While these policies may have an impact, it is unclear whether they will resolve the issue.",
+  "passage_with_locations": [
+    "A Today, there are more than 350 extant species of parrots. These intelligent birds come in a variety of sizes and vibrant colours. While they are prized as pets around the world for their ability to mimic speech, they are not always as beloved in their native lands.\n\n",
+    {
+      "question_number": 2,
+      "text": "B One good example of this is Australia... local inhabitants. Not only do their chatter and pre-dawn calls disturb humans, but they are also very destructive. Local farmers and homeowners often complain that they are decimating crops"
+    },
+    "\n\n",
+    {
+      "question_number": 1,
+      "text": "C To address these problems, sulphur-crested cockatoos have been declared a pest species in some areas. This prevents them from being imported into new areas and puts regulations on their ownership."
+    },
+    " In some regions, there are also regular culls to keep the populations in check and to prevent them from damaging the local ecosystem. While these policies may have an impact, it is unclear whether they will resolve the issue."
+  ],
+  "content": [
+    {
+      "type": "matching_information",
+      "instruction": "The reading passage has three paragraphs, A-C. Which paragraph contains the following information?",
+      "options": [
+        { "letter": "A", "text": "Paragraph A" },
+        { "letter": "B", "text": "Paragraph B" },
+        { "letter": "C", "text": "Paragraph C" }
+      ],
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "a reference to a banning a bird species from certain areas",
+          "answer": "C",
+          "explanation": {
+            "keyword": "prevents, imported, new areas",
+            "rationale": "Paragraph C mentions that cockatoos have been declared a pest species, which 'prevents them from being imported into new areas'. This is a direct reference to banning the species from specific regions.",
+            "distractor_analysis": "Paragraph B discusses the problems (nuisance, destruction) but does not mention the actual ban or import restriction."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "details of how parrots impact humans in terms of noise",
+          "answer": "B",
+          "explanation": {
+            "keyword": "chatter, pre-dawn calls, disturb humans",
+            "rationale": "Paragraph B states that 'their chatter and pre-dawn calls disturb humans'. These calls are forms of noise that negatively impact those living nearby.",
+            "distractor_analysis": "While Paragraph A introduces them as beloved pets (likely due to mimicry/noise), it doesn't detail their negative impact on humans in terms of noise (nuisance) in their native lands like Paragraph B does."
+          }
+        }
+      ]
+    }
+  ]
+}

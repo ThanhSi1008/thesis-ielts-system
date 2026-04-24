@@ -6,6 +6,8 @@
 \citation{faster_whisper}
 \citation{richards_arch}
 \@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {II}Theoretical Background}{1}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}Event-Driven Architecture}{1}{subsection.2.1}\protected@file@percent }
 \citation{nestjs_docs}
 \citation{fastapi_docs}
 \citation{faster_whisper}
@@ -14,8 +16,6 @@
 \citation{sm2}
 \citation{levenshtein}
 \citation{reference_paper}
-\@writefile{toc}{\contentsline {section}{\numberline {II}Theoretical Background}{2}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}Event-Driven Architecture}{2}{subsection.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}NestJS Framework}{2}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}FastAPI Framework}{2}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-D}}Faster-Whisper for Speech-to-Text}{2}{subsection.2.4}\protected@file@percent }
@@ -30,43 +30,46 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Authentication and Authorization}{2}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}AI-Powered Grading Pipeline}{2}{subsection.4.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-D}1}Writing Grading}{2}{subsubsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-D}2}Speaking Grading}{2}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-D}3}Pronunciation Checking (Asynchronous)}{2}{subsubsection.4.4.3}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Feature Comparison of Language Learning Platforms}}{3}{table.1}\protected@file@percent }
 \newlabel{tab:comparison}{{I}{3}{Feature Comparison of Language Learning Platforms}{table.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-D}2}Speaking Grading}{3}{subsubsection.4.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-D}3}Pronunciation Checking (Asynchronous)}{3}{subsubsection.4.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces System architecture overview showing the three-layer Event-Driven Hybrid design.}}{3}{figure.1}\protected@file@percent }
+\newlabel{fig:architecture}{{1}{3}{System architecture overview showing the three-layer Event-Driven Hybrid design}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Entity-relationship diagram showing key domain entities and their associations.}}{3}{figure.2}\protected@file@percent }
+\newlabel{fig:erd}{{2}{3}{Entity-relationship diagram showing key domain entities and their associations}{figure.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}IELTS Exam Engine}{3}{subsection.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-F}}SM-2 Spaced Repetition Vocab Lab}{3}{subsection.4.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-G}}Personalized Learning Roadmap}{3}{subsection.4.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-H}}Shadowing and Dictation System}{3}{subsection.4.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {V}Implementation and Results}{3}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Deployment Architecture}{3}{subsection.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}User Interface}{3}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}SM-2 Spaced Repetition Evaluation}{3}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-C}1}Interval Progression}{3}{subsubsection.5.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-C}2}Discrimination Capability}{3}{subsubsection.5.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Pronunciation Scoring Evaluation}{3}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-E}}System Performance}{3}{subsection.5.5}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces System Performance Characteristics}}{3}{table.2}\protected@file@percent }
-\newlabel{tab:performance}{{II}{3}{System Performance Characteristics}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces AI grading pipeline showing the request flow from client through NestJS, RabbitMQ, and FastAPI for Writing, Speaking, and Pronunciation evaluation.}}{4}{figure.3}\protected@file@percent }
+\newlabel{fig:grading_pipeline}{{3}{4}{AI grading pipeline showing the request flow from client through NestJS, RabbitMQ, and FastAPI for Writing, Speaking, and Pronunciation evaluation}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-F}}SM-2 Spaced Repetition Vocab Lab}{4}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-G}}Personalized Learning Roadmap}{4}{subsection.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-H}}Shadowing and Dictation System}{4}{subsection.4.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}Implementation and Results}{4}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Deployment Architecture}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}User Interface}{4}{subsection.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces SM-2 spaced repetition algorithm flowchart showing the card state transitions and interval calculation logic.}}{4}{figure.4}\protected@file@percent }
+\newlabel{fig:sm2_flowchart}{{4}{4}{SM-2 spaced repetition algorithm flowchart showing the card state transitions and interval calculation logic}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Deployment architecture showing Docker Compose for local development and K3s Kubernetes for production on GCP.}}{4}{figure.5}\protected@file@percent }
+\newlabel{fig:deployment}{{5}{4}{Deployment architecture showing Docker Compose for local development and K3s Kubernetes for production on GCP}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Personalized IELTS Basic Mastery Roadmap with sequential day-based learning steps, progress tracking, and step-level locking.}}{5}{figure.6}\protected@file@percent }
+\newlabel{fig:ui_roadmap}{{6}{5}{Personalized IELTS Basic Mastery Roadmap with sequential day-based learning steps, progress tracking, and step-level locking}{figure.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces AI Writing grading interface showing per-criterion band scores, identified strengths and weaknesses, improvement suggestions, and annotated corrections.}}{5}{figure.7}\protected@file@percent }
+\newlabel{fig:ui_grading}{{7}{5}{AI Writing grading interface showing per-criterion band scores, identified strengths and weaknesses, improvement suggestions, and annotated corrections}{figure.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces SM-2 interval progression over 50 reviews for three user profiles: User~A (90\% accuracy), User~B (60\%), and User~C (30\%).}}{5}{figure.8}\protected@file@percent }
+\newlabel{fig:sm2_interval}{{8}{5}{SM-2 interval progression over 50 reviews for three user profiles: User~A (90\% accuracy), User~B (60\%), and User~C (30\%)}{figure.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}SM-2 Spaced Repetition Evaluation}{5}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-C}1}Interval Progression}{5}{subsubsection.5.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces SM-2 Simulation Summary ($N=50$ Reviews)}}{5}{table.2}\protected@file@percent }
+\newlabel{tab:sm2_summary}{{II}{5}{SM-2 Simulation Summary ($N=50$ Reviews)}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Pronunciation score distribution by word difficulty level (Basic, Intermediate, Advanced).}}{5}{figure.9}\protected@file@percent }
+\newlabel{fig:pron_dist}{{9}{5}{Pronunciation score distribution by word difficulty level (Basic, Intermediate, Advanced)}{figure.9}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-C}2}Discrimination Capability}{5}{subsubsection.5.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Pronunciation Scoring Evaluation}{5}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-E}}System Performance}{5}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Conclusion and Future Work}{5}{section.6}\protected@file@percent }
 \bibcite{ielts_stats}{1}
 \bibcite{faster_whisper}{2}
 \bibcite{richards_arch}{3}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces System architecture overview showing the three-layer Event-Driven Hybrid design.}}{4}{figure.1}\protected@file@percent }
-\newlabel{fig:architecture}{{1}{4}{System architecture overview showing the three-layer Event-Driven Hybrid design}{figure.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Entity-relationship diagram showing key domain entities and their associations.}}{4}{figure.2}\protected@file@percent }
-\newlabel{fig:erd}{{2}{4}{Entity-relationship diagram showing key domain entities and their associations}{figure.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces AI grading pipeline showing the request flow from client through NestJS, RabbitMQ, and FastAPI for Writing, Speaking, and Pronunciation evaluation.}}{4}{figure.3}\protected@file@percent }
-\newlabel{fig:grading_pipeline}{{3}{4}{AI grading pipeline showing the request flow from client through NestJS, RabbitMQ, and FastAPI for Writing, Speaking, and Pronunciation evaluation}{figure.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Conclusion and Future Work}{4}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{References}{4}{section*.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces SM-2 spaced repetition algorithm flowchart showing the card state transitions and interval calculation logic.}}{5}{figure.4}\protected@file@percent }
-\newlabel{fig:sm2_flowchart}{{4}{5}{SM-2 spaced repetition algorithm flowchart showing the card state transitions and interval calculation logic}{figure.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Deployment architecture showing Docker Compose for local development and K3s Kubernetes for production on GCP.}}{5}{figure.5}\protected@file@percent }
-\newlabel{fig:deployment}{{5}{5}{Deployment architecture showing Docker Compose for local development and K3s Kubernetes for production on GCP}{figure.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces SM-2 interval progression over 50 reviews for three user profiles: User~A (90\% accuracy), User~B (60\%), and User~C (30\%).}}{5}{figure.6}\protected@file@percent }
-\newlabel{fig:sm2_interval}{{6}{5}{SM-2 interval progression over 50 reviews for three user profiles: User~A (90\% accuracy), User~B (60\%), and User~C (30\%)}{figure.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces SM-2 ease factor evolution showing how the algorithm adapts difficulty based on user performance.}}{5}{figure.7}\protected@file@percent }
-\newlabel{fig:sm2_ease}{{7}{5}{SM-2 ease factor evolution showing how the algorithm adapts difficulty based on user performance}{figure.7}{}}
 \bibcite{nestjs_docs}{4}
 \bibcite{fastapi_docs}{5}
 \bibcite{gpt3}{6}
@@ -79,14 +82,9 @@
 \bibcite{redis}{13}
 \bibcite{prisma}{14}
 \bibcite{reference_paper}{15}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces SM-2 card state transitions (NEW $\rightarrow $ LEARNING $\rightarrow $ REVIEW) across user proficiency levels.}}{6}{figure.8}\protected@file@percent }
-\newlabel{fig:sm2_states}{{8}{6}{SM-2 card state transitions (NEW $\rightarrow $ LEARNING $\rightarrow $ REVIEW) across user proficiency levels}{figure.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Summary statistics for the SM-2 simulation across the three user profiles.}}{6}{figure.9}\protected@file@percent }
-\newlabel{fig:sm2_summary}{{9}{6}{Summary statistics for the SM-2 simulation across the three user profiles}{figure.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Pronunciation score distribution by word difficulty level (Basic, Intermediate, Advanced).}}{6}{figure.10}\protected@file@percent }
-\newlabel{fig:pron_dist}{{10}{6}{Pronunciation score distribution by word difficulty level (Basic, Intermediate, Advanced)}{figure.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Pronunciation accuracy comparison across difficulty levels showing mean scores and perfect match rates.}}{6}{figure.11}\protected@file@percent }
-\newlabel{fig:pron_accuracy}{{11}{6}{Pronunciation accuracy comparison across difficulty levels showing mean scores and perfect match rates}{figure.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Levenshtein edit distance distribution between transcribed and target words across difficulty categories.}}{6}{figure.12}\protected@file@percent }
-\newlabel{fig:pron_edit}{{12}{6}{Levenshtein edit distance distribution between transcribed and target words across difficulty categories}{figure.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Levenshtein edit distance distribution between transcribed and target words across difficulty categories.}}{6}{figure.10}\protected@file@percent }
+\newlabel{fig:pron_edit}{{10}{6}{Levenshtein edit distance distribution between transcribed and target words across difficulty categories}{figure.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces System Performance Characteristics}}{6}{table.3}\protected@file@percent }
+\newlabel{tab:performance}{{III}{6}{System Performance Characteristics}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{References}{6}{section*.1}\protected@file@percent }
 \gdef \@abspage@last{6}

@@ -9,6 +9,7 @@
 \usepackage{multirow}
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{stfloats}
 % \usepackage{svg} % Requires Inkscape - using placeholders for SVG figures
 \graphicspath{{figures/}{paper_charts/}}
 
@@ -20,10 +21,9 @@
 \title{An AI-Powered IELTS Preparation Platform with Event-Driven Architecture and Local Speech Processing}
 
 \author{
-\IEEEauthorblockN{[Your Full Name]}
-\IEEEauthorblockA{Faculty of Information Technology\\
-Industrial University of Ho Chi Minh City\\
-Email: [your-email]@iuh.edu.vn}
+\IEEEauthorblockN{Nguyen Thi Hoang Khanh, Pham Duc Tai, Lai Thanh Si}
+\IEEEauthorblockA{Faculty of Information Technology Industrial University of Ho Chi Minh City\\
+nguyenthihoangkhanh@iuh.edu.vn, tylerpham102703@gmail.com, lathanhsi100804@gmail.com}
 }
 
 \maketitle
@@ -105,7 +105,7 @@ For Reading and Listening, the system implements flexible matching handling alte
 
 Table~\ref{tab:comparison} compares IELTS Master AI with four representative platforms.
 
-\begin{table*}[htbp]
+\begin{table*}[!t]
 \caption{Feature Comparison of Language Learning Platforms}
 \label{tab:comparison}
 \centering
@@ -136,20 +136,20 @@ Key differentiators include: (1) \textbf{Event-Driven AI Processing} ensuring su
 \subsection{Architecture Overview}
 The platform is architected as an Event-Driven Hybrid system with three layers: Client (Next.js 14 + React Native/Expo), Application (NestJS + FastAPI + RabbitMQ on K3s), and Data (PostgreSQL 16 + Redis 7 + MinIO). Fig.~\ref{fig:architecture} illustrates the high-level architecture.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{figure_1_system_architecture_overview.png}}
+\begin{figure*}[!t]
+\centerline{\includegraphics[height=9cm,keepaspectratio]{figure_1_system_architecture_overview.png}}
 \caption{System architecture overview showing the three-layer Event-Driven Hybrid design.}
 \label{fig:architecture}
-\end{figure}
+\end{figure*}
 
 \subsection{Database Design}
 The data model comprises 35+ Prisma models across domain groupings: Core (User, Exam, ExamSession, Result), IELTS Learning (IeltsSkill, IeltsLesson, exercises), Vocabulary (books, units, words), Vocab Lab (Deck, Flashcard with SM-2 fields, CardType, CardTemplate), Shadowing (ShadowingVideo with timestamps), Grammar, and Pronunciation (PronunciationAttempt with async status tracking). Fig.~\ref{fig:erd} presents the entity-relationship diagram for the key entities.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{figure_2_entity_relationship_diagram_key_entities.png}}
+\begin{figure*}[!t]
+\centerline{\includegraphics[width=\textwidth]{figure_2_entity_relationship_diagram_key_entities.png}}
 \caption{Entity-relationship diagram showing key domain entities and their associations.}
 \label{fig:erd}
-\end{figure}
+\end{figure*}
 
 \subsection{Authentication and Authorization}
 JWT-based authentication via NestJS Guards with role-based access control (STUDENT, ADMIN, INSTRUCTOR) and Redis session caching.
@@ -157,8 +157,8 @@ JWT-based authentication via NestJS Guards with role-based access control (STUDE
 \subsection{AI-Powered Grading Pipeline}
 The AI grading pipeline is the system's most significant technical contribution. Fig.~\ref{fig:grading_pipeline} illustrates the end-to-end AI grading flow.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{figure_3_ai_grading_pipeline.png}}
+\begin{figure}[!t]
+\centerline{\includegraphics[height=9cm,keepaspectratio]{figure_3_ai_grading_pipeline.png}}
 \caption{AI grading pipeline showing the request flow from client through NestJS, RabbitMQ, and FastAPI for Writing, Speaking, and Pronunciation evaluation.}
 \label{fig:grading_pipeline}
 \end{figure}
@@ -178,8 +178,8 @@ Supports deterministic grading for Listening/Reading (flexible answer matching) 
 \subsection{SM-2 Spaced Repetition Vocab Lab}
 Implements the SM-2 algorithm (Equations~2--3) with custom card types, configurable field definitions, front/back templates, and a priority-ordered study queue. Fig.~\ref{fig:sm2_flowchart} shows the SM-2 algorithm decision flowchart.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{sm2_algorithm_flowchart.png}}
+\begin{figure}[!t]
+\centerline{\includegraphics[height=9cm,keepaspectratio]{sm2_algorithm_flowchart.png}}
 \caption{SM-2 spaced repetition algorithm flowchart showing the card state transitions and interval calculation logic.}
 \label{fig:sm2_flowchart}
 \end{figure}
@@ -197,14 +197,26 @@ YouTube video integration with timestamped sentences, per-word IPA phonetics, Vi
 \subsection{Deployment Architecture}
 Local development uses Docker Compose (PostgreSQL 16, Redis 7, RabbitMQ 3, MinIO, PgAdmin). Production deploys on GCP using K3s Kubernetes with Traefik Ingress Controller. Fig.~\ref{fig:deployment} shows the deployment topology.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{figure_4_deployment_architecture.png}}
+\begin{figure}[!t]
+\centerline{\includegraphics[height=9cm,keepaspectratio]{figure_4_deployment_architecture.png}}
 \caption{Deployment architecture showing Docker Compose for local development and K3s Kubernetes for production on GCP.}
 \label{fig:deployment}
 \end{figure}
 
 \subsection{User Interface}
-The platform provides interfaces for: IELTS Hub (4-stage learning journey), exam practice, AI grading results with detailed feedback, Vocab Lab flashcards, pronunciation checker, shadowing/dictation, and grammar lessons.
+The platform provides interfaces for: IELTS Hub (4-stage learning journey), exam practice, AI grading results with detailed feedback, Vocab Lab flashcards, pronunciation checker, shadowing/dictation, and grammar lessons. Fig.~\ref{fig:ui_roadmap} shows the personalized learning roadmap, and Fig.~\ref{fig:ui_grading} demonstrates the AI Writing grading interface.
+
+\begin{figure}[!t]
+\centerline{\includegraphics[width=\columnwidth]{ui_roadmap.png}}
+\caption{Personalized IELTS Basic Mastery Roadmap with sequential day-based learning steps, progress tracking, and step-level locking.}
+\label{fig:ui_roadmap}
+\end{figure}
+
+\begin{figure}[!t]
+\centerline{\includegraphics[width=\columnwidth]{ui_writing_grading.png}}
+\caption{AI Writing grading interface showing per-criterion band scores, identified strengths and weaknesses, improvement suggestions, and annotated corrections.}
+\label{fig:ui_grading}
+\end{figure}
 
 
 
@@ -212,53 +224,51 @@ The platform provides interfaces for: IELTS Hub (4-stage learning journey), exam
 A stochastic simulation was conducted over $N=50$ review iterations with three user profiles: User~A (90\% accuracy), User~B (60\%), and User~C (30\%).
 
 \subsubsection{Interval Progression}
-Fig.~\ref{fig:sm2_interval} presents the interval progression, Fig.~\ref{fig:sm2_ease} shows the ease factor evolution, and Fig.~\ref{fig:sm2_states} illustrates the state transition patterns.
+Fig.~\ref{fig:sm2_interval} presents the interval progression across the three user profiles.
 
-\begin{figure}[htbp]
+\begin{figure}[!t]
 \centerline{\includegraphics[width=\columnwidth]{sm2_interval_progression.png}}
 \caption{SM-2 interval progression over 50 reviews for three user profiles: User~A (90\% accuracy), User~B (60\%), and User~C (30\%).}
 \label{fig:sm2_interval}
 \end{figure}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{sm2_ease_factor.png}}
-\caption{SM-2 ease factor evolution showing how the algorithm adapts difficulty based on user performance.}
-\label{fig:sm2_ease}
-\end{figure}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{sm2_state_transitions.png}}
-\caption{SM-2 card state transitions (NEW $\rightarrow$ LEARNING $\rightarrow$ REVIEW) across user proficiency levels.}
-\label{fig:sm2_states}
-\end{figure}
 
-User~A (46/50 correct) achieves exponential interval growth, reaching a maximum of 74,922 days and entering the REVIEW state 41/50 times. User~B (28/50 correct) reaches a maximum interval of 14 days with 15 REVIEW entries. User~C (20/50 correct) remains at a final interval of 1~day with only 8 REVIEW entries. All ease factors decline from the initial 2.5, with User~A stabilizing at 1.50 and User~C converging to 1.40 near the minimum bound. Table~\ref{fig:sm2_summary} provides a quantitative summary.
+User~A (46/50 correct) achieves exponential interval growth, reaching a final interval of 17~days, a maximum of 74,922~days, and entering the REVIEW state 41/50 times. User~B (28/50 correct) reaches a final interval of 12~days with a maximum of 14~days and 15 REVIEW entries. User~C (20/50 correct) remains at a final interval of 1~day with a maximum of 9~days and only 8 REVIEW entries. All ease factors decline from the initial 2.5, with Users~A and~B stabilizing at 1.50 and User~C converging to 1.40 near the minimum bound. Table~\ref{tab:sm2_summary} provides a quantitative summary.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{sm2_summary_table.png}}
-\caption{Summary statistics for the SM-2 simulation across the three user profiles.}
-\label{fig:sm2_summary}
-\end{figure}
+\begin{table}[!t]
+\caption{SM-2 Simulation Summary ($N=50$ Reviews)}
+\label{tab:sm2_summary}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Metric} & \textbf{User A} & \textbf{User B} & \textbf{User C} \\
+\midrule
+Accuracy & 90\% & 60\% & 30\% \\
+Correct Responses & 46 & 28 & 20 \\
+Final Ease Factor & 1.50 & 1.50 & 1.40 \\
+Final Interval (days) & 17 & 12 & 1 \\
+Max Interval (days) & 74,922 & 14 & 9 \\
+Times in REVIEW & 41 & 15 & 8 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsubsection{Discrimination Capability}
 The SM-2 penalty mechanism ($q < 3$ triggers reset) effectively prevents progression through insufficient knowledge, ensuring items are reviewed at high frequency until mastery.
 
 \subsection{Pronunciation Scoring Evaluation}
-51 pronunciation attempt pairs were tested across three difficulty levels. The results are presented in Fig.~\ref{fig:pron_dist}--\ref{fig:pron_edit}.
+51 pronunciation attempt pairs were tested across three difficulty levels. The results are presented in Fig.~\ref{fig:pron_dist} and Fig.~\ref{fig:pron_edit}.
 
-\begin{figure}[htbp]
+\begin{figure}[!t]
 \centerline{\includegraphics[width=\columnwidth]{pronunciation_score_distribution.png}}
 \caption{Pronunciation score distribution by word difficulty level (Basic, Intermediate, Advanced).}
 \label{fig:pron_dist}
 \end{figure}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{pronunciation_accuracy_bars.png}}
-\caption{Pronunciation accuracy comparison across difficulty levels showing mean scores and perfect match rates.}
-\label{fig:pron_accuracy}
-\end{figure}
 
-\begin{figure}[htbp]
+
+\begin{figure}[!t]
 \centerline{\includegraphics[width=\columnwidth]{pronunciation_edit_distance.png}}
 \caption{Levenshtein edit distance distribution between transcribed and target words across difficulty categories.}
 \label{fig:pron_edit}
@@ -269,7 +279,7 @@ Basic words (17 samples): $\mu=90.4\%$, $\sigma=13.5$, 58.8\% perfect match rate
 \subsection{System Performance}
 Table~\ref{tab:performance} summarizes response times.
 
-\begin{table}[htbp]
+\begin{table}[!t]
 \caption{System Performance Characteristics}
 \label{tab:performance}
 \centering

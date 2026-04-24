@@ -1,0 +1,62 @@
+{
+  "title": "Parrotfish Lifecycle",
+  "passage": "If you have ever been snorkelling or diving along a tropical coral reef, then you have probably heard regular crunching sounds while underwater. These are made when the colourful parrotfish remove algae from the reef's surface by biting and scraping it with their parrot-like beaks. The lifecycle of these fascinating fish begins when they travel into the open sea to discharge their eggs, where they hatch. Following this their early life is spent as larvae in the ocean's plankton population. They then move to the mangroves as juveniles and then to a reef where they will both hide from predators and clean the reef. Interestingly, throughout these stages of development, all parrotfish are drably coloured females. This is because parrotfish are sequential hermaphrodites, meaning they change gender as they age. When they enter the terminal phase of their lives, the young female parrotfish morph into more colourful males. These males then collect a harem of younger female parrotfish and spawn to produce yet another all-female group of larval parrotfish. A further interesting aspect of the parrotfish is its importance in the reef's survival. According to researchers at the International Union for Conservation of Nature, without the cleaning activities of the parrotfish, the reefs would soon be overrun with algae and die.",
+  "passage_with_locations": [
+    "If you have ever been snorkelling or diving along a tropical coral reef, then you have probably heard regular crunching sounds while underwater. These are made when the colourful parrotfish remove algae from the reef's surface by biting and scraping it with their parrot-like beaks. The lifecycle of these fascinating fish begins when they travel into the open sea to discharge their eggs, where they hatch. Following this ",
+    {
+      "question_number": 3,
+      "text": "their early life is spent as larvae in the ocean's plankton population."
+    },
+    " ",
+    {
+      "question_number": 4,
+      "text": "They then move to the mangroves as juveniles and then to a reef"
+    },
+    " where they will both hide from predators and clean the reef. Interestingly, throughout these stages of development, all parrotfish are drably coloured females. This is because parrotfish are sequential hermaphrodites, meaning they change gender as they age. When they enter the terminal phase of their lives, the young female parrotfish morph into more colourful males. These males then collect a harem of younger female parrotfish and spawn to produce yet another all-female group of larval parrotfish. A further interesting aspect of the parrotfish is its importance in the reef's survival. According to researchers at the International Union for Conservation of Nature, without the cleaning activities of the parrotfish, the reefs would soon be overrun with algae and die."
+  ],
+  "content": [
+    {
+      "type": "flowchart_completion",
+      "instruction": "Complete the flow-chart below. Choose ONE WORD ONLY from the passage for each answer.",
+      "flowchart_title": "Parrotfish Lifecycle",
+      "stages": [
+        {
+          "stage_name": "Spawning",
+          "text": "Adult parrotfish move into the open ocean to release their eggs."
+        },
+        {
+          "stage_name": "Initial Stage",
+          "text": "Parrotfish enter the ocean's plankton fields as {{3}}."
+        },
+        {
+          "stage_name": "Juvenile Stage",
+          "text": "Juvenile parrotfish spend time in the {{4}} before moving to the reefs."
+        },
+        {
+          "stage_name": "Terminal Stage",
+          "text": "Adult male parrotfish live on the reef with a group of females."
+        }
+      ],
+      "questions": [
+        {
+          "question_number": 3,
+          "answer": "larvae",
+          "explanation": {
+            "keyword": "ocean's plankton fields",
+            "rationale": "The flowchart specifies that parrotfish 'enter the ocean's plankton fields as' something. The text states 'their early life is spent as larvae in the ocean's plankton population'. Since 'plankton fields' matches 'plankton population', the missing word is 'larvae'.",
+            "distractor_analysis": "Words like 'eggs' are incorrect because eggs are released in the open sea before the life stage where they join the plankton population as larvae."
+          }
+        },
+        {
+          "question_number": 4,
+          "answer": "mangroves",
+          "explanation": {
+            "keyword": "before moving to the reefs",
+            "rationale": "The flowchart notes that juvenile parrotfish spend time somewhere 'before moving to the reefs'. The passage states 'They then move to the mangroves as juveniles and then to a reef'. Therefore, the place they spend time before moving to the reef is the 'mangroves'.",
+            "distractor_analysis": "'open sea' is incorrect as that represents where they hatch, not where they live during their juvenile stage."
+          }
+        }
+      ]
+    }
+  ]
+}

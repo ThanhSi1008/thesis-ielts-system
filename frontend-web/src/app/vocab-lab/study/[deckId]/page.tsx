@@ -115,14 +115,14 @@ export default function StudyPage() {
         }
       } else {
         switch (e.key) {
-          case '1': e.preventDefault(); handleRating(0); break;
-          case '2': e.preventDefault(); handleRating(3); break;
-          case '3': e.preventDefault(); handleRating(4); break;
-          case '4': e.preventDefault(); handleRating(5); break;
+          case '1': e.preventDefault(); handleRating(1); break;
+          case '2': e.preventDefault(); handleRating(2); break;
+          case '3': e.preventDefault(); handleRating(3); break;
+          case '4': e.preventDefault(); handleRating(4); break;
           case 'Space':
           case 'Enter':
             e.preventDefault();
-            handleRating(4); // Default to Good
+            handleRating(3); // Default to Good
             break;
         }
       }
@@ -355,7 +355,7 @@ export default function StudyPage() {
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 animate-fade-in-up">
                       <button
-                        onClick={() => handleRating(0)}
+                        onClick={() => handleRating(1)}
                         disabled={isSubmitting}
                         className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg border border-red-200 transition-colors disabled:opacity-50 group"
                       >
@@ -367,37 +367,37 @@ export default function StudyPage() {
                       </button>
 
                       <button
-                        onClick={() => handleRating(3)}
+                        onClick={() => handleRating(2)}
                         disabled={isSubmitting}
                         className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg border border-orange-200 transition-colors disabled:opacity-50 group"
                       >
                         <span className="font-bold text-sm mb-0.5">Hard</span>
                         <div className="flex items-center text-[10px] opacity-70">
-                          <span>{currentCard.interval > 0 ? `${Math.round(currentCard.interval * 1.2)}d` : '1.2d'}</span>
+                          <span>{currentCard.scheduledDays > 0 ? `${Math.max(1, Math.round(currentCard.scheduledDays * 1.2))}d` : '1d'}</span>
                           <span className="ml-1.5 px-1 py-px bg-orange-100 group-hover:bg-orange-200 rounded hidden sm:block">2</span>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleRating(3)}
+                        disabled={isSubmitting}
+                        className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-200 transition-colors disabled:opacity-50 group"
+                      >
+                        <span className="font-bold text-sm mb-0.5">Good</span>
+                        <div className="flex items-center text-[10px] opacity-70">
+                          <span>{currentCard.scheduledDays > 0 ? `${Math.max(2, Math.round(currentCard.scheduledDays * 2.5))}d` : '3d'}</span>
+                          <span className="ml-1.5 px-1 py-px bg-blue-100 group-hover:bg-blue-200 rounded hidden sm:block">3</span>
                         </div>
                       </button>
 
                       <button
                         onClick={() => handleRating(4)}
                         disabled={isSubmitting}
-                        className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-200 transition-colors disabled:opacity-50 group"
-                      >
-                        <span className="font-bold text-sm mb-0.5">Good</span>
-                        <div className="flex items-center text-[10px] opacity-70">
-                          <span>{currentCard.interval > 0 ? `${Math.round(currentCard.interval * 2.5)}d` : '2.5d'}</span>
-                          <span className="ml-1.5 px-1 py-px bg-blue-100 group-hover:bg-blue-200 rounded hidden sm:block">3</span>
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => handleRating(5)}
-                        disabled={isSubmitting}
                         className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg border border-green-200 transition-colors disabled:opacity-50 group"
                       >
                         <span className="font-bold text-sm mb-0.5">Easy</span>
                         <div className="flex items-center text-[10px] opacity-70">
-                          <span>{currentCard.interval > 0 ? `${Math.round(currentCard.interval * 3.5)}d` : '4d'}</span>
+                          <span>{currentCard.scheduledDays > 0 ? `${Math.max(3, Math.round(currentCard.scheduledDays * 3.5))}d` : '5d'}</span>
                           <span className="ml-1.5 px-1 py-px bg-green-100 group-hover:bg-green-200 rounded hidden sm:block">4</span>
                         </div>
                       </button>

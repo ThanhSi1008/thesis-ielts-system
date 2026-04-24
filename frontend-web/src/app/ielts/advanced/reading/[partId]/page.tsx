@@ -1,0 +1,109 @@
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import api from "@/lib/api";
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ReadingPassagePanel } from "../../../basic/[skill]/exercises/[exerciseId]/_components/ui/ReadingPassagePanel";
+import { ReadingQuestionsPanel } from "../../../basic/[skill]/exercises/[exerciseId]/_components/ui/ReadingQuestionsPanel";
+
+export default function IeltsAdvancedReadingPractice({ params }: { params: { partId: string } }) {
+  const [part, setPart] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    api.get(`/ielts/advanced/reading/${params.partId}`, {
+      withCredentials: true
+    })
+    .then(res => {
+      setPart(res.data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
+  }, [params.partId]);
+
+  const handleAnswer = (key: string | number, currentVal: string) => {
+    if (submitted) return;
+    setAnswers(prev => ({ ...prev, [key]: currentVal }));
+  };
+
+  const handleLocate = (qNum: number) => {
+    setLocatedQuestion(qNum);
+    const el = document.getElementById(`passage-q-${qNum}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const handleSubmit = async () => {
+    setSubmitted(true);
+    try {
+      const res = await api.post(`/ielts/advanced/reading/${params.partId}/submit`, {
+         answers
+      }) as { data: any };
+      
+      router.push(`/ielts/advanced/reading/${params.partId}/my-answers/${res.data.id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (loading) return <div className="p-10 font-bold text-gray-500 flex justify-center mt-20">Loading Reading Part...</div>;
+  if (!part) return <div className="p-10 font-bold text-red-500 flex justify-center mt-20">Reading part not found</div>;
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-140px)]">
+       <div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-4 shrink-0 px-4">
+         <div className="flex items-center gap-3">
+            <Link href="/ielts/advanced" className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50">
+              <ChevronLeft className="w-4 h-4 text-gray-600" />
+            </Link>
+            <h2 className="text-xl font-extrabold text-gray-900">{part.title}</h2>
+         </div>
+         <div className="flex justify-end pr-4">
+            {!submitted ? (
+               <button onClick={handleSubmit} className="px-8 py-2.5 bg-[#FFC107] text-white text-sm font-extrabold rounded-xl hover:bg-yellow-500 shadow-sm transition-all transform hover:scale-105">
+                 Submit Answers
+               </button>
+            ) : (
+               <Link href="/ielts/advanced/statistics" className="px-6 py-2.5 bg-gray-900 text-white text-sm font-extrabold rounded-xl hover:bg-gray-800 shadow-sm">
+                 View Accuracy Statistics
+               </Link>
+            )}
+         </div>
+       </div>
+
+       <div className="flex-1 min-h-0 container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Left: Reading Passage */}
+          <div className="h-full border-r border-gray-100 pl-6 lg:pl-10 pt-6 relative">
+            <ReadingPassagePanel
+              passageWithLocations={part.passageWithLocations}
+              passage={part.passage}
+              locatedQuestion={locatedQuestion}
+              showAnswers={submitted}
+            />
+          </div>
+
+          {/* Right: Reading Questions */}
+          <div className="h-full overflow-y-auto pr-6 lg:pr-10 pt-6 pb-20 custom-scrollbar">
+            <ReadingQuestionsPanel
+              exercise={part}
+              answers={answers}
+              submitted={submitted}
+              showAnswers={submitted}
+              onAnswer={handleAnswer}
+              onLocate={handleLocate}
+            />
+          </div>
+       </div>
+    </div>
+  );
+}

@@ -1,11 +1,15 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import { StreakService } from "./streak.service";
 
 @Injectable()
 export class IeltsService {
   private readonly logger = new Logger(IeltsService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private streakService: StreakService
+  ) { }
 
   async findAllSkills() {
     return this.prisma.ieltsSkill.findMany({
@@ -153,13 +157,15 @@ export class IeltsService {
     });
 
     if (existing) {
-      return this.prisma.ieltsBasicProgress.update({
+      const updated = await this.prisma.ieltsBasicProgress.update({
         where: { id: existing.id },
         data: { isCompleted: true },
       });
+      await this.streakService.recordActivity(userId);
+      return updated;
     }
 
-    return this.prisma.ieltsBasicProgress.create({
+    const created = await this.prisma.ieltsBasicProgress.create({
       data: {
         userId,
         lessonId: data.lessonId,
@@ -169,6 +175,9 @@ export class IeltsService {
         isCompleted: true,
       },
     });
+    
+    await this.streakService.recordActivity(userId);
+    return created;
   }
 
   async getLibraryStats(userId: string) {
@@ -318,5 +327,17 @@ export class IeltsService {
         }
       }
     });
+  }
+
+  // ── Placement Test ──────────────────────────────────────────────────────
+
+  async getPlacementExercises() {
+    const listening = await this.prisma.ieltsListeningExercise.findFirst({
+      orderBy: { order: 'asc' },
+    });
+    const reading = await this.prisma.ieltsReadingExercise.findFirst({
+      orderBy: { order: 'asc' },
+    });
+    return { listening, reading, writing: null };
   }
 }

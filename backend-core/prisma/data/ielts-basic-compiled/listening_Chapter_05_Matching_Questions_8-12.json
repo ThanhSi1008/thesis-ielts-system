@@ -1,0 +1,131 @@
+[
+  {
+    "questions": "8-12",
+    "instructions": "What does Melissa decide about each of the following endangered languages in her project? Write the correct letter, A, B or C, next to Questions 8-12.",
+    "topic": "Endangered Languages Project",
+    "question_type": "Matching",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562258/CH5_HP8-12_kdsqnw.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 3. You will hear a conversation between a tutor and a student about a project on endangered languages."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions 8 to 12."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions 8 to 12."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Melissa, I've been going through your project's proposal on endangered languages. I think it's a very interesting topic. Can you tell me why did you choose to focus on Native American languages, and what particular languages will you focus on?"
+      },
+      {
+        "speaker": "Melissa",
+        "text": "Well, it was because they seemed to be languages in the most danger of disappearing. So far, the only ones I want to include for sure are the Pawnee language and the Cherokee language."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Good. There is lots of information out there about the Cherokee, so definitely use that.",
+        "question_number": 8,
+        "highlight_text": "so definitely use that."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "But keep in mind that Professor Johnson wants you to provide detailed graphs about the phonetics... because Pawnee only has nine different consonant sounds. It might not be the best candidate for such detail."
+      },
+      {
+        "speaker": "Melissa",
+        "text": "Ah, right. I forgot about that. I thought it would be good to include Pawnee, as there's so much reference material on it. Okay, I'll leave that one out.",
+        "question_number": 9,
+        "highlight_text": "Okay, I'll leave that one out."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Another language I'd suggest is that of the Kashia people of the American Pacific Coast. They have over 40 distinct consonants, if I remember correctly."
+      },
+      {
+        "speaker": "Melissa",
+        "text": "Hmm, yes. I would have researched the Kashia language, but I checked it out before, and it has a very limited number of vowel sounds. But you're right. Um, it might be a good one to study just because of sound variety. If there isn't a better idea, I'll do it.",
+        "question_number": 10,
+        "highlight_text": "it might be a good one to study... If there isn't a better idea, I'll do it."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Ah, okay. What about the Menomini people's language? Their language had about 12 different vowels, as well as a similar number of consonants."
+      },
+      {
+        "speaker": "Melissa",
+        "text": "I don't think I'll use that one, because I couldn't find enough data.",
+        "question_number": 11,
+        "highlight_text": "I don't think I'll use that one, because I couldn't find enough data."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Well, another option is the Algonquin Native American tribe... It is very similar to the Menomini language, but there's a lot more information on the Algonquin tongue out there."
+      },
+      {
+        "speaker": "Melissa",
+        "text": "Oh, well, it will be easier to research. I'll do that.",
+        "question_number": 12,
+        "highlight_text": "I'll do that."
+      },
+      {
+        "speaker": "Tutor",
+        "text": "Good. Anyway, that will give you a good start. Now, what you need to do is revise your proposal."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "matching",
+        "heading": "Melissa's Decisions",
+        "description": "What does Melissa decide about each of the following endangered languages in her project?",
+        "items": [
+          { "id": 8, "text": "8 Cherokee" },
+          { "id": 9, "text": "9 Pawnee" },
+          { "id": 10, "text": "10 Kashaya" },
+          { "id": 11, "text": "11 Menominee" },
+          { "id": 12, "text": "12 Algonquin" }
+        ],
+        "options": [
+          { "letter": "A", "text": "She will use it." },
+          { "letter": "B", "text": "She may use it." },
+          { "letter": "C", "text": "She won't use it." }
+        ],
+        "answers": {
+          "8": {
+            "letter": "A",
+            "timestamp_seconds": 81.12,
+            "explanation": "Melissa initially wants to include for sure and the Tutor encourages 'definitely use that'."
+          },
+          "9": {
+            "letter": "C",
+            "timestamp_seconds": 106.72,
+            "explanation": "After the tutor points out the simplicity of Pawnee phonetics, Melissa decides to 'leave that one out'."
+          },
+          "10": {
+            "letter": "B",
+            "timestamp_seconds": 133.28,
+            "explanation": "Melissa says 'it might be a good one to study... If there isn't a better idea, I'll do it', indicating she may use it."
+          },
+          "11": {
+            "letter": "C",
+            "timestamp_seconds": 147.44,
+            "explanation": "Melissa rejects Menominee because she 'couldn't find enough data'."
+          },
+          "12": {
+            "letter": "A",
+            "timestamp_seconds": 172.48,
+            "explanation": "When the tutor suggests Algonquin has more information, Melissa decides 'I'll do that'."
+          }
+        }
+      }
+    ]
+  }
+]

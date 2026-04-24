@@ -1,8 +1,8 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { LessonDetailContent } from "../[skill]/lessons/[lessonId]/page";
-import { ExerciseDetailContent } from "../[skill]/exercises/[exerciseId]/page";
+import { LessonDetailContent } from "../[skill]/lessons/[lessonId]/LessonDetailContent";
+import { ExerciseDetailContent } from "../[skill]/exercises/[exerciseId]/ExerciseDetailContent";
 import { Info } from "lucide-react";
 import api from "@/lib/api";
 import { RoadmapStep } from "../_components/RoadmapSidebar";

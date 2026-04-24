@@ -26,6 +26,7 @@ pydantic==2.5.3
 pydantic-settings==2.1.0
 python-multipart==0.0.6
 python-Levenshtein==0.25.0  # For pronunciation scoring
+eng-to-ipa>=2.2.0           # For phoneme-level pronunciation analysis
 
 # System monitoring
 psutil==5.9.7
@@ -36,8 +37,8 @@ python-json-logger==2.0.7
 # HTTP client
 requests==2.31.0
 
-# DeepSeek AI via OpenAI-compatible API
-openai>=1.0.0
+# Google Gemini AI
+google-genai>=0.1.0
 
 # Testing
 pytest==7.4.4

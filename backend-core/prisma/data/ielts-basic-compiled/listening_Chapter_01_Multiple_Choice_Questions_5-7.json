@@ -1,0 +1,56 @@
+[
+  {
+    "questions": "5-7",
+    "instructions": "Choose THREE letters, A-G.",
+    "topic": "Overseas Payments & Smart Shopping",
+    "question_type": "Multiple Choice (Multiple)",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562291/CH1_HP5-7_fnclic.mp3",
+    "transcript": [
+      {
+        "speaker": "Announcer",
+        "text": "Good afternoon. Thanks for listening to today's broadcast of 'Smart Shopping'. As we head into the winter season, many of you will be travelling out of the country for your annual holidays. And while away, you're likely to buy some souvenirs to bring back with you. On today's programme, I'm going to give you some tips on what to be cautious of and how to make good purchases while abroad."
+      },
+      {
+        "speaker": "Announcer",
+        "text": "So, my first point is about payment. Tourists from the UK are mainly accustomed to pulling out a credit card and charging just about everything. Well, that's not such a good idea when overseas for two reasons. First, there is a lot of credit card fraud. Credit card usage is simply not secure. Secondly, the seller will have to charge you anywhere between 3 and 5% more in credit card fees that they must pay to credit card companies. So, use cash if at all possible.",
+        "question_number": 5,
+        "highlight_text": "use cash if at all possible"
+      },
+      {
+        "speaker": "Announcer",
+        "text": "And that brings me to my next word of advice; check the exchange rates offered for your currency before making payments by cash or even credit cards. Some establishments offer poor rates, so it is better to exchange your money in a bank which ensures better rates, and use local currency in those cases.",
+        "question_number": 6,
+        "highlight_text": "better to exchange your money in a bank which ensures better rates"
+      },
+      {
+        "speaker": "Announcer",
+        "text": "Also, it is always a good idea to get tax refunds for your purchases when possible, as it can save you a lot of money. International travellers are often eligible for these refunds in many locations and won't have to pay taxes on the items they buy. Find out ahead of time what the minimum purchase amount is and what types of purchases are eligible. And don't forget to claim your refunds at your point of departure before checking in, as you may have to show the purchases to agents along with original receipts.",
+        "question_number": 7,
+        "highlight_text": "it is always a good idea to get tax refunds"
+      },
+      {
+        "speaker": "Announcer",
+        "text": "But there are many items that you are not permitted to transport on planes or trains. So, I also want to cover..."
+      }
+    ],
+    "content": [
+      {
+        "type": "multiple_choice_multiple",
+        "question_numbers": [5, 6, 7],
+        "text": "Which THREE things does the speaker say travellers should make sure to do when making payments overseas?",
+        "options": [
+          { "letter": "A", "text": "take advantage of tax refunds" },
+          { "letter": "B", "text": "get the correct change" },
+          { "letter": "C", "text": "pay with money rather than cards" },
+          { "letter": "D", "text": "avoid counterfeit cash" },
+          { "letter": "E", "text": "pay credit card fees" },
+          { "letter": "F", "text": "get a good exchange rate" },
+          { "letter": "G", "text": "pay traveller taxes" }
+        ],
+        "answers": ["A", "C", "F"],
+        "num_correct": 3,
+        "explanation": "The announcer provides three key tips for overseas payments: 1) Use 'cash if at all possible' (C) to avoid fraud and fees. 2) Exchange money in a bank to ensure 'better rates' (F). 3) Always try to 'get tax refunds' (A) for your purchases to save money."
+      }
+    ]
+  }
+]

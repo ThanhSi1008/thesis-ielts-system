@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { GradingProvider } from "@/contexts/GradingContext";
+import { IeltsSidebarProvider } from "@/contexts/IeltsSidebarContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,15 +28,18 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <GradingProvider>
-            <ScrollToTop />
-            <Header />
-            <Toaster />
-            <GlobalVocabFab />
-            <GlobalAIChatFab />
-            {children}
+            <IeltsSidebarProvider>
+              <ScrollToTop />
+              <Header />
+              <Toaster />
+              <GlobalVocabFab />
+              <GlobalAIChatFab />
+              {children}
+            </IeltsSidebarProvider>
           </GradingProvider>
         </AuthProvider>
       </body>
     </html>
   );
 }
+

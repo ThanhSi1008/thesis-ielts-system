@@ -1,0 +1,49 @@
+{
+  "title": "History of Architectural Materials",
+  "passage": "When studying historical buildings, one can see a clear progression in construction materials. Before the medieval period, timber was the most widely used building material in Europe, but it came to be replaced by stone in most major structures. Even the use of metals was limited in structural architecture before the industrial age. At that time, metal was mainly used for bridges and greenhouses due to its limited aesthetic appeal. However, the public perception of manmade materials changed and technological progress brought down metalwork's cost, leading to it being used more. The first metal commonly used in architecture was cast iron, which could be formed into decorative shapes like stone. Architects even began using cast iron to construct building frames. Unfortunately, this particular metal has a low tensile strength and several of these buildings collapsed. To address this problem, builders turned to wrought iron and eventually to steel. As public opinion about manmade materials continued to change in the 19th century, the use of concrete became acceptable. The combination of steel and concrete was incredibly strong and allowed for the construction of taller buildings - thoroughly changing urban landscapes. Construction of the tallest building in the world, Dubai's Burj Khalifa, used 4,000 tonnes of steel in combination with 330,000 cubic metres of concrete and 55,000 tonnes of reinforcing steel rebar.",
+  "passage_with_locations": [
+    "When studying historical buildings, one can see a clear progression in construction materials. ",
+    {
+      "question_number": 1,
+      "text": "Before the medieval period, timber was the most widely used building material in Europe"
+    },
+    ", but it came to be replaced by stone in most major structures. Even the use of metals was limited in structural architecture before the industrial age. At that time, metal was mainly used for bridges and greenhouses due to its limited aesthetic appeal. However, the public perception of manmade materials changed and technological progress brought down metalwork's cost, leading to it being used more. The first metal commonly used in architecture was cast iron, which could be formed into decorative shapes like stone. Architects even began using cast iron to construct building frames. Unfortunately, this particular metal has a low tensile strength and several of these buildings collapsed. To address this problem, builders turned to wrought iron and eventually to steel. As public opinion about manmade materials continued to change in the 19th century, the use of concrete became acceptable. The combination of steel and concrete was incredibly strong and allowed for the construction of taller buildings - thoroughly changing urban landscapes. ",
+    {
+      "question_number": 2,
+      "text": "Construction of the tallest building in the world, Dubai's Burj Khalifa, used 4,000 tonnes of steel in combination with 330,000 cubic metres of concrete and 55,000 tonnes of reinforcing steel rebar."
+    }
+  ],
+  "content": [
+    {
+      "type": "note_completion",
+      "instruction": "Complete the notes below. Choose ONE WORD AND/OR A NUMBER from the passage for each answer.",
+      "note_title": "History of Architectural Materials",
+      "notes": [
+        "Most pre-medieval buildings in Europe used {{1}} for construction.",
+        "Stone construction became popular in the medieval period.",
+        "Manmade materials were not widely used before the industrial age.",
+        "Building the world's highest skyscraper utilised 330,000 cubic metres of concrete and {{2}} of steel."
+      ],
+      "questions": [
+        {
+          "question_number": 1,
+          "answer": "timber",
+          "explanation": {
+            "keyword": "pre-medieval buildings",
+            "rationale": "The note asks for the material used for most 'pre-medieval' buildings. In the passage, 'Before the medieval period' is synonymous with pre-medieval, and it states that 'timber was the most widely used building material'.",
+            "distractor_analysis": "Stone is incorrect because it became popular *in* the medieval period, not before."
+          }
+        },
+        {
+          "question_number": 2,
+          "answer": "4,000 tonnes",
+          "explanation": {
+            "keyword": "world's highest skyscraper / 330,000 cubic metres of concrete / steel",
+            "rationale": "The passage discusses the construction of the 'tallest building in the world' (symonymous with highest skyscraper), and explicitly mentions it 'used 4,000 tonnes of steel in combination with 330,000 cubic metres of concrete'.",
+            "distractor_analysis": "'55,000 tonnes' is incorrect because it refers to reinforcing steel rebar, not the initial '4,000 tonnes' of structural steel mentioned alongside the concrete."
+          }
+        }
+      ]
+    }
+  ]
+}

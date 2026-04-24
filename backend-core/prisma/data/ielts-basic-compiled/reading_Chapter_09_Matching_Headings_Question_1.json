@@ -1,0 +1,50 @@
+{
+  "title": "The Rise of Microfibres",
+  "passage": "A In the 20th century, a pioneer in Japan made a technological breakthrough in the production of soft, and extremely thin, synthetic fibres. These microfibres are finer than a silk thread, or one hundred times thinner than a human hair. Industrialist Miyoshi Okamoto first produced these fibres by squeezing two kinds of plastic threads, polyester and nylon, through a small pipe and heating them so that they weave together. Subsequently, microfibre technology took hold in the United States and Sweden, where refinements continued to be made, expanding its potential uses. Today, a wide variety of materials, including rayon and acrylic, have been used to produce microfibres, which are used in a tremendous number of practical applications, such as apparel, cleaning cloths, and vehicle upholstery.\n\nB However, this synthetic technology has also become the source of tremendous controversy. On the one hand, many people have praised its virtues. For example, cleaning cloths weaved from these fibres can absorb up to seven times their weight in liquid, and most do not even require cleaning chemicals. Animal rights activists have even embraced it for limiting dependence on silk and wool. On the other hand, some people believe that microfibres are damaging our environment and should be banned. This is because the fine fibres are entering our water systems in great quantities. In fact, nearly 16 per cent of the plastic recovered from Lake Michigan was in the form of these petroleum-based plastic filaments.",
+  "passage_with_locations": [
+    {
+      "question_number": 1,
+      "text": "A In the 20th century, a pioneer in Japan made a technological breakthrough in the production of soft, and extremely thin, synthetic fibres."
+    },
+    " These microfibres are finer than a silk thread, or one hundred times thinner than a human hair. Industrialist Miyoshi Okamoto first produced these fibres by squeezing two kinds of plastic threads, polyester and nylon, through a small pipe and heating them so that they weave together. Subsequently, microfibre technology took hold in the United States and Sweden, where refinements continued to be made, expanding its potential uses. Today, a wide variety of materials, including rayon and acrylic, have been used to produce microfibres, which are used in a tremendous number of practical applications, such as apparel, cleaning cloths, and vehicle upholstery.\n\n",
+    {
+      "question_number": 2,
+      "text": "B However, this synthetic technology has also become the source of tremendous controversy. On the one hand, many people have praised its virtues... On the other hand, some people believe that microfibres are damaging our environment and should be banned."
+    },
+    " This is because the fine fibres are entering our water systems in great quantities. In fact, nearly 16 per cent of the plastic recovered from Lake Michigan was in the form of these petroleum-based plastic filaments."
+  ],
+  "content": [
+    {
+      "type": "matching_headings",
+      "instruction": "Choose the correct heading for each paragraph from the list of headings below.",
+      "options": [
+        { "letter": "i", "text": "Opposing views on microfibres" },
+        { "letter": "ii", "text": "The need to expand the uses of microfibres" },
+        { "letter": "iii", "text": "The development of a new manmade material" },
+        { "letter": "iv", "text": "The future applications of a new product" }
+      ],
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "Paragraph A",
+          "answer": "iii",
+          "explanation": {
+            "keyword": "breakthrough, production, synthetic fibres",
+            "rationale": "Paragraph A focuses on the invention and development of microfibres in Japan. 'Synthetic fibres' is a paraphrase for 'manmade material'.",
+            "distractor_analysis": "While it mentions uses (iv), the main topic is the breakthrough development."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "Paragraph B",
+          "answer": "i",
+          "explanation": {
+            "keyword": "controversy, praised virtues, damaging environment",
+            "rationale": "Paragraph B introduces a 'tremendous controversy' and presents two sides (virtues vs. environmental damage), which matches 'Opposing views'.",
+            "distractor_analysis": "It doesn't talk about expanding uses (ii) or future applications (iv), but rather the current debate."
+          }
+        }
+      ]
+    }
+  ]
+}

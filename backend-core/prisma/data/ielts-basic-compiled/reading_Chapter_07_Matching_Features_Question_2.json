@@ -1,0 +1,80 @@
+{
+  "title": "American Transportation Eras",
+  "passage": "Despite being less than 250 years old, the United States has become one of the world's economic powerhouses. Although the country's location, vast size, and abundant natural resources played a large role in its success, these would have had little impact without advances in the transportation industry. Until around 1800, the country relied mainly on water-based transportation, such as ships and boats for its cargo needs. Since the country was rather small and most early cities were on the East Coast, early Americans could easily trade with one another and with their European trading partners using this form of transportation. However, as the 19th century got underway, the Louisiana Purchase doubled the size of the nation and it eventually reached the West Coast. This resulted in vast interior areas that were not accessible by boat and therefore ended the water-based transportation era. The problem was solved by the construction of the transcontinental rail system, which brought the country into the land-based transportation era. The new railways allowed large-scale shipping of large items from one coast to the other for the first time. Later, after the invention of the automobile, highways mirrored this transcontinental system and people could easily drive across the country on their own. These land-based systems dominated transportation in America until the mid to late-1900s. The following period saw the simultaneous rise of air travel and information technology. As the air-based transportation era began, people could travel or send parcels across the country in a matter of hours rather than days or weeks, and transferring information became instantaneous.",
+  "passage_with_locations": [
+    "Despite being less than 250 years old, the United States has become one of the world's economic powerhouses. Although the country's location, vast size, and abundant natural resources played a large role in its success, these would have had little impact without advances in the transportation industry. ",
+    {
+      "question_number": 6,
+      "text": "Until around 1800, the country relied mainly on water-based transportation... Since the country was rather small and most early cities were on the East Coast, early Americans could easily trade"
+    },
+    " with one another and with their European trading partners using this form of transportation. However, as the 19th century got underway, the Louisiana Purchase doubled the size of the nation and it eventually reached the West Coast. This resulted in vast interior areas that were not accessible by boat and therefore ended the water-based transportation era. The problem was solved by the construction of the transcontinental rail system, which brought the country into the land-based transportation era. The new railways allowed large-scale shipping of large items from one coast to the other for the first time. Later, ",
+    {
+      "question_number": 5,
+      "text": "after the invention of the automobile, highways mirrored this transcontinental system and people could easily drive across the country on their own."
+    },
+    " These land-based systems dominated transportation in America until the mid to late-1900s. ",
+    {
+      "question_number": 4,
+      "text": "The following period saw the simultaneous rise of air travel and information technology."
+    },
+    " ",
+    {
+      "question_number": 3,
+      "text": "As the air-based transportation era began, people could travel or send parcels across the country in a matter of hours rather than days or weeks"
+    },
+    ", and transferring information became instantaneous."
+  ],
+  "content": [
+    {
+      "type": "matching_features",
+      "instruction": "Classify the following statements as referring to",
+      "options": [
+        { "letter": "A", "text": "Air-based transportation era" },
+        { "letter": "B", "text": "Land-based transportation era" },
+        { "letter": "C", "text": "Water-based transportation era" }
+      ],
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "The speed of the postal service was reduced to less than a day.",
+          "answer": "A",
+          "explanation": {
+            "keyword": "speed, postal service, hours",
+            "rationale": "The text states that in the air-based transportation era, people could 'send parcels across the country in a matter of hours rather than days or weeks'. This 'matter of hours' corresponds to 'less than a day'.",
+            "distractor_analysis": "Water-based and land-based eras took days or weeks for transcontinental delivery."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "A new form of travel emerged at the same time as a new technology.",
+          "answer": "A",
+          "explanation": {
+            "keyword": "simultaneous, air travel, information technology",
+            "rationale": "The passage describes the period starting in the mid to late 1900s as seeing the 'simultaneous rise of air travel and information technology'. 'Simultaneous' matches 'at the same time'.",
+            "distractor_analysis": "While land-based travel emerged with railways and cars, they weren't explicitly linked to a simultaneous rise in a separate field like IT in the same way."
+          }
+        },
+        {
+          "question_number": 5,
+          "text": "A new system provided a way of travelling alone across the country.",
+          "answer": "B",
+          "explanation": {
+            "keyword": "automobile, drive, on their own",
+            "rationale": "The text mentions that 'after the invention of the automobile... people could easily drive across the country on their own'. Driving 'on their own' is a paraphrase for 'travelling alone'.",
+            "distractor_analysis": "Boats and planes are usually shared forms of transport, whereas the automobile provided personal mobility."
+          }
+        },
+        {
+          "question_number": 6,
+          "text": "The location of cities on one coast made trade easy.",
+          "answer": "C",
+          "explanation": {
+            "keyword": "East Coast, readily trade, water-based",
+            "rationale": "The passage states that in the water-based era, 'most early cities were on the East Coast' and 'early Americans could easily trade' using ships and boats.",
+            "distractor_analysis": "As the country grew inland (land-based era), trade became about crossing vast interiors, not just coastal proximity."
+          }
+        }
+      ]
+    }
+  ]
+}

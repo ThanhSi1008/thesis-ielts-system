@@ -12,30 +12,33 @@ export default function IeltsBasicLayout({
   const pathname = usePathname();
 
   const isOnboarding = pathname === "/ielts/basic/onboarding";
+  const isTopLevel = pathname === "/ielts/basic" || pathname === "/ielts/basic/library";
+  const isPracticeArea = pathname.includes("/lessons") || pathname.includes("/exercises");
+
+  if (isTopLevel || isPracticeArea) {
+    return <>{children}</>;
+  }
 
   if (isOnboarding) {
     return (
-      <div className="min-h-[40vh] bg-[#F8F9FB] py-4 font-sans font-medium text-gray-800">
-        <div className="max-w-[1000px] mx-auto px-4 lg:px-8">
-          <main className="flex-1 flex flex-col min-w-0 min-h-[700px]">
-            {children}
-          </main>
-        </div>
+      <div className="bg-white font-sans font-medium text-gray-800 h-full overflow-y-auto">
+        <main className="w-full min-h-full flex flex-col min-w-0">
+          {children}
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[40vh] bg-[#F8F9FB] py-4 font-sans font-medium text-gray-800">
-      <div className="max-w-[1500px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row gap-6">
-
+    <div className="font-sans font-medium text-gray-800 h-full">
+      <div className="w-full flex flex-col md:flex-row h-full">
         {/* Sidebar */}
-        <aside className="w-full md:w-80 flex-shrink-0 bg-white rounded-2xl p-6 shadow-sm border border-gray-100/50 md:sticky md:top-0 flex flex-col h-[90vh]">
-          <p className="text-sm leading-tight text-gray-900 mb-6 shrink-0 w-4/5 pt-2">
+        <aside className="w-full md:w-80 flex-shrink-0 border-r border-gray-100 flex flex-col h-full overflow-hidden">
+          <p className="text-sm leading-tight text-gray-900 mb-6 shrink-0 w-4/5 pt-6 px-6">
             Learn Everything You Need to Know about the IELTS Test
           </p>
 
-          <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden flex flex-col px-4">
             {pathname.startsWith("/ielts/basic/roadmap") ? (
               <RoadmapSidebar />
             ) : (
@@ -65,7 +68,7 @@ export default function IeltsBasicLayout({
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 min-h-[700px]">
+        <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
           {children}
         </main>
       </div>

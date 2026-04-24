@@ -26,7 +26,7 @@ function BandScoreChart({ points, label }: { points: { date: string; band: numbe
   const yLabels = [2, 3, 4, 5, 6, 7, 8, 9];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-full flex flex-col justify-between">
+    <div className="bg-white p-5 h-full flex flex-col justify-between">
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
@@ -138,8 +138,8 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 text-center">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md w-full">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4 text-center">
+        <div className="bg-white p-8 max-w-md w-full">
           <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="w-8 h-8" />
           </div>
@@ -182,9 +182,9 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
   const lastActivePractices = stats?.practiceSessions?.length > 0 ? new Date(stats.practiceSessions[0].createdAt).toLocaleDateString() : 'N/A';
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans pb-12">
+    <div className="min-h-screen bg-white font-sans pb-12">
       {/* Header bar */}
-      <div className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10 w-full">
+      <div className="bg-white sticky top-0 z-10 w-full">
         <div className="container mx-auto max-w-screen-xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/ielts/student-teacher" className="p-2 -ml-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
@@ -206,7 +206,7 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
           
           {/* Left Sidebar Profile/Summary */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-centertext-center">
+            <div className="bg-white p-6 flex flex-col items-center text-center">
               <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-md font-bold mb-4 ml-auto mr-auto text-2xl">
                  ID
               </div>
@@ -247,7 +247,7 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
                {listeningPoints.length >= 2 ? (
                     <BandScoreChart points={listeningPoints} label="Listening" />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 bg-white rounded-2xl h-full min-h-[200px]">
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 bg-white h-full min-h-[200px]">
                       <Activity className="w-10 h-10 mb-3 opacity-30" />
                       <div className="font-semibold">Not enough data</div>
                       <div className="text-sm mt-1">Student needs at least 2 mock tests.</div>
@@ -257,7 +257,7 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
                 {readingPoints.length >= 2 ? (
                     <BandScoreChart points={readingPoints} label="Reading" />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 border border-gray-100 bg-white rounded-2xl h-full min-h-[200px]">
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 bg-white h-full min-h-[200px]">
                       <Activity className="w-10 h-10 mb-3 opacity-30" />
                       <div className="font-semibold">Not enough data</div>
                       <div className="text-sm mt-1">Student needs at least 2 mock tests.</div>
@@ -267,11 +267,11 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
 
             <h3 className="section-heading mt-8 text-lg font-extrabold text-gray-900 mb-2 flex items-center gap-2"><TestTube className="w-5 h-5 text-primary" /> Recent Mock Tests</h3>
             {exams.length === 0 ? (
-                <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center text-gray-500">No mock tests completed by this student.</div>
+                <div className="bg-white p-8 text-center text-gray-500">No mock tests completed by this student.</div>
             ) : (
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <div className="bg-white overflow-hidden">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-gray-50 border-b border-gray-100">
+                  <thead className="bg-gray-50">
                     <tr>
                       <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Test</th>
                       <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Type</th>
@@ -312,11 +312,11 @@ export default function TeacherDrilldownPage(props: { params: { studentId: strin
 
             <h3 className="section-heading mt-8 text-lg font-extrabold text-gray-900 mb-2 flex items-center gap-2"><Dumbbell className="w-5 h-5 text-primary" /> Recent Practice Sessions</h3>
              {(stats?.practiceSessions || []).length === 0 ? (
-                <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center text-gray-500">No practice sessions completed by this student.</div>
+                <div className="bg-white p-8 text-center text-gray-500">No practice sessions completed by this student.</div>
             ) : (
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                <div className="bg-white overflow-hidden">
                   <table className="w-full text-sm text-left">
-                    <thead className="bg-gray-50 border-b border-gray-100">
+                    <thead className="bg-gray-50">
                       <tr>
                         <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Practice Module</th>
                         <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Part Number</th>

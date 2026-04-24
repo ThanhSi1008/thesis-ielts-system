@@ -1,0 +1,50 @@
+{
+  "title": "Pollinators and Human Well-being",
+  "passage": "Although known primarily for their honey production, bees are actually more important to human well-being as pollinators of the staple crops that make up our diet. In fact, the American Environmental Protection Agency claims that pollinators are responsible for nearly one in every three bites of food you eat. If this is true, then the fact that honeybee numbers are dwindling should be a major cause of concern, not only for their survival but for ours. A study carried out by Nicholas Calderone, associate professor of entomology at Cornell University, showed that crops pollinated by honeybees and other insects contributed 29 billion dollars of annual farm income in the United States, revealing the extent of their importance both agriculturally and economically. This point was emphasised by Vera Lucia Imperatriz-Fonseca, senior professor at the University of São Paulo, who stated in a United Nations report that pollinator's health is directly linked to our own well-being. In fact, a study by Professor Simon Potts in the UK revealed how a massive decline in honeybee colonies has made agriculture reliant upon pollination by wild bee species, many of which are also under threat.",
+  "passage_with_locations": [
+    "Although known primarily for their honey production, bees are actually more important to human well-being as pollinators of the staple crops that make up our diet. In fact, the American Environmental Protection Agency claims that pollinators are responsible for nearly one in every three bites of food you eat. If this is true, then the fact that honeybee numbers are dwindling should be a major cause of concern, not only for their survival but for ours. A study carried out by Nicholas Calderone, associate professor of entomology at Cornell University, showed that crops pollinated by honeybees and other insects contributed 29 billion dollars of annual farm income in the United States, revealing the extent of their importance both agriculturally and economically. ",
+    {
+      "question_number": 1,
+      "text": "This point was emphasised by Vera Lucia Imperatriz-Fonseca, senior professor at the University of São Paulo, who stated in a United Nations report that pollinator's health is directly linked to our own well-being."
+    },
+    " ",
+    {
+      "question_number": 2,
+      "text": "In fact, a study by Professor Simon Potts in the UK revealed how a massive decline in honeybee colonies has made agriculture reliant upon pollination by wild bee species"
+    },
+    ", many of which are also under threat."
+  ],
+  "content": [
+    {
+      "type": "matching_features",
+      "instruction": "Look at the following statements (Questions 1-2) and the list of researchers below. Match each statement with the correct researcher, A, B or C.",
+      "options": [
+        { "letter": "A", "text": "Simon Potts" },
+        { "letter": "B", "text": "Vera Lucia Imperatriz-Fonseca" },
+        { "letter": "C", "text": "Nicholas Calderone" }
+      ],
+      "questions": [
+        {
+          "question_number": 1,
+          "text": "The welfare of creatures that pollinate crops, such as bees, has a direct connection to human health.",
+          "answer": "B",
+          "explanation": {
+            "keyword": "Vera Lucia Imperatriz-Fonseca, health, connection",
+            "rationale": "The text states that Vera Lucia Imperatriz-Fonseca 'stated in a United Nations report that pollinator's health is directly linked to our own well-being'. 'Directly linked to our own well-being' is a paraphrase of 'has a direct connection to human health'.",
+            "distractor_analysis": "While Nicholas Calderone (C) studied economic impact and Simon Potts (A) studied dependency on wild bees, only Vera Lucia (B) explicitly linked their health to human well-being."
+          }
+        },
+        {
+          "question_number": 2,
+          "text": "Agriculture has become dependent on a certain kind of bee for pollination.",
+          "answer": "A",
+          "explanation": {
+            "keyword": "Simon Potts, agriculture, dependent",
+            "rationale": "The passage explains that Simon Potts' study 'revealed how a massive decline in honeybee colonies has made agriculture reliant upon pollination by wild bee species'. 'Reliant upon' is a synonym for 'dependent on'.",
+            "distractor_analysis": "The other researchers discussed economic impact (Calderone) or human health (Vera Lucia), not the specific dependency of agriculture on wild bee species following a decline in honeybees."
+          }
+        }
+      ]
+    }
+  ]
+}
