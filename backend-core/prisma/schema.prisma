@@ -111,8 +111,10 @@ enum SessionStatus {
   IN_PROGRESS
   SUBMITTED
   GRADING
+  GRADED
   COMPLETED
   ABANDONED
+  GRADING_FAILED
 }
 
 // Result model - stores exam scores and feedback

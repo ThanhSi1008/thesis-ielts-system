@@ -8,10 +8,14 @@ import {
   WritingResultCallbackDto,
 } from './dto/exams.dto';
 import { Exam, ExamSession, ExamType, SessionStatus } from '@prisma/client';
+import { AiClientService } from '../ai-client/ai-client.service';
 
 @Injectable()
 export class ExamsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private aiClientService: AiClientService,
+  ) { }
 
   private parseCambridgeTitle(input: string): {
     groupId: string;
@@ -337,7 +341,7 @@ export class ExamsService {
     const sessions = await this.prisma.examSession.findMany({
       where: { userId, status: 'COMPLETED' },
       include: {
-        exam: { select: { title: true, type: true, duration: true } },
+        exam: { select: { title: true, type: true, duration: true, difficulty: true } },
         result: true,
       },
       orderBy: { submittedAt: 'desc' },
@@ -348,6 +352,7 @@ export class ExamsService {
       examId: s.examId,
       examTitle: s.exam.title,
       skill: s.exam.type,
+      difficulty: s.exam.difficulty,
       dateTaken: s.submittedAt ?? s.createdAt,
       durationMinutes: s.exam.duration,
       timeTaken: s.timeTaken ?? null,
@@ -524,81 +529,16 @@ export class ExamsService {
       });
     }
 
-    // 5. Synchronous AI grader for Writing
-    if (isWriting) {
-      try {
-        const aiResponse = await this.triggerWritingGrader(
-          session.id,
-          submitDto.answers as Record<string, any>,
-          existing.exam.questions,
-        );
-        const writingScore = aiResponse.overallBand || 0;
-
-        const resultData = {
-          userId: existing.userId,
-          sessionId: session.id,
-          totalScore: writingScore,
-          listeningScore: null,
-          readingScore: null,
-          writingScore: writingScore,
-          feedback: aiResponse.feedback as any,
-          gradedAt: new Date(),
-        };
-
-        resultRecord = await this.prisma.result.upsert({
-          where: { sessionId: session.id },
-          update: resultData,
-          create: resultData,
-        });
-
-        status = 'COMPLETED';
-        graded = true;
-      } catch (err: any) {
-        console.error('[Writing] Synchronous grading failed:', err.message);
-        if (err.status === 503 || err.status === 429) {
-          throw new ServiceUnavailableException(err.message);
-        }
-        throw new BadRequestException('Writing grading failed: ' + err.message);
-      }
-    }
-
-    // 6. Synchronous AI grader for Speaking
-    if (isSpeaking) {
-      try {
-        const aiResponse = await this.triggerSpeakingGrader(
-          session.id,
-          submitDto.answers as Record<string, any>,
-          existing.exam.questions,
-        );
-        const speakingScore = aiResponse.overallBand || 0;
-
-        const resultData = {
-          userId: existing.userId,
-          sessionId: session.id,
-          totalScore: speakingScore,
-          listeningScore: null,
-          readingScore: null,
-          writingScore: null,
-          speakingScore: speakingScore,
-          feedback: aiResponse.feedback as any,
-          gradedAt: new Date(),
-        };
-
-        resultRecord = await this.prisma.result.upsert({
-          where: { sessionId: session.id },
-          update: resultData,
-          create: resultData,
-        });
-
-        status = 'COMPLETED';
-        graded = true;
-      } catch (err: any) {
-        console.error('[Speaking] Synchronous grading failed:', err.message);
-        if (err.status === 503 || err.status === 429) {
-          throw new ServiceUnavailableException(err.message);
-        }
-        throw new BadRequestException('Speaking grading failed: ' + err.message);
-      }
+    // 5. Asynchronous AI grader for Writing & Speaking via RabbitMQ
+    if (isWriting || isSpeaking) {
+      await this.aiClientService.publishGradingTask({
+        sessionId: session.id,
+        examType: existing.exam.type,
+        userId: existing.userId,
+        answers: submitDto.answers,
+        questions: existing.exam.questions,
+      });
+      // The status remains 'SUBMITTED', the consumer will update it to 'GRADED'
     }
 
     const updatedSession = await this.prisma.examSession.update({
@@ -612,80 +552,6 @@ export class ExamsService {
     return updatedSession;
   }
 
-  private async triggerWritingGrader(
-    sessionId: string,
-    answers: Record<string, any>,
-    questions: any,
-  ): Promise<any> {
-    const tasks = (questions?.tasks as any[]) || [];
-    const task1 = tasks.find((t: any) => t.task_number === 1);
-    const task2 = tasks.find((t: any) => t.task_number === 2);
-
-    const backendAiUrl = process.env.BACKEND_AI_URL || 'http://localhost:8000';
-    const payload = {
-      session_id: sessionId,
-      task1_prompt: task1?.prompt || '',
-      task2_prompt: task2?.prompt || '',
-      task1_image_url: task1?.image_url || '',
-      task1_essay: answers?.task1 || '',
-      task2_essay: answers?.task2 || '',
-    };
-
-    const res = await fetch(`${backendAiUrl}/api/v1/writing/grade`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      let errorDetail = errorText;
-      try {
-        const parsed = JSON.parse(errorText);
-        if (parsed.detail) errorDetail = parsed.detail;
-      } catch (e) {
-        // ignore JSON parse error
-      }
-      const error = new Error(errorDetail);
-      (error as any).status = res.status;
-      throw error;
-    }
-    return res.json();
-  }
-
-  private async triggerSpeakingGrader(
-    sessionId: string,
-    answers: Record<string, any>,
-    questions: any,
-  ): Promise<any> {
-    const backendAiUrl = process.env.BACKEND_AI_URL || 'http://localhost:8000';
-    const payload = {
-      session_id: sessionId,
-      exam_questions: questions,
-      audio_answers: answers,
-    };
-
-    const res = await fetch(`${backendAiUrl}/api/v1/speaking/grade`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      let errorDetail = errorText;
-      try {
-        const parsed = JSON.parse(errorText);
-        if (parsed.detail) errorDetail = parsed.detail;
-      } catch (e) {
-        // ignore
-      }
-      const error = new Error(errorDetail);
-      (error as any).status = res.status;
-      throw error;
-    }
-    return res.json();
-  }
 
   async getSession(sessionId: string) {
     const session = await this.prisma.examSession.findUnique({

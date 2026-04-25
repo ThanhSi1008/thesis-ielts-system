@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "TOEIC Master AI",
-    "slug": "toeic-master-ai",
+    "name": "IELTS Master AI",
+    "slug": "ielts-master-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -14,10 +14,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.toeicmasterai.app"
+      "bundleIdentifier": "com.ieltsmasterai.app"
     },
     "android": {
-      "package": "com.toeicmasterai.app",
+      "package": "com.ieltsmasterai.app",
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ]
@@ -25,6 +25,6 @@
     "plugins": [
       "expo-router"
     ],
-    "scheme": "toeic-master-ai"
+    "scheme": "ielts-master-ai"
   }
 }

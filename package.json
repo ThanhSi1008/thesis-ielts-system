@@ -5,8 +5,7 @@
   "private": true,
   "workspaces": [
     "backend-core",
-    "frontend-web",
-    "frontend-mobile"
+    "frontend-web"
   ],
   "scripts": {
     "infra:up": "docker-compose up -d",

@@ -57,7 +57,7 @@ export default function StudySessionScreen() {
 
     setSubmitting(true);
     try {
-      await vocabLabApi.submitReview({ cardId: card.id, rating });
+      await vocabLabApi.submitReview({ flashcardId: card.id, rating });
     } catch (e) { console.error(e); }
     finally { setSubmitting(false); }
 
@@ -99,7 +99,7 @@ export default function StudySessionScreen() {
             })}
           </View>
 
-          <TouchableOpacity style={styles.doneBtn} onPress={() => router.replace('/vocab-lab' as any)}>
+          <TouchableOpacity style={styles.doneBtn} onPress={() => router.replace('/(tabs)/vocablab' as any)}>
             <Text style={styles.doneBtnText}>Back to Decks</Text>
           </TouchableOpacity>
         </View>
@@ -164,18 +164,27 @@ export default function StudySessionScreen() {
         <View style={styles.ratingArea}>
           <Text style={styles.ratingLabel}>How well did you remember?</Text>
           <View style={styles.ratingRow}>
-            {RATINGS.map(r => (
-              <TouchableOpacity
-                key={r.value}
-                style={[styles.ratingBtn, { borderColor: r.color, backgroundColor: r.color + '14' }]}
-                onPress={() => handleRating(r.value)}
-                disabled={submitting}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.ratingEmoji}>{r.emoji}</Text>
-                <Text style={[styles.ratingBtnLabel, { color: r.color }]}>{r.label}</Text>
-              </TouchableOpacity>
-            ))}
+            {RATINGS.map(r => {
+              const scheduledDays = card.scheduledDays || 0;
+              let nextDays = '<10m';
+              if (r.value === 2) nextDays = scheduledDays > 0 ? `${Math.max(1, Math.round(scheduledDays * 1.2))}d` : '1d';
+              else if (r.value === 3) nextDays = scheduledDays > 0 ? `${Math.max(2, Math.round(scheduledDays * 2.5))}d` : '3d';
+              else if (r.value === 4) nextDays = scheduledDays > 0 ? `${Math.max(3, Math.round(scheduledDays * 3.5))}d` : '5d';
+
+              return (
+                <TouchableOpacity
+                  key={r.value}
+                  style={[styles.ratingBtn, { borderColor: r.color, backgroundColor: r.color + '14' }]}
+                  onPress={() => handleRating(r.value)}
+                  disabled={submitting}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.ratingEmoji}>{r.emoji}</Text>
+                  <Text style={[styles.ratingBtnLabel, { color: r.color }]}>{r.label}</Text>
+                  <Text style={[styles.ratingHint, { color: r.color }]}>{nextDays}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       ) : (
@@ -225,6 +234,7 @@ const styles = StyleSheet.create({
   },
   ratingEmoji: { fontSize: 20, marginBottom: 4 },
   ratingBtnLabel: { fontSize: FONT_SIZES.xs, fontWeight: '800' },
+  ratingHint: { fontSize: 10, marginTop: 2, opacity: 0.8, fontWeight: '600' },
   flipHintArea: { paddingBottom: SPACING.xxxl, alignItems: 'center' },
   flipHintText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted },
   // Done screen

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, UseGuards, Request, Query } from "@nestjs/common";
+import { Controller, Get, Param, Post, Patch, Body, UseGuards, Request, Query } from "@nestjs/common";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { IeltsService } from "./ielts.service";
 import { IeltsRoadmapService } from "./ielts-roadmap.service";
@@ -141,6 +141,15 @@ export class IeltsController {
         user: { select: { firstName: true, lastName: true } }
       }
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch("profile")
+  async updateProfile(
+    @Request() req: any,
+    @Body() body: { examDate?: string }
+  ) {
+    return this.ieltsRoadmapService.updateProfile(req.user.id, body);
   }
 
   @UseGuards(JwtAuthGuard)

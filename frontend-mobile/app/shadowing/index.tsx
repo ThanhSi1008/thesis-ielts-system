@@ -10,13 +10,13 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { shadowingApi } from '@/services/features.api';
 import { Chip, EmptyState } from '@/components/ui';
 
-// Static TOEIC lessons bundled into the app (same IDs as web)
+// Static IELTS lessons bundled into the app (same IDs as web)
 const STATIC_LESSONS = [
-  { id: 'toeic-1', title: 'TOEIC Part 1 – People at Work', youtubeVideoId: '', duration: '3:20', tags: ['TOEIC'], sentences: [] },
-  { id: 'toeic-2', title: 'TOEIC Part 2 – Short Conversations', youtubeVideoId: '', duration: '4:10', tags: ['TOEIC'], sentences: [] },
+  { id: 'ielts-1', title: 'IELTS Part 1 – People at Work', youtubeVideoId: '', duration: '3:20', tags: ['IELTS'], sentences: [] },
+  { id: 'ielts-2', title: 'IELTS Part 2 – Short Conversations', youtubeVideoId: '', duration: '4:10', tags: ['IELTS'], sentences: [] },
 ];
 
-const CATEGORIES = ['All', 'TOEIC', 'YOUTUBE'];
+const CATEGORIES = ['All', 'IELTS', 'YOUTUBE'];
 
 export default function ShadowingScreen() {
   const router = useRouter();
@@ -64,9 +64,6 @@ export default function ShadowingScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Shadowing & Dictation</Text>
         <TouchableOpacity
           style={styles.addBtn}
@@ -137,7 +134,7 @@ export default function ShadowingScreen() {
                       />
                     ) : (
                       <View style={styles.thumbPlaceholder}>
-                        <Text style={styles.thumbLetters}>TOEIC</Text>
+                        <Text style={styles.thumbLetters}>IELTS</Text>
                       </View>
                     )}
                     <View style={styles.durationBadge}>

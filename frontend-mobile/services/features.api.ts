@@ -7,16 +7,24 @@ export const vocabLabApi = {
   createDeck: (name: string) => apiClient.post<any>('/vocab-lab/decks', { name }),
   deleteDeck: (id: string) => apiClient.delete<any>(`/vocab-lab/decks/${id}`),
   getStudyCards: (deckId: string) => apiClient.get<any[]>(`/vocab-lab/study/${deckId}`),
-  submitReview: (payload: { cardId: string; rating: number }) =>
+  submitReview: (payload: { flashcardId: string; rating: number }) =>
     apiClient.post<any>('/vocab-lab/review', payload),
   getStats: () => apiClient.get<any>('/vocab-lab/stats'),
-  createFlashcard: (payload: { deckId: string; front: string; back: string; tags?: string[] }) =>
+  getCardTypes: () => apiClient.get<any[]>('/vocab-lab/card-types'),
+  createFlashcard: (payload: { deckId: string; front: string; back: string; cardTypeId?: string; fieldValues?: Record<string, string>; fieldStyles?: Record<string, any>; tags?: string[] }) =>
     apiClient.post<any>('/vocab-lab/cards', payload),
   updateFlashcard: (id: string, payload: { front?: string; back?: string }) =>
     apiClient.put<any>(`/vocab-lab/cards/${id}`, payload),
   deleteFlashcard: (id: string) => apiClient.delete<any>(`/vocab-lab/cards/${id}`),
   browseCards: (deckId?: string) =>
     apiClient.get<any[]>(`/vocab-lab/cards${deckId ? `?deckId=${deckId}` : ''}`),
+  uploadMedia: async (uri: string, mimeType: string, fileName: string): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', { uri, name: fileName, type: mimeType } as any);
+    return apiClient.post<any>('/vocab-lab/media/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // ==================== SHADOWING ====================

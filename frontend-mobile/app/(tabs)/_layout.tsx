@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -15,6 +16,8 @@ function TabIcon({ name, focused }: { name: IoniconsName; focused: boolean }) {
 }
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -25,8 +28,8 @@ export default function TabLayout() {
           borderTopWidth: 1,
           borderTopColor: COLORS.border,
           paddingTop: 6,
-          paddingBottom: 8,
-          height: 72,
+          paddingBottom: insets.bottom + 6,
+          height: 56 + insets.bottom,
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -35,13 +38,10 @@ export default function TabLayout() {
         headerShown: false,
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} />,
-        }}
-      />
+      {/* Hidden redirect screen */}
+      <Tabs.Screen name="index" options={{ href: null }} />
+
+      {/* ── Visible tabs ── */}
       <Tabs.Screen
         name="ielts"
         options={{
@@ -50,33 +50,32 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="vocabulary"
+        name="shadowing"
         options={{
-          title: 'Vocab',
-          tabBarIcon: ({ focused }) => <TabIcon name="book" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="grammar"
-        options={{
-          title: 'Grammar',
-          tabBarIcon: ({ focused }) => <TabIcon name="library" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="pronunciation"
-        options={{
-          title: 'Sounds',
+          title: 'Shadowing',
           tabBarIcon: ({ focused }) => <TabIcon name="mic" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="vocablab"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused }) => <TabIcon name="person" focused={focused} />,
+          title: 'Vocab Lab',
+          tabBarIcon: ({ focused }) => <TabIcon name="layers" focused={focused} />,
         }}
       />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: 'More',
+          tabBarIcon: ({ focused }) => <TabIcon name="grid" focused={focused} />,
+        }}
+      />
+
+      {/* ── Hidden tabs (accessible via links, not tab bar) ── */}
+      <Tabs.Screen name="vocabulary" options={{ href: null }} />
+      <Tabs.Screen name="grammar" options={{ href: null }} />
+      <Tabs.Screen name="pronunciation" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }

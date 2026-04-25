@@ -341,4 +341,16 @@ export class IeltsRoadmapService {
 
     return { success: true };
   }
+
+  async updateProfile(userId: string, data: { examDate?: string }) {
+    const updateData: any = {};
+    if (data.examDate !== undefined) {
+      updateData.examDate = data.examDate ? new Date(data.examDate) : null;
+    }
+    
+    return this.prisma.ieltsProfile.update({
+      where: { userId },
+      data: updateData,
+    });
+  }
 }
