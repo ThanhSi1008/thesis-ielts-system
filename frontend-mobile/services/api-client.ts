@@ -65,6 +65,21 @@ export class ApiClient {
     return response.json() as Promise<T>;
   }
 
+  async patch<T>(endpoint: string, body?: unknown): Promise<T> {
+    const headers = await this.getHeaders();
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'PATCH',
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+    
+    return response.json() as Promise<T>;
+  }
+
   async delete<T>(endpoint: string): Promise<T> {
     const headers = await this.getHeaders();
     const response = await fetch(`${this.baseUrl}${endpoint}`, {

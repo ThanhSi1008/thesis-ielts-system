@@ -169,34 +169,98 @@ export class UsersService {
       throw new Error('Not linked to this student');
     }
 
-    // 2. Fetch mock test history (exam sessions with type FULL_TEST or similar IELTS parts)
-    const examSessions = await this.prisma.examSession.findMany({
+    // 2. Fetch IELTS profile + user info
+    const ieltsProfile = await this.prisma.ieltsProfile.findUnique({
       where: { userId: studentId },
       include: {
+        user: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+      },
+    });
+
+    // 3. Fetch completed mock test sessions (shaped like /exams/history)
+    const examSessions = await this.prisma.examSession.findMany({
+      where: { userId: studentId, status: 'COMPLETED' },
+      include: {
         exam: {
-          select: { title: true, type: true },
+          select: { id: true, title: true, type: true, duration: true, difficulty: true },
         },
         result: true,
       },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
+      orderBy: { submittedAt: 'desc' },
     });
 
-    // 3. Fetch practice history
-    const practiceSessions = await this.prisma.ieltsPracticeSession.findMany({
+    const mockHistory = examSessions.map((s) => ({
+      id: s.id,
+      examId: s.examId,
+      examTitle: (s.exam as any).title,
+      skill: (s.exam as any).type,
+      difficulty: (s.exam as any).difficulty,
+      dateTaken: (s as any).submittedAt ?? s.createdAt,
+      durationMinutes: (s.exam as any).duration,
+      timeTaken: (s as any).timeTaken ?? null,
+      rawScore: s.result?.totalScore ?? 0,
+      writingScore: s.result?.writingScore ?? null,
+      maxScore: 40,
+      practicePart: (s as any).practicePart ?? null,
+    }));
+
+    // 4. Fetch advanced listening practice history
+    const listeningHistory = await this.prisma.ieltsPracticeSession.findMany({
       where: { userId: studentId },
-      include: {
-        part: {
-          select: { title: true, partNumber: true },
-        },
-      },
+      include: { part: { select: { id: true, title: true } } },
       orderBy: { createdAt: 'desc' },
-      take: 20,
     });
+
+    const advancedListeningHistory = listeningHistory.map((h) => ({
+      id: h.id,
+      partId: h.partId,
+      skill: 'LISTENING',
+      examTitle: (h.part as any)?.title || 'Listening Practice',
+      dateTaken: h.createdAt,
+      practicePart: true,
+      maxScore: h.totalQuestions,
+      rawScore: h.totalScore,
+      examId: h.partId,
+      totalScore: h.totalScore,
+      totalQuestions: h.totalQuestions,
+      createdAt: h.createdAt,
+      part: h.part,
+    }));
+
+    // 5. Fetch advanced reading practice history
+    const readingHistory = await this.prisma.ieltsPracticeReadingSession.findMany({
+      where: { userId: studentId },
+      include: { part: { select: { id: true, title: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const advancedReadingHistory = readingHistory.map((h) => ({
+      id: h.id,
+      partId: h.partId,
+      skill: 'READING',
+      examTitle: (h.part as any)?.title || 'Reading Practice',
+      dateTaken: h.createdAt,
+      practicePart: true,
+      maxScore: h.totalQuestions,
+      rawScore: h.totalScore,
+      examId: h.partId,
+      totalScore: h.totalScore,
+      totalQuestions: h.totalQuestions,
+      createdAt: h.createdAt,
+      part: h.part,
+    }));
 
     return {
-      examSessions,
-      practiceSessions,
+      profile: ieltsProfile,
+      streak: {
+        currentStreak: ieltsProfile?.currentStreak ?? 0,
+        longestStreak: ieltsProfile?.longestStreak ?? 0,
+      },
+      mockHistory,
+      advancedListeningHistory,
+      advancedReadingHistory,
     };
   }
 }
