@@ -125,14 +125,64 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
       )}
 
       {result ? (
-        <div className="flex flex-col items-center gap-2 animate-in fade-in zoom-in">
-          <div className={`text-4xl font-bold ${result.score >= 80 ? 'text-green-500' : result.score >= 50 ? 'text-yellow-500' : 'text-red-500'}`}>
-            {result.score}/100
+        <div className="flex flex-col items-center gap-3 w-full animate-in fade-in zoom-in">
+          {/* Overall Score */}
+          <div className="flex flex-col items-center">
+            <div className={`text-4xl font-bold ${result.score >= 80 ? 'text-green-500' : result.score >= 50 ? 'text-yellow-500' : 'text-red-500'}`}>
+              {result.score}/100
+            </div>
+            <p className="text-sm font-semibold text-gray-700 mt-1">{result.feedback?.level || ''}</p>
           </div>
-          <p className="text-sm text-gray-600 italic">"{result.transcribedText}"</p>
+          
+          {/* Sub-scores */}
+          {result.feedback?.details && (
+            <div className="flex gap-4 w-full bg-white p-3 rounded-md shadow-sm border text-xs text-center justify-between mt-2">
+              <div className="flex flex-col">
+                <span className="text-gray-500 font-medium">Phoneme</span>
+                <span className="font-bold text-gray-800">{result.feedback.details.phonemeAccuracy}%</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-gray-500 font-medium">Confidence</span>
+                <span className="font-bold text-gray-800">{result.feedback.details.confidenceScore}%</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-gray-500 font-medium">Text</span>
+                <span className="font-bold text-gray-800">{result.feedback.details.textAccuracy}%</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Per-word details */}
+          {result.feedback?.words && result.feedback.words.length > 0 ? (
+            <div className="w-full bg-white border rounded-md p-3 text-sm max-h-40 overflow-y-auto">
+                <p className="font-semibold text-gray-700 mb-2 border-b pb-1">Word Analysis</p>
+                {result.feedback.words.map((w: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-center mb-2">
+                        <div className="flex flex-col">
+                           <div className="flex gap-2 items-center">
+                               <span className={`font-medium ${w.match === 'correct' ? 'text-green-600' : 'text-red-500'}`}>{w.word}</span>
+                               <span className="text-xs text-gray-400">/{w.targetIPA}/</span>
+                           </div>
+                           {w.spokenIPA && w.match !== 'correct' && (
+                               <span className="text-xs text-red-400 flex items-center gap-1">
+                                 ↳ said: /{w.spokenIPA}/
+                               </span>
+                           )}
+                        </div>
+                        <div className="flex gap-1 text-xs whitespace-nowrap">
+                           <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600" title="Phoneme Score">P: {w.phonemeScore}%</span>
+                           <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600" title="Whisper Confidence">C: {w.confidence}%</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600 italic mt-2">"{result.transcribedText}"</p>
+          )}
+
           <button 
             onClick={() => setResult(null)}
-            className="text-sm text-blue-600 hover:underline mt-2"
+            className="text-sm text-blue-600 hover:underline mt-2 font-medium bg-blue-50 px-4 py-1.5 rounded-full"
           >
             Try Again
           </button>

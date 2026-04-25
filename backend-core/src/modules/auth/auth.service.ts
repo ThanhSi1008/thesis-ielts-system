@@ -34,6 +34,14 @@ export class AuthService {
         },
       });
 
+      // Automatically create a default deck for the user
+      await this.prisma.deck.create({
+        data: {
+          userId: user.id,
+          name: 'Default',
+        },
+      });
+
       const { password, ...result } = user;
       return result;
     } catch (error) {

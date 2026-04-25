@@ -1,0 +1,166 @@
+[
+  {
+    "questions": "1-4",
+    "instructions": "Complete the flow-chart below. Choose FOUR answers from the box and write the correct letter, A-G, next to Questions 1-4.",
+    "topic": "Registration Process for Annual Charity Bicycle Tour",
+    "question_type": "Flow-chart Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562251/CH4_HP1-4_jriqtr.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "You will hear a talk by an organisation representative at a meeting about a charity event."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through questions one to four."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now listen carefully and answer questions one to four."
+      },
+      {
+        "speaker": "Representative",
+        "text": "Good evening, ladies and gentlemen, and thank you for coming to this Ann-Marie charity member meeting. I'm so pleased to see so many members here tonight, and I always appreciate your generosity, compassion and concern."
+      },
+      {
+        "speaker": "Representative",
+        "text": "I know you are eager to hear about our institution's progress. Our annual charity bicycle tour raises money for medical research at the London Children's Hospital."
+      },
+      {
+        "speaker": "Representative",
+        "text": "Each year, a group of generous individuals dedicates ten days to cycling around England to raise both funds and awareness. And might I say that it's a fun time as well."
+      },
+      {
+        "speaker": "Representative",
+        "text": "Now, I know some of you are interested in participating and want to know how you can get involved. Well, it is fairly easy."
+      },
+      {
+        "speaker": "Representative",
+        "text": "First, you must register for the event, which you can do on the charity's website.",
+        "question_number": 1,
+        "highlight_text": "you can do on the charity's website."
+      },
+      {
+        "speaker": "Representative",
+        "text": "You don't even have to visit our office. After that, you'll be asked to sign a form on which you will give us an estimate of how much money you plan to raise.",
+        "question_number": 2,
+        "highlight_text": "you will give us an estimate of how much money you plan to raise."
+      },
+      {
+        "speaker": "Representative",
+        "text": "We recommend our participants attempt to raise a minimum of £3,000, but we certainly encourage you to raise more than that."
+      },
+      {
+        "speaker": "Representative",
+        "text": "Next, you will need to find sponsors who agree to donate a predetermined amount of money to you should you finish the tour."
+      },
+      {
+        "speaker": "Representative",
+        "text": "It's always a good idea to start with friends and family first, but many participants have also raised funds from local businesses."
+      },
+      {
+        "speaker": "Representative",
+        "text": "And then you have to show up for the tour on June 12 at 6am with your bicycle, gear and equipment.",
+        "question_number": 3,
+        "highlight_text": "with your bicycle, gear and equipment."
+      },
+      {
+        "speaker": "Representative",
+        "text": "You don't have to worry about bringing any documents, although something proving your identity might be helpful. I'll hand out a leaflet that will tell you everything you need to know."
+      },
+      {
+        "speaker": "Representative",
+        "text": "And you will also be given a number to pin onto the back of your shirt. This will allow us to track who successfully finishes."
+      },
+      {
+        "speaker": "Representative",
+        "text": "And once you've completed the tour, collect the donations from your various sponsors and give them to us by June 26."
+      },
+      {
+        "speaker": "Representative",
+        "text": "Finally, the charity will provide you with receipts by the end of June. You can give these to people who ask for them for tax purposes.",
+        "question_number": 4,
+        "highlight_text": "the charity will provide you with receipts"
+      },
+      {
+        "speaker": "Representative",
+        "text": "It's mid-March now, so that means you have plenty of time to find sponsors. And we do offer support in the way of informational brochures."
+      },
+      {
+        "speaker": "Representative",
+        "text": "And of course, we will always be here to answer your questions or respond to your concerns."
+      },
+      {
+        "speaker": "Representative",
+        "text": "Now, before we go on to the next topic of discussion, are there any questions about this year's charity tour?"
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "flow_chart",
+        "heading": "Registration Process for Annual Charity Bicycle Tour",
+        "options": [
+          { "letter": "A", "text": "estimate" },
+          { "letter": "B", "text": "office" },
+          { "letter": "C", "text": "website" },
+          { "letter": "D", "text": "receipts" },
+          { "letter": "E", "text": "documents" },
+          { "letter": "F", "text": "equipment" },
+          { "letter": "G", "text": "plan" }
+        ],
+        "steps": [
+          {
+            "text": "Register for the event on the charity's 1 ..............................",
+            "question": {
+              "question_number": 1,
+              "letter_answer": "C",
+              "text_answer": "website",
+              "timestamp_seconds": 94.0,
+              "explanation": "The representative says: 'First, you must register for the event, which you can do on the charity's website.' Since 'website' is option C, the answer is C."
+            }
+          },
+          {
+            "text": "Provide an 2 .............................. on the form",
+            "question": {
+              "question_number": 2,
+              "letter_answer": "A",
+              "text_answer": "estimate",
+              "timestamp_seconds": 110.0,
+              "explanation": "The representative says: '...you will give us an estimate of how much money you plan to raise.' Since 'estimate' is option A, the answer is A."
+            }
+          },
+          {
+            "text": "Get sponsors willing to donate funds if you complete the tour"
+          },
+          {
+            "text": "Bring bicycle and necessary 3 .............................. to the event on June 12th",
+            "question": {
+              "question_number": 3,
+              "letter_answer": "F",
+              "text_answer": "equipment",
+              "timestamp_seconds": 145.0,
+              "explanation": "The representative says: 'show up for the tour... with your bicycle, gear and equipment.' Since 'equipment' is option F, the answer is F."
+            }
+          },
+          {
+            "text": "Gather donations from sponsors after finishing the tour"
+          },
+          {
+            "text": "Distribute 4 .............................. to donors for tax reasons",
+            "question": {
+              "question_number": 4,
+              "letter_answer": "D",
+              "text_answer": "receipts",
+              "timestamp_seconds": 174.0,
+              "explanation": "The representative says: 'Finally, the charity will provide you with receipts... You can give these to people... for tax purposes.' Since 'receipts' is option D, the answer is D."
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

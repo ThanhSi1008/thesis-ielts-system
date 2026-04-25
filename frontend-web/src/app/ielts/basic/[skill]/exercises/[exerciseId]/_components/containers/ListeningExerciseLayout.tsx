@@ -7,6 +7,7 @@ import { TranscriptPanel } from "../ui/TranscriptPanel";
 import { ListeningQuestionsPanel } from "../ui/ListeningQuestionsPanel";
 import { calcScore, getTrackerItems } from "../utils/SharedScoreUtils";
 import api from "@/lib/api";
+import FloatingSelectionManager from "@/components/FloatingSelectionManager";
 
 export function ListeningExerciseLayout({
   exercise,
@@ -52,7 +53,8 @@ export function ListeningExerciseLayout({
   const modalBlock = activeModal ? lessonBlocks.find((b) => b.type === activeModal) ?? { type: activeModal, content: "_No content available._" } : null;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white -m-6 lg:-m-10 rounded-2xl">
+    <FloatingSelectionManager>
+    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white rounded-2xl border border-gray-100/50 shadow-sm w-full overflow-hidden">
       {/* ── Header ── */}
       <div className="border-b border-gray-100 px-6 lg:px-10 pt-6 pb-3">
         <div className="flex items-start justify-between">
@@ -130,13 +132,13 @@ export function ListeningExerciseLayout({
         <div className="flex items-center gap-2 shrink-0">
           {submitted ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-[#111] bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+              <span className="text-[14.5px] font-extrabold text-[#0F172A] bg-white px-5 py-2.5 rounded-xl border border-gray-200 shadow-sm leading-none whitespace-nowrap tracking-wide">
                 {score}/{allTrackerItems.length} correct
               </span>
               {!isPerfectScore ? (
                 <button
                   onClick={() => { setSubmitted(false); }}
-                  className="px-4 py-2 rounded-lg bg-gray-900 text-white text-[13px] font-bold hover:bg-black transition-colors shadow-sm"
+                  className="px-6 py-2.5 rounded-xl bg-[#0F172A] text-white text-[14.5px] font-bold hover:bg-[#1E293B] transition-colors shadow-sm leading-none flex items-center justify-center tracking-wide"
                 >
                   Retry
                 </button>
@@ -144,18 +146,18 @@ export function ListeningExerciseLayout({
                 <div className="flex gap-3">
                   <button
                     onClick={() => { setSubmitted(false); setAnswers({}); }}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all shadow-sm ${onNext ? "bg-gray-100 text-gray-700 hover:bg-gray-200" : "bg-[#FFC107] text-gray-900 hover:bg-[#E0A800]"}`}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#F8F9FA] text-[#0F172A] text-[14.5px] font-bold hover:bg-gray-100 transition-colors shadow-sm leading-none tracking-wide"
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <RotateCcw className="w-4 h-4" strokeWidth={2.5}/>
                     Retry
                   </button>
                   {onNext && (
                     <button
                       onClick={onNext}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#FFC107] text-gray-900 rounded-lg font-bold hover:bg-[#E0A800] transition-all shadow-sm"
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#FFC107] text-[#0F172A] text-[14.5px] font-bold hover:bg-[#E0A800] transition-colors shadow-sm leading-none tracking-wide"
                     >
                       Next Step
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4" strokeWidth={2.5}/>
                     </button>
                   )}
                 </div>
@@ -165,13 +167,14 @@ export function ListeningExerciseLayout({
             <button
               onClick={handleSubmit}
               disabled={Object.keys(answers).length === 0}
-              className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-11 h-11 rounded-full bg-[#0F172A] flex items-center justify-center hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
             >
-              <Check className="w-5 h-5 text-white" />
+              <Check className="w-[22px] h-[22px] text-white" strokeWidth={3} />
             </button>
           )}
         </div>
       </div>
     </div>
+    </FloatingSelectionManager>
   );
 }

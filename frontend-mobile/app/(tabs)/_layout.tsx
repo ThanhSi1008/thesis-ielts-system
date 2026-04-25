@@ -1,15 +1,23 @@
 import { Tabs } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants';
 
-// Tab icons
-const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => (
-  <View style={{ alignItems: 'center' }}>
-    <Text style={{ fontSize: 20 }}>{name}</Text>
-  </View>
-);
+type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
+
+function TabIcon({ name, focused }: { name: IoniconsName; focused: boolean }) {
+  return (
+    <Ionicons
+      name={focused ? name : `${name}-outline` as IoniconsName}
+      size={24}
+      color={focused ? COLORS.primary : COLORS.textMuted}
+    />
+  );
+}
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -19,58 +27,55 @@ export default function TabLayout() {
           backgroundColor: COLORS.background,
           borderTopWidth: 1,
           borderTopColor: COLORS.border,
-          paddingTop: 8,
-          paddingBottom: 8,
-          height: 70,
+          paddingTop: 6,
+          paddingBottom: insets.bottom + 6,
+          height: 56 + insets.bottom,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
+          fontSize: 11,
+          fontWeight: '600',
         },
-        headerStyle: {
-          backgroundColor: COLORS.primary,
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
+        headerShown: false,
       }}
     >
+      {/* Hidden redirect screen */}
+      <Tabs.Screen name="index" options={{ href: null }} />
+
+      {/* ── Visible tabs ── */}
       <Tabs.Screen
-        name="index"
+        name="ielts"
         options={{
-          title: 'Trang chủ',
-          tabBarIcon: ({ focused }) => <TabIcon name="🏠" focused={focused} />,
+          title: 'IELTS',
+          tabBarIcon: ({ focused }) => <TabIcon name="school" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="vocabulary"
+        name="shadowing"
         options={{
-          title: 'Từ vựng',
-          tabBarIcon: ({ focused }) => <TabIcon name="📚" focused={focused} />,
+          title: 'Shadowing',
+          tabBarIcon: ({ focused }) => <TabIcon name="mic" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="grammar"
+        name="vocablab"
         options={{
-          title: 'Ngữ pháp',
-          tabBarIcon: ({ focused }) => <TabIcon name="📖" focused={focused} />,
+          title: 'Vocab Lab',
+          tabBarIcon: ({ focused }) => <TabIcon name="layers" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="pronunciation"
+        name="more"
         options={{
-          title: 'Phát âm',
-          tabBarIcon: ({ focused }) => <TabIcon name="🎤" focused={focused} />,
+          title: 'More',
+          tabBarIcon: ({ focused }) => <TabIcon name="grid" focused={focused} />,
         }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Hồ sơ',
-          tabBarIcon: ({ focused }) => <TabIcon name="👤" focused={focused} />,
-        }}
-      />
+
+      {/* ── Hidden tabs (accessible via links, not tab bar) ── */}
+      <Tabs.Screen name="vocabulary" options={{ href: null }} />
+      <Tabs.Screen name="grammar" options={{ href: null }} />
+      <Tabs.Screen name="pronunciation" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }

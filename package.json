@@ -5,8 +5,7 @@
   "private": true,
   "workspaces": [
     "backend-core",
-    "frontend-web",
-    "frontend-mobile"
+    "frontend-web"
   ],
   "scripts": {
     "infra:up": "docker-compose up -d",
@@ -32,6 +31,8 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
   }
 }
-

@@ -1,0 +1,65 @@
+{
+  "title": "Seniors in the Workforce",
+  "passage": "A With today's aging population, the debate over seniors in the workforce has begun to heat up. Some people believe that their prolonged place in the workforce can be harmful to society. Others think senior employment can have positive consequences for social cohesion and economic growth.\n\nB Those who oppose employing seniors past the current age of retirement generally cite the argument that an aging workforce is less productive, as health issues and a lack of technical abilities limit the capacity of the elderly to do certain jobs. Although this may be the case with the very elderly, in the United States the current generation of over 60s is highly educated and relatively healthy, particularly in comparison to previous generations.\n\nC Others complain that it is too difficult to train seniors. They say, 'you can't teach an old dog new tricks'. However, this too is a misleading argument. Seniors have a wealth of experience which, with the right management, can be highly effective in the proper context. Many already have applicable skills that can be useful in the job market and are well-versed in the activities of the business world, eliminating the need for training altogether.\n\nD One argument against senior employment that does have some validity is the fact that they reduce the number of jobs available in the market place. For every job that a senior is given, one job is unavailable for a younger person. While this is true, the jobs seniors and younger people generally look for are quite different. Instead of taking a job, they're usually filling a job that no one else wants, so it is clear that there is little reason to avoid hiring seniors. In fact, it will likely have a positive impact on both the senior and the employer. It will also reduce the need for seniors to rely upon social security programs or pensions, thereby saving money for the entire society.",
+  "passage_with_locations": [
+    "A With today's aging population, the debate over seniors in the workforce has begun to heat up. Some people believe that their prolonged place in the workforce can be harmful to society. Others think senior employment can have positive consequences for social cohesion and economic growth.\n\nB Those who oppose employing seniors past the current age of retirement generally cite the argument that an aging workforce is less productive, as health issues and a lack of technical abilities limit the capacity of the elderly to do certain jobs. Although this may be the case with the very elderly, in the United States the current generation of over 60s is highly educated and relatively healthy, particularly in comparison to previous generations.\n\n",
+    {
+      "question_number": 9,
+      "text": "C Others complain that it is too difficult to train seniors... Many already have applicable skills that can be useful in the job market and are well-versed in the activities of the business world, eliminating the need for training altogether."
+    },
+    "\n\n",
+    {
+      "question_number": 8,
+      "text": "D One argument against senior employment... In fact, it will likely have a positive impact on both the senior and the employer."
+    },
+    " ",
+    {
+      "question_number": 10,
+      "text": "It will also reduce the need for seniors to rely upon social security programs or pensions, thereby saving money for the entire society."
+    }
+  ],
+  "content": [
+    {
+      "type": "matching_information",
+      "instruction": "The reading passage has four paragraphs, A-D. Which paragraph contains the following information?\n\nNB You may use any letter more than once.",
+      "options": [
+        { "letter": "A", "text": "Paragraph A" },
+        { "letter": "B", "text": "Paragraph B" },
+        { "letter": "C", "text": "Paragraph C" },
+        { "letter": "D", "text": "Paragraph D" }
+      ],
+      "questions": [
+        {
+          "question_number": 8,
+          "text": "a claim about possible benefits to employers and workers",
+          "answer": "D",
+          "explanation": {
+            "keyword": "positive impact, senior, employer",
+            "rationale": "Paragraph D states that hiring seniors 'will likely have a positive impact on both the senior [worker] and the employer'. A 'positive impact' is a claim of 'benefit'.",
+            "distractor_analysis": "While Paragraph A mentions general positive consequences, Paragraph D is where the specific dual benefit to both worker and employer is claimed."
+          }
+        },
+        {
+          "question_number": 9,
+          "text": "a reason why training may not be needed",
+          "answer": "C",
+          "explanation": {
+            "keyword": "eliminating, need for training, skills",
+            "rationale": "Paragraph C notes that many seniors 'already have applicable skills' and are 'well-versed in the activities of the business world', thus 'eliminating the need for training altogether'.",
+            "distractor_analysis": "Paragraph B discusses a lack of technical abilities, which would imply a need for training, but C argues why it is *not* needed."
+          }
+        },
+        {
+          "question_number": 10,
+          "text": "one effect of senior employment on welfare",
+          "answer": "D",
+          "explanation": {
+            "keyword": "social security, pensions, saving money",
+            "rationale": "Paragraph D explains that senior employment 'will also reduce the need for seniors to rely upon social security programs or pensions', which are welfare programs. This 'saves money for the entire society'.",
+            "distractor_analysis": "Paragraph A mentions society's harm/benefit generally; D explains the specific financial/welfare effect."
+          }
+        }
+      ]
+    }
+  ]
+}

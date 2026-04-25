@@ -65,7 +65,7 @@ export default function FloatingSelectionManager({ children }: FloatingSelection
         if (rect.width > 0 && rect.height > 0) {
           setMenuPos({
             x: rect.left + rect.width / 2,
-            y: rect.top - 12 + window.scrollY,
+            y: rect.top - 12, // viewport-relative, used with position:fixed
           });
           setSelectedText(text);
           setAiContextSentence(contextSentence || text);
@@ -115,30 +115,30 @@ export default function FloatingSelectionManager({ children }: FloatingSelection
       {menuPos && (
         <div 
           id="selection-context-menu"
-          className="absolute z-[9999] flex items-center bg-gray-900 shadow-xl rounded-lg overflow-hidden border border-gray-700 animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="fixed z-[9999] flex items-center bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 animate-in fade-in slide-in-from-bottom-2 duration-200"
           style={{
             left: menuPos.x,
             top: menuPos.y,
-            transform: 'translate(-50%, -100%)' // Center horizontally, place fully above coordinates
+            transform: 'translate(-50%, -100%)'
           }}
         >
           <button 
             onClick={handleAddVocab}
-            className="flex items-center gap-2 px-3 py-2 text-[13px] font-semibold text-white hover:bg-gray-800 transition-colors border-r border-gray-700"
+            className="flex items-center gap-2 px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors border-r border-gray-200"
           >
-            <BookPlus className="w-4 h-4 text-emerald-400" />
+            <BookPlus className="w-4 h-4 text-emerald-500" />
             Add to Vocab
           </button>
           <button 
             onClick={handleAskAI}
-            className="flex items-center gap-2 px-3 py-2 text-[13px] font-semibold text-white hover:bg-gray-800 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            <Sparkles className="w-4 h-4 text-indigo-400" />
+            <Sparkles className="w-4 h-4 text-indigo-500" />
             Ask AI
           </button>
           
           {/* Arrow pointing down */}
-          <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-gray-900"></div>
+          <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white"></div>
         </div>
       )}
     </div>

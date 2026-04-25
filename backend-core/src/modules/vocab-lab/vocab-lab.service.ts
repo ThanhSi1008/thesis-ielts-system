@@ -6,8 +6,44 @@ import {
   CreateCardTypeFieldDto, UpdateCardTypeFieldDto, UpdateCardTemplateDto,
 } from './dto/vocab-lab.dto';
 import { CardState } from '@prisma/client';
+import { fsrs, Rating, Card, State, Grade, createEmptyCard } from 'ts-fsrs';
+
+const f = fsrs({
+  request_retention: 0.9,
+  maximum_interval: 365,
+});
 
 const BASIC_CARD_TYPE_NAME = 'Basic';
+
+function toFsrsState(state: CardState): State {
+  switch (state) {
+    case 'NEW': return State.New;
+    case 'LEARNING': return State.Learning;
+    case 'REVIEW': return State.Review;
+    case 'RELEARNING': return State.Relearning;
+    default: return State.New;
+  }
+}
+
+function toPrismaState(state: State): CardState {
+  switch (state) {
+    case State.New: return 'NEW';
+    case State.Learning: return 'LEARNING';
+    case State.Review: return 'REVIEW';
+    case State.Relearning: return 'RELEARNING';
+    default: return 'NEW';
+  }
+}
+
+function toFsrsRating(rating: number): Grade {
+  switch (rating) {
+    case 1: return Rating.Again as Grade;
+    case 2: return Rating.Hard as Grade;
+    case 3: return Rating.Good as Grade;
+    case 4: return Rating.Easy as Grade;
+    default: return Rating.Good as Grade;
+  }
+}
 
 @Injectable()
 export class VocabLabService {
@@ -389,10 +425,10 @@ export class VocabLabService {
     const dueCards = await this.prisma.flashcard.findMany({
       where: {
         deckId,
-        cardState: { in: [CardState.LEARNING, CardState.REVIEW] },
-        nextReviewDate: { lte: now },
+        cardState: { in: [CardState.LEARNING, CardState.REVIEW, CardState.RELEARNING] },
+        due: { lte: now },
       },
-      orderBy: { nextReviewDate: 'asc' },
+      orderBy: { due: 'asc' },
       include: {
         cardType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
       },
@@ -408,40 +444,48 @@ export class VocabLabService {
     });
     if (!card || card.deck.userId !== userId) throw new NotFoundException('Card not found');
 
-    const q = dto.rating;
-    let newEF = card.easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-    if (newEF < 1.3) newEF = 1.3;
+    const fsrsCard: Card = {
+      ...createEmptyCard(),
+      due: card.due ?? new Date(),
+      stability: card.stability,
+      difficulty: card.difficulty,
+      elapsed_days: card.elapsedDays,
+      scheduled_days: card.scheduledDays,
+      reps: card.reps,
+      lapses: card.lapses,
+      state: toFsrsState(card.cardState),
+      last_review: card.lastReview ?? undefined,
+    };
 
-    let newInterval: number;
-    let newRepetition: number;
-    let newState: CardState;
-
-    if (q < 3) {
-      newRepetition = 0;
-      newInterval = 1;
-      newState = CardState.LEARNING;
-    } else {
-      if (card.repetition === 0) {
-        newInterval = 1;
-      } else if (card.repetition === 1) {
-        newInterval = 6;
-      } else {
-        newInterval = Math.round(card.interval * newEF);
-      }
-      newRepetition = card.repetition + 1;
-      newState = newRepetition > 1 ? CardState.REVIEW : CardState.LEARNING;
-    }
-
-    const nextReviewDate = new Date();
-    nextReviewDate.setDate(nextReviewDate.getDate() + newInterval);
+    const now = new Date();
+    const rating = toFsrsRating(dto.rating);
+    const result = f.next(fsrsCard, now, rating);
+    const next = result.card;
 
     const updatedCard = await this.prisma.flashcard.update({
       where: { id: dto.flashcardId },
-      data: { easeFactor: newEF, interval: newInterval, repetition: newRepetition, cardState: newState, nextReviewDate },
+      data: {
+        due: next.due,
+        stability: next.stability,
+        difficulty: next.difficulty,
+        elapsedDays: next.elapsed_days,
+        scheduledDays: next.scheduled_days,
+        reps: next.reps,
+        lapses: next.lapses,
+        lastReview: now,
+        nextReviewDate: next.due,
+        cardState: toPrismaState(next.state),
+      },
     });
 
     await this.prisma.flashcardReview.create({
-      data: { flashcardId: dto.flashcardId, rating: q },
+      data: {
+        flashcardId: dto.flashcardId,
+        rating: dto.rating,
+        scheduledDays: next.scheduled_days,
+        elapsedDays: next.elapsed_days,
+        state: toPrismaState(next.state),
+      },
     });
 
     return updatedCard;

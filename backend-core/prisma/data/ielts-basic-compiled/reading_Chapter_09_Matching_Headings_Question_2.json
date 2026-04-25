@@ -1,0 +1,49 @@
+{
+  "title": "The Rise and Fall of Australian Megafauna",
+  "passage": "A A special feature of the mammals of Australia is that they all happen to be marsupials. A total of 159 Australian marsupial species are currently identified, an overwhelming number that is unique in the world. Another distinctive characteristic is that the mammalian megafauna of Australia tend to be smaller than other large mammals around the world. Commonly, the term megafauna refers to animals that weigh over 100 kilograms. But because Australian mammals are smaller, biologists have amended that threshold to include the Australian fauna that have a body mass of 45 kilos or greater.\n\nB However, this diminutive size has not always been the case. The fossil record shows that megafauna in Australia once thrived, but the largest animals died out around 45,000 years ago. For years, the leading theory was that humans killed off the megafauna by overhunting. This hypothesis is accepted by professor Gifford Miller, who participated in a study of sediment core samples. His team focused on the presence of a fungus spore in the dung of large herbivores, and found that the spores were abundant before plummeting in the few thousand years leading up to the extinctions. Because the region also shows signs of human habitation by 50,000 years ago, the researchers inferred a causal relationship between human settlement and loss of megafauna.\n\nMore recent arguments blame climate change. Larisa DeSantis of Vanderbilt University claims that climate change led to the demise of megafauna. She and her team studied changing patterns in fossil teeth of large herbivores. By comparing the isotopes stored in the tooth enamel, they deduced the average temperature in the environment as the teeth were formed. She therefore could determine that their diets began to shift suddenly as climate change prior to their extinction, suggesting that the much drier climate left them without appropriate food.",
+  "passage_with_locations": [
+    {
+      "question_number": 3,
+      "text": "A A special feature of the mammals of Australia is that they all happen to be marsupials... Another distinctive characteristic is that the mammalian megafauna of Australia tend to be smaller than other large mammals around the world."
+    },
+    "\n\n",
+    {
+      "question_number": 4,
+      "text": "B However, this diminutive size has not always been the case... For years, the leading theory was that humans killed off the megafauna by overhunting... More recent arguments blame climate change."
+    }
+  ],
+  "content": [
+    {
+      "type": "matching_headings",
+      "instruction": "Choose the correct heading for sections A and B from the list of headings below.",
+      "options": [
+        { "letter": "i", "text": "Differing views on why ancient megafauna died out" },
+        { "letter": "ii", "text": "Why marsupials are so abundant in Australia" },
+        { "letter": "iii", "text": "How marsupials avoided extinction" },
+        { "letter": "iv", "text": "Why Australian mammals are unique" }
+      ],
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "Section A",
+          "answer": "iv",
+          "explanation": {
+            "keyword": "special feature, unique in the world, smaller",
+            "rationale": "Section A discusses 'special features' and 'distinctive characteristics' of Australian mammals (being marsupials and smaller), which explains 'Why Australian mammals are unique'.",
+            "distractor_analysis": "While it mentions marsupials being identified (ii), it doesn't explain *why* they are abundant, but rather what makes them unique compared to the rest of the world."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "Section B",
+          "answer": "i",
+          "explanation": {
+            "keyword": "leading theory, hypothesis, recent arguments",
+            "rationale": "Section B presents two opposing views for the extinction of megafauna: overhunting by humans (Professor Miller) and climate change (Larisa DeSantis). This matches 'Differing views on why ancient megafauna died out'.",
+            "distractor_analysis": "It doesn't discuss how marsupials avoided extinction (iii); it specifically focuses on why the ancient megafauna died *out*."
+          }
+        }
+      ]
+    }
+  ]
+}

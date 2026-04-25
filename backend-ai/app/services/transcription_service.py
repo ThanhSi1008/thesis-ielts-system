@@ -76,25 +76,39 @@ class TranscriptionService:
                 audio_path,
                 language=language,
                 beam_size=5,
-                vad_filter=True  # Voice Activity Detection
+                vad_filter=True,  # Voice Activity Detection
+                word_timestamps=True  # Enable per-word confidence scores
             )
 
             # Collect all segments
             transcription_segments = []
+            word_details = []
             full_text = ""
 
             for segment in segments:
                 segment_data = {
                     "start": segment.start,
                     "end": segment.end,
-                    "text": segment.text.strip()
+                    "text": segment.text.strip(),
+                    "avg_logprob": segment.avg_logprob
                 }
                 transcription_segments.append(segment_data)
                 full_text += segment.text.strip() + " "
 
+                # Collect per-word confidence scores
+                if segment.words:
+                    for word in segment.words:
+                        word_details.append({
+                            "word": word.word.strip(),
+                            "start": word.start,
+                            "end": word.end,
+                            "probability": word.probability
+                        })
+
             result = {
                 "text": full_text.strip(),
                 "segments": transcription_segments,
+                "words": word_details,
                 "language": info.language,
                 "language_probability": info.language_probability,
                 "duration": info.duration

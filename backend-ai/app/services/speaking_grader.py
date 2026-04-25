@@ -11,20 +11,29 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 load_dotenv()
 
-from openai import AsyncOpenAI
+from google import genai
+from google.genai import types
 from app.services.transcription_service import get_transcription_service
 
 logger = logging.getLogger(__name__)
 
-_GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-_client = AsyncOpenAI(
-    api_key=_GROQ_API_KEY,
-    base_url="https://api.groq.com/openai/v1",
-) if _GROQ_API_KEY else None
+_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+_client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
 
-SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the user's speaking test transcription according to the official IELTS Speaking band descriptors.
+MODEL = "gemini-2.5-flash"
 
-You will be given the questions asked and the candidate's transcribed spoken responses. Note that because they are AI transcriptions, there may be minor transcription errors (e.g. punctuation, slight mishearings of names), but grade them on the language used.
+SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the user's speaking test responses according to the official IELTS Speaking band descriptors.
+
+You will be given:
+1. The actual AUDIO RECORDINGS of the candidate's spoken responses (or placeholders if not available)
+2. AI-generated text transcriptions as a reference (may contain minor errors)
+3. Transcription confidence indicators
+
+IMPORTANT: For Pronunciation and Fluency scoring, you MUST base your assessment on the AUDIO, not just the text. Listen for:
+- Pronunciation: individual sound accuracy, word stress, intonation patterns, connected speech, L1 interference
+- Fluency: speech rate, hesitations, false starts, self-corrections, pausing patterns
+
+The text transcription is provided as a convenience for assessing Lexical Resource and Grammatical Range, but always cross-reference with what you hear.
 
 For EACH of the four criteria (Fluency and Coherence, Lexical Resource, Grammatical Range and Accuracy, Pronunciation), provide:
 - A band score from 1.0 to 9.0 (in 0.5 increments)
@@ -96,17 +105,18 @@ async def grade_speaking(
     """
     1. Decode Base64 audio answers
     2. Transcribe using Whisper
-    3. Grade using DeepSeek
+    3. Grade using Gemini
     """
     if not _client:
-        logger.warning("[SpeakingGrader] GROQ_API_KEY is missing! Grading will fail.")
-        raise ValueError("GROQ_API_KEY is missing.")
+        logger.warning("[SpeakingGrader] GEMINI_API_KEY is missing! Grading will fail.")
+        raise ValueError("GEMINI_API_KEY is missing.")
 
     transcription_svc = get_transcription_service()
     
     # 1 & 2: Decode & Transcribe
     transcripts = {}
     temp_files = []
+    audio_parts = []
     
     try:
         parts = exam_questions.get("parts", [])
@@ -122,14 +132,26 @@ async def grade_speaking(
                 if audio_source.startswith("http://") or audio_source.startswith("https://"):
                     req = urllib.request.Request(audio_source, headers={'User-Agent': 'Mozilla/5.0'})
                     with urllib.request.urlopen(req) as response:
+                        audio_bytes = response.read()
                         with os.fdopen(fd, 'wb') as f:
-                            f.write(response.read())
+                            f.write(audio_bytes)
                 else:
                     if "," in audio_source:
                         audio_source = audio_source.split(",")[1]
                     audio_bytes = base64.b64decode(audio_source)
                     with os.fdopen(fd, 'wb') as f:
                         f.write(audio_bytes)
+                
+                # Add audio to multimodal parts
+                audio_parts.append(
+                    types.Part.from_text(text=f"[Audio recording for Question {key}]")
+                )
+                audio_parts.append(
+                    types.Part.from_bytes(
+                        data=audio_bytes,
+                        mime_type="audio/webm"
+                    )
+                )
                 
                 # Transcribe
                 logger.info(f"[SpeakingGrader] Transcribing audio for question {key}")
@@ -150,13 +172,15 @@ async def grade_speaking(
                     
                 transcripts[key] = {
                     "question": q_text,
-                    "transcript": result.get("text", "")
+                    "transcript": result.get("text", ""),
+                    "words": result.get("words", [])
                 }
             except Exception as e:
                 logger.error(f"[SpeakingGrader] Failed to process audio for {key}: {e}")
                 transcripts[key] = {
                     "question": f"Question {key}",
-                    "transcript": "(Audio transcription failed)"
+                    "transcript": "(Audio transcription failed)",
+                    "words": []
                 }
     finally:
         for path in temp_files:
@@ -179,60 +203,53 @@ async def grade_speaking(
         for key in sorted(transcripts.keys(), key=sort_key):
             data = transcripts[key]
             text_part += f"Q: {data['question']}\n"
-            text_part += f"A: {data['transcript'] if data['transcript'] else '(No audible response)'}\n\n"
+            text_part += f"A: {data['transcript'] if data['transcript'] else '(No audible response)'}\n"
+            
+            # Add Whisper confidence as supplementary information
+            words = data.get("words", [])
+            if words:
+                avg_conf = sum(w.get("probability", 0) for w in words) / len(words)
+                low_conf_words = [w.get("word", "") for w in words if w.get("probability", 0) < 0.7]
+                text_part += f"[STT Confidence: {avg_conf:.2f}"
+                if low_conf_words:
+                    text_part += f" | Low confidence words: {', '.join(low_conf_words)}"
+                text_part += "]\n"
+            text_part += "\n"
         
     logger.info(f"[SpeakingGrader] Formatted prompt length: {len(text_part)}")
     
-    # 4. Call DeepSeek
+    # 4. Call Gemini
+    # Build contents with Audio files + Text transcript
+    contents = audio_parts + [types.Part.from_text(text=text_part)]
+    
     try:
-        response = await _client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": text_part},
-            ],
-            temperature=0.2,
+        response = await _client.aio.models.generate_content(
+            model=MODEL,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=0.2,
+                response_mime_type="application/json",
+            ),
         )
     except Exception as e:
-        logger.error(f"[SpeakingGrader] DeepSeek API call failed: {e}")
+        logger.error(f"[SpeakingGrader] Gemini API call failed: {e}")
         raise
 
     # 5. Output processing
-    raw_text = response.choices[0].message.content.strip()
-    clean_text = raw_text
-    
-    # Extract JSON block if surrounded by markdown
-    if "```json" in clean_text:
-        clean_text = clean_text.split("```json")[-1]
-    elif "```" in clean_text:
-        clean_text = clean_text.split("```")[-1]
-        
-    if "```" in clean_text:
-        clean_text = clean_text.split("```")[0]
-        
-    clean_text = clean_text.strip()
-
     try:
-        result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text, strict=False))
+        result = typing.cast(typing.Dict[str, typing.Any], json.loads(response.text))
     except json.JSONDecodeError as e:
-        logger.warning(f"[SpeakingGrader] Initial JSON parse failed ({e}). Attempting recovery.")
-        start_idx = clean_text.find('{')
-        end_idx = clean_text.rfind('}')
-        if start_idx != -1 and end_idx != -1:
-            clean_text = clean_text[start_idx:end_idx+1]
-        try:
-            result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text, strict=False))
-        except json.JSONDecodeError:
-            logger.error(f"[SpeakingGrader] JSON recovery failed for raw response: {raw_text}")
-            result = {
-                "overall_band": 0,
-                "criteria": {
-                    "fluency_and_coherence": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []},
-                    "lexical_resource": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []},
-                    "grammatical_range_and_accuracy": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []},
-                    "pronunciation": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []}
-                }
+        logger.error(f"[SpeakingGrader] JSON recovery failed for raw response: {response.text}")
+        result = {
+            "overall_band": 0,
+            "criteria": {
+                "fluency_and_coherence": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []},
+                "lexical_resource": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []},
+                "grammatical_range_and_accuracy": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []},
+                "pronunciation": {"band": 0, "strengths": [], "weak_areas": [], "how_to_improve": [], "mistakes": []}
             }
+        }
 
     overall = _calc_overall_band(result.get("criteria", {}))
     result["overall_band"] = overall

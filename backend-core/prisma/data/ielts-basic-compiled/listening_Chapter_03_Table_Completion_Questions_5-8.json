@@ -1,0 +1,187 @@
+[
+  {
+    "questions": "5-8",
+    "instructions": "Complete the table below. Write ONE WORD AND/OR A NUMBER for each answer.",
+    "topic": "Leeds Arts Centre - Upcoming Performances",
+    "question_type": "Table Completion",
+    "audio_url": "https://res.cloudinary.com/dvh7ztvgk/video/upload/v1775562233/CH3_HP5-8_nztldh.mp3",
+    "transcript": [
+      {
+        "speaker": "Narrator",
+        "text": "Section 1. You will hear a telephone conversation between a sales agent for a ticketing office and a customer."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "First, you have some time to read through Questions 5 to 8."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "Now, listen carefully and answer Questions 5 to 8."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Hello, this is the Leeds Arts Centre Ticketing Office. This is Carol McIntyre speaking. How may I assist you today?"
+      },
+      {
+        "speaker": "Customer",
+        "text": "Yes, I'd like to inquire if you have any performances occurring at your facility in the month of October."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Do you have a particular type of performance in mind that you want to see?"
+      },
+      {
+        "speaker": "Customer",
+        "text": "I mostly fond of orchestra performances and ballets."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Well, we have a performance from the Adelburgh Symphony Orchestra.",
+        "question_number": 5,
+        "highlight_text": "we have a performance from the Adelburgh Symphony Orchestra."
+      },
+      {
+        "speaker": "Customer",
+        "text": "Could you spell the name of the orchestra? I just want to jot it down."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Certainly. It's A-D-E-L-B-U-R-G-H. And the performance is next Thursday, October 3rd."
+      },
+      {
+        "speaker": "Customer",
+        "text": "Thank you."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Are you interested in purchasing tickets for that performance?"
+      },
+      {
+        "speaker": "Customer",
+        "text": "I'm not sure. What time does it start and what are the ticket prices?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "That performance begins at 7pm. There are only tickets remaining in the second level balconies back most rows. It's quite comfortable, certainly better than the back row seats on the first level. Those are priced at £50 per ticket.",
+        "question_number": 6,
+        "highlight_text": "There are only tickets remaining in the second level balconies"
+      },
+      {
+        "speaker": "Customer",
+        "text": "I'd rather be a bit closer to the stage, actually. What about ballets in October?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "Oh, there will be a splendid ballet rendition of Romeo and Juliet given by the Royal Ballet Company. I highly recommend that one. That show is on the Monday of the last week of October."
+      },
+      {
+        "speaker": "Customer",
+        "text": "That sounds divine. That's October 30th, right?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "Actually, that's October 31st.",
+        "question_number": 7,
+        "highlight_text": "Actually, that's October 31st."
+      },
+      {
+        "speaker": "Customer",
+        "text": "Okay. Which section is closest to the stage?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "That would be the central section, where tickets are £200 per person. Unfortunately, those tickets are sold out. But I'd recommend the mezzanine, as it's the next nearest section to the stage."
+      },
+      {
+        "speaker": "Customer",
+        "text": "And how much are those tickets?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "They are £120 each. Oh, and I forgot to ask about one important thing. Would you happen to be a resident of Leeds?"
+      },
+      {
+        "speaker": "Customer",
+        "text": "I am."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Then you should also note that we host several events, especially for residents throughout the year, including performances by acclaimed opera singer Claudia Vento and the Leeds Boys Choir on the December 12th. We have all types of seats available for those. And we have less expensive drinks on those nights, and the performances are free of charge.",
+        "question_number": 8,
+        "highlight_text": "the performances are free of charge."
+      },
+      {
+        "speaker": "Customer",
+        "text": "Oh, wonderful. But I still need to ask my friend if the ticket prices for the October Ballot sound affordable for her. Can I call you back later to buy the tickets?"
+      },
+      {
+        "speaker": "Staff",
+        "text": "Absolutely. Our office is open daily from 8am to 6pm."
+      },
+      {
+        "speaker": "Customer",
+        "text": "Great. Thanks for your help. Goodbye."
+      },
+      {
+        "speaker": "Staff",
+        "text": "Bye."
+      },
+      {
+        "speaker": "Narrator",
+        "text": "You now have 15 seconds to check your answers."
+      }
+    ],
+    "content": [
+      {
+        "type": "table",
+        "headers": ["Performer", "Date", "Seats", "Cost"],
+        "rows": [
+          {
+            "Performer": "5 .............................. Symphony Orchestra",
+            "Date": "October 3rd",
+            "Seats": "Only 6 .............................. level balcony back row seats",
+            "Cost": "£50",
+            "questions": {
+              "5": {
+                "answer": "Adelburgh",
+                "timestamp_seconds": 77.32,
+                "explanation": "In the section related to the keyword (Symphony Orchestra), the staff member says 'we have a performance from the Adelburgh Symphony Orchestra' and spells it out 'A-D-E-L-B-U-R-G-H', so Adelburgh is the correct answer."
+              },
+              "6": {
+                "answer": "second",
+                "timestamp_seconds": 104.52,
+                "explanation": "In the section related to the keyword (balcony back row seats), the staff member says 'There are only tickets remaining in the second level balconies back most rows', so second is the correct answer."
+              }
+            }
+          },
+          {
+            "Performer": "Royal Ballet Company",
+            "Date": "7 ..............................",
+            "Seats": "Mezzanine section",
+            "Cost": "£120",
+            "questions": {
+              "7": {
+                "answer": "October 31st",
+                "timestamp_seconds": 139.76,
+                "explanation": "In the section related to the keyword (Royal Ballet Company), the customer asks 'That's October 30th, right?' and the staff member corrects 'Actually, that's October 31st.', so October 31st is the correct answer."
+              }
+            }
+          },
+          {
+            "Performer": "Claudia Vento and the Leeds Boys Choir",
+            "Date": "December 12th",
+            "Seats": "All seating types available",
+            "Cost": "8 ..............................",
+            "questions": {
+              "8": {
+                "answer": "free",
+                "timestamp_seconds": 192.72,
+                "explanation": "In the section related to the keyword (Claudia Vento and the Leeds Boys Choir), the staff member says 'the performances are free of charge.', so free is the correct answer."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

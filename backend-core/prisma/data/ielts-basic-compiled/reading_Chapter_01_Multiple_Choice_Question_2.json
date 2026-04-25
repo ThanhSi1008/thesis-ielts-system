@@ -1,0 +1,80 @@
+{
+  "title": "Ancient Greek Theatre",
+  "passage": "In Ancient Greece, the prevailing religious traditions centred around Dionysus, a saviour god who was associated with the sowing and reaping of corn, the production of grapes, and intoxication. Patrons held seasonal festivals in his honour, the most important of which was the autumn wine tasting celebration, known as the Dionysus Festival, and this included the recitation of choric poems or hymns. Revellers chanted odes, called dithyrambs, to their illustrious god while a priest would respond in a symbolic interaction between humans and the spirits. Due to its popularity within the higher and lower social classes, by the 6th century B.C., the Corinthian king established a dithyramb competition and invited a select group of poets to compose and perform these pseudo-dramas. For the first time, the plays were freed from their religious roots and transformed into full-fledged works of art. The changing theatre environment altered attitudes across Greece and thus triggered a newfound secular interest that would bring about a refinement of the art form.",
+  "passage_with_locations": [
+    "In Ancient Greece, the prevailing religious traditions centred around Dionysus, a saviour god who was associated with the sowing and reaping of corn, the production of grapes, and intoxication. Patrons held seasonal festivals in his honour, the most important of which was the ",
+    {
+      "question_number": 3,
+      "text": "autumn wine tasting celebration, known as the Dionysus Festival, and this included the recitation of choric poems or hymns"
+    },
+    ". Revellers chanted odes, called dithyrambs, to their illustrious god while a priest would respond in a symbolic interaction between humans and the spirits. Due to its popularity within the higher and lower social classes, by the 6th century B.C., the Corinthian king established a dithyramb competition and invited a select group of poets to compose and perform these pseudo-dramas. For the first time, ",
+    {
+      "question_number": 4,
+      "text": "the plays were freed from their religious roots and transformed into full-fledged works of art. The changing theatre environment altered attitudes across Greece and thus triggered a newfound secular interest"
+    },
+    " that would bring about a refinement of the art form."
+  ],
+  "content": [
+    {
+      "type": "multiple_choice",
+      "questions": [
+        {
+          "question_number": 3,
+          "text": "According to the writer, the Ancient Greek wine tasting festival held each fall involved",
+          "options": [
+            {
+              "letter": "A",
+              "text": "the performance of poetry."
+            },
+            {
+              "letter": "B",
+              "text": "the production of wine."
+            },
+            {
+              "letter": "C",
+              "text": "the harvesting of corn."
+            },
+            {
+              "letter": "D",
+              "text": "the visiting of temples."
+            }
+          ],
+          "answer": "A",
+          "explanation": {
+            "keyword": "wine tasting festival / recitation",
+            "rationale": "The text states that the autumn wine tasting celebration 'included the recitation of choric poems or hymns'. 'Recitation of poems' is synonymous with 'the performance of poetry'.",
+            "distractor_analysis": "Option B and C: While Dionysus was associated with grapes/wine and corn, the festival's specific *activity* mentioned is the recitation. Option D: Not mentioned in the text."
+          }
+        },
+        {
+          "question_number": 4,
+          "text": "The movement of plays from the religious world to the general public caused",
+          "options": [
+            {
+              "letter": "A",
+              "text": "a protest against organised religions across Europe."
+            },
+            {
+              "letter": "B",
+              "text": "the collapse of the ancient Greek civilisation."
+            },
+            {
+              "letter": "C",
+              "text": "an increase in the general public’s curiosity about art."
+            },
+            {
+              "letter": "D",
+              "text": "some actors to become critical of social classes."
+            }
+          ],
+          "answer": "C",
+          "explanation": {
+            "keyword": "movement of plays / secular interest",
+            "rationale": "The passage describes the plays being 'freed from their religious roots', which 'triggered a newfound secular interest'. 'Newfound secular interest' translates to an 'increase in curiosity about art' among the public.",
+            "distractor_analysis": "Option A: The text mentions a move away from religious roots, but not a 'protest' or anything ‘across Europe’. Option B: The text mentions a 'refinement of the art form', not a collapse of civilization. Option D: Not mentioned."
+          }
+        }
+      ]
+    }
+  ]
+}

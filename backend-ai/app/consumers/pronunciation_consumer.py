@@ -91,13 +91,15 @@ class PronunciationConsumer:
             logger.info(f"🎧 Transcribing audio...")
             transcription_result = self.transcription_service.transcribe(local_audio_path)
             transcribed_text = transcription_result.get('text', '').strip()
+            word_details = transcription_result.get('words', [])
             
             logger.info(f"📝 Transcription: '{transcribed_text}'")
             
             # Analyze pronunciation and calculate score
             pronunciation_result = self.pronunciation_service.analyze_pronunciation(
                 transcribed_text=transcribed_text,
-                target_word=target_word
+                target_word=target_word,
+                word_details=word_details
             )
             
             score = pronunciation_result['score']

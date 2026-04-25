@@ -21,7 +21,11 @@ export function calcScore(
       const raw = (answers[key] as unknown as string) ?? "";
       const selected = raw ? raw.split(",").map((x) => x.toUpperCase()) : [];
       const correct = new Set(answers_arr.map((a) => a.toUpperCase()));
-      if (selected.length === correct.size && selected.every((x) => correct.has(x))) s++;
+      let matchCount = 0;
+      selected.forEach((x) => {
+        if (correct.has(x)) matchCount++;
+      });
+      s += matchCount;
     } else if (g.type === "table") {
       const rows = (g as unknown as TableGroup).rows;
       rows.forEach((row) => {
@@ -40,6 +44,7 @@ export function calcScore(
       });
     } else if (!g.type && Array.isArray((g as any).points)) {
       ((g as any).points as FormPoint[]).forEach((p) => {
+        if (!p.question_number || !p.answer) return;
         const userAns = (answers[p.question_number] as unknown as string ?? "").trim().toLowerCase();
         if (userAns === p.answer.trim().toLowerCase()) s++;
       });

@@ -1,0 +1,77 @@
+{
+  "title": "Prairie Ecosystems",
+  "passage": "Prairie ecosystems are characterised by even terrain or gently sloping rolling hills, and by a predominance of herbaceous plant life. Trees, shrubs, and other woody plants are virtually absent in prairies, and there is very little shelter from the solar radiation and harsh breezes. Prairies generally receive a moderate amount of yearly precipitation, but summers are occasionally marked by severe drought. Consequently, for plants to thrive in the prairie ecosystem, they must endure seasonally dry conditions. Among the herbaceous plants suited for life in these ecosystems are prairie grasses, which have several adaptive mechanisms for survival.\n\nLeaves of prairie grasses vary in width, but most are long, thin blades. On the epidermal layer of the leaves are small holes, called stomata, which can be opened to let in carbon dioxide and release oxygen, or closed to retain moisture. Because carbon dioxide is essential for plant photosynthesis, the stomata must remain wide for gas exchange; however, air spaces within the leaf are full of water vapour, which evaporates unless the pores remain closed and presents a challenge during dry conditions. To overcome the problem, prairie grasses have evolved to distinguish between day and night. In the daytime, the grasses keep their stomata shut to minimise moisture loss. The plants then expand the pores in the evening when the air is cooler for respiration.",
+  "passage_with_locations": [
+    "Prairie ecosystems are characterised by even terrain or gently sloping rolling hills, and by a predominance of herbaceous plant life. Trees, shrubs, and other woody plants are virtually absent in prairies, and ",
+    {
+      "question_number": 7,
+      "text": "there is very little shelter from the solar radiation and harsh breezes."
+    },
+    " Prairies generally receive a moderate amount of yearly precipitation, but summers are occasionally marked by severe drought. Consequently, for plants to thrive in the prairie ecosystem, they must endure seasonally dry conditions. Among the herbaceous plants suited for life in these ecosystems are prairie grasses, which have several adaptive mechanisms for survival.\n\nLeaves of prairie grasses vary in width, but most are long, thin blades. ",
+    {
+      "question_number": 8,
+      "text": "On the epidermal layer of the leaves are small holes"
+    },
+    ", called stomata, which can be opened to let in carbon dioxide and release oxygen, or closed to retain moisture. Because carbon dioxide is essential for plant photosynthesis, the stomata must remain wide for gas exchange; however, air spaces within the leaf are full of water vapour, which evaporates unless the pores remain closed and presents a challenge during dry conditions. To overcome the problem, prairie grasses have evolved to distinguish between day and night. ",
+    {
+      "question_number": 9,
+      "text": "In the daytime, the grasses keep their stomata shut"
+    },
+    " to minimise moisture loss. The plants then expand the pores in the evening when the air is cooler for respiration."
+  ],
+  "content": [
+    {
+      "type": "note_completion",
+      "instruction": "Complete the notes below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "note_title": "How Prairie Grasses Survive",
+      "notes": [
+        {
+          "subheading": "Harsh prairie conditions",
+          "points": [
+            "Flat land with a few small hills",
+            "A limited amount of protection from {{7}} and high winds",
+            "Some rainfall every year, but summer months bring drought"
+          ]
+        },
+        {
+          "subheading": "Prairie grasses' evolutionary adaptation",
+          "points": [
+            "Stomata: Tiny holes on the {{8}} of the leaves",
+            "Open to allow carbon dioxide in and oxygen out, or closed to preserve moisture",
+            "The stomata remain closed during the {{9}} to decrease loss of water",
+            "The plant pores are opened in the cooler nighttime air"
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "question_number": 7,
+          "answer": "solar radiation",
+          "explanation": {
+            "keyword": "limited amount of protection / high winds",
+            "rationale": "The note mentions a limited amount of protection from something and high winds. The passage states 'there is very little shelter [limited protection] from the solar radiation and harsh breezes [high winds]'. The missing phrase is 'solar radiation'.",
+            "distractor_analysis": "'trees' or 'shrubs' are incorrect because the sentence says protection *from* these harsh elements, and trees aren't an element to be protected from."
+          }
+        },
+        {
+          "question_number": 8,
+          "answer": "epidermal layer",
+          "explanation": {
+            "keyword": "Tiny holes / on the ... of the leaves",
+            "rationale": "The note asks exactly where the tiny holes (stomata) are located on the leaves. The text establishes: 'On the epidermal layer of the leaves are small holes [tiny holes]'. Hence, 'epidermal layer' fits perfectly.",
+            "distractor_analysis": "Words like 'surface' might make sense logically, but the text specifically uses the exact biological term 'epidermal layer'."
+          }
+        },
+        {
+          "question_number": 9,
+          "answer": "daytime",
+          "explanation": {
+            "keyword": "stomata remain closed during the / decrease loss of water",
+            "rationale": "The text states 'In the daytime, the grasses keep their stomata shut [closed] to minimise moisture loss [decrease loss of water]'. Thus, they remain closed during the 'daytime'.",
+            "distractor_analysis": "'night' or 'evening' are incorrect as the text specifically mentions opening the pores in the evening."
+          }
+        }
+      ]
+    }
+  ]
+}

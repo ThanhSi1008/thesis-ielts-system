@@ -34,6 +34,12 @@ model User {
   shadowingFolders          ShadowingFolder[]
   shadowingDictationProgress ShadowingDictationProgress[]
   ieltsBasicProgress         IeltsBasicProgress[]
+  ieltsWritingAnswers        IeltsWritingUserAnswer[]
+  ieltsPracticeSessions      IeltsPracticeSession[]
+  ieltsPracticeReadingSessions IeltsPracticeReadingSession[]
+  ieltsProfile               IeltsProfile?
+  teacherLinks               StudentTeacherLink[] @relation("StudentLinks")
+  studentLinks               StudentTeacherLink[] @relation("TeacherLinks")
 
   @@map("users")
 }
@@ -105,8 +111,10 @@ enum SessionStatus {
   IN_PROGRESS
   SUBMITTED
   GRADING
+  GRADED
   COMPLETED
   ABANDONED
+  GRADING_FAILED
 }
 
 // Result model - stores exam scores and feedback
@@ -447,6 +455,7 @@ enum CardState {
   NEW
   LEARNING
   REVIEW
+  RELEARNING
 }
 
 model Deck {
@@ -468,10 +477,16 @@ model Flashcard {
   front          String
   back           String    @db.Text
   tags           String[]
-  interval       Int       @default(0)
-  repetition     Int       @default(0)
-  easeFactor     Float     @default(2.5)
-  nextReviewDate DateTime  @default(now())
+  // FSRS scheduling fields
+  due            DateTime  @default(now())
+  stability      Float     @default(0)
+  difficulty     Float     @default(0)
+  elapsedDays    Int       @default(0)
+  scheduledDays  Int       @default(0)
+  reps           Int       @default(0)
+  lapses         Int       @default(0)
+  lastReview     DateTime?
+  nextReviewDate DateTime  @default(now()) // Keeping for backward compatibility temporarily
   cardState      CardState @default(NEW)
   cardTypeId     String?
   fieldValues    Json      @default("{}")
@@ -490,8 +505,12 @@ model Flashcard {
 model FlashcardReview {
   id          String   @id @default(uuid())
   flashcardId String
-  rating      Int      // 0-5 (SM-2 quality scale)
+  rating      Int      // 1=Again, 2=Hard, 3=Good, 4=Easy (FSRS scale)
   reviewedAt  DateTime @default(now())
+  // FSRS review log fields
+  scheduledDays Int    @default(0)
+  elapsedDays   Int    @default(0)
+  state         CardState?
 
   flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
 
@@ -628,6 +647,7 @@ model IeltsSkill {
   lessons            IeltsLesson[]
   listeningExercises IeltsListeningExercise[]
   readingExercises   IeltsReadingExercise[]
+  writingExercises   IeltsWritingExercise[]
   createdAt          DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
 
@@ -648,6 +668,7 @@ model IeltsLesson {
   skill              IeltsSkill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
   listeningExercises IeltsListeningExercise[]
   readingExercises   IeltsReadingExercise[]
+  writingExercises   IeltsWritingExercise[]
   progress           IeltsBasicProgress[]
 
   @@map("ielts_lessons")
@@ -699,6 +720,7 @@ model IeltsBasicProgress {
   lessonId            String?
   listeningExerciseId String?
   readingExerciseId   String?
+  writingExerciseId   String?
   isCompleted         Boolean  @default(false)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -707,8 +729,162 @@ model IeltsBasicProgress {
   lesson            IeltsLesson?            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   listeningExercise IeltsListeningExercise? @relation(fields: [listeningExerciseId], references: [id], onDelete: Cascade)
   readingExercise   IeltsReadingExercise?   @relation(fields: [readingExerciseId], references: [id], onDelete: Cascade)
+  writingExercise   IeltsWritingExercise?   @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, lessonId, listeningExerciseId, readingExerciseId], name: "user_item_unique")
+  @@unique([userId, lessonId, listeningExerciseId, readingExerciseId, writingExerciseId], name: "user_item_unique")
   @@map("ielts_basic_progress")
+}
+
+model IeltsWritingExercise {
+  id           String      @id @default(uuid())
+  skillId      String
+  lessonId     String?
+  topic        String
+  instructions String?
+  prompt       String      @db.Text
+  diagramUrl   String?
+  modelAnswer  Json
+  order        Int
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress     IeltsBasicProgress[]
+  userAnswers  IeltsWritingUserAnswer[]
+
+  @@map("ielts_writing_exercises")
+}
+
+model IeltsWritingUserAnswer {
+  id                String   @id @default(uuid())
+  userId            String
+  writingExerciseId String
+  intro             String   @db.Text
+  overview          String   @db.Text
+  body1             String   @db.Text
+  body2             String   @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  writingExercise   IeltsWritingExercise @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, writingExerciseId])
+  @@map("ielts_writing_user_answers")
+}
+
+// ============================================================
+// IELTS ADVANCED PRACTICE
+// ============================================================
+
+model IeltsPracticeListeningPart {
+  id             String   @id @default(uuid())
+  title          String   // e.g. "Cambridge 20 Test 4 - Listening Part 1"
+  partNumber     Int      // 1, 2, 3, 4
+  audioUrl       String
+  transcript     Json     // Speaker and text segments
+  content        Json     // Structure array using basic component types
+  questionTypes  String[] // e.g., ["form_completion", "multiple_choice"]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sessions       IeltsPracticeSession[]
+
+  @@map("ielts_practice_listening_parts")
+}
+
+model IeltsPracticeSession {
+  id             String   @id @default(uuid())
+  userId         String
+  partId         String
+  answers        Json     // User's submitted answers
+  scoreData      Json     // Detailed struct tracking correct/total by question type
+                           // e.g. {"form_completion": {"correct": 0, "total": 10}, "multiple_choice": ...}
+  totalScore     Int
+  totalQuestions Int
+  createdAt      DateTime @default(now())
+
+  part           IeltsPracticeListeningPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ielts_practice_sessions")
+}
+
+model IeltsPracticeReadingPart {
+  id             String   @id @default(uuid())
+  title          String   // e.g. "Cambridge 17 Test 1 - Reading Part 1"
+  partNumber     Int      // 1, 2, 3
+  passage        String   @db.Text
+  passageWithLocations Json?
+  content        Json     // Structure array using basic component types
+  questionTypes  String[] // e.g., ["multiple_choice", "matching_headings"]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sessions       IeltsPracticeReadingSession[]
+
+  @@map("ielts_practice_reading_parts")
+}
+
+model IeltsPracticeReadingSession {
+  id             String   @id @default(uuid())
+  userId         String
+  partId         String
+  answers        Json
+  scoreData      Json
+  totalScore     Int
+  totalQuestions Int
+  createdAt      DateTime @default(now())
+
+  part           IeltsPracticeReadingPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ielts_practice_reading_sessions")
+}
+
+model IeltsProfile {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+
+  targetBand          Float?
+  dailyCommitmentMins Int?     @default(30)
+  examDate            DateTime?
+  placementScore      Int?
+  placementListening  Int?
+  placementReading    Int?
+  placementWriting    Int?
+  onboardingCompleted Boolean  @default(false)
+  
+  // ── Streak Tracking ──
+  currentStreak       Int      @default(0)
+  longestStreak       Int      @default(0)
+  lastActiveDate      DateTime? // Date of last activity (no time data, or start of day)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ielts_profiles")
+}
+
+// ============================================================
+// STUDENT-TEACHER LINKING
+// ============================================================
+
+model StudentTeacherLink {
+  id        String   @id @default(uuid())
+  studentId String
+  teacherId String
+  status    String   @default("LINKED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student   User @relation("StudentLinks", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher   User @relation("TeacherLinks", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, teacherId])
+  @@map("student_teacher_links")
 }
 

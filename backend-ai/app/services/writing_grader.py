@@ -8,18 +8,18 @@ import typing
 from dotenv import load_dotenv
 load_dotenv()
 
-from openai import AsyncOpenAI
+from google import genai
+from google.genai import types
 
 logger = logging.getLogger(__name__)
 
-_GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-if not _GROQ_API_KEY:
-    logger.warning("[WritingGrader] GROQ_API_KEY is empty — grading will fail!")
+_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+if not _GEMINI_API_KEY:
+    logger.warning("[WritingGrader] GEMINI_API_KEY is empty — grading will fail!")
 
-_client = AsyncOpenAI(
-    api_key=_GROQ_API_KEY,
-    base_url="https://api.groq.com/openai/v1",
-)
+_client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
+
+MODEL = "gemini-2.5-flash"
 
 SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the two writing tasks strictly according to the official IELTS band descriptors.
 
@@ -137,8 +137,8 @@ async def grade_writing(
     task2_essay: str,
     task1_image_url: str = "",
 ) -> dict:
-    """Call DeepSeek to grade both IELTS writing tasks and return structured feedback."""
-    logger.info("[WritingGrader] Calling DeepSeek API...")
+    """Call Gemini to grade both IELTS writing tasks and return structured feedback."""
+    logger.info("[WritingGrader] Calling Gemini API...")
 
     # Build the user message text
     image_note = ""
@@ -156,55 +156,43 @@ Candidate's Response:
 {task2_essay or "(No response submitted)"}"""
 
     try:
-        response = await _client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message},
-            ],
-            temperature=0.2,
+        response = await _client.aio.models.generate_content(
+            model=MODEL,
+            contents=user_message,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=0.2,
+                response_mime_type="application/json",
+            ),
         )
     except Exception as e:
-        logger.error(f"[WritingGrader] DeepSeek API call failed: {e}")
+        logger.error(f"[WritingGrader] Gemini API call failed: {e}")
         raise
 
     # Output processing
-    raw_text = response.choices[0].message.content.strip()
-    logger.info(f"[WritingGrader] DeepSeek responded ({len(raw_text)} chars)")
+    raw_text = response.text
+    logger.info(f"[WritingGrader] Gemini responded ({len(raw_text)} chars)")
 
-    # 1. Strip markdown code fences if present
-    clean_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
-    clean_text = re.sub(r"\s*```$", "", clean_text)
-
-    # 2. Try parsing directly
+    # Parse — with response_mime_type="application/json", this is guaranteed valid
     try:
-        result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text))
+        result = typing.cast(typing.Dict[str, typing.Any], json.loads(raw_text))
     except json.JSONDecodeError as e:
-        logger.warning(f"[WritingGrader] Initial JSON parse failed ({e}). Attempting to repair.")
-        start_idx = clean_text.find('{')
-        end_idx = clean_text.rfind('}')
-        if start_idx != -1 and end_idx != -1:
-            clean_text = clean_text[start_idx:end_idx+1]
-        clean_text = re.sub(r",\s*([\]}])", r"\1", clean_text)
-        try:
-            result = typing.cast(typing.Dict[str, typing.Any], json.loads(clean_text))
-        except json.JSONDecodeError as e2:
-            logger.error(f"[WritingGrader] JSON recovery failed: {e2}\nRaw text was: {raw_text}")
-            result = typing.cast(typing.Dict[str, typing.Any], {
-                "overall_band": 0,
-                "task1": {"band": 0, "criteria": {
-                    "task_achievement": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":["Failed to parse AI response"], "mistakes":[]},
-                    "coherence_and_cohesion": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
-                    "lexical_resource": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
-                    "grammatical_range_and_accuracy": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]}
-                }},
-                "task2": {"band": 0, "criteria": {
-                    "task_achievement": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":["Failed to parse AI response"], "mistakes":[]},
-                    "coherence_and_cohesion": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
-                    "lexical_resource": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
-                    "grammatical_range_and_accuracy": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]}
-                }}
-            })
+        logger.error(f"[WritingGrader] JSON recovery failed: {e}\nRaw text was: {raw_text}")
+        result = typing.cast(typing.Dict[str, typing.Any], {
+            "overall_band": 0,
+            "task1": {"band": 0, "criteria": {
+                "task_achievement": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":["Failed to parse AI response"], "mistakes":[]},
+                "coherence_and_cohesion": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
+                "lexical_resource": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
+                "grammatical_range_and_accuracy": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]}
+            }},
+            "task2": {"band": 0, "criteria": {
+                "task_achievement": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":["Failed to parse AI response"], "mistakes":[]},
+                "coherence_and_cohesion": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
+                "lexical_resource": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]},
+                "grammatical_range_and_accuracy": {"band":0, "strengths":[], "weak_areas":[], "how_to_improve":[], "mistakes":[]}
+            }}
+        })
 
     # Recalculate bands server-side to ensure consistency
     t1_band = _calc_task_band(result["task1"]["criteria"])

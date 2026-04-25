@@ -1,0 +1,589 @@
+- writing + exercise
+    - Change Over Time
+        - Standard 4 categories
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The bar chart below shows the percentage of government spending on roads and transport in 4 countries in the years 1990, 1995, 2000, 2005
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776118802/change-exercises-1_d3jbxo.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The chart illustrates how much governments in four countries invested in roads and transport between 1990 and 2005.
+                        
+                    - Overview
+                        
+                        Overall, there was a decline in the proportion of government spending on roads and transport in Italy, Portugal and the UK, while a rise was seen in the USA. In addition, Portugal generally had the highest figures throughout the period.
+                        
+                    - Body 1
+                        
+                        The share of the government's budget spent on roads and transport in Portugal started at about 27%, after which it saw a progressive decrease to exactly 20% in 2005. Conversely, the figure for the USA rose from just over 10% in 1990 to 15% in 2005, despite a small fall in the first 5 years.
+                        
+                    - Body 2
+                        
+                        Approximately 22% of the Italian national budget was spent on the transport infrastructure, with subsequent fluctuations and a final decline from 24% in 2000 to about 19% in 2005. Similarly, the figure for the UK fluctuated in the range from 9% to 13% from 1990 to 2000, before ending the period at around 7%.
+                        
+            - Exercise 2
+                - Question
+                    - Prompt
+                        
+                        The graph below shows the consumption of fish and some different kinds of meat in a European country between 1979 and 2004.
+                        
+                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776119384/change-4-exercise-2_th9ah7.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The line graph illustrates how much fish and some other kinds of meat were consumed/ used/ eaten per person in a country in Europe from 1979 to 2004.
+                        
+                    - Overview
+                        
+                        Overall, there was a decline in the amount of beef, lamb, and fish eaten, while the figure for chicken increased to surpass that of beef, making (chicken was increasingly used and became the most...) it the most consumed type of meat from 1989 onwards.
+                        
+                    - Body 1
+                        
+                        The amount of beef eaten per person in the country examined started at about 220 grams, after which it saw fluctuations until 1989, before decreasing to end the period at around 100 grams. Conversely, the figure for chicken rose from just under 150 grams per person (GPP) to north of 200 gpp in 1989 and kept rising to reach 250 gpp in the final year.
+                        
+                    - Body 2
+                        
+                        150 grams of lamb was used by an average person in the country mentioned in 1979, with a decline to approximately 75 gpp in 2004. Meanwhile/ in the meantime, the figure for fish decreased slightly from around 60 gpp to just under 50 gpp after a few years and maintained at this level towards the end of the period.
+                        
+        - More than 4 categories
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The graph below shows the percentage of female members of parliament in five European countries between 2000 and 2012.
+                        
+                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776120083/change-5-exercise-1_mfoet1.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The line graph illustrates the percentage of females elected in parliament in 5 European countries between 2000 and 2012.
+                        
+                    - Overview
+                        
+                        Overall, **there was an increase in** the proportion of female members in parliament in all 5 countries examined, **with** the UK witnessing the most dramatic rise. Despite this, it consistently **had the lowest figures throughout the period.**
+                        
+                    - Body 1
+                        
+                        The percentage of positions in parliament held by women in Germany **was about 34%, after which it saw** a gradual rise to 36% in 2012. **Similar changes, but to greater extents, were seen in the figures for Italy and the UK, which grew** from 26% to almost 40% and from 4% to around 27% respectively.
+                        
+                    - Body 2
+                        
+                        **25% of members in France’s parliament were women, with** a subsequent jump to reach a peak at around 37% by 2004, before ending at 32%. Meanwhile, **the figure for** Belgium increased from 17% in 2000 to 28% in 2004 **and levelled off** towards the end of the period.
+                        
+            - Exercise 2
+                - Question
+                    - Prompt
+                        
+                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                        **The line graph shows** the proportion of people using different types of technology in a country between 1998 and 2008.
+                        
+                    - Digram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776120441/change-5-exercise-2_y3cyxx.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The line graph illustrates how much five different kinds of technology were used in a country over a 10-year period from 1998 to 2008.
+                        
+                    - Overview
+                        
+                        Overall, there was an increase in the proportion of people using all five technologies examined, with the cellular phone service seeing the most dramatic rise. By 2008, it had become the most popular type of technology used.
+                        
+                    - Body 1
+                        
+                        The percentage of users for cellular phone service started at about 4%, after which it saw a progressive rise to reach roughly 65% in 2008. Similar changes, but to a lesser extent, were seen in the figures for internet service, which rose from around 3% in 1998 to just over 20% in the final year.
+                        
+                    - Body 2
+                        
+                        15% of the population used landline service in 1998, with a subsequent rise to a peak at 20% in 2006, before falling slightly to just under 20% in 2008. Meanwhile, the figures for both fixed and mobile broadband increased slightly to reach about 4% and 5% respectively in the final year.
+                        
+        - Less than 4 categories
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The table below shows the number of **cars** made in three countries in 2003, 2006 and 2009. Summarize the information by selecting and reporting the main features and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776173630/change-3-exercise-1_eqetfk.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The table illustrates [how many](https://www.notion.so/B-I-4-312872aec70f804194d1df7c4088279b?pvs=21) cars were produced in Argentina, Australia and Thailand between 2003 and 2009. 
+                        
+                    - Overview
+                        
+                        Overall, there was an increase in the number of cars manufactured in Argentina and Thailand, while a constant decline was seen in Australia’s car production. It is also clear that Thailand consistently had by far the highest figures throughout the period, even though a considerable decline was seen in the latter half of the period.
+                        
+                    - Body 1
+                        
+                        The number of automobiles manufactured in Thailand started at 735,852 units, after which it saw a dramatic rise to 1,162,356 in 2006. A similar change was seen in the figure for Argentina, which increased from 235,088 to 352,759 in the first 3 years. By contrast, 452,116 cars were made in Australia in 2003, with a subsequent decline to 341,268 units in 2006.
+                        
+                    - Body 2
+                        
+                        From 2006 to 2009, the number of cars produced in Argentina continued to increase, reaching 466,085 units. Conversely, the figures for Thailand and Australia dropped to 999,963 and 245,624 units.
+                        
+            - Exercise 2
+                - Question
+                    - Prompt
+                        
+                        The line graph below shows the production of paper, wood pulp and sawn-wood in the UK from 1980 to 2000. Summarize the information by selecting and reporting the main features and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776174240/change-3-exercise-2_xvqyfo.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The chart illustrates how much paper, wood pulp and sawn-wood were produced in the UK between 1980 and 2000.
+                        
+                    - Overview
+                        
+                        Overall, there was a dramatic increase in paper and packaging production in the UK, especially in the latter half of the period, while the opposite trend can be seen in the figures for sawn wood and those for wood pulp fluctuated slightly. It is also clear that the amount of paper and packaging material produced in the UK had by far the highest figures throughout the years.
+                        
+                    - Body 1
+                        
+                        The amount of paper and packaging produced in the UK started at about 240 million tons, after which it saw a slight increase to 250 million tons ten years later. Opposite changes can be seen in the figures for wood pulp and sawn-wood, which decreased from 200 and 165 million tons to exactly 150 million tons in the first 10 years.
+                        
+                    - Body 2
+                        
+                        From 1990 to 2000, the amount of paper and packaging produced rose significantly, reaching 350 million tons. The figure for wood pulp saw similar changes, but to a much lesser extent, growing to roughly 160 million tons. Conversely, the production of sawn-wood kept decreasing to approximately 125 million tons.
+                        
+        - Only 2 year
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The two pie charts below show the results of a survey conducted in 2005 and 2010 regarding customer service at a particular company.
+                        
+                        Summarize the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776174586/change-2-year-exercise-1_kobcfe.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The pie charts illustrate visitors’ responses to a survey about customer service at the Parkway Hotel in 2005 and in 2010.
+                        
+                    - Overview
+                        
+                        Overall, there was a significant decline in the proportion of hotel guests rating customer service as satisfactory, poor or very poor, while as opposite trend can be seen in the figure for those describing the hotel service as good or excellent. In addition, the majority of customers gave a “satisfactory” response in 2005, but in 2010, the majority felt that the hotel’s service was good.
+                        
+                    - Body 1
+                        
+                        The percentage of hotel’s visitors rating its customer service as excellent started at 5%, after which it saw a significant rise to 28% in 2010. Furthermore, only 14% of guests described customer service in the hotel as good in 2005, with a subsequent three-fold increase to 39% five years later. As a result, the figure for people giving a “satisfactory” response declined significantly from 45% to 17% over the period.
+                        
+                    - Body 2
+                        
+                        The proportion of guests who considered the hotel’s customer service to be poor almost halved, ending at 12%. A similar change can be seen in the figure for people who thought customer service to be very poor, which dropped from 15% to only 4% over the 5-year period.
+                        
+            - Exercise 2
+                - Question
+                    - Prompt
+                        
+                        The charts show the main methods of transport of people travelling to one university in 2004 and 2009.
+                        
+                        Summarise the information be selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776175059/change-2-year-exercise-2_aqzl3y.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The pie charts illustrate how students in a university traveled to school in 2004 and 2009.
+                        
+                    - Overview
+                        
+                        Overall, there was a significant decline in the proportion of people people traveling to the examined university by car, while an increase was seen in the figures for other means of transport. In addition, the majority of students chose to commute to their university by car in 2004, and by bus in 2009; by contrast, the figures for people opting to take a train or walk to school were negligible in both years.
+                        
+                    - Body 1
+                        
+                        The percentage of people driving to university started at 51% in 2004, after which it experienced a considerable fall to 28% in 2009. The reverse trend can be seen in the figures for those going to this university by bus, which rose from 33% in 2004 to 46% in 2009.
+                        
+                    - Body 2
+                        
+                        9% of people in the survey said that they often cycled to school in 2004, followed by a rise to 16% after a half decade. The figures for people taking a train or walking to school increased negligibly, reaching 4% and 6% respectively.
+                        
+        - Future
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The table below shows information and predictions regarding the change in the percentage of the population aged 65 and above in three countries. Summarize the information by selecting and reporting the main features and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776175401/change-future-exercise_labls4.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The table illustrates the proportion of people aged 65 and over in Canada, Germany and the UK in 1988, 2000 and an estimation of 2030.
+                        
+                    - Overview
+                        
+                        Overall, there is a rise in the percentage of the elderly people in all three countries over the period examined, with the UK witnessing almost no change in the first 12 years. In addition, Germany consistently has the largest proportion of the elderly, the figures for the UK are the lowest in all three years.
+                        
+                    - Body 1
+                        
+                        In 1988, the percentage of senior citizens in Germany started at 20.35%, after which it saw a rise to 25.53. The figure for Canada saw a similar change, growing from 16.45% to 20.65% in the first 12 years. Meanwhile, the proportion of elderly people in the UK remained relatively unchanged during this period, at shy of 15%.
+                        
+                    - Body 2
+                        
+                        By 2030, the population of people aged 65 and pus in Germany is expected to increase at the same rate, reaching 30.65%. The figures for Canada and the UK will increase by just over 4 percent to end at 26.35% and 20.45% respectively.
+                        
+        - Total
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The graph below shows UK air pollutants, measured in millions of tonnes, from three different sources between 1990 and 2005.
+                        
+                        Summarise the information by selecting and reporting the main features and make comparison where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776175642/change-total-exercise-1_tfbeao.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The chart illustrates how much toxic gasses were emitted into the atmosphere from three different sources in the UK from 1990 to 2005.
+                        
+                    - Overview
+                        
+                        Overall, there was a decline in the total amount of air pollution in the UK, which was the result of decreases in the amounts of emissions from industrial and domestic activities. In addition, the amount of air pollutants released from transport vehicles saw an increase, surpassing the industry sector to become the most serious polluter from 2002 onwards.
+                        
+                    - Body 1
+                        
+                        Just under 8 million tons of air pollutants were discharged from all three sectors, with a gradual decline to 5 million tons at the the period. Similarly, the figure for the industry sector decreased steadily from 6 million tons to exactly 2 million tons in 2005.
+                        
+                    - Body 2
+                        
+                        The amount of toxic fumes released from the transport sector started at 1 million tons, after which it experienced mild fluctuations at this level, before increasing from about 1.2 million tons in 1999 to shy of 3 million tons in 2005. Opposite changes, but to a lesser extent, can be seen in the figures for household activities, which contributed 1 million tons of air pollutants in the first 10 years, followed by a progressive drop to almost 0 in 2005.
+                        
+    - No Change Over Time
+        - 2 Items
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The bar chart below shows the percentage of boys and girls who participated in six different after-school activities.
+                        
+                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776176215/no-change-a-lot-exercise-1_pijnjt.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The chart illustrates how many teenage boys and girls in Vietnam engaged in different pastimes in 2010.
+                        
+                    - Overview
+                        
+                        Overall, while boys generally enjoyed outdoor activities, girls tended to join indoor ones. It is also clear that similarities can be seen in the figures for teenagers of both sexes playing computer games or watching DVDs.
+                        
+                    - Body 1
+                        
+                        About 27% of the boys in the survey said that they often played sports in their free time, compared to only 12% of their female counterparts. Similarly, the percentage of the teenage boys going to the park was far higher than that of girls, with respective figures being 25% and 12%. Dramatic differences were also seen in the proportion of girls and boys doing arts and craft, which was 25% and 4% in that order. As for reading books, around 18% of girls enjoyed this activity, while only 10% of boys did so.
+                        
+                    - Body 2
+                        
+                        The percentage of teenagers playing video games was the same for both genders, with 15% of the total boys and girls in the survey having this leisure pursuit. While 15% of boys also chose to watch DVDs in their leisure time, a slight higher percentage girls (approximately 18%) did the same.
+                        
+            - Exercise 2
+                - Question
+                    - Prompt
+                        
+                        The pie charts show the main reasons for migration to and from the UK in 2007.
+                        
+                        Summarize the information by selecting and reporting the main features and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776176524/no-change-2-items-exercise-1_ggqzh4.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The charts illustrates why people migrated to and from the UK in 2007.
+                        
+                    - Overview
+                        
+                        Overall, the percentage of people moving in and out the UK to undertake a permanent job was highest in both charts. In addition, the figure for those who came to the UK to pursue a formal education was also significant, but this is the least stated factor among emigrants.
+                        
+                    - Body 1
+                        
+                        The proportion of people who went to the UK to assume a permanent position in companies based in this country is similar to that of those who left the country the same reason, with respective figures being 30% and 29%. Similarities can also be seen in the percentage of people whose reason for migration is to accompany their relatives, which is 15% for immigration and 13% for emigration.
+                        
+                    - Body 2
+                        
+                        Regarding categories with pronounced differences, while 26% of the immigrants said that they entered the UK for academic pursuits, this is only the case for a mere 4% of emigrants. Meanwhile, 22% of the people who moved out of the UK said that they did so in order to find work, compared to only 12% of immigrants. Finally, the percentage of people who gave other reasons or no reason for immigration was 32%, which was almost double that of their emigrant counterparts.
+                        
+        - A Lot Of Items
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The bar chart compares the amount of money spent by five different organizations (A, B, C, D, and E) on four specific areas: Machinery, Building, Staff Training, and Research.
+                        
+                        Summarize the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776176812/no-change-a-lot-exercise-1.png_wvqaj2.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The chart illustrates how much money five organizations spent on four different spending in 2010.
+                        
+                    - Overview
+                        
+                        Overall, organization B invested by far the most resources in all categories, with the key spending area being renting offices. This was also the case for organization D and E. In addition, while organization A invested the most in staff training programs, this area received the least money in organization C.
+                        
+                    - Body 1
+                        
+                        Regarding organization B, its spending on building was 1.7 billion Euros in 2010, compared to around 0.5 billion in the remaining four organizations. Similarly, 1.6 billion Euros was invested in research in organization B, doubling that of organization A. The figures for organization C, D and E were lower, at about 0.7, 0.3, and 0.35 respectively.
+                        
+                    - Body 2
+                        
+                        Staff training cost the most in organization A, at 1 billion euros, which was still 0.5 billion smaller than that of organization B. The figures for the remaining organizations were around 0.5 billion. Organization B spent 1.3 billion on machinery, followed by organization A (0.8 billion), and organization C (0.7 billion), while both organization D and E used only 0.4 billion for this area.
+                        
+            - Exercise 2
+                - Question
+                    - Prompt
+                        
+                        The table illustrates the proportion of monthly household income that people in five European countries spend on food and drink, housing, clothing and entertainment.
+                        
+                        Summarize the information by selecting and reporting the main features and make comparisons where relevant.
+                        
+                        Write at least 150 words.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177065/no-change-a-lot-exercise-2_nf0es4.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The chart compares five countries in Europe in terms of the percentage of people’s monthly income allocation for food and beverages, accommodation, clothing and recreation.
+                        
+                    - Overview
+                        
+                        Overall, people in all five nations allocate the largest portion of their income for food and drinks and housing. It is also clear that clothing is the smallest spending area in all of the countries examined, except for Turkey. 
+                        
+                    - Body 1
+                        
+                        The percentage of money used for food and drink in Turkey is highest, accounting for 36% of residents’ income, and the figures for Spain and the UK are lower, at 31% and 27% respectively. In addition, people in Germany and France allocated around 25% their monthly earnings for this spending area. By contrast, 37% of people’s income is expended on accommodation in the UK, compared to 33% in Germany and 31% in France. Meanwhile, the figures for Turkey and Spain are about 20%.
+                        
+                    - Body 2
+                        
+                        Clothing accounts for 15% of how much people earn month in Germany, doubling that of France and Spain. Meanwhile, the spending on clothing in the UK and Turkey is similar, with respective figures being 11% and 12%. Finally, 19% of German households’ income goes into entertainment, in comparison with 15% in Spain and 13% in France. The expenditure on recreational activities in the UK and Turkey is almost the same, at around 10%.
+                        
+    - Mixed Charts
+        - Exercise 1
+            - Question
+                - Prompt
+                    
+                    The line graph shows the number of visits to and from the UK between 1979 and 1999, while the bar chart identifies the five most popular countries visited by UK residents in 1999.
+                    
+                    Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                    
+                - Diagram Image Link
+                    
+                    https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177326/mixed-exercise_ofxatr.png
+                    
+            - Answer
+                - Introduction
+                    
+                    The line graph illustrates the number of UK residents going abroad from the UK and overseas residents visiting the UK between 1979 and 1999. The bar chart gives information about how many UK residents travelled to five of the most popular countries in 1999.
+                    
+                - Overview
+                    
+                    Overall, there was an increase in the number of visits to and from the UK and there were visits abroad by UK residents than to the UK by overseas residents over the period given. In addition, the most popular country to visit by UK residents was France in 1999.
+                    
+                - Body 1
+                    
+                    The number of UK residents visiting overseas started at just under 15 million, after which it experienced a significant rise to reach over 50 million in 1999. The figures for overseas residents visiting the UK saw a similar changes, but to lesser extent, climbing steadily from 10 million in 1979 to just under 30 million by the final year.
+                    
+                - Body 2
+                    
+                    In 1999, France was visited by over 10 million UK residents, followed by Spain at approximately 9 million. The figures for the USA and Greece were lower, at about 4 million and 3 million visitors respectively. The least popular country visited was Turkey, which had only about 2 million UK residents going there.
+                    
+    - Maps
+        - Exercise 1
+            - Question
+                - Prompt
+                    
+                    The maps below show the development of a particular area (likely a town center or village) between 1936 and 2007.
+                    
+                    Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                    
+                - Diagram Image Link
+                    
+                    https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177615/map-exercise-1_kp5fm7.png
+                    
+            - Answer
+                - Introduction
+                    
+                    The diagrams illustrate the changes that took place between 1936 and 2007 in a town called Harborne.
+                    
+                - Overview
+                    
+                    Overall, the town underwent a number of dramatic changes, the most important of which are the development of a large residential area and more shops.
+                    
+                - Body 1
+                    
+                    In the north-west, most of the trees were cut down, and in the south-west the bicycle track was converted into a roadway. In the center of the city, the post office, bank and library remained, while in the northern section, the candy store and butchers were converted into a supermarket. A shopping center was constructed in the center of the downtown, replacing most of the open space there. There used to be a flower shop in the southern part, but it was then redeveloped into a travel agent.
+                    
+                - Body 2
+                    
+                    In the north-east of the downtown area, the river was turned into a lake, which was accompanied by a large residential area being built on its shore. Meanwhile, the south-east of the town also witnessed significant changes, with the government offices being transformed into a museum and the farmland becoming a golf course.
+                    
+        - Exercise 2
+            - Question
+                - Prompt
+                    
+                    The two maps illustrate changes that have taken place in an area from 1995 to the present.
+                    
+                    Summarize the information by selecting and reporting the main features, and make comparisons where relevant.
+                    
+                - Diagram Image Link
+                    
+                    https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177798/map-exercise-2_acr6nh.png
+                    
+            - Answer
+                - Introduction
+                    
+                    The diagrams show how a seaside town has changed since 1995. 
+                    
+                - Overview
+                    
+                    Overall, the town has undergone a number of dramatic changes, the most important of which are the expansion of housing areas, the disappearance of the green area and the development of amenities catering for recreational needs.
+                    
+                - Body 1
+                    
+                    The north-west of the town saw a number of changes, with the expansion of the accommodation area, and the replacement of a sports center by a restaurant complex. The hotel in the middle of the map was upgraded into a two-story building, while the public park was replaced by holiday homes and a car park. A tennis court and a golf course were built, replacing the farmland in the north-eastern part of the area.
+                    
+                - Body 2
+                    
+                    There used to be a fish market in the south-west of the town, but it has been redeveloped into an apartment complex, which was accompanied by the demolition of the pier where morning fish boats used to dock. To the east of the new apartment area, the coffee shop was moved eastwards, and a small road running parallel with the main road was constructed to allow access to this shop. Finally, the southern beach is open for tourists and locals alike to relax, with the availability of yachts.
+                    
+    - Process
+        - Man-made Process
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The diagram illustrates the various stages in the process of canning pears, from the initial harvest to the final despatch.
+                        
+                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776178143/process-manufacturing-exercise-1_saghfw.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The diagram **describes** how fruit is **canned**.
+                        
+                    - Overview
+                        
+                        Overall, the process comprises a number of steps, beginning with the handpicking of fruit and ending with the final products being transported to supermarkets or customers.
+                        
+                    - Body 1
+                        
+                        At the beginning of the process, fruits are picked by hand, after which they are transported by trucks to a factory where they are washed. Subsequently the fruits are checked to ensure that they are qualified for production. After the fruits are stored in low temperatures, they are weighed carefully and divided into different groups according to their quality. Once they have been categorized, the fruits are peeled, cored and sliced into smaller chunks.
+                        
+                    - Body 2
+                        
+                        The process continues with the chopped fruits being packed/put into tin cans. The cans are then sealed tight with a lid before being cooked and sterilized under high heat in order to eliminate unwanted bacteria so that the food inside can be kept edible for a longer period. The cans are then sealed tight with a lid before being cooked and sterilized under high heat in order to eliminate unwanted bacteria so that the food inside can be kept edible for a longer period. The cans are then sealed tight with a lid before being cooked and sterilized under high heat in order to eliminate unwanted bacteria so that the food inside can be kept edible for a longer period. A label is then attached to each can, which is followed by the cans being put in storage. Finally, the finished products are shipped to retailers and wholesalers for sale.
+                        
+            - Exercise 2
+                - Question
+                    - Prompt
+                        
+                        The diagram gives information about the process of making carbonated drinks.
+                        
+                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776178416/map-manufacturing-exercise-2_cfrrnk.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The picture shows how carbonated beverages are produced
+                        
+                    - Overview
+                        
+                        Overall, the process comprises a number of stages, starting with cleaning raw water, through different mixing stages, and ending with the finished products being distributed to supermarkets
+                        
+                    - Body 1
+                        
+                        At the beginning of the process, raw water stored in large warehouses is pumped through a pipe into a room to be filtered, after which water softener and some chemicals are added in order to purify the water. Subsequently, it is pumped into a large chamber to be heated by means of electric heaters. Once the water vaporizes, the steam has to go through a long pipe in order for it to condense before entering a large tank where an influx of carbon dioxide constantly flows into a tank under high pressure from another pipe to make carbonated water.
+                        
+                    - Body 2
+                        
+                        The process continues with the carbonated water being directed to a mixing tank, at which point syrup and substances creating colors and flavors are added according to the desired types of drinks. After this mixture is filtered to ensure that its is safe for consumption, it is pumped into plastic bottles or aluminum cans. Finally, those bottles and cans are then packaged in large cardboard boxes, which are then shipped to supermarkets by trucks.
+                        
+        - Natural Process
+            - Exercise 1
+                - Question
+                    - Prompt
+                        
+                        The diagram illustrates the different stages in the life cycle of a frog, from the mating phase to adulthood.
+                        
+                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.
+                        
+                    - Diagram Image Link
+                        
+                        https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776178803/map-natural-exercise_dfcdlk.png
+                        
+                - Answer
+                    - Introduction
+                        
+                        The diagram shows the reproduction process of frogs.
+                        
+                    - Overview
+                        
+                        Overall, there are various stages in the life of a common frog, from mature frogs mating to produce frog spawn, to the growth of the immature form, known as tadpoles, to mature frogs developing some time later.
+                        
+                    - Body 1
+                        
+                        At the beginning of the process, the mating of two adult frogs takes place on the bank of a river or ponds, after which frogspawn or eggs are laid in the water by the female. This is followed by the frogspawn developing into the tiny tadpoles, at which point they gradually develop their limbs, and organs and change their body shape while living in the water.
+                        
+                    - Body 2
+                        
+                        The process continues with the tadpoles growing into young frogs, which still display the tail section of the tadpole. However, the tail is shorter than that of a tadpole. These young frogs continue to inhabit in the water before they develop into mature ones and are able to live outside the water. It is important to note that they lose their tails at this stage. Finally, the cycle begins again when two fully-grown frogs, which are capable of reproducing, mate.

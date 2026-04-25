@@ -1,0 +1,152 @@
+[
+  {
+    "questions": "1-10",
+    "instructions": "Answer the questions below.",
+    "topic": "Football History from 1870",
+    "question_type": "Multiple Choice & Matching",
+    "audio_url": "https://proxis.sgp1.cdn.digitaloceanspaces.com/media/media_center/Cam20-T4-P2.mp3",
+    "transcript": [
+      {
+        "speaker": "SPEAKER",
+        "text": "Good morning and welcome to City Football Club. I’d like to give you some useful information about your visit to the stadium today and then we’ll start the tour of the areas of the stadium that are open to visitors. I can see lots of children here today, so just to let mums and dads know a few things before we start. The stadium has lots of stairs and the players’ tunnel is very dark."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "Please don’t let your children wander off on their own, even for a minute. We don’t want any accidents or anyone getting frightened.",
+        "question_number": 1,
+        "highlight_text": "Please don’t let your children wander off on their own, even for a minute."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "Cameras are permitted everywhere and you can take pictures of your child shooting a penalty. Assistants are helping to organise this and hopefully the queue won’t be too long. It’s very hot and sunny out on the pitch today. You can get food and drink at the cafe and I really recommend the healthy lunch boxes for children."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "Also in the cafe children are invited to do a football drawing. We pick the best one at the end of the afternoon so don’t forget to put your name and contact details on the back. That way if you’ve left the stadium before then, we’ll send your prize, but sadly we can’t return drawings.",
+        "question_number": 2,
+        "highlight_text": "Also in the cafe children are invited to do a football drawing. We pick the best one at the end of the afternoon"
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "I’d like to mention some features of the tour. We’ll start with the 360 cinema experience, which has been very popular over the years, and then I’ll take you to the players’ dressing rooms, before going outside to the seating area and the pitch."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "I should say, if you’d prefer your visit to be self-guided, please collect headphones from the reception, and then you can listen to the pre-recorded information at your own speed. We’ve only just introduced this feature and would appreciate your feedback.",
+        "question_number": 3,
+        "highlight_text": "you can listen to the pre-recorded information at your own speed. We’ve only just introduced this feature"
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "We’re thinking of offering tours in other languages in future, so if you have any thoughts on that, we’d welcome those too. If you plan to return another time, you might like to book one of our VIP tours. We’ve only just started offering these and they can be booked online.",
+        "question_number": 4,
+        "highlight_text": "you might like to book one of our VIP tours. We’ve only just started offering these"
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "Now listen and answer questions 5 to 10. Now, the stadium you see today was built in 1989 as part of a three-year redevelopment project. While that project was going on, the team had to play its matches at the ground of another club. Apart from that, the club has been here on this site since 1870. As some of you may know, that was the start of a really important decade in the history of football in this country."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "For example, 1870 was also the year that football teams started to include a player whose role it was to guard the goal. It’s hard to imagine what the game must have been like without someone in that position, isn’t it?",
+        "question_number": 5,
+        "highlight_text": "1870 was also the year that football teams started to include a player whose role it was to guard the goal."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "In 1872 and 73, many other clubs were established, both here and abroad. And the following year, in 1874, referees were allowed to send players off if they committed certain offences and also in that year teams started having to swap ends at half-time.",
+        "question_number": 6,
+        "highlight_text": "in 1874, referees were allowed to send players off... and also in that year, teams started having to swap ends at half-time."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "One fact I was interested to discover was that in early football games the aim was for the scorer to get the ball between two flag posts and later between sticks joined at the top with a piece of tape. In 1875, that tape was replaced with the solid crossbar that we’re familiar with today.",
+        "question_number": 7,
+        "highlight_text": "In 1875, that tape was replaced with the solid crossbar"
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "1877 saw the founding of further new clubs and the history books tell us that in the same year all the clubs decided to set a limit of 90 minutes for each match. Before that it was a more casual arrangement and this sometimes caused huge arguments and sometimes fights during matches.",
+        "question_number": 8,
+        "highlight_text": "in the same year all the clubs decided to set a limit of 90 minutes for each match."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "By 1878, the number of teams in the Football League increased again. In addition, referees started using whistles and electric lamps were installed on certain pitches. This was a significant change, as games could then be played in the evenings all year round.",
+        "question_number": 9,
+        "highlight_text": "electric lamps were installed on certain pitches."
+      },
+      {
+        "speaker": "SPEAKER",
+        "text": "In 1880, clubs began to charge fans for admission to games, even though players were still amateurs and had other proper jobs. That’s hard to imagine in the modern professional game where top players earn significant sums of money from both playing and commercial activities.",
+        "question_number": 10,
+        "highlight_text": "In 1880, clubs began to charge fans for admission to games"
+      }
+    ],
+    "content": [
+      {
+        "type": "multiple_choice_multiple",
+        "question_numbers": [1, 2],
+        "text": "Which TWO things does the speaker say about visiting the football stadium with children?",
+        "num_correct": 2,
+        "options": [
+          { "letter": "A", "text": "Children can get their photo taken with a football player." },
+          { "letter": "B", "text": "There is a competition for children today." },
+          { "letter": "C", "text": "Parents must stay with their children at all times." },
+          { "letter": "D", "text": "Children will need sunhats and drinks." },
+          { "letter": "E", "text": "The café has a special offer on meals for children." }
+        ],
+        "answers": ["B", "C"],
+        "explanation": "The speaker explicitly states that 'children are invited to do a football drawing' (competition) and that they should not 'wander off on their own' (stay with parents at all times).",
+        "question_timestamps": [74, 115]
+      },
+      {
+        "type": "multiple_choice_multiple",
+        "question_numbers": [3, 4],
+        "text": "Which TWO features of the stadium tour are new this year?",
+        "num_correct": 2,
+        "options": [
+          { "letter": "A", "text": "VIP tour" },
+          { "letter": "B", "text": "360 cinema experience" },
+          { "letter": "C", "text": "audio guide" },
+          { "letter": "D", "text": "dressing room tour" },
+          { "letter": "E", "text": "tours in other languages" }
+        ],
+        "answers": ["A", "C"],
+        "explanation": "The speaker mentions that they have 'only just introduced' the self-guided audio feature (headphones) and have 'only just started offering' VIP tours.",
+        "question_timestamps": [161, 191]
+      },
+      {
+        "type": "matching",
+        "heading": "Football History Timeline",
+        "description": "Which event in the history of football in the UK took place in each of the following years?",
+        "items": [
+          { "id": 5, "text": "1870" },
+          { "id": 6, "text": "1874" },
+          { "id": 7, "text": "1875" },
+          { "id": 8, "text": "1877" },
+          { "id": 9, "text": "1878" },
+          { "id": 10, "text": "1880" }
+        ],
+        "options": [
+          { "letter": "A", "text": "The introduction of pay for the players" },
+          { "letter": "B", "text": "a change to the design of the goal" },
+          { "letter": "C", "text": "the first use of lights for matches" },
+          { "letter": "D", "text": "the Introduction of goalkeepers" },
+          { "letter": "E", "text": "the first International match" },
+          { "letter": "F", "text": "two changes to the rules of the game" },
+          { "letter": "G", "text": "the introduction of a fee for spectators" },
+          { "letter": "H", "text": "an agreement on the length of a game" }
+        ],
+        "answers": {
+          "5": { "letter": "D", "timestamp_seconds": 273, "explanation": "In 1870, football teams started to include a player to guard the goal (goalkeeper)." },
+          "6": { "letter": "F", "timestamp_seconds": 306, "explanation": "In 1874, referees were allowed to send players off and teams started swapping ends at half-time (two rule changes)." },
+          "7": { "letter": "B", "timestamp_seconds": 348, "explanation": "In 1875, the tape was replaced with a solid crossbar (change to goal design)." },
+          "8": { "letter": "H", "timestamp_seconds": 357, "explanation": "In 1877, all clubs decided to set a limit of 90 minutes for each match (agreement on game length)." },
+          "9": { "letter": "C", "timestamp_seconds": 392, "explanation": "In 1878, electric lamps were installed on certain pitches (first use of lights)." },
+          "10": { "letter": "G", "timestamp_seconds": 415, "explanation": "In 1880, clubs began to charge fans for admission (introduction of fee)." }
+        }
+      }
+    ]
+  }
+]

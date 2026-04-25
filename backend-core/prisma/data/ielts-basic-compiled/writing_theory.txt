@@ -1,0 +1,678 @@
+- writing + theory
+    - Introduction to IELTS WRITING TASK 1
+        - Content
+            
+            The **IELTS Writing Task 1** can feel a bit like a math test hiding inside an English test. Since you are starting from scratch, here is the essential breakdown of what it is, how it’s graded, and how to conquer it.
+            
+            ## 1. The Logistics
+            
+            - **Time:** You should spend about **20 minutes** on this task.
+            - **Length:** You must write at least **150 words**.
+            - **Weight:** It counts for **1/3** of your total Writing score (Task 2 is worth the other 2/3).
+            - **Format:** You are given visual information (a chart, table, or diagram) and must describe it in your own words.
+            
+            ## 2. The Task Types
+            
+            You won't know which one you'll get until you open the booklet, but it will be one of these:
+            
+            1. **Line Graph:** Shows changes over time.
+            2. **Bar Chart:** Compares different categories.
+            3. **Pie Chart:** Shows shares of a whole (percentages).
+            4. **Table:** A grid of data/numbers.
+            5. **Process Diagram:** Shows how something is made or how a system works (e.g., the life cycle of a frog or how a factory works).
+            6. **Map:** Shows changes in a location over two different time periods.
+            7. **Mixed Task:** Two different charts (e.g., a bar chart and a pie chart) that you must compare.
+            
+            But in this app, we simplify these into 5 types:
+            
+            1. Change Over Time (Standard 4 categories, A lot of Information, Very little information, 2 Years, Future, Total)
+            
+            ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776111320/change_cibwec.png)
+            
+            2. No Change Over Time (Standard 2 subjects, A lot of Information)
+            
+            ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776111458/no-change_rvtns9.png)
+            
+            3. Mixed
+            
+            ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776107666/Mixed_rxfkho.png)
+            
+            4. Maps
+            
+            ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776108809/map_frqflx.png)
+            
+            5. Process (Manufacturing Process, Natural Process)
+            
+            ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776111573/process_elbsgj.png)
+            
+            ## 3. The "Golden" Structure
+            
+            To get a high score, don't just write a giant block of text. Follow this four-paragraph formula:
+            
+            - **Paragraph 1: Introduction**
+                - One sentence. Paraphrase the prompt (change the words, but keep the meaning).
+                - *Example:* If the prompt says "The graph shows the number of cars sold," you write "The line graph illustrates the volume of vehicle sales."
+            - **Paragraph 2: Overview (The most important part!)**
+                - Two sentences. Summarize the **main trends** or most noticeable features without using specific numbers. If you skip this, it is very hard to get above a Band 5.
+            - **Paragraph 3: Detail Group 1**
+                - Focus on one specific part of the data. Use actual numbers and dates here.
+            - **Paragraph 4: Detail Group 2**
+                - Focus on the remaining data. Make comparisons (e.g., "In contrast to X, Y was significantly higher").
+            
+            ## 4. How You Are Graded
+            
+            The examiner looks at four specific areas (25% each):
+            
+            1. **Task Achievement:** Did you cover all the requirements? Did you include an overview?
+            2. **Coherence and Cohesion:** Is it easy to read? Did you use linking words like *however, in addition,* and *subsequently*?
+            3. **Lexical Resource:** Did you use a wide range of vocabulary (e.g., instead of "went up," did you use "surged," "rose," or "increased")?
+            4. **Grammatical Range and Accuracy:** Did you use a mix of simple and complex sentences? Are your tenses correct?
+            
+            Check out this for more information: https://takeielts.britishcouncil.org/sites/default/files/ielts_writing_band_descriptors.pdf
+            
+            ## 5. Three Critical "Don'ts"
+            
+            - **Don't give your opinion:** Never explain *why* you think the data changed. If sales went down, don't say "because of the economy." Just state that they went down.
+            - **Don't list every single number:** You are being tested on your ability to **summarize**. Pick the highest, lowest, and most important turning points.
+            - **Don't copy the prompt word-for-word:** You will receive zero marks for any words copied directly from the question.
+        - Quiz
+            1. **According to the lesson, what is the minimum number of words you must write for IELTS Writing Task 1?**
+            A) 120 words
+            B) 150 words
+            C) 180 words
+            D) 250 words
+            **Hint:** Look at the red handwritten note next to the first question in the image.
+            **Answer:** B
+            **Why:** While the ideal range for a high score is often around 180–220 words (as noted in the transcript), the official IELTS requirement shown in the notes is a minimum of 150 words ($<150$ is marked as the threshold).
+            2. **How many paragraphs should you ideally use to organize your Task 1 response?**
+            A) 2 paragraphs
+            B) 3 paragraphs
+            C) 4 paragraphs
+            D) 5 paragraphs
+            **Hint:** This is the standard "Golden Structure" mentioned for organizing the introduction, overview, and details.
+            **Answer:** C
+            **Why:** The lesson notes indicate that 4 paragraphs is the standard requirement for a well-structured response.
+            3. **Is there a strict upper word limit for Task 1, and can you write 300 words?**
+            A) Yes, there is a 250-word limit.
+            B) No, there is no upper limit, but writing 300 words is not recommended.
+            C) Yes, anything over 200 words is penalized.
+            D) No, the more you write, the higher your score.
+            **Hint:** Think about time management and the weight of Task 1 compared to Task 2.
+            **Answer:** B
+            **Why:** There is no official "maximum" word count, but writing 300 words is highly discouraged because it wastes time that should be spent on Task 2 and increases the likelihood of making grammatical errors.
+            4. **When the prompt asks you to "summarize" and "report main features," which of the following is NOT a correct interpretation of that task?**
+            A) Picking out the most significant trends or changes.
+            B) Identifying the highest and lowest points in the data.
+            C) Describing every single data point and number provided in the chart.
+            D) Making comparisons between different categories where relevant.
+            **Hint:** The task is about "selecting" and "reporting," not listing everything.
+            **Answer:** C
+            **Why:** One of the most critical "Don'ts" in Task 1 is listing every single number. You are graded on your ability to summarize and select only the most important features.
+    - Change Over Time
+        - Content
+            - Question types
+                - Standard 4 categories
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776104254/change-4-cat_pzxdyr.png)
+                    
+                - More than 4 categories
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776104255/change-5-cat_ckd4uc.png)
+                    
+                - Less than 4 categories
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776104255/change-3-cat_xjqbi8.png)
+                    
+                - Only 2 year
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776104255/change-2-year_yb6csb.png)
+                    
+                - Future
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776104635/change-future_ylsnmy.png)
+                    
+                - Total
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776104254/change-total_ulnxsp.png)
+                    
+            - Task Achievement
+                
+                **Step 1: Identify Key Features (Data Analysis)**
+                Before you start writing, spend 2–3 minutes scanning the chart to pinpoint these critical factors:
+                
+                - **The Extremes:**
+                    - **highest** figures
+                    - **lowest** figures
+                - **The Movements:**
+                    - **most drastic changes** (sharp rises or steep drops)
+                    - **stability** (flat lines or plateaus)
+                - **The Comparisons:**
+                    - **similar patterns** (e.g. two countries trending upward together)
+                    - **opposite patterns** (e.g. one rises while the other falls)?
+                
+                **Step 2: Overview** 
+                
+                The Comparisons + The Movements + The Extremes
+                
+                *Rule of thumb: Never include specific numbers or data points in this paragraph.*
+                
+                #### Example
+                
+                Overall, there was an increase in the proportion of female members in parliament in all five countries examined, with the most dramatic rise being seen in the figures for the UK. Despite this, the UK consistently had the lowest figures over the period.
+                
+                
+                **Why this is a high-band example:**
+                
+                - It identifies the ****the comparisons (*"an increase in all five countries")*
+                - It highlights the movements (*"most dramatic rise... in the UK"*)
+                - It points out the extremes (*"consistently had the lowest figures"*)
+            - Grammar + Coherence & Cohesion
+                
+                
+                | **Category / Purpose** | **Template / Structure** | **Example** |
+                | --- | --- | --- |
+                | **Overview Sentence Structure** | There was an increase in [X], with [Y] witnessing the most dramatic rise, while [Z trend]. In addition, [highest figures]... | Overall, there was an increase in the number of cars manufactured in Argentina and Thailand, while a constant decline was seen in Australia’s car production. It is also clear that Thailand consistently had by far the highest figures throughout the period, even though a considerable decline was seen in the latter half of the period. |
+                | **Key Sentence Template 1** <br> *(Describing a trend over time)* | The number/proportion/amount of [X] started at [figure], after which it experienced a rise/growth/decline to [figure] in [year], before ending the period at [figure] | The number of automobiles manufactured in Thailand started at 735,852 units, after which it saw a dramatic rise to 1,162,356 in 2006. |
+                | **Key Sentence Template 2** <br> *(Showing subsequent changes)* | [Data], with a subsequent increase/decrease/levelling off/fluctuation to... and a final [figure] | By contrast, 452,116 cars were made in Australia in 2003, with a subsequent decline to 341,268 units in 2006. |
+                | **Key Sentence Template 3** <br> *(Starting point + follow-up movement)* | The figure for [X] (number/proportion/amount of...) was at [figure], followed by a slow/significant increase/decrease to [figure] | *(No example provided)* |
+                | **Coherence & Cohesion** <br> *(Linking similar/opposite changes via Cross-referencing)* | Similar/opposite changes can be seen in the figure(s) for [X], which... | A similar change was seen in the figure for Argentina, which increased from 235,088 to 352,759 in the first 3 years. |
+                | **Coherence & Cohesion** <br> *(Linking similar/opposite changes via Participial phrase)* | The figure for [X] saw similar/opposite changes, V-ing... | The figure for wood pulp saw similar changes, but to a much lesser extent, growing to roughly 160 million tons. |
+                | **Coherence & Cohesion** <br> *(Standard description via Parallel comparison)* | The figure for [X] + V, and/but + V | Conversely, the figures for Thailand and Australia dropped to 999,963 and 245,624 units. |
+                | **Coherence & Cohesion** <br> *(Standard description via Ending with result)* | The figure for [X] + change, ending/reaching [figure] | From 2006 to 2009, the number of cars produced in Argentina continued to increase, reaching 466,085 units. |
+            - Lexical Resource
+                
+                SUBJECT + DIRECTION + DEGREE + ENDPOINT + TIMEFRAME
+                
+                - SUBJECT
+                    - COUNTABLE nouns (tourists, people, visitors, …)
+                        
+                        
+                        | Pattern | Formula | Live example |
+                        | --- | --- | --- |
+                        | Question form | How many + S + V | How many people traveled to Vietnam |
+                        | The number | The number of + noun | The number of tourists (rose sharply) |
+                        | Noun + numbers | [Noun] numbers | Tourist numbers (doubled) |
+                        | Synonym | Replace the key noun | The number of *travelers* |
+                        | Relative clause | The number of + noun + who/that + V | The number of people *traveling to* Vietnam |
+                        | Raw data | [Figure] + S + V | 500 people traveled to Vietnam in 2010 |
+                    - UNCOUNTABLE nouns (money, spending, revenue, …)
+                        
+                        
+                        | Pattern | Formula | Live example |
+                        | --- | --- | --- |
+                        | Question form | How much + S + V | How much people spent on healthcare |
+                        | The number | The amount of + noun | The amount of money (spent) |
+                        | Noun + numbers | [Noun] amount | The money amount |
+                        | Synonym | Replace the key noun | *Expenditure* / *spending* |
+                        | Relative clause | The amount of + noun + that/which + V | The amount of money *spent on* healthcare |
+                        | Raw data | [Figure] + S + V | 1 million dollars was spent on… |
+                    - PERCENTAGES (share, proportion, rate, …)
+                        
+                        
+                        | Pattern | Formula | Live example |
+                        | --- | --- | --- |
+                        | Question form | How much/many + S + V | How many members were female |
+                        | The number | The percentage / proportion / share of + noun | The percentage of *female members* in parliament |
+                        | Noun + numbers | [Noun] percentage | The female membership percentage |
+                        | Synonym | Replace the key noun | *The share* / *the rate* |
+                        | Relative clause | The share of + noun + who/that + V | The share of parliamentary members *who were women* |
+                        | Raw data | [Figure] + S + V | 35% of parliament members were female in 2005 |
+                - DIRECTION
+                    
+                    
+                    |  | Verb | Noun |
+                    | --- | --- | --- |
+                    | ↑ Up | increase | increase |
+                    |  | grow | growth |
+                    |  | rise | rise |
+                    | ↓ Down | decrease | decrease |
+                    |  | decline | decline |
+                    |  | drop | drop |
+                    |  | fall | fall |
+                    | → Stable | remain unchanged |  |
+                    |  | remain stable |  |
+                    |  | level off | a levelling off |
+                    | ↕ Fluctuate | fluctuate | fluctuation |
+                    |  | hover around |  |
+                - DEGREE
+                    
+                    
+                    | Intensity | Adjective | Adverb |
+                    | --- | --- | --- |
+                    | Strong | significant | significantly |
+                    |  | considerable | considerably |
+                    |  | dramatic | dramatically |
+                    |  | sharp | sharply |
+                    | Weak | slight | slightly |
+                    |  | slow | slowly |
+                    |  | gradual | gradually |
+                    |  | marginal | marginally |
+                    |  | moderate | moderately |
+                    |  | steady | steadily |
+                    |  | consistent | consistently |
+                    - Peak & Trough
+                        - **Peak →** reach a peak of / peak at / hit a high of
+                        - **Trough →** reach a low of / hit a trough of
+        - Quiz
+            1. According to the lesson, which of the following is NOT one of the critical factors you should pinpoint when analyzing the data for Task Achievement?
+            A) The highest and lowest figures.
+            B) Sharp rises or steep drops.
+            C) Specific, exact numbers to include in the overview.
+            D) Similar or opposite patterns.
+                
+                Hint: The text provides a strict "Rule of thumb" about what should never be included in a certain paragraph.
+                Answer: C
+                Why: The text explicitly states as a rule of thumb to "Never include specific numbers or data points in this paragraph [the Overview]."
+                
+            2. What three main components should be combined to create a strong Overview paragraph?
+            A) The Comparisons, The Movements, and The Extremes.
+            B) Countable Nouns, Uncountable Nouns, and Percentages.
+            C) The Introduction, The Body, and The Conclusion.
+            D) Parallel Comparisons, Participial Phrases, and Cross-referencing.
+                
+                Hint: These are the three elements identified during "Step 1: Identify Key Features."
+                Answer: A
+                Why: Under "Step 2: Overview," the formula given for a high-band overview is "The Comparisons + The Movements + The Extremes."
+                
+            3. Read the following sentence: "Overall, there was an increase in the proportion of female members in parliament in all five countries examined..." Which of the three overview elements does this sentence fragment represent?
+            A) The Extremes
+            B) The Comparisons
+            C) The Stability
+            D) The Specific Numbers
+                
+                Hint: Look at the analysis of the "high-band example" in the text.
+                Answer: B
+                Why: The text breaks down this exact example and notes that "an increase... in all five countries" is identifying "the comparisons."
+                
+            4. Which Key Sentence Template is being used in the following example: "By contrast, 452,116 cars were made in Australia in 2003, with a subsequent decline to 341,268 units in 2006."?
+            A) Template 1: Describing a trend over time
+            B) Template 2: Showing subsequent changes
+            C) Template 3: Starting point + follow-up movement
+            D) Overview Sentence Structure
+                
+                Hint: Look for the phrase "with a subsequent..." in the template options.
+                Answer: B
+                Why: This perfectly matches Key Sentence Template 2, which uses the formula "[Data], with a subsequent increase/decrease/levelling off/fluctuation to... and a final [figure]."
+                
+            5. If you want to link similar or opposite changes using a **Participial phrase**, which structure should you use?
+            A) Similar/opposite changes can be seen in the figure(s) for [X], which...
+            B) The figure for [X] saw similar/opposite changes, V-ing...
+            C) The figure for [X] + V, and/but + V
+            D) The figure for [X] + change, ending/reaching [figure]
+                
+                Hint: A participial phrase typically involves an "-ing" verb.
+                Answer: B
+                Why: The text lists "The figure for [X] saw similar/opposite changes, V-ing..." specifically for the "Participial phrase" coherence booster.
+                
+            6. Which Coherence & Cohesion booster is used in this sentence: "From 2006 to 2009, the number of cars produced in Argentina continued to increase, reaching 466,085 units."?
+            A) Cross-referencing
+            B) Participial phrase
+            C) Parallel comparison
+            D) Ending with result
+                
+                Hint: Look at the final word phrase "reaching 466,085 units."
+                Answer: D
+                Why: This example is listed under "Standard description via Ending with result," matching the template "The figure for [X] + change, ending/reaching [figure]."
+                
+            7. When writing about an UNCOUNTABLE noun like "spending," which phrasing is correct according to the Lexical Resource formulas?
+            A) The number of spending
+            B) How many spending
+            C) The amount of spending
+            D) The percentage of spending
+                
+                Hint: Look at the specific formulas provided for Uncountable Nouns versus Countable Nouns.
+                Answer: C
+                Why: For uncountable nouns (like money, spending, revenue), the text specifies using "The amount of + noun" or "How much", whereas "The number of" is strictly for countable nouns.
+                
+            8. Under the Lexical Resource table for [DIRECTION], which of the following phrases is used to indicate that a trend is "Stable"?
+            A) Hover around
+            B) Fluctuate
+            C) Level off
+            D) Grow
+                
+                Hint: Stable means the data stops changing and becomes flat.
+                Answer: C
+                Why: In the [DIRECTION] table, "remain unchanged", "remain stable", and "level off" are the verbs/nouns provided for a stable (→) trend.
+                
+            9. When describing the [DEGREE] of a movement, which of the following adjectives is categorized as a "Weak" intensity word?
+            A) Marginal
+            B) Dramatic
+            C) Significant
+            D) Sharp
+                
+                Hint: Weak intensity words describe small, slow, or minor changes.
+                Answer: A
+                Why: In the [DEGREE] table, "marginal" is listed under the "Weak" intensity column, alongside words like slight, slow, gradual, moderate, and steady.
+                
+    - No Change Over Time
+        - Content
+            - Quetion Types
+                - 2 Items
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776106762/no-change-2-items_dsyh2w.png)
+                    
+                - A Lot Of Items
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776106762/no-change-4-items_ewngwy.png)
+                    
+            - Task Achievement
+                
+                
+                | Part | What to write |
+                | --- | --- |
+                | Intro | paraphrase |
+                | Overview | similarities + differences |
+                | Body 1 | highest (similar? opposite?) |
+                | Body 2 | the rest |
+                
+                A strong overview acts as a bridge between the introduction and the data. To write a high-scoring overview, aim to combine a **contrast** (difference) with a **similarity**.
+                
+                - Similarities: “both”, “also”
+                - Differences: “while”, “but”
+                
+                Example:
+                
+                Overall, while boys generally enjoyed outdoor activities the most, girls tended to join indoor ones. it is also clear that dramatic differences are not seen in the figures for teenagers of both sexes playing computer games and watching DVDs.
+                
+            - Grammar + Coherence & Cohesion
+                
+                
+                | **Sentence Structure / Template** | **Example Sentence** |
+                | --- | --- |
+                | ..., and the **figures for** ... and ... **were/are lower**, at ... and ... **respectively** | The oil consumption in Japan was about 70 million tonnes, `and the figures for` the UAE and Canada were lower, `at` 20 million and 35 million `respectively`. <br> The figures for the USA and Greece were lower, at about 4 million and 3 million visitors respectively |
+                | , .... **Followed by** ... <br> | The oil consumption in Japan was highest, at 70 million tonnes, `followed by` Canada (35 million) and the UAE (20 million). <br> In 1999, France was visited by over 10 million UK residents, followed by Spain at approximately 9 million.  |
+                | **While** / **Whereas** ... | Kuwait had the highest use of water, at 63%, `whereas` its use for agriculture was only less than a third of this (19%). |
+                | Data ..., **compared to** / **as opposed to** / **in comparison to** ... | About 70 million tonnes of oil was consumed in Japan, `compared to` about 20 million in the UAE and 35 million in Canada. |
+                | ....... **was** ... , **which was** [] higher **than that of** ... | The oil consumption in Japan (about 70 million tonnes) was `far higher than that of` the UAE and Canada, which was 20 million and 35 million respectively. |
+            - Lexical Resource
+                - Structures for Comparing
+                    
+                    
+                    | **Template / Structure** | **Example Sentence** |
+                    | --- | --- |
+                    | **[Subject A]** `(far) exceeds that of` **[Subject B]** `and` **[Subject C]** | The oil consumption in Japan far exceeded that of the UAE and Canada, with respective figures being 70 million, 20 million and 35 million tonnes. |
+                    | **[Subject A]** `is more reliant on` **[Noun]** `than` **[Subject B]** | Developing countries are more reliant on alternative energy production than developed countries (Around 69% and 20% respectively). |
+                    | **[Subject A]** `accounts for far less` **[Metric]** `than` **[Subject B]** (or **[Subject C]**) | Solar power accounts for far less of the total energy production than gas or coal does, and the figures are 2%, 20% and 60% respectively. |
+                    | **[Subject A]** `produces twice as much` **[Noun]** `as` **[Subject B]** | The Middle East produces twice as much oil as Europe throughout the period, with respective figures being... |
+                    | **[Metric of A]** `was double that of` **[B]** | The oil production in the Middle East was double that of Europe throughout the period. |
+                    | **[Subject A]** [Verb] **[Multiplier]** `times as much` **[Noun]** `as` **[Subject B]** | Western countries consume three times as much oil as the Middle East almost over the period. |
+                    | **[Subject A]** `consumes slightly more` **[Noun]** `than` **[Subject B]** | Russia consumes slightly more oil than Germany. |
+                    | **[Metric of A]** `and` **[B]** `is equal / the same / similar` | The production of oil in The Middle East and Europe is equal / the same / similar. |
+                - Structures for Adding Information
+                    
+                    respectively, in that order
+                    
+                    | **Template / Structure** | **Example Sentence** |
+                    | --- | --- |
+                    | **()** | Developing countries are more reliant on alternative energy production than developed countries (Around 69% and 20% respectively) |
+                    | **the figures are**  | Solar power accounts for far less of the total energy production than gas or coal does, and the figures are 2%, 20% and 60% respectively. |
+                    | **with respective figures being** | The Middle East produces twice as much oil as Europe throughout the period, with respective figures being... |
+                    | **which** | Dramatic differences were also seen in the proportion of girls and boys doing arts and craft, which was 25% and 4% in that order.  |
+        - Quiz
+            1. What should a high-scoring overview paragraph combine, according to the lesson?
+            A) Paraphrasing and data analysis.
+            B) A contrast (difference) with a similarity.
+            C) The highest and lowest figures only.
+            D) Introduction and Body paragraphs.
+            Hint: Think about what acts as a "bridge" between the intro and the data.
+            Answer: B
+            Why: Under the Task Achievement section, the lesson states, "To write a high-scoring overview, aim to combine a contrast (difference) with a similarity."
+            2. Which words are suggested in the lesson to express similarities in an overview?
+            A) "while" and "but"
+            B) "highest" and "lowest"
+            C) "both" and "also"
+            D) "compared to" and "as opposed to"
+            Hint: Look for words that add information or group things together.
+            Answer: C
+            Why: Under the Overview section, the lesson explicitly lists "both" and "also" as keywords for Similarities.
+            3. What should primarily be written in the "Body 1" paragraph according to the Task Achievement table?
+            A) The rest of the data.
+            B) A paraphrase of the introduction.
+            C) Similarities and differences.
+            D) The highest figures (similar or opposite).
+            Hint: This paragraph usually tackles the most prominent data first.
+            Answer: D
+            Why: The Task Achievement table specifies "highest (similar? opposite?)" as the primary content for Body 1.
+            4. Based on the Grammar "Sentence Structure / Template" examples, which of the following is the correct use of "respectively"?
+            A) Respectively, the figures for the UAE and Canada were lower, at 20 million and 35 million.
+            B) The figures for the UAE and Canada were lower, at 20 million and 35 million respectively.
+            C) The figures respectively for the UAE and Canada were lower at 20 million and 35 million.
+            D) 20 million and 35 million respectively were the figures for the UAE and Canada lower.
+            Hint: This word usually comes at the very end of the clause to map two items to two specific data points in order.
+            Answer: B
+            Why: The example sentence given in the lesson is "...and the figures for the UAE and Canada were lower, at 20 million and 35 million respectively."
+            5. Which phrase accurately completes this comparing structure: "[Subject A] _________ that of [Subject B] and [Subject C]"?
+            A) is more reliant on
+            B) accounts for far less
+            C) produces twice as much
+            D) (far) exceeds
+            Hint: This phrase means that one subject's number is much greater than the others.
+            Answer: D
+            Why: The Lexical Resource table lists the structure "[Subject A] (far) exceeds that of [Subject B] and [Subject C]".
+            6. How does the lesson structure a comparison using a multiplier (like "three times")?
+            A) [Subject A] [Verb] [Noun] [Multiplier] times as [Subject B]
+            B) [Subject A] [Verb] [Multiplier] times as much [Noun] as [Subject B]
+            C) [Subject A] [Multiplier] times [Verb] as much [Noun] as [Subject B]
+            D) [Multiplier] times as much [Noun] [Subject A] [Verb] than [Subject B]
+            Hint: Look for the structure that matches the example: "Western countries consume three times as much oil as the Middle East".
+            Answer: B
+            Why: The exact template provided in the lesson is "[Subject A] [Verb] [Multiplier] times as much [Noun] as [Subject B]".
+            7. According to the "Structures for Adding Information" section, how can parentheses () be used effectively?
+            A) To hide less important grammatical errors.
+            B) To list the respective data figures at the end of a comparison sentence.
+            C) To introduce a completely new subject.
+            D) To write the overview paragraph.
+            Hint: Think about the example discussing developing and developed countries.
+            Answer: B
+            Why: The example sentence uses brackets to seamlessly add the corresponding data at the end of the thought: "(Around 69% and 20% respectively)".
+            8. If two subjects have the same data, which template is recommended by the lesson?
+            A) [Subject A] accounts for far less than [B].
+            B) [Subject A] produces twice as much as [B].
+            C) [Metric of A] and [B] is equal / the same / similar.
+            D) [Subject A] consumes slightly more than [B].
+            Hint: You are looking for a structure that shows no difference between the metrics.
+            Answer: C
+            Why: The Lexical Resource table lists "[Metric of A] and [B] is equal / the same / similar" for comparing values that match.
+            9. Which of the following phrases are used interchangeably with "compared to" in the Grammar section?
+            A) as opposed to / in comparison to
+            B) while / whereas
+            C) followed by / which was
+            D) equal / the same
+            Hint: These phrases are used to contrast data points directly against each other in the middle of a sentence framework.
+            Answer: A
+            Why: The grammar template directly lists "Data ..., compared to / as opposed to / in comparison to ..." together as equivalent comparative structures.
+    - Mixed Charts
+        - Content
+            - Question Types
+                - Mixed
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776107666/Mixed_rxfkho.png)
+                    
+            - Task Achievement
+                
+                
+                | Part | What to Write |
+                | --- | --- |
+                | Introduction | 2 intro for each in one paragraph |
+                | Overview | 2-3 sentences, one for each chart |
+                | Body 1 | Chart 1 |
+                | Body 2 | Chart 2 |
+            - Grammar + Coherence & Cohesion
+                
+                Read Change Over Time and No Change Over Time
+                
+            - Lexical Resource
+                
+                Read Change Over Time and No Change Over Time
+                
+        - Quiz
+            1. What should a high-scoring overview paragraph combine, according to the lesson?
+            A) Paraphrasing and data analysis.
+            B) A contrast (difference) with a similarity.
+            C) The highest and lowest figures only.
+            D) Introduction and Body paragraphs.
+            **Hint:** Think about what acts as a "bridge" between the intro and the data.
+            **Answer:** B
+            **Why:** Under the Task Achievement section, the lesson states, "To write a high-scoring overview, aim to combine a contrast (difference) with a similarity."
+            2. How should the Introduction be structured when dealing with mixed charts?
+            A) Write one separate paragraph for each chart's introduction.
+            B) Combine two introductions (one for each chart) into a single paragraph.
+            C) Only introduce the first chart and mention the second in the body.
+            D) Use one sentence to describe both charts broadly.
+            **Hint:** Look at the "Part" and "What to Write" breakdown for the first section of the essay.
+            **Answer:** B
+            **Why:** According to the Task Achievement table, the Introduction should consist of "2 intro for each in one paragraph."
+            3. In a mixed chart task, what is the recommended way to organize the body paragraphs?
+            A) Body 1 should compare both charts, and Body 2 should provide a summary.
+            B) Body 1 should describe the first chart, and Body 2 should describe the second chart.
+            C) Body 1 should list all the highest figures, and Body 2 should list the lowest.
+            D) Both body paragraphs should discuss both charts simultaneously.
+            **Hint:** Check the specific instructions for Body 1 and Body 2 in the lesson table.
+            **Answer:** B
+            **Why:** The lesson structure specifies that Body 1 should focus on "Chart 1" and Body 2 should focus on "Chart 2."
+    - Maps
+        - Content
+            - Question Types
+                ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776108809/map_frqflx.png)
+                    
+            - Task Achievement
+                
+                
+                | Part | What to Write |
+                | --- | --- |
+                | Introduction | paraphrase |
+                | Overview | 2-3 most significant changes |
+                | Body 1 | West-Center |
+                | Body 2 | Center-East |
+                - Overview
+                    
+                    
+                    | **Component** | **Option A**  | **Option B** |
+                    | --- | --- | --- |
+                    | **1. The Subject** | The diagrams | The pictures / The maps |
+                    | **2. The Verb** | show | illustrate / describe / depict |
+                    | **3. The Content** | **how** the town of Harborne changed from 1936 to 2007 | **the changes that took place** between 1936 and 2007 in a town called Harborne |
+            - Grammar + Coherence & Cohesion
+                
+                
+                | **Function** | **Sentence Structure / Pattern** | **Example Usage** |
+                | --- | --- | --- |
+                | **Adding Detail** | **...the most important of which...** | "Several facilities were added, **the most important of which** was a large medical center." |
+                | **Connecting Actions** | **...and...** | "The old warehouse was demolished **and** a new park was created." |
+                | **Contrast** | **While...** | "**While** the north of the town remained unchanged, the southern area was heavily developed." |
+                | **Listing Multiple Changes** | **The [Area] also saw a number of changes, with A being turned into B, and C being converted into D.** | "**The village also saw a number of changes, with** the old school **being turned into** a library, **and** the farm **being converted into** a residential area." |
+                | **Simultaneous Events** | **...which was accompanied by...** | "The expansion of the road was completed, **which was accompanied by** the installation of new street lighting." |
+                | **Replacement (Direct)** | **...was constructed... , replacing ...** | "A modern office block **was constructed, replacing** the local shop." |
+                | **Historical Shift** | **There used to be a ..., but it was then redeveloped into... (removed to make way for.....)** | "**There used to be a** small park, **but it was then redeveloped into** a car park (**removed to make way for** more parking spaces)." |
+            - Lexical Resource
+                
+                
+                | **Category** | **Verbs & Phrases (The "What Happened")** | **Context / Usage** |
+                | --- | --- | --- |
+                | **New Construction** | **Was built**, constructed, erected, established, introduced, added. | Buildings, facilities, or infrastructure. |
+                | **Removal** | **Was demolished**, knocked down, pulled down, cleared, removed. | To make room for something else. |
+                | **Transformation** | **Was converted into**, turned into, transformed, redeveloped, replaced by. | When the function of a building changes (e.g., factory to flats). |
+                | **Growth/Expansion** | **Was extended**, widened, expanded, modernized, enlarged. | Roads, railways, or existing buildings. |
+                | **Relocation** | **Was moved to**, relocated to, reconstructed on [site]. | Moving a structure from point A to point B. |
+                | **No Change** | **Remained**, stayed the same, was left unaltered, no changes were made. | Used to show stability in an area. |
+                
+                #### Specific Categories for Nature and Infrastructure
+                
+                Sometimes general "change" words don't fit perfectly. Use these specialized terms for a more natural flow:
+                
+                #### 1. Trees and Greenery
+                
+                - **Removal:** Chopped down, cut down, cleared to make way for.
+                - **Addition:** Planted, forested, landscaped.
+                - **Negative Impact:** *The amenity* was built **at the expense of** the green area.
+                
+                #### 2. Transportation (Roads/Rail/Bridge)
+                
+                - **Connection:** Joined, linked, branched off (from).
+                - **Alteration:** Diverted, deviated, reopened, modernized.
+                
+                #### 3. Describing Land State
+                
+                - **Before Development:** Bare land, vacant plot, open space, underdeveloped.
+                - **After Development:** Industrialized, residentialized, urbanized.
+        - Quiz
+            1. Which sentence structure is most appropriate for describing a historical shift where one facility is replaced by another to modernize an area?
+            A) While the north of the town remained unchanged, the southern area was heavily developed.
+            B) Several facilities were added, the most important of which was a large medical center.
+            C) There used to be a small park, but it was then redeveloped into a car park.
+            D) The expansion of the road was completed, which was accompanied by new lighting.
+            **Hint:** Look for the structure that highlights a "before and after" transition.
+            **Answer:** C
+            **Why:** According to the Grammar section, the "There used to be... but it was then redeveloped into..." structure is specifically used for describing a historical shift or redevelopment.
+            2. If you are describing the removal of a forest to build a shopping mall, which phrase provides a "natural flow" to describe the negative impact on nature?
+            A) The trees were moved to the southern area.
+            B) The shopping mall was built at the expense of the green area.
+            C) The forest was industrialized and modernized.
+            D) The trees remained the same while the mall was constructed.
+            **Hint:** Focus on the specialized terms for "Trees and Greenery" in the Lexical Resource section.
+            **Answer:** B
+            **Why:** The lesson states that for trees and greenery, the phrase "built at the expense of the green area" is used to describe a negative impact during development.
+            3. In the suggested structure for a Map task, how should the Body Paragraphs be organized to ensure logical Coherence and Cohesion?
+            A) Body 1: Overview; Body 2: Lexical Resource.
+            B) Body 1: Introduction; Body 2: Conclusion.
+            C) Body 1: West-Center area; Body 2: Center-East area.
+            D) Body 1: Nature; Body 2: Infrastructure.
+            **Hint:** Refer to the "Task Achievement" table regarding what to write in Body 1 and Body 2.
+            **Answer:** C
+            **Why:** The lesson's structure guide suggests a geographical split for the body paragraphs (West-Center and Center-East) to organize the specific changes logically.
+    - Process
+        - Content
+            - Question Types
+                - Man-made Process
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776109820/Process-man-made_btpihh.png)
+                    
+                - Natural Process
+                    
+                    ![](https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776109994/process-natural_eu5w9x.png)
+                    
+            - Grammar + Coherence & Cohesion
+                
+                
+                | **Section / Category** | **Sentence Structure & Key Phrases** | **Example** |
+                | --- | --- | --- |
+                | **Introduction** | **The [diagram / picture] [shows / describes / illustrates]** how [S + V] **OR** the process of [V-ing]. | "The diagram illustrates **how a plastic bottle is recycled** into new products." |
+                | **Overview** | **Overall, the process comprises a number of steps, beginning with [A] and ending with [B].** | "Overall, the process comprises seven steps, **beginning with the collection of waste and ending with the distribution of final goods.**" |
+                | **Overview** | ...from [Step 1] to [Step 2] to [Step 3]. | "The process moves **from sorting to melting to the final molding stage.**" |
+                | **Body: Start** | **At the beginning of the process,** [S + V], after which... | "**At the beginning of the process**, the raw timber is delivered to the factory, **after which** it is cut into planks." |
+                | **Body: Middle** | **The process continues with...** / **Next,** ... / **Then,** ... / **Subsequently,** ... | "**Subsequently**, the purified water is diverted into large holding tanks for cooling." |
+                | **Body: Ending** | **Finally,** / **At the final stage of the process,** [S + V]. | "**Finally**, the finished products are packaged and loaded onto trucks for delivery." |
+                | **Sequencing** | **Before [V-ing / S+V], [S+V].** | "**Before being heated**, the chemicals are mixed in a large vat." |
+                | **Sequencing** | **After [Noun / S+V], [S+V].** | "**After the mixture has cooled**, it is poured into individual glass jars." |
+                | **Sequencing** | ..., **which is followed by** [Noun / V-ing]. | "The fruit is washed thoroughly, **which is followed by** the removal of the seeds." |
+                | **Sequencing** | **Once [S + V], [S + V].** | "**Once the clay is dry**, it is placed inside a high-temperature kiln." |
+                | **Sequencing** | ..., **after which** [S + V]. | "The beans are roasted at 200°C, **after which** they are ground into a fine powder." |
+                | **Sequencing** | ..., **at which point,** [S + V]. | "The liquid reaches its boiling point, **at which point** the steam is captured by a condenser." |
+                | **Sequencing** | ..., **and then** [S + V]. | "The metal is melted **and then** it is poured into a pre-shaped mold." |
+                | **Purpose** | **In order to...** / **So that...** / **To ensure that...** | "The air is filtered **to ensure that** no dust particles contaminate the final product." |
+                | **Grammar Note** | **Passive Voice:** [Object] + **be + V3/Past Participle**. | "The glass **is crushed** into small pieces before it **is melted**." |
+        - Quiz
+            1. Which sentence structure is most appropriate for describing a historical shift where one facility is replaced by another to modernize an area?
+            A) While the north of the town remained unchanged, the southern area was heavily developed.
+            B) Several facilities were added, the most important of which was a large medical center.
+            C) There used to be a small park, but it was then redeveloped into a car park.
+            D) The expansion of the road was completed, which was accompanied by new lighting.
+            **Hint:** Look for the structure that highlights a "before and after" transition.
+            **Answer:** C
+            **Why:** According to the Grammar section, the "There used to be... but it was then redeveloped into..." structure is specifically used for describing a historical shift or redevelopment.
+            2. If you are describing the removal of a forest to build a shopping mall, which phrase provides a "natural flow" to describe the negative impact on nature?
+            A) The trees were moved to the southern area.
+            B) The shopping mall was built at the expense of the green area.
+            C) The forest was industrialized and modernized.
+            D) The trees remained the same while the mall was constructed.
+            **Hint:** Focus on the specialized terms for "Trees and Greenery" in the Lexical Resource section.
+            **Answer:** B
+            **Why:** The lesson states that for trees and greenery, the phrase "built at the expense of the green area" is used to describe a negative impact during development.
+            3. In the suggested structure for a Map task, how should the Body Paragraphs be organized to ensure logical Coherence and Cohesion?
+            A) Body 1: Overview; Body 2: Lexical Resource.
+            B) Body 1: Introduction; Body 2: Conclusion.
+            C) Body 1: West-Center area; Body 2: Center-East area.
+            D) Body 1: Nature; Body 2: Infrastructure.
+            **Hint:** Refer to the "Task Achievement" table regarding what to write in Body 1 and Body 2.
+            **Answer:** C
+            **Why:** The lesson's structure guide suggests a geographical split for the body paragraphs (West-Center and Center-East) to organize the specific changes logically.

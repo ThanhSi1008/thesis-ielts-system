@@ -1,0 +1,58 @@
+{
+  "title": "Micro Expressions",
+  "passage": "It may be tempting to put on a false face or stretch the truth at times, but it turns out that even the most convincing among us may be incapable of pulling off an act of deception that leaves no one in doubt. This is because muscles in the human face react involuntarily to emotions. The scowls, smirks, and frowns that can betray how a liar truly feels may only flash across his or her face for a brief moment - so brief, in fact, that research psychologist Paul Ekman called these emotional displays 'micro expressions' - but they do occur, and they are detectable. According to Ekman, there are seven universal micro expressions: disgust, anger, fear, sadness, happiness, surprise, and contempt. When we feel any of these emotions, they are beyond our control for at least one twentieth of a second. Videotaping a person who is providing a false statement and then going through the tape frame by frame can reveal these expressions, even in people who seem very genuine in person. Of course, this may not always be an option. In such cases, keeping an eye out for hand gestures that obscure the face is advisable. People who move their hands toward their eyes or their mouths - the most expressive parts of the face - may be trying to avoid being caught in the split second that micro expressions occur.",
+  "passage_with_locations": [
+    "It may be tempting to put on a false face or stretch the truth at times, but it turns out that even the most convincing among us may be incapable of pulling off an act of deception that leaves no one in doubt. This is because ",
+    {
+      "question_number": 5,
+      "text": "muscles in the human face react involuntarily to emotions"
+    },
+    ". The scowls, smirks, and frowns that can betray how a liar truly feels may only flash across his or her face for a brief moment - so brief, in fact, that research psychologist Paul Ekman called these emotional displays 'micro expressions' - but they do occur, and they are detectable. According to Ekman, there are seven universal micro expressions: disgust, anger, fear, sadness, happiness, surprise, and contempt. When we feel any of these emotions, they are beyond our control for at least one twentieth of a second. ",
+    {
+      "question_number": 6,
+      "text": "Videotaping a person who is providing a false statement and then going through the tape frame by frame can reveal these expressions"
+    },
+    ", even in people who seem very genuine in person. Of course, this may not always be an option. In such cases, ",
+    {
+      "question_number": 7,
+      "text": "keeping an eye out for hand gestures that obscure the face is advisable"
+    },
+    ". People who move their hands toward their eyes or their mouths - the most expressive parts of the face - may be trying to avoid being caught in the split second that micro expressions occur."
+  ],
+  "content": [
+    {
+      "type": "summary_completion",
+      "instruction": "Complete the summary below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "summary": "Due to the automatic reactions of our facial {{5}} when we experience certain emotions, the perfect lie may not be possible. These reactions, which are called micro expressions, can be revealed by analysing the individual frames of a videotape of someone who is giving a {{6}}. In cases where this is not possible, it is a good idea to watch for hand {{7}} that hide the face.",
+      "questions": [
+        {
+          "question_number": 5,
+          "answer": "muscles",
+          "explanation": {
+            "keyword": "automatic reactions",
+            "rationale": "The summary mentions 'automatic reactions of our facial _____'. The text explains that 'muscles in the human face react involuntarily [automatically]'. Therefore, the missing word is 'muscles'.",
+            "distractor_analysis": "Words like 'expressions' are incorrect here as the text traces the involuntary reaction specifically to the facial *muscles*."
+          }
+        },
+        {
+          "question_number": 6,
+          "answer": "false statement",
+          "explanation": {
+            "keyword": "frames of a videotape",
+            "rationale": "The summary refers to a 'videotape of someone who is giving a _____'. The original text states: 'Videotaping a person who is providing a false statement...'. Since the rule allows up to TWO WORDS, 'false statement' perfectly completes the sentence.",
+            "distractor_analysis": "'deception' or 'lie' might make contextual sense, but we must extract the exact words from the reference text ('false statement')."
+          }
+        },
+        {
+          "question_number": 7,
+          "answer": "gestures",
+          "explanation": {
+            "keyword": "hide the face",
+            "rationale": "The summary advises to 'watch for hand _____ that hide the face'. The passage recommends 'keeping an eye out [watching for] hand gestures that obscure [hide] the face'. Thus, 'gestures' is the correct answer.",
+            "distractor_analysis": "'movements' is not the exact word used; 'gestures' matches the text exactly."
+          }
+        }
+      ]
+    }
+  ]
+}
