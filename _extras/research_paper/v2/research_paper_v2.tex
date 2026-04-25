@@ -9,6 +9,7 @@
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{stfloats}
+\usepackage{tipa}
 \graphicspath{{../figures/}{../paper_charts/}{../llm_validation/charts/}}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
@@ -169,6 +170,33 @@ The speaking grader implements a four-stage multimodal pipeline that provides Ge
 \textbf{Stage~4 --- LLM evaluation.} Gemini 2.5 Flash evaluates the combined audio-plus-text input against four IELTS Speaking criteria: Fluency and Coherence, Lexical Resource, Grammatical Range and Accuracy, and Pronunciation. The system prompt explicitly instructs the model to base Pronunciation and Fluency assessments on the \emph{audio signal}, not the text transcript, since text cannot capture hesitation, intonation, or phoneme-level errors.
 
 This multimodal architecture is a key differentiator: by submitting audio directly alongside confidence-annotated transcripts, the system enables evaluation of suprasegmental features (stress, rhythm, intonation) that are invisible in text-only approaches.
+
+\subsection{Pronunciation Practice Scoring}
+
+Distinct from the holistic Speaking exam grader described above, the platform provides a dedicated pronunciation practice module that delivers immediate, word-level feedback without requiring an LLM call. This module uses a deterministic multi-metric scoring pipeline combining three complementary signals: IPA phoneme similarity, Whisper transcription confidence, and Levenshtein text distance.
+
+\textbf{Metric~1 --- IPA phoneme similarity (weight: 40\%).} Each target word and its Whisper transcription are converted to IPA representations via \texttt{eng\_to\_ipa}. The system then computes a weighted edit distance over the phoneme sequences, where substitution costs are determined by articulatory class proximity rather than treated as uniform. Phonemes are grouped into six articulatory classes: vowels, plosives (\textipa{/p, b, t, d, k, g/}), fricatives (\textipa{/f, v, T, D, s, z, S, Z/}), nasals (\textipa{/m, n, N/}), approximants (\textipa{/l, r, w, j/}), and affricates (\textipa{/tS, dZ/}). The substitution cost function is:
+\begin{equation}
+\delta(p_1, p_2) = \begin{cases}
+0.0 & \text{if } p_1 = p_2 \\
+0.3 & \text{if same articulatory class} \\
+0.7 & \text{if different consonant classes} \\
+1.0 & \text{if vowel vs.\ consonant}
+\end{cases}
+\label{eq:phoneme_cost}
+\end{equation}
+This weighting ensures that perceptually similar substitutions (e.g., \textipa{/T/} $\rightarrow$ \textipa{/f/}, both fricatives) are penalized less than perceptually distant ones (e.g., \textipa{/T/} $\rightarrow$ \textipa{/t/}, fricative vs.\ plosive), even when both yield identical raw edit distances. The weighted edit distance is computed via standard dynamic programming and normalized to a 0--100 similarity score.
+
+\textbf{Metric~2 --- Whisper confidence (weight: 40\%).} The mean per-word probability from Faster-Whisper's beam search output serves as a signal-level confidence indicator. Low confidence typically correlates with unclear articulation, background noise, or non-standard pronunciation.
+
+\textbf{Metric~3 --- Levenshtein text distance (weight: 20\%).} A normalized character-level Levenshtein distance~\cite{levenshtein} between the target and transcribed strings provides a coarse orthographic check. This metric is retained as a lightweight fallback for words that lack reliable IPA mappings.
+
+The combined pronunciation score is:
+\begin{equation}
+S_{\text{pron}} = 0.4 \cdot S_{\text{IPA}} + 0.4 \cdot S_{\text{conf}} + 0.2 \cdot S_{\text{Lev}}
+\label{eq:pron_combined}
+\end{equation}
+where each component is scaled to $[0, 100]$. The system additionally generates per-word feedback including target and spoken IPA transcriptions, individual phoneme scores, and a qualitative level (Excellent $\geq 90$, Good $\geq 70$, Fair $\geq 50$, Needs Improvement $< 50$). This deterministic pipeline executes in under 100\,ms per word, enabling real-time interactive practice without LLM latency.
 
 \subsection{FSRS-Based Vocabulary System}
 

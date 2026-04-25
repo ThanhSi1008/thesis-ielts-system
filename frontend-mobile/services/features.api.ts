@@ -21,9 +21,7 @@ export const vocabLabApi = {
   uploadMedia: async (uri: string, mimeType: string, fileName: string): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append('file', { uri, name: fileName, type: mimeType } as any);
-    return apiClient.post<any>('/vocab-lab/media/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return apiClient.post<any>('/vocab-lab/media/upload', formData);
   },
 };
 

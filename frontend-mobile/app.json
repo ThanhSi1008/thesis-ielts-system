@@ -23,7 +23,14 @@
       ]
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for dictation and shadowing.",
+          "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to recognize your speech for shadowing exercises."
+        }
+      ]
     ],
     "scheme": "ielts-master-ai"
   }
