@@ -19,8 +19,19 @@ export const loginSchema = z.object({
 // Type này sẽ được đưa vào làm generic type cho React Hook Form
 export type LoginFormValues = z.infer<typeof loginSchema>;
 
-// Định nghĩa interface cho response trả về từ API Login
-export interface LoginResponse {
+export const registerSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Invalid email address format'),
+  password: z.string().min(6, 'Password must be at least 6 characters long'),
+  confirmPassword: z.string().min(6, 'Please confirm your password')
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export type RegisterFormValues = z.infer<typeof registerSchema>;
+
+// Định nghĩa interface cho response trả về từ API Auth
+export interface AuthResponse {
   access_token: string;
   refresh_token: string;
   user: {

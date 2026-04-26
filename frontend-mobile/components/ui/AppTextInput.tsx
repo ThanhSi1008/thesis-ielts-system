@@ -42,7 +42,7 @@ export const AppTextInput = forwardRef<TextInput, AppTextInputProps>(
       <View className={cn('w-full mb-4', containerClassName)}>
         {/* Label */}
         {label && (
-          <Text className="text-sm font-medium text-slate-700 mb-1.5">
+          <Text className="text-sm font-medium text-dark mb-1.5">
             {label}
           </Text>
         )}
@@ -50,16 +50,16 @@ export const AppTextInput = forwardRef<TextInput, AppTextInputProps>(
         {/* Input Field */}
         <View
           className={cn(
-            'flex-row items-center w-full h-12 px-4 rounded-xl border bg-white',
+            'flex-row items-center w-full h-12 px-4 rounded-md border bg-white',
             hasError
-              ? 'border-red-500 bg-red-50'
-              : 'border-slate-300 focus:border-blue-500',
+              ? 'border-danger bg-danger/10'
+              : 'border-slate-200 focus:border-primary',
             className
           )}
         >
           <TextInput
             ref={ref}
-            className={cn('flex-1 text-base text-slate-900', inputClassName)}
+            className={cn('flex-1 text-base text-dark', inputClassName)}
             placeholderTextColor="#94a3b8"
             autoCapitalize="none"
             {...props}
@@ -68,7 +68,7 @@ export const AppTextInput = forwardRef<TextInput, AppTextInputProps>(
 
         {/* Error Message */}
         {hasError && (
-          <Text className="text-xs text-red-500 mt-1.5 ml-1">
+          <Text className="text-xs text-danger mt-1.5 ml-1">
             {errorMessage}
           </Text>
         )}
