@@ -39,9 +39,12 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
     !!pathname.match(/\/ielts\/intensive\/.+/) ||
     !!pathname.match(/\/ielts\/basic\/[^/]+\/lessons\/.+/) ||
     !!pathname.match(/\/ielts\/basic\/[^/]+\/exercises\/.+/) ||
+    !!pathname.match(/\/shadowing-dictation\/[^/]+\/(shadowing|dictation)/) ||
+    !!pathname.match(/\/vocab-lab\/study\/.+/) ||
     isRoadmapPractice;
 
   const isIeltsPage = pathname === "/ielts" || pathname.startsWith("/ielts/");
+  const isVocabLabPage = pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/");
 
   // User preference for browsing pages (expanded vs mini)
   const [userPref, setUserPref] = useState<"expanded" | "mini">("expanded");
@@ -64,7 +67,8 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
 
   // Compute the effective mode
   let mode: SidebarMode;
-  if (!isIeltsPage) {
+  const isShadowingPage = pathname.startsWith("/shadowing-dictation");
+  if (!isIeltsPage && !isShadowingPage && !isVocabLabPage) {
     mode = "hidden";
   } else if (isSpecificPractice) {
     mode = "hidden";

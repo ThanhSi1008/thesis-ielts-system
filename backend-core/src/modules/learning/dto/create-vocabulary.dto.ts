@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUUID } from 'class-validator';
+import { IsString, IsOptional, IsUUID } from "class-validator";
 
 /**
  * DTO for adding vocabulary to a lesson
@@ -29,4 +29,3 @@ export class CreateVocabularyDto {
   @IsString()
   partOfSpeech?: string;
 }
-

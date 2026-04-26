@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { PronunciationController } from './pronunciation.controller';
-import { PronunciationService } from './pronunciation.service';
+import { Module } from "@nestjs/common";
+import { PronunciationController } from "./pronunciation.controller";
+import { PronunciationService } from "./pronunciation.service";
 
 @Module({
   controllers: [PronunciationController],

@@ -218,6 +218,8 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
         fieldStyles: Object.keys(fieldStyles).some(k => Object.keys(fieldStyles[k]).length > 0) ? fieldStyles : undefined,
       });
       toast.success('Card added successfully!');
+      // Notify Header badge to refresh
+      window.dispatchEvent(new CustomEvent('vocabduechanged'));
       if (cardType) initFieldValues(cardType);
     } catch {
       toast.error('Failed to add card. Please try again.');

@@ -1,4 +1,11 @@
-import { IsString, IsInt, IsOptional, IsUrl, IsBoolean, Min } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsOptional,
+  IsUrl,
+  IsBoolean,
+  Min,
+} from "class-validator";
 
 export class CreatePronunciationSoundDto {
   @IsString()

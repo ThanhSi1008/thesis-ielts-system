@@ -1,19 +1,27 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
-import { CreateVideoDto } from './dto/create-video.dto';
-import { UpdateVideoDto } from './dto/update-video.dto';
-import { UpsertProgressDto } from './dto/upsert-progress.dto';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from "@nestjs/common";
+import { PrismaService } from "../../common/prisma/prisma.service";
+import { CreateVideoDto } from "./dto/create-video.dto";
+import { UpdateVideoDto } from "./dto/update-video.dto";
+import { UpsertProgressDto } from "./dto/upsert-progress.dto";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class ShadowingService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsService,
+  ) {}
 
   // ==================== VIDEOS ====================
 
   async getVideos(userId: string) {
     return this.prisma.shadowingVideo.findMany({
       where: { userId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
   }
 
@@ -23,8 +31,8 @@ export class ShadowingService {
         userId,
         title: dto.title,
         youtubeVideoId: dto.youtubeVideoId,
-        folder: dto.folder ?? 'All Videos',
-        category: dto.category ?? 'Other',
+        folder: dto.folder ?? "All Videos",
+        category: dto.category ?? "Other",
         duration: dto.duration,
         sentences: dto.sentences as any,
       },
@@ -32,8 +40,10 @@ export class ShadowingService {
   }
 
   async updateVideo(userId: string, videoId: string, dto: UpdateVideoDto) {
-    const video = await this.prisma.shadowingVideo.findUnique({ where: { id: videoId } });
-    if (!video) throw new NotFoundException('Video not found');
+    const video = await this.prisma.shadowingVideo.findUnique({
+      where: { id: videoId },
+    });
+    if (!video) throw new NotFoundException("Video not found");
     if (video.userId !== userId) throw new ForbiddenException();
 
     return this.prisma.shadowingVideo.update({
@@ -47,16 +57,20 @@ export class ShadowingService {
   }
 
   async deleteVideo(userId: string, videoId: string) {
-    const video = await this.prisma.shadowingVideo.findUnique({ where: { id: videoId } });
-    if (!video) throw new NotFoundException('Video not found');
+    const video = await this.prisma.shadowingVideo.findUnique({
+      where: { id: videoId },
+    });
+    if (!video) throw new NotFoundException("Video not found");
     if (video.userId !== userId) throw new ForbiddenException();
 
     return this.prisma.shadowingVideo.delete({ where: { id: videoId } });
   }
 
   async getVideoById(userId: string, videoId: string) {
-    const video = await this.prisma.shadowingVideo.findUnique({ where: { id: videoId } });
-    if (!video) throw new NotFoundException('Video not found');
+    const video = await this.prisma.shadowingVideo.findUnique({
+      where: { id: videoId },
+    });
+    if (!video) throw new NotFoundException("Video not found");
     if (video.userId !== userId) throw new ForbiddenException();
     return video;
   }
@@ -66,9 +80,9 @@ export class ShadowingService {
   async getFolders(userId: string) {
     const folders = await this.prisma.shadowingFolder.findMany({
       where: { userId },
-      orderBy: { order: 'asc' },
+      orderBy: { order: "asc" },
     });
-    return folders.map(f => f.name);
+    return folders.map((f) => f.name);
   }
 
   async createFolder(userId: string, name: string) {
@@ -77,7 +91,9 @@ export class ShadowingService {
     });
     if (existing) return existing;
 
-    const count = await this.prisma.shadowingFolder.count({ where: { userId } });
+    const count = await this.prisma.shadowingFolder.count({
+      where: { userId },
+    });
     return this.prisma.shadowingFolder.create({
       data: { userId, name, order: count },
     });
@@ -88,7 +104,7 @@ export class ShadowingService {
     const folder = await this.prisma.shadowingFolder.findUnique({
       where: { userId_name: { userId, name: oldName } },
     });
-    if (!folder) throw new NotFoundException('Folder not found');
+    if (!folder) throw new NotFoundException("Folder not found");
 
     // Update all videos in this folder
     await this.prisma.shadowingVideo.updateMany({
@@ -106,12 +122,12 @@ export class ShadowingService {
     const folder = await this.prisma.shadowingFolder.findUnique({
       where: { userId_name: { userId, name } },
     });
-    if (!folder) throw new NotFoundException('Folder not found');
+    if (!folder) throw new NotFoundException("Folder not found");
 
     // Move videos back to All Videos
     await this.prisma.shadowingVideo.updateMany({
       where: { userId, folder: name },
-      data: { folder: 'All Videos' },
+      data: { folder: "All Videos" },
     });
 
     return this.prisma.shadowingFolder.delete({
@@ -126,8 +142,8 @@ export class ShadowingService {
       where: { userId, lessonId },
     });
 
-    const shadowing = rows.find(r => r.type === 'shadowing');
-    const dictation = rows.find(r => r.type === 'dictation');
+    const shadowing = rows.find((r) => r.type === "shadowing");
+    const dictation = rows.find((r) => r.type === "dictation");
 
     return {
       shadowing: {
@@ -135,13 +151,13 @@ export class ShadowingService {
       },
       dictation: {
         completedSentences: (dictation?.completedSentences as number[]) ?? [],
-        difficulty: dictation?.dictationDifficulty ?? 'Intermediate',
+        difficulty: dictation?.dictationDifficulty ?? "Intermediate",
       },
     };
   }
 
   async upsertProgress(userId: string, dto: UpsertProgressDto) {
-    return this.prisma.shadowingDictationProgress.upsert({
+    const result = await this.prisma.shadowingDictationProgress.upsert({
       where: {
         userId_lessonId_type: {
           userId,
@@ -151,7 +167,9 @@ export class ShadowingService {
       },
       update: {
         completedSentences: dto.completedSentences,
-        ...(dto.dictationDifficulty !== undefined && { dictationDifficulty: dto.dictationDifficulty }),
+        ...(dto.dictationDifficulty !== undefined && {
+          dictationDifficulty: dto.dictationDifficulty,
+        }),
       },
       create: {
         userId,
@@ -161,6 +179,20 @@ export class ShadowingService {
         dictationDifficulty: dto.dictationDifficulty,
       },
     });
+
+    // Fire dictation complete notification when all sentences are done (non-blocking)
+    if (
+      dto.type === "dictation" &&
+      dto.totalSentences &&
+      dto.completedSentences.length >= dto.totalSentences
+    ) {
+      const lessonTitle = dto.lessonTitle ?? dto.lessonId;
+      this.notifications
+        .notifyDictationComplete(userId, lessonTitle, dto.lessonId)
+        .catch(() => {});
+    }
+
+    return result;
   }
 
   // Get progress for all lessons (for the main listing page)
@@ -170,11 +202,15 @@ export class ShadowingService {
     });
 
     // Group by lessonId
-    const map: Record<string, { shadowing: number[]; dictation: number[] }> = {};
+    const map: Record<string, { shadowing: number[]; dictation: number[] }> =
+      {};
     for (const row of rows) {
-      if (!map[row.lessonId]) map[row.lessonId] = { shadowing: [], dictation: [] };
-      if (row.type === 'shadowing') map[row.lessonId].shadowing = row.completedSentences as number[];
-      if (row.type === 'dictation') map[row.lessonId].dictation = row.completedSentences as number[];
+      if (!map[row.lessonId])
+        map[row.lessonId] = { shadowing: [], dictation: [] };
+      if (row.type === "shadowing")
+        map[row.lessonId].shadowing = row.completedSentences as number[];
+      if (row.type === "dictation")
+        map[row.lessonId].dictation = row.completedSentences as number[];
     }
     return map;
   }

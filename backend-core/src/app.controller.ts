@@ -1,5 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get } from "@nestjs/common";
+import { AppService } from "./app.service";
 
 @Controller()
 export class AppController {
@@ -8,15 +8,14 @@ export class AppController {
   @Get()
   getRoot(): object {
     return {
-      message: 'TOEIC Master AI - Core Backend API',
-      version: '1.0.0',
-      status: 'running',
+      message: "TOEIC Master AI - Core Backend API",
+      version: "1.0.0",
+      status: "running",
     };
   }
 
-  @Get('health')
+  @Get("health")
   getHealth(): object {
     return this.appService.getHealth();
   }
 }
-

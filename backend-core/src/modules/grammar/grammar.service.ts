@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@common/prisma/prisma.service';
-import { RedisService } from '@common/redis/redis.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "@common/prisma/prisma.service";
+import { RedisService } from "@common/redis/redis.service";
 import {
   CreateGrammarBookDto,
   UpdateGrammarBookDto,
   CreateGrammarUnitDto,
   UpdateGrammarUnitDto,
-} from './dto/grammar.dto';
+} from "./dto/grammar.dto";
 
 const CACHE_TTL = 3600;
-const CACHE_PREFIX = 'grammar';
+const CACHE_PREFIX = "grammar";
 
 @Injectable()
 export class GrammarService {
@@ -26,7 +26,7 @@ export class GrammarService {
     if (cached) return cached;
 
     const books = await this.prisma.grammarBook.findMany({
-      orderBy: { level: 'asc' },
+      orderBy: { level: "asc" },
       select: {
         id: true,
         slug: true,
@@ -53,7 +53,7 @@ export class GrammarService {
       where: { slug },
       include: {
         units: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
           select: { id: true, title: true, order: true },
         },
       },
@@ -72,7 +72,7 @@ export class GrammarService {
       where: { id: unitId },
       include: {
         book: { select: { id: true, slug: true, name: true } },
-        exercises: { orderBy: { order: 'asc' } },
+        exercises: { orderBy: { order: "asc" } },
       },
     });
 
@@ -100,7 +100,7 @@ export class GrammarService {
   async deleteBook(id: string) {
     await this.prisma.grammarBook.delete({ where: { id } });
     await this.invalidateCache();
-    return { message: 'Grammar book deleted successfully' };
+    return { message: "Grammar book deleted successfully" };
   }
 
   // ==================== UNIT CRUD ====================
@@ -123,7 +123,7 @@ export class GrammarService {
   async deleteUnit(id: string) {
     await this.prisma.grammarUnit.delete({ where: { id } });
     await this.invalidateCache();
-    return { message: 'Grammar unit deleted successfully' };
+    return { message: "Grammar unit deleted successfully" };
   }
 
   // ==================== CACHE ====================

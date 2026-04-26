@@ -1,4 +1,4 @@
-import { IsString, IsUUID } from 'class-validator';
+import { IsString, IsUUID } from "class-validator";
 
 /**
  * DTO for adding grammar to a lesson
@@ -16,4 +16,3 @@ export class CreateGrammarDto {
   @IsString()
   example: string;
 }
-

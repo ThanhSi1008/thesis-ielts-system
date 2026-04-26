@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import PageHeader from '@/components/PageHeader';
+
 
 import { useParams, notFound } from 'next/navigation';
 import { SHADOWING_LESSONS, ShadowingSentence, ShadowingLesson } from '@/data/shadowing-lessons';
@@ -59,19 +59,7 @@ export default function ShadowingPracticePage() {
     const params = useParams();
     const { isAuthenticated, loading: authLoading } = useAuth();
 
-    const [bannerCollapsed, setBannerCollapsed] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return true;
-        const stored = localStorage.getItem('shadowing-practice-banner-collapsed');
-        return stored === null ? true : stored === 'true';
-    });
 
-    const toggleBanner = () => {
-        setBannerCollapsed(prev => {
-            const next = !prev;
-            localStorage.setItem('shadowing-practice-banner-collapsed', String(next));
-            return next;
-        });
-    };
 
     // States for asynchronous initialization
     const [lesson, setLesson] = useState<ShadowingLesson | null>(null);
@@ -121,8 +109,8 @@ export default function ShadowingPracticePage() {
     }, [loadLessonAndProgress]);
 
     useEffect(() => {
-        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: bannerCollapsed }));
-    }, [bannerCollapsed]);
+        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: true }));
+    }, []);
 
     // Save progress to DB whenever it changes
     const isFirstLoad = useRef(true);
@@ -149,7 +137,7 @@ export default function ShadowingPracticePage() {
         saveProgress();
     }, [completedSentences, params.id, isAuthenticated, lesson]);
 
-    const [showCompleted, setShowCompleted] = useState(true);
+
     const [isPlaying, setIsPlaying] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [recordedResult, setRecordedResult] = useState<string[] | null>(null);
@@ -177,9 +165,10 @@ export default function ShadowingPracticePage() {
         if (!lesson || !lesson.youtubeVideoId) return;
 
         const YOUTUBE_VIDEO_ID = lesson.youtubeVideoId;
+        let isMounted = true;
 
         const initPlayer = () => {
-            if (!ytContainerRef.current) return;
+            if (!isMounted || !ytContainerRef.current) return;
             ytPlayerRef.current = new window.YT.Player(ytContainerRef.current, {
                 videoId: YOUTUBE_VIDEO_ID,
                 playerVars: {
@@ -189,21 +178,38 @@ export default function ShadowingPracticePage() {
                     rel: 0,
                 },
                 events: {
-                    onReady: () => setYtReady(true),
+                    onReady: () => {
+                        if (isMounted) setYtReady(true);
+                    },
                 },
             });
         };
 
-        if (window.YT && window.YT.Player) {
-            initPlayer();
-        } else {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            document.head.appendChild(tag);
-            window.onYouTubeIframeAPIReady = () => initPlayer();
-        }
+        const loadYT = () => {
+            if (window.YT && window.YT.Player) {
+                initPlayer();
+                return;
+            }
+
+            const checkYT = setInterval(() => {
+                if (window.YT && window.YT.Player) {
+                    clearInterval(checkYT);
+                    initPlayer();
+                }
+            }, 100);
+
+            if (!document.getElementById('youtube-iframe-script')) {
+                const tag = document.createElement('script');
+                tag.id = 'youtube-iframe-script';
+                tag.src = 'https://www.youtube.com/iframe_api';
+                document.head.appendChild(tag);
+            }
+        };
+
+        loadYT();
 
         return () => {
+            isMounted = false;
             if (ytPlayerRef.current && ytPlayerRef.current.destroy) {
                 try { ytPlayerRef.current.destroy(); } catch (e) { }
             }
@@ -241,20 +247,22 @@ export default function ShadowingPracticePage() {
     }, [currentSentence.words, recordedResult]);
 
     // ── Play current sentence audio segment ──
-    const playSentence = useCallback(() => {
+    const playSentence = useCallback((target?: any) => {
         if (!lesson) return;
+        const sentenceToPlay = (target && target.audioStart !== undefined) ? target : currentSentence;
+
         if (timerRef.current) clearInterval(timerRef.current);
 
         if (IS_YOUTUBE && ytPlayerRef.current && ytReady) {
             const player = ytPlayerRef.current;
             player.setPlaybackRate(playbackSpeed);
-            player.seekTo(currentSentence.audioStart, true);
+            player.seekTo(sentenceToPlay.audioStart, true);
             player.playVideo();
             setIsPlaying(true);
 
             timerRef.current = setInterval(() => {
                 const currentTime = player.getCurrentTime();
-                if (currentTime >= currentSentence.audioEnd) {
+                if (currentTime >= sentenceToPlay.audioEnd) {
                     player.pauseVideo();
                     setIsPlaying(false);
                     if (timerRef.current) clearInterval(timerRef.current);
@@ -265,19 +273,19 @@ export default function ShadowingPracticePage() {
             if (!audio) return;
 
             audio.playbackRate = playbackSpeed;
-            audio.currentTime = currentSentence.audioStart;
+            audio.currentTime = sentenceToPlay.audioStart;
             audio.play();
             setIsPlaying(true);
 
             timerRef.current = setInterval(() => {
-                if (audio.currentTime >= currentSentence.audioEnd) {
+                if (audio.currentTime >= sentenceToPlay.audioEnd) {
                     audio.pause();
                     setIsPlaying(false);
                     if (timerRef.current) clearInterval(timerRef.current);
                 }
             }, 50);
         }
-    }, [currentSentence, playbackSpeed, IS_YOUTUBE, ytReady]);
+    }, [lesson, currentSentence, playbackSpeed, IS_YOUTUBE, ytReady]);
 
     // ── Auto-play audio when moving to next sentence ──
     const isFirstRender = useRef(true);
@@ -518,69 +526,32 @@ export default function ShadowingPracticePage() {
         );
     }
 
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-white pb-20">
             {/* Hidden audio elements */}
             {!IS_YOUTUBE && <audio ref={audioRef} src={AUDIO_URL} preload="auto" />}
             <audio ref={recordedAudioRef} />
 
-            {/* Banner — collapsible */}
-            <div
-                className="overflow-hidden transition-all duration-500 ease-in-out relative origin-top"
-                style={{
-                    maxHeight: bannerCollapsed ? '0px' : '300px',
-                    opacity: bannerCollapsed ? 0 : 1
-                }}
-            >
-                <PageHeader
-                    title={LESSON_TITLE}
-                    backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
-                    breadcrumbs={[
-                        { label: 'Homepage', href: '/' },
-                        { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
-                        ...(typeof params.id === 'string' && !SHADOWING_LESSONS.some(l => l.id === params.id)
-                            ? [{ label: 'My Videos', href: '/shadowing-dictation/my-videos' }]
-                            : []),
-                        { label: LESSON_TITLE },
-                    ]}
-                />
-            </div>
-
-            {/* Sticky bar — collapse toggle */}
-            <div className={`top-0 z-30 bg-transparent transition-all duration-300 ${bannerCollapsed ? '' : 'pt-2 pb-2'}`}>
-                <div className="container mx-auto max-w-screen-xl px-4 flex justify-end">
-                    <button
-                        onClick={toggleBanner}
-                        title={bannerCollapsed ? 'Show banner' : 'Hide banner'}
-                        className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 px-3 py-1 rounded-full transition-colors select-none"
-                    >
-                        <svg
-                            className={`w-3.5 h-3.5 transition-transform duration-300 ${bannerCollapsed ? 'rotate-180' : ''}`}
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            {/* Main Content - Three Column Layout */}
-            <div className="container mx-auto max-w-screen-xl px-4 py-4">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-4 xl:px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 py-4">
 
                     {/* ══ COLUMN 1: Source ══ */}
                     {/* Source / Audio or YouTube Player */}
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                        <h2 className="text-lg font-bold text-gray-800 mb-4">Source</h2>
+                    <div className="lg:col-span-2 lg:sticky lg:top-6 self-start z-10">
                         {IS_YOUTUBE ? (
-                            <div className="w-full aspect-video rounded-xl overflow-hidden">
+                            <div key={`yt-wrapper-${lesson?.id}`} className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-sm">
                                 <div ref={ytContainerRef} className="w-full h-full" />
                             </div>
                         ) : (
-                            <div className="flex items-center gap-3">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex items-center gap-3">
                                 <button
-                                    onClick={playSentence}
+                                    onClick={() => playSentence()}
                                     className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
                                         ? 'bg-primary text-white'
                                         : 'bg-green-50 text-green-600 hover:bg-green-100'
@@ -614,153 +585,168 @@ export default function ShadowingPracticePage() {
                         )}
                     </div>
 
-                    {/* ══ COLUMN 2: Completed ══ */}
-                    {/* Completed Sentences */}
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-h-[500px] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-gray-800">Completed</h2>
-                            <button
-                                onClick={() => setShowCompleted(!showCompleted)}
-                                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className={`h-4 w-4 transition-transform ${showCompleted ? '' : 'rotate-180'}`}
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                >
-                                    <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                                </svg>
-                                {showCompleted ? 'Hide' : 'Show'}
-                            </button>
-                        </div>
-
-                        {showCompleted && completedSentences.length > 0 && (
-                            <div className="space-y-6">
-                                {completedSentences.map((sentenceIdx) => {
-                                    const sentence = SENTENCES[sentenceIdx];
-                                    return (
-                                        <div key={sentence.id}>
-                                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold mb-2">
-                                                {sentence.id}
-                                            </div>
-                                            <p className="font-bold text-gray-800 mb-1 leading-relaxed">
-                                                {sentence.english}
-                                            </p>
-                                            <div className="flex gap-1 mb-2 flex-wrap">
-                                                {Array.from({ length: 8 }).map((_, i) => (
-                                                    <svg key={i} width="50" height="8" viewBox="0 0 50 8">
-                                                        <path
-                                                            d="M0 4 Q6 0 12 4 Q18 8 25 4 Q31 0 37 4 Q43 8 50 4"
-                                                            fill="none"
-                                                            stroke="#FFC600"
-                                                            strokeWidth="2"
-                                                            strokeDasharray={i % 2 === 0 ? 'none' : '4 3'}
-                                                        />
-                                                    </svg>
-                                                ))}
-                                            </div>
-                                            <p className="text-gray-500 text-sm leading-relaxed">
-                                                {sentence.vietnamese}
-                                            </p>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        {completedSentences.length === 0 && (
-                            <p className="text-gray-400 text-sm text-center py-4">No sentences completed yet. Start recording!</p>
-                        )}
-                    </div>
-
-                    {/* ══ COLUMN 3: Shadowing ══ */}
-                    <div>
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-6">
-                            {/* Header with Progress */}
-                            <div className="flex items-center justify-between mb-3">
-                                <h2 className="text-lg font-bold text-gray-800">Shadowing</h2>
-                                <span className="text-lg font-bold text-gray-800">
-                                    {progressCount}/{TOTAL_SENTENCES}
-                                </span>
-                            </div>
-
-                            {/* Progress Bar */}
-                            <div className="w-full h-2 bg-gray-200 rounded-full mb-6 overflow-hidden">
-                                <div
-                                    className="h-full bg-primary rounded-full transition-all duration-500"
-                                    style={{ width: `${(progressCount / TOTAL_SENTENCES) * 100}%` }}
-                                />
-                            </div>
-
-                            {/* Finished State */}
-                            {isFinished ? (
-                                <div className="text-center py-8">
-                                    <div className="text-6xl mb-4">🎉</div>
-                                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Congratulations!</h3>
-                                    <p className="text-gray-500">You have completed all {TOTAL_SENTENCES} sentences.</p>
+                    {/* ══ COLUMN 2: Transcript Feed & Shadowing Controls ══ */}
+                    <div className="lg:col-span-1 relative">
+                        {/* Mobile Background Fallback */}
+                        <div className="block lg:hidden w-full h-[600px]"></div>
+                        
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[600px] lg:h-auto lg:absolute lg:inset-0 z-20 overflow-hidden">
+                            {/* Fixed Header */}
+                            <div className="p-6 border-b border-gray-100 shrink-0">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-lg font-bold text-gray-800">Shadowing</h2>
+                                    <span className="text-lg font-bold text-gray-800">
+                                        {progressCount}/{TOTAL_SENTENCES}
+                                    </span>
                                 </div>
-                            ) : (
-                                <>
-                                    {/* Current Sentence */}
-                                    <div className="mb-4 relative">
-                                        <p className="text-lg font-bold text-gray-800 leading-relaxed mb-2 flex flex-wrap gap-x-1.5 gap-y-1">
-                                            {currentSentence.words.map((word: string, idx: number) => (
-                                                <span
-                                                    key={idx}
-                                                    onClick={(e) => {
-                                                        const cleanWord = word.replace(/[.,!?'"]/g, '').toLowerCase();
-                                                        if (cleanWord) {
-                                                            const rect = e.currentTarget.getBoundingClientRect();
-                                                            setDictionaryPopupPosition({ x: rect.left, y: rect.bottom + window.scrollY });
-                                                            setSelectedDictionaryWord(cleanWord);
-                                                        }
-                                                    }}
-                                                    className="cursor-pointer hover:text-primary hover:underline underline-offset-4 decoration-2 transition-colors relative"
-                                                >
-                                                    {word}
-                                                </span>
-                                            ))}
-                                            {selectedDictionaryWord && dictionaryPopupPosition && (
-                                                <DictionaryPopup
-                                                    word={selectedDictionaryWord}
-                                                    sentence={currentSentence.english}
-                                                    position={dictionaryPopupPosition}
-                                                    onClose={() => {
-                                                        setSelectedDictionaryWord(null);
-                                                        setDictionaryPopupPosition(null);
-                                                    }}
-                                                />
-                                            )}
-                                        </p>
-                                        <p className="text-gray-500 text-sm leading-relaxed font-mono">
-                                            {currentSentence.phonetic}
-                                        </p>
-                                    </div>
+                                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-primary rounded-full transition-all duration-500"
+                                        style={{ width: `${(progressCount / TOTAL_SENTENCES) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
 
-                                    {/* Success Banner */}
-                                    {sentenceCorrect && (
-                                        <div className="mb-4 bg-green-50 border-2 border-green-400 rounded-xl p-4 flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                    </svg>
+                            {/* Scrollable Transcript Area */}
+                            <div className="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth" ref={(el) => {
+                                if (el && currentIndex > 0) {
+                                    // Auto-scroll logic similar to dictation
+                                    const activeEl = el.querySelector(`#sentence-${currentIndex}`);
+                                    if (activeEl) {
+                                        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                }
+                            }}>
+                                {isFinished ? (
+                                    <div className="text-center py-8">
+                                        <div className="text-6xl mb-4">🎉</div>
+                                        <h3 className="text-2xl font-bold text-gray-800 mb-2">Congratulations!</h3>
+                                        <p className="text-gray-500">You have completed all {TOTAL_SENTENCES} sentences.</p>
+                                    </div>
+                                ) : (
+                                    SENTENCES.map((sentence, index) => {
+                                        const isCompleted = completedSentences.includes(index);
+                                        const isActive = index === currentIndex;
+
+                                        if (!isCompleted && !isActive) return null;
+
+                                        if (isCompleted) {
+                                            return (
+                                                <div 
+                                                    key={sentence.id} 
+                                                    className="flex gap-4 text-gray-800 opacity-90 hover:opacity-100 transition-opacity cursor-pointer group"
+                                                    onClick={() => playSentence(sentence)}
+                                                    title="Click to replay this sentence"
+                                                >
+                                                    <div className="shrink-0 pt-0.5">
+                                                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-semibold tracking-wide">
+                                                            {formatTime(sentence.audioStart)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-[15px] leading-relaxed mb-1">
+                                                            {sentence.english}
+                                                        </p>
+                                                        <p className="text-gray-500 text-sm leading-relaxed">
+                                                            {sentence.vietnamese}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <span className="text-green-700 font-semibold">Correct! Well done 🎉</span>
+                                            );
+                                        }
+
+                                        // isActive (Current Sentence)
+                                        return (
+                                            <div key={sentence.id} className="relative scroll-mt-6" id={`sentence-${index}`}>
+                                                <div className="absolute -inset-x-4 -inset-y-4 bg-gray-100/80 rounded-xl" />
+                                                <div className="relative flex gap-4 text-gray-900">
+                                                    <div className="shrink-0 pt-0.5">
+                                                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-primary text-gray-900 text-[11px] font-bold tracking-wide shadow-sm">
+                                                            {formatTime(sentence.audioStart)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-[17px] font-bold leading-relaxed mb-2 flex flex-wrap gap-x-1.5 gap-y-1">
+                                                            {currentSentence.words.map((word: string, idx: number) => (
+                                                                <span
+                                                                    key={idx}
+                                                                    onClick={(e) => {
+                                                                        const cleanWord = word.replace(/[.,!?'"]/g, '').toLowerCase();
+                                                                        if (cleanWord) {
+                                                                            const rect = e.currentTarget.getBoundingClientRect();
+                                                                            setDictionaryPopupPosition({ x: rect.left, y: rect.bottom + window.scrollY });
+                                                                            setSelectedDictionaryWord(cleanWord);
+                                                                        }
+                                                                    }}
+                                                                    className="cursor-pointer hover:text-primary hover:underline underline-offset-4 decoration-2 transition-colors relative"
+                                                                >
+                                                                    {word}
+                                                                </span>
+                                                            ))}
+                                                            {selectedDictionaryWord && dictionaryPopupPosition && (
+                                                                <DictionaryPopup
+                                                                    word={selectedDictionaryWord}
+                                                                    sentence={currentSentence.english}
+                                                                    position={dictionaryPopupPosition}
+                                                                    onClose={() => {
+                                                                        setSelectedDictionaryWord(null);
+                                                                        setDictionaryPopupPosition(null);
+                                                                    }}
+                                                                />
+                                                            )}
+                                                        </p>
+                                                        <p className="text-gray-500 text-sm leading-relaxed font-mono">
+                                                            {currentSentence.phonetic}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+
+                            {/* Fixed Bottom Action Dock */}
+                            {!isFinished && (
+                                <div className="p-6 bg-white border-t border-gray-100 shrink-0">
+                                    {/* Success/Result Section */}
+                                    {recordedResult && !sentenceCorrect && (
+                                        <div className="mb-4">
+                                            <div className="flex flex-wrap gap-1 mb-2">
+                                                {recordedResult.map((word: string, i: number) => {
+                                                    const status = wordStatuses[i];
+                                                    return (
+                                                        <span
+                                                            key={i}
+                                                            className={`px-2 py-1 rounded text-xs font-semibold ${status === 'correct'
+                                                                ? 'bg-green-100 text-green-700'
+                                                                : 'bg-red-100 text-red-700'
+                                                                }`}
+                                                        >
+                                                            {word}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                            {resultStatus === 'incorrect' && (
+                                                <p className="text-red-500 font-semibold text-xs text-center">Please try again!</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {sentenceCorrect && (
+                                        <div className="mb-4 bg-green-50 border-2 border-green-400 rounded-xl p-3 flex flex-col items-center justify-center gap-2">
+                                            <span className="text-green-700 font-semibold text-sm">Correct! Great pronunciation 🎉</span>
                                             {currentIndex < TOTAL_SENTENCES - 1 && (
-                                                <Tooltip content="Next Sentence" shortcut="Enter" position="top">
-                                                    <button
-                                                        onClick={handleNext}
-                                                        className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1.5"
-                                                    >
-                                                        Next Sentence
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                        </svg>
-                                                    </button>
-                                                </Tooltip>
+                                                <button
+                                                    onClick={handleNext}
+                                                    className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-1.5"
+                                                >
+                                                    Next Sentence
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                    </svg>
+                                                </button>
                                             )}
                                         </div>
                                     )}
@@ -769,11 +755,11 @@ export default function ShadowingPracticePage() {
                                     <button
                                         onClick={isRecording ? stopRecording : startRecording}
                                         disabled={sentenceCorrect}
-                                        className={`w-full py-3.5 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all mb-5 ${sentenceCorrect
+                                        className={`w-full py-3.5 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all mb-4 ${sentenceCorrect
                                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                             : isRecording
-                                                ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                                                : 'bg-primary hover:bg-yellow-500 text-gray-900'
+                                                ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg'
+                                                : 'bg-primary hover:bg-yellow-500 text-gray-900 shadow-md'
                                             }`}
                                     >
                                         {isRecording ? (
@@ -791,156 +777,110 @@ export default function ShadowingPracticePage() {
                                         )}
                                     </button>
 
-                                    {/* Result Section */}
-                                    {recordedResult && (
-                                        <div className="mb-4">
-                                            <p className="text-sm font-semibold text-gray-600 mb-3">Result:</p>
-                                            <div className="flex flex-wrap gap-2 mb-4">
-                                                {recordedResult.map((word: string, i: number) => {
-                                                    const status = wordStatuses[i];
-                                                    return (
-                                                        <span
-                                                            key={i}
-                                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 ${status === 'correct'
-                                                                ? 'border-green-400 bg-green-50 text-green-700'
-                                                                : 'border-red-400 bg-red-50 text-red-700'
+                                    {/* Floating Actions */}
+                                    <div className="flex items-center justify-center gap-4 relative">
+                                        <Tooltip content="Repeat Video" shortcut="Alt+R" position="top">
+                                            <button
+                                                onClick={handleRepeat}
+                                                className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-sm"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </Tooltip>
+
+                                        <Tooltip content="Playback Speed" shortcut="Alt+S" position="top">
+                                            <button
+                                                onClick={() => setShowSpeedPanel(!showSpeedPanel)}
+                                                className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors shadow-sm"
+                                            >
+                                                <span className="text-xs font-bold">{playbackSpeed}x</span>
+                                            </button>
+                                        </Tooltip>
+
+                                        <Tooltip content="Play Your Recording" position="top">
+                                            <button
+                                                onClick={handlePlayRecordedAudio}
+                                                disabled={!recordedAudioUrl}
+                                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${recordedAudioUrl
+                                                    ? isPlayingRecorded
+                                                        ? 'bg-red-600 text-white animate-pulse'
+                                                        : 'bg-red-500 hover:bg-red-600 text-white'
+                                                    : 'bg-gray-300 text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </Tooltip>
+
+                                        {/* Speed Panel Popup */}
+                                        {showSpeedPanel && (
+                                            <div className="absolute bottom-12 right-0 bg-gray-800 text-white rounded-2xl p-5 shadow-2xl z-20 w-72 origin-bottom-right">
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <button
+                                                        onClick={() => setShowSpeedPanel(false)}
+                                                        className="text-white/70 hover:text-white"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                    <span className="font-semibold text-sm">Playback speed</span>
+                                                </div>
+
+                                                <div className="text-center mb-4">
+                                                    <span className="text-3xl font-bold">{playbackSpeed.toFixed(2)}x</span>
+                                                </div>
+
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <button
+                                                        onClick={() => handleSpeedChange(Math.max(0.25, playbackSpeed - 0.25))}
+                                                        className="text-white/70 hover:text-white font-bold text-lg"
+                                                    >
+                                                        −
+                                                    </button>
+                                                    <input
+                                                        type="range"
+                                                        min="0.25"
+                                                        max="2"
+                                                        step="0.25"
+                                                        value={playbackSpeed}
+                                                        onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
+                                                        className="flex-1 accent-white h-1 bg-gray-600 rounded-full appearance-none cursor-pointer"
+                                                    />
+                                                    <button
+                                                        onClick={() => handleSpeedChange(Math.min(2, playbackSpeed + 0.25))}
+                                                        className="text-white/70 hover:text-white font-bold text-lg"
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+
+                                                <div className="flex gap-2">
+                                                    {SPEED_PRESETS.map((speed) => (
+                                                        <button
+                                                            key={speed}
+                                                            onClick={() => {
+                                                                handleSpeedChange(speed);
+                                                                setShowSpeedPanel(false);
+                                                            }}
+                                                            className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-colors ${playbackSpeed === speed
+                                                                ? 'bg-white text-gray-800'
+                                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                                                                 }`}
                                                         >
-                                                            {word}
-                                                        </span>
-                                                    );
-                                                })}
-                                                {/* Show missing words as gray placeholders */}
-                                                {currentSentence.words.slice(recordedResult.length).map((word: string, i: number) => (
-                                                    <span
-                                                        key={`missing-${i}`}
-                                                        className="px-3 py-1.5 rounded-lg text-sm font-medium border-2 border-gray-300 bg-gray-50 text-gray-400"
-                                                    >
-                                                        {word}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Feedback + Action Buttons */}
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            {resultStatus === 'incorrect' && (
-                                                <p className="text-red-500 font-semibold text-sm">Not correct! Please try again!</p>
-                                            )}
-                                            {resultStatus === 'correct' && (
-                                                <p className="text-green-500 font-semibold text-sm">Great pronunciation!</p>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center gap-3 relative">
-                                            {/* Replay */}
-                                            <Tooltip content="Repeat Sentence" shortcut="Alt+R" position="top">
-                                                <button
-                                                    onClick={handleRepeat}
-                                                    className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-md"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </Tooltip>
-
-                                            {/* Speed Control */}
-                                            <Tooltip content="Playback Speed" shortcut="Alt+S" position="top">
-                                                <button
-                                                    onClick={() => setShowSpeedPanel(!showSpeedPanel)}
-                                                    className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors shadow-md"
-                                                >
-                                                    <span className="text-xs font-bold">{playbackSpeed}x</span>
-                                                </button>
-                                            </Tooltip>
-
-                                            {/* Play Recorded Audio */}
-                                            <Tooltip content="Play Your Recording" position="top">
-                                                <button
-                                                    onClick={handlePlayRecordedAudio}
-                                                    disabled={!recordedAudioUrl}
-                                                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md ${recordedAudioUrl
-                                                        ? isPlayingRecorded
-                                                            ? 'bg-red-600 text-white animate-pulse'
-                                                            : 'bg-red-500 hover:bg-red-600 text-white'
-                                                        : 'bg-gray-300 text-gray-400 cursor-not-allowed'
-                                                        }`}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </Tooltip>
-
-                                            {/* Speed Panel Popup */}
-                                            {showSpeedPanel && (
-                                                <div className="absolute bottom-14 right-0 bg-gray-800 text-white rounded-2xl p-5 shadow-2xl z-20 w-72">
-                                                    <div className="flex items-center gap-2 mb-4">
-                                                        <button
-                                                            onClick={() => setShowSpeedPanel(false)}
-                                                            className="text-white/70 hover:text-white"
-                                                        >
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                            </svg>
+                                                            {speed}
                                                         </button>
-                                                        <span className="font-semibold text-sm">Playback speed</span>
-                                                    </div>
-
-                                                    <div className="text-center mb-4">
-                                                        <span className="text-3xl font-bold">{playbackSpeed.toFixed(2)}x</span>
-                                                    </div>
-
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <button
-                                                            onClick={() => handleSpeedChange(Math.max(0.25, playbackSpeed - 0.25))}
-                                                            className="text-white/70 hover:text-white font-bold text-lg"
-                                                        >
-                                                            −
-                                                        </button>
-                                                        <input
-                                                            type="range"
-                                                            min="0.25"
-                                                            max="2"
-                                                            step="0.25"
-                                                            value={playbackSpeed}
-                                                            onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-                                                            className="flex-1 accent-white h-1 bg-gray-600 rounded-full appearance-none cursor-pointer"
-                                                        />
-                                                        <button
-                                                            onClick={() => handleSpeedChange(Math.min(2, playbackSpeed + 0.25))}
-                                                            className="text-white/70 hover:text-white font-bold text-lg"
-                                                        >
-                                                            +
-                                                        </button>
-                                                    </div>
-
-                                                    <div className="flex gap-2">
-                                                        {SPEED_PRESETS.map((speed) => (
-                                                            <button
-                                                                key={speed}
-                                                                onClick={() => {
-                                                                    handleSpeedChange(speed);
-                                                                    setShowSpeedPanel(false);
-                                                                }}
-                                                                className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-colors ${playbackSpeed === speed
-                                                                    ? 'bg-white text-gray-800'
-                                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                                                                    }`}
-                                                            >
-                                                                {speed}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <div className="text-xs text-gray-400 mt-2">Normal</div>
+                                                    ))}
                                                 </div>
-                                            )}
-                                        </div>
+                                                <div className="text-xs text-gray-400 mt-2">Normal</div>
+                                            </div>
+                                        )}
                                     </div>
-                                </>
+                                </div>
                             )}
                         </div>
                     </div>

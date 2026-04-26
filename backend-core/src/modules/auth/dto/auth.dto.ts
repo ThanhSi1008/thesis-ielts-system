@@ -1,12 +1,18 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsOptional,
+} from "class-validator";
 
 export class RegisterDto {
-  @IsEmail({}, { message: 'Invalid email format' })
+  @IsEmail({}, { message: "Invalid email format" })
   @IsNotEmpty()
   email: string;
 
   @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  @MinLength(6, { message: "Password must be at least 6 characters" })
   password: string;
 
   @IsString()
@@ -19,7 +25,7 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
-  role?: 'STUDENT' | 'TEACHER' | 'ADMIN';
+  role?: "STUDENT" | "TEACHER" | "ADMIN";
 }
 
 export class LoginDto {

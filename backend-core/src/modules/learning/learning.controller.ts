@@ -189,7 +189,9 @@ export class LearningController {
 
       // If vocabularyId is provided, verify it and get the word
       if (body.vocabularyId) {
-        const vocabulary = await this.learningService["prisma"].vocabulary.findUnique({
+        const vocabulary = await this.learningService[
+          "prisma"
+        ].vocabulary.findUnique({
           where: { id: body.vocabularyId },
         });
 
@@ -202,7 +204,9 @@ export class LearningController {
       }
 
       if (!targetWord) {
-        throw new BadRequestException("Either vocabularyId or targetWord must be provided");
+        throw new BadRequestException(
+          "Either vocabularyId or targetWord must be provided",
+        );
       }
 
       // Create pronunciation attempt record

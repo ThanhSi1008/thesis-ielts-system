@@ -1,5 +1,5 @@
-import { Global, Module } from '@nestjs/common';
-import { CacheInvalidationService } from './cache-invalidation.service';
+import { Global, Module } from "@nestjs/common";
+import { CacheInvalidationService } from "./cache-invalidation.service";
 
 @Global()
 @Module({

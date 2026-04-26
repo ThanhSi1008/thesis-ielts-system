@@ -64,6 +64,10 @@ export const vocabLabApi = {
     const { data } = await api.get<Flashcard[]>('/vocab-lab/cards', { params });
     return data;
   },
+  createFlashcardFromVocabulary: async (payload: { bookName: string; word: any }) => {
+    const { data } = await api.post<Flashcard>('/vocab-lab/from-vocabulary', payload);
+    return data;
+  },
 
   // ==================== STUDY / REVIEW ====================
   getStudyCards: async (deckId: string) => {

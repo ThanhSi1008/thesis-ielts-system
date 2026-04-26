@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsInt, IsArray, Min, Max, IsObject, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  IsArray,
+  Min,
+  Max,
+  IsObject,
+  IsBoolean,
+} from "class-validator";
 
 // ==================== DECK DTOs ====================
 

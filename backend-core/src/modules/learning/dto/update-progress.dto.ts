@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsObject, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsObject,
+  Min,
+  Max,
+} from "class-validator";
 
 export class UpdateProgressDto {
   @IsString()

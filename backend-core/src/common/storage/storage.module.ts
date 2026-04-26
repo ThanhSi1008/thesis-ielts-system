@@ -1,5 +1,5 @@
-import { Module, Global } from '@nestjs/common';
-import { StorageService } from './storage.service';
+import { Module, Global } from "@nestjs/common";
+import { StorageService } from "./storage.service";
 
 /**
  * Storage Module
@@ -11,4 +11,3 @@ import { StorageService } from './storage.service';
   exports: [StorageService],
 })
 export class StorageModule {}
-

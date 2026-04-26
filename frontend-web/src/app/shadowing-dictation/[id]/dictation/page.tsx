@@ -53,24 +53,17 @@ async function findLesson(id: string | string[] | undefined): Promise<ShadowingL
     return undefined;
 }
 
+const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+};
+
 // ──── Page Component ────
 export default function DictationPracticePage() {
     const params = useParams();
     const { isAuthenticated, loading: authLoading } = useAuth();
 
-    const [bannerCollapsed, setBannerCollapsed] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return true;
-        const stored = localStorage.getItem('dictation-practice-banner-collapsed');
-        return stored === null ? true : stored === 'true';
-    });
-
-    const toggleBanner = () => {
-        setBannerCollapsed(prev => {
-            const next = !prev;
-            localStorage.setItem('dictation-practice-banner-collapsed', String(next));
-            return next;
-        });
-    };
 
     // States for asynchronous initialization
     const [lesson, setLesson] = useState<ShadowingLesson | null>(null);
@@ -125,8 +118,8 @@ export default function DictationPracticePage() {
     }, [loadLessonAndProgress]);
 
     useEffect(() => {
-        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: bannerCollapsed }));
-    }, [bannerCollapsed]);
+        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: true }));
+    }, []);
 
     // Save progress and difficulty to DB whenever they change (and after initial load)
     const isFirstLoad = useRef(true);
@@ -144,7 +137,9 @@ export default function DictationPracticePage() {
                         lessonId: params.id,
                         type: 'dictation',
                         completedSentences: completedSentences,
-                        dictationDifficulty: difficulty
+                        dictationDifficulty: difficulty,
+                        lessonTitle: lesson.title,
+                        totalSentences: lesson.sentences.length
                     });
                 }
             } catch (error) {
@@ -155,7 +150,6 @@ export default function DictationPracticePage() {
     }, [completedSentences, difficulty, params.id, isAuthenticated, lesson]);
 
     const [userInput, setUserInput] = useState('');
-    const [showCompleted, setShowCompleted] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [sentenceCorrect, setSentenceCorrect] = useState(false);
     const [revealedWords, setRevealedWords] = useState<Set<number>>(new Set());
@@ -168,16 +162,40 @@ export default function DictationPracticePage() {
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const ytPlayerRef = useRef<any>(null);
     const ytContainerRef = useRef<HTMLDivElement>(null);
+    const scrollAnchorRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
     const [ytReady, setYtReady] = useState(false);
+
+    const AUDIO_URL = lesson?.audioUrl || '';
+    const IS_YOUTUBE = !!lesson?.youtubeVideoId;
+    const SENTENCES = (lesson?.sentences as DictationSentence[]) || [];
+    const LESSON_TITLE = lesson?.title || '';
+    const TOTAL_SENTENCES = SENTENCES.length;
+
+    // Check if all sentences completed
+    const isFinished = TOTAL_SENTENCES > 0 && completedSentences.length === TOTAL_SENTENCES;
+
+    // ── Auto-scroll to active sentence ──
+    useEffect(() => {
+        if (scrollAnchorRef.current) {
+            scrollAnchorRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+        if (!isFinished && inputRef.current && !sentenceCorrect) {
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 300);
+        }
+    }, [currentIndex, isFinished, sentenceCorrect]);
 
     // ── YouTube IFrame API Setup ──
     useEffect(() => {
         if (!lesson || !lesson.youtubeVideoId) return;
 
         const YOUTUBE_VIDEO_ID = lesson.youtubeVideoId;
+        let isMounted = true;
 
         const initPlayer = () => {
-            if (!ytContainerRef.current) return;
+            if (!isMounted || !ytContainerRef.current) return;
             ytPlayerRef.current = new window.YT.Player(ytContainerRef.current, {
                 videoId: YOUTUBE_VIDEO_ID,
                 playerVars: {
@@ -187,32 +205,45 @@ export default function DictationPracticePage() {
                     rel: 0,
                 },
                 events: {
-                    onReady: () => setYtReady(true),
+                    onReady: () => {
+                        if (isMounted) setYtReady(true);
+                    },
                 },
             });
         };
 
-        if (window.YT && window.YT.Player) {
-            initPlayer();
-        } else {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            document.head.appendChild(tag);
-            window.onYouTubeIframeAPIReady = () => initPlayer();
-        }
+        const loadYT = () => {
+            if (window.YT && window.YT.Player) {
+                initPlayer();
+                return;
+            }
+
+            const checkYT = setInterval(() => {
+                if (window.YT && window.YT.Player) {
+                    clearInterval(checkYT);
+                    initPlayer();
+                }
+            }, 100);
+
+            if (!document.getElementById('youtube-iframe-script')) {
+                const tag = document.createElement('script');
+                tag.id = 'youtube-iframe-script';
+                tag.src = 'https://www.youtube.com/iframe_api';
+                document.head.appendChild(tag);
+            }
+        };
+
+        loadYT();
 
         return () => {
+            isMounted = false;
             if (ytPlayerRef.current && ytPlayerRef.current.destroy) {
                 try { ytPlayerRef.current.destroy(); } catch (e) { }
             }
         };
     }, [lesson]);
 
-    const AUDIO_URL = lesson?.audioUrl || '';
-    const IS_YOUTUBE = !!lesson?.youtubeVideoId;
-    const SENTENCES = (lesson?.sentences as DictationSentence[]) || [];
-    const LESSON_TITLE = lesson?.title || '';
-    const TOTAL_SENTENCES = SENTENCES.length;
+
 
     const currentSentenceRaw = SENTENCES[currentIndex] || { id: '', english: '', vietnamese: '', words: [], audioStart: 0, audioEnd: 0 };
     const currentSentence = useMemo(() => ({
@@ -363,20 +394,22 @@ export default function DictationPracticePage() {
     }, [currentIndex, playbackSpeed, IS_YOUTUBE, ytReady]);
 
     // ── Play current sentence audio segment ──
-    const playSentence = useCallback(() => {
+    const playSentence = useCallback((target?: any) => {
+        const sentenceToPlay = (target && target.audioStart !== undefined) ? target : currentSentence;
+
         // Clear any existing timer
         if (timerRef.current) clearInterval(timerRef.current);
 
         if (IS_YOUTUBE && ytPlayerRef.current && ytReady) {
             const player = ytPlayerRef.current;
             player.setPlaybackRate(playbackSpeed);
-            player.seekTo(currentSentence.audioStart, true);
+            player.seekTo(sentenceToPlay.audioStart, true);
             player.playVideo();
             setIsPlaying(true);
 
             timerRef.current = setInterval(() => {
                 const currentTime = player.getCurrentTime();
-                if (currentTime >= currentSentence.audioEnd) {
+                if (currentTime >= sentenceToPlay.audioEnd) {
                     player.pauseVideo();
                     setIsPlaying(false);
                     if (timerRef.current) clearInterval(timerRef.current);
@@ -387,13 +420,13 @@ export default function DictationPracticePage() {
             if (!audio) return;
 
             audio.playbackRate = playbackSpeed;
-            audio.currentTime = currentSentence.audioStart;
+            audio.currentTime = sentenceToPlay.audioStart;
             audio.play();
             setIsPlaying(true);
 
             // Poll to stop at sentence end
             timerRef.current = setInterval(() => {
-                if (audio.currentTime >= currentSentence.audioEnd) {
+                if (audio.currentTime >= sentenceToPlay.audioEnd) {
                     audio.pause();
                     setIsPlaying(false);
                     if (timerRef.current) clearInterval(timerRef.current);
@@ -435,8 +468,6 @@ export default function DictationPracticePage() {
         setIsPlaying(false);
     };
 
-    // Check if all sentences completed
-    const isFinished = completedSentences.length === TOTAL_SENTENCES;
 
     // Generate asterisks matching word length
     const getAsterisks = (word: string) => {
@@ -482,198 +513,183 @@ export default function DictationPracticePage() {
 
     if (isInitializing || !lesson) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-white pb-20">
             {/* Hidden audio element */}
             {!IS_YOUTUBE && <audio ref={audioRef} src={AUDIO_URL} onEnded={handleAudioEnded} preload="auto" />}
 
-            {/* Banner — collapsible */}
-            <div
-                className="overflow-hidden transition-all duration-500 ease-in-out relative origin-top"
-                style={{
-                    maxHeight: bannerCollapsed ? '0px' : '300px',
-                    opacity: bannerCollapsed ? 0 : 1
-                }}
-            >
-                <PageHeader
-                    title={LESSON_TITLE}
-                    backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
-                    breadcrumbs={[
-                        { label: 'Homepage', href: '/' },
-                        { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
-                        ...(typeof params.id === 'string' && !SHADOWING_LESSONS.some(l => l.id === params.id)
-                            ? [{ label: 'My Videos', href: '/shadowing-dictation/my-videos' }]
-                            : []),
-                        { label: LESSON_TITLE },
-                    ]}
-                />
-            </div>
 
-            {/* Sticky bar — collapse toggle */}
-            <div className={`top-0 z-30 bg-transparent transition-all duration-300 ${bannerCollapsed ? '' : 'pt-2 pb-2'}`}>
-                <div className="container mx-auto max-w-screen-xl px-4 flex justify-end">
-                    <button
-                        onClick={toggleBanner}
-                        title={bannerCollapsed ? 'Show banner' : 'Hide banner'}
-                        className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 px-3 py-1 rounded-full transition-colors select-none"
-                    >
-                        <svg
-                            className={`w-3.5 h-3.5 transition-transform duration-300 ${bannerCollapsed ? 'rotate-180' : ''}`}
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
 
-            {/* Main Content - Three Column Layout */}
-            <div className="container mx-auto max-w-screen-xl px-4 py-4">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Content - Two Column Layout */}
+            <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-4 xl:px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 py-4">
 
                     {/* ══ COLUMN 1: Source ══ */}
                     {/* Source / Audio or YouTube Player */}
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                        <h2 className="text-lg font-bold text-gray-800 mb-4">Source</h2>
+                    <div className="lg:col-span-2 lg:sticky lg:top-6 self-start z-10">
                         {IS_YOUTUBE ? (
-                            <div className="w-full aspect-video rounded-xl overflow-hidden">
+                            <div key={`yt-wrapper-${lesson?.id}`} className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-sm">
                                 <div ref={ytContainerRef} className="w-full h-full" />
                             </div>
                         ) : (
-                            <div className="flex items-center gap-3">
-                                {/* Play Button */}
-                                <button
-                                    onClick={playSentence}
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
-                                        ? 'bg-primary text-white'
-                                        : 'bg-green-50 text-green-600 hover:bg-green-100'
-                                        }`}
-                                >
-                                    {isPlaying ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                                        </svg>
-                                    )}
-                                </button>
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6">
+                                <h2 className="text-lg font-bold text-gray-800 mb-4">Source Audio</h2>
+                                <div className="flex items-center gap-3">
+                                    {/* Play Button */}
+                                    <button
+                                        onClick={playSentence}
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
+                                            ? 'bg-primary text-white'
+                                            : 'bg-green-50 text-green-600 hover:bg-green-100'
+                                            }`}
+                                    >
+                                        {isPlaying ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                            </svg>
+                                        )}
+                                    </button>
 
-                                {/* Waveform Visualization */}
-                                <div className="flex-1 flex items-center gap-[2px] h-10 overflow-hidden">
-                                    {WAVEFORM_HEIGHTS.map((height, i) => (
-                                        <div
-                                            key={i}
-                                            className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
-                                                }`}
-                                            style={{
-                                                height: `${height}%`,
-                                                minWidth: '2px',
-                                                animationDelay: isPlaying ? `${i * 0.05}s` : '0s'
-                                            }}
-                                        />
-                                    ))}
+                                    {/* Waveform Visualization */}
+                                    <div className="flex-1 flex items-center gap-[2px] h-10 overflow-hidden">
+                                        {WAVEFORM_HEIGHTS.map((height, i) => (
+                                            <div
+                                                key={i}
+                                                className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
+                                                    }`}
+                                                style={{
+                                                    height: `${height}%`,
+                                                    minWidth: '2px',
+                                                    animationDelay: isPlaying ? `${i * 0.05}s` : '0s'
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* ══ COLUMN 2: Completed ══ */}
-                    {/* Completed Sentences */}
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-h-[500px] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-gray-800">Completed</h2>
-                            <button
-                                onClick={() => setShowCompleted(!showCompleted)}
-                                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className={`h-4 w-4 transition-transform ${showCompleted ? '' : 'rotate-180'}`}
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                >
-                                    <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                                </svg>
-                                {showCompleted ? 'Hide' : 'Show'}
-                            </button>
-                        </div>
+                    {/* ══ COLUMN 2: Dictation + Transcript ══ */}
+                    <div className="lg:col-span-1 relative">
+                        <div className="block lg:hidden w-full h-[600px]"></div>
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[600px] lg:h-auto lg:absolute lg:inset-0 z-20 overflow-hidden">
+                            {/* Fixed Header */}
+                            <div className="p-6 border-b border-gray-100 shrink-0">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-lg font-bold text-gray-800">Dictation</h2>
+                                    <span className="text-lg font-bold text-gray-800">
+                                        {progressCount}/{TOTAL_SENTENCES}
+                                    </span>
+                                </div>
+                                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-primary rounded-full transition-all duration-500"
+                                        style={{ width: `${(progressCount / TOTAL_SENTENCES) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
 
-                        {showCompleted && completedSentences.length > 0 && (
-                            <div className="space-y-6">
-                                {completedSentences.map((sentenceIdx) => {
-                                    const sentence = SENTENCES[sentenceIdx];
-                                    return (
-                                        <div key={sentence.id}>
-                                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold mb-2">
-                                                {sentence.id}
+                            {/* Scrollable Transcript Area */}
+                            <div className="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth">
+                                {SENTENCES.map((sentence, index) => {
+                                    const isCompleted = completedSentences.includes(index);
+                                    const isActive = index === currentIndex;
+
+                                    if (!isCompleted && !isActive) return null;
+
+                                    if (isCompleted) {
+                                        return (
+                                            <div 
+                                                key={sentence.id} 
+                                                className="flex gap-4 text-gray-800 opacity-90 hover:opacity-100 transition-opacity cursor-pointer group"
+                                                onClick={() => playSentence(sentence)}
+                                                title="Click to replay this sentence"
+                                            >
+                                                <div className="shrink-0 pt-0.5">
+                                                    <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-semibold tracking-wide">
+                                                        {formatTime(sentence.audioStart)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-medium text-[15px] leading-relaxed">
+                                                        {sentence.english}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <p className="font-bold text-gray-800 mb-1 leading-relaxed">
-                                                {sentence.english}
-                                            </p>
-                                            <div className="flex gap-1 mb-2 flex-wrap">
-                                                {Array.from({ length: 8 }).map((_, i) => (
-                                                    <svg key={i} width="50" height="8" viewBox="0 0 50 8">
-                                                        <path
-                                                            d="M0 4 Q6 0 12 4 Q18 8 25 4 Q31 0 37 4 Q43 8 50 4"
-                                                            fill="none"
-                                                            stroke="#FFC600"
-                                                            strokeWidth="2"
-                                                            strokeDasharray={i % 2 === 0 ? 'none' : '4 3'}
-                                                        />
-                                                    </svg>
-                                                ))}
+                                        );
+                                    }
+
+                                    if (isActive && !isFinished) {
+                                        return (
+                                            <div key={sentence.id} className="bg-gray-100/80 rounded-xl p-4 flex gap-4 border border-gray-200/60 shadow-sm relative">
+                                                <div className="shrink-0 pt-0.5">
+                                                    <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-700 text-[11px] font-semibold tracking-wide">
+                                                        {formatTime(sentence.audioStart)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1">
+                                                    {/* Word Hints */}
+                                                    <div className="flex flex-wrap gap-x-3 gap-y-2 mt-0.5">
+                                                        {currentSentence.words.map((word: string, i: number) => {
+                                                            const status = wordStatuses[i];
+                                                            let display: string;
+                                                            let colorClass: string;
+                                                            let cursorClass = 'cursor-pointer';
+
+                                                            if (status === 'revealed') {
+                                                                display = word;
+                                                                colorClass = 'text-gray-800 font-medium';
+                                                                cursorClass = 'cursor-default';
+                                                            } else if (status === 'correct') {
+                                                                display = word;
+                                                                colorClass = 'text-green-600 font-medium';
+                                                                cursorClass = 'cursor-default';
+                                                            } else if (status === 'incorrect') {
+                                                                display = getAsterisks(word);
+                                                                colorClass = 'text-red-400 font-medium';
+                                                            } else {
+                                                                // pending
+                                                                display = getAsterisks(word);
+                                                                colorClass = 'text-gray-400';
+                                                            }
+
+                                                            return (
+                                                                <span
+                                                                    key={i}
+                                                                    onClick={() => handleRevealWord(i)}
+                                                                    className={`text-sm font-mono px-0.5 select-none transition-colors ${colorClass} ${cursorClass} hover:opacity-80`}
+                                                                    title={status === 'pending' || status === 'incorrect' ? 'Click to reveal' : ''}
+                                                                >
+                                                                    {display}
+                                                                </span>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p className="text-gray-500 text-sm leading-relaxed">
-                                                {sentence.vietnamese}
-                                            </p>
-                                        </div>
-                                    );
+                                        );
+                                    }
+                                    return null;
                                 })}
-                            </div>
-                        )}
 
-                        {completedSentences.length === 0 && (
-                            <p className="text-gray-400 text-sm text-center py-4">No sentences completed yet. Start typing!</p>
-                        )}
-                    </div>
-
-                    {/* ══ COLUMN 3: Dictation ══ */}
-                    <div>
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-6">
-                            {/* Header with Progress */}
-                            <div className="flex items-center justify-between mb-3">
-                                <h2 className="text-lg font-bold text-gray-800">Dictation</h2>
-                                <span className="text-lg font-bold text-gray-800">
-                                    {progressCount}/{TOTAL_SENTENCES}
-                                </span>
+                                {/* Hidden anchor to scroll to */}
+                                <div ref={scrollAnchorRef} className="h-4 w-full shrink-0" />
                             </div>
 
-                            {/* Progress Bar */}
-                            <div className="w-full h-2 bg-gray-200 rounded-full mb-6 overflow-hidden">
-                                <div
-                                    className="h-full bg-primary rounded-full transition-all duration-500"
-                                    style={{ width: `${(progressCount / TOTAL_SENTENCES) * 100}%` }}
-                                />
-                            </div>
-
-                            {/* Finished State */}
-                            {isFinished ? (
-                                <div className="text-center py-8">
-                                    <div className="text-6xl mb-4">🎉</div>
-                                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Congratulations!</h3>
-                                    <p className="text-gray-500">You have completed all {TOTAL_SENTENCES} sentences.</p>
-                                </div>
-                            ) : (
-                                <>
+                            {/* Fixed Input Area */}
+                            {!isFinished ? (
+                                <div className="p-4 sm:p-6 border-t border-gray-100 shrink-0 bg-white rounded-b-2xl">
                                     {/* Success Banner */}
                                     {sentenceCorrect && (
                                         <div className="mb-4 bg-green-50 border-2 border-green-400 rounded-xl p-4 flex items-center justify-between">
@@ -683,7 +699,7 @@ export default function DictationPracticePage() {
                                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                     </svg>
                                                 </div>
-                                                <span className="text-green-700 font-semibold">Correct! Well done 🎉</span>
+                                                <span className="text-green-700 font-semibold">Correct! Well done</span>
                                             </div>
                                             {currentIndex < TOTAL_SENTENCES - 1 && (
                                                 <Tooltip content="Next Sentence" shortcut="Enter" position="top">
@@ -704,21 +720,22 @@ export default function DictationPracticePage() {
                                     {/* Text Input */}
                                     <div className="mb-4">
                                         <textarea
+                                            ref={inputRef}
                                             id="dictation-input"
-                                            rows={4}
+                                            rows={3}
                                             placeholder="Type what you hear"
                                             value={userInput}
                                             onChange={(e) => setUserInput(e.target.value)}
                                             disabled={sentenceCorrect}
                                             className={`w-full border-2 rounded-xl px-4 py-3 text-gray-700 resize-none focus:outline-none transition-colors ${sentenceCorrect
                                                 ? 'border-green-400 bg-green-50 cursor-not-allowed'
-                                                : 'border-gray-200 focus:border-primary'
+                                                : 'border-gray-200 focus:border-primary bg-white'
                                                 }`}
                                         />
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex items-center justify-end gap-3 mb-6 relative">
+                                    <div className="flex items-center justify-end gap-3 relative">
                                         {/* 1. Repeat Sentence */}
                                         <Tooltip content="Repeat Sentence" shortcut="Alt+R" position="top">
                                             <button
@@ -862,45 +879,13 @@ export default function DictationPracticePage() {
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* Word Hints – asterisks matching word length, real-time color feedback */}
-                                    <div className="flex flex-wrap gap-x-4 gap-y-2">
-                                        {currentSentence.words.map((word: string, i: number) => {
-                                            const status = wordStatuses[i];
-                                            let display: string;
-                                            let colorClass: string;
-                                            let cursorClass = 'cursor-pointer';
-
-                                            if (status === 'revealed') {
-                                                display = word;
-                                                colorClass = 'text-primary font-bold';
-                                                cursorClass = 'cursor-default';
-                                            } else if (status === 'correct') {
-                                                display = word;
-                                                colorClass = 'text-green-500 font-bold';
-                                                cursorClass = 'cursor-default';
-                                            } else if (status === 'incorrect') {
-                                                display = getAsterisks(word);
-                                                colorClass = 'text-red-400 font-bold';
-                                            } else {
-                                                // pending
-                                                display = getAsterisks(word);
-                                                colorClass = 'text-gray-400';
-                                            }
-
-                                            return (
-                                                <span
-                                                    key={i}
-                                                    onClick={() => handleRevealWord(i)}
-                                                    className={`text-sm font-mono px-0.5 select-none transition-colors ${colorClass} ${cursorClass} hover:opacity-80`}
-                                                    title={status === 'pending' || status === 'incorrect' ? 'Click to reveal' : ''}
-                                                >
-                                                    {display}
-                                                </span>
-                                            );
-                                        })}
-                                    </div>
-                                </>
+                                </div>
+                            ) : (
+                                <div className="p-8 border-t border-gray-100 shrink-0 bg-white rounded-b-2xl text-center">
+                                    <div className="text-6xl mb-4">🎉</div>
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Congratulations!</h3>
+                                    <p className="text-gray-500">You have completed all {TOTAL_SENTENCES} sentences.</p>
+                                </div>
                             )}
                         </div>
                     </div>

@@ -9,7 +9,7 @@ import { shadowingApi, ShadowingProgress, ShadowingVideo } from '@/services/shad
 import { useAuth } from '@/contexts/AuthContext';
 
 // ──── Data ────
-const CATEGORIES = ['All', 'TOEIC', 'YOUTUBE'];
+const CATEGORIES = ['All', 'TOEIC', 'YouTube'];
 
 // ──── Page Component ────
 export default function ShadowingDictationPage() {
@@ -86,14 +86,62 @@ export default function ShadowingDictationPage() {
     const filteredLessons = useMemo(() => {
         const allLessons = [...SHADOWING_LESSONS];
         return allLessons.filter((lesson) => {
-            const matchesCategory = activeCategory === 'All' || lesson.tags.includes(activeCategory);
+            const matchesCategory = activeCategory === 'All' || lesson.tags.some(tag => tag.toUpperCase() === activeCategory.toUpperCase());
             const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
     }, [searchQuery, activeCategory]);
 
     return (
-        <div className="relative min-h-screen bg-gray-50 pb-20">
+        <div className="relative min-h-screen bg-white pb-20">
+            {/* Sticky Top Section: Search & Categories */}
+            <div className="sticky top-0 z-50 bg-white pt-4 pb-2 px-4 sm:px-8 border-b border-gray-100">
+                <div className="container mx-auto max-w-screen-xl">
+                    {/* Search Bar + Mic */}
+                    <div className="flex justify-center items-center gap-3 mb-4">
+                        <div className="flex w-full max-w-[600px] h-10">
+                            {/* Input Field */}
+                            <input
+                                id="search-lessons"
+                                type="text"
+                                placeholder="Search"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="flex-1 h-full border border-gray-300 rounded-l-full px-5 text-[15px] focus:outline-none focus:border-blue-600 focus:shadow-inner bg-white"
+                            />
+                            {/* Search Button */}
+                            <button className="h-full px-5 bg-[#f8f8f8] border border-l-0 border-gray-300 rounded-r-full hover:bg-[#f0f0f0] transition-colors flex items-center justify-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-[22px] w-[22px] text-gray-700 group-hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        {/* Decorative Mic Button */}
+                        <button className="w-10 h-10 rounded-full bg-[#f2f2f2] hover:bg-[#e5e5e5] transition-colors flex items-center justify-center flex-shrink-0" title="Search with your voice">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-[#0f0f0f]">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Category Filter Tabs */}
+                    <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                        {CATEGORIES.map((category) => (
+                            <button
+                                key={category}
+                                onClick={() => setActiveCategory(category)}
+                                className={`h-8 px-3 rounded-lg font-medium text-[14px] flex items-center justify-center transition-colors whitespace-nowrap ${activeCategory === category
+                                    ? 'bg-[#0f0f0f] text-white'
+                                    : 'bg-[#f2f2f2] text-[#0f0f0f] hover:bg-[#e5e5e5]'
+                                    }`}
+                            >
+                                {category}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
 
             {/* Banner — collapsible */}
             <div
@@ -140,51 +188,7 @@ export default function ShadowingDictationPage() {
             )}
 
             {/* Content Area */}
-            <div className="container mx-auto max-w-screen-xl px-4 py-4">
-                {/* Search Bar + Create Button */}
-                <div className="flex gap-3 mb-6">
-                    <div className="relative flex-1">
-                        <input
-                            id="search-lessons"
-                            type="text"
-                            placeholder="Search"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        />
-                        <button className="absolute right-0 top-0 h-full px-4 bg-gray-100 border-l border-gray-300 rounded-r-lg hover:bg-gray-200 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </button>
-                    </div>
-                    <Link
-                        href="/shadowing-dictation/my-videos"
-                        className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all whitespace-nowrap"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Create
-                    </Link>
-                </div>
-
-                {/* Category Filter Tabs */}
-                <div className="flex gap-2 mb-8 flex-wrap">
-                    {CATEGORIES.map((category) => (
-                        <button
-                            key={category}
-                            onClick={() => setActiveCategory(category)}
-                            className={`px-5 py-2 rounded-full font-semibold text-sm transition-all border ${activeCategory === category
-                                ? 'bg-dark text-white border-dark'
-                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                                }`}
-                        >
-                            {category}
-                        </button>
-                    ))}
-                </div>
-
+            <div className="container mx-auto max-w-screen-xl px-4 py-4 relative">
                 {/* Loading State */}
                 {isLoading ? (
                     <div className="flex items-center justify-center py-20 text-gray-500">
@@ -194,109 +198,97 @@ export default function ShadowingDictationPage() {
                 ) : (
                     <>
                         {/* Video Cards Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
                             {filteredLessons.map((lesson) => (
-                                <div
-                                    key={lesson.id}
-                                    className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300"
-                                >
+                                <div key={lesson.id} className="flex flex-col gap-3 group">
                                     {/* Thumbnail */}
-                                    <div className="relative">
-                                        <div className="w-full aspect-video bg-primary flex items-center justify-center overflow-hidden">
-                                            {lesson.youtubeVideoId ? (
-                                                /* YouTube thumbnail */
-                                                <img
-                                                    src={`https://img.youtube.com/vi/${lesson.youtubeVideoId}/maxresdefault.jpg`}
-                                                    alt={lesson.title}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                /* Fallback TOEIC-style thumbnail */
-                                                <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center relative">
-                                                    {/* Letter blocks */}
-                                                    <div className="flex gap-1.5">
-                                                        {['T', 'O', 'E', 'I', 'C'].map((letter, i) => (
-                                                            <div
-                                                                key={i}
-                                                                className="w-10 h-12 bg-amber-100 border-2 border-amber-300 rounded flex items-center justify-center text-xl font-bold text-gray-800 shadow-sm"
-                                                                style={{ transform: `rotate(${(i - 2) * 3}deg)` }}
-                                                            >
-                                                                {letter}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                    {/* Scattered faint letters in background */}
-                                                    <span className="absolute top-2 left-3 text-yellow-300/40 text-2xl font-bold rotate-12">F</span>
-                                                    <span className="absolute top-3 right-6 text-yellow-300/40 text-lg font-bold -rotate-6">N</span>
-                                                    <span className="absolute bottom-3 left-6 text-yellow-300/40 text-xl font-bold rotate-6">W</span>
-                                                    <span className="absolute bottom-2 right-3 text-yellow-300/40 text-2xl font-bold -rotate-12">R</span>
-                                                    <span className="absolute top-1 left-1/3 text-yellow-300/30 text-lg font-bold rotate-3">O</span>
+                                    <div className="relative rounded-xl overflow-hidden aspect-video bg-gray-100 cursor-pointer">
+                                        {lesson.youtubeVideoId ? (
+                                            <img
+                                                src={`https://img.youtube.com/vi/${lesson.youtubeVideoId}/maxresdefault.jpg`}
+                                                alt={lesson.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center relative group-hover:scale-105 transition-transform duration-300">
+                                                {/* Letter blocks */}
+                                                <div className="flex gap-1.5">
+                                                    {['T', 'O', 'E', 'I', 'C'].map((letter, i) => (
+                                                        <div
+                                                            key={i}
+                                                            className="w-8 h-10 sm:w-10 sm:h-12 bg-amber-100 border-2 border-amber-300 rounded flex items-center justify-center text-lg sm:text-xl font-bold text-gray-800 shadow-sm"
+                                                            style={{ transform: `rotate(${(i - 2) * 3}deg)` }}
+                                                        >
+                                                            {letter}
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            )}
-                                        </div>
+                                                {/* Scattered faint letters */}
+                                                <span className="absolute top-2 left-3 text-yellow-300/40 text-2xl font-bold rotate-12">F</span>
+                                                <span className="absolute bottom-2 right-3 text-yellow-300/40 text-2xl font-bold -rotate-12">R</span>
+                                            </div>
+                                        )}
 
                                         {/* Duration Badge */}
-                                        <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs font-semibold px-2 py-1 rounded">
+                                        <span className="absolute bottom-1.5 right-1.5 bg-black/80 text-white text-[11px] font-medium px-1.5 py-0.5 rounded">
                                             {lesson.duration}
                                         </span>
                                     </div>
 
-                                    {/* Card Content */}
-                                    <div className="p-4">
-                                        <div className="flex items-start justify-between mb-3">
-                                            <h3 className="text-base font-semibold text-gray-800 line-clamp-2 flex-1">
-                                                {lesson.title}
-                                            </h3>
-                                            {/* Three-dot menu */}
-                                            <button className="text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0 p-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                                </svg>
-                                            </button>
+                                    {/* Info Row */}
+                                    <div className="flex gap-3 items-start px-1">
+                                        {/* Avatar Placeholder */}
+                                        <div className="w-9 h-9 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-gray-500 font-bold text-sm mt-0.5 overflow-hidden">
+                                            {lesson.youtubeVideoId ? (
+                                                <img src="https://ui-avatars.com/api/?name=YT&background=random" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <img src="https://ui-avatars.com/api/?name=TM&background=F59E0B&color=fff" className="w-full h-full object-cover" />
+                                            )}
                                         </div>
 
-                                        {/* Progress Indicators */}
-                                        <div className="mb-4 space-y-2">
-                                            <div>
-                                                <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                                                    <span>Shadowing</span>
-                                                    <span className="font-medium">{progress[lesson.id]?.shadowing || 0}%</span>
-                                                </div>
-                                                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                                    <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.shadowing || 0}%` }}></div>
-                                                </div>
+                                        {/* Text content */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start gap-2">
+                                                <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight pr-2">
+                                                    {lesson.title}
+                                                </h3>
+                                                <button className="text-gray-900 opacity-0 group-hover:opacity-100 p-1 -mr-1 -mt-1 rounded-full hover:bg-gray-100 transition-all flex-shrink-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                                    </svg>
+                                                </button>
                                             </div>
-                                            <div>
-                                                <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                                                    <span>Dictation</span>
-                                                    <span className="font-medium">{progress[lesson.id]?.dictation || 0}%</span>
-                                                </div>
-                                                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                                    <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${progress[lesson.id]?.dictation || 0}%` }}></div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        {/* Action Buttons */}
-                                        <div className="flex items-center gap-2">
-                                            <Link
-                                                href={`/shadowing-dictation/${lesson.id}/shadowing`}
-                                                className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-primary text-primary rounded-xl text-sm font-semibold hover:bg-primary hover:text-white transition-all"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
-                                                    <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
-                                                </svg>
-                                                Shadowing
-                                            </Link>
-                                            <Link
-                                                href={`/shadowing-dictation/${lesson.id}/dictation`}
-                                                className="group flex flex-1 items-center justify-center gap-1.5 py-2 border-2 border-gray-800 text-gray-800 rounded-xl text-sm font-semibold hover:bg-gray-800 hover:text-white transition-all"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-transform duration-300 group-hover:scale-125">
-                                                    <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
-                                                </svg>
-                                                Dictation
-                                            </Link>
+                                            <div className="text-[13px] text-gray-500 mt-1 flex flex-col gap-0.5">
+                                                <p className="hover:text-gray-800 transition-colors line-clamp-1">{lesson.youtubeVideoId ? 'YouTube Content' : 'TOEIC Master'}</p>
+                                                <div className="flex items-center gap-1">
+                                                    <span>{Math.floor(Math.random() * 50) + 1}K views</span>
+                                                    <span className="text-[10px]">•</span>
+                                                    <span>{Math.floor(Math.random() * 11) + 1} months ago</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Action Buttons (Hover or inline) */}
+                                            <div className="flex items-center gap-2 mt-3">
+                                                <Link
+                                                    href={`/shadowing-dictation/${lesson.id}/shadowing`}
+                                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 text-xs font-semibold py-1.5 px-3 rounded-full flex items-center justify-center gap-1.5 transition-colors"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                                                        <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                                                    </svg>
+                                                    Shadow ({progress[lesson.id]?.shadowing || 0}%)
+                                                </Link>
+                                                <Link
+                                                    href={`/shadowing-dictation/${lesson.id}/dictation`}
+                                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 text-xs font-semibold py-1.5 px-3 rounded-full flex items-center justify-center gap-1.5 transition-colors"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                                                        <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                                                    </svg>
+                                                    Dictate ({progress[lesson.id]?.dictation || 0}%)
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

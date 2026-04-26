@@ -78,7 +78,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
     let mounted = true;
     setLoading(true);
     examsApi.getHistory()
-      .then(res => { if (mounted) setHistoryItems(res); })
+      .then(res => { if (mounted) setHistoryItems(Array.isArray(res) ? res : (res as any)?.history || (res as any)?.data || []); })
       .catch(err => console.error("Failed to load history", err))
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
@@ -88,15 +88,16 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
 
   const filteredMockHistory = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return historyItems
-      .filter(h => h.skill === skill && !h.practicePart)
-      .map(h => {
+    const safeHistory = Array.isArray(historyItems) ? historyItems : (historyItems as any)?.history || (historyItems as any)?.data || [];
+    return safeHistory
+      .filter((h: any) => h.skill === skill && !h.practicePart)
+      .map((h: any) => {
         let band = getIeltsBand(h.rawScore);
         if (h.skill === "WRITING" || h.skill === "SPEAKING") band = h.writingScore ?? h.rawScore;
         return { ...h, bandScore: band };
       })
-      .filter(h => !q || h.examTitle?.toLowerCase().includes(q))
-      .sort((a, b) => {
+      .filter((h: any) => !q || h.examTitle?.toLowerCase().includes(q))
+      .sort((a: any, b: any) => {
         if (sort === "newest") return new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime();
         if (sort === "oldest") return new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime();
         if (sort === "score-desc") return b.bandScore - a.bandScore;
@@ -107,11 +108,12 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
 
   const filteredPracticeHistory = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return historyItems
-      .filter(h => h.skill === skill && !!h.practicePart)
-      .filter(h => activePart === null || h.practicePart === activePart)
-      .filter(h => !q || h.examTitle?.toLowerCase().includes(q))
-      .sort((a, b) => {
+    const safeHistory = Array.isArray(historyItems) ? historyItems : (historyItems as any)?.history || (historyItems as any)?.data || [];
+    return safeHistory
+      .filter((h: any) => h.skill === skill && !!h.practicePart)
+      .filter((h: any) => activePart === null || h.practicePart === activePart)
+      .filter((h: any) => !q || h.examTitle?.toLowerCase().includes(q))
+      .sort((a: any, b: any) => {
         if (sort === "newest") return new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime();
         if (sort === "oldest") return new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime();
         if (sort === "score-desc") return b.rawScore - a.rawScore;
@@ -252,7 +254,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredMockHistory.map((item, idx) => {
+              {filteredMockHistory.map((item: any, idx: number) => {
                 const date = new Date(item.dateTaken);
                 const tone = toneByBandScore(item.bandScore);
                 return (
@@ -306,7 +308,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredPracticeHistory.map((item, idx) => {
+              {filteredPracticeHistory.map((item: any, idx: number) => {
                 const date = new Date(item.dateTaken);
                 const partMax = 10;
                 const tone = toneByPracticeScore(item.rawScore, partMax);
