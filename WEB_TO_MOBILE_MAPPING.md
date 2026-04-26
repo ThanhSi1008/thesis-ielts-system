@@ -302,6 +302,8 @@ interface PronunciationAttempt {
 
 ## 2. UI/UX Consistency
 
+> **Tài liệu cốt lõi:** Vui lòng xem thêm [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) để biết chi tiết toàn bộ Phong cách, Typography, Animation, và Patterns được trích xuất từ `frontend-web`.
+
 ### 2.1. Bảng Màu — Quyết Định Chốt Hạ
 
 > **Quyết định:** Mobile App sẽ **kế thừa 100% bộ màu (Brand Colors) của Web App**. Các mã màu cũ không khớp trên Mobile sẽ bị xóa bỏ và thay thế hoàn toàn bằng hệ thống màu của Web.

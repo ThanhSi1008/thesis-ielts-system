@@ -19,7 +19,7 @@ export interface AppButtonProps extends TouchableOpacityProps {
   textClassName?: string;
 }
 
-export const AppButton: React.FC<AppButtonProps> = ({
+export const AppButton = ({
   title,
   isLoading = false,
   variant = 'primary',
@@ -27,18 +27,18 @@ export const AppButton: React.FC<AppButtonProps> = ({
   textClassName,
   disabled,
   ...props
-}) => {
+}: AppButtonProps) => {
   // Styles based on variants
   const variantClasses = {
-    primary: 'bg-blue-600',
-    secondary: 'bg-slate-200',
-    outline: 'bg-transparent border-2 border-blue-600',
+    primary: 'bg-primary',
+    secondary: 'bg-secondary',
+    outline: 'bg-transparent border-2 border-primary',
   };
 
   const textVariantClasses = {
-    primary: 'text-white',
-    secondary: 'text-slate-800',
-    outline: 'text-blue-600',
+    primary: 'text-dark',
+    secondary: 'text-dark',
+    outline: 'text-primary',
   };
 
   const isDisabled = disabled || isLoading;
@@ -48,7 +48,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
       activeOpacity={0.8}
       disabled={isDisabled}
       className={cn(
-        'w-full h-14 rounded-xl flex-row items-center justify-center',
+        'w-full h-14 rounded-lg flex-row items-center justify-center',
         variantClasses[variant],
         isDisabled && 'opacity-60',
         className

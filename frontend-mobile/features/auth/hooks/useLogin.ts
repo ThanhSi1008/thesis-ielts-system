@@ -2,13 +2,13 @@ import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { apiClient } from '../../../core/api/client';
 import { useAuthStore } from '../../../core/auth/store';
-import { LoginFormValues, LoginResponse } from '../types';
+import { LoginFormValues, AuthResponse } from '../types';
 
 export const useLogin = () => {
-  return useMutation<LoginResponse, AxiosError<{ message: string }>, LoginFormValues>({
+  return useMutation<AuthResponse, AxiosError<{ message: string }>, LoginFormValues>({
     mutationFn: async (credentials) => {
       // Gửi yêu cầu đăng nhập qua apiClient (base URL và interceptors đã được config sẵn)
-      const { data } = await apiClient.post<LoginResponse>('/auth/login', credentials);
+      const { data } = await apiClient.post<AuthResponse>('/auth/login', credentials);
       return data;
     },
     onSuccess: async (data) => {

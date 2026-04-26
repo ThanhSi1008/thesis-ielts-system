@@ -8,11 +8,12 @@
 
 | Trạng thái | Task ID | Tên Task & Chi tiết kỹ thuật | File dự kiến |
 |:---:|:---|:---|:---|
-| [ ] | **AUTH-01** | **Xây dựng Form Components (Chống Re-render)**<br/>- Khởi tạo `AppTextInput` và `AppButton`.<br/>- BẮT BUỘC dùng `react-hook-form` + `zod` để quản lý state và validate (email format, password > 6 ký tự).<br/>- Dùng `clsx` đổi màu viền input khi có lỗi. | `components/ui/AppTextInput.tsx`<br/>`components/ui/AppButton.tsx` |
-| [ ] | **AUTH-02** | **Xây dựng AuthLayout (Xử lý Keyboard)**<br/>- Tạo layout chung cho Login/Register.<br/>- Bắt buộc wrap nội dung bằng `KeyboardAvoidingView` (hoặc ScrollView) để bàn phím ảo không che mất nút Submit. | `features/auth/components/AuthLayout.tsx` |
-| [ ] | **AUTH-03** | **API Hooks: Login & Register**<br/>- Viết `useLogin` (payload `{ email, password }`). Khớp DTO với backend.<br/>- Handle HTTP 401 trả ra Error message tiếng Anh.<br/>- Gọi `setAuthData` từ `useAuthStore` trong `onSuccess`. | `features/auth/hooks/useLogin.ts`<br/>`features/auth/hooks/useRegister.ts` |
-| [ ] | **AUTH-04** | **Routing: Auth Guard & Splash Screen**<br/>- Setup `app/_layout.tsx` với `QueryClientProvider`.<br/>- Dùng `expo-splash-screen` giữ màn hình chờ cho đến khi Zustand đọc xong token từ MMKV/SecureStore, sau đó mới ẩn đi (Chống chớp màn hình Login). | `app/_layout.tsx` |
-| [ ] | **AUTH-05** | **Screens: Login, Register & Bottom Tabs**<br/>- Code UI màn hình Login, Register dựa vào layout và form components.<br/>- Setup `(tabs)/_layout.tsx` với các tab rỗng. | `app/(auth)/login.tsx`<br/>`app/(auth)/register.tsx`<br/>`app/(tabs)/_layout.tsx` |
+| [x] | **AUTH-00** | **Setup NativeWind v4 & Expo Config**<br/>- Cấu hình `metro.config.js`, `babel.config.js`, `tailwind.config.js`, `global.css`.<br/>- Đồng bộ bảng màu Brand Colors từ Web (`#FFC600`, `#F44336`, v.v.).<br/>- Khắc phục lỗi thiếu `react-native-worklets-core`. | `tailwind.config.js`<br/>`metro.config.js`<br/>`babel.config.js` |
+| [x] | **AUTH-01** | **Xây dựng Form Components (Chống Re-render)**<br/>- Khởi tạo `AppTextInput` và `AppButton`.<br/>- BẮT BUỘC dùng `react-hook-form` + `zod` để quản lý state và validate (email format, password > 6 ký tự).<br/>- Dùng `clsx` đổi màu viền input khi có lỗi. | `components/ui/AppTextInput.tsx`<br/>`components/ui/AppButton.tsx` |
+| [x] | **AUTH-02** | **Xây dựng AuthLayout (Xử lý Keyboard)**<br/>- Tạo layout chung cho Login/Register.<br/>- Bắt buộc wrap nội dung bằng `KeyboardAvoidingView` (hoặc ScrollView) để bàn phím ảo không che mất nút Submit. | `features/auth/components/AuthLayout.tsx` |
+| [x] | **AUTH-03** | **API Hooks: Login & Register**<br/>- Viết `useLogin` (payload `{ email, password }`). Khớp DTO với backend.<br/>- Handle HTTP 401 trả ra Error message tiếng Anh.<br/>- Gọi `setAuthData` từ `useAuthStore` trong `onSuccess`. | `features/auth/hooks/useLogin.ts`<br/>`features/auth/hooks/useRegister.ts` |
+| [x] | **AUTH-04** | **Routing: Auth Guard & Splash Screen**<br/>- Setup `app/_layout.tsx` với `QueryClientProvider`.<br/>- Dùng `expo-splash-screen` giữ màn hình chờ cho đến khi Zustand đọc xong token từ MMKV/SecureStore, sau đó mới ẩn đi (Chống chớp màn hình Login). | `app/_layout.tsx` |
+| [x] | **AUTH-05** | **Screens: Login, Register & Bottom Tabs**<br/>- Code UI màn hình Login, Register dựa vào layout và form components.<br/>- Setup `(tabs)/_layout.tsx` với các tab rỗng. | `app/(auth)/login.tsx`<br/>`app/(auth)/register.tsx`<br/>`app/(tabs)/_layout.tsx` |
 
 ---
 
@@ -48,3 +49,15 @@
 | [ ] | **MEDIA-03** | **Hook: useAttemptPolling (RabbitMQ Sync)**<br/>- Dùng TanStack Query `refetchInterval` gọi API mỗi 2000ms.<br/>- Tự dừng polling khi có status `COMPLETED` hoặc `FAILED`. | `features/pronunciation/hooks/useAttemptPolling.ts` |
 | [ ] | **MEDIA-04** | **UI: Shadowing Video Player**<br/>- BẮT BUỘC dùng thư viện `react-native-youtube-iframe`.<br/>- Lập trình các control Play/Pause/Seek bằng code để hỗ trợ vòng lặp nghe lại câu. | `features/shadowing/components/VideoPlayer.tsx` |
 | [ ] | **MEDIA-05** | **Screens: Tích hợp PollingStatus & Player**<br/>- Ráp nối UI Waveform ghi âm, Audio Player, và thẻ trạng thái Polling. | `app/(tabs)/pronunciation/[lessonId].tsx`<br/>`app/(tabs)/shadowing/[videoId].tsx` |
+
+---
+
+## ACTIVITY LOG (Nhật ký công việc)
+
+| Ngày | Task / Hoạt động | Chi tiết | Trạng thái |
+|:---|:---|:---|:---|
+| 2026-04-26 | **Đồng bộ Design System** | Trích xuất bộ màu `#FFC600`, typography `Farro` từ Web sang `DESIGN_SYSTEM.md`. | ✅ Done |
+| 2026-04-26 | **AUTH-00 -> AUTH-05** | Hoàn thành toàn bộ Module 1 (Auth & Navigation). | ✅ Done |
+| 2026-04-26 | **Fix White Screen Bug** | Sửa lỗi `useRootNavigationState` giúp app không bị treo màn hình trắng khi redirect. | ✅ Fixed |
+| 2026-04-26 | **GitHub Workflow** | Tạo PR #15 trên nhánh `feature/auth-module-1`. | 🚀 Pushed |
+

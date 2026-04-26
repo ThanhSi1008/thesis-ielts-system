@@ -21,7 +21,7 @@ export class AuthService {
     return null;
   }
 
-  async register(registerDto: RegisterDto): Promise<Omit<User, 'password'>> {
+  async register(registerDto: RegisterDto): Promise<any> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     try {
       const user = await this.prisma.user.create({
@@ -42,8 +42,9 @@ export class AuthService {
         },
       });
 
-      const { password, ...result } = user;
-      return result;
+      // Automatically login after registration
+      const { password, ...userWithoutPassword } = user;
+      return this.login(userWithoutPassword);
     } catch (error) {
       if (error.code === 'P2002') {
         throw new BadRequestException('Email already exists');
@@ -56,6 +57,7 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
+      refresh_token: 'dummy-refresh-token-' + Date.now(), // Placeholder for now
       user: user,
     };
   }

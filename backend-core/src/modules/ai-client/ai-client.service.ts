@@ -17,7 +17,14 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
     try {
       this.connection = await amqp.connect(rabbitmqUrl);
       this.channel = await this.connection.createChannel();
-      await this.channel.assertQueue(this.queueName, { durable: true });
+      await this.channel.assertQueue(this.queueName, { 
+        durable: true,
+        arguments: {
+          'x-dead-letter-exchange': '',
+          'x-dead-letter-routing-key': 'exam-grading-dlq',
+          'x-message-ttl': 300000,
+        }
+      });
       console.log('✅ RabbitMQ connected successfully');
     } catch (error) {
       console.error('❌ RabbitMQ connection error:', error);
