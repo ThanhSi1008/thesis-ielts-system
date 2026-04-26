@@ -1,252 +1,87 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, ActivityIndicator,
-  Animated, PanResponder, Alert, Dimensions,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { View, Text, ActivityIndicator, Pressable } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
-import { vocabLabApi } from '@/services/features.api';
+import { Ionicons } from '@expo/vector-icons';
+import { FlashcardViewer } from '../../../features/vocab-lab/components/FlashcardViewer';
 
-const { width: SCREEN_W } = Dimensions.get('window');
-
-// FSRS rating labels
-const RATINGS = [
-  { label: 'Again', value: 1, color: COLORS.error, emoji: '🔁' },
-  { label: 'Hard', value: 2, color: COLORS.warning, emoji: '😓' },
-  { label: 'Good', value: 3, color: COLORS.primary, emoji: '👍' },
-  { label: 'Easy', value: 4, color: COLORS.success, emoji: '🎉' },
+// Mock data cho việc test UI (Sẽ thay thế bằng hook useStudySession ở VOCAB-04)
+const MOCK_CARDS = [
+  {
+    id: '1',
+    deckId: 'default',
+    front: 'Ubiquitous',
+    back: 'Present, appearing, or found everywhere.\n\nExample: Mobile phones are ubiquitous nowadays.',
+    tags: ['Vocabulary', 'IELTS'],
+    due: new Date().toISOString(),
+    cardState: 'LEARNING' as const,
+    nextReviewDate: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    deckId: 'default',
+    front: 'Meticulous',
+    back: 'Showing great attention to detail; very careful and precise.\n\nExample: He was meticulous in his preparation for the exam.',
+    tags: ['Adjective', 'Writing'],
+    due: new Date().toISOString(),
+    cardState: 'NEW' as const,
+    nextReviewDate: new Date().toISOString(),
+  }
 ];
 
-export default function StudySessionScreen() {
+export default function StudyScreen() {
+  const { deckId } = useLocalSearchParams();
   const router = useRouter();
-  const { deckId } = useLocalSearchParams<{ deckId: string }>();
-  const [cards, setCards] = useState<any[]>([]);
-  const [idx, setIdx] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [sessionResults, setSessionResults] = useState<{ again: number; hard: number; good: number; easy: number }>({ again: 0, hard: 0, good: 0, easy: 0 });
-  const [done, setDone] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Card flip animation
-  const flipAnim = useRef(new Animated.Value(0)).current;
-  const frontInterpolate = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
-  const backInterpolate = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
+  const currentCard = MOCK_CARDS[currentIndex];
 
-  useEffect(() => {
-    vocabLabApi.getStudyCards(deckId)
-      .then(data => { setCards(data); setLoading(false); })
-      .catch(() => { setLoading(false); });
-  }, [deckId]);
-
-  const handleFlip = () => {
-    if (flipped) return;
-    setFlipped(true);
-    Animated.spring(flipAnim, { toValue: 1, useNativeDriver: true, friction: 8 }).start();
-  };
-
-  const handleRating = async (rating: number) => {
-    if (submitting) return;
-    const card = cards[idx];
-
-    // Update session results
-    const key = ['again', 'hard', 'good', 'easy'][rating - 1] as keyof typeof sessionResults;
-    setSessionResults(prev => ({ ...prev, [key]: prev[key] + 1 }));
-
-    setSubmitting(true);
-    try {
-      await vocabLabApi.submitReview({ flashcardId: card.id, rating });
-    } catch (e) { console.error(e); }
-    finally { setSubmitting(false); }
-
-    // Advance
-    if (idx + 1 >= cards.length) {
-      setDone(true);
+  const handleNext = () => {
+    if (currentIndex < MOCK_CARDS.length - 1) {
+      setCurrentIndex(currentIndex + 1);
     } else {
-      setIdx(i => i + 1);
-      setFlipped(false);
-      flipAnim.setValue(0);
+      router.back();
     }
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
-
-  const card = cards[idx];
-  const progress = cards.length > 0 ? (idx / cards.length) * 100 : 0;
-
-  // Done screen
-  if (done) {
-    const total = cards.length;
-    return (
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        <View style={styles.doneContainer}>
-          <Text style={styles.doneTrophy}>🏆</Text>
-          <Text style={styles.doneTitle}>Session Complete!</Text>
-          <Text style={styles.doneSub}>You reviewed {total} card{total !== 1 ? 's' : ''}.</Text>
-
-          <View style={styles.doneStats}>
-            {RATINGS.map(r => {
-              const count = sessionResults[r.label.toLowerCase() as keyof typeof sessionResults];
-              return (
-                <View key={r.value} style={styles.doneStat}>
-                  <Text style={styles.doneStatEmoji}>{r.emoji}</Text>
-                  <Text style={[styles.doneStatCount, { color: r.color }]}>{count}</Text>
-                  <Text style={styles.doneStatLabel}>{r.label}</Text>
-                </View>
-              );
-            })}
-          </View>
-
-          <TouchableOpacity style={styles.doneBtn} onPress={() => router.replace('/(tabs)/vocablab' as any)}>
-            <Text style={styles.doneBtnText}>Back to Decks</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (cards.length === 0) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        <View style={styles.center}>
-          <Text style={{ fontSize: 48, marginBottom: SPACING.lg }}>🎉</Text>
-          <Text style={styles.doneTitle}>All caught up!</Text>
-          <Text style={styles.doneSub}>No cards due for review.</Text>
-          <TouchableOpacity style={[styles.doneBtn, { marginTop: SPACING.xl }]} onPress={() => router.back()}>
-            <Text style={styles.doneBtnText}>Go Back</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  const fieldValues = card.fieldValues || {};
-  const front = card.front || fieldValues['Front'] || Object.values(fieldValues)[0] || '—';
-  const back = card.back || fieldValues['Back'] || Object.values(fieldValues)[1] || '—';
-
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="close" size={24} color={COLORS.text} />
-        </TouchableOpacity>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBg}>
-            <View style={[styles.progressFill, { width: `${progress}%` as any }]} />
-          </View>
-          <Text style={styles.progressText}>{idx + 1} / {cards.length}</Text>
+      <View className="flex-row items-center px-4 py-2 border-b border-slate-100">
+        <Pressable onPress={() => router.back()} className="p-2">
+          <Ionicons name="close" size={24} color="#212529" />
+        </Pressable>
+        <View className="flex-1 items-center">
+          <Text className="font-bold text-lg">Study Session</Text>
+          <Text className="text-xs text-slate-500">
+            Card {currentIndex + 1} of {MOCK_CARDS.length}
+          </Text>
         </View>
+        <View style={{ width: 40 }} />
       </View>
 
-      {/* Card */}
-      <View style={styles.cardArea}>
-        <TouchableOpacity style={styles.cardWrapper} onPress={handleFlip} activeOpacity={0.95}>
-          {/* Front */}
-          <Animated.View style={[styles.card, { transform: [{ rotateY: frontInterpolate }] }]}>
-            <Text style={styles.cardSide}>FRONT</Text>
-            <Text style={styles.cardText}>{front}</Text>
-            {!flipped && <Text style={styles.tapHint}>Tap to reveal</Text>}
-          </Animated.View>
-
-          {/* Back */}
-          <Animated.View style={[styles.card, styles.cardBack, { transform: [{ rotateY: backInterpolate }] }]}>
-            <Text style={[styles.cardSide, { color: COLORS.primary }]}>BACK</Text>
-            <Text style={styles.cardText}>{back}</Text>
-          </Animated.View>
-        </TouchableOpacity>
+      {/* Progress Bar */}
+      <View className="h-1 bg-slate-100 w-full">
+        <View 
+          className="h-full bg-[#FFC600]" 
+          style={{ width: `${((currentIndex + 1) / MOCK_CARDS.length) * 100}%` }} 
+        />
       </View>
 
-      {/* Rating buttons — only show after flip */}
-      {flipped ? (
-        <View style={styles.ratingArea}>
-          <Text style={styles.ratingLabel}>How well did you remember?</Text>
-          <View style={styles.ratingRow}>
-            {RATINGS.map(r => {
-              const scheduledDays = card.scheduledDays || 0;
-              let nextDays = '<10m';
-              if (r.value === 2) nextDays = scheduledDays > 0 ? `${Math.max(1, Math.round(scheduledDays * 1.2))}d` : '1d';
-              else if (r.value === 3) nextDays = scheduledDays > 0 ? `${Math.max(2, Math.round(scheduledDays * 2.5))}d` : '3d';
-              else if (r.value === 4) nextDays = scheduledDays > 0 ? `${Math.max(3, Math.round(scheduledDays * 3.5))}d` : '5d';
+      {/* Flashcard */}
+      <View className="flex-1 justify-center">
+        <FlashcardViewer card={currentCard} />
+      </View>
 
-              return (
-                <TouchableOpacity
-                  key={r.value}
-                  style={[styles.ratingBtn, { borderColor: r.color, backgroundColor: r.color + '14' }]}
-                  onPress={() => handleRating(r.value)}
-                  disabled={submitting}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.ratingEmoji}>{r.emoji}</Text>
-                  <Text style={[styles.ratingBtnLabel, { color: r.color }]}>{r.label}</Text>
-                  <Text style={[styles.ratingHint, { color: r.color }]}>{nextDays}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-      ) : (
-        <View style={styles.flipHintArea}>
-          <Text style={styles.flipHintText}>Tap the card to flip and see the answer</Text>
-        </View>
-      )}
+      {/* Action Buttons (Placeholder for RatingBar VOCAB-03) */}
+      <View className="p-6 mb-8 flex-row justify-between">
+        <Pressable 
+          onPress={handleNext}
+          className="bg-[#212529] w-full py-4 rounded-xl items-center"
+        >
+          <Text className="text-white font-bold text-lg">Next Card</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
-    borderBottomWidth: 1, borderColor: COLORS.border, gap: SPACING.md,
-  },
-  progressContainer: { flex: 1, gap: SPACING.xs },
-  progressBg: { height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 3 },
-  progressText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, textAlign: 'right' },
-  cardArea: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
-  cardWrapper: { width: SCREEN_W - SPACING.xl * 2 },
-  card: {
-    width: '100%', minHeight: 240,
-    backgroundColor: '#fff', borderRadius: RADIUS.xl * 2,
-    padding: SPACING.xxl, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 6,
-    backfaceVisibility: 'hidden',
-  },
-  cardBack: {
-    position: 'absolute', top: 0, left: 0, right: 0,
-    backgroundColor: '#F0F9FF',
-  },
-  cardSide: { fontSize: FONT_SIZES.xs, fontWeight: '800', color: COLORS.textMuted, letterSpacing: 1.5, marginBottom: SPACING.lg, textTransform: 'uppercase' },
-  cardText: { fontSize: FONT_SIZES.xxl, fontWeight: '700', color: COLORS.text, textAlign: 'center', lineHeight: 36 },
-  tapHint: { position: 'absolute', bottom: SPACING.lg, fontSize: FONT_SIZES.xs, color: COLORS.textMuted },
-  ratingArea: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.xl },
-  ratingLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', marginBottom: SPACING.md, fontWeight: '600' },
-  ratingRow: { flexDirection: 'row', gap: SPACING.sm },
-  ratingBtn: {
-    flex: 1, alignItems: 'center', paddingVertical: SPACING.md,
-    borderRadius: RADIUS.xl, borderWidth: 2,
-  },
-  ratingEmoji: { fontSize: 20, marginBottom: 4 },
-  ratingBtnLabel: { fontSize: FONT_SIZES.xs, fontWeight: '800' },
-  ratingHint: { fontSize: 10, marginTop: 2, opacity: 0.8, fontWeight: '600' },
-  flipHintArea: { paddingBottom: SPACING.xxxl, alignItems: 'center' },
-  flipHintText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted },
-  // Done screen
-  doneContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
-  doneTrophy: { fontSize: 64, marginBottom: SPACING.lg },
-  doneTitle: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: COLORS.text, textAlign: 'center' },
-  doneSub: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary, marginTop: SPACING.sm, textAlign: 'center' },
-  doneStats: { flexDirection: 'row', gap: SPACING.lg, marginTop: SPACING.xxl, marginBottom: SPACING.xxl },
-  doneStat: { alignItems: 'center' },
-  doneStatEmoji: { fontSize: 28, marginBottom: SPACING.xs },
-  doneStatCount: { fontSize: FONT_SIZES.xl, fontWeight: '800' },
-  doneStatLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary },
-  doneBtn: { backgroundColor: COLORS.primary, paddingHorizontal: SPACING.xxl, paddingVertical: SPACING.md, borderRadius: RADIUS.xl },
-  doneBtnText: { color: '#fff', fontWeight: '800', fontSize: FONT_SIZES.md },
-});
