@@ -10,8 +10,8 @@ import {
   Min,
   Max,
   Allow,
-} from 'class-validator';
-import { ExamType, Difficulty } from '@prisma/client';
+} from "class-validator";
+import { ExamType, Difficulty } from "@prisma/client";
 
 export class CreateExamDto {
   @IsString()

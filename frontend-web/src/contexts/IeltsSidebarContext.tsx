@@ -39,6 +39,7 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
     !!pathname.match(/\/ielts\/intensive\/.+/) ||
     !!pathname.match(/\/ielts\/basic\/[^/]+\/lessons\/.+/) ||
     !!pathname.match(/\/ielts\/basic\/[^/]+\/exercises\/.+/) ||
+    !!pathname.match(/\/shadowing-dictation\/[^/]+\/(shadowing|dictation)/) ||
     isRoadmapPractice;
 
   const isIeltsPage = pathname === "/ielts" || pathname.startsWith("/ielts/");
@@ -64,7 +65,8 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
 
   // Compute the effective mode
   let mode: SidebarMode;
-  if (!isIeltsPage) {
+  const isShadowingPage = pathname.startsWith("/shadowing-dictation");
+  if (!isIeltsPage && !isShadowingPage) {
     mode = "hidden";
   } else if (isSpecificPractice) {
     mode = "hidden";

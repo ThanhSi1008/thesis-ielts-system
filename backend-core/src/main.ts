@@ -1,20 +1,20 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { AppModule } from './app.module';
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
   // Global prefix for all routes
-  const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
+  const apiPrefix = configService.get<string>("API_PREFIX", "api/v1");
   app.setGlobalPrefix(apiPrefix);
 
   // Enable CORS
-  const corsOrigin = configService.get<string>('CORS_ORIGIN', '*');
+  const corsOrigin = configService.get<string>("CORS_ORIGIN", "*");
   app.enableCors({
-    origin: corsOrigin.split(','),
+    origin: corsOrigin.split(","),
     credentials: true,
   });
 
@@ -31,12 +31,15 @@ async function bootstrap() {
   );
 
   // Start server
-  const port = configService.get<number>('PORT', 3000);
+  const port = configService.get<number>("PORT", 3000);
   await app.listen(port);
 
-  console.log(`🚀 Backend Core is running on: http://localhost:${port}/${apiPrefix}`);
-  console.log(`📚 Environment: ${configService.get<string>('NODE_ENV', 'development')}`);
+  console.log(
+    `🚀 Backend Core is running on: http://localhost:${port}/${apiPrefix}`,
+  );
+  console.log(
+    `📚 Environment: ${configService.get<string>("NODE_ENV", "development")}`,
+  );
 }
 
 bootstrap();
-

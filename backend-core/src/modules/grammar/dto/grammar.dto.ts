@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, IsUrl, Min } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsUrl, Min } from "class-validator";
 
 export class CreateGrammarBookDto {
   @IsString()

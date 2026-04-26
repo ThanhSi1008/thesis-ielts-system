@@ -1,11 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { PrismaService } from "../../common/prisma/prisma.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class StreakService {
   private readonly logger = new Logger(StreakService.name);
+  private readonly STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   /**
    * Called to record an activity and conditionally increment the streak.
@@ -53,7 +58,7 @@ export class StreakService {
       } else if (diffDays === 1) {
         // Did activity yesterday -> increment streak
         const newStreak = profile.currentStreak + 1;
-        return this.prisma.ieltsProfile.update({
+        const updated = await this.prisma.ieltsProfile.update({
           where: { id: profile.id },
           // @ts-ignore: VS Code caches old Prisma types, suppressing IDE complaint.
           data: {
@@ -62,6 +67,13 @@ export class StreakService {
             lastActiveDate: today,
           },
         });
+        // Fire milestone notification (non-blocking)
+        if (this.STREAK_MILESTONES.includes(newStreak)) {
+          this.notifications
+            .notifyStreakMilestone(userId, newStreak)
+            .catch(() => {});
+        }
+        return updated;
       } else {
         // Missed yesterday -> reset streak to 1
         return this.prisma.ieltsProfile.update({
@@ -74,7 +86,10 @@ export class StreakService {
         });
       }
     } catch (error) {
-      this.logger.error(`Failed to record streak activity for user ${userId}`, error);
+      this.logger.error(
+        `Failed to record streak activity for user ${userId}`,
+        error,
+      );
       return null;
     }
   }
@@ -99,7 +114,7 @@ export class StreakService {
     // Check if the streak was broken due to inactivity today
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     let currentStreak = profile.currentStreak;
     if (profile.lastActiveDate) {
       const lastActive = new Date(

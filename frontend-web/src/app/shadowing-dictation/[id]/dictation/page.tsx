@@ -58,19 +58,6 @@ export default function DictationPracticePage() {
     const params = useParams();
     const { isAuthenticated, loading: authLoading } = useAuth();
 
-    const [bannerCollapsed, setBannerCollapsed] = useState<boolean>(() => {
-        if (typeof window === 'undefined') return true;
-        const stored = localStorage.getItem('dictation-practice-banner-collapsed');
-        return stored === null ? true : stored === 'true';
-    });
-
-    const toggleBanner = () => {
-        setBannerCollapsed(prev => {
-            const next = !prev;
-            localStorage.setItem('dictation-practice-banner-collapsed', String(next));
-            return next;
-        });
-    };
 
     // States for asynchronous initialization
     const [lesson, setLesson] = useState<ShadowingLesson | null>(null);
@@ -125,8 +112,8 @@ export default function DictationPracticePage() {
     }, [loadLessonAndProgress]);
 
     useEffect(() => {
-        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: bannerCollapsed }));
-    }, [bannerCollapsed]);
+        window.dispatchEvent(new CustomEvent('set-header-plain', { detail: true }));
+    }, []);
 
     // Save progress and difficulty to DB whenever they change (and after initial load)
     const isFirstLoad = useRef(true);
@@ -144,7 +131,9 @@ export default function DictationPracticePage() {
                         lessonId: params.id,
                         type: 'dictation',
                         completedSentences: completedSentences,
-                        dictationDifficulty: difficulty
+                        dictationDifficulty: difficulty,
+                        lessonTitle: lesson.title,
+                        totalSentences: lesson.sentences.length
                     });
                 }
             } catch (error) {
@@ -482,173 +471,76 @@ export default function DictationPracticePage() {
 
     if (isInitializing || !lesson) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-white pb-20">
             {/* Hidden audio element */}
             {!IS_YOUTUBE && <audio ref={audioRef} src={AUDIO_URL} onEnded={handleAudioEnded} preload="auto" />}
 
-            {/* Banner — collapsible */}
-            <div
-                className="overflow-hidden transition-all duration-500 ease-in-out relative origin-top"
-                style={{
-                    maxHeight: bannerCollapsed ? '0px' : '300px',
-                    opacity: bannerCollapsed ? 0 : 1
-                }}
-            >
-                <PageHeader
-                    title={LESSON_TITLE}
-                    backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772877124/28d5a6da-70f6-4b0b-acc9-78cbd397dbf9.png"
-                    breadcrumbs={[
-                        { label: 'Homepage', href: '/' },
-                        { label: 'Shadowing & Dictation', href: '/shadowing-dictation' },
-                        ...(typeof params.id === 'string' && !SHADOWING_LESSONS.some(l => l.id === params.id)
-                            ? [{ label: 'My Videos', href: '/shadowing-dictation/my-videos' }]
-                            : []),
-                        { label: LESSON_TITLE },
-                    ]}
-                />
-            </div>
 
-            {/* Sticky bar — collapse toggle */}
-            <div className={`top-0 z-30 bg-transparent transition-all duration-300 ${bannerCollapsed ? '' : 'pt-2 pb-2'}`}>
-                <div className="container mx-auto max-w-screen-xl px-4 flex justify-end">
-                    <button
-                        onClick={toggleBanner}
-                        title={bannerCollapsed ? 'Show banner' : 'Hide banner'}
-                        className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 px-3 py-1 rounded-full transition-colors select-none"
-                    >
-                        <svg
-                            className={`w-3.5 h-3.5 transition-transform duration-300 ${bannerCollapsed ? 'rotate-180' : ''}`}
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
 
-            {/* Main Content - Three Column Layout */}
-            <div className="container mx-auto max-w-screen-xl px-4 py-4">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Content - Two Column Layout */}
+            <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-4 xl:px-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
                     {/* ══ COLUMN 1: Source ══ */}
                     {/* Source / Audio or YouTube Player */}
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                        <h2 className="text-lg font-bold text-gray-800 mb-4">Source</h2>
+                    <div className="lg:col-span-2 lg:sticky lg:top-6 self-start z-10">
                         {IS_YOUTUBE ? (
-                            <div className="w-full aspect-video rounded-xl overflow-hidden">
+                            <div className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-sm">
                                 <div ref={ytContainerRef} className="w-full h-full" />
                             </div>
                         ) : (
-                            <div className="flex items-center gap-3">
-                                {/* Play Button */}
-                                <button
-                                    onClick={playSentence}
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
-                                        ? 'bg-primary text-white'
-                                        : 'bg-green-50 text-green-600 hover:bg-green-100'
-                                        }`}
-                                >
-                                    {isPlaying ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                                        </svg>
-                                    )}
-                                </button>
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6">
+                                <h2 className="text-lg font-bold text-gray-800 mb-4">Source Audio</h2>
+                                <div className="flex items-center gap-3">
+                                    {/* Play Button */}
+                                    <button
+                                        onClick={playSentence}
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
+                                            ? 'bg-primary text-white'
+                                            : 'bg-green-50 text-green-600 hover:bg-green-100'
+                                            }`}
+                                    >
+                                        {isPlaying ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                            </svg>
+                                        )}
+                                    </button>
 
-                                {/* Waveform Visualization */}
-                                <div className="flex-1 flex items-center gap-[2px] h-10 overflow-hidden">
-                                    {WAVEFORM_HEIGHTS.map((height, i) => (
-                                        <div
-                                            key={i}
-                                            className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
-                                                }`}
-                                            style={{
-                                                height: `${height}%`,
-                                                minWidth: '2px',
-                                                animationDelay: isPlaying ? `${i * 0.05}s` : '0s'
-                                            }}
-                                        />
-                                    ))}
+                                    {/* Waveform Visualization */}
+                                    <div className="flex-1 flex items-center gap-[2px] h-10 overflow-hidden">
+                                        {WAVEFORM_HEIGHTS.map((height, i) => (
+                                            <div
+                                                key={i}
+                                                className={`flex-1 rounded-full transition-colors ${isPlaying ? 'bg-primary animate-waveform' : 'bg-gray-300'
+                                                    }`}
+                                                style={{
+                                                    height: `${height}%`,
+                                                    minWidth: '2px',
+                                                    animationDelay: isPlaying ? `${i * 0.05}s` : '0s'
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* ══ COLUMN 2: Completed ══ */}
-                    {/* Completed Sentences */}
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-h-[500px] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-gray-800">Completed</h2>
-                            <button
-                                onClick={() => setShowCompleted(!showCompleted)}
-                                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className={`h-4 w-4 transition-transform ${showCompleted ? '' : 'rotate-180'}`}
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                >
-                                    <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                                </svg>
-                                {showCompleted ? 'Hide' : 'Show'}
-                            </button>
-                        </div>
-
-                        {showCompleted && completedSentences.length > 0 && (
-                            <div className="space-y-6">
-                                {completedSentences.map((sentenceIdx) => {
-                                    const sentence = SENTENCES[sentenceIdx];
-                                    return (
-                                        <div key={sentence.id}>
-                                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold mb-2">
-                                                {sentence.id}
-                                            </div>
-                                            <p className="font-bold text-gray-800 mb-1 leading-relaxed">
-                                                {sentence.english}
-                                            </p>
-                                            <div className="flex gap-1 mb-2 flex-wrap">
-                                                {Array.from({ length: 8 }).map((_, i) => (
-                                                    <svg key={i} width="50" height="8" viewBox="0 0 50 8">
-                                                        <path
-                                                            d="M0 4 Q6 0 12 4 Q18 8 25 4 Q31 0 37 4 Q43 8 50 4"
-                                                            fill="none"
-                                                            stroke="#FFC600"
-                                                            strokeWidth="2"
-                                                            strokeDasharray={i % 2 === 0 ? 'none' : '4 3'}
-                                                        />
-                                                    </svg>
-                                                ))}
-                                            </div>
-                                            <p className="text-gray-500 text-sm leading-relaxed">
-                                                {sentence.vietnamese}
-                                            </p>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        {completedSentences.length === 0 && (
-                            <p className="text-gray-400 text-sm text-center py-4">No sentences completed yet. Start typing!</p>
-                        )}
-                    </div>
-
-                    {/* ══ COLUMN 3: Dictation ══ */}
-                    <div>
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-6">
+                    {/* ══ COLUMN 2: Dictation + Completed ══ */}
+                    <div className="lg:col-span-1 flex flex-col gap-6">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sticky top-6 z-20">
                             {/* Header with Progress */}
                             <div className="flex items-center justify-between mb-3">
                                 <h2 className="text-lg font-bold text-gray-800">Dictation</h2>
@@ -901,6 +793,65 @@ export default function DictationPracticePage() {
                                         })}
                                     </div>
                                 </>
+                            )}
+                        </div>
+
+                        {/* Completed Sentences */}
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-bold text-gray-800">Completed</h2>
+                                <button
+                                    onClick={() => setShowCompleted(!showCompleted)}
+                                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className={`h-4 w-4 transition-transform ${showCompleted ? '' : 'rotate-180'}`}
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                                    </svg>
+                                    {showCompleted ? 'Hide' : 'Show'}
+                                </button>
+                            </div>
+
+                            {showCompleted && completedSentences.length > 0 && (
+                                <div className="space-y-6">
+                                    {completedSentences.map((sentenceIdx) => {
+                                        const sentence = SENTENCES[sentenceIdx];
+                                        return (
+                                            <div key={sentence.id}>
+                                                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold mb-2">
+                                                    {sentence.id}
+                                                </div>
+                                                <p className="font-bold text-gray-800 mb-1 leading-relaxed">
+                                                    {sentence.english}
+                                                </p>
+                                                <div className="flex gap-1 mb-2 flex-wrap">
+                                                    {Array.from({ length: 8 }).map((_, i) => (
+                                                        <svg key={i} width="50" height="8" viewBox="0 0 50 8">
+                                                            <path
+                                                                d="M0 4 Q6 0 12 4 Q18 8 25 4 Q31 0 37 4 Q43 8 50 4"
+                                                                fill="none"
+                                                                stroke="#FFC600"
+                                                                strokeWidth="2"
+                                                                strokeDasharray={i % 2 === 0 ? 'none' : '4 3'}
+                                                            />
+                                                        </svg>
+                                                    ))}
+                                                </div>
+                                                <p className="text-gray-500 text-sm leading-relaxed">
+                                                    {sentence.vietnamese}
+                                                </p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {completedSentences.length === 0 && (
+                                <p className="text-gray-400 text-sm text-center py-4">No sentences completed yet. Start typing!</p>
                             )}
                         </div>
                     </div>

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../common/prisma/prisma.service";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 // Define a type for user data without password
 export interface SafeUser {
@@ -74,7 +74,7 @@ export class UsersService {
     await this.prisma.user.delete({
       where: { id },
     });
-    return { message: 'User deleted successfully' };
+    return { message: "User deleted successfully" };
   }
 
   // --- Student-Teacher Linking ---
@@ -86,11 +86,11 @@ export class UsersService {
     });
 
     if (!teacher) {
-      throw new Error('Teacher ID does not exist in the system');
+      throw new Error("Teacher ID does not exist in the system");
     }
 
     if (studentId === teacherId) {
-      throw new Error('Students cannot link to themselves');
+      throw new Error("Students cannot link to themselves");
     }
 
     return this.prisma.studentTeacherLink.upsert({
@@ -101,19 +101,19 @@ export class UsersService {
         },
       },
       update: {
-        status: 'LINKED', // In case they were previously unlinked/pending
+        status: "LINKED", // In case they were previously unlinked/pending
       },
       create: {
         studentId,
         teacherId,
-        status: 'LINKED',
+        status: "LINKED",
       },
     });
   }
 
   async getLinkedTeachers(studentId: string) {
     const links = await this.prisma.studentTeacherLink.findMany({
-      where: { studentId, status: 'LINKED' },
+      where: { studentId, status: "LINKED" },
       include: {
         teacher: {
           select: {
@@ -131,7 +131,7 @@ export class UsersService {
 
   async getLinkedStudents(teacherId: string) {
     const links = await this.prisma.studentTeacherLink.findMany({
-      where: { teacherId, status: 'LINKED' },
+      where: { teacherId, status: "LINKED" },
       include: {
         student: {
           select: {
@@ -165,8 +165,8 @@ export class UsersService {
       where: { studentId_teacherId: { studentId, teacherId } },
     });
 
-    if (!link || link.status !== 'LINKED') {
-      throw new Error('Not linked to this student');
+    if (!link || link.status !== "LINKED") {
+      throw new Error("Not linked to this student");
     }
 
     // 2. Fetch IELTS profile + user info
@@ -181,14 +181,20 @@ export class UsersService {
 
     // 3. Fetch completed mock test sessions (shaped like /exams/history)
     const examSessions = await this.prisma.examSession.findMany({
-      where: { userId: studentId, status: 'COMPLETED' },
+      where: { userId: studentId, status: "COMPLETED" },
       include: {
         exam: {
-          select: { id: true, title: true, type: true, duration: true, difficulty: true },
+          select: {
+            id: true,
+            title: true,
+            type: true,
+            duration: true,
+            difficulty: true,
+          },
         },
         result: true,
       },
-      orderBy: { submittedAt: 'desc' },
+      orderBy: { submittedAt: "desc" },
     });
 
     const mockHistory = examSessions.map((s) => ({
@@ -210,14 +216,14 @@ export class UsersService {
     const listeningHistory = await this.prisma.ieltsPracticeSession.findMany({
       where: { userId: studentId },
       include: { part: { select: { id: true, title: true } } },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     const advancedListeningHistory = listeningHistory.map((h) => ({
       id: h.id,
       partId: h.partId,
-      skill: 'LISTENING',
-      examTitle: (h.part as any)?.title || 'Listening Practice',
+      skill: "LISTENING",
+      examTitle: (h.part as any)?.title || "Listening Practice",
       dateTaken: h.createdAt,
       practicePart: true,
       maxScore: h.totalQuestions,
@@ -230,17 +236,18 @@ export class UsersService {
     }));
 
     // 5. Fetch advanced reading practice history
-    const readingHistory = await this.prisma.ieltsPracticeReadingSession.findMany({
-      where: { userId: studentId },
-      include: { part: { select: { id: true, title: true } } },
-      orderBy: { createdAt: 'desc' },
-    });
+    const readingHistory =
+      await this.prisma.ieltsPracticeReadingSession.findMany({
+        where: { userId: studentId },
+        include: { part: { select: { id: true, title: true } } },
+        orderBy: { createdAt: "desc" },
+      });
 
     const advancedReadingHistory = readingHistory.map((h) => ({
       id: h.id,
       partId: h.partId,
-      skill: 'READING',
-      examTitle: (h.part as any)?.title || 'Reading Practice',
+      skill: "READING",
+      examTitle: (h.part as any)?.title || "Reading Practice",
       dateTaken: h.createdAt,
       practicePart: true,
       maxScore: h.totalQuestions,

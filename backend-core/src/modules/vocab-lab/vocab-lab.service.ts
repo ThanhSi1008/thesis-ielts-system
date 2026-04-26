@@ -1,58 +1,87 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
 import {
-  CreateDeckDto, CreateFlashcardDto, UpdateFlashcardDto, SubmitReviewDto,
-  CreateCardTypeDto, RenameCardTypeDto, UpdateCardTypeDescriptionDto,
-  CreateCardTypeFieldDto, UpdateCardTypeFieldDto, UpdateCardTemplateDto,
-} from './dto/vocab-lab.dto';
-import { CardState } from '@prisma/client';
-import { fsrs, Rating, Card, State, Grade, createEmptyCard } from 'ts-fsrs';
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from "@nestjs/common";
+import { PrismaService } from "../../common/prisma/prisma.service";
+import {
+  CreateDeckDto,
+  CreateFlashcardDto,
+  UpdateFlashcardDto,
+  SubmitReviewDto,
+  CreateCardTypeDto,
+  RenameCardTypeDto,
+  UpdateCardTypeDescriptionDto,
+  CreateCardTypeFieldDto,
+  UpdateCardTypeFieldDto,
+  UpdateCardTemplateDto,
+} from "./dto/vocab-lab.dto";
+import { CardState } from "@prisma/client";
+import { fsrs, Rating, Card, State, Grade, createEmptyCard } from "ts-fsrs";
 
 const f = fsrs({
   request_retention: 0.9,
   maximum_interval: 365,
 });
 
-const BASIC_CARD_TYPE_NAME = 'Basic';
+const BASIC_CARD_TYPE_NAME = "Basic";
 
 function toFsrsState(state: CardState): State {
   switch (state) {
-    case 'NEW': return State.New;
-    case 'LEARNING': return State.Learning;
-    case 'REVIEW': return State.Review;
-    case 'RELEARNING': return State.Relearning;
-    default: return State.New;
+    case "NEW":
+      return State.New;
+    case "LEARNING":
+      return State.Learning;
+    case "REVIEW":
+      return State.Review;
+    case "RELEARNING":
+      return State.Relearning;
+    default:
+      return State.New;
   }
 }
 
 function toPrismaState(state: State): CardState {
   switch (state) {
-    case State.New: return 'NEW';
-    case State.Learning: return 'LEARNING';
-    case State.Review: return 'REVIEW';
-    case State.Relearning: return 'RELEARNING';
-    default: return 'NEW';
+    case State.New:
+      return "NEW";
+    case State.Learning:
+      return "LEARNING";
+    case State.Review:
+      return "REVIEW";
+    case State.Relearning:
+      return "RELEARNING";
+    default:
+      return "NEW";
   }
 }
 
 function toFsrsRating(rating: number): Grade {
   switch (rating) {
-    case 1: return Rating.Again as Grade;
-    case 2: return Rating.Hard as Grade;
-    case 3: return Rating.Good as Grade;
-    case 4: return Rating.Easy as Grade;
-    default: return Rating.Good as Grade;
+    case 1:
+      return Rating.Again as Grade;
+    case 2:
+      return Rating.Hard as Grade;
+    case 3:
+      return Rating.Good as Grade;
+    case 4:
+      return Rating.Easy as Grade;
+    default:
+      return Rating.Good as Grade;
   }
 }
 
 @Injectable()
 export class VocabLabService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   // ==================== NOTE TYPE OPERATIONS ====================
 
   async ensureBasicCardType(): Promise<string> {
-    let basic = await this.prisma.cardType.findFirst({ where: { isBuiltIn: true, name: BASIC_CARD_TYPE_NAME } });
+    let basic = await this.prisma.cardType.findFirst({
+      where: { isBuiltIn: true, name: BASIC_CARD_TYPE_NAME },
+    });
     if (!basic) {
       basic = await this.prisma.cardType.create({
         data: {
@@ -60,21 +89,24 @@ export class VocabLabService {
           isBuiltIn: true,
           fields: {
             create: [
-              { name: 'Front', order: 0 },
-              { name: 'Back', order: 1 },
+              { name: "Front", order: 0 },
+              { name: "Back", order: 1 },
             ],
           },
         },
         include: { fields: true },
       });
       // create default card template
-      const fields = (basic as any).fields as Array<{ id: string; name: string }>;
-      const frontField = fields.find(f => f.name === 'Front');
-      const backField = fields.find(f => f.name === 'Back');
+      const fields = (basic as any).fields as Array<{
+        id: string;
+        name: string;
+      }>;
+      const frontField = fields.find((f) => f.name === "Front");
+      const backField = fields.find((f) => f.name === "Back");
       await this.prisma.cardTemplate.create({
         data: {
           cardType: { connect: { id: basic.id } },
-          name: 'Card 1: Front → Back',
+          name: "Card 1: Front → Back",
           frontFields: frontField ? [frontField.id] : [],
           backFields: backField ? [backField.id] : [],
         },
@@ -88,13 +120,13 @@ export class VocabLabService {
     const types = await this.prisma.cardType.findMany({
       where: { OR: [{ isBuiltIn: true }, { userId }] },
       include: {
-        fields: { orderBy: { order: 'asc' } },
+        fields: { orderBy: { order: "asc" } },
         templates: true,
         _count: { select: { flashcards: true } },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
-    return types.map(nt => ({
+    return types.map((nt) => ({
       id: nt.id,
       name: nt.name,
       description: nt.description ?? null,
@@ -113,8 +145,8 @@ export class VocabLabService {
         description: dto.description,
         fields: {
           create: [
-            { name: 'Front', order: 0 },
-            { name: 'Back', order: 1 },
+            { name: "Front", order: 0 },
+            { name: "Back", order: 1 },
           ],
         },
       },
@@ -124,32 +156,47 @@ export class VocabLabService {
     await this.prisma.cardTemplate.create({
       data: {
         cardType: { connect: { id: nt.id } },
-        name: 'Card 1: Front → Back',
+        name: "Card 1: Front → Back",
         frontFields: [fields[0].id],
         backFields: [fields[1].id],
       },
     });
     return this.prisma.cardType.findUnique({
       where: { id: nt.id },
-      include: { fields: { orderBy: { order: 'asc' } }, templates: true },
+      include: { fields: { orderBy: { order: "asc" } }, templates: true },
     });
   }
 
-  async updateCardTypeDescription(cardTypeId: string, dto: UpdateCardTypeDescriptionDto) {
-    const nt = await this.prisma.cardType.findFirst({ where: { id: cardTypeId } });
-    if (!nt) throw new NotFoundException('Card type not found');
+  async updateCardTypeDescription(
+    cardTypeId: string,
+    dto: UpdateCardTypeDescriptionDto,
+  ) {
+    const nt = await this.prisma.cardType.findFirst({
+      where: { id: cardTypeId },
+    });
+    if (!nt) throw new NotFoundException("Card type not found");
     return this.prisma.cardType.update({
       where: { id: cardTypeId },
       data: { description: dto.description ?? null },
     });
   }
 
-  async renameCardType(userId: string, cardTypeId: string, dto: RenameCardTypeDto) {
-    const nt = await this.prisma.cardType.findFirst({ where: { id: cardTypeId } });
-    if (!nt) throw new NotFoundException('Card type not found');
-    if (nt.isBuiltIn) throw new ForbiddenException('Cannot rename built-in card types');
-    if (nt.userId !== userId) throw new ForbiddenException('Not yours');
-    return this.prisma.cardType.update({ where: { id: cardTypeId }, data: { name: dto.name } });
+  async renameCardType(
+    userId: string,
+    cardTypeId: string,
+    dto: RenameCardTypeDto,
+  ) {
+    const nt = await this.prisma.cardType.findFirst({
+      where: { id: cardTypeId },
+    });
+    if (!nt) throw new NotFoundException("Card type not found");
+    if (nt.isBuiltIn)
+      throw new ForbiddenException("Cannot rename built-in card types");
+    if (nt.userId !== userId) throw new ForbiddenException("Not yours");
+    return this.prisma.cardType.update({
+      where: { id: cardTypeId },
+      data: { name: dto.name },
+    });
   }
 
   async deleteCardType(userId: string, cardTypeId: string) {
@@ -157,9 +204,10 @@ export class VocabLabService {
       where: { id: cardTypeId },
       include: { _count: { select: { flashcards: true } } },
     });
-    if (!nt) throw new NotFoundException('Card type not found');
-    if (nt.isBuiltIn) throw new ForbiddenException('Cannot delete built-in card types');
-    if (nt.userId !== userId) throw new ForbiddenException('Not yours');
+    if (!nt) throw new NotFoundException("Card type not found");
+    if (nt.isBuiltIn)
+      throw new ForbiddenException("Cannot delete built-in card types");
+    if (nt.userId !== userId) throw new ForbiddenException("Not yours");
     if ((nt as any)._count.flashcards > 0) {
       await this.prisma.flashcard.deleteMany({ where: { cardTypeId } });
     }
@@ -168,9 +216,16 @@ export class VocabLabService {
 
   // ==================== NOTE TYPE FIELD OPERATIONS ====================
 
-  async addField(userId: string, cardTypeId: string, dto: CreateCardTypeFieldDto) {
+  async addField(
+    userId: string,
+    cardTypeId: string,
+    dto: CreateCardTypeFieldDto,
+  ) {
     await this.assertCardTypeOwner(userId, cardTypeId);
-    const maxOrder = await this.prisma.cardTypeField.aggregate({ where: { cardTypeId }, _max: { order: true } });
+    const maxOrder = await this.prisma.cardTypeField.aggregate({
+      where: { cardTypeId },
+      _max: { order: true },
+    });
     const nextOrder = (maxOrder._max.order ?? -1) + 1;
     return this.prisma.cardTypeField.create({
       data: {
@@ -178,12 +233,17 @@ export class VocabLabService {
         name: dto.name,
         order: nextOrder,
         description: dto.description,
-        fieldType: dto.fieldType || 'text',
-      }
+        fieldType: dto.fieldType || "text",
+      },
     });
   }
 
-  async updateField(userId: string, cardTypeId: string, fieldId: string, dto: UpdateCardTypeFieldDto) {
+  async updateField(
+    userId: string,
+    cardTypeId: string,
+    fieldId: string,
+    dto: UpdateCardTypeFieldDto,
+  ) {
     await this.assertCardTypeOwner(userId, cardTypeId);
     return this.prisma.cardTypeField.update({
       where: { id: fieldId },
@@ -201,7 +261,10 @@ export class VocabLabService {
     const cardsWithField = await this.prisma.flashcard.findFirst({
       where: { cardTypeId },
     });
-    if (cardsWithField) throw new BadRequestException('Cannot delete a field while cards exist for this card type');
+    if (cardsWithField)
+      throw new BadRequestException(
+        "Cannot delete a field while cards exist for this card type",
+      );
     return this.prisma.cardTypeField.delete({ where: { id: fieldId } });
   }
 
@@ -211,11 +274,16 @@ export class VocabLabService {
     const nt = await this.prisma.cardType.findFirst({
       where: { id: cardTypeId, OR: [{ isBuiltIn: true }, { userId }] },
     });
-    if (!nt) throw new NotFoundException('Card type not found');
+    if (!nt) throw new NotFoundException("Card type not found");
     return this.prisma.cardTemplate.findMany({ where: { cardTypeId } });
   }
 
-  async updateTemplate(userId: string, cardTypeId: string, templateId: string, dto: UpdateCardTemplateDto) {
+  async updateTemplate(
+    userId: string,
+    cardTypeId: string,
+    templateId: string,
+    dto: UpdateCardTemplateDto,
+  ) {
     await this.assertCardTypeOwner(userId, cardTypeId);
     return this.prisma.cardTemplate.update({
       where: { id: templateId },
@@ -230,10 +298,13 @@ export class VocabLabService {
   }
 
   private async assertCardTypeOwner(userId: string, cardTypeId: string) {
-    const nt = await this.prisma.cardType.findFirst({ where: { id: cardTypeId } });
-    if (!nt) throw new NotFoundException('Card type not found');
-    if (nt.isBuiltIn) throw new ForbiddenException('Cannot modify built-in note types');
-    if (nt.userId !== userId) throw new ForbiddenException('Not yours');
+    const nt = await this.prisma.cardType.findFirst({
+      where: { id: cardTypeId },
+    });
+    if (!nt) throw new NotFoundException("Card type not found");
+    if (nt.isBuiltIn)
+      throw new ForbiddenException("Cannot modify built-in note types");
+    if (nt.userId !== userId) throw new ForbiddenException("Not yours");
     return nt;
   }
 
@@ -247,12 +318,15 @@ export class VocabLabService {
           select: { cardState: true, nextReviewDate: true },
         },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
 
     const now = new Date();
     return decks.map((deck) => {
-      const newCount = Math.min(20, deck.flashcards.filter((f) => f.cardState === CardState.NEW).length);
+      const newCount = Math.min(
+        20,
+        deck.flashcards.filter((f) => f.cardState === CardState.NEW).length,
+      );
       const learningCount = deck.flashcards.filter(
         (f) => f.cardState === CardState.LEARNING && f.nextReviewDate <= now,
       ).length;
@@ -282,10 +356,13 @@ export class VocabLabService {
       },
     });
 
-    if (!deck) throw new NotFoundException('Deck not found');
+    if (!deck) throw new NotFoundException("Deck not found");
 
     const now = new Date();
-    const newCount = Math.min(20, deck.flashcards.filter((f) => f.cardState === CardState.NEW).length);
+    const newCount = Math.min(
+      20,
+      deck.flashcards.filter((f) => f.cardState === CardState.NEW).length,
+    );
     const learningCount = deck.flashcards.filter(
       (f) => f.cardState === CardState.LEARNING && f.nextReviewDate <= now,
     ).length;
@@ -311,16 +388,20 @@ export class VocabLabService {
   }
 
   async deleteDeck(userId: string, deckId: string) {
-    const deck = await this.prisma.deck.findFirst({ where: { id: deckId, userId } });
-    if (!deck) throw new NotFoundException('Deck not found');
+    const deck = await this.prisma.deck.findFirst({
+      where: { id: deckId, userId },
+    });
+    if (!deck) throw new NotFoundException("Deck not found");
     return this.prisma.deck.delete({ where: { id: deckId } });
   }
 
   // ==================== FLASHCARD OPERATIONS ====================
 
   async createFlashcard(userId: string, dto: CreateFlashcardDto) {
-    const deck = await this.prisma.deck.findFirst({ where: { id: dto.deckId, userId } });
-    if (!deck) throw new ForbiddenException('Deck not found or not yours');
+    const deck = await this.prisma.deck.findFirst({
+      where: { id: dto.deckId, userId },
+    });
+    if (!deck) throw new ForbiddenException("Deck not found or not yours");
 
     // Resolve cardTypeId — use provided or fall back to built-in Basic
     let cardTypeId = dto.cardTypeId;
@@ -332,14 +413,14 @@ export class VocabLabService {
     let fieldValues = dto.fieldValues ?? {};
     if (Object.keys(fieldValues).length === 0 && dto.front !== undefined) {
       // Store legacy front/back as fieldValues keyed by field name for display
-      fieldValues = { '__front': dto.front ?? '', '__back': dto.back ?? '' };
+      fieldValues = { __front: dto.front ?? "", __back: dto.back ?? "" };
     }
 
     return this.prisma.flashcard.create({
       data: {
         deckId: dto.deckId,
-        front: dto.front ?? '',
-        back: dto.back ?? '',
+        front: dto.front ?? "",
+        back: dto.back ?? "",
         tags: dto.tags || [],
         cardTypeId,
         fieldValues,
@@ -348,22 +429,29 @@ export class VocabLabService {
       },
       include: {
         cardType: {
-          include: { fields: { orderBy: { order: 'asc' } }, templates: true },
+          include: { fields: { orderBy: { order: "asc" } }, templates: true },
         },
       },
     });
   }
 
-  async updateFlashcard(userId: string, cardId: string, dto: UpdateFlashcardDto) {
+  async updateFlashcard(
+    userId: string,
+    cardId: string,
+    dto: UpdateFlashcardDto,
+  ) {
     const card = await this.prisma.flashcard.findFirst({
       where: { id: cardId },
       include: { deck: { select: { userId: true } } },
     });
-    if (!card || card.deck.userId !== userId) throw new NotFoundException('Card not found');
+    if (!card || card.deck.userId !== userId)
+      throw new NotFoundException("Card not found");
 
     if (dto.deckId) {
-      const newDeck = await this.prisma.deck.findFirst({ where: { id: dto.deckId, userId } });
-      if (!newDeck) throw new ForbiddenException('Target deck not found');
+      const newDeck = await this.prisma.deck.findFirst({
+        where: { id: dto.deckId, userId },
+      });
+      if (!newDeck) throw new ForbiddenException("Target deck not found");
     }
 
     return this.prisma.flashcard.update({
@@ -385,11 +473,15 @@ export class VocabLabService {
       where: { id: cardId },
       include: { deck: { select: { userId: true } } },
     });
-    if (!card || card.deck.userId !== userId) throw new NotFoundException('Card not found');
+    if (!card || card.deck.userId !== userId)
+      throw new NotFoundException("Card not found");
     return this.prisma.flashcard.delete({ where: { id: cardId } });
   }
 
-  async browseCards(userId: string, filters?: { deckId?: string; cardState?: CardState; tag?: string }) {
+  async browseCards(
+    userId: string,
+    filters?: { deckId?: string; cardState?: CardState; tag?: string },
+  ) {
     const where: any = { deck: { userId } };
     if (filters?.deckId) where.deckId = filters.deckId;
     if (filters?.cardState) where.cardState = filters.cardState;
@@ -399,38 +491,48 @@ export class VocabLabService {
       where,
       include: {
         deck: { select: { id: true, name: true } },
-        cardType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
+        cardType: {
+          include: { fields: { orderBy: { order: "asc" } }, templates: true },
+        },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
   // ==================== STUDY / REVIEW ====================
 
   async getStudyCards(userId: string, deckId: string) {
-    const deck = await this.prisma.deck.findFirst({ where: { id: deckId, userId } });
-    if (!deck) throw new NotFoundException('Deck not found');
+    const deck = await this.prisma.deck.findFirst({
+      where: { id: deckId, userId },
+    });
+    if (!deck) throw new NotFoundException("Deck not found");
 
     const now = new Date();
 
     const newCards = await this.prisma.flashcard.findMany({
       where: { deckId, cardState: CardState.NEW },
       take: 20,
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
       include: {
-        cardType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
+        cardType: {
+          include: { fields: { orderBy: { order: "asc" } }, templates: true },
+        },
       },
     });
 
     const dueCards = await this.prisma.flashcard.findMany({
       where: {
         deckId,
-        cardState: { in: [CardState.LEARNING, CardState.REVIEW, CardState.RELEARNING] },
+        cardState: {
+          in: [CardState.LEARNING, CardState.REVIEW, CardState.RELEARNING],
+        },
         due: { lte: now },
       },
-      orderBy: { due: 'asc' },
+      orderBy: { due: "asc" },
       include: {
-        cardType: { include: { fields: { orderBy: { order: 'asc' } }, templates: true } },
+        cardType: {
+          include: { fields: { orderBy: { order: "asc" } }, templates: true },
+        },
       },
     });
 
@@ -442,7 +544,8 @@ export class VocabLabService {
       where: { id: dto.flashcardId },
       include: { deck: { select: { userId: true } } },
     });
-    if (!card || card.deck.userId !== userId) throw new NotFoundException('Card not found');
+    if (!card || card.deck.userId !== userId)
+      throw new NotFoundException("Card not found");
 
     const fsrsCard: Card = {
       ...createEmptyCard(),
@@ -501,7 +604,8 @@ export class VocabLabService {
 
     return {
       newCount: cards.filter((c) => c.cardState === CardState.NEW).length,
-      learningCount: cards.filter((c) => c.cardState === CardState.LEARNING).length,
+      learningCount: cards.filter((c) => c.cardState === CardState.LEARNING)
+        .length,
       reviewCount: cards.filter((c) => c.cardState === CardState.REVIEW).length,
       totalCount: cards.length,
     };

@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
 import api from "@/lib/api";
+import { useNotifications } from "@/contexts/NotificationContext";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -14,9 +16,12 @@ export default function Header() {
   const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { toggleSidebar } = useIeltsSidebar();
+  const { unreadCount, isDropdownOpen, toggleDropdown } = useNotifications();
   const isIeltsDashboard = pathname === "/ielts";
   const isIeltsInternal = pathname.startsWith("/ielts/");
   const isIeltsPage = isIeltsDashboard || isIeltsInternal;
+  const isShadowingPage = pathname.startsWith("/shadowing-dictation");
+  const isHeaderBorderless = isIeltsPage || isShadowingPage;
 
   const [forcePlain, setForcePlain] = useState(false);
 
@@ -31,7 +36,7 @@ export default function Header() {
   }, []);
 
   const plainPages = ["/login", "/register"];
-  const isPlain = plainPages.includes(pathname) || isIeltsInternal || forcePlain;
+  const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || forcePlain;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -66,7 +71,7 @@ export default function Header() {
   const headerBgClass = isIeltsDashboard
     ? "bg-transparent border-transparent shadow-none"
     : isPlain
-      ? `bg-white/95 ${isIeltsPage ? '' : 'border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
+      ? `bg-white/95 ${isHeaderBorderless ? '' : 'border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
       : "bg-transparent border-transparent shadow-none";
 
 
@@ -90,13 +95,13 @@ export default function Header() {
 
   return (
     <header
-      className={`${positionClass} top-0 z-50 ${isIeltsPage ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
+      className={`${positionClass} top-0 z-50 ${isHeaderBorderless ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
     >
-      <div className={`${isIeltsPage ? "w-full max-w-none px-4" : "container mx-auto max-w-screen-xl px-4"} py-2 flex justify-between items-center`}>
+      <div className={`${isHeaderBorderless ? "w-full max-w-none px-4" : "container mx-auto max-w-screen-xl px-4"} py-2 flex justify-between items-center`}>
         {/* Left: Hamburger (IELTS) + Logo + Nav */}
         <div className="flex items-center gap-4">
-          {/* Hamburger for IELTS pages */}
-          {isIeltsPage && (
+          {/* Hamburger for Sidebar pages */}
+          {isHeaderBorderless && (
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600 -ml-2"
@@ -196,7 +201,34 @@ export default function Header() {
                   <span>{streak.currentStreak}</span>
                 </div>
               )}
-              
+
+              {/* Bell Icon */}
+              <div className="relative">
+                <button
+                  onClick={toggleDropdown}
+                  id="notification-bell-btn"
+                  aria-label="Notifications"
+                  className={`relative p-2 rounded-full transition-colors ${
+                    isDropdownOpen
+                      ? 'bg-gray-100 text-gray-700'
+                      : isOverlay
+                        ? 'text-white/80 hover:text-white hover:bg-white/10'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-0.5 leading-none">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {isDropdownOpen && <NotificationDropdown />}
+              </div>
+
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setIsProfileOpen((o) => !o)}

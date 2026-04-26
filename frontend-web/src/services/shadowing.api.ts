@@ -107,6 +107,8 @@ export const shadowingApi = {
     type: 'shadowing' | 'dictation';
     completedSentences: number[];
     dictationDifficulty?: string;
+    lessonTitle?: string;
+    totalSentences?: number;
   }) => {
     const { data } = await api.post('/shadowing/progress', dto);
     return data;

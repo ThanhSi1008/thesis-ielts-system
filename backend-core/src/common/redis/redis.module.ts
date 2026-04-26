@@ -1,5 +1,5 @@
-import { Global, Module } from '@nestjs/common';
-import { RedisService } from './redis.service';
+import { Global, Module } from "@nestjs/common";
+import { RedisService } from "./redis.service";
 
 @Global()
 @Module({
@@ -7,4 +7,3 @@ import { RedisService } from './redis.service';
   exports: [RedisService],
 })
 export class RedisModule {}
-

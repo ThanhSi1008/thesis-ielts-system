@@ -1,9 +1,9 @@
-import { IsOptional, IsString, IsBoolean, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsEnum } from "class-validator";
 
 export enum UserRole {
-  STUDENT = 'STUDENT',
-  TEACHER = 'TEACHER',
-  ADMIN = 'ADMIN',
+  STUDENT = "STUDENT",
+  TEACHER = "TEACHER",
+  ADMIN = "ADMIN",
 }
 
 export class UpdateUserDto {

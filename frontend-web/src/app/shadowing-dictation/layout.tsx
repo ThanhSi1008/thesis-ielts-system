@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { ShadowingSidebar, ShadowingSidebarOverlay } from './_components/ShadowingSidebar';
 
 export const metadata: Metadata = {
     title: 'Shadowing & Dictation | TOEIC Master AI',
@@ -10,5 +11,13 @@ export default function ShadowingDictationLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return <>{children}</>;
+    return (
+        <div className="flex h-[calc(100vh-56px)] overflow-hidden bg-white">
+            <ShadowingSidebarOverlay />
+            <ShadowingSidebar />
+            <main className="flex-1 h-full overflow-y-auto min-w-0">
+                {children}
+            </main>
+        </div>
+    );
 }

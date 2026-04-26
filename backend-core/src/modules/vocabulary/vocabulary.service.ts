@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@common/prisma/prisma.service';
-import { RedisService } from '@common/redis/redis.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "@common/prisma/prisma.service";
+import { RedisService } from "@common/redis/redis.service";
 import {
   CreateVocabularyBookDto,
   UpdateVocabularyBookDto,
@@ -8,10 +8,10 @@ import {
   UpdateVocabularyUnitDto,
   CreateVocabularyWordDto,
   UpdateVocabularyWordDto,
-} from './dto/vocabulary.dto';
+} from "./dto/vocabulary.dto";
 
 const CACHE_TTL = 3600; // 1 hour
-const CACHE_PREFIX = 'vocabulary';
+const CACHE_PREFIX = "vocabulary";
 
 @Injectable()
 export class VocabularyService {
@@ -28,7 +28,7 @@ export class VocabularyService {
     if (cached) return cached;
 
     const books = await this.prisma.vocabularyBook.findMany({
-      orderBy: { order: 'asc' },
+      orderBy: { order: "asc" },
       select: {
         id: true,
         name: true,
@@ -51,7 +51,7 @@ export class VocabularyService {
       where: { id: bookId },
       include: {
         units: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
           select: { id: true, title: true, order: true },
         },
       },
@@ -70,9 +70,9 @@ export class VocabularyService {
       where: { id: unitId },
       include: {
         book: { select: { id: true, name: true } },
-        words: { orderBy: { order: 'asc' } },
-        exercises: { orderBy: { order: 'asc' } },
-        questions: { orderBy: { order: 'asc' } },
+        words: { orderBy: { order: "asc" } },
+        exercises: { orderBy: { order: "asc" } },
+        questions: { orderBy: { order: "asc" } },
       },
     });
 
@@ -100,7 +100,7 @@ export class VocabularyService {
   async deleteBook(id: string) {
     await this.prisma.vocabularyBook.delete({ where: { id } });
     await this.invalidateCache();
-    return { message: 'Book deleted successfully' };
+    return { message: "Book deleted successfully" };
   }
 
   // ==================== UNIT CRUD ====================
@@ -123,7 +123,7 @@ export class VocabularyService {
   async deleteUnit(id: string) {
     await this.prisma.vocabularyUnit.delete({ where: { id } });
     await this.invalidateCache();
-    return { message: 'Unit deleted successfully' };
+    return { message: "Unit deleted successfully" };
   }
 
   // ==================== WORD CRUD ====================
@@ -146,7 +146,7 @@ export class VocabularyService {
   async deleteWord(id: string) {
     await this.prisma.vocabularyWord.delete({ where: { id } });
     await this.invalidateCache();
-    return { message: 'Word deleted successfully' };
+    return { message: "Word deleted successfully" };
   }
 
   // ==================== CACHE ====================
@@ -165,7 +165,7 @@ export class VocabularyService {
       where: { id: bookId },
       include: {
         units: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
           select: {
             id: true,
             title: true,
@@ -211,7 +211,11 @@ export class VocabularyService {
   /**
    * Update word learning progress
    */
-  async updateWordProgress(userId: string, unitId: string, wordsLearned: number) {
+  async updateWordProgress(
+    userId: string,
+    unitId: string,
+    wordsLearned: number,
+  ) {
     const unit = await this.prisma.vocabularyUnit.findUnique({
       where: { id: unitId },
       include: { _count: { select: { words: true } } },
@@ -248,16 +252,18 @@ export class VocabularyService {
       where: { unitId },
     });
 
-    console.log(`[SubmitExercise] User: ${userId}, Unit: ${unitId}, Found ${exercises.length} exercises`);
+    console.log(
+      `[SubmitExercise] User: ${userId}, Unit: ${unitId}, Found ${exercises.length} exercises`,
+    );
 
     if (exercises.length === 0) {
-        console.warn(`[SubmitExercise] No exercises found for unit ${unitId}`);
-        return {
-            score: 0,
-            correctCount: 0,
-            totalQuestions: 0,
-            results: [],
-        };
+      console.warn(`[SubmitExercise] No exercises found for unit ${unitId}`);
+      return {
+        score: 0,
+        correctCount: 0,
+        totalQuestions: 0,
+        results: [],
+      };
     }
 
     // Grade answers
@@ -265,39 +271,45 @@ export class VocabularyService {
     const results = answers.map((a) => {
       const exercise = exercises.find((e) => e.id === a.exerciseId);
       if (!exercise) {
-          console.warn(`[SubmitExercise] Exercise not found: ${a.exerciseId}`);
+        console.warn(`[SubmitExercise] Exercise not found: ${a.exerciseId}`);
       }
-      const isCorrect = exercise?.answer.toLowerCase() === a.answer.toLowerCase();
+      const isCorrect =
+        exercise?.answer.toLowerCase() === a.answer.toLowerCase();
       if (isCorrect) correctCount++;
       return {
         exerciseId: a.exerciseId,
         userAnswer: a.answer,
-        correctAnswer: exercise?.answer || 'Unknown',
+        correctAnswer: exercise?.answer || "Unknown",
         isCorrect,
       };
     });
 
-    const score = exercises.length > 0 ? Math.round((correctCount / exercises.length) * 100) : 0;
-    console.log(`[SubmitExercise] Score: ${score} (${correctCount}/${exercises.length})`);
+    const score =
+      exercises.length > 0
+        ? Math.round((correctCount / exercises.length) * 100)
+        : 0;
+    console.log(
+      `[SubmitExercise] Score: ${score} (${correctCount}/${exercises.length})`,
+    );
 
     // Update progress
     try {
-        await this.prisma.vocabularyProgress.upsert({
+      await this.prisma.vocabularyProgress.upsert({
         where: {
-            userId_unitId: { userId, unitId },
+          userId_unitId: { userId, unitId },
         },
         create: {
-            userId,
-            unitId,
-            exerciseScore: score,
+          userId,
+          unitId,
+          exerciseScore: score,
         },
         update: {
-            exerciseScore: score,
+          exerciseScore: score,
         },
-        });
+      });
     } catch (error) {
-        console.error(`[SubmitExercise] Failed to update progress:`, error);
-        throw error;
+      console.error(`[SubmitExercise] Failed to update progress:`, error);
+      throw error;
     }
 
     return {
@@ -321,16 +333,18 @@ export class VocabularyService {
       where: { unitId },
     });
 
-    console.log(`[SubmitQuestions] User: ${userId}, Unit: ${unitId}, Found ${questions.length} questions`);
+    console.log(
+      `[SubmitQuestions] User: ${userId}, Unit: ${unitId}, Found ${questions.length} questions`,
+    );
 
     if (questions.length === 0) {
-        console.warn(`[SubmitQuestions] No questions found for unit ${unitId}`);
-        return {
-            score: 0,
-            correctCount: 0,
-            totalQuestions: 0,
-            results: [],
-        };
+      console.warn(`[SubmitQuestions] No questions found for unit ${unitId}`);
+      return {
+        score: 0,
+        correctCount: 0,
+        totalQuestions: 0,
+        results: [],
+      };
     }
 
     // Grade answers
@@ -338,43 +352,49 @@ export class VocabularyService {
     const results = answers.map((a) => {
       const question = questions.find((q) => q.id === a.questionId);
       if (!question) {
-          console.warn(`[SubmitQuestions] Question not found: ${a.questionId}`);
+        console.warn(`[SubmitQuestions] Question not found: ${a.questionId}`);
       }
-      const isCorrect = question?.answer.toLowerCase() === a.answer.toLowerCase();
+      const isCorrect =
+        question?.answer.toLowerCase() === a.answer.toLowerCase();
       if (isCorrect) correctCount++;
       return {
         questionId: a.questionId,
         userAnswer: a.answer,
-        correctAnswer: question?.answer || 'Unknown',
+        correctAnswer: question?.answer || "Unknown",
         isCorrect,
       };
     });
 
-    const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-    console.log(`[SubmitQuestions] Score: ${score} (${correctCount}/${questions.length})`);
+    const score =
+      questions.length > 0
+        ? Math.round((correctCount / questions.length) * 100)
+        : 0;
+    console.log(
+      `[SubmitQuestions] Score: ${score} (${correctCount}/${questions.length})`,
+    );
 
     // Update progress and mark as completed
     try {
-        await this.prisma.vocabularyProgress.upsert({
+      await this.prisma.vocabularyProgress.upsert({
         where: {
-            userId_unitId: { userId, unitId },
+          userId_unitId: { userId, unitId },
         },
-      create: {
-        userId,
-        unitId,
-        questionScore: score,
-        isCompleted: true,
-        completedAt: new Date(),
-      },
-      update: {
-        questionScore: score,
-        isCompleted: true,
-        completedAt: new Date(),
-      },
-    });
+        create: {
+          userId,
+          unitId,
+          questionScore: score,
+          isCompleted: true,
+          completedAt: new Date(),
+        },
+        update: {
+          questionScore: score,
+          isCompleted: true,
+          completedAt: new Date(),
+        },
+      });
     } catch (error) {
-        console.error(`[SubmitQuestions] Failed to update progress:`, error);
-        throw error;
+      console.error(`[SubmitQuestions] Failed to update progress:`, error);
+      throw error;
     }
 
     return {
