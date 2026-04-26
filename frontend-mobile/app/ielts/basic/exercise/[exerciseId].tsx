@@ -1,13 +1,71 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, TextInput, Alert,
+  ActivityIndicator, TextInput, Alert, Image, useWindowDimensions
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, API_BASE_URL, FONTS } from '@/constants';
 import { apiClient } from '@/services/api-client';
+import { AudioPlayer } from '@/components/ui/AudioPlayer';
+import Markdown from 'react-native-markdown-display';
+import { ContentGroupView } from './_components/ContentGroupView';
+
+/* ─── Mobile-friendly Markdown Table Override ─── */
+function buildMarkdownRules(): any {
+  return {
+    text: (node: any, children: any, parent: any, styles: any) => {
+      // Vì markdown-it mặc định tắt HTML, <br> sẽ bị parse thành text thường.
+      // Ta replace nó thành \n ở bước render này để không làm vỡ cấu trúc Markdown Table lúc parse.
+      const content = (node.content || '').replace(/<br\s*\/?>/gi, '\n');
+      return <Text key={node.key} style={styles.text}>{content}</Text>;
+    },
+    image: (node: any) => (
+      <Image key={node.key} source={{ uri: node.attributes.src }}
+        style={{ width: '100%', height: 200, resizeMode: 'contain', marginVertical: 8 }} />
+    ),
+    table: (node: any, children: any) => (
+      <ScrollView 
+        key={node.key}
+        horizontal 
+        showsHorizontalScrollIndicator={true} 
+        style={{ marginVertical: 12 }}
+        contentContainerStyle={{ paddingRight: 24 }} // Extra padding at the end so it doesn't hug the screen edge too tight
+      >
+        <View style={{
+          backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1,
+          borderColor: 'rgba(0,0,0,0.08)', overflow: 'hidden'
+        }}>
+          {children}
+        </View>
+      </ScrollView>
+    ),
+    thead: (node: any, children: any) => (
+      <View key={node.key} style={{ backgroundColor: 'rgba(0,0,0,0.05)', borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.08)' }}>
+        {children}
+      </View>
+    ),
+    tbody: (node: any, children: any) => (
+      <View key={node.key}>{children}</View>
+    ),
+    tr: (node: any, children: any) => (
+      <View key={node.key} style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.08)' }}>
+        {children}
+      </View>
+    ),
+    th: (node: any, children: any) => (
+      <View key={node.key} style={{ width: 220, padding: 12, borderRightWidth: 1, borderRightColor: 'rgba(0,0,0,0.08)', justifyContent: 'center' }}>
+        {children}
+      </View>
+    ),
+    td: (node: any, children: any) => (
+      <View key={node.key} style={{ width: 220, padding: 12, borderRightWidth: 1, borderRightColor: 'rgba(0,0,0,0.08)' }}>
+        <View style={{ flex: 1, gap: 4 }}>{children}</View>
+      </View>
+    ),
+  };
+}
 
 /* ─── Types (from SharedExerciseTypes.ts) ─── */
 interface MCOption { letter: string; text: string; }
@@ -37,11 +95,15 @@ interface Exercise {
   topic?: string;
   audioUrl?: string;
   passage?: string;
-  content: ContentGroup[];
+  content?: ContentGroup[]; // Optional for writing
+  prompt?: string;
+  diagramUrl?: string;
+  modelAnswer?: Record<string, string>;
 }
 
 /* ─── Score calculation (port of SharedScoreUtils.ts) ─── */
-function calcScore(content: ContentGroup[], answers: Record<string | number, string>): number {
+function calcScore(content: ContentGroup[] | undefined, answers: Record<string | number, string>): number {
+  if (!content) return 0;
   let s = 0;
   content.forEach((g, gi) => {
     if (g.type === 'multiple_choice_multiple') {
@@ -50,20 +112,46 @@ function calcScore(content: ContentGroup[], answers: Record<string | number, str
       const selected = raw ? raw.split(',').map(x => x.toUpperCase()) : [];
       selected.forEach(x => { if (correct.has(x)) s++; });
     } else {
-      const qs = Array.isArray(g.questions) ? g.questions : [];
-      qs.forEach((q: MCQuestion) => {
-        const ua = (answers[q.question_number] ?? '').toUpperCase();
-        if (ua === (q.answer ?? '').toUpperCase()) s++;
-      });
-      // fill-in types: questions w/ text_answer
-      if (g.type === 'short_answer' || g.type === 'note_completion' ||
-          g.type === 'summary_completion' || g.type === 'diagram_completion') {
+      let qs: any[] = [];
+      const READING_MATCHING = ['matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings'];
+      const isReadingMatching = READING_MATCHING.includes(g.type);
+      const isReadingSummary = g.type === 'summary_completion' && Array.isArray(g.questions) && (g.summary || g.text);
+
+      if (['table', 'table_completion'].includes(g.type)) {
+        qs = (g.rows || []).flatMap((r: any) => Object.entries(r.questions || {}).map(([k, q]: any) => ({ question_number: Number(k), ...q })));
+      } else if (['flow_chart', 'flowchart_completion'].includes(g.type)) {
+        qs = (g.steps || []).filter((s: any) => s.question).map((s: any) => s.question);
+      } else if (g.type === 'summary_completion' && !isReadingSummary) {
+        // Listening summary: questions is Record object
+        qs = Object.entries(g.questions || {}).map(([k, q]: any) => ({ question_number: Number(k), ...q }));
+      } else {
+        qs = g.items || (Array.isArray(g.questions) ? g.questions : []) || g.points || [];
+      }
+
+      const TEXT_INPUT_TYPES = [
+        'short_answer', 'note_completion', 'summary_completion', 'diagram_completion', 'flowchart_completion', 
+        'table_completion', 'sentence_completion', 'form_completion', 'flow_chart', 'table', 'plan_labelling', 'diagram_labelling', 'map_labelling'
+      ];
+      
+      const isTextInput = (TEXT_INPUT_TYPES.includes(g.type) || (!g.type && g.points)) && !isReadingMatching;
+
+      if (isTextInput) {
         qs.forEach((q: any) => {
-          const ua = (answers[q.question_number] ?? '').trim().toLowerCase();
-          const acceptable: string[] = q.acceptable_answers
-            ? q.acceptable_answers.map((a: string) => a.toLowerCase().trim())
-            : [(q.answer ?? '').toLowerCase().trim()];
+          const ua = (answers[q.question_number ?? q.id] ?? '').trim().toLowerCase();
+          const acceptable: string[] = [];
+          if (q.acceptable_answers) acceptable.push(...q.acceptable_answers.map((a: string) => a.toLowerCase().trim()));
+          if (q.answer) acceptable.push(q.answer.toLowerCase().trim());
+          if (q.primary_answer) acceptable.push(q.primary_answer.toLowerCase().trim());
+          if (q.text_answer) acceptable.push(q.text_answer.toLowerCase().trim());
+          if (q.letter_answer) acceptable.push(q.letter_answer.toLowerCase().trim());
+
           if (acceptable.includes(ua)) s++;
+        });
+      } else {
+        // Letter-based answers (MCQ, Matching, etc.)
+        qs.forEach((q: any) => {
+          const ua = (answers[q.question_number] ?? '').toUpperCase();
+          if (ua === (q.answer ?? '').toUpperCase()) s++;
         });
       }
     }
@@ -71,151 +159,78 @@ function calcScore(content: ContentGroup[], answers: Record<string | number, str
   return s;
 }
 
-function getTotalQuestions(content: ContentGroup[]): number {
-  return content.reduce((acc, g, gi) => {
-    if (g.type === 'multiple_choice_multiple') {
-      return acc + (g.question_numbers?.length ?? 0);
+function getTotalQuestions(content: ContentGroup[] | undefined): number {
+  if (!content) return 0;
+  return content.reduce((acc, g) => {
+    if (g.type === 'multiple_choice_multiple') return acc + (g.answers?.length ?? 0);
+    if (['table', 'table_completion'].includes(g.type)) {
+      return acc + (g.rows || []).reduce((rAcc: number, r: any) => rAcc + Object.keys(r.questions || {}).length, 0);
     }
-    return acc + (Array.isArray(g.questions) ? g.questions.length : 0);
+    if (['flow_chart', 'flowchart_completion'].includes(g.type)) {
+      return acc + (g.steps || []).filter((s: any) => s.question).length;
+    }
+    // Listening summary_completion: questions is Record object
+    if (g.type === 'summary_completion' && !Array.isArray(g.questions)) {
+      return acc + Object.keys(g.questions || {}).length;
+    }
+    return acc + (g.items?.length ?? (Array.isArray(g.questions) ? g.questions.length : 0) ?? g.points?.length ?? 0);
   }, 0);
 }
 
-/* ─── MCQ Group ─── */
-function MCQGroup({ group, answers, submitted, onAnswer }: {
-  group: ContentGroup;
-  answers: Record<string | number, string>;
+/* ─── Writing Section (Accordion) ─── */
+function WritingSection({ title, value, onChange, submitted, modelText }: {
+  title: string;
+  value: string;
+  onChange: (v: string) => void;
   submitted: boolean;
-  onAnswer: (qNum: number, letter: string) => void;
+  modelText?: string;
 }) {
-  const questions = (group.questions ?? []) as MCQuestion[];
+  const [isOpen, setIsOpen] = useState(true);
+
   return (
-    <View>
-      {group.instructions && (
-        <View style={styles.instructions}>
-          <Text style={styles.instructionsText}>{group.instructions}</Text>
+    <View style={styles.writingSection}>
+      <TouchableOpacity 
+        style={styles.writingSectionHeader} 
+        onPress={() => setIsOpen(!isOpen)}
+        activeOpacity={0.7}
+      >
+        <Ionicons 
+          name={isOpen ? "chevron-down" : "chevron-forward"} 
+          size={16} 
+          color={COLORS.textSecondary} 
+        />
+        <Text style={styles.writingSectionLabel}>{title}</Text>
+      </TouchableOpacity>
+
+      {isOpen && (
+        <View style={styles.writingSectionContent}>
+          <TextInput
+            style={[
+              styles.writingInput,
+              submitted && { backgroundColor: '#F9FAFB', borderColor: '#F3F4F6', color: '#4B5563' }
+            ]}
+            multiline
+            value={value}
+            onChangeText={onChange}
+            placeholder={submitted ? "" : "Write your answer here..."}
+            placeholderTextColor={COLORS.textMuted}
+            editable={!submitted}
+          />
+          {submitted && modelText && (
+            <View style={styles.modelAnswerBox}>
+              <Text style={styles.modelAnswerText}>{modelText}</Text>
+            </View>
+          )}
         </View>
       )}
-      {questions.map((q) => {
-        const sel = answers[q.question_number] ?? '';
-        return (
-          <View key={q.question_number} style={styles.qBlock}>
-            <Text style={styles.qNum}>Q{q.question_number}</Text>
-            <Text style={styles.qText}>{q.text}</Text>
-            {(q.options ?? []).map((opt) => {
-              const isSelected = sel === opt.letter;
-              const isCorrect = q.answer.toUpperCase() === opt.letter.toUpperCase();
-              let bg: string = COLORS.surface, border: string = COLORS.border, textColor: string = COLORS.text;
-              if (submitted && isCorrect) { bg = '#DCFCE7'; border = '#86EFAC'; }
-              else if (submitted && isSelected && !isCorrect) { bg = '#FEE2E2'; border = '#FCA5A5'; }
-              else if (!submitted && isSelected) { bg = '#FFF9E6'; border = '#FCD34D'; }
-              return (
-                <TouchableOpacity
-                  key={opt.letter}
-                  style={[styles.option, { backgroundColor: bg, borderColor: border }]}
-                  onPress={() => !submitted && onAnswer(q.question_number, opt.letter)}
-                  activeOpacity={submitted ? 1 : 0.8}
-                >
-                  <View style={[styles.bullet, isSelected && !submitted && { backgroundColor: COLORS.primary, borderColor: COLORS.primary }]}>
-                    <Text style={[styles.bulletLetter, isSelected && !submitted && { color: '#fff' }]}>{opt.letter}</Text>
-                  </View>
-                  <Text style={[styles.optText, { color: textColor }]}>{opt.text}</Text>
-                  {submitted && isCorrect && <Ionicons name="checkmark-circle" size={16} color="#16A34A" />}
-                  {submitted && isSelected && !isCorrect && <Ionicons name="close-circle" size={16} color="#DC2626" />}
-                </TouchableOpacity>
-              );
-            })}
-            {submitted && q.explanation && (
-              <View style={[styles.explanation, { backgroundColor: sel.toUpperCase() === q.answer.toUpperCase() ? '#F0FDF4' : '#FEF2F2' }]}>
-                <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 }}>
-                  {sel.toUpperCase() === q.answer.toUpperCase() ? '✅ ' : '❌ '}{q.explanation}
-                </Text>
-              </View>
-            )}
-          </View>
-        );
-      })}
     </View>
   );
-}
-
-/* ─── Fill-in Group ─── */
-function FillGroup({ group, answers, submitted, onAnswer }: {
-  group: ContentGroup;
-  answers: Record<string | number, string>;
-  submitted: boolean;
-  onAnswer: (qNum: number, val: string) => void;
-}) {
-  const questions = (group.questions ?? group.points ?? []) as any[];
-  const TYPE_LABEL: Record<string, string> = {
-    short_answer: 'Short Answer',
-    note_completion: 'Note Completion',
-    summary_completion: 'Summary Completion',
-    diagram_completion: 'Diagram Completion',
-    flowchart_completion: 'Flowchart Completion',
-  };
-  return (
-    <View>
-      <Text style={styles.groupType}>{TYPE_LABEL[group.type] ?? group.type.replace(/_/g, ' ')}</Text>
-      {group.instructions && (
-        <View style={styles.instructions}>
-          <Text style={styles.instructionsText}>{group.instructions}</Text>
-        </View>
-      )}
-      {questions.map((q) => {
-        const qNum = q.question_number ?? q.id;
-        const val = answers[qNum] ?? '';
-        const correct = (q.acceptable_answers ?? [q.answer ?? '']).map((a: string) => a.toLowerCase().trim());
-        const isCorrect = submitted && correct.includes(val.trim().toLowerCase());
-        return (
-          <View key={qNum} style={styles.qBlock}>
-            <Text style={styles.qNum}>Q{qNum}</Text>
-            <Text style={styles.qText}>{q.text ?? q.question ?? ''}</Text>
-            <TextInput
-              style={[
-                styles.input,
-                submitted && isCorrect && { borderColor: '#86EFAC', backgroundColor: '#DCFCE7' },
-                submitted && !isCorrect && { borderColor: '#FCA5A5', backgroundColor: '#FEE2E2' },
-              ]}
-              value={val}
-              onChangeText={v => !submitted && onAnswer(qNum, v)}
-              placeholder="Your answer…"
-              placeholderTextColor={COLORS.textMuted}
-              editable={!submitted}
-            />
-            {submitted && (
-              <Text style={{ fontSize: FONT_SIZES.xs, marginTop: 4, color: isCorrect ? '#16A34A' : '#DC2626', fontWeight: '700' }}>
-                {isCorrect ? '✅ Correct!' : `❌ Answer: ${q.answer ?? (q.acceptable_answers?.[0] ?? '')}`}
-              </Text>
-            )}
-          </View>
-        );
-      })}
-    </View>
-  );
-}
-
-/* ─── Render a content group by type ─── */
-function ContentGroupView({ group, gi, answers, submitted, onAnswer }: {
-  group: ContentGroup; gi: number;
-  answers: Record<string | number, string>;
-  submitted: boolean;
-  onAnswer: (key: string | number, val: string) => void;
-}) {
-  const FILL_TYPES = ['short_answer', 'note_completion', 'summary_completion', 'diagram_completion', 'flowchart_completion'];
-  const MCQ_TYPES = ['multiple_choice', 'multiple_choice_single', 'multiple_choice_multiple',
-    'true_false_not_given', 'yes_no_not_given', 'matching', 'matching_headings',
-    'matching_features', 'matching_information', 'matching_sentence_endings'];
-
-  if (FILL_TYPES.includes(group.type)) {
-    return <FillGroup group={group} answers={answers} submitted={submitted} onAnswer={(q, v) => onAnswer(q, v)} />;
-  }
-  // Default: MCQ
-  return <MCQGroup group={group} answers={answers} submitted={submitted} onAnswer={(q, l) => onAnswer(q, l)} />;
 }
 
 /* ─── Main Screen ─── */
 export default function ExerciseViewerScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { exerciseId, lessonId, skill } = useLocalSearchParams<{
     exerciseId: string; lessonId?: string; skill: string;
   }>();
@@ -266,13 +281,21 @@ export default function ExerciseViewerScreen() {
           setSubmitted(true);
           const finalScore = exercise ? calcScore(exercise.content, answers) : 0;
           const finalTotal = exercise ? getTotalQuestions(exercise.content) : 0;
-          if (finalScore === finalTotal && finalTotal > 0) {
+          
+          const skillLc = skill?.toLowerCase() ?? '';
+          const isWriting = skillLc === 'writing';
+          const shouldMarkComplete = isWriting || (finalScore === finalTotal && finalTotal > 0);
+
+          if (shouldMarkComplete) {
             setMarking(true);
             try {
-              const skillLc = skill?.toLowerCase() ?? '';
-              const fieldName = skillLc === 'reading' ? 'readingExerciseId'
-                : skillLc === 'writing' ? 'writingExerciseId'
+              const fieldName = isWriting ? 'writingExerciseId'
+                : skillLc === 'reading' ? 'readingExerciseId'
                 : 'listeningExerciseId';
+              
+              if (isWriting) {
+                await apiClient.post(`/ielts/writing-exercises/${exerciseId}/save-answer`, answers);
+              }
               await apiClient.post('/ielts/progress/mark-completed', { [fieldName]: exerciseId });
             } catch (e) { console.error('mark-completed failed:', e); }
             finally { setMarking(false); }
@@ -323,10 +346,11 @@ export default function ExerciseViewerScreen() {
   }
 
   const skillUpper = (skill ?? '').toUpperCase();
+  const skillLc = skill?.toLowerCase() ?? '';
+  const isWriting = skillLc === 'writing';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
           <Ionicons name="chevron-back" size={24} color={COLORS.text} />
@@ -335,10 +359,10 @@ export default function ExerciseViewerScreen() {
           <Text style={styles.breadcrumb}>{skillUpper} · PRACTICE</Text>
           <Text style={styles.headerTitle} numberOfLines={1}>{exercise.topic ?? 'Exercise'}</Text>
         </View>
-        {!submitted && (
+        {!submitted && !isWriting && (
           <Text style={styles.ansCount}>{answeredCount} / {total}</Text>
         )}
-        {submitted && (
+        {submitted && !isWriting && (
           <Text style={[styles.ansCount, { color: isPerfect ? '#16A34A' : '#D97706' }]}>
             {score}/{total} ✓
           </Text>
@@ -347,10 +371,10 @@ export default function ExerciseViewerScreen() {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
+        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 140 }}
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
       >
-        {/* Passage (reading) */}
         {exercise.passage && (
           <View style={styles.passageBox}>
             <Text style={styles.passageLabel}>📖 Passage</Text>
@@ -358,16 +382,11 @@ export default function ExerciseViewerScreen() {
           </View>
         )}
 
-        {/* Audio hint for listening */}
         {exercise.audioUrl && (
-          <View style={styles.audioHint}>
-            <Ionicons name="headset-outline" size={20} color={COLORS.primary} />
-            <Text style={styles.audioHintText}>Audio exercise — play audio while answering</Text>
-          </View>
+          <AudioPlayer url={exercise.audioUrl.startsWith('http') ? exercise.audioUrl : `${API_BASE_URL}${exercise.audioUrl}`} />
         )}
 
-        {/* Content groups */}
-        {exercise.content.map((group, gi) => (
+        {exercise.content && exercise.content.map((group, gi) => (
           <ContentGroupView
             key={gi}
             group={group}
@@ -377,40 +396,82 @@ export default function ExerciseViewerScreen() {
             onAnswer={setAnswer}
           />
         ))}
+
+        {isWriting && exercise.prompt && (
+          <View style={styles.writingContainer}>
+            <View style={styles.writingPromptBox}>
+              <Text style={styles.passageLabel}>📝 Prompt</Text>
+              <Markdown style={markdownStyles} rules={buildMarkdownRules()}>
+                {exercise.prompt || ''}
+              </Markdown>
+              
+              {exercise.diagramUrl && (
+                <View style={styles.diagramContainer}>
+                  <Image 
+                    source={{ uri: exercise.diagramUrl.startsWith('http') ? exercise.diagramUrl : `${API_BASE_URL}${exercise.diagramUrl}` }}
+                    style={{ width: width - SPACING.lg * 4, height: 200 }}
+                    resizeMode="contain"
+                  />
+                </View>
+              )}
+            </View>
+
+            <View style={styles.writingInputsContainer}>
+              {['intro', 'overview', 'body1', 'body2'].map((sectionKey) => {
+                const label = sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1).replace(/(\d)/, ' $1');
+                return (
+                  <WritingSection
+                    key={sectionKey}
+                    title={label}
+                    value={answers[sectionKey] || ''}
+                    onChange={(v) => !submitted && setAnswer(sectionKey, v)}
+                    submitted={submitted}
+                    modelText={exercise.modelAnswer?.[sectionKey]}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        )}
       </ScrollView>
 
-      {/* Bottom bar */}
       <View style={styles.bottomBar}>
         {!submitted ? (
           <TouchableOpacity
-            style={[styles.submitBtn, answeredCount === 0 && { opacity: 0.5 }]}
+            style={[styles.submitBtn, !isWriting && answeredCount === 0 && { opacity: 0.5 }]}
             onPress={handleSubmit}
-            disabled={answeredCount === 0}
+            disabled={!isWriting && answeredCount === 0}
           >
-            <Ionicons name="checkmark-circle-outline" size={18} color={COLORS.text} />
-            <Text style={styles.submitText}>Submit Answers</Text>
+            <Ionicons name="checkmark-circle-outline" size={18} color="#fff" />
+            <Text style={styles.submitText}>{isWriting ? "Save Progress & Show Answer" : "Submit Answers"}</Text>
           </TouchableOpacity>
         ) : (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <View>
-              <Text style={[styles.scoreText, { color: isPerfect ? '#16A34A' : '#D97706' }]}>
-                {score} / {total} correct
-              </Text>
-              <Text style={styles.scoreSubtext}>
-                {isPerfect ? '🎉 Perfect score!' : `Keep trying — need ${total - score} more`}
-              </Text>
+              {isWriting ? (
+                <Text style={[styles.scoreText, { color: '#16A34A' }]}>Progress Saved</Text>
+              ) : (
+                <>
+                  <Text style={[styles.scoreText, { color: isPerfect ? '#16A34A' : '#D97706' }]}>
+                    {score} / {total} correct
+                  </Text>
+                  <Text style={styles.scoreSubtext}>
+                    {isPerfect ? '🎉 Perfect score!' : `Keep trying — need ${total - score} more`}
+                  </Text>
+                </>
+              )}
             </View>
             <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
-              {!isPerfect && (
+              {(!isPerfect && !isWriting) && (
                 <TouchableOpacity
                   style={styles.retryBtn}
                   onPress={() => { setAnswers({}); setSubmitted(false); }}
                 >
-                  <Ionicons name="refresh" size={14} color={COLORS.textSecondary} />
+                  <Ionicons name="refresh" size={14} color="#fff" />
                   <Text style={styles.retryText}>Retry</Text>
                 </TouchableOpacity>
               )}
-              {isPerfect && (
+              {(isPerfect || isWriting) && (
                 <TouchableOpacity style={styles.nextBtn} onPress={handleNext} disabled={marking}>
                   {marking
                     ? <ActivityIndicator size="small" color={COLORS.text} />
@@ -433,7 +494,6 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
   loadingText: { color: COLORS.textSecondary, fontSize: FONT_SIZES.sm },
-
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
@@ -442,7 +502,6 @@ const styles = StyleSheet.create({
   breadcrumb: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
   headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.text, marginTop: 2 },
   ansCount: { fontSize: FONT_SIZES.sm, fontWeight: '800', color: COLORS.primary },
-
   passageBox: {
     backgroundColor: COLORS.surface, borderRadius: RADIUS.xl,
     borderWidth: 1, borderColor: COLORS.border,
@@ -450,48 +509,6 @@ const styles = StyleSheet.create({
   },
   passageLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.textMuted, textTransform: 'uppercase', marginBottom: SPACING.sm },
   passageText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
-
-  audioHint: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
-    backgroundColor: '#EFF6FF', borderRadius: RADIUS.lg,
-    padding: SPACING.md, marginBottom: SPACING.lg,
-    borderWidth: 1, borderColor: '#BFDBFE',
-  },
-  audioHintText: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '600' },
-
-  groupType: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: SPACING.sm },
-  instructions: {
-    backgroundColor: '#FFFBEB', borderRadius: RADIUS.md,
-    borderLeftWidth: 3, borderLeftColor: '#D97706',
-    padding: SPACING.md, marginBottom: SPACING.md,
-  },
-  instructionsText: { fontSize: FONT_SIZES.sm, color: '#92400E', lineHeight: 20 },
-
-  qBlock: {
-    backgroundColor: '#fff', borderRadius: RADIUS.xl,
-    borderWidth: 1, borderColor: COLORS.border,
-    padding: SPACING.lg, marginBottom: SPACING.md,
-  },
-  qNum: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.primary, textTransform: 'uppercase', marginBottom: 4 },
-  qText: { fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.md, lineHeight: 22 },
-  option: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
-    padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1, marginBottom: SPACING.sm,
-  },
-  bullet: {
-    width: 28, height: 28, borderRadius: 14,
-    backgroundColor: '#fff', borderWidth: 1.5, borderColor: COLORS.border,
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-  },
-  bulletLetter: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary },
-  optText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '600' },
-  explanation: { marginTop: SPACING.sm, padding: SPACING.sm, borderRadius: RADIUS.md },
-  input: {
-    borderWidth: 1.5, borderColor: COLORS.border,
-    borderRadius: RADIUS.md, padding: SPACING.md,
-    fontSize: FONT_SIZES.md, color: COLORS.text,
-  },
-
   bottomBar: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     padding: SPACING.lg, backgroundColor: '#fff',
@@ -518,4 +535,68 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
   },
   nextText: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.text },
+
+  writingContainer: { marginTop: SPACING.md },
+  writingPromptBox: {
+    backgroundColor: COLORS.surface, borderRadius: RADIUS.xl,
+    borderWidth: 1, borderColor: COLORS.border,
+    padding: SPACING.lg, marginBottom: SPACING.xl,
+  },
+  writingPromptText: { fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 24, fontWeight: '600' },
+  diagramContainer: { marginTop: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  writingInputsContainer: { gap: SPACING.lg },
+  writingSection: { gap: SPACING.xs },
+  writingSectionHeader: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, paddingVertical: 4 },
+  writingSectionLabel: { fontSize: FONT_SIZES.sm, fontWeight: '800', color: '#1F2937' },
+  writingSectionContent: { marginTop: 4 },
+  writingInput: {
+    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md,
+    padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text,
+    minHeight: 120, textAlignVertical: 'top', backgroundColor: '#fff',
+  },
+  modelAnswerBox: {
+    marginTop: SPACING.sm, padding: SPACING.md,
+    backgroundColor: '#F0FDF4', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#BBF7D0',
+  },
+  modelAnswerText: { fontSize: FONT_SIZES.sm, color: '#15803D', lineHeight: 22, fontWeight: '500' },
+});
+
+const markdownStyles = StyleSheet.create({
+  body: {
+    fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 24,
+  },
+  strong: {
+    fontFamily: FONTS.bold, fontWeight: '700',
+  },
+  code_inline: {
+    backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 4, fontFamily: FONTS.medium, paddingHorizontal: 4,
+  },
+  blockquote: {
+    backgroundColor: 'rgba(0,0,0,0.035)', borderLeftWidth: 4, borderLeftColor: COLORS.border, paddingHorizontal: SPACING.md,
+  },
+  bullet_list: { marginTop: 4, marginBottom: 8 },
+  ordered_list: { marginTop: 4, marginBottom: 8 },
+  list_item: { flexDirection: 'row', marginBottom: 4 },
+  bullet_list_icon: { marginLeft: 0, marginRight: 8, fontSize: 24, lineHeight: 24, color: COLORS.text },
+  ordered_list_icon: { marginLeft: 0, marginRight: 8, fontSize: FONT_SIZES.md, lineHeight: 24, color: COLORS.text, fontFamily: FONTS.bold },
+  paragraph: { marginTop: 0, marginBottom: 8 },
+  table: {
+    // handled in rules
+  },
+  thead: {
+    // handled in rules
+  },
+  tr: {
+    // handled in rules
+  },
+  th: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#4B5563',
+    textTransform: 'uppercase',
+  },
+  td: {
+    fontSize: 14,
+    color: COLORS.text,
+  },
 });

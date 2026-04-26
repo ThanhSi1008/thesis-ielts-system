@@ -77,14 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const response = await authService.login(credentials);
-      
-      if (response.access_token) {
-        await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.access_token);
-      }
-      if (response.refresh_token) {
-        await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh_token);
-      }
-      
       if (response.user) {
         setUser(response.user);
         await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
@@ -114,11 +106,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await authService.logout();
-      await AsyncStorage.multiRemove([
-        STORAGE_KEYS.ACCESS_TOKEN,
-        STORAGE_KEYS.REFRESH_TOKEN,
-        STORAGE_KEYS.USER_DATA,
-      ]);
       setUser(null);
     } finally {
       setIsLoading(false);
