@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { ChevronLeft, Lock } from "lucide-react";
 import { vocabularyApi } from "@/services/learning.api";
+import { vocabLabApi } from "@/services/vocabLab.api";
 import { useAuth } from "@/contexts/AuthContext";
 import type { VocabularyUnitWithContent, VocabularyWord, SubmitExerciseResponse, SubmitQuestionsResponse } from "@/types";
-import PageHeader from "@/components/PageHeader";
 
 // ============================================================
 // WORD LIST FLIP CARD COMPONENT
@@ -78,11 +79,14 @@ interface WordListFlipCardProps {
   totalWords: number;
   onNextWord: () => void;
   onSkip?: () => void; // Optional skip handler for dev/testing
+  bookName: string;
 }
 
-function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWord, onSkip }: WordListFlipCardProps) {
+function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWord, onSkip, bookName }: WordListFlipCardProps) {
   const { user } = useAuth();
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addedWords, setAddedWords] = useState<Set<string>>(new Set());
 
   // Reset flip state when word changes
   useEffect(() => {
@@ -99,6 +103,28 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
       const utterance = new SpeechSynthesisUtterance(currentWord.word);
       utterance.lang = 'en-US';
       speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleAddToFlashcard = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (addedWords.has(currentWord.id)) return;
+
+    setIsAdding(true);
+    try {
+      await vocabLabApi.createFlashcardFromVocabulary({
+        bookName,
+        word: currentWord
+      });
+      setAddedWords(prev => new Set(prev).add(currentWord.id));
+      // Notify Header badge to refresh
+      window.dispatchEvent(new CustomEvent('vocabduechanged'));
+      alert("✅ Successfully added to your Vocab Lab flashcards!");
+    } catch (err) {
+      console.error("Failed to add flashcard:", err);
+      alert("❌ Failed to add flashcard.");
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -248,10 +274,11 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
             {currentWordIndex < totalWords - 1 ? "ALREADY KNOW" : "GO TO EXERCISE"}
           </button>
           <button
-            className="bg-[#E74C3C] hover:bg-[#d64132] text-white font-bold py-4 rounded-xl uppercase tracking-wide transition-colors"
-            onClick={(e) => e.stopPropagation()}
+            className={`${addedWords.has(currentWord.id) ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#E74C3C] hover:bg-[#d64132]'} text-white font-bold py-4 rounded-xl uppercase tracking-wide transition-colors`}
+            onClick={handleAddToFlashcard}
+            disabled={isAdding || addedWords.has(currentWord.id)}
           >
-            ADD TO MY FLASHCARD
+            {isAdding ? "ADDING..." : addedWords.has(currentWord.id) ? "ADDED TO FLASHCARDS" : "ADD TO MY FLASHCARD"}
           </button>
         </div>
       )}
@@ -287,7 +314,7 @@ export default function UnitPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+      <div className="w-full p-4 py-8">
         <div className="h-8 w-32 bg-gray-200 rounded mb-8 animate-pulse" />
         <div className="h-96 bg-gray-100 rounded-2xl animate-pulse" />
       </div>
@@ -296,7 +323,7 @@ export default function UnitPage() {
 
   if (error || !unit) {
     return (
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+      <div className="w-full p-4 py-8">
         <div className="bg-red-50 text-red-600 p-4 rounded-xl">
           {error || "Unit not found"}
         </div>
@@ -305,24 +332,15 @@ export default function UnitPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title={unit.title}
-        backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772802169/8a8ef998-37c5-4f7a-ba32-06af3d4e35b2.png"
-        breadcrumbs={[
-          { label: 'Homepage', href: '/' },
-          { label: 'Vocabulary', href: '/vocabulary' },
-          { label: unit.book.name, href: `/vocabulary/${bookId}` },
-          { label: `Unit ${unit.order}: ${unit.title}` },
-        ]}
-      />
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+    <div className="flex-1 min-w-0 bg-white overflow-y-auto p-2 px-5 w-full h-full shrink-0">
+      <div className="w-full">
+
         <UnitLearningClient
           unit={unit}
           bookId={bookId}
         />
       </div>
-    </>
+    </div>
   );
 }
 
@@ -359,6 +377,66 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
 
   const currentWord = unit.words[currentWordIndex];
   const totalWords = unit.words.length;
+
+  // Load saved progress on mount
+  useEffect(() => {
+    const loadProgress = async () => {
+      try {
+        const progressData = await vocabularyApi.getProgress(bookId);
+        const unitProgress = progressData.units.find(u => u.id === unit.id);
+        if (unitProgress) {
+          // Restore word learning progress
+          if (unitProgress.wordsLearned > 0) {
+            setWordsLearned(unitProgress.wordsLearned);
+            // Set word index to where they left off (or end if all learned)
+            setCurrentWordIndex(Math.min(unitProgress.wordsLearned, totalWords - 1));
+          }
+
+          // Restore exercise completion state
+          if (unitProgress.exerciseScore !== undefined && unitProgress.exerciseScore !== null) {
+            const totalExercises = unit.exercises.length;
+            const correctCount = Math.round((unitProgress.exerciseScore / 100) * totalExercises);
+            setExerciseResult({
+              score: unitProgress.exerciseScore,
+              correctCount,
+              totalQuestions: totalExercises,
+              results: [],
+            });
+          }
+
+          // Restore reading/question completion state
+          if (unitProgress.questionScore !== undefined && unitProgress.questionScore !== null) {
+            setReadingComplete(true);
+            const totalQuestions = unit.questions.length;
+            const correctCount = Math.round((unitProgress.questionScore / 100) * totalQuestions);
+            setQuestionResult({
+              score: unitProgress.questionScore,
+              correctCount,
+              totalQuestions,
+              results: [],
+            });
+          }
+
+          // Auto-navigate to the appropriate tab based on progress
+          if (unitProgress.isCompleted) {
+            setReadingComplete(true);
+            setActiveTab('questions');
+          } else if (unitProgress.questionScore !== undefined && unitProgress.questionScore !== null) {
+            setReadingComplete(true);
+            setActiveTab('questions');
+          } else if (unitProgress.exerciseScore !== undefined && unitProgress.exerciseScore !== null) {
+            setReadingComplete(true);
+            setActiveTab('reading');
+          } else if (unitProgress.wordsLearned >= totalWords) {
+            setActiveTab('exercise');
+          }
+        }
+      } catch {
+        // User not logged in or no progress, start fresh
+      }
+    };
+    loadProgress();
+  }, [bookId, unit.id, totalWords]);
 
   // Update word progress when moving through words
   const handleNextWord = async () => {
@@ -447,56 +525,81 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
 
   const getCompletionIcon = (isComplete: boolean) => {
     if (isComplete) {
-      return <div className="w-6 h-6 rounded-full bg-[#FFC600] flex items-center justify-center text-white text-sm font-bold">✓</div>;
+      return <span className="text-[#FFC600] text-sm font-bold ml-auto">✓</span>;
     }
-    return <div className="w-6 h-6 rounded-full border-2 border-gray-300"></div>;
+    return null;
   };
 
   return (
     <>
-      <div className="mb-4">
-        <h1 className="text-4xl font-bold mb-2">Vocabulary</h1>
-        <p className="text-gray-600">{unit.book.name} - Unit {unit.order}: {unit.title}</p>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-12">
+      <div className="flex flex-col lg:flex-row gap-12 mt-4">
         {/* Sidebar */}
-        <div className="w-full lg:w-64 flex-shrink-0">
-          <div className="sticky top-8">
-            <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-[#FFC600] pb-2 inline-block">Lessons</h3>
-
-            <ul className="space-y-6">
-              <li
-                className={`flex items-center gap-3 cursor-pointer ${activeTab === 'word-list' ? 'text-black font-bold' : 'text-gray-500 font-medium'}`}
-                onClick={() => setActiveTab('word-list')}
-              >
-                {getCompletionIcon(isWordListComplete)}
-                Word List ({wordsLearned}/{totalWords})
-              </li>
-              <li
-                className={`flex items-center gap-3 ${isExerciseUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'exercise' ? 'text-black font-bold' : isExerciseUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
-                onClick={() => isExerciseUnlocked && setActiveTab('exercise')}
-              >
-                {getCompletionIcon(isExerciseComplete)}
-                Exercise
-              </li>
-              <li
-                className={`flex items-center gap-3 ${isReadingUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'reading' ? 'text-black font-bold' : isReadingUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
-                onClick={() => isReadingUnlocked && setActiveTab('reading')}
-              >
-                {getCompletionIcon(isReadingCompleteFlag)}
-                Reading Comprehension
-              </li>
-              <li
-                className={`flex items-center gap-3 ${isQuestionsUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'questions' ? 'text-black font-bold' : isQuestionsUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
-                onClick={() => isQuestionsUnlocked && setActiveTab('questions')}
-              >
-                {getCompletionIcon(isQuestionsComplete)}
-                Answer the questions
-              </li>
-            </ul>
+        <aside className="w-full lg:w-[260px] xl:w-[280px] shrink-0 sticky top-6 self-start max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar">
+          <div className="mb-8 pr-4">
+            <h2 className="text-[16px] font-bold text-gray-900 mb-5 leading-snug">
+              Unit {unit.order}: {unit.title}
+            </h2>
+            <Link href={`/ielts/vocabulary/${bookId}`} className="text-[11px] font-extrabold text-gray-400 tracking-widest uppercase flex items-center gap-1 hover:text-gray-900 transition-colors">
+              <ChevronLeft className="w-4 h-4 shrink-0 -ml-1" />
+              <span className="truncate">{unit.book.name}</span>
+            </Link>
           </div>
-        </div>
+
+          <div className="flex flex-col relative border-l border-gray-200 ml-2 space-y-1">
+            <button
+              onClick={() => setActiveTab('word-list')}
+              className={`flex items-center text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeTab === 'word-list'
+                ? 'border-gray-900 text-gray-900 font-extrabold'
+                : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium'
+                }`}
+            >
+              <span className="flex-1">Lesson</span>
+              {getCompletionIcon(isWordListComplete)}
+            </button>
+            <button
+              onClick={() => isExerciseUnlocked && setActiveTab('exercise')}
+              disabled={!isExerciseUnlocked}
+              className={`flex items-center text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeTab === 'exercise'
+                ? 'border-gray-900 text-gray-900 font-extrabold'
+                : isExerciseUnlocked
+                  ? 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium cursor-pointer'
+                  : 'border-transparent text-gray-300 cursor-not-allowed font-medium'
+                }`}
+            >
+              {!isExerciseUnlocked && <Lock className="w-3.5 h-3.5 mr-2 shrink-0" />}
+              <span className="flex-1">Exercise</span>
+              {getCompletionIcon(isExerciseComplete)}
+            </button>
+            <button
+              onClick={() => isReadingUnlocked && setActiveTab('reading')}
+              disabled={!isReadingUnlocked}
+              className={`flex items-center text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeTab === 'reading'
+                ? 'border-gray-900 text-gray-900 font-extrabold'
+                : isReadingUnlocked
+                  ? 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium cursor-pointer'
+                  : 'border-transparent text-gray-300 cursor-not-allowed font-medium'
+                }`}
+            >
+              {!isReadingUnlocked && <Lock className="w-3.5 h-3.5 mr-2 shrink-0" />}
+              <span className="flex-1">Reading Comprehension</span>
+              {getCompletionIcon(isReadingCompleteFlag)}
+            </button>
+            <button
+              onClick={() => isQuestionsUnlocked && setActiveTab('questions')}
+              disabled={!isQuestionsUnlocked}
+              className={`flex items-center text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeTab === 'questions'
+                ? 'border-gray-900 text-gray-900 font-extrabold'
+                : isQuestionsUnlocked
+                  ? 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium cursor-pointer'
+                  : 'border-transparent text-gray-300 cursor-not-allowed font-medium'
+                }`}
+            >
+              {!isQuestionsUnlocked && <Lock className="w-3.5 h-3.5 mr-2 shrink-0" />}
+              <span className="flex-1">Answer the questions</span>
+              {getCompletionIcon(isQuestionsComplete)}
+            </button>
+          </div>
+        </aside>
 
         {/* Main Content */}
         <div className="flex-1">
@@ -508,6 +611,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
               totalWords={totalWords}
               onNextWord={handleNextWord}
               onSkip={handleSkipWordList}
+              bookName={unit.book.name}
             />
           )}
 
@@ -719,7 +823,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                       <h3 className="text-xl font-bold text-green-700 mb-2">🎉 Unit Completed!</h3>
                       <p className="text-green-600">
                         Congratulations! You have successfully completed this unit with a perfect score.
-                        <Link href={`/vocabulary/${bookId}`} className="underline ml-2 font-bold">
+                        <Link href={`/ielts/vocabulary/${bookId}`} className="underline ml-2 font-bold">
                           Back to Units
                         </Link>
                       </p>
@@ -896,7 +1000,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                 </button>
                 {isQuestionsComplete ? (
                   <Link
-                    href={`/vocabulary/${bookId}`}
+                    href={`/ielts/vocabulary/${bookId}`}
                     className="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors"
                   >
                     Back to Units

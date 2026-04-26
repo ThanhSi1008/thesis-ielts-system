@@ -188,6 +188,8 @@ export function BrowseTab({ isActive }: { isActive: boolean }) {
       setShowDeleteConfirm(false);
       setMessage({ type: 'success', text: 'Card deleted successfully!' });
       setTimeout(() => setMessage(null), 3000);
+      // Notify Header badge to refresh
+      window.dispatchEvent(new CustomEvent('vocabduechanged'));
       await fetchCards();
       await fetchInitialData();
     } catch (error) {
@@ -787,9 +789,10 @@ export function BrowseTab({ isActive }: { isActive: boolean }) {
             {/* Review info */}
             <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-gray-500 border-t border-gray-100 pt-4 px-2">
               <span>State: <strong>{selectedCard.cardState}</strong></span>
-              <span>Ease: <strong>{selectedCard.easeFactor.toFixed(2)}</strong></span>
-              <span>Int: <strong>{selectedCard.interval}d</strong></span>
-              <span>Reps: <strong>{selectedCard.repetition}</strong></span>
+              <span>Stability: <strong>{((selectedCard as any).stability ?? 0).toFixed(2)}</strong></span>
+              <span>Difficulty: <strong>{((selectedCard as any).difficulty ?? 0).toFixed(2)}</strong></span>
+              <span>Int: <strong>{((selectedCard as any).scheduledDays ?? 0)}d</strong></span>
+              <span>Reps: <strong>{((selectedCard as any).reps ?? 0)}</strong></span>
             </div>
           </>
         ) : (

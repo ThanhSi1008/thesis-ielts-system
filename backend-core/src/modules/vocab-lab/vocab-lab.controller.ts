@@ -147,6 +147,17 @@ export class VocabLabController {
     return this.vocabLabService.createFlashcard(req.user.id, dto);
   }
 
+  @Post("from-vocabulary")
+  async createFlashcardFromVocabulary(
+    @Request() req: any,
+    @Body() dto: { bookName: string; word: any },
+  ) {
+    if (!dto.bookName || !dto.word) {
+      throw new BadRequestException("bookName and word are required");
+    }
+    return this.vocabLabService.createFlashcardFromVocabulary(req.user.id, dto.bookName, dto.word);
+  }
+
   @Put("cards/:id")
   async updateFlashcard(
     @Request() req: any,

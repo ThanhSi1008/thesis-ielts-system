@@ -140,12 +140,29 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
   const { mode } = useIeltsSidebar();
   const isMini = mode === "mini" && !isOverlay;
 
-  const [foundationOpen, setFoundationOpen] = useState(false);
+  const [foundationOpen, setFoundationOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("ielts-sidebar-foundation-open");
+      if (stored !== null) return stored === "true";
+    }
+    return false;
+  });
   const isFoundationActive = NAV_ITEMS.find((n) => n.key === "foundation")!.match(pathname);
 
   useEffect(() => {
-    if (isFoundationActive) setFoundationOpen(true);
+    if (isFoundationActive) {
+      setFoundationOpen(true);
+      localStorage.setItem("ielts-sidebar-foundation-open", "true");
+    }
   }, [isFoundationActive]);
+
+  const toggleFoundation = () => {
+    setFoundationOpen((prev) => {
+      const next = !prev;
+      localStorage.setItem("ielts-sidebar-foundation-open", String(next));
+      return next;
+    });
+  };
 
   return (
     <div className={`flex flex-col h-full ${isMini ? "items-center py-2" : "p-3"}`}>
@@ -207,45 +224,51 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
           /* ── Expanded / Overlay mode ── */
           if (item.isAccordion) {
             return (
-              <div key={item.key} className="space-y-0.5">
+              <div key={item.key} className="space-y-1">
                 <button
-                  onClick={() => setFoundationOpen((o) => !o)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] font-semibold transition-colors hover:bg-gray-50 ${
+                  onClick={toggleFoundation}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-colors hover:bg-gray-50 ${
                     isActive ? "text-primary" : "text-gray-700"
                   }`}
                 >
                   {item.icon}
-                  <span className="flex-1 text-left">{item.label}</span>
+                  <span className="flex-1 text-left font-semibold">{item.label}</span>
                   <svg
                     viewBox="0 0 24 24"
-                    className={`w-[18px] h-[18px] shrink-0 transition-transform duration-200 opacity-60 ${foundationOpen ? "" : "-rotate-90"}`}
-                    fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    className={`w-4 h-4 shrink-0 transition-transform duration-300 text-gray-400 ${foundationOpen ? "rotate-180" : ""}`}
+                    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                   >
-                    <path d="M6 9l6 6 6-6" />
+                    <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
 
-                {foundationOpen && (
-                  <div className="pl-3 space-y-0.5 ml-6">
-                    {item.children!.map((child) => {
-                      const childActive = child.match(pathname);
-                      return (
-                        <Link
-                          key={child.key}
-                          href={child.href}
-                          onClick={onNavigate}
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                            childActive
-                              ? "font-semibold bg-primary/10 text-primary"
-                              : "font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800"
-                          }`}
-                        >
-                          {child.label}
-                        </Link>
-                      );
-                    })}
+                <div
+                  className={`grid transition-all duration-300 ease-in-out ${
+                    foundationOpen ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="ml-7 pl-3 border-l-2 border-gray-100 space-y-1 py-1">
+                      {item.children!.map((child) => {
+                        const childActive = child.match(pathname);
+                        return (
+                          <Link
+                            key={child.key}
+                            href={child.href}
+                            onClick={onNavigate}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                              childActive
+                                ? "font-semibold bg-primary/5 text-primary"
+                                : "font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                            }`}
+                          >
+                            {child.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           }

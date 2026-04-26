@@ -13,15 +13,7 @@ import {
   cambridgeIelts17ListeningTest4Questions,
   cambridgeIelts13ListeningTest1Questions,
 } from "./data/mock-tests";
-import {
-  unit1Words,
-  unit1Exercises,
-  unit1Questions,
-  unit1Story,
-  unit2Words,
-  unit2Exercises,
-  vocabularyBooks,
-} from "./data/vocabulary";
+import { vocabularyBooks } from "./data/vocabulary";
 import { grammarBooks } from "./data/grammar";
 import { pronunciationSounds } from "./data/pronunciation";
 import { seedIeltsBasic } from "./seeders/ielts-basic.seeder";
@@ -131,6 +123,7 @@ async function main() {
             partOfSpeech: w.partOfSpeech,
             example: w.example,
             imageUrl: w.imageUrl || null,
+            audioUrl: w.audioUrl || null,
             order: w.order,
           })),
         });

@@ -266,6 +266,7 @@ export default function DictionaryPopup({ word, sentence, position, onClose }: D
                 onClose={() => setIsAddModalOpen(false)} 
                 initialFront={word} 
                 initialBack={`${dictData?.meanings?.[0]?.definitions?.[0]?.definition || viTranslation || ''}\n\nExample sentence: ${sentence}`}
+                initialAudioUrl={dictData?.phonetics?.find((p: any) => p.audio && p.audio.length > 0)?.audio || ''}
             />
         </div>
     );

@@ -115,6 +115,72 @@ export class VocabLabService {
     return basic.id;
   }
 
+  async ensureEssentialCardType(userId: string): Promise<string> {
+    let essential = await this.prisma.cardType.findFirst({
+      where: { name: "essential", OR: [{ userId }, { isBuiltIn: true }] },
+    });
+    if (!essential) {
+      essential = await this.prisma.cardType.create({
+        data: {
+          name: "essential",
+          userId: userId,
+          isBuiltIn: false,
+          fields: {
+            create: [
+              { name: "Word", order: 0 },
+              { name: "IPA", order: 1 },
+              { name: "Meaning", order: 2 },
+              { name: "Example", order: 3 },
+              { name: "Image", order: 4 },
+              { name: "Audio", order: 5, fieldType: "media" },
+            ],
+          },
+        },
+        include: { fields: true },
+      });
+      
+      const fields = (essential as any).fields as Array<{ id: string; name: string }>;
+      await this.prisma.cardTemplate.create({
+        data: {
+          cardType: { connect: { id: essential.id } },
+          name: "Card 1: Word → Meaning",
+          frontFields: [
+            fields.find(f => f.name === "Image")?.id,
+            fields.find(f => f.name === "Word")?.id
+          ].filter(Boolean) as string[],
+          backFields: [
+            fields.find(f => f.name === "Word")?.id,
+            fields.find(f => f.name === "IPA")?.id,
+            fields.find(f => f.name === "Meaning")?.id,
+            fields.find(f => f.name === "Example")?.id,
+            fields.find(f => f.name === "Audio")?.id
+          ].filter(Boolean) as string[],
+        },
+      });
+    } else {
+      // Step 1b: Migration — ensure Audio field exists for existing card types
+      const essentialWithFields = await this.prisma.cardType.findUnique({
+        where: { id: essential.id },
+        include: { fields: true },
+      });
+      const hasAudioField = essentialWithFields?.fields.some(f => f.name === "Audio");
+      if (!hasAudioField) {
+        const maxOrder = essentialWithFields?.fields.reduce(
+          (max, f) => Math.max(max, f.order), -1
+        ) ?? 4;
+        await this.prisma.cardTypeField.create({
+          data: {
+            cardTypeId: essential.id,
+            name: "Audio",
+            order: maxOrder + 1,
+            fieldType: "media",
+          },
+        });
+      }
+    }
+    return essential.id;
+  }
+
   async getCardTypes(userId: string) {
     await this.ensureBasicCardType();
     const types = await this.prisma.cardType.findMany({
@@ -328,7 +394,10 @@ export class VocabLabService {
         deck.flashcards.filter((f) => f.cardState === CardState.NEW).length,
       );
       const learningCount = deck.flashcards.filter(
-        (f) => f.cardState === CardState.LEARNING && f.nextReviewDate <= now,
+        (f) =>
+          (f.cardState === CardState.LEARNING ||
+            f.cardState === CardState.RELEARNING) &&
+          f.nextReviewDate <= now,
       ).length;
       const dueCount = deck.flashcards.filter(
         (f) => f.cardState === CardState.REVIEW && f.nextReviewDate <= now,
@@ -364,7 +433,10 @@ export class VocabLabService {
       deck.flashcards.filter((f) => f.cardState === CardState.NEW).length,
     );
     const learningCount = deck.flashcards.filter(
-      (f) => f.cardState === CardState.LEARNING && f.nextReviewDate <= now,
+      (f) =>
+        (f.cardState === CardState.LEARNING ||
+          f.cardState === CardState.RELEARNING) &&
+        f.nextReviewDate <= now,
     ).length;
     const dueCount = deck.flashcards.filter(
       (f) => f.cardState === CardState.REVIEW && f.nextReviewDate <= now,
@@ -431,6 +503,94 @@ export class VocabLabService {
         cardType: {
           include: { fields: { orderBy: { order: "asc" } }, templates: true },
         },
+      },
+    });
+  }
+
+  async createFlashcardFromVocabulary(userId: string, bookName: string, word: any) {
+    // 1. Ensure deck exists with the book name
+    let deck = await this.prisma.deck.findFirst({
+      where: { name: bookName, userId },
+    });
+    if (!deck) {
+      deck = await this.prisma.deck.create({
+        data: { name: bookName, userId },
+      });
+    }
+
+    // 2. Ensure "essential" card type exists
+    const cardTypeId = await this.ensureEssentialCardType(userId);
+    const cardType = await this.prisma.cardType.findUnique({
+      where: { id: cardTypeId },
+      include: { fields: true },
+    });
+
+    // 3. Check for duplicates using a specific tag
+    const tag = `vocab-${word.id}`;
+    const existing = await this.prisma.flashcard.findFirst({
+      where: { deckId: deck.id, tags: { has: tag } },
+    });
+    if (existing) {
+      return existing; // Already added
+    }
+
+    // 4. Map the fields
+    const fieldValues: Record<string, string> = {};
+    if (cardType) {
+      const wordField = cardType.fields.find(f => f.name === "Word");
+      if (wordField) fieldValues[wordField.id] = word.word;
+
+      const ipaField = cardType.fields.find(f => f.name === "IPA");
+      if (ipaField) fieldValues[ipaField.id] = word.ipa || "";
+
+      const meaningField = cardType.fields.find(f => f.name === "Meaning");
+      if (meaningField) fieldValues[meaningField.id] = word.meaning || "";
+
+      const exampleField = cardType.fields.find(f => f.name === "Example");
+      if (exampleField) fieldValues[exampleField.id] = word.example || "";
+
+      const imageField = cardType.fields.find(f => f.name === "Image");
+      if (imageField && word.imageUrl) {
+        fieldValues[imageField.id] = `<img src="${word.imageUrl}" alt="${word.word}" style="max-height: 240px; max-width: 100%; border-radius: 8px; object-fit: contain;" />`;
+      } else if (imageField) {
+        fieldValues[imageField.id] = "";
+      }
+
+      // Step 2: Map audioUrl
+      const audioField = cardType.fields.find(f => f.name === "Audio");
+      if (audioField && word.audioUrl) {
+        fieldValues[audioField.id] = word.audioUrl;
+      } else if (audioField) {
+        fieldValues[audioField.id] = "";
+      }
+    }
+
+    // 5. Provide fallback raw HTML for the front and back
+    const frontHtml = `
+      <div style="text-align: center;">
+        ${word.imageUrl ? `<img src="${word.imageUrl}" style="max-height: 150px; border-radius: 8px; margin-bottom: 16px;" />` : ''}
+        <h2>${word.word}</h2>
+      </div>
+    `;
+    const backHtml = `
+      <div style="text-align: center;">
+        <h2>${word.word}</h2>
+        <p style="color: gray;">[${word.ipa || ''}]</p>
+        ${word.audioUrl ? `<audio controls src="${word.audioUrl}" style="margin: 8px auto; display: block;"></audio>` : ''}
+        <p style="font-size: 1.2em; margin-top: 16px;">${word.meaning || ''}</p>
+        ${word.example ? `<p style="margin-top: 16px; font-style: italic; color: #555;">${word.example}</p>` : ''}
+      </div>
+    `;
+
+    // 6. Create the flashcard
+    return this.prisma.flashcard.create({
+      data: {
+        deckId: deck.id,
+        front: frontHtml,
+        back: backHtml,
+        cardTypeId: cardTypeId,
+        fieldValues,
+        tags: [tag],
       },
     });
   }

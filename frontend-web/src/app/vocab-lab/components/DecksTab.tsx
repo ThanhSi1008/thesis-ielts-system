@@ -7,7 +7,7 @@ import type { DeckWithCounts } from '@/types';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import ConfirmModal from '@/components/ConfirmModal';
 
-export function DecksTab({ isActive }: { isActive: boolean }) {
+export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; onTotalDueChange?: (total: number) => void }) {
   const router = useRouter();
   const [decks, setDecks] = useState<DeckWithCounts[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +21,11 @@ export function DecksTab({ isActive }: { isActive: boolean }) {
     try {
       const data = await vocabLabApi.getDecks();
       setDecks(data);
+      // Notify parent of total due cards
+      const total = data.reduce((sum, d) => sum + d.newCount + d.learningCount + d.dueCount, 0);
+      onTotalDueChange?.(total);
+      // Also notify Header badge to refresh in sync
+      window.dispatchEvent(new CustomEvent('vocabduechanged'));
     } catch (error) {
       console.error('Failed to fetch decks:', error);
     } finally {
@@ -112,13 +117,13 @@ export function DecksTab({ isActive }: { isActive: boolean }) {
                     }`}
                 >
                   <td className="px-6 py-5">
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
                       <span className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
                         {deck.name}
                       </span>
                       <button
                         onClick={(e) => handleDeleteClick(e, deck)}
-                        className="ml-3 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
+                        className="ml-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
                         title="Delete Deck"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

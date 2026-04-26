@@ -13,6 +13,10 @@ export default function IeltsLayout({
   const { mode } = useIeltsSidebar();
   const pathname = usePathname();
   const isOnboarding = pathname === "/ielts/basic/onboarding";
+  
+  // Hide sidebar on the vocabulary unit learning page (which has 2 dynamic segments after vocabulary)
+  const isVocabularyUnitPage = pathname.match(/^\/ielts\/vocabulary\/[^\/]+\/[^\/]+$/) !== null;
+  const shouldHideSidebar = isOnboarding || isVocabularyUnitPage;
 
   useEffect(() => {
     // Enable scrolling on the main body (it was previously hidden)
@@ -29,10 +33,10 @@ export default function IeltsLayout({
 
       <div className="flex h-full">
         {/* Inline sidebar (expanded or mini) */}
-        {!isOnboarding && <IeltsSidebar />}
+        {!shouldHideSidebar && <IeltsSidebar />}
 
-        {/* Main content area — flex container so children can decide their scrolling behavior */}
-        <main className="flex-1 min-w-0 h-full flex flex-col transition-all duration-300 ease-in-out overflow-hidden">
+        {/* Main content area — flex container with default vertical scrolling */}
+        <main className="flex-1 min-w-0 h-full flex flex-col transition-all duration-300 ease-in-out overflow-y-auto relative">
           {children}
         </main>
       </div>
