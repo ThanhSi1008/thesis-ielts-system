@@ -1,62 +1,53 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import { tokens } from '../../core/design-system/tokens';
+import { Home, BookOpen, GraduationCap, User } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
-    <Tabs 
-      screenOptions={{ 
-        headerShown: false, 
-        tabBarActiveTintColor: '#FFC600',
-        tabBarInactiveTintColor: '#94a3b8',
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: tokens.colors.primary,
+        tabBarInactiveTintColor: tokens.colors.text.secondary,
         tabBarStyle: {
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderTopWidth: 1,
-          borderTopColor: '#f1f5f9',
+          backgroundColor: tokens.colors.background.page,
+          borderTopColor: tokens.colors.border.default,
           height: 60,
-          paddingBottom: 10,
-          paddingTop: 5,
+          paddingBottom: 8,
+          paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontFamily: 'Farro-Bold',
+          fontFamily: 'Farro-Medium',
           fontSize: 10,
-          textTransform: 'uppercase',
-        }
+        },
+        headerShown: false,
       }}
     >
       <Tabs.Screen
         name="index"
-        options={{ 
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />
+        options={{
+          title: 'HOME',
+          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="vocab-lab/index"
-        options={{ 
-          title: 'Vocab',
-          tabBarIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} />
+        name="ielts"
+        options={{
+          title: 'IELTS',
+          tabBarIcon: ({ color }) => <GraduationCap size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="exams/index"
-        options={{ 
-          title: 'Exams',
-          tabBarIcon: ({ color, size }) => <Ionicons name="document-text" size={size} color={color} />
+        name="vocab-lab"
+        options={{
+          title: 'VOCAB',
+          tabBarIcon: ({ color }) => <BookOpen size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="pronunciation/index"
-        options={{ 
-          title: 'Sounds',
-          tabBarIcon: ({ color, size }) => <Ionicons name="mic" size={size} color={color} />
-        }}
-      />
-      <Tabs.Screen
-        name="shadowing/index"
-        options={{ 
-          title: 'Shadow',
-          tabBarIcon: ({ color, size }) => <Ionicons name="play-circle" size={size} color={color} />
+        name="profile"
+        options={{
+          title: 'PROFILE',
+          tabBarIcon: ({ color }) => <User size={24} color={color} />,
         }}
       />
     </Tabs>

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { useFonts, Farro_300Light, Farro_400Regular, Farro_500Medium, Farro_700Bold } from '@expo-google-fonts/farro';
+import Constants from 'expo-constants';
 import { useAuthStore } from '../core/auth/store';
 import { secureTokenStore } from '../core/auth/secure-token';
 import '../global.css'; // Import Tailwind CSS (NativeWind)
@@ -30,13 +31,27 @@ export default function RootLayout() {
   useEffect(() => {
     async function checkAuthStatus() {
       try {
-        const token = await secureTokenStore.getRefreshToken();
+        const refreshToken = await secureTokenStore.getRefreshToken();
         
-        if (token) {
-          useAuthStore.setState({ isAuthenticated: true });
+        if (refreshToken) {
+          // Gọi API để lấy access token mới (không dùng apiClient để tránh vòng lặp interceptor)
+          const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || `http://${Constants.expoConfig?.hostUri?.split(':')[0]}:3000/api/v1`;
+          const { default: axios } = await import('axios');
+          const response = await axios.post<{ access_token: string }>(
+            `${API_BASE_URL}/auth/refresh`,
+            { refresh_token: refreshToken }
+          );
+          const { access_token } = response.data;
+          useAuthStore.setState({ 
+            accessToken: access_token, 
+            isAuthenticated: true 
+          });
         }
       } catch (e) {
-        console.warn('Failed to read auth status', e);
+        // Refresh token hết hạn hoặc không hợp lệ → xóa và yêu cầu đăng nhập lại
+        console.warn('Auth bootstrap failed, clearing tokens:', e);
+        await secureTokenStore.clearRefreshToken();
+        useAuthStore.setState({ accessToken: null, isAuthenticated: false });
       } finally {
         setIsReady(true);
       }
