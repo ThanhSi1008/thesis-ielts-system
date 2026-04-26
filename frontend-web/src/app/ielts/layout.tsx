@@ -31,11 +31,9 @@ export default function IeltsLayout({
         {/* Inline sidebar (expanded or mini) */}
         {!isOnboarding && <IeltsSidebar />}
 
-        {/* Main content area — with its own scrollbar */}
-        <main className="flex-1 min-w-0 h-full overflow-y-auto transition-all duration-300 ease-in-out">
-          <div className="w-full min-h-full">
-            {children}
-          </div>
+        {/* Main content area — flex container so children can decide their scrolling behavior */}
+        <main className="flex-1 min-w-0 h-full flex flex-col transition-all duration-300 ease-in-out overflow-hidden">
+          {children}
         </main>
       </div>
     </div>

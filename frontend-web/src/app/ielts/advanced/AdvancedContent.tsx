@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Headphones, BookOpen, PenTool, Mic, Info } from "lucide-react";
+import { Headphones, BookOpen, PenTool, Mic } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/api";
 
@@ -10,20 +10,23 @@ interface PracticePart {
   title: string;
   partNumber: number;
   questionTypes: string[];
+  // If the API ever returns score/total, we can add them here
+  myScore?: number;
+  totalQuestions?: number;
 }
+
+const SKILLS = [
+  { key: "Listening", label: "Listening", icon: <Headphones className="w-4 h-4" /> },
+  { key: "Reading", label: "Reading", icon: <BookOpen className="w-4 h-4" /> },
+  { key: "Writing", label: "Writing", icon: <PenTool className="w-4 h-4" /> },
+  { key: "Speaking", label: "Speaking", icon: <Mic className="w-4 h-4" /> },
+];
 
 export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
   const [skill, setSkill] = useState("Listening");
   const [parts, setParts] = useState<PracticePart[]>([]);
   const [selectedPart, setSelectedPart] = useState(1);
   const [loading, setLoading] = useState(true);
-
-  const skills = [
-    { name: "Listening", icon: Headphones },
-    { name: "Reading", icon: BookOpen },
-    { name: "Writing", icon: PenTool },
-    { name: "Speaking", icon: Mic },
-  ];
 
   useEffect(() => {
     if (skill === "Listening" || skill === "Reading") {
@@ -43,163 +46,116 @@ export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
   }, [skill]);
 
   return (
-    <div className="flex-1 min-w-0 bg-white overflow-y-auto p-4 md:p-6 w-full animate-fade-up">
-      {/* Page Header */}
-      <div className="mb-10 text-left">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-          IELTS Advanced <span className="text-primary italic">Practice</span>
-        </h1>
-        <p className="text-slate-500 text-lg max-w-2xl">
-          Master every section with targeted practice drills designed to push you towards a Band 8.0+.
-        </p>
+    <div className={`flex-1 min-w-0 bg-white overflow-y-auto px-4 md:px-6 py-4 w-full ${embedded ? 'h-full' : 'min-h-screen'}`}>
+      {/* Skill Tabs */}
+      <div className="flex items-center gap-4 md:gap-8 mb-6 border-b border-gray-100 overflow-x-auto">
+        {SKILLS.map((s) => {
+          const active = skill === s.key;
+          return (
+            <button
+              key={s.key}
+              onClick={() => { setSkill(s.key); setSelectedPart(1); }}
+              className={`whitespace-nowrap relative py-4 text-sm font-bold flex items-center gap-2 transition-colors ${active ? "text-gray-900" : "text-gray-400 hover:text-gray-700"}`}
+            >
+              {s.icon}
+              {s.label}
+              <span className={`absolute left-0 -bottom-[1px] h-[3px] rounded-full bg-primary transition-all ${active ? "w-full" : "w-0"}`} />
+            </button>
+          );
+        })}
       </div>
 
-      {/* Skills Nav - Segmented Pill Style */}
-      <div className="flex bg-slate-100 p-1 rounded-2xl w-fit mb-10">
-        {skills.map((s) => (
-          <button
-            key={s.name}
-            onClick={() => setSkill(s.name)}
-            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-bold text-[15px] transition-all duration-300 ${
-              skill === s.name
-                ? "bg-white text-slate-900 shadow-md scale-105"
-                : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
-            }`}
-          >
-            <s.icon className={`w-4 h-4 transition-colors ${skill === s.name ? "text-primary" : "text-slate-400"}`} />
-            {s.name}
-          </button>
-        ))}
-      </div>
-
-      {(skill === "Listening" || skill === "Reading") && (
-        <div className="space-y-12">
-          {/* Part Selection - Glassmorphism Cards */}
-          <div>
-             <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-1 bg-primary rounded-full"></div>
-                <h2 className="text-xl font-extrabold text-slate-800">Select {skill} Part</h2>
-             </div>
-             
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  { id: 1, title: "Part 1", desc: "Basic Conversation", icon: "01" },
-                  { id: 2, title: "Part 2", desc: "Short Monologue", icon: "02" },
-                  { id: 3, title: "Part 3", desc: "Academic Discussion", icon: "03" },
-                  { id: 4, title: "Part 4", desc: "Academic Lecture", icon: "04" },
-                ].map((item) => (
-                  <div 
-                    key={item.id}
-                    onClick={() => setSelectedPart(item.id)}
-                    className={`group relative overflow-hidden rounded-2xl border p-6 transition-all duration-500 cursor-pointer ${
-                      selectedPart === item.id 
-                        ? "border-primary bg-gradient-to-br from-amber-50 to-white shadow-lg shadow-amber-100/50 scale-[1.02]" 
-                        : "border-slate-100 bg-white hover:border-primary/30 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1"
-                    }`}
-                  >
-                    <div className="flex flex-col gap-2 relative z-10">
-                      <div className={`text-3xl font-black mb-1 transition-colors ${selectedPart === item.id ? "text-primary/20" : "text-slate-100 group-hover:text-primary/10"}`}>
-                        {item.icon}
-                      </div>
-                      <div className={`flex items-center gap-2 font-bold text-lg transition-colors ${selectedPart === item.id ? "text-slate-900" : "text-slate-600 group-hover:text-slate-900"}`}>
-                        <Info className={`w-5 h-5 ${selectedPart === item.id ? "text-primary" : "text-slate-400 group-hover:text-primary"}`} />
-                        {item.title}
-                      </div>
-                      <div className={`text-sm font-semibold transition-colors ${selectedPart === item.id ? "text-amber-600" : "text-slate-400 group-hover:text-amber-500"}`}>
-                        {item.desc}
-                      </div>
-                    </div>
-                    {/* Decorative pattern */}
-                    <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+      {(skill === "Listening" || skill === "Reading") ? (
+        <>
+          {/* Part Selection */}
+          <div className="flex items-center gap-2 md:gap-4 mb-8 overflow-x-auto pb-2">
+            {[1, 2, 3, 4].map((partNum) => {
+              // Hide part 4 for Reading since it only has 3 parts
+              if (skill === "Reading" && partNum === 4) return null;
+              
+              const active = selectedPart === partNum;
+              return (
+                <button
+                  key={partNum}
+                  onClick={() => setSelectedPart(partNum)}
+                  className={`shrink-0 flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-2xl flex-1 border transition-colors ${active ? "bg-white border-primary shadow-sm text-primary font-bold" : "bg-gray-50/50 border-gray-100 text-gray-500 font-semibold hover:bg-gray-50"}`}
+                >
+                  <svg viewBox="0 0 24 24" className={`hidden sm:block w-5 h-5 ${active ? "text-primary" : "text-gray-400"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                  <div className="flex flex-col items-start gap-[1px]">
+                    <span className="text-sm">Part {partNum}</span>
+                    {skill === "Listening" && (
+                      <span className="hidden lg:block text-[10px] opacity-70 font-medium tracking-wide whitespace-nowrap">
+                        {partNum === 1 ? "Basic Conversation" : partNum === 2 ? "Short Monologue" : partNum === 3 ? "Academic Discussion" : "Academic Lecture"}
+                      </span>
+                    )}
                   </div>
-                ))}
-             </div>
+                </button>
+              )
+            })}
           </div>
 
-          {/* Submissions Section */}
-          <div className="animate-fade-up [animation-delay:200ms]">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-1 bg-primary rounded-full"></div>
-                <h2 className="text-xl font-extrabold text-slate-800">Available Practice Submissions</h2>
-              </div>
-              <div className="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                {loading ? "--" : parts.filter(p => p.partNumber === selectedPart).length} items found
-              </div>
-            </div>
-            
+          {/* Submissions List */}
+          <div className="space-y-4 pb-4">
             {loading ? (
-              <div className="grid gap-4">
-                 {[1, 2, 3].map(i => (
-                   <div key={i} className="animate-pulse bg-slate-50 border border-slate-100 h-24 rounded-2xl"></div>
-                 ))}
-              </div>
+              <div className="py-10 text-center text-gray-500 font-medium">Loading practice items...</div>
             ) : (
-              <div className="grid gap-5">
-                {parts.filter(p => p.partNumber === selectedPart).map((part, idx) => (
-                  <div 
-                    key={part.id} 
-                    className="group bg-white border border-slate-100 shadow-sm p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-primary/20 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 animate-fade-up"
-                    style={{ animationDelay: `${300 + idx * 100}ms` }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 text-white text-xs font-bold shadow-lg shadow-slate-900/10">
-                          {idx + 1}
-                        </span>
-                        <h4 className="font-bold text-slate-800 text-lg truncate group-hover:text-primary transition-colors">
-                          {part.title}
-                        </h4>
+              (() => {
+                const items = parts.filter(p => p.partNumber === selectedPart);
+                if (items.length === 0) return <div className="py-10 text-center text-gray-500 font-medium bg-gray-50 rounded-2xl border border-gray-100">No practice items found for this part.</div>;
+
+                return items.map((item, idx) => (
+                  <div key={item.id} className="relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+                    
+                    <div className="flex gap-6 items-center flex-1 w-full">
+                      <div className={`relative shrink-0 w-16 h-16 rounded-full border-[3px] flex flex-col items-center justify-center bg-white ${item.myScore !== undefined ? "border-green-500 text-green-600" : "border-gray-200 text-gray-400"}`}>
+                        {item.myScore !== undefined ? (
+                          <>
+                            <span className="font-black leading-none text-xl">{item.myScore}</span>
+                            {item.totalQuestions && <span className="text-[10px] font-bold text-gray-400 mt-0.5">/ {item.totalQuestions}</span>}
+                          </>
+                        ) : (
+                          <span className="font-extrabold leading-none text-xl">-</span>
+                        )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                         {part.questionTypes?.map((qt: string) => (
-                           <span 
-                             key={qt} 
-                             className="bg-slate-50 text-slate-500 border border-slate-100 px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider group-hover:bg-amber-50 group-hover:text-amber-600 group-hover:border-amber-100 transition-colors"
-                           >
-                             {qt.replace('_', ' ')}
-                           </span>
-                         ))}
-                         {part.questionTypes?.length === 0 && (
-                            <span className="text-slate-400 text-xs italic">Standard Format</span>
-                         )}
+
+                      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-[3px] rounded-md bg-gray-100 text-gray-700 text-[10px] font-bold tracking-wide uppercase truncate">Advanced Practice</span>
+                          {item.questionTypes?.map((qt) => (
+                            <span key={qt} className="px-2.5 py-[3px] rounded-md bg-amber-50 text-amber-700 text-[10px] font-bold tracking-wide uppercase truncate">
+                              {qt.replace('_', ' ')}
+                            </span>
+                          ))}
+                        </div>
+                        <h3 className="text-lg font-black text-gray-900 tracking-tight truncate">{item.title}</h3>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-4">
-                      <div className="hidden lg:flex flex-col items-end text-right">
-                         <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Difficulty</span>
-                         <span className="text-sm font-bold text-slate-700">Advanced 8.0+</span>
-                      </div>
-                      <Link 
-                        href={`/ielts/advanced/${skill.toLowerCase()}/${part.id}`} 
-                        className="w-full sm:w-auto px-8 py-3.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-primary hover:text-slate-900 shadow-lg shadow-slate-900/10 hover:shadow-primary/20 transition-all duration-300 text-center active:scale-95"
+
+                    <div className="shrink-0 flex items-center justify-end w-full md:w-auto mt-4 md:mt-0">
+                      <Link
+                        href={`/ielts/advanced/${skill.toLowerCase()}/${item.id}`}
+                        className="w-full md:w-auto px-6 py-3 rounded-xl border-2 border-primary hover:bg-primary hover:text-white text-primary text-sm font-bold shadow-sm transition-all bg-white flex items-center justify-center gap-2 group"
                       >
                         Practice Now
+                        <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                       </Link>
                     </div>
                   </div>
-                ))}
-                {parts.filter(p => p.partNumber === selectedPart).length === 0 && (
-                   <div className="py-12 bg-slate-50 border border-dashed border-slate-200 rounded-3xl text-center">
-                      <p className="text-slate-400 font-medium italic">No practice tests available for Part {selectedPart} yet.</p>
-                   </div>
-                )}
-              </div>
+                ));
+              })()
             )}
           </div>
-        </div>
-      )}
-      
-      {(skill !== "Listening" && skill !== "Reading") && (
-        <div className="flex flex-col items-center justify-center py-24 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-           <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-              <Headphones className="w-10 h-10 text-slate-200" />
-           </div>
-           <h3 className="text-xl font-bold text-slate-800 mb-2">{skill} section coming soon</h3>
-           <p className="text-slate-400 max-w-xs">We&apos;re currently preparing high-quality {skill.toLowerCase()} materials for you.</p>
+        </>
+      ) : (
+        <div className="py-20 text-center bg-gray-50 rounded-2xl border border-gray-100">
+          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-4">
+            <span className="text-2xl text-gray-400">🚧</span>
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-1">{skill} section coming soon</h3>
+          <p className="text-gray-500 text-sm max-w-sm mx-auto">We're currently preparing high-quality {skill.toLowerCase()} materials for you.</p>
         </div>
       )}
     </div>
   );
 }
+

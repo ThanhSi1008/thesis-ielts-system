@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import api from "@/lib/api";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormCompletionGroup } from "../../../basic/components/listening-renders/FormCompletionGroup";
@@ -75,24 +75,36 @@ export default function IeltsAdvancedListeningPractice({ params }: { params: { p
   if (!part) return <div className="p-10 font-bold text-red-500">Part not found</div>;
 
   return (
-    <div className="flex flex-col">
-       <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
-         <div className="flex items-center gap-3">
-            <Link href="/ielts/advanced" className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50">
-              <ChevronLeft className="w-4 h-4 text-gray-600" />
-            </Link>
-            <h2 className="text-xl font-extrabold text-gray-900">{part.title}</h2>
-         </div>
+    <div className="flex flex-col gap-6 animate-fade-up">
+       <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+             <Link
+               href="/ielts/advanced"
+               className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:border-gray-400 transition-all shadow-sm"
+               title="Back to all listening parts"
+             >
+               <ChevronLeft className="w-5 h-5" />
+             </Link>
+             <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">{part.title}</h1>
+          </div>
        </div>
 
-       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          {/* Audio Player */}
-          <div className="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
-             <audio ref={audioRef} controls src={part.audioUrl} className="w-full" />
+       <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden">
+          {/* Audio Player Container */}
+          <div className="p-8 pb-4">
+             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-inner relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                <audio ref={audioRef} controls src={part.audioUrl} className="w-full relative z-10" />
+                <div className="mt-2 text-[11px] font-bold text-gray-400 uppercase tracking-widest text-center">Practice Audio</div>
+             </div>
           </div>
 
-          {/* Render Groups */}
-          <div className="space-y-8">
+          <div className="p-8 pt-4">
+             <div className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-8 flex items-center gap-3">
+                <div className="h-px bg-gray-100 flex-1" />
+                Questions
+                <div className="h-px bg-gray-100 flex-1" />
+             </div>
             {part.content?.map((group: any, idx: number) => {
                if (group.type === 'form_completion' || (!group.type && group.points)) {
                  return (
@@ -170,14 +182,28 @@ export default function IeltsAdvancedListeningPractice({ params }: { params: { p
           </div>
 
           {/* Submit Action */}
-          <div className="mt-8 flex justify-end">
+          <div className="mt-12 mb-4 flex justify-center">
              {!submitted ? (
-                <button onClick={handleSubmit} className="px-8 py-3 bg-[#FFC107] text-white font-extrabold rounded-xl hover:bg-yellow-500 shadow-sm transition-all transform hover:scale-105">
-                  Submit Answers
+                <button
+                  onClick={handleSubmit}
+                  className="group flex items-center justify-between bg-primary hover:brightness-105 px-8 py-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-[1px] w-full max-w-[280px]"
+                >
+                  <span className="text-[14px] font-black uppercase text-gray-900">Submit Answers</span>
+                  <span className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-white stroke-[3]" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </span>
                 </button>
              ) : (
-                <Link href="/ielts/advanced/statistics" className="px-6 py-3 bg-gray-900 text-white font-extrabold rounded-xl hover:bg-gray-800 shadow-sm">
-                  View Accuracy Statistics
+                <Link
+                  href="/ielts/advanced/statistics"
+                  className="group flex items-center justify-between bg-gray-900 hover:bg-black px-8 py-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-[1px] w-full max-w-[320px]"
+                >
+                  <span className="text-[14px] font-black uppercase text-white">View Accuracy Stats</span>
+                  <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  </span>
                 </Link>
              )}
           </div>

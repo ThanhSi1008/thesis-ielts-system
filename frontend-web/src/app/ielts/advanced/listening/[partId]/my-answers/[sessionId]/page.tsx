@@ -43,7 +43,7 @@ function AnswerColumn({ partLabel, mapKeys, correctMap, userAnswers }: {
   correctMap: Map<string, any>; userAnswers: Record<string, any>;
 }) {
   const rows = [];
-  
+
   for (const key of mapKeys) {
     const userAns = userAnswers[key];
     const correctAns = correctMap.get(key);
@@ -187,15 +187,15 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
   };
 
   useEffect(() => {
-     api.get(`/ielts/advanced/history/${params.sessionId}`, {
-       withCredentials: true
-     }).then(res => {
-       setSession(res.data);
-       setLoading(false);
-     }).catch(err => {
-       console.error(err);
-       setLoading(false);
-     });
+    api.get(`/ielts/advanced/history/${params.sessionId}`, {
+      withCredentials: true
+    }).then(res => {
+      setSession(res.data);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
   }, [params.sessionId]);
 
   const correctMap = useMemo(() => {
@@ -241,256 +241,264 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
   const userAnswers = session.answers || {};
 
   return (
-    <div className="flex flex-col">
-       <div className="flex items-center gap-3 mb-6">
-         <Link href={`/ielts/advanced/listening/${params.partId}/my-answers`} className="flex items-center text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Answer History / Details
-         </Link>
-       </div>
-
-       <div className="bg-white border text-left border-gray-100 shadow-sm p-0 rounded-2xl overflow-hidden mb-6">
-         <div className="p-5 border-b border-gray-100">
-           <h3 className="font-extrabold text-gray-900 text-lg">Score Report</h3>
+    <div className="flex flex-col animate-fade-up">
+      <div className="mb-6 flex items-center justify-between">
+         <div className="flex items-center gap-4">
+            <Link
+              href={`/ielts/advanced/listening/${params.partId}/my-answers`}
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:border-gray-400 transition-all shadow-sm"
+              title="Back to answer history"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Practice Result</h1>
          </div>
-         
-         <div className="p-6 flex flex-col md:flex-row gap-6">
-            {/* Big Score Box */}
-            <div className="bg-[#EBF3FF] border border-blue-100 rounded-xl p-6 flex flex-col items-center justify-center shrink-0 w-48">
-               <span className="text-blue-500 font-bold text-sm mb-1">Marks</span>
-               <div className="text-4xl font-black text-blue-500">
-                  {session.totalScore} <span className="text-2xl text-blue-300">/ {session.totalQuestions}</span>
-               </div>
+      </div>
+
+      <div className="bg-white border text-left border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-0 rounded-3xl overflow-hidden mb-8">
+        <div className="p-5 border-b border-gray-100">
+          <h3 className="font-extrabold text-gray-900 text-lg">Score Report</h3>
+        </div>
+
+        <div className="p-6 flex flex-col md:flex-row gap-6">
+          {/* Big Score Box */}
+          <div className="bg-[#EBF3FF] border border-blue-100 rounded-xl p-6 flex flex-col items-center justify-center shrink-0 w-48">
+            <span className="text-blue-500 font-bold text-sm mb-1">Marks</span>
+            <div className="text-4xl font-black text-blue-500">
+              {session.totalScore} <span className="text-2xl text-blue-300">/ {session.totalQuestions}</span>
             </div>
-
-            {/* Score Table */}
-            <div className="flex-1 overflow-x-auto">
-               <table className="w-full text-left text-[14px]">
-                 <thead>
-                   <tr className="border-b border-gray-100">
-                     <th className="pb-3 text-gray-500 font-bold">Question type</th>
-                     <th className="pb-3 text-gray-500 font-bold text-center">Total</th>
-                     <th className="pb-3 text-gray-500 font-bold text-center">Attempted</th>
-                     <th className="pb-3 text-gray-500 font-bold text-center">Correct</th>
-                     <th className="pb-3 text-gray-500 font-bold text-right">Marks</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {Object.entries(scoreData).map(([type, stats]: [string, any]) => (
-                     <tr key={type} className="border-b border-gray-50 last:border-0">
-                       <td className="py-4 font-bold text-gray-800 capitalize">{type.replace('_', ' ')}</td>
-                       <td className="py-4 text-gray-600 font-medium text-center">{stats.total}</td>
-                       <td className="py-4 text-gray-600 font-medium text-center">{stats.total}</td>
-                       <td className="py-4 text-gray-600 font-medium text-center">{stats.correct}</td>
-                       <td className="py-4 text-gray-800 font-extrabold text-right">{stats.correct}/{stats.total}</td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-            </div>
-         </div>
-       </div>
-
-       {/* Answer Sheet Card */}
-       {allQuestionKeys.length > 0 && (
-         <div className="bg-white border text-left border-gray-100 shadow-sm p-0 rounded-2xl overflow-hidden mb-6">
-           <div className="p-5 border-b border-gray-100">
-             <h3 className="font-extrabold text-gray-900 text-lg">Answer Sheet</h3>
-           </div>
-           <div className="p-6">
-             <div className="flex flex-wrap gap-6">
-               {Array.from({ length: Math.ceil(allQuestionKeys.length / 5) }).map((_, i) => {
-                 const chunk = allQuestionKeys.slice(i * 5, (i + 1) * 5);
-                 const first = chunk[0];
-                 const last = chunk[chunk.length - 1];
-                 return (
-                   <AnswerColumn
-                     key={i}
-                     partLabel={`QUESTIONS ${first}-${last}`}
-                     mapKeys={chunk}
-                     correctMap={correctMap}
-                     userAnswers={userAnswers}
-                   />
-                 );
-               })}
-             </div>
-           </div>
-         </div>
-       )}
-
-       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mt-8 mb-8 overflow-hidden">
-          {session.part?.audioUrl && (
-             <div className="p-6 pb-2 border-b border-gray-100">
-                <AudioPlayer audioUrl={session.part.audioUrl} audioRef={audioRef} />
-             </div>
-          )}
-
-          <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-gray-100 max-h-[800px]">
-             {/* Left side: Questions */}
-             <div className="flex-1 overflow-y-auto px-8 py-6 bg-white shrink-[2] lg:min-w-[50%] custom-scrollbar">
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
-                <div className="space-y-8">
-                  {session.part?.content?.map((group: any, idx: number) => {
-                     if (group.type === 'form_completion' || group.type === 'note_completion' || (!group.type && group.points)) {
-                        return (
-                          <FormCompletionGroup
-                             key={idx}
-                             heading={group.heading}
-                             points={group.points}
-                             answers={session.answers || {}}
-                             onAnswer={() => {}}
-                             submitted={true}
-                             showAnswers={true}
-                             audioRef={audioRef} 
-                             onLocate={handleLocate}
-                          />
-                        );
-                     }
-
-                     if (group.type === 'multiple_choice_multiple') {
-                        const key = `mcm-${idx}`;
-                        const rawSelected = session.answers?.[key] || "";
-                        const selectedLetters = rawSelected ? rawSelected.split(",") : [];
-
-                        return (
-                          <MCMultipleQuestionItem
-                            key={idx}
-                            group={group}
-                            selectedLetters={selectedLetters}
-                            onToggle={() => {}}
-                            submitted={true}
-                            showAnswers={true}
-                            audioRef={audioRef}
-                            onLocate={handleLocate}
-                          />
-                        );
-                     }
-
-                     if (group.type === 'matching') {
-                        return (
-                          <MatchingCompletionGroup
-                            key={idx}
-                            group={group}
-                            answers={session.answers || {}}
-                            onAnswer={() => {}}
-                            submitted={true}
-                            showAnswers={true}
-                            audioRef={audioRef}
-                            onLocate={handleLocate}
-                          />
-                        );
-                     }
-
-                     if (group.type === 'multiple_choice') {
-                        return (
-                           <div key={idx} className="space-y-4">
-                             {group.heading && <h3 className="text-[15px] font-extrabold text-gray-900 mb-2">{group.heading}</h3>}
-                             {group.questions?.map((q: any) => (
-                               <MCQuestionItem
-                                 key={q.question_number}
-                                 q={q}
-                                 selected={session.answers?.[q.question_number] || ""}
-                                 onSelect={() => {}}
-                                 submitted={true}
-                                 showAnswers={true}
-                                 audioRef={audioRef}
-                                 onLocate={handleLocate}
-                               />
-                             ))}
-                           </div>
-                        );
-                     }
-
-                     return <div key={idx} className="text-gray-500 italic p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">Review for {group.type} coming soon.</div>;
-                  })}
-                </div>
-             </div>
-
-             {/* Right side: Transcript */}
-             <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar bg-gray-50/30">
-               <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
-               {!session.part?.transcript || session.part.transcript.length === 0 ? (
-                 <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
-               ) : (
-                 <div className="space-y-4 pr-2">
-                   {session.part.transcript.map((line: any, idx: number) => {
-                     const hasQ = line.question_number != null || (line.question_markers && line.question_markers.length > 0);
-                     const isLocated = locatedQuestion !== null && (
-                        line.question_number === locatedQuestion || 
-                        (line.question_markers && line.question_markers.some((m: any) => m.question_number === locatedQuestion))
-                     );
-                     
-                     // Find the primary question number to use as ID for scrolling
-                     const primaryQNum = line.question_number || (line.question_markers && line.question_markers.length > 0 ? line.question_markers[0].question_number : undefined);
-
-                     return (
-                       <div 
-                         key={idx} 
-                         id={primaryQNum ? `transcript-q-${primaryQNum}` : undefined}
-                         className={`flex flex-col transition-all duration-500 rounded-2xl ${
-                           isLocated 
-                             ? "bg-gray-50 p-4 -mx-4 ring-1 ring-gray-100/50" 
-                             : "bg-transparent p-0"
-                         }`}
-                       >
-                         <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 select-none">
-                            {line.speaker}
-                         </span>
-                         <p className={`transition-colors text-sm leading-relaxed ${isLocated ? "text-gray-900 font-medium" : "text-gray-700"}`}>
-                           {hasQ ? (
-                             <span>
-                               {(() => {
-                                 const markers = line.question_markers || [{ question_number: line.question_number, highlight_text: line.highlight_text }];
-                                 let resultElements: React.ReactNode[] = [line.text];
-
-                                 markers.forEach((marker: any) => {
-                                   if (!marker.highlight_text) return;
-
-                                   const nextElements: React.ReactNode[] = [];
-                                   const escaped = String(marker.highlight_text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                                   const re = new RegExp(`(${escaped})`, "i");
-
-                                   resultElements.forEach((el, index) => {
-                                     if (typeof el === "string") {
-                                       const parts = el.split(re);
-                                       parts.forEach((part, pi) => {
-                                         if (re.test(part)) {
-                                           nextElements.push(
-                                             <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-[#FFF9E6] text-gray-900 px-1.5 py-0.5 rounded-[4px] font-semibold not-italic" style={{ textDecorationColor: '#FFC107' }}>
-                                               {marker.question_number && (
-                                                 <span className="inline-flex items-center justify-center bg-gray-900 text-white text-[9px] font-extrabold px-[5px] py-[2px] rounded-[3px] mr-1.5 tracking-wider align-middle select-none">
-                                                   Q{marker.question_number}
-                                                 </span>
-                                               )}
-                                               {part}
-                                             </mark>
-                                           );
-                                         } else {
-                                           if (part) nextElements.push(part);
-                                         }
-                                       });
-                                     } else {
-                                       nextElements.push(el);
-                                     }
-                                   });
-                                   resultElements = nextElements;
-                                 });
-
-                                 return resultElements;
-                               })()}
-                             </span>
-                           ) : (
-                             <span>{line.text}</span>
-                           )}
-                         </p>
-                       </div>
-                     );
-                   })}
-                 </div>
-               )}
-             </div>
           </div>
-       </div>
+
+          {/* Score Table */}
+          <div className="flex-1 overflow-x-auto">
+            <table className="w-full text-left text-[14px]">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="pb-3 text-gray-500 font-bold">Question type</th>
+                  <th className="pb-3 text-gray-500 font-bold text-center">Total</th>
+                  <th className="pb-3 text-gray-500 font-bold text-center">Attempted</th>
+                  <th className="pb-3 text-gray-500 font-bold text-center">Correct</th>
+                  <th className="pb-3 text-gray-500 font-bold text-right">Marks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(scoreData).map(([type, stats]: [string, any]) => (
+                  <tr key={type} className="border-b border-gray-50 last:border-0">
+                    <td className="py-4 font-bold text-gray-800 capitalize">{type.replace('_', ' ')}</td>
+                    <td className="py-4 text-gray-600 font-medium text-center">{stats.total}</td>
+                    <td className="py-4 text-gray-600 font-medium text-center">{stats.total}</td>
+                    <td className="py-4 text-gray-600 font-medium text-center">{stats.correct}</td>
+                    <td className="py-4 text-gray-800 font-extrabold text-right">{stats.correct}/{stats.total}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Answer Sheet Card */}
+      {allQuestionKeys.length > 0 && (
+        <div className="bg-white border text-left border-gray-100 shadow-sm p-0 rounded-2xl overflow-hidden mb-6">
+          <div className="p-5 border-b border-gray-100">
+            <h3 className="font-extrabold text-gray-900 text-lg">Answer Sheet</h3>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-6">
+              {Array.from({ length: Math.ceil(allQuestionKeys.length / 5) }).map((_, i) => {
+                const chunk = allQuestionKeys.slice(i * 5, (i + 1) * 5);
+                const first = chunk[0];
+                const last = chunk[chunk.length - 1];
+                return (
+                  <AnswerColumn
+                    key={i}
+                    partLabel={`QUESTIONS ${first}-${last}`}
+                    mapKeys={chunk}
+                    correctMap={correctMap}
+                    userAnswers={userAnswers}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white border text-left border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-0 rounded-3xl overflow-hidden mt-8 mb-8">
+        <div className="p-6 border-b border-gray-100">
+          <h3 className="font-extrabold text-gray-900 text-xl tracking-tight">Explanation</h3>
+        </div>
+        {session.part?.audioUrl && (
+          <div className="p-6 pb-2 border-b border-gray-100">
+            <AudioPlayer audioUrl={session.part.audioUrl} audioRef={audioRef} />
+          </div>
+        )}
+
+        <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-gray-100 max-h-[800px]">
+          {/* Left side: Questions */}
+          <div className="flex-1 overflow-y-auto px-8 py-6 bg-white shrink-[2] lg:min-w-[50%] custom-scrollbar">
+            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
+            <div className="space-y-8">
+              {session.part?.content?.map((group: any, idx: number) => {
+                if (group.type === 'form_completion' || group.type === 'note_completion' || (!group.type && group.points)) {
+                  return (
+                    <FormCompletionGroup
+                      key={idx}
+                      heading={group.heading}
+                      points={group.points}
+                      answers={session.answers || {}}
+                      onAnswer={() => { }}
+                      submitted={true}
+                      showAnswers={true}
+                      audioRef={audioRef}
+                      onLocate={handleLocate}
+                    />
+                  );
+                }
+
+                if (group.type === 'multiple_choice_multiple') {
+                  const key = `mcm-${idx}`;
+                  const rawSelected = session.answers?.[key] || "";
+                  const selectedLetters = rawSelected ? rawSelected.split(",") : [];
+
+                  return (
+                    <MCMultipleQuestionItem
+                      key={idx}
+                      group={group}
+                      selectedLetters={selectedLetters}
+                      onToggle={() => { }}
+                      submitted={true}
+                      showAnswers={true}
+                      audioRef={audioRef}
+                      onLocate={handleLocate}
+                    />
+                  );
+                }
+
+                if (group.type === 'matching') {
+                  return (
+                    <MatchingCompletionGroup
+                      key={idx}
+                      group={group}
+                      answers={session.answers || {}}
+                      onAnswer={() => { }}
+                      submitted={true}
+                      showAnswers={true}
+                      audioRef={audioRef}
+                      onLocate={handleLocate}
+                    />
+                  );
+                }
+
+                if (group.type === 'multiple_choice') {
+                  return (
+                    <div key={idx} className="space-y-4">
+                      {group.heading && <h3 className="text-[15px] font-extrabold text-gray-900 mb-2">{group.heading}</h3>}
+                      {group.questions?.map((q: any) => (
+                        <MCQuestionItem
+                          key={q.question_number}
+                          q={q}
+                          selected={session.answers?.[q.question_number] || ""}
+                          onSelect={() => { }}
+                          submitted={true}
+                          showAnswers={true}
+                          audioRef={audioRef}
+                          onLocate={handleLocate}
+                        />
+                      ))}
+                    </div>
+                  );
+                }
+
+                return <div key={idx} className="text-gray-500 italic p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">Review for {group.type} coming soon.</div>;
+              })}
+            </div>
+          </div>
+
+          {/* Right side: Transcript */}
+          <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar bg-gray-50/30">
+            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
+            {!session.part?.transcript || session.part.transcript.length === 0 ? (
+              <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
+            ) : (
+              <div className="space-y-4 pr-2">
+                {session.part.transcript.map((line: any, idx: number) => {
+                  const hasQ = line.question_number != null || (line.question_markers && line.question_markers.length > 0);
+                  const isLocated = locatedQuestion !== null && (
+                    line.question_number === locatedQuestion ||
+                    (line.question_markers && line.question_markers.some((m: any) => m.question_number === locatedQuestion))
+                  );
+
+                  // Find the primary question number to use as ID for scrolling
+                  const primaryQNum = line.question_number || (line.question_markers && line.question_markers.length > 0 ? line.question_markers[0].question_number : undefined);
+
+                  return (
+                    <div
+                      key={idx}
+                      id={primaryQNum ? `transcript-q-${primaryQNum}` : undefined}
+                      className={`flex flex-col transition-all duration-500 rounded-2xl ${isLocated
+                          ? "bg-gray-50 p-4 -mx-4 ring-1 ring-gray-100/50"
+                          : "bg-transparent p-0"
+                        }`}
+                    >
+                      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 select-none">
+                        {line.speaker}
+                      </span>
+                      <p className={`transition-colors text-sm leading-relaxed ${isLocated ? "text-gray-900 font-medium" : "text-gray-700"}`}>
+                        {hasQ ? (
+                          <span>
+                            {(() => {
+                              const markers = line.question_markers || [{ question_number: line.question_number, highlight_text: line.highlight_text }];
+                              let resultElements: React.ReactNode[] = [line.text];
+
+                              markers.forEach((marker: any) => {
+                                if (!marker.highlight_text) return;
+
+                                const nextElements: React.ReactNode[] = [];
+                                const escaped = String(marker.highlight_text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                                const re = new RegExp(`(${escaped})`, "i");
+
+                                resultElements.forEach((el, index) => {
+                                  if (typeof el === "string") {
+                                    const parts = el.split(re);
+                                    parts.forEach((part, pi) => {
+                                      if (re.test(part)) {
+                                        nextElements.push(
+                                          <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-[#FFF9E6] text-gray-900 px-1.5 py-0.5 rounded-[4px] font-semibold not-italic" style={{ textDecorationColor: '#FFC107' }}>
+                                            {marker.question_number && (
+                                              <span className="inline-flex items-center justify-center bg-gray-900 text-white text-[9px] font-extrabold px-[5px] py-[2px] rounded-[3px] mr-1.5 tracking-wider align-middle select-none">
+                                                Q{marker.question_number}
+                                              </span>
+                                            )}
+                                            {part}
+                                          </mark>
+                                        );
+                                      } else {
+                                        if (part) nextElements.push(part);
+                                      }
+                                    });
+                                  } else {
+                                    nextElements.push(el);
+                                  }
+                                });
+                                resultElements = nextElements;
+                              });
+
+                              return resultElements;
+                            })()}
+                          </span>
+                        ) : (
+                          <span>{line.text}</span>
+                        )}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

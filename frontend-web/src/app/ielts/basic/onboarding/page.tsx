@@ -57,7 +57,7 @@ export default function IeltsOnboardingPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-full py-10 px-4 relative overflow-y-auto">
+    <div className="flex flex-col items-center justify-center min-h-full py-10 px-4 relative overflow-y-auto overflow-x-hidden">
       
       {/* Background decorations */}
       <div className="absolute top-[-100px] left-[-100px] w-64 h-64 bg-[#FFF9E6] rounded-full blur-[80px] pointer-events-none -z-10" />

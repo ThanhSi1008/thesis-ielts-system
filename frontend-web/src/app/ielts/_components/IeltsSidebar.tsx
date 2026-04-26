@@ -210,7 +210,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
               <div key={item.key} className="space-y-0.5">
                 <button
                   onClick={() => setFoundationOpen((o) => !o)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] font-bold transition-colors hover:bg-gray-50 ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] font-semibold transition-colors hover:bg-gray-50 ${
                     isActive ? "text-primary" : "text-gray-700"
                   }`}
                 >
@@ -236,8 +236,8 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
                           onClick={onNavigate}
                           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                             childActive
-                              ? "font-bold bg-primary/10 text-primary"
-                              : "font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                              ? "font-semibold bg-primary/10 text-primary"
+                              : "font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                           }`}
                         >
                           {child.label}
@@ -257,8 +257,8 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
               onClick={onNavigate}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] transition-colors ${
                 isActive
-                  ? "font-bold bg-primary/10 text-primary"
-                  : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "font-semibold bg-primary/10 text-primary"
+                  : "font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
               {item.icon}

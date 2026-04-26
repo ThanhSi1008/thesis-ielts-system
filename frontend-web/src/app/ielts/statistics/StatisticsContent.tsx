@@ -167,7 +167,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
           setExamDate(data.profile?.examDate ?? null);
           setStreak(data.streak ?? { currentStreak: 0, longestStreak: 0 });
 
-          const mockItems: any[] = data.mockHistory || [];
+          const mockItems: any[] = Array.isArray(data.mockHistory) ? data.mockHistory : (data.mockHistory as any)?.history || (data.mockHistory as any)?.data || [];
           setMockHistory(mockItems);
 
           const listPractice = (data.advancedListeningHistory || []).map((h: any) => ({
@@ -230,11 +230,12 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
         }
 
         if (!hideCharts) {
-          const [mockItems, advListRes, advReadRes] = await Promise.all([
+          const [mockItemsRaw, advListRes, advReadRes] = await Promise.all([
             examsApi.getHistory(),
             api.get('/ielts/advanced/history').catch(() => ({ data: [] })),
             api.get('/ielts/advanced/reading/history').catch(() => ({ data: [] }))
           ]);
+          const mockItems = Array.isArray(mockItemsRaw) ? mockItemsRaw : (mockItemsRaw as any)?.history || (mockItemsRaw as any)?.data || [];
           setMockHistory(mockItems);
 
           const listPractice = ((advListRes.data as any[]) || []).map((h: any) => ({
@@ -382,136 +383,119 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
 
         {/* Top Header / Profile Info */}
         {!hideSummary && !loading && profile && (
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 mb-2">
-                {isTeacherMode
-                  ? studentName || 'Student'
-                  : `Hello, ${profile.user?.firstName || profile.user?.lastName ? `${profile.user.firstName || ''} ${profile.user.lastName || ''}`.trim() : 'Student'}`
-                }
-              </h1>
-              <p className="text-slate-500 font-medium">
-                {isTeacherMode ? 'Student IELTS performance overview.' : "Here's a snapshot of your IELTS journey."}
-              </p>
+          <div className="mb-10 animate-fade-up">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-8 border-b border-slate-200">
+              {/* Profile info */}
+              <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-full bg-slate-900 flex items-center justify-center text-white text-xl font-bold shadow-lg ring-4 ring-slate-100">
+                  {(profile.user?.firstName?.[0] || profile.user?.lastName?.[0] || 'S').toUpperCase()}
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                    {isTeacherMode
+                      ? studentName || 'Student'
+                      : (profile.user?.firstName || profile.user?.lastName ? `${profile.user.firstName || ''} ${profile.user.lastName || ''}`.trim() : 'Student')
+                    }
+                  </h1>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase tracking-wider border border-primary/20">IELTS Candidate</span>
+                    <span className="text-slate-400 text-sm font-medium border-l border-slate-200 pl-2">
+                      {isTeacherMode ? 'Performance Overview' : "Your learning journey at a glance"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats Summary Bar */}
+              <div className="flex items-center gap-8 lg:gap-12 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Estimate</span>
+                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none">{estimatedBand > 0 ? estimatedBand.toFixed(1) : "—"}</span>
+                </div>
+                <div className="w-px h-8 bg-slate-100 hidden sm:block"></div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Target</span>
+                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none">{profile.targetBand?.toFixed(1) || "—"}</span>
+                </div>
+                <div className="w-px h-8 bg-slate-100 hidden sm:block"></div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Streak</span>
+                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none flex items-center gap-1.5">
+                    {streak?.currentStreak || 0}
+                    <span className="text-sm font-medium text-slate-400 lowercase">d</span>
+                  </span>
+                </div>
+                <div className="w-px h-8 bg-slate-100 hidden sm:block"></div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Daily Goal</span>
+                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none flex items-center gap-1.5">
+                    {profile.dailyCommitmentMins || 0}
+                    <span className="text-sm font-medium text-slate-400 lowercase">m</span>
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="bg-white border border-slate-200 rounded-lg p-4 flex gap-4 min-w-[180px] flex-1">
-                <div className="w-10 h-10 rounded bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                  <Activity className="w-4 h-4 text-slate-600" />
+            {/* Sub-bar: Exam Date & Actions */}
+            <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-4 text-slate-600">
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                  <Calendar className="w-5 h-5 text-slate-400" />
                 </div>
-                <div>
-                  <div className="text-xs font-medium text-slate-500 mb-1">Estimated Score</div>
-                  <div className="text-2xl font-semibold text-slate-900 leading-none">{estimatedBand > 0 ? estimatedBand.toFixed(1) : "-"}</div>
-                </div>
-              </div>
-
-              <div className="bg-white border border-slate-200 rounded-lg p-4 flex gap-4 min-w-[180px] flex-1">
-                <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center shrink-0">
-                  <Target className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-slate-500 mb-1">Target Band</div>
-                  <div className="text-2xl font-semibold text-slate-900 leading-none">{profile.targetBand?.toFixed(1) || "-"}</div>
-                </div>
-              </div>
-
-              {streak && streak.longestStreak > 0 && (
-                <div className="bg-white border border-slate-200 rounded-lg p-4 flex gap-4 min-w-[200px]">
-                  <div className="w-10 h-10 rounded bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0">
-                    <span className="text-lg">🔥</span>
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-slate-500 mb-1">Current Streak</div>
-                    <div className="text-2xl font-semibold text-slate-900 leading-none">
-                      {streak.currentStreak} <span className="text-sm font-medium text-slate-400 ml-1">days</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-1">Longest: {streak.longestStreak}</div>
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-white border border-slate-200 rounded-lg p-4 flex gap-4 min-w-[200px]">
-                <div className="w-10 h-10 rounded bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                  <Clock className="w-4 h-4 text-slate-600" />
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-slate-500 mb-1">Daily Study</div>
-                  <div className="text-2xl font-semibold text-slate-900 leading-none">{profile.dailyCommitmentMins || 0}<span className="text-sm font-medium text-slate-400 ml-1">m</span></div>
-                </div>
-              </div>
-
-              {profile.placementScore !== null && (
-                <div className="bg-white border border-slate-200 rounded-lg p-4 flex gap-4 min-w-[200px]">
-                  <div className="w-10 h-10 rounded bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                    <Zap className="w-4 h-4 text-slate-600" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-slate-500 mb-1">Placement</div>
-                    <div className="text-2xl font-semibold text-slate-900 leading-none flex items-center gap-2">
-                      {profile.placementScore}%
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-white border border-slate-200 rounded-lg p-4 flex gap-4 min-w-[200px] flex-1">
-                <div className="w-10 h-10 rounded bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                  <Calendar className="w-4 h-4 text-slate-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="text-xs font-medium text-slate-500">Exam Date</div>
-                    {/* Only show pencil in self-mode */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">Upcoming Exam</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[15px] font-bold text-slate-900">
+                      {examDate ? (() => {
+                        const days = Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                        if (days < 0) return "Completed on " + new Date(examDate).toLocaleDateString();
+                        if (days === 0) return "Happening Today!";
+                        return `${new Date(examDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} (${days} days left)`;
+                      })() : "No exam date scheduled"}
+                    </span>
                     {!isTeacherMode && (
-                      <button onClick={() => setIsEditingExamDate(!isEditingExamDate)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                        <Pencil className="w-3 h-3" />
+                      <button onClick={() => setIsEditingExamDate(true)} className="text-slate-300 hover:text-primary transition-colors">
+                        <Pencil className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
-                  {!isTeacherMode && isEditingExamDate ? (
-                    <input
-                      type="date"
-                      className="w-full text-xs font-medium border border-slate-200 rounded py-1 px-2 bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                      value={examDate ? new Date(examDate).toISOString().split('T')[0] : ''}
-                      onChange={async (e) => {
-                        const newDate = e.target.value || null;
-                        setExamDate(newDate);
-                        setIsEditingExamDate(false);
-                        try {
-                          await api.patch('/ielts/profile', { examDate: newDate });
-                        } catch (err) { }
-                      }}
-                      onBlur={() => setIsEditingExamDate(false)}
-                      autoFocus
-                    />
-                  ) : (
-                    <>
-                      <div className="text-2xl font-semibold text-slate-900 leading-none">
-                        {examDate ? (() => {
-                          const days = Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                          if (days < 0) return "Passed";
-                          if (days === 0) return "Today!";
-                          return `${days} days`;
-                        })() : "Not Set"}
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1">
-                        {examDate
-                          ? new Date(examDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                          : isTeacherMode ? 'Not set' : 'Click pencil to add'}
-                      </div>
-                    </>
-                  )}
                 </div>
               </div>
 
+              {!isTeacherMode && isEditingExamDate && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    className="text-sm font-bold border border-slate-200 rounded-lg py-1.5 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    value={examDate ? new Date(examDate).toISOString().split('T')[0] : ''}
+                    onChange={async (e) => {
+                      const newDate = e.target.value || null;
+                      setExamDate(newDate);
+                      setIsEditingExamDate(false);
+                      try { await api.patch('/ielts/profile', { examDate: newDate }); } catch (err) { }
+                    }}
+                    onBlur={() => setIsEditingExamDate(false)}
+                    autoFocus
+                  />
+                  <button onClick={() => setIsEditingExamDate(false)} className="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-wider px-2">Cancel</button>
+                </div>
+              )}
+
+              {!isTeacherMode && !examDate && !isEditingExamDate && (
+                <button
+                  onClick={() => setIsEditingExamDate(true)}
+                  className="px-6 py-2 bg-white text-slate-900 text-xs font-bold border border-slate-200 rounded-lg hover:bg-slate-50 transition-all active:scale-95 uppercase tracking-wider shadow-sm"
+                >
+                  Schedule Exam
+                </button>
+              )}
             </div>
           </div>
         )}
 
         {!hideCharts && (
           <>
-            {!loading && (mockHistory.length > 0 || practiceHistory.length > 0) && (
+            {!loading && (
               <>
                 {/* 1. Practice Submissions Over Time (Full Width Line Chart) */}
                 <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col mb-8">
@@ -681,7 +665,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
             {/* Remove duplicate loading check for BandScoreCharts since we already checked rawHistory above, 
                 and they are now integrated into the single layout stream. */}
 
-            {!loading && (mockHistory.length > 0 || practiceHistory.length > 0) && (
+            {!loading && (
               <div className="flex flex-col gap-10 mt-4">
 
                 {/* Recent Activity Feed */}
@@ -690,20 +674,39 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                     <Clock className="w-5 h-5 text-slate-900" />
                     <h2 className="text-lg font-bold text-slate-900">Recent Activity</h2>
                   </div>
-                  <div className="flex gap-4 overflow-x-auto hide-scrollbar snap-x pb-2">
+                  <div className="flex flex-col border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
                     {recentActivity.map((h, i) => (
-                      <div key={i} className="min-w-[280px] sm:min-w-[320px] flex items-center justify-between p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 transition-all group snap-start shrink-0 shadow-sm">
-                        <div className="flex flex-col gap-2">
-                          {getSkillBadge(h.skill)}
-                          <div className="font-semibold text-slate-900 text-sm line-clamp-1">{h.examTitle?.split(" - ")[1] ?? h.examTitle}</div>
-                          <div className="text-xs text-slate-500 font-medium">
-                            {new Date(h.dateTaken).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      <div key={i} className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50/80 transition-all duration-200 group border-b last:border-0 border-slate-100">
+                        <div className="flex items-center gap-5">
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-white group-hover:shadow-sm transition-all">
+                            {h.skill === 'LISTENING' && <Headphones className="w-4 h-4 text-slate-500 group-hover:text-primary" />}
+                            {h.skill === 'READING' && <BookOpen className="w-4 h-4 text-slate-500 group-hover:text-primary" />}
+                            {h.skill === 'WRITING' && <PenTool className="w-4 h-4 text-slate-500 group-hover:text-primary" />}
+                            {h.skill === 'SPEAKING' && <Mic className="w-4 h-4 text-slate-500 group-hover:text-primary" />}
+                          </div>
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-3 mb-0.5">
+                              <span className="text-[13px] font-bold text-slate-900 group-hover:text-primary transition-colors">{h.examTitle?.split(" - ")[1] ?? h.examTitle}</span>
+                              {getSkillBadge(h.skill)}
+                            </div>
+                            <div className="flex items-center gap-2 text-[11px] font-medium text-slate-400">
+                              <span>{new Date(h.dateTaken).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                              <span>{new Date(h.dateTaken).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="text-xl font-bold text-slate-900">{getBandForHistoryItem(h).toFixed(1)}</div>
-                          <Link href={h.practicePart ? `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}` : `/ielts/intensive/${h.examId}/result/${h.id}`} className="text-xs text-primary font-medium hover:underline">
-                            View
+                        <div className="flex items-center gap-8">
+                          <div className="text-right">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Score</div>
+                            <div className="text-lg font-bold text-slate-900 tabular-nums">{getBandForHistoryItem(h).toFixed(1)}</div>
+                          </div>
+                          <Link
+                            href={h.practicePart ? `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}` : `/ielts/intensive/${h.examId}/result/${h.id}`}
+                            className="flex items-center gap-2 text-[11px] font-bold text-slate-400 group-hover:text-primary uppercase tracking-widest transition-all"
+                          >
+                            Review
+                            <ChevronRight className="w-4 h-4 translate-x-0 group-hover:translate-x-1 transition-transform" />
                           </Link>
                         </div>
                       </div>

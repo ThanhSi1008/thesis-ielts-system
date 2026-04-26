@@ -61,11 +61,13 @@ export default function Header() {
 
   const isOverlay = !isPlain && !isIeltsDashboard;
 
+  const positionClass = isPlain ? "sticky" : "absolute w-full";
+
   const headerBgClass = isIeltsDashboard
-    ? "bg-transparent absolute w-full top-0 border-transparent shadow-none"
+    ? "bg-transparent border-transparent shadow-none"
     : isPlain
-      ? `bg-white/95 top-0 ${isIeltsPage ? '' : 'border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
-      : "bg-transparent absolute w-full top-0 border-transparent shadow-none";
+      ? `bg-white/95 ${isIeltsPage ? '' : 'border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
+      : "bg-transparent border-transparent shadow-none";
 
 
   // Derive display name and initials from user
@@ -88,7 +90,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 ${isIeltsPage ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
+      className={`${positionClass} top-0 z-50 ${isIeltsPage ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
     >
       <div className={`${isIeltsPage ? "w-full max-w-none px-4" : "container mx-auto max-w-screen-xl px-4"} py-2 flex justify-between items-center`}>
         {/* Left: Hamburger (IELTS) + Logo + Nav */}
@@ -119,7 +121,7 @@ export default function Header() {
             />
           </Link>
 
-          <nav className="hidden md:flex gap-8 font-bold items-center ml-8">
+          <nav className="hidden md:flex gap-8 font-semibold items-center ml-8">
             <Link href="/" className={navLinkClass(pathname === "/")}>
               HOME
               <span className="absolute left-0 bottom-0 h-[2px] bg-primary transition-all duration-300 w-0 group-hover:w-full" />
