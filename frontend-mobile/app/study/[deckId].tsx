@@ -3,9 +3,9 @@ import { View, Text, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { FlashcardViewer } from '../../../features/vocab-lab/components/FlashcardViewer';
-import { FSRSRatingBar } from '../../../features/vocab-lab/components/FSRSRatingBar';
-import { StudyEmptyState } from '../../../features/vocab-lab/components/StudyEmptyState';
+import { FlashcardViewer } from '../../features/vocab-lab/components/FlashcardViewer';
+import { FSRSRatingBar } from '../../features/vocab-lab/components/FSRSRatingBar';
+import { StudyEmptyState } from '../../features/vocab-lab/components/StudyEmptyState';
 
 // Mock data cho việc test UI (Sẽ thay thế bằng hook useStudySession ở VOCAB-04)
 const MOCK_CARDS = [
