@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FlashcardViewer } from '../../features/vocab-lab/components/FlashcardViewer';
 import { FSRSRatingBar } from '../../features/vocab-lab/components/FSRSRatingBar';
 import { StudyEmptyState } from '../../features/vocab-lab/components/StudyEmptyState';
+import { AppHeader } from '../../components/ui/AppHeader';
 
 // Mock data cho việc test UI (Sẽ thay thế bằng hook useStudySession ở VOCAB-04)
 const MOCK_CARDS = [
@@ -57,23 +58,17 @@ export default function StudyScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-2 border-b border-slate-100">
-        <Pressable onPress={() => router.back()} className="p-2">
-          <Ionicons name="close" size={24} color="#212529" />
-        </Pressable>
-        <View className="flex-1 items-center">
-          <Text className="font-bold text-lg">Study Session</Text>
-          <Text className="text-xs text-slate-500">
-            Card {currentIndex + 1} of {MOCK_CARDS.length}
-          </Text>
-        </View>
-        <View style={{ width: 40 }} />
-      </View>
+      <AppHeader 
+        title="Study Session" 
+        subtitle={`Card ${currentIndex + 1} of ${MOCK_CARDS.length}`}
+        showBack 
+        onBack={() => router.back()}
+      />
 
       {/* Progress Bar */}
       <View className="h-1 bg-slate-100 w-full">
         <View 
-          className="h-full bg-[#FFC600]" 
+          className="h-full bg-primary" 
           style={{ width: `${((currentIndex + 1) / MOCK_CARDS.length) * 100}%` }} 
         />
       </View>

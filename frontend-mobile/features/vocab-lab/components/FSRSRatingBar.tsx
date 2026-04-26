@@ -13,10 +13,10 @@ interface FSRSRatingBarProps {
 }
 
 const RATINGS = [
-  { label: 'Again', value: 1, color: 'bg-red-500', activeColor: 'bg-red-600' },
-  { label: 'Hard', value: 2, color: 'bg-orange-500', activeColor: 'bg-orange-600' },
-  { label: 'Good', value: 3, color: 'bg-green-500', activeColor: 'bg-green-600' },
-  { label: 'Easy', value: 4, color: 'bg-blue-500', activeColor: 'bg-blue-600' },
+  { label: 'Again', value: 1, color: 'bg-danger', activeColor: 'bg-red-700' },
+  { label: 'Hard', value: 2, color: 'bg-warning', activeColor: 'bg-orange-700' },
+  { label: 'Good', value: 3, color: 'bg-success', activeColor: 'bg-green-700' },
+  { label: 'Easy', value: 4, color: 'bg-info', activeColor: 'bg-blue-700' },
 ];
 
 /**
@@ -32,15 +32,15 @@ export const FSRSRatingBar = React.memo(({ onRate, disabled }: FSRSRatingBarProp
           disabled={disabled}
           onPress={() => onRate(rating.value)}
           className={cn(
-            "flex-1 py-4 rounded-2xl items-center justify-center shadow-sm",
+            "flex-1 py-4 rounded-2xl items-center justify-center shadow-md",
             rating.color,
             disabled && "opacity-50"
           )}
           style={({ pressed }) => [
-            pressed && { transform: [{ scale: 0.95 }] }
+            pressed && { transform: [{ scale: 0.92 }] }
           ]}
         >
-          <Text className="text-white font-bold text-sm uppercase tracking-wider">
+          <Text className="text-white font-farro-bold text-xs uppercase tracking-widest">
             {rating.label}
           </Text>
         </Pressable>

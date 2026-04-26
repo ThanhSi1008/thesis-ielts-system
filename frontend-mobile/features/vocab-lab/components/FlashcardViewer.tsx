@@ -16,15 +16,12 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.85;
 const CARD_HEIGHT = 450;
 
-/**
- * Component hiển thị Flashcard với hiệu ứng lật (Tạm thời vô hiệu hóa Reanimated để debug)
- */
 export const FlashcardViewer = React.memo(({ card }: FlashcardViewerProps) => {
   // const isFlipped = useSharedValue(0);
   const [showBack, setShowBack] = useState(false);
 
   const flip = () => {
-    // Tạm thời chỉ đổi state mà không có animation để tránh crash
+    // Tạm thời chỉ đổi state mà không có animation
     setShowBack(!showBack);
   };
 
@@ -40,16 +37,16 @@ export const FlashcardViewer = React.memo(({ card }: FlashcardViewerProps) => {
           {!showBack && (
             <View
               style={[frontStyle]}
-              className="absolute w-full h-full bg-white rounded-3xl p-8 items-center justify-center border border-slate-100 shadow-xl"
+              className="absolute w-full h-full bg-white rounded-3xl p-8 items-center justify-center border border-gray-100 shadow-xl"
             >
-              <Text className="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">
+              <Text className="text-xs font-farro-bold text-slate-400 mb-4 uppercase tracking-widest">
                 Front
               </Text>
-              <Text className="text-3xl font-bold text-center text-[#212529]">
+              <Text className="text-3xl font-farro-bold text-center text-dark">
                 {card.front}
               </Text>
               <View className="absolute bottom-8">
-                <Text className="text-slate-300 text-xs italic">Tap to see meaning</Text>
+                <Text className="text-slate-300 text-xs font-farro-medium italic">Tap to see meaning</Text>
               </View>
             </View>
           )}
@@ -58,19 +55,19 @@ export const FlashcardViewer = React.memo(({ card }: FlashcardViewerProps) => {
           {showBack && (
             <View
               style={[backStyle]}
-              className="absolute w-full h-full bg-[#f8f9fa] rounded-3xl p-8 items-center justify-center border border-[#FFC600]/30 shadow-xl"
+              className="absolute w-full h-full bg-light rounded-3xl p-8 items-center justify-center border border-primary/20 shadow-xl"
             >
-              <Text className="text-xs font-bold text-[#FF9800] mb-4 uppercase tracking-widest">
+              <Text className="text-xs font-farro-bold text-warning mb-4 uppercase tracking-widest">
                 Back
               </Text>
-              <Text className="text-xl leading-relaxed text-center text-[#212529]">
+              <Text className="text-xl leading-relaxed text-center text-dark font-farro-medium">
                 {card.back}
               </Text>
               {card.tags.length > 0 && (
                 <View className="flex-row flex-wrap justify-center mt-6 gap-2">
                   {card.tags.map((tag) => (
-                    <View key={tag} className="bg-slate-200 px-3 py-1 rounded-full">
-                      <Text className="text-[10px] font-bold text-slate-600">#{tag}</Text>
+                    <View key={tag} className="bg-secondary px-3 py-1 rounded-full">
+                      <Text className="text-[10px] font-farro-bold text-slate-600">#{tag}</Text>
                     </View>
                   ))}
                 </View>

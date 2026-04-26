@@ -16,31 +16,31 @@ export const DeckCard = React.memo(({ deck }: DeckCardProps) => {
   return (
     <Pressable
       onPress={() => router.push(`/study/${deck.id}`)}
-      className="bg-white p-4 rounded-xl mb-4 border border-slate-100 shadow-sm"
+      className="bg-white p-4 rounded-2xl mb-4 border border-gray-100 shadow-sm active:opacity-80"
     >
-      <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-lg font-bold text-[#212529] flex-1">{deck.name}</Text>
-        <View className="bg-[#FFC600] px-2 py-1 rounded-md">
-          <Text className="text-xs font-bold">FSRS</Text>
+      <View className="flex-row justify-between items-center mb-3">
+        <Text className="text-lg font-farro-bold text-dark flex-1">{deck.name}</Text>
+        <View className="bg-primary px-2 py-1 rounded-lg shadow-sm">
+          <Text className="text-[10px] font-farro-bold text-dark uppercase tracking-tighter">FSRS</Text>
         </View>
       </View>
 
-      <View className="flex-row items-center gap-4">
+      <View className="flex-row items-center gap-6">
         <View>
-          <Text className="text-xs text-slate-500">New</Text>
-          <Text className="text-sm font-semibold text-blue-500">{deck.newCount}</Text>
+          <Text className="text-[10px] font-farro-bold text-slate-400 uppercase">New</Text>
+          <Text className="text-sm font-farro-bold text-info">{deck.newCount}</Text>
         </View>
         <View>
-          <Text className="text-xs text-slate-500">Learning</Text>
-          <Text className="text-sm font-semibold text-orange-500">{deck.learningCount}</Text>
+          <Text className="text-[10px] font-farro-bold text-slate-400 uppercase">Learning</Text>
+          <Text className="text-sm font-farro-bold text-warning">{deck.learningCount}</Text>
         </View>
         <View>
-          <Text className="text-xs text-slate-500">Due</Text>
-          <Text className="text-sm font-semibold text-green-500">{deck.dueCount}</Text>
+          <Text className="text-[10px] font-farro-bold text-slate-400 uppercase">Due</Text>
+          <Text className="text-sm font-farro-bold text-success">{deck.dueCount}</Text>
         </View>
         <View className="ml-auto">
-          <Text className="text-xs text-slate-500">Total</Text>
-          <Text className="text-sm font-semibold">{deck.totalCards}</Text>
+          <Text className="text-[10px] font-farro-bold text-slate-400 uppercase text-right">Total</Text>
+          <Text className="text-sm font-farro-bold text-dark text-right">{deck.totalCards}</Text>
         </View>
       </View>
     </Pressable>
