@@ -11,6 +11,7 @@ interface AddCardModalProps {
   initialFront?: string;
   initialBack?: string;
   initialTags?: string[];
+  initialAudioUrl?: string;
 }
 
 const EMPTY_ARRAY: string[] = [];
@@ -20,7 +21,8 @@ export default function AddCardModal({
   onClose,
   initialFront = '',
   initialBack = '',
-  initialTags = EMPTY_ARRAY
+  initialTags = EMPTY_ARRAY,
+  initialAudioUrl = ''
 }: AddCardModalProps) {
   const [decks, setDecks] = useState<DeckWithCounts[]>([]);
   const [deckId, setDeckId] = useState('');
@@ -86,14 +88,21 @@ export default function AddCardModal({
     setMessage(null);
     
     try {
+      // Embed audio player HTML in the back field if an audio URL was provided
+      const backWithAudio = initialAudioUrl
+        ? `${back}\n\n<audio controls src="${initialAudioUrl}" style="margin: 8px auto; display: block;"></audio>`
+        : back;
+
       await vocabLabApi.createFlashcard({
         deckId,
         front,
-        back,
+        back: backWithAudio,
         tags: tagsList.length > 0 ? tagsList : undefined
       });
       
       setMessage({ type: 'success', text: 'Card added successfully!' });
+      // Notify Header badge to refresh
+      window.dispatchEvent(new CustomEvent('vocabduechanged'));
       
       // Auto close after brief delay
       setTimeout(() => {
@@ -262,6 +271,16 @@ export default function AddCardModal({
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base bg-white placeholder:text-gray-400"
                   required
                 />
+                {/* Audio preview if provided from dictionary */}
+                {initialAudioUrl && (
+                  <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 bg-blue-50 rounded-lg px-3 py-2">
+                    <svg className="h-4 w-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clipRule="evenodd" />
+                    </svg>
+                    <span className="font-medium text-blue-700">Pronunciation audio attached</span>
+                    <audio controls src={initialAudioUrl} className="h-7 ml-auto" />
+                  </div>
+                )}
               </div>
 
               {/* Divider */}

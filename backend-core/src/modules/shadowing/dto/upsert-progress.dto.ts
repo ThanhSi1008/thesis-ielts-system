@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsString, IsArray, IsOptional, IsNotEmpty, IsNumber } from "class-validator";
 
 export class UpsertProgressDto {
   @IsString()
@@ -15,4 +15,12 @@ export class UpsertProgressDto {
   @IsString()
   @IsOptional()
   dictationDifficulty?: string;
+
+  @IsString()
+  @IsOptional()
+  lessonTitle?: string;
+
+  @IsNumber()
+  @IsOptional()
+  totalSentences?: number;
 }

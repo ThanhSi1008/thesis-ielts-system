@@ -26,7 +26,7 @@ export default function VocabularyContent({ embedded }: { embedded?: boolean }) 
 
   if (loading) {
     return (
-      <div className="flex-1 min-w-0 bg-white overflow-y-auto p-6 md:p-8 w-full h-full shrink-0">
+      <div className="flex-1 min-w-0 bg-white overflow-y-auto p-4 md:p-6 w-full h-full shrink-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="bg-gray-100 rounded-2xl h-64 animate-pulse" />
@@ -38,37 +38,37 @@ export default function VocabularyContent({ embedded }: { embedded?: boolean }) 
 
   if (error) {
     return (
-      <div className="flex-1 min-w-0 bg-white overflow-y-auto p-6 md:p-8 w-full h-full shrink-0">
+      <div className="flex-1 min-w-0 bg-white overflow-y-auto p-4 md:p-6 w-full h-full shrink-0">
         <div className="bg-red-50 text-red-600 p-4 rounded-xl">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className='flex-1 min-w-0 bg-white overflow-y-auto p-6 md:p-8 w-full h-full shrink-0'>
+    <div className='flex-1 min-w-0 bg-white overflow-y-auto p-3 md:p-5 w-full h-full shrink-0'>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book) => (
           <Link
             key={book.id}
-            href={`/vocabulary/${book.id}`}
+            href={`/ielts/vocabulary/${book.id}`}
             className="block h-full"
           >
             <div
-              className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full p-4"
+              className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full overflow-hidden"
             >
               {/* Image Container */}
-              <div className="w-full aspect-[2/1] relative mb-4 rounded-xl overflow-hidden bg-gray-100">
+              <div className="w-full bg-gray-100 rounded-t-2xl rounded-b-none overflow-hidden">
                 {book.imageUrl && (
                   <img
                     src={book.imageUrl}
                     alt={book.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto block rounded-t-2xl rounded-b-none scale-[1.04] origin-bottom"
                   />
                 )}
               </div>
 
               {/* Card Body */}
-              <div className="flex flex-col flex-grow">
+              <div className="flex flex-col flex-grow p-5">
                 <h2 className="text-lg font-bold mb-2 text-black line-clamp-2">{book.name}</h2>
 
                 <div className="flex gap-2 items-center mb-6">

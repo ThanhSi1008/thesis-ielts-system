@@ -1,9 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../../common/prisma/prisma.service';
-import { RegisterDto } from './dto/auth.dto';
-import { User } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { Injectable, BadRequestException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { PrismaService } from "../../common/prisma/prisma.service";
+import { RegisterDto } from "./dto/auth.dto";
+import { User } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
@@ -12,7 +12,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<Omit<User, 'password'> | null> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<Omit<User, "password"> | null> {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
@@ -21,7 +24,7 @@ export class AuthService {
     return null;
   }
 
-  async register(registerDto: RegisterDto): Promise<any> {
+  async register(registerDto: RegisterDto): Promise<Omit<User, "password">> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     try {
       const user = await this.prisma.user.create({
@@ -30,7 +33,7 @@ export class AuthService {
           password: hashedPassword,
           firstName: registerDto.firstName,
           lastName: registerDto.lastName,
-          role: (registerDto.role as any) || 'STUDENT',
+          role: (registerDto.role as any) || "STUDENT",
         },
       });
 
@@ -38,16 +41,15 @@ export class AuthService {
       await this.prisma.deck.create({
         data: {
           userId: user.id,
-          name: 'Default',
+          name: "Default",
         },
       });
 
-      // Automatically login after registration
-      const { password, ...userWithoutPassword } = user;
-      return this.login(userWithoutPassword);
+      const { password, ...result } = user;
+      return result;
     } catch (error) {
-      if (error.code === 'P2002') {
-        throw new BadRequestException('Email already exists');
+      if (error.code === "P2002") {
+        throw new BadRequestException("Email already exists");
       }
       throw error;
     }
@@ -57,9 +59,7 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
-      refresh_token: 'dummy-refresh-token-' + Date.now(), // Placeholder for now
       user: user,
     };
   }
 }
-

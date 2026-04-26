@@ -1,1 +1,1 @@
-export * from '../../../common/decorators/roles.decorator';
+export * from "../../../common/decorators/roles.decorator";

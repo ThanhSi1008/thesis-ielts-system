@@ -6,11 +6,22 @@ import { IeltsAdvancedController } from "./ielts-advanced.controller";
 import { IeltsAdvancedService } from "./ielts-advanced.service";
 import { StreakService } from "./streak.service";
 import { PrismaModule } from "../../common/prisma/prisma.module";
+import { NotificationsModule } from "../notifications/notifications.module";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NotificationsModule],
   controllers: [IeltsController, IeltsAdvancedController],
-  providers: [IeltsService, IeltsRoadmapService, IeltsAdvancedService, StreakService],
-  exports: [IeltsService, IeltsRoadmapService, IeltsAdvancedService, StreakService],
+  providers: [
+    IeltsService,
+    IeltsRoadmapService,
+    IeltsAdvancedService,
+    StreakService,
+  ],
+  exports: [
+    IeltsService,
+    IeltsRoadmapService,
+    IeltsAdvancedService,
+    StreakService,
+  ],
 })
 export class IeltsModule {}

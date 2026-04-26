@@ -464,7 +464,7 @@ export function LessonDetailContent({
           </div>
         </div>
         {tocItems.length > 0 && (
-          <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 sticky top-6 self-start">
+          <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 sticky top-6 self-start max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar">
             <h3 className="text-[11px] font-extrabold text-gray-400 mb-4 tracking-widest uppercase px-2">Table of contents</h3>
             <div className="flex flex-col relative border-l border-gray-200 ml-2">
               {tocItems.map((item, idx) => {

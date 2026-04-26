@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@common/prisma/prisma.service';
-import { RedisService } from '@common/redis/redis.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "@common/prisma/prisma.service";
+import { RedisService } from "@common/redis/redis.service";
 import {
   CreatePronunciationSoundDto,
   UpdatePronunciationSoundDto,
-} from './dto/pronunciation.dto';
+} from "./dto/pronunciation.dto";
 
 const CACHE_TTL = 3600;
-const CACHE_PREFIX = 'pronunciation';
+const CACHE_PREFIX = "pronunciation";
 
 @Injectable()
 export class PronunciationService {
@@ -24,13 +24,13 @@ export class PronunciationService {
     if (cached) return cached;
 
     const sounds = await this.prisma.pronunciationSound.findMany({
-      orderBy: [{ type: 'asc' }, { order: 'asc' }],
+      orderBy: [{ type: "asc" }, { order: "asc" }],
     });
 
     const grouped = {
-      monophthongs: sounds.filter((s) => s.type === 'monophthong'),
-      diphthongs: sounds.filter((s) => s.type === 'diphthong'),
-      consonants: sounds.filter((s) => s.type === 'consonant'),
+      monophthongs: sounds.filter((s) => s.type === "monophthong"),
+      diphthongs: sounds.filter((s) => s.type === "diphthong"),
+      consonants: sounds.filter((s) => s.type === "consonant"),
     };
 
     await this.redis.setJson(cacheKey, grouped, CACHE_TTL);
@@ -70,7 +70,7 @@ export class PronunciationService {
   async deleteSound(id: string) {
     await this.prisma.pronunciationSound.delete({ where: { id } });
     await this.invalidateCache();
-    return { message: 'Pronunciation sound deleted successfully' };
+    return { message: "Pronunciation sound deleted successfully" };
   }
 
   // ==================== CACHE ====================

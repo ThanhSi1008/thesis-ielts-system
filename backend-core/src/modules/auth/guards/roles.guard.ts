@@ -1,1 +1,1 @@
-export * from '../../../common/guards/roles.guard';
+export * from "../../../common/guards/roles.guard";

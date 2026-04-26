@@ -1,4 +1,4 @@
-import { IsUUID, IsString, IsOptional } from 'class-validator';
+import { IsUUID, IsString, IsOptional } from "class-validator";
 
 /**
  * DTO for pronunciation check request
@@ -15,4 +15,3 @@ export class CheckPronunciationDto {
   @IsUUID()
   userId: string;
 }
-

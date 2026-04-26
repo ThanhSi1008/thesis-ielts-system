@@ -1,9 +1,16 @@
-import { IsString, IsOptional, IsEnum, IsInt, IsBoolean, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsInt,
+  IsBoolean,
+  Min,
+} from "class-validator";
 
 enum Difficulty {
-  BEGINNER = 'BEGINNER',
-  INTERMEDIATE = 'INTERMEDIATE',
-  ADVANCED = 'ADVANCED',
+  BEGINNER = "BEGINNER",
+  INTERMEDIATE = "INTERMEDIATE",
+  ADVANCED = "ADVANCED",
 }
 
 /**
@@ -28,4 +35,3 @@ export class CreateLessonDto {
   @IsBoolean()
   isPublished?: boolean;
 }
-

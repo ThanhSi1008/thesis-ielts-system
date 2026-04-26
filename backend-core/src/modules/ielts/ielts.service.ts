@@ -8,8 +8,8 @@ export class IeltsService {
 
   constructor(
     private prisma: PrismaService,
-    private streakService: StreakService
-  ) { }
+    private streakService: StreakService,
+  ) {}
 
   async findAllSkills() {
     return this.prisma.ieltsSkill.findMany({
@@ -62,7 +62,7 @@ export class IeltsService {
 
     if (!exercise) {
       throw new NotFoundException(
-        `Listening exercise with ID ${exerciseId} not found`
+        `Listening exercise with ID ${exerciseId} not found`,
       );
     }
 
@@ -86,7 +86,7 @@ export class IeltsService {
 
     if (!exercise) {
       throw new NotFoundException(
-        `Reading exercise with ID ${exerciseId} not found`
+        `Reading exercise with ID ${exerciseId} not found`,
       );
     }
 
@@ -110,7 +110,7 @@ export class IeltsService {
 
     if (!exercise) {
       throw new NotFoundException(
-        `Writing exercise with ID ${exerciseId} not found`
+        `Writing exercise with ID ${exerciseId} not found`,
       );
     }
 
@@ -140,7 +140,7 @@ export class IeltsService {
       listeningExerciseId?: string;
       readingExerciseId?: string;
       writingExerciseId?: string;
-    }
+    },
   ) {
     // Upsert to mark as completed.
     // Since prisma requires unique constraint for upsert, and our unique constraint is on multiple nullable columns,
@@ -175,7 +175,7 @@ export class IeltsService {
         isCompleted: true,
       },
     });
-    
+
     await this.streakService.recordActivity(userId);
     return created;
   }
@@ -188,53 +188,86 @@ export class IeltsService {
 
     for (const skill of skills) {
       const lessons = await this.prisma.ieltsLesson.findMany({
-        where: { skillId: skill.id }, select: { id: true }
+        where: { skillId: skill.id },
+        select: { id: true },
       });
       const listeningEx = await this.prisma.ieltsListeningExercise.findMany({
-        where: { skillId: skill.id }, select: { id: true }
+        where: { skillId: skill.id },
+        select: { id: true },
       });
       const readingEx = await this.prisma.ieltsReadingExercise.findMany({
-        where: { skillId: skill.id }, select: { id: true }
+        where: { skillId: skill.id },
+        select: { id: true },
       });
       const writingEx = await this.prisma.ieltsWritingExercise.findMany({
-        where: { skillId: skill.id }, select: { id: true }
+        where: { skillId: skill.id },
+        select: { id: true },
       });
 
-      const lessonIds = lessons.map(l => l.id);
-      const listeningExIds = listeningEx.map(l => l.id);
-      const readingExIds = readingEx.map(l => l.id);
-      const writingExIds = writingEx.map(l => l.id);
+      const lessonIds = lessons.map((l) => l.id);
+      const listeningExIds = listeningEx.map((l) => l.id);
+      const readingExIds = readingEx.map((l) => l.id);
+      const writingExIds = writingEx.map((l) => l.id);
 
       const completedLessons = await this.prisma.ieltsBasicProgress.count({
-        where: { userId, isCompleted: true, lessonId: { in: lessonIds.length ? lessonIds : ['dummy'] } }
+        where: {
+          userId,
+          isCompleted: true,
+          lessonId: { in: lessonIds.length ? lessonIds : ["dummy"] },
+        },
       });
       const completedListeningEx = await this.prisma.ieltsBasicProgress.count({
-        where: { userId, isCompleted: true, listeningExerciseId: { in: listeningExIds.length ? listeningExIds : ['dummy'] } }
+        where: {
+          userId,
+          isCompleted: true,
+          listeningExerciseId: {
+            in: listeningExIds.length ? listeningExIds : ["dummy"],
+          },
+        },
       });
       const completedReadingEx = await this.prisma.ieltsBasicProgress.count({
-        where: { userId, isCompleted: true, readingExerciseId: { in: readingExIds.length ? readingExIds : ['dummy'] } }
+        where: {
+          userId,
+          isCompleted: true,
+          readingExerciseId: {
+            in: readingExIds.length ? readingExIds : ["dummy"],
+          },
+        },
       });
       const completedWritingEx = await this.prisma.ieltsBasicProgress.count({
-        where: { userId, isCompleted: true, writingExerciseId: { in: writingExIds.length ? writingExIds : ['dummy'] } }
+        where: {
+          userId,
+          isCompleted: true,
+          writingExerciseId: {
+            in: writingExIds.length ? writingExIds : ["dummy"],
+          },
+        },
       });
 
       // Prevent Prisma `in: []` error by conditionally checking or using length
-      const actualCompletedLessons = lessonIds.length > 0 ? completedLessons : 0;
-      const actualCompletedListEx = listeningExIds.length > 0 ? completedListeningEx : 0;
-      const actualCompletedReadEx = readingExIds.length > 0 ? completedReadingEx : 0;
-      const actualCompletedWriteEx = writingExIds.length > 0 ? completedWritingEx : 0;
+      const actualCompletedLessons =
+        lessonIds.length > 0 ? completedLessons : 0;
+      const actualCompletedListEx =
+        listeningExIds.length > 0 ? completedListeningEx : 0;
+      const actualCompletedReadEx =
+        readingExIds.length > 0 ? completedReadingEx : 0;
+      const actualCompletedWriteEx =
+        writingExIds.length > 0 ? completedWritingEx : 0;
 
       result.push({
         id: skill.id,
         skill: skill.name,
         lessons: {
           total: lessons.length,
-          completed: actualCompletedLessons
+          completed: actualCompletedLessons,
         },
         exercises: {
           total: listeningEx.length + readingEx.length + writingEx.length,
-          completed: actualCompletedListEx + actualCompletedReadEx + actualCompletedWriteEx
-        }
+          completed:
+            actualCompletedListEx +
+            actualCompletedReadEx +
+            actualCompletedWriteEx,
+        },
       });
     }
 
@@ -265,7 +298,14 @@ export class IeltsService {
     } else if (type === "writing") {
       exercise = await this.prisma.ieltsWritingExercise.findUnique({
         where: { id },
-        select: { id: true, topic: true, instructions: true, modelAnswer: true, diagramUrl: true, prompt: true },
+        select: {
+          id: true,
+          topic: true,
+          instructions: true,
+          modelAnswer: true,
+          diagramUrl: true,
+          prompt: true,
+        },
       });
     } else {
       throw new NotFoundException(`Unknown exercise type: ${type}`);
@@ -280,7 +320,7 @@ export class IeltsService {
 
     if (!group) {
       throw new NotFoundException(
-        `Group index ${groupIndex} not found in exercise ${id}`
+        `Group index ${groupIndex} not found in exercise ${id}`,
       );
     }
 
@@ -293,13 +333,17 @@ export class IeltsService {
       exerciseType: type,
     };
   }
-  async saveWritingUserAnswer(userId: string, exerciseId: string, answers: { intro: string, overview: string, body1: string, body2: string }) {
+  async saveWritingUserAnswer(
+    userId: string,
+    exerciseId: string,
+    answers: { intro: string; overview: string; body1: string; body2: string },
+  ) {
     return this.prisma.ieltsWritingUserAnswer.upsert({
       where: {
         userId_writingExerciseId: {
           userId,
           writingExerciseId: exerciseId,
-        }
+        },
       },
       update: {
         intro: answers.intro,
@@ -314,7 +358,7 @@ export class IeltsService {
         overview: answers.overview,
         body1: answers.body1,
         body2: answers.body2,
-      }
+      },
     });
   }
 
@@ -324,8 +368,8 @@ export class IeltsService {
         userId_writingExerciseId: {
           userId,
           writingExerciseId: exerciseId,
-        }
-      }
+        },
+      },
     });
   }
 
@@ -333,10 +377,10 @@ export class IeltsService {
 
   async getPlacementExercises() {
     const listening = await this.prisma.ieltsListeningExercise.findFirst({
-      orderBy: { order: 'asc' },
+      orderBy: { order: "asc" },
     });
     const reading = await this.prisma.ieltsReadingExercise.findFirst({
-      orderBy: { order: 'asc' },
+      orderBy: { order: "asc" },
     });
     return { listening, reading, writing: null };
   }

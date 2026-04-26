@@ -19,8 +19,8 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
         router.push("/ielts/basic/onboarding");
         return; // wait here, do not set loading to false yet
       }
-      setSteps(res.data.steps);
-      setCurrentStep(res.data.currentStep);
+      setSteps(res.data.steps || []);
+      setCurrentStep(res.data.currentStep || 1);
     } catch (err) {
       console.error("Failed to fetch roadmap", err);
     } finally {
@@ -62,18 +62,19 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
     );
   }
 
-  const totalLessons = steps.reduce((acc, step) => acc + step.items.filter(i => i.type === 'lesson').length, 0);
-  const completedLessons = steps.reduce((acc, step) => acc + step.items.filter(i => i.type === 'lesson' && i.isCompleted).length, 0);
-  const totalExercises = steps.reduce((acc, step) => acc + step.items.filter(i => i.type === 'exercise').length, 0);
-  const completedExercises = steps.reduce((acc, step) => acc + step.items.filter(i => i.type === 'exercise' && i.isCompleted).length, 0);
+  const safeSteps = Array.isArray(steps) ? steps : [];
+  const totalLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'lesson').length, 0);
+  const completedLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'lesson' && i.isCompleted).length, 0);
+  const totalExercises = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'exercise').length, 0);
+  const completedExercises = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'exercise' && i.isCompleted).length, 0);
 
   const lessonsLeft = totalLessons - completedLessons;
   const exercisesLeft = totalExercises - completedExercises;
 
   // Find next item
   let nextItem: RoadmapItem | null = null;
-  for (const step of steps) {
-    for (const item of step.items) {
+  for (const step of safeSteps) {
+    for (const item of (step.items || [])) {
       if (!item.isCompleted && !item.isLocked) {
         nextItem = item;
         break;
@@ -111,7 +112,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
 
       {/* Roadmap List */}
       <div className="flex flex-col w-full">
-        {steps.map((step) => {
+        {safeSteps.map((step) => {
           const isActiveStep = currentStep === step.step;
           const isCompletedStep = step.isCompleted;
 
@@ -130,7 +131,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
 
               {/* Step Items */}
               <div className="ml-5 border-l-[3px] border-[#EEEEEE] pl-7 py-2 flex flex-col gap-6 relative">
-                {step.items.map((item) => {
+                {(step.items || []).map((item) => {
                   const isNextItem = nextItem?.id === item.id;
 
                   return (

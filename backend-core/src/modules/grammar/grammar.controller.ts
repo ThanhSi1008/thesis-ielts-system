@@ -8,86 +8,86 @@ import {
   Body,
   NotFoundException,
   UseGuards,
-} from '@nestjs/common';
-import { GrammarService } from './grammar.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+} from "@nestjs/common";
+import { GrammarService } from "./grammar.service";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { RolesGuard } from "../auth/guards/roles.guard";
+import { Roles } from "../auth/decorators/roles.decorator";
 import {
   CreateGrammarBookDto,
   UpdateGrammarBookDto,
   CreateGrammarUnitDto,
   UpdateGrammarUnitDto,
-} from './dto/grammar.dto';
+} from "./dto/grammar.dto";
 
-@Controller('grammar')
+@Controller("grammar")
 export class GrammarController {
   constructor(private readonly grammarService: GrammarService) {}
 
   // ==================== PUBLIC READ ENDPOINTS ====================
 
-  @Get('books')
+  @Get("books")
   async getBooks() {
     return this.grammarService.getBooks();
   }
 
-  @Get('books/:slug')
-  async getBook(@Param('slug') slug: string) {
+  @Get("books/:slug")
+  async getBook(@Param("slug") slug: string) {
     const book = await this.grammarService.getBookBySlug(slug);
-    if (!book) throw new NotFoundException('Grammar book not found');
+    if (!book) throw new NotFoundException("Grammar book not found");
     return book;
   }
 
-  @Get('units/:id')
-  async getUnit(@Param('id') id: string) {
+  @Get("units/:id")
+  async getUnit(@Param("id") id: string) {
     const unit = await this.grammarService.getUnitWithContent(id);
-    if (!unit) throw new NotFoundException('Grammar unit not found');
+    if (!unit) throw new NotFoundException("Grammar unit not found");
     return unit;
   }
 
   // ==================== ADMIN BOOK ENDPOINTS ====================
 
-  @Post('books')
+  @Post("books")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles("ADMIN")
   async createBook(@Body() dto: CreateGrammarBookDto) {
     return this.grammarService.createBook(dto);
   }
 
-  @Put('books/:id')
+  @Put("books/:id")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  async updateBook(@Param('id') id: string, @Body() dto: UpdateGrammarBookDto) {
+  @Roles("ADMIN")
+  async updateBook(@Param("id") id: string, @Body() dto: UpdateGrammarBookDto) {
     return this.grammarService.updateBook(id, dto);
   }
 
-  @Delete('books/:id')
+  @Delete("books/:id")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  async deleteBook(@Param('id') id: string) {
+  @Roles("ADMIN")
+  async deleteBook(@Param("id") id: string) {
     return this.grammarService.deleteBook(id);
   }
 
   // ==================== ADMIN UNIT ENDPOINTS ====================
 
-  @Post('units')
+  @Post("units")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles("ADMIN")
   async createUnit(@Body() dto: CreateGrammarUnitDto) {
     return this.grammarService.createUnit(dto);
   }
 
-  @Put('units/:id')
+  @Put("units/:id")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  async updateUnit(@Param('id') id: string, @Body() dto: UpdateGrammarUnitDto) {
+  @Roles("ADMIN")
+  async updateUnit(@Param("id") id: string, @Body() dto: UpdateGrammarUnitDto) {
     return this.grammarService.updateUnit(id, dto);
   }
 
-  @Delete('units/:id')
+  @Delete("units/:id")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  async deleteUnit(@Param('id') id: string) {
+  @Roles("ADMIN")
+  async deleteUnit(@Param("id") id: string) {
     return this.grammarService.deleteUnit(id);
   }
 }

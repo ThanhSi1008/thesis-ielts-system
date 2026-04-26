@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { vocabularyApi } from "@/services/learning.api";
 import type { VocabularyBookWithUnits, VocabularyBookProgress, VocabularyUnitProgress } from "@/types";
-import PageHeader from "@/components/PageHeader";
 
 export default function BookPage() {
   const params = useParams();
@@ -46,7 +45,7 @@ export default function BookPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+      <div className="w-full p-4 py-8">
         <div className="h-8 w-32 bg-gray-200 rounded mb-8 animate-pulse" />
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -59,7 +58,7 @@ export default function BookPage() {
 
   if (error || !book) {
     return (
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+      <div className="w-full p-4 py-8">
         <div className="bg-red-50 text-red-600 p-4 rounded-xl">
           {error || "Book not found"}
         </div>
@@ -68,19 +67,15 @@ export default function BookPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title={book.name}
-        backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772802169/8a8ef998-37c5-4f7a-ba32-06af3d4e35b2.png"
-        breadcrumbs={[
-          { label: 'Homepage', href: '/' },
-          { label: 'Vocabulary', href: '/vocabulary' },
-          { label: book.name },
-        ]}
-      />
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
-
-        <h2 className="text-xl font-bold mb-8">{book.name}</h2>
+    <div className="flex-1 min-w-0 bg-white overflow-y-auto p-2 w-full h-full shrink-0">
+      <div className="w-full">
+        <nav className="text-[10px] text-gray-300 mb-8 flex items-center space-x-2 uppercase tracking-wider opacity-50 hover:opacity-100 transition-opacity">
+          <Link href="/ielts/vocabulary" className="hover:text-gray-500 transition-colors">
+            Vocabulary
+          </Link>
+          <span>/</span>
+          <span className="text-gray-400">{book.name}</span>
+        </nav>
 
         {/* Unit List */}
         <div className="space-y-4">
@@ -96,7 +91,7 @@ export default function BookPage() {
             return (
               <Link
                 key={unit.id}
-                href={`/vocabulary/${bookId}/${unit.id}`}
+                href={`/ielts/vocabulary/${bookId}/${unit.id}`}
                 className="block group"
               >
                 <div
@@ -129,6 +124,6 @@ export default function BookPage() {
           })}
         </div>
       </div>
-    </>
+    </div>
   );
 }
