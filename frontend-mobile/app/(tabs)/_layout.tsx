@@ -1,64 +1,81 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants';
+
+type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
+
+function TabIcon({ name, focused }: { name: IoniconsName; focused: boolean }) {
+  return (
+    <Ionicons
+      name={focused ? name : `${name}-outline` as IoniconsName}
+      size={24}
+      color={focused ? COLORS.primary : COLORS.textMuted}
+    />
+  );
+}
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <Tabs 
-      screenOptions={{ 
-        headerShown: false, 
-        tabBarActiveTintColor: '#FFC600',
-        tabBarInactiveTintColor: '#94a3b8',
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textMuted,
         tabBarStyle: {
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backgroundColor: COLORS.background,
           borderTopWidth: 1,
-          borderTopColor: '#f1f5f9',
-          height: 60,
-          paddingBottom: 10,
-          paddingTop: 5,
+          borderTopColor: COLORS.border,
+          paddingTop: 6,
+          paddingBottom: insets.bottom + 6,
+          height: 56 + insets.bottom,
         },
         tabBarLabelStyle: {
-          fontFamily: 'Farro-Bold',
-          fontSize: 10,
-          textTransform: 'uppercase',
-        }
+          fontSize: 11,
+          fontWeight: '600',
+        },
+        headerShown: false,
       }}
     >
+      {/* Hidden redirect screen */}
+      <Tabs.Screen name="index" options={{ href: null }} />
+
+      {/* ── Visible tabs ── */}
       <Tabs.Screen
-        name="index"
-        options={{ 
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />
+        name="ielts"
+        options={{
+          title: 'IELTS',
+          tabBarIcon: ({ focused }) => <TabIcon name="school" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="vocab-lab/index"
-        options={{ 
-          title: 'Vocab',
-          tabBarIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} />
+        name="shadowing"
+        options={{
+          title: 'Shadowing',
+          tabBarIcon: ({ focused }) => <TabIcon name="mic" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="exams/index"
-        options={{ 
-          title: 'Exams',
-          tabBarIcon: ({ color, size }) => <Ionicons name="document-text" size={size} color={color} />
+        name="vocablab"
+        options={{
+          title: 'Vocab Lab',
+          tabBarIcon: ({ focused }) => <TabIcon name="layers" focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="pronunciation/index"
-        options={{ 
-          title: 'Sounds',
-          tabBarIcon: ({ color, size }) => <Ionicons name="mic" size={size} color={color} />
+        name="more"
+        options={{
+          title: 'More',
+          tabBarIcon: ({ focused }) => <TabIcon name="grid" focused={focused} />,
         }}
       />
-      <Tabs.Screen
-        name="shadowing/index"
-        options={{ 
-          title: 'Shadow',
-          tabBarIcon: ({ color, size }) => <Ionicons name="play-circle" size={size} color={color} />
-        }}
-      />
+
+      {/* ── Hidden tabs (accessible via links, not tab bar) ── */}
+      <Tabs.Screen name="vocabulary" options={{ href: null }} />
+      <Tabs.Screen name="grammar" options={{ href: null }} />
+      <Tabs.Screen name="pronunciation" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }

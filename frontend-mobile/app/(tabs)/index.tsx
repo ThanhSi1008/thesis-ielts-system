@@ -1,9 +1,5 @@
-import { View, Text } from 'react-native';
+import { Redirect } from 'expo-router';
 
-export default function HomeTab() {
-  return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-xl font-bold">Home</Text>
-    </View>
-  );
+export default function HomeRedirect() {
+  return <Redirect href="/(tabs)/ielts" />;
 }

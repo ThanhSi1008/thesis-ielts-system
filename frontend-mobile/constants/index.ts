@@ -2,21 +2,8 @@
  * Application Constants
  */
 
-import Constants from 'expo-constants';
-import { Platform } from 'react-native';
-
-// Dynamically extract the local IP from Expo's dev server if available
-const debuggerHost = Constants.expoConfig?.hostUri;
-const localIp = debuggerHost?.split(':')[0];
-
-// 1. Try to use .env explicitly if it exists and isn't using a dummy value
-// 2. Fall back to the dynamically detected local IP (works seamlessly on any WiFi)
-// 3. Absolute fallback (mostly for emulators)
-const fallbackUrl = localIp 
-  ? `http://${localIp}:3000/api/v1` 
-  : Platform.OS === 'android' ? 'http://10.0.2.2:3000/api/v1' : 'http://localhost:3000/api/v1';
-
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || fallbackUrl;
+// API Configuration
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.24:3000/api/v1';
 
 // Storage Keys
 export const STORAGE_KEYS = {
