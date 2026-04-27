@@ -157,8 +157,10 @@ export default function IeltsRoadmapTab() {
       }
       setSteps(data.steps ?? []);
       setCurrentStep(data.currentStep ?? 1);
-    } catch (e) {
-      console.error('Roadmap fetch error:', e);
+    } catch (e: any) {
+      if (e?.status !== 401) {
+        console.error('Roadmap fetch error:', e);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);

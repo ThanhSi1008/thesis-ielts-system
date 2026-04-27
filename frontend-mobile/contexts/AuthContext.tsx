@@ -3,7 +3,7 @@ import { User, LoginRequest, RegisterRequest } from '@/types';
 import { authService } from '@/services/auth.service';
 import { STORAGE_KEYS } from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter, useSegments } from 'expo-router';
+import { useRouter, useSegments, useRootNavigationState } from 'expo-router';
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +21,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const segments = useSegments();
+  const rootNavigationState = useRootNavigationState();
+  const isNavigationReady = rootNavigationState?.key != null;
 
   useEffect(() => {
     checkAuth();
@@ -28,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Auth Guard: Redirect based on auth state
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !isNavigationReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
@@ -39,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If logged in and in auth group, redirect to home
       router.replace('/(tabs)');
     }
-  }, [user, segments, isLoading]);
+  }, [user, segments, isLoading, isNavigationReady]);
 
   const checkAuth = async () => {
     try {
@@ -57,9 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
              setUser(JSON.parse(storedUser));
           }
           
-          // Optional: Verify with backend
-          // const userProfile = await authService.getCurrentUser();
-          // setUser(userProfile);
+          // Verify with backend
+          const userProfile = await authService.getCurrentUser();
+          setUser(userProfile);
           
         } catch (e) {
           // Token invalid

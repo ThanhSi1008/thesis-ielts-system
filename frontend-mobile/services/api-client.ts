@@ -6,6 +6,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL, STORAGE_KEYS } from '../constants';
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 export class ApiClient {
   private baseUrl: string;
 
@@ -24,15 +33,35 @@ export class ApiClient {
     return headers;
   }
 
+  private async handleResponse<T>(response: Response): Promise<T> {
+    if (!response.ok) {
+      let errorMessage = `API Error: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message) {
+          errorMessage = Array.isArray(errorData.message) 
+            ? errorData.message[0] 
+            : errorData.message;
+        } else if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (e) {
+        // Ignore JSON parse error
+      }
+      // Throw custom ApiError so status code is available in catch blocks
+      throw new ApiError(errorMessage, response.status);
+    }
+    
+    if (response.status === 204) {
+      return {} as T;
+    }
+    return response.json() as Promise<T>;
+  }
+
   async get<T>(endpoint: string): Promise<T> {
     const headers = await this.getHeaders();
     const response = await fetch(`${this.baseUrl}${endpoint}`, { headers });
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json() as Promise<T>;
+    return this.handleResponse<T>(response);
   }
 
   async post<T>(endpoint: string, body: unknown): Promise<T> {
@@ -42,12 +71,7 @@ export class ApiClient {
       headers,
       body: JSON.stringify(body),
     });
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json() as Promise<T>;
+    return this.handleResponse<T>(response);
   }
 
   async put<T>(endpoint: string, body: unknown): Promise<T> {
@@ -57,12 +81,7 @@ export class ApiClient {
       headers,
       body: JSON.stringify(body),
     });
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json() as Promise<T>;
+    return this.handleResponse<T>(response);
   }
 
   async patch<T>(endpoint: string, body?: unknown): Promise<T> {
@@ -86,12 +105,7 @@ export class ApiClient {
       method: 'DELETE',
       headers,
     });
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json() as Promise<T>;
+    return this.handleResponse<T>(response);
   }
 }
 

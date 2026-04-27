@@ -25,9 +25,19 @@ export default function RegisterScreen() {
     }
 
     try {
-      const nameParts = fullName.trim().split(' ');
-      const lastName = nameParts.length > 1 ? nameParts.pop() : '';
-      const firstName = nameParts.join(' ');
+      let firstName = 'User';
+      let lastName = 'User';
+      
+      if (fullName.trim()) {
+        const parts = fullName.trim().split(/\s+/);
+        if (parts.length > 1) {
+          lastName = parts.pop() || 'User';
+          firstName = parts.join(' ');
+        } else {
+          firstName = parts[0];
+          lastName = parts[0];
+        }
+      }
       
       await register({ email, password, firstName, lastName });
       Alert.alert(
@@ -36,7 +46,7 @@ export default function RegisterScreen() {
         [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
       );
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.response?.data?.message || 'Something went wrong');
+      Alert.alert('Registration Failed', error.message || 'Something went wrong');
     }
   };
 
