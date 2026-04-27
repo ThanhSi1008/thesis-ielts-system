@@ -10,7 +10,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, API_BASE_URL, FONTS } from '@/cons
 import { apiClient } from '@/services/api-client';
 import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import Markdown from 'react-native-markdown-display';
-import { ContentGroupView } from './_components/ContentGroupView';
+import { ContentGroupView } from '@/components/ielts/exercise/ContentGroupView';
 
 /* ─── Mobile-friendly Markdown Table Override ─── */
 function buildMarkdownRules(): any {

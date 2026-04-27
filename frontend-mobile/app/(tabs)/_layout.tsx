@@ -9,19 +9,19 @@ export default function TabLayout() {
         options={{ title: 'Home' }}
       />
       <Tabs.Screen
-        name="vocab-lab/index"
+        name="vocablab"
         options={{ title: 'Vocab Lab' }}
       />
       <Tabs.Screen
-        name="exams/index"
-        options={{ title: 'Exams' }}
+        name="ielts"
+        options={{ title: 'IELTS' }}
       />
       <Tabs.Screen
-        name="pronunciation/index"
+        name="pronunciation"
         options={{ title: 'Pronunciation' }}
       />
       <Tabs.Screen
-        name="shadowing/index"
+        name="shadowing"
         options={{ title: 'Shadowing' }}
       />
     </Tabs>

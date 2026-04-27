@@ -84,3 +84,12 @@ export const ANIMATION = {
   normal: 300,
   slow: 500,
 } as const;
+
+// Font Families
+export const FONTS = {
+  regular: 'System',
+  medium: 'System',
+  bold: 'System',
+  semibold: 'System',
+} as const;
+
