@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Polyline, Line, Circle, Text as SvgText } from 'react-native-svg';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services/ielts.api';
 import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
 
@@ -58,7 +58,7 @@ function BandChart({ points, color }: { points: { band: number; label: string }[
       {points.map((p, i) => (
         <React.Fragment key={i}>
           <Circle cx={toX(i)} cy={toY(p.band)} r={5} fill={color} />
-          <SvgText x={toX(i)} y={toY(p.band) - 10} textAnchor="middle" fontSize={9} fill={color} fontWeight="700">
+          <SvgText x={toX(i)} y={toY(p.band) - 10} textAnchor="middle" fontSize={9} fill={color} fontFamily={FONTS.bold}>
             {p.band.toFixed(1)}
           </SvgText>
         </React.Fragment>
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
   },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
+  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
   profileCard: {
     margin: SPACING.lg,
     backgroundColor: '#fff',
@@ -278,16 +278,16 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   profileRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SPACING.lg },
-  profileName: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text },
-  profileSub: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginTop: 2 },
+  profileName: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, color: COLORS.text },
+  profileSub: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 2 },
   streakPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FEF3C7', paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: RADIUS.full },
   streakFire: { fontSize: 18 },
-  streakVal: { fontSize: FONT_SIZES.md, fontWeight: '800', color: '#D97706' },
+  streakVal: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: '#D97706' },
   overviewRow: { flexDirection: 'row' },
   overviewItem: { flex: 1, alignItems: 'center' },
   overviewMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: COLORS.border },
-  overviewValue: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text },
-  overviewLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
+  overviewValue: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
+  overviewLabel: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 2 },
   section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.lg },
   chartCard: {
     backgroundColor: '#fff',
@@ -312,8 +312,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   advIcon: { fontSize: 28, marginBottom: SPACING.sm },
-  advCount: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: COLORS.text },
-  advLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginTop: 4 },
+  advCount: { fontSize: FONT_SIZES.xxl, fontFamily: FONTS.bold, color: COLORS.text },
+  advLabel: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 4 },
   historyRow: {
     flexDirection: 'row',
     alignItems: 'center',

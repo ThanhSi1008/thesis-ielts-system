@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
+import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
 
 export interface RoadmapItem {
   id: string;
@@ -14,13 +14,7 @@ export interface RoadmapItem {
   lessonId?: string;
 }
 
-const SKILL_COLOR: Record<string, string> = {
-  Listening: '#E11D48',
-  Reading:   '#2563EB',
-  Writing:   '#D97706',
-  Speaking:  '#7C3AED',
-};
-
+// Matches web's getSkillIcon()
 const SKILL_ICON: Record<string, React.ComponentProps<typeof Ionicons>['name']> = {
   Listening: 'headset-outline',
   Reading:   'book-outline',
@@ -34,24 +28,39 @@ interface LessonRowProps {
   onPress: () => void;
 }
 
+/** Matches web's RoadmapContent item card design exactly */
 export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
-  const skillColor = SKILL_COLOR[item.skill] ?? COLORS.primary;
-  const skillIcon  = SKILL_ICON[item.skill]  ?? 'book-outline';
+  const skillIcon = SKILL_ICON[item.skill] ?? 'book-outline';
+
+  // Icon background — matches web: next → #FFF0C2, completed → green-50, default → gray-50
+  const iconBg = isNext ? '#FFF0C2' : item.isCompleted ? '#DCFCE7' : '#F3F4F6';
+  const iconColor = isNext
+    ? '#E0A800'
+    : item.isCompleted
+    ? '#16A34A'
+    : '#9CA3AF';
+
+  // Card border/bg — matches web: next → #FFF9E6 + #FFC107/40, default → white
+  const cardStyle = [
+    styles.card,
+    isNext && styles.cardNext,
+    item.isCompleted && styles.cardDone,
+    item.isLocked && styles.cardLocked,
+  ];
 
   return (
-    <View style={styles.lessonRow}>
-      {/* Timeline dot */}
+    <View style={styles.row}>
+      {/* Timeline dot — matches web dot indicator */}
       <View style={styles.dotCol}>
         {item.isCompleted ? (
-          <View style={[styles.dot, { backgroundColor: '#16A34A' }]}>
-            <Ionicons name="checkmark" size={11} color="#fff" />
+          <View style={styles.dotCompleted}>
+            <Ionicons name="checkmark" size={10} color="#fff" />
           </View>
         ) : isNext ? (
-          <View style={[styles.dot, { backgroundColor: '#D97706' }]}>
-            <View style={styles.dotInner} />
-          </View>
+          // Next item: larger amber dot matching web's #FFC107
+          <View style={styles.dotNext} />
         ) : (
-          <View style={[styles.dot, { backgroundColor: item.isLocked ? '#D1D5DB' : '#D1D5DB' }]}>
+          <View style={[styles.dotDefault, item.isLocked && styles.dotLocked]}>
             {item.isLocked && <Ionicons name="lock-closed" size={9} color="#fff" />}
           </View>
         )}
@@ -59,41 +68,33 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
 
       {/* Card */}
       <TouchableOpacity
-        style={[
-          styles.lessonCard,
-          isNext && styles.lessonCardNext,
-          item.isCompleted && styles.lessonCardDone,
-          item.isLocked && styles.lessonCardLocked,
-        ]}
+        style={cardStyle}
         onPress={item.isLocked ? undefined : onPress}
         activeOpacity={item.isLocked ? 1 : 0.8}
       >
-        {/* Skill icon box */}
-        <View style={[
-          styles.skillIcon,
-          { backgroundColor: isNext ? '#FFF0C2' : item.isCompleted ? '#DCFCE7' : '#F3F4F6' },
-        ]}>
+        {/* Skill icon box — matches web p-2.5 rounded-xl */}
+        <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
           <Ionicons
             name={item.isLocked ? 'lock-closed-outline' : skillIcon}
-            size={18}
-            color={item.isLocked ? '#9CA3AF' : isNext ? '#D97706' : item.isCompleted ? '#16A34A' : skillColor}
+            size={20}
+            color={item.isLocked ? '#9CA3AF' : iconColor}
           />
         </View>
 
-        {/* Text */}
+        {/* Text section */}
         <View style={{ flex: 1 }}>
-          <Text style={[styles.lessonTitle, item.isLocked && { color: COLORS.textMuted }]}>
+          <Text style={[styles.title, isNext && styles.titleNext]} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={[styles.lessonMeta, { color: skillColor }]}>
+          <Text style={styles.meta}>
             {item.skill} · {item.type === 'lesson' ? 'Theory' : 'Practice'}
           </Text>
         </View>
 
-        {/* Action button */}
+        {/* Action buttons — matches web Resume / Review buttons */}
         {isNext && (
           <TouchableOpacity style={styles.resumeBtn} onPress={onPress}>
-            <Ionicons name="play" size={12} color="#fff" />
+            <Ionicons name="play" size={13} color="#212529" />
             <Text style={styles.resumeText}>Resume</Text>
           </TouchableOpacity>
         )}
@@ -102,51 +103,147 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
             <Text style={styles.reviewText}>Review</Text>
           </TouchableOpacity>
         )}
-        {item.isLocked && (
-          <Ionicons name="bookmark-outline" size={16} color={COLORS.border} />
-        )}
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  lessonRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: SPACING.md },
-  dotCol: { width: 20, alignItems: 'center', paddingTop: 12, marginLeft: -11, marginRight: SPACING.md },
-  dot: {
-    width: 22, height: 22, borderRadius: 11,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: '#fff',
+  row: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: SPACING.md,
   },
-  dotInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff' },
-  lessonCard: {
+
+  // Dot column — sits alongside timeline line
+  dotCol: {
+    width: 22,
+    alignItems: 'center',
+    paddingTop: 14,
+    marginLeft: -11,
+    marginRight: SPACING.md,
+  },
+  dotCompleted: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#22C55E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  dotNext: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FFC107',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  dotDefault: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#D6D6D6',
+    borderWidth: 3,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotLocked: {
+    backgroundColor: '#E5E7EB',
+  },
+
+  // Card — matches web's rounded-2xl border card
+  card: {
     flex: 1,
-    flexDirection: 'row', alignItems: 'center',
-    gap: SPACING.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
     backgroundColor: '#fff',
-    borderRadius: RADIUS.lg,
-    borderWidth: 1, borderColor: COLORS.border,
+    borderRadius: 16,
+    borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
     padding: SPACING.md,
   },
-  lessonCardNext:   { borderColor: '#FFC107', backgroundColor: '#FFF9E6' },
-  lessonCardDone:   { backgroundColor: '#FAFAFA' },
-  lessonCardLocked: { opacity: 0.6 },
-  skillIcon: {
-    width: 36, height: 36, borderRadius: RADIUS.md,
-    alignItems: 'center', justifyContent: 'center',
+  cardNext: {
+    backgroundColor: '#FFF9E6',
+    borderColor: 'rgba(255,193,7,0.4)',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
+  },
+  cardDone: {
+    backgroundColor: '#FAFAFA',
+  },
+  cardLocked: {
+    opacity: 0.55,
+  },
+
+  // Icon box — matches web's p-2.5 rounded-xl icon container
+  iconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    alignItems: 'center',
+    justifyContent: 'center',
     flexShrink: 0,
   },
-  lessonTitle: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.text, marginBottom: 2 },
-  lessonMeta: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
+
+  // Title — matches web: next → font-extrabold, default → font-bold
+  title: {
+    fontFamily: FONTS.bold,
+    fontSize: FONT_SIZES.sm,
+    color: '#1F2937',
+    marginBottom: 3,
+    lineHeight: 18,
+  },
+  titleNext: {
+    fontFamily: FONTS.bold,
+    color: '#111827',
+  },
+
+  // Meta — matches web: uppercase tracking-widest font-bold text-gray-400
+  meta: {
+    fontFamily: FONTS.bold,
+    fontSize: 10,
+    color: '#9CA3AF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+
+  // Resume button — matches web: #FFC107 bg, dark text, rounded-xl
   resumeBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: '#D97706', paddingHorizontal: SPACING.md, paddingVertical: 6,
-    borderRadius: RADIUS.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#FFC107',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    flexShrink: 0,
   },
-  resumeText: { color: '#fff', fontSize: FONT_SIZES.xs, fontWeight: '800' },
+  resumeText: {
+    fontFamily: FONTS.bold,
+    color: '#212529',
+    fontSize: FONT_SIZES.xs,
+  },
+
+  // Review button — matches web: white bg, border-2 border-gray-100
   reviewBtn: {
-    paddingHorizontal: SPACING.sm, paddingVertical: 6,
-    borderRadius: RADIUS.md, borderWidth: 1.5, borderColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderCurve: 'continuous',
+    borderWidth: 2,
+    borderColor: '#F3F4F6',
+    flexShrink: 0,
   },
-  reviewText: { color: COLORS.textSecondary, fontSize: FONT_SIZES.xs, fontWeight: '700' },
+  reviewText: {
+    fontFamily: FONTS.bold,
+    color: '#6B7280',
+    fontSize: FONT_SIZES.xs,
+  },
 });

@@ -1,7 +1,42 @@
 import { Stack } from 'expo-router';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { useFonts } from 'expo-font';
+import { Farro_300Light, Farro_400Regular, Farro_500Medium, Farro_700Bold } from '@expo-google-fonts/farro';
+import { useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { Text, TextInput } from 'react-native';
+
+SplashScreen.preventAutoHideAsync();
+
+interface TextWithDefaultProps extends Text {
+  defaultProps?: { style?: any };
+}
+interface TextInputWithDefaultProps extends TextInput {
+  defaultProps?: { style?: any };
+}
+
+((Text as unknown) as TextWithDefaultProps).defaultProps = ((Text as unknown) as TextWithDefaultProps).defaultProps || {};
+((Text as unknown) as TextWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Regular' };
+
+((TextInput as unknown) as TextInputWithDefaultProps).defaultProps = ((TextInput as unknown) as TextInputWithDefaultProps).defaultProps || {};
+((TextInput as unknown) as TextInputWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Regular' };
 
 export default function RootLayout() {
+  const [loaded] = useFonts({
+    'Farro-Light': Farro_300Light,
+    'Farro-Regular': Farro_400Regular,
+    'Farro-Medium': Farro_500Medium,
+    'Farro-Bold': Farro_700Bold,
+  });
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) return null;
+
   return (
     <AuthProvider>
       <Stack screenOptions={{ headerShown: false }}>

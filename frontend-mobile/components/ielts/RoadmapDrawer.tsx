@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 
 interface NavItem {
   key: string;
@@ -93,13 +93,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md, borderBottomWidth: 1, borderColor: COLORS.border,
     gap: SPACING.md,
   },
-  drawerLogo: { fontSize: FONT_SIZES.xl, fontWeight: '900', color: COLORS.primary, letterSpacing: -0.5 },
+  drawerLogo: { fontFamily: FONTS.bold, fontSize: FONT_SIZES.xl, color: COLORS.primary, letterSpacing: -0.5 },
   navItem: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
     paddingHorizontal: SPACING.lg, paddingVertical: 12,
     marginHorizontal: SPACING.sm, borderRadius: RADIUS.lg, marginBottom: 2,
   },
   navItemActive: { backgroundColor: COLORS.primary + '15' },
-  navLabel: { flex: 1, fontSize: FONT_SIZES.md, fontWeight: '600', color: COLORS.textSecondary },
-  navLabelActive: { color: COLORS.primary, fontWeight: '700' },
+  navLabel: { flex: 1, fontFamily: FONTS.medium, fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
+  navLabelActive: { fontFamily: FONTS.bold, color: COLORS.primary },
 });

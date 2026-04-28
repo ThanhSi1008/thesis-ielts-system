@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { API_BASE_URL } from '@/constants';
 import { apiClient } from '@/services/api-client';
+import { Stack } from 'expo-router';
 
 /* ─── Types ─── */
 interface LessonBlock {
@@ -151,16 +152,16 @@ const qStyles = StyleSheet.create({
   container: { marginTop: SPACING.xl },
   header: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text, marginBottom: SPACING.lg },
   qCard: {
-    backgroundColor: '#fff', borderRadius: RADIUS.xl,
+    backgroundColor: '#fff', borderRadius: RADIUS.xl, borderCurve: 'continuous',
     padding: SPACING.lg, marginBottom: SPACING.lg,
     borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
   },
   qNum: { fontSize: FONT_SIZES.xl, fontWeight: '900', color: '#D1D5DB', marginBottom: SPACING.sm },
   qText: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.md, lineHeight: 22 },
   option: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
-    padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1,
+    padding: SPACING.md, borderRadius: RADIUS.lg, borderCurve: 'continuous', borderWidth: 1,
     marginBottom: SPACING.sm,
   },
   bullet: {
@@ -172,32 +173,32 @@ const qStyles = StyleSheet.create({
   optText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '600' },
   explanation: {
     marginTop: SPACING.md, padding: SPACING.md,
-    borderRadius: RADIUS.md,
+    borderRadius: RADIUS.md, borderCurve: 'continuous',
   },
   bar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', borderRadius: RADIUS.xl,
+    backgroundColor: '#fff', borderRadius: RADIUS.xl, borderCurve: 'continuous',
     padding: SPACING.md, borderWidth: 1, borderColor: COLORS.border,
     marginTop: SPACING.md,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
   },
   answered: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textMuted },
   submitBtn: {
     flexDirection: 'row', gap: SPACING.xs, alignItems: 'center',
     backgroundColor: '#FCD34D', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.lg, borderCurve: 'continuous',
   },
   submitText: { fontWeight: '700', color: COLORS.text },
   retryBtn: {
     flexDirection: 'row', gap: 4, alignItems: 'center',
     backgroundColor: COLORS.surface, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.border,
+    borderRadius: RADIUS.lg, borderCurve: 'continuous', borderWidth: 1, borderColor: COLORS.border,
   },
   retryText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary },
   nextBtn: {
     flexDirection: 'row', gap: 4, alignItems: 'center',
     backgroundColor: '#FCD34D', paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.lg, borderCurve: 'continuous',
   },
   nextText: { fontSize: FONT_SIZES.sm, fontWeight: '800', color: COLORS.text },
 });
@@ -277,22 +278,22 @@ export default function LessonViewerScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.text} />
-        </TouchableOpacity>
-        <View style={{ flex: 1, marginHorizontal: SPACING.md }}>
-          <Text style={styles.breadcrumb}>{lesson.skill?.name ?? skill} · {lesson.chapter}</Text>
-          <Text style={styles.headerTitle} numberOfLines={1}>{lesson.title}</Text>
-        </View>
-      </View>
+    <View style={styles.safe}>
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          title: lesson.title,
+          headerBackTitle: lesson.skill?.name ?? skill ?? 'Back',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#fff' },
+        }} 
+      />
 
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
       >
         {/* Content blocks */}
         {Array.isArray(lesson.content) && lesson.content.map((block, idx) => {
@@ -334,7 +335,7 @@ export default function LessonViewerScreen() {
 
         <View style={{ height: 60 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -353,7 +354,7 @@ const styles = StyleSheet.create({
 
   scroll: { padding: SPACING.lg },
   block: {
-    borderRadius: RADIUS.xl, borderWidth: 1,
+    borderRadius: RADIUS.xl, borderCurve: 'continuous', borderWidth: 1,
     padding: SPACING.lg, marginBottom: SPACING.md,
   },
   blockSection: {

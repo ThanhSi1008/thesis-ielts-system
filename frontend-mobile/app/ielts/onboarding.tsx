@@ -19,7 +19,7 @@ import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES, SHADOWS } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, SHADOWS } from '@/constants';
 import { ieltsProfileApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
 
@@ -314,13 +314,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   stepTitle: { 
+    fontFamily: FONTS.bold,
     fontSize: 32, 
-    fontWeight: '800', 
     color: COLORS.text, 
     marginBottom: SPACING.sm,
     letterSpacing: -0.5,
   },
   stepSubtitle: { 
+    fontFamily: FONTS.medium,
     fontSize: 17, 
     color: COLORS.textSecondary, 
     lineHeight: 24,
@@ -351,8 +352,8 @@ const styles = StyleSheet.create({
     boxShadow: SHADOWS.md,
   },
   bandValue: { 
+    fontFamily: FONTS.bold,
     fontSize: 22, 
-    fontWeight: '800', 
     color: COLORS.text,
   },
   bandValueActive: { 
@@ -394,14 +395,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   commitLabel: { 
+    fontFamily: FONTS.bold,
     fontSize: 18, 
-    fontWeight: '700', 
     color: COLORS.text,
   },
   commitLabelActive: { 
     color: COLORS.onPrimary,
   },
   commitSub: { 
+    fontFamily: FONTS.medium,
     fontSize: 14, 
     color: COLORS.textMuted,
     marginTop: 2,
@@ -439,16 +441,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dateLabel: {
+    fontFamily: FONTS.bold,
     fontSize: 13,
-    fontWeight: '700',
     color: COLORS.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 4,
   },
   dateDisplay: {
+    fontFamily: FONTS.bold,
     fontSize: 18,
-    fontWeight: '800',
     color: COLORS.text,
     lineHeight: 24,
   },

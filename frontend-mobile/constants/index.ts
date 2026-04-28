@@ -89,10 +89,11 @@ export const ANIMATION = {
 
 // Font Families
 export const FONTS = {
-  regular: 'Farro',
-  medium: 'Farro',
-  bold: 'Farro',
-  semibold: 'Farro',
+  light: 'Farro-Light',
+  regular: 'Farro-Regular',
+  medium: 'Farro-Medium',
+  semibold: 'Farro-Medium',
+  bold: 'Farro-Bold',
 } as const;
 
 export const SHADOWS = {

@@ -6,7 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { Chip, Badge, ScoreBadge, EmptyState } from '@/components/ui';
 
@@ -153,8 +153,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
   },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
-  headerCount: { color: '#BFDBFE', fontSize: FONT_SIZES.sm, fontWeight: '600' },
+  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
+  headerCount: { color: '#BFDBFE', fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium },
   filterBar: { borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 56 },
   historyCard: {
     flexDirection: 'row',
@@ -173,11 +173,11 @@ const styles = StyleSheet.create({
   skillStripe: { width: 5 },
   cardContent: { flex: 1, padding: SPACING.md },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: SPACING.sm },
-  cardTitle: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.text },
-  cardSubtitle: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 1 },
-  cardDate: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginTop: 4 },
+  cardTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
+  cardSubtitle: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 1 },
+  cardDate: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.regular, color: COLORS.textMuted, marginTop: 4 },
   cardRight: { alignItems: 'flex-end', gap: 4, marginLeft: SPACING.sm },
-  rawScore: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontWeight: '600' },
+  rawScore: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontFamily: FONTS.bold },
   cardMeta: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flexWrap: 'wrap' },
-  metaText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary },
+  metaText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary },
 });
