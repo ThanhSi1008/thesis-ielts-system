@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { 
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, 
+  ActivityIndicator, useWindowDimensions 
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
-import { Link } from 'expo-router';
-import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING, SHADOWS } from '@/constants';
-import { apiClient } from '@/services/api-client';
+import { useRouter } from 'expo-router';
+import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import Markdown from 'react-native-markdown-display';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
+import { apiClient } from '@/services/api-client';
 
 interface LibraryStats {
   id: string;
@@ -46,46 +51,43 @@ const SKILL_THEMES: Record<string, any> = {
   },
 };
 
-const getDefaultTheme = (skillName: string) => SKILL_THEMES[skillName] || SKILL_THEMES['Reading'];
+function getDefaultTheme(skill: string) {
+  return SKILL_THEMES[skill] || {
+    bg: '#FAF7F2',
+    text: COLORS.primary,
+    circleBase: 'rgba(255, 193, 7, 0.1)',
+    fillColor: COLORS.primary,
+    icon: 'school-outline',
+  };
+}
 
-function CircularProgress({
-  completed,
-  total,
-  color,
-  baseColor,
-  icon: IconName,
-  textColor,
-  onPress
-}: {
-  completed: number;
-  total: number;
-  color: string;
-  baseColor: string;
-  icon: any;
-  textColor: string;
-  onPress: () => void;
-}) {
-  const percentage = total === 0 ? 0 : Math.min(100, Math.max(0, (completed / total) * 100));
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+
+function CircularProgressLink({ completed, total, color, baseColor, textColor, icon, onPress }: any) {
   const size = 60;
   const strokeWidth = 3;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
+  const radius = 24;
+  const circumference = radius * 2 * Math.PI;
+  const percentage = total > 0 ? Math.min(100, (completed / total) * 100) : 0;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
   return (
-    <View style={styles.progressContainer}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.progressCircleWrapper}>
-        <Svg width={size} height={size} style={styles.svg}>
-          {/* Base Circle */}
+    <View style={styles.progLinkWrapper}>
+      <TouchableOpacity onPress={handlePress} style={styles.progLinkCircle} activeOpacity={0.7}>
+        <Svg width={size} height={size} style={styles.svgRotate}>
           <Circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke="transparent"
+            stroke={baseColor}
             strokeWidth={strokeWidth}
-            fill={baseColor}
+            fill="transparent"
           />
-          {/* Progress Circle */}
           {percentage > 0 && (
             <Circle
               cx={size / 2}
@@ -93,19 +95,18 @@ function CircularProgress({
               r={radius}
               stroke={color}
               strokeWidth={strokeWidth}
-              fill="transparent"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              transform={`rotate(-90 ${size / 2} ${size / 2})`}
+              fill="transparent"
             />
           )}
         </Svg>
-        <View style={styles.iconOverlay}>
-          <Ionicons name={IconName} size={20} color={textColor} />
+        <View style={[styles.progLinkIconBox, { backgroundColor: color + '1A' }]}>
+          <Ionicons name={icon} size={20} color={color} />
         </View>
       </TouchableOpacity>
-      <Text style={[styles.progressText, { color: textColor }]}>
+      <Text style={[styles.progLinkText, { color: color }]}>
         {completed}/{total}
       </Text>
     </View>
@@ -113,6 +114,8 @@ function CircularProgress({
 }
 
 export function LibraryContent() {
+  const router = useRouter();
+  const { width } = useWindowDimensions();
   const [stats, setStats] = useState<LibraryStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -135,7 +138,6 @@ export function LibraryContent() {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Loading library...</Text>
       </View>
     );
   }
@@ -153,155 +155,164 @@ export function LibraryContent() {
   return (
     <ScrollView 
       style={styles.container}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={styles.scroll}
       showsVerticalScrollIndicator={false}
+      contentInsetAdjustmentBehavior="automatic"
     >
-      <Text style={styles.title}>Library</Text>
+      <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
+        <Text style={styles.title}>Library</Text>
+      </Animated.View>
 
       <View style={styles.grid}>
-        {displayStats.map((stat) => {
+        {displayStats.map((stat, index) => {
           const theme = getDefaultTheme(stat.skill);
           return (
-            <View key={stat.id} style={[styles.card, { backgroundColor: theme.bg }]}>
+            <Animated.View 
+              key={stat.id} 
+              entering={FadeInDown.delay(index * 100).duration(500)}
+              style={[styles.card, { backgroundColor: theme.bg }]}
+            >
               <View style={styles.cardHeader}>
-                <Ionicons name={theme.icon} size={24} color={theme.text} />
-                <Text style={[styles.cardTitle, { color: theme.text }]}>{stat.skill}</Text>
+                <Ionicons name={theme.icon} size={24} color={theme.fillColor} style={{ fontWeight: '800' }} />
+                <Text style={[styles.cardTitle, { color: theme.fillColor }]}>{stat.skill}</Text>
               </View>
 
               <View style={styles.progressRow}>
-                <CircularProgress
+                <CircularProgressLink
                   completed={stat.lessons.completed}
                   total={stat.lessons.total}
                   color={theme.fillColor}
                   baseColor={theme.circleBase}
-                  textColor={theme.text}
                   icon="school-outline"
-                  onPress={() => {}} // Navigate to lessons
+                  onPress={() => router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/lessons` as any)}
                 />
 
-                <CircularProgress
+                <CircularProgressLink
                   completed={stat.exercises.completed}
                   total={stat.exercises.total}
                   color={theme.fillColor}
                   baseColor={theme.circleBase}
-                  textColor={theme.text}
                   icon="fitness-outline"
-                  onPress={() => {}} // Navigate to exercises
+                  onPress={() => router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/exercises` as any)}
                 />
               </View>
-            </View>
+            </Animated.View>
           );
         })}
       </View>
 
-      <View style={styles.bookmarksSection}>
-        <View style={styles.bookmarksHeader}>
-          <Ionicons name="bookmark-outline" size={24} color="#374151" />
-          <Text style={styles.bookmarksTitle}>Bookmarks</Text>
-        </View>
-        <View style={styles.bookmarksBadgeContainer}>
-          <View style={styles.bookmarksIconBg}>
-            <Ionicons name="school-outline" size={24} color="#4F6C76" />
+      <Animated.View entering={FadeInDown.delay(400)} style={styles.bookmarksContainer}>
+        <View style={styles.bookmarkCard}>
+          <View style={styles.bookmarkInfo}>
+            <Ionicons name="bookmark" size={24} color="#1F2937" />
+            <Text style={styles.bookmarkTitle}>Bookmarks</Text>
           </View>
-          <Text style={styles.bookmarksCount}>1/1</Text>
+          <View style={styles.bookmarkStats}>
+            <View style={styles.bookmarkIconCircle}>
+              <Ionicons name="school-outline" size={24} color="#4F6C76" />
+            </View>
+            <Text style={styles.bookmarkCount}>1/1</Text>
+          </View>
         </View>
-      </View>
+      </Animated.View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: SPACING.lg, paddingBottom: 100 },
+  scroll: { padding: SPACING.lg, paddingBottom: 120 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  loadingText: { marginTop: SPACING.md, fontFamily: FONTS.medium, color: COLORS.textSecondary },
   
+  header: { marginBottom: SPACING.xl, paddingHorizontal: 4 },
   title: {
     fontFamily: FONTS.bold,
-    fontSize: 28,
+    fontSize: 32,
     color: '#111827',
-    marginBottom: SPACING.xl,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
 
-  grid: {
-    gap: SPACING.lg,
-  },
+  grid: { gap: SPACING.lg },
 
   card: {
     borderRadius: 32,
-    padding: SPACING.xl,
+    padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
+    borderCurve: 'continuous',
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
-    marginBottom: SPACING.xl,
+    gap: 12,
+    marginBottom: 32,
   },
   cardTitle: {
     fontFamily: FONTS.bold,
     fontSize: 20,
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
   },
 
   progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 32,
+    gap: 24,
   },
-  progressContainer: {
+
+  progLinkWrapper: {
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: 12,
   },
-  progressCircleWrapper: {
+  progLinkCircle: {
     width: 60,
     height: 60,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  svg: {
-    position: 'absolute',
+  svgRotate: {
+    transform: [{ rotate: '-90deg' }],
   },
-  iconOverlay: {
-    width: 60,
-    height: 60,
+  progLinkIconBox: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  progressText: {
+  progLinkText: {
     fontFamily: FONTS.bold,
     fontSize: 13,
     opacity: 0.7,
   },
 
-  bookmarksSection: {
-    marginTop: SPACING.xl,
+  bookmarksContainer: { marginTop: SPACING.lg },
+  bookmarkCard: {
     backgroundColor: '#FAF7F2',
     borderRadius: 32,
-    padding: SPACING.lg,
-    paddingHorizontal: SPACING.xl,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderCurve: 'continuous',
   },
-  bookmarksHeader: {
+  bookmarkInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
+    gap: 12,
+    flex: 1,
   },
-  bookmarksTitle: {
+  bookmarkTitle: {
     fontFamily: FONTS.bold,
     fontSize: 20,
-    color: '#1F2937',
+    color: '#111827',
   },
-  bookmarksBadgeContainer: {
+  bookmarkStats: {
     alignItems: 'center',
-    gap: 4,
+    gap: 8,
   },
-  bookmarksIconBg: {
+  bookmarkIconCircle: {
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -311,9 +322,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bookmarksCount: {
+  bookmarkCount: {
     fontFamily: FONTS.bold,
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#6B7280',
   },
 });

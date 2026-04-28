@@ -6,7 +6,11 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import Animated, { FadeInDown, FadeInRight, Layout } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import Markdown from 'react-native-markdown-display';
+
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS } from '@/constants';
 import { API_BASE_URL } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { Stack } from 'expo-router';
@@ -300,11 +304,15 @@ export default function LessonViewerScreen() {
           const cfg = BLOCK_CONFIG[block.type] ?? BLOCK_CONFIG.section;
           const isSection = block.type === 'section' || !BLOCK_CONFIG[block.type];
           return (
-            <View key={idx} style={[
-              styles.block,
-              { backgroundColor: cfg.bg, borderColor: cfg.border },
-              isSection && styles.blockSection,
-            ]}>
+            <Animated.View 
+              key={idx} 
+              entering={FadeInDown.delay(idx * 100).duration(500)}
+              style={[
+                styles.block,
+                { backgroundColor: cfg.bg, borderColor: cfg.border },
+                isSection && styles.blockSection,
+              ]}
+            >
               {(block.title || cfg.label) ? (
                 <View style={styles.blockHeader}>
                   {!isSection && (
@@ -316,11 +324,13 @@ export default function LessonViewerScreen() {
                 </View>
               ) : null}
               {block.content ? (
-                <Text style={[styles.blockContent, isSection && { paddingLeft: 0 }]}>
-                  {block.content}
-                </Text>
+                <View style={[isSection && { paddingLeft: 0 }, !isSection && { paddingLeft: 26 }]}>
+                  <Markdown style={markdownStyles}>
+                    {block.content}
+                  </Markdown>
+                </View>
               ) : null}
-            </View>
+            </Animated.View>
           );
         })}
 
@@ -368,12 +378,33 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   blockTitleSection: {
-    fontSize: FONT_SIZES.xl, fontWeight: '800',
+    fontFamily: FONTS.bold,
+    fontSize: FONT_SIZES.xl,
     textTransform: 'none', letterSpacing: 0,
     color: COLORS.text, marginBottom: SPACING.xs,
   },
-  blockContent: {
-    fontSize: FONT_SIZES.sm, color: COLORS.text,
-    lineHeight: 22, paddingLeft: 26,
+});
+
+const markdownStyles = StyleSheet.create({
+  body: {
+    fontFamily: FONTS.medium,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.text,
+    lineHeight: 22,
+  },
+  strong: {
+    fontFamily: FONTS.bold,
+    fontWeight: '700',
+  },
+  em: {
+    fontStyle: 'italic',
+  },
+  list_item: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  bullet_list: {
+    marginTop: 4,
+    marginBottom: 8,
   },
 });

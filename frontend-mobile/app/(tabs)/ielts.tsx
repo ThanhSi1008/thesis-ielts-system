@@ -1,12 +1,13 @@
 import React, { useState, useRef } from 'react';
 import {
-  View, StyleSheet, TouchableOpacity,
+  View, Text, StyleSheet, TouchableOpacity,
   Animated,
 } from 'react-native';
 import { useRouter, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, FONT_SIZES } from '@/constants';
+import * as Haptics from 'expo-haptics';
 
 // Sub-components
 import { LibraryContent } from '@/components/ielts/LibraryContent';

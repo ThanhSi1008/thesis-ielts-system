@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
+import Animated, { FadeInRight } from 'react-native-reanimated';
 
 export interface RoadmapItem {
   id: string;
@@ -49,7 +50,7 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
   ];
 
   return (
-    <View style={styles.row}>
+    <Animated.View entering={FadeInRight.duration(400)} style={styles.row}>
       {/* Timeline dot — matches web dot indicator */}
       <View style={styles.dotCol}>
         {item.isCompleted ? (
@@ -104,7 +105,7 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
           </TouchableOpacity>
         )}
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#9CA3AF',
     textTransform: 'uppercase',
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
   },
 
   // Resume button — matches web: #FFC107 bg, dark text, rounded-xl
