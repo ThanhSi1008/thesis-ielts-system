@@ -6,7 +6,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Audio } from 'expo-av';
+import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
@@ -80,8 +80,8 @@ export default function AdvancedPartScreen() {
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [audioPlaying, setAudioPlaying] = useState(false);
+  
+  const player = useAudioPlayer(part?.audioUrl || '');
 
   useEffect(() => {
     const load = async () => {
@@ -94,20 +94,17 @@ export default function AdvancedPartScreen() {
       finally { setLoading(false); }
     };
     load();
-    return () => { sound?.unloadAsync(); };
   }, [partId]);
 
   const setAnswer = (key: string, value: string) =>
     setAnswers(prev => ({ ...prev, [key]: value }));
 
-  const playAudio = async (url: string) => {
-    try {
-      if (sound) { await sound.unloadAsync(); setSound(null); setAudioPlaying(false); }
-      const { sound: s } = await Audio.Sound.createAsync({ uri: url });
-      setSound(s); setAudioPlaying(true);
-      await s.playAsync();
-      s.setOnPlaybackStatusUpdate(st => { if ((st as any).didJustFinish) setAudioPlaying(false); });
-    } catch { Alert.alert('Error', 'Could not play audio.'); }
+  const toggleAudio = () => {
+    if (player.playing) {
+      player.pause();
+    } else {
+      player.play();
+    }
   };
 
   const handleSubmit = async () => {
@@ -153,11 +150,11 @@ export default function AdvancedPartScreen() {
       {audioUrl && (
         <TouchableOpacity
           style={[styles.audioBanner, { borderColor: accentColor + '40', backgroundColor: accentColor + '0A' }]}
-          onPress={() => playAudio(audioUrl)}
+          onPress={toggleAudio}
         >
-          <Ionicons name={audioPlaying ? 'pause-circle' : 'play-circle'} size={32} color={accentColor} />
+          <Ionicons name={player.playing ? 'pause-circle' : 'play-circle'} size={32} color={accentColor} />
           <Text style={[styles.audioLabel, { color: accentColor }]}>
-            {audioPlaying ? 'Playing…' : 'Tap to play audio'}
+            {player.playing ? 'Playing…' : 'Tap to play audio'}
           </Text>
         </TouchableOpacity>
       )}

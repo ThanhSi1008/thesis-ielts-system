@@ -7,7 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import { Audio } from 'expo-av';
+import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 
 let ExpoSpeechRecognitionModule: any = null;
@@ -53,7 +53,7 @@ export default function ShadowingPracticeScreen() {
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const playerRef = useRef<any>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Phase 2: Dictation States
@@ -181,7 +181,6 @@ export default function ShadowingPracticeScreen() {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (soundRef.current) soundRef.current.unloadAsync();
     };
   }, []);
 
@@ -201,19 +200,14 @@ export default function ShadowingPracticeScreen() {
       }, 50);
     } else if (lesson?.audioUrl) {
       // Local/Remote Audio file fallback
-      if (!soundRef.current) {
-        const { sound } = await Audio.Sound.createAsync({ uri: lesson.audioUrl });
-        soundRef.current = sound;
-      }
-      await soundRef.current.setRateAsync(playbackSpeed, true);
-      await soundRef.current.setPositionAsync(current.audioStart * 1000);
-      await soundRef.current.playAsync();
+      audioPlayer.playbackRate = playbackSpeed;
+      audioPlayer.seekTo(current.audioStart * 1000);
+      audioPlayer.play();
       setPlaying(true);
 
       timerRef.current = setInterval(async () => {
-        const status = await soundRef.current?.getStatusAsync();
-        if (status?.isLoaded && status.positionMillis >= current.audioEnd * 1000) {
-          await soundRef.current?.pauseAsync();
+        if (audioPlayer.currentTime >= current.audioEnd * 1000) {
+          audioPlayer.pause();
           setPlaying(false);
           if (timerRef.current) clearInterval(timerRef.current);
         }

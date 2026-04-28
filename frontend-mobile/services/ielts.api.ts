@@ -5,6 +5,7 @@ export const ieltsProfileApi = {
   get: () => apiClient.get<any>('/ielts/profile'),
   create: (data: any) => apiClient.post<any>('/ielts/profile', data),
   update: (data: any) => apiClient.patch<any>('/ielts/profile', data),
+  onboarding: (data: any) => apiClient.post<any>('/ielts/onboarding', data),
   getStreak: () => apiClient.get<{ currentStreak: number; longestStreak: number }>('/ielts/streak'),
 };
 

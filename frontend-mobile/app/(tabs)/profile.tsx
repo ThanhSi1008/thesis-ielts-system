@@ -1,15 +1,40 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Switch, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES, RADIUS } from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { vocabLabApi } from '@/services/features.api';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [stats, setStats] = useState({ streak: 0, words: 0, accuracy: 0 });
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
+
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    try {
+      const data = await vocabLabApi.getStats();
+      setStats({
+        streak: data.streak || 0,
+        words: data.totalWords || data.words || 0,
+        accuracy: data.accuracy || 0,
+      });
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -36,6 +61,10 @@ export default function ProfileScreen() {
     router.push('/(auth)/login');
   };
 
+  const displayName = user?.firstName || user?.lastName 
+    ? `${user.firstName || ''} ${user.lastName || ''}`.trim() 
+    : user?.email || 'Guest User';
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header Profile Info */}
@@ -49,7 +78,7 @@ export default function ProfileScreen() {
             <Ionicons name="camera" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.name}>{user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email : 'Guest User'}</Text>
+        <Text style={styles.name}>{displayName}</Text>
         <Text style={styles.email}>{user?.email || 'Sign in to sync your progress'}</Text>
         
         {!user && (
@@ -62,20 +91,26 @@ export default function ProfileScreen() {
       {/* Stats Overview */}
       {user && (
         <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Days Streak</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>450</Text>
-            <Text style={styles.statLabel}>Words</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>85%</Text>
-            <Text style={styles.statLabel}>Accuracy</Text>
-          </View>
+          {loadingStats ? (
+            <ActivityIndicator color={COLORS.primary} size="small" />
+          ) : (
+            <>
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{stats.streak}</Text>
+                <Text style={styles.statLabel}>Days Streak</Text>
+              </View>
+              <View style={styles.divider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{stats.words}</Text>
+                <Text style={styles.statLabel}>Words</Text>
+              </View>
+              <View style={styles.divider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{stats.accuracy}%</Text>
+                <Text style={styles.statLabel}>Accuracy</Text>
+              </View>
+            </>
+          )}
         </View>
       )}
 

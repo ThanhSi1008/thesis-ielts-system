@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { Audio } from 'expo-av';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 
 interface AudioPlayerProps {
@@ -8,45 +8,23 @@ interface AudioPlayerProps {
 }
 
 export function AudioPlayer({ url }: AudioPlayerProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const player = useAudioPlayer(url);
+  const status = useAudioPlayerStatus(player);
 
-  const handlePlay = async () => {
-    if (isPlaying && soundRef.current) {
-      await soundRef.current.pauseAsync();
-      setIsPlaying(false);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      if (soundRef.current) {
-        await soundRef.current.playAsync();
-      } else {
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: url },
-          { shouldPlay: true },
-        );
-        soundRef.current = sound;
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            setIsPlaying(false);
-          }
-        });
-      }
-      setIsPlaying(true);
-    } catch (error) {
-      console.warn('[AudioPlayer] Playback error:', error);
-    } finally {
-      setIsLoading(false);
+  const handlePlay = () => {
+    if (player.playing) {
+      player.pause();
+    } else {
+      player.play();
     }
   };
+
+  const isLoading = !!(status.isBuffering || (!status.isLoaded && url));
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={[styles.button, isPlaying && styles.buttonActive]}
+        style={[styles.button, player.playing && styles.buttonActive]}
         onPress={handlePlay}
         activeOpacity={0.7}
         disabled={isLoading}
@@ -54,16 +32,15 @@ export function AudioPlayer({ url }: AudioPlayerProps) {
         {isLoading ? (
           <ActivityIndicator size="small" color={COLORS.primary} />
         ) : (
-          <Text style={styles.icon}>{isPlaying ? '⏸' : '▶️'}</Text>
+          <Text style={styles.icon}>{player.playing ? '⏸' : '▶️'}</Text>
         )}
-        <Text style={[styles.label, isPlaying && styles.labelActive]}>
-          {isLoading ? 'Loading...' : isPlaying ? 'Pause' : 'Play Audio'}
+        <Text style={[styles.label, player.playing && styles.labelActive]}>
+          {isLoading ? 'Loading...' : player.playing ? 'Pause' : 'Play Audio'}
         </Text>
       </TouchableOpacity>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     marginVertical: SPACING.sm,

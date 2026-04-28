@@ -6,7 +6,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Audio } from 'expo-av';
+import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -123,8 +123,9 @@ export default function ExamPlayerScreen() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [audioPlaying, setAudioPlaying] = useState(false);
+  
+  const audioUrl = exam?.questions?.audio_url;
+  const player = useAudioPlayer(audioUrl || '');
 
   const { elapsed, display: timerDisplay } = useTimer(
     (exam?.duration ?? 60) * 60,
@@ -133,7 +134,6 @@ export default function ExamPlayerScreen() {
 
   useEffect(() => {
     loadExam();
-    return () => { sound?.unloadAsync(); };
   }, [examId]);
 
   const loadExam = async () => {
@@ -156,22 +156,11 @@ export default function ExamPlayerScreen() {
     setAnswers(prev => ({ ...prev, [key]: value }));
   };
 
-  const handlePlayAudio = async (url: string) => {
-    try {
-      if (sound) {
-        await sound.unloadAsync();
-        setSound(null);
-        setAudioPlaying(false);
-      }
-      const { sound: newSound } = await Audio.Sound.createAsync({ uri: url });
-      setSound(newSound);
-      setAudioPlaying(true);
-      await newSound.playAsync();
-      newSound.setOnPlaybackStatusUpdate(status => {
-        if ((status as any).didJustFinish) setAudioPlaying(false);
-      });
-    } catch (e) {
-      Alert.alert('Audio Error', 'Could not play the audio file.');
+  const handleToggleAudio = () => {
+    if (player.playing) {
+      player.pause();
+    } else {
+      player.play();
     }
   };
 
@@ -221,7 +210,6 @@ export default function ExamPlayerScreen() {
 
   const questions = exam.questions as any;
   const parts = questions?.parts || questions?.passages || questions?.tasks || [];
-  const audioUrl = questions?.audio_url;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -250,11 +238,11 @@ export default function ExamPlayerScreen() {
       {/* Audio player bar for Listening */}
       {audioUrl && (
         <TouchableOpacity
-          style={[styles.audioBanner, audioPlaying && styles.audioBannerPlaying]}
-          onPress={() => handlePlayAudio(audioUrl)}
+          style={[styles.audioBanner, player.playing && styles.audioBannerPlaying]}
+          onPress={handleToggleAudio}
         >
-          <Ionicons name={audioPlaying ? 'pause-circle' : 'play-circle'} size={32} color={COLORS.primary} />
-          <Text style={styles.audioLabel}>{audioPlaying ? 'Playing audio…' : 'Tap to play audio'}</Text>
+          <Ionicons name={player.playing ? 'pause-circle' : 'play-circle'} size={32} color={COLORS.primary} />
+          <Text style={styles.audioLabel}>{player.playing ? 'Playing audio…' : 'Tap to play audio'}</Text>
         </TouchableOpacity>
       )}
 

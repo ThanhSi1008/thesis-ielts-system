@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Pressable, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
   interpolate,
 } from 'react-native-reanimated';
-import { Flashcard } from '../types';
+import { Flashcard } from '@/types';
 
 interface FlashcardViewerProps {
   card: Flashcard;
@@ -22,17 +22,12 @@ const CARD_HEIGHT = 450;
  */
 export const FlashcardViewer = React.memo(({ card }: FlashcardViewerProps) => {
   const isFlipped = useSharedValue(0);
-  const [showBack, setShowBack] = useState(false);
 
   const flip = () => {
     isFlipped.value = withSpring(isFlipped.value === 0 ? 1 : 0, {
       damping: 15,
       stiffness: 90,
     });
-    // Cập nhật state sau khi animation bắt đầu một chút để đổi nội dung
-    setTimeout(() => {
-      setShowBack(!showBack);
-    }, 150);
   };
 
   const frontStyle = useAnimatedStyle(() => {
@@ -84,7 +79,7 @@ export const FlashcardViewer = React.memo(({ card }: FlashcardViewerProps) => {
             <Text className="text-xl leading-relaxed text-center text-[#212529]">
               {card.back}
             </Text>
-            {card.tags.length > 0 && (
+            {card.tags && card.tags.length > 0 && (
               <View className="flex-row flex-wrap justify-center mt-6 gap-2">
                 {card.tags.map((tag) => (
                   <View key={tag} className="bg-slate-200 px-3 py-1 rounded-full">
