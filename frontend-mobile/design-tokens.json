@@ -26,17 +26,34 @@
       "info": "#2196F3"
     },
     "ielts": {
-      "reading": "",
-      "listening": "",
-      "writing": "",
-      "speaking": ""
+      "reading": "#4CAF50",
+      "listening": "#2196F3",
+      "writing": "#FF9800",
+      "speaking": "#F44336"
+    },
+    "gray": {
+      "50": "#f9fafb",
+      "100": "#f3f4f6",
+      "200": "#e5e7eb",
+      "300": "#d1d5db",
+      "400": "#9ca3af",
+      "500": "#6b7280",
+      "600": "#4b5563",
+      "700": "#374151",
+      "800": "#1f2937",
+      "900": "#111827",
+      "950": "#030712"
     }
   },
   "typography": {
     "fontFamily": {
       "heading": "Farro",
       "body": "Farro",
-      "mono": "ui-monospace"
+      "mono": "ui-monospace",
+      "fallbacks": {
+        "sans": ["ui-sans-serif", "system-ui", "sans-serif"],
+        "mono": ["SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"]
+      }
     },
     "fontSize": {
       "xs": 12,
@@ -107,5 +124,69 @@
     "md": "768px",
     "lg": "1024px",
     "xl": "1280px"
+  },
+  "layout": {
+    "screenPadding": 16,
+    "safeArea": {
+      "top": "env(safe-area-inset-top)",
+      "bottom": "env(safe-area-inset-bottom)",
+      "left": "env(safe-area-inset-left)",
+      "right": "env(safe-area-inset-right)"
+    }
+  },
+  "navigation": {
+    "headerHeight": 56,
+    "tabBarHeight": 60,
+    "bottomSheetHeaderHeight": 40
+  },
+  "touchable": {
+    "minHeight": 44,
+    "minWidth": 44,
+    "activeOpacity": 0.7,
+    "underlayColor": "rgba(0, 0, 0, 0.05)"
+  },
+  "zIndex": {
+    "hide": -1,
+    "base": 0,
+    "elevated": 10,
+    "dropdown": 50,
+    "sticky": 100,
+    "overlay": 500,
+    "modal": 1000,
+    "toast": 9999
+  },
+  "icon": {
+    "size": {
+      "xs": 12,
+      "sm": 16,
+      "md": 24,
+      "lg": 32,
+      "xl": 48
+    },
+    "weight": {
+      "light": "300",
+      "regular": "400",
+      "medium": "500",
+      "bold": "700"
+    }
+  },
+  "opacity": {
+    "transparent": 0,
+    "faint": 0.1,
+    "disabled": 0.4,
+    "pressed": 0.7,
+    "hover": 0.8,
+    "solid": 1
+  },
+  "haptics": {
+    "enabled": true,
+    "feedback": {
+      "light": "light",
+      "medium": "medium",
+      "heavy": "heavy",
+      "success": "success",
+      "warning": "warning",
+      "error": "error"
+    }
   }
 }
