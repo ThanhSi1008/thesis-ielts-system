@@ -19,7 +19,7 @@ import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, SHADOWS } from '@/constants';
 import { ieltsProfileApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
 
@@ -337,18 +337,18 @@ const styles = StyleSheet.create({
     width: (SCREEN_W - SPACING.xl * 2 - 24) / 3,
     aspectRatio: 1,
     borderRadius: RADIUS.xl,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
     borderWidth: 1,
     borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
     borderCurve: 'continuous',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+    boxShadow: SHADOWS.sm,
   },
   bandCardActive: { 
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
-    boxShadow: '0 8px 16px rgba(37, 99, 235, 0.25)',
+    boxShadow: SHADOWS.md,
   },
   bandValue: { 
     fontSize: 22, 
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   bandValueActive: { 
-    color: '#fff',
+    color: COLORS.onPrimary,
   },
 
   // Commitment List
@@ -372,15 +372,15 @@ const styles = StyleSheet.create({
     borderRadius: 20, 
     borderWidth: 1, 
     borderColor: COLORS.border, 
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.background,
     borderCurve: 'continuous',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    boxShadow: SHADOWS.card,
     gap: SPACING.md,
   },
   commitCardActive: { 
     borderColor: COLORS.primary, 
-    backgroundColor: COLORS.primary + '05',
-    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.1)',
+    backgroundColor: COLORS.primary + '10',
+    boxShadow: SHADOWS.md,
   },
   iconCircle: {
     width: 48,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   commitLabelActive: { 
-    color: COLORS.primary,
+    color: COLORS.onPrimary,
   },
   commitSub: { 
     fontSize: 14, 
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   commitSubActive: {
-    color: COLORS.primary + '99',
+    color: COLORS.textSecondary,
   },
 
   // Date Card
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   },
   premiumDateCard: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.background,
     borderRadius: 24,
     padding: SPACING.xl,
     flexDirection: 'row',
@@ -424,14 +424,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderCurve: 'continuous',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+    boxShadow: SHADOWS.lg,
     gap: SPACING.lg,
   },
   dateIconWrapper: {
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: COLORS.primary + '20',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   dateLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.textMuted,
+    color: COLORS.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 4,
@@ -466,10 +466,10 @@ const styles = StyleSheet.create({
   // Footer
   footer: {
     padding: SPACING.xl,
-    paddingTop: SPACING.md,
+    paddingBottom: SPACING.xl + 10,
     borderTopWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.background,
   },
   navRow: { 
     flexDirection: 'row', 
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.background,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingBottom: 40,

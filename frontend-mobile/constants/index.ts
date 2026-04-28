@@ -1,5 +1,5 @@
 /**
- * Application Constants
+ * Application Constants - Synced with design-tokens.json
  */
 
 // API Configuration
@@ -14,48 +14,50 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'language',
 } as const;
 
-// Colors - Design System (Synced with Web)
+// Colors from design-tokens.json
 export const COLORS = {
-  // Brand Colors (Levels)
-  level1: '#FFC600', // Vocabulary (Yellow)
-  level2: '#5B9557', // Grammar (Green)
-  level3: '#E74C3C', // Advanced (Red)
-  level4: '#3B82F6', // Mastery (Blue)
-
-  // Primary (Default Blue for generic UI)
-  primary: '#3B82F6',
-  primaryDark: '#2563EB',
-  primaryLight: '#60A5FA',
+  primary: '#FFC600',
+  primaryHover: '#FFC600E6',
+  secondary: '#EDEDED',
   
-  // Secondary
-  secondary: '#10B981',
-  secondaryDark: '#059669',
-  secondaryLight: '#34D399',
-  
-  // Neutral
   background: '#FFFFFF',
   surface: '#F8F9FA',
-  text: '#212529',
-  textSecondary: '#6C757D',
-  textMuted: '#ADB5BD',
-  border: '#DEE2E6',
+  card: '#FFFFFF',
   
-  // Status
-  success: '#4CAF50',
-  warning: '#FFC107',
-  error: '#EF4444',
-  info: '#0DCAF0',
+  text: '#212529',
+  textSecondary: '#64748B',
+  textMuted: '#ADB5BD',
+  textDisabled: '#CBD5E1',
+  onPrimary: '#212529',
+  
+  border: '#E2E8F0',
+  borderFocus: '#FFC600',
+  
+  status: {
+    success: '#4CAF50',
+    warning: '#FF9800',
+    error: '#F44336',
+    info: '#2196F3',
+  },
+
+  // Legacy/Specific
+  level1: '#FFC600',
+  level2: '#5B9557',
+  level3: '#E74C3C',
+  level4: '#3B82F6',
 } as const;
 
 // Font Sizes
 export const FONT_SIZES = {
   xs: 12,
   sm: 14,
+  base: 16,
   md: 16,
   lg: 18,
   xl: 20,
   xxl: 24,
-  xxxl: 32,
+  xxxl: 30,
+  xxxxl: 36,
 } as const;
 
 // Spacing
@@ -64,32 +66,39 @@ export const SPACING = {
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
+  xl: 24,
+  xxl: 32,
+  xxxl: 40,
 } as const;
 
 // Border Radius
 export const RADIUS = {
   sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
+  md: 6,
+  lg: 8,
+  xl: 12,
   full: 9999,
 } as const;
 
 // Animation Durations
 export const ANIMATION = {
-  fast: 150,
-  normal: 300,
-  slow: 500,
+  fast: 300,
+  normal: 600,
+  slow: 1000,
 } as const;
 
 // Font Families
 export const FONTS = {
-  regular: 'System',
-  medium: 'System',
-  bold: 'System',
-  semibold: 'System',
+  regular: 'Farro',
+  medium: 'Farro',
+  bold: 'Farro',
+  semibold: 'Farro',
 } as const;
 
+export const SHADOWS = {
+  sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+  md: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+  card: '0 1px 4px rgba(0, 0, 0, 0.03)',
+  modal: '0 20px 25px rgba(0, 0, 0, 0.1)',
+} as const;
