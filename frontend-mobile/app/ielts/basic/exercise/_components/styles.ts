@@ -1,0 +1,77 @@
+import { StyleSheet } from 'react-native';
+import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+
+export const styles = StyleSheet.create({
+  groupType: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.text, textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACING.sm },
+  instructions: { backgroundColor: '#F8FAFC', padding: SPACING.md, borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: SPACING.lg },
+  instructionsText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, lineHeight: 20 },
+  qBlock: {
+    backgroundColor: '#fff', borderRadius: RADIUS.xl,
+    borderWidth: 1, borderColor: COLORS.border,
+    padding: SPACING.lg, marginBottom: SPACING.md,
+  },
+  qNum: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.primary, textTransform: 'uppercase', marginBottom: 4 },
+  qText: { fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.md, lineHeight: 22 },
+  option: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
+    padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1, marginBottom: SPACING.sm,
+  },
+  bullet: {
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: '#fff', borderWidth: 1.5, borderColor: COLORS.border,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  bulletLetter: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary },
+  optText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '600' },
+  explanation: { marginTop: SPACING.sm, padding: SPACING.sm, borderRadius: RADIUS.md },
+  input: {
+    borderWidth: 1.5, borderColor: COLORS.border,
+    borderRadius: RADIUS.md, padding: SPACING.md,
+    fontSize: FONT_SIZES.md, color: COLORS.text,
+  },
+
+  qNumBadge: {
+    minWidth: 24, height: 24, borderRadius: 4,
+    borderWidth: 1, borderColor: '#BFDBFE', backgroundColor: '#EFF6FF',
+    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4,
+    marginTop: 2,
+  },
+  qNumBadgeText: { fontSize: 12, fontWeight: '700', color: '#1D4ED8' },
+  
+  tfngBtn: {
+    paddingHorizontal: 16, paddingVertical: 10,
+    borderRadius: RADIUS.md, borderWidth: 1,
+  },
+  tfngText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
+
+  matchingOptionsBox: {
+    backgroundColor: '#F8FAFC', borderRadius: RADIUS.lg,
+    borderWidth: 1, borderColor: COLORS.border,
+    padding: SPACING.md, marginBottom: SPACING.md,
+  },
+  matchingOptionsTitle: { fontSize: 11, fontWeight: '800', color: COLORS.textMuted, textTransform: 'uppercase', marginBottom: 8 },
+  matchingOptionRow: { flexDirection: 'row', gap: 8, marginBottom: 8, alignItems: 'center' },
+  matchingOptionLetter: {
+    width: 28, height: 28, borderRadius: 4, backgroundColor: '#fff',
+    borderWidth: 1, borderColor: COLORS.border,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  matchingOptionLetterText: { fontSize: 13, fontWeight: '700', color: COLORS.text },
+  matchingOptionText: { flex: 1, fontSize: 14, color: COLORS.text, fontWeight: '500' },
+
+  matchingBtn: {
+    width: 44, height: 44, borderRadius: 22,
+    borderWidth: 1, alignItems: 'center', justifyContent: 'center',
+  },
+  matchingBtnText: { fontSize: FONT_SIZES.md, fontWeight: '700' },
+
+  mcmOptionBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1, marginBottom: 8,
+  },
+  mcmCheckbox: {
+    width: 20, height: 20, borderRadius: 4, borderWidth: 1.5, borderColor: COLORS.textMuted,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  mcmOptionText: { flex: 1, fontSize: FONT_SIZES.sm, lineHeight: 20 },
+});
