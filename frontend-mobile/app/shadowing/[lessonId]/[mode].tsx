@@ -1,17 +1,29 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   ActivityIndicator, TextInput, Alert, Dimensions,
 } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
+import { usePronunciationChecker } from '@/hooks/usePronunciationChecker';
+import { Waveform } from '@/components/voice/Waveform';
+import { RecordButton } from '@/components/voice/RecordButton';
+import { ScoreDashboard } from '@/components/voice/feedback/ScoreDashboard';
+import { TranscriptFeedback } from '@/components/voice/feedback/TranscriptFeedback';
+
+// Colour aliases so existing code compiles (COLORS has no .success/.error keys)
+const SUCCESS_COLOR = COLORS.status.success;
+const ERROR_COLOR = COLORS.status.error;
 
 let ExpoSpeechRecognitionModule: any = null;
-let useSpeechRecognitionEvent: any = (eventName: string, listener: any) => { };
+let useSpeechRecognitionEvent: any = (_eventName: string, _listener: any) => { };
 
 try {
   const SpeechModule = require('expo-speech-recognition');
@@ -33,6 +45,10 @@ const PLACEHOLDER_SENTENCES = [
 ];
 
 export default function ShadowingPracticeScreen() {
+  // ── Auth & AI scoring ────────────────────────────────────────────────────
+  const { user } = useAuth();
+  const audioRecorder = useAudioRecorderHook();
+  const pronunciationChecker = usePronunciationChecker();
   const router = useRouter();
   const { lessonId, mode } = useLocalSearchParams<{ lessonId: string; mode: string }>();
   const isShadowing = mode === 'shadowing';
@@ -110,7 +126,7 @@ export default function ShadowingPracticeScreen() {
     }
   }, [userWords, currentSentenceWords, sentenceCorrect, currentIdx]);
 
-  // Phase 3: Speech Recognition States
+  // Phase 3: Speech Recognition + AI Scoring
   const [isRecording, setIsRecording] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState('');
 
@@ -119,56 +135,58 @@ export default function ShadowingPracticeScreen() {
       const transcript = event.results[0].transcript;
       setSpokenTranscript(transcript);
 
-      // Real-time evaluation for shadowing
       if (isShadowing && !sentenceCorrect) {
-        const spokenWords = transcript.split(/\s+/).filter((w: string) => w.length > 0);
-        if (spokenWords.length >= currentSentenceWords.length) {
-          const isClose = spokenWords.some((w: string, i: number) => {
-            const matchCount = currentSentenceWords.filter((cw: string) => normalizeWord(cw) === normalizeWord(w)).length;
-            return matchCount > 0;
-          });
-          // For simplicity in mobile MVP, if they said most of the words, we pass them
-          const closeCount = currentSentenceWords.filter((cw: string) =>
-            transcript.toLowerCase().includes(normalizeWord(cw))
-          ).length;
-
-          if (closeCount >= currentSentenceWords.length * 0.7) {
-            setSentenceCorrect(true);
-            markCompleted(currentIdx);
-            stopRecording();
-          }
+        const closeCount = currentSentenceWords.filter((cw: string) =>
+          transcript.toLowerCase().includes(normalizeWord(cw))
+        ).length;
+        if (closeCount >= currentSentenceWords.length * 0.7) {
+          setSentenceCorrect(true);
+          markCompleted(currentIdx);
+          stopShadowingRecording();
         }
       }
     }
   });
 
-  const startRecording = async () => {
-    if (!ExpoSpeechRecognitionModule) {
-      Alert.alert('Unsupported', 'Speech recognition requires a development build. Please run "npx expo prebuild" and compile the app natively.');
-      return;
-    }
+  /** Start speech recognition + expo-audio recording simultaneously */
+  const startShadowingRecording = useCallback(async () => {
+    pronunciationChecker.reset();
+    // Start audio file recording for AI scoring
+    await audioRecorder.startRecording();
+
+    // Also start speech recognition for real-time text matching
+    if (!ExpoSpeechRecognitionModule) return;
     try {
       const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-      if (!perm.granted) {
-        Alert.alert('Permission required', 'Please grant microphone access to use shadowing.');
-        return;
-      }
+      if (!perm.granted) return;
       setSpokenTranscript('');
       setIsRecording(true);
       ExpoSpeechRecognitionModule.start({ lang: 'en-US', continuous: true, interimResults: true });
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'Failed to start speech recognition.');
       setIsRecording(false);
     }
-  };
+  }, [audioRecorder, pronunciationChecker]);
 
-  const stopRecording = () => {
-    if (ExpoSpeechRecognitionModule) {
-      ExpoSpeechRecognitionModule.stop();
-    }
+  /** Stop both speech recognition and audio recording, then submit for AI scoring */
+  const stopShadowingRecording = useCallback(async () => {
+    // Stop speech recognition
+    if (ExpoSpeechRecognitionModule) ExpoSpeechRecognitionModule.stop();
     setIsRecording(false);
-  };
+
+    // Stop expo-audio recorder and get URI
+    const uri = await audioRecorder.stopRecording();
+    if (uri && user?.id && current?.english) {
+      await pronunciationChecker.checkPronunciation(uri, user.id, {
+        targetWord: current.english,
+      });
+      // Cleanup temp file after upload
+      audioRecorder.clearRecording();
+    }
+  }, [audioRecorder, pronunciationChecker, user, current]);
+
+  /** Legacy: kept for backward-compat (e.g. when sentenceCorrect auto-fires) */
+  const stopRecording = () => stopShadowingRecording();
 
   // Phase 4: Dictionary State
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
@@ -358,7 +376,7 @@ export default function ShadowingPracticeScreen() {
         <View style={styles.sentenceCard}>
           {isShadowing ? (
             <>
-              {/* Shadowing: show English + phonetic, hide Vietnamese */}
+              {/* Shadowing: show English, tap word to dictionary */}
               <View style={styles.clickableSentence}>
                 {currentSentenceWords.map((word: string, i: number) => (
                   <TouchableOpacity key={i} onPress={() => handleWordTap(word)}>
@@ -368,18 +386,40 @@ export default function ShadowingPracticeScreen() {
               </View>
               {current?.phonetic && <Text style={styles.phonetic}>{current.phonetic}</Text>}
 
+              {/* AI Waveform when recording */}
+              {(isRecording || audioRecorder.isRecording) && (
+                <Waveform
+                  isRecording={audioRecorder.isRecording}
+                  metering={audioRecorder.currentMetering}
+                  barCount={28}
+                />
+              )}
+
+              {/* Record button */}
               <View style={styles.recordSection}>
-                <TouchableOpacity
-                  style={[styles.recordBtn, isRecording && styles.recordingActive]}
-                  onPress={isRecording ? stopRecording : startRecording}
-                >
-                  <Ionicons name={isRecording ? "stop" : "mic"} size={28} color="#fff" />
-                </TouchableOpacity>
+                {pronunciationChecker.isChecking ? (
+                  <ActivityIndicator size="large" color={COLORS.primary} />
+                ) : (
+                  <RecordButton
+                    isRecording={audioRecorder.isRecording}
+                    onPress={
+                      audioRecorder.isRecording
+                        ? stopShadowingRecording
+                        : startShadowingRecording
+                    }
+                    size={64}
+                  />
+                )}
                 <Text style={styles.recordText}>
-                  {isRecording ? "Listening..." : "Tap to speak"}
+                  {pronunciationChecker.isChecking
+                    ? 'AI scoring…'
+                    : audioRecorder.isRecording
+                    ? 'Recording… tap to stop'
+                    : 'Tap to speak'}
                 </Text>
               </View>
 
+              {/* Transcript (speech-recognition) */}
               {spokenTranscript ? (
                 <View style={styles.transcriptBox}>
                   <Text style={styles.transcriptLabel}>You said:</Text>
@@ -387,9 +427,30 @@ export default function ShadowingPracticeScreen() {
                 </View>
               ) : null}
 
+              {/* AI Pronunciation Score */}
+              {pronunciationChecker.result && (
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                  <ScoreDashboard score={pronunciationChecker.result.score} />
+                  {pronunciationChecker.result.score.words &&
+                    pronunciationChecker.result.score.words.length > 0 && (
+                      <View style={styles.transcriptBox}>
+                        <Text style={styles.transcriptLabel}>WORD FEEDBACK</Text>
+                        <TranscriptFeedback words={pronunciationChecker.result.score.words} />
+                      </View>
+                    )}
+                </Animated.View>
+              )}
+
+              {/* AI error */}
+              {pronunciationChecker.error && (
+                <Animated.View entering={FadeIn} style={styles.aiErrorBox}>
+                  <Text style={styles.aiErrorText}>{pronunciationChecker.error}</Text>
+                </Animated.View>
+              )}
+
               {sentenceCorrect && (
                 <View style={styles.successBanner}>
-                  <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
+                  <Ionicons name="checkmark-circle" size={24} color={SUCCESS_COLOR} />
                   <Text style={styles.successText}>Great pronunciation! 🎉</Text>
                 </View>
               )}
@@ -467,7 +528,7 @@ export default function ShadowingPracticeScreen() {
 
               {sentenceCorrect && (
                 <View style={styles.successBanner}>
-                  <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
+                  <Ionicons name="checkmark-circle" size={24} color={SUCCESS_COLOR} />
                   <Text style={styles.successText}>Correct! Well done 🎉</Text>
                 </View>
               )}
@@ -574,19 +635,21 @@ const styles = StyleSheet.create({
     padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text,
     minHeight: 80, textAlignVertical: 'top', marginBottom: SPACING.md,
   },
-  dictationInputCorrect: { borderColor: COLORS.success, backgroundColor: '#F0FDF4' },
+  dictationInputCorrect: { borderColor: SUCCESS_COLOR, backgroundColor: '#F0FDF4' },
   successBanner: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: '#F0FDF4', padding: SPACING.md, borderRadius: RADIUS.lg, marginBottom: SPACING.md },
-  successText: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.success },
+  successText: { fontSize: FONT_SIZES.md, fontWeight: '700', color: SUCCESS_COLOR },
+  aiErrorBox: { backgroundColor: ERROR_COLOR + '18', borderRadius: RADIUS.lg, padding: SPACING.md, marginBottom: SPACING.md },
+  aiErrorText: { fontSize: FONT_SIZES.sm, color: ERROR_COLOR, fontWeight: '600' },
   answerReveal: { borderTopWidth: 1, borderColor: COLORS.border, paddingTop: SPACING.md },
   translateText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
-  navRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.lg, gap: SPACING.md, marginBottom: SPACING.xl },
+  navRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.lg, gap: SPACING.md, marginBottom: SPACING.xl, marginTop: SPACING.sm },
   prevBtn: { width: 48, height: 48, borderRadius: RADIUS.lg, borderWidth: 1.5, borderColor: COLORS.border, alignItems: 'center', justifyContent: 'center' },
   nextBtn: { flex: 1, backgroundColor: COLORS.primary, padding: SPACING.md, borderRadius: RADIUS.xl, alignItems: 'center' },
-  nextBtnCompleted: { backgroundColor: COLORS.success },
+  nextBtnCompleted: { backgroundColor: SUCCESS_COLOR },
   nextBtnText: { color: '#fff', fontWeight: '800', fontSize: FONT_SIZES.md },
   recordSection: { alignItems: 'center', marginVertical: SPACING.lg },
   recordBtn: { width: 64, height: 64, borderRadius: 32, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center', shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
-  recordingActive: { backgroundColor: COLORS.error, shadowColor: COLORS.error },
+  recordingActive: { backgroundColor: ERROR_COLOR, shadowColor: ERROR_COLOR },
   recordText: { marginTop: SPACING.sm, color: COLORS.textSecondary, fontSize: FONT_SIZES.sm, fontWeight: '600' },
   transcriptBox: { backgroundColor: COLORS.surface, padding: SPACING.md, borderRadius: RADIUS.lg, marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border },
   transcriptLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.textMuted, marginBottom: 4 },

@@ -8,7 +8,7 @@ Kế hoạch này tập trung vào việc hoàn thiện các module cốt lõi c
 ---
 
 ## Success Criteria
-- [ ] Module **Pronunciation** & **Shadowing** hoạt động với AI Scoring đồng nhất với Web.
+- [x] Module **Pronunciation** & **Shadowing** hoạt động với AI Scoring đồng nhất với Web.
 - [ ] Giao diện **Speaking/Writing Task Boards** được tối ưu cho màn hình dọc (Mobile-first).
 - [ ] Tính năng **Vocab Lab** hoàn thiện đầy đủ các bước học tập.
 - [ ] **Dictionary Bottom Sheet** hoạt động mượt mà trong toàn bộ ứng dụng.
@@ -66,12 +66,12 @@ frontend-mobile/
 
 ---
 
-### Sprint 2: Pronunciation & Shadowing (AI Integration)
-| Task ID | Name | Agent | Skills | Priority | Dependencies |
+### ✅ Sprint 2: Pronunciation & Shadowing (AI Integration) — COMPLETED
+| Task ID | Name | Agent | Skills | Priority | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| T2.1 | Integrate AI Scoring for Pronunciation | `mobile-developer` | native-data-fetching | P0 | T1.1, T1.2 |
-| T2.2 | Implement Shadowing UI with AI Feedback | `mobile-developer` | mobile-design | P0 | T2.1 |
-| T2.3 | Add Haptics & Visual feedback for scores | `mobile-developer` | mobile-design | P1 | T2.2 |
+| T2.1 | Integrate AI Scoring for Pronunciation | `mobile-developer` | native-data-fetching | P0 | ✅ Done |
+| T2.2 | Implement Shadowing UI with AI Feedback | `mobile-developer` | mobile-design | P0 | ✅ Done |
+| T2.3 | Add Haptics & Visual feedback for scores | `mobile-developer` | mobile-design | P1 | ✅ Done |
 
 **INPUT→OUTPUT→VERIFY:**
 - **Input**: Gửi file audio lên `/learning/pronunciation/check`.
