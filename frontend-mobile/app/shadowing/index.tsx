@@ -32,7 +32,7 @@ export default function ShadowingScreen() {
       if (progressRes.status === 'fulfilled') {
         const rawProgress = progressRes.value;
         const computed: Record<string, { shadowing: number; dictation: number }> = {};
-        [...STATIC_LESSONS, ...((videosRes.status === 'fulfilled' ? videosRes.value : []) as any[])].forEach((lesson: any) => {
+        [...SHADOWING_LESSONS, ...((videosRes.status === 'fulfilled' ? videosRes.value : []) as any[])].forEach((lesson: any) => {
           const p = rawProgress[lesson.id];
           const total = lesson.sentences?.length || 1;
           computed[lesson.id] = {
