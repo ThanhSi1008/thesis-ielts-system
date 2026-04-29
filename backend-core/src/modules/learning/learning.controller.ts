@@ -155,15 +155,14 @@ export class LearningController {
         throw new BadRequestException("Audio file is required");
       }
 
-      // Validate file type — audio/mp4 covers iOS .m4a (MPEG-4 Audio, RFC 4337)
+      // Validate file type
       const allowedMimeTypes = [
         "audio/wav",
         "audio/mpeg",
         "audio/mp3",
         "audio/webm",
-        "audio/mp4",  // iOS .m4a recordings
-        "audio/m4a",  // some clients send this non-standard type
       ];
+
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
           `Invalid file type. Allowed types: ${allowedMimeTypes.join(", ")}`,

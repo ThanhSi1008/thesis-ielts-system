@@ -17,26 +17,32 @@ import { Alert } from 'react-native';
  *
  * Fixes applied:
  * 1. Import FileSystem from 'expo-file-system/legacy' (SDK 54 migration).
- * 2. Call setAudioModeAsync({ allowsRecordingIOS: true }) before record()
+ * 2. Call setAudioModeAsync({ allowsRecording: true }) before record()
  *    to enable iOS microphone recording mode.
- * 3. Reset iOS audio mode to playback after recording stops.
+ * 3. Record as WAV (.wav / audio/wav) so backend accepts the file without
+ *    any backend changes (WAV is already in the allowed MIME list).
  */
 export const useAudioRecorderHook = () => {
   const recordingOptions: RecordingOptions = {
     isMeteringEnabled: true,
-    extension: '.m4a',
-    sampleRate: 44100,
-    numberOfChannels: 1,
+    // Use WAV format: backend accepts audio/wav without any changes
+    // WAV is uncompressed PCM — works natively on iOS & Android
+    extension: '.wav',
+    sampleRate: 16000,  // 16kHz is optimal for speech/Whisper AI
+    numberOfChannels: 1, // Mono is sufficient and halves file size
     bitRate: 128000,
     android: {
-      outputFormat: 'mpeg4',
-      audioEncoder: 'aac',
+      outputFormat: 'default',
+      audioEncoder: 'default',
     },
     ios: {
       audioQuality: 127, // AVAudioQuality.high
+      linearPCMBitDepth: 16,
+      linearPCMIsBigEndian: false,
+      linearPCMIsFloat: false,
     },
     web: {
-      mimeType: 'audio/webm',
+      mimeType: 'audio/webm', // Web keeps webm (already in allowlist)
     },
   };
 
