@@ -451,7 +451,7 @@ export default function ShadowingPracticeScreen() {
               ) : null}
 
               {/* AI Pronunciation Score */}
-              {pronunciationChecker.result && (
+              {pronunciationChecker.result?.score && (
                 <Animated.View entering={FadeIn} exiting={FadeOut}>
                   <ScoreDashboard score={pronunciationChecker.result.score} />
                   {pronunciationChecker.result.score.words &&
