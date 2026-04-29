@@ -86,7 +86,7 @@ function Quiz({ questions, onComplete, onNext }: {
               const isThisSelected = sel === letter || sel === opt;
               const isThisCorrect  = opt === q.answer || letter === q.answer;
 
-              let bg = COLORS.surface; let borderColor = COLORS.border; let textColor = COLORS.text;
+              let bg: string = COLORS.surface; let borderColor: string = COLORS.border; let textColor: string = COLORS.text;
               if (submitted && isThisCorrect)                         { bg = '#DCFCE7'; borderColor = '#86EFAC'; textColor = '#166534'; }
               else if (submitted && isThisSelected && !isThisCorrect) { bg = '#FEE2E2'; borderColor = '#FCA5A5'; textColor = '#991B1B'; }
               else if (!submitted && isThisSelected)                  { bg = '#FFF9E6'; borderColor = '#FCD34D'; }
@@ -159,7 +159,7 @@ const qStyles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: RADIUS.xl, borderCurve: 'continuous',
     padding: SPACING.lg, marginBottom: SPACING.lg,
     borderWidth: 1, borderColor: COLORS.border,
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+    boxShadow: SHADOWS.sm,
   },
   qNum: { fontSize: FONT_SIZES.xl, fontWeight: '900', color: '#D1D5DB', marginBottom: SPACING.sm },
   qText: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.md, lineHeight: 22 },
@@ -184,7 +184,7 @@ const qStyles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: RADIUS.xl, borderCurve: 'continuous',
     padding: SPACING.md, borderWidth: 1, borderColor: COLORS.border,
     marginTop: SPACING.md,
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+    boxShadow: SHADOWS.md,
   },
   answered: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textMuted },
   submitBtn: {
@@ -248,10 +248,11 @@ export default function LessonViewerScreen() {
         if (nextItem) break;
       }
       if (nextItem) {
+        const skillSlug = (typeof nextItem.skill === 'object' ? nextItem.skill.name : nextItem.skill).toLowerCase();
         if (nextItem.type === 'lesson') {
-          router.replace(`/ielts/basic/lesson/${nextItem.id}?skill=${nextItem.skill.toLowerCase()}` as any);
+          router.replace(`/ielts/basic/lesson/${nextItem.id}?skill=${skillSlug}` as any);
         } else {
-          const q = nextItem.lessonId ? `?lessonId=${nextItem.lessonId}&skill=${nextItem.skill.toLowerCase()}` : `?skill=${nextItem.skill.toLowerCase()}`;
+          const q = nextItem.lessonId ? `?lessonId=${nextItem.lessonId}&skill=${skillSlug}` : `?skill=${skillSlug}`;
           router.replace(`/ielts/basic/exercise/${nextItem.id}${q}` as any);
         }
       } else {
@@ -273,7 +274,7 @@ export default function LessonViewerScreen() {
   if (!lesson) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: COLORS.error, fontWeight: '700' }}>Lesson not found.</Text>
+        <Text style={{ color: COLORS.status.error, fontWeight: '700' }}>Lesson not found.</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ marginTop: SPACING.md }}>
           <Text style={{ color: COLORS.primary }}>Go back</Text>
         </TouchableOpacity>
