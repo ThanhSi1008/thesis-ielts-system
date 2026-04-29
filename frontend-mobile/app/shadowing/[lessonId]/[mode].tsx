@@ -8,7 +8,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import Slider from '@react-native-community/slider';
 import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
@@ -71,6 +70,7 @@ export default function ShadowingPracticeScreen() {
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [trackWidth, setTrackWidth] = useState(0);
   // react-native-youtube-iframe exposes seekTo/getCurrentTime via imperative ref
   const playerRef = useRef<any>(null);
   const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
@@ -133,6 +133,22 @@ export default function ShadowingPracticeScreen() {
     } else if (lesson?.audioUrl) {
       audioPlayer.seekTo(value * 1000);
     }
+  };
+
+  const handleSeekPress = (event: any) => {
+    const { locationX } = event.nativeEvent;
+    if (trackWidth > 0 && current) {
+      const duration = current.audioEnd - current.audioStart;
+      const seekTime = current.audioStart + (locationX / trackWidth) * duration;
+      handleSeek(seekTime);
+    }
+  };
+
+  const formatTimeStr = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Phase 2: Evaluate Input Real-time
@@ -336,6 +352,8 @@ export default function ShadowingPracticeScreen() {
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
 
   const youtubeId = lesson?.youtubeVideoId;
+  const showDictation = mode === 'dictation';
+  const progressPercent = current ? Math.max(0, Math.min(100, ((currentTime - current.audioStart) / ((current.audioEnd - current.audioStart) || 1)) * 100)) : 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -396,20 +414,19 @@ export default function ShadowingPracticeScreen() {
               <Ionicons name={playing ? "pause" : "play"} size={20} color={playing ? "#fff" : COLORS.primary} />
             </TouchableOpacity>
 
-            <View style={{ flex: 1, marginHorizontal: SPACING.md }}>
-              <Slider
-                style={{ width: '100%', height: 40 }}
-                minimumValue={current?.audioStart || 0}
-                maximumValue={current?.audioEnd || 100}
-                value={currentTime}
-                onSlidingComplete={handleSeek}
-                minimumTrackTintColor={COLORS.primary}
-                maximumTrackTintColor={COLORS.border}
-                thumbTintColor={COLORS.primary}
-              />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 4, marginTop: -8 }}>
-                 <Text style={{ fontSize: 10, color: COLORS.textMuted }}>{currentTime.toFixed(1)}s</Text>
-                 <Text style={{ fontSize: 10, color: COLORS.textMuted }}>{(current?.audioEnd || 0).toFixed(1)}s</Text>
+            <View style={styles.sliderWrapper}>
+              <Pressable 
+                style={styles.progressContainer} 
+                onPress={handleSeekPress}
+                onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+              >
+                <View style={styles.track}>
+                  <View style={[styles.fill, { width: `${progressPercent}%` }]} />
+                </View>
+              </Pressable>
+              <View style={styles.timeContainer}>
+                 <Text style={styles.currentTimeText}>{formatTimeStr(currentTime - (current?.audioStart || 0))}</Text>
+                 <Text style={styles.durationText}> / {formatTimeStr((current?.audioEnd || 0) - (current?.audioStart || 0))}</Text>
               </View>
             </View>
 
@@ -649,8 +666,13 @@ const styles = StyleSheet.create({
   mediaControls: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.lg, marginTop: SPACING.md, gap: SPACING.md },
   playBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.surface, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
   playingBtn: { backgroundColor: COLORS.primary },
-  waveformDummy: { flex: 1, flexDirection: 'row', alignItems: 'center', height: 32, gap: 2, overflow: 'hidden' },
-  waveBar: { flex: 1, backgroundColor: COLORS.border, borderRadius: 4 },
+  sliderWrapper: { flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: '#F3F4F6', borderRadius: 20, padding: 8, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" },
+  progressContainer: { flex: 1, height: 24, justifyContent: 'center' },
+  track: { height: 6, backgroundColor: '#F3F4F6', borderRadius: 3, overflow: 'hidden' },
+  fill: { height: '100%', backgroundColor: COLORS.primary },
+  timeContainer: { flexDirection: 'row', alignItems: 'center', minWidth: 60, justifyContent: 'flex-end' },
+  currentTimeText: { fontFamily: FONTS.bold, fontSize: 12, color: '#374151', fontVariant: ['tabular-nums'] },
+  durationText: { fontFamily: FONTS.bold, fontSize: 12, color: '#9CA3AF', fontVariant: ['tabular-nums'] },
   speedBtn: { backgroundColor: COLORS.surface, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border },
   speedText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.text },
   sentenceCard: {
