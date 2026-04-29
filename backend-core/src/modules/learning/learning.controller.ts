@@ -155,14 +155,27 @@ export class LearningController {
         throw new BadRequestException("Audio file is required");
       }
 
-      // Validate file type
-      const allowedMimeTypes = [
-        "audio/wav",
-        "audio/mpeg",
-        "audio/mp3",
-        "audio/webm",
-      ];
+      // DEBUG: log actual received MIME (remove after confirming iOS sends correct type)
+      this.logger.log(`📎 Received audio file: name=${file.originalname}, mimetype=${file.mimetype}, size=${file.size}`);
 
+      // Validate file type
+      // Mobile clients (iOS/Android) may produce different MIME types:
+      // - iOS expo-audio WAV: audio/wav or audio/x-wav
+      // - iOS expo-audio M4A: audio/mp4 or audio/x-m4a or audio/m4a
+      // - Android: audio/mpeg, audio/mp4, audio/3gpp
+      // - Web: audio/webm
+      const allowedMimeTypes = [
+        'audio/wav',
+        'audio/x-wav',   // non-standard WAV variant from some iOS builds
+        'audio/mpeg',
+        'audio/mp3',
+        'audio/mp4',     // iOS .m4a container (RFC 4337)
+        'audio/m4a',     // non-standard but sometimes sent by RN clients
+        'audio/x-m4a',   // another iOS variant
+        'audio/aac',     // AAC audio
+        'audio/webm',
+        'audio/3gpp',    // Android fallback
+      ];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
           `Invalid file type. Allowed types: ${allowedMimeTypes.join(", ")}`,
