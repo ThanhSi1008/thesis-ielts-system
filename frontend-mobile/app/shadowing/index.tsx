@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 },
   headerTitle: { flex: 1, color: COLORS.text, fontSize: FONT_SIZES.lg, fontWeight: '800' },
-  addBtn: { width: 44, height: 44, backgroundColor: COLORS.primaryLight, borderRadius: RADIUS.full, alignItems: 'center', justifyContent: 'center' },
+  addBtn: { width: 44, height: 44, backgroundColor: 'rgba(255, 198, 0, 0.15)', borderRadius: RADIUS.full, alignItems: 'center', justifyContent: 'center' },
   searchRow: { padding: SPACING.md, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border },
   searchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, paddingHorizontal: SPACING.md, height: 48 },
   searchInput: { flex: 1, height: '100%', fontSize: FONT_SIZES.md, color: COLORS.text },
