@@ -80,7 +80,8 @@ export const useAudioRecorderHook = () => {
 
   const stopRecording = useCallback(async () => {
     try {
-      recorder.stop();
+      // MUST await stop() — it is async; uri is null until the file is finalized
+      await recorder.stop();
 
       // Restore iOS audio mode to playback (best practice)
       await setAudioModeAsync({ allowsRecording: false });
