@@ -8,6 +8,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
+import Slider from '@react-native-community/slider';
 import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
@@ -69,6 +70,7 @@ export default function ShadowingPracticeScreen() {
   // Phase 1: Media Sync States
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  const [currentTime, setCurrentTime] = useState(0);
   // react-native-youtube-iframe exposes seekTo/getCurrentTime via imperative ref
   const playerRef = useRef<any>(null);
   const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
@@ -111,6 +113,27 @@ export default function ShadowingPracticeScreen() {
     setDictationInput('');
     setSentenceCorrect(false);
   }, [currentIdx, difficulty, currentSentenceWords]);
+
+  useEffect(() => {
+    if (current) {
+      setCurrentTime(current.audioStart);
+      setRevealedWords(new Set());
+      setDictationInput('');
+      setSentenceCorrect(false);
+      pronunciationChecker.reset();
+      setShowAnswer(false);
+      setSpokenTranscript('');
+    }
+  }, [current]);
+
+  const handleSeek = (value: number) => {
+    setCurrentTime(value);
+    if (lesson?.youtubeVideoId && playerRef.current) {
+      playerRef.current.seekTo(value, true);
+    } else if (lesson?.audioUrl) {
+      audioPlayer.seekTo(value * 1000);
+    }
+  };
 
   // Phase 2: Evaluate Input Real-time
   const userWords = React.useMemo(() => dictationInput.split(/\s+/).filter(w => w.length > 0), [dictationInput]);
@@ -214,20 +237,19 @@ export default function ShadowingPracticeScreen() {
     if (timerRef.current) clearInterval(timerRef.current);
 
     if (lesson?.youtubeVideoId && playerRef.current) {
-      // React 18 batches setState: setPlaying(false)+setPlaying(true) in same
-      // synchronous call = no-op (collapses to current value, no re-render).
-      // Fix: seekTo first (sync WebView injection), defer setPlaying(true) to
-      // next event loop tick via setTimeout so React sees the state change.
       setPlaying(false);
-      playerRef.current.seekTo(sentence.audioStart, true); // void, not async
+      playerRef.current.seekTo(sentence.audioStart, true);
       setTimeout(() => setPlaying(true), 100);
 
       timerRef.current = setInterval(async () => {
         try {
           const t = await playerRef.current?.getCurrentTime();
-          if (t != null && t >= sentence.audioEnd) {
-            setPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
+          if (t != null) {
+            setCurrentTime(t);
+            if (t >= sentence.audioEnd) {
+              setPlaying(false);
+              if (timerRef.current) clearInterval(timerRef.current);
+            }
           }
         } catch { /* player destroyed */ }
       }, 200);
@@ -237,7 +259,9 @@ export default function ShadowingPracticeScreen() {
       setPlaying(true);
 
       timerRef.current = setInterval(() => {
-        if (audioPlayer.currentTime >= sentence.audioEnd * 1000) {
+        const tInSec = audioPlayer.currentTime / 1000;
+        setCurrentTime(tInSec);
+        if (tInSec >= sentence.audioEnd) {
           audioPlayer.pause();
           setPlaying(false);
           if (timerRef.current) clearInterval(timerRef.current);
@@ -309,10 +333,6 @@ export default function ShadowingPracticeScreen() {
     } finally { setSaving(false); }
   };
 
-  const checkDictation = () => {
-    // Deprecated for real-time evaluation
-  };
-
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
 
   const youtubeId = lesson?.youtubeVideoId;
@@ -369,24 +389,28 @@ export default function ShadowingPracticeScreen() {
 
           {/* Media Controls */}
           <View style={styles.mediaControls}>
-            <TouchableOpacity
-              style={[styles.playBtn, playing && styles.playingBtn]}
-              onPress={playSentence}
+            <TouchableOpacity 
+              style={[styles.playBtn, playing && styles.playingBtn]} 
+              onPress={() => playSentence(current)}
             >
-              <Ionicons name={playing ? "pause" : "play"} size={24} color={playing ? "#fff" : COLORS.primary} />
+              <Ionicons name={playing ? "pause" : "play"} size={20} color={playing ? "#fff" : COLORS.primary} />
             </TouchableOpacity>
 
-            <View style={styles.waveformDummy}>
-              {Array.from({ length: 20 }).map((_, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.waveBar,
-                    { height: playing ? Math.max(8, Math.random() * 24) : 8 },
-                    playing && { backgroundColor: COLORS.primary }
-                  ]}
-                />
-              ))}
+            <View style={{ flex: 1, marginHorizontal: SPACING.md }}>
+              <Slider
+                style={{ width: '100%', height: 40 }}
+                minimumValue={current?.audioStart || 0}
+                maximumValue={current?.audioEnd || 100}
+                value={currentTime}
+                onSlidingComplete={handleSeek}
+                minimumTrackTintColor={COLORS.primary}
+                maximumTrackTintColor={COLORS.border}
+                thumbTintColor={COLORS.primary}
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 4, marginTop: -8 }}>
+                 <Text style={{ fontSize: 10, color: COLORS.textMuted }}>{currentTime.toFixed(1)}s</Text>
+                 <Text style={{ fontSize: 10, color: COLORS.textMuted }}>{(current?.audioEnd || 0).toFixed(1)}s</Text>
+              </View>
             </View>
 
             <TouchableOpacity style={styles.speedBtn} onPress={cycleSpeed}>
