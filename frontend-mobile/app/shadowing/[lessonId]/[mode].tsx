@@ -62,8 +62,14 @@ export default function ShadowingPracticeScreen() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const sentences = lesson?.sentences?.length ? lesson.sentences : PLACEHOLDER_SENTENCES;
-  const current = sentences[currentIdx] || sentences[0];
+  const sentences = React.useMemo(
+    () => (lesson?.sentences?.length ? lesson.sentences : PLACEHOLDER_SENTENCES),
+    [lesson]
+  );
+  const current = React.useMemo(
+    () => sentences[currentIdx] || sentences[0],
+    [sentences, currentIdx]
+  );
   const progress = Math.round((completed.length / sentences.length) * 100);
 
   // Phase 1: Media Sync States
@@ -124,7 +130,9 @@ export default function ShadowingPracticeScreen() {
       setShowAnswer(false);
       setSpokenTranscript('');
     }
-  }, [current]);
+  // Use currentIdx (primitive) NOT current (object) to avoid spurious resets on every render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIdx]);
 
   const handleSeek = (value: number) => {
     setCurrentTime(value);
