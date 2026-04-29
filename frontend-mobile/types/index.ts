@@ -153,6 +153,25 @@ export interface GroupedSounds {
   consonants: PronunciationSound[];
 }
 
+export interface WordScore {
+  word: string;
+  accuracyScore: number;
+  errorType?: 'None' | 'Omission' | 'Insertion' | 'Substitution' | 'Mispronunciation';
+}
+
+export interface PronunciationScore {
+  accuracyScore: number;
+  completenessScore: number;
+  fluencyScore: number;
+  pronScore: number;
+  words?: WordScore[];
+}
+
+export interface PronunciationCheckResponse {
+  score: PronunciationScore;
+  audioUrl?: string;
+}
+
 // ==================== EXAMS ====================
 
 export interface Exam {
