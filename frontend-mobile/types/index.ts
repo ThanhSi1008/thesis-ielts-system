@@ -168,7 +168,12 @@ export interface PronunciationScore {
 }
 
 export interface PronunciationCheckResponse {
-  score: PronunciationScore;
+  // Immediate response: queue acknowledgment
+  attemptId?: string;
+  status?: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  message?: string;
+  // Populated later when AI processing completes
+  score?: PronunciationScore;
   audioUrl?: string;
 }
 

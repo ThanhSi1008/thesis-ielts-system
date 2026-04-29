@@ -122,7 +122,9 @@ export default function PronunciationAIScreen() {
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   };
 
-  const scoreLabel = result ? getScoreLabel(result.score.pronScore) : null;
+  // Backend returns PENDING first (async queue), score is populated later by AI
+  const isPending = result?.status === 'PENDING' || (result && !result.score);
+  const scoreLabel = result?.score ? getScoreLabel(result.score.pronScore) : null;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -231,22 +233,31 @@ export default function PronunciationAIScreen() {
         )}
 
         {/* ── AI Result ── */}
-        {result && (
+        {result && isPending && (
+          <Animated.View entering={FadeIn} style={styles.pendingBox}>
+            <ActivityIndicator size="small" color={COLORS.primary} />
+            <Text style={styles.pendingText}>
+              ⏳ AI đang phân tích phát âm… Vui lòng chờ.
+            </Text>
+          </Animated.View>
+        )}
+
+        {result && !isPending && result.score && (
           <Animated.View style={[styles.resultSection, resultStyle]}>
             {/* Score badge */}
             {scoreLabel && (
               <View style={[styles.scoreBadge, { backgroundColor: scoreLabel.color + '18' }]}>
                 <Text style={[styles.scoreBadgeText, { color: scoreLabel.color }]}>
-                  {scoreLabel.label} — {Math.round(result.score.pronScore)}/100
+                  {scoreLabel.label} — {Math.round(result.score!.pronScore)}/100
                 </Text>
               </View>
             )}
 
             {/* Score dashboard */}
-            <ScoreDashboard score={result.score} />
+            <ScoreDashboard score={result.score!} />
 
             {/* Word-level transcript */}
-            {result.score.words && result.score.words.length > 0 && (
+            {result.score!.words && result.score!.words.length > 0 && (
               <View style={styles.card}>
                 <Text style={styles.sectionLabel}>WORD FEEDBACK</Text>
                 <Text style={styles.transcriptHint}>
@@ -394,5 +405,22 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     color: COLORS.textMuted,
     marginTop: -4,
+  },
+
+  pendingBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    backgroundColor: COLORS.primary + '12',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '30',
+  },
+  pendingText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.primary,
+    fontWeight: '600',
+    flex: 1,
   },
 });
