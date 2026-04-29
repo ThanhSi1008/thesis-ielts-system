@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.border,
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 18,
+    width: 44, height: 44, borderRadius: 22,
     backgroundColor: COLORS.surface,
     alignItems: 'center', justifyContent: 'center',
   },
