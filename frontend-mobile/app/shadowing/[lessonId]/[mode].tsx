@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, TextInput, Alert, Dimensions,
+  ActivityIndicator, TextInput, Alert, Dimensions, Pressable
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { useAudioPlayer } from 'expo-audio';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
 import { usePronunciationChecker } from '@/hooks/usePronunciationChecker';
