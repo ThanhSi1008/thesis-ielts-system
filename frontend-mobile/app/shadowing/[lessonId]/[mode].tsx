@@ -81,6 +81,9 @@ export default function ShadowingPracticeScreen() {
   const playerRef = useRef<any>(null);
   const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  // JS-clock based tracking (avoids unreliable async getCurrentTime)
+  const playStartTimeRef = useRef<number>(0);     // Date.now() when play started
+  const sentenceStartSecRef = useRef<number>(0);  // audioStart of sentence when play started
 
   // Phase 2: Dictation States
   const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>('Intermediate');
@@ -136,6 +139,9 @@ export default function ShadowingPracticeScreen() {
 
   const handleSeek = (value: number) => {
     setCurrentTime(value);
+    // Update clock refs so interval keeps counting from the seeked position
+    sentenceStartSecRef.current = value;
+    playStartTimeRef.current = Date.now();
     if (lesson?.youtubeVideoId && playerRef.current) {
       playerRef.current.seekTo(value, true);
     } else if (lesson?.audioUrl) {
@@ -146,7 +152,7 @@ export default function ShadowingPracticeScreen() {
   const handleSeekPress = (locationX: number) => {
     if (trackWidth > 0 && current) {
       const duration = current.audioEnd - current.audioStart;
-      const seekTime = current.audioStart + (locationX / trackWidth) * duration;
+      const seekTime = current.audioStart + Math.max(0, Math.min(1, locationX / trackWidth)) * duration;
       handleSeek(seekTime);
     }
   };
@@ -260,37 +266,41 @@ export default function ShadowingPracticeScreen() {
     if (!sentence) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
+    // Record JS clock baseline for reliable progress tracking
+    sentenceStartSecRef.current = sentence.audioStart;
+    playStartTimeRef.current = Date.now();
+
+    const startInterval = (audioEnd: number) => {
+      timerRef.current = setInterval(() => {
+        const elapsed = (Date.now() - playStartTimeRef.current) / 1000;
+        const t = sentenceStartSecRef.current + elapsed;
+        setCurrentTime(t);
+        if (t >= audioEnd) {
+          setPlaying(false);
+          if (timerRef.current) clearInterval(timerRef.current);
+          if (lesson?.youtubeVideoId && playerRef.current) {
+            // No-op: YouTube controls will show paused state
+          } else if (lesson?.audioUrl) {
+            audioPlayer.pause();
+          }
+        }
+      }, 100);
+    };
+
     if (lesson?.youtubeVideoId && playerRef.current) {
       setPlaying(false);
       playerRef.current.seekTo(sentence.audioStart, true);
-      setTimeout(() => setPlaying(true), 100);
-
-      timerRef.current = setInterval(async () => {
-        try {
-          const t = await playerRef.current?.getCurrentTime();
-          if (t != null) {
-            setCurrentTime(t);
-            if (t >= sentence.audioEnd) {
-              setPlaying(false);
-              if (timerRef.current) clearInterval(timerRef.current);
-            }
-          }
-        } catch { /* player destroyed */ }
-      }, 200);
+      setTimeout(() => {
+        setPlaying(true);
+        // Reset clock after the 100ms seek delay
+        playStartTimeRef.current = Date.now();
+        startInterval(sentence.audioEnd);
+      }, 150);
     } else if (lesson?.audioUrl) {
       audioPlayer.seekTo(sentence.audioStart * 1000);
       audioPlayer.play();
       setPlaying(true);
-
-      timerRef.current = setInterval(() => {
-        const tInSec = audioPlayer.currentTime / 1000;
-        setCurrentTime(tInSec);
-        if (tInSec >= sentence.audioEnd) {
-          audioPlayer.pause();
-          setPlaying(false);
-          if (timerRef.current) clearInterval(timerRef.current);
-        }
-      }, 200);
+      startInterval(sentence.audioEnd);
     }
   }, [lesson, audioPlayer]);
 
