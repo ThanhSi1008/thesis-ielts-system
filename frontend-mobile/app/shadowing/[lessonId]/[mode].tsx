@@ -13,6 +13,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
 import { usePronunciationChecker } from '@/hooks/usePronunciationChecker';
+import { SHADOWING_LESSONS } from '@/constants/shadowing-lessons';
 import { Waveform } from '@/components/voice/Waveform';
 import { RecordButton } from '@/components/voice/RecordButton';
 import { ScoreDashboard } from '@/components/voice/feedback/ScoreDashboard';
@@ -68,6 +69,7 @@ export default function ShadowingPracticeScreen() {
   // Phase 1: Media Sync States
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  // react-native-youtube-iframe exposes seekTo/getCurrentTime via imperative ref
   const playerRef = useRef<any>(null);
   const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -202,36 +204,47 @@ export default function ShadowingPracticeScreen() {
     };
   }, []);
 
-  const playSentence = async () => {
-    if (!current) return;
+  // Stable ref so the interval callback always sees latest `current`
+  const currentRef = useRef(current);
+  useEffect(() => { currentRef.current = current; }, [current]);
+
+  const playSentence = useCallback(async (targetSentence?: any) => {
+    const sentence = targetSentence ?? currentRef.current;
+    if (!sentence) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
     if (lesson?.youtubeVideoId && playerRef.current) {
-      playerRef.current.seekTo(current.audioStart, true);
-      setPlaying(true);
-      timerRef.current = setInterval(async () => {
-        const currentTime = await playerRef.current?.getCurrentTime();
-        if (currentTime && currentTime >= current.audioEnd) {
-          setPlaying(false);
-          if (timerRef.current) clearInterval(timerRef.current);
-        }
-      }, 50);
-    } else if (lesson?.audioUrl) {
-      // Local/Remote Audio file fallback
-      audioPlayer.playbackRate = playbackSpeed;
-      audioPlayer.seekTo(current.audioStart * 1000);
-      audioPlayer.play();
+      // react-native-youtube-iframe: seekTo is synchronous on the JS side;
+      // we drive play state via the `play` prop, so flip it on then use
+      // the onChangeState callback to track pause/end.
+      setPlaying(false); // brief pause so player re-evaluates
+      await playerRef.current.seekTo(sentence.audioStart, true);
       setPlaying(true);
 
       timerRef.current = setInterval(async () => {
-        if (audioPlayer.currentTime >= current.audioEnd * 1000) {
+        try {
+          const t = await playerRef.current?.getCurrentTime();
+          if (t != null && t >= sentence.audioEnd) {
+            setPlaying(false);
+            if (timerRef.current) clearInterval(timerRef.current);
+          }
+        } catch { /* player destroyed */ }
+      }, 200);
+    } else if (lesson?.audioUrl) {
+      audioPlayer.playbackRate = playbackSpeed;
+      audioPlayer.seekTo(sentence.audioStart * 1000);
+      audioPlayer.play();
+      setPlaying(true);
+
+      timerRef.current = setInterval(() => {
+        if (audioPlayer.currentTime >= sentence.audioEnd * 1000) {
           audioPlayer.pause();
           setPlaying(false);
           if (timerRef.current) clearInterval(timerRef.current);
         }
-      }, 50);
+      }, 200);
     }
-  };
+  }, [lesson, playbackSpeed, audioPlayer]);
 
   const cycleSpeed = () => {
     const speeds = [0.25, 0.5, 0.75, 1.0, 2.0];
@@ -241,11 +254,18 @@ export default function ShadowingPracticeScreen() {
 
   useEffect(() => {
     const load = async () => {
+      // 1. Check bundled static lessons first (no network needed)
+      const staticLesson = SHADOWING_LESSONS.find(l => l.id === lessonId);
+      if (staticLesson) {
+        setLesson(staticLesson);
+        setLoading(false);
+        return;
+      }
+      // 2. Fallback: try fetching user-created video from API
       try {
         const data = await shadowingApi.getVideoById(lessonId);
         setLesson(data);
       } catch {
-        // Use placeholder for static lessons
         setLesson({ id: lessonId, title: 'Practice Session', youtubeVideoId: '', sentences: [] });
       } finally { setLoading(false); }
     };
@@ -328,10 +348,13 @@ export default function ShadowingPracticeScreen() {
                 play={playing}
                 playbackRate={playbackSpeed}
                 onChangeState={(state: string) => {
-                  if (state === 'ended' || state === 'paused') setPlaying(false);
+                  if (state === 'ended' || state === 'paused') {
+                    setPlaying(false);
+                    if (timerRef.current) clearInterval(timerRef.current);
+                  }
                 }}
                 initialPlayerParams={{
-                  controls: false,
+                  controls: true,
                   modestbranding: true,
                   rel: false,
                 }}
