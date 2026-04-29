@@ -64,19 +64,22 @@ export default function ShadowingScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={28} color={COLORS.text} />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Shadowing & Dictation</Text>
         <TouchableOpacity
           style={styles.addBtn}
           onPress={() => router.push('/shadowing/create' as any)}
         >
-          <Ionicons name="add" size={22} color="#fff" />
+          <Ionicons name="add" size={24} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
 
       {/* Search */}
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
-          <Ionicons name="search" size={18} color={COLORS.textMuted} />
+          <Ionicons name="search" size={20} color={COLORS.textMuted} />
           <TextInput
             style={styles.searchInput}
             value={search}
@@ -85,8 +88,8 @@ export default function ShadowingScreen() {
             placeholderTextColor={COLORS.textMuted}
           />
           {search.length > 0 && (
-            <TouchableOpacity onPress={() => setSearch('')}>
-              <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+            <TouchableOpacity onPress={() => setSearch('')} style={styles.clearBtn}>
+              <Ionicons name="close-circle" size={20} color={COLORS.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -196,16 +199,19 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#fff',
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
+    borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  headerTitle: { flex: 1, color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700', marginHorizontal: SPACING.md },
-  addBtn: { width: 36, height: 36, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center' },
-  searchRow: { padding: SPACING.md, backgroundColor: COLORS.surface, borderBottomWidth: 1, borderColor: COLORS.border },
-  searchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: '#fff', borderRadius: RADIUS.xl, paddingHorizontal: SPACING.md, borderWidth: 1, borderColor: COLORS.border },
-  searchInput: { flex: 1, paddingVertical: SPACING.sm + 2, fontSize: FONT_SIZES.md, color: COLORS.text },
+  backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 },
+  headerTitle: { flex: 1, color: COLORS.text, fontSize: FONT_SIZES.lg, fontWeight: '800' },
+  addBtn: { width: 44, height: 44, backgroundColor: COLORS.primaryLight, borderRadius: RADIUS.full, alignItems: 'center', justifyContent: 'center' },
+  searchRow: { padding: SPACING.md, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border },
+  searchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, paddingHorizontal: SPACING.md, height: 48 },
+  searchInput: { flex: 1, height: '100%', fontSize: FONT_SIZES.md, color: COLORS.text },
+  clearBtn: { padding: 8 },
   catBar: { borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 52 },
   lessonCard: {
     backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.lg,
@@ -233,11 +239,11 @@ const styles = StyleSheet.create({
   progressBg: { flex: 1, height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
   progressPct: { fontSize: 11, color: COLORS.textSecondary, fontWeight: '600', width: 32, textAlign: 'right' },
-  actionRow: { flexDirection: 'row', gap: SPACING.sm },
+  actionRow: { flexDirection: 'row', gap: SPACING.sm, marginTop: SPACING.sm },
   actionBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: SPACING.xs, paddingVertical: SPACING.sm,
-    borderWidth: 2, borderRadius: RADIUS.xl,
+    gap: SPACING.xs, height: 44,
+    borderWidth: 1.5, borderRadius: RADIUS.xl,
   },
   actionLabel: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
 });
