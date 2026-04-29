@@ -60,6 +60,11 @@ export const learningApi = {
 
     return apiClient.postForm<PronunciationCheckResponse>('/learning/pronunciation/check', formData);
   },
+
+  /** Poll pronunciation attempts to check if AI processing completed */
+  getUserPronunciationAttempts: async (userId: string): Promise<any[]> => {
+    return apiClient.get<any[]>(`/learning/pronunciation/attempts/${userId}`);
+  },
 };
 
 export default learningApi;
