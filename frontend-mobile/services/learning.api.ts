@@ -24,7 +24,18 @@ export const learningApi = {
     // Extract file name and extension from URI
     const uriParts = audioUri.split('/');
     const fileName = uriParts[uriParts.length - 1];
-    const fileType = fileName.endsWith('.wav') ? 'audio/wav' : 'audio/m4a';
+    
+    // MIME type mapping — backend-core accepts: audio/wav, audio/mpeg, audio/mp3, audio/webm, audio/mp4
+    // iOS expo-audio records as .m4a → correct MIME is audio/mp4 (RFC 4337)
+    const extensionMimeMap: Record<string, string> = {
+      '.wav': 'audio/wav',
+      '.mp3': 'audio/mpeg',
+      '.webm': 'audio/webm',
+      '.m4a': 'audio/mp4',  // m4a is an MPEG-4 audio container
+      '.mp4': 'audio/mp4',
+    };
+    const ext = fileName.includes('.') ? fileName.slice(fileName.lastIndexOf('.')) : '.m4a';
+    const fileType = extensionMimeMap[ext] ?? 'audio/mp4';
 
     // @ts-ignore - React Native FormData is slightly different from Web
     formData.append('audio', {
