@@ -21,7 +21,7 @@ import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
 import { learningApi } from '@/services/learning.api';
@@ -361,10 +361,10 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 }, elevation: 3,
   },
-  symbolText: { fontSize: 26, fontWeight: '900' },
+  symbolText: { fontSize: 26, fontFamily: FONTS.bold },
   headerMeta: { flex: 1 },
-  symbolLabel: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text },
-  typeLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
+  symbolLabel: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
+  typeLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontFamily: FONTS.regular },
 
   tipBanner: {
     flexDirection: 'row',
@@ -378,13 +378,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.primary + '25',
   },
-  tipText: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 18 },
+  tipText: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 18, fontFamily: FONTS.regular },
 
   scroll: { flex: 1 },
   scrollContent: { padding: SPACING.lg },
   sectionLabel: {
     fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
+    fontFamily: FONTS.bold,
     color: COLORS.textMuted,
     letterSpacing: 1,
     textTransform: 'uppercase',
@@ -394,21 +394,21 @@ const styles = StyleSheet.create({
   wordCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.card,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(0,0,0,0.04)',
     shadowColor: '#000',
     shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-  wordCardInfo: { flex: 1, gap: 4 },
-  wordText: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text },
-  sentenceText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontStyle: 'italic' },
+  wordCardInfo: { flex: 1, gap: 6 },
+  wordText: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
+  sentenceText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontFamily: FONTS.regular, opacity: 0.8 },
 
   recorderSide: { marginLeft: SPACING.md, alignItems: 'center', minWidth: 60 },
 
@@ -430,23 +430,23 @@ const styles = StyleSheet.create({
   },
 
   processingBox: { alignItems: 'center', gap: 4 },
-  processingText: { fontSize: 10, color: COLORS.textSecondary },
+  processingText: { fontSize: 10, color: COLORS.textSecondary, fontFamily: FONTS.medium },
 
   scoreBox: { alignItems: 'center' },
-  scoreNumber: { fontSize: FONT_SIZES['2xl'], fontWeight: '900', lineHeight: 28 },
-  scoreMax: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginTop: -2 },
-  scoreLevel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase', marginTop: 2 },
+  scoreNumber: { fontSize: FONT_SIZES.xxl, fontFamily: FONTS.bold, lineHeight: 28 },
+  scoreMax: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginTop: -2, fontFamily: FONTS.regular },
+  scoreLevel: { fontSize: 10, fontFamily: FONTS.bold, textTransform: 'uppercase', marginTop: 2 },
   retryBtn: { marginTop: 4 },
 
   errorBox: { alignItems: 'center' },
-  errorText: { fontSize: 10, color: '#EF4444', textAlign: 'center', maxWidth: 64 },
-  retryText: { fontSize: 11, color: COLORS.primary, fontWeight: '700', marginTop: 4 },
+  errorText: { fontSize: 10, color: '#EF4444', textAlign: 'center', maxWidth: 64, fontFamily: FONTS.regular },
+  retryText: { fontSize: 11, color: COLORS.primary, fontFamily: FONTS.bold, marginTop: 4 },
 
   loginPrompt: {
     alignItems: 'center',
     paddingVertical: 48,
     gap: SPACING.sm,
   },
-  loginTitle: { fontSize: FONT_SIZES.lg, fontWeight: '700', color: COLORS.text },
-  loginSub: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center' },
+  loginTitle: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, color: COLORS.text },
+  loginSub: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', fontFamily: FONTS.regular },
 });

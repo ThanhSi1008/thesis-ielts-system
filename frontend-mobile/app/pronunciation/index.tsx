@@ -7,7 +7,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 
 // ─── IPA Data (mirrors web) ──────────────────────────────────────────────────
 const IPA_DATA = {
@@ -108,16 +108,16 @@ const styles = StyleSheet.create({
   scroll: { padding: SPACING.lg, paddingBottom: 40 },
 
   header: { marginBottom: SPACING.xl },
-  headerTitle: { fontSize: FONT_SIZES['2xl'], fontWeight: '800', color: COLORS.text },
+  headerTitle: { fontSize: FONT_SIZES.xxl, fontFamily: FONTS.bold, color: COLORS.text },
   headerSub: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginTop: 4 },
 
   section: { marginBottom: SPACING.xl },
   sectionTitle: {
-    fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text,
+    fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, color: COLORS.text,
     textTransform: 'uppercase', letterSpacing: 1, marginBottom: SPACING.sm,
   },
   groupLabel: {
-    fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textMuted,
+    fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.textMuted,
     marginBottom: SPACING.sm, textTransform: 'uppercase', letterSpacing: 0.8,
   },
 
@@ -129,6 +129,6 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 }, elevation: 2,
   },
-  cellSymbol: { fontSize: FONT_SIZES.xl, fontWeight: '800' },
-  cellWord: { fontSize: 9, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2, opacity: 0.75 },
+  cellSymbol: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold },
+  cellWord: { fontSize: 9, fontFamily: FONTS.semibold, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2, opacity: 0.75 },
 });
