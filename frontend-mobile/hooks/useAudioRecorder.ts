@@ -1,57 +1,67 @@
-import { useState, useCallback, useEffect } from 'react';
-import { 
-  useAudioRecorder, 
-  useAudioRecorderState, 
-  RecordingOptions, 
+import { useState, useCallback } from 'react';
+import {
+  useAudioRecorder,
+  useAudioRecorderState,
+  RecordingOptions,
   requestRecordingPermissionsAsync,
   getRecordingPermissionsAsync,
-  AudioRecorder
+  AudioRecorder,
+  setAudioModeAsync,
 } from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
+// Fix Bug #1: Use legacy import path for deprecated deleteAsync in Expo SDK 54
+import * as FileSystem from 'expo-file-system/legacy';
 import { Alert } from 'react-native';
 
 /**
- * Custom Hook for handling audio recording using expo-audio
- * Provides methods to start, stop, and retrieve the recorded file URI.
+ * Custom Hook for handling audio recording using expo-audio (SDK 54).
+ *
+ * Fixes applied:
+ * 1. Import FileSystem from 'expo-file-system/legacy' (SDK 54 migration).
+ * 2. Call setAudioModeAsync({ allowsRecordingIOS: true }) before record()
+ *    to enable iOS microphone recording mode.
+ * 3. Reset iOS audio mode to playback after recording stops.
  */
 export const useAudioRecorderHook = () => {
-  // Configure recording options
   const recordingOptions: RecordingOptions = {
     isMeteringEnabled: true,
     extension: '.m4a',
     sampleRate: 44100,
     numberOfChannels: 1,
     bitRate: 128000,
-    // Add platform specific options if required by the type system
     android: {
       outputFormat: 'mpeg4',
       audioEncoder: 'aac',
     },
     ios: {
-      audioQuality: 127, // High quality
+      audioQuality: 127, // AVAudioQuality.high
     },
     web: {
       mimeType: 'audio/webm',
-    }
+    },
   };
 
   const recorder: AudioRecorder = useAudioRecorder(recordingOptions);
-  const state = useAudioRecorderState(recorder, 100); // Update every 100ms for waveform
+  const state = useAudioRecorderState(recorder, 100);
 
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
 
   const startRecording = useCallback(async () => {
     try {
-      // Check/Request permissions
+      // Check / request microphone permission
       let permission = await getRecordingPermissionsAsync();
       if (!permission.granted) {
         permission = await requestRecordingPermissionsAsync();
       }
-      
       if (!permission.granted) {
         Alert.alert('Permission Denied', 'Microphone access is required to record audio.');
         return;
       }
+
+      // Fix Bug #2: Enable iOS recording mode BEFORE calling record()
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+      });
 
       setRecordedUri(null);
       await recorder.prepareToRecordAsync();
@@ -65,7 +75,10 @@ export const useAudioRecorderHook = () => {
   const stopRecording = useCallback(async () => {
     try {
       recorder.stop();
-      // In the new API, the URI might be in the state or recorder object
+
+      // Restore iOS audio mode to playback (best practice)
+      await setAudioModeAsync({ allowsRecording: false });
+
       const uri = recorder.uri;
       if (uri) {
         setRecordedUri(uri);
@@ -82,6 +95,7 @@ export const useAudioRecorderHook = () => {
     const uri = recordedUri || recorder.uri;
     if (uri) {
       try {
+        // Fix Bug #1: legacy API still provides deleteAsync correctly
         await FileSystem.deleteAsync(uri, { idempotent: true });
         setRecordedUri(null);
       } catch (error) {
