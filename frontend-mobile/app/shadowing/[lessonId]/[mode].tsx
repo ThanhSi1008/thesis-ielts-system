@@ -135,14 +135,29 @@ export default function ShadowingPracticeScreen() {
     }
   };
 
-  const handleSeekPress = (event: any) => {
-    const { locationX } = event.nativeEvent;
+  const handleSeekPress = (locationX: number) => {
     if (trackWidth > 0 && current) {
       const duration = current.audioEnd - current.audioStart;
       const seekTime = current.audioStart + (locationX / trackWidth) * duration;
       handleSeek(seekTime);
     }
   };
+
+  const togglePlay = useCallback(() => {
+    if (playing) {
+      // Pause
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (lesson?.youtubeVideoId && playerRef.current) {
+        setPlaying(false);
+      } else if (lesson?.audioUrl) {
+        audioPlayer.pause();
+        setPlaying(false);
+      }
+    } else {
+      // Resume / play from current sentence start
+      playSentence(current);
+    }
+  }, [playing, lesson, audioPlayer, current, playSentence]);
 
   const formatTimeStr = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
@@ -409,21 +424,23 @@ export default function ShadowingPracticeScreen() {
           <View style={styles.mediaControls}>
             <TouchableOpacity 
               style={[styles.playBtn, playing && styles.playingBtn]} 
-              onPress={() => playSentence(current)}
+              onPress={togglePlay}
             >
               <Ionicons name={playing ? "pause" : "play"} size={20} color={playing ? "#fff" : COLORS.primary} />
             </TouchableOpacity>
 
             <View style={styles.sliderWrapper}>
-              <Pressable 
+              <View 
                 style={styles.progressContainer} 
-                onPress={handleSeekPress}
                 onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={(e) => handleSeekPress(e.nativeEvent.locationX)}
+                onResponderMove={(e) => handleSeekPress(e.nativeEvent.locationX)}
               >
                 <View style={styles.track}>
                   <View style={[styles.fill, { width: `${progressPercent}%` }]} />
                 </View>
-              </Pressable>
+              </View>
               <View style={styles.timeContainer}>
                  <Text style={styles.currentTimeText}>{formatTimeStr(currentTime - (current?.audioStart || 0))}</Text>
                  <Text style={styles.durationText}> / {formatTimeStr((current?.audioEnd || 0) - (current?.audioStart || 0))}</Text>
