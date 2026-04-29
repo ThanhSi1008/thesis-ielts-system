@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   searchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, paddingHorizontal: SPACING.md, height: 48 },
   searchInput: { flex: 1, height: '100%', fontSize: FONT_SIZES.md, color: COLORS.text },
   clearBtn: { padding: 8 },
-  catBar: { borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 52 },
+  catBar: { borderBottomWidth: 1, borderColor: COLORS.border },
   lessonCard: {
     backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.lg,
     borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden',
