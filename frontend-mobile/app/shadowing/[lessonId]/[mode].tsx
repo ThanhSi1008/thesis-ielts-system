@@ -391,8 +391,8 @@ export default function ShadowingPracticeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={28} color={COLORS.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
           {isShadowing ? '🗣 Shadowing' : '✏️ Dictation'} — {lesson?.title}
@@ -689,10 +689,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', 
     flexDirection: 'row', 
     alignItems: 'center',
-    paddingHorizontal: SPACING.lg, 
-    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md, 
+    paddingVertical: SPACING.sm,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 4,
   },
   headerTitle: { 
     flex: 1, 
