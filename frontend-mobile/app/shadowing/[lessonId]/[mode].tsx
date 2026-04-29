@@ -143,21 +143,6 @@ export default function ShadowingPracticeScreen() {
     }
   };
 
-  const togglePlay = useCallback(() => {
-    if (playing) {
-      // Pause
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (lesson?.youtubeVideoId && playerRef.current) {
-        setPlaying(false);
-      } else if (lesson?.audioUrl) {
-        audioPlayer.pause();
-        setPlaying(false);
-      }
-    } else {
-      // Resume / play from current sentence start
-      playSentence(current);
-    }
-  }, [playing, lesson, audioPlayer, current, playSentence]);
 
   const formatTimeStr = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
@@ -300,6 +285,20 @@ export default function ShadowingPracticeScreen() {
       }, 200);
     }
   }, [lesson, audioPlayer]);
+
+  const togglePlay = useCallback(() => {
+    if (playing) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (lesson?.youtubeVideoId && playerRef.current) {
+        setPlaying(false);
+      } else if (lesson?.audioUrl) {
+        audioPlayer.pause();
+        setPlaying(false);
+      }
+    } else {
+      playSentence(current);
+    }
+  }, [playing, lesson, audioPlayer, current, playSentence]);
 
   const cycleSpeed = () => {
     const speeds = [0.25, 0.5, 0.75, 1.0, 2.0];
