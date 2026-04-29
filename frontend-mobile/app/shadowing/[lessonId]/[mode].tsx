@@ -208,18 +208,19 @@ export default function ShadowingPracticeScreen() {
   const currentRef = useRef(current);
   useEffect(() => { currentRef.current = current; }, [current]);
 
-  const playSentence = useCallback(async (targetSentence?: any) => {
+  const playSentence = useCallback((targetSentence?: any) => {
     const sentence = targetSentence ?? currentRef.current;
     if (!sentence) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
     if (lesson?.youtubeVideoId && playerRef.current) {
-      // react-native-youtube-iframe: seekTo is synchronous on the JS side;
-      // we drive play state via the `play` prop, so flip it on then use
-      // the onChangeState callback to track pause/end.
-      setPlaying(false); // brief pause so player re-evaluates
-      await playerRef.current.seekTo(sentence.audioStart, true);
-      setPlaying(true);
+      // React 18 batches setState: setPlaying(false)+setPlaying(true) in same
+      // synchronous call = no-op (collapses to current value, no re-render).
+      // Fix: seekTo first (sync WebView injection), defer setPlaying(true) to
+      // next event loop tick via setTimeout so React sees the state change.
+      setPlaying(false);
+      playerRef.current.seekTo(sentence.audioStart, true); // void, not async
+      setTimeout(() => setPlaying(true), 100);
 
       timerRef.current = setInterval(async () => {
         try {
@@ -231,7 +232,6 @@ export default function ShadowingPracticeScreen() {
         } catch { /* player destroyed */ }
       }, 200);
     } else if (lesson?.audioUrl) {
-      audioPlayer.playbackRate = playbackSpeed;
       audioPlayer.seekTo(sentence.audioStart * 1000);
       audioPlayer.play();
       setPlaying(true);
@@ -244,7 +244,7 @@ export default function ShadowingPracticeScreen() {
         }
       }, 200);
     }
-  }, [lesson, playbackSpeed, audioPlayer]);
+  }, [lesson, audioPlayer]);
 
   const cycleSpeed = () => {
     const speeds = [0.25, 0.5, 0.75, 1.0, 2.0];

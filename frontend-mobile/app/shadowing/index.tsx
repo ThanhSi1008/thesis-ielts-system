@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, TextInput, Image, RefreshControl, Alert,
+  ActivityIndicator, TextInput, Image, RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,14 +9,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { shadowingApi } from '@/services/features.api';
 import { Chip, EmptyState } from '@/components/ui';
+import { SHADOWING_LESSONS } from '@/constants/shadowing-lessons';
 
-// Static IELTS lessons bundled into the app (same IDs as web)
-const STATIC_LESSONS = [
-  { id: 'ielts-1', title: 'IELTS Part 1 – People at Work', youtubeVideoId: '', duration: '3:20', tags: ['IELTS'], sentences: [] },
-  { id: 'ielts-2', title: 'IELTS Part 2 – Short Conversations', youtubeVideoId: '', duration: '4:10', tags: ['IELTS'], sentences: [] },
-];
-
-const CATEGORIES = ['All', 'IELTS', 'YOUTUBE'];
+const CATEGORIES = ['All', 'TOEIC', 'YOUTUBE'];
 
 export default function ShadowingScreen() {
   const router = useRouter();
@@ -53,7 +48,12 @@ export default function ShadowingScreen() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const allLessons = [...STATIC_LESSONS, ...userVideos.map(v => ({ ...v, tags: ['YOUTUBE'] }))];
+  const allLessons = [
+    // Bundled TOEIC lessons (always available, correct IDs)
+    ...SHADOWING_LESSONS.map(l => ({ ...l, tags: l.tags })),
+    // User-created YouTube videos from backend
+    ...userVideos.map(v => ({ ...v, tags: ['YOUTUBE'] })),
+  ];
   const filtered = allLessons.filter(l => {
     const matchCat = category === 'All' || l.tags.includes(category);
     const matchSearch = l.title.toLowerCase().includes(search.toLowerCase());
