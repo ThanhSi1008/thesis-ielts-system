@@ -166,15 +166,16 @@ export class LearningController {
       // - Web: audio/webm
       const allowedMimeTypes = [
         'audio/wav',
-        'audio/x-wav',   // non-standard WAV variant from some iOS builds
+        'audio/vnd.wave', // ← iOS NSURLSession sets this for WAV (IANA RFC 2361)
+        'audio/x-wav',
         'audio/mpeg',
         'audio/mp3',
-        'audio/mp4',     // iOS .m4a container (RFC 4337)
-        'audio/m4a',     // non-standard but sometimes sent by RN clients
-        'audio/x-m4a',   // another iOS variant
-        'audio/aac',     // AAC audio
+        'audio/mp4',
+        'audio/m4a',
+        'audio/x-m4a',
+        'audio/aac',
         'audio/webm',
-        'audio/3gpp',    // Android fallback
+        'audio/3gpp',
       ];
       if (!allowedMimeTypes.includes(file.mimetype)) {
         throw new BadRequestException(
