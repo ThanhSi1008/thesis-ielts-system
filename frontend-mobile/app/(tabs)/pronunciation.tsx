@@ -82,11 +82,13 @@ export default function PronunciationAIScreen() {
     if (result) {
       resultOffset.value = withSpring(0, { damping: 16, stiffness: 120 });
       resultOpacity.value = withTiming(1, { duration: 400 });
-      // Haptic celebration for high score
-      if (result.score.pronScore >= SCORE_THRESHOLD.excellent) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      } else {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      // Only fire haptics when score is available (not while PENDING)
+      if (result.score?.pronScore !== undefined) {
+        if (result.score.pronScore >= SCORE_THRESHOLD.excellent) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } else {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
       }
     } else {
       resultOffset.value = 80;
