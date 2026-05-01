@@ -1,26 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   ActivityIndicator, TextInput, Image, RefreshControl,
+  Animated, Pressable
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { shadowingApi } from '@/services/features.api';
 import { Chip, EmptyState } from '@/components/ui';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { SHADOWING_LESSONS } from '@/constants/shadowing-lessons';
 
 const CATEGORIES = ['All', 'TOEIC', 'YOUTUBE'];
 
+type Tab = 'library' | 'my-video';
+
+const NAV_ITEMS = [
+  { key: 'library',  label: 'Library',   icon: 'library-outline' as const, route: 'library' },
+  { key: 'my-video', label: 'My Video',  icon: 'videocam-outline' as const, route: 'my-video' },
+];
+
 export default function ShadowingScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [activeTab, setActiveTab] = useState<Tab>('library');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [userVideos, setUserVideos] = useState<any[]>([]);
   const [progress, setProgress] = useState<Record<string, { shadowing: number; dictation: number }>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Drawer Animation
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim   = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim,   { toValue: 0,    useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1,    duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim,   { toValue: -280, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 0,    duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+
+  const handleNavPress = (route: string) => { 
+    const key = route as Tab;
+    setActiveTab(key); 
+    // Filter categories based on active tab
+    if (key === 'my-video') {
+      setCategory('YOUTUBE');
+    } else {
+      setCategory('All');
+    }
+    closeDrawer(); 
+  };
 
   const fetchData = async () => {
     try {
@@ -49,23 +92,27 @@ export default function ShadowingScreen() {
   useEffect(() => { fetchData(); }, []);
 
   const allLessons = [
-    // Bundled TOEIC lessons (always available, correct IDs)
     ...SHADOWING_LESSONS.map(l => ({ ...l, tags: l.tags })),
-    // User-created YouTube videos from backend
     ...userVideos.map(v => ({ ...v, tags: ['YOUTUBE'] })),
   ];
-  const filtered = allLessons.filter(l => {
+  
+  // Filter based on active sidebar tab
+  const tabLessons = activeTab === 'my-video' 
+    ? allLessons.filter(l => l.tags.includes('YOUTUBE'))
+    : allLessons;
+
+  const filtered = tabLessons.filter(l => {
     const matchCat = category === 'All' || l.tags.includes(category);
     const matchSearch = l.title.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={28} color={COLORS.text} />
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity style={styles.menuBtn} onPress={openDrawer}>
+          <Ionicons name="menu" size={24} color={COLORS.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Shadowing & Dictation</Text>
         <TouchableOpacity
@@ -191,7 +238,18 @@ export default function ShadowingScreen() {
           )}
         </ScrollView>
       )}
-    </SafeAreaView>
+
+      {/* Shared Drawer */}
+      <SharedDrawer 
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        navItems={NAV_ITEMS.map(item => ({ ...item, isActive: activeTab === item.key }))}
+        onClose={closeDrawer}
+        onNavPress={handleNavPress}
+      />
+    </View>
   );
 }
 
@@ -202,17 +260,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm,
     borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 },
+  menuBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 },
   headerTitle: { flex: 1, color: COLORS.text, fontSize: FONT_SIZES.lg, fontWeight: '800' },
   addBtn: { width: 44, height: 44, backgroundColor: 'rgba(255, 198, 0, 0.15)', borderRadius: RADIUS.full, alignItems: 'center', justifyContent: 'center' },
   searchRow: { padding: SPACING.md, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border },
   searchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, paddingHorizontal: SPACING.md, height: 48 },
   searchInput: { flex: 1, height: '100%', fontSize: FONT_SIZES.md, color: COLORS.text },
   clearBtn: { padding: 8 },
-  catBar: { borderBottomWidth: 1, borderColor: COLORS.border },
+  catBar: { borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 60 },
   lessonCard: {
     backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.lg,
     borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden',

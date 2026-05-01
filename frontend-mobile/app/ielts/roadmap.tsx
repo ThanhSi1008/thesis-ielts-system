@@ -12,7 +12,7 @@ import { apiClient } from '@/services/api-client';
 // Sub-components
 import { RoadmapItem } from '@/components/ielts/LessonRow';
 import { RoadmapSummary } from '@/components/ielts/RoadmapSummary';
-import { RoadmapDrawer } from '@/components/ielts/RoadmapDrawer';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { RoadmapStepSection } from '@/components/ielts/RoadmapStepSection';
 
 /* ─── Types ─── */
@@ -25,7 +25,18 @@ interface RoadmapStep {
 
 /* ─── Nav items ─── */
 const NAV_ITEMS = [
-  { key: 'dashboard',      label: 'Dashboard',        icon: 'grid-outline' as const,        route: '/(tabs)' },
+  { key: 'dashboard',      label: 'Dashboard',        icon: 'grid-outline' as const,        route: '/ielts/dashboard' },
+  { 
+    key: 'foundation',     
+    label: 'Foundation',       
+    icon: 'book-outline' as const,        
+    route: '#',
+    children: [
+      { key: 'pronunciation', label: 'Pronunciation', route: '/(tabs)/pronunciation' },
+      { key: 'vocabulary',    label: 'Vocabulary',    route: '/(tabs)/vocabulary' },
+      { key: 'grammar',       label: 'Grammar',       route: '/(tabs)/grammar' }
+    ]
+  },
   { key: 'basic',          label: 'IELTS Basic',       icon: 'information-circle-outline' as const, route: '/(tabs)/ielts' },
   { key: 'advanced',       label: 'IELTS Advanced',    icon: 'trending-up-outline' as const, route: '/ielts/advanced' },
   { key: 'intensive',      label: 'IELTS Intensive',   icon: 'flash-outline' as const,       route: '/ielts/intensive' },
@@ -173,7 +184,7 @@ export default function IeltsRoadmapScreen() {
         </ScrollView>
       )}
 
-      <RoadmapDrawer 
+      <SharedDrawer 
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}
         backdropAnim={backdropAnim}

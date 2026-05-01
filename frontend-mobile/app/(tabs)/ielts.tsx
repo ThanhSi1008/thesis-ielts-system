@@ -11,11 +11,22 @@ import * as Haptics from 'expo-haptics';
 
 // Sub-components
 import { LibraryContent } from '@/components/ielts/LibraryContent';
-import { RoadmapDrawer } from '@/components/ielts/RoadmapDrawer';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 
 /* ─── Nav items (Synced with web sidebar) ─── */
 const NAV_ITEMS = [
-  { key: 'dashboard',      label: 'Dashboard',        icon: 'grid-outline' as const,        route: '/(tabs)' },
+  { key: 'dashboard',      label: 'Dashboard',        icon: 'grid-outline' as const,        route: '/ielts/dashboard' },
+  { 
+    key: 'foundation',     
+    label: 'Foundation',       
+    icon: 'book-outline' as const,        
+    route: '#',
+    children: [
+      { key: 'pronunciation', label: 'Pronunciation', route: '/(tabs)/pronunciation' },
+      { key: 'vocabulary',    label: 'Vocabulary',    route: '/(tabs)/vocabulary' },
+      { key: 'grammar',       label: 'Grammar',       route: '/(tabs)/grammar' }
+    ]
+  },
   { key: 'basic',          label: 'IELTS Basic',       icon: 'information-circle-outline' as const, route: '/(tabs)/ielts', isActive: true },
   { key: 'advanced',       label: 'IELTS Advanced',    icon: 'trending-up-outline' as const, route: '/ielts/advanced' },
   { key: 'intensive',      label: 'IELTS Intensive',   icon: 'flash-outline' as const,       route: '/ielts/intensive' },
@@ -56,34 +67,27 @@ export default function IeltsBasicTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <Tabs.Screen 
-        options={{
-          headerShown: true,
-          title: 'IELTS Basic',
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#fff' },
-          headerTitleStyle: { fontFamily: FONTS.bold, fontSize: FONT_SIZES.lg, color: COLORS.text },
-          headerLeft: () => (
-            <TouchableOpacity style={[styles.menuBtn, { marginLeft: SPACING.md }]} onPress={openDrawer}>
-              <Ionicons name="menu" size={24} color={COLORS.text} />
-            </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <TouchableOpacity 
-              style={{ marginRight: SPACING.md }} 
-              onPress={() => router.push('/ielts/roadmap')}
-            >
-              <Ionicons name="map-outline" size={22} color={COLORS.text} />
-            </TouchableOpacity>
-          )
-        }} 
-      />
+      <Tabs.Screen options={{ headerShown: false }} />
+
+      {/* ── Custom Header ── */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity style={styles.menuBtn} onPress={openDrawer}>
+          <Ionicons name="menu" size={24} color={COLORS.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>IELTS Basic</Text>
+        <TouchableOpacity 
+          style={styles.headerIconBtn} 
+          onPress={() => router.push('/ielts/roadmap')}
+        >
+          <Ionicons name="map-outline" size={22} color={COLORS.text} />
+        </TouchableOpacity>
+      </View>
 
       {/* ── Library Content ── */}
       <LibraryContent />
 
       {/* ── Drawer ── */}
-      <RoadmapDrawer 
+      <SharedDrawer 
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}
         backdropAnim={backdropAnim}
@@ -97,5 +101,14 @@ export default function IeltsBasicTab() {
 }
 
 const styles = StyleSheet.create({
-  menuBtn: { width: 40, height: 40, justifyContent: 'center' },
+  header: {
+    backgroundColor: '#fff',
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm,
+    borderBottomWidth: 1, borderBottomColor: COLORS.border,
+  },
+  menuBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 },
+  headerTitle: { flex: 1, color: COLORS.text, fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, textAlign: 'center' },
+  headerIconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });
