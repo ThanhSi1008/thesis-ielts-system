@@ -10,6 +10,8 @@ import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
+import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
+import MatchingBlock from '@/components/ielts/MatchingBlock';
 
 // Reusable MCQ for advanced practice
 function MCQBlock({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: (v: string) => void }) {
@@ -56,18 +58,45 @@ function FillBlock({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: 
   );
 }
 
-function renderGroup(group: any, answers: Record<string, string>, setAns: (k: string, v: string) => void) {
+const DIAGRAM_TYPES_ADV = new Set(['diagram_labelling', 'diagram_completion', 'map_labelling', 'plan_labelling']);
+const MATCHING_TYPES_ADV = new Set(['matching', 'matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings']);
+
+function renderGroup(group: any, answers: Record<string, string>, setAns: (k: string, v: string) => void, _idx = 0) {
   const type = group.type;
   const qs = group.questions || group.points || [];
+  const baseKey = `g-${_idx}-${type}`;
+
+  if (DIAGRAM_TYPES_ADV.has(type)) {
+    return (
+      <DiagramMapBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAns}
+      />
+    );
+  }
+
+  if (MATCHING_TYPES_ADV.has(type)) {
+    return (
+      <MatchingBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAns}
+      />
+    );
+  }
+
   return (
-    <View key={type + JSON.stringify(qs[0]?.question_number)}>
+    <View key={baseKey}>
       {group.instructions && <Text style={styles.instructions}>{group.instructions}</Text>}
       {qs.map((q: any) => {
         const num = String(q.question_number);
-        if (type === 'multiple_choice' || type === 'matching' || q.options) {
-          return <MCQBlock key={num} q={q} answer={answers[num] || ''} onAnswer={v => setAns(num, v)} />;
+        if (type === 'multiple_choice' || q.options) {
+          return <MCQBlock key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAns(num, v)} />;
         }
-        return <FillBlock key={num} q={q} answer={answers[num] || ''} onAnswer={v => setAns(num, v)} />;
+        return <FillBlock key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAns(num, v)} />;
       })}
     </View>
   );
@@ -172,7 +201,7 @@ export default function AdvancedPartScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
       >
-        {content.map((g: any) => renderGroup(g, answers, setAnswer))}
+        {content.map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi))}
       </ScrollView>
 
       {/* Submit bar */}

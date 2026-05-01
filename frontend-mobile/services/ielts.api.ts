@@ -24,6 +24,8 @@ export const ieltsAdvancedApi = {
   submitReading: (id: string, answers: Record<string, string>) =>
     apiClient.post<any>(`/ielts/advanced/reading/${id}/submit`, { answers }),
   getReadingHistory: () => apiClient.get<any[]>('/ielts/advanced/reading/history'),
+  getReadingHistoryDetail: (sessionId: string) =>
+    apiClient.get<any>(`/ielts/advanced/reading/history/${sessionId}`),
 };
 
 // ==================== IELTS EXAMS (Mock Tests) ====================

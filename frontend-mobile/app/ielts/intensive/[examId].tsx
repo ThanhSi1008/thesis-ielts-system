@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, Alert, TextInput, Modal, FlatList,
+  ActivityIndicator, Alert, TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,12 +11,15 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button, Badge } from '@/components/ui';
+import WritingExamBlock from '@/components/ielts/WritingExamBlock';
+import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
+import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
+import MatchingBlock from '@/components/ielts/MatchingBlock';
 
-// ─── Timer ─────────────────────────────────────────────────────────────────
+// ─── Timer ──────────────────────────────────────────────────────────────────
 function useTimer(initialSeconds: number, running: boolean) {
   const [elapsed, setElapsed] = useState(0);
   const ref = useRef<ReturnType<typeof setInterval> | null>(null);
-
   useEffect(() => {
     if (running) {
       ref.current = setInterval(() => setElapsed(e => e + 1), 1000);
@@ -25,14 +28,13 @@ function useTimer(initialSeconds: number, running: boolean) {
     }
     return () => { if (ref.current) clearInterval(ref.current); };
   }, [running]);
-
   const remaining = Math.max(0, initialSeconds - elapsed);
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
   const ss = String(remaining % 60).padStart(2, '0');
   return { elapsed, remaining, display: `${mm}:${ss}`, isExpired: remaining === 0 };
 }
 
-// ─── MCQ Question ──────────────────────────────────────────────────────────
+// ─── MCQ Question ────────────────────────────────────────────────────────────
 function MCQQuestion({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: (v: string) => void }) {
   const options = q.options || [];
   return (
@@ -61,7 +63,7 @@ function MCQQuestion({ q, answer, onAnswer }: { q: any; answer: string; onAnswer
   );
 }
 
-// ─── Fill blank Question ───────────────────────────────────────────────────
+// ─── Fill blank Question ──────────────────────────────────────────────────────
 function FillQuestion({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: (v: string) => void }) {
   return (
     <View style={qStyles.block}>
@@ -92,26 +94,82 @@ const qStyles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md, padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text },
 });
 
-// ─── Render question groups ───────────────────────────────────────────────
-function renderGroup(group: any, answers: Record<string, string>, setAnswer: (k: string, v: string) => void) {
+const DIAGRAM_TYPES = new Set(['diagram_labelling', 'diagram_completion', 'map_labelling', 'plan_labelling']);
+const MATCHING_TYPES = new Set(['matching', 'matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings']);
+
+// ─── Render question groups (Listening / Reading) ─────────────────────────────
+function renderGroup(group: any, answers: Record<string, string>, setAnswer: (k: string, v: string) => void, _idx = 0) {
   const type = group.type;
   const questions = group.questions || group.points || [];
+  const baseKey = `g-${_idx}-${type}`;
+
+  if (DIAGRAM_TYPES.has(type)) {
+    return (
+      <DiagramMapBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAnswer}
+      />
+    );
+  }
+
+  if (MATCHING_TYPES.has(type)) {
+    return (
+      <MatchingBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAnswer}
+      />
+    );
+  }
 
   return (
-    <View key={`${type}-${JSON.stringify(questions[0])}`}>
+    <View key={baseKey}>
       {group.instructions && <Text style={styles.instructions}>{group.instructions}</Text>}
       {questions.map((q: any) => {
         const num = String(q.question_number);
-        if (type === 'multiple_choice' || type === 'matching') {
-          return <MCQQuestion key={num} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
+        if (type === 'multiple_choice') {
+          return <MCQQuestion key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
         }
-        return <FillQuestion key={num} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
+        return <FillQuestion key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
       })}
     </View>
   );
 }
 
-// ─── Main Exam Player ────────────────────────────────────────────────────────
+// ─── AI Grading Overlay (Writing / Speaking) ──────────────────────────────────
+function AIGradingOverlay({ onGoBack }: { onGoBack: () => void }) {
+  return (
+    <View style={overlayStyles.container}>
+      <View style={overlayStyles.spinnerWrapper}>
+        <ActivityIndicator size="large" color="#D51025" />
+      </View>
+      <Text style={overlayStyles.title}>Calculating your score…</Text>
+      <Text style={overlayStyles.subtitle}>
+        Our AI examiner is grading your responses.{'\n'}This may take a minute.
+      </Text>
+      <TouchableOpacity style={overlayStyles.backBtn} onPress={onGoBack}>
+        <Ionicons name="arrow-back-outline" size={16} color="rgba(255,255,255,0.8)" />
+        <Text style={overlayStyles.backBtnText}>Go back to mock tests</Text>
+      </TouchableOpacity>
+      <Text style={overlayStyles.note}>You'll be redirected automatically when done.</Text>
+    </View>
+  );
+}
+
+const overlayStyles = StyleSheet.create({
+  container: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(10,10,10,0.93)', alignItems: 'center', justifyContent: 'center', padding: SPACING.xl, zIndex: 200 },
+  spinnerWrapper: { width: 80, height: 80, alignItems: 'center', justifyContent: 'center', marginBottom: SPACING.xl },
+  title: { color: '#fff', fontSize: FONT_SIZES.xl, fontWeight: '800', marginBottom: SPACING.sm, textAlign: 'center' },
+  subtitle: { color: 'rgba(255,255,255,0.5)', fontSize: FONT_SIZES.sm, textAlign: 'center', lineHeight: 20, marginBottom: SPACING.xxl },
+  backBtn: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: SPACING.xl, paddingVertical: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginBottom: SPACING.md },
+  backBtnText: { color: 'rgba(255,255,255,0.8)', fontWeight: '600', fontSize: FONT_SIZES.sm },
+  note: { color: 'rgba(255,255,255,0.25)', fontSize: FONT_SIZES.xs, textAlign: 'center' },
+});
+
+// ─── Main Exam Player ─────────────────────────────────────────────────────────
 export default function ExamPlayerScreen() {
   const router = useRouter();
   const { examId } = useLocalSearchParams<{ examId: string }>();
@@ -120,10 +178,13 @@ export default function ExamPlayerScreen() {
   const [exam, setExam] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [writingAnswers, setWritingAnswers] = useState({ task1: '', task2: '' });
+  const [speakingAnswers, setSpeakingAnswers] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [isAiGrading, setIsAiGrading] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
-  
+
   const audioUrl = exam?.questions?.audio_url;
   const player = useAudioPlayer(audioUrl || '');
 
@@ -132,9 +193,7 @@ export default function ExamPlayerScreen() {
     timerRunning,
   );
 
-  useEffect(() => {
-    loadExam();
-  }, [examId]);
+  useEffect(() => { loadExam(); }, [examId]);
 
   const loadExam = async () => {
     try {
@@ -152,16 +211,18 @@ export default function ExamPlayerScreen() {
     }
   };
 
-  const setAnswer = (key: string, value: string) => {
+  const setAnswer = (key: string, value: string) =>
     setAnswers(prev => ({ ...prev, [key]: value }));
-  };
 
   const handleToggleAudio = () => {
-    if (player.playing) {
-      player.pause();
-    } else {
-      player.play();
-    }
+    if (player.playing) { player.pause(); } else { player.play(); }
+  };
+
+  const buildSubmitPayload = () => {
+    const type = exam?.type;
+    if (type === 'WRITING') return { task1: writingAnswers.task1, task2: writingAnswers.task2 };
+    if (type === 'SPEAKING') return speakingAnswers;
+    return answers;
   };
 
   const handleSubmit = async () => {
@@ -177,9 +238,13 @@ export default function ExamPlayerScreen() {
             try {
               setSubmitting(true);
               setTimerRunning(false);
-              const result = await ieltsExamsApi.submitSession(session.id, answers, elapsed);
+              const payload = buildSubmitPayload();
+              const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
+              if (isAiType) setIsAiGrading(true);
+              await ieltsExamsApi.submitSession(session.id, payload, elapsed);
               router.replace(`/ielts/intensive/result/${session.id}` as any);
             } catch (e) {
+              setIsAiGrading(false);
               Alert.alert('Error', 'Failed to submit. Try again.');
             } finally {
               setSubmitting(false);
@@ -203,17 +268,39 @@ export default function ExamPlayerScreen() {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>Exam not found.</Text>
-        <TouchableOpacity onPress={() => router.back()}><Text style={{ color: COLORS.primary }}>Go back</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={{ color: COLORS.primary }}>Go back</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
+  const examType: string = exam.type || 'LISTENING';
   const questions = exam.questions as any;
   const parts = questions?.parts || questions?.passages || questions?.tasks || [];
 
+  // Writing
+  const isWriting = examType === 'WRITING';
+  const writingTasks = questions?.tasks || [];
+
+  // Speaking
+  const isSpeaking = examType === 'SPEAKING';
+  const speakingParts = questions?.parts || [];
+
+  // Answered count display
+  const answeredCount = isWriting
+    ? [writingAnswers.task1, writingAnswers.task2].filter(v => v.trim()).length
+    : isSpeaking
+      ? Object.values(speakingAnswers).filter(v => v.trim()).length
+      : Object.keys(answers).length;
+
+  const totalCount = isWriting ? 2 : isSpeaking
+    ? speakingParts.reduce((s: number, p: any) => s + (p.questions?.length || (p.cue_card ? 1 : 0)), 0)
+    : undefined;
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* Sticky header with timer */}
+      {/* Sticky header */}
       <View style={styles.examHeader}>
         <TouchableOpacity
           onPress={() =>
@@ -227,7 +314,7 @@ export default function ExamPlayerScreen() {
         </TouchableOpacity>
         <View style={styles.examTitleContainer}>
           <Text style={styles.examTitle} numberOfLines={1}>{exam.title?.split(' - ')[1] ?? exam.title}</Text>
-          <Badge label={exam.type} color="#fff" bg="rgba(255,255,255,0.2)" />
+          <Badge label={examType} color="#fff" bg="rgba(255,255,255,0.2)" />
         </View>
         <View style={[styles.timerBadge, elapsed > (exam.duration - 5) * 60 && styles.timerWarning]}>
           <Ionicons name="timer-outline" size={14} color="#fff" />
@@ -235,7 +322,7 @@ export default function ExamPlayerScreen() {
         </View>
       </View>
 
-      {/* Audio player bar for Listening */}
+      {/* Audio bar (Listening only) */}
       {audioUrl && (
         <TouchableOpacity
           style={[styles.audioBanner, player.playing && styles.audioBannerPlaying]}
@@ -246,39 +333,58 @@ export default function ExamPlayerScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Questions */}
-      <ScrollView
-        style={styles.scrollArea}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
-      >
-        {parts.length > 0 ? (
-          parts.map((part: any, pi: number) => {
-            const groups = part.groups || part.content || [];
-            return (
-              <View key={pi} style={styles.partSection}>
-                <Text style={styles.partTitle}>
-                  Part {part.part_number || part.passage_number || part.task_number || pi + 1}
-                </Text>
-                {part.passage && (
-                  <ScrollView style={styles.passageBox} nestedScrollEnabled>
-                    <Text style={styles.passageText}>{part.passage}</Text>
-                  </ScrollView>
-                )}
-                {groups.map((g: any) => renderGroup(g, answers, setAnswer))}
-              </View>
-            );
-          })
-        ) : (
-          // Flat question list fallback
-          (questions.groups || []).map((g: any) => renderGroup(g, answers, setAnswer))
-        )}
-      </ScrollView>
+      {/* Writing board */}
+      {isWriting && (
+        <WritingExamBlock
+          tasks={writingTasks}
+          answers={writingAnswers}
+          onChange={setWritingAnswers}
+        />
+      )}
 
-      {/* Submit button */}
+      {/* Speaking board */}
+      {isSpeaking && (
+        <SpeakingExamBlock
+          parts={speakingParts}
+          answers={speakingAnswers}
+          onChange={setSpeakingAnswers}
+        />
+      )}
+
+      {/* Listening / Reading questions */}
+      {!isWriting && !isSpeaking && (
+        <ScrollView
+          style={styles.scrollArea}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
+        >
+          {parts.length > 0 ? (
+            parts.map((part: any, pi: number) => {
+              const groups = part.groups || part.content || [];
+              return (
+                <View key={pi} style={styles.partSection}>
+                  <Text style={styles.partTitle}>
+                    Part {part.part_number || part.passage_number || part.task_number || pi + 1}
+                  </Text>
+                  {part.passage && (
+                    <ScrollView style={styles.passageBox} nestedScrollEnabled>
+                      <Text style={styles.passageText}>{part.passage}</Text>
+                    </ScrollView>
+                  )}
+                  {groups.map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi))}
+                </View>
+              );
+            })
+          ) : (
+            (questions.groups || []).map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi))
+          )}
+        </ScrollView>
+      )}
+
+      {/* Submit bar */}
       <View style={styles.submitBar}>
         <Text style={styles.answeredCount}>
-          {Object.keys(answers).length} answered
+          {answeredCount}{totalCount !== undefined ? `/${totalCount}` : ''} answered
         </Text>
         <Button
           title={submitting ? 'Submitting…' : 'Submit Test'}
@@ -287,6 +393,11 @@ export default function ExamPlayerScreen() {
           size="lg"
         />
       </View>
+
+      {/* AI Grading overlay */}
+      {isAiGrading && (
+        <AIGradingOverlay onGoBack={() => router.replace('/ielts/intensive' as any)} />
+      )}
     </SafeAreaView>
   );
 }
@@ -297,86 +408,47 @@ const styles = StyleSheet.create({
   loadingText: { marginTop: SPACING.md, color: COLORS.textSecondary },
   errorText: { fontSize: FONT_SIZES.lg, color: COLORS.error, marginBottom: SPACING.md },
   examHeader: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    gap: SPACING.md,
+    backgroundColor: COLORS.primary, flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, gap: SPACING.md,
   },
   examTitleContainer: { flex: 1, gap: 4 },
   examTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
   timerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 4,
-    borderRadius: RADIUS.md,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: SPACING.sm,
+    paddingVertical: 4, borderRadius: RADIUS.md,
   },
   timerWarning: { backgroundColor: COLORS.error + 'CC' },
   timerText: { color: '#fff', fontWeight: '800', fontSize: FONT_SIZES.sm, fontVariant: ['tabular-nums'] },
   audioBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    padding: SPACING.md,
-    backgroundColor: COLORS.primary + '0E',
-    borderBottomWidth: 1,
-    borderColor: COLORS.primary + '30',
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md, padding: SPACING.md,
+    backgroundColor: COLORS.primary + '0E', borderBottomWidth: 1, borderColor: COLORS.primary + '30',
   },
   audioBannerPlaying: { backgroundColor: COLORS.primary + '1A' },
   audioLabel: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '600' },
   scrollArea: { flex: 1 },
   partSection: { marginBottom: SPACING.xxl },
   partTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: SPACING.lg,
-    paddingBottom: SPACING.sm,
-    borderBottomWidth: 2,
-    borderColor: COLORS.primary,
+    fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text,
+    marginBottom: SPACING.lg, paddingBottom: SPACING.sm, borderBottomWidth: 2, borderColor: COLORS.primary,
   },
   passageBox: {
-    maxHeight: 220,
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    marginBottom: SPACING.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    maxHeight: 220, backgroundColor: COLORS.surface, borderRadius: RADIUS.lg,
+    padding: SPACING.md, marginBottom: SPACING.lg, borderWidth: 1, borderColor: COLORS.border,
   },
   passageText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
   instructions: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    fontStyle: 'italic',
-    marginBottom: SPACING.md,
-    padding: SPACING.md,
-    backgroundColor: '#FFF9C4',
-    borderRadius: RADIUS.md,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.warning,
+    fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontStyle: 'italic',
+    marginBottom: SPACING.md, padding: SPACING.md, backgroundColor: '#FFF9C4',
+    borderRadius: RADIUS.md, borderLeftWidth: 3, borderLeftColor: COLORS.warning,
   },
   submitBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: SPACING.lg,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 8,
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    padding: SPACING.lg, backgroundColor: '#fff',
+    borderTopWidth: 1, borderColor: COLORS.border,
+    shadowColor: '#000', shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08, shadowRadius: 12, elevation: 8,
   },
   answeredCount: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '600' },
 });

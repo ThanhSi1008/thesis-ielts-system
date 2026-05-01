@@ -18,7 +18,7 @@ export default function AdvancedResultScreen() {
       try {
         const data = skill === 'listening'
           ? await ieltsAdvancedApi.getListeningHistoryDetail(resultId)
-          : await ieltsAdvancedApi.getReadingHistory();
+          : await ieltsAdvancedApi.getReadingHistoryDetail(resultId);
         setResult(data);
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
