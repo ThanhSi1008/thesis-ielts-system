@@ -26,6 +26,8 @@ export const ieltsAdvancedApi = {
   getReadingHistory: () => apiClient.get<any[]>('/ielts/advanced/reading/history'),
   getReadingHistoryDetail: (sessionId: string) =>
     apiClient.get<any>(`/ielts/advanced/reading/history/${sessionId}`),
+  getStatistics: () =>
+    apiClient.get<Record<string, { correct: number; total: number; attempted: number }>>('/ielts/advanced/statistics'),
 };
 
 // ==================== IELTS EXAMS (Mock Tests) ====================
@@ -49,5 +51,6 @@ export const studentTeacherApi = {
   getMyTeachers: () => apiClient.get<any[]>('/users/my-teachers'),
   getMyStudents: () => apiClient.get<any[]>('/users/my-students'),
   linkTeacher: (teacherId: string) => apiClient.post<any>('/users/link-teacher', { teacherId }),
+  unlinkTeacher: (teacherId: string) => apiClient.delete<any>(`/users/unlink-teacher/${teacherId}`),
   getStudentStats: (studentId: string) => apiClient.get<any>(`/users/student/${studentId}/stats`),
 };

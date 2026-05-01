@@ -6,7 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Polyline, Line, Circle, Text as SvgText } from 'react-native-svg';
+import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-native-svg';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services/ielts.api';
 import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
@@ -20,6 +20,14 @@ function getIeltsBandFromScore(score: number) {
   if (score >= 32) return 7.5; if (score >= 30) return 7.0; if (score >= 26) return 6.5;
   if (score >= 23) return 6.0; if (score >= 18) return 5.5; if (score >= 16) return 5.0;
   if (score >= 13) return 4.5; if (score >= 10) return 4.0; return 1.0;
+}
+
+/** Writing/Speaking use direct AI score (0–9); L/R use raw→band table */
+function getBandForItem(h: any): number {
+  if (h.skill === 'WRITING' || h.skill === 'SPEAKING') {
+    return h.writingScore ?? h.rawScore ?? 0;
+  }
+  return getIeltsBandFromScore(h.rawScore ?? 0);
 }
 
 function BandChart({ points, color }: { points: { band: number; label: string }[]; color: string }) {
@@ -88,22 +96,26 @@ export default function StatisticsScreen() {
   const [mockHistory, setMockHistory] = useState<any[]>([]);
   const [advListening, setAdvListening] = useState<any[]>([]);
   const [advReading, setAdvReading] = useState<any[]>([]);
+  const [advStats, setAdvStats] = useState<Record<string, { correct: number; total: number; attempted: number }>>({});
   const [activeSkill, setActiveSkill] = useState('LISTENING');
+  const [volumeSkill, setVolumeSkill] = useState('ALL');
 
   const fetchData = async () => {
     try {
-      const [profileRes, streakRes, historyRes, advListRes, advReadRes] = await Promise.allSettled([
+      const [profileRes, streakRes, historyRes, advListRes, advReadRes, statsRes] = await Promise.allSettled([
         ieltsProfileApi.get(),
         ieltsProfileApi.getStreak(),
         ieltsExamsApi.getHistory(),
         ieltsAdvancedApi.getListeningHistory(),
         ieltsAdvancedApi.getReadingHistory(),
+        ieltsAdvancedApi.getStatistics(),
       ]);
       if (profileRes.status === 'fulfilled') setProfile(profileRes.value);
       if (streakRes.status === 'fulfilled') setStreak(streakRes.value);
       if (historyRes.status === 'fulfilled') setMockHistory(historyRes.value as any[]);
       if (advListRes.status === 'fulfilled') setAdvListening(advListRes.value as any[]);
       if (advReadRes.status === 'fulfilled') setAdvReading(advReadRes.value as any[]);
+      if (statsRes.status === 'fulfilled') setAdvStats(statsRes.value ?? {});
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -116,10 +128,12 @@ export default function StatisticsScreen() {
     .filter(h => h.skill === activeSkill)
     .sort((a, b) => new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime())
     .slice(-10)
-    .map(h => ({ band: getIeltsBandFromScore(h.rawScore ?? 0), label: h.examTitle?.split(' - ')[1] ?? '' }));
+    .map(h => ({ band: getBandForItem(h), label: h.examTitle?.split(' - ')[1] ?? '' }));
 
-  const latestMock = mockHistory.filter(h => h.skill === activeSkill)[0];
-  const latestBand = latestMock ? getIeltsBandFromScore(latestMock.rawScore) : null;
+  const latestMock = mockHistory
+    .filter(h => h.skill === activeSkill)
+    .sort((a, b) => new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime())[0];
+  const latestBand = latestMock ? getBandForItem(latestMock) : null;
 
   const totalPractice = advListening.length + advReading.length;
 
@@ -206,6 +220,9 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
+        {/* Submission Volume */}
+        <SubmissionVolumeSection history={mockHistory} volumeSkill={volumeSkill} setVolumeSkill={setVolumeSkill} />
+
         {/* Advanced practice summary */}
         <View style={styles.section}>
           <SectionHeader title="Advanced Practice" subtitle="Listening & Reading parts" />
@@ -222,6 +239,9 @@ export default function StatisticsScreen() {
             </View>
           </View>
         </View>
+
+        {/* Question-type accuracy bars */}
+        <AdvancedStatsSection stats={advStats} />
 
         {/* Recent history */}
         <View style={styles.section}>
@@ -241,7 +261,7 @@ export default function StatisticsScreen() {
                 </View>
                 <View style={styles.historyRight}>
                   <Badge label={h.skill} color={SKILLS.find(s => s.key === h.skill)?.color ?? COLORS.primary} />
-                  <ScoreBadge band={getIeltsBandFromScore(h.rawScore ?? 0)} />
+                  <ScoreBadge band={getBandForItem(h)} />
                 </View>
               </View>
             ))
@@ -251,6 +271,322 @@ export default function StatisticsScreen() {
     </SafeAreaView>
   );
 }
+
+// ─── Submission Volume Bar Chart ──────────────────────────────────────────────
+const VOL_SKILLS = [
+  { key: 'ALL',       label: 'All',       color: COLORS.primary },
+  { key: 'LISTENING', label: 'L',         color: '#E11D48' },
+  { key: 'READING',   label: 'R',         color: '#2563EB' },
+  { key: 'WRITING',   label: 'W',         color: '#D97706' },
+  { key: 'SPEAKING',  label: 'S',         color: '#7C3AED' },
+];
+
+function getMonthlyVolume(history: any[], skill: string) {
+  const now = new Date();
+  const months: { label: string; key: string; count: number }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: d.toLocaleString('en-US', { month: 'short' }),
+      count: 0,
+    });
+  }
+  const filtered = skill === 'ALL' ? history : history.filter(h => h.skill === skill);
+  filtered.forEach(h => {
+    const d = new Date(h.dateTaken);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    const m = months.find(x => x.key === key);
+    if (m) m.count++;
+  });
+  return months;
+}
+
+function SubmissionVolumeSection({
+  history,
+  volumeSkill,
+  setVolumeSkill,
+}: {
+  history: any[];
+  volumeSkill: string;
+  setVolumeSkill: (s: string) => void;
+}) {
+  const months = getMonthlyVolume(history, volumeSkill);
+  const maxCount = Math.max(...months.map(m => m.count), 1);
+  const total = months.reduce((s, m) => s + m.count, 0);
+  const barColor = VOL_SKILLS.find(s => s.key === volumeSkill)?.color ?? COLORS.primary;
+
+  const BAR_W = CHART_W;
+  const BAR_H = 120;
+  const PAD_L = 28;
+  const PAD_B = 24;
+  const PAD_T = 12;
+  const chartInnerW = BAR_W - PAD_L - 8;
+  const chartInnerH = BAR_H - PAD_T - PAD_B;
+  const colW = chartInnerW / months.length;
+  const barWidth = colW * 0.55;
+
+  return (
+    <View style={vs.section}>
+      <SectionHeader
+        title="Submission Volume"
+        subtitle={`${total} tests in the last 6 months`}
+      />
+
+      {/* Skill filter pills */}
+      <View style={vs.pillRow}>
+        {VOL_SKILLS.map(s => {
+          const active = volumeSkill === s.key;
+          return (
+            <TouchableOpacity
+              key={s.key}
+              style={[vs.pill, active && { backgroundColor: s.color, borderColor: s.color }]}
+              onPress={() => setVolumeSkill(s.key)}
+              activeOpacity={0.8}
+            >
+              <Text style={[vs.pillText, active && { color: '#fff' }]}>{s.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <View style={[styles.chartCard, { paddingHorizontal: SPACING.sm, paddingVertical: SPACING.md }]}>
+        {total === 0 ? (
+          <View style={{ height: BAR_H, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: FONT_SIZES.sm }}>No submissions yet</Text>
+          </View>
+        ) : (
+          <Svg width={BAR_W} height={BAR_H}>
+            {/* Y-axis grid lines */}
+            {[0, Math.ceil(maxCount / 2), maxCount].map((v, i) => {
+              const y = PAD_T + chartInnerH - (v / maxCount) * chartInnerH;
+              return (
+                <G key={i}>
+                  <Line x1={PAD_L} y1={y} x2={BAR_W - 8} y2={y}
+                    stroke={COLORS.border} strokeWidth={1} strokeDasharray="3,3" />
+                  <SvgText x={PAD_L - 4} y={y + 4} fontSize={9} fill={COLORS.textMuted}
+                    textAnchor="end" fontFamily={FONTS.medium}>{v}</SvgText>
+                </G>
+              );
+            })}
+
+            {/* Bars */}
+            {months.map((m, i) => {
+              const barH = maxCount > 0 ? (m.count / maxCount) * chartInnerH : 0;
+              const x = PAD_L + i * colW + (colW - barWidth) / 2;
+              const y = PAD_T + chartInnerH - barH;
+              return (
+                <G key={m.key}>
+                  {/* Background track */}
+                  <Rect x={x} y={PAD_T} width={barWidth} height={chartInnerH}
+                    rx={3} fill={barColor + '15'} />
+                  {/* Filled bar */}
+                  {m.count > 0 && (
+                    <Rect x={x} y={y} width={barWidth} height={barH}
+                      rx={3} fill={barColor} />
+                  )}
+                  {/* Count label above bar */}
+                  {m.count > 0 && (
+                    <SvgText x={x + barWidth / 2} y={y - 3} fontSize={9}
+                      textAnchor="middle" fill={barColor} fontFamily={FONTS.bold}>
+                      {m.count}
+                    </SvgText>
+                  )}
+                  {/* Month label */}
+                  <SvgText x={x + barWidth / 2} y={BAR_H - 4} fontSize={9}
+                    textAnchor="middle" fill={COLORS.textMuted} fontFamily={FONTS.medium}>
+                    {m.label}
+                  </SvgText>
+                </G>
+              );
+            })}
+          </Svg>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const vs = StyleSheet.create({
+  section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.lg },
+  pillRow: { flexDirection: 'row', gap: SPACING.xs, marginBottom: SPACING.sm, flexWrap: 'wrap' },
+  pill: {
+    paddingHorizontal: SPACING.md, paddingVertical: 5,
+    borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: COLORS.border,
+    backgroundColor: '#fff',
+  },
+  pillText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold, color: COLORS.textSecondary },
+});
+
+// ─── Question-type label map ─────────────────────────────────────────────────
+const QT_LABEL: Record<string, string> = {
+  multiple_choice: 'Multiple Choice',
+  fill_in_blank: 'Fill in Blank',
+  short_answer: 'Short Answer',
+  matching: 'Matching',
+  matching_headings: 'Matching Headings',
+  matching_features: 'Matching Features',
+  matching_information: 'Matching Info',
+  matching_sentence_endings: 'Sentence Endings',
+  true_false_not_given: 'T/F/NG',
+  yes_no_not_given: 'Y/N/NG',
+  diagram_labelling: 'Diagram Label',
+  diagram_completion: 'Diagram Completion',
+  map_labelling: 'Map Label',
+  plan_labelling: 'Plan Label',
+  sentence_completion: 'Sentence Completion',
+  summary_completion: 'Summary Completion',
+  note_completion: 'Note Completion',
+  table_completion: 'Table Completion',
+  flowchart_completion: 'Flowchart',
+  unknown: 'Other',
+};
+
+function AccuracyBar({ type, correct, total }: { type: string; correct: number; total: number }) {
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const color = pct >= 80 ? '#16a34a' : pct >= 60 ? '#2563EB' : pct >= 40 ? '#D97706' : '#DC2626';
+  const label = QT_LABEL[type] ?? type.replace(/_/g, ' ');
+
+  return (
+    <View style={ab.row}>
+      <View style={ab.labelRow}>
+        <Text style={ab.typeName} numberOfLines={1}>{label}</Text>
+        <Text style={[ab.pct, { color }]}>{pct}%</Text>
+      </View>
+      <View style={ab.track}>
+        <View style={[ab.fill, { width: `${pct}%` as any, backgroundColor: color }]} />
+      </View>
+      <Text style={ab.fraction}>{correct}/{total} correct</Text>
+    </View>
+  );
+}
+
+const ab = StyleSheet.create({
+  row: { marginBottom: SPACING.md },
+  labelRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+  typeName: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.text, flex: 1, marginRight: 8, textTransform: 'capitalize' },
+  pct: { fontSize: FONT_SIZES.sm, fontWeight: '800' },
+  track: { height: 8, backgroundColor: COLORS.border, borderRadius: 4, overflow: 'hidden', marginBottom: 3 },
+  fill: { height: '100%', borderRadius: 4 },
+  fraction: { fontSize: 11, color: COLORS.textMuted, fontFamily: FONTS.regular },
+});
+
+function AdvancedStatsSection({ stats }: { stats: Record<string, { correct: number; total: number; attempted: number }> }) {
+  const entries = Object.entries(stats).sort((a, b) => {
+    const pctA = a[1].total > 0 ? a[1].correct / a[1].total : 0;
+    const pctB = b[1].total > 0 ? b[1].correct / b[1].total : 0;
+    return pctB - pctA; // highest accuracy first
+  });
+
+  if (entries.length === 0) {
+    return (
+      <View style={as.section}>
+        <SectionHeader title="Question-Type Accuracy" subtitle="Complete practice sessions to see data" />
+        <View style={as.empty}>
+          <Text style={as.emptyIcon}>📊</Text>
+          <Text style={as.emptyText}>No practice data yet</Text>
+          <Text style={as.emptySub}>Start an advanced practice session to track accuracy per question type.</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const totalAttempted = entries.reduce((s, [, v]) => s + v.total, 0);
+  const totalCorrect = entries.reduce((s, [, v]) => s + v.correct, 0);
+  const overallPct = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+  const overallColor = overallPct >= 80 ? '#16a34a' : overallPct >= 60 ? '#2563EB' : overallPct >= 40 ? '#D97706' : '#DC2626';
+
+  const weakTypes  = entries.filter(([, v]) => v.total > 0 && (v.correct / v.total) < 0.5);
+  const strongTypes = entries.filter(([, v]) => v.total > 0 && (v.correct / v.total) >= 0.8);
+
+  return (
+    <View style={as.section}>
+      <SectionHeader
+        title="Question-Type Accuracy"
+        subtitle={`${entries.length} types · ${totalAttempted} questions total`}
+      />
+
+      {/* Overall accuracy summary pill */}
+      <View style={as.overallCard}>
+        <View style={as.overallLeft}>
+          <Text style={as.overallLabel}>Overall Accuracy</Text>
+          <Text style={as.overallSub}>{totalCorrect}/{totalAttempted} correct across all types</Text>
+        </View>
+        <View style={[as.overallBadge, { backgroundColor: overallColor + '15', borderColor: overallColor + '40' }]}>
+          <Text style={[as.overallPct, { color: overallColor }]}>{overallPct}%</Text>
+        </View>
+      </View>
+
+      {/* Strength / Weakness zone pills */}
+      {(weakTypes.length > 0 || strongTypes.length > 0) && (
+        <View style={as.zonesRow}>
+          {strongTypes.length > 0 && (
+            <View style={[as.zoneChip, as.zoneGreen]}>
+              <Text style={as.zoneIcon}>💪</Text>
+              <View>
+                <Text style={[as.zoneTitle, { color: '#16a34a' }]}>Strong</Text>
+                <Text style={as.zoneSub} numberOfLines={1}>
+                  {strongTypes.slice(0, 2).map(([t]) => QT_LABEL[t] ?? t).join(', ')}
+                  {strongTypes.length > 2 ? ` +${strongTypes.length - 2}` : ''}
+                </Text>
+              </View>
+            </View>
+          )}
+          {weakTypes.length > 0 && (
+            <View style={[as.zoneChip, as.zoneRed]}>
+              <Text style={as.zoneIcon}>⚠️</Text>
+              <View>
+                <Text style={[as.zoneTitle, { color: '#DC2626' }]}>Needs Work</Text>
+                <Text style={as.zoneSub} numberOfLines={1}>
+                  {weakTypes.slice(0, 2).map(([t]) => QT_LABEL[t] ?? t).join(', ')}
+                  {weakTypes.length > 2 ? ` +${weakTypes.length - 2}` : ''}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
+
+      {/* Per-type accuracy bars */}
+      <View style={as.barsCard}>
+        {entries.map(([type, { correct, total }]) => (
+          <AccuracyBar key={type} type={type} correct={correct} total={total} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const as = StyleSheet.create({
+  section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.lg },
+  empty: { alignItems: 'center', paddingVertical: SPACING.xxl, backgroundColor: '#fff', borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border },
+  emptyIcon: { fontSize: 40, marginBottom: SPACING.sm },
+  emptyText: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
+  emptySub: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', marginTop: 4, paddingHorizontal: SPACING.xl },
+  overallCard: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.lg,
+    borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.md,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+  },
+  overallLeft: { flex: 1 },
+  overallLabel: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
+  overallSub: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
+  overallBadge: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: RADIUS.full, borderWidth: 1.5, marginLeft: SPACING.md },
+  overallPct: { fontSize: FONT_SIZES.xl, fontWeight: '900' },
+  zonesRow: { flexDirection: 'row', gap: SPACING.sm, marginBottom: SPACING.md },
+  zoneChip: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1 },
+  zoneGreen: { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' },
+  zoneRed: { backgroundColor: '#fef2f2', borderColor: '#fecaca' },
+  zoneIcon: { fontSize: 20 },
+  zoneTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
+  zoneSub: { fontSize: 11, color: COLORS.textMuted, marginTop: 1, maxWidth: 120 },
+  barsCard: {
+    backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.lg,
+    borderWidth: 1, borderColor: COLORS.border,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+  },
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },

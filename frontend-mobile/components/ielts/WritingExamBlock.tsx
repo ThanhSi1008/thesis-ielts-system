@@ -83,11 +83,27 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
           placeholderTextColor={COLORS.textMuted}
           textAlignVertical="top"
         />
+        {/* Word count progress */}
         <View style={styles.wordCountRow}>
           <Text style={[styles.wordCount, meetsMin ? styles.wordCountOk : styles.wordCountWarn]}>
-            {wordCount} / {minWords} words minimum
+            {wordCount} words
           </Text>
+          <Text style={styles.wordCountTarget}>min {minWords}</Text>
         </View>
+        <View style={styles.progressTrack}>
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${Math.min((wordCount / minWords) * 100, 100)}%` as any,
+                backgroundColor: meetsMin ? '#16a34a' : wordCount > minWords * 0.7 ? '#D97706' : COLORS.primary,
+              },
+            ]}
+          />
+        </View>
+        {meetsMin && (
+          <Text style={styles.wordCountDone}>✓ Minimum word count met</Text>
+        )}
       </View>
     </View>
   );
@@ -114,8 +130,12 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.lg,
     padding: SPACING.md, marginBottom: SPACING.sm,
   },
-  wordCountRow: { alignItems: 'flex-end' },
-  wordCount: { fontSize: FONT_SIZES.xs, fontWeight: '600' },
+  wordCountRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  wordCount: { fontSize: FONT_SIZES.xs, fontWeight: '700' },
+  wordCountTarget: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted },
   wordCountOk: { color: '#16a34a' },
   wordCountWarn: { color: COLORS.warning },
+  wordCountDone: { fontSize: FONT_SIZES.xs, color: '#16a34a', fontWeight: '600', marginTop: 4, textAlign: 'right' },
+  progressTrack: { height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden', marginBottom: 4 },
+  progressFill: { height: '100%', borderRadius: 3 },
 });

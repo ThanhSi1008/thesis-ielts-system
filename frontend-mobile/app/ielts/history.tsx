@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
+  View, Text, FlatList, StyleSheet, TouchableOpacity,
   ActivityIndicator, RefreshControl, TextInput, Alert,
-  Animated, Platform, FlatList,
+  Animated, ScrollView, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,7 +11,7 @@ import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { Badge, ScoreBadge, EmptyState } from '@/components/ui';
 
-// ─── Band helpers ─────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function getBand(score: number) {
   if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0;
   if (score >= 32) return 7.5; if (score >= 30) return 7.0; if (score >= 26) return 6.5;
@@ -23,150 +23,63 @@ const SKILL_COLOR: Record<string, string> = {
   LISTENING: '#E11D48', READING: '#2563EB', WRITING: '#D97706', SPEAKING: '#7C3AED',
 };
 
-const SKILL_FILTERS = [
-  { key: 'ALL', label: 'All' },
-  { key: 'LISTENING', label: 'Listening' },
-  { key: 'READING', label: 'Reading' },
-  { key: 'WRITING', label: 'Writing' },
-  { key: 'SPEAKING', label: 'Speaking' },
+const SKILL_TABS = [
+  { key: 'LISTENING', label: 'Listening', icon: 'headset-outline' },
+  { key: 'READING',   label: 'Reading',   icon: 'book-outline' },
+  { key: 'WRITING',   label: 'Writing',   icon: 'create-outline' },
+  { key: 'SPEAKING',  label: 'Speaking',  icon: 'mic-outline' },
+] as const;
+
+const PART_LABEL: Record<string, Record<number, string>> = {
+  LISTENING: { 1: 'Basic Conv.', 2: 'Monologue', 3: 'Discussion', 4: 'Lecture' },
+  READING:   { 1: 'Passage 1',   2: 'Passage 2', 3: 'Passage 3', 4: 'Passage 4' },
+  WRITING:   { 1: 'Task 1',      2: 'Task 2',    3: 'Part 3',    4: 'Part 4' },
+  SPEAKING:  { 1: 'Part 1',      2: 'Part 2',    3: 'Part 3',    4: 'Part 4' },
+};
+
+type SortKey = 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc';
+const SORT_OPTS: { key: SortKey; label: string }[] = [
+  { key: 'date_desc',  label: '📅 Newest' },
+  { key: 'date_asc',   label: '📅 Oldest' },
+  { key: 'score_desc', label: '🏆 Highest' },
+  { key: 'score_asc',  label: '🏆 Lowest' },
 ];
 
-type SortKey = 'date_desc' | 'date_asc' | 'band_desc' | 'band_asc';
-const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: 'date_desc', label: '📅 Newest first' },
-  { key: 'date_asc',  label: '📅 Oldest first' },
-  { key: 'band_desc', label: '🏆 Highest band' },
-  { key: 'band_asc',  label: '🏆 Lowest band' },
-];
-
-// ─── Animated history card ────────────────────────────────────────────────────
-function HistoryCard({
-  item,
-  onPress,
-  onDelete,
-  deleting,
-}: {
-  item: any;
-  onPress: () => void;
-  onDelete: () => void;
-  deleting: boolean;
-}) {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const opacityAnim = useRef(new Animated.Value(1)).current;
-
-  const onLongPress = useCallback(() => {
-    // Pulse animation on long press
-    Animated.sequence([
-      Animated.timing(scaleAnim, { toValue: 0.97, duration: 100, useNativeDriver: true }),
-      Animated.timing(scaleAnim, { toValue: 1, duration: 100, useNativeDriver: true }),
-    ]).start();
-    onDelete();
-  }, [onDelete, scaleAnim]);
-
-  useEffect(() => {
-    if (deleting) {
-      Animated.timing(opacityAnim, { toValue: 0.4, duration: 200, useNativeDriver: true }).start();
-    } else {
-      Animated.timing(opacityAnim, { toValue: 1, duration: 200, useNativeDriver: true }).start();
-    }
-  }, [deleting, opacityAnim]);
-
-  const band = getBand(item.rawScore ?? 0);
-  const color = SKILL_COLOR[item.skill] ?? COLORS.primary;
-  const date = new Date(item.dateTaken).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric',
-  });
-  const title = item.examTitle?.split(' - ')[0] ?? item.examTitle ?? 'Mock Test';
-  const subtitle = item.examTitle?.split(' - ')[1];
-  const mm = item.timeTaken ? String(Math.floor(item.timeTaken / 60)).padStart(2, '0') : null;
-  const ss = item.timeTaken ? String(item.timeTaken % 60).padStart(2, '0') : null;
-
+// ─── Score bar for practice cards ─────────────────────────────────────────────
+function ScoreBar({ score, max = 10 }: { score: number; max?: number }) {
+  const pct = Math.min(100, Math.round((score / max) * 100));
+  const color = pct >= 80 ? '#16a34a' : pct >= 50 ? '#D97706' : COLORS.error;
   return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
-      <TouchableOpacity
-        style={cs.card}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        delayLongPress={450}
-        activeOpacity={0.85}
-      >
-        <View style={[cs.stripe, { backgroundColor: color }]} />
-        <View style={cs.body}>
-          <View style={cs.top}>
-            <View style={{ flex: 1, marginRight: SPACING.sm }}>
-              <Text style={cs.title} numberOfLines={2}>{title}</Text>
-              {subtitle && <Text style={cs.subtitle} numberOfLines={1}>{subtitle}</Text>}
-              <Text style={cs.date}>{date}</Text>
-            </View>
-            <View style={cs.right}>
-              {deleting
-                ? <ActivityIndicator size="small" color={COLORS.error} />
-                : <ScoreBadge band={band} />
-              }
-              {!deleting && (
-                <Text style={cs.rawScore}>{item.rawScore ?? 0}/40</Text>
-              )}
-            </View>
-          </View>
-          <View style={cs.meta}>
-            <Badge label={item.skill} color={color} />
-            {mm && <Text style={cs.metaText}>⏱ {mm}:{ss}</Text>}
-            {item.difficulty && <Text style={cs.metaText}>📊 {item.difficulty}</Text>}
-            <Text style={cs.hint}>Hold to delete</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
+    <View style={{ gap: 2 }}>
+      <View style={sb.bg}><View style={[sb.fill, { width: `${pct}%` as any, backgroundColor: color }]} /></View>
+      <Text style={[sb.label, { color }]}>{score}/{max}</Text>
+    </View>
   );
 }
-
-const cs = StyleSheet.create({
-  card: {
-    flexDirection: 'row', backgroundColor: '#fff', borderRadius: RADIUS.xl,
-    marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
-  },
-  stripe: { width: 5 },
-  body: { flex: 1, padding: SPACING.md },
-  top: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: SPACING.sm },
-  title: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
-  subtitle: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 1 },
-  date: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.regular, color: COLORS.textMuted, marginTop: 4 },
-  right: { alignItems: 'flex-end', gap: 4, minWidth: 48 },
-  rawScore: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontFamily: FONTS.bold },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flexWrap: 'wrap' },
-  metaText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary },
-  hint: { fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic', marginLeft: 'auto' },
+const sb = StyleSheet.create({
+  bg: { height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden', width: 56 },
+  fill: { height: '100%', borderRadius: 3 },
+  label: { fontSize: 11, fontWeight: '800', textAlign: 'right' },
 });
 
-// ─── Sort Dropdown ────────────────────────────────────────────────────────────
-function SortPicker({
-  value, onChange,
-}: {
-  value: SortKey;
-  onChange: (k: SortKey) => void;
-}) {
+// ─── Sort Dropdown ─────────────────────────────────────────────────────────────
+function SortPicker({ value, onChange }: { value: SortKey; onChange: (k: SortKey) => void }) {
   const [open, setOpen] = useState(false);
-  const current = SORT_OPTIONS.find(o => o.key === value)!;
-
+  const curr = SORT_OPTS.find(o => o.key === value)!;
   return (
-    <View style={sp.wrapper}>
+    <View style={{ position: 'relative', zIndex: 200 }}>
       <TouchableOpacity style={sp.trigger} onPress={() => setOpen(v => !v)} activeOpacity={0.8}>
-        <Text style={sp.triggerText}>{current.label}</Text>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={14} color={COLORS.textSecondary} />
+        <Text style={sp.triggerText}>{curr.label}</Text>
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={12} color={COLORS.textMuted} />
       </TouchableOpacity>
       {open && (
         <View style={sp.dropdown}>
-          {SORT_OPTIONS.map(opt => (
-            <TouchableOpacity
-              key={opt.key}
-              style={[sp.option, value === opt.key && sp.optionActive]}
-              onPress={() => { onChange(opt.key); setOpen(false); }}
-            >
-              <Text style={[sp.optionText, value === opt.key && sp.optionTextActive]}>
+          {SORT_OPTS.map(opt => (
+            <TouchableOpacity key={opt.key} style={[sp.item, value === opt.key && sp.itemActive]}
+              onPress={() => { onChange(opt.key); setOpen(false); }}>
+              <Text style={[sp.itemText, value === opt.key && { color: COLORS.primary, fontFamily: FONTS.bold }]}>
                 {opt.label}
               </Text>
-              {value === opt.key && <Ionicons name="checkmark" size={14} color={COLORS.primary} />}
             </TouchableOpacity>
           ))}
         </View>
@@ -174,34 +87,97 @@ function SortPicker({
     </View>
   );
 }
-
 const sp = StyleSheet.create({
-  wrapper: { position: 'relative', zIndex: 100 },
-  trigger: {
-    flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border,
-    backgroundColor: '#fff',
-  },
-  triggerText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary },
-  dropdown: {
-    position: 'absolute', top: '100%', right: 0, width: 180, marginTop: 4,
-    backgroundColor: '#fff', borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 8,
-    overflow: 'hidden',
-  },
-  option: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.md, paddingVertical: 10 },
-  optionActive: { backgroundColor: COLORS.primary + '0E' },
-  optionText: { fontSize: FONT_SIZES.sm, color: COLORS.text },
-  optionTextActive: { color: COLORS.primary, fontFamily: FONTS.bold },
+  trigger: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: SPACING.sm, paddingVertical: 6, borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.border, backgroundColor: '#fff' },
+  triggerText: { fontSize: 11, fontFamily: FONTS.medium, color: COLORS.textSecondary },
+  dropdown: { position: 'absolute', top: '100%', right: 0, width: 140, marginTop: 4, backgroundColor: '#fff', borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.border, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 8, overflow: 'hidden', zIndex: 300 },
+  item: { paddingHorizontal: SPACING.md, paddingVertical: 9, borderBottomWidth: 1, borderColor: COLORS.border + '40' },
+  itemActive: { backgroundColor: COLORS.primary + '0E' },
+  itemText: { fontSize: FONT_SIZES.sm, color: COLORS.text },
 });
 
-// ─── Main Screen ─────────────────────────────────────────────────────────────
+// ─── History Card ──────────────────────────────────────────────────────────────
+function HistoryCard({ item, mode, onPress, onDelete, deleting }: {
+  item: any; mode: 'mock' | 'practice';
+  onPress: () => void; onDelete: () => void; deleting: boolean;
+}) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const color = SKILL_COLOR[item.skill] ?? COLORS.primary;
+  const date = new Date(item.dateTaken).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const title = (item.examTitle ?? 'Test').split(' - ')[0];
+  const band = getBand(item.rawScore ?? 0);
+  const mm = item.timeTaken ? String(Math.floor(item.timeTaken / 60)).padStart(2, '0') : null;
+  const ss = item.timeTaken ? String(item.timeTaken % 60).padStart(2, '0') : null;
+
+  const onLongPress = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, { toValue: 0.97, duration: 80, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 1,    duration: 80, useNativeDriver: true }),
+    ]).start();
+    onDelete();
+  };
+
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity style={hc.card} onPress={onPress} onLongPress={onLongPress}
+        delayLongPress={450} activeOpacity={0.85}>
+        <View style={[hc.stripe, { backgroundColor: color }]} />
+        <View style={hc.body}>
+          <View style={hc.top}>
+            <View style={{ flex: 1, marginRight: SPACING.sm }}>
+              <Text style={hc.title} numberOfLines={2}>{title}</Text>
+              <Text style={hc.date}>{date}</Text>
+            </View>
+            <View style={hc.right}>
+              {deleting
+                ? <ActivityIndicator size="small" color={COLORS.error} />
+                : mode === 'mock'
+                  ? <ScoreBadge band={band} />
+                  : <ScoreBar score={item.rawScore ?? 0} />
+              }
+            </View>
+          </View>
+          <View style={hc.meta}>
+            {mode === 'practice' && item.practicePart && (
+              <View style={[hc.partBadge, { borderColor: color + '60', backgroundColor: color + '10' }]}>
+                <Text style={[hc.partText, { color }]}>Part {item.practicePart}</Text>
+              </View>
+            )}
+            <Badge label={item.skill} color={color} />
+            {mm && <Text style={hc.metaText}>⏱ {mm}:{ss}</Text>}
+            <Text style={hc.hint}>Hold to delete</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+const hc = StyleSheet.create({
+  card: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
+  stripe: { width: 5 },
+  body: { flex: 1, padding: SPACING.md },
+  top: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: SPACING.sm },
+  title: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
+  date: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginTop: 4 },
+  right: { alignItems: 'flex-end', gap: 4, minWidth: 52 },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flexWrap: 'wrap' },
+  partBadge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: RADIUS.sm, borderWidth: 1 },
+  partText: { fontSize: 11, fontWeight: '700' },
+  metaText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary },
+  hint: { fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic', marginLeft: 'auto' },
+});
+
+// ─── Main Screen ───────────────────────────────────────────────────────────────
+type Mode = 'mock' | 'practice';
+
 export default function HistoryScreen() {
   const router = useRouter();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState('ALL');
+  const [mode, setMode] = useState<Mode>('mock');
+  const [skill, setSkill] = useState<string>('LISTENING');
+  const [activePart, setActivePart] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('date_desc');
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -210,226 +186,220 @@ export default function HistoryScreen() {
     try {
       const data = await ieltsExamsApi.getHistory();
       setHistory(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); setRefreshing(false); }
   };
 
   useEffect(() => { fetchHistory(); }, []);
 
+  // Reset part filter when skill or mode changes
+  useEffect(() => { setActivePart(null); }, [skill, mode]);
+
   const handleDelete = useCallback((item: any) => {
-    Alert.alert(
-      'Delete Test Record',
-      `Remove "${item.examTitle ?? 'this test'}" from history? This cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            setDeletingId(item.sessionId ?? item.id);
-            try {
-              await ieltsExamsApi.deleteSession(item.sessionId ?? item.id);
-              setHistory(prev => prev.filter(h => (h.sessionId ?? h.id) !== (item.sessionId ?? item.id)));
-            } catch {
-              Alert.alert('Error', 'Failed to delete. Please try again.');
-            } finally {
-              setDeletingId(null);
-            }
-          },
+    Alert.alert('Delete Record', `Remove "${item.examTitle ?? 'this test'}"? Cannot be undone.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete', style: 'destructive',
+        onPress: async () => {
+          const id = item.id ?? item.sessionId;
+          setDeletingId(id);
+          try {
+            await ieltsExamsApi.deleteSession(id);
+            setHistory(prev => prev.filter(h => (h.id ?? h.sessionId) !== id));
+          } catch { Alert.alert('Error', 'Failed to delete. Try again.'); }
+          finally { setDeletingId(null); }
         },
-      ],
-    );
+      },
+    ]);
   }, []);
 
   const displayed = useMemo(() => {
-    let list = history;
-
-    // Skill filter
-    if (filter !== 'ALL') {
-      list = list.filter(h => h.skill === filter);
-    }
-
-    // Search filter (title or date string)
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      list = list.filter(h =>
-        (h.examTitle ?? '').toLowerCase().includes(q) ||
-        (h.skill ?? '').toLowerCase().includes(q),
-      );
-    }
-
-    // Sort
-    list = [...list].sort((a, b) => {
+    const q = search.trim().toLowerCase();
+    let list = history.filter(h => {
+      const isMock = !h.practicePart;
+      if (mode === 'mock' && !isMock) return false;
+      if (mode === 'practice' && isMock) return false;
+      if (h.skill !== skill) return false;
+      if (mode === 'practice' && activePart !== null && h.practicePart !== activePart) return false;
+      if (q && !(h.examTitle ?? '').toLowerCase().includes(q)) return false;
+      return true;
+    });
+    return [...list].sort((a, b) => {
       switch (sort) {
-        case 'date_desc': return new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime();
-        case 'date_asc':  return new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime();
-        case 'band_desc': return (b.rawScore ?? 0) - (a.rawScore ?? 0);
-        case 'band_asc':  return (a.rawScore ?? 0) - (b.rawScore ?? 0);
+        case 'date_desc':  return new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime();
+        case 'date_asc':   return new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime();
+        case 'score_desc': return (b.rawScore ?? 0) - (a.rawScore ?? 0);
+        case 'score_asc':  return (a.rawScore ?? 0) - (b.rawScore ?? 0);
         default: return 0;
       }
     });
-
-    return list;
-  }, [history, filter, search, sort]);
+  }, [history, mode, skill, activePart, search, sort]);
 
   const handleCardPress = useCallback((item: any) => {
-    const id = item.sessionId ?? item.id;
-    if (id) {
+    const id = item.id ?? item.sessionId;
+    if (!id) return;
+    if (item.practicePart) {
+      // Practice → advanced result
+      const skillPath = item.skill?.toLowerCase() ?? 'listening';
+      router.push(`/ielts/advanced/${skillPath}/${item.examId}/result/${id}` as any);
+    } else {
+      // Mock → intensive result
       router.push(`/ielts/intensive/result/${id}` as any);
     }
   }, [router]);
 
+  const totalForMode = history.filter(h =>
+    mode === 'mock' ? !h.practicePart : !!h.practicePart
+  ).filter(h => h.skill === skill).length;
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={s.container} edges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Test History</Text>
-        <View style={styles.headerRight}>
-          <Text style={styles.headerCount}>
-            {displayed.length}{filter !== 'ALL' || search ? `/${history.length}` : ''} tests
-          </Text>
-        </View>
+        <Text style={s.headerTitle}>Test History</Text>
+        <Text style={s.headerCount}>{displayed.length}/{totalForMode}</Text>
       </View>
 
-      {/* Search bar */}
-      <View style={styles.searchRow}>
-        <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 6 }} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search by title or skill…"
-            placeholderTextColor={COLORS.textMuted}
-            value={search}
-            onChangeText={setSearch}
-            returnKeyType="search"
-            clearButtonMode="while-editing"
-          />
+      {/* Mode Tabs: Mock / Practice */}
+      <View style={s.modeTabs}>
+        {(['mock', 'practice'] as Mode[]).map(m => (
+          <TouchableOpacity key={m} style={[s.modeTab, mode === m && s.modeTabActive]}
+            onPress={() => setMode(m)} activeOpacity={0.8}>
+            <Ionicons
+              name={m === 'mock' ? 'clipboard-outline' : 'barbell-outline'}
+              size={14} color={mode === m ? COLORS.primary : COLORS.textMuted}
+            />
+            <Text style={[s.modeTabText, mode === m && s.modeTabTextActive]}>
+              {m === 'mock' ? 'Mock Tests' : 'Practice'}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Skill Tabs */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}
+        style={s.skillBar} contentContainerStyle={s.skillBarInner}>
+        {SKILL_TABS.map(t => {
+          const active = skill === t.key;
+          const color = SKILL_COLOR[t.key];
+          return (
+            <TouchableOpacity key={t.key} style={[s.skillTab, active && { borderBottomColor: color, borderBottomWidth: 2.5 }]}
+              onPress={() => setSkill(t.key)} activeOpacity={0.8}>
+              <Ionicons name={t.icon} size={14} color={active ? color : COLORS.textMuted} />
+              <Text style={[s.skillTabText, active && { color, fontFamily: FONTS.bold }]}>{t.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
+      {/* Part filter pills — practice only */}
+      {mode === 'practice' && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          style={s.partBar} contentContainerStyle={s.partBarInner}>
+          {[null, 1, 2, 3, 4].map(part => {
+            const active = activePart === part;
+            const color = SKILL_COLOR[skill];
+            const label = part === null ? 'All Parts' : `Part ${part}`;
+            const sublabel = part !== null ? PART_LABEL[skill]?.[part] : undefined;
+            return (
+              <TouchableOpacity key={part ?? 'all'}
+                style={[s.partChip, active && { backgroundColor: color + '12', borderColor: color }]}
+                onPress={() => setActivePart(part)} activeOpacity={0.8}>
+                <Text style={[s.partChipLabel, active && { color }]}>{label}</Text>
+                {sublabel && <Text style={[s.partChipSub, active && { color: color + 'CC' }]}>{sublabel}</Text>}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      )}
+
+      {/* Search + Sort */}
+      <View style={s.searchRow}>
+        <View style={s.searchBox}>
+          <Ionicons name="search-outline" size={15} color={COLORS.textMuted} style={{ marginRight: 6 }} />
+          <TextInput style={s.searchInput} placeholder="Search…" placeholderTextColor={COLORS.textMuted}
+            value={search} onChangeText={setSearch} returnKeyType="search" clearButtonMode="while-editing" />
           {search.length > 0 && Platform.OS === 'android' && (
             <TouchableOpacity onPress={() => setSearch('')}>
-              <Ionicons name="close-circle" size={16} color={COLORS.textMuted} />
+              <Ionicons name="close-circle" size={15} color={COLORS.textMuted} />
             </TouchableOpacity>
           )}
         </View>
         <SortPicker value={sort} onChange={setSort} />
       </View>
 
-      {/* Skill filter chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterBar}
-        contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm, gap: SPACING.sm }}
-      >
-        {SKILL_FILTERS.map(f => {
-          const active = filter === f.key;
-          const color = SKILL_COLOR[f.key] ?? COLORS.primary;
-          return (
-            <TouchableOpacity
-              key={f.key}
-              style={[
-                styles.chip,
-                active && { backgroundColor: (f.key === 'ALL' ? COLORS.primary : color), borderColor: 'transparent' },
-              ]}
-              onPress={() => setFilter(f.key)}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.chipText, active && { color: '#fff' }]}>{f.label}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
       {/* List */}
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
+        <View style={s.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>
       ) : (
         <FlatList
           data={displayed}
-          keyExtractor={(item, i) => String(item.sessionId ?? item.id ?? i)}
+          keyExtractor={(item, i) => String(item.id ?? item.sessionId ?? i)}
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
+          showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => { setRefreshing(true); fetchHistory(); }}
-              tintColor={COLORS.primary}
-            />
+            <RefreshControl refreshing={refreshing}
+              onRefresh={() => { setRefreshing(true); fetchHistory(); }} tintColor={COLORS.primary} />
           }
           ListEmptyComponent={
             <EmptyState
-              icon="📋"
-              title={search ? 'No matches found' : 'No tests found'}
-              subtitle={
-                search
-                  ? `No results for "${search}"`
-                  : filter === 'ALL'
-                  ? 'Complete a mock test to see history.'
-                  : `No ${filter.toLowerCase()} tests yet.`
-              }
-              action={
-                search
-                  ? { label: 'Clear search', onPress: () => setSearch('') }
-                  : { label: 'Take a Test', onPress: () => router.push('/ielts/intensive' as any) }
-              }
+              icon={mode === 'mock' ? '📋' : '🏋️'}
+              title={search ? 'No matches' : 'No history yet'}
+              subtitle={search
+                ? `No results for "${search}"`
+                : mode === 'mock'
+                  ? `No ${skill.toLowerCase()} mock tests completed.`
+                  : activePart !== null
+                    ? `No Part ${activePart} practice sessions.`
+                    : `No ${skill.toLowerCase()} practice sessions.`}
+              action={search
+                ? { label: 'Clear search', onPress: () => setSearch('') }
+                : { label: mode === 'mock' ? 'Take a Test' : 'Start Practice', onPress: () => router.push('/ielts/intensive' as any) }}
             />
           }
           renderItem={({ item }) => (
             <HistoryCard
-              item={item}
+              item={item} mode={mode}
               onPress={() => handleCardPress(item)}
               onDelete={() => handleDelete(item)}
-              deleting={deletingId === (item.sessionId ?? item.id)}
+              deleting={deletingId === (item.id ?? item.sessionId)}
             />
           )}
-          showsVerticalScrollIndicator={false}
         />
       )}
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 80 },
 
-  // Header
-  header: {
-    backgroundColor: COLORS.primary, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
-  },
+  header: { backgroundColor: COLORS.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md },
   headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
-  headerRight: {},
   headerCount: { color: '#BFDBFE', fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium },
 
-  // Search
-  searchRow: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm,
-    backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border,
-  },
-  searchBox: {
-    flex: 1, flexDirection: 'row', alignItems: 'center',
-    backgroundColor: COLORS.surface, borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.md, borderWidth: 1, borderColor: COLORS.border, height: 38,
-  },
-  searchInput: {
-    flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text,
-    fontFamily: FONTS.regular, padding: 0,
-  },
+  modeTabs: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border },
+  modeTab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: SPACING.sm + 2, borderBottomWidth: 2.5, borderBottomColor: 'transparent' },
+  modeTabActive: { borderBottomColor: COLORS.primary },
+  modeTabText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.textMuted },
+  modeTabTextActive: { color: COLORS.primary, fontFamily: FONTS.bold },
 
-  // Filter chips
-  filterBar: { maxHeight: 52, borderBottomWidth: 1, borderColor: COLORS.border, backgroundColor: '#fff' },
-  chip: {
-    paddingHorizontal: SPACING.md, paddingVertical: 6, borderRadius: RADIUS.full,
-    borderWidth: 1.5, borderColor: COLORS.border, backgroundColor: '#fff',
-  },
-  chipText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.textSecondary },
+  skillBar: { backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 50 },
+  skillBarInner: { flexDirection: 'row', paddingHorizontal: SPACING.md },
+  skillTab: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderBottomWidth: 2.5, borderBottomColor: 'transparent' },
+  skillTabText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.textMuted },
+
+  partBar: { backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 62 },
+  partBarInner: { flexDirection: 'row', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm, gap: SPACING.sm },
+  partChip: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: RADIUS.lg, borderWidth: 1.5, borderColor: COLORS.border, backgroundColor: COLORS.surface, alignItems: 'center' },
+  partChipLabel: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.textSecondary },
+  partChipSub: { fontSize: 10, color: COLORS.textMuted, fontFamily: FONTS.regular, marginTop: 1 },
+
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border },
+  searchBox: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.surface, borderRadius: RADIUS.md, paddingHorizontal: SPACING.md, borderWidth: 1, borderColor: COLORS.border, height: 36 },
+  searchInput: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, fontFamily: FONTS.regular, padding: 0 },
 });

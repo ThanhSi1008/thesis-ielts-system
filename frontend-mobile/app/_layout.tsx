@@ -62,6 +62,9 @@ export default function RootLayout() {
         <Stack.Screen name="ielts/history" />
         <Stack.Screen name="ielts/roadmap" />
         <Stack.Screen name="ielts/onboarding" />
+        <Stack.Screen name="ielts/intensive/custom" />
+        <Stack.Screen name="ielts/student-teacher/index" />
+        <Stack.Screen name="ielts/student-teacher/[studentId]" />
 
         {/* Shadowing */}
         <Stack.Screen name="shadowing/index" />

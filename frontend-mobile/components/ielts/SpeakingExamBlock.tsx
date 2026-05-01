@@ -42,6 +42,10 @@ export default function SpeakingExamBlock({ parts, answers, onChange }: Props) {
         {parts.map((part, idx) => {
           const color = PART_COLORS[idx] || COLORS.primary;
           const active = activePartIdx === idx;
+          // Check if this part has all answers filled
+          const partQCount = part.questions?.length || (part.cue_card ? 1 : 0);
+          const partAnswered = Array.from({ length: partQCount }, (_, qi) => answers[getKey(idx, qi)] || '').filter(v => v.trim()).length;
+          const partDone = partQCount > 0 && partAnswered === partQCount;
           return (
             <TouchableOpacity
               key={idx}
@@ -49,6 +53,7 @@ export default function SpeakingExamBlock({ parts, answers, onChange }: Props) {
               onPress={() => setActivePartIdx(idx)}
               activeOpacity={0.8}
             >
+              {partDone && <Text style={[styles.tabCheck, { color }]}>✓ </Text>}
               <Text style={[styles.tabLabel, active && { color }]}>
                 Part {part.part_number || idx + 1}
               </Text>
@@ -58,11 +63,11 @@ export default function SpeakingExamBlock({ parts, answers, onChange }: Props) {
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 20 }}>
-        {/* Info banner for mobile speaking mode */}
+        {/* Info banner */}
         <View style={styles.infoBanner}>
           <Ionicons name="mic-outline" size={16} color="#7C3AED" />
           <Text style={styles.infoText}>
-            Ghi âm chưa hỗ trợ trên mobile. Nhập câu trả lời bằng văn bản để được AI chấm điểm.
+            Voice recording is not available on mobile. Type your spoken responses below — they will be graded by AI.
           </Text>
         </View>
 
@@ -84,16 +89,20 @@ export default function SpeakingExamBlock({ parts, answers, onChange }: Props) {
               multiline
               value={answers[getKey(activePartIdx, 0)] || ''}
               onChangeText={t => handleChange(activePartIdx, 0, t)}
-              placeholder="Write your spoken response here…"
+              placeholder="Describe the topic on the cue card…"
               placeholderTextColor={COLORS.textMuted}
               textAlignVertical="top"
             />
+            <Text style={styles.charCount}>
+              {(answers[getKey(activePartIdx, 0)] || '').trim().split(/\s+/).filter(Boolean).length} words
+            </Text>
           </View>
         )}
 
         {/* Questions (Part 1 & 3) */}
         {currentPart?.questions?.map((q, qIdx) => {
           const key = getKey(activePartIdx, qIdx);
+          const wordCount = (answers[key] || '').trim().split(/\s+/).filter(Boolean).length;
           return (
             <View key={key} style={styles.questionBlock}>
               <Text style={styles.questionNumber}>Q{qIdx + 1}</Text>
@@ -103,10 +112,11 @@ export default function SpeakingExamBlock({ parts, answers, onChange }: Props) {
                 multiline
                 value={answers[key] || ''}
                 onChangeText={t => handleChange(activePartIdx, qIdx, t)}
-                placeholder="Write your spoken response here…"
+                placeholder="Answer this question in spoken English…"
                 placeholderTextColor={COLORS.textMuted}
                 textAlignVertical="top"
               />
+              <Text style={styles.charCount}>{wordCount} words</Text>
             </View>
           );
         })}
@@ -128,6 +138,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3, borderBottomColor: 'transparent',
   },
   tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
+  tabCheck: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
   scroll: { flex: 1 },
   infoBanner: {
     flexDirection: 'row', alignItems: 'flex-start', gap: SPACING.sm,
@@ -156,7 +167,9 @@ const styles = StyleSheet.create({
   answerInput: {
     minHeight: 100, borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md,
     padding: SPACING.md, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20,
+    marginBottom: 4,
   },
+  charCount: { fontSize: 11, color: COLORS.textMuted, textAlign: 'right', marginBottom: SPACING.xs },
   progressBar: {
     paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm,
     borderTopWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surface,
