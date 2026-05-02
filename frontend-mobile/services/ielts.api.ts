@@ -54,3 +54,24 @@ export const studentTeacherApi = {
   unlinkTeacher: (teacherId: string) => apiClient.delete<any>(`/users/unlink-teacher/${teacherId}`),
   getStudentStats: (studentId: string) => apiClient.get<any>(`/users/student/${studentId}/stats`),
 };
+
+// ==================== VOCABULARY ====================
+export const vocabularyApi = {
+  getBooks: () => apiClient.get<any[]>('/vocabulary/books'),
+  getBook: (id: string) => apiClient.get<any>(`/vocabulary/books/${id}`),
+  getUnit: (id: string) => apiClient.get<any>(`/vocabulary/units/${id}`),
+  getProgress: (bookId: string) => apiClient.get<any>(`/vocabulary/progress/${bookId}`),
+  updateWordProgress: (unitId: string, wordsLearned: number) =>
+    apiClient.post<any>('/vocabulary/progress/words', { unitId, wordsLearned }),
+  submitExercise: (unitId: string, answers: { exerciseId: string; answer: string }[]) =>
+    apiClient.post<any>('/vocabulary/progress/exercise', { unitId, answers }),
+  submitQuestions: (unitId: string, answers: { questionId: string; answer: string }[]) =>
+    apiClient.post<any>('/vocabulary/progress/questions', { unitId, answers }),
+};
+
+// ==================== GRAMMAR ====================
+export const grammarApi = {
+  getBooks: () => apiClient.get<any[]>('/grammar/books'),
+  getBook: (slug: string) => apiClient.get<any>(`/grammar/books/${slug}`),
+  getUnit: (id: string) => apiClient.get<any>(`/grammar/units/${id}`),
+};

@@ -50,7 +50,12 @@ export default function AdvancedScreen() {
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Advanced Practice</Text>
-        <View style={{ width: 24 }} />
+        <TouchableOpacity
+          style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
+          onPress={() => router.push('/ielts/advanced/history' as any)}
+        >
+          <Ionicons name="time-outline" size={22} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       {/* Tabs */}
@@ -78,6 +83,17 @@ export default function AdvancedScreen() {
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}
         >
+          {/* History banner */}
+          <TouchableOpacity
+            style={styles.historyBanner}
+            onPress={() => router.push('/ielts/advanced/history' as any)}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="time-outline" size={16} color={color} />
+            <Text style={[styles.historyBannerText, { color }]}>View Practice History</Text>
+            <Ionicons name="chevron-forward" size={14} color={color} style={{ marginLeft: 'auto' }} />
+          </TouchableOpacity>
+
           {parts.length === 0 ? (
             <EmptyState icon="🔍" title="No practice parts yet" subtitle="Check back soon for new content." />
           ) : (
@@ -161,4 +177,12 @@ const styles = StyleSheet.create({
   partTypes: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
   qtChip: { backgroundColor: COLORS.surface, paddingHorizontal: 6, paddingVertical: 2, borderRadius: RADIUS.sm, borderWidth: 1, borderColor: COLORS.border },
   qtChipText: { fontSize: 10, color: COLORS.textSecondary, textTransform: 'capitalize' },
+  historyBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
+    backgroundColor: '#fff', borderRadius: RADIUS.xl,
+    paddingHorizontal: SPACING.lg, paddingVertical: 12,
+    marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
+  },
+  historyBannerText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700' },
 });

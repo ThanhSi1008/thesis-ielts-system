@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, LayoutAnimation, UIManager, Platform,
+  ActivityIndicator, LayoutAnimation, UIManager, Platform, Share, Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -291,6 +291,8 @@ export default function ResultScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [retaking, setRetaking] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     ieltsExamsApi.getSession(sessionId)
@@ -298,6 +300,48 @@ export default function ResultScreen() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [sessionId]);
+
+  const handleRetake = useCallback(async () => {
+    if (!session?.exam?.id) return;
+    try {
+      setRetaking(true);
+      const newSession = await ieltsExamsApi.createSession(session.exam.id, session.userId ?? '');
+      router.replace(`/ielts/intensive/${session.exam.id}?sessionId=${newSession.id}` as any);
+    } catch {
+      Alert.alert('Error', 'Could not start a new session. Please try again.');
+    } finally {
+      setRetaking(false);
+    }
+  }, [session, router]);
+
+  const handleShare = useCallback(async (
+    bandStr: string,
+    rawScore: number,
+    totalQuestions: number,
+    examTitle: string,
+    examType: string,
+    mm: string,
+    ss: string,
+  ) => {
+    try {
+      setSharing(true);
+      const message = [
+        `🎓 IELTS ${examType} Result`,
+        `📝 Exam: ${examTitle}`,
+        ``,
+        `⭐ Band Score: ${bandStr}`,
+        `✅ Raw Score: ${rawScore}/${totalQuestions}`,
+        `⏱ Time: ${mm}:${ss}`,
+        ``,
+        `Practiced with TOEIC Master AI 🚀`,
+      ].join('\n');
+      await Share.share({ message, title: `IELTS ${examType} — Band ${bandStr}` });
+    } catch {
+      /* user cancelled */
+    } finally {
+      setSharing(false);
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -425,6 +469,33 @@ export default function ResultScreen() {
 
         {/* Actions */}
         <View style={styles.actions}>
+          {/* Retake */}
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.retakeBtn, retaking && { opacity: 0.7 }]}
+            onPress={handleRetake}
+            disabled={retaking}
+            activeOpacity={0.85}
+          >
+            {retaking
+              ? <ActivityIndicator size="small" color="#fff" />
+              : <Ionicons name="refresh-outline" size={18} color="#fff" />}
+            <Text style={styles.retakeBtnText}>{retaking ? 'Starting…' : 'Retake Exam'}</Text>
+          </TouchableOpacity>
+
+          {/* Share */}
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.shareBtn, sharing && { opacity: 0.7 }]}
+            onPress={() => handleShare(bandStr, rawScore, totalQuestions, session.exam?.title ?? '', examType, mm, ss)}
+            disabled={sharing}
+            activeOpacity={0.85}
+          >
+            {sharing
+              ? <ActivityIndicator size="small" color={COLORS.primary} />
+              : <Ionicons name="share-social-outline" size={18} color={COLORS.primary} />}
+            <Text style={styles.shareBtnText}>{sharing ? 'Sharing…' : 'Share Result'}</Text>
+          </TouchableOpacity>
+
+          {/* Navigation */}
           <Button
             title="Back to Tests"
             variant="outline"
@@ -476,5 +547,18 @@ const styles = StyleSheet.create({
   barBg: { height: 12, backgroundColor: COLORS.border, borderRadius: 6, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 6 },
   barLabel: { marginTop: SPACING.sm, fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'right' },
-  actions: { padding: SPACING.xl, marginTop: SPACING.lg },
+  actions: { padding: SPACING.xl, marginTop: SPACING.lg, gap: SPACING.sm },
+  // Retake button
+  actionBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: SPACING.sm, borderRadius: RADIUS.xl, paddingVertical: 14,
+  },
+  retakeBtn: { backgroundColor: COLORS.primary },
+  retakeBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
+  // Share button
+  shareBtn: {
+    backgroundColor: COLORS.primary + '12',
+    borderWidth: 1.5, borderColor: COLORS.primary,
+  },
+  shareBtnText: { color: COLORS.primary, fontSize: FONT_SIZES.md, fontWeight: '700' },
 });

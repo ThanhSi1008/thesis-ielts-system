@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, Alert, TextInput,
+  ActivityIndicator, Alert, TextInput, Animated, Dimensions, TouchableWithoutFeedback,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -98,10 +98,18 @@ const DIAGRAM_TYPES = new Set(['diagram_labelling', 'diagram_completion', 'map_l
 const MATCHING_TYPES = new Set(['matching', 'matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings']);
 
 // ─── Render question groups (Listening / Reading) ─────────────────────────────
-function renderGroup(group: any, answers: Record<string, string>, setAnswer: (k: string, v: string) => void, _idx = 0) {
-  const type = group.type;
+// partIdx + groupIdx together guarantee a globally-unique key across all parts.
+function renderGroup(
+  group: any,
+  answers: Record<string, string>,
+  setAnswer: (k: string, v: string) => void,
+  groupIdx = 0,
+  partIdx = 0,
+) {
+  const type = group.type ?? 'fill';
   const questions = group.questions || group.points || [];
-  const baseKey = `g-${_idx}-${type}`;
+  // Key: p{partIdx}-g{groupIdx}-{type} — always unique across parts & groups
+  const baseKey = `p${partIdx}-g${groupIdx}-${type}`;
 
   if (DIAGRAM_TYPES.has(type)) {
     return (
@@ -128,12 +136,14 @@ function renderGroup(group: any, answers: Record<string, string>, setAnswer: (k:
   return (
     <View key={baseKey}>
       {group.instructions && <Text style={styles.instructions}>{group.instructions}</Text>}
-      {questions.map((q: any) => {
-        const num = String(q.question_number);
+      {questions.map((q: any, qi: number) => {
+        // Use question_number when available; fall back to loop index to avoid duplicate keys
+        const num = q.question_number != null ? String(q.question_number) : `${baseKey}-qi${qi}`;
+        const qKey = `${baseKey}-${num}`;
         if (type === 'multiple_choice') {
-          return <MCQQuestion key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
+          return <MCQQuestion key={qKey} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
         }
-        return <FillQuestion key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
+        return <FillQuestion key={qKey} q={q} answer={answers[num] || ''} onAnswer={v => setAnswer(num, v)} />;
       })}
     </View>
   );
@@ -169,6 +179,118 @@ const overlayStyles = StyleSheet.create({
   note: { color: 'rgba(255,255,255,0.25)', fontSize: FONT_SIZES.xs, textAlign: 'center' },
 });
 
+// ─── Question Navigator Drawer ────────────────────────────────────────────────
+const DRAWER_HEIGHT = Math.min(Dimensions.get('window').height * 0.55, 420);
+
+function QuestionNavigatorDrawer({
+  open,
+  onClose,
+  totalQuestions,
+  answers,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  totalQuestions: number;
+  answers: Record<string, string>;
+  onSelect: (n: number) => void;
+}) {
+  const slideAnim = useRef(new Animated.Value(DRAWER_HEIGHT)).current;
+
+  useEffect(() => {
+    Animated.spring(slideAnim, {
+      toValue: open ? 0 : DRAWER_HEIGHT,
+      useNativeDriver: true,
+      tension: 80,
+      friction: 12,
+    }).start();
+  }, [open]);
+
+  const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
+  const answeredCount = Object.keys(answers).length;
+
+  return (
+    <>
+      {/* Backdrop */}
+      {open && (
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={nav.backdrop} />
+        </TouchableWithoutFeedback>
+      )}
+      {/* Sheet */}
+      <Animated.View style={[nav.sheet, { transform: [{ translateY: slideAnim }] }]}>
+        {/* Handle */}
+        <View style={nav.handle} />
+        {/* Header */}
+        <View style={nav.sheetHeader}>
+          <Text style={nav.sheetTitle}>Question Navigator</Text>
+          <View style={nav.legend}>
+            <View style={nav.legendRow}>
+              <View style={[nav.dot, { backgroundColor: COLORS.primary }]} />
+              <Text style={nav.legendText}>{answeredCount} Answered</Text>
+            </View>
+            <View style={nav.legendRow}>
+              <View style={[nav.dot, { backgroundColor: '#E5E7EB' }]} />
+              <Text style={nav.legendText}>{totalQuestions - answeredCount} Unanswered</Text>
+            </View>
+          </View>
+        </View>
+        {/* Grid */}
+        <ScrollView
+          contentContainerStyle={nav.grid}
+          showsVerticalScrollIndicator={false}
+        >
+          {numbers.map(n => {
+            const answered = !!answers[String(n)];
+            return (
+              <TouchableOpacity
+                key={n}
+                style={[nav.cell, answered && nav.cellAnswered]}
+                onPress={() => { onClose(); setTimeout(() => onSelect(n), 150); }}
+                activeOpacity={0.75}
+              >
+                <Text style={[nav.cellText, answered && nav.cellTextAnswered]}>{n}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </Animated.View>
+    </>
+  );
+}
+
+const nav = StyleSheet.create({
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 90 },
+  sheet: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    height: DRAWER_HEIGHT,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    zIndex: 100,
+    shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 20,
+    paddingHorizontal: SPACING.lg, paddingBottom: SPACING.lg,
+  },
+  handle: {
+    width: 36, height: 4, borderRadius: 2, backgroundColor: '#D1D5DB',
+    alignSelf: 'center', marginTop: 12, marginBottom: 8,
+  },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SPACING.md },
+  sheetTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
+  legend: { flexDirection: 'row', gap: SPACING.md },
+  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+  legendText: { fontSize: 10, color: COLORS.textSecondary },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 8 },
+  cell: {
+    width: 44, height: 44, borderRadius: RADIUS.md,
+    backgroundColor: '#F3F4F6', borderWidth: 1.5, borderColor: '#E5E7EB',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  cellAnswered: { backgroundColor: COLORS.primary + '18', borderColor: COLORS.primary },
+  cellText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textMuted },
+  cellTextAnswered: { color: COLORS.primary },
+});
+
 // ─── Main Exam Player ─────────────────────────────────────────────────────────
 export default function ExamPlayerScreen() {
   const router = useRouter();
@@ -184,6 +306,41 @@ export default function ExamPlayerScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [isAiGrading, setIsAiGrading] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+
+  // Question navigator: track Y-offsets per part via onLayout
+  const scrollViewRef = useRef<ScrollView>(null);
+  const partOffsetsRef = useRef<Record<number, number>>({}); // partIndex → Y offset
+
+  // Scroll to a question number (estimates part based on question ranges)
+  const scrollToQuestion = useCallback((n: number) => {
+    if (!exam) return;
+    const questions = exam.questions as any;
+    const parts = questions?.parts || questions?.passages || questions?.tasks || [];
+    if (parts.length === 0) {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      return;
+    }
+    // Find which part contains question n by scanning question_number in groups
+    let targetPartIndex = 0;
+    for (let pi = 0; pi < parts.length; pi++) {
+      const groups = parts[pi].groups || parts[pi].content || [];
+      for (const g of groups) {
+        const allNums: number[] = [];
+        const collectNums = (obj: any) => {
+          if (!obj || typeof obj !== 'object') return;
+          if (Array.isArray(obj)) { obj.forEach(collectNums); return; }
+          if ('question_number' in obj) { allNums.push(Number(obj.question_number)); return; }
+          if ('question_numbers' in obj) { (obj.question_numbers as number[]).forEach(x => allNums.push(x)); return; }
+          Object.values(obj).forEach(collectNums);
+        };
+        collectNums(g);
+        if (allNums.some(num => num === n)) { targetPartIndex = pi; break; }
+      }
+    }
+    const yOffset = partOffsetsRef.current[targetPartIndex] ?? 0;
+    scrollViewRef.current?.scrollTo({ y: Math.max(0, yOffset - 16), animated: true });
+  }, [exam]);
 
   const audioUrl = exam?.questions?.audio_url;
   const player = useAudioPlayer(audioUrl || '');
@@ -354,6 +511,7 @@ export default function ExamPlayerScreen() {
       {/* Listening / Reading questions */}
       {!isWriting && !isSpeaking && (
         <ScrollView
+          ref={scrollViewRef}
           style={styles.scrollArea}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
@@ -362,7 +520,13 @@ export default function ExamPlayerScreen() {
             parts.map((part: any, pi: number) => {
               const groups = part.groups || part.content || [];
               return (
-                <View key={pi} style={styles.partSection}>
+                <View
+                  key={pi}
+                  style={styles.partSection}
+                  onLayout={(e) => {
+                    partOffsetsRef.current[pi] = e.nativeEvent.layout.y;
+                  }}
+                >
                   <Text style={styles.partTitle}>
                     Part {part.part_number || part.passage_number || part.task_number || pi + 1}
                   </Text>
@@ -371,21 +535,30 @@ export default function ExamPlayerScreen() {
                       <Text style={styles.passageText}>{part.passage}</Text>
                     </ScrollView>
                   )}
-                  {groups.map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi))}
+                  {groups.map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi, pi))}
                 </View>
               );
             })
           ) : (
-            (questions.groups || []).map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi))
+            (questions.groups || []).map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi, 0))
           )}
         </ScrollView>
       )}
 
       {/* Submit bar */}
       <View style={styles.submitBar}>
-        <Text style={styles.answeredCount}>
-          {answeredCount}{totalCount !== undefined ? `/${totalCount}` : ''} answered
-        </Text>
+        {/* Navigator toggle */}
+        <TouchableOpacity
+          style={styles.navToggleBtn}
+          onPress={() => setNavOpen(v => !v)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="grid-outline" size={18} color={COLORS.primary} />
+          <Text style={styles.navToggleText}>
+            {Object.keys(answers).length}/{totalCount ?? '?'}
+          </Text>
+        </TouchableOpacity>
+
         <Button
           title={submitting ? 'Submitting…' : 'Submit Test'}
           onPress={handleSubmit}
@@ -393,6 +566,17 @@ export default function ExamPlayerScreen() {
           size="lg"
         />
       </View>
+
+      {/* Question Navigator Drawer (Listening/Reading only) */}
+      {!isWriting && !isSpeaking && totalCount !== undefined && (
+        <QuestionNavigatorDrawer
+          open={navOpen}
+          onClose={() => setNavOpen(false)}
+          totalQuestions={totalCount}
+          answers={answers}
+          onSelect={scrollToQuestion}
+        />
+      )}
 
       {/* AI Grading overlay */}
       {isAiGrading && (
@@ -445,10 +629,17 @@ const styles = StyleSheet.create({
   submitBar: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    padding: SPACING.lg, backgroundColor: '#fff',
+    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, backgroundColor: '#fff',
     borderTopWidth: 1, borderColor: COLORS.border,
     shadowColor: '#000', shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.08, shadowRadius: 12, elevation: 8,
   },
   answeredCount: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '600' },
+  navToggleBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    backgroundColor: COLORS.primary + '12', borderRadius: RADIUS.xl,
+    paddingHorizontal: 12, paddingVertical: 8,
+    borderWidth: 1.5, borderColor: COLORS.primary + '30',
+  },
+  navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.primary },
 });

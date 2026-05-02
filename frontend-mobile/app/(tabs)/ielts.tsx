@@ -22,9 +22,9 @@ const NAV_ITEMS = [
     icon: 'book-outline' as const,        
     route: '#',
     children: [
-      { key: 'pronunciation', label: 'Pronunciation', route: '/(tabs)/pronunciation' },
+      { key: 'pronunciation', label: 'Pronunciation', route: '/ielts/pronunciation' },
       { key: 'vocabulary',    label: 'Vocabulary',    route: '/(tabs)/vocabulary' },
-      { key: 'grammar',       label: 'Grammar',       route: '/(tabs)/grammar' }
+      { key: 'grammar',       label: 'Grammar',       route: '/ielts/grammar' }
     ]
   },
   { key: 'basic',          label: 'IELTS Basic',       icon: 'information-circle-outline' as const, route: '/(tabs)/ielts', isActive: true },
@@ -33,7 +33,7 @@ const NAV_ITEMS = [
   { key: 'roadmap',        label: 'Roadmap',           icon: 'map-outline' as const,         route: '/ielts/roadmap' },
   { key: 'history',        label: 'Test History',      icon: 'time-outline' as const,        route: '/ielts/history' },
   { key: 'statistics',     label: 'Statistics',        icon: 'bar-chart-outline' as const,   route: '/ielts/statistics' },
-  { key: 'student-teacher',label: 'Student/Teacher',   icon: 'people-outline' as const,      route: '/student-teacher' },
+  { key: 'student-teacher',label: 'Student/Teacher',   icon: 'people-outline' as const,      route: '/ielts/student-teacher' },
 ];
 
 export default function IeltsBasicTab() {

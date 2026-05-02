@@ -56,6 +56,7 @@ export default function RootLayout() {
         <Stack.Screen name="ielts/intensive/[examId]" />
         <Stack.Screen name="ielts/intensive/result/[sessionId]" />
         <Stack.Screen name="ielts/advanced/index" />
+        <Stack.Screen name="ielts/advanced/history/index" />
         <Stack.Screen name="ielts/advanced/[skill]/[partId]" />
         <Stack.Screen name="ielts/advanced/[skill]/[partId]/result/[resultId]" />
         <Stack.Screen name="ielts/statistics" />
@@ -65,6 +66,11 @@ export default function RootLayout() {
         <Stack.Screen name="ielts/intensive/custom" />
         <Stack.Screen name="ielts/student-teacher/index" />
         <Stack.Screen name="ielts/student-teacher/[studentId]" />
+        <Stack.Screen name="ielts/grammar/index" />
+        <Stack.Screen name="ielts/grammar/[bookSlug]" />
+        <Stack.Screen name="ielts/grammar/[bookSlug]/[unitId]" />
+        <Stack.Screen name="ielts/pronunciation/index" />
+        <Stack.Screen name="ielts/pronunciation/[symbol]" />
 
         {/* Shadowing */}
         <Stack.Screen name="shadowing/index" />
