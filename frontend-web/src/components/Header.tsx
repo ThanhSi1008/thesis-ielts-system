@@ -7,11 +7,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
 import api from "@/lib/api";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import { vocabLabApi } from "@/services/vocabLab.api";
 
 export default function Header() {
   const { user, logout } = useAuth();
+  const { toggleTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -96,7 +98,7 @@ export default function Header() {
   const headerBgClass = isIeltsDashboard
     ? "bg-transparent border-transparent shadow-none"
     : isPlain
-      ? `bg-white/95 ${isHeaderBorderless ? '' : 'border-gray-200 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
+      ? `bg-white/95 dark:bg-gray-900/95 ${isHeaderBorderless ? '' : 'border-gray-200 dark:border-gray-800 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
       : "bg-transparent border-transparent shadow-none";
 
 
@@ -129,7 +131,7 @@ export default function Header() {
           {isHeaderBorderless && (
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600 -ml-2"
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400 -ml-2"
               aria-label="Toggle sidebar"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -234,6 +236,30 @@ export default function Header() {
                 </div>
               )}
 
+              {/* Theme toggle button */}
+              <button
+                onClick={toggleTheme}
+                aria-label="Toggle dark mode"
+                className={`p-2 rounded-full transition-colors ${
+                  isOverlay
+                    ? 'text-white/80 hover:text-white hover:bg-white/10'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                {resolvedTheme === 'dark' ? (
+                  /* Sun icon */
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <circle cx="12" cy="12" r="5" />
+                    <path strokeLinecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                  </svg>
+                ) : (
+                  /* Moon icon */
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                  </svg>
+                )}
+              </button>
+
               {/* Bell Icon */}
               <div className="relative">
                 <button
@@ -241,10 +267,10 @@ export default function Header() {
                   id="notification-bell-btn"
                   aria-label="Notifications"
                   className={`relative p-2 rounded-full transition-colors ${isDropdownOpen
-                      ? 'bg-gray-100 text-gray-700'
+                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
                       : isOverlay
                         ? 'text-white/80 hover:text-white hover:bg-white/10'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -297,13 +323,13 @@ export default function Header() {
 
                 {/* Dropdown */}
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-52 rounded-xl border border-gray-100 bg-white shadow-xl py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-52 rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl dark:shadow-black/40 py-1 z-50">
                     {/* User info header */}
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-0.5">
+                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider font-medium mb-0.5">
                         Signed in as
                       </p>
-                      <p className="text-sm font-semibold text-gray-800 truncate">
+                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
                         {displayName}
                       </p>
                     </div>
@@ -312,7 +338,7 @@ export default function Header() {
                     <div className="py-1">
                       <Link
                         href="/profile"
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <svg
@@ -332,13 +358,13 @@ export default function Header() {
                       </Link>
                     </div>
 
-                    <div className="border-t border-gray-100 py-1">
+                    <div className="border-t border-gray-100 dark:border-gray-700 py-1">
                       <button
                         onClick={() => {
                           logout();
                           setIsProfileOpen(false);
                         }}
-                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                       >
                         <svg
                           className="w-4 h-4"
@@ -414,18 +440,18 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white p-4 space-y-4 shadow-lg absolute w-full left-0 top-full z-50">
+        <div className="md:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-4 shadow-lg absolute w-full left-0 top-full z-50">
           <div className="flex flex-col gap-4 pt-2">
             <Link
               href="/"
-              className="font-bold text-gray-800 hover:text-primary transition-colors"
+              className="font-bold text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               HOME
             </Link>
             <Link
               href="/ielts"
-              className="font-bold text-gray-800 hover:text-primary transition-colors"
+              className="font-bold text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               IELTS
@@ -433,14 +459,14 @@ export default function Header() {
 
             <Link
               href="/shadowing-dictation"
-              className="font-bold text-gray-800 hover:text-primary transition-colors"
+              className="font-bold text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               SHADOWING &amp; DICTATION
             </Link>
           </div>
 
-          <div className="border-t border-gray-100 pt-4 flex flex-col gap-2">
+          <div className="border-t border-gray-100 dark:border-gray-800 pt-4 flex flex-col gap-2">
             {user ? (
               <>
                 {/* Avatar row */}

@@ -3,6 +3,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { GradingProvider } from "@/contexts/GradingContext";
 import { IeltsSidebarProvider } from "@/contexts/IeltsSidebarContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,30 +20,47 @@ import { Toaster } from "@/components/Toaster";
 import { GlobalVocabFab } from "@/components/GlobalVocabFab";
 import { GlobalAIChatFab } from "@/components/GlobalAIChatFab";
 
+// Inline script runs before React hydrates — prevents flash of wrong theme
+const themeScript = `
+(function() {
+  try {
+    var t = localStorage.getItem('theme');
+    if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  } catch(e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Flash-prevention: sets dark class synchronously before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="antialiased">
-        <AuthProvider>
-          <NotificationProvider>
-            <GradingProvider>
-              <IeltsSidebarProvider>
-                <ScrollToTop />
-                <Header />
-                <Toaster />
-                <GlobalVocabFab />
-                <GlobalAIChatFab />
-                {children}
-              </IeltsSidebarProvider>
-            </GradingProvider>
-          </NotificationProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <GradingProvider>
+                <IeltsSidebarProvider>
+                  <ScrollToTop />
+                  <Header />
+                  <Toaster />
+                  <GlobalVocabFab />
+                  <GlobalAIChatFab />
+                  {children}
+                </IeltsSidebarProvider>
+              </GradingProvider>
+            </NotificationProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-

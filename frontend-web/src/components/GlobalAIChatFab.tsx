@@ -25,14 +25,14 @@ const parseInlineStyles = (line: string) => {
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
       return (
-        <strong key={i} className="font-bold text-gray-900">
+        <strong key={i} className="font-bold text-gray-900 dark:text-gray-100">
           {part.slice(2, -2)}
         </strong>
       );
     }
     if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
       return (
-        <em key={i} className="italic text-gray-800">
+        <em key={i} className="italic text-gray-800 dark:text-gray-200">
           {part.slice(1, -1)}
         </em>
       );
@@ -463,12 +463,12 @@ export function GlobalAIChatFab() {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-[8999] flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-gray-200 hover:border-gray-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-95 transition-all duration-200 focus:outline-none group"
+        className="fixed bottom-6 right-6 z-[8999] flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-900 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-95 transition-all duration-200 focus:outline-none group"
         title="Gemini AI Chat"
       >
         {isOpen ? (
           <svg
-            className="w-4 h-4 text-gray-500 group-hover:text-gray-800 transition-colors"
+            className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -512,7 +512,7 @@ export function GlobalAIChatFab() {
             bottom: pos.y !== null ? "auto" : undefined,
             transition: isDragging ? "none" : undefined,
           }}
-          className={`fixed bottom-[10vh] right-[100px] z-[9000] w-[475px] min-w-[300px] max-w-[90vw] h-[80vh] min-h-[400px] max-h-[85vh] bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden border border-gray-200 ${pos.x === null ? "animate-fade-in-up" : ""}`}
+          className={`fixed bottom-[10vh] right-[100px] z-[9000] w-[475px] min-w-[300px] max-w-[90vw] h-[80vh] min-h-[400px] max-h-[85vh] bg-white dark:bg-gray-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-700 ${pos.x === null ? "animate-fade-in-up" : ""}`}
         >
           {/* Modal Header */}
           <div
@@ -520,7 +520,7 @@ export function GlobalAIChatFab() {
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
-            className="flex items-center justify-between px-5 py-3.5 bg-white text-gray-900 border-b border-gray-100 z-10 sticky top-0 shrink-0 cursor-move select-none touch-none rounded-t-2xl"
+            className="flex items-center justify-between px-5 py-3.5 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 z-10 sticky top-0 shrink-0 cursor-move select-none touch-none rounded-t-2xl"
           >
             <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
               <svg
@@ -551,7 +551,7 @@ export function GlobalAIChatFab() {
             </h2>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-full transition-colors focus:outline-none"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 p-1.5 rounded-full transition-colors focus:outline-none"
             >
               <svg
                 className="w-5 h-5"
@@ -570,7 +570,7 @@ export function GlobalAIChatFab() {
           </div>
 
           {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
+          <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 dark:bg-gray-950 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-600">
             {messages.map((message, idx) => (
               <div
                 key={idx}
@@ -586,8 +586,8 @@ export function GlobalAIChatFab() {
                   <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
                     <div
                       className={`px-4 py-2.5 shadow-sm text-[14px] ${message.role === "user"
-                        ? "bg-[#111111] text-white rounded-[20px] self-end"
-                        : "bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm self-start"
+                        ? "bg-[#111111] dark:bg-gray-800 text-white rounded-[20px] self-end"
+                        : "bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm self-start"
                         }`}
                       style={{
                         wordBreak: "break-word",
@@ -604,7 +604,7 @@ export function GlobalAIChatFab() {
                       <button
                         key={s.id}
                         onClick={() => handleSuggestionClick(idx, s)}
-                        className="text-right bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-4 py-2.5 rounded-[20px] shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 text-[14px] max-w-[85%]"
+                        className="text-right bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2.5 rounded-[20px] shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 text-[14px] max-w-[85%]"
                       >
                         {s.label}
                       </button>
@@ -616,7 +616,7 @@ export function GlobalAIChatFab() {
             {isTyping && (
               <div className="flex justify-start items-end gap-2">
                 <NeutralBlackHoleIcon className="mb-0.5" />
-                <div className="bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex items-center gap-1.5 h-fit">
+                <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex items-center gap-1.5 h-fit">
                   <div
                     className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
                     style={{ animationDelay: "0ms" }}
@@ -638,7 +638,7 @@ export function GlobalAIChatFab() {
           {/* Input Area */}
           <form
             onSubmit={handleSend}
-            className="p-3 bg-white border-t border-gray-100 shrink-0"
+            className="p-3 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shrink-0"
           >
             <div className="flex gap-2 items-end">
               <textarea
@@ -658,7 +658,7 @@ export function GlobalAIChatFab() {
                 }}
                 placeholder="Ask me anything..."
                 rows={1}
-                className="flex-1 bg-gray-100 text-gray-900 rounded-[20px] px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-white transition-all resize-none min-h-[44px] max-h-[120px] overflow-y-auto break-words leading-relaxed"
+                className="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-[20px] px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-white dark:focus:bg-gray-700 transition-all resize-none min-h-[44px] max-h-[120px] overflow-y-auto break-words leading-relaxed placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 disabled={isTyping}
                 style={{ height: input ? undefined : 'auto' }}
               />

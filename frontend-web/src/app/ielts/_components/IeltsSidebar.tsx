@@ -118,6 +118,24 @@ const NAV_ITEMS = [
     ),
   },
   {
+    key: "calculator",
+    label: "Calculator",
+    shortLabel: "Calc.",
+    href: "/ielts/calculator",
+    match: (p: string) => p.startsWith("/ielts/calculator"),
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2" />
+        <line x1="8" y1="6" x2="16" y2="6" />
+        <line x1="8" y1="10" x2="10" y2="10" />
+        <line x1="14" y1="10" x2="16" y2="10" />
+        <line x1="8" y1="14" x2="10" y2="14" />
+        <line x1="14" y1="14" x2="16" y2="14" />
+        <line x1="8" y1="18" x2="16" y2="18" />
+      </svg>
+    ),
+  },
+  {
     key: "student-teacher",
     label: "Student/Teacher",
     shortLabel: "S/T",
@@ -183,7 +201,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
                   className={`group relative flex flex-col items-center justify-center w-full py-3 rounded-xl transition-colors ${
                     isActive
                       ? "bg-primary/10 text-primary"
-                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                      : "text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-slate-200"
                   }`}
                 >
                   {item.icon}
@@ -191,7 +209,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
                     {item.shortLabel}
                   </span>
                   {/* Tooltip */}
-                  <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-800 text-white text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-[70]">
+                  <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-800 dark:bg-slate-700 text-white text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-[70]">
                     {item.label}
                   </div>
                 </Link>
@@ -206,7 +224,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
                 className={`group relative flex flex-col items-center justify-center w-full py-3 rounded-xl transition-colors ${
                   isActive
                     ? "bg-primary/10 text-primary"
-                    : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                    : "text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-slate-200"
                 }`}
               >
                 {item.icon}
@@ -214,7 +232,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
                   {item.shortLabel}
                 </span>
                 {/* Tooltip */}
-                <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-800 text-white text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-[70]">
+                <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-800 dark:bg-slate-700 text-white text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-[70]">
                   {item.label}
                 </div>
               </Link>
@@ -227,8 +245,8 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
               <div key={item.key} className="space-y-1">
                 <button
                   onClick={toggleFoundation}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-colors hover:bg-gray-50 ${
-                    isActive ? "text-primary" : "text-gray-700"
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-slate-900 ${
+                    isActive ? "text-primary" : "text-gray-700 dark:text-slate-300"
                   }`}
                 >
                   {item.icon}
@@ -248,7 +266,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="ml-7 pl-3 border-l-2 border-gray-100 space-y-1 py-1">
+                    <div className="ml-7 pl-3 border-l-2 border-gray-100 dark:border-slate-800 space-y-1 py-1">
                       {item.children!.map((child) => {
                         const childActive = child.match(pathname);
                         return (
@@ -259,7 +277,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
                             className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
                               childActive
                                 ? "font-semibold bg-primary/5 text-primary"
-                                : "font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                                : "font-medium text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-800 dark:hover:text-slate-200"
                             }`}
                           >
                             {child.label}
@@ -281,7 +299,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] transition-colors ${
                 isActive
                   ? "font-semibold bg-primary/10 text-primary"
-                  : "font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  : "font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               {item.icon}
@@ -304,7 +322,7 @@ export function IeltsSidebar() {
 
   return (
     <aside
-      className={`${width} shrink-0 bg-white h-full sticky top-0 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out z-30`}
+      className={`${width} shrink-0 bg-white dark:bg-slate-950 h-full sticky top-0 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out z-30`}
     >
       <SidebarContent />
     </aside>
@@ -327,7 +345,7 @@ export function IeltsSidebarOverlay() {
 
       {/* Drawer */}
       <aside
-        className={`fixed top-0 left-0 h-full w-[240px] bg-white z-[65] transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-[240px] bg-white dark:bg-slate-950 z-[65] transform transition-transform duration-300 ease-in-out ${
           isOverlayOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -335,7 +353,7 @@ export function IeltsSidebarOverlay() {
         <div className="h-[56px] flex items-center px-4">
           <button
             onClick={closeOverlay}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-600 dark:text-slate-400"
             aria-label="Close sidebar"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

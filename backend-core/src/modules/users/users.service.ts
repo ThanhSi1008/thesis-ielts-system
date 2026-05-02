@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
 
@@ -49,25 +49,33 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<SafeUser> {
-    const user = await this.prisma.user.update({
-      where: { id },
-      data: {
-        firstName: updateUserDto.firstName,
-        lastName: updateUserDto.lastName,
-        isActive: updateUserDto.isActive,
-        role: updateUserDto.role as any,
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-      },
-    });
-    return user;
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: {
+          firstName: updateUserDto.firstName,
+          lastName: updateUserDto.lastName,
+          email: updateUserDto.email,
+          isActive: updateUserDto.isActive,
+          role: updateUserDto.role as any,
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+        },
+      });
+      return user;
+    } catch (error) {
+      if (error.code === "P2002") {
+        throw new BadRequestException("Email already in use by another account");
+      }
+      throw error;
+    }
   }
 
   async remove(id: string): Promise<{ message: string }> {

@@ -5,112 +5,60 @@ export interface ShadowingSentence {
   english: string;
   vietnamese: string;
   phonetic?: string;
-  words?: any[];
+  words?: string[];
   audioStart: number;
   audioEnd: number;
 }
 
 export interface ShadowingVideo {
   id: string;
-  userId: string;
+  userId: string | null;
   title: string;
-  youtubeVideoId: string;
+  youtubeVideoId: string | null;
+  audioUrl?: string;
+  imageUrl?: string;
+  tags?: string[];
   folder: string;
   category: string;
   duration: string;
-  sentences: any[];
+  sentences: ShadowingSentence[];
+  status: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ShadowingProgress {
-  shadowing: {
-    completedSentences: number[];
-  };
-  dictation: {
-    completedSentences: number[];
-    difficulty: string;
-  };
+export interface ShadowingProgressData {
+  completedSentences: number[];
 }
 
 export const shadowingApi = {
-  // ── Videos ──────────────────────────────────────────
+  // Lessons
+  getLessons: () => api.get<ShadowingVideo[]>('/shadowing/lessons').then(r => r.data),
+  getLessonById: (id: string) => api.get<ShadowingVideo>(`/shadowing/lessons/${id}`).then(r => r.data),
 
-  getVideos: async () => {
-    const { data } = await api.get<ShadowingVideo[]>('/shadowing/videos');
-    return data;
-  },
+  // Videos (user-uploaded)
+  getVideos: () => api.get<ShadowingVideo[]>('/shadowing/videos').then(r => r.data),
+  getVideoById: (id: string) => api.get<ShadowingVideo>(`/shadowing/videos/${id}`).then(r => r.data),
+  createVideo: (dto: { title: string; youtubeVideoId: string; folder?: string; category?: string; duration: string; sentences: any[] }) =>
+    api.post<ShadowingVideo>('/shadowing/videos', dto).then(r => r.data),
+  updateVideo: (id: string, dto: { title?: string; folder?: string; category?: string }) =>
+    api.patch<ShadowingVideo>(`/shadowing/videos/${id}`, dto).then(r => r.data),
+  deleteVideo: (id: string) => api.delete(`/shadowing/videos/${id}`).then(r => r.data),
+  importVideo: (data: { youtubeUrl: string; title: string; folder?: string }) =>
+    api.post<ShadowingVideo>('/shadowing/videos/import', data).then(r => r.data),
 
-  getVideoById: async (id: string) => {
-    const { data } = await api.get<ShadowingVideo>(`/shadowing/videos/${id}`);
-    return data;
-  },
+  // Folders
+  getFolders: () => api.get<string[]>('/shadowing/folders').then(r => r.data),
+  createFolder: (name: string) => api.post('/shadowing/folders', { name }).then(r => r.data),
+  renameFolder: (name: string, newName: string) =>
+    api.patch(`/shadowing/folders/${encodeURIComponent(name)}`, { newName }).then(r => r.data),
+  deleteFolder: (name: string) => api.delete(`/shadowing/folders/${encodeURIComponent(name)}`).then(r => r.data),
 
-  createVideo: async (dto: { 
-    title: string; 
-    youtubeVideoId: string; 
-    folder?: string; 
-    category?: string;
-    duration: string;
-    sentences: any[];
-  }) => {
-    const { data } = await api.post<ShadowingVideo>('/shadowing/videos', dto);
-    return data;
-  },
-
-  updateVideo: async (id: string, dto: { title?: string; folder?: string; category?: string }) => {
-    const { data } = await api.patch<ShadowingVideo>(`/shadowing/videos/${id}`, dto);
-    return data;
-  },
-
-  deleteVideo: async (id: string) => {
-    const { data } = await api.delete(`/shadowing/videos/${id}`);
-    return data;
-  },
-
-  // ── Folders ─────────────────────────────────────────
-
-  getFolders: async () => {
-    const { data } = await api.get<string[]>('/shadowing/folders');
-    return data;
-  },
-
-  createFolder: async (name: string) => {
-    const { data } = await api.post('/shadowing/folders', { name });
-    return data;
-  },
-
-  renameFolder: async (name: string, newName: string) => {
-    const { data } = await api.patch(`/shadowing/folders/${encodeURIComponent(name)}`, { newName });
-    return data;
-  },
-
-  deleteFolder: async (name: string) => {
-    const { data } = await api.delete(`/shadowing/folders/${encodeURIComponent(name)}`);
-    return data;
-  },
-
-  // ── Progress ─────────────────────────────────────────
-
-  getAllProgress: async () => {
-    const { data } = await api.get<Record<string, { shadowing: number[]; dictation: number[] }>>('/shadowing/progress');
-    return data;
-  },
-
-  getProgress: async (lessonId: string) => {
-    const { data } = await api.get<ShadowingProgress>(`/shadowing/progress/${encodeURIComponent(lessonId)}`);
-    return data;
-  },
-
-  upsertProgress: async (dto: {
-    lessonId: string;
-    type: 'shadowing' | 'dictation';
-    completedSentences: number[];
-    dictationDifficulty?: string;
-    lessonTitle?: string;
-    totalSentences?: number;
-  }) => {
-    const { data } = await api.post('/shadowing/progress', dto);
-    return data;
-  },
+  // Progress
+  getAllProgress: () =>
+    api.get<Record<string, number[]>>('/shadowing/progress').then(r => r.data),
+  getProgress: (lessonId: string) =>
+    api.get<ShadowingProgressData>(`/shadowing/progress/${encodeURIComponent(lessonId)}`).then(r => r.data),
+  upsertProgress: (dto: { lessonId: string; completedSentences: number[] }) =>
+    api.post('/shadowing/progress', dto).then(r => r.data),
 };

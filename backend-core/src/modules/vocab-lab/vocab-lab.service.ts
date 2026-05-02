@@ -756,18 +756,176 @@ export class VocabLabService {
 
   // ==================== STATS & TAGS ====================
 
-  async getStats(userId: string) {
-    const cards = await this.prisma.flashcard.findMany({
+  async getStats(userId: string, range: number = 30) {
+    const clampedRange = Math.min(Math.max(range, 7), 365);
+
+    // ── 1. Card state counts ──────────────────────────────────────────────────
+    const allCards = await this.prisma.flashcard.findMany({
       where: { deck: { userId } },
-      select: { cardState: true },
+      select: { cardState: true, scheduledDays: true, lapses: true, difficulty: true, due: true },
     });
 
+    const cardCounts = {
+      newCount: allCards.filter((c) => c.cardState === CardState.NEW).length,
+      learningCount: allCards.filter((c) => c.cardState === CardState.LEARNING || c.cardState === CardState.RELEARNING).length,
+      reviewCount: allCards.filter((c) => c.cardState === CardState.REVIEW).length,
+      relearningCount: allCards.filter((c) => c.cardState === CardState.RELEARNING).length,
+      totalCount: allCards.length,
+    };
+
+    // ── 2. Review activity (last N days) ─────────────────────────────────────
+    const rangeStart = new Date();
+    rangeStart.setDate(rangeStart.getDate() - clampedRange);
+    rangeStart.setHours(0, 0, 0, 0);
+
+    const recentReviews = await this.prisma.flashcardReview.findMany({
+      where: {
+        flashcard: { deck: { userId } },
+        reviewedAt: { gte: rangeStart },
+      },
+      select: { reviewedAt: true, rating: true },
+    });
+
+    // Build a map: date-string → counts
+    const activityMap = new Map<string, { reviewCount: number; againCount: number; hardCount: number; goodCount: number; easyCount: number }>();
+    for (let i = 0; i < clampedRange; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - (clampedRange - 1 - i));
+      const key = d.toISOString().split('T')[0];
+      activityMap.set(key, { reviewCount: 0, againCount: 0, hardCount: 0, goodCount: 0, easyCount: 0 });
+    }
+    for (const r of recentReviews) {
+      const key = r.reviewedAt.toISOString().split('T')[0];
+      const entry = activityMap.get(key);
+      if (entry) {
+        entry.reviewCount++;
+        if (r.rating === 1) entry.againCount++;
+        else if (r.rating === 2) entry.hardCount++;
+        else if (r.rating === 3) entry.goodCount++;
+        else if (r.rating === 4) entry.easyCount++;
+      }
+    }
+    const reviewActivity = Array.from(activityMap.entries()).map(([date, counts]) => ({ date, ...counts }));
+
+    // ── 3. Streak data ────────────────────────────────────────────────────────
+    const allReviewDates = await this.prisma.flashcardReview.findMany({
+      where: { flashcard: { deck: { userId } } },
+      select: { reviewedAt: true },
+      orderBy: { reviewedAt: 'asc' },
+    });
+
+    const uniqueDates = Array.from(new Set(allReviewDates.map(r => r.reviewedAt.toISOString().split('T')[0]))).sort();
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+    for (let i = 0; i < uniqueDates.length; i++) {
+      if (i === 0) {
+        tempStreak = 1;
+      } else {
+        const prev = new Date(uniqueDates[i - 1]);
+        const curr = new Date(uniqueDates[i]);
+        const diffDays = Math.round((curr.getTime() - prev.getTime()) / 86400000);
+        if (diffDays === 1) {
+          tempStreak++;
+        } else {
+          tempStreak = 1;
+        }
+      }
+      if (tempStreak > longestStreak) longestStreak = tempStreak;
+    }
+
+    // Current streak: count backwards from today
+    const lastDate = uniqueDates[uniqueDates.length - 1];
+    if (lastDate === today || lastDate === yesterday) {
+      currentStreak = 1;
+      for (let i = uniqueDates.length - 2; i >= 0; i--) {
+        const curr = new Date(uniqueDates[i + 1]);
+        const prev = new Date(uniqueDates[i]);
+        if (Math.round((curr.getTime() - prev.getTime()) / 86400000) === 1) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+    }
+
+    const streakData = {
+      currentStreak,
+      longestStreak,
+      totalReviewDays: uniqueDates.length,
+      totalReviews: allReviewDates.length,
+    };
+
+    // ── 4. Maturity distribution ──────────────────────────────────────────────
+    const maturityDistribution = {
+      young: allCards.filter(c => c.cardState === CardState.REVIEW && c.scheduledDays < 21).length,
+      mature: allCards.filter(c => c.cardState === CardState.REVIEW && c.scheduledDays >= 21).length,
+      suspended: allCards.filter(c => c.lapses > 8).length,
+    };
+
+    // ── 5. Forecast (next 30 days) ────────────────────────────────────────────
+    const now = new Date();
+    const forecastDays = 30;
+    const forecastMap = new Map<string, number>();
+    for (let i = 0; i < forecastDays; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + i);
+      forecastMap.set(d.toISOString().split('T')[0], 0);
+    }
+    for (const card of allCards) {
+      if (card.due) {
+        const dueKey = card.due.toISOString().split('T')[0];
+        if (forecastMap.has(dueKey)) {
+          forecastMap.set(dueKey, (forecastMap.get(dueKey) ?? 0) + 1);
+        }
+      }
+    }
+    let cumulativeCount = 0;
+    const forecast = Array.from(forecastMap.entries()).map(([date, dueCount]) => {
+      cumulativeCount += dueCount;
+      return { date, dueCount, cumulativeCount };
+    });
+
+    // ── 6. Averages ───────────────────────────────────────────────────────────
+    const allReviews = await this.prisma.flashcardReview.findMany({
+      where: { flashcard: { deck: { userId } } },
+      select: { rating: true },
+    });
+    const totalReviewCount = allReviews.length;
+    const retentionCount = allReviews.filter(r => r.rating >= 3).length;
+    const avgRating = totalReviewCount > 0 ? allReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviewCount : 0;
+
+    const reviewCards = allCards.filter(c => c.cardState === CardState.REVIEW);
+    const avgInterval = reviewCards.length > 0 ? reviewCards.reduce((sum, c) => sum + c.scheduledDays, 0) / reviewCards.length : 0;
+    const avgLapses = allCards.length > 0 ? allCards.reduce((sum, c) => sum + c.lapses, 0) / allCards.length : 0;
+
+    const averages = {
+      averageEasePercent: Math.round(((avgRating - 1) / 3) * 100),
+      averageLapses: Math.round(avgLapses * 10) / 10,
+      averageInterval: Math.round(avgInterval * 10) / 10,
+      retentionRatePercent: totalReviewCount > 0 ? Math.round((retentionCount / totalReviewCount) * 100) : 0,
+    };
+
+    // ── 7. Hourly activity ────────────────────────────────────────────────────
+    const hourlyMap = Array.from({ length: 24 }, (_, hour) => ({ hour, count: 0 }));
+    for (const r of allReviewDates) {
+      const hour = r.reviewedAt.getHours();
+      hourlyMap[hour].count++;
+    }
+
+    // Backward-compat flat fields
     return {
-      newCount: cards.filter((c) => c.cardState === CardState.NEW).length,
-      learningCount: cards.filter((c) => c.cardState === CardState.LEARNING)
-        .length,
-      reviewCount: cards.filter((c) => c.cardState === CardState.REVIEW).length,
-      totalCount: cards.length,
+      ...cardCounts, // newCount, learningCount, reviewCount, totalCount (flat)
+      cardCounts,
+      reviewActivity,
+      streakData,
+      maturityDistribution,
+      forecast,
+      averages,
+      hourlyActivity: hourlyMap,
     };
   }
 

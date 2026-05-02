@@ -1670,191 +1670,189 @@ export default function IeltsResultPage() {
   return (
     <FloatingSelectionManager>
       <div className="min-h-screen bg-gray-50 font-sans">
-        <div className="container mx-auto max-w-screen-xl px-4 py-8 space-y-6">
-        <Breadcrumbs />
+        <div className="container px-6 py-8 space-y-6">
+          <Breadcrumbs />
 
-        {/* ── Result Card ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <button onClick={() => setResultOpen(!resultOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
-            {resultOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-            <span className="font-extrabold text-gray-900">Result</span>
-          </button>
+          {/* ── Result Card ── */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <button onClick={() => setResultOpen(!resultOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
+              {resultOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+              <span className="font-extrabold text-gray-900">Result</span>
+            </button>
 
-          {resultOpen && (
-            <div className="px-8 pb-8 pt-2">
-              {loading ? (
-                <div className="flex gap-10 animate-pulse">
-                  <div className="w-24 h-32 bg-gray-200 rounded-xl" />
-                  <div className="flex flex-col gap-3 pt-4">
-                    <div className="h-4 w-32 bg-gray-200 rounded" />
-                    <div className="h-6 w-56 bg-gray-200 rounded" />
-                    <div className="h-8 w-44 bg-gray-200 rounded-full" />
-                    <div className="h-8 w-36 bg-gray-200 rounded-full" />
+            {resultOpen && (
+              <div className="px-8 pb-8 pt-2">
+                {loading ? (
+                  <div className="flex gap-10 animate-pulse">
+                    <div className="w-24 h-32 bg-gray-200 rounded-xl" />
+                    <div className="flex flex-col gap-3 pt-4">
+                      <div className="h-4 w-32 bg-gray-200 rounded" />
+                      <div className="h-6 w-56 bg-gray-200 rounded" />
+                      <div className="h-8 w-44 bg-gray-200 rounded-full" />
+                      <div className="h-8 w-36 bg-gray-200 rounded-full" />
+                    </div>
                   </div>
-                </div>
-              ) : error ? (
-                <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-4">{error}</div>
-              ) : (
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-4">
-                  {isPractice ? (
-                    /* Practice score display – simple circle, no band */
-                    <div className="flex flex-col items-center gap-2">
-                      <div className={`relative w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center border-[6px] ${
-                        rawScore >= maxScore * 0.8 ? "border-green-400 bg-green-50" :
-                        rawScore >= maxScore * 0.5 ? "border-amber-400 bg-amber-50" :
-                        "border-red-400 bg-red-50"
-                      }`}>
-                        <span className={`text-[42px] font-black leading-none ${
-                          rawScore >= maxScore * 0.8 ? "text-green-600" :
-                          rawScore >= maxScore * 0.5 ? "text-amber-600" :
-                          "text-red-600"
-                        }`}>{rawScore}</span>
-                        <span className="text-sm font-bold text-gray-400 mt-1">/ {maxScore}</span>
+                ) : error ? (
+                  <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-4">{error}</div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-4">
+                    {isPractice ? (
+                      /* Practice score display – simple circle, no band */
+                      <div className="flex flex-col items-center gap-2">
+                        <div className={`relative w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center border-[6px] ${rawScore >= maxScore * 0.8 ? "border-green-400 bg-green-50" :
+                            rawScore >= maxScore * 0.5 ? "border-amber-400 bg-amber-50" :
+                              "border-red-400 bg-red-50"
+                          }`}>
+                          <span className={`text-[42px] font-black leading-none ${rawScore >= maxScore * 0.8 ? "text-green-600" :
+                              rawScore >= maxScore * 0.5 ? "text-amber-600" :
+                                "text-red-600"
+                            }`}>{rawScore}</span>
+                          <span className="text-sm font-bold text-gray-400 mt-1">/ {maxScore}</span>
+                        </div>
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Practice Score</span>
                       </div>
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Practice Score</span>
-                    </div>
-                  ) : (
-                    <BandShield
-                      band={band}
-                      rawScore={(isWriting || isSpeaking) ? null : rawScore}
-                      maxScore={(isWriting || isSpeaking) ? null : maxScore}
-                      color={color}
-                    />
-                  )}
-                  <div className="flex flex-col items-center sm:items-start gap-4 sm:ml-6">
-                    <div className="text-center sm:text-left flex flex-col">
-                      <div className="text-base text-slate-500 font-medium pb-2">
-                        {[session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(" ") || "Student"}
+                    ) : (
+                      <BandShield
+                        band={band}
+                        rawScore={(isWriting || isSpeaking) ? null : rawScore}
+                        maxScore={(isWriting || isSpeaking) ? null : maxScore}
+                        color={color}
+                      />
+                    )}
+                    <div className="flex flex-col items-center sm:items-start gap-4 sm:ml-6">
+                      <div className="text-center sm:text-left flex flex-col">
+                        <div className="text-base text-slate-500 font-medium pb-2">
+                          {[session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(" ") || "Student"}
+                        </div>
+                        <h1 className="text-2xl sm:text-[28px] font-extrabold text-slate-800 tracking-tight leading-tight">
+                          {shortTitle}{isPractice ? ` — Part ${practicePart} Practice` : ""}
+                        </h1>
                       </div>
-                      <h1 className="text-2xl sm:text-[28px] font-extrabold text-slate-800 tracking-tight leading-tight">
-                        {shortTitle}{isPractice ? ` — Part ${practicePart} Practice` : ""}
-                      </h1>
-                    </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-2">
-                      {submittedAt && (
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-xl bg-amber-50 shrink-0">
-                            <Calendar className="w-4 h-4 text-amber-500" strokeWidth={2.5} />
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-2">
+                        {submittedAt && (
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-amber-50 shrink-0">
+                              <Calendar className="w-4 h-4 text-amber-500" strokeWidth={2.5} />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Completed</span>
+                              <span className="text-sm font-semibold text-slate-700">{submittedAt.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                            </div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Completed</span>
-                            <span className="text-sm font-semibold text-slate-700">{submittedAt.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                        )}
+                        {timeTakenSecs !== null && (
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-blue-50 shrink-0">
+                              <Clock className="w-4 h-4 text-blue-500" strokeWidth={2.5} />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Time Taken</span>
+                              <span className="text-sm font-semibold text-slate-700">{fmtTime(timeTakenSecs)} <span className="text-slate-400 font-medium">/ {fmtTime(totalSecs)}</span></span>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {timeTakenSecs !== null && (
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-xl bg-blue-50 shrink-0">
-                            <Clock className="w-4 h-4 text-blue-500" strokeWidth={2.5} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Time Taken</span>
-                            <span className="text-sm font-semibold text-slate-700">{fmtTime(timeTakenSecs)} <span className="text-slate-400 font-medium">/ {fmtTime(totalSecs)}</span></span>
-                          </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── AI Grading: Pending Banner ── */}
+          {!loading && (isWriting || isSpeaking) && aiGradingPending && (
+            <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+              <div className="px-8 py-10 flex flex-col items-center text-center gap-4">
+                <div className="w-14 h-14 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">
+                    {isSpeaking ? "AI is grading your transcription…" : "AI is grading your essays…"}
+                  </h2>
+                  <p className="text-sm text-gray-500">This usually takes 15–30 seconds. The page will update automatically.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Writing: Full Result View ── */}
+          {!loading && isWriting && !aiGradingPending && aiFeedback && (
+            <WritingResultView
+              feedback={aiFeedback}
+              answers={userAnswers as any}
+              exam={exam}
+              practicePart={practicePart}
+            />
+          )}
+
+          {/* ── Speaking: Full Result View ── */}
+          {!loading && isSpeaking && !aiGradingPending && aiFeedback && (
+            <SpeakingResultView
+              feedback={aiFeedback}
+              answers={userAnswers as any}
+              exam={exam}
+            />
+          )}
+
+          {/* ── Answer Sheet Card (Listening / Reading only) ── */}
+          {!loading && !error && session && !isWriting && !isSpeaking && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <button onClick={() => setAnswerSheetOpen(!answerSheetOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
+                {answerSheetOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                <span className="font-extrabold text-gray-900">Answer sheet</span>
+              </button>
+              {answerSheetOpen && (
+                <div className="px-8 pb-6 pt-2">
+                  <div className="flex flex-wrap gap-8">
+                    {answerSheetParts.map((p) => (
+                      <AnswerColumn
+                        key={p.label}
+                        partLabel={p.label}
+                        range={p.partRange}
+                        correctMap={isPractice ? practiceCorrectMap : correctMap}
+                        userAnswers={userAnswers}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
             </div>
           )}
-        </div>
 
-        {/* ── AI Grading: Pending Banner ── */}
-        {!loading && (isWriting || isSpeaking) && aiGradingPending && (
-          <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
-            <div className="px-8 py-10 flex flex-col items-center text-center gap-4">
-              <div className="w-14 h-14 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
-              <div>
-                <h2 className="text-lg font-bold text-gray-900 mb-1">
-                  {isSpeaking ? "AI is grading your transcription…" : "AI is grading your essays…"}
-                </h2>
-                <p className="text-sm text-gray-500">This usually takes 15–30 seconds. The page will update automatically.</p>
-              </div>
+          {/* ── Review & Explanation Card ── */}
+          {!loading && !error && session && exam?.questions?.parts && (
+            <ReviewSection
+              exam={exam}
+              correctMap={isPractice ? practiceCorrectMap : correctMap}
+              userAnswers={userAnswers}
+              examId={examId}
+              userId={session?.user?.id ?? ""}
+              aiFeedback={aiFeedback}
+              practicePart={practicePart}
+            />
+          )}
+
+          {/* ── Actions ── */}
+          {!loading && !error && (
+            <div className="flex gap-4">
+              <Link
+                href={isPractice
+                  ? `/ielts/intensive/${encodeURIComponent(examId)}/start?practicePart=${practicePart}`
+                  : `/ielts/intensive/${encodeURIComponent(examId)}`}
+                className="px-6 py-3 bg-primary hover:bg-yellow-400 text-gray-900 font-bold rounded-xl text-sm transition-colors shadow-sm"
+              >
+                {isPractice ? "Practice Again" : "Try Again"}
+              </Link>
+              <Link
+                href={isPractice ? "/ielts/intensive?view=practice" : "/ielts/intensive"}
+                className="px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-colors"
+              >
+                {isPractice ? "Back to Practice" : "Back to Mock Tests"}
+              </Link>
             </div>
-          </div>
-        )}
-
-        {/* ── Writing: Full Result View ── */}
-        {!loading && isWriting && !aiGradingPending && aiFeedback && (
-          <WritingResultView
-            feedback={aiFeedback}
-            answers={userAnswers as any}
-            exam={exam}
-            practicePart={practicePart}
-          />
-        )}
-
-        {/* ── Speaking: Full Result View ── */}
-        {!loading && isSpeaking && !aiGradingPending && aiFeedback && (
-          <SpeakingResultView
-            feedback={aiFeedback}
-            answers={userAnswers as any}
-            exam={exam}
-          />
-        )}
-
-        {/* ── Answer Sheet Card (Listening / Reading only) ── */}
-        {!loading && !error && session && !isWriting && !isSpeaking && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <button onClick={() => setAnswerSheetOpen(!answerSheetOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
-              {answerSheetOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-              <span className="font-extrabold text-gray-900">Answer sheet</span>
-            </button>
-            {answerSheetOpen && (
-              <div className="px-8 pb-6 pt-2">
-                <div className="flex flex-wrap gap-8">
-                  {answerSheetParts.map((p) => (
-                    <AnswerColumn
-                      key={p.label}
-                      partLabel={p.label}
-                      range={p.partRange}
-                      correctMap={isPractice ? practiceCorrectMap : correctMap}
-                      userAnswers={userAnswers}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Review & Explanation Card ── */}
-        {!loading && !error && session && exam?.questions?.parts && (
-          <ReviewSection
-            exam={exam}
-            correctMap={isPractice ? practiceCorrectMap : correctMap}
-            userAnswers={userAnswers}
-            examId={examId}
-            userId={session?.user?.id ?? ""}
-            aiFeedback={aiFeedback}
-            practicePart={practicePart}
-          />
-        )}
-
-        {/* ── Actions ── */}
-        {!loading && !error && (
-          <div className="flex gap-4">
-          <Link
-              href={isPractice
-                ? `/ielts/intensive/${encodeURIComponent(examId)}/start?practicePart=${practicePart}`
-                : `/ielts/intensive/${encodeURIComponent(examId)}`}
-              className="px-6 py-3 bg-primary hover:bg-yellow-400 text-gray-900 font-bold rounded-xl text-sm transition-colors shadow-sm"
-            >
-              {isPractice ? "Practice Again" : "Try Again"}
-            </Link>
-            <Link
-              href={isPractice ? "/ielts/intensive?view=practice" : "/ielts/intensive"}
-              className="px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-colors"
-            >
-              {isPractice ? "Back to Practice" : "Back to Mock Tests"}
-            </Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </FloatingSelectionManager>
   );
 }

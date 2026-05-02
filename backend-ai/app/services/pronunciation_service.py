@@ -124,34 +124,41 @@ class PronunciationService:
             word_details: Per-word data from Whisper [{word, probability}, ...]
         """
         try:
-            # ── Metric 1: Phoneme Accuracy ──
-            phoneme_score = ipa_similarity_score(target_word, transcribed_text)
-
-            # ── Metric 2: Whisper Confidence ──
-            if word_details and len(word_details) > 0:
-                avg_confidence = sum(w.get("probability", 0) for w in word_details) / len(word_details)
-                confidence_score = avg_confidence * 100
+            if not transcribed_text.strip():
+                # Handle completely empty/silent recordings
+                phoneme_score = 0.0
+                confidence_score = 0.0
+                text_score = 0.0
+                overall_score = 0
             else:
-                confidence_score = 50.0  # neutral fallback
+                # ── Metric 1: Phoneme Accuracy ──
+                phoneme_score = ipa_similarity_score(target_word, transcribed_text)
 
-            # ── Metric 3: Text Accuracy (Levenshtein) ──
-            t_norm = transcribed_text.lower().strip()
-            r_norm = target_word.lower().strip()
-            if t_norm == r_norm:
-                text_score = 100.0
-            else:
-                distance = Levenshtein.distance(t_norm, r_norm)
-                max_len = max(len(t_norm), len(r_norm))
-                text_score = (1 - distance / max_len) * 100 if max_len > 0 else 0
+                # ── Metric 2: Whisper Confidence ──
+                if word_details and len(word_details) > 0:
+                    avg_confidence = sum(w.get("probability", 0) for w in word_details) / len(word_details)
+                    confidence_score = avg_confidence * 100
+                else:
+                    confidence_score = 50.0  # neutral fallback
 
-            # ── Combined Score ──
-            # Weighted average: phoneme (40%) + confidence (40%) + text (20%)
-            overall_score = int(
-                phoneme_score * 0.4 +
-                confidence_score * 0.4 +
-                text_score * 0.2
-            )
-            overall_score = max(0, min(100, overall_score))
+                # ── Metric 3: Text Accuracy (Levenshtein) ──
+                t_norm = transcribed_text.lower().strip()
+                r_norm = target_word.lower().strip()
+                if t_norm == r_norm:
+                    text_score = 100.0
+                else:
+                    distance = Levenshtein.distance(t_norm, r_norm)
+                    max_len = max(len(t_norm), len(r_norm))
+                    text_score = (1 - distance / max_len) * 100 if max_len > 0 else 0
+
+                # ── Combined Score ──
+                # Weighted average: phoneme (40%) + confidence (40%) + text (20%)
+                overall_score = int(
+                    phoneme_score * 0.4 +
+                    confidence_score * 0.4 +
+                    text_score * 0.2
+                )
+                overall_score = max(0, min(100, overall_score))
 
             # ── Per-word feedback ──
             words_feedback = []

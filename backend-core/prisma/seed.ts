@@ -15,9 +15,15 @@ import {
 } from "./data/mock-tests";
 import { vocabularyBooks } from "./data/vocabulary";
 import { grammarBooks } from "./data/grammar";
+import * as fs from 'fs';
+import * as path from 'path';
+
+const intermediateData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'grammar-intermediate.json'), 'utf-8'));
 import { pronunciationSounds } from "./data/pronunciation";
+import { seedPronunciation } from "./seeders/pronunciation.seed";
 import { seedIeltsBasic } from "./seeders/ielts-basic.seeder";
 import { seedIeltsAdvanced } from "./seeders/ielts-advanced.seeder";
+import { seedShadowingLessons, seedDictationLessons } from "./seeders/shadowing.seeder";
 
 async function upsertCambridgeExam(params: {
   title: string;
@@ -216,26 +222,58 @@ async function main() {
           imageUrl: book.imageUrl,
           color: book.color,
           unitCount: book.unitCount,
-          units: {
-            create: book.units.map((unit) => ({
-              title: unit.title,
-              order: unit.order,
-            })),
-          },
         }
       });
     }
+    const bookId = existing ? existing.id : (await prisma.grammarBook.findUnique({ where: { slug: book.slug } }))!.id;
+
+    const unitsToSeed = book.slug === 'intermediate' ? intermediateData.units : book.units;
+
+    for (const unitData of unitsToSeed) {
+      const content = book.slug === 'intermediate' && intermediateData.content && unitData.order.toString() in intermediateData.content 
+        ? (intermediateData.content as any)[unitData.order.toString()] 
+        : null;
+
+      const unit = await prisma.grammarUnit.upsert({
+        where: {
+          id: existing ? (await prisma.grammarUnit.findFirst({ where: { bookId, order: unitData.order } }))?.id || 'new-unit-placeholder' : 'new-unit-placeholder'
+        },
+        create: {
+          bookId,
+          title: unitData.title,
+          order: unitData.order,
+          theoryContent: book.slug === 'intermediate' 
+            ? `<img src="/images/grammar/intermediate/unit_${unitData.order}.png" alt="Unit ${unitData.order} Theory" class="w-full h-auto object-contain rounded-xl shadow-sm border border-gray-200 bg-white" />` 
+            : (content?.theory || null),
+        },
+        update: {
+          title: unitData.title,
+          theoryContent: book.slug === 'intermediate' 
+            ? `<img src="/images/grammar/intermediate/unit_${unitData.order}.png" alt="Unit ${unitData.order} Theory" class="w-full h-auto object-contain rounded-xl shadow-sm border border-gray-200 bg-white" />` 
+            : (content?.theory || null),
+        },
+      });
+
+      if (content?.exercises?.length) {
+        await prisma.grammarExercise.deleteMany({ where: { unitId: unit.id } });
+        for (const ex of content.exercises) {
+          await prisma.grammarExercise.create({
+            data: {
+              unitId: unit.id,
+              section: ex.id,
+              question: ex.question,
+              type: ex.type || (ex.matches ? 'match' : 'fill_blank'),
+              options: ex.options ? (ex.options.verbs ? { verbs: ex.options.verbs } : ex.options) : (ex.verbs ? { verbs: ex.verbs } : null),
+              answer: JSON.stringify(ex.items || ex.matches || []),
+              order: parseInt(ex.id.split('.')[1]) || 0,
+            },
+          });
+        }
+      }
+    }
   }
 
-  // Seed Pronunciation Sounds
-  console.log("🔊 Seeding pronunciation sounds...");
-  for (const sound of pronunciationSounds) {
-    await prisma.pronunciationSound.upsert({
-      where: { symbol: sound.symbol },
-      update: sound,
-      create: sound,
-    });
-  }
+  await seedPronunciation(prisma);
 
   // IELTS exams
   console.log("🧪 Seeding Cambridge IELTS exams...");
@@ -249,6 +287,78 @@ async function main() {
     imageUrl: cambridge17Image,
     questions: cambridgeIelts17ReadingTest1Questions,
   });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Reading Test 2",
+    difficulty: "ADVANCED",
+    durationMinutes: 60,
+    type: "READING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ReadingTest2Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Reading Test 3",
+    difficulty: "ADVANCED",
+    durationMinutes: 60,
+    type: "READING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ReadingTest3Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Reading Test 4",
+    difficulty: "ADVANCED",
+    durationMinutes: 60,
+    type: "READING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ReadingTest4Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 1",
+    difficulty: "ADVANCED",
+    durationMinutes: 40,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest1Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 2",
+    difficulty: "ADVANCED",
+    durationMinutes: 40,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest2Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 3",
+    difficulty: "ADVANCED",
+    durationMinutes: 40,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest3Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 4",
+    difficulty: "ADVANCED",
+    durationMinutes: 40,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest4Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 13 - Listening Test 1",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 40,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts13ListeningTest1Questions,
+  });
 
   // Default Decks
   const allUsers = await prisma.user.findMany();
@@ -258,6 +368,15 @@ async function main() {
       await prisma.deck.create({ data: { userId: u.id, name: "Default" } });
     }
   }
+
+  console.log("📘 Seeding IELTS Basic Roadmap...");
+  await seedIeltsBasic(prisma);
+
+  console.log("📙 Seeding IELTS Advanced Practice...");
+  await seedIeltsAdvanced(prisma);
+
+  await seedShadowingLessons(prisma);
+  await seedDictationLessons(prisma);
 
   console.log("\n✅ Database seeding completed!");
 }

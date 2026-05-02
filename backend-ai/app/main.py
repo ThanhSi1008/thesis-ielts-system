@@ -12,6 +12,7 @@ from app.config import get_settings
 from app.api import health, grading, writing, speaking, chat
 from app.consumers.grading_consumer import GradingConsumer
 from app.consumers.pronunciation_consumer import PronunciationConsumer
+from app.consumers.transcription_consumer import TranscriptionConsumer
 
 # Configure logging
 logging.basicConfig(
@@ -25,12 +26,13 @@ settings = get_settings()
 # Global consumer instances
 grading_consumer = None
 pronunciation_consumer = None
+transcription_consumer = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and shutdown events"""
-    global grading_consumer, pronunciation_consumer
+    global grading_consumer, pronunciation_consumer, transcription_consumer
     
     # Startup
     logger.info("🚀 Starting AI Service...")
@@ -46,6 +48,10 @@ async def lifespan(app: FastAPI):
     pronunciation_consumer.start()
     logger.info("✅ Pronunciation consumer started")
     
+    transcription_consumer = TranscriptionConsumer()
+    transcription_consumer.start()
+    logger.info("✅ Transcription consumer started")
+    
     yield
     
     # Shutdown
@@ -54,6 +60,8 @@ async def lifespan(app: FastAPI):
         grading_consumer.stop()
     if pronunciation_consumer:
         pronunciation_consumer.stop()
+    if transcription_consumer:
+        transcription_consumer.stop()
     logger.info("✅ AI Service shutdown complete")
 
 

@@ -89,19 +89,19 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
   return (
     <div className="min-h-[800px] pb-12 flex flex-col items-center">
       {/* Deck Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden w-full max-w-4xl">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden w-full max-w-4xl">
         {decks.length === 0 ? (
           <div className="py-16 text-center text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
-            <p className="text-lg font-medium mb-1">No decks yet</p>
-            <p className="text-sm">Create your first deck to start studying!</p>
+            <p className="text-lg font-medium mb-1 text-gray-900 dark:text-gray-100">No decks yet</p>
+            <p className="text-sm dark:text-gray-400">Create your first deck to start studying!</p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr className="border-b border-gray-100 dark:border-gray-800">
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Deck Name</th>
                 <th className="text-center px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">New</th>
                 <th className="text-center px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Learn</th>
@@ -113,17 +113,17 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
                 <tr
                   key={deck.id}
                   onClick={() => router.push(`/vocab-lab/study/${deck.id}`)}
-                  className={`cursor-pointer hover:bg-gray-50 transition-colors group ${index < decks.length - 1 ? 'border-b border-gray-100' : ''
+                  className={`cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group ${index < decks.length - 1 ? 'border-b border-gray-100 dark:border-gray-800' : ''
                     }`}
                 >
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors">
                         {deck.name}
                       </span>
                       <button
                         onClick={(e) => handleDeleteClick(e, deck)}
-                        className="ml-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
+                        className="ml-1 text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-1"
                         title="Delete Deck"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -152,7 +152,7 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
       {totalDueCards > 0 && (
         <div className="text-center mt-6 text-gray-600 text-sm">
           <span className="inline-block w-2 h-2 rounded-full bg-primary mr-2 align-middle"></span>
-          Study <span className="font-bold text-gray-900">{totalDueCards} cards</span> today
+          Study <span className="font-bold text-gray-900 dark:text-gray-100">{totalDueCards} cards</span> today
         </div>
       )}
 
@@ -162,7 +162,7 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
           onClick={() => setShowCreateModal(true)}
           className="inline-flex items-center px-6 py-2.5 bg-primary rounded-lg shadow-sm text-gray-900 font-medium hover:bg-primary/80 transition-all"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-800" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
           Create Deck
@@ -172,11 +172,11 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
       {/* Create Deck Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setShowCreateModal(false); setError(null); }}>
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Create New Deck</h3>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-md mx-4 border dark:border-gray-800" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Create New Deck</h3>
 
             {error && (
-              <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm">
+              <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/30 text-sm">
                 {error}
               </div>
             )}
@@ -187,7 +187,7 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
                 value={newDeckName}
                 onChange={(e) => setNewDeckName(e.target.value)}
                 placeholder="e.g. TOEFL Essential Words"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent mb-4 text-lg"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent mb-4 text-lg"
                 required
                 disabled={isCreating}
                 autoFocus
@@ -196,7 +196,7 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
                 <button
                   type="button"
                   onClick={() => { setShowCreateModal(false); setError(null); }}
-                  className="px-5 py-2.5 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                  className="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   Cancel
                 </button>
@@ -219,7 +219,7 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
         title="Delete Deck"
         message={
           <>
-            Are you sure you want to delete the deck <strong className="text-gray-900">"{deckToDelete?.name}"</strong>?
+            Are you sure you want to delete the deck <strong className="text-gray-900 dark:text-gray-100">"{deckToDelete?.name}"</strong>?
             <br /><br />
             This will permanently delete all flashcards inside this deck. This action cannot be undone.
           </>

@@ -19,6 +19,7 @@ import { PronunciationModule } from "./modules/pronunciation/pronunciation.modul
 import { VocabLabModule } from "./modules/vocab-lab/vocab-lab.module";
 import { NotesModule } from "./modules/notes/notes.module";
 import { ShadowingModule } from "./modules/shadowing/shadowing.module";
+import { DictationModule } from "./modules/dictation/dictation.module";
 import { NotificationsModule } from "./modules/notifications/notifications.module";
 
 // Import common modules
@@ -55,6 +56,7 @@ import { CacheModule } from "./common/cache/cache.module";
     VocabLabModule,
     NotesModule,
     ShadowingModule,
+    DictationModule,
     NotificationsModule,
   ],
   controllers: [AppController],

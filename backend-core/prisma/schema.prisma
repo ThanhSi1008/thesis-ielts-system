@@ -27,12 +27,17 @@ model User {
   results               Result[]
   progress              LearningProgress[]
   pronunciationAttempts PronunciationAttempt[]
+  pronunciationProgress PronunciationProgress[]
   vocabularyProgress    VocabularyProgress[]
+  grammarProgress       GrammarProgress[]
   decks                 Deck[]
   questionNotes             QuestionNote[]
-  shadowingVideos           ShadowingVideo[]
-  shadowingFolders          ShadowingFolder[]
-  shadowingDictationProgress ShadowingDictationProgress[]
+  shadowingVideos           ShadowingVideo[]   @relation("UserShadowingVideos")
+  shadowingFolders          ShadowingFolder[]  @relation("UserShadowingFolders")
+  shadowingProgress         ShadowingProgress[] @relation("UserShadowingProgress")
+  dictationVideos           DictationVideo[]   @relation("UserDictationVideos")
+  dictationFolders          DictationFolder[]  @relation("UserDictationFolders")
+  dictationProgress         DictationProgress[] @relation("UserDictationProgress")
   ieltsBasicProgress         IeltsBasicProgress[]
   ieltsWritingAnswers        IeltsWritingUserAnswer[]
   ieltsPracticeSessions      IeltsPracticeSession[]
@@ -411,6 +416,7 @@ model GrammarUnit {
 
   book      GrammarBook       @relation(fields: [bookId], references: [id], onDelete: Cascade)
   exercises GrammarExercise[]
+  progress  GrammarProgress[]
 
   @@map("grammar_units")
 }
@@ -431,21 +437,84 @@ model GrammarExercise {
   @@map("grammar_exercises")
 }
 
+// Grammar Progress (per-user, per-unit)
+model GrammarProgress {
+  id               String   @id @default(uuid())
+  userId           String
+  unitId           String
+  theoryCompleted  Boolean  @default(false)
+  exerciseScore    Int?     // Best score (correct count)
+  exerciseTotal    Int?     // Total exercise count
+  completedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit GrammarUnit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, unitId])
+  @@map("grammar_progress")
+}
+
 // Pronunciation Sound (IPA symbols)
 model PronunciationSound {
   id          String   @id @default(uuid())
   symbol      String   @unique
   type        String   // "monophthong", "diphthong", "consonant"
-  word        String   // Example word
-  description String?  @db.Text
-  imageUrl    String?  // Mouth position diagram
-  audioUrl    String?
+  word        String   // Primary example word (shown on chart tile)
+  name        String?  // Human-readable name, e.g. "Long E", "Voiceless Dental Fricative"
+  description String?  @db.Text  // How to produce the sound (paragraph)
+  tip         String?  @db.Text  // Short pronunciation tip (displayed in a callout)
+  imageUrl    String?  // Mouth position diagram URL
+  audioUrl    String?  // Audio of the isolated sound
+  videoUrl    String?  // Optional video demonstration URL
   voiced      Boolean? // For consonants
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Relations
+  exampleWords SoundExampleWord[]
+  progress     PronunciationProgress[]
+
   @@map("pronunciation_sounds")
+}
+
+model SoundExampleWord {
+  id          String  @id @default(uuid())
+  soundId     String
+  word        String  // e.g. "sheep"
+  ipa         String? // e.g. "/ʃiːp/"
+  audioUrl    String? // Audio URL for this specific word
+  order       Int     @default(0)
+
+  sound PronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
+
+  @@map("sound_example_words")
+}
+
+model PronunciationProgress {
+  id             String   @id @default(uuid())
+  userId         String
+  soundId        String
+  status         PronunciationMastery @default(NEW)
+  practiceCount  Int      @default(0)   // Total practice attempts on this sound
+  bestScore      Int?                   // Best score achieved (0-100)
+  lastPracticedAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sound PronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, soundId])
+  @@map("pronunciation_progress")
+}
+
+enum PronunciationMastery {
+  NEW         // Never practiced
+  PRACTICING  // Practiced but best score < 80
+  MASTERED    // Best score >= 80
 }
 
 // ============================================================
@@ -585,56 +654,118 @@ model QuestionNote {
 }
 
 // ============================================================
-// SHADOWING & DICTATION
+// SHADOWING
 // ============================================================
 
-// User-uploaded videos for Shadowing/Dictation practice
+// Shadowing videos (system-provided and user-uploaded)
+// sentences JSON: {id, english, vietnamese, phonetic, words[], audioStart, audioEnd}
 model ShadowingVideo {
   id             String   @id @default(uuid())
-  userId         String
+  userId         String?  // null = system lesson
   title          String
-  youtubeVideoId String
+  youtubeVideoId String?
+  audioUrl       String?
+  imageUrl       String?
+  tags           String[] @default([])
   folder         String   @default("All Videos")
   category       String   @default("Other")
   duration       String
-  sentences      Json     // Array of ShadowingSentence {id, english, vietnamese, phonetic, words, audioStart, audioEnd}
+  sentences      Json
+  status         String   @default("READY")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user     User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation("UserShadowingVideos", fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("shadowing_videos")
 }
 
-// User-created folders to organize their videos
+// User-created folders for shadowing videos
 model ShadowingFolder {
   id     String @id @default(uuid())
   userId String
   name   String
   order  Int    @default(0)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("UserShadowingFolders", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, name])
   @@map("shadowing_folders")
 }
 
-// Progress tracking for both Shadowing and Dictation per lesson
-model ShadowingDictationProgress {
-  id                  String   @id @default(uuid())
-  userId              String
-  lessonId            String   // Static lesson ID (e.g. "toeic-1") or ShadowingVideo.id
-  type                String   // "shadowing" or "dictation"
-  completedSentences  Int[]    // Indices of completed sentences
-  dictationDifficulty String?  // "Beginner" | "Intermediate" | "Advanced" | "Expert" (dictation only)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+// Progress tracking for Shadowing — no difficulty, no type discriminator
+model ShadowingProgress {
+  id                 String   @id @default(uuid())
+  userId             String
+  lessonId           String
+  completedSentences Int[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  // Relations
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("UserShadowingProgress", fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, lessonId, type])
-  @@map("shadowing_dictation_progress")
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@map("shadowing_progress")
+}
+
+// ============================================================
+// DICTATION
+// ============================================================
+
+// Dictation videos (system-provided and user-uploaded)
+// sentences JSON: {id, english, words[], audioStart, audioEnd}  (no vietnamese/phonetic)
+model DictationVideo {
+  id             String   @id @default(uuid())
+  userId         String?  // null = system lesson
+  title          String
+  youtubeVideoId String?
+  audioUrl       String?
+  imageUrl       String?
+  tags           String[] @default([])
+  folder         String   @default("All Videos")
+  category       String   @default("Other")
+  duration       String
+  sentences      Json
+  status         String   @default("READY")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User? @relation("UserDictationVideos", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("dictation_videos")
+}
+
+// User-created folders for dictation videos
+model DictationFolder {
+  id     String @id @default(uuid())
+  userId String
+  name   String
+  order  Int    @default(0)
+
+  user User @relation("UserDictationFolders", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@map("dictation_folders")
+}
+
+// Progress tracking for Dictation — includes difficulty level
+model DictationProgress {
+  id                 String   @id @default(uuid())
+  userId             String
+  lessonId           String
+  completedSentences Int[]
+  difficulty         String   @default("Intermediate") // Beginner | Intermediate | Advanced | Expert
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation("UserDictationProgress", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@map("dictation_progress")
 }
 
 // ============================================================

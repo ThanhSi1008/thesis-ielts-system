@@ -80,8 +80,10 @@ export const vocabLabApi = {
   },
 
   // ==================== STATS & TAGS ====================
-  getStats: async () => {
-    const { data } = await api.get<VocabLabStats>('/vocab-lab/stats');
+  getStats: async (range?: number) => {
+    const { data } = await api.get<VocabLabStats>('/vocab-lab/stats', {
+      params: range ? { range } : undefined,
+    });
     return data;
   },
   getTags: async () => {

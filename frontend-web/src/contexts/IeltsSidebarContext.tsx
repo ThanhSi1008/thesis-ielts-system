@@ -39,7 +39,7 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
     !!pathname.match(/\/ielts\/intensive\/.+/) ||
     !!pathname.match(/\/ielts\/basic\/[^/]+\/lessons\/.+/) ||
     !!pathname.match(/\/ielts\/basic\/[^/]+\/exercises\/.+/) ||
-    !!pathname.match(/\/shadowing-dictation\/[^/]+\/(shadowing|dictation)/) ||
+    !!pathname.match(/\/shadowing-dictation\/(shadowing|dictation)\/(?!my-videos).+/) ||
     !!pathname.match(/\/vocab-lab\/study\/.+/) ||
     isRoadmapPractice;
 

@@ -270,13 +270,13 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
       title={title}
       onClick={onClick}
       disabled={isUploading || disabled}
-      className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${isUploading || disabled ? 'opacity-50 cursor-not-allowed text-gray-400' : isActive ? 'bg-gray-900 text-white shadow-inner' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}
+      className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${isUploading || disabled ? 'opacity-50 cursor-not-allowed text-gray-400' : isActive ? 'bg-gray-900 dark:bg-gray-700 text-white shadow-inner' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
     >
       {children}
     </button>
   );
 
-  const ToolbarDivider = () => <div className="w-px h-5 bg-gray-200 mx-0.5" />;
+  const ToolbarDivider = () => <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-0.5" />;
 
   const toggleStyle = (key: string, val: string) => {
     if (!activeFieldId) { toast.error('Click inside a field first to style it.'); return; }
@@ -324,20 +324,20 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
             handleSubmit(e as any);
           }
         }}
-        className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col"
+        className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col"
       >
 
         {/* Header Bar: Deck & Card Type Selectors */}
-        <div className="px-4 md:px-5 py-3.5 bg-transparent border-b border-gray-100/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="px-4 md:px-5 py-3.5 bg-transparent border-b border-gray-100/60 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Add to</span>
+            <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Add to</span>
             {decks.length === 0 ? (
-              <span className="text-[13px] text-red-500 italic">Create a deck first</span>
+              <span className="text-[13px] text-red-500 dark:text-red-400 italic">Create a deck first</span>
             ) : (
               <button
                 type="button"
                 onClick={openDeckChooser}
-                className="flex items-center justify-between min-w-[170px] h-9 px-3 bg-transparent hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-[13px] font-medium text-gray-700 transition-colors focus:ring-2 focus:ring-gray-200 focus:border-gray-400"
+                className="flex items-center justify-between min-w-[170px] h-9 px-3 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm text-[13px] font-medium text-gray-700 dark:text-gray-300 transition-colors focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700 focus:border-gray-400 dark:focus:border-gray-600"
               >
                 <span className="truncate max-w-[130px] text-left">{decks.find(d => d.id === deckId)?.name || 'Select deck'}</span>
                 <svg className="h-4 w-4 text-gray-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
@@ -346,11 +346,11 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest">Type</span>
+            <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Type</span>
             <button
               type="button"
               onClick={() => setIsCardTypeChooserOpen(true)}
-              className="flex items-center gap-2 min-w-[140px] h-9 px-3 bg-transparent hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-[13px] font-medium text-gray-700 transition-colors focus:ring-2 focus:ring-gray-200 focus:border-gray-400"
+              className="flex items-center gap-2 min-w-[140px] h-9 px-3 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm text-[13px] font-medium text-gray-700 dark:text-gray-300 transition-colors focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700 focus:border-gray-400 dark:focus:border-gray-600"
             >
               <svg className="h-3.5 w-3.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
               {cardType?.name ?? 'Basic'}
@@ -416,8 +416,8 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
               }
 
               return (
-                <div key={field.id} className="group flex flex-col relative bg-transparent border border-gray-200 rounded-xl p-3.5 shadow-sm transition-all focus-within:border-gray-300 focus-within:ring-1 focus-within:ring-gray-200 cursor-text" onClick={() => setActiveFieldId(field.id)}>
-                  <label className="text-[11px] font-semibold text-gray-500/80 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-gray-800 cursor-text select-none">
+                <div key={field.id} className="group flex flex-col relative bg-transparent border border-gray-200 dark:border-gray-700 rounded-xl p-3.5 shadow-sm transition-all focus-within:border-gray-300 dark:focus-within:border-gray-600 focus-within:ring-1 focus-within:ring-gray-200 dark:focus-within:ring-gray-700 cursor-text" onClick={() => setActiveFieldId(field.id)}>
+                  <label className="text-[11px] font-semibold text-gray-500/80 dark:text-gray-400 uppercase tracking-widest mb-1.5 transition-colors group-focus-within:text-gray-800 dark:group-focus-within:text-gray-200 cursor-text select-none">
                     {field.name}
                   </label>
 
@@ -435,7 +435,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                       e.target.style.height = `${e.target.scrollHeight}px`;
                     }}
                     placeholder={hasMedia ? 'Add text (optional)...' : undefined}
-                    className="vocab-lab-textarea w-full bg-transparent border-none p-0 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-300 focus:ring-0 focus:outline-none resize-none overflow-hidden"
+                    className="vocab-lab-textarea w-full bg-transparent border-none p-0 text-[15px] leading-relaxed text-gray-900 dark:text-gray-100 placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:ring-0 focus:outline-none resize-none overflow-hidden"
                     style={fieldStyleToCSS({
                       ...(cardType.templates[0]?.fieldStyles?.[field.id] as any || {}),
                       ...(fieldStyles[field.id] || {})
@@ -449,7 +449,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                       {mediaMatches.map((tag, mIdx) => {
                         const isAudio = /^<audio/i.test(tag);
                         return (
-                          <div key={mIdx} className="relative group/media rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
+                          <div key={mIdx} className="relative group/media rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                             {/* Remove button */}
                             <button
                               type="button"
@@ -491,9 +491,9 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
 
           {/* Tags */}
           <div className="mt-2 flex flex-col gap-2">
-            <div className="flex items-center flex-wrap gap-2 p-3 bg-transparent border border-gray-200 rounded-xl shadow-sm focus-within:border-gray-300 focus-within:ring-1 focus-within:ring-gray-200 transition-all cursor-text min-h-[50px]" onClick={() => document.getElementById('tags-input')?.focus()}>
+            <div className="flex items-center flex-wrap gap-2 p-3 bg-transparent border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm focus-within:border-gray-300 dark:focus-within:border-gray-600 focus-within:ring-1 focus-within:ring-gray-200 dark:focus-within:ring-gray-700 transition-all cursor-text min-h-[50px]" onClick={() => document.getElementById('tags-input')?.focus()}>
               {tagsList.map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-[12px] text-gray-700 font-medium group transition-colors">
+                <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-[12px] text-gray-700 dark:text-gray-300 font-medium group transition-colors">
                   {tag}
                   <button
                     type="button"
@@ -511,18 +511,18 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleAddTag}
                 placeholder={tagsList.length === 0 ? 'Tags (optional) - press Enter...' : 'Add another tag...'}
-                className="bg-transparent border-none p-0 text-[13.5px] outline-none focus:ring-0 text-gray-800 placeholder-gray-400 min-w-[160px] flex-1"
+                className="bg-transparent border-none p-0 text-[13.5px] outline-none focus:ring-0 text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 min-w-[160px] flex-1"
               />
             </div>
           </div>
         </div>
 
         {/* Footer Card */}
-        <div className="px-5 md:px-6 py-4 bg-transparent border-t border-gray-100/60 flex items-center justify-between">
-          <div className="hidden sm:flex items-center gap-1.5 text-[12px] text-gray-400 font-medium">
-            <kbd className="px-1.5 py-0.5 border border-gray-200 rounded font-sans text-[10px] text-gray-500">Ctrl</kbd>
+        <div className="px-5 md:px-6 py-4 bg-transparent border-t border-gray-100/60 dark:border-gray-800 flex items-center justify-between">
+          <div className="hidden sm:flex items-center gap-1.5 text-[12px] text-gray-400 dark:text-gray-500 font-medium">
+            <kbd className="px-1.5 py-0.5 border border-gray-200 dark:border-gray-700 rounded font-sans text-[10px] text-gray-500 dark:text-gray-400">Ctrl</kbd>
             <span>+</span>
-            <kbd className="px-1.5 py-0.5 border border-gray-200 rounded font-sans text-[10px] text-gray-500">Enter</kbd>
+            <kbd className="px-1.5 py-0.5 border border-gray-200 dark:border-gray-700 rounded font-sans text-[10px] text-gray-500 dark:text-gray-400">Enter</kbd>
             <span className="ml-1">to add quickly</span>
           </div>
           <button
@@ -549,10 +549,10 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
       {/* Deck Chooser Modal */}
       {isDeckChooserOpen && (
         <div className="fixed inset-0 z-[9900] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-[480px] flex flex-col overflow-hidden border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-[480px] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-800">
             {/* Header */}
             <div className="px-6 pt-6 pb-4">
-              <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Choose Deck</h2>
+              <h2 className="text-[18px] font-bold text-gray-900 dark:text-gray-100 tracking-tight">Choose Deck</h2>
             </div>
 
             {/* Body */}
@@ -565,19 +565,19 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                   placeholder="Search decks..."
                   value={deckFilter}
                   onChange={e => setDeckFilter(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-gray-50 focus:bg-white transition-all shadow-sm"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 transition-all shadow-sm"
                 />
               </div>
 
-              <div className="border border-gray-100 rounded-xl overflow-y-auto h-[240px] flex flex-col bg-white">
+              <div className="border border-gray-100 dark:border-gray-800 rounded-xl overflow-y-auto h-[240px] flex flex-col bg-white dark:bg-gray-900">
                 {filteredDecks.map(d => (
                   <div
                     key={d.id}
                     onClick={() => setModalSelectedDeckId(d.id)}
                     onDoubleClick={() => { setModalSelectedDeckId(d.id); setTimeout(handleModalChoose, 10); }}
                     className={`px-4 py-3 text-[13px] cursor-pointer transition-colors border-l-[3px] ${modalSelectedDeckId === d.id
-                      ? 'bg-primary/5 border-l-primary text-gray-900 font-semibold'
-                      : 'border-l-transparent text-gray-600 font-medium hover:bg-gray-50'
+                      ? 'bg-primary/5 border-l-primary text-gray-900 dark:text-gray-100 font-semibold'
+                      : 'border-l-transparent text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                   >
                     {d.name}
@@ -592,9 +592,9 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 mt-4 border-t border-gray-100 bg-gray-50/50 flex flex-row-reverse items-center justify-between">
+            <div className="px-6 py-4 mt-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex flex-row-reverse items-center justify-between">
               <div className="flex gap-2">
-                <button type="button" onClick={() => setIsDeckChooserOpen(false)} className="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors">
+                <button type="button" onClick={() => setIsDeckChooserOpen(false)} className="px-4 py-2 text-[13px] font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
                   Cancel
                 </button>
                 <button type="button" onClick={handleModalChoose} disabled={!modalSelectedDeckId} className="px-5 py-2 text-[13px] font-semibold bg-primary text-black rounded-lg hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm">
@@ -612,15 +612,15 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
       {/* Create Deck Modal */}
       {isCreateDeckOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-[400px] flex flex-col overflow-hidden border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-[400px] flex flex-col overflow-hidden border border-gray-100 dark:border-gray-800">
             {/* Title bar */}
             <div className="px-6 pt-6 pb-2">
-              <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">Create Deck</h2>
+              <h2 className="text-[18px] font-bold text-gray-900 dark:text-gray-100 tracking-tight">Create Deck</h2>
             </div>
 
             {/* Body */}
             <div className="px-6 pt-4 pb-2">
-              <label className="block text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Deck Name</label>
+              <label className="block text-[12px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Deck Name</label>
               <input
                 type="text"
                 autoFocus
@@ -630,12 +630,12 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
                   if (e.key === 'Enter') handleCreateDeckOk();
                   if (e.key === 'Escape') setIsCreateDeckOpen(false);
                 }}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-gray-50 focus:bg-white transition-all shadow-sm"
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 transition-all shadow-sm"
               />
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 mt-6 border-t border-gray-100 bg-gray-50/50 flex flex-row-reverse gap-2">
+            <div className="px-6 py-4 mt-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex flex-row-reverse gap-2">
               <button
                 type="button"
                 onClick={handleCreateDeckOk}
@@ -647,7 +647,7 @@ export function AddCardTab({ isActive }: { isActive: boolean }) {
               <button
                 type="button"
                 onClick={() => setIsCreateDeckOpen(false)}
-                className="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors"
+                className="px-4 py-2 text-[13px] font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Cancel
               </button>

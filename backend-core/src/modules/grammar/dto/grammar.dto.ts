@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, IsUrl, Min } from "class-validator";
+import { IsString, IsInt, IsOptional, IsUrl, Min, IsBoolean } from "class-validator";
 
 export class CreateGrammarBookDto {
   @IsString()
@@ -82,4 +82,21 @@ export class UpdateGrammarUnitDto {
   @IsString()
   @IsOptional()
   theoryContent?: string;
+}
+
+export class UpdateGrammarProgressDto {
+  @IsString()
+  unitId: string;
+
+  @IsBoolean()
+  @IsOptional()
+  theoryCompleted?: boolean;
+
+  @IsInt()
+  @IsOptional()
+  exerciseScore?: number;
+
+  @IsInt()
+  @IsOptional()
+  exerciseTotal?: number;
 }

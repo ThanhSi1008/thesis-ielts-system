@@ -1,26 +1,128 @@
-import React from "react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ipaData } from "../data";
-import PageHeader from "@/components/PageHeader";
+'use client';
 
-export default async function SoundPage({ params }: { params: { lessonSlug: string } }) {
-  // lessonSlug is the symbol here, but it might be URL encoded
-  const { lessonSlug } = await params;
-  const decodedSymbol = decodeURIComponent(lessonSlug);
+import React, { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { pronunciationApi } from '@/services/learning.api';
+import type { PronunciationSound, WordProgress } from '@/types';
+import SoundDetailContent from '@/app/ielts/pronunciation/sounds/[symbol]/_components/SoundDetailContent';
+import PageHeader from '@/components/PageHeader';
+import { useAuth } from '@/contexts/AuthContext';
 
-  // Find the sound in all categories
-  const allSounds = [...ipaData.monophthongs, ...ipaData.diphthongs, ...ipaData.consonants];
-  const sound = allSounds.find(s => s.symbol === decodedSymbol);
+const BACK_HREF = '/pronunciation';
 
-  if (!sound) {
-    return notFound();
+export default function SoundPage() {
+  const params = useParams();
+  const { user } = useAuth();
+  const [sound, setSound] = useState<PronunciationSound | null>(null);
+  const [wordProgress, setWordProgress] = useState<WordProgress[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const symbol = decodeURIComponent(params.lessonSlug as string);
+
+  const fetchWordProgress = useCallback(async (soundId: string) => {
+    if (!user) return;
+    try {
+      const data = await pronunciationApi.getWordProgress(soundId);
+      setWordProgress(data);
+    } catch {
+      // Non-critical — silently ignore
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await pronunciationApi.getSound(symbol);
+        if (!data) throw new Error('Sound not found');
+        setSound(data);
+
+        if (user) {
+          await fetchWordProgress(data.id);
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Failed to load sound data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (symbol) fetchData();
+  }, [symbol, user, fetchWordProgress]);
+
+  const handlePracticeComplete = async (score: number) => {
+    if (!user || !sound) return;
+    try {
+      await pronunciationApi.updateProgress(sound.id, score);
+      await fetchWordProgress(sound.id);
+    } catch (err) {
+      console.error('Failed to update progress', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Loading..."
+          backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772715265/788c018d-403b-4260-8b8d-710d0a3db342.png"
+          breadcrumbs={[
+            { label: 'Homepage', href: '/' },
+            { label: 'Pronunciation', href: '/pronunciation' },
+            { label: symbol },
+          ]}
+        />
+        <div className="container px-6 py-8 animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-2xl border border-slate-200 p-8 flex flex-col items-center justify-center h-64">
+              <div className="h-6 w-24 bg-slate-200 rounded-full mb-6" />
+              <div className="h-24 w-24 bg-slate-200 rounded-full mb-4" />
+              <div className="h-6 w-32 bg-slate-200 rounded mb-8" />
+              <div className="w-16 h-16 rounded-full bg-slate-200" />
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 h-64">
+              <div className="h-8 w-1/2 bg-slate-200 rounded mb-6" />
+              <div className="space-y-3">
+                <div className="h-4 bg-slate-200 rounded w-full" />
+                <div className="h-4 bg-slate-200 rounded w-5/6" />
+                <div className="h-4 bg-slate-200 rounded w-4/6" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (error || !sound) {
+    return (
+      <>
+        <PageHeader
+          title="Sound not found"
+          backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772715265/788c018d-403b-4260-8b8d-710d0a3db342.png"
+          breadcrumbs={[
+            { label: 'Homepage', href: '/' },
+            { label: 'Pronunciation', href: '/pronunciation' },
+            { label: 'Error' },
+          ]}
+        />
+        <div className="min-h-[50vh] flex flex-col items-center justify-center p-4">
+          <h1 className="text-2xl font-bold text-slate-800 mb-4">Sound not found</h1>
+          <Link href={BACK_HREF} className="text-primary hover:underline">
+            Back to Pronunciation Chart
+          </Link>
+        </div>
+      </>
+    );
   }
 
   return (
     <>
       <PageHeader
-        title={`${sound.symbol}: ${sound.word}`}
+        title={`${sound.symbol}`}
         backgroundImage="https://res.cloudinary.com/dalaaegob/image/upload/v1772715265/788c018d-403b-4260-8b8d-710d0a3db342.png"
         breadcrumbs={[
           { label: 'Homepage', href: '/' },
@@ -28,65 +130,12 @@ export default async function SoundPage({ params }: { params: { lessonSlug: stri
           { label: sound.symbol },
         ]}
       />
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
-
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <h2 className="text-3xl font-bold">{sound.symbol}:</h2>
-          <span className="text-2xl font-bold underline decoration-2">{sound.word}</span>
-
-          {/* Audio Button Placeholder */}
-          <button className="bg-[#FFC600] rounded-full p-2 ml-auto shadow-sm hover:shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-white">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <h3 className="font-bold text-lg mb-4">How to make the sound?</h3>
-            <p className="text-lg mb-4">
-              /{sound.symbol}/ is a {sound.type}. Look at the diagram. Listen and then say the sound.
-              Make your mouth shape match the diagram.
-            </p>
-
-            {/* Placeholder for Mouth Diagram */}
-            <div className="bg-gray-100 rounded-xl p-8 flex items-center justify-center border border-gray-200">
-              <div className="text-center text-gray-400">
-                <div className="w-64 h-48 bg-gray-200 mx-auto rounded-lg mb-4 flex items-center justify-center">
-                  [Mouth Diagram for {sound.symbol}]
-                </div>
-                <p>Profile view of mouth position</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Practice Words */}
-        <div className="mt-12">
-          <h3 className="font-bold text-lg mb-6">Sound and spelling</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-gray-100 rounded-full px-6 py-4 flex items-center justify-between">
-                <span className="font-bold text-lg underline decoration-2">{sound.word}</span>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex text-yellow-400 text-sm">
-                    {'★'.repeat(3)}
-                  </div>
-                  <button>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="container mx-auto max-w-screen-xl px-4 py-12">
+        <SoundDetailContent
+          sound={sound}
+          wordProgress={wordProgress}
+          onPracticeComplete={handlePracticeComplete}
+        />
       </div>
     </>
   );

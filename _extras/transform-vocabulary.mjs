@@ -111,6 +111,21 @@ function parseExercisesFromHtml(exerciseEntries) {
         order: order++,
       });
     }
+    
+    // Fill-blank (char) exercises
+    const charRegex = /<li[^>]*class=['"]answer-the-questions-section-char['"][^>]*value=['"]([^'"]*?)['"][^>]*>([\s\S]*?)<\/li>/g;
+    while ((match = charRegex.exec(html)) !== null) {
+      const answer = decodeHtmlEntities(match[1]);
+      const questionContent = match[2];
+      const questionText = stripHtml(questionContent.replace(/<br\s*\/?>/g, ' ').replace(/_+/g, '____').trim());
+
+      exercises.push({
+        question: questionText,
+        answer: answer,
+        options: [],
+        order: order++,
+      });
+    }
   }
 
   return exercises;
@@ -251,14 +266,15 @@ for (let bookNum = 1; bookNum <= 6; bookNum++) {
     // Parse words
     const words = (fc.wordlist || []).map((w, idx) => {
       const { ipa, partOfSpeech } = parsePron(w.pron || '');
+      const baseUnitSlug = urlFriendly(unitLabel);
       return {
         word: w.en,
         meaning: stripHtml(w.desc),
         ipa,
         partOfSpeech,
         example: stripHtml(w.exam),
-        imageUrl: w.image ? `${basePath}/${unitSlug}/wordlist/${w.image}` : null,
-        audioUrl: w.sound ? `${basePath}/${unitSlug}/wordlist/${w.sound}` : null,
+        imageUrl: w.image ? `${basePath}/${baseUnitSlug}/wordlist/${w.image}` : null,
+        audioUrl: w.sound ? `${basePath}/${baseUnitSlug}/wordlist/${w.sound}` : null,
         order: idx + 1,
       };
     });

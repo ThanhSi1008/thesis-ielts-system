@@ -201,8 +201,8 @@ export class VocabLabController {
   // ==================== STATS & TAGS ====================
 
   @Get("stats")
-  async getStats(@Request() req: any) {
-    return this.vocabLabService.getStats(req.user.id);
+  async getStats(@Request() req: any, @Query("range") range?: string) {
+    return this.vocabLabService.getStats(req.user.id, range ? parseInt(range, 10) : 30);
   }
 
   @Get("tags")

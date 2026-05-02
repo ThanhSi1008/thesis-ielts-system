@@ -66,12 +66,12 @@ function BandScoreChart({ points, label }: { points: { date: string; band: numbe
   const yLabels = [2, 3, 4, 5, 6, 7, 8, 9];
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 h-full flex flex-col justify-between">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-full flex flex-col justify-between">
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-slate-900 text-sm">{label} Progress</span>
+            <span className="font-semibold text-slate-900 dark:text-white text-sm">{label} Progress</span>
           </div>
           <div className="text-xs text-slate-500 mt-1">Band score over your last {points.length} attempt{points.length !== 1 ? 's' : ''}</div>
         </div>
@@ -317,11 +317,11 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
 
   const getSkillBadge = (skill: string) => {
     switch (skill) {
-      case 'LISTENING': return <span className="px-2 py-1 bg-pink-50 text-pink-600 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><Headphones className="w-3 h-3" /> Listening</span>;
-      case 'READING': return <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><BookOpen className="w-3 h-3" /> Reading</span>;
-      case 'WRITING': return <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><PenTool className="w-3 h-3" /> Writing</span>;
-      case 'SPEAKING': return <span className="px-2 py-1 bg-purple-50 text-purple-600 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><Mic className="w-3 h-3" /> Speaking</span>;
-      default: return <span className="px-2 py-1 bg-gray-50 text-gray-600 rounded-md text-[10px] font-bold uppercase w-max">{skill}</span>;
+      case 'LISTENING': return <span className="px-2 py-1 bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><Headphones className="w-3 h-3" /> Listening</span>;
+      case 'READING': return <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><BookOpen className="w-3 h-3" /> Reading</span>;
+      case 'WRITING': return <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-500 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><PenTool className="w-3 h-3" /> Writing</span>;
+      case 'SPEAKING': return <span className="px-2 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 w-max"><Mic className="w-3 h-3" /> Speaking</span>;
+      default: return <span className="px-2 py-1 bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 rounded-md text-[10px] font-bold uppercase w-max">{skill}</span>;
     }
   };
 
@@ -368,14 +368,14 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
     : null;
 
   return (
-    <div className={`w-full bg-white overflow-y-auto px-4 sm:px-8 py-6 ${embedded ? 'h-full' : 'min-h-screen'}`}>
+    <div className={`w-full bg-white dark:bg-slate-950 overflow-y-auto px-4 sm:px-8 py-6 ${embedded ? 'h-full' : 'min-h-screen'}`}>
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
 
         {/* Teacher Mode Banner */}
         {isTeacherMode && (
-          <div className="flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
-            <GraduationCap className="w-4 h-4 text-amber-600 shrink-0" />
-            <span className="text-sm font-medium text-amber-800">
+          <div className="flex items-center gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl">
+            <GraduationCap className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0" />
+            <span className="text-sm font-medium text-amber-800 dark:text-amber-400">
               Teacher view — you are seeing <strong>{studentName || 'this student'}</strong>'s statistics (read-only)
             </span>
           </div>
@@ -384,14 +384,14 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
         {/* Top Header / Profile Info */}
         {!hideSummary && !loading && profile && (
           <div className="mb-10 animate-fade-up">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-8 border-b border-slate-200">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-8 border-b border-slate-200 dark:border-slate-800">
               {/* Profile info */}
               <div className="flex items-center gap-6">
-                <div className="w-14 h-14 rounded-full bg-slate-900 flex items-center justify-center text-white text-xl font-bold shadow-lg ring-4 ring-slate-100">
+                <div className="w-14 h-14 rounded-full bg-slate-900 dark:bg-slate-800 flex items-center justify-center text-white text-xl font-bold shadow-lg ring-4 ring-slate-100 dark:ring-slate-800">
                   {(profile.user?.firstName?.[0] || profile.user?.lastName?.[0] || 'S').toUpperCase()}
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {isTeacherMode
                       ? studentName || 'Student'
                       : (profile.user?.firstName || profile.user?.lastName ? `${profile.user.firstName || ''} ${profile.user.lastName || ''}`.trim() : 'Student')
@@ -399,7 +399,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                   </h1>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase tracking-wider border border-primary/20">IELTS Candidate</span>
-                    <span className="text-slate-400 text-sm font-medium border-l border-slate-200 pl-2">
+                    <span className="text-slate-400 dark:text-slate-500 text-sm font-medium border-l border-slate-200 dark:border-slate-800 pl-2">
                       {isTeacherMode ? 'Performance Overview' : "Your learning journey at a glance"}
                     </span>
                   </div>
@@ -410,25 +410,25 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
               <div className="flex items-center gap-8 lg:gap-12 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Estimate</span>
-                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none">{estimatedBand > 0 ? estimatedBand.toFixed(1) : "—"}</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums leading-none">{estimatedBand > 0 ? estimatedBand.toFixed(1) : "—"}</span>
                 </div>
-                <div className="w-px h-8 bg-slate-100 hidden sm:block"></div>
+                <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Target</span>
-                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none">{profile.targetBand?.toFixed(1) || "—"}</span>
+                  <span className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums leading-none">{profile.targetBand?.toFixed(1) || "—"}</span>
                 </div>
-                <div className="w-px h-8 bg-slate-100 hidden sm:block"></div>
+                <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Streak</span>
-                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none flex items-center gap-1.5">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums leading-none flex items-center gap-1.5">
                     {streak?.currentStreak || 0}
                     <span className="text-sm font-medium text-slate-400 lowercase">d</span>
                   </span>
                 </div>
-                <div className="w-px h-8 bg-slate-100 hidden sm:block"></div>
+                <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 hidden sm:block"></div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">Daily Goal</span>
-                  <span className="text-2xl font-bold text-slate-900 tabular-nums leading-none flex items-center gap-1.5">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums leading-none flex items-center gap-1.5">
                     {profile.dailyCommitmentMins || 0}
                     <span className="text-sm font-medium text-slate-400 lowercase">m</span>
                   </span>
@@ -439,13 +439,13 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
             {/* Sub-bar: Exam Date & Actions */}
             <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-4 text-slate-600">
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
                   <Calendar className="w-5 h-5 text-slate-400" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">Upcoming Exam</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-[15px] font-bold text-slate-900">
+                    <span className="text-[15px] font-bold text-slate-900 dark:text-white">
                       {examDate ? (() => {
                         const days = Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         if (days < 0) return "Completed on " + new Date(examDate).toLocaleDateString();
@@ -466,7 +466,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                 <div className="flex items-center gap-2">
                   <input
                     type="date"
-                    className="text-sm font-bold border border-slate-200 rounded-lg py-1.5 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="text-sm font-bold border border-slate-200 dark:border-slate-700 rounded-lg py-1.5 px-3 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                     value={examDate ? new Date(examDate).toISOString().split('T')[0] : ''}
                     onChange={async (e) => {
                       const newDate = e.target.value || null;
@@ -484,7 +484,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
               {!isTeacherMode && !examDate && !isEditingExamDate && (
                 <button
                   onClick={() => setIsEditingExamDate(true)}
-                  className="px-6 py-2 bg-white text-slate-900 text-xs font-bold border border-slate-200 rounded-lg hover:bg-slate-50 transition-all active:scale-95 uppercase tracking-wider shadow-sm"
+                  className="px-6 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95 uppercase tracking-wider shadow-sm"
                 >
                   Schedule Exam
                 </button>
@@ -498,10 +498,10 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
             {!loading && (
               <>
                 {/* 1. Practice Submissions Over Time (Full Width Line Chart) */}
-                <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col mb-8">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col mb-8">
                   <div className="flex items-center gap-2 mb-6">
-                    <TrendingUp className="w-5 h-5 text-slate-900" />
-                    <h2 className="text-lg font-bold text-slate-900">Practice Submissions Over Time</h2>
+                    <TrendingUp className="w-5 h-5 text-slate-900 dark:text-white" />
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Practice Submissions Over Time</h2>
                   </div>
                   <div className="flex-1 w-full relative" style={{ height: 220 }}>
                     <svg viewBox="0 0 1000 200" className="w-full h-full overflow-visible" preserveAspectRatio="none">
@@ -549,16 +549,16 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                 </div>
 
                 {/* 2. Band Score Trends */}
-                <div className="text-lg font-bold text-slate-900 mb-4">Band Score Trends</div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-8 border-b border-slate-200 mb-8">
+                <div className="text-lg font-bold text-slate-900 dark:text-white mb-4">Band Score Trends</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-8 border-b border-slate-200 dark:border-slate-800 mb-8">
                   {/* Listening */}
                   {historyPoints.length >= 2 ? (
                     <BandScoreChart points={historyPoints} label="Listening" />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 bg-slate-50 rounded-xl h-full min-h-[200px]">
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-xl h-full min-h-[200px]">
                       <TrendingUp className="w-10 h-10 mb-3 opacity-30 text-slate-400" />
-                      <div className="font-medium text-slate-600">No Listening chart data yet</div>
-                      <div className="text-sm mt-1">Complete at least 2 listening tests.</div>
+                      <div className="font-medium text-slate-600 dark:text-slate-300">No Listening chart data yet</div>
+                      <div className="text-sm mt-1 text-slate-500 dark:text-slate-400">Complete at least 2 listening tests.</div>
                     </div>
                   )}
 
@@ -566,10 +566,10 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                   {readingPoints.length >= 2 ? (
                     <BandScoreChart points={readingPoints} label="Reading" />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 bg-slate-50 rounded-xl h-full min-h-[200px]">
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-xl h-full min-h-[200px]">
                       <TrendingUp className="w-10 h-10 mb-3 opacity-30 text-slate-400" />
-                      <div className="font-medium text-slate-600">No Reading chart data yet</div>
-                      <div className="text-sm mt-1">Complete at least 2 reading tests.</div>
+                      <div className="font-medium text-slate-600 dark:text-slate-300">No Reading chart data yet</div>
+                      <div className="text-sm mt-1 text-slate-500 dark:text-slate-400">Complete at least 2 reading tests.</div>
                     </div>
                   )}
 
@@ -577,10 +577,10 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                   {writingPoints.length >= 2 ? (
                     <BandScoreChart points={writingPoints} label="Writing" />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 bg-slate-50 rounded-xl h-full min-h-[200px]">
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-xl h-full min-h-[200px]">
                       <TrendingUp className="w-10 h-10 mb-3 opacity-30 text-slate-400" />
-                      <div className="font-medium text-slate-600">No Writing chart data yet</div>
-                      <div className="text-sm mt-1">Complete at least 2 writing tests.</div>
+                      <div className="font-medium text-slate-600 dark:text-slate-300">No Writing chart data yet</div>
+                      <div className="text-sm mt-1 text-slate-500 dark:text-slate-400">Complete at least 2 writing tests.</div>
                     </div>
                   )}
 
@@ -588,29 +588,29 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                   {speakingPoints.length >= 2 ? (
                     <BandScoreChart points={speakingPoints} label="Speaking" />
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 bg-slate-50 rounded-xl h-full min-h-[200px]">
+                    <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 rounded-xl h-full min-h-[200px]">
                       <TrendingUp className="w-10 h-10 mb-3 opacity-30 text-slate-400" />
-                      <div className="font-medium text-slate-600">No Speaking chart data yet</div>
-                      <div className="text-sm mt-1">Complete at least 2 speaking tests.</div>
+                      <div className="font-medium text-slate-600 dark:text-slate-300">No Speaking chart data yet</div>
+                      <div className="text-sm mt-1 text-slate-500 dark:text-slate-400">Complete at least 2 speaking tests.</div>
                     </div>
                   )}
                 </div>
 
                 {/* 3. Submission Volume by Skill (Full Width) */}
-                <div className="bg-white rounded-xl border border-slate-200 p-8 flex flex-col mb-8">
-                  <div className="flex items-center justify-between mb-8 border-b border-slate-200 pb-4">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8 flex flex-col mb-8">
+                  <div className="flex items-center justify-between mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div className="flex items-center gap-2">
-                      <LayoutList className="w-5 h-5 text-slate-900" />
-                      <h2 className="text-lg font-bold text-slate-900">Submission Volume</h2>
+                      <LayoutList className="w-5 h-5 text-slate-900 dark:text-white" />
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-white">Submission Volume</h2>
                     </div>
                   </div>
 
-                  <div className="flex bg-slate-50 border border-slate-100 p-1 rounded-lg mb-8 max-w-lg mx-auto w-full">
+                  <div className="flex bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 p-1 rounded-lg mb-8 max-w-lg mx-auto w-full">
                     {['LISTENING', 'READING', 'WRITING', 'SPEAKING'].map(tab => (
                       <button
                         key={tab}
                         onClick={() => setVolumeTab(tab)}
-                        className={`flex-1 text-[11px] font-medium py-2 rounded transition-all ${volumeTab === tab ? 'bg-white border border-slate-200 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        className={`flex-1 text-[11px] font-medium py-2 rounded transition-all ${volumeTab === tab ? 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'}`}
                       >
                         {tab.charAt(0) + tab.slice(1).toLowerCase()}
                       </button>
@@ -629,7 +629,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center mt-1">
-                        <div className="text-4xl font-semibold text-slate-900 leading-none">{totalVolume}</div>
+                        <div className="text-4xl font-semibold text-slate-900 dark:text-white leading-none">{totalVolume}</div>
                         <div className="text-[10px] font-medium text-slate-400 uppercase mt-1">Tests</div>
                       </div>
                     </div>
@@ -637,24 +637,24 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                     <div className="flex-1 flex flex-col gap-5 w-full">
                       <div className="flex items-center gap-3">
                         <div className="w-16 text-sm font-medium text-slate-500 text-right">Easy</div>
-                        <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-slate-300 rounded-full transition-all duration-1000" style={{ width: `${totalVolume ? (easyVolume / totalVolume) * 100 : 0}%` }}></div>
+                        <div className="flex-1 h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-slate-300 dark:bg-slate-500 rounded-full transition-all duration-1000" style={{ width: `${totalVolume ? (easyVolume / totalVolume) * 100 : 0}%` }}></div>
                         </div>
-                        <div className="w-8 text-sm font-semibold text-slate-900">{easyVolume}</div>
+                        <div className="w-8 text-sm font-semibold text-slate-900 dark:text-white">{easyVolume}</div>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="w-16 text-sm font-medium text-slate-500 text-right">Medium</div>
-                        <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-slate-400 rounded-full transition-all duration-1000" style={{ width: `${totalVolume ? (mediumVolume / totalVolume) * 100 : 0}%` }}></div>
+                        <div className="flex-1 h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-slate-400 dark:bg-slate-400 rounded-full transition-all duration-1000" style={{ width: `${totalVolume ? (mediumVolume / totalVolume) * 100 : 0}%` }}></div>
                         </div>
-                        <div className="w-8 text-sm font-semibold text-slate-900">{mediumVolume}</div>
+                        <div className="w-8 text-sm font-semibold text-slate-900 dark:text-white">{mediumVolume}</div>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="w-16 text-sm font-medium text-slate-500 text-right">Hard</div>
-                        <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-slate-500 rounded-full transition-all duration-1000" style={{ width: `${totalVolume ? (hardVolume / totalVolume) * 100 : 0}%` }}></div>
+                        <div className="flex-1 h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-slate-500 dark:bg-slate-300 rounded-full transition-all duration-1000" style={{ width: `${totalVolume ? (hardVolume / totalVolume) * 100 : 0}%` }}></div>
                         </div>
-                        <div className="w-8 text-sm font-semibold text-slate-900">{hardVolume}</div>
+                        <div className="w-8 text-sm font-semibold text-slate-900 dark:text-white">{hardVolume}</div>
                       </div>
                     </div>
                   </div>
@@ -671,14 +671,14 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                 {/* Recent Activity Feed */}
                 <div className="flex flex-col mb-4">
                   <div className="flex items-center gap-2 mb-4 px-1">
-                    <Clock className="w-5 h-5 text-slate-900" />
-                    <h2 className="text-lg font-bold text-slate-900">Recent Activity</h2>
+                    <Clock className="w-5 h-5 text-slate-900 dark:text-white" />
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Recent Activity</h2>
                   </div>
-                  <div className="flex flex-col border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
+                  <div className="flex flex-col border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
                     {recentActivity.map((h, i) => (
-                      <div key={i} className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50/80 transition-all duration-200 group border-b last:border-0 border-slate-100">
+                      <div key={i} className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-all duration-200 group border-b last:border-0 border-slate-100 dark:border-slate-800">
                         <div className="flex items-center gap-5">
-                          <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-white group-hover:shadow-sm transition-all">
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:shadow-sm transition-all">
                             {h.skill === 'LISTENING' && <Headphones className="w-4 h-4 text-slate-500 group-hover:text-primary" />}
                             {h.skill === 'READING' && <BookOpen className="w-4 h-4 text-slate-500 group-hover:text-primary" />}
                             {h.skill === 'WRITING' && <PenTool className="w-4 h-4 text-slate-500 group-hover:text-primary" />}
@@ -686,12 +686,12 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                           </div>
                           <div className="flex flex-col">
                             <div className="flex items-center gap-3 mb-0.5">
-                              <span className="text-[13px] font-bold text-slate-900 group-hover:text-primary transition-colors">{h.examTitle?.split(" - ")[1] ?? h.examTitle}</span>
+                              <span className="text-[13px] font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{h.examTitle?.split(" - ")[1] ?? h.examTitle}</span>
                               {getSkillBadge(h.skill)}
                             </div>
                             <div className="flex items-center gap-2 text-[11px] font-medium text-slate-400">
                               <span>{new Date(h.dateTaken).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                              <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                              <span className="w-1 h-1 rounded-full bg-slate-200 dark:bg-slate-700"></span>
                               <span>{new Date(h.dateTaken).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
                             </div>
                           </div>
@@ -699,7 +699,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                         <div className="flex items-center gap-8">
                           <div className="text-right">
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Score</div>
-                            <div className="text-lg font-bold text-slate-900 tabular-nums">{getBandForHistoryItem(h).toFixed(1)}</div>
+                            <div className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{getBandForHistoryItem(h).toFixed(1)}</div>
                           </div>
                           <Link
                             href={h.practicePart ? `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}` : `/ielts/intensive/${h.examId}/result/${h.id}`}
@@ -717,20 +717,20 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                 {/* Practice History List */}
                 <div className="flex flex-col mt-4">
                   <div className="flex items-center gap-2 mb-4 px-1">
-                    <LayoutList className="w-5 h-5 text-slate-900" />
-                    <h2 className="text-lg font-bold text-slate-900">Practice History</h2>
+                    <LayoutList className="w-5 h-5 text-slate-900 dark:text-white" />
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Practice History</h2>
                   </div>
-                  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col flex-1">
+                  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col flex-1">
 
                     {/* Tabs */}
-                    <div className="flex p-2 border-b border-slate-200 gap-1 overflow-x-auto hide-scrollbar">
+                    <div className="flex p-2 border-b border-slate-200 dark:border-slate-800 gap-1 overflow-x-auto hide-scrollbar">
                       {['ALL', 'LISTENING', 'READING', 'WRITING', 'SPEAKING'].map(tab => (
                         <button
                           key={tab}
                           onClick={() => setHistoryTab(tab)}
                           className={`px-4 py-2 rounded text-sm font-medium whitespace-nowrap transition-colors ${historyTab === tab
-                            ? 'bg-slate-100 text-slate-900 font-semibold'
-                            : 'bg-transparent text-slate-500 hover:bg-slate-50'
+                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold'
+                            : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                             }`}
                         >
                           {tab === 'ALL' ? 'All Skills' : tab.charAt(0) + tab.slice(1).toLowerCase()}
@@ -739,21 +739,21 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                     </div>
 
                     {/* List */}
-                    <div className="flex flex-col divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                    <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-800 max-h-[400px] overflow-y-auto">
                       {filteredPracticeHistory.length > 0 ? (
                         filteredPracticeHistory.map((h, i) => {
                           const pct = h.maxScore ? Math.round((h.rawScore / h.maxScore) * 100) : 0;
                           return (
-                            <div key={i} className="flex flex-wrap items-center justify-between p-4 sm:p-5 gap-4 hover:bg-slate-50 transition-colors">
+                            <div key={i} className="flex flex-wrap items-center justify-between p-4 sm:p-5 gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                               <div className="flex items-center gap-4 min-w-[200px] flex-1">
-                                <div className="w-10 h-10 rounded bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
                                   {h.skill === 'LISTENING' && <Headphones className="w-4 h-4 text-slate-500" />}
                                   {h.skill === 'READING' && <BookOpen className="w-4 h-4 text-slate-500" />}
                                   {h.skill === 'WRITING' && <PenTool className="w-4 h-4 text-slate-500" />}
                                   {h.skill === 'SPEAKING' && <Mic className="w-4 h-4 text-slate-500" />}
                                 </div>
                                 <div className="flex flex-col">
-                                  <div className="font-semibold text-slate-900 text-sm sm:text-base">{h.examTitle?.split(" - ")[1] ?? h.examTitle}</div>
+                                  <div className="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">{h.examTitle?.split(" - ")[1] ?? h.examTitle}</div>
                                   <div className="text-xs text-slate-500 mt-0.5">{new Date(h.dateTaken).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
                                 </div>
                               </div>
@@ -761,7 +761,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                               <div className="flex items-center gap-6 shrink-0">
                                 <div className="text-right hidden sm:block">
                                   <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Score</div>
-                                  <div className="text-lg font-semibold text-slate-900 leading-none">{h.rawScore}/{h.maxScore}</div>
+                                  <div className="text-lg font-semibold text-slate-900 dark:text-white leading-none">{h.rawScore}/{h.maxScore}</div>
                                 </div>
 
                                 <Link
@@ -776,9 +776,9 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                         })
                       ) : (
                         <div className="p-10 flex flex-col items-center justify-center text-center">
-                          <LayoutList className="w-12 h-12 text-gray-200 mb-3" />
-                          <div className="text-gray-900 font-bold">No practice history found</div>
-                          <div className="text-sm text-gray-500 mt-1">You haven't completed any {historyTab !== 'ALL' ? historyTab.toLowerCase() : ''} practice sessions yet.</div>
+                          <LayoutList className="w-12 h-12 text-gray-200 dark:text-slate-700 mb-3" />
+                          <div className="text-gray-900 dark:text-white font-bold">No practice history found</div>
+                          <div className="text-sm text-gray-500 dark:text-slate-400 mt-1">You haven't completed any {historyTab !== 'ALL' ? historyTab.toLowerCase() : ''} practice sessions yet.</div>
                         </div>
                       )}
                     </div>
@@ -788,14 +788,14 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                 {/* Mock Test History Table */}
                 <div className="flex flex-col mt-4">
                   <div className="flex items-center gap-2 mb-4 px-1">
-                    <TestTube className="w-5 h-5 text-slate-900" />
-                    <h2 className="text-lg font-bold text-slate-900">Mock Test History</h2>
+                    <TestTube className="w-5 h-5 text-slate-900 dark:text-white" />
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Mock Test History</h2>
                   </div>
 
-                  <div className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col flex-1 p-6">
+                  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col flex-1 p-6">
 
                     {/* Tabs */}
-                    <div className="flex border-b border-slate-200 mb-6 gap-8">
+                    <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6 gap-8">
                       {[
                         { id: 'LISTENING', label: 'Listening', icon: Headphones },
                         { id: 'READING', label: 'Reading', icon: BookOpen },
@@ -808,7 +808,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                           <button
                             key={tab.id}
                             onClick={() => setHistoryTab(tab.id)}
-                            className={`flex items-center gap-2 pb-4 text-sm font-medium transition-colors relative ${isActive ? 'text-primary' : 'text-slate-500 hover:text-slate-700'
+                            className={`flex items-center gap-2 pb-4 text-sm font-medium transition-colors relative ${isActive ? 'text-primary' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                               }`}
                           >
                             <Icon className="w-4 h-4" />
@@ -832,10 +832,10 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                         <input
                           type="text"
                           placeholder="Search by test name..."
-                          className="w-full pl-11 pr-4 py-2 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all bg-white"
+                          className="w-full pl-11 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                       </div>
-                      <button className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors whitespace-nowrap bg-white">
+                      <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap bg-white dark:bg-slate-800">
                         Newest first
                       </button>
                     </div>
@@ -845,57 +845,57 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                       <table className="w-full min-w-[800px] text-left border-collapse">
                         <thead>
                           <tr>
-                            <th className="py-3 px-4 text-xs font-medium text-slate-500 border-b border-slate-200 w-12">#</th>
-                            <th className="py-3 px-4 text-xs font-medium text-slate-500 border-b border-slate-200">Test Name</th>
-                            <th className="py-3 px-4 text-xs font-medium text-slate-500 border-b border-slate-200 w-36">Date Taken</th>
-                            <th className="py-3 px-4 text-xs font-medium text-slate-500 border-b border-slate-200 w-32">Time Taken</th>
-                            <th className="py-3 px-4 text-xs font-medium text-slate-500 border-b border-slate-200 w-24">Raw Score</th>
-                            <th className="py-3 px-4 text-xs font-medium text-slate-500 border-b border-slate-200 w-28">Band Score</th>
-                            <th className="py-3 px-4 text-xs font-medium text-slate-500 border-b border-slate-200 w-32">Action</th>
+                            <th className="py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 w-12">#</th>
+                            <th className="py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">Test Name</th>
+                            <th className="py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 w-36">Date Taken</th>
+                            <th className="py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 w-32">Time Taken</th>
+                            <th className="py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 w-24">Raw Score</th>
+                            <th className="py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 w-28">Band Score</th>
+                            <th className="py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 w-32">Action</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                           {filteredMockHistory.length > 0 ? (
                             filteredMockHistory.map((h, i) => {
                               const bandScore = getBandForHistoryItem(h);
                               const isLowScore = bandScore < 5.0;
 
                               return (
-                                <tr key={i} className="hover:bg-slate-50 transition-colors group">
-                                  <td className="py-4 px-4 text-sm font-medium text-slate-400">{i + 1}</td>
+                                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                                  <td className="py-4 px-4 text-sm font-medium text-slate-400 dark:text-slate-500">{i + 1}</td>
                                   <td className="py-4 px-4">
                                     <div className="flex items-center gap-3">
-                                      <div className="w-8 h-8 rounded bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0">
+                                      <div className="w-8 h-8 rounded bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
                                         <CheckCircle className="w-4 h-4 text-slate-500" />
                                       </div>
-                                      <span className="font-medium text-slate-900 text-sm">
+                                      <span className="font-medium text-slate-900 dark:text-white text-sm">
                                         {h.examTitle?.split(" - ")[1] ?? h.examTitle}
                                       </span>
                                     </div>
                                   </td>
                                   <td className="py-4 px-4">
-                                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                                       <Calendar className="w-3.5 h-3.5 text-slate-400" />
                                       {new Date(h.dateTaken).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </div>
                                   </td>
                                   <td className="py-4 px-4">
-                                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                                       <Clock className="w-3.5 h-3.5 text-slate-400" />
                                       {h.timeTaken ? (
                                         h.timeTaken < 60 ? `${h.timeTaken}s` : `${Math.floor(h.timeTaken / 60)}m ${h.timeTaken % 60}s`
                                       ) : "-"}
                                     </div>
                                   </td>
-                                  <td className="py-4 px-4 text-sm font-medium text-slate-900">
+                                  <td className="py-4 px-4 text-sm font-medium text-slate-900 dark:text-white">
                                     {h.skill === "WRITING" || h.skill === "SPEAKING" ? "-" : (
                                       <>
-                                        {h.rawScore}<span className="text-slate-400">/{h.skill === 'LISTENING' || h.skill === 'READING' ? 40 : h.maxScore}</span>
+                                        {h.rawScore}<span className="text-slate-400 dark:text-slate-500">/{h.skill === 'LISTENING' || h.skill === 'READING' ? 40 : h.maxScore}</span>
                                       </>
                                     )}
                                   </td>
                                   <td className="py-4 px-4">
-                                    <span className="text-sm font-semibold text-slate-900">
+                                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
                                       {bandScore.toFixed(1)}
                                     </span>
                                   </td>
@@ -915,9 +915,9 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                           ) : (
                             <tr>
                               <td colSpan={7} className="py-12 text-center">
-                                <LayoutList className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                                <div className="text-gray-900 font-bold">No history found</div>
-                                <div className="text-sm text-gray-500 mt-1">You haven't completed any {(historyTab === 'ALL' ? 'LISTENING' : historyTab).toLowerCase()} tests yet.</div>
+                                <LayoutList className="w-10 h-10 text-gray-200 dark:text-slate-700 mx-auto mb-3" />
+                                <div className="text-gray-900 dark:text-white font-bold">No history found</div>
+                                <div className="text-sm text-gray-500 dark:text-slate-400 mt-1">You haven't completed any {(historyTab === 'ALL' ? 'LISTENING' : historyTab).toLowerCase()} tests yet.</div>
                               </td>
                             </tr>
                           )}

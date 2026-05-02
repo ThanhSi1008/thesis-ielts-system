@@ -183,6 +183,15 @@ export interface GrammarUnitWithContent extends GrammarUnit {
   exercises: any[];
 }
 
+export interface GrammarUnitProgress {
+  unitOrder: number;
+  theoryCompleted: boolean;
+  exerciseScore: number | null;
+  exerciseTotal: number | null;
+  isCompleted: boolean;
+  completedAt: string | null;
+}
+
 export interface GrammarRule { // From Lesson Service
   id: string;
   lessonId: string;
@@ -198,15 +207,78 @@ export interface GrammarRule { // From Lesson Service
 export interface PronunciationSound {
   id: string;
   symbol: string;
-  name?: string; // e.g. "Long e"
+  name?: string;
   type: string;
   word: string;
   description?: string;
+  tip?: string;
   imageUrl?: string;
-  videoUrl?: string; // For mouth animation
+  videoUrl?: string;
   audioUrl?: string;
   voiced?: boolean;
-  exampleWords?: string[]; // Practice words
+  order: number;
+  exampleWords: SoundExampleWord[];
+}
+
+export interface SoundExampleWord {
+  id: string;
+  word: string;
+  ipa?: string;
+  audioUrl?: string;
+  order: number;
+}
+
+export interface SoundProgress {
+  soundId: string;
+  symbol: string;
+  type: string;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+  practiceCount: number;
+  bestScore: number | null;
+  lastPracticedAt: string | null;
+}
+
+export interface PronunciationStats {
+  totalSounds: number;
+  masteredCount: number;
+  practicingCount: number;
+  newCount: number;
+  overallMastery: number;
+}
+
+export interface WordProgress {
+  word: string;
+  bestScore: number | null;
+  attemptCount: number;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+}
+
+export interface PronunciationWordFeedback {
+  word: string;
+  targetIPA: string;
+  spokenIPA: string;
+  spoken: string;
+  phonemeScore: number;
+  confidence: number;
+  match: 'correct' | 'incorrect' | 'missing';
+}
+
+export interface PronunciationResult {
+  score: number;
+  transcribedText: string;
+  feedback: {
+    level: string;
+    message: string;
+    color: string;
+    details: {
+      targetIPA: string;
+      transcribedIPA: string;
+      phonemeAccuracy: number;
+      confidenceScore: number;
+      textAccuracy: number;
+    };
+    words: PronunciationWordFeedback[];
+  };
 }
 
 export interface PronunciationData {
@@ -337,10 +409,59 @@ export interface SubmitReviewRequest {
 }
 
 export interface VocabLabStats {
+  // Flat backward-compat fields
   newCount: number;
   learningCount: number;
   reviewCount: number;
   totalCount: number;
+
+  cardCounts: {
+    newCount: number;
+    learningCount: number;
+    reviewCount: number;
+    relearningCount: number;
+    totalCount: number;
+  };
+
+  reviewActivity: {
+    date: string;
+    reviewCount: number;
+    againCount: number;
+    hardCount: number;
+    goodCount: number;
+    easyCount: number;
+  }[];
+
+  streakData: {
+    currentStreak: number;
+    longestStreak: number;
+    totalReviewDays: number;
+    totalReviews: number;
+  };
+
+  maturityDistribution: {
+    young: number;
+    mature: number;
+    suspended: number;
+  };
+
+  forecast: {
+    date: string;
+    dueCount: number;
+    cumulativeCount: number;
+  }[];
+
+  averages: {
+    averageEasePercent: number;
+    averageLapses: number;
+    averageInterval: number;
+    retentionRatePercent: number;
+  };
+
+  hourlyActivity: {
+    hour: number;
+    count: number;
+  }[];
 }
 
 // ==================== IELTS EXAMS (Intensive Catalog) ====================

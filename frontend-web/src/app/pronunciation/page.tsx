@@ -1,9 +1,17 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PageHeader from '@/components/PageHeader';
-import PronunciationContent from './PronunciationContent';
+import IpaChart from '@/app/ielts/pronunciation/_components/IpaChart';
+import { pronunciationApi } from '@/services/learning.api';
+import type { PronunciationData } from '@/types';
 
 export default function PronunciationPage() {
+  const [sounds, setSounds] = useState<PronunciationData | null>(null);
+
+  useEffect(() => {
+    pronunciationApi.getAllSounds().then(setSounds).catch(console.error);
+  }, []);
+
   return (
     <>
       <PageHeader
@@ -14,8 +22,25 @@ export default function PronunciationPage() {
           { label: 'Pronunciation' },
         ]}
       />
-      <div className='container mx-auto max-w-screen-xl px-4 py-8'>
-        <PronunciationContent />
+      <div className="container px-6 py-8">
+        {sounds ? (
+          <IpaChart sounds={sounds} basePath="/pronunciation" />
+        ) : (
+          <div className="flex-1 min-w-0 bg-white p-4 md:p-8 animate-pulse">
+            <div className="h-8 bg-slate-100 rounded w-1/4 mb-6" />
+            <div className="grid grid-cols-6 md:grid-cols-8 gap-2 md:gap-4 mb-8">
+              {[...Array(16)].map((_, i) => (
+                <div key={i} className="aspect-square bg-slate-100 rounded-xl" />
+              ))}
+            </div>
+            <div className="h-8 bg-slate-100 rounded w-1/4 mb-6" />
+            <div className="grid grid-cols-6 md:grid-cols-8 gap-2 md:gap-4">
+              {[...Array(16)].map((_, i) => (
+                <div key={i} className="aspect-square bg-slate-100 rounded-xl" />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

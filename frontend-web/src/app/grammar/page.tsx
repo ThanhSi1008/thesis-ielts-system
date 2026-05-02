@@ -15,7 +15,7 @@ export default function GrammarPage() {
           { label: 'Grammar' },
         ]}
       />
-      <div className='container mx-auto max-w-screen-xl px-4 py-8'>
+      <div className='container px-6 py-8'>
         <GrammarContent />
       </div>
     </>

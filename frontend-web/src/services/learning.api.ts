@@ -1,7 +1,7 @@
 import api from '@/lib/api';
-import type { 
-  VocabularyBook, 
-  VocabularyBookWithUnits, 
+import type {
+  VocabularyBook,
+  VocabularyBookWithUnits,
   VocabularyUnitWithContent,
   VocabularyBookProgress,
   SubmitExerciseResponse,
@@ -10,7 +10,11 @@ import type {
   GrammarBookWithUnits,
   GrammarUnitWithContent,
   PronunciationData,
-  PronunciationSound
+  PronunciationSound,
+  SoundProgress,
+  PronunciationStats,
+  WordProgress,
+  GrammarUnitProgress,
 } from '@/types';
 
 // ============================================================
@@ -30,7 +34,7 @@ export const vocabularyApi = {
     const { data } = await api.get<VocabularyUnitWithContent>(`/vocabulary/units/${id}`);
     return data;
   },
-  
+
   // Progress tracking
   getProgress: async (bookId: string) => {
     const { data } = await api.get<VocabularyBookProgress>(`/vocabulary/progress/${bookId}`);
@@ -67,6 +71,18 @@ export const grammarApi = {
     const { data } = await api.get<GrammarUnitWithContent>(`/grammar/units/${id}`);
     return data;
   },
+  getUnitByOrder: async (bookSlug: string, order: string | number) => {
+    const { data } = await api.get<GrammarUnitWithContent>(`/grammar/books/${bookSlug}/units/${order}`);
+    return data;
+  },
+  getProgress: async (bookSlug: string) => {
+    const { data } = await api.get<GrammarUnitProgress[]>(`/grammar/progress/${bookSlug}`);
+    return data;
+  },
+  updateProgress: async (unitId: string, payload: { theoryCompleted?: boolean; exerciseScore?: number; exerciseTotal?: number }) => {
+    const { data } = await api.post('/grammar/progress', { unitId, ...payload });
+    return data;
+  },
 };
 
 // ============================================================
@@ -82,6 +98,22 @@ export const pronunciationApi = {
     const { data } = await api.get<PronunciationSound>(`/pronunciation/sounds/${encodeURIComponent(symbol)}`);
     return data;
   },
+  getProgress: async () => {
+    const { data } = await api.get<SoundProgress[]>('/pronunciation/progress');
+    return data;
+  },
+  getStats: async () => {
+    const { data } = await api.get<PronunciationStats>('/pronunciation/progress/stats');
+    return data;
+  },
+  updateProgress: async (soundId: string, score: number) => {
+    const { data } = await api.post('/pronunciation/progress', { soundId, score });
+    return data;
+  },
+  getWordProgress: async (soundId: string) => {
+    const { data } = await api.get<WordProgress[]>(`/pronunciation/sounds/${soundId}/word-progress`);
+    return data;
+  },
 };
 
 // ============================================================
@@ -93,15 +125,15 @@ export const learningApi = {
     const formData = new FormData();
     formData.append('audio', file);
     formData.append('userId', userId);
-    
+
     if (options.vocabularyId) {
       formData.append('vocabularyId', options.vocabularyId);
     }
-    
+
     if (options.targetWord) {
       formData.append('targetWord', options.targetWord);
     }
-    
+
     const { data } = await api.post('/learning/pronunciation/check', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

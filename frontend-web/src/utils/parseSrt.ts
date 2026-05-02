@@ -3,7 +3,7 @@
  * Parses SRT subtitle files and merges entries into sentence-level segments.
  */
 
-import { ShadowingSentence } from '@/data/shadowing-lessons';
+import { ShadowingSentence } from '@/services/shadowing.api';
 
 // ── Raw SRT entry ──
 interface SrtEntry {
@@ -72,7 +72,7 @@ export function mergeIntoSentences(entries: SrtEntry[], maxEntriesPerGroup = 4):
             if (finalText.length > 0) {
                 const words = finalText.split(/\s+/).filter((w) => w.length > 0);
                 sentences.push({
-                    id: sentences.length + 1,
+                    id: String(sentences.length + 1),
                     english: finalText,
                     phonetic: '',
                     vietnamese: '',

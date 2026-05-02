@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { RegisterDto } from "./dto/auth.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 import { User } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 
@@ -61,5 +62,28 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: user,
     };
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException("User not found");
+    }
+
+    const isValid = await bcrypt.compare(dto.currentPassword, user.password);
+    if (!isValid) {
+      throw new BadRequestException("Current password is incorrect");
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: "Password changed successfully" };
   }
 }

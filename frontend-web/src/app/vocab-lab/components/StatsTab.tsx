@@ -3,15 +3,44 @@
 import { useState, useEffect } from 'react';
 import { vocabLabApi } from '@/services/vocabLab.api';
 import type { VocabLabStats } from '@/types';
+import { SummaryCards } from './stats/SummaryCards';
+import { ReviewActivityChart } from './stats/ReviewActivityChart';
+import { CardCountsPie, MaturityDonut } from './stats/DonutCharts';
+import { ForecastChart } from './stats/ForecastChart';
+import { HourlyActivityChart } from './stats/HourlyActivityChart';
+
+const RANGE_OPTIONS = [
+  { label: '7d', value: 7 },
+  { label: '30d', value: 30 },
+  { label: '90d', value: 90 },
+  { label: '1yr', value: 365 },
+];
+
+function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 text-center border border-gray-100 dark:border-gray-800">
+      <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{value}</div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">{label}</div>
+      {sub && <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{sub}</div>}
+    </div>
+  );
+}
+
+function SkeletonBlock({ h = 'h-48' }: { h?: string }) {
+  return <div className={`${h} bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse`} />;
+}
 
 export function StatsTab({ isActive }: { isActive: boolean }) {
   const [stats, setStats] = useState<VocabLabStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState(30);
 
   useEffect(() => {
+    if (!isActive) return;
     const fetchStats = async () => {
+      setLoading(true);
       try {
-        const data = await vocabLabApi.getStats();
+        const data = await vocabLabApi.getStats(range);
         setStats(data);
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -19,103 +48,92 @@ export function StatsTab({ isActive }: { isActive: boolean }) {
         setLoading(false);
       }
     };
-    if (isActive) {
-      fetchStats();
-    }
-  }, [isActive]);
+    fetchStats();
+  }, [isActive, range]);
 
-  if (loading || !stats) {
+  // Empty state (no cards at all)
+  if (!loading && stats && stats.totalCount === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+        <div className="text-6xl mb-4">📊</div>
+        <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No data yet</h3>
+        <p className="text-gray-400 dark:text-gray-500 text-sm max-w-xs">Add some flashcards and start studying to see your statistics here.</p>
       </div>
     );
   }
 
-  // Calculate percentages
-  const total = stats.totalCount || 1; // Prevent division by zero
-  const newPct = (stats.newCount / total) * 100;
-  const learnPct = (stats.learningCount / total) * 100;
-  const reviewPct = (stats.reviewCount / total) * 100;
-
-  // Pie chart segments for conic-gradient
-  const newEnd = newPct;
-  const learnEnd = newEnd + learnPct;
-  // reviewEnd is 100%
-  const conicGradient = `conic-gradient(
-    #3B82F6 0% ${newEnd}%, 
-    #EF4444 ${newEnd}% ${learnEnd}%, 
-    #10B981 ${learnEnd}% 100%
-  )`;
-
   return (
-    <div className="min-h-[800px] pb-12">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex flex-col items-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-12">Card Counts</h2>
-        
-        {stats.totalCount === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <p>You don't have any flashcards yet.</p>
-            <p className="text-sm mt-2">Go to the Add tab to create some cards!</p>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center w-full max-w-md">
-            {/* Pie Chart */}
-            <div 
-              className="w-64 h-64 rounded-full mb-12 shadow-inner"
-              style={{ background: conicGradient }}
-              title="Card Stats Distribution"
-            ></div>
+    <div className="space-y-6 pb-12">
 
-            {/* Legend */}
-            <div className="w-full space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded bg-blue-500 mr-4"></div>
-                  <span className="text-gray-700 font-medium">New</span>
-                </div>
-                <div className="flex space-x-8">
-                  <span className="text-gray-900 font-semibold w-8 text-right">{stats.newCount}</span>
-                  <span className="text-gray-500 w-16 text-right">{newPct.toFixed(2)}%</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded bg-red-500 mr-4"></div>
-                  <span className="text-gray-700 font-medium">Learning</span>
-                </div>
-                <div className="flex space-x-8">
-                  <span className="text-gray-900 font-semibold w-8 text-right">{stats.learningCount}</span>
-                  <span className="text-gray-500 w-16 text-right">{learnPct.toFixed(2)}%</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 rounded bg-green-500 mr-4"></div>
-                  <span className="text-gray-700 font-medium">Reviewing</span>
-                </div>
-                <div className="flex space-x-8">
-                  <span className="text-gray-900 font-semibold w-8 text-right">{stats.reviewCount}</span>
-                  <span className="text-gray-500 w-16 text-right">{reviewPct.toFixed(2)}%</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 mt-2 border-t border-gray-100">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 border border-gray-300 rounded mr-4"></div>
-                  <span className="text-gray-700 font-bold">Total</span>
-                </div>
-                <div className="flex space-x-8">
-                  <span className="text-gray-900 font-bold w-8 text-right">{stats.totalCount}</span>
-                  <span className="w-16"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      {/* Time Range Selector */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Your Statistics</h2>
+        <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+          {RANGE_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setRange(opt.value)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                range === opt.value
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* ① Summary KPI Cards */}
+      {loading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <SkeletonBlock key={i} h="h-24" />)}
+        </div>
+      ) : stats ? (
+        <SummaryCards stats={stats} />
+      ) : null}
+
+      {/* ② Review Activity */}
+      {loading ? <SkeletonBlock h="h-56" /> : stats ? <ReviewActivityChart stats={stats} /> : null}
+
+      {/* ③+④ Card State Donuts side by side */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <SkeletonBlock h="h-72" />
+          <SkeletonBlock h="h-72" />
+        </div>
+      ) : stats ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardCountsPie stats={stats} />
+          <MaturityDonut stats={stats} />
+        </div>
+      ) : null}
+
+      {/* ⑤ Streak & Average mini-stats row */}
+      {!loading && stats?.streakData && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard label="Current Streak" value={`${stats.streakData.currentStreak}d`} />
+          <StatCard label="Longest Streak" value={`${stats.streakData.longestStreak}d`} />
+          <StatCard label="Total Review Days" value={stats.streakData.totalReviewDays} />
+          <StatCard label="All-time Reviews" value={stats.streakData.totalReviews.toLocaleString()} />
+        </div>
+      )}
+
+      {!loading && stats?.averages && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard label="Retention Rate" value={`${stats.averages.retentionRatePercent}%`} sub="Good + Easy answers" />
+          <StatCard label="Avg Interval" value={`${stats.averages.averageInterval}d`} sub="Review cards" />
+          <StatCard label="Avg Lapses" value={stats.averages.averageLapses} sub="Per card" />
+          <StatCard label="Avg Ease" value={`${stats.averages.averageEasePercent}%`} sub="Answer quality" />
+        </div>
+      )}
+
+      {/* ⑥ Forecast */}
+      {loading ? <SkeletonBlock h="h-48" /> : stats ? <ForecastChart stats={stats} /> : null}
+
+      {/* ⑦ Hourly Activity */}
+      {loading ? <SkeletonBlock h="h-40" /> : stats ? <HourlyActivityChart stats={stats} /> : null}
     </div>
   );
 }
