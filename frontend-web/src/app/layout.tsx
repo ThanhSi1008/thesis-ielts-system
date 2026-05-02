@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   }
 };
 
-import Header from "@/components/Header";
+import Navbar from "@/components/Navbar";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Toaster } from "@/components/Toaster";
 import { GlobalVocabFab } from "@/components/GlobalVocabFab";
@@ -52,7 +52,7 @@ export default function RootLayout({
               <GradingProvider>
                 <IeltsSidebarProvider>
                   <ScrollToTop />
-                  <Header />
+                  <Navbar />
                   <Toaster />
                   <GlobalVocabFab />
                   <GlobalAIChatFab />
