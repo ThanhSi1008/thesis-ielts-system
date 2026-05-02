@@ -13,6 +13,7 @@ import { AddTab } from '@/components/vocab-lab/AddTab';
 import { BrowseTab } from '@/components/vocab-lab/BrowseTab';
 import { StatsTab } from '@/components/vocab-lab/StatsTab';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { GlobalAddCardFab } from '@/components/vocab-lab/GlobalAddCardFab';
 
 type Tab = 'decks' | 'add' | 'browse' | 'stats';
 
@@ -74,6 +75,9 @@ export default function VocabLabScreen() {
         onClose={closeDrawer}
         onNavPress={handleNavPress}
       />
+
+      {/* Global Add Card FAB — visible on Decks, Browse, Stats tabs */}
+      {activeTab !== 'add' && <GlobalAddCardFab />}
     </View>
   );
 }

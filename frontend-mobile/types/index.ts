@@ -233,6 +233,17 @@ export interface CardField {
   id: string;
   name: string;
   order: number;
+  fieldType?: string;
+  description?: string;
+}
+
+export interface CardTemplate {
+  id: string;
+  name: string;
+  frontFields: string[];
+  backFields: string[];
+  fieldStyles?: Record<string, Record<string, string>>;
+  cardStyle?: Record<string, string>;
 }
 
 export interface CardType {
@@ -240,6 +251,7 @@ export interface CardType {
   name: string;
   isBuiltIn: boolean;
   fields: CardField[];
+  templates?: CardTemplate[];
 }
 
 export interface Flashcard {

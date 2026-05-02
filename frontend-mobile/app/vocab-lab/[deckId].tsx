@@ -26,7 +26,7 @@ export default function DeckDetailScreen() {
     try {
       const [deckRes, cardsRes] = await Promise.allSettled([
         vocabLabApi.getDeckDetail(deckId),
-        vocabLabApi.browseCards(deckId),
+        vocabLabApi.browseCards({ deckId }),
       ]);
       if (deckRes.status === 'fulfilled') setDeck(deckRes.value);
       if (cardsRes.status === 'fulfilled') setCards(cardsRes.value);

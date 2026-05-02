@@ -55,6 +55,8 @@ out/
 # Expo
 .expo/
 .expo-shared/
+frontend-mobile/ios/
+frontend-mobile/android/
 
 # NestJS
 dist/

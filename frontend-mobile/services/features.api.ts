@@ -11,18 +11,39 @@ export const vocabLabApi = {
   getDeckDetail: (id: string) => apiClient.get<Deck>(`/vocab-lab/decks/${id}`),
   createDeck: (name: string) => apiClient.post<Deck>('/vocab-lab/decks', { name }),
   deleteDeck: (id: string) => apiClient.delete<void>(`/vocab-lab/decks/${id}`),
+  renameDeck: (id: string, name: string) => apiClient.patch<void>(`/vocab-lab/decks/${id}`, { name }),
   getStudyCards: (deckId: string) => apiClient.get<Flashcard[]>(`/vocab-lab/study/${deckId}`),
   submitReview: (payload: { flashcardId: string; rating: number }) =>
     apiClient.post<void>('/vocab-lab/review', payload),
   getStats: () => apiClient.get<VocabStats>('/vocab-lab/stats'),
   getCardTypes: () => apiClient.get<CardType[]>('/vocab-lab/card-types'),
+  createCardType: (payload: { name: string }) =>
+    apiClient.post<CardType>('/vocab-lab/card-types', payload),
+  updateCardType: (id: string, payload: { name: string }) =>
+    apiClient.patch<CardType>(`/vocab-lab/card-types/${id}`, payload),
+  deleteCardType: (id: string) => apiClient.delete<void>(`/vocab-lab/card-types/${id}`),
+  addField: (cardTypeId: string, payload: any) =>
+    apiClient.post<any>(`/vocab-lab/card-types/${cardTypeId}/fields`, payload),
+  updateField: (cardTypeId: string, fieldId: string, payload: any) =>
+    apiClient.patch<any>(`/vocab-lab/card-types/${cardTypeId}/fields/${fieldId}`, payload),
+  deleteField: (cardTypeId: string, fieldId: string) =>
+    apiClient.delete<void>(`/vocab-lab/card-types/${cardTypeId}/fields/${fieldId}`),
+  updateTemplate: (cardTypeId: string, templateId: string, payload: any) =>
+    apiClient.patch<any>(`/vocab-lab/card-types/${cardTypeId}/templates/${templateId}`, payload),
   createFlashcard: (payload: { deckId: string; front: string; back: string; cardTypeId?: string; fieldValues?: Record<string, string>; fieldStyles?: Record<string, any>; tags?: string[] }) =>
     apiClient.post<Flashcard>('/vocab-lab/cards', payload),
-  updateFlashcard: (id: string, payload: { front?: string; back?: string }) =>
+  updateFlashcard: (id: string, payload: { front?: string; back?: string; fieldValues?: Record<string, string>; tags?: string[] }) =>
     apiClient.put<Flashcard>(`/vocab-lab/cards/${id}`, payload),
   deleteFlashcard: (id: string) => apiClient.delete<void>(`/vocab-lab/cards/${id}`),
-  browseCards: (deckId?: string) =>
-    apiClient.get<Flashcard[]>(`/vocab-lab/cards${deckId ? `?deckId=${deckId}` : ''}`),
+  browseCards: (params?: { deckId?: string; cardState?: string; tag?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.deckId) q.set('deckId', params.deckId);
+    if (params?.cardState) q.set('cardState', params.cardState);
+    if (params?.tag) q.set('tag', params.tag);
+    const qs = q.toString();
+    return apiClient.get<Flashcard[]>(`/vocab-lab/cards${qs ? `?${qs}` : ''}`);
+  },
+  getTags: () => apiClient.get<string[]>('/vocab-lab/tags'),
   uploadMedia: async (uri: string, mimeType: string, fileName: string): Promise<{ url: string }> => {
     const formData = new FormData();
     // @ts-ignore - FormData in React Native accepts an object for file uploads
