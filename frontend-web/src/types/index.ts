@@ -22,10 +22,11 @@ export interface User {
   id: string;
   email: string;
   fullName?: string;
-  firstName?: string; // Standardize names later
+  firstName?: string;
   lastName?: string;
   role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
   avatar?: string;
+  googleId?: string;   // Present if signed in via Google
   createdAt: string;
 }
 

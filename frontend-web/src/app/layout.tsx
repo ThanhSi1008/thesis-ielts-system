@@ -19,6 +19,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { Toaster } from "@/components/Toaster";
 import { GlobalVocabFab } from "@/components/GlobalVocabFab";
 import { GlobalAIChatFab } from "@/components/GlobalAIChatFab";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Inline script runs before React hydrates — prevents flash of wrong theme
 const themeScript = `
@@ -44,6 +45,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="antialiased">
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
         <ThemeProvider>
           <AuthProvider>
             <NotificationProvider>
@@ -60,6 +62,7 @@ export default function RootLayout({
             </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

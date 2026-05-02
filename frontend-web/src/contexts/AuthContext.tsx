@@ -8,6 +8,7 @@ import type { AuthResponse, User } from '@/types';
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   register: (email: string, password: string, fullName: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -41,6 +42,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Login error:', error);
+      throw error;
+    }
+  };
+
+  const loginWithGoogle = async (idToken: string) => {
+    try {
+      const data: AuthResponse = await authService.googleLogin(idToken);
+      if (data.user) {
+        setUser(data.user);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
       throw error;
     }
   };
@@ -79,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         login,
+        loginWithGoogle,
         register,
         logout,
         refreshUser,

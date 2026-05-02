@@ -14,7 +14,9 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String
+  password  String?             // Nullable: Google OAuth users have no password
+  googleId  String?  @unique    // Google sub — unique per Google account
+  avatar    String?             // Google profile picture URL
   firstName String?
   lastName  String?
   role      UserRole @default(STUDENT)

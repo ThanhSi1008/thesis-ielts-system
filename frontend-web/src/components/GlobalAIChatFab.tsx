@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePathname } from "next/navigation";
 import axios from "axios";
 import type { CardType } from "@/types";
 import { vocabLabApi } from "@/services/vocabLab.api";
+import api from "@/lib/api";
 
 type SuggestionMsg = {
   id: string;
@@ -131,6 +133,7 @@ const NeutralBlackHoleIcon = ({ className }: { className?: string }) => (
 
 export function GlobalAIChatFab() {
   const { user } = useAuth();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number | null; y: number | null }>({
     x: null,
@@ -143,12 +146,37 @@ export function GlobalAIChatFab() {
     {
       role: "model",
       content:
-        "Hello! I am your AI assistant. How can I help you studying today?",
+        `Hello${user?.firstName ? `, **${user.firstName}**` : ''}! I'm **Lexon AI**, your personal IELTS study assistant. How can I help you today?`,
     },
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // --- User context for RAG personalization ---
+  const [streak, setStreak] = useState<number>(0);
+  const [vocabDue, setVocabDue] = useState<number>(0);
+  const [recentScores, setRecentScores] = useState<Record<string, number | null>>({});
+
+  useEffect(() => {
+    if (!user) return;
+    // Fetch streak
+    api.get<{ currentStreak: number }>("/ielts/streak")
+      .then(r => setStreak(r.data.currentStreak ?? 0))
+      .catch(() => {});
+    // Fetch vocab due
+    vocabLabApi.getDecks()
+      .then(decks => setVocabDue(decks.reduce((s, d) => s + d.newCount + d.learningCount + d.dueCount, 0)))
+      .catch(() => {});
+  }, [user]);
+
+  const userContext = useMemo(() => ({
+    name: user?.firstName || undefined,
+    currentPage: pathname,
+    studyStreak: streak || undefined,
+    vocabDueCount: vocabDue || undefined,
+    recentScores: Object.keys(recentScores).length ? recentScores : undefined,
+  }), [user, pathname, streak, vocabDue, recentScores]);
 
   useEffect(() => {
     if (isOpen) {
@@ -205,6 +233,7 @@ export function GlobalAIChatFab() {
 
       const response = await axios.post("http://localhost:8000/api/v1/chat", {
         messages: [{ role: "user", content: prompt }],
+        userContext,
       });
 
       setMessages((prev) => [
@@ -436,6 +465,7 @@ export function GlobalAIChatFab() {
     try {
       const response = await axios.post("http://localhost:8000/api/v1/chat", {
         messages: newMessages,
+        userContext,
       });
       setMessages([
         ...newMessages,
@@ -464,7 +494,7 @@ export function GlobalAIChatFab() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 z-[8999] flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-900 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-95 transition-all duration-200 focus:outline-none group"
-        title="Gemini AI Chat"
+        title="Lexon AI"
       >
         {isOpen ? (
           <svg
@@ -547,7 +577,7 @@ export function GlobalAIChatFab() {
                   fill="url(#gemini-grad-header)"
                 />
               </svg>
-              Gemini
+              Lexon AI
             </h2>
             <button
               onClick={() => setIsOpen(false)}

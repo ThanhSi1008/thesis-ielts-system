@@ -11,7 +11,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import { vocabLabApi } from "@/services/vocabLab.api";
 
-export default function Header() {
+export default function Navbar() {
   const { user, logout } = useAuth();
   const { toggleTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,7 +39,7 @@ export default function Header() {
     return () => window.removeEventListener('set-header-plain', handleSetForcePlain);
   }, []);
 
-  const plainPages = ["/login", "/register"];
+  const plainPages = ["/login", "/register", "/profile"];
   const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || forcePlain;
 
   // Close dropdown when clicking outside
@@ -66,7 +66,7 @@ export default function Header() {
         const total = decks.reduce((sum, d) => sum + d.newCount + d.learningCount + d.dueCount, 0);
         setVocabDue(total);
       })
-      .catch(() => {}); // silently fail — it's just a badge
+      .catch(() => { }); // silently fail — it's just a badge
   };
 
   useEffect(() => {
@@ -224,8 +224,8 @@ export default function Header() {
               {streak && streak.currentStreak > 0 && (
                 <div
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-bold shadow-sm cursor-help transition-all duration-300 hover:scale-105 ${isOverlay
-                      ? "bg-white/10 border-white/20 text-white shadow-black/10 hover:bg-white/20"
-                      : "bg-orange-50 border-orange-200 text-orange-600 shadow-orange-100/50 hover:bg-orange-100"
+                    ? "bg-white/10 border-white/20 text-white shadow-black/10 hover:bg-white/20"
+                    : "bg-orange-50 border-orange-200 text-orange-600 shadow-orange-100/50 hover:bg-orange-100"
                     }`}
                   title={`🔥 ${streak.currentStreak}-day streak! Your longest: ${streak.longestStreak}`}
                 >
@@ -240,11 +240,10 @@ export default function Header() {
               <button
                 onClick={toggleTheme}
                 aria-label="Toggle dark mode"
-                className={`p-2 rounded-full transition-colors ${
-                  isOverlay
+                className={`p-2 rounded-full transition-colors ${isOverlay
                     ? 'text-white/80 hover:text-white hover:bg-white/10'
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
+                  }`}
               >
                 {resolvedTheme === 'dark' ? (
                   /* Sun icon */
@@ -267,10 +266,10 @@ export default function Header() {
                   id="notification-bell-btn"
                   aria-label="Notifications"
                   className={`relative p-2 rounded-full transition-colors ${isDropdownOpen
-                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
-                      : isOverlay
-                        ? 'text-white/80 hover:text-white hover:bg-white/10'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
+                    : isOverlay
+                      ? 'text-white/80 hover:text-white hover:bg-white/10'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -294,9 +293,18 @@ export default function Header() {
                   aria-expanded={isProfileOpen}
                 >
                   {/* Avatar circle */}
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-xs font-bold select-none shrink-0">
-                    {initials}
-                  </span>
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={displayName}
+                      referrerPolicy="no-referrer"
+                      className="flex h-8 w-8 rounded-full object-cover shrink-0 ring-2 ring-primary/30"
+                    />
+                  ) : (
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-xs font-bold select-none shrink-0">
+                      {initials}
+                    </span>
+                  )}
                   {/* Name */}
                   <span
                     className={`text-sm font-semibold max-w-[140px] truncate ${isOverlay ? "text-white" : "text-gray-800"
@@ -471,9 +479,18 @@ export default function Header() {
               <>
                 {/* Avatar row */}
                 <div className="flex items-center gap-3 pb-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white text-sm font-bold select-none shrink-0">
-                    {initials}
-                  </span>
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={displayName}
+                      referrerPolicy="no-referrer"
+                      className="flex h-9 w-9 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white text-sm font-bold select-none shrink-0">
+                      {initials}
+                    </span>
+                  )}
                   <div>
                     <p className="text-sm font-semibold text-gray-800 leading-tight">
                       {displayName}

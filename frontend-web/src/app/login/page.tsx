@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,14 +18,23 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
     try {
       await login(email, password);
       router.push("/");
-    } catch (err) {
+    } catch {
       setError("Invalid email or password");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (idToken: string) => {
+    setError("");
+    try {
+      await loginWithGoogle(idToken);
+      router.push("/");
+    } catch {
+      setError("Google sign-in failed. Please try again.");
     }
   };
 
@@ -41,6 +51,16 @@ export default function LoginPage() {
             {error}
           </div>
         )}
+
+        {/* Google Sign In */}
+        <GoogleSignInButton onSuccess={handleGoogleSuccess} />
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-gray-200 dark:bg-slate-700" />
+          <span className="text-xs font-medium text-gray-400 dark:text-slate-500">or continue with email</span>
+          <div className="flex-1 h-px bg-gray-200 dark:bg-slate-700" />
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

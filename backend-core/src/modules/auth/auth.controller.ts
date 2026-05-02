@@ -4,6 +4,7 @@ import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { RegisterDto } from "./dto/auth.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { GoogleAuthDto } from "./dto/google-auth.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -30,5 +31,10 @@ export class AuthController {
   @Post("change-password")
   async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
     return this.authService.changePassword(req.user.id, dto);
+  }
+
+  @Post("google")
+  async googleLogin(@Body() dto: GoogleAuthDto) {
+    return this.authService.googleLogin(dto.idToken);
   }
 }

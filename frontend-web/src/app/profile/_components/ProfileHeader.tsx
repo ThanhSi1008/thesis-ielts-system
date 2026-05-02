@@ -5,9 +5,10 @@ interface ProfileHeaderProps {
   lastName: string;
   email: string;
   createdAt: string;
+  avatar?: string;
 }
 
-export default function ProfileHeader({ firstName, lastName, email, createdAt }: ProfileHeaderProps) {
+export default function ProfileHeader({ firstName, lastName, email, createdAt, avatar }: ProfileHeaderProps) {
   const initials = firstName && lastName
     ? `${firstName[0]}${lastName[0]}`.toUpperCase()
     : email.slice(0, 2).toUpperCase();
@@ -24,8 +25,12 @@ export default function ProfileHeader({ firstName, lastName, email, createdAt }:
   return (
     <div className="flex flex-col items-center text-center py-10 px-6 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 dark:from-primary/10 dark:via-slate-900 dark:to-primary/10 rounded-2xl border border-gray-100 dark:border-slate-800">
       {/* Avatar */}
-      <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-3xl font-bold shadow-lg ring-4 ring-white dark:ring-slate-800 mb-5">
-        {initials}
+      <div className="w-24 h-24 rounded-full overflow-hidden bg-primary flex items-center justify-center text-white text-3xl font-bold shadow-lg ring-4 ring-white dark:ring-slate-800 mb-5">
+        {avatar ? (
+          <img src={avatar} alt={displayName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+        ) : (
+          <span>{initials}</span>
+        )}
       </div>
 
       {/* Name */}
