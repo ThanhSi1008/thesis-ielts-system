@@ -237,30 +237,65 @@ export function BrowseTab() {
                 const displayFront = c.front || Object.values((c as any).fieldValues || {})[0] || '';
                 const displayBack  = c.back  || Object.values((c as any).fieldValues || {})[1] || '';
                 return (
-                  <TouchableOpacity key={c.id} style={s.cardRow} onPress={() => setSelectedCard(c)} activeOpacity={0.78}>
+                  <TouchableOpacity 
+                    key={c.id} 
+                    style={[
+                      s.cardRow, 
+                      c.cardType?.templates?.[0]?.cardStyle 
+                        ? { backgroundColor: c.cardType.templates[0].cardStyle.backgroundColor || '#fff' }
+                        : null
+                    ]} 
+                    onPress={() => setSelectedCard(c)} 
+                    activeOpacity={0.78}
+                  >
                     <View style={{ flex: 1, paddingRight: SPACING.sm }}>
-                      <Text style={s.cardFront} numberOfLines={2}>{String(displayFront)}</Text>
-                      {displayBack ? <Text style={s.cardBack} numberOfLines={2}>{String(displayBack)}</Text> : null}
+                      <Text 
+                        style={[
+                          s.cardFront, 
+                          c.cardType?.templates?.[0]?.cardStyle?.color 
+                            ? { color: c.cardType.templates[0].cardStyle.color } 
+                            : null
+                        ]} 
+                        numberOfLines={2}
+                      >
+                        {String(displayFront)}
+                      </Text>
+                      {displayBack ? (
+                        <Text 
+                          style={[
+                            s.cardBack, 
+                            c.cardType?.templates?.[0]?.cardStyle?.color 
+                              ? { color: c.cardType.templates[0].cardStyle.color, opacity: 0.7 } 
+                              : null
+                          ]} 
+                          numberOfLines={2}
+                        >
+                          {String(displayBack)}
+                        </Text>
+                      ) : null}
                       {/* Tags on the card */}
                       {c.tags?.length > 0 && (
                         <View style={s.cardTagsRow}>
                           {c.tags.slice(0, 3).map((t: string) => (
                             <TouchableOpacity key={t} onPress={() => setTagFilter(t)}>
-                              <Text style={s.cardTag}>#{t}</Text>
+                              <Text style={[s.cardTag, c.cardType?.templates?.[0]?.cardStyle?.color ? { color: c.cardType.templates[0].cardStyle.color } : null]}>#{t}</Text>
                             </TouchableOpacity>
                           ))}
-                          {c.tags.length > 3 && <Text style={s.cardTag}>+{c.tags.length - 3}</Text>}
+                          {c.tags.length > 3 && <Text style={[s.cardTag, c.cardType?.templates?.[0]?.cardStyle?.color ? { color: c.cardType.templates[0].cardStyle.color } : null]}>+{c.tags.length - 3}</Text>}
                         </View>
                       )}
                     </View>
                     <View style={{ alignItems: 'flex-end', gap: SPACING.sm }}>
                       <StateBadge state={c.cardState ?? c.state} />
-                      <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+                      <Ionicons 
+                        name="chevron-forward" 
+                        size={16} 
+                        color={c.cardType?.templates?.[0]?.cardStyle?.color || COLORS.textMuted} 
+                      />
                     </View>
                   </TouchableOpacity>
                 );
-              })
-            }
+              })}
           </ScrollView>
         )
       }

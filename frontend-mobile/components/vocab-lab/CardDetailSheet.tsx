@@ -185,50 +185,55 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
             {/* ── Read mode ──────────────────────────────────────────────── */}
             {!editing && (
               <>
-                {hasCustomType
-                  ? ctFields
-                      .sort((a: any, b: any) => a.order - b.order)
-                      .map((field: any) => {
-                        const val = card.fieldValues?.[field.id] ?? '';
-                        if (!val) return null;
-                        const isMediaHtml = /<(img|audio)/i.test(val);
-                        const cleanVal = isMediaHtml
-                          ? val.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '[media]')
-                          : val;
-                        return (
-                          <View key={field.id} style={s.readField}>
-                            <Text style={s.fieldLabel}>{field.name}</Text>
-                            <Text style={s.fieldValue}>{cleanVal || '—'}</Text>
-                          </View>
-                        );
-                      })
-                  : (
-                    <>
-                      <View style={s.readField}>
-                        <Text style={s.fieldLabel}>Front</Text>
-                        <Text style={s.fieldValue}>{String(displayFront) || '—'}</Text>
-                      </View>
-                      <View style={s.readField}>
-                        <Text style={s.fieldLabel}>Back</Text>
-                        <Text style={s.fieldValue}>{String(displayBack) || '—'}</Text>
-                      </View>
-                    </>
-                  )
-                }
-
-                {/* Tags (read) */}
-                {card.tags?.length > 0 && (
-                  <View style={s.readField}>
-                    <Text style={s.fieldLabel}>Tags</Text>
-                    <View style={s.tagsRow}>
-                      {card.tags.map((t: string) => (
-                        <View key={t} style={s.tagChip}>
-                          <Text style={s.tagText}>#{t}</Text>
+                <View style={[
+                  { borderRadius: RADIUS.lg, padding: SPACING.md, marginBottom: SPACING.lg },
+                  card.cardType?.templates?.[0]?.cardStyle || {}
+                ]}>
+                  {hasCustomType
+                    ? ctFields
+                        .sort((a: any, b: any) => a.order - b.order)
+                        .map((field: any) => {
+                          const val = card.fieldValues?.[field.id] ?? '';
+                          if (!val) return null;
+                          const isMediaHtml = /<(img|audio)/i.test(val);
+                          const cleanVal = isMediaHtml
+                            ? val.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '[media]')
+                            : val;
+                          return (
+                            <View key={field.id} style={s.readField}>
+                              <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>{field.name}</Text>
+                              <Text style={[s.fieldValue, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>{cleanVal || '—'}</Text>
+                            </View>
+                          );
+                        })
+                    : (
+                      <>
+                        <View style={s.readField}>
+                          <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>Front</Text>
+                          <Text style={[s.fieldValue, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>{String(displayFront) || '—'}</Text>
                         </View>
-                      ))}
+                        <View style={s.readField}>
+                          <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>Back</Text>
+                          <Text style={[s.fieldValue, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>{String(displayBack) || '—'}</Text>
+                        </View>
+                      </>
+                    )
+                  }
+
+                  {/* Tags (read) */}
+                  {card.tags?.length > 0 && (
+                    <View style={s.readField}>
+                      <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>Tags</Text>
+                      <View style={s.tagsRow}>
+                        {card.tags.map((t: string) => (
+                          <View key={t} style={[s.tagChip, card.cardType?.templates?.[0]?.cardStyle?.color ? { borderColor: card.cardType.templates[0].cardStyle.color + '40' } : null]}>
+                            <Text style={[s.tagText, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>#{t}</Text>
+                          </View>
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                )}
+                  )}
+                </View>
 
                 {/* SRS meta */}
                 <View style={s.metaRow}>

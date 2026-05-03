@@ -51,6 +51,7 @@ interface FlashcardViewerProps {
   side: 'front' | 'back';
   /** If provided, used to determine card width. Defaults to screen width – 2*SPACING.lg */
   width?: number;
+  cardStyle?: Record<string, string>;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
   Animated, Dimensions, Modal, Pressable, ActivityIndicator,
-  KeyboardAvoidingView, Platform, ScrollView,
+  KeyboardAvoidingView, Platform, ScrollView, DeviceEventEmitter,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -138,6 +138,9 @@ export function GlobalAddCardFab() {
         fieldValues,
         tags: tagsList.length > 0 ? tagsList : undefined
       });
+
+      DeviceEventEmitter.emit('VOCAB_LAB_CARD_ADDED');
+
       const resetFields: Record<string, string> = {};
       ct.fields.forEach((f: any) => resetFields[f.id] = '');
       setFieldValues(resetFields);

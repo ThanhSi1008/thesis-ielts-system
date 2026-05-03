@@ -22,7 +22,12 @@ interface StudyCard {
   fieldValues?: Record<string, string>;
   cardType?: {
     fields: { id: string; name: string; order: number; fieldType: string }[];
-    templates: { frontFields: string[]; backFields: string[] }[];
+    templates: { 
+      frontFields: string[]; 
+      backFields: string[]; 
+      cardStyle?: Record<string, string>;
+      fieldStyles?: Record<string, any>;
+    }[];
   } | null;
 }
 
@@ -77,30 +82,47 @@ function FlipCard({
   const frontRotate = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRotate  = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
 
+  const tpl = card.cardType?.templates?.[0];
+  const cardStyle = tpl?.cardStyle || {};
+
+  const parseStyle = (st: any) => {
+    if (!st) return {};
+    const res = { ...st };
+    if (res.fontSize && typeof res.fontSize === 'string') {
+      res.fontSize = parseInt(res.fontSize.replace('px', ''), 10);
+      if (isNaN(res.fontSize)) delete res.fontSize;
+    }
+    return res;
+  };
+
+  const containerStyle = parseStyle(cardStyle);
+
   return (
     <Pressable onPress={onFlip} style={{ width: CARD_W, minHeight: CARD_H }}>
       {/* Front face */}
       <Animated.View style={[
         styles.cardFace,
+        containerStyle,
         { transform: [{ rotateY: frontRotate }], backfaceVisibility: 'hidden' }
       ]}>
-        <Text style={styles.cardSideLabel}>FRONT</Text>
-        <FlashcardViewer card={card} side="front" width={CARD_W} />
-        <Text style={styles.tapHint}>Tap to reveal answer</Text>
+        <Text style={[styles.cardSideLabel, containerStyle.color ? { color: containerStyle.color, opacity: 0.5 } : null]}>FRONT</Text>
+        <FlashcardViewer card={card} side="front" width={CARD_W} cardStyle={cardStyle} />
+        <Text style={[styles.tapHint, containerStyle.color ? { color: containerStyle.color, opacity: 0.4 } : null]}>Tap to reveal answer</Text>
       </Animated.View>
 
       {/* Back face */}
       <Animated.View style={[
         styles.cardFace,
         styles.cardFaceBack,
+        containerStyle,
         { transform: [{ rotateY: backRotate }], backfaceVisibility: 'hidden' }
       ]}>
-        <Text style={[styles.cardSideLabel, { color: COLORS.primary }]}>BACK</Text>
+        <Text style={[styles.cardSideLabel, { color: containerStyle.color || COLORS.primary, opacity: 0.5 }]}>BACK</Text>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', width: CARD_W }}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', width: CARD_W - SPACING.xl * 2 }}
         >
-          <FlashcardViewer card={card} side="back" width={CARD_W} />
+          <FlashcardViewer card={card} side="back" width={CARD_W} cardStyle={cardStyle} />
         </ScrollView>
       </Animated.View>
     </Pressable>
@@ -364,8 +386,15 @@ export default function StudyScreen() {
           <Text style={[styles.allDoneSubtitle, { textAlign: 'center', marginTop: SPACING.md, paddingHorizontal: SPACING.xl }]}>
             There are no more cards due for review right now. Great job!
           </Text>
-          <View style={{ alignItems: 'center' }}>
-            <Pressable style={[styles.allDoneBtn, styles.allDoneBtnPrimary, { marginTop: SPACING.xl, paddingHorizontal: SPACING.lg }]} onPress={() => router.back()}>
+          <View style={{ alignItems: 'center', width: '100%' }}>
+            <Pressable 
+              style={[
+                styles.allDoneBtn, 
+                styles.allDoneBtnPrimary,
+                { flex: 0, width: 'auto', minWidth: 160, marginTop: SPACING.xl, paddingHorizontal: SPACING.xl, alignSelf: 'center' }
+              ]} 
+              onPress={() => router.back()}
+            >
               <Text style={[styles.allDoneBtnText, { color: '#fff' }]}>Go Back</Text>
             </Pressable>
           </View>

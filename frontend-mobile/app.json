@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./assets/images/splash.png",
       "backgroundColor": "#3B82F6",
       "resizeMode": "contain"
     },
@@ -18,6 +19,7 @@
     },
     "android": {
       "package": "com.ieltsmasterai.app",
+      "usesCleartextTraffic": true,
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ]

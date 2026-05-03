@@ -10,12 +10,8 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { CardType, CardField, CardTemplate } from '@/types';
 import * as Haptics from 'expo-haptics';
-
-const COLOR_PRESETS = [
-  '#000000', '#FFFFFF', '#EF4444', '#F97316', '#F59E0B', '#84CC16',
-  '#22C55E', '#10B981', '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6',
-  '#D946EF', '#F43F5E', '#64748B', '#334155'
-];
+import ColorPicker, { Panel1, Swatches, HueSlider } from 'reanimated-color-picker';
+import { runOnJS } from 'react-native-reanimated';
 
 interface CardTypeEditorModalProps {
   visible: boolean;
@@ -236,24 +232,19 @@ export function CardTypeEditorModal({
           {colorPickerVisible && (
             <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }]}>
               <View style={{ width: '85%', backgroundColor: '#fff', borderRadius: RADIUS.lg, padding: SPACING.lg, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 10, elevation: 5 }}>
-                <View style={{ width: '100%' }}>
-                  <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.textMuted, marginBottom: SPACING.xs, fontWeight: '600' }}>Custom Hex</Text>
-                  <TextInput
-                    style={[s.hexInput, { marginBottom: SPACING.md }]}
-                    value={tempColor}
-                    onChangeText={setTempColor}
-                    autoCapitalize="characters"
-                    placeholder="#FFFFFF"
-                  />
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-                    {COLOR_PRESETS.map(c => (
-                      <TouchableOpacity
-                        key={c}
-                        style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: c, borderWidth: 2, borderColor: tempColor.toUpperCase() === c ? COLORS.primary : COLORS.border }}
-                        onPress={() => setTempColor(c)}
-                      />
-                    ))}
-                  </View>
+                <View style={{ width: '100%', height: 300, gap: SPACING.md }}>
+                  <ColorPicker 
+                    style={{ width: '100%', gap: SPACING.md }} 
+                    value={tempColor} 
+                    onComplete={(colors) => {
+                      'worklet';
+                      runOnJS(setTempColor)(colors.hex);
+                    }}
+                  >
+                    <Panel1 />
+                    <HueSlider />
+                    <Swatches />
+                  </ColorPicker>
                 </View>
                 <View style={{ flexDirection: 'row', gap: SPACING.md, marginTop: SPACING.xl }}>
                   <TouchableOpacity style={[s.saveBtn, { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, flex: 1 }]} onPress={() => setColorPickerVisible(false)}>
