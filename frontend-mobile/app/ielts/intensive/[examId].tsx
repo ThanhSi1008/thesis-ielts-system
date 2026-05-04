@@ -871,8 +871,9 @@ export default function ExamPlayerScreen() {
     setTimerRunning(true);
   };
 
-  const setAnswer = (key: string, value: string) =>
-    setAnswers(prev => ({ ...prev, [key]: value }));
+  const setAnswer = useCallback((key: string, value: string) =>
+    setAnswers(prev => ({ ...prev, [key]: value })), []);
+
 
   const buildSubmitPayload = () => {
     const type = exam?.type;
