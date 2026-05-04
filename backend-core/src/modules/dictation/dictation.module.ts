@@ -8,11 +8,13 @@ import { DictationVideosController } from "./controllers/dictation-videos.contro
 import { DictationFoldersController } from "./controllers/dictation-folders.controller";
 import { DictationProgressController } from "./controllers/dictation-progress.controller";
 import { DictationWebhookController } from "./controllers/dictation-webhook.controller";
+import { AdminDictationController } from "./controllers/admin-dictation.controller";
 
 import { DictationLessonsService } from "./services/dictation-lessons.service";
 import { DictationVideosService } from "./services/dictation-videos.service";
 import { DictationFoldersService } from "./services/dictation-folders.service";
 import { DictationProgressService } from "./services/dictation-progress.service";
+import { AdminDictationService } from "./services/admin-dictation.service";
 
 @Module({
   imports: [PrismaModule, NotificationsModule, AiClientModule],
@@ -22,12 +24,14 @@ import { DictationProgressService } from "./services/dictation-progress.service"
     DictationFoldersController,
     DictationProgressController,
     DictationWebhookController,
+    AdminDictationController,
   ],
   providers: [
     DictationLessonsService,
     DictationVideosService,
     DictationFoldersService,
     DictationProgressService,
+    AdminDictationService,
   ],
 })
 export class DictationModule {}
