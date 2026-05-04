@@ -19,6 +19,33 @@ const SKILLS = [
 
 type StatusFilter = 'all' | 'taken' | 'not-taken';
 
+// ─── Band score helpers (mirrors result screen & web thresholds) ─────────────
+function getBandColor(band: number): string {
+  if (band >= 8.0) return '#22c55e';
+  if (band >= 6.5) return '#3b82f6';
+  if (band >= 5.0) return '#f59e0b';
+  return '#ef4444';
+}
+
+// Convert raw Listening/Reading score (0-40) → IELTS band
+function rawToListeningBand(score: number): number {
+  if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0;
+  if (score >= 32) return 7.5; if (score >= 30) return 7.0; if (score >= 26) return 6.5;
+  if (score >= 23) return 6.0; if (score >= 18) return 5.5; if (score >= 16) return 5.0;
+  if (score >= 13) return 4.5; if (score >= 10) return 4.0; if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0; if (score >= 4) return 2.5; if (score >= 2) return 2.0;
+  return 1.0;
+}
+
+function rawToReadingBand(score: number): number {
+  if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0;
+  if (score >= 33) return 7.5; if (score >= 30) return 7.0; if (score >= 27) return 6.5;
+  if (score >= 23) return 6.0; if (score >= 19) return 5.5; if (score >= 15) return 5.0;
+  if (score >= 13) return 4.5; if (score >= 10) return 4.0; if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0; if (score >= 4) return 2.5; if (score >= 2) return 2.0;
+  return 1.0;
+}
+
 // ─── Accordion Group Card ────────────────────────────────────────────────────
 interface AccordionGroupProps {
   group: any;
@@ -110,14 +137,21 @@ function AccordionGroup({ group, isCollapsed, onToggle, skillColor, activeSkill,
                 </View>
               </View>
               <View style={acc.testRight}>
-                {test.myScore !== undefined ? (
-                  <View style={acc.myScore}>
-                    <Text style={acc.myScoreLabel}>Best</Text>
-                    <Text style={acc.myScoreValue}>
-                      {isWS ? `Band ${test.myScore?.toFixed(1)}` : `${test.myScore}/40`}
-                    </Text>
-                  </View>
-                ) : (
+                {test.myScore !== undefined ? (() => {
+                  // Derive band float from myScore depending on skill
+                  const band = isWS
+                    ? (test.myScore as number)
+                    : activeSkill === 'READING'
+                      ? rawToReadingBand(test.myScore as number)
+                      : rawToListeningBand(test.myScore as number);
+                  const color = getBandColor(band);
+                  return (
+                    <View style={[acc.bandPill, { backgroundColor: color + '18', borderColor: color }]}>
+                      <Text style={[acc.bandPillLabel, { color }]}>Band</Text>
+                      <Text style={[acc.bandPillScore, { color }]}>{band.toFixed(1)}</Text>
+                    </View>
+                  );
+                })() : (
                   <Text style={acc.notAttempted}>Not tried</Text>
                 )}
                 <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
@@ -166,6 +200,13 @@ const acc = StyleSheet.create({
   myScoreLabel: { fontSize: 10, color: COLORS.textSecondary, fontWeight: '600' },
   myScoreValue: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.success },
   notAttempted: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, fontStyle: 'italic' },
+  bandPill: {
+    alignItems: 'center', justifyContent: 'center',
+    borderRadius: RADIUS.md, borderWidth: 1.5,
+    paddingHorizontal: SPACING.sm, paddingVertical: 4, minWidth: 56,
+  },
+  bandPillLabel: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  bandPillScore: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, lineHeight: 20 },
 });
 
 

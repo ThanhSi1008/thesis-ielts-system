@@ -35,6 +35,12 @@
       ],
       "expo-audio",
       "expo-video",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for speaking tests."
+        }
+      ],
       "@react-native-community/datetimepicker",
       "expo-font"
     ],

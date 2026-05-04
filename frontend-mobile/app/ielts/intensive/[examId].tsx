@@ -13,26 +13,37 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button, Badge } from '@/components/ui';
 import WritingExamBlock from '@/components/ielts/WritingExamBlock';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
+import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
 import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
 import MatchingBlock from '@/components/ielts/MatchingBlock';
 
-// ─── Timer ──────────────────────────────────────────────────────────────────
+// ─── Timer (wall-clock fix) ───────────────────────────────────────────────────
 function useTimer(initialSeconds: number, running: boolean) {
   const [elapsed, setElapsed] = useState(0);
-  const ref = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     if (running) {
-      ref.current = setInterval(() => setElapsed(e => e + 1), 1000);
-    } else if (ref.current) {
-      clearInterval(ref.current);
+      // Capture wall-clock start, subtract already-elapsed to resume correctly
+      startTimeRef.current = Date.now() - elapsed * 1000;
+      intervalRef.current = setInterval(() => {
+        const wallElapsed = Math.round((Date.now() - startTimeRef.current!) / 1000);
+        setElapsed(wallElapsed);
+      }, 500); // 500ms polling keeps display accurate without being costly
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
     }
-    return () => { if (ref.current) clearInterval(ref.current); };
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running]);
+
   const remaining = Math.max(0, initialSeconds - elapsed);
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
   const ss = String(remaining % 60).padStart(2, '0');
   return { elapsed, remaining, display: `${mm}:${ss}`, isExpired: remaining === 0 };
 }
+
 
 // ─── MCQ Question ────────────────────────────────────────────────────────────
 function MCQQuestion({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: (v: string) => void }) {
@@ -342,8 +353,14 @@ export default function ExamPlayerScreen() {
     scrollViewRef.current?.scrollTo({ y: Math.max(0, yOffset - 16), animated: true });
   }, [exam]);
 
+  const [volume, setVolume] = useState(1.0);
+
   const audioUrl = exam?.questions?.audio_url;
   const player = useAudioPlayer(audioUrl || '');
+
+  useEffect(() => {
+    if (player) player.volume = volume;
+  }, [volume, player]);
 
   const { elapsed, display: timerDisplay } = useTimer(
     (exam?.duration ?? 60) * 60,
@@ -444,6 +461,9 @@ export default function ExamPlayerScreen() {
   const isSpeaking = examType === 'SPEAKING';
   const speakingParts = questions?.parts || [];
 
+  // Reading
+  const isReading = examType === 'READING';
+
   // Answered count display
   const answeredCount = isWriting
     ? [writingAnswers.task1, writingAnswers.task2].filter(v => v.trim()).length
@@ -481,13 +501,27 @@ export default function ExamPlayerScreen() {
 
       {/* Audio bar (Listening only) */}
       {audioUrl && (
-        <TouchableOpacity
-          style={[styles.audioBanner, player.playing && styles.audioBannerPlaying]}
-          onPress={handleToggleAudio}
-        >
-          <Ionicons name={player.playing ? 'pause-circle' : 'play-circle'} size={32} color={COLORS.primary} />
-          <Text style={styles.audioLabel}>{player.playing ? 'Playing audio…' : 'Tap to play audio'}</Text>
-        </TouchableOpacity>
+        <View style={styles.audioBannerContainer}>
+          <TouchableOpacity
+            style={[styles.audioBanner, player.playing && styles.audioBannerPlaying]}
+            onPress={handleToggleAudio}
+            activeOpacity={0.8}
+          >
+            <Ionicons name={player.playing ? 'pause-circle' : 'play-circle'} size={32} color={COLORS.primary} />
+            <Text style={styles.audioLabel}>{player.playing ? 'Playing audio…' : 'Tap to play audio'}</Text>
+          </TouchableOpacity>
+          <View style={styles.volumeControl}>
+            <TouchableOpacity onPress={() => setVolume(Math.max(0, volume - 0.2))} style={styles.volBtn}>
+              <Ionicons name="volume-low" size={18} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+            <View style={styles.volumeTrack}>
+              <View style={[styles.volumeFill, { width: `${volume * 100}%` }]} />
+            </View>
+            <TouchableOpacity onPress={() => setVolume(Math.min(1, volume + 0.2))} style={styles.volBtn}>
+              <Ionicons name="volume-high" size={18} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
 
       {/* Writing board */}
@@ -508,8 +542,18 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {/* Listening / Reading questions */}
-      {!isWriting && !isSpeaking && (
+      {/* Reading board */}
+      {isReading && (
+        <ReadingExamBlock
+          parts={parts}
+          answers={answers}
+          onChange={setAnswer}
+          renderGroup={renderGroup as any}
+        />
+      )}
+
+      {/* Listening questions */}
+      {!isWriting && !isSpeaking && !isReading && (
         <ScrollView
           ref={scrollViewRef}
           style={styles.scrollArea}
@@ -597,19 +641,18 @@ const styles = StyleSheet.create({
   },
   examTitleContainer: { flex: 1, gap: 4 },
   examTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
-  timerBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: SPACING.sm,
-    paddingVertical: 4, borderRadius: RADIUS.md,
-  },
-  timerWarning: { backgroundColor: COLORS.error + 'CC' },
-  timerText: { color: '#fff', fontWeight: '800', fontSize: FONT_SIZES.sm, fontVariant: ['tabular-nums'] },
-  audioBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md, padding: SPACING.md,
-    backgroundColor: COLORS.primary + '0E', borderBottomWidth: 1, borderColor: COLORS.primary + '30',
-  },
-  audioBannerPlaying: { backgroundColor: COLORS.primary + '1A' },
-  audioLabel: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '600' },
+  timerBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.full },
+  timerWarning: { backgroundColor: '#ef4444' },
+  timerText: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  
+  audioBannerContainer: { backgroundColor: '#EEF2FF', borderBottomWidth: 1, borderColor: '#C7D2FE' },
+  audioBanner: { flexDirection: 'row', alignItems: 'center', padding: SPACING.md, gap: SPACING.sm },
+  audioBannerPlaying: { backgroundColor: '#E0E7FF' },
+  audioLabel: { fontSize: FONT_SIZES.md, color: COLORS.primary, fontWeight: '600' },
+  volumeControl: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md, gap: SPACING.sm },
+  volBtn: { padding: 4 },
+  volumeTrack: { flex: 1, height: 6, backgroundColor: '#C7D2FE', borderRadius: 3, overflow: 'hidden' },
+  volumeFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 3 },
   scrollArea: { flex: 1 },
   partSection: { marginBottom: SPACING.xxl },
   partTitle: {

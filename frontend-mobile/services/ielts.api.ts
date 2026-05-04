@@ -44,6 +44,8 @@ export const ieltsExamsApi = {
   saveProgress: (sessionId: string, answers: Record<string, any>, timeTaken?: number) =>
     apiClient.patch<any>(`/exams/sessions/${sessionId}/progress`, { answers, timeTaken }),
   deleteSession: (sessionId: string) => apiClient.delete<any>(`/exams/sessions/${sessionId}`),
+  uploadSpeakingAudio: (formData: FormData): Promise<{ url: string }> =>
+    apiClient.postForm<{ url: string }>('/exams/audio/upload', formData),
 };
 
 // ==================== STUDENT/TEACHER ====================

@@ -5,10 +5,15 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
+import WritingRubricView from '@/components/ielts/WritingRubricView';
+import SpeakingRubricView from '@/components/ielts/SpeakingRubricView';
+import QuestionNoteEditor from '@/components/ielts/QuestionNoteEditor';
+import { notesApi, type QuestionNote } from '@/services/notes.api';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -38,11 +43,11 @@ function getBandForType(score: number, type: string) {
   return type === 'READING' ? getReadingBand(score) : getListeningBand(score);
 }
 
-function getBandColor(band: number) {
-  if (band >= 7) return '#16a34a';
-  if (band >= 5.5) return COLORS.primary;
-  if (band >= 4) return '#D97706';
-  return COLORS.error;
+function getBandColor(band: number): string {
+  if (band >= 8.0) return '#22c55e';
+  if (band >= 6.5) return '#3b82f6';
+  if (band >= 5.0) return '#f59e0b';
+  return '#ef4444';
 }
 
 const BAND_LABELS: Record<string, string> = {
@@ -65,12 +70,36 @@ function extractCorrectAnswers(obj: any, map: Map<string, any>) {
     return;
   }
   if ('question_numbers' in obj && 'answer' in obj) {
+    let ans = obj.answer;
+    if (typeof ans === 'string' && ans.includes(',')) {
+      ans = ans.split(',').map((s: string) => s.trim());
+    }
     for (const n of obj.question_numbers as number[]) {
-      map.set(String(n), obj.answer);
+      map.set(String(n), ans);
     }
     return;
   }
   Object.values(obj).forEach(v => extractCorrectAnswers(v, map));
+}
+
+// ─── Extract timestamps recursively from exam.questions ────────────────────────
+function extractTimestamps(obj: any, map: Map<string, number>) {
+  if (!obj || typeof obj !== 'object') return;
+  if (Array.isArray(obj)) {
+    obj.forEach(x => extractTimestamps(x, map));
+    return;
+  }
+  if ('question_number' in obj && 'timestamp_seconds' in obj) {
+    map.set(String(obj.question_number), obj.timestamp_seconds);
+    return;
+  }
+  if ('question_numbers' in obj && 'timestamp_seconds' in obj) {
+    for (const n of obj.question_numbers as number[]) {
+      map.set(String(n), obj.timestamp_seconds);
+    }
+    return;
+  }
+  Object.values(obj).forEach(v => extractTimestamps(v, map));
 }
 
 // ─── Answer correctness check (mirrors web logic) ────────────────────────────
@@ -103,7 +132,7 @@ function checkCorrect(userAns: any, correctAns: any): boolean {
   return false;
 }
 
-// ─── Answer Sheet (number grid) ──────────────────────────────────────────────
+// ─── Answer Sheet (4 columns) ────────────────────────────────────────────────
 function AnswerSheet({
   userAnswers, correctMap, totalQuestions,
 }: {
@@ -114,35 +143,48 @@ function AnswerSheet({
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
   let correct = 0, wrong = 0, blank = 0;
 
+  const chunkSize = Math.ceil(totalQuestions / 4) || 10;
+  const parts = Array.from({ length: 4 }, (_, i) => 
+    numbers.slice(i * chunkSize, (i + 1) * chunkSize)
+  );
+
   return (
     <View style={as.container}>
       <Text style={as.title}>Answer Sheet</Text>
-      <View style={as.grid}>
-        {numbers.map(n => {
-          const key = String(n);
-          const user = userAnswers[key];
-          const correct_ = correctMap.get(key);
-          const hasAns = !!normalizeAns(user);
-          const isCorrect = hasAns && correct_ !== undefined && checkCorrect(user, correct_);
-          const isWrong = hasAns && correct_ !== undefined && !isCorrect;
-          const isBlank = !hasAns;
-
-          if (isCorrect) correct++;
-          else if (isWrong) wrong++;
-          else blank++;
-
-          const bg = isCorrect ? '#DCFCE7' : isWrong ? '#FEE2E2' : COLORS.surface;
-          const border = isCorrect ? '#16a34a' : isWrong ? COLORS.error : COLORS.border;
-          const color = isCorrect ? '#15803D' : isWrong ? '#B91C1C' : COLORS.textMuted;
-
+      <View style={as.columnsContainer}>
+        {parts.map((partNums, idx) => {
+          if (partNums.length === 0) return null;
           return (
-            <View key={n} style={[as.cell, { backgroundColor: bg, borderColor: border }]}>
-              <Text style={[as.cellNum, { color }]}>{n}</Text>
+            <View key={idx} style={as.column}>
+              <Text style={as.colTitle}>Part {idx + 1}</Text>
+              <View style={as.colGrid}>
+                {partNums.map(n => {
+                  const key = String(n);
+                  const user = userAnswers[key];
+                  const correct_ = correctMap.get(key);
+                  const hasAns = !!normalizeAns(user);
+                  const isCorrect = hasAns && correct_ !== undefined && checkCorrect(user, correct_);
+                  const isWrong = hasAns && correct_ !== undefined && !isCorrect;
+
+                  if (isCorrect) correct++;
+                  else if (isWrong) wrong++;
+                  else blank++;
+
+                  const bg = isCorrect ? '#DCFCE7' : isWrong ? '#FEE2E2' : COLORS.surface;
+                  const border = isCorrect ? '#16a34a' : isWrong ? COLORS.error : COLORS.border;
+                  const color = isCorrect ? '#15803D' : isWrong ? '#B91C1C' : COLORS.textMuted;
+
+                  return (
+                    <View key={n} style={[as.cell, { backgroundColor: bg, borderColor: border }]}>
+                      <Text style={[as.cellNum, { color }]}>{n}</Text>
+                    </View>
+                  );
+                })}
+              </View>
             </View>
           );
         })}
       </View>
-      {/* Legend */}
       <View style={as.legend}>
         <View style={as.legendItem}>
           <View style={[as.legendDot, { backgroundColor: '#DCFCE7', borderColor: '#16a34a' }]} />
@@ -164,7 +206,10 @@ function AnswerSheet({
 const as = StyleSheet.create({
   container: { margin: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.lg, borderWidth: 1, borderColor: COLORS.border },
   title: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  columnsContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: SPACING.sm },
+  column: { flex: 1, alignItems: 'center' },
+  colTitle: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary, marginBottom: SPACING.sm, textTransform: 'uppercase' },
+  colGrid: { flexDirection: 'column', gap: 6 },
   cell: { width: 36, height: 36, borderRadius: RADIUS.sm, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   cellNum: { fontSize: 11, fontWeight: '700' },
   legend: { flexDirection: 'row', gap: SPACING.lg, marginTop: SPACING.md },
@@ -175,11 +220,16 @@ const as = StyleSheet.create({
 
 // ─── Question Review Row ──────────────────────────────────────────────────────
 function QuestionReviewRow({
-  questionNumber, userAns, correctAns,
+  questionNumber, userAns, correctAns, note, examId, userId, timestamp, onSeek,
 }: {
   questionNumber: number;
   userAns: any;
   correctAns: any;
+  note?: QuestionNote;
+  examId: string;
+  userId: string;
+  timestamp?: number;
+  onSeek?: (ts: number) => void;
 }) {
   const user = normalizeAns(userAns);
   const correct = normalizeAns(correctAns);
@@ -220,6 +270,20 @@ function QuestionReviewRow({
             </View>
           </View>
         )}
+        
+        {timestamp !== undefined && onSeek && (
+          <TouchableOpacity style={qr.listenBtn} onPress={() => onSeek(timestamp)} activeOpacity={0.7}>
+            <Ionicons name="volume-medium" size={13} color={COLORS.primary} />
+            <Text style={qr.listenText}>Listen</Text>
+          </TouchableOpacity>
+        )}
+
+        <QuestionNoteEditor
+          questionNumber={questionNumber}
+          examId={examId}
+          userId={userId}
+          initialNote={note}
+        />
       </View>
     </View>
   );
@@ -232,6 +296,12 @@ const qr = StyleSheet.create({
   right: { flex: 1 },
   correctPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#DCFCE7', borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', borderWidth: 1, borderColor: '#86EFAC' },
   correctText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#15803D' },
+  listenBtn: { 
+    flexDirection: 'row', alignItems: 'center', gap: 4, 
+    alignSelf: 'flex-start', marginTop: 4, paddingHorizontal: 8, paddingVertical: 4,
+    backgroundColor: '#EFF6FF', borderRadius: RADIUS.sm, borderWidth: 1, borderColor: '#BFDBFE'
+  },
+  listenText: { fontSize: 11, fontWeight: '700', color: COLORS.primary },
   wrongRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   wrongPill: { backgroundColor: '#FEE2E2', borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: '#FECACA' },
   wrongText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#B91C1C', textDecorationLine: 'line-through' },
@@ -242,11 +312,16 @@ const qr = StyleSheet.create({
 
 // ─── Question Review Section (collapsible) ────────────────────────────────────
 function QuestionReviewSection({
-  userAnswers, correctMap, totalQuestions,
+  userAnswers, correctMap, timestampMap, totalQuestions, noteMap, examId, userId, onSeek,
 }: {
   userAnswers: Record<string, any>;
   correctMap: Map<string, any>;
+  timestampMap: Map<string, number>;
   totalQuestions: number;
+  noteMap: Map<number, QuestionNote>;
+  examId: string;
+  userId: string;
+  onSeek?: (ts: number) => void;
 }) {
   const [open, setOpen] = useState(false);
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
@@ -270,6 +345,11 @@ function QuestionReviewSection({
               questionNumber={n}
               userAns={userAnswers[String(n)]}
               correctAns={correctMap.get(String(n))}
+              note={noteMap.get(n)}
+              examId={examId}
+              userId={userId}
+              timestamp={timestampMap.get(String(n))}
+              onSeek={onSeek}
             />
           ))}
         </View>
@@ -293,10 +373,35 @@ export default function ResultScreen() {
   const [loading, setLoading] = useState(true);
   const [retaking, setRetaking] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [noteMap, setNoteMap] = useState<Map<number, QuestionNote>>(new Map());
+  const [volume, setVolume] = useState(1.0);
+
+  const audioUrl = session?.exam?.questions?.audio_url || '';
+  const player = useAudioPlayer(audioUrl);
+
+  useEffect(() => {
+    if (player) player.volume = volume;
+  }, [volume, player]);
+
+  const handleSeek = (timestamp: number) => {
+    if (!player.playing) player.play();
+    player.seekTo(timestamp);
+  };
 
   useEffect(() => {
     ieltsExamsApi.getSession(sessionId)
-      .then(setSession)
+      .then(data => {
+        setSession(data);
+        if (data?.userId && data?.exam?.id) {
+          notesApi.getExamNotes(data.userId, data.exam.id)
+            .then(notes => {
+              const map = new Map<number, QuestionNote>();
+              notes.forEach(n => map.set(n.questionNumber, n));
+              setNoteMap(map);
+            })
+            .catch(() => { });
+        }
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [sessionId]);
@@ -337,7 +442,6 @@ export default function ResultScreen() {
       ].join('\n');
       await Share.share({ message, title: `IELTS ${examType} — Band ${bandStr}` });
     } catch {
-      /* user cancelled */
     } finally {
       setSharing(false);
     }
@@ -380,10 +484,11 @@ export default function ResultScreen() {
   const mm = timeTaken ? String(Math.floor(timeTaken / 60)).padStart(2, '0') : '--';
   const ss = timeTaken ? String(timeTaken % 60).padStart(2, '0') : '--';
 
-  // Extract correct answers from exam.questions
   const correctMap = new Map<string, any>();
+  const timestampMap = new Map<string, number>();
   if (session.exam?.questions && !isWritingOrSpeaking) {
     extractCorrectAnswers(session.exam.questions, correctMap);
+    extractTimestamps(session.exam.questions, timestampMap);
   }
 
   const userAnswers: Record<string, any> = session.answers ?? {};
@@ -393,7 +498,15 @@ export default function ResultScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* Hero */}
+        {/* Breadcrumb Navigation */}
+        <View style={styles.breadcrumb}>
+          <Text style={styles.bcText}>IELTS</Text>
+          <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
+          <Text style={styles.bcText}>Intensive</Text>
+          <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
+          <Text style={[styles.bcText, styles.bcActive]}>Result</Text>
+        </View>
+
         <View style={[styles.hero, { backgroundColor: bandColor + '18' }]}>
           <View style={[styles.bandCircle, { borderColor: bandColor }]}>
             <Text style={[styles.bandScore, { color: bandColor }]}>{bandStr}</Text>
@@ -410,7 +523,6 @@ export default function ResultScreen() {
           <Text style={styles.examTitle} numberOfLines={2}>{session.exam?.title}</Text>
         </View>
 
-        {/* Stats row */}
         {!isPending && (
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
@@ -428,7 +540,6 @@ export default function ResultScreen() {
           </View>
         )}
 
-        {/* Score bar */}
         {!isPending && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Score Breakdown</Text>
@@ -449,7 +560,28 @@ export default function ResultScreen() {
           </View>
         )}
 
-        {/* Answer sheet (Listening / Reading only) */}
+        {!isPending && audioUrl ? (
+          <View style={styles.audioBannerContainer}>
+            <View style={styles.audioBanner}>
+              <TouchableOpacity onPress={() => player.playing ? player.pause() : player.play()} style={styles.playBtn}>
+                <Ionicons name={player.playing ? 'pause' : 'play'} size={20} color="#fff" />
+              </TouchableOpacity>
+              <Text style={styles.audioBannerText}>{player.playing ? 'Playing exam audio' : 'Audio paused'}</Text>
+            </View>
+            <View style={styles.volumeControl}>
+              <TouchableOpacity onPress={() => setVolume(Math.max(0, volume - 0.2))}>
+                <Ionicons name="volume-low" size={20} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+              <View style={styles.volumeTrack}>
+                <View style={[styles.volumeFill, { width: `${volume * 100}%` }]} />
+              </View>
+              <TouchableOpacity onPress={() => setVolume(Math.min(1, volume + 0.2))}>
+                <Ionicons name="volume-high" size={20} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+
         {!isPending && !isWritingOrSpeaking && correctMap.size > 0 && (
           <AnswerSheet
             userAnswers={userAnswers}
@@ -458,18 +590,39 @@ export default function ResultScreen() {
           />
         )}
 
-        {/* Question-by-question review (collapsible) */}
         {!isPending && !isWritingOrSpeaking && correctMap.size > 0 && (
           <QuestionReviewSection
             userAnswers={userAnswers}
             correctMap={correctMap}
+            timestampMap={timestampMap}
             totalQuestions={totalQuestions}
+            noteMap={noteMap}
+            examId={session.exam?.id ?? ''}
+            userId={session.userId ?? ''}
+            onSeek={handleSeek}
           />
         )}
 
-        {/* Actions */}
+        {!isPending && examType === 'WRITING' && session.result?.writingFeedback && (
+          <WritingRubricView
+            feedback={session.result.writingFeedback}
+            answers={{
+              task1: session.answers?.task1 ?? session.answers?.['1'],
+              task2: session.answers?.task2 ?? session.answers?.['2'],
+            }}
+            exam={session.exam}
+          />
+        )}
+
+        {!isPending && examType === 'SPEAKING' && session.result?.speakingFeedback && (
+          <SpeakingRubricView
+            feedback={session.result.speakingFeedback}
+            answers={session.answers ?? {}}
+            exam={session.exam}
+          />
+        )}
+
         <View style={styles.actions}>
-          {/* Retake */}
           <TouchableOpacity
             style={[styles.actionBtn, styles.retakeBtn, retaking && { opacity: 0.7 }]}
             onPress={handleRetake}
@@ -482,7 +635,6 @@ export default function ResultScreen() {
             <Text style={styles.retakeBtnText}>{retaking ? 'Starting…' : 'Retake Exam'}</Text>
           </TouchableOpacity>
 
-          {/* Share */}
           <TouchableOpacity
             style={[styles.actionBtn, styles.shareBtn, sharing && { opacity: 0.7 }]}
             onPress={() => handleShare(bandStr, rawScore, totalQuestions, session.exam?.title ?? '', examType, mm, ss)}
@@ -495,7 +647,6 @@ export default function ResultScreen() {
             <Text style={styles.shareBtnText}>{sharing ? 'Sharing…' : 'Share Result'}</Text>
           </TouchableOpacity>
 
-          {/* Navigation */}
           <Button
             title="Back to Tests"
             variant="outline"
@@ -520,7 +671,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   loadingText: { marginTop: SPACING.md, color: COLORS.textSecondary },
-  hero: { alignItems: 'center', padding: SPACING.xxxl, paddingTop: SPACING.xxl },
+  breadcrumb: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: SPACING.lg, paddingTop: SPACING.md },
+  bcText: { fontSize: 13, color: COLORS.textSecondary, fontWeight: '500' },
+  bcActive: { color: COLORS.primary, fontWeight: '700' },
+  hero: { alignItems: 'center', padding: SPACING.xxxl, paddingTop: SPACING.lg },
   bandCircle: {
     width: 120, height: 120, borderRadius: 60, borderWidth: 5,
     alignItems: 'center', justifyContent: 'center', marginBottom: SPACING.lg,
@@ -529,8 +683,22 @@ const styles = StyleSheet.create({
   },
   bandScore: { fontSize: 40, fontWeight: '900', lineHeight: 44 },
   bandLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  resultTitle: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text, marginBottom: SPACING.sm },
-  description: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary, marginBottom: SPACING.sm },
+  resultTitle: { fontSize: 24, fontWeight: '800', color: COLORS.text, marginBottom: 8, textAlign: 'center' },
+  description: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 22 },
+  audioBannerContainer: {
+    marginHorizontal: SPACING.lg, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF', overflow: 'hidden'
+  },
+  audioBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md, padding: SPACING.md,
+  },
+  playBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
+  audioBannerText: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '600' },
+  volumeControl: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, paddingHorizontal: SPACING.md, paddingBottom: SPACING.md,
+  },
+  volumeTrack: { flex: 1, height: 6, backgroundColor: '#E0E7FF', borderRadius: 3, overflow: 'hidden' },
+  volumeFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 3 },
   examTitle: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted, textAlign: 'center' },
   statsRow: {
     flexDirection: 'row', marginHorizontal: SPACING.lg, marginTop: SPACING.md,
