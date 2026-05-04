@@ -28,7 +28,7 @@ function countWords(text: string) {
 
 const DEFAULT_MIN_WORDS = [150, 250];
 
-export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
+function WritingExamBlock({ tasks, answers, onChange }: Props) {
   const [activeTask, setActiveTask] = useState(1);
   const [promptHeight, setPromptHeight] = useState(250);
   const promptHeightRef = React.useRef(250);
@@ -41,7 +41,7 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
       },
       onPanResponderMove: (evt, gestureState) => {
         // Adjust prompt height based on drag distance (dy)
-        const newHeight = Math.max(40, promptHeightRef.current + gestureState.dy);
+        const newHeight = Math.max(10, promptHeightRef.current + gestureState.dy);
         // Cap max height to avoid squeezing the keyboard out entirely
         const cappedHeight = Math.min(newHeight, 500); 
         setPromptHeight(cappedHeight);
@@ -174,6 +174,10 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
     </KeyboardAvoidingView>
   );
 }
+
+export default React.memo(WritingExamBlock, (prev, next) => {
+  return prev.tasks === next.tasks && prev.answers === next.answers;
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

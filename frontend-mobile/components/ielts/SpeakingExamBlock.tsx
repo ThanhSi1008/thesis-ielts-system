@@ -467,7 +467,7 @@ const aq = StyleSheet.create({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
+function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
   const [activePartIdx, setActivePartIdx] = useState(0);
   const [activeQIdx, setActiveQIdx] = useState(0);
 
@@ -570,6 +570,13 @@ export default function SpeakingExamBlock({ parts, answers, onChange, onSubmit }
     </KeyboardAvoidingView>
   );
 }
+
+export default React.memo(SpeakingExamBlock, (prev, next) => {
+  // Only re-render if parts or answers change.
+  // We ignore onChange and onSubmit because they might be re-created on every render in the parent,
+  // but their functionality remains the same.
+  return prev.parts === next.parts && prev.answers === next.answers;
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
