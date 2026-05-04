@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet,
+  KeyboardAvoidingView, Platform, Image
 } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 
@@ -8,6 +9,10 @@ interface WritingTask {
   task_number: number;
   task_type?: string;
   prompt: string;
+  image_url?: string;
+  time_advice?: string;
+  instruction?: string;
+  min_words?: number;
 }
 
 interface Props {
@@ -20,7 +25,7 @@ function countWords(text: string) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
-const MIN_WORDS = [150, 250];
+const DEFAULT_MIN_WORDS = [150, 250];
 
 export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
   const [activeTask, setActiveTask] = useState(1);
@@ -30,7 +35,7 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
   const current = activeTask === 1 ? task1 : task2;
   const currentValue = activeTask === 1 ? answers.task1 : answers.task2;
   const wordCount = countWords(currentValue);
-  const minWords = MIN_WORDS[activeTask - 1];
+  const minWords = current?.min_words || DEFAULT_MIN_WORDS[activeTask - 1];
   const meetsMin = wordCount >= minWords;
 
   const handleChange = (text: string) => {
@@ -40,12 +45,16 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       {/* Task tabs */}
       <View style={styles.tabs}>
         {[1, 2].map(n => {
           const val = n === 1 ? answers.task1 : answers.task2;
-          const done = countWords(val) >= MIN_WORDS[n - 1];
+          const targetWords = tasks.find(t => t.task_number === n)?.min_words || DEFAULT_MIN_WORDS[n - 1];
+          const done = countWords(val) >= targetWords;
           return (
             <TouchableOpacity
               key={n}
@@ -66,8 +75,31 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
       {current && (
         <ScrollView style={styles.promptScroll} nestedScrollEnabled showsVerticalScrollIndicator={false}>
           <View style={styles.promptBox}>
+            {/* Instruction Banner */}
+            <View style={styles.instructionBanner}>
+              <Text style={styles.instructionText}>
+                You should spend about <Text style={{ fontWeight: '700' }}>{current.time_advice || (activeTask === 1 ? '20' : '40')}</Text> minutes on this task.
+                {'\n'}Write at least <Text style={{ fontWeight: '700' }}>{minWords}</Text> words.
+              </Text>
+            </View>
+
+            {current.instruction && (
+              <Text style={styles.instructionPrompt}>{current.instruction}</Text>
+            )}
+
             <Text style={styles.taskType}>{current.task_type || `Task ${current.task_number}`}</Text>
             <Text style={styles.promptText}>{current.prompt}</Text>
+            
+            {/* Task 1 Image */}
+            {current.image_url && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
+                <Image 
+                  source={{ uri: current.image_url }} 
+                  style={styles.taskImage} 
+                  resizeMode="contain"
+                />
+              </ScrollView>
+            )}
           </View>
         </ScrollView>
       )}
@@ -77,6 +109,8 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
         <TextInput
           style={styles.essayInput}
           multiline
+          autoCorrect={false}
+          spellCheck={false}
           value={currentValue}
           onChangeText={handleChange}
           placeholder={`Write your Task ${activeTask} response here…`}
@@ -105,7 +139,7 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
           <Text style={styles.wordCountDone}>✓ Minimum word count met</Text>
         )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -138,4 +172,12 @@ const styles = StyleSheet.create({
   wordCountDone: { fontSize: FONT_SIZES.xs, color: '#16a34a', fontWeight: '600', marginTop: 4, textAlign: 'right' },
   progressTrack: { height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden', marginBottom: 4 },
   progressFill: { height: '100%', borderRadius: 3 },
+  instructionBanner: {
+    backgroundColor: '#EEF2FF', padding: SPACING.md, borderRadius: RADIUS.md, 
+    marginBottom: SPACING.md, borderLeftWidth: 3, borderLeftColor: COLORS.primary
+  },
+  instructionText: { fontSize: FONT_SIZES.xs, color: COLORS.primary, lineHeight: 18 },
+  instructionPrompt: { fontSize: FONT_SIZES.sm, color: COLORS.text, fontStyle: 'italic', marginBottom: SPACING.md },
+  imageScroll: { marginTop: SPACING.lg, borderRadius: RADIUS.md, backgroundColor: '#f8fafc', padding: SPACING.sm },
+  taskImage: { width: 500, height: 300 }, // Scrollable fixed size for readability
 });
