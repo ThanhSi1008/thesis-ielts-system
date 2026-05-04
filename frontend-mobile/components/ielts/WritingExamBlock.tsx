@@ -41,7 +41,7 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
       },
       onPanResponderMove: (evt, gestureState) => {
         // Adjust prompt height based on drag distance (dy)
-        const newHeight = Math.max(100, promptHeightRef.current + gestureState.dy);
+        const newHeight = Math.max(40, promptHeightRef.current + gestureState.dy);
         // Cap max height to avoid squeezing the keyboard out entirely
         const cappedHeight = Math.min(newHeight, 500); 
         setPromptHeight(cappedHeight);
