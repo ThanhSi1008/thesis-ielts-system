@@ -298,7 +298,7 @@ function ActiveQuestionBlock({
       style={aq.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={aq.scrollContent} showsVerticalScrollIndicator={false} bounces={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={aq.scrollContent} showsVerticalScrollIndicator={false} bounces={false}>
         {/* Question Text / Cue Card */}
         <View style={isCueCard ? aq.cueCard : aq.questionCard}>
           {isCueCard && <Text style={aq.cueLabel}>Cue Card Topic</Text>}
