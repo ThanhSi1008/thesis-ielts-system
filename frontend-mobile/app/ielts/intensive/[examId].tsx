@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioPlayer } from 'expo-audio';
+import { useGradingPoll } from '@/hooks/useGradingPoll';
 import { WebView } from 'react-native-webview';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
@@ -849,6 +850,22 @@ export default function ExamPlayerScreen() {
     }
   };
 
+  // Poll for AI Grading (Speaking & Writing)
+  useGradingPoll({
+    sessionId: session?.id || null,
+    enabled: isAiGrading,
+    onDone: (sid) => {
+      setIsAiGrading(false);
+      router.replace(`/ielts/intensive/result/${sid}` as any);
+    },
+    onError: (msg) => {
+      setIsAiGrading(false);
+      Alert.alert('Grading Error', msg, [
+        { text: 'View History', onPress: () => router.replace('/(tabs)/ielts') }
+      ]);
+    }
+  });
+
   const handleStartExam = () => {
     setExamReady(true);
     setTimerRunning(true);
@@ -881,7 +898,10 @@ export default function ExamPlayerScreen() {
               const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
               if (isAiType) setIsAiGrading(true);
               await ieltsExamsApi.submitSession(session.id, payload, elapsed);
-              router.replace(`/ielts/intensive/result/${session.id}` as any);
+              
+              if (!isAiType) {
+                router.replace(`/ielts/intensive/result/${session.id}` as any);
+              }
             } catch (e) {
               setIsAiGrading(false);
               Alert.alert('Error', 'Failed to submit. Try again.');
@@ -1181,6 +1201,7 @@ export default function ExamPlayerScreen() {
           parts={speakingParts}
           answers={speakingAnswers}
           onChange={setSpeakingAnswers}
+          onSubmit={handleSubmit}
         />
       )}
 
