@@ -294,11 +294,12 @@ function ActiveQuestionBlock({
   const activeVideoUri = step === 'PLAYING_2' ? video2Uri : (videoUri || video2Uri);
 
   return (
-    <KeyboardAvoidingView 
+    <ScrollView 
       style={aq.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      contentContainerStyle={aq.scrollContent} 
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={aq.scrollContent} showsVerticalScrollIndicator={false} bounces={false}>
         {/* Question Text / Cue Card */}
         <View style={isCueCard ? aq.cueCard : aq.questionCard}>
           {isCueCard && <Text style={aq.cueLabel}>Cue Card Topic</Text>}
@@ -407,10 +408,8 @@ function ActiveQuestionBlock({
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
-  );
+    );
 }
-
 const aq = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: SPACING.lg, flexGrow: 1, paddingBottom: 100 },
@@ -534,7 +533,11 @@ export default function SpeakingExamBlock({ parts, answers, onChange, onSubmit }
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
       {/* Part tabs (read-only indicator) */}
       <View style={styles.tabs}>
         {parts.map((part, idx) => {
@@ -564,7 +567,7 @@ export default function SpeakingExamBlock({ parts, answers, onChange, onSubmit }
         onSkip={handleSkip}
         isLastQuestion={isLastQuestion}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
