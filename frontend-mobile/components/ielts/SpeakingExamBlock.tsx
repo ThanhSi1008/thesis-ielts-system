@@ -10,7 +10,7 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ActivityIndicator, Platform, KeyboardAvoidingView,
+  ActivityIndicator, Platform, KeyboardAvoidingView, ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -298,119 +298,122 @@ function ActiveQuestionBlock({
       style={aq.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* Question Text / Cue Card */}
-      <View style={isCueCard ? aq.cueCard : aq.questionCard}>
-        {isCueCard && <Text style={aq.cueLabel}>Cue Card Topic</Text>}
-        <Text style={isCueCard ? aq.cueText : aq.questionText}>{questionText}</Text>
-      </View>
-
-      {/* Video Player */}
-      {(videoUri || video2Uri) && (
-        <View style={aq.videoWrap}>
-          <SpeakingVideoPlayer
-            uri={activeVideoUri}
-            playing={step === 'PLAYING' || step === 'PLAYING_2'}
-            onEnded={handleVideoEnded}
-            captionText={videoCaptionText}
-          />
+      <ScrollView contentContainerStyle={aq.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Question Text / Cue Card */}
+        <View style={isCueCard ? aq.cueCard : aq.questionCard}>
+          {isCueCard && <Text style={aq.cueLabel}>Cue Card Topic</Text>}
+          <Text style={isCueCard ? aq.cueText : aq.questionText}>{questionText}</Text>
         </View>
-      )}
 
-      {/* Think Timer (Visible during THINKING state) */}
-      {step === 'THINKING' && (
-        <ThinkTimer 
-          seconds={thinkTime} 
-          onDone={handleThinkDone} 
-          showSkip={isCueCard} 
-        />
-      )}
+        {/* Video Player */}
+        {(videoUri || video2Uri) && (
+          <View style={aq.videoWrap}>
+            <SpeakingVideoPlayer
+              uri={activeVideoUri}
+              playing={step === 'PLAYING' || step === 'PLAYING_2'}
+              onEnded={handleVideoEnded}
+              captionText={videoCaptionText}
+            />
+          </View>
+        )}
 
-      {/* Part 2 Notes Area (Visible during THINKING for Cue Card) */}
-      {isCueCard && step === 'THINKING' && (
-        <View style={aq.notesWrap}>
-          <Text style={aq.notesLabel}>Your Notes (optional, not graded)</Text>
-          <TextInput
-            style={aq.notesInput}
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Type quick notes here..."
-            placeholderTextColor={COLORS.textMuted}
-            multiline
-            textAlignVertical="top"
+        {/* Think Timer (Visible during THINKING state) */}
+        {step === 'THINKING' && (
+          <ThinkTimer 
+            seconds={thinkTime} 
+            onDone={handleThinkDone} 
+            showSkip={isCueCard} 
           />
-        </View>
-      )}
+        )}
 
-      {/* Recording Status & Controls */}
-      <View style={aq.controlsPanel}>
-        <View style={aq.statusArea}>
-          {step === 'PLAYING' || step === 'PLAYING_2' ? (
-            <Text style={aq.statusText}>Listen to the examiner...</Text>
-          ) : step === 'RECORDING' ? (
-            <View style={aq.recordStatus}>
-              <View style={aq.recDot} />
-              <RecordingTimer seconds={recordTimeElapsed} />
-            </View>
-          ) : uploading ? (
-            <View style={aq.recordStatus}>
-              <ActivityIndicator size="small" color={COLORS.primary} />
-              <Text style={aq.statusText}>Uploading audio...</Text>
-            </View>
-          ) : audioUploaded ? (
-            <View style={aq.recordStatus}>
-              <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-              <Text style={[aq.statusText, { color: '#22c55e', fontWeight: '700' }]}>Audio saved</Text>
-            </View>
-          ) : uploadError ? (
-            <Text style={[aq.statusText, { color: '#ef4444' }]}>{uploadError}</Text>
+        {/* Part 2 Notes Area (Visible during THINKING for Cue Card) */}
+        {isCueCard && step === 'THINKING' && (
+          <View style={aq.notesWrap}>
+            <Text style={aq.notesLabel}>Your Notes (optional, not graded)</Text>
+            <TextInput
+              style={aq.notesInput}
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Type quick notes here..."
+              placeholderTextColor={COLORS.textMuted}
+              multiline
+              textAlignVertical="top"
+            />
+          </View>
+        )}
+
+        {/* Recording Status & Controls */}
+        <View style={aq.controlsPanel}>
+          <View style={aq.statusArea}>
+            {step === 'PLAYING' || step === 'PLAYING_2' ? (
+              <Text style={aq.statusText}>Listen to the examiner...</Text>
+            ) : step === 'RECORDING' ? (
+              <View style={aq.recordStatus}>
+                <View style={aq.recDot} />
+                <RecordingTimer seconds={recordTimeElapsed} />
+              </View>
+            ) : uploading ? (
+              <View style={aq.recordStatus}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+                <Text style={aq.statusText}>Uploading audio...</Text>
+              </View>
+            ) : audioUploaded ? (
+              <View style={aq.recordStatus}>
+                <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
+                <Text style={[aq.statusText, { color: '#22c55e', fontWeight: '700' }]}>Audio saved</Text>
+              </View>
+            ) : uploadError ? (
+              <Text style={[aq.statusText, { color: '#ef4444' }]}>{uploadError}</Text>
+            ) : (
+              <Text style={aq.statusText}>Ready to record</Text>
+            )}
+          </View>
+
+          {/* Action Buttons */}
+          {step === 'RECORDING' ? (
+            <TouchableOpacity style={aq.stopBtn} onPress={stopAndUpload} activeOpacity={0.8}>
+              <View style={aq.stopIcon} />
+              <Text style={aq.stopBtnText}>Stop</Text>
+            </TouchableOpacity>
           ) : (
-            <Text style={aq.statusText}>Ready to record</Text>
+            <TouchableOpacity
+              style={[aq.recBtn, uploading && { opacity: 0.5 }]}
+              onPress={startRecording}
+              disabled={uploading || step === 'PLAYING' || step === 'PLAYING_2'}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="mic" size={18} color="#fff" />
+              <Text style={aq.recBtnText}>
+                {audioUploaded ? 'Re-record' : step === 'THINKING' ? 'Record Now' : 'Record'}
+              </Text>
+            </TouchableOpacity>
           )}
         </View>
 
-        {/* Action Buttons */}
-        {step === 'RECORDING' ? (
-          <TouchableOpacity style={aq.stopBtn} onPress={stopAndUpload} activeOpacity={0.8}>
-            <View style={aq.stopIcon} />
-            <Text style={aq.stopBtnText}>Stop</Text>
+        {/* Navigation (Next / Skip) */}
+        <View style={aq.navRow}>
+          <TouchableOpacity style={aq.skipBtn} onPress={onSkip} activeOpacity={0.8}>
+            <Text style={aq.skipBtnText}>Skip Question</Text>
           </TouchableOpacity>
-        ) : (
+
           <TouchableOpacity
-            style={[aq.recBtn, uploading && { opacity: 0.5 }]}
-            onPress={startRecording}
-            disabled={uploading || step === 'PLAYING' || step === 'PLAYING_2'}
+            style={[aq.nextBtn, (!audioUploaded || uploading) && { opacity: 0.5 }]}
+            onPress={onNext}
+            disabled={!audioUploaded || uploading}
             activeOpacity={0.8}
           >
-            <Ionicons name="mic" size={18} color="#fff" />
-            <Text style={aq.recBtnText}>
-              {audioUploaded ? 'Re-record' : step === 'THINKING' ? 'Record Now' : 'Record'}
-            </Text>
+            <Text style={aq.nextBtnText}>{isLastQuestion ? 'Submit Test' : 'Next Question'}</Text>
+            <Ionicons name="arrow-forward" size={18} color="#fff" />
           </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Navigation (Next / Skip) */}
-      <View style={aq.navRow}>
-        <TouchableOpacity style={aq.skipBtn} onPress={onSkip} activeOpacity={0.8}>
-          <Text style={aq.skipBtnText}>Skip Question</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[aq.nextBtn, (!audioUploaded || uploading) && { opacity: 0.5 }]}
-          onPress={onNext}
-          disabled={!audioUploaded || uploading}
-          activeOpacity={0.8}
-        >
-          <Text style={aq.nextBtnText}>{isLastQuestion ? 'Submit Test' : 'Next Question'}</Text>
-          <Ionicons name="arrow-forward" size={18} color="#fff" />
-        </TouchableOpacity>
-      </View>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const aq = StyleSheet.create({
-  container: { flex: 1, padding: SPACING.lg },
+  container: { flex: 1 },
+  scrollContent: { padding: SPACING.lg, flexGrow: 1, paddingBottom: 100 },
   questionCard: {
     backgroundColor: '#fff', borderRadius: RADIUS.lg, padding: SPACING.lg,
     marginBottom: SPACING.lg, borderWidth: 1, borderColor: COLORS.border,

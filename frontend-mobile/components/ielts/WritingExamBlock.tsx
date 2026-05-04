@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet,
-  KeyboardAvoidingView, Platform, Image
+  KeyboardAvoidingView, Platform, Image, PanResponder, Animated
 } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { Ionicons } from '@expo/vector-icons';
 
 interface WritingTask {
   task_number: number;
@@ -29,6 +30,24 @@ const DEFAULT_MIN_WORDS = [150, 250];
 
 export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
   const [activeTask, setActiveTask] = useState(1);
+  const [promptHeight, setPromptHeight] = useState(250);
+  const promptHeightRef = React.useRef(250);
+
+  const panResponder = React.useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        promptHeightRef.current = promptHeight;
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        // Adjust prompt height based on drag distance (dy)
+        const newHeight = Math.max(100, promptHeightRef.current + gestureState.dy);
+        // Cap max height to avoid squeezing the keyboard out entirely
+        const cappedHeight = Math.min(newHeight, 500); 
+        setPromptHeight(cappedHeight);
+      },
+    })
+  ).current;
 
   const task1 = tasks.find(t => t.task_number === 1);
   const task2 = tasks.find(t => t.task_number === 2);
@@ -73,7 +92,11 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
 
       {/* Prompt */}
       {current && (
-        <ScrollView style={styles.promptScroll} nestedScrollEnabled showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={[styles.promptScroll, { height: promptHeight, flex: undefined }]} 
+          nestedScrollEnabled 
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.promptBox}>
             {/* Instruction Banner */}
             <View style={styles.instructionBanner}>
@@ -102,6 +125,15 @@ export default function WritingExamBlock({ tasks, answers, onChange }: Props) {
             )}
           </View>
         </ScrollView>
+      )}
+
+      {/* Resizable Divider */}
+      {current && (
+        <View style={styles.dividerContainer} {...panResponder.panHandlers}>
+          <View style={styles.dividerBar}>
+            <Ionicons name="reorder-two" size={20} color={COLORS.textMuted} />
+          </View>
+        </View>
       )}
 
       {/* Essay input */}
@@ -154,7 +186,7 @@ const styles = StyleSheet.create({
   tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
   tabLabelActive: { color: COLORS.primary },
   tabCheck: { fontSize: FONT_SIZES.sm, color: '#16a34a', fontWeight: '700' },
-  promptScroll: { maxHeight: 200, borderBottomWidth: 1, borderColor: COLORS.border },
+  promptScroll: { backgroundColor: '#fff' },
   promptBox: { padding: SPACING.lg, backgroundColor: COLORS.surface },
   taskType: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
   promptText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
@@ -180,4 +212,22 @@ const styles = StyleSheet.create({
   instructionPrompt: { fontSize: FONT_SIZES.sm, color: COLORS.text, fontStyle: 'italic', marginBottom: SPACING.md },
   imageScroll: { marginTop: SPACING.lg, borderRadius: RADIUS.md, backgroundColor: '#f8fafc', padding: SPACING.sm },
   taskImage: { width: 500, height: 300 }, // Scrollable fixed size for readability
+  dividerContainer: {
+    height: 24,
+    backgroundColor: '#f1f5f9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
+    cursor: 'ns-resize' as any,
+  },
+  dividerBar: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#cbd5e1',
+    borderRadius: 2,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });
