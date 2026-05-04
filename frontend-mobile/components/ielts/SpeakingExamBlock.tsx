@@ -1,12 +1,11 @@
 /**
  * SpeakingExamBlock — per-question voice recorder + text fallback
  *
- * Audio recording uses expo-av (Audio.Recording).
+ * Audio recording uses expo-audio.
  * After recording, audio is uploaded via ieltsExamsApi.uploadSpeakingAudio.
  * The returned URL is stored as the answer for AI grading.
  * Text input fallback is always available alongside.
  *
- * Requires expo-av in package.json:  expo install expo-av
  * Requires permissions in app.json:  ios.infoPlist.NSMicrophoneUsageDescription
  */
 
@@ -15,7 +14,13 @@ import {
   View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { 
+  useAudioRecorder, 
+  useAudioRecorderState, 
+  RecordingPresets, 
+  requestRecordingPermissionsAsync, 
+  setAudioModeAsync 
+} from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
@@ -39,32 +44,6 @@ interface Props {
 
 const PART_COLORS = ['#2563EB', '#059669', '#D97706'];
 
-const RECORDING_OPTIONS: Audio.RecordingOptions = {
-  android: {
-    extension: '.m4a',
-    outputFormat: Audio.AndroidOutputFormat.MPEG_4,
-    audioEncoder: Audio.AndroidAudioEncoder.AAC,
-    sampleRate: 44100,
-    numberOfChannels: 1,
-    bitRate: 128000,
-  },
-  ios: {
-    extension: '.m4a',
-    outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
-    audioQuality: Audio.IOSAudioQuality.HIGH,
-    sampleRate: 44100,
-    numberOfChannels: 1,
-    bitRate: 128000,
-    linearPCMBitDepth: 16,
-    linearPCMIsBigEndian: false,
-    linearPCMIsFloat: false,
-  },
-  web: {
-    mimeType: 'audio/webm',
-    bitsPerSecond: 128000,
-  },
-};
-
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function RecordingTimer({ seconds }: { seconds: number }) {
@@ -86,47 +65,38 @@ interface RecorderProps {
 }
 
 function VoiceRecorder({ answerKey, answer, onAnswerChange, placeholder }: RecorderProps) {
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(recorder, 500);
+
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioUploaded, setAudioUploaded] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startTimeRef = useRef<number>(0);
+
+  const isRecording = recorderState.isRecording;
+  const recordingSeconds = Math.round((recorderState.durationMillis || 0) / 1000);
 
   const startRecording = useCallback(async () => {
     try {
       setUploadError(null);
-      const { granted } = await Audio.requestPermissionsAsync();
+      const { granted } = await requestRecordingPermissionsAsync();
       if (!granted) {
         setUploadError('Microphone permission denied. Please enable it in Settings.');
         return;
       }
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-      const { recording: rec } = await Audio.Recording.createAsync(RECORDING_OPTIONS);
-      setRecording(rec);
-      setIsRecording(true);
-      setRecordingSeconds(0);
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      await recorder.prepareToRecordAsync();
+      recorder.record();
       setAudioUploaded(false);
-      startTimeRef.current = Date.now();
-      timerRef.current = setInterval(() => {
-        setRecordingSeconds(Math.round((Date.now() - startTimeRef.current) / 1000));
-      }, 500);
     } catch (e) {
       setUploadError('Could not start recording. Please try again.');
     }
-  }, []);
+  }, [recorder]);
 
   const stopAndUpload = useCallback(async () => {
-    if (!recording) return;
     try {
-      if (timerRef.current) clearInterval(timerRef.current);
-      setIsRecording(false);
-      await recording.stopAndUnloadAsync();
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
-      const uri = recording.getURI();
-      setRecording(null);
+      await recorder.stop();
+      await setAudioModeAsync({ allowsRecording: false });
+      const uri = recorder.uri;
 
       if (!uri) { setUploadError('Recording failed — no audio file.'); return; }
 
@@ -143,7 +113,7 @@ function VoiceRecorder({ answerKey, answer, onAnswerChange, placeholder }: Recor
     } finally {
       setUploading(false);
     }
-  }, [recording, answerKey, onAnswerChange]);
+  }, [recorder, answerKey, onAnswerChange]);
 
   const wordCount = answer.trim().split(/\s+/).filter(Boolean).length;
   const isUrl = answer.startsWith('http');

@@ -33,6 +33,11 @@ function OptionBank({
     ? options.map(o => ({ key: o.letter, text: o.text }))
     : (options as IdOption[]).map(o => ({ key: o.id, text: o.text }));
 
+  // Don't render if all items have empty text (auto-generated letter options)
+  // For Matching Information, options A-G are passage paragraphs shown in left pane
+  const hasContent = items.some(item => item.text.trim().length > 0);
+  if (!hasContent) return null;
+
   return (
     <View style={ob.container}>
       <Text style={ob.title}>{title}</Text>
@@ -185,15 +190,35 @@ function ListeningMatchingVariant({
   answers: Record<string, string>;
   onAnswer: (k: string, v: string) => void;
 }) {
-  const items: Array<{ id: number; text: string }> = group.items || [];
-  const options: LetterOption[] = group.options || [];
+  // items may use question_number (actual data) or id (legacy)
+  const rawItems: any[] = group.items || [];
+  const items = rawItems.map((item: any) => ({
+    id: item.question_number ?? item.id,
+    text: item.prompt || item.text || '',
+  })).filter(item => item.id != null);
+
+  // options may be:
+  //   group.options_box.options  → object { A: "label", B: "label" }  ← actual data
+  //   group.options              → array [{ letter, text }]            ← legacy
+  const rawOptions =
+    group.options_box?.options ??
+    group.options_box ??
+    group.options;
+  const options: LetterOption[] =
+    rawOptions && !Array.isArray(rawOptions) && typeof rawOptions === 'object'
+      ? Object.entries(rawOptions).map(([letter, text]) => ({ letter, text: String(text) }))
+      : Array.isArray(rawOptions)
+        ? rawOptions
+        : [];
+
+  const bankTitle = group.options_box?.title || 'Options Box';
 
   return (
     <>
-      <OptionBank options={options} title="Options Box" />
+      <OptionBank options={options} title={bankTitle} />
       {items.map(item => (
         <MatchRow
-          key={item.id}
+          key={String(item.id)}
           qNum={item.id}
           text={item.text}
           options={options}
@@ -206,7 +231,15 @@ function ListeningMatchingVariant({
 }
 
 // ─── Reading variants: matching_headings / features / information ─────────────
-// All share: questions[]{qn, text, answer} + options[]{letter, text}
+// Data shapes:
+//   Shape A (Listening): group.questions[] with {question_number, text}
+//   Shape B (Reading):   group.items[]    with {question_number, question_text}
+//   group.questions may also be a string range like "14-17" — never map it
+//
+// Options may come from:
+//   group.options_box.options → { A: "Paragraph A label", ... }
+//   group.options → [{ letter, text }]
+//   OR auto-generated from instructions ("Choose ONE letter, A–G") — web exam-parser.ts logic
 function StandardMatchingVariant({
   group, answers, onAnswer, bankTitle,
 }: {
@@ -215,13 +248,51 @@ function StandardMatchingVariant({
   onAnswer: (k: string, v: string) => void;
   bankTitle: string;
 }) {
-  const questions: Array<{ question_number: number; text: string; answer: string }> =
-    group.questions || [];
-  const options: LetterOption[] = group.options || [];
+  // Normalise to a consistent shape: { question_number, text }
+  const questions: Array<{ question_number: number; text: string }> = (() => {
+    if (Array.isArray(group.items)) {
+      return group.items.map((item: any) => ({
+        question_number: item.question_number,
+        text: item.question_text || item.text || '',
+      }));
+    }
+    if (Array.isArray(group.questions)) {
+      return group.questions.map((q: any) => ({
+        question_number: q.question_number,
+        text: q.question_text || q.text || '',
+      }));
+    }
+    return [];
+  })();
+
+  // Resolve options — first try explicit, then auto-generate from instructions (mirrors web)
+  let options: LetterOption[] = (() => {
+    const raw = group.options_box?.options ?? group.options_box ?? group.options;
+    if (raw && !Array.isArray(raw) && typeof raw === 'object') {
+      return Object.entries(raw).map(([letter, text]) => ({ letter, text: String(text) }));
+    }
+    if (Array.isArray(raw) && raw.length > 0) return raw as LetterOption[];
+    return [];
+  })();
+
+  if (options.length === 0) {
+    // Auto-generate: scan instructions for a letter range like "A–G" or "A-F"
+    const instr: string = group.instructions || group.instruction || '';
+    const rangeMatch = instr.match(/([A-Z])\s*[–\-]\s*([A-Z])/i);
+    if (rangeMatch) {
+      const start = rangeMatch[1].toUpperCase().charCodeAt(0);
+      const end = rangeMatch[2].toUpperCase().charCodeAt(0);
+      if (start < end && end - start < 26) {
+        for (let c = start; c <= end; c++) {
+          options.push({ letter: String.fromCharCode(c), text: '' });
+        }
+      }
+    }
+  }
 
   return (
     <>
-      <OptionBank options={options} title={bankTitle} />
+      {options.length > 0 && <OptionBank options={options} title={bankTitle} />}
       {questions.map(q => (
         <MatchRow
           key={q.question_number}
@@ -288,7 +359,9 @@ const TYPE_TAGS: Record<string, string> = {
 };
 
 export default function MatchingBlock({ group, answers, onAnswer }: Props) {
-  const type: string = group.type || 'matching';
+  // question_type is the actual field (e.g. "Matching"); type is legacy fallback
+  const rawType: string = group.question_type || group.type || 'matching';
+  const type = rawType.toLowerCase().replace(/\s+/g, '_');
   const instruction: string | undefined = group.instruction || group.description;
   const heading: string | undefined = group.heading;
 

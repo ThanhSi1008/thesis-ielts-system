@@ -33,14 +33,13 @@
           "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to recognize your speech for shadowing exercises."
         }
       ],
-      "expo-audio",
-      "expo-video",
       [
-        "expo-av",
+        "expo-audio",
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for speaking tests."
         }
       ],
+      "expo-video",
       "@react-native-community/datetimepicker",
       "expo-font"
     ],

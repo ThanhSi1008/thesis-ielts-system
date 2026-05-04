@@ -240,6 +240,8 @@ async function main() {
   // IELTS exams
   console.log("🧪 Seeding Cambridge IELTS exams...");
   const cambridge17Image = "https://res.cloudinary.com/dalaaegob/image/upload/v1773932448/ed06fa88-6d9c-4142-9c7e-3bcd8613f175.png";
+
+  // ── Reading Tests (Cambridge 17) ─────────────────────────────────────────
   await upsertCambridgeExam({
     title: "Cambridge IELTS 17 - Reading Test 1",
     difficulty: "ADVANCED",
@@ -248,6 +250,82 @@ async function main() {
     isPublished: true,
     imageUrl: cambridge17Image,
     questions: cambridgeIelts17ReadingTest1Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Reading Test 2",
+    difficulty: "ADVANCED",
+    durationMinutes: 60,
+    type: "READING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ReadingTest2Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Reading Test 3",
+    difficulty: "ADVANCED",
+    durationMinutes: 60,
+    type: "READING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ReadingTest3Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Reading Test 4",
+    difficulty: "ADVANCED",
+    durationMinutes: 60,
+    type: "READING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ReadingTest4Questions,
+  });
+
+  // ── Listening Tests (Cambridge 17) ────────────────────────────────────────
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 1",
+    difficulty: "ADVANCED",
+    durationMinutes: 30,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest1Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 2",
+    difficulty: "ADVANCED",
+    durationMinutes: 30,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest2Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 3",
+    difficulty: "ADVANCED",
+    durationMinutes: 30,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest3Questions,
+  });
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Listening Test 4",
+    difficulty: "ADVANCED",
+    durationMinutes: 30,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts17ListeningTest4Questions,
+  });
+
+  // ── Listening Tests (Cambridge 13) ────────────────────────────────────────
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 13 - Listening Test 1",
+    difficulty: "ADVANCED",
+    durationMinutes: 30,
+    type: "LISTENING",
+    isPublished: true,
+    imageUrl: cambridge17Image,
+    questions: cambridgeIelts13ListeningTest1Questions,
   });
 
   // Default Decks
