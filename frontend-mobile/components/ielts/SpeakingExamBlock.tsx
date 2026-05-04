@@ -579,7 +579,7 @@ export default React.memo(SpeakingExamBlock, (prev, next) => {
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { flex: 1, backgroundColor: '#f8fafc', paddingBottom: 90 },
   tabs: { flexDirection: 'row', borderBottomWidth: 1, borderColor: COLORS.border, backgroundColor: '#fff' },
   tab: {
     flex: 1, alignItems: 'center', paddingVertical: SPACING.md,

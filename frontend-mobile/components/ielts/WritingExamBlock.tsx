@@ -180,7 +180,7 @@ export default React.memo(WritingExamBlock, (prev, next) => {
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, paddingBottom: 90 },
   tabs: { flexDirection: 'row', borderBottomWidth: 1, borderColor: COLORS.border },
   tab: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
