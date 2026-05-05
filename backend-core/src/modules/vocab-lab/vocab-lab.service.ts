@@ -9,6 +9,8 @@ import { PrismaService } from "../../common/prisma/prisma.service";
 import { RedisService } from "../../common/redis/redis.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { GamificationService } from "../gamification/gamification.service";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { TIER_LIMITS, TierKey } from "../subscriptions/constants/feature-limits";
 import {
   CreateDeckDto,
   CreateFlashcardDto,
@@ -88,6 +90,7 @@ export class VocabLabService {
     private readonly redis: RedisService,
     private readonly notifications: NotificationsService,
     private readonly gamificationService: GamificationService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   // ==================== NOTE TYPE OPERATIONS ====================
@@ -468,6 +471,22 @@ export class VocabLabService {
   }
 
   async createDeck(userId: string, dto: CreateDeckDto) {
+    const tier = await this.subscriptionsService.getEffectiveTier(userId);
+    const maxDecks = TIER_LIMITS[tier].MAX_DECKS;
+
+    if (maxDecks !== Infinity) {
+      const deckCount = await this.prisma.deck.count({ where: { userId } });
+      if (deckCount >= maxDecks) {
+        throw new ForbiddenException({
+          statusCode: 403,
+          error: "DECK_LIMIT_REACHED",
+          message: `Free plan allows max ${maxDecks} decks. Upgrade to create more.`,
+          currentTier: tier,
+          upgradeUrl: "/pricing",
+        });
+      }
+    }
+
     const deck = await this.prisma.deck.create({
       data: { userId, name: dto.name },
     });
@@ -851,6 +870,22 @@ export class VocabLabService {
   // ==================== FLASHCARD OPERATIONS ====================
 
   async createFlashcard(userId: string, dto: CreateFlashcardDto) {
+    const tier = await this.subscriptionsService.getEffectiveTier(userId);
+    const maxCards = TIER_LIMITS[tier].MAX_CARDS_PER_DECK;
+
+    if (maxCards !== Infinity) {
+      const cardCount = await this.prisma.flashcard.count({ where: { deckId: dto.deckId } });
+      if (cardCount >= maxCards) {
+        throw new ForbiddenException({
+          statusCode: 403,
+          error: "CARD_LIMIT_REACHED",
+          message: `Free plan allows max ${maxCards} cards per deck. Upgrade for unlimited.`,
+          currentTier: tier,
+          upgradeUrl: "/pricing",
+        });
+      }
+    }
+
     const deck = await this.prisma.deck.findFirst({
       where: { id: dto.deckId, userId },
     });

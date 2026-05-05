@@ -3,12 +3,14 @@ import { PrismaService } from "../../../common/prisma/prisma.service";
 import { CreateDictationVideoDto } from "../dto/create-dictation-video.dto";
 import { UpdateDictationVideoDto } from "../dto/update-dictation-video.dto";
 import { AiClientService } from "../../ai-client/ai-client.service";
+import { SubscriptionsService } from "../../subscriptions/subscriptions.service";
 
 @Injectable()
 export class DictationVideosService {
   constructor(
     private prisma: PrismaService,
-    private aiClient: AiClientService
+    private aiClient: AiClientService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   async findAll(userId: string) {
@@ -64,6 +66,17 @@ export class DictationVideosService {
   }
 
   async importYoutube(userId: string, dto: { youtubeUrl: string; title: string; folder?: string }) {
+    const hasAccess = await this.subscriptionsService.hasFeatureAccess(userId, "YOUTUBE_IMPORT");
+    if (!hasAccess) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: "SUBSCRIPTION_REQUIRED",
+        message: "YouTube import requires a Premium subscription",
+        requiredTier: "PREMIUM",
+        upgradeUrl: "/pricing",
+      });
+    }
+
     const youtubeIdMatch = dto.youtubeUrl.match(/(?:v=|\/)([0-9A-Za-z_-]{11}).*/);
     const youtubeVideoId = youtubeIdMatch ? youtubeIdMatch[1] : null;
 

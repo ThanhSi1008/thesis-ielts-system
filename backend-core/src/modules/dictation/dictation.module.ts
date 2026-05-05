@@ -3,6 +3,7 @@ import { PrismaModule } from "../../common/prisma/prisma.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { AiClientModule } from "../ai-client/ai-client.module";
 import { GamificationModule } from "../gamification/gamification.module";
+import { SubscriptionsModule } from "../subscriptions/subscriptions.module";
 
 import { DictationLessonsController } from "./controllers/dictation-lessons.controller";
 import { DictationVideosController } from "./controllers/dictation-videos.controller";
@@ -18,7 +19,7 @@ import { DictationProgressService } from "./services/dictation-progress.service"
 import { AdminDictationService } from "./services/admin-dictation.service";
 
 @Module({
-  imports: [PrismaModule, NotificationsModule, AiClientModule, GamificationModule],
+  imports: [PrismaModule, NotificationsModule, AiClientModule, GamificationModule, SubscriptionsModule],
   controllers: [
     DictationLessonsController,
     DictationVideosController,

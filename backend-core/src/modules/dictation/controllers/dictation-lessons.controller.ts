@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, UseGuards, Request } from "@nestjs/common";
 import { DictationLessonsService } from "../services/dictation-lessons.service";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 
@@ -8,8 +8,8 @@ export class DictationLessonsController {
   constructor(private readonly service: DictationLessonsService) {}
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  findAll(@Request() req: any) {
+    return this.service.findAll(req.user.id);
   }
 
   @Get(":id")

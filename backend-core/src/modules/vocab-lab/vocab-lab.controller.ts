@@ -18,6 +18,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { VocabLabService } from "./vocab-lab.service";
 import { StorageService } from "../../common/storage/storage.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { SubscriptionGuard } from "../subscriptions/guards/subscription.guard";
+import { RequiresTier } from "../subscriptions/decorators/requires-tier.decorator";
 import {
   CreateDeckDto,
   CreateFlashcardDto,
@@ -154,6 +156,8 @@ export class VocabLabController {
   }
 
   @Post("decks/:id/publish")
+  @UseGuards(SubscriptionGuard)
+  @RequiresTier("PREMIUM")
   async publishDeck(
     @Request() req: any,
     @Param("id") id: string,
@@ -175,6 +179,8 @@ export class VocabLabController {
   }
 
   @Post("community/decks/:id/import")
+  @UseGuards(SubscriptionGuard)
+  @RequiresTier("PREMIUM")
   async importSharedDeck(@Request() req: any, @Param("id") id: string) {
     return this.vocabLabService.importSharedDeck(req.user.id, id);
   }

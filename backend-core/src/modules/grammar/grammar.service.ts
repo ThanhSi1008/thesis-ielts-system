@@ -9,6 +9,8 @@ import {
   UpdateGrammarProgressDto,
 } from "./dto/grammar.dto";
 import { GamificationService } from "../gamification/gamification.service";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { TIER_LIMITS, TierKey } from "../subscriptions/constants/feature-limits";
 
 const CACHE_TTL = 3600;
 const CACHE_PREFIX = "grammar";
@@ -21,32 +23,41 @@ export class GrammarService {
     private prisma: PrismaService,
     private redis: RedisService,
     private gamificationService: GamificationService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   // ==================== READ OPERATIONS ====================
 
-  async getBooks() {
+  async getBooks(userId?: string) {
     const cacheKey = `${CACHE_PREFIX}:books`;
     const cached = await this.redis.getJson(cacheKey);
-    if (cached) return cached;
+    let books: any[] = Array.isArray(cached) ? cached : [];
 
-    const books = await this.prisma.grammarBook.findMany({
-      orderBy: { level: "asc" },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        author: true,
-        level: true,
-        imageUrl: true,
-        color: true,
-        unitCount: true,
-        _count: { select: { units: true } },
-      },
-    });
+    if (!Array.isArray(cached) || books.length === 0) {
+      books = await this.prisma.grammarBook.findMany({
+        orderBy: { level: "asc" },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          author: true,
+          level: true,
+          imageUrl: true,
+          color: true,
+          unitCount: true,
+          _count: { select: { units: true } },
+        },
+      });
+      await this.redis.setJson(cacheKey, books, CACHE_TTL);
+    }
 
-    await this.redis.setJson(cacheKey, books, CACHE_TTL);
-    return books;
+    const tier = userId ? await this.subscriptionsService.getEffectiveTier(userId) : "FREE";
+    const allowedLevels = TIER_LIMITS[tier].GRAMMAR_LEVELS;
+
+    return books.map((book) => ({
+      ...book,
+      isLocked: !allowedLevels.includes(book.level),
+    }));
   }
 
   async getBookBySlug(slug: string) {

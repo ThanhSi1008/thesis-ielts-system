@@ -10,9 +10,12 @@ import {
 } from "@nestjs/common";
 import { IeltsAdvancedService } from "./ielts-advanced.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
+import { SubscriptionGuard } from "../subscriptions/guards/subscription.guard";
+import { RequiresTier } from "../subscriptions/decorators/requires-tier.decorator";
 
 @Controller("ielts/advanced")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, SubscriptionGuard)
+@RequiresTier("PREMIUM")
 export class IeltsAdvancedController {
   constructor(private readonly advancedService: IeltsAdvancedService) {}
 

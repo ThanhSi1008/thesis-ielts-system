@@ -4,6 +4,7 @@ import { LearningController } from "./learning.controller";
 import { LearningService } from "./learning.service";
 import { StorageModule } from "../../common/storage/storage.module";
 import { AiClientModule } from "../ai-client/ai-client.module";
+import { SubscriptionsModule } from "../subscriptions/subscriptions.module";
 
 /**
  * Learning Module
@@ -13,6 +14,7 @@ import { AiClientModule } from "../ai-client/ai-client.module";
   imports: [
     StorageModule,
     AiClientModule,
+    SubscriptionsModule,
     MulterModule.register({
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB

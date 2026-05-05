@@ -2,6 +2,8 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "@common/prisma/prisma.service";
 import { RedisService } from "@common/redis/redis.service";
 import { GamificationService } from "../gamification/gamification.service";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { TIER_LIMITS, TierKey } from "../subscriptions/constants/feature-limits";
 import {
   CreateVocabularyBookDto,
   UpdateVocabularyBookDto,
@@ -22,27 +24,40 @@ export class VocabularyService {
     private prisma: PrismaService,
     private redis: RedisService,
     private gamificationService: GamificationService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   // ==================== READ OPERATIONS ====================
 
-  async getBooks() {
+  async getBooks(userId?: string) {
     const cacheKey = `${CACHE_PREFIX}:books`;
     const cached = await this.redis.getJson(cacheKey);
-    if (cached) return cached;
+    let books: any[] = Array.isArray(cached) ? cached : [];
 
-    const books = await this.prisma.vocabularyBook.findMany({
-      orderBy: { order: "asc" },
-      select: {
-        id: true,
-        name: true,
-        imageUrl: true,
-        wordCount: true,
-        _count: { select: { units: true } },
-      },
-    });
+    if (!Array.isArray(cached) || books.length === 0) {
+      books = await this.prisma.vocabularyBook.findMany({
+        orderBy: { order: "asc" },
+        select: {
+          id: true,
+          name: true,
+          imageUrl: true,
+          wordCount: true,
+          _count: { select: { units: true } },
+        },
+      });
+      await this.redis.setJson(cacheKey, books, CACHE_TTL);
+    }
 
-    await this.redis.setJson(cacheKey, books, CACHE_TTL);
+    const tier = userId ? await this.subscriptionsService.getEffectiveTier(userId) : "FREE";
+    const limit = TIER_LIMITS[tier].VOCABULARY_BOOKS;
+
+    if (limit !== Infinity) {
+      return books.map((book, index) => ({
+        ...book,
+        isLocked: index >= (limit as number),
+      }));
+    }
+
     return books;
   }
 

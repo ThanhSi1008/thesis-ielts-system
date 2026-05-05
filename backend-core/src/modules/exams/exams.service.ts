@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   ServiceUnavailableException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import {
@@ -13,12 +14,14 @@ import {
 } from "./dto/exams.dto";
 import { Exam, ExamSession, ExamType, SessionStatus } from "@prisma/client";
 import { AiClientService } from "../ai-client/ai-client.service";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 
 @Injectable()
 export class ExamsService {
   constructor(
     private prisma: PrismaService,
     private aiClientService: AiClientService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   private parseCambridgeTitle(input: string): {
@@ -551,6 +554,21 @@ export class ExamsService {
     const isWriting = existing.exam.type === ExamType.WRITING;
     const isSpeaking = existing.exam.type === ExamType.SPEAKING;
     if (isWriting || isSpeaking) {
+      const feature = isWriting ? "AI_WRITING_GRADING" : "AI_SPEAKING_GRADING";
+      const allowed = await this.subscriptionsService.incrementUsage(existing.userId, feature);
+      
+      if (!allowed) {
+        const sub = await this.subscriptionsService.getOrCreateSubscription(existing.userId);
+        throw new ForbiddenException({
+          statusCode: 403,
+          error: "QUOTA_EXCEEDED",
+          message: `You've reached your ${feature.replace(/_/g, " ").toLowerCase()} limit for this month`,
+          feature,
+          currentTier: sub.tier,
+          upgradeUrl: "/pricing",
+        });
+      }
+      
       status = "SUBMITTED";
     }
 

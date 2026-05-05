@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from "@
 import { Reflector } from "@nestjs/core";
 import { SubscriptionsService } from "../subscriptions.service";
 import { USAGE_QUOTA_KEY, QuotaMetadata } from "../decorators/requires-quota.decorator";
-import { QuotaFeature } from "../constants/feature-limits";
+import { QuotaFeature, DAILY_QUOTA_FEATURES, DailyQuotaFeature } from "../constants/feature-limits";
 
 @Injectable()
 export class UsageQuotaGuard implements CanActivate {
@@ -27,17 +27,26 @@ export class UsageQuotaGuard implements CanActivate {
       throw new ForbiddenException("Authentication required");
     }
 
-    const allowed = await this.subscriptionsService.incrementUsage(
-      userId,
-      quota.feature as QuotaFeature,
-    );
+    let allowed = false;
+    let isDaily = false;
+
+    if (DAILY_QUOTA_FEATURES.includes(quota.feature as any)) {
+      isDaily = true;
+      const result = await this.subscriptionsService.checkDailyUsage(userId, quota.feature);
+      allowed = result.allowed;
+    } else {
+      allowed = await this.subscriptionsService.incrementUsage(
+        userId,
+        quota.feature as QuotaFeature,
+      );
+    }
 
     if (!allowed) {
       const sub = await this.subscriptionsService.getOrCreateSubscription(userId);
       throw new ForbiddenException({
         statusCode: 403,
         error: "QUOTA_EXCEEDED",
-        message: `You've reached your ${quota.feature.replace(/_/g, " ").toLowerCase()} limit for this month`,
+        message: `You've reached your ${quota.feature.replace(/_/g, " ").toLowerCase()} limit for ${isDaily ? "today" : "this month"}`,
         feature: quota.feature,
         currentTier: sub.tier,
         upgradeUrl: "/pricing",

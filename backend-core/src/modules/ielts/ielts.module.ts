@@ -9,9 +9,10 @@ import { PrismaModule } from "../../common/prisma/prisma.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { AiClientModule } from "../ai-client/ai-client.module";
 import { GamificationModule } from "../gamification/gamification.module";
+import { SubscriptionsModule } from "../subscriptions/subscriptions.module";
 
 @Module({
-  imports: [PrismaModule, NotificationsModule, AiClientModule, GamificationModule],
+  imports: [PrismaModule, NotificationsModule, AiClientModule, GamificationModule, SubscriptionsModule],
   controllers: [IeltsController, IeltsAdvancedController],
   providers: [
     IeltsService,

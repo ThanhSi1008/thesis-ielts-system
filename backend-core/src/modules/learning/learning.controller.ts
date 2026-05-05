@@ -22,6 +22,8 @@ import { UpdateProgressDto } from "./dto/update-progress.dto";
 import { CheckPronunciationDto } from "./dto/check-pronunciation.dto";
 import { StorageService } from "../../common/storage/storage.service";
 import { AiClientService } from "../ai-client/ai-client.service";
+import { UsageQuotaGuard } from "../subscriptions/guards/usage-quota.guard";
+import { RequiresQuota } from "../subscriptions/decorators/requires-quota.decorator";
 
 /**
  * Learning Controller
@@ -144,6 +146,8 @@ export class LearningController {
    * @param body - Request body with vocabularyId and userId
    */
   @Post("pronunciation/check")
+  @UseGuards(UsageQuotaGuard)
+  @RequiresQuota("PRONUNCIATION_ATTEMPT")
   @UseInterceptors(FileInterceptor("audio"))
   async checkPronunciation(
     @UploadedFile() file: Express.Multer.File,
