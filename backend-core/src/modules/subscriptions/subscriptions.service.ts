@@ -494,4 +494,40 @@ export class SubscriptionsService {
       take: 20,
     });
   }
+
+  // ==================== ADMIN ====================
+
+  /**
+   * Returns aggregate stats and recent subscriptions for the admin dashboard.
+   */
+  async getAdminOverview() {
+    const [freeCount, premiumCount, proCount, totalRevenue, recentSubs] = await Promise.all([
+      this.prisma.subscription.count({ where: { tier: "FREE" } }),
+      this.prisma.subscription.count({ where: { tier: "PREMIUM" } }),
+      this.prisma.subscription.count({ where: { tier: "PRO" } }),
+      this.prisma.payment.aggregate({
+        _sum: { amount: true },
+        where: { status: "succeeded" },
+      }),
+      this.prisma.subscription.findMany({
+        take: 50,
+        orderBy: { updatedAt: "desc" },
+        include: {
+          user: {
+            select: { id: true, email: true, firstName: true, lastName: true },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      stats: {
+        free: freeCount,
+        premium: premiumCount,
+        pro: proCount,
+        totalRevenue: totalRevenue._sum.amount ?? 0,
+      },
+      subscriptions: recentSubs,
+    };
+  }
 }

@@ -8,16 +8,19 @@ import DeleteAccountSection from "./_components/DeleteAccountSection";
 import { CheckCircle, XCircle } from "lucide-react";
 import XpLevelBar from "./_components/XpLevelBar";
 import AchievementsSection from "./_components/AchievementsSection";
+import SubscriptionSection from "./_components/SubscriptionSection";
 import { gamificationApi } from "@/services/gamification.api";
 import { useEffect, useState, Suspense } from "react";
 import type { GamificationProfile, AchievementItem } from "@/types";
 import { useSearchParams } from "next/navigation";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 function ProfileTabs() {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "account";
   const [gamProfile, setGamProfile] = useState<GamificationProfile | null>(null);
   const [achievements, setAchievements] = useState<AchievementItem[]>([]);
+  const { tier, status, currentPeriodEnd, trialEndsAt, isTrial } = useSubscription();
 
   useEffect(() => {
     gamificationApi.getProfile().then(setGamProfile).catch(() => { });
@@ -84,6 +87,13 @@ function ProfileTabs() {
               email={profile.email}
               createdAt={profile.createdAt}
               avatar={profile.avatar}
+            />
+            <SubscriptionSection
+              tier={tier}
+              status={status}
+              currentPeriodEnd={currentPeriodEnd}
+              trialEndsAt={trialEndsAt}
+              isTrial={isTrial}
             />
             <PersonalInfoForm
               firstName={profile.firstName || ""}

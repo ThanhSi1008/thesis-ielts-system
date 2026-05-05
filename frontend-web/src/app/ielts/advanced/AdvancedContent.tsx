@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Headphones, BookOpen, PenTool, Mic } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/api";
+import FeatureLock from "@/components/FeatureLock";
 
 interface PracticePart {
   id: string;
@@ -46,7 +47,8 @@ export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
   }, [skill]);
 
   return (
-    <div className={`flex-1 min-w-0 bg-white dark:bg-slate-950 overflow-y-auto px-4 md:px-6 py-4 w-full ${embedded ? 'h-full' : 'min-h-screen'}`}>
+    <FeatureLock requiredTier="PREMIUM" featureName="IELTS Advanced Practice">
+      <div className={`flex-1 min-w-0 bg-white dark:bg-slate-950 overflow-y-auto px-4 md:px-6 py-4 w-full ${embedded ? 'h-full' : 'min-h-screen'}`}>
       {/* Skill Tabs */}
       <div className="flex items-center gap-4 md:gap-8 mb-6 border-b border-gray-100 dark:border-slate-800 overflow-x-auto">
         {SKILLS.map((s) => {
@@ -155,7 +157,8 @@ export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
           <p className="text-gray-500 dark:text-slate-400 text-sm max-w-sm mx-auto">We're currently preparing high-quality {skill.toLowerCase()} materials for you.</p>
         </div>
       )}
-    </div>
+      </div>
+    </FeatureLock>
   );
 }
 

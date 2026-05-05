@@ -11,10 +11,13 @@ import { useTheme } from "@/contexts/ThemeContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import { vocabLabApi } from "@/services/vocabLab.api";
 import { gamificationApi } from "@/services/gamification.api";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import SubscriptionBadge from "@/components/SubscriptionBadge";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { toggleTheme, resolvedTheme } = useTheme();
+  const { tier } = useSubscription();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -340,7 +343,7 @@ export default function Navbar() {
                   )}
                   {/* Name */}
                   <span
-                    className={`text-sm font-semibold max-w-[140px] truncate ${isOverlay ? "text-white" : "text-gray-800"
+                    className={`text-sm font-semibold max-w-[120px] truncate ${isOverlay ? "text-white" : "text-gray-800"
                       }`}
                   >
                     {displayName}
@@ -348,6 +351,7 @@ export default function Navbar() {
                   <span className="text-[10px] font-bold bg-primary/15 text-primary rounded-full px-1.5 py-0.5 ml-1">
                     Lv.{userLevel}
                   </span>
+                  <SubscriptionBadge tier={tier} size="sm" />
                   {/* Chevron */}
                   <svg
                     className={`w-4 h-4 transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""

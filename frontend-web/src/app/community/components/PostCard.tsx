@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, MessageCircle, Bookmark, MoreHorizontal, Trash2, Lightbulb, Trophy } from 'lucide-react';
 import type { Post } from '@/types';
 import { timeAgo } from '@/utils/timeAgo';
+import SubscriptionBadge from '@/components/SubscriptionBadge';
 
 interface PostCardProps {
   post: Post;
@@ -32,6 +33,11 @@ export const PostCard: React.FC<PostCardProps> = ({
     ? `${post.author.firstName} ${post.author.lastName}` 
     : 'Anonymous';
 
+  // Backend returns author.subscription.tier; fall back to flat subscriptionTier for older API shapes
+  const authorTier: string | undefined =
+    (post.author as any).subscription?.tier ??
+    (post.author as any).subscriptionTier;
+
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 mb-4 shadow-sm hover:shadow-md transition-shadow">
       {/* Header */}
@@ -52,6 +58,9 @@ export const PostCard: React.FC<PostCardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-gray-900 dark:text-gray-100">{authorName}</span>
+              {authorTier && authorTier !== 'FREE' && (
+                <SubscriptionBadge tier={authorTier as any} size="sm" />
+              )}
               {post.type === 'STUDY_TIP' && (
                 <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-semibold">
                   <Lightbulb size={12} /> TIP

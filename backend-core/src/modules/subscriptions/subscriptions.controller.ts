@@ -85,4 +85,14 @@ export class SubscriptionsController {
     const days = dto.durationDays ? parseInt(dto.durationDays) : 30;
     return this.subscriptionsService.adminGrant(dto.userId, dto.tier, days);
   }
+
+  /**
+   * GET /api/v1/subscriptions/admin/overview — Admin stats and subscriptions list
+   */
+  @Get("admin/overview")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  async getAdminOverview() {
+    return this.subscriptionsService.getAdminOverview();
+  }
 }

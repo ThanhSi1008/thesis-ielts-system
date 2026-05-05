@@ -12,6 +12,9 @@ const AUTHOR_SELECT = {
   firstName: true,
   lastName: true,
   avatar: true,
+  subscription: {
+    select: { tier: true },
+  },
 } as const;
 
 const POST_LIST_LIMIT = 20;

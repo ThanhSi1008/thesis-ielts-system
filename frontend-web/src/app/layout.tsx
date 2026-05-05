@@ -21,6 +21,7 @@ import { Toaster } from "@/components/Toaster";
 import { GlobalVocabFab } from "@/components/GlobalVocabFab";
 import { GlobalAIChatFab } from "@/components/GlobalAIChatFab";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import GlobalUpgradeModal from "@/components/GlobalUpgradeModal";
 
 // Inline script runs before React hydrates — prevents flash of wrong theme
 const themeScript = `
@@ -58,6 +59,7 @@ export default function RootLayout({
                     <Toaster />
                     <GlobalVocabFab />
                     <GlobalAIChatFab />
+                    <GlobalUpgradeModal />
                     {children}
                   </IeltsSidebarProvider>
                 </GradingProvider>
