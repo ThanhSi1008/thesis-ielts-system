@@ -1,7 +1,8 @@
-import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException, Inject } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { TIER_LIMITS, QUOTA_FEATURES, DAILY_QUOTA_FEATURES, TierKey, QuotaFeature } from "./constants/feature-limits";
+import { PaymentProviderInterface } from "./providers/payment-provider.interface";
 
 @Injectable()
 export class SubscriptionsService {
@@ -10,6 +11,8 @@ export class SubscriptionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    @Inject("PAYMENT_PROVIDER")
+    private readonly paymentProvider: PaymentProviderInterface,
   ) {}
 
   // ==================== QUERIES ====================
@@ -267,5 +270,228 @@ export class SubscriptionsService {
     });
 
     return sub;
+  }
+
+  // ==================== CHECKOUT ====================
+
+  /**
+   * Create a checkout session for a pricing plan.
+   * In mock mode, this auto-completes the payment immediately.
+   */
+  async checkout(userId: string, planId: string) {
+    const plan = await this.prisma.pricingPlan.findUnique({
+      where: { id: planId },
+    });
+
+    if (!plan) throw new NotFoundException("Plan not found");
+    if (!plan.isActive) throw new BadRequestException("This plan is no longer available");
+
+    // Create checkout via provider
+    const result = await this.paymentProvider.createCheckout({
+      userId,
+      planId: plan.id,
+      planName: plan.name,
+      amount: plan.priceAmount,
+      currency: plan.currency,
+      interval: plan.interval,
+    });
+
+    // For mock provider, payment auto-completes
+    if (result.status === "completed") {
+      return this.activateSubscription(userId, plan, result.providerSubId, result.sessionId);
+    }
+
+    // For real providers (Stripe), return redirect URL
+    return {
+      sessionId: result.sessionId,
+      redirectUrl: result.redirectUrl,
+    };
+  }
+
+  /**
+   * Activate a subscription after successful payment.
+   */
+  private async activateSubscription(
+    userId: string,
+    plan: { tier: string; interval: string; priceAmount: number; currency: string; name: string },
+    providerSubId: string,
+    sessionId: string,
+  ) {
+    const now = new Date();
+    const periodEnd = new Date(now);
+
+    if (plan.interval === "year") {
+      periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+    } else {
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
+    }
+
+    const sub = await this.prisma.subscription.upsert({
+      where: { userId },
+      update: {
+        tier: plan.tier as "PREMIUM" | "PRO",
+        status: "ACTIVE",
+        provider: "MOCK",
+        providerSubId,
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        canceledAt: null,
+      },
+      create: {
+        userId,
+        tier: plan.tier as "PREMIUM" | "PRO",
+        status: "ACTIVE",
+        provider: "MOCK",
+        providerSubId,
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+      },
+    });
+
+    // Verify and record payment
+    const verification = await this.paymentProvider.verifyPayment(sessionId);
+
+    if (verification.success) {
+      await this.prisma.payment.create({
+        data: {
+          subscriptionId: sub.id,
+          amount: verification.amount,
+          currency: verification.currency,
+          provider: "MOCK",
+          providerPayId: verification.providerPayId,
+          status: "succeeded",
+          metadata: { planName: plan.name },
+        },
+      });
+    }
+
+    await this.notifications.create({
+      userId,
+      type: "SYSTEM_ANNOUNCEMENT",
+      title: `🎉 ${plan.tier} Subscription Activated!`,
+      body: `Welcome to ${plan.name}! Your subscription is active until ${periodEnd.toLocaleDateString()}.`,
+      icon: plan.tier === "PRO" ? "💎" : "⭐",
+      link: "/profile",
+    });
+
+    this.logger.log(`Subscription activated: ${userId} → ${plan.tier} (${plan.interval})`);
+
+    return {
+      subscription: sub,
+      message: `${plan.name} activated successfully!`,
+    };
+  }
+
+  // ==================== TRIAL ====================
+
+  /**
+   * Start a 7-day Premium trial. Only once per user.
+   */
+  async startTrial(userId: string) {
+    const sub = await this.getOrCreateSubscription(userId);
+
+    if (sub.trialUsed) {
+      throw new BadRequestException("You have already used your free trial");
+    }
+
+    if (sub.tier !== "FREE") {
+      throw new BadRequestException("You already have an active subscription");
+    }
+
+    const now = new Date();
+    const trialEnd = new Date(now);
+    trialEnd.setDate(trialEnd.getDate() + 7);
+
+    const updated = await this.prisma.subscription.update({
+      where: { id: sub.id },
+      data: {
+        tier: "PREMIUM",
+        status: "TRIALING",
+        trialEndsAt: trialEnd,
+        trialUsed: true,
+        currentPeriodStart: now,
+        currentPeriodEnd: trialEnd,
+      },
+    });
+
+    await this.notifications.create({
+      userId,
+      type: "SYSTEM_ANNOUNCEMENT",
+      title: "🎉 Free Trial Started!",
+      body: `Enjoy 7 days of Premium features! Your trial ends on ${trialEnd.toLocaleDateString()}.`,
+      icon: "⭐",
+      link: "/pricing",
+    });
+
+    this.logger.log(`Trial started: ${userId} → PREMIUM trial until ${trialEnd.toISOString()}`);
+
+    return {
+      subscription: updated,
+      trialEndsAt: trialEnd,
+      message: "7-day Premium trial activated!",
+    };
+  }
+
+  // ==================== CANCEL ====================
+
+  /**
+   * Cancel subscription. Access continues until end of billing period.
+   */
+  async cancelSubscription(userId: string, reason?: string) {
+    const sub = await this.getOrCreateSubscription(userId);
+
+    if (sub.tier === "FREE") {
+      throw new BadRequestException("You don't have an active subscription to cancel");
+    }
+
+    const updated = await this.prisma.subscription.update({
+      where: { id: sub.id },
+      data: {
+        status: "CANCELED",
+        canceledAt: new Date(),
+      },
+    });
+
+    // Cancel with payment provider
+    if (sub.providerSubId) {
+      await this.paymentProvider.cancelSubscription(sub.providerSubId);
+    }
+
+    await this.notifications.create({
+      userId,
+      type: "SYSTEM_ANNOUNCEMENT",
+      title: "Subscription Canceled",
+      body: `Your ${sub.tier} access will continue until ${sub.currentPeriodEnd?.toLocaleDateString() ?? "end of period"}.`,
+      icon: "ℹ️",
+      link: "/profile",
+    });
+
+    this.logger.log(`Subscription canceled: ${userId} (reason: ${reason ?? "none"})`);
+
+    return {
+      subscription: updated,
+      accessUntil: sub.currentPeriodEnd,
+      message: `Subscription canceled. You'll keep ${sub.tier} access until ${sub.currentPeriodEnd?.toLocaleDateString()}.`,
+    };
+  }
+
+  // ==================== PAYMENT HISTORY ====================
+
+  /**
+   * Get payment history for a user.
+   */
+  async getPaymentHistory(userId: string) {
+    const sub = await this.prisma.subscription.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (!sub) return [];
+
+    return this.prisma.payment.findMany({
+      where: { subscriptionId: sub.id },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
   }
 }

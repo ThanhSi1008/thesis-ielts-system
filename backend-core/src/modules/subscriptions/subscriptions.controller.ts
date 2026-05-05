@@ -3,7 +3,7 @@ import { SubscriptionsService } from "./subscriptions.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
-import { AdminGrantDto } from "./dto/subscriptions.dto";
+import { AdminGrantDto, CheckoutDto, CancelSubscriptionDto } from "./dto/subscriptions.dto";
 
 @Controller("subscriptions")
 export class SubscriptionsController {
@@ -34,6 +34,45 @@ export class SubscriptionsController {
   async getUsage(@Request() req: any) {
     const sub = await this.subscriptionsService.getOrCreateSubscription(req.user.id);
     return this.subscriptionsService.getCurrentUsage(sub.id);
+  }
+
+  /**
+   * GET /api/v1/subscriptions/payments — Payment history
+   */
+  @Get("payments")
+  @UseGuards(JwtAuthGuard)
+  async getPaymentHistory(@Request() req: any) {
+    return this.subscriptionsService.getPaymentHistory(req.user.id);
+  }
+
+  /**
+   * POST /api/v1/subscriptions/checkout — Create checkout session
+   * Mock: auto-completes and activates subscription immediately.
+   */
+  @Post("checkout")
+  @UseGuards(JwtAuthGuard)
+  async checkout(@Request() req: any, @Body() dto: CheckoutDto) {
+    return this.subscriptionsService.checkout(req.user.id, dto.planId);
+  }
+
+  /**
+   * POST /api/v1/subscriptions/start-trial — Start 7-day Premium trial
+   * Only available once per user, only if currently on FREE tier.
+   */
+  @Post("start-trial")
+  @UseGuards(JwtAuthGuard)
+  async startTrial(@Request() req: any) {
+    return this.subscriptionsService.startTrial(req.user.id);
+  }
+
+  /**
+   * POST /api/v1/subscriptions/cancel — Cancel subscription
+   * Access continues until end of the current billing period.
+   */
+  @Post("cancel")
+  @UseGuards(JwtAuthGuard)
+  async cancelSubscription(@Request() req: any, @Body() dto: CancelSubscriptionDto) {
+    return this.subscriptionsService.cancelSubscription(req.user.id, dto.reason);
   }
 
   /**
