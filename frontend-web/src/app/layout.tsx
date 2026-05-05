@@ -4,6 +4,7 @@ import { GradingProvider } from "@/contexts/GradingContext";
 import { IeltsSidebarProvider } from "@/contexts/IeltsSidebarContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -48,18 +49,20 @@ export default function RootLayout({
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
         <ThemeProvider>
           <AuthProvider>
-            <NotificationProvider>
-              <GradingProvider>
-                <IeltsSidebarProvider>
-                  <ScrollToTop />
-                  <Navbar />
-                  <Toaster />
-                  <GlobalVocabFab />
-                  <GlobalAIChatFab />
-                  {children}
-                </IeltsSidebarProvider>
-              </GradingProvider>
-            </NotificationProvider>
+            <SubscriptionProvider>
+              <NotificationProvider>
+                <GradingProvider>
+                  <IeltsSidebarProvider>
+                    <ScrollToTop />
+                    <Navbar />
+                    <Toaster />
+                    <GlobalVocabFab />
+                    <GlobalAIChatFab />
+                    {children}
+                  </IeltsSidebarProvider>
+                </GradingProvider>
+              </NotificationProvider>
+            </SubscriptionProvider>
           </AuthProvider>
         </ThemeProvider>
         </GoogleOAuthProvider>

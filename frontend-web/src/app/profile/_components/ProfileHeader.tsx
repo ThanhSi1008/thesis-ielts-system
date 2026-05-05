@@ -1,4 +1,8 @@
+"use client";
 import { User as UserIcon } from "lucide-react";
+import SubscriptionBadge from "@/components/SubscriptionBadge";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+
 
 interface ProfileHeaderProps {
   firstName: string;
@@ -9,6 +13,7 @@ interface ProfileHeaderProps {
 }
 
 export default function ProfileHeader({ firstName, lastName, email, createdAt, avatar }: ProfileHeaderProps) {
+  const { tier } = useSubscription();
   const initials = firstName && lastName
     ? `${firstName[0]}${lastName[0]}`.toUpperCase()
     : email.slice(0, 2).toUpperCase();
@@ -33,10 +38,13 @@ export default function ProfileHeader({ firstName, lastName, email, createdAt, a
         )}
       </div>
 
-      {/* Name */}
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight mb-1">
-        {displayName}
-      </h1>
+      {/* Name + badge */}
+      <div className="flex items-center justify-center gap-2 mb-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+          {displayName}
+        </h1>
+        <SubscriptionBadge tier={tier} size="md" />
+      </div>
 
       {/* Email */}
       <p className="text-sm text-gray-500 dark:text-slate-400 mb-3">

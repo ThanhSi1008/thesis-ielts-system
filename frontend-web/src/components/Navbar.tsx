@@ -203,6 +203,14 @@ export default function Navbar() {
               COMMUNITY
               <span className="absolute left-0 bottom-0 h-[2px] bg-primary transition-all duration-300 w-0 group-hover:w-full" />
             </Link>
+
+            <Link
+              href="/pricing"
+              className={navLinkClass(pathname === "/pricing")}
+            >
+              PRICING
+              <span className="absolute left-0 bottom-0 h-[2px] bg-primary transition-all duration-300 w-0 group-hover:w-full" />
+            </Link>
           </nav>
         </div>
 
@@ -522,6 +530,14 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(false)}
             >
               COMMUNITY
+            </Link>
+
+            <Link
+              href="/pricing"
+              className="font-bold text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              PRICING
             </Link>
           </div>
 

@@ -669,3 +669,50 @@ export interface XpLogEntry {
   reason: string;
   createdAt: string;
 }
+
+// ==================== SUBSCRIPTION ====================
+
+export type SubscriptionTier = "FREE" | "PREMIUM" | "PRO";
+export type SubscriptionStatus = "ACTIVE" | "TRIALING" | "PAST_DUE" | "CANCELED" | "EXPIRED";
+
+export interface PricingPlan {
+  id: string;
+  tier: SubscriptionTier;
+  name: string;
+  description: string | null;
+  priceAmount: number; // cents
+  currency: string;
+  interval: "month" | "year";
+  intervalCount: number;
+  features: string[];
+  isActive: boolean;
+  order: number;
+}
+
+export interface UserSubscription {
+  id: string;
+  userId: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  canceledAt: string | null;
+  trialEndsAt: string | null;
+  trialUsed: boolean;
+  usage: Record<string, { used: number; limit: number }>;
+  limits: Record<string, unknown>;
+}
+
+export interface SubscriptionError {
+  statusCode: 403;
+  error:
+    | "SUBSCRIPTION_REQUIRED"
+    | "QUOTA_EXCEEDED"
+    | "DECK_LIMIT_REACHED"
+    | "CARD_LIMIT_REACHED"
+    | "DAILY_QUOTA_EXCEEDED";
+  message: string;
+  requiredTier?: SubscriptionTier;
+  currentTier?: SubscriptionTier;
+  upgradeUrl?: string;
+}
