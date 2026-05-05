@@ -29,7 +29,32 @@ export default function PricingPage() {
   const fetchPlans = useCallback(async () => {
     try {
       const data = await subscriptionsApi.getPlans();
-      setPlans(data);
+      
+      const freePlan: PricingPlan = {
+        id: "free-plan-id",
+        tier: "FREE",
+        name: "Basic",
+        description: "Essential tools to get started with TOEIC Master AI",
+        priceAmount: 0,
+        currency: "USD",
+        interval: "month",
+        intervalCount: 1,
+        features: [
+          "Limited Vocabulary & Grammar books",
+          "5 Pronunciation checks/day",
+          "Basic IELTS lessons & exercises",
+          "5 Shadowing & Dictation lessons",
+          "3 Vocab Lab decks (max 50 cards)",
+          "Community access (can post)",
+          "Save up to 3 past exams",
+        ],
+        isActive: true,
+        order: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setPlans([freePlan, ...data]);
     } catch {
       // plans stay empty
     }

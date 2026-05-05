@@ -45,7 +45,7 @@ export default function Navbar() {
     return () => window.removeEventListener('set-header-plain', handleSetForcePlain);
   }, []);
 
-  const plainPages = ["/login", "/register", "/profile"];
+  const plainPages = ["/login", "/register", "/profile", "/pricing"];
   const isAdminPage = pathname.startsWith("/admin");
   const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || isAdminPage || isCommunityPage || forcePlain;
 
