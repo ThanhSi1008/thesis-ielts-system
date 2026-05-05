@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Shield, Zap, Crown } from "lucide-react";
+import { Sparkles, Shield, Zap, Crown, Gift } from "lucide-react";
 import { subscriptionsApi } from "@/services/subscriptions.api";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +29,7 @@ export default function PricingPage() {
   const fetchPlans = useCallback(async () => {
     try {
       const data = await subscriptionsApi.getPlans();
-      
+
       const freePlan: PricingPlan = {
         id: "free-plan-id",
         tier: "FREE",
@@ -116,7 +116,7 @@ export default function PricingPage() {
     Math.round(((monthlyAmount * 12 - monthlyAmount * 10) / (monthlyAmount * 12)) * 100);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-24 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-8 pb-8">
       {/* Hero */}
       <div className="text-center mb-14 px-4">
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-semibold px-4 py-2 rounded-full mb-6">
@@ -134,21 +134,19 @@ export default function PricingPage() {
         <div className="mt-8 inline-flex items-center gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-1 shadow-sm">
           <button
             onClick={() => setBilling("month")}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-              billing === "month"
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${billing === "month"
                 ? "bg-primary text-gray-900 shadow"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-            }`}
+              }`}
           >
             Monthly
           </button>
           <button
             onClick={() => setBilling("year")}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
-              billing === "year"
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${billing === "year"
                 ? "bg-primary text-gray-900 shadow"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-            }`}
+              }`}
           >
             Annual
             <span className="bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
@@ -194,10 +192,13 @@ export default function PricingPage() {
 
         {/* Trial note */}
         {!trialUsed && tier === "FREE" && user && (
-          <p className="text-center mt-10 text-sm text-gray-500 dark:text-gray-400">
-            🎁 Start with a{" "}
-            <span className="font-semibold text-primary">7-day free PREMIUM trial</span> — no credit
-            card required.
+          <p className="flex items-center justify-center gap-2 mt-10 text-sm text-gray-500 dark:text-gray-400">
+            <Gift className="w-4 h-4 text-primary" />
+            <span>
+              Start with a{" "}
+              <span className="font-semibold text-primary">7-day free PREMIUM trial</span> — no credit
+              card required.
+            </span>
           </p>
         )}
 
@@ -216,11 +217,10 @@ export default function PricingPage() {
                   {["FREE", "PREMIUM", "PRO"].map((t) => (
                     <th
                       key={t}
-                      className={`py-4 px-6 text-center font-bold ${
-                        t === tier
+                      className={`py-4 px-6 text-center font-bold ${t === tier
                           ? "text-primary"
                           : "text-gray-900 dark:text-white"
-                      }`}
+                        }`}
                     >
                       <div className="flex flex-col items-center gap-1">
                         {TIER_ICON[t]}
