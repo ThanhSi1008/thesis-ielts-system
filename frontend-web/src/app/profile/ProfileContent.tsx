@@ -53,7 +53,7 @@ function ProfileTabs() {
   if (!profile) return null;
 
   return (
-    <div className="min-h-full bg-white dark:bg-slate-950 pt-4 pb-4 px-4">
+    <div className="min-h-full bg-white dark:bg-slate-950 pt-4 pb-4 px-4 overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Feedback Message */}

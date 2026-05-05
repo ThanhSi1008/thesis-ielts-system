@@ -25,7 +25,7 @@ export default function ProfileLayout({
         <ProfileSidebar />
 
         {/* Main content area — flex container with default vertical scrolling */}
-        <main className="flex-1 min-w-0 h-full flex flex-col transition-all duration-300 ease-in-out overflow-y-auto relative">
+        <main className="flex-1 min-w-0 h-full flex flex-col transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden relative">
           {children}
         </main>
       </div>
