@@ -7,9 +7,11 @@ import { IeltsAdvancedService } from "./ielts-advanced.service";
 import { StreakService } from "./streak.service";
 import { PrismaModule } from "../../common/prisma/prisma.module";
 import { NotificationsModule } from "../notifications/notifications.module";
+import { AiClientModule } from "../ai-client/ai-client.module";
+import { GamificationModule } from "../gamification/gamification.module";
 
 @Module({
-  imports: [PrismaModule, NotificationsModule],
+  imports: [PrismaModule, NotificationsModule, AiClientModule, GamificationModule],
   controllers: [IeltsController, IeltsAdvancedController],
   providers: [
     IeltsService,

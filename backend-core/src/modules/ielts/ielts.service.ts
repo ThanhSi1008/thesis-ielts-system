@@ -1,6 +1,8 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { StreakService } from "./streak.service";
+import { NotificationsService } from "../notifications/notifications.service";
+import { GamificationService } from "../gamification/gamification.service";
 
 @Injectable()
 export class IeltsService {
@@ -9,6 +11,8 @@ export class IeltsService {
   constructor(
     private prisma: PrismaService,
     private streakService: StreakService,
+    private notifications: NotificationsService,
+    private gamificationService: GamificationService,
   ) {}
 
   async findAllSkills() {
@@ -162,6 +166,32 @@ export class IeltsService {
         data: { isCompleted: true },
       });
       await this.streakService.recordActivity(userId);
+      
+      const progress = updated;
+      if (progress.isCompleted) {
+        if (progress.lessonId) {
+          this.gamificationService
+            .onEvent(userId, {
+              xp: 10,
+              reason: "IELTS_BASIC_LESSON",
+              achievementKeys: ["IB_LESSON_5"],
+            })
+            .catch(() => {});
+        } else if (progress.listeningExerciseId || progress.readingExerciseId || progress.writingExerciseId) {
+          this.gamificationService
+            .onEvent(userId, {
+              xp: 15,
+              reason: "IELTS_BASIC_EXERCISE",
+              achievementKeys: [
+                ...(progress.listeningExerciseId ? ["IB_LISTENING_3"] : []),
+                ...(progress.readingExerciseId ? ["IB_READING_3"] : []),
+                ...(progress.writingExerciseId ? ["IB_WRITING_3"] : []),
+              ],
+            })
+            .catch(() => {});
+        }
+      }
+
       return updated;
     }
 
@@ -177,6 +207,33 @@ export class IeltsService {
     });
 
     await this.streakService.recordActivity(userId);
+
+    const progress = created;
+
+    if (progress.isCompleted) {
+      if (progress.lessonId) {
+        this.gamificationService
+          .onEvent(userId, {
+            xp: 10,
+            reason: "IELTS_BASIC_LESSON",
+            achievementKeys: ["IB_LESSON_5"],
+          })
+          .catch(() => {});
+      } else if (progress.listeningExerciseId || progress.readingExerciseId || progress.writingExerciseId) {
+        this.gamificationService
+          .onEvent(userId, {
+            xp: 15,
+            reason: "IELTS_BASIC_EXERCISE",
+            achievementKeys: [
+              ...(progress.listeningExerciseId ? ["IB_LISTENING_3"] : []),
+              ...(progress.readingExerciseId ? ["IB_READING_3"] : []),
+              ...(progress.writingExerciseId ? ["IB_WRITING_3"] : []),
+            ],
+          })
+          .catch(() => {});
+      }
+    }
+
     return created;
   }
 

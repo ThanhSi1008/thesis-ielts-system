@@ -360,6 +360,303 @@ async function main() {
     questions: cambridgeIelts13ListeningTest1Questions,
   });
 
+// ─── Writing Tests ───────────────────────────────────────────
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Writing Test 1",
+    type: "WRITING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 60,
+    imageUrl: cambridge17Image,
+    isPublished: true,
+    questions: {
+      type: "writing",
+      tasks: [
+        {
+          task_number: 1,
+          task_type: "academic_map",
+          time_advice: "You should spend about 20 minutes on this task.",
+          prompt:
+            "The maps below show an industrial area in the town of Norbiton, and planned future development of the site.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+          image_url:
+            "https://res.cloudinary.com/dalaaegob/image/upload/v1774400584/cam17-test1_ifztbi.png",
+          min_words: 150,
+        },
+        {
+          task_number: 2,
+          task_type: "essay",
+          time_advice: "You should spend about 40 minutes on this task.",
+          prompt:
+            "It is important for people to take risks, both in their professional lives and their personal lives.\n\nDo you think the advantages of taking risks outweigh the disadvantages?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.",
+          instruction:
+            "Write about the following topic:",
+          min_words: 250,
+        },
+      ],
+    },
+  });
+
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Writing Test 2",
+    type: "WRITING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 60,
+    imageUrl: cambridge17Image,
+    isPublished: true,
+    questions: {
+      type: "writing",
+      tasks: [
+        {
+          task_number: 1,
+          task_type: "academic_chart",
+          time_advice: "You should spend about 20 minutes on this task.",
+          prompt:
+            "The table and charts below give information on the police budget for 2017 and 2018 in one area of Britain. The table shows where the money came from and the charts show how it was distributed.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+          image_url:
+            "https://res.cloudinary.com/dalaaegob/image/upload/v1774485815/cam17-test2_caxdco.png",
+          min_words: 150,
+        },
+        {
+          task_number: 2,
+          task_type: "essay",
+          time_advice: "You should spend about 40 minutes on this task.",
+          instruction: "Write about the following topic:",
+          prompt:
+            "Some children spend hours every day on their smartphones.\n\nWhy is this the case? Do you think this is a positive or a negative development?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.",
+          min_words: 250,
+        },
+      ],
+    },
+  });
+
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Writing Test 3",
+    type: "WRITING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 60,
+    imageUrl: cambridge17Image,
+    isPublished: true,
+    questions: {
+      type: "writing",
+      tasks: [
+        {
+          task_number: 1,
+          task_type: "academic_chart",
+          time_advice: "You should spend about 20 minutes on this task.",
+          prompt:
+            "The chart below gives information about how families in one country spent their weekly income in 1968 and in 2018.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+          image_url:
+            "https://res.cloudinary.com/dalaaegob/image/upload/v1774485815/cam17-test3_ji67c1.png",
+          min_words: 150,
+        },
+        {
+          task_number: 2,
+          task_type: "essay",
+          time_advice: "You should spend about 40 minutes on this task.",
+          instruction: "Write about the following topic:",
+          prompt:
+            "Some people believe that professionals, such as doctors and engineers, should be required to work in the country where they did their training. Others believe they should be free to work in another country if they wish.\n\nDiscuss both these views and give your own opinion.\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.",
+          min_words: 250,
+        },
+      ],
+    },
+  });
+
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Writing Test 4",
+    type: "WRITING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 60,
+    imageUrl: cambridge17Image,
+    isPublished: true,
+    questions: {
+      type: "writing",
+      tasks: [
+        {
+          task_number: 1,
+          task_type: "academic_chart",
+          time_advice: "You should spend about 20 minutes on this task.",
+          prompt:
+            "The graph below shows the number of shops that closed and the number of new shops that opened in one country between 2011 and 2018.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+          image_url:
+            "https://res.cloudinary.com/dalaaegob/image/upload/v1774485816/cam17-test4_fauyvk.png",
+          min_words: 150,
+        },
+        {
+          task_number: 2,
+          task_type: "essay",
+          time_advice: "You should spend about 40 minutes on this task.",
+          instruction: "Write about the following topic:",
+          prompt:
+            "Nowadays, a growing number of people with health problems are trying alternative medicines and treatments instead of visiting their usual doctor.\n\nDo you think this is a positive or a negative development?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.",
+          min_words: 250,
+        },
+      ],
+    },
+  });
+  // ─── Speaking Tests ───────────────────────────────────────────
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Speaking Test 1",
+    type: "SPEAKING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 15,
+    imageUrl: cambridge17Image,
+    isPublished: true,
+    questions: {
+      type: "speaking",
+      examiner: {
+        name: "Jim Hopper",
+        role: "IELTS Examiner",
+        avatarUrl: "https://res.cloudinary.com/dalaaegob/image/upload/v1774672658/jim-hopper_mawpyh.png"
+      },
+      parts: [
+        {
+          part_number: 1,
+          part_type: "Part 1: History",
+          topic: "History",
+          questions: [
+            {
+              text: "What did you study in history lessons when you were at school?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651103/1-1_cas2xq.mp4"
+            },
+            {
+              text: "Did you enjoy studying history at school? Why, or why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651101/1-2_waawji.mp4"
+            },
+            {
+              text: "How often do you watch TV programmes about history now? Why, or why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651100/1-3_cw4cz4.mp4"
+            },
+            {
+              text: "What period in history would you like to learn more about? Why?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651099/1-4_vfoyzx.mp4"
+            }
+          ]
+        },
+        {
+          part_number: 2,
+          part_type: "Part 2: Long Turn (Cue Card)",
+          topic: "Describe the neighbourhood you lived in when you were a child.",
+          cue_card: "Describe the neighbourhood you lived in when you were a child.\nYou should say:\n- where in your town/city the neighbourhood was\n- what kind of people lived there\n- what it was like to live in this neighbourhood\n- and explain whether you would like to live in this neighbourhood in the future.",
+          video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774667596/2-1_daeni9.mp4",
+          video2: "https://res.cloudinary.com/dalaaegob/video/upload/v1774667596/2-2_caanop.mp4"
+        },
+        {
+          part_number: 3,
+          part_type: "Part 3: Discussion Topics",
+          topic: "Discussion Topics",
+          questions: [
+            {
+              text: "What sort of things can neighbours do to help each other?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651107/3-1_gjoj8d.mp4"
+            },
+            {
+              text: "How well do people generally know their neighbours in your country?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651099/3-2_khqn7w.mp4"
+            },
+            {
+              text: "How important do you think it is to have good neighbours?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651099/3-3_sambxo.mp4"
+            },
+            {
+              text: "Which facilities are most important to people living in cities?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651105/3-4_jzlys0.mp4"
+            },
+            {
+              text: "How does shopping in small local shops differ from shopping in large city centre shops?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651100/3-5_h7ckie.mp4"
+            },
+            {
+              text: "Do you think that children should always go to the school nearest to where they live?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774651100/3-6_j9dj5u.mp4"
+            }
+          ]
+        }
+      ]
+    }
+  });
+
+  await upsertCambridgeExam({
+    title: "Cambridge IELTS 17 - Speaking Test 2",
+    type: "SPEAKING",
+    difficulty: "INTERMEDIATE",
+    durationMinutes: 15,
+    imageUrl: cambridge17Image,
+    isPublished: true,
+    questions: {
+      type: "speaking",
+      examiner: {
+        name: "Amber Bennett",
+        role: "IELTS Examiner",
+        avatarUrl: "https://res.cloudinary.com/dalaaegob/image/upload/v1774672202/amber-bennett_yhupu4.png"
+      },
+      parts: [
+        {
+          part_number: 1,
+          part_type: "Part 1: Reading",
+          topic: "Reading",
+          questions: [
+            {
+              text: "Did you have a favourite book when you were a child? Why/Why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669864/1.1_zsrotd.mp4"
+            },
+            {
+              text: "How much reading do you do for your work/studies? Why/Why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669860/1.2_ejqmb1.mp4"
+            },
+            {
+              text: "What kinds of books do you read for pleasure? Why/Why not?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669860/1.3_gs36fs.mp4"
+            },
+            {
+              text: "Do you prefer to read a newspaper or a magazine online, or to buy a copy? Why?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669862/1.4_xq5p4k.mp4"
+            }
+          ]
+        },
+        {
+          part_number: 2,
+          part_type: "Part 2: Long Turn (Cue Card)",
+          topic: "Describe a big city you would like to visit.",
+          cue_card: "Describe a big city you would like to visit.\nYou should say:\n- which big city you would like to visit\n- how you would travel there\n- what you would do there\n- and explain why you would like to visit this big city.",
+          video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669864/2.1_ckz0y8.mp4",
+          video2: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669863/2.2_cy5jf7.mp4"
+        },
+        {
+          part_number: 3,
+          part_type: "Part 3: Discussion Topics",
+          topic: "Discussion Topics",
+          questions: [
+            {
+              text: "What are the most interesting things to do while visiting cities on holiday?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669868/3.1_hhezku.mp4"
+            },
+            {
+              text: "Why can it be expensive to visit cities on holiday?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.2_ywkn6r.mp4"
+            },
+            {
+              text: "Do you think it is better to visit cities alone or in a group with friends?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.3_agpays.mp4"
+            },
+            {
+              text: "Why have cities increased in size in recent years?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669863/3.4_chcirv.mp4"
+            },
+            {
+              text: "What are the challenges created by ever-growing cities?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.5_bakekj.mp4"
+            },
+            {
+              text: "In what ways do you think cities of the future will be different to cities today?",
+              video: "https://res.cloudinary.com/dalaaegob/video/upload/v1774669861/3.6_soujli.mp4"
+            }
+          ]
+        }
+      ]
+    }
+  });
+
+
   // Default Decks
   const allUsers = await prisma.user.findMany();
   for (const u of allUsers) {

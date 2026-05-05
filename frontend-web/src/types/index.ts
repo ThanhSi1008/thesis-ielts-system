@@ -557,3 +557,115 @@ export interface ExamSessionDetail {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface SharedDeck {
+  id: string;
+  publisherId: string;
+  name: string;
+  description: string | null;
+  tags: string[];
+  importCount: number;
+  createdAt: string;
+  updatedAt: string;
+  cardCount: number;
+  publisher: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    avatar: string | null;
+  };
+}
+
+// ==================== COMMUNITY POSTS ====================
+
+export type PostType = 'STUDY_TIP' | 'SCORE_ACHIEVEMENT' | 'GENERAL';
+
+export interface PostAuthor {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+}
+
+export interface Post {
+  id: string;
+  authorId: string;
+  type: PostType;
+  title: string | null;
+  body: string;
+  imageUrls: string[];
+  tags: string[];
+  metadata: Record<string, any> | null;
+  likeCount: number;
+  commentCount: number;
+  bookmarkCount: number;
+  isPinned: boolean;
+  isLiked: boolean;
+  isBookmarked: boolean;
+  createdAt: string;
+  updatedAt: string;
+  author: PostAuthor;
+}
+
+export interface Comment {
+  id: string;
+  postId: string;
+  authorId: string;
+  parentId: string | null;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+  author: PostAuthor;
+  replies?: Comment[];
+}
+
+export interface PostListResponse {
+  items: Post[];
+  nextCursor: string | null;
+}
+
+export interface PostListParams {
+  cursor?: string;
+  limit?: number;
+  type?: PostType;
+  tag?: string;
+  authorId?: string;
+}
+
+// ==================== GAMIFICATION ====================
+
+export interface AchievementItem {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  tier: number;  // 1=Bronze, 2=Silver, 3=Gold
+  earned: boolean;
+  earnedAt: string | null;
+}
+
+export interface GamificationProfile {
+  totalXp: number;
+  level: number;
+  currentLevelXp: number;
+  xpNeeded: number;
+  achievementCount: number;
+  totalAchievements: number;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  name: string;
+  avatar: string | null;
+  value: number;
+}
+
+export interface XpLogEntry {
+  id: string;
+  amount: number;
+  reason: string;
+  createdAt: string;
+}

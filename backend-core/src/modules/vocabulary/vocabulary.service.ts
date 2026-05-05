@@ -1,6 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "@common/prisma/prisma.service";
 import { RedisService } from "@common/redis/redis.service";
+import { GamificationService } from "../gamification/gamification.service";
 import {
   CreateVocabularyBookDto,
   UpdateVocabularyBookDto,
@@ -15,9 +16,12 @@ const CACHE_PREFIX = "vocabulary";
 
 @Injectable()
 export class VocabularyService {
+  private readonly logger = new Logger(VocabularyService.name);
+
   constructor(
     private prisma: PrismaService,
     private redis: RedisService,
+    private gamificationService: GamificationService,
   ) {}
 
   // ==================== READ OPERATIONS ====================
@@ -223,20 +227,57 @@ export class VocabularyService {
 
     if (!unit) return null;
 
-    return this.prisma.vocabularyProgress.upsert({
-      where: {
-        userId_unitId: { userId, unitId },
-      },
-      create: {
+    const completed = wordsLearned >= unit._count.words;
+
+    const existingProgress = await this.prisma.vocabularyProgress.findUnique({
+      where: { userId_unitId: { userId, unitId } },
+    });
+
+    if (existingProgress) {
+      const updated = await this.prisma.vocabularyProgress.update({
+        where: { id: existingProgress.id },
+        data: {
+          wordsLearned,
+          isCompleted: existingProgress.isCompleted || completed,
+          completedAt: !existingProgress.isCompleted && completed ? new Date() : undefined,
+        },
+      });
+
+      if (completed && !existingProgress.isCompleted) {
+        this.gamificationService
+          .onEvent(userId, {
+            xp: 15,
+            reason: "VOCAB_UNIT_COMPLETE",
+            achievementKeys: ["FV_FIRST_WORDS", "FV_BOOKWORM"],
+          })
+          .catch(() => {});
+      }
+
+      return updated;
+    }
+
+    const created = await this.prisma.vocabularyProgress.create({
+      data: {
         userId,
         unitId,
         wordsLearned,
         totalWords: unit._count.words,
-      },
-      update: {
-        wordsLearned,
+        isCompleted: completed,
+        completedAt: completed ? new Date() : undefined,
       },
     });
+
+    if (completed) {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 15,
+          reason: "VOCAB_UNIT_COMPLETE",
+          achievementKeys: ["FV_FIRST_WORDS", "FV_BOOKWORM"],
+        })
+        .catch(() => {});
+    }
+
+    return created;
   }
 
   /**
@@ -247,77 +288,50 @@ export class VocabularyService {
     unitId: string,
     answers: { exerciseId: string; answer: string }[],
   ) {
-    // Get exercises for this unit
     const exercises = await this.prisma.vocabularyExercise.findMany({
       where: { unitId },
     });
 
-    console.log(
-      `[SubmitExercise] User: ${userId}, Unit: ${unitId}, Found ${exercises.length} exercises`,
-    );
-
     if (exercises.length === 0) {
-      console.warn(`[SubmitExercise] No exercises found for unit ${unitId}`);
-      return {
-        score: 0,
-        correctCount: 0,
-        totalQuestions: 0,
-        results: [],
-      };
+      return { score: 0, correctCount: 0, totalQuestions: 0, results: [] };
     }
 
-    // Grade answers
     let correctCount = 0;
     const results = answers.map((a) => {
       const exercise = exercises.find((e) => e.id === a.exerciseId);
-      if (!exercise) {
-        console.warn(`[SubmitExercise] Exercise not found: ${a.exerciseId}`);
-      }
-      const isCorrect =
-        exercise?.answer.toLowerCase() === a.answer.toLowerCase();
+      const isCorrect = exercise?.answer.toLowerCase() === a.answer.toLowerCase();
       if (isCorrect) correctCount++;
-      return {
-        exerciseId: a.exerciseId,
-        userAnswer: a.answer,
-        correctAnswer: exercise?.answer || "Unknown",
-        isCorrect,
-      };
+      return { exerciseId: a.exerciseId, userAnswer: a.answer, correctAnswer: exercise?.answer || "Unknown", isCorrect };
     });
 
-    const score =
-      exercises.length > 0
-        ? Math.round((correctCount / exercises.length) * 100)
-        : 0;
-    console.log(
-      `[SubmitExercise] Score: ${score} (${correctCount}/${exercises.length})`,
-    );
+    const score = Math.round((correctCount / exercises.length) * 100);
 
-    // Update progress
-    try {
-      await this.prisma.vocabularyProgress.upsert({
-        where: {
-          userId_unitId: { userId, unitId },
-        },
-        create: {
-          userId,
-          unitId,
-          exerciseScore: score,
-        },
-        update: {
-          exerciseScore: score,
-        },
+    const progress = await this.prisma.vocabularyProgress.findUnique({
+      where: { userId_unitId: { userId, unitId } },
+    });
+
+    if (progress) {
+      const updated = await this.prisma.vocabularyProgress.update({
+        where: { id: progress.id },
+        data: { exerciseScore: score },
       });
-    } catch (error) {
-      console.error(`[SubmitExercise] Failed to update progress:`, error);
-      throw error;
+
+      if (score === 100 && (!progress.exerciseScore || progress.exerciseScore < 100)) {
+        this.gamificationService.onEvent(userId, { xp: 5, reason: "VOCAB_PERFECT_SCORE", achievementKeys: ["FV_PERFECT"] }).catch(() => {});
+      }
+
+      return { score, correctCount, totalQuestions: exercises.length, results };
     }
 
-    return {
-      score,
-      correctCount,
-      totalQuestions: exercises.length,
-      results,
-    };
+    await this.prisma.vocabularyProgress.create({
+      data: { userId, unitId, exerciseScore: score },
+    });
+
+    if (score === 100) {
+      this.gamificationService.onEvent(userId, { xp: 5, reason: "VOCAB_PERFECT_SCORE", achievementKeys: ["FV_PERFECT"] }).catch(() => {});
+    }
+
+    return { score, correctCount, totalQuestions: exercises.length, results };
   }
 
   /**
@@ -328,34 +342,19 @@ export class VocabularyService {
     unitId: string,
     answers: { questionId: string; answer: string }[],
   ) {
-    // Get questions for this unit
     const questions = await this.prisma.vocabularyQuestion.findMany({
       where: { unitId },
     });
 
-    console.log(
-      `[SubmitQuestions] User: ${userId}, Unit: ${unitId}, Found ${questions.length} questions`,
-    );
-
     if (questions.length === 0) {
-      console.warn(`[SubmitQuestions] No questions found for unit ${unitId}`);
-      return {
-        score: 0,
-        correctCount: 0,
-        totalQuestions: 0,
-        results: [],
-      };
+      return { score: 0, correctCount: 0, totalQuestions: 0, results: [] };
     }
 
     // Grade answers
     let correctCount = 0;
     const results = answers.map((a) => {
       const question = questions.find((q) => q.id === a.questionId);
-      if (!question) {
-        console.warn(`[SubmitQuestions] Question not found: ${a.questionId}`);
-      }
-      const isCorrect =
-        question?.answer.toLowerCase() === a.answer.toLowerCase();
+      const isCorrect = question?.answer.toLowerCase() === a.answer.toLowerCase();
       if (isCorrect) correctCount++;
       return {
         questionId: a.questionId,
@@ -365,17 +364,11 @@ export class VocabularyService {
       };
     });
 
-    const score =
-      questions.length > 0
-        ? Math.round((correctCount / questions.length) * 100)
-        : 0;
-    console.log(
-      `[SubmitQuestions] Score: ${score} (${correctCount}/${questions.length})`,
-    );
+    const score = Math.round((correctCount / questions.length) * 100);
 
     // Update progress and mark as completed
     try {
-      await this.prisma.vocabularyProgress.upsert({
+      const progress = await this.prisma.vocabularyProgress.upsert({
         where: {
           userId_unitId: { userId, unitId },
         },
@@ -392,6 +385,15 @@ export class VocabularyService {
           completedAt: new Date(),
         },
       });
+
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 15,
+          reason: "VOCAB_UNIT_COMPLETE",
+          achievementKeys: ["FV_FIRST_WORDS", "FV_BOOKWORM"],
+        })
+        .catch(() => {});
+        
     } catch (error) {
       console.error(`[SubmitQuestions] Failed to update progress:`, error);
       throw error;

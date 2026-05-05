@@ -1,5 +1,6 @@
 'use client';
 import type { VocabLabStats } from '@/types';
+import { Layers, CheckCircle2, Flame, Brain } from 'lucide-react';
 
 interface Props {
   stats: VocabLabStats;
@@ -14,28 +15,28 @@ export function SummaryCards({ stats }: Props) {
     {
       label: 'Total Cards',
       value: stats.cardCounts?.totalCount ?? stats.totalCount,
-      icon: '🃏',
+      icon: <Layers className="w-7 h-7 text-blue-500" />,
       color: 'bg-blue-50 border-blue-100',
       valueColor: 'text-blue-700',
     },
     {
       label: 'Reviews Today',
       value: reviewsToday,
-      icon: '✅',
+      icon: <CheckCircle2 className="w-7 h-7 text-amber-500" />,
       color: 'bg-amber-50 border-amber-100',
       valueColor: 'text-amber-700',
     },
     {
       label: 'Current Streak',
       value: `${stats.streakData?.currentStreak ?? 0}d`,
-      icon: '🔥',
+      icon: <Flame className="w-7 h-7 text-orange-500" />,
       color: 'bg-orange-50 border-orange-100',
       valueColor: 'text-orange-700',
     },
     {
       label: 'Retention Rate',
       value: `${stats.averages?.retentionRatePercent ?? 0}%`,
-      icon: '🧠',
+      icon: <Brain className="w-7 h-7 text-green-500" />,
       color: 'bg-green-50 border-green-100',
       valueColor: 'text-green-700',
     },

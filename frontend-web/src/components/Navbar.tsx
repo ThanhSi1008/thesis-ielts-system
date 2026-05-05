@@ -10,6 +10,7 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import { vocabLabApi } from "@/services/vocabLab.api";
+import { gamificationApi } from "@/services/gamification.api";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -25,7 +26,9 @@ export default function Navbar() {
   const isIeltsPage = isIeltsDashboard || isIeltsInternal;
   const isShadowingPage = pathname.startsWith("/shadowing-dictation");
   const isVocabLabPage = pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/");
-  const isHeaderBorderless = isIeltsPage || isShadowingPage || isVocabLabPage;
+  const isCommunityPage = pathname === "/community" || pathname.startsWith("/community/");
+  const isProfilePage = pathname === "/profile" || pathname.startsWith("/profile/");
+  const isHeaderBorderless = isIeltsPage || isShadowingPage || isVocabLabPage || isCommunityPage || isProfilePage;
 
   const [forcePlain, setForcePlain] = useState(false);
 
@@ -34,14 +37,14 @@ export default function Navbar() {
   }, [pathname]);
 
   useEffect(() => {
-    const handleSetForcePlain = (e: any) => setForcePlain(e.detail);
+    const handleSetForcePlain = (e: Event) => setForcePlain((e as CustomEvent).detail);
     window.addEventListener('set-header-plain', handleSetForcePlain);
     return () => window.removeEventListener('set-header-plain', handleSetForcePlain);
   }, []);
 
   const plainPages = ["/login", "/register", "/profile"];
   const isAdminPage = pathname.startsWith("/admin");
-  const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || isAdminPage || forcePlain;
+  const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || isAdminPage || isCommunityPage || forcePlain;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -56,6 +59,17 @@ export default function Navbar() {
 
   // Fetch streak
   const [streak, setStreak] = useState<{ currentStreak: number; longestStreak: number } | null>(null);
+
+  // Fetch user level
+  const [userLevel, setUserLevel] = useState<number>(0);
+
+  useEffect(() => {
+    if (user) {
+      gamificationApi.getProfile()
+        .then(res => setUserLevel(res.level))
+        .catch(() => {});
+    }
+  }, [user, pathname]);
 
   // Fetch vocab due count
   const [vocabDue, setVocabDue] = useState(0);
@@ -177,6 +191,16 @@ export default function Navbar() {
               )}
             >
               SHADOWING &amp; DICTATION
+              <span className="absolute left-0 bottom-0 h-[2px] bg-primary transition-all duration-300 w-0 group-hover:w-full" />
+            </Link>
+
+            <Link
+              href="/community"
+              className={navLinkClass(
+                pathname === "/community" || pathname.startsWith("/community/")
+              )}
+            >
+              COMMUNITY
               <span className="absolute left-0 bottom-0 h-[2px] bg-primary transition-all duration-300 w-0 group-hover:w-full" />
             </Link>
           </nav>
@@ -312,6 +336,9 @@ export default function Navbar() {
                       }`}
                   >
                     {displayName}
+                  </span>
+                  <span className="text-[10px] font-bold bg-primary/15 text-primary rounded-full px-1.5 py-0.5 ml-1">
+                    Lv.{userLevel}
                   </span>
                   {/* Chevron */}
                   <svg
@@ -487,6 +514,14 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(false)}
             >
               SHADOWING &amp; DICTATION
+            </Link>
+
+            <Link
+              href="/community"
+              className="font-bold text-gray-800 dark:text-gray-200 hover:text-primary transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              COMMUNITY
             </Link>
           </div>
 

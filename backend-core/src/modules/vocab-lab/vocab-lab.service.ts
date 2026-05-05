@@ -3,8 +3,12 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Logger,
 } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import { RedisService } from "../../common/redis/redis.service";
+import { NotificationsService } from "../notifications/notifications.service";
+import { GamificationService } from "../gamification/gamification.service";
 import {
   CreateDeckDto,
   CreateFlashcardDto,
@@ -16,6 +20,9 @@ import {
   CreateCardTypeFieldDto,
   UpdateCardTypeFieldDto,
   UpdateCardTemplateDto,
+  ImportDeckDto,
+  PublishDeckDto,
+  BrowseSharedDecksDto,
 } from "./dto/vocab-lab.dto";
 import { CardState } from "@prisma/client";
 import { fsrs, Rating, Card, State, Grade, createEmptyCard } from "ts-fsrs";
@@ -74,7 +81,14 @@ function toFsrsRating(rating: number): Grade {
 
 @Injectable()
 export class VocabLabService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(VocabLabService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+    private readonly notifications: NotificationsService,
+    private readonly gamificationService: GamificationService,
+  ) {}
 
   // ==================== NOTE TYPE OPERATIONS ====================
 
@@ -454,9 +468,19 @@ export class VocabLabService {
   }
 
   async createDeck(userId: string, dto: CreateDeckDto) {
-    return this.prisma.deck.create({
+    const deck = await this.prisma.deck.create({
       data: { userId, name: dto.name },
     });
+
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 0,
+        reason: "VOCAB_LAB_DECK_CREATED",
+        achievementKeys: ["VL_DECK_BUILDER"],
+      })
+      .catch(() => {});
+
+    return deck;
   }
 
   async deleteDeck(userId: string, deckId: string) {
@@ -465,6 +489,363 @@ export class VocabLabService {
     });
     if (!deck) throw new NotFoundException("Deck not found");
     return this.prisma.deck.delete({ where: { id: deckId } });
+  }
+
+  async exportDeck(userId: string, deckId: string) {
+    // 1. Fetch deck with all flashcards + their cardType + fields + templates
+    const deck = await this.prisma.deck.findFirst({
+      where: { id: deckId, userId },
+      include: {
+        flashcards: {
+          include: {
+            cardType: {
+              include: {
+                fields: { orderBy: { order: 'asc' } },
+                templates: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!deck) throw new NotFoundException('Deck not found');
+
+    // 2. Determine the card type used (use the first card's type, or null)
+    const firstCardWithType = deck.flashcards.find(f => f.cardType);
+    const cardType = firstCardWithType?.cardType ?? null;
+
+    // 3. Build field name map: fieldId → fieldName (for portable fieldValues)
+    const fieldIdToName: Record<string, string> = {};
+    if (cardType) {
+      for (const field of cardType.fields) {
+        fieldIdToName[field.id] = field.name;
+      }
+    }
+
+    // 4. Transform flashcards: strip FSRS data, convert fieldValue keys from IDs to names
+    const cards = deck.flashcards.map(card => {
+      // Convert fieldValues keys from UUIDs to field names
+      const portableFieldValues: Record<string, string> = {};
+      const fv = card.fieldValues as Record<string, string>;
+      for (const [key, value] of Object.entries(fv)) {
+        const fieldName = fieldIdToName[key] ?? key; // fallback to raw key if no mapping
+        portableFieldValues[fieldName] = value;
+      }
+
+      return {
+        fieldValues: portableFieldValues,
+        tags: card.tags,
+        fieldStyles: card.fieldStyles ?? null,
+        cardStyle: card.cardStyle ?? null,
+      };
+    });
+
+    // 5. Build the .lexon export object
+    const exportData = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      deck: {
+        name: deck.name,
+      },
+      cardType: cardType ? {
+        name: cardType.name,
+        description: cardType.description ?? null,
+        fields: cardType.fields.map(f => ({
+          name: f.name,
+          order: f.order,
+          fieldType: f.fieldType,
+        })),
+        templates: cardType.templates.map(t => ({
+          name: t.name,
+          // Convert frontFields/backFields from field IDs to field names
+          frontFieldNames: (t.frontFields as string[]).map(id => fieldIdToName[id] ?? id),
+          backFieldNames: (t.backFields as string[]).map(id => fieldIdToName[id] ?? id),
+          fieldStyles: t.fieldStyles ?? {},
+          cardStyle: t.cardStyle ?? {},
+        })),
+      } : null,
+      cards,
+    };
+
+    return exportData;
+  }
+
+  async importDeck(userId: string, dto: ImportDeckDto) {
+    // 1. Validate version
+    if (dto.version !== 1) {
+      throw new BadRequestException(`Unsupported .lexon version: ${dto.version}. Expected version 1.`);
+    }
+
+    // 2. Resolve or create CardType
+    let cardTypeId: string | null = null;
+    const fieldNameToId: Record<string, string> = {};
+
+    if (dto.cardType) {
+      // Check if user already has a CardType with the same name and same field structure
+      const existingType = await this.prisma.cardType.findFirst({
+        where: {
+          name: dto.cardType.name,
+          OR: [{ userId }, { isBuiltIn: true }],
+        },
+        include: { fields: { orderBy: { order: 'asc' } } },
+      });
+
+      if (existingType) {
+        // Verify field structure matches
+        const existingFieldNames = existingType.fields.map(f => f.name).sort();
+        const importFieldNames = dto.cardType.fields.map(f => f.name).sort();
+        const fieldsMatch = JSON.stringify(existingFieldNames) === JSON.stringify(importFieldNames);
+
+        if (fieldsMatch) {
+          // Reuse existing card type
+          cardTypeId = existingType.id;
+          for (const field of existingType.fields) {
+            fieldNameToId[field.name] = field.id;
+          }
+        } else {
+          // Create a new card type with a suffixed name to avoid collision
+          const newType = await this.createImportedCardType(userId, dto.cardType, fieldNameToId);
+          cardTypeId = newType.id;
+        }
+      } else {
+        // Create new card type
+        const newType = await this.createImportedCardType(userId, dto.cardType, fieldNameToId);
+        cardTypeId = newType.id;
+      }
+    }
+
+    // 3. Create the Deck
+    //    If a deck with the same name exists, append " (Imported)" or a timestamp
+    let deckName = dto.deck.name;
+    const existingDeck = await this.prisma.deck.findFirst({
+      where: { name: deckName, userId },
+    });
+    if (existingDeck) {
+      const timestamp = new Date().toISOString().split('T')[0]; // "2026-05-04"
+      deckName = `${deckName} (Imported ${timestamp})`;
+    }
+
+    const newDeck = await this.prisma.deck.create({
+      data: { userId, name: deckName },
+    });
+
+    // 4. Bulk-insert flashcards
+    const flashcardData = dto.cards.map(card => {
+      // Convert field names back to field IDs
+      const fieldValues: Record<string, string> = {};
+      for (const [fieldName, value] of Object.entries(card.fieldValues)) {
+        const fieldId = fieldNameToId[fieldName] ?? fieldName;
+        fieldValues[fieldId] = value;
+      }
+
+      // Generate front/back HTML from field values (fallback)
+      const frontValue = card.fieldValues['Front'] ?? card.fieldValues['Word'] ?? Object.values(card.fieldValues)[0] ?? '';
+      const backValue = card.fieldValues['Back'] ?? card.fieldValues['Meaning'] ?? Object.values(card.fieldValues)[1] ?? '';
+
+      return {
+        deckId: newDeck.id,
+        front: frontValue,
+        back: backValue,
+        tags: card.tags ?? [],
+        cardTypeId,
+        fieldValues,
+        fieldStyles: card.fieldStyles ?? undefined,
+        cardStyle: card.cardStyle ?? undefined,
+        // FSRS fields default to NEW state (Prisma defaults handle this)
+      };
+    });
+
+    // Use createMany for performance
+    const result = await this.prisma.flashcard.createMany({
+      data: flashcardData,
+    });
+
+    return {
+      deckId: newDeck.id,
+      deckName: newDeck.name,
+      cardTypeId,
+      cardsImported: result.count,
+    };
+  }
+
+  /**
+   * Helper: Create a new CardType from import data and populate fieldNameToId mapping.
+   */
+  private async createImportedCardType(
+    userId: string,
+    cardTypeData: NonNullable<ImportDeckDto['cardType']>,
+    fieldNameToId: Record<string, string>,
+  ) {
+    const newType = await this.prisma.cardType.create({
+      data: {
+        userId,
+        name: cardTypeData.name,
+        description: cardTypeData.description,
+        fields: {
+          create: cardTypeData.fields.map(f => ({
+            name: f.name,
+            order: f.order,
+            fieldType: f.fieldType || 'text',
+          })),
+        },
+      },
+      include: { fields: { orderBy: { order: 'asc' } } },
+    });
+
+    // Populate name→id mapping
+    for (const field of newType.fields) {
+      fieldNameToId[field.name] = field.id;
+    }
+
+    // Create templates
+    for (const tmpl of cardTypeData.templates) {
+      await this.prisma.cardTemplate.create({
+        data: {
+          cardTypeId: newType.id,
+          name: tmpl.name,
+          frontFields: tmpl.frontFieldNames.map(name => fieldNameToId[name]).filter(Boolean),
+          backFields: tmpl.backFieldNames.map(name => fieldNameToId[name]).filter(Boolean),
+          fieldStyles: tmpl.fieldStyles ?? {},
+          cardStyle: tmpl.cardStyle ?? {},
+        },
+      });
+    }
+
+    return newType;
+  }
+
+  // ==================== SHARED DECK (COMMUNITY) OPERATIONS ====================
+
+  async publishDeck(userId: string, deckId: string, dto: PublishDeckDto) {
+    // 1. Verify deck exists and belongs to user
+    const deck = await this.prisma.deck.findFirst({
+      where: { id: deckId, userId },
+    });
+    if (!deck) throw new NotFoundException('Deck not found');
+
+    // 2. Generate the .lexon export payload
+    const lexonPayload = await this.exportDeck(userId, deckId);
+
+    // 3. Create SharedDeck record
+    const sharedDeck = await this.prisma.sharedDeck.create({
+      data: {
+        publisherId: userId,
+        name: dto.name,
+        description: dto.description,
+        tags: dto.tags ?? [],
+        lexonPayload: lexonPayload as any,
+      },
+      include: {
+        publisher: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
+        },
+      },
+    });
+
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 15,
+        reason: "VOCAB_LAB_PUBLISH",
+        achievementKeys: ["VL_PUBLISHER"],
+      })
+      .catch(() => {});
+
+    return sharedDeck;
+  }
+
+  async unpublishDeck(userId: string, sharedDeckId: string) {
+    const sharedDeck = await this.prisma.sharedDeck.findFirst({
+      where: { id: sharedDeckId, publisherId: userId },
+    });
+    if (!sharedDeck) throw new NotFoundException('Shared deck not found or unauthorized');
+
+    return this.prisma.sharedDeck.delete({ where: { id: sharedDeckId } });
+  }
+
+  async browseSharedDecks(query: BrowseSharedDecksDto) {
+    const { search, sort, category, publisherId } = query;
+
+    const whereClause: any = {};
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    if (category) {
+      whereClause.tags = { has: category };
+    }
+    if (publisherId) {
+      whereClause.publisherId = publisherId;
+    }
+
+    const orderByClause: any = {};
+    if (sort === 'popular') {
+      orderByClause.importCount = 'desc';
+    } else {
+      orderByClause.createdAt = 'desc';
+    }
+
+    const decks = await this.prisma.sharedDeck.findMany({
+      where: whereClause,
+      orderBy: orderByClause,
+      take: query.limit ? Number(query.limit) : 50,
+      include: {
+        publisher: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
+        },
+      },
+    });
+
+    // Compute card counts from the JSON payload for frontend display
+    return decks.map(d => {
+      const payload = d.lexonPayload as any;
+      const cardCount = Array.isArray(payload?.cards) ? payload.cards.length : 0;
+      return {
+        ...d,
+        lexonPayload: undefined, // Don't send huge payload when browsing list
+        cardCount,
+      };
+    });
+  }
+
+  async getSharedDeckById(sharedDeckId: string) {
+    const deck = await this.prisma.sharedDeck.findUnique({
+      where: { id: sharedDeckId },
+      include: {
+        publisher: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
+        },
+      },
+    });
+    if (!deck) throw new NotFoundException('Shared deck not found');
+
+    const payload = deck.lexonPayload as any;
+    const cardCount = Array.isArray(payload?.cards) ? payload.cards.length : 0;
+
+    return {
+      ...deck,
+      cardCount,
+    };
+  }
+
+  async importSharedDeck(userId: string, sharedDeckId: string) {
+    // 1. Fetch shared deck
+    const sharedDeck = await this.prisma.sharedDeck.findUnique({
+      where: { id: sharedDeckId },
+    });
+    if (!sharedDeck) throw new NotFoundException('Shared deck not found');
+
+    const lexonPayload = sharedDeck.lexonPayload as any;
+
+    // 2. Increment import count
+    await this.prisma.sharedDeck.update({
+      where: { id: sharedDeckId },
+      data: { importCount: { increment: 1 } },
+    });
+
+    // 3. Delegate to existing import logic
+    return this.importDeck(userId, lexonPayload as unknown as ImportDeckDto);
   }
 
   // ==================== FLASHCARD OPERATIONS ====================
@@ -750,6 +1131,24 @@ export class VocabLabService {
         state: toPrismaState(next.state),
       },
     });
+
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 2,
+        reason: "VOCAB_LAB_REVIEW",
+        achievementKeys: ["VL_COLLECTOR"],
+      })
+      .catch(() => {});
+
+    if (toPrismaState(next.state) === "REVIEW" && card.cardState !== "REVIEW") {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 5,
+          reason: "VOCAB_LAB_CARD_GRADUATED",
+          achievementKeys: ["VL_MEMORY_MASTER"],
+        })
+        .catch(() => {});
+    }
 
     return updatedCard;
   }

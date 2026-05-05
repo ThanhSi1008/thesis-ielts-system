@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { StreakService } from "./streak.service";
+import { GamificationService } from "../gamification/gamification.service";
 
 @Injectable()
 export class IeltsAdvancedService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly streakService: StreakService,
+    private readonly gamificationService: GamificationService,
   ) {}
 
   async getListeningParts(questionType?: string) {
@@ -141,6 +143,25 @@ export class IeltsAdvancedService {
 
     // Record streak activity
     await this.streakService.recordActivity(userId);
+
+    // Gamification
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 20,
+        reason: "IELTS_ADVANCED_SUBMIT",
+        achievementKeys: ["IA_LISTENER_5"],
+      })
+      .catch(() => {});
+
+    if (totalScore / totalQuestions >= 0.8) {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 10,
+          reason: "IELTS_ADVANCED_HIGH_SCORE",
+          achievementKeys: ["IA_HIGH_ACHIEVER"],
+        })
+        .catch(() => {});
+    }
 
     return session;
   }
@@ -288,6 +309,25 @@ export class IeltsAdvancedService {
 
     // Record streak activity
     await this.streakService.recordActivity(userId);
+
+    // Gamification
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 20,
+        reason: "IELTS_ADVANCED_SUBMIT",
+        achievementKeys: ["IA_READER_5"],
+      })
+      .catch(() => {});
+
+    if (totalScore / totalQuestions >= 0.8) {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 10,
+          reason: "IELTS_ADVANCED_HIGH_SCORE",
+          achievementKeys: ["IA_HIGH_ACHIEVER"],
+        })
+        .catch(() => {});
+    }
 
     return session;
   }

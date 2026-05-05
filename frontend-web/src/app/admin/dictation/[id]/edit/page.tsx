@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { adminDictationApi } from "@/services/admin.api";
@@ -8,8 +8,8 @@ import type { DictationVideo } from "@/services/dictation.api";
 import { useAdminDictationForm } from "../../_hooks/useAdminDictationForm";
 import { DictationLessonForm } from "../../_components/DictationLessonForm";
 
-export default function EditDictationLessonPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function EditDictationLessonPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const router = useRouter();
   const [lesson, setLesson] = useState<DictationVideo | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);

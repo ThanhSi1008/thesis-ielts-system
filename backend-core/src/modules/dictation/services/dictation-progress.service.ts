@@ -3,11 +3,14 @@ import { PrismaService } from "../../../common/prisma/prisma.service";
 import { NotificationsService } from "../../notifications/notifications.service";
 import { UpsertDictationProgressDto } from "../dto/upsert-dictation-progress.dto";
 
+import { GamificationService } from "../../gamification/gamification.service";
+
 @Injectable()
 export class DictationProgressService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationsService,
+    private gamificationService: GamificationService,
   ) {}
 
   async findByLesson(userId: string, lessonId: string) {
@@ -35,14 +38,40 @@ export class DictationProgressService {
       },
     });
 
+    const existing = await this.prisma.dictationProgress.findUnique({
+      where: { userId_lessonId: { userId, lessonId: dto.lessonId } },
+    });
+    const existingCount = existing?.completedSentences ? (existing.completedSentences as number[]).length : 0;
+    const newCount = dto.completedSentences.length;
+
     // Notify when lesson is fully completed
-    if (
-      dto.totalSentences &&
-      dto.completedSentences.length >= dto.totalSentences
-    ) {
+    const isNowCompleted = dto.totalSentences && dto.completedSentences.length >= dto.totalSentences;
+    const wasAlreadyCompleted = existingCount >= (dto.totalSentences || Infinity);
+
+    if (isNowCompleted && !wasAlreadyCompleted) {
       const lessonTitle = dto.lessonTitle ?? dto.lessonId;
       this.notifications
         .notifyDictationComplete(userId, lessonTitle, dto.lessonId)
+        .catch(() => {});
+        
+      const achievementKeys = ["DI_FIRST", "DI_REGULAR"];
+      if (dto.difficulty === "Expert") achievementKeys.push("DI_EXPERT");
+
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 15,
+          reason: "DICTATION_LESSON_COMPLETE",
+          achievementKeys,
+        })
+        .catch(() => {});
+    }
+
+    if (newCount > existingCount) {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 2 * (newCount - existingCount),
+          reason: "DICTATION_SENTENCE",
+        })
         .catch(() => {});
     }
 

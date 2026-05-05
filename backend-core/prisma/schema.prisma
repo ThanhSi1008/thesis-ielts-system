@@ -33,6 +33,7 @@ model User {
   vocabularyProgress    VocabularyProgress[]
   grammarProgress       GrammarProgress[]
   decks                 Deck[]
+  sharedDecks           SharedDeck[]
   questionNotes             QuestionNote[]
   shadowingVideos           ShadowingVideo[]   @relation("UserShadowingVideos")
   shadowingFolders          ShadowingFolder[]  @relation("UserShadowingFolders")
@@ -42,12 +43,21 @@ model User {
   dictationProgress         DictationProgress[] @relation("UserDictationProgress")
   ieltsBasicProgress         IeltsBasicProgress[]
   ieltsWritingAnswers        IeltsWritingUserAnswer[]
-  ieltsPracticeSessions      IeltsPracticeSession[]
-  ieltsPracticeReadingSessions IeltsPracticeReadingSession[]
+  practiceSessions           IeltsPracticeSession[]
+  practiceReadingSessions    IeltsPracticeReadingSession[]
+
+  userAchievements     UserAchievement[]
+  xpLogs               XpLog[]
+
   ieltsProfile               IeltsProfile?
   teacherLinks               StudentTeacherLink[] @relation("StudentLinks")
   studentLinks               StudentTeacherLink[] @relation("TeacherLinks")
   notifications              Notification[]
+  posts              Post[]         @relation("UserPosts")
+  comments           Comment[]      @relation("UserComments")
+  postLikes          PostLike[]     @relation("UserPostLikes")
+  bookmarks          PostBookmark[] @relation("UserBookmarks")
+  subscription       Subscription?
 
   @@map("users")
 }
@@ -530,6 +540,30 @@ enum CardState {
   RELEARNING
 }
 
+// ============================================================
+// SUBSCRIPTION & PRICING
+// ============================================================
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum PaymentProvider {
+  MOCK       // Thesis demo — simulated payments
+  STRIPE     // Future — real payment processing
+  MANUAL     // Admin-granted subscriptions
+}
+
 model Deck {
   id        String   @id @default(uuid())
   userId    String
@@ -635,6 +669,27 @@ model CardTemplate {
   @@map("card_templates")
 }
 
+// ============================================================
+// VOCAB LAB SHARED (COMMUNITY)
+// ============================================================
+
+model SharedDeck {
+  id            String   @id @default(uuid())
+  publisherId   String
+  name          String
+  description   String?  @db.Text
+  tags          String[]
+  lexonPayload  Json
+  importCount   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  publisher     User     @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId])
+  @@index([importCount])
+  @@map("shared_decks")
+}
 
 // ============================================================
 // QUESTION NOTES (per-user, per-exam, per-question)
@@ -995,6 +1050,9 @@ model IeltsProfile {
   longestStreak       Int      @default(0)
   lastActiveDate      DateTime? // Date of last activity (no time data, or start of day)
 
+  totalXp             Int      @default(0)
+  level               Int      @default(0)
+
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -1058,4 +1116,216 @@ model Notification {
   @@index([userId, isRead])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+// ============================================================
+// GAMIFICATION
+// ============================================================
+
+model Achievement {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String
+  icon        String
+  category    String
+  tier        Int      @default(1)
+  xpReward    Int      @default(0)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  userAchievements UserAchievement[]
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model XpLog {
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Int
+  reason    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("xp_logs")
+}
+
+// ============================================================
+// COMMUNITY POSTS
+// ============================================================
+
+enum PostType {
+  STUDY_TIP
+  SCORE_ACHIEVEMENT
+  GENERAL
+}
+
+model Post {
+  id            String     @id @default(uuid())
+  authorId      String
+  type          PostType   @default(GENERAL)
+  title         String?
+  body          String     @db.Text
+  imageUrls     String[]   @default([])
+  tags          String[]   @default([])   // skill tags: "Listening", "Reading", etc.
+  metadata      Json?                      // type-specific context (examTitle, score, etc.)
+
+  likeCount     Int        @default(0)
+  commentCount  Int        @default(0)
+  bookmarkCount Int        @default(0)
+
+  isPinned      Boolean    @default(false)
+  isHidden      Boolean    @default(false)
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  author        User       @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  likes         PostLike[]
+  bookmarks     PostBookmark[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([likeCount])
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  authorId  String
+  parentId  String?  // null = top-level comment, non-null = reply
+  body      String   @db.Text
+
+  isHidden  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+  @@map("comments")
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation("UserPostLikes", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("post_likes")
+}
+
+model PostBookmark {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation("UserBookmarks", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("post_bookmarks")
+}
+
+// ============================================================
+// SUBSCRIPTION & PRICING
+// ============================================================
+
+model Subscription {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  tier               SubscriptionTier   @default(FREE)
+  status             SubscriptionStatus @default(ACTIVE)
+  provider           PaymentProvider?
+  providerSubId      String?            // Provider-specific subscription ID
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  canceledAt         DateTime?
+  trialEndsAt        DateTime?
+  trialUsed          Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments       Payment[]
+  usageRecords   UsageRecord[]
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id             String          @id @default(uuid())
+  subscriptionId String
+  amount         Int             // In cents (999 = $9.99)
+  currency       String          @default("USD")
+  provider       PaymentProvider
+  providerPayId  String?         // Provider-specific payment/transaction ID
+  status         String          // "succeeded", "failed", "pending", "refunded"
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@map("payments")
+}
+
+model UsageRecord {
+  id             String   @id @default(uuid())
+  subscriptionId String
+  feature        String   // "AI_WRITING_GRADING", "AI_SPEAKING_GRADING", "AI_CARD_GEN", "PRONUNCIATION_ATTEMPT"
+  count          Int      @default(0)
+  periodStart    DateTime
+  periodEnd      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, feature, periodStart])
+  @@map("usage_records")
+}
+
+model PricingPlan {
+  id            String           @id @default(uuid())
+  tier          SubscriptionTier
+  name          String           // "Premium Monthly", "Pro Annual"
+  description   String?
+  priceAmount   Int              // In cents (999 = $9.99)
+  currency      String           @default("USD")
+  interval      String           // "month" | "year"
+  intervalCount Int              @default(1)
+  features      Json             // Array of feature strings for display
+  isActive      Boolean          @default(true)
+  order         Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@map("pricing_plans")
 }

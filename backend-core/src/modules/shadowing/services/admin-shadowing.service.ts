@@ -81,11 +81,16 @@ export class AdminShadowingService {
     const youtubeIdMatch = dto.youtubeUrl.match(/(?:v=|\/)([0-9A-Za-z_-]{11})[\W]?/);
     const youtubeVideoId = youtubeIdMatch ? youtubeIdMatch[1] : null;
 
+    const imageUrl = youtubeVideoId
+      ? `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`
+      : null;
+
     const video = await this.prisma.shadowingVideo.create({
       data: {
         userId: null, // System lesson
         title: dto.title,
         youtubeVideoId,
+        imageUrl,
         category: dto.category ?? "Other",
         folder: "All Videos",
         duration: "0:00",

@@ -8,6 +8,7 @@ import { ReviewActivityChart } from './stats/ReviewActivityChart';
 import { CardCountsPie, MaturityDonut } from './stats/DonutCharts';
 import { ForecastChart } from './stats/ForecastChart';
 import { HourlyActivityChart } from './stats/HourlyActivityChart';
+import { BarChart3 } from 'lucide-react';
 
 const RANGE_OPTIONS = [
   { label: '7d', value: 7 },
@@ -55,7 +56,9 @@ export function StatsTab({ isActive }: { isActive: boolean }) {
   if (!loading && stats && stats.totalCount === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <div className="text-6xl mb-4">📊</div>
+        <div className="mb-4 text-gray-400">
+          <BarChart3 className="w-16 h-16" strokeWidth={1.5} />
+        </div>
         <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No data yet</h3>
         <p className="text-gray-400 dark:text-gray-500 text-sm max-w-xs">Add some flashcards and start studying to see your statistics here.</p>
       </div>

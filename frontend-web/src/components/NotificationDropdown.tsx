@@ -3,6 +3,25 @@
 import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNotifications, AppNotification } from '@/contexts/NotificationContext';
+import { Trophy, TrendingUp, Bell, Flame, Star, Info } from 'lucide-react';
+
+import { EMOJI_ICON_MAP } from '@/app/profile/_components/AchievementsSection';
+
+function NotificationIcon({ type, icon }: { type: string; icon?: string | null }) {
+  if (icon?.startsWith('http')) return null; // handled by img below
+  switch (type) {
+    case 'ACHIEVEMENT':
+      return icon === 'level_up'
+        ? <TrendingUp className="w-5 h-5 text-primary" />
+        : <Trophy className="w-5 h-5 text-amber-500" />;
+    case 'STREAK':
+      return <Flame className="w-5 h-5 text-orange-500" />;
+    case 'XP':
+      return <Star className="w-5 h-5 text-yellow-500" />;
+    default:
+      return <Info className="w-5 h-5 text-gray-400" />;
+  }
+}
 
 // ─── Relative time formatter ──────────────────────────────────────────────────
 function relativeTime(dateStr: string): string {
@@ -24,11 +43,35 @@ function NotificationItem({ n, onClose }: { n: AppNotification; onClose: () => v
 
   const handleClick = () => {
     if (!n.isRead) markAsRead(n.id);
-    if (n.link) {
-      router.push(n.link);
+    
+    // Override older notifications that might just have '/profile' saved in the DB
+    let destination = n.link;
+    if (n.type === 'ACHIEVEMENT' && (!destination || destination === '/profile')) {
+      destination = '/profile?tab=gamification';
+    }
+    
+    if (destination) {
+      router.push(destination);
       onClose();
     }
   };
+
+  let displayTitle = n.title;
+  let TitleIcon = null;
+
+  for (const emoji of Object.keys(EMOJI_ICON_MAP)) {
+    const normTitle = displayTitle.replace(/\uFE0F/g, '');
+    const normEmoji = emoji.replace(/\uFE0F/g, '');
+    
+    if (normTitle.startsWith(normEmoji)) {
+      TitleIcon = EMOJI_ICON_MAP[emoji];
+      displayTitle = displayTitle.replace(/^[\p{Emoji}\s\uFE0F]+/u, '').trim();
+      break;
+    }
+  }
+
+  // Fallback if there's still a random emoji at the start
+  displayTitle = displayTitle.replace(/^[\p{Emoji}\s\uFE0F]+/u, '').trim();
 
   return (
     <div
@@ -45,18 +88,20 @@ function NotificationItem({ n, onClose }: { n: AppNotification; onClose: () => v
       )}
 
       {/* Icon / Avatar */}
-      <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xl shrink-0 overflow-hidden">
-        {n.icon && n.icon.startsWith('http') ? (
+      <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-500 border border-amber-100 dark:border-amber-800 flex items-center justify-center shrink-0 overflow-hidden">
+        {n.icon?.startsWith('http') ? (
           <img src={n.icon} alt="" className="w-full h-full object-cover" />
+        ) : TitleIcon ? (
+          <TitleIcon className="w-5 h-5" />
         ) : (
-          <span>{n.icon ?? '🔔'}</span>
+          <NotificationIcon type={n.type} icon={n.icon} />
         )}
       </div>
 
       {/* Text */}
       <div className="flex-1 min-w-0">
         <p className={`text-sm leading-snug ${n.isRead ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-gray-100 font-medium'}`}>
-          {n.title}
+          {displayTitle || "Achievement Unlocked!"}
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{n.body}</p>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{relativeTime(n.createdAt)}</p>
@@ -91,7 +136,7 @@ export default function NotificationDropdown() {
     notifications, isLoading, unreadCount,
     markAllAsRead, closeDropdown,
   } = useNotifications();
-
+  const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
 
   // Close on click outside
@@ -142,7 +187,9 @@ export default function NotificationDropdown() {
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-12 px-6">
-            <div className="text-4xl mb-3">🔔</div>
+            <div className="flex justify-center mb-3">
+              <Bell className="w-10 h-10 text-gray-300 dark:text-gray-600" />
+            </div>
             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">You're all caught up!</p>
             <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">No notifications yet.</p>
           </div>
@@ -157,7 +204,10 @@ export default function NotificationDropdown() {
       {notifications.length > 0 && (
         <div className="border-t border-gray-100 dark:border-gray-800 px-4 py-2.5 text-center">
           <button
-            onClick={closeDropdown}
+            onClick={() => {
+              closeDropdown();
+              router.push('/profile?tab=gamification');
+            }}
             className="text-sm text-primary hover:opacity-80 font-medium transition-colors"
           >
             See all notifications →

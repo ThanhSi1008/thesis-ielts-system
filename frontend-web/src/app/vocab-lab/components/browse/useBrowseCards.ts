@@ -6,7 +6,8 @@ import { vocabLabApi } from '@/services/vocabLab.api';
 import type { Flashcard, DeckWithCounts, CardType } from '@/types';
 import { toast } from '@/components/Toaster';
 
-export type BrowseFilter = { type: 'deck' | 'state' | 'cardType' | 'tag'; value: string } | null;
+export type BrowseFilterData = { type: 'deck' | 'state' | 'cardType' | 'tag'; value: string };
+export type BrowseFilter = BrowseFilterData | null;
 
 export interface SaveMessage { type: 'success' | 'error'; text: string }
 
@@ -94,9 +95,9 @@ export function useBrowseCards(isActive: boolean) {
     }
   };
 
-  const pick = (type: BrowseFilter['type'] | undefined, value: string) => {
+  const pick = (type: BrowseFilterData['type'] | undefined, value: string) => {
     if (!type) { setFilter(null); return; }
-    setFilter(prev => prev?.type === type && prev.value === value ? null : { type, value });
+    setFilter(prev => (prev && prev.type === type && prev.value === value) ? null : { type, value });
   };
 
   const handleSelectCard = useCallback((card: Flashcard) => {

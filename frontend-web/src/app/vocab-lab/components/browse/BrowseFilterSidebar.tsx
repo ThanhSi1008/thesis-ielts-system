@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import type { DeckWithCounts, CardType } from '@/types';
-import type { BrowseFilter } from './useBrowseCards';
+import type { BrowseFilter, BrowseFilterData } from './useBrowseCards';
 
 interface Props {
   decks: DeckWithCounts[];
   cardTypes: CardType[];
   tags: string[];
   filter: BrowseFilter;
-  onFilterChange: (type: BrowseFilter['type'], value: string) => void;
+  onFilterChange: (type: BrowseFilterData['type'], value: string) => void;
   onClearFilter: () => void;
   // Card counts per deck/state for display
   cardCountByDeck?: Record<string, number>;

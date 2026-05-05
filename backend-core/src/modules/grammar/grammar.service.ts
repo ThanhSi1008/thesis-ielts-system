@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@common/prisma/prisma.service";
 import { RedisService } from "@common/redis/redis.service";
 import {
@@ -8,15 +8,19 @@ import {
   UpdateGrammarUnitDto,
   UpdateGrammarProgressDto,
 } from "./dto/grammar.dto";
+import { GamificationService } from "../gamification/gamification.service";
 
 const CACHE_TTL = 3600;
 const CACHE_PREFIX = "grammar";
 
 @Injectable()
 export class GrammarService {
+  private readonly logger = new Logger(GrammarService.name);
+
   constructor(
     private prisma: PrismaService,
     private redis: RedisService,
+    private gamificationService: GamificationService,
   ) {}
 
   // ==================== READ OPERATIONS ====================
@@ -209,7 +213,7 @@ export class GrammarService {
       dto.exerciseTotal != null &&
       dto.exerciseScore === dto.exerciseTotal;
 
-    return this.prisma.grammarProgress.upsert({
+    const progress = await this.prisma.grammarProgress.upsert({
       where: { userId_unitId: { userId, unitId: dto.unitId } },
       create: {
         userId,
@@ -226,6 +230,18 @@ export class GrammarService {
         completedAt: isNowComplete ? new Date() : undefined,
       },
     });
+
+    if (isNowComplete && (!existing?.theoryCompleted || existing?.exerciseScore == null || existing.exerciseScore !== existing.exerciseTotal)) {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 15,
+          reason: "GRAMMAR_UNIT_COMPLETE",
+          achievementKeys: ["FG_STARTER", "FG_GRADUATE"],
+        })
+        .catch(() => {});
+    }
+
+    return progress;
   }
 
   // ==================== CACHE ====================

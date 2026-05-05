@@ -2,62 +2,47 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Layers, PlusCircle, Search, BarChart2, Globe, Menu } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import { DecksTab } from './components/DecksTab';
 import { AddCardTab } from './components/AddCardTab';
 import { BrowseTab } from './components/BrowseTab';
 import { StatsTab } from './components/StatsTab';
+import CommunityPage from './community/page';
 import { useIeltsSidebar } from '@/contexts/IeltsSidebarContext';
 
-type Tab = 'decks' | 'add' | 'browse' | 'stats';
+type Tab = 'decks' | 'add' | 'browse' | 'stats' | 'community';
 
 const NAV_ITEMS = [
   {
     id: 'decks',
     label: 'Decks',
     shortLabel: 'Decks',
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-        <polyline points="2 12 12 17 22 12"></polyline>
-        <polyline points="2 17 12 22 22 17"></polyline>
-      </svg>
-    )
+    icon: <Layers className="w-5 h-5 shrink-0" />
   },
   {
     id: 'add',
     label: 'Add',
     shortLabel: 'Add',
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="16"></line>
-        <line x1="8" y1="12" x2="16" y2="12"></line>
-      </svg>
-    )
+    icon: <PlusCircle className="w-5 h-5 shrink-0" />
   },
   {
     id: 'browse',
     label: 'Browse',
     shortLabel: 'Browse',
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-    )
+    icon: <Search className="w-5 h-5 shrink-0" />
   },
   {
     id: 'stats',
     label: 'Stats',
     shortLabel: 'Stats',
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"></line>
-        <line x1="12" y1="20" x2="12" y2="4"></line>
-        <line x1="6" y1="20" x2="6" y2="14"></line>
-      </svg>
-    )
+    icon: <BarChart2 className="w-5 h-5 shrink-0" />
+  },
+  {
+    id: 'community',
+    label: 'Community',
+    shortLabel: 'Community',
+    icon: <Globe className="w-5 h-5 shrink-0" />
   },
 ];
 
@@ -142,11 +127,7 @@ export default function VocabLabPage() {
             onClick={closeOverlay}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
+            <Menu className="w-6 h-6" />
           </button>
           <Link href="/" className="ml-3" onClick={closeOverlay}>
             <img
@@ -178,11 +159,12 @@ export default function VocabLabPage() {
         <div className="pt-4" />
 
         {/* Tab Content */}
-        <div className="mx-auto w-full">
-          <div className={activeTab === 'decks' ? '' : 'hidden'}><DecksTab isActive={activeTab === 'decks'} /></div>
-          <div className={activeTab === 'add' ? '' : 'hidden'}><AddCardTab isActive={activeTab === 'add'} /></div>
-          <div className={activeTab === 'browse' ? '' : 'hidden'}><BrowseTab isActive={activeTab === 'browse'} /></div>
-          <div className={activeTab === 'stats' ? '' : 'hidden'}><StatsTab isActive={activeTab === 'stats'} /></div>
+        <div className="mx-auto w-full flex-1 flex flex-col min-h-0 pr-2 pb-4">
+          <div className={activeTab === 'decks' ? 'flex-1 min-h-0' : 'hidden'}><DecksTab isActive={activeTab === 'decks'} /></div>
+          <div className={activeTab === 'add' ? 'flex-1 min-h-0' : 'hidden'}><AddCardTab isActive={activeTab === 'add'} /></div>
+          <div className={activeTab === 'browse' ? 'flex-1 min-h-0 h-full' : 'hidden'}><BrowseTab isActive={activeTab === 'browse'} /></div>
+          <div className={activeTab === 'stats' ? 'flex-1 min-h-0' : 'hidden'}><StatsTab isActive={activeTab === 'stats'} /></div>
+          <div className={activeTab === 'community' ? 'flex-1 min-h-0 h-full overflow-y-auto' : 'hidden'}><CommunityPage /></div>
         </div>
       </main>
     </div>

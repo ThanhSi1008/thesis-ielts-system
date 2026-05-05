@@ -100,7 +100,7 @@ export default function RegisterPage() {
           )}
 
           <div className="mb-6">
-            <GoogleSignInButton onSuccess={handleGoogleSuccess} label="Sign up with Google" />
+            <GoogleSignInButton onSuccess={handleGoogleSuccess} />
           </div>
 
           {/* Divider */}

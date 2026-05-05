@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@common/prisma/prisma.service";
 import { RedisService } from "@common/redis/redis.service";
 import {
@@ -8,15 +8,21 @@ import {
   GetProgressResponseDto,
   WordProgressDto,
 } from "./dto/pronunciation.dto";
+import { NotificationsService } from "../notifications/notifications.service";
+import { GamificationService } from "../gamification/gamification.service";
 
 const CACHE_TTL = 3600;
 const CACHE_PREFIX = "pronunciation";
 
 @Injectable()
 export class PronunciationService {
+  private readonly logger = new Logger(PronunciationService.name);
+
   constructor(
     private prisma: PrismaService,
     private redis: RedisService,
+    private notifications: NotificationsService,
+    private gamificationService: GamificationService,
   ) {}
 
   // ==================== READ OPERATIONS ====================
@@ -190,34 +196,52 @@ export class PronunciationService {
     });
   }
 
-  async updateProgress(userId: string, soundId: string, score: number) {
+  async updateProgress(userId: string, soundId: string, accuracyScore: number) {
     const MASTERY_THRESHOLD = 80;
-
-    const existing = await this.prisma.pronunciationProgress.findUnique({
+    const existingProgress = await this.prisma.pronunciationProgress.findUnique({
       where: { userId_soundId: { userId, soundId } },
     });
 
-    const newBestScore = Math.max(score, existing?.bestScore ?? 0);
-    const newStatus = newBestScore >= MASTERY_THRESHOLD ? 'MASTERED' : 'PRACTICING';
-    const newPracticeCount = (existing?.practiceCount ?? 0) + 1;
+    const newStatus = accuracyScore >= MASTERY_THRESHOLD ? 'MASTERED' : 'PRACTICING';
 
     const progress = await this.prisma.pronunciationProgress.upsert({
       where: { userId_soundId: { userId, soundId } },
-      update: {
-        bestScore: newBestScore,
-        status: newStatus as any,
-        practiceCount: newPracticeCount,
-        lastPracticedAt: new Date(),
-      },
       create: {
         userId,
         soundId,
-        bestScore: score,
-        status: newStatus as any,
+        status: newStatus,
+        bestScore: accuracyScore,
         practiceCount: 1,
         lastPracticedAt: new Date(),
       },
+      update: {
+        status: newStatus,
+        bestScore: {
+          set: Math.max(existingProgress?.bestScore || 0, accuracyScore),
+        },
+        practiceCount: { increment: 1 },
+        lastPracticedAt: new Date(),
+      },
     });
+
+    // Gamification
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 5,
+        reason: "PRONUNCIATION_PRACTICE",
+        achievementKeys: ["FP_FIRST_SOUND"],
+      })
+      .catch(() => {});
+
+    if (newStatus === "MASTERED" && existingProgress?.status !== "MASTERED") {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 10,
+          reason: "PRONUNCIATION_MASTERY",
+          achievementKeys: ["FP_SHARP_EAR", "FP_NATIVE"],
+        })
+        .catch(() => {});
+    }
 
     // Invalidate user progress cache
     await this.redis.delByPattern(`${CACHE_PREFIX}:progress:${userId}`);

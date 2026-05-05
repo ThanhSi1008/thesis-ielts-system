@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { adminShadowingApi } from "@/services/admin.api";
@@ -8,8 +8,8 @@ import type { ShadowingVideo } from "@/services/shadowing.api";
 import { useAdminShadowingForm } from "../../_hooks/useAdminShadowingForm";
 import { ShadowingLessonForm } from "../../_components/ShadowingLessonForm";
 
-export default function EditShadowingLessonPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function EditShadowingLessonPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const router = useRouter();
   const [lesson, setLesson] = useState<ShadowingVideo | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);

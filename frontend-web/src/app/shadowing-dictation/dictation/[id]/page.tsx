@@ -18,6 +18,7 @@ import DictationTranscriptList from '../_components/DictationTranscriptList';
 import DictationInputRow from '../_components/DictationInputRow';
 import DictationActionBar from '../_components/DictationActionBar';
 import DictationCompletionScreen from '../_components/DictationCompletionScreen';
+import FloatingSelectionManager from '@/components/FloatingSelectionManager';
 
 export default function DictationPracticePage() {
   const params = useParams();
@@ -176,25 +177,27 @@ export default function DictationPracticePage() {
 
         {/* Main interactive area */}
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto flex flex-col bg-gray-50 pb-8">
-          <DictationTranscriptList
-            sentences={sentences}
-            completedSentences={completedSentences}
-            currentIndex={currentIndex}
-            onPlaySentence={(s) => {
-              playAudioSentence(s);
-            }}
-          />
-
-          <div className="pt-2 pb-4 px-4">
-            <DictationInputRow
-              sentence={currentSentence as any}
-              userInputs={userInputs}
-              onInputChange={handleInputChange}
-              hiddenIndices={hiddenIndices}
-              isChecked={isChecked}
-              normalizeWord={normalizeWord}
+          <FloatingSelectionManager>
+            <DictationTranscriptList
+              sentences={sentences}
+              completedSentences={completedSentences}
+              currentIndex={currentIndex}
+              onPlaySentence={(s) => {
+                playAudioSentence(s);
+              }}
             />
-          </div>
+
+            <div className="pt-2 pb-4 px-4">
+              <DictationInputRow
+                sentence={currentSentence as any}
+                userInputs={userInputs}
+                onInputChange={handleInputChange}
+                hiddenIndices={hiddenIndices}
+                isChecked={isChecked}
+                normalizeWord={normalizeWord}
+              />
+            </div>
+          </FloatingSelectionManager>
         </div>
 
         {/* Playback Controls (moved to bottom) */}

@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { PrismaModule } from "../../common/prisma/prisma.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { AiClientModule } from "../ai-client/ai-client.module";
+import { GamificationModule } from "../gamification/gamification.module";
 
 import { DictationLessonsController } from "./controllers/dictation-lessons.controller";
 import { DictationVideosController } from "./controllers/dictation-videos.controller";
@@ -17,7 +18,7 @@ import { DictationProgressService } from "./services/dictation-progress.service"
 import { AdminDictationService } from "./services/admin-dictation.service";
 
 @Module({
-  imports: [PrismaModule, NotificationsModule, AiClientModule],
+  imports: [PrismaModule, NotificationsModule, AiClientModule, GamificationModule],
   controllers: [
     DictationLessonsController,
     DictationVideosController,

@@ -35,7 +35,7 @@ export function BrowseTab({ isActive }: { isActive: boolean }) {
   );
 
   return (
-    <div className="flex gap-0 min-h-[680px] h-[680px] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-900">
+    <div className="flex gap-0 h-full rounded-sm overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-900">
 
       {/* Hidden file inputs (managed by hook) */}
       <input type="file" ref={browse.imageInputRef} className="hidden" accept="image/*" onChange={e => browse.handleFileUpload(e, 'image')} />

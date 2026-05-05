@@ -21,6 +21,9 @@ import { NotesModule } from "./modules/notes/notes.module";
 import { ShadowingModule } from "./modules/shadowing/shadowing.module";
 import { DictationModule } from "./modules/dictation/dictation.module";
 import { NotificationsModule } from "./modules/notifications/notifications.module";
+import { PostsModule } from "./modules/posts/posts.module";
+import { GamificationModule } from "./modules/gamification/gamification.module";
+import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
 
 // Import common modules
 import { PrismaModule } from "./common/prisma/prisma.module";
@@ -58,6 +61,9 @@ import { CacheModule } from "./common/cache/cache.module";
     ShadowingModule,
     DictationModule,
     NotificationsModule,
+    PostsModule,
+    GamificationModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

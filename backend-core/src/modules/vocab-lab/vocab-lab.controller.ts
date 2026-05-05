@@ -29,6 +29,9 @@ import {
   CreateCardTypeFieldDto,
   UpdateCardTypeFieldDto,
   UpdateCardTemplateDto,
+  ImportDeckDto,
+  PublishDeckDto,
+  BrowseSharedDecksDto,
 } from "./dto/vocab-lab.dto";
 import { CardState } from "@prisma/client";
 
@@ -138,6 +141,47 @@ export class VocabLabController {
   @Delete("decks/:id")
   async deleteDeck(@Request() req: any, @Param("id") id: string) {
     return this.vocabLabService.deleteDeck(req.user.id, id);
+  }
+
+  @Get("decks/:id/export")
+  async exportDeck(@Request() req: any, @Param("id") id: string) {
+    return this.vocabLabService.exportDeck(req.user.id, id);
+  }
+
+  @Post("decks/import")
+  async importDeck(@Request() req: any, @Body() dto: ImportDeckDto) {
+    return this.vocabLabService.importDeck(req.user.id, dto);
+  }
+
+  @Post("decks/:id/publish")
+  async publishDeck(
+    @Request() req: any,
+    @Param("id") id: string,
+    @Body() dto: PublishDeckDto
+  ) {
+    return this.vocabLabService.publishDeck(req.user.id, id, dto);
+  }
+
+  // ==================== COMMUNITY (SHARED DECKS) ENDPOINTS ====================
+
+  @Get("community/decks")
+  async browseSharedDecks(@Query() query: BrowseSharedDecksDto) {
+    return this.vocabLabService.browseSharedDecks(query);
+  }
+
+  @Get("community/decks/:id")
+  async getSharedDeck(@Param("id") id: string) {
+    return this.vocabLabService.getSharedDeckById(id);
+  }
+
+  @Post("community/decks/:id/import")
+  async importSharedDeck(@Request() req: any, @Param("id") id: string) {
+    return this.vocabLabService.importSharedDeck(req.user.id, id);
+  }
+
+  @Delete("community/decks/:id")
+  async unpublishDeck(@Request() req: any, @Param("id") id: string) {
+    return this.vocabLabService.unpublishDeck(req.user.id, id);
   }
 
   // ==================== FLASHCARD ENDPOINTS ====================

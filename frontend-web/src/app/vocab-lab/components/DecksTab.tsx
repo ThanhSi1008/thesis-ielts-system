@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { vocabLabApi } from '@/services/vocabLab.api';
+import { downloadAsLexon } from '@/utils/download';
+import { ImportDeckModal, LexonData } from './ImportDeckModal';
+import { PublishDeckModal } from './PublishDeckModal';
 import type { DeckWithCounts } from '@/types';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -16,6 +19,105 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
   const [newDeckName, setNewDeckName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [deckToDelete, setDeckToDelete] = useState<{ id: string, name: string } | null>(null);
+  const [deckToPublish, setDeckToPublish] = useState<{ id: string, name: string } | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importFeedback, setImportFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [pendingLexonData, setPendingLexonData] = useState<LexonData | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    e.target.value = '';
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.version || !data.deck?.name || !Array.isArray(data.cards)) {
+        throw new Error('Invalid .lexon file format');
+      }
+      setPendingLexonData(data);
+      setShowImportModal(true);
+    } catch (error: any) {
+      setImportFeedback({
+        type: 'error',
+        text: error instanceof SyntaxError ? 'File is not valid JSON' : (error.message || 'Invalid file'),
+      });
+    }
+  };
+
+  const handleConfirmImport = async (deckName: string) => {
+    if (!pendingLexonData) return;
+    setIsImporting(true);
+
+    try {
+      const payload = { ...pendingLexonData, deck: { ...pendingLexonData.deck, name: deckName } };
+      const result = await vocabLabApi.importDeck(payload);
+      setImportFeedback({ type: 'success', text: `Imported "${result.deckName}" with ${result.cardsImported} cards` });
+      setShowImportModal(false);
+      setPendingLexonData(null);
+      await fetchDecks();
+    } catch (error: any) {
+      setImportFeedback({
+        type: 'error',
+        text: error?.response?.data?.message || error?.message || 'Import failed',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => setIsDragOver(false);
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.version || !data.deck?.name || !Array.isArray(data.cards)) {
+        throw new Error('Invalid .lexon file format');
+      }
+      setPendingLexonData(data);
+      setShowImportModal(true);
+    } catch (error: any) {
+      setImportFeedback({
+        type: 'error',
+        text: 'Invalid .lexon file',
+      });
+    }
+  };
+
+  const handleExport = async (e: React.MouseEvent, deck: DeckWithCounts) => {
+    e.stopPropagation(); // Prevent row click navigation
+    setExportingId(deck.id);
+    try {
+      const data = await vocabLabApi.exportDeck(deck.id);
+      downloadAsLexon(data, deck.name.replace(/\s+/g, '_'));
+    } catch (error) {
+      console.error('Failed to export deck:', error);
+    } finally {
+      setExportingId(null);
+    }
+  };
 
   const fetchDecks = async () => {
     try {
@@ -87,7 +189,13 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
   const totalDueCards = decks.reduce((sum, d) => sum + d.newCount + d.learningCount + d.dueCount, 0);
 
   return (
-    <div className="min-h-[800px] pb-12 flex flex-col items-center">
+    <div
+      className={`min-h-[800px] pb-12 flex flex-col items-center transition-colors ${isDragOver ? 'ring-2 ring-primary ring-inset bg-primary/5' : ''
+        }`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {/* Deck Table */}
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden w-full max-w-4xl">
         {decks.length === 0 ? (
@@ -122,6 +230,32 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
                         {deck.name}
                       </span>
                       <button
+                        onClick={(e) => handleExport(e, deck)}
+                        disabled={exportingId === deck.id}
+                        className="ml-1 text-gray-300 dark:text-gray-600 hover:text-blue-500 dark:hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-all p-1"
+                        title="Export Deck"
+                      >
+                        {exportingId === deck.id ? (
+                          <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeckToPublish({ id: deck.id, name: deck.name }); }}
+                        className="ml-1 text-gray-300 dark:text-gray-600 hover:text-green-500 dark:hover:text-green-400 opacity-0 group-hover:opacity-100 transition-all p-1"
+                        title="Publish to Community"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                      <button
                         onClick={(e) => handleDeleteClick(e, deck)}
                         className="ml-1 text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-1"
                         title="Delete Deck"
@@ -148,6 +282,26 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
         )}
       </div>
 
+      {/* Import feedback messages */}
+      {importFeedback && (
+        <div className={`w-full max-w-4xl mt-4 p-3 rounded-lg border text-sm flex items-center justify-between ${importFeedback.type === 'success'
+            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/30'
+            : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/30'
+          }`}>
+          <span>{importFeedback.type === 'success' ? '✅' : '❌'} {importFeedback.text}</span>
+          <button onClick={() => setImportFeedback(null)} className="opacity-70 hover:opacity-100 ml-2">✕</button>
+        </div>
+      )}
+
+      {/* Hidden file input for import */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".lexon,.json"
+        onChange={handleFileSelected}
+        className="hidden"
+      />
+
       {/* Study summary */}
       {totalDueCards > 0 && (
         <div className="text-center mt-6 text-gray-600 text-sm">
@@ -156,8 +310,26 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
         </div>
       )}
 
-      {/* Create Deck Button */}
-      <div className="text-center mt-6">
+      {/* Create / Import Deck Buttons */}
+      <div className="text-center mt-6 flex items-center justify-center gap-3">
+        <button
+          onClick={handleImportClick}
+          disabled={isImporting}
+          className="inline-flex items-center px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50"
+        >
+          {isImporting ? (
+            <svg className="h-5 w-5 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          )}
+          {isImporting ? 'Importing...' : 'Import Deck'}
+        </button>
+
         <button
           onClick={() => setShowCreateModal(true)}
           className="inline-flex items-center px-6 py-2.5 bg-primary rounded-lg shadow-sm text-gray-900 font-medium hover:bg-primary/80 transition-all"
@@ -230,6 +402,26 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
         onClose={() => setDeckToDelete(null)}
         isDestructive={true}
       />
+
+      {/* Import Modal */}
+      <ImportDeckModal
+        isOpen={showImportModal}
+        onClose={() => { setShowImportModal(false); setPendingLexonData(null); }}
+        onConfirmImport={handleConfirmImport}
+        lexonData={pendingLexonData}
+        isImporting={isImporting}
+        existingDeckNames={decks.map(d => d.name)}
+      />
+
+      {/* Publish Modal */}
+      {deckToPublish && (
+        <PublishDeckModal
+          isOpen={true}
+          onClose={() => setDeckToPublish(null)}
+          deckId={deckToPublish.id}
+          defaultName={deckToPublish.name}
+        />
+      )}
     </div>
   );
 }
