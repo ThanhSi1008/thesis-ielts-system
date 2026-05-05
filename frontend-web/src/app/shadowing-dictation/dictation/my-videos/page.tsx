@@ -5,6 +5,7 @@ import { dictationApi, DictationVideo } from '@/services/dictation.api';
 import { PlayCircle, Clock, Trash2, FolderPlus, Plus, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import AddDictationModal from './_components/AddDictationModal';
+import FeatureLock from '@/components/FeatureLock';
 
 export default function DictationMyVideosPage() {
   const [videos, setVideos] = useState<DictationVideo[]>([]);
@@ -55,7 +56,8 @@ export default function DictationMyVideosPage() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8">
+    <FeatureLock requiredTier="PREMIUM" featureName="YouTube Import">
+      <div className="p-8 max-w-6xl mx-auto space-y-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Dictation Videos</h1>
@@ -138,6 +140,7 @@ export default function DictationMyVideosPage() {
         onImport={handleImport}
         folders={folders}
       />
-    </div>
+      </div>
+    </FeatureLock>
   );
 }

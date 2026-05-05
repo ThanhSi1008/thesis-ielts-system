@@ -20,7 +20,7 @@ const TIER_ICON: Record<string, React.ReactNode> = {
 
 export default function PricingPage() {
   const [plans, setPlans] = useState<PricingPlan[]>([]);
-  const [interval, setInterval] = useState<BillingInterval>("month");
+  const [billing, setBilling] = useState<BillingInterval>("month");
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const { tier, trialUsed, refresh } = useSubscription();
   const { user } = useAuth();
@@ -39,7 +39,10 @@ export default function PricingPage() {
     fetchPlans();
   }, [fetchPlans]);
 
-  const visiblePlans = plans.filter((p) => p.interval === interval || p.priceAmount === 0);
+  // Free plan shows on both tabs; paid plans filter by billing interval
+  const visiblePlans = plans.filter(
+    (p) => p.priceAmount === 0 || p.interval === billing,
+  );
 
   const formatPrice = (plan: PricingPlan) => {
     if (plan.priceAmount === 0) return "Free";
@@ -69,7 +72,6 @@ export default function PricingPage() {
 
     setLoadingPlanId(plan.id);
     try {
-      // Start trial for PREMIUM if not used yet
       if (plan.tier === "PREMIUM" && !trialUsed && tier === "FREE") {
         await subscriptionsApi.startTrial();
       } else if (plan.priceAmount > 0) {
@@ -106,9 +108,9 @@ export default function PricingPage() {
         {/* Billing toggle */}
         <div className="mt-8 inline-flex items-center gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-1 shadow-sm">
           <button
-            onClick={() => setInterval("month")}
+            onClick={() => setBilling("month")}
             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-              interval === "month"
+              billing === "month"
                 ? "bg-primary text-gray-900 shadow"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
@@ -116,16 +118,16 @@ export default function PricingPage() {
             Monthly
           </button>
           <button
-            onClick={() => setInterval("year")}
+            onClick={() => setBilling("year")}
             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
-              interval === "year"
+              billing === "year"
                 ? "bg-primary text-gray-900 shadow"
                 : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
             Annual
             <span className="bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-              Save 17%
+              Save 33%
             </span>
           </button>
         </div>
