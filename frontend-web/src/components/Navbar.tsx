@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { Flame } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
 import api from "@/lib/api";
@@ -266,18 +267,19 @@ export default function Navbar() {
             /* ── Logged-in: streak + avatar + dropdown ── */
             <div className="flex items-center gap-3">
               {streak && streak.currentStreak > 0 && (
-                <div
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-bold shadow-sm cursor-help transition-all duration-300 hover:scale-105 ${isOverlay
+                <Link
+                  href="/profile?tab=gamification"
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-bold shadow-sm transition-all duration-300 hover:scale-105 ${isOverlay
                     ? "bg-white/10 border-white/20 text-white shadow-black/10 hover:bg-white/20"
                     : "bg-orange-50 border-orange-200 text-orange-600 shadow-orange-100/50 hover:bg-orange-100"
                     }`}
                   title={`🔥 ${streak.currentStreak}-day streak! Your longest: ${streak.longestStreak}`}
                 >
-                  <span className={`${streak.currentStreak >= 7 ? 'animate-pulse' : ''} text-orange-500 drop-shadow-sm`}>
-                    🔥
-                  </span>
+                  <Flame 
+                    className={`w-4 h-4 text-orange-500 ${streak.currentStreak >= 7 ? 'animate-pulse' : ''} drop-shadow-sm fill-orange-500`}
+                  />
                   <span>{streak.currentStreak}</span>
-                </div>
+                </Link>
               )}
 
               {/* Theme toggle button */}
