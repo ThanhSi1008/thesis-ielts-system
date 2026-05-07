@@ -34,6 +34,9 @@ RUN apt-get update && apt-get install -y \
 COPY --from=base /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=base /usr/local/bin /usr/local/bin
 
+# Pre-download Whisper base model into image to avoid cold-start download
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('base', device='cpu', compute_type='int8')"
+
 # Copy application code
 COPY ./app ./app
 
@@ -45,16 +48,19 @@ RUN useradd -m -u 1001 aiuser && \
 RUN mkdir -p /tmp/audio && \
     chown -R aiuser:aiuser /tmp/audio
 
+# Give model cache to non-root user
+RUN chown -R aiuser:aiuser /root/.cache 2>/dev/null || true
+
 # Switch to non-root user
 USER aiuser
 
-# Expose port
+# Cloud Run sets PORT env var dynamically
 EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:' + __import__('os').environ.get('PORT','8000') + '/health')"
 
-# Start application
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use shell form so $PORT is expanded at runtime
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
 

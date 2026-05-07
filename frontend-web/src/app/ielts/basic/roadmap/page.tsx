@@ -1,13 +1,14 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { LessonDetailContent } from "../[skill]/lessons/[lessonId]/LessonDetailContent";
 import { ExerciseDetailContent } from "../[skill]/exercises/[exerciseId]/ExerciseDetailContent";
 import { Info } from "lucide-react";
 import api from "@/lib/api";
 import { RoadmapStep } from "../_components/RoadmapSidebar";
 
-export default function RoadmapDashboard() {
+function RoadmapDashboardContent() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
   const skill = searchParams.get("skill");
@@ -96,5 +97,13 @@ export default function RoadmapDashboard() {
     <div className="flex items-center justify-center h-full text-red-500 font-bold p-10">
       Invalid Roadmap Item Selection.
     </div>
+  );
+}
+
+export default function RoadmapDashboard() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" /></div>}>
+      <RoadmapDashboardContent />
+    </Suspense>
   );
 }

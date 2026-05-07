@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
@@ -105,7 +105,9 @@ export function ProfileSidebar() {
     <aside
       className={`${width} shrink-0 bg-white dark:bg-slate-950 h-full sticky top-0 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out z-30`}
     >
-      <SidebarContent />
+      <Suspense fallback={null}>
+        <SidebarContent />
+      </Suspense>
     </aside>
   );
 }
@@ -149,7 +151,9 @@ export function ProfileSidebarOverlay() {
         </div>
 
         <div className="overflow-y-auto h-[calc(100%-56px)]">
-          <SidebarContent isOverlay onNavigate={closeOverlay} />
+          <Suspense fallback={null}>
+            <SidebarContent isOverlay onNavigate={closeOverlay} />
+          </Suspense>
         </div>
       </aside>
     </>

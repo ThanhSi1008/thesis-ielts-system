@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { RoadmapSidebar } from "./_components/RoadmapSidebar";
 
@@ -40,7 +41,9 @@ export default function IeltsBasicLayout({
 
           <div className="flex-1 overflow-hidden flex flex-col px-4">
             {pathname.startsWith("/ielts/basic/roadmap") ? (
-              <RoadmapSidebar />
+              <Suspense fallback={null}>
+                <RoadmapSidebar />
+              </Suspense>
             ) : (
               <nav className="flex flex-col gap-2">
                 <Link

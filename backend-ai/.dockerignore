@@ -1,0 +1,14 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+.env.*
+*.egg-info
+.pytest_cache
+.mypy_cache
+models/
+Dockerfile
+.dockerignore

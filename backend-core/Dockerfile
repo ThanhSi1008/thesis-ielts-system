@@ -8,9 +8,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -21,20 +23,23 @@ RUN npx prisma generate
 # Build application
 RUN npm run build
 
+RUN ls -la /app/dist && test -f /app/dist/main.js
+
 # Stage 2: Production
 FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+ENV NODE_ENV=production
+
+RUN apk add --no-cache dumb-init openssl
 
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -64,4 +69,3 @@ ENTRYPOINT ["dumb-init", "--"]
 
 # Start application
 CMD ["node", "dist/main"]
-
