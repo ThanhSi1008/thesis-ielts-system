@@ -9,6 +9,7 @@ export default async function ExercisesPage({
   const isListening = params.skill.toLowerCase() === "listening";
   const isReading = params.skill.toLowerCase() === "reading";
   const isWriting = params.skill.toLowerCase() === "writing";
+  const isSpeaking = params.skill.toLowerCase() === "speaking";
   const skillCapitalized =
     params.skill.charAt(0).toUpperCase() + params.skill.slice(1).toLowerCase();
 
@@ -24,16 +25,16 @@ export default async function ExercisesPage({
     if (lessonsRes.ok) {
       const allLessons = await lessonsRes.json();
 
-      if (allLessons.length > 0 && (isListening || isReading || isWriting)) {
-        const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : "reading-exercises";
+      if (allLessons.length > 0 && (isListening || isReading || isWriting || isSpeaking)) {
+        const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : isSpeaking ? "exercises/speaking" : "reading-exercises";
 
         // 2. Fetch exercises for each foundationVocabLesson
         const exPromises = allLessons.map(async (l: any) => {
           try {
-            const exRes = await fetch(
-              `http://localhost:3000/api/v1/ielts/lessons/${l.id}/${endpoint}`,
-              { cache: "no-store" }
-            );
+            const url = isSpeaking 
+              ? `http://localhost:3000/api/v1/ielts/${endpoint}/${l.id}`
+              : `http://localhost:3000/api/v1/ielts/lessons/${l.id}/${endpoint}`;
+            const exRes = await fetch(url, { cache: "no-store" });
             if (exRes.ok) {
               const exData = await exRes.json();
               return exData.map((ex: any) => ({
@@ -65,7 +66,7 @@ export default async function ExercisesPage({
   }
 
   const toTypeLabel = (title: string) =>
-    (title || "Other").replace(/^Chapter\s+\d+\s*[-–]\s*/i, "").trim() || "Other";
+    (title || "Other").replace(/^(Task \d+\s*[-–]\s*)?Chapter\s+\d+\s*[-–]\s*/i, "").trim() || "Other";
 
   const groups: { title: string; items: any[] }[] = [];
   for (const ex of exercises) {

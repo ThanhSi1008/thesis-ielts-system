@@ -837,6 +837,7 @@ model IeltsBasicSkill {
   listeningExercises IeltsBasicListeningExercise[]
   readingExercises   IeltsBasicReadingExercise[]
   writingExercises   IeltsBasicWritingExercise[]
+  speakingExercises  IeltsBasicSpeakingExercise[]
   createdAt          DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
 
@@ -858,6 +859,7 @@ model IeltsBasicLesson {
   listeningExercises IeltsBasicListeningExercise[]
   readingExercises   IeltsBasicReadingExercise[]
   writingExercises   IeltsBasicWritingExercise[]
+  speakingExercises  IeltsBasicSpeakingExercise[]
   progress           IeltsBasicProgress[]
 
   @@map("ielts_lessons")
@@ -910,6 +912,7 @@ model IeltsBasicProgress {
   listeningExerciseId String?
   readingExerciseId   String?
   writingExerciseId   String?
+  speakingExerciseId  String?
   isCompleted         Boolean  @default(false)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -919,8 +922,9 @@ model IeltsBasicProgress {
   listeningExercise IeltsBasicListeningExercise? @relation(fields: [listeningExerciseId], references: [id], onDelete: Cascade)
   readingExercise   IeltsBasicReadingExercise?   @relation(fields: [readingExerciseId], references: [id], onDelete: Cascade)
   writingExercise   IeltsBasicWritingExercise?   @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
+  speakingExercise  IeltsBasicSpeakingExercise?  @relation(fields: [speakingExerciseId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, lessonId, listeningExerciseId, readingExerciseId, writingExerciseId], name: "user_item_unique")
+  @@unique([userId, lessonId, listeningExerciseId, readingExerciseId, writingExerciseId, speakingExerciseId], name: "user_item_unique")
   @@map("ielts_basic_progress")
 }
 
@@ -934,6 +938,7 @@ model IeltsBasicWritingExercise {
   diagramUrl   String?
   modelAnswer  Json
   order        Int
+  taskType     Int         @default(1)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
@@ -949,10 +954,9 @@ model IeltsBasicWritingAnswer {
   id                String   @id @default(uuid())
   userId            String
   writingExerciseId String
-  intro             String   @db.Text
-  overview          String   @db.Text
-  body1             String   @db.Text
-  body2             String   @db.Text
+  answers           Json     @default("{}")  // Map of blankId → selectedAnswer
+  score             Int?     // Number of correct blanks
+  totalBlanks       Int?     // Total number of blanks
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -961,6 +965,28 @@ model IeltsBasicWritingAnswer {
 
   @@unique([userId, writingExerciseId])
   @@map("ielts_writing_user_answers")
+}
+
+model IeltsBasicSpeakingExercise {
+  id            String      @id @default(uuid())
+  skillId       String
+  lessonId      String?
+  topic         String                    
+  partType      Int                       
+  questionType  String      @default("cloze")  
+  instructions  String?
+  prompt        String      @db.Text
+  content       Json?                     
+  modelAnswer   Json?                     
+  order         Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  skill    IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson   IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress IeltsBasicProgress[]
+
+  @@map("ielts_speaking_exercises")
 }
 
 // ============================================================

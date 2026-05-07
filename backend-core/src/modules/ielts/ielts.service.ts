@@ -103,7 +103,7 @@ export class IeltsService {
     return this.prisma.ieltsBasicWritingExercise.findMany({
       where: { lessonId },
       orderBy: { order: "asc" },
-      select: { id: true, topic: true, order: true },
+      select: { id: true, topic: true, order: true, taskType: true },
     });
   }
 
@@ -144,6 +144,7 @@ export class IeltsService {
       listeningExerciseId?: string;
       readingExerciseId?: string;
       writingExerciseId?: string;
+      speakingExerciseId?: string;
     },
   ) {
     // Upsert to mark as completed.
@@ -157,6 +158,7 @@ export class IeltsService {
         listeningExerciseId: data.listeningExerciseId || null,
         readingExerciseId: data.readingExerciseId || null,
         writingExerciseId: data.writingExerciseId || null,
+        speakingExerciseId: data.speakingExerciseId || null,
       },
     });
 
@@ -177,7 +179,7 @@ export class IeltsService {
               achievementKeys: ["IB_LESSON_5"],
             })
             .catch(() => {});
-        } else if (progress.listeningExerciseId || progress.readingExerciseId || progress.writingExerciseId) {
+        } else if (progress.listeningExerciseId || progress.readingExerciseId || progress.writingExerciseId || progress.speakingExerciseId) {
           this.gamificationService
             .onEvent(userId, {
               xp: 15,
@@ -186,6 +188,7 @@ export class IeltsService {
                 ...(progress.listeningExerciseId ? ["IB_LISTENING_3"] : []),
                 ...(progress.readingExerciseId ? ["IB_READING_3"] : []),
                 ...(progress.writingExerciseId ? ["IB_WRITING_3"] : []),
+                ...(progress.speakingExerciseId ? ["IB_SPEAKING_3"] : []),
               ],
             })
             .catch(() => {});
@@ -202,6 +205,7 @@ export class IeltsService {
         listeningExerciseId: data.listeningExerciseId,
         readingExerciseId: data.readingExerciseId,
         writingExerciseId: data.writingExerciseId,
+        speakingExerciseId: data.speakingExerciseId,
         isCompleted: true,
       },
     });
@@ -219,7 +223,7 @@ export class IeltsService {
             achievementKeys: ["IB_LESSON_5"],
           })
           .catch(() => {});
-      } else if (progress.listeningExerciseId || progress.readingExerciseId || progress.writingExerciseId) {
+      } else if (progress.listeningExerciseId || progress.readingExerciseId || progress.writingExerciseId || progress.speakingExerciseId) {
         this.gamificationService
           .onEvent(userId, {
             xp: 15,
@@ -228,6 +232,7 @@ export class IeltsService {
               ...(progress.listeningExerciseId ? ["IB_LISTENING_3"] : []),
               ...(progress.readingExerciseId ? ["IB_READING_3"] : []),
               ...(progress.writingExerciseId ? ["IB_WRITING_3"] : []),
+              ...(progress.speakingExerciseId ? ["IB_SPEAKING_3"] : []),
             ],
           })
           .catch(() => {});
@@ -260,11 +265,16 @@ export class IeltsService {
         where: { skillId: skill.id },
         select: { id: true },
       });
+      const speakingEx = await this.prisma.ieltsBasicSpeakingExercise.findMany({
+        where: { skillId: skill.id },
+        select: { id: true },
+      });
 
       const lessonIds = lessons.map((l) => l.id);
       const listeningExIds = listeningEx.map((l) => l.id);
       const readingExIds = readingEx.map((l) => l.id);
       const writingExIds = writingEx.map((l) => l.id);
+      const speakingExIds = speakingEx.map((l) => l.id);
 
       const completedLessons = await this.prisma.ieltsBasicProgress.count({
         where: {
@@ -300,6 +310,15 @@ export class IeltsService {
           },
         },
       });
+      const completedSpeakingEx = await this.prisma.ieltsBasicProgress.count({
+        where: {
+          userId,
+          isCompleted: true,
+          speakingExerciseId: {
+            in: speakingExIds.length ? speakingExIds : ["dummy"],
+          },
+        },
+      });
 
       // Prevent Prisma `in: []` error by conditionally checking or using length
       const actualCompletedLessons =
@@ -310,6 +329,8 @@ export class IeltsService {
         readingExIds.length > 0 ? completedReadingEx : 0;
       const actualCompletedWriteEx =
         writingExIds.length > 0 ? completedWritingEx : 0;
+      const actualCompletedSpeakEx =
+        speakingExIds.length > 0 ? completedSpeakingEx : 0;
 
       ieltsIntensiveResult.push({
         id: skill.id,
@@ -319,11 +340,13 @@ export class IeltsService {
           completed: actualCompletedLessons,
         },
         exercises: {
-          total: listeningEx.length + readingEx.length + writingEx.length,
+          total:
+            listeningEx.length + readingEx.length + writingEx.length + speakingEx.length,
           completed:
             actualCompletedListEx +
             actualCompletedReadEx +
-            actualCompletedWriteEx,
+            actualCompletedWriteEx +
+            actualCompletedSpeakEx,
         },
       });
     }
@@ -362,6 +385,7 @@ export class IeltsService {
           modelAnswer: true,
           diagramUrl: true,
           prompt: true,
+          taskType: true,
         },
       });
     } else {
@@ -393,8 +417,31 @@ export class IeltsService {
   async saveWritingUserAnswer(
     userId: string,
     exerciseId: string,
-    answers: { intro: string; overview: string; body1: string; body2: string },
+    answers: Record<string, string>,
   ) {
+    const exercise = await this.prisma.ieltsBasicWritingExercise.findUnique({
+      where: { id: exerciseId }
+    });
+    
+    let score = 0;
+    let totalBlanks = 0;
+    
+    if (exercise && exercise.modelAnswer) {
+      const modelAnswer = exercise.modelAnswer as any;
+      if (modelAnswer.paragraphs) {
+        for (const paragraph of modelAnswer.paragraphs) {
+          for (const segment of paragraph.segments) {
+            if (segment.type === 'blank') {
+              totalBlanks++;
+              if (answers[segment.id] === segment.correctAnswer) {
+                score++;
+              }
+            }
+          }
+        }
+      }
+    }
+
     return this.prisma.ieltsBasicWritingAnswer.upsert({
       where: {
         userId_writingExerciseId: {
@@ -403,18 +450,16 @@ export class IeltsService {
         },
       },
       update: {
-        intro: answers.intro,
-        overview: answers.overview,
-        body1: answers.body1,
-        body2: answers.body2,
+        answers,
+        score,
+        totalBlanks,
       },
       create: {
         userId,
         writingExerciseId: exerciseId,
-        intro: answers.intro,
-        overview: answers.overview,
-        body1: answers.body1,
-        body2: answers.body2,
+        answers,
+        score,
+        totalBlanks,
       },
     });
   }
@@ -440,5 +485,28 @@ export class IeltsService {
       orderBy: { order: "asc" },
     });
     return { listening, reading, writing: null };
+  }
+  // ── Speaking ──────────────────────────────────────────────────────────
+
+  async findSpeakingExercisesByLesson(lessonId: string) {
+    return this.prisma.ieltsBasicSpeakingExercise.findMany({
+      where: { lessonId },
+      orderBy: { order: "asc" },
+      select: { id: true, topic: true, order: true, partType: true, questionType: true },
+    });
+  }
+
+  async findSpeakingExerciseById(exerciseId: string) {
+    const exercise = await this.prisma.ieltsBasicSpeakingExercise.findUnique({
+      where: { id: exerciseId },
+    });
+
+    if (!exercise) {
+      throw new NotFoundException(
+        `Speaking exercise with ID ${exerciseId} not found`,
+      );
+    }
+
+    return exercise;
   }
 }
