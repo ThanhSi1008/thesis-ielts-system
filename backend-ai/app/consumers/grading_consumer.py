@@ -6,10 +6,12 @@ Listens to grading queue and processes exam grading requests
 import logging
 import json
 import threading
+import time
 import pika
 import psycopg2
 import asyncio
 from typing import Dict, Any
+
 from app.config import get_settings
 from app.services.transcription_service import get_transcription_service
 from app.services.writing_grader import grade_writing
@@ -17,6 +19,10 @@ from app.services.speaking_grader import grade_speaking
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+RETRYABLE_CODES = {'503', '429', '502', 'service unavailable', 'too many requests', 'bad gateway'}
+MAX_RETRIES = 3
+BASE_DELAY = 5  # seconds; backoff: 5s, 10s, 20s
 
 
 class GradingConsumer:
@@ -177,22 +183,55 @@ class GradingConsumer:
         except Exception as e:
             logger.error(f"❌ Session status update failed: {e}")
 
+    def _is_retryable(self, e: Exception) -> bool:
+        """Return True for transient API errors that warrant a retry."""
+        msg = str(e).lower()
+        return any(code in msg for code in RETRYABLE_CODES)
+
+    def _process_with_retry(self, task: Dict[str, Any]):
+        """
+        Call process_grading_task with exponential backoff for transient errors.
+        On final failure the session status is already GRADING_FAILED (set by
+        process_grading_task) so we re-raise to let callback ack the message.
+        """
+        session_id = task.get('sessionId')
+        for attempt in range(MAX_RETRIES):
+            try:
+                self.process_grading_task(task)
+                return  # success
+            except Exception as e:
+                is_last = attempt == MAX_RETRIES - 1
+                if self._is_retryable(e) and not is_last:
+                    delay = BASE_DELAY * (2 ** attempt)
+                    logger.warning(
+                        f"⏳ Attempt {attempt + 1}/{MAX_RETRIES} failed for {session_id} "
+                        f"({e}). Retrying in {delay}s..."
+                    )
+                    time.sleep(delay)
+                else:
+                    logger.error(
+                        f"❌ Grading failed after {attempt + 1} attempt(s) for {session_id}: {e}"
+                    )
+                    raise
+
     def callback(self, ch, method, properties, body):
         """Callback function for processing messages"""
+        session_id = None
         try:
             task = json.loads(body)
-            logger.info(f"📥 Received grading task: {task.get('sessionId')}")
-            
-            # Process the task
-            self.process_grading_task(task)
-            
-            # Acknowledge message
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-            
+            session_id = task.get('sessionId')
+            logger.info(f"📥 Received grading task: {session_id}")
+
+            self._process_with_retry(task)
+
         except Exception as e:
-            logger.error(f"❌ Error processing message: {e}")
-            # Reject and requeue message
-            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+            logger.error(f"❌ Unrecoverable grading error for {session_id}: {e}")
+            # Status is already GRADING_FAILED in DB — fall through to ack
+
+        finally:
+            # Always ack: removes the message from the queue.
+            # Never nack(requeue=True) — that causes an instant retry loop.
+            ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def start_consuming(self):
         """Start consuming messages"""
