@@ -13,7 +13,7 @@ import {
   cambridgeIelts17ListeningTest4Questions,
   cambridgeIelts13ListeningTest1Questions,
 } from "./data/mock-tests";
-import { vocabularyBooks } from "./data/foundationVocabWord";
+import { vocabularyBooks } from "./data/vocabulary";
 import { grammarBooks } from "./data/grammar";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -40,13 +40,13 @@ async function upsertCambridgeExam(params: {
   questions: any;
   isPublished: boolean;
 }) {
-  const existing = await prisma.ieltsIntensiveExam.findFirst({
+  const existing = await prisma.exam.findFirst({
     where: { title: params.title, type: params.type as any },
     select: { id: true },
   });
 
   if (existing) {
-    await prisma.ieltsIntensiveExam.update({
+    await prisma.exam.update({
       where: { id: existing.id },
       data: {
         difficulty: params.difficulty as any,
@@ -56,11 +56,11 @@ async function upsertCambridgeExam(params: {
         isPublished: params.isPublished,
       },
     });
-    console.log(`  ✓ Updated ieltsIntensiveExam: ${params.title}`);
+    console.log(`  ✓ Updated exam: ${params.title}`);
     return;
   }
 
-  await prisma.ieltsIntensiveExam.create({
+  await prisma.exam.create({
     data: {
       title: params.title,
       description: null,
@@ -72,11 +72,11 @@ async function upsertCambridgeExam(params: {
       isPublished: params.isPublished,
     },
   });
-  console.log(`  ✓ Created ieltsIntensiveExam: ${params.title}`);
+  console.log(`  ✓ Created exam: ${params.title}`);
 }
 
 async function main() {
-  console.log("🌱 Seeding database with comprehensive foundationVocabWord data...");
+  console.log("🌱 Seeding database with comprehensive vocabulary data...");
 
   // Clear existing data safely
   console.log("🗑️  Clearing existing progress data...");

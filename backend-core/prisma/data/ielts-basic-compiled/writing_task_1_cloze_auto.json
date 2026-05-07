@@ -1,0 +1,3186 @@
+[
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Standard 4 categories",
+    "prompt": "The bar chart below shows the percentage of government spending on roads and transport in 4 countries in the years 1990, 1995, 2000, 2005",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776118802/change-exercises-1_d3jbxo.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The chart "
+            },
+            {
+              "type": "blank",
+              "id": "b1",
+              "correctAnswer": "illustrates",
+              "options": [
+                "compares",
+                "describes",
+                "illustrates",
+                "shows"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how much governments in four countries invested in roads and transport between 1990 and 2005."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b2",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "Finally,",
+                "To begin,",
+                "In detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was a "
+            },
+            {
+              "type": "blank",
+              "id": "b3",
+              "correctAnswer": "decline",
+              "options": [
+                "stability",
+                "decline",
+                "fluctuation",
+                "increase"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the "
+            },
+            {
+              "type": "blank",
+              "id": "b4",
+              "correctAnswer": "proportion",
+              "options": [
+                "amount",
+                "number",
+                "total",
+                "proportion"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of government spending on roads and transport in Italy, Portugal and the UK, while a rise was seen in the USA. In addition, Portugal generally had the highest figures throughout the period."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The share of the government's budget spent on roads and transport in Portugal started at about 27%, after which it saw a "
+            },
+            {
+              "type": "blank",
+              "id": "b5",
+              "correctAnswer": "progressive",
+              "options": [
+                "sudden",
+                "abrupt",
+                "rapid",
+                "progressive"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b6",
+              "correctAnswer": "decrease",
+              "options": [
+                "decrease",
+                "stability",
+                "fluctuation",
+                "increase"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to exactly 20% in 2005. "
+            },
+            {
+              "type": "blank",
+              "id": "b7",
+              "correctAnswer": "Conversely,",
+              "options": [
+                "Likewise,",
+                "Conversely,",
+                "In addition,",
+                "Similarly,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the figure for the USA rose from just over 10% in 1990 to 15% in 2005, despite a small fall in the first 5 years."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b8",
+              "correctAnswer": "Approximately",
+              "options": [
+                "Approximately",
+                "Exactly",
+                "Precisely",
+                "Completely"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " 22% of the Italian national budget was spent on the transport infrastructure, with subsequent "
+            },
+            {
+              "type": "blank",
+              "id": "b9",
+              "correctAnswer": "fluctuations",
+              "options": [
+                "steady decline",
+                "fluctuations",
+                "stability",
+                "constant growth"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " and a final "
+            },
+            {
+              "type": "blank",
+              "id": "b10",
+              "correctAnswer": "decline",
+              "options": [
+                "decline",
+                "stability",
+                "fluctuation",
+                "increase"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 24% in 2000 to about 19% in 2005. Similarly, the figure for the UK fluctuated in the range from 9% to 13% from 1990 to 2000, before ending the period at around 7%."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Standard 4 categories",
+    "prompt": "The graph below shows the consumption of fish and some different kinds of meat in a European country between 1979 and 2004.\n                        \n                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776119384/change-4-exercise-2_th9ah7.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The line graph "
+            },
+            {
+              "type": "blank",
+              "id": "b11",
+              "correctAnswer": "illustrates",
+              "options": [
+                "illustrates",
+                "shows",
+                "describes",
+                "compares"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how much fish and some other kinds of meat were consumed/ used/ eaten per person in a country in Europe from 1979 to 2004."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b12",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "In detail,",
+                "To begin,",
+                "Finally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was a "
+            },
+            {
+              "type": "blank",
+              "id": "b13",
+              "correctAnswer": "decline",
+              "options": [
+                "decline",
+                "stability",
+                "fluctuation",
+                "increase"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the amount of beef, lamb, and fish eaten, while the figure for chicken "
+            },
+            {
+              "type": "blank",
+              "id": "b14",
+              "correctAnswer": "increased",
+              "options": [
+                "increased",
+                "fluctuated",
+                "remained stable",
+                "decreased"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to surpass that of beef, making (chicken was increasingly used and became the most...) it the most consumed type of meat from 1989 onwards."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The amount of beef eaten per person in the country examined started at about 220 grams, after which it saw "
+            },
+            {
+              "type": "blank",
+              "id": "b15",
+              "correctAnswer": "fluctuations",
+              "options": [
+                "fluctuations",
+                "steady decline",
+                "constant growth",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " until 1989, before decreasing to end the period at around 100 grams. "
+            },
+            {
+              "type": "blank",
+              "id": "b16",
+              "correctAnswer": "Conversely,",
+              "options": [
+                "Similarly,",
+                "Likewise,",
+                "In addition,",
+                "Conversely,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the figure for chicken "
+            },
+            {
+              "type": "blank",
+              "id": "b17",
+              "correctAnswer": "rose",
+              "options": [
+                "fell",
+                "fluctuated",
+                "stabilized",
+                "rose"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from just under 150 grams per person (GPP) to north of 200 gpp in 1989 and kept rising to reach 250 gpp in the final year."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "150 grams of lamb was used by an average person in the country mentioned in 1979, with a "
+            },
+            {
+              "type": "blank",
+              "id": "b18",
+              "correctAnswer": "decline",
+              "options": [
+                "increase",
+                "fluctuation",
+                "stability",
+                "decline"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to "
+            },
+            {
+              "type": "blank",
+              "id": "b19",
+              "correctAnswer": "approximately",
+              "options": [
+                "approximately",
+                "completely",
+                "precisely",
+                "exactly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " 75 gpp in 2004. Meanwhile/ in the meantime, the figure for fish "
+            },
+            {
+              "type": "blank",
+              "id": "b20",
+              "correctAnswer": "decreased",
+              "options": [
+                "decreased",
+                "stabilized",
+                "fluctuated",
+                "increased"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " slightly from around 60 gpp to just under 50 gpp after a few years and maintained at this level towards the end of the period."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "More than 4 categories",
+    "prompt": "The graph below shows the percentage of female members of parliament in five European countries between 2000 and 2012.\n                        \n                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776120083/change-5-exercise-1_mfoet1.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The line graph "
+            },
+            {
+              "type": "blank",
+              "id": "b21",
+              "correctAnswer": "illustrates",
+              "options": [
+                "shows",
+                "describes",
+                "compares",
+                "illustrates"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the "
+            },
+            {
+              "type": "blank",
+              "id": "b22",
+              "correctAnswer": "percentage",
+              "options": [
+                "total",
+                "number",
+                "percentage",
+                "amount"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of females elected in parliament in 5 European countries between 2000 and 2012."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b23",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "In detail,",
+                "To begin,",
+                "Finally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was an "
+            },
+            {
+              "type": "blank",
+              "id": "b24",
+              "correctAnswer": "increase",
+              "options": [
+                "increase",
+                "stability",
+                "fluctuation",
+                "decrease"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the "
+            },
+            {
+              "type": "blank",
+              "id": "b25",
+              "correctAnswer": "proportion",
+              "options": [
+                "amount",
+                "number",
+                "total",
+                "proportion"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of female members in parliament in all 5 countries examined, with the UK witnessing the most dramatic rise. Despite this, it consistently had the lowest figures throughout the period."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b26",
+              "correctAnswer": "percentage",
+              "options": [
+                "percentage",
+                "amount",
+                "total",
+                "number"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of positions in parliament held by women in Germany was about 34%, after which it saw a "
+            },
+            {
+              "type": "blank",
+              "id": "b27",
+              "correctAnswer": "gradual",
+              "options": [
+                "sudden",
+                "abrupt",
+                "rapid",
+                "gradual"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b28",
+              "correctAnswer": "rise",
+              "options": [
+                "rise",
+                "fall",
+                "fluctuation",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 36% in 2012. Similar changes, but to greater extents, were seen in the figures for Italy and the UK, which grew from 26% to almost 40% and from 4% to around 27% respectively."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "25% of members in France’s parliament were women, with a subsequent jump to reach a peak at around 37% by 2004, before ending at 32%. "
+            },
+            {
+              "type": "blank",
+              "id": "b29",
+              "correctAnswer": "Meanwhile,",
+              "options": [
+                "Because of this,",
+                "As a result,",
+                "Meanwhile,",
+                "Therefore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the figure for Belgium "
+            },
+            {
+              "type": "blank",
+              "id": "b30",
+              "correctAnswer": "increased",
+              "options": [
+                "increased",
+                "decreased",
+                "remained stable",
+                "fluctuated"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 17% in 2000 to 28% in 2004 and levelled off towards the end of the period."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "More than 4 categories",
+    "prompt": "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.\n                        \n                        **The line graph shows** the proportion of people using different types of technology in a country between 1998 and 2008.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776120441/change-5-exercise-2_y3cyxx.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The line graph "
+            },
+            {
+              "type": "blank",
+              "id": "b31",
+              "correctAnswer": "illustrates",
+              "options": [
+                "shows",
+                "describes",
+                "illustrates",
+                "compares"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how much five different kinds of technology were used in a country over a 10-year period from 1998 to 2008."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b32",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "Finally,",
+                "To begin,",
+                "In detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was an "
+            },
+            {
+              "type": "blank",
+              "id": "b33",
+              "correctAnswer": "increase",
+              "options": [
+                "fluctuation",
+                "increase",
+                "decrease",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the "
+            },
+            {
+              "type": "blank",
+              "id": "b34",
+              "correctAnswer": "proportion",
+              "options": [
+                "amount",
+                "number",
+                "proportion",
+                "total"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people using all five technologies examined, with the cellular phone service seeing the most dramatic rise. By 2008, it had become the most popular type of technology used."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b35",
+              "correctAnswer": "percentage",
+              "options": [
+                "percentage",
+                "amount",
+                "total",
+                "number"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of users for cellular phone service started at about 4%, after which it saw a "
+            },
+            {
+              "type": "blank",
+              "id": "b36",
+              "correctAnswer": "progressive",
+              "options": [
+                "abrupt",
+                "sudden",
+                "progressive",
+                "rapid"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b37",
+              "correctAnswer": "rise",
+              "options": [
+                "fall",
+                "fluctuation",
+                "stability",
+                "rise"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to reach roughly 65% in 2008. Similar changes, but to a lesser extent, were seen in the figures for internet service, which rose from around 3% in 1998 to just over 20% in the final year."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "15% of the population used landline service in 1998, with a subsequent "
+            },
+            {
+              "type": "blank",
+              "id": "b38",
+              "correctAnswer": "rise",
+              "options": [
+                "rise",
+                "fluctuation",
+                "fall",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to a peak at 20% in 2006, before "
+            },
+            {
+              "type": "blank",
+              "id": "b39",
+              "correctAnswer": "falling",
+              "options": [
+                "falling",
+                "stabilizing",
+                "fluctuating",
+                "rising"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " slightly to just under 20% in 2008. "
+            },
+            {
+              "type": "blank",
+              "id": "b40",
+              "correctAnswer": "Meanwhile,",
+              "options": [
+                "Meanwhile,",
+                "As a result,",
+                "Therefore,",
+                "Because of this,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the figures for both fixed and mobile broadband increased slightly to reach about 4% and 5% respectively in the final year."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Less than 4 categories",
+    "prompt": "The table below shows the number of **cars** made in three countries in 2003, 2006 and 2009. Summarize the information by selecting and reporting the main features and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776173630/change-3-exercise-1_eqetfk.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The table "
+            },
+            {
+              "type": "blank",
+              "id": "b41",
+              "correctAnswer": "illustrates",
+              "options": [
+                "shows",
+                "describes",
+                "compares",
+                "illustrates"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " [how many](https://www.notion.so/B-I-4-312872aec70f804194d1df7c4088279b?pvs=21) cars were produced in Argentina, Australia and Thailand between 2003 and 2009."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b42",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "Finally,",
+                "To begin,",
+                "In detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was an "
+            },
+            {
+              "type": "blank",
+              "id": "b43",
+              "correctAnswer": "increase",
+              "options": [
+                "stability",
+                "increase",
+                "fluctuation",
+                "decrease"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the number of cars manufactured in Argentina and Thailand, while a constant "
+            },
+            {
+              "type": "blank",
+              "id": "b44",
+              "correctAnswer": "decline",
+              "options": [
+                "stability",
+                "fluctuation",
+                "increase",
+                "decline"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " was seen in Australia’s car production. It is also clear that Thailand consistently had by far the highest figures throughout the period, even though a considerable decline was seen in the latter half of the period."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The number of automobiles manufactured in Thailand started at 735,852 units, after which it saw a "
+            },
+            {
+              "type": "blank",
+              "id": "b45",
+              "correctAnswer": "dramatic",
+              "options": [
+                "slight",
+                "steady",
+                "dramatic",
+                "gradual"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b46",
+              "correctAnswer": "rise",
+              "options": [
+                "fluctuation",
+                "rise",
+                "fall",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 1,162,356 in 2006. A similar change was seen in the figure for Argentina, which "
+            },
+            {
+              "type": "blank",
+              "id": "b47",
+              "correctAnswer": "increased",
+              "options": [
+                "remained stable",
+                "increased",
+                "decreased",
+                "fluctuated"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 235,088 to 352,759 in the first 3 years. By contrast, 452,116 cars were made in Australia in 2003, with a subsequent decline to 341,268 units in 2006."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "From 2006 to 2009, the number of cars produced in Argentina continued to "
+            },
+            {
+              "type": "blank",
+              "id": "b48",
+              "correctAnswer": "increase,",
+              "options": [
+                "increase,",
+                "stability",
+                "fluctuation",
+                "decrease"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " reaching 466,085 units. "
+            },
+            {
+              "type": "blank",
+              "id": "b49",
+              "correctAnswer": "Conversely,",
+              "options": [
+                "Similarly,",
+                "Likewise,",
+                "In addition,",
+                "Conversely,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the figures for Thailand and Australia "
+            },
+            {
+              "type": "blank",
+              "id": "b50",
+              "correctAnswer": "dropped",
+              "options": [
+                "stabilized",
+                "fluctuated",
+                "dropped",
+                "rose"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 999,963 and 245,624 units."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Less than 4 categories",
+    "prompt": "The line graph below shows the production of paper, wood pulp and sawn-wood in the UK from 1980 to 2000. Summarize the information by selecting and reporting the main features and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776174240/change-3-exercise-2_xvqyfo.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The chart "
+            },
+            {
+              "type": "blank",
+              "id": "b51",
+              "correctAnswer": "illustrates",
+              "options": [
+                "compares",
+                "describes",
+                "shows",
+                "illustrates"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how much paper, wood pulp and sawn-wood were produced in the UK between 1980 and 2000."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b52",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Finally,",
+                "Overall,",
+                "To begin,",
+                "In detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was a "
+            },
+            {
+              "type": "blank",
+              "id": "b53",
+              "correctAnswer": "dramatic",
+              "options": [
+                "dramatic",
+                "slight",
+                "gradual",
+                "steady"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b54",
+              "correctAnswer": "increase",
+              "options": [
+                "increase",
+                "decrease",
+                "fluctuation",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in paper and packaging production in the UK, especially in the latter half of the period, while the opposite trend can be seen in the figures for sawn wood and those for wood pulp fluctuated slightly. It is also clear that the amount of paper and packaging material produced in the UK had by far the highest figures throughout the years."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The amount of paper and packaging produced in the UK started at about 240 million tons, after which it saw a slight "
+            },
+            {
+              "type": "blank",
+              "id": "b55",
+              "correctAnswer": "increase",
+              "options": [
+                "stability",
+                "fluctuation",
+                "decrease",
+                "increase"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 250 million tons ten years later. Opposite changes can be seen in the figures for wood pulp and sawn-wood, which "
+            },
+            {
+              "type": "blank",
+              "id": "b56",
+              "correctAnswer": "decreased",
+              "options": [
+                "decreased",
+                "increased",
+                "stabilized",
+                "fluctuated"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 200 and 165 million tons to exactly 150 million tons in the first 10 years."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "From 1990 to 2000, the amount of paper and packaging produced "
+            },
+            {
+              "type": "blank",
+              "id": "b57",
+              "correctAnswer": "rose",
+              "options": [
+                "stabilized",
+                "fluctuated",
+                "rose",
+                "fell"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b58",
+              "correctAnswer": "significantly,",
+              "options": [
+                "significantly,",
+                "slightly",
+                "negligibly",
+                "minimally"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " reaching 350 million tons. The figure for wood pulp saw similar changes, but to a much lesser extent, "
+            },
+            {
+              "type": "blank",
+              "id": "b59",
+              "correctAnswer": "growing",
+              "options": [
+                "shrinking",
+                "growing",
+                "fluctuating",
+                "stabilizing"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to roughly 160 million tons. Conversely, the production of sawn-wood kept decreasing to approximately 125 million tons."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Only 2 year",
+    "prompt": "The two pie charts below show the results of a survey conducted in 2005 and 2010 regarding customer service at a particular company.\n                        \n                        Summarize the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776174586/change-2-year-exercise-1_kobcfe.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The pie charts "
+            },
+            {
+              "type": "blank",
+              "id": "b60",
+              "correctAnswer": "illustrate",
+              "options": [
+                "describe",
+                "compare",
+                "show",
+                "illustrate"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " visitors’ responses to a survey about customer service at the Parkway Hotel in 2005 and in 2010."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b61",
+              "correctAnswer": "Overall,",
+              "options": [
+                "In detail,",
+                "Overall,",
+                "To begin,",
+                "Finally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was a "
+            },
+            {
+              "type": "blank",
+              "id": "b62",
+              "correctAnswer": "significant",
+              "options": [
+                "minimal",
+                "significant",
+                "negligible",
+                "slight"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b63",
+              "correctAnswer": "decline",
+              "options": [
+                "increase",
+                "fluctuation",
+                "decline",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the proportion of hotel guests rating customer service as satisfactory, poor or very poor, while as opposite trend can be seen in the figure for those describing the hotel service as good or excellent. In addition, the majority of customers gave a “satisfactory” response in 2005, but in 2010, the majority felt that the hotel’s service was good."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b64",
+              "correctAnswer": "percentage",
+              "options": [
+                "total",
+                "amount",
+                "percentage",
+                "number"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of hotel’s visitors rating its customer service as excellent started at 5%, after which it saw a "
+            },
+            {
+              "type": "blank",
+              "id": "b65",
+              "correctAnswer": "significant",
+              "options": [
+                "minimal",
+                "negligible",
+                "significant",
+                "slight"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b66",
+              "correctAnswer": "rise",
+              "options": [
+                "fluctuation",
+                "fall",
+                "rise",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 28% in 2010. Furthermore, only 14% of guests described customer service in the hotel as good in 2005, with a subsequent three-fold increase to 39% five years later. As a result, the figure for people giving a “satisfactory” response declined significantly from 45% to 17% over the period."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b67",
+              "correctAnswer": "proportion",
+              "options": [
+                "amount",
+                "number",
+                "proportion",
+                "total"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of guests who considered the hotel’s customer service to be poor "
+            },
+            {
+              "type": "blank",
+              "id": "b68",
+              "correctAnswer": "almost",
+              "options": [
+                "almost",
+                "completely",
+                "precisely",
+                "exactly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " halved, ending at 12%. A similar change can be seen in the figure for people who thought customer service to be very poor, which "
+            },
+            {
+              "type": "blank",
+              "id": "b69",
+              "correctAnswer": "dropped",
+              "options": [
+                "stabilized",
+                "rose",
+                "dropped",
+                "fluctuated"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 15% to only 4% over the 5-year period."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Only 2 year",
+    "prompt": "The charts show the main methods of transport of people travelling to one university in 2004 and 2009.\n                        \n                        Summarise the information be selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776175059/change-2-year-exercise-2_aqzl3y.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The pie charts "
+            },
+            {
+              "type": "blank",
+              "id": "b70",
+              "correctAnswer": "illustrate",
+              "options": [
+                "illustrate",
+                "show",
+                "describe",
+                "compare"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how students in a university traveled to school in 2004 and 2009."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b71",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Finally,",
+                "To begin,",
+                "In detail,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was a "
+            },
+            {
+              "type": "blank",
+              "id": "b72",
+              "correctAnswer": "significant",
+              "options": [
+                "minimal",
+                "negligible",
+                "slight",
+                "significant"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b73",
+              "correctAnswer": "decline",
+              "options": [
+                "decline",
+                "stability",
+                "increase",
+                "fluctuation"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the proportion of people people traveling to the examined university by car, while an increase was seen in the figures for other means of transport. In addition, the majority of students chose to commute to their university by car in 2004, and by bus in 2009; by contrast, the figures for people opting to take a train or walk to school were negligible in both years."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b74",
+              "correctAnswer": "percentage",
+              "options": [
+                "amount",
+                "number",
+                "total",
+                "percentage"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people driving to university started at 51% in 2004, after which it experienced a considerable "
+            },
+            {
+              "type": "blank",
+              "id": "b75",
+              "correctAnswer": "fall",
+              "options": [
+                "fall",
+                "stability",
+                "fluctuation",
+                "rise"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 28% in 2009. The reverse trend can be seen in the figures for those going to this university by bus, which "
+            },
+            {
+              "type": "blank",
+              "id": "b76",
+              "correctAnswer": "rose",
+              "options": [
+                "stabilized",
+                "fell",
+                "rose",
+                "fluctuated"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 33% in 2004 to 46% in 2009."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "9% of people in the survey said that they often cycled to school in 2004, followed by a "
+            },
+            {
+              "type": "blank",
+              "id": "b77",
+              "correctAnswer": "rise",
+              "options": [
+                "fall",
+                "fluctuation",
+                "rise",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 16% after a half decade. The figures for people taking a train or walking to school "
+            },
+            {
+              "type": "blank",
+              "id": "b78",
+              "correctAnswer": "increased",
+              "options": [
+                "increased",
+                "remained stable",
+                "fluctuated",
+                "decreased"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " negligibly, reaching 4% and 6% "
+            },
+            {
+              "type": "blank",
+              "id": "b79",
+              "correctAnswer": "respectively.",
+              "options": [
+                "simultaneously",
+                "collectively",
+                "together",
+                "respectively."
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Future",
+    "prompt": "The table below shows information and predictions regarding the change in the percentage of the population aged 65 and above in three countries. Summarize the information by selecting and reporting the main features and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776175401/change-future-exercise_labls4.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The table "
+            },
+            {
+              "type": "blank",
+              "id": "b80",
+              "correctAnswer": "illustrates",
+              "options": [
+                "illustrates",
+                "compares",
+                "describes",
+                "shows"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the "
+            },
+            {
+              "type": "blank",
+              "id": "b81",
+              "correctAnswer": "proportion",
+              "options": [
+                "number",
+                "amount",
+                "total",
+                "proportion"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people aged 65 and over in Canada, Germany and the UK in 1988, 2000 and an estimation of 2030."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b82",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Finally,",
+                "To begin,",
+                "In detail,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there is a "
+            },
+            {
+              "type": "blank",
+              "id": "b83",
+              "correctAnswer": "rise",
+              "options": [
+                "rise",
+                "stability",
+                "fluctuation",
+                "fall"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the "
+            },
+            {
+              "type": "blank",
+              "id": "b84",
+              "correctAnswer": "percentage",
+              "options": [
+                "percentage",
+                "number",
+                "amount",
+                "total"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of the elderly people in all three countries over the period examined, with the UK witnessing almost no change in the first 12 years. In addition, Germany consistently has the largest proportion of the elderly, the figures for the UK are the lowest in all three years."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In 1988, the "
+            },
+            {
+              "type": "blank",
+              "id": "b85",
+              "correctAnswer": "percentage",
+              "options": [
+                "total",
+                "percentage",
+                "number",
+                "amount"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of senior citizens in Germany started at 20.35%, after which it saw a "
+            },
+            {
+              "type": "blank",
+              "id": "b86",
+              "correctAnswer": "rise",
+              "options": [
+                "fluctuation",
+                "fall",
+                "rise",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 25.53. The figure for Canada saw a similar change, "
+            },
+            {
+              "type": "blank",
+              "id": "b87",
+              "correctAnswer": "growing",
+              "options": [
+                "fluctuating",
+                "growing",
+                "stabilizing",
+                "shrinking"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 16.45% to 20.65% in the first 12 years. Meanwhile, the proportion of elderly people in the UK remained relatively unchanged during this period, at shy of 15%."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "By 2030, the population of people aged 65 and pus in Germany is expected to "
+            },
+            {
+              "type": "blank",
+              "id": "b88",
+              "correctAnswer": "increase",
+              "options": [
+                "increase",
+                "stability",
+                "fluctuation",
+                "decrease"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " at the same rate, reaching 30.65%. The figures for Canada and the UK will "
+            },
+            {
+              "type": "blank",
+              "id": "b89",
+              "correctAnswer": "increase",
+              "options": [
+                "increase",
+                "fluctuation",
+                "stability",
+                "decrease"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " by just over 4 percent to end at 26.35% and 20.45% "
+            },
+            {
+              "type": "blank",
+              "id": "b90",
+              "correctAnswer": "respectively.",
+              "options": [
+                "respectively.",
+                "simultaneously",
+                "collectively",
+                "together"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Change Over Time",
+    "subCategory": "Total",
+    "prompt": "The graph below shows UK air pollutants, measured in millions of tonnes, from three different sources between 1990 and 2005.\n                        \n                        Summarise the information by selecting and reporting the main features and make comparison where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776175642/change-total-exercise-1_tfbeao.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The chart "
+            },
+            {
+              "type": "blank",
+              "id": "b91",
+              "correctAnswer": "illustrates",
+              "options": [
+                "illustrates",
+                "compares",
+                "describes",
+                "shows"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how much toxic gasses were emitted into the atmosphere from three different sources in the UK from 1990 to 2005."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b92",
+              "correctAnswer": "Overall,",
+              "options": [
+                "In detail,",
+                "To begin,",
+                "Finally,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was a "
+            },
+            {
+              "type": "blank",
+              "id": "b93",
+              "correctAnswer": "decline",
+              "options": [
+                "stability",
+                "decline",
+                "increase",
+                "fluctuation"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the total amount of air pollution in the UK, which was the result of decreases in the amounts of emissions from industrial and domestic activities. In addition, the amount of air pollutants released from transport vehicles saw an "
+            },
+            {
+              "type": "blank",
+              "id": "b94",
+              "correctAnswer": "increase,",
+              "options": [
+                "increase,",
+                "stability",
+                "fluctuation",
+                "decrease"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " surpassing the industry sector to become the most serious polluter from 2002 onwards."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Just under 8 million tons of air pollutants were discharged from all three sectors, with a "
+            },
+            {
+              "type": "blank",
+              "id": "b95",
+              "correctAnswer": "gradual",
+              "options": [
+                "gradual",
+                "rapid",
+                "abrupt",
+                "sudden"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b96",
+              "correctAnswer": "decline",
+              "options": [
+                "increase",
+                "fluctuation",
+                "stability",
+                "decline"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to 5 million tons at the the period. "
+            },
+            {
+              "type": "blank",
+              "id": "b97",
+              "correctAnswer": "Similarly,",
+              "options": [
+                "Similarly,",
+                "On the other hand,",
+                "By contrast,",
+                "Conversely,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the figure for the industry sector decreased steadily from 6 million tons to exactly 2 million tons in 2005."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The amount of toxic fumes released from the transport sector started at 1 million tons, after which it experienced mild "
+            },
+            {
+              "type": "blank",
+              "id": "b98",
+              "correctAnswer": "fluctuations",
+              "options": [
+                "constant growth",
+                "fluctuations",
+                "stability",
+                "steady decline"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " at this level, before increasing from about 1.2 million tons in 1999 to shy of 3 million tons in 2005. Opposite changes, but to a lesser extent, can be seen in the figures for household activities, which contributed 1 million tons of air pollutants in the first 10 years, followed by a "
+            },
+            {
+              "type": "blank",
+              "id": "b99",
+              "correctAnswer": "progressive",
+              "options": [
+                "progressive",
+                "rapid",
+                "abrupt",
+                "sudden"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b100",
+              "correctAnswer": "drop",
+              "options": [
+                "rise",
+                "fluctuation",
+                "stability",
+                "drop"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to almost 0 in 2005."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "No Change Over Time",
+    "subCategory": "2 Items",
+    "prompt": "The bar chart below shows the percentage of boys and girls who participated in six different after-school activities.\n                        \n                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776176215/no-change-a-lot-exercise-1_pijnjt.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The chart "
+            },
+            {
+              "type": "blank",
+              "id": "b101",
+              "correctAnswer": "illustrates",
+              "options": [
+                "shows",
+                "compares",
+                "illustrates",
+                "describes"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how many teenage boys and girls in Vietnam engaged in different pastimes in 2010."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b102",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "Finally,",
+                "To begin,",
+                "In detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " while boys generally enjoyed outdoor activities, girls tended to join indoor ones. It is also clear that similarities can be seen in the figures for teenagers of both sexes playing computer games or watching DVDs."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "About 27% of the boys in the survey said that they often played sports in their free time, compared to only 12% of their female counterparts. "
+            },
+            {
+              "type": "blank",
+              "id": "b103",
+              "correctAnswer": "Similarly,",
+              "options": [
+                "Similarly,",
+                "Conversely,",
+                "By contrast,",
+                "On the other hand,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the "
+            },
+            {
+              "type": "blank",
+              "id": "b104",
+              "correctAnswer": "percentage",
+              "options": [
+                "percentage",
+                "number",
+                "amount",
+                "total"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of the teenage boys going to the park was far higher than that of girls, with respective figures being 25% and 12%. "
+            },
+            {
+              "type": "blank",
+              "id": "b105",
+              "correctAnswer": "Dramatic",
+              "options": [
+                "Slight",
+                "Gradual",
+                "Steady",
+                "Dramatic"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " differences were also seen in the proportion of girls and boys doing arts and craft, which was 25% and 4% in that order. As for reading books, around 18% of girls enjoyed this activity, while only 10% of boys did so."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b106",
+              "correctAnswer": "percentage",
+              "options": [
+                "total",
+                "percentage",
+                "number",
+                "amount"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of teenagers playing video games was the same for both genders, with 15% of the total boys and girls in the survey having this leisure pursuit. While 15% of boys also chose to watch DVDs in their leisure time, a slight higher "
+            },
+            {
+              "type": "blank",
+              "id": "b107",
+              "correctAnswer": "percentage",
+              "options": [
+                "number",
+                "percentage",
+                "amount",
+                "total"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " girls (approximately 18%) did the same."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "No Change Over Time",
+    "subCategory": "2 Items",
+    "prompt": "The pie charts show the main reasons for migration to and from the UK in 2007.\n                        \n                        Summarize the information by selecting and reporting the main features and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776176524/no-change-2-items-exercise-1_ggqzh4.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The charts "
+            },
+            {
+              "type": "blank",
+              "id": "b108",
+              "correctAnswer": "illustrates",
+              "options": [
+                "compares",
+                "shows",
+                "illustrates",
+                "describes"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " why people migrated to and from the UK in 2007."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b109",
+              "correctAnswer": "Overall,",
+              "options": [
+                "In detail,",
+                "To begin,",
+                "Finally,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the "
+            },
+            {
+              "type": "blank",
+              "id": "b110",
+              "correctAnswer": "percentage",
+              "options": [
+                "amount",
+                "number",
+                "percentage",
+                "total"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people moving in and out the UK to undertake a permanent job was "
+            },
+            {
+              "type": "blank",
+              "id": "b111",
+              "correctAnswer": "highest",
+              "options": [
+                "highest",
+                "median",
+                "average",
+                "lowest"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in both charts. In addition, the figure for those who came to the UK to pursue a formal education was also significant, but this is the least stated factor among emigrants."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b112",
+              "correctAnswer": "proportion",
+              "options": [
+                "amount",
+                "number",
+                "total",
+                "proportion"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people who went to the UK to assume a permanent position in companies based in this country is similar to that of those who left the country the same reason, with respective figures being 30% and 29%. Similarities can also be seen in the "
+            },
+            {
+              "type": "blank",
+              "id": "b113",
+              "correctAnswer": "percentage",
+              "options": [
+                "amount",
+                "number",
+                "total",
+                "percentage"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people whose reason for migration is to accompany their relatives, which is 15% for immigration and 13% for emigration."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Regarding categories with pronounced differences, while 26% of the immigrants said that they entered the UK for academic pursuits, this is only the case for a mere 4% of emigrants. "
+            },
+            {
+              "type": "blank",
+              "id": "b114",
+              "correctAnswer": "Meanwhile,",
+              "options": [
+                "Therefore,",
+                "Meanwhile,",
+                "As a result,",
+                "Because of this,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " 22% of the people who moved out of the UK said that they did so in order to find work, compared to only 12% of immigrants. Finally, the "
+            },
+            {
+              "type": "blank",
+              "id": "b115",
+              "correctAnswer": "percentage",
+              "options": [
+                "percentage",
+                "total",
+                "number",
+                "amount"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people who gave other reasons or no reason for immigration was 32%, which was "
+            },
+            {
+              "type": "blank",
+              "id": "b116",
+              "correctAnswer": "almost",
+              "options": [
+                "precisely",
+                "exactly",
+                "almost",
+                "completely"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " double that of their emigrant counterparts."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "No Change Over Time",
+    "subCategory": "A Lot Of Items",
+    "prompt": "The bar chart compares the amount of money spent by five different organizations (A, B, C, D, and E) on four specific areas: Machinery, Building, Staff Training, and Research.\n                        \n                        Summarize the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776176812/no-change-a-lot-exercise-1.png_wvqaj2.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The chart "
+            },
+            {
+              "type": "blank",
+              "id": "b117",
+              "correctAnswer": "illustrates",
+              "options": [
+                "illustrates",
+                "compares",
+                "describes",
+                "shows"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how much money five organizations spent on four different spending in 2010."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b118",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "Finally,",
+                "To begin,",
+                "In detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " organization B invested by far the most resources in all categories, with the key spending area being renting offices. This was also the case for organization D and E. In addition, while organization A invested the most in staff training programs, this area received the least money in organization C."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Regarding organization B, its spending on building was 1.7 billion Euros in 2010, compared to around 0.5 billion in the remaining four organizations. "
+            },
+            {
+              "type": "blank",
+              "id": "b119",
+              "correctAnswer": "Similarly,",
+              "options": [
+                "On the other hand,",
+                "By contrast,",
+                "Conversely,",
+                "Similarly,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " 1.6 billion Euros was invested in research in organization B, doubling that of organization A. The figures for organization C, D and E were lower, at about 0.7, 0.3, and 0.35 "
+            },
+            {
+              "type": "blank",
+              "id": "b120",
+              "correctAnswer": "respectively.",
+              "options": [
+                "respectively.",
+                "simultaneously",
+                "collectively",
+                "together"
+              ]
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Staff training cost the most in organization A, at 1 billion euros, which was still 0.5 billion smaller than that of organization B. The figures for the remaining organizations were around 0.5 billion. Organization B spent 1.3 billion on machinery, followed by organization A (0.8 billion), and organization C (0.7 billion), while both organization D and E used only 0.4 billion for this area."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "No Change Over Time",
+    "subCategory": "A Lot Of Items",
+    "prompt": "The table illustrates the proportion of monthly household income that people in five European countries spend on food and drink, housing, clothing and entertainment.\n                        \n                        Summarize the information by selecting and reporting the main features and make comparisons where relevant.\n                        \n                        Write at least 150 words.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177065/no-change-a-lot-exercise-2_nf0es4.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The chart "
+            },
+            {
+              "type": "blank",
+              "id": "b121",
+              "correctAnswer": "compares",
+              "options": [
+                "illustrates",
+                "shows",
+                "describes",
+                "compares"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " five countries in Europe in terms of the "
+            },
+            {
+              "type": "blank",
+              "id": "b122",
+              "correctAnswer": "percentage",
+              "options": [
+                "number",
+                "percentage",
+                "amount",
+                "total"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of people’s monthly income allocation for food and beverages, accommodation, clothing and recreation."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b123",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Finally,",
+                "To begin,",
+                "In detail,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " people in all five nations allocate the largest portion of their income for food and drinks and housing. It is also clear that clothing is the smallest spending area in all of the countries examined, except for Turkey."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The "
+            },
+            {
+              "type": "blank",
+              "id": "b124",
+              "correctAnswer": "percentage",
+              "options": [
+                "percentage",
+                "total",
+                "number",
+                "amount"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " of money used for food and drink in Turkey is "
+            },
+            {
+              "type": "blank",
+              "id": "b125",
+              "correctAnswer": "highest,",
+              "options": [
+                "median",
+                "average",
+                "lowest",
+                "highest,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " accounting for 36% of residents’ income, and the figures for Spain and the UK are lower, at 31% and 27% "
+            },
+            {
+              "type": "blank",
+              "id": "b126",
+              "correctAnswer": "respectively.",
+              "options": [
+                "respectively.",
+                "simultaneously",
+                "collectively",
+                "together"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " In addition, people in Germany and France allocated around 25% their monthly earnings for this spending area. By contrast, 37% of people’s income is expended on accommodation in the UK, compared to 33% in Germany and 31% in France. Meanwhile, the figures for Turkey and Spain are about 20%."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Clothing accounts for 15% of how much people earn month in Germany, doubling that of France and Spain. "
+            },
+            {
+              "type": "blank",
+              "id": "b127",
+              "correctAnswer": "Meanwhile,",
+              "options": [
+                "Because of this,",
+                "Meanwhile,",
+                "As a result,",
+                "Therefore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the spending on clothing in the UK and Turkey is similar, with respective figures being 11% and 12%. Finally, 19% of German households’ income goes into entertainment, in comparison with 15% in Spain and 13% in France. The expenditure on recreational activities in the UK and Turkey is "
+            },
+            {
+              "type": "blank",
+              "id": "b128",
+              "correctAnswer": "almost",
+              "options": [
+                "almost",
+                "precisely",
+                "completely",
+                "exactly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the same, at around 10%."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Mixed Charts",
+    "subCategory": "",
+    "prompt": "The line graph shows the number of visits to and from the UK between 1979 and 1999, while the bar chart identifies the five most popular countries visited by UK residents in 1999.\n                    \n                    Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177326/mixed-exercise_ofxatr.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The line graph "
+            },
+            {
+              "type": "blank",
+              "id": "b129",
+              "correctAnswer": "illustrates",
+              "options": [
+                "shows",
+                "describes",
+                "compares",
+                "illustrates"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the number of UK residents going abroad from the UK and overseas residents visiting the UK between 1979 and 1999. The bar chart gives information about how many UK residents travelled to five of the most popular countries in 1999."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b130",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Finally,",
+                "Overall,",
+                "To begin,",
+                "In detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there was an "
+            },
+            {
+              "type": "blank",
+              "id": "b131",
+              "correctAnswer": "increase",
+              "options": [
+                "fluctuation",
+                "decrease",
+                "increase",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in the number of visits to and from the UK and there were visits abroad by UK residents than to the UK by overseas residents over the period given. In addition, the most popular country to visit by UK residents was France in 1999."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The number of UK residents visiting overseas started at just under 15 million, after which it experienced a "
+            },
+            {
+              "type": "blank",
+              "id": "b132",
+              "correctAnswer": "significant",
+              "options": [
+                "slight",
+                "negligible",
+                "minimal",
+                "significant"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b133",
+              "correctAnswer": "rise",
+              "options": [
+                "fall",
+                "fluctuation",
+                "stability",
+                "rise"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to reach over 50 million in 1999. The figures for overseas residents visiting the UK saw a similar changes, but to lesser extent, climbing "
+            },
+            {
+              "type": "blank",
+              "id": "b134",
+              "correctAnswer": "steadily",
+              "options": [
+                "erratically",
+                "unpredictably",
+                "suddenly",
+                "steadily"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " from 10 million in 1979 to just under 30 million by the final year."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In 1999, France was visited by over 10 million UK residents, followed by Spain at "
+            },
+            {
+              "type": "blank",
+              "id": "b135",
+              "correctAnswer": "approximately",
+              "options": [
+                "precisely",
+                "exactly",
+                "approximately",
+                "completely"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " 9 million. The figures for the USA and Greece were lower, at about 4 million and 3 million visitors "
+            },
+            {
+              "type": "blank",
+              "id": "b136",
+              "correctAnswer": "respectively.",
+              "options": [
+                "together",
+                "collectively",
+                "simultaneously",
+                "respectively."
+              ]
+            },
+            {
+              "type": "text",
+              "value": " The least popular country visited was Turkey, which had only about 2 million UK residents going there."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Maps",
+    "subCategory": "",
+    "prompt": "The maps below show the development of a particular area (likely a town center or village) between 1936 and 2007.\n                    \n                    Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177615/map-exercise-1_kp5fm7.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The diagrams "
+            },
+            {
+              "type": "blank",
+              "id": "b137",
+              "correctAnswer": "illustrate",
+              "options": [
+                "show",
+                "describe",
+                "compare",
+                "illustrate"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the changes that took place between 1936 and 2007 in a town called Harborne."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b138",
+              "correctAnswer": "Overall,",
+              "options": [
+                "In detail,",
+                "To begin,",
+                "Finally,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the town underwent a number of "
+            },
+            {
+              "type": "blank",
+              "id": "b139",
+              "correctAnswer": "dramatic",
+              "options": [
+                "slight",
+                "dramatic",
+                "steady",
+                "gradual"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " changes, the most important of which are the development of a large residential area and more shops."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In the north-west, most of the trees were cut down, and in the south-west the bicycle track was converted into a roadway. In the center of the city, the post office, bank and library remained, while in the northern section, the candy store and butchers were converted into a supermarket. A shopping center was constructed in the center of the downtown, replacing most of the open space there. There used to be a flower shop in the southern part, but it was then redeveloped into a travel agent."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In the north-east of the downtown area, the river was turned into a lake, which was accompanied by a large residential area being built on its shore. "
+            },
+            {
+              "type": "blank",
+              "id": "b140",
+              "correctAnswer": "Meanwhile,",
+              "options": [
+                "Therefore,",
+                "Meanwhile,",
+                "Because of this,",
+                "As a result,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the south-east of the town also witnessed "
+            },
+            {
+              "type": "blank",
+              "id": "b141",
+              "correctAnswer": "significant",
+              "options": [
+                "minimal",
+                "negligible",
+                "slight",
+                "significant"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " changes, with the government offices being transformed into a museum and the farmland becoming a golf course."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Maps",
+    "subCategory": "",
+    "prompt": "The two maps illustrate changes that have taken place in an area from 1995 to the present.\n                    \n                    Summarize the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776177798/map-exercise-2_acr6nh.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The diagrams show how a seaside town has changed since 1995."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b142",
+              "correctAnswer": "Overall,",
+              "options": [
+                "In detail,",
+                "To begin,",
+                "Finally,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the town has undergone a number of "
+            },
+            {
+              "type": "blank",
+              "id": "b143",
+              "correctAnswer": "dramatic",
+              "options": [
+                "dramatic",
+                "slight",
+                "gradual",
+                "steady"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " changes, the most important of which are the expansion of housing areas, the disappearance of the green area and the development of amenities catering for recreational needs."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The north-west of the town saw a number of changes, with the expansion of the accommodation area, and the replacement of a sports center by a restaurant complex. The hotel in the middle of the map was upgraded into a two-story building, while the public park was replaced by holiday homes and a car park. A tennis court and a golf course were built, replacing the farmland in the north-eastern part of the area."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "There used to be a fish market in the south-west of the town, but it has been redeveloped into an apartment complex, which was accompanied by the demolition of the pier where morning fish boats used to dock. To the east of the new apartment area, the coffee shop was moved eastwards, and a small road running parallel with the main road was constructed to allow access to this shop. Finally, the southern beach is open for tourists and locals alike to relax, with the availability of yachts."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Process",
+    "subCategory": "Man-made Process",
+    "prompt": "The diagram illustrates the various stages in the process of canning pears, from the initial harvest to the final despatch.\n                        \n                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776178143/process-manufacturing-exercise-1_saghfw.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The diagram describes how fruit is canned."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b144",
+              "correctAnswer": "Overall,",
+              "options": [
+                "In detail,",
+                "To begin,",
+                "Overall,",
+                "Finally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the process "
+            },
+            {
+              "type": "blank",
+              "id": "b145",
+              "correctAnswer": "comprises",
+              "options": [
+                "comprises",
+                "excludes",
+                "omits",
+                "lacks"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " a number of steps, beginning with the handpicking of fruit and ending with the final products being transported to supermarkets or customers."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "At the beginning of the process, fruits are picked by hand, after which they are transported by trucks to a factory where they are washed. Subsequently the fruits are checked to ensure that they are qualified for production. After the fruits are stored in low temperatures, they are weighed carefully and divided into different groups according to their quality. Once they have been categorized, the fruits are peeled, cored and sliced into smaller chunks."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The process continues with the chopped fruits being packed/put into tin cans. The cans are then sealed tight with a lid before being cooked and sterilized under high heat in order to eliminate unwanted bacteria so that the food inside can be kept edible for a longer period. The cans are then sealed tight with a lid before being cooked and sterilized under high heat in order to eliminate unwanted bacteria so that the food inside can be kept edible for a longer period. The cans are then sealed tight with a lid before being cooked and sterilized under high heat in order to eliminate unwanted bacteria so that the food inside can be kept edible for a longer period. A label is then attached to each can, which is followed by the cans being put in storage. Finally, the finished products are shipped to retailers and wholesalers for sale."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Process",
+    "subCategory": "Man-made Process",
+    "prompt": "The diagram gives information about the process of making carbonated drinks.\n                        \n                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776178416/map-manufacturing-exercise-2_cfrrnk.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The picture "
+            },
+            {
+              "type": "blank",
+              "id": "b146",
+              "correctAnswer": "shows",
+              "options": [
+                "illustrates",
+                "describes",
+                "compares",
+                "shows"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " how carbonated beverages are produced"
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b147",
+              "correctAnswer": "Overall,",
+              "options": [
+                "To begin,",
+                "In detail,",
+                "Finally,",
+                "Overall,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the process "
+            },
+            {
+              "type": "blank",
+              "id": "b148",
+              "correctAnswer": "comprises",
+              "options": [
+                "omits",
+                "lacks",
+                "comprises",
+                "excludes"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " a number of stages, starting with cleaning raw water, through different mixing stages, and ending with the finished products being distributed to supermarkets"
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "At the beginning of the process, raw water stored in large warehouses is pumped through a pipe into a room to be filtered, after which water softener and some chemicals are added in order to purify the water. Subsequently, it is pumped into a large chamber to be heated by means of electric heaters. Once the water vaporizes, the steam has to go through a long pipe in order for it to condense before entering a large tank where an influx of carbon dioxide constantly flows into a tank under high pressure from another pipe to make carbonated water."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The process continues with the carbonated water being directed to a mixing tank, at which point syrup and substances creating colors and flavors are added according to the desired types of drinks. After this mixture is filtered to ensure that its is safe for consumption, it is pumped into plastic bottles or aluminum cans. Finally, those bottles and cans are then packaged in large cardboard boxes, which are then shipped to supermarkets by trucks."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Process",
+    "subCategory": "Natural Process",
+    "prompt": "The diagram illustrates the different stages in the life cycle of a frog, from the mating phase to adulthood.\n                        \n                        Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://res.cloudinary.com/dvh7ztvgk/image/upload/v1776178803/map-natural-exercise_dfcdlk.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The diagram "
+            },
+            {
+              "type": "blank",
+              "id": "b149",
+              "correctAnswer": "shows",
+              "options": [
+                "illustrates",
+                "describes",
+                "compares",
+                "shows"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the reproduction process of frogs."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Overview",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b150",
+              "correctAnswer": "Overall,",
+              "options": [
+                "Overall,",
+                "In detail,",
+                "To begin,",
+                "Finally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there are various stages in the life of a common frog, from mature frogs mating to produce frog spawn, to the growth of the immature form, known as tadpoles, to mature frogs developing some time later."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "At the beginning of the process, the mating of two adult frogs takes place on the bank of a river or ponds, after which frogspawn or eggs are laid in the water by the female. This is followed by the frogspawn developing into the tiny tadpoles, at which point they "
+            },
+            {
+              "type": "blank",
+              "id": "b151",
+              "correctAnswer": "gradually",
+              "options": [
+                "suddenly",
+                "abruptly",
+                "gradually",
+                "rapidly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " develop their limbs, and organs and change their body shape while living in the water."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The process continues with the tadpoles "
+            },
+            {
+              "type": "blank",
+              "id": "b152",
+              "correctAnswer": "growing",
+              "options": [
+                "stabilizing",
+                "fluctuating",
+                "shrinking",
+                "growing"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " into young frogs, which still display the tail section of the tadpole. However, the tail is shorter than that of a tadpole. These young frogs continue to inhabit in the water before they develop into mature ones and are able to live outside the water. It is important to note that they lose their tails at this stage. Finally, the cycle begins again when two fully-grown frogs, which are capable of reproducing, mate."
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

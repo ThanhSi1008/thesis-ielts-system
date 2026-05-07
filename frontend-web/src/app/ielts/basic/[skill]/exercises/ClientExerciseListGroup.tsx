@@ -17,6 +17,7 @@ interface ProgressResponse {
   lessonId?: string | null;
   listeningExerciseId?: string | null;
   readingExerciseId?: string | null;
+  writingExerciseId?: string | null;
   isCompleted: boolean;
 }
 
@@ -40,6 +41,7 @@ export default function ClientExerciseListGroup({
           if (p.isCompleted) {
             if (p.listeningExerciseId) completedIds.add(p.listeningExerciseId);
             if (p.readingExerciseId) completedIds.add(p.readingExerciseId);
+            if (p.writingExerciseId) completedIds.add(p.writingExerciseId);
           }
         });
         setCompletedExerciseIds(completedIds);

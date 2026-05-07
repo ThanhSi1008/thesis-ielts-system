@@ -1,0 +1,527 @@
+- writing_task_2 + theory
+    - Introduction to Writing Task 2
+        - Content
+            ## 1. The Logistics
+            
+            - **Time:** 40 minutes (spend more time on Task 2 than Task 1)
+            - **Length:** At least **250 words**
+            - **Weight:** 2/3 of your total Writing score (Task 1 is only 1/3)
+            - **Format:** You are given a statement or question about a topic. You must write an essay responding to it.
+            
+            ## 2. The 5 Question Types
+            
+            1. **Opinion Essay (Agree/Disagree):** "To what extent do you agree or disagree?"
+            2. **Discussion Essay (Both Views):** "Discuss both views and give your own opinion."
+            3. **Problem & Solution:** "What are the problems? What solutions can you suggest?"
+            4. **Advantages & Disadvantages:** "Do the advantages outweigh the disadvantages?"
+            5. **Two-Part Question:** "Why is this happening? Is this a positive or negative development?"
+            
+            ## 3. The Golden Structure (4 paragraphs)
+            
+            - **Paragraph 1: Introduction** (2-3 sentences)
+                - Paraphrase the question
+                - State your thesis/position clearly
+            - **Paragraph 2: Body 1** (5-7 sentences)
+                - Main argument/view/cause with examples
+            - **Paragraph 3: Body 2** (5-7 sentences)
+                - Second argument/counter-view/solution with examples
+            - **Paragraph 4: Conclusion** (2-3 sentences)
+                - Summarize your main points
+                - Restate your opinion
+            
+            ## 4. How You Are Graded (same 4 criteria as Task 1)
+            
+            1. **Task Achievement (Task Response):** Did you address ALL parts of the question? Is your position clear throughout?
+            2. **Coherence and Cohesion:** Is the essay logically organized? Do paragraphs flow naturally?
+            3. **Lexical Resource:** Did you use topic-specific vocabulary accurately?
+            4. **Grammatical Range and Accuracy:** Did you use complex sentence structures correctly?
+            
+            ## 5. Critical Don'ts
+            
+            - **Don't be vague:** Take a clear position. "I somewhat agree" is weak.
+            - **Don't repeat the question word-for-word:** Paraphrase it.
+            - **Don't write a memorized essay:** The examiner can tell.
+            - **Don't forget the conclusion:** An incomplete essay cannot score above Band 5.
+            - **Don't write fewer than 250 words:** You WILL be penalized.
+            
+            - Task Achievement
+                | Part | What to Write |
+                | --- | --- |
+                | Introduction | Paraphrase the question + clear thesis statement |
+                | Body 1 | First main idea + explanation + example |
+                | Body 2 | Second main idea + explanation + example |
+                | Conclusion | Summary + restate opinion (no new ideas) |
+                
+                **The thesis statement is the most important sentence in the essay.**
+                
+                Example thesis for "Agree/Disagree":
+                - "I strongly agree that governments should invest more in public transportation."
+                - "While some may argue otherwise, I firmly believe that the benefits of remote work far outweigh its drawbacks."
+            - Grammar + Coherence & Cohesion
+                | **Function** | **Phrases** |
+                | --- | --- |
+                | **Stating opinion** | I firmly believe / I strongly agree / In my view / From my perspective |
+                | **Adding arguments** | Furthermore / Moreover / In addition / What is more |
+                | **Contrasting** | However / On the other hand / Nevertheless / Conversely |
+                | **Giving examples** | For instance / For example / A case in point is / To illustrate |
+                | **Cause & Effect** | Consequently / As a result / Therefore / This leads to |
+                | **Conceding** | Although / While it is true that / Despite / Admittedly |
+                | **Concluding** | In conclusion / To sum up / Overall / Taking everything into account |
+            - Lexical Resource
+                Common topic vocabulary banks:
+                
+                | **Topic** | **Key Vocabulary** |
+                | --- | --- |
+                | **Education** | curriculum, tuition, scholarship, academic, literacy, compulsory, tertiary |
+                | **Technology** | innovation, automation, digital literacy, artificial intelligence, cybersecurity |
+                | **Environment** | sustainability, carbon emissions, renewable energy, biodiversity, deforestation |
+                | **Health** | pandemic, sedentary lifestyle, mental health, obesity, healthcare system |
+                | **Society** | inequality, globalisation, urbanisation, cultural heritage, social cohesion |
+                | **Crime** | rehabilitation, deterrent, recidivism, incarceration, juvenile delinquency |
+        - Quiz
+            1. How much time should you spend on Writing Task 2?
+            A) 20 minutes
+            B) 30 minutes
+            C) 40 minutes
+            D) 60 minutes
+            **Hint:** Task 2 is worth more than Task 1, so allocate more time.
+            **Answer:** C
+            **Why:** The lesson states you should spend 40 minutes on Task 2.
+            2. What is the minimum word count for Task 2?
+            A) 150 words
+            B) 200 words
+            C) 250 words
+            D) 300 words
+            **Hint:** It is longer than Task 1.
+            **Answer:** C
+            **Why:** You must write at least 250 words; writing less will result in a penalty.
+            3. How many paragraphs is the "Golden Structure"?
+            A) 3
+            B) 4
+            C) 5
+            D) 6
+            **Hint:** Intro, Body 1, Body 2, Conclusion.
+            **Answer:** B
+            **Why:** The recommended structure consists of 4 paragraphs: Introduction, two Body paragraphs, and a Conclusion.
+            4. What is the most important sentence in your essay?
+            A) The first sentence of the introduction
+            B) The thesis statement
+            C) The first sentence of Body 1
+            D) The conclusion
+            **Hint:** It states your clear position.
+            **Answer:** B
+            **Why:** The thesis statement is crucial because it makes your position clear to the examiner.
+            5. Which of the following is a "Critical Don't"?
+            A) Paraphrasing the question
+            B) Taking a clear position
+            C) Writing a memorized essay
+            D) Writing more than 250 words
+            **Hint:** Examiners are trained to spot this and penalize it.
+            **Answer:** C
+            **Why:** You should never write a memorized essay, as examiners can recognize them and will lower your score.
+            6. What percentage of your total Writing score does Task 2 account for?
+            A) 1/3
+            B) 1/2
+            C) 2/3
+            D) 3/4
+            **Hint:** It is worth double the points of Task 1.
+            **Answer:** C
+            **Why:** Task 2 is worth 2/3 of your total Writing score.
+    - Opinion Essay
+        - Content
+            ## When you see the question "To what extent do you agree or disagree?"
+            
+            This is the most common Task 2 question. You must decide your position: do you fully agree, fully disagree, or partially agree?
+            
+            ## Two Approaches
+            
+            1. **Fully Agree/Disagree (One-sided):** This is generally easier to structure and write clearly. You pick one side and defend it with two strong reasons.
+            2. **Partially Agree (Balanced):** This is more complex but can show nuance. You acknowledge the merits of both sides but ultimately lean towards one.
+            
+            - Task Achievement
+                | Part | Fully Agree | Partially Agree |
+                | --- | --- | --- |
+                | Introduction | Paraphrase + "I strongly agree that..." | Paraphrase + "While I agree that X, I also believe Y" |
+                | Body 1 | First reason you agree + example | The side you agree with more + example |
+                | Body 2 | Second reason you agree + example | The other side (concede) + example |
+                | Conclusion | Restate agreement | Restate balanced position |
+            - Grammar + Coherence & Cohesion
+                | **Template** | **Example** |
+                | --- | --- |
+                | I strongly agree/disagree that [topic] because [reason]. | I strongly agree that university education should be free because it promotes social equality. |
+                | The main reason I hold this view is that [argument]. | The main reason I hold this view is that free education reduces financial barriers for low-income families. |
+                | [Concession], I still believe that [main position]. | Although some argue this would burden taxpayers, I still believe that the long-term benefits outweigh the costs. |
+                | A compelling example of this is [example]. | A compelling example of this is the Scandinavian model, where free tertiary education has led to higher literacy rates. |
+            - Lexical Resource
+                | **Intensity** | **Agree** | **Disagree** |
+                | --- | --- | --- |
+                | Strong | I firmly/strongly believe, I am convinced | I completely/strongly disagree, I am firmly opposed |
+                | Moderate | I agree to a large extent, I generally agree | I tend to disagree, I partially disagree |
+                | Balanced | While I lean towards agreement, I acknowledge... | Although there is some merit, I maintain... |
+        - Quiz
+            1. Which approach is generally easier to structure?
+            A) Partially agree
+            B) Fully agree/disagree
+            C) Neither
+            D) Both are equally easy
+            **Hint:** Defending one side is often simpler.
+            **Answer:** B
+            **Why:** A fully one-sided approach is generally easier to structure and keeps your position clear.
+            2. If you fully agree, what should Body 1 contain?
+            A) The other side's view
+            B) The first reason you agree + an example
+            C) Your conclusion
+            D) A summary of the prompt
+            **Hint:** It's your first main point.
+            **Answer:** B
+            **Why:** In a fully agree essay, Body 1 presents your first supporting argument and an example.
+            3. What is a good phrase to show strong agreement?
+            A) I tend to agree
+            B) I somewhat agree
+            C) I am convinced
+            D) I partially agree
+            **Hint:** Look for the highest intensity word.
+            **Answer:** C
+            **Why:** "I am convinced" shows a strong level of agreement.
+            4. In a partially agree essay, what does Body 2 typically do?
+            A) Restates Body 1
+            B) Concedes the other side
+            C) Gives a third reason
+            D) Concludes the essay
+            **Hint:** It acknowledges the opposing view.
+            **Answer:** B
+            **Why:** Body 2 often concedes the other side to show a balanced perspective.
+            5. Which template is used for a concession?
+            A) The main reason is...
+            B) I strongly agree that...
+            C) A compelling example is...
+            D) Although some argue...
+            **Hint:** Look for a word that introduces a contrast.
+            **Answer:** D
+            **Why:** "Although some argue" is used to acknowledge an opposing view before reinforcing your main position.
+            6. Why is it important to take a clear position?
+            A) To make the essay longer
+            B) To impress the examiner with vocabulary
+            C) Because "Task Response" requires a clear position throughout
+            D) Because it's easier to spell
+            **Hint:** It directly affects one of your grading criteria.
+            **Answer:** C
+            **Why:** A clear position is a key requirement for a high score in Task Achievement (Task Response).
+    - Discussion Essay
+        - Content
+            ## Recognizing the Discussion Essay
+            
+            Look for the trigger phrase: "Discuss both views and give your own opinion."
+            
+            ## The Golden Rule
+            
+            You **MUST** present BOTH sides of the argument fairly, and then you MUST state your own view. A very common mistake is only discussing the side you agree with, which will severely lower your Task Achievement score.
+            
+            - Task Achievement
+                | Part | What to Write |
+                | --- | --- |
+                | Introduction | Paraphrase the topic + acknowledge that both views exist + state your opinion |
+                | Body 1 | First view (usually the one you DISAGREE with) + reasons + example |
+                | Body 2 | Second view (usually the one you AGREE with) + reasons + example |
+                | Conclusion | Restate your own opinion + brief summary |
+            - Grammar + Coherence & Cohesion
+                | **Function** | **Template** |
+                | --- | --- |
+                | Introducing View 1 | On the one hand, some people argue that... / It is argued by some that... |
+                | Introducing View 2 | On the other hand, others believe that... / Conversely, many maintain that... |
+                | Giving your opinion | In my opinion, / From my perspective, / I firmly believe that... |
+                | Explaining a view | The primary reason for this view is... / Proponents of this idea argue that... |
+            - Lexical Resource
+                | **Concept** | **Phrases** |
+                | --- | --- |
+                | Supporters | proponents, advocates, supporters, those in favour of |
+                | Opponents | opponents, critics, those who oppose, detractors |
+                | Benefits | advantages, merits, benefits, positive aspects |
+                | Drawbacks | disadvantages, drawbacks, negative consequences, downsides |
+        - Quiz
+            1. What is the trigger phrase for a discussion essay?
+            A) Do the advantages outweigh the disadvantages?
+            B) To what extent do you agree or disagree?
+            C) Discuss both views and give your own opinion.
+            D) What are the problems and solutions?
+            **Hint:** It asks you to look at two sides.
+            **Answer:** C
+            **Why:** "Discuss both views and give your own opinion" is the standard prompt for this essay type.
+            2. What is a fatal mistake in a discussion essay?
+            A) Using big words
+            B) Only discussing one view
+            C) Having 4 paragraphs
+            D) Giving examples
+            **Hint:** You must follow the instructions to look at both sides.
+            **Answer:** B
+            **Why:** If you only discuss one view, you fail to fully address the prompt and lose points in Task Achievement.
+            3. In standard structure, which view goes in Body 1?
+            A) The view you agree with
+            B) The view you disagree with
+            C) Your final conclusion
+            D) A summary of both
+            **Hint:** Save your preferred view for later to build a stronger argument.
+            **Answer:** B
+            **Why:** It's usually better to discuss the opposing view first, then present the view you agree with in Body 2 as a stronger counter-argument.
+            4. What does "proponents" mean?
+            A) People who oppose an idea
+            B) People who support an idea
+            C) The disadvantages
+            D) The conclusion
+            **Hint:** It is a synonym for advocates.
+            **Answer:** B
+            **Why:** Proponents are people who support or advocate for a specific idea.
+            5. How should you introduce the second view?
+            A) On the one hand...
+            B) Firstly...
+            C) On the other hand, others believe that...
+            D) In conclusion...
+            **Hint:** It shows a contrast from the first view.
+            **Answer:** C
+            **Why:** "On the other hand" is a perfect cohesive device to introduce the contrasting view.
+            6. When should you state your opinion?
+            A) Only in the conclusion
+            B) Only in Body 2
+            C) In the introduction, Body 2, and conclusion
+            D) Never
+            **Hint:** Your position should be clear throughout.
+            **Answer:** C
+            **Why:** State your opinion early in the intro, support it in Body 2, and restate it in the conclusion so your position is clear throughout.
+    - Problem & Solution
+        - Content
+            ## Recognizing Problem & Solution Essays
+            
+            Look for prompts like: "What are the problems does this cause?" or "What solutions can you suggest?" Sometimes it asks for "causes" instead of "problems".
+            
+            ## Essay Structure
+            
+            The structure is very straightforward: dedicate one body paragraph to the problems/causes, and the next body paragraph to the solutions. Your solutions should ideally address the specific problems you raised.
+            
+            - Task Achievement
+                | Part | What to Write |
+                | --- | --- |
+                | Introduction | Paraphrase the topic + mention that there are clear problems but viable solutions exist |
+                | Body 1 | 2-3 specific problems (or causes) with explanations |
+                | Body 2 | 2-3 specific, realistic solutions (matching the problems) |
+                | Conclusion | Summary of main points + a final thought or call to action |
+            - Grammar + Coherence & Cohesion
+                | **Function** | **Phrases** |
+                | --- | --- |
+                | Introducing Problems | One of the primary causes of this issue is... / A major problem is... |
+                | Adding Problems | Another significant contributing factor is... / Furthermore, this leads to... |
+                | Introducing Solutions | To tackle this issue, / One effective measure would be to... |
+                | Suggesting Actions | Governments should implement... / It is crucial that individuals take steps to... |
+            - Lexical Resource
+                | **Category** | **Vocabulary** |
+                | --- | --- |
+                | Causes | root cause, primary factor, driving force, underlying reason |
+                | Effects/Problems | severe consequences, detrimental impact, negative repercussions, exacerbate |
+                | Solutions | viable solution, effective measure, implement policies, alleviate the problem, tackle |
+        - Quiz
+            1. If you list a problem in Body 1, what should you do in Body 2?
+            A) List more problems
+            B) Ignore it
+            C) Provide a solution that addresses that specific problem
+            D) Give your opinion on the problem
+            **Hint:** Your essay needs to be cohesive.
+            **Answer:** C
+            **Why:** Good cohesion means your solutions in Body 2 should directly address the problems you raised in Body 1.
+            2. Where should you introduce your solutions?
+            A) Introduction
+            B) Body 1
+            C) Body 2
+            D) Conclusion
+            **Hint:** After explaining the problems.
+            **Answer:** C
+            **Why:** Body 1 is for problems/causes, and Body 2 is reserved for solutions.
+            3. What does "exacerbate" mean?
+            A) To solve
+            B) To make a problem worse
+            C) To ignore
+            D) To measure
+            **Hint:** It's a negative action regarding a problem.
+            **Answer:** B
+            **Why:** To exacerbate means to worsen a situation or problem.
+            4. Which phrase is best for suggesting an action?
+            A) The root cause is...
+            B) This leads to...
+            C) One effective measure would be to...
+            D) A major problem is...
+            **Hint:** Look for language proposing a step forward.
+            **Answer:** C
+            **Why:** "One effective measure would be to" clearly introduces a solution.
+            5. What should the introduction of a Problem & Solution essay do?
+            A) List all your solutions in detail
+            B) Paraphrase the topic and state that problems and solutions will be discussed
+            C) State whether you agree or disagree
+            D) Give a personal anecdote
+            **Hint:** It sets the roadmap for the essay.
+            **Answer:** B
+            **Why:** The introduction should paraphrase the prompt and give a clear overview that the essay will cover both problems and solutions.
+            6. What is a "viable solution"?
+            A) A fake solution
+            B) A realistic and workable solution
+            C) A very expensive solution
+            D) A dangerous solution
+            **Hint:** It means it can actually be done.
+            **Answer:** B
+            **Why:** A viable solution is one that is practical, realistic, and capable of working successfully.
+    - Advantages & Disadvantages
+        - Content
+            ## Recognizing the Prompt
+            
+            Look for: "Do the advantages outweigh the disadvantages?" or simply "Discuss the advantages and disadvantages."
+            
+            If it asks if they "outweigh," you MUST take a clear position.
+            
+            ## How to Structure
+            
+            Discuss the advantages in one paragraph, and the disadvantages in the other. It is usually best to put the side you think is STRONGER in Body 1, but either order works as long as you are clear.
+            
+            - Task Achievement
+                | Part | What to Write |
+                | --- | --- |
+                | Introduction | Paraphrase + state clearly which side outweighs the other |
+                | Body 1 | Advantages (with examples) |
+                | Body 2 | Disadvantages (with examples) |
+                | Conclusion | Restate which side is stronger + brief summary |
+            - Grammar + Coherence & Cohesion
+                | **Function** | **Templates** |
+                | --- | --- |
+                | Introducing Advantages | There are several notable advantages to... / The most significant benefit is... |
+                | Introducing Disadvantages | However, there are also significant drawbacks. / A major disadvantage is... |
+                | Weighing | Although there are drawbacks, the benefits far outweigh them. / The negative impacts eclipse the positive aspects. |
+            - Lexical Resource
+                | **Synonyms** | **Words** |
+                | --- | --- |
+                | Advantages | benefits, merits, positive aspects, upsides, pros |
+                | Disadvantages | drawbacks, downsides, negative aspects, cons, shortcomings |
+                | Outweigh | eclipse, surpass, overshadow, are more significant than |
+        - Quiz
+            1. If the prompt asks "Do the advantages outweigh the disadvantages?", what must you do?
+            A) Only list advantages
+            B) Only list disadvantages
+            C) Take a clear position on which is stronger
+            D) Say they are exactly equal
+            **Hint:** You need to answer the specific question asked.
+            **Answer:** C
+            **Why:** To achieve a high Task Response score, you must explicitly state whether the advantages or disadvantages are stronger.
+            2. Which word is a synonym for disadvantages?
+            A) Merits
+            B) Drawbacks
+            C) Upsides
+            D) Benefits
+            **Hint:** Look for a negative word.
+            **Answer:** B
+            **Why:** Drawbacks is a common and formal synonym for disadvantages.
+            3. What does "overshadow" mean in this context?
+            A) To make dark
+            B) To be more important or significant than
+            C) To forget
+            D) To hide
+            **Hint:** Similar to "outweigh".
+            **Answer:** B
+            **Why:** If advantages overshadow disadvantages, it means they are more prominent or important.
+            4. In what paragraph should you state your opinion on which side outweighs the other?
+            A) Only the conclusion
+            B) Introduction and Conclusion
+            C) Only Body 1
+            D) Nowhere
+            **Hint:** Make your position clear from the start and at the end.
+            **Answer:** B
+            **Why:** Stating it in the introduction and restating it in the conclusion ensures your position is clear throughout.
+            5. What is a good phrase to transition to disadvantages?
+            A) The most significant benefit is...
+            B) Furthermore...
+            C) However, there are also significant drawbacks.
+            D) In conclusion...
+            **Hint:** Look for a contrast word.
+            **Answer:** C
+            **Why:** "However" signals a shift, and "drawbacks" clearly introduces the negative aspects.
+            6. What is the main focus of Body 1 in this essay structure?
+            A) One side of the argument (e.g., Advantages)
+            B) Both advantages and disadvantages mixed
+            C) Only your opinion
+            D) The conclusion
+            **Hint:** Keep paragraphs focused on one main theme.
+            **Answer:** A
+            **Why:** Body 1 should focus entirely on one side, such as the advantages, to maintain good paragraph cohesion.
+    - Two-Part Question
+        - Content
+            ## Recognizing Two-Part Questions
+            
+            This prompt asks two distinct questions. For example: "Why is this happening? Is this a positive or negative development?"
+            
+            ## The Golden Rule for Two-Part Questions
+            
+            You must answer BOTH questions adequately. A common trap is to write a lot about the first question and barely answer the second. Give them equal weight.
+            
+            - Task Achievement
+                | Part | What to Write |
+                | --- | --- |
+                | Introduction | Paraphrase the prompt + briefly answer both questions (thesis) |
+                | Body 1 | Detailed answer to Question 1 + examples |
+                | Body 2 | Detailed answer to Question 2 + examples |
+                | Conclusion | Summarize the answers to both questions |
+            - Grammar + Coherence & Cohesion
+                | **Function** | **Phrases** |
+                | --- | --- |
+                | Addressing Q1 | Regarding the reasons behind this trend, / There are several factors contributing to... |
+                | Addressing Q2 | As to whether this is positive or negative, / In terms of its impact, I believe this is a... |
+                | Linking | Having considered the causes, it is important to evaluate the effects. |
+            - Lexical Resource
+                Since the questions vary greatly, your vocabulary must adapt. If asked about causes, use cause/effect language. If asked to evaluate (positive/negative), use evaluation language.
+                
+                | **Evaluation** | **Vocabulary** |
+                | --- | --- |
+                | Positive | beneficial, advantageous, progressive step, favourable outcome |
+                | Negative | detrimental, harmful, negative consequence, adverse effect |
+        - Quiz
+            1. What is the most common mistake in a two-part question essay?
+            A) Answering both questions equally
+            B) Only answering one question fully and ignoring the other
+            C) Writing exactly 250 words
+            D) Paraphrasing the introduction
+            **Hint:** You need to address all parts of the prompt.
+            **Answer:** B
+            **Why:** Failing to answer one of the questions adequately will severely lower your Task Response score.
+            2. How should you structure your body paragraphs?
+            A) Mix answers to both questions in both paragraphs
+            B) Dedicate Body 1 to Question 1, and Body 2 to Question 2
+            C) Write 3 body paragraphs
+            D) Only write one long body paragraph
+            **Hint:** Keep it organized and logical.
+            **Answer:** B
+            **Why:** Dedicating one body paragraph to each question ensures clear organization and cohesion.
+            3. What should your introduction do?
+            A) Only answer the first question
+            B) Paraphrase the prompt and briefly answer both questions
+            C) Provide detailed examples
+            D) Ask a question to the examiner
+            **Hint:** It's your roadmap for the essay.
+            **Answer:** B
+            **Why:** The introduction should clearly outline how you will answer both parts of the prompt.
+            4. What does "detrimental" mean?
+            A) Helpful
+            B) Harmful or damaging
+            C) Important
+            D) Fast
+            **Hint:** It's an evaluation word for something negative.
+            **Answer:** B
+            **Why:** Detrimental means tending to cause harm or damage.
+            5. Which phrase is useful for transitioning to the second question?
+            A) As to whether this is positive or negative...
+            B) The primary cause is...
+            C) For example...
+            D) In conclusion...
+            **Hint:** Look for a phrase that sets a new topic.
+            **Answer:** A
+            **Why:** "As to whether this is positive or negative" clearly introduces the start of your answer to the second question.
+            6. If the second question asks if a trend is positive or negative, what must you do?
+            A) Say it's both
+            B) Take a clear position on whether it is mostly positive or mostly negative
+            C) Ignore it
+            D) Ask the examiner
+            **Hint:** Examiners want to see a clear position.
+            **Answer:** B
+            **Why:** You must evaluate the trend and take a clear stance to satisfy the Task Response criteria.
