@@ -251,8 +251,8 @@ function WritingStage({ onNext }: { onNext: (score: number, total: number) => vo
 function FinishStage({ scores, onFinish, isSubmitting }: { scores: Scores; onFinish: () => void; isSubmitting: boolean }) {
   const getQuality = (score: number) => {
     if (score >= 90) return { text: "Excellent", color: "text-green-600", desc: "You'll skip lessons and most exercises." };
-    if (score >= 70) return { text: "Good", color: "text-blue-600", desc: "You'll do 1 exercise per foundationVocabLesson." };
-    if (score >= 50) return { text: "Needs Work", color: "text-[#FFC107]", desc: "You'll do half exercises per foundationVocabLesson." };
+    if (score >= 70) return { text: "Good", color: "text-blue-600", desc: "You'll do 1 exercise per lesson." };
+    if (score >= 50) return { text: "Needs Work", color: "text-[#FFC107]", desc: "You'll do half exercises per lesson." };
     return { text: "Beginner", color: "text-red-500", desc: "You'll do all lessons and exercises." };
   };
 

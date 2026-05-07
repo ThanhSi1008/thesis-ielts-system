@@ -57,7 +57,7 @@ export default function RoadmapDashboard() {
         </div>
         <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Welcome to Your Roadmap</h2>
         <p className="text-gray-500 max-w-sm">
-          Select a foundationVocabLesson or exercise from the sidebar to begin. 
+          Select a lesson or exercise from the sidebar to begin. 
           You must complete Step 1 before Step 2 unlocks.
         </p>
       </div>

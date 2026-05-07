@@ -13,7 +13,7 @@ export default function IeltsLayout({
   const { mode } = useIeltsSidebar();
   const pathname = usePathname();
   const isOnboarding = pathname === "/ielts/basic/onboarding";
-  const isVocabularyUnitPage = pathname.match(/^\/ielts\/foundationVocabWord\/[^\/]+\/[^\/]+$/) !== null;
+  const isVocabularyUnitPage = pathname.match(/^\/ielts\/vocabulary\/[^\/]+\/[^\/]+$/) !== null;
   const isGrammarUnitPage = pathname.match(/^\/ielts\/grammar\/[^\/]+\/[^\/]+$/) !== null;
   const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start");
   const isNavbarHidden = isTakePage || isOnboarding || pathname === "/login" || pathname === "/register";
