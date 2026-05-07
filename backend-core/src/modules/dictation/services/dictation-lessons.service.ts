@@ -20,8 +20,8 @@ export class DictationLessonsService {
     });
 
     if (limit !== Infinity) {
-      lessons = lessons.map((lesson, index) => ({
-        ...lesson,
+      lessons = lessons.map((foundationVocabLesson, index) => ({
+        ...foundationVocabLesson,
         isLocked: index >= (limit as number),
       }));
     }
@@ -30,10 +30,10 @@ export class DictationLessonsService {
   }
 
   async findById(id: string) {
-    const lesson = await this.prisma.dictationVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.dictationVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("Dictation lesson not found");
-    return lesson;
+    if (!foundationVocabLesson) throw new NotFoundException("Dictation foundationVocabLesson not found");
+    return foundationVocabLesson;
   }
 }

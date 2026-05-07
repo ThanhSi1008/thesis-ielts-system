@@ -89,7 +89,7 @@ export class IeltsController {
     return this.ieltsService.saveWritingUserAnswer(req.user.id, id, body);
   }
 
-  // ── Exercise Snippet (public — used for lesson examples) ────────────────
+  // ── Exercise Snippet (public — used for foundationVocabLesson examples) ────────────────
 
   @Get("exercise-snippet")
   async getExerciseSnippet(

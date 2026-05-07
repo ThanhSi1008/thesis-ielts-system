@@ -26,16 +26,16 @@ function splitExamTitle(title: string) {
   return { groupTitle: title, testTitle: "" };
 }
 
-function getSpeakingExaminer(exam: ExamDetail | null): { name: string; role: string; avatarUrl?: string; initials: string } | null {
-  const examiner = (exam as any)?.questions?.examiner;
+function getSpeakingExaminer(ieltsIntensiveExam: ExamDetail | null): { name: string; role: string; avatarUrl?: string; initials: string } | null {
+  const examiner = (ieltsIntensiveExam as any)?.questions?.examiner;
   if (!examiner) return null;
   const parts = (examiner.name as string).split(" ");
   const initials = parts.map((p: string) => p[0]).join("").toUpperCase().slice(0, 2);
   return { ...examiner, initials };
 }
 
-function countSpeakingQuestions(exam: ExamDetail | null): number {
-  const parts = (exam as any)?.questions?.parts ?? [];
+function countSpeakingQuestions(ieltsIntensiveExam: ExamDetail | null): number {
+  const parts = (ieltsIntensiveExam as any)?.questions?.parts ?? [];
   return parts.reduce((acc: number, p: any) => {
     if (p.questions) return acc + p.questions.length;
     return acc + 1; // Part 2 cue card counts as 1
@@ -61,11 +61,11 @@ export default function IntensiveExamIntroPage() {
   const params = useParams();
   const examId = params?.examId as string;
 
-  const [exam, setExam] = useState<ExamDetail | null>(null);
+  const [ieltsIntensiveExam, setExam] = useState<ExamDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const examType = (exam as any)?.type?.toUpperCase() ?? "";
+  const examType = (ieltsIntensiveExam as any)?.type?.toUpperCase() ?? "";
   const isSpeaking = examType === "SPEAKING";
 
   const videoId = useMemo(() => {
@@ -81,15 +81,15 @@ export default function IntensiveExamIntroPage() {
     setError(null);
     examsApi.getExam(examId)
       .then((res) => { if (mounted) setExam(res); })
-      .catch((e: any) => { if (mounted) { setError(e?.message || "Failed to load exam"); setExam(null); } })
+      .catch((e: any) => { if (mounted) { setError(e?.message || "Failed to load ieltsIntensiveExam"); setExam(null); } })
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [examId]);
 
-  const title = exam?.title || "Loading...";
+  const title = ieltsIntensiveExam?.title || "Loading...";
   const { groupTitle, testTitle } = splitExamTitle(title);
-  const examiner = isSpeaking ? getSpeakingExaminer(exam) : null;
-  const speakingQuestionCount = isSpeaking ? countSpeakingQuestions(exam) : 0;
+  const examiner = isSpeaking ? getSpeakingExaminer(ieltsIntensiveExam) : null;
+  const speakingQuestionCount = isSpeaking ? countSpeakingQuestions(ieltsIntensiveExam) : 0;
 
   return (
     <div className="bg-gray-50 flex items-center justify-center px-4">
@@ -99,9 +99,9 @@ export default function IntensiveExamIntroPage() {
         <div className="bg-white text-red-600 border border-gray-200 rounded-2xl p-6 max-w-lg w-full text-center">
           {error}
         </div>
-      ) : !exam ? (
+      ) : !ieltsIntensiveExam ? (
         <div className="bg-white text-gray-700 border border-gray-200 rounded-2xl p-6 max-w-lg w-full text-center">
-          Exam not found.
+          IeltsIntensiveExam not found.
         </div>
       ) : (
         <div className="w-full max-w-4xl relative py-10">
@@ -142,9 +142,9 @@ export default function IntensiveExamIntroPage() {
           <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2">
 
-              {/* LEFT — exam details */}
+              {/* LEFT — ieltsIntensiveExam details */}
               <div className="p-8 flex flex-col gap-6 border-b lg:border-b-0 lg:border-r border-gray-200">
-                <div className="text-xs font-black uppercase tracking-widest text-gray-400">Exam Details</div>
+                <div className="text-xs font-black uppercase tracking-widest text-gray-400">IeltsIntensiveExam Details</div>
 
                 <div className="space-y-3">
                   {/* Duration */}
@@ -154,7 +154,7 @@ export default function IntensiveExamIntroPage() {
                     </div>
                     <div>
                       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Duration</div>
-                      <div className="text-base font-extrabold text-gray-900">{exam.duration} minutes</div>
+                      <div className="text-base font-extrabold text-gray-900">{ieltsIntensiveExam.duration} minutes</div>
                     </div>
                   </div>
 
@@ -176,7 +176,7 @@ export default function IntensiveExamIntroPage() {
                     <div>
                       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Skill</div>
                       <div className="text-base font-extrabold text-gray-900 capitalize">
-                        {(exam as any).type?.toLowerCase() ?? "Listening"}
+                        {(ieltsIntensiveExam as any).type?.toLowerCase() ?? "Listening"}
                       </div>
                     </div>
                   </div>
@@ -316,7 +316,7 @@ export default function IntensiveExamIntroPage() {
           {/* CTA */}
           <div className="mt-6 flex justify-center">
             <Link
-              href={`/ielts/intensive/${encodeURIComponent(exam.id)}/start${isSpeaking ? '?type=SPEAKING' : ''}`}
+              href={`/ielts/intensive/${encodeURIComponent(ieltsIntensiveExam.id)}/start${isSpeaking ? '?type=SPEAKING' : ''}`}
               className="group flex items-center justify-between bg-primary hover:brightness-105 px-6 py-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-[1px] w-full max-w-60"
             >
               <span className="text-[14px] font-black uppercase text-gray-900 pl-1">Start Test</span>

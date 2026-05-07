@@ -62,8 +62,8 @@ export function DecksTab({ isActive, onTotalDueChange }: { isActive: boolean; on
 
     try {
       const payload = { ...pendingLexonData, deck: { ...pendingLexonData.deck, name: deckName } };
-      const result = await vocabLabApi.importDeck(payload);
-      setImportFeedback({ type: 'success', text: `Imported "${result.deckName}" with ${result.cardsImported} cards` });
+      const ieltsIntensiveResult = await vocabLabApi.importDeck(payload);
+      setImportFeedback({ type: 'success', text: `Imported "${ieltsIntensiveResult.deckName}" with ${ieltsIntensiveResult.cardsImported} cards` });
       setShowImportModal(false);
       setPendingLexonData(null);
       await fetchDecks();

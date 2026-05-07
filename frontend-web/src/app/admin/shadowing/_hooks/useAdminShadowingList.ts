@@ -3,7 +3,7 @@ import { adminShadowingApi } from "@/services/admin.api";
 import type { ShadowingVideo } from "@/services/shadowing.api";
 import { toast } from "@/components/Toaster";
 
-const POLL_INTERVAL_MS = 5000; // poll every 5s while any lesson is PROCESSING
+const POLL_INTERVAL_MS = 5000; // poll every 5s while any foundationVocabLesson is PROCESSING
 
 export function useAdminShadowingList() {
   const [lessons, setLessons] = useState<ShadowingVideo[]>([]);
@@ -22,14 +22,14 @@ export function useAdminShadowingList() {
   }, []);
 
   const applyLessons = useCallback((data: ShadowingVideo[]) => {
-    // Detect any lesson that just became READY
-    data.forEach(lesson => {
-      if (processingRef.current.has(lesson.id) && lesson.status === "READY") {
+    // Detect any foundationVocabLesson that just became READY
+    data.forEach(foundationVocabLesson => {
+      if (processingRef.current.has(foundationVocabLesson.id) && foundationVocabLesson.status === "READY") {
         toast.success(
-          `"${lesson.title}" is ready — ${(lesson.sentences as any[]).length} sentences transcribed.`,
+          `"${foundationVocabLesson.title}" is ready — ${(foundationVocabLesson.sentences as any[]).length} sentences transcribed.`,
           6000
         );
-        processingRef.current.delete(lesson.id);
+        processingRef.current.delete(foundationVocabLesson.id);
       }
     });
     // Track current PROCESSING set
@@ -75,7 +75,7 @@ export function useAdminShadowingList() {
     return () => stopPolling(); // cleanup on unmount
   }, [fetchLessons, stopPolling]);
 
-  // Watch lessons state — start polling when a new PROCESSING lesson appears
+  // Watch lessons state — start polling when a new PROCESSING foundationVocabLesson appears
   useEffect(() => {
     const hasProcessing = lessons.some(l => l.status === "PROCESSING");
     if (hasProcessing) startPolling();
@@ -87,7 +87,7 @@ export function useAdminShadowingList() {
       setLessons(prev => prev.filter(l => l.id !== id));
       processingRef.current.delete(id);
     } catch {
-      setError("Failed to delete lesson.");
+      setError("Failed to delete foundationVocabLesson.");
     }
   }, []);
 

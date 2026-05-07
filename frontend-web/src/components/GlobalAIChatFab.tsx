@@ -486,7 +486,9 @@ export function GlobalAIChatFab() {
     }
   };
 
-  if (!user) return null;
+  const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start") || pathname === "/ielts/basic/onboarding";
+
+  if (!user || isTakePage) return null;
 
   return (
     <>

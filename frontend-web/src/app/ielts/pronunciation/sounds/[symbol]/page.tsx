@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { pronunciationApi } from '@/services/learning.api';
 import { useAuth } from '@/contexts/AuthContext';
-import type { PronunciationSound, WordProgress } from '@/types';
+import type { FoundationPronunciationSound, WordProgress } from '@/types';
 import SoundDetailContent from './_components/SoundDetailContent';
 
 const BACK_HREF = '/ielts/pronunciation';
@@ -13,7 +13,7 @@ const BACK_HREF = '/ielts/pronunciation';
 export default function IeltsSoundDetailPage() {
   const params = useParams();
   const { user } = useAuth();
-  const [sound, setSound] = useState<PronunciationSound | null>(null);
+  const [sound, setSound] = useState<FoundationPronunciationSound | null>(null);
   const [wordProgress, setWordProgress] = useState<WordProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -46,7 +46,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
     if (item.isLocked) return;
 
     // Determine the precise URL for the roadmap viewer
-    const idParam = item.type === 'lesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
+    const idParam = item.type === 'foundationVocabLesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
     const url = `/ielts/basic/roadmap?type=${item.type}&skill=${item.skill.toLowerCase()}&${idParam}`;
     router.push(url);
   };
@@ -63,8 +63,8 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
   }
 
   const safeSteps = Array.isArray(steps) ? steps : [];
-  const totalLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'lesson').length, 0);
-  const completedLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'lesson' && i.isCompleted).length, 0);
+  const totalLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'foundationVocabLesson').length, 0);
+  const completedLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'foundationVocabLesson' && i.isCompleted).length, 0);
   const totalExercises = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'exercise').length, 0);
   const completedExercises = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'exercise' && i.isCompleted).length, 0);
 
@@ -104,7 +104,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
         </div>
 
         <p className="text-gray-600 dark:text-slate-400 leading-relaxed max-w-[90%] text-[14px] font-medium">
-          This section is designed to build your fundamental English skills for the IELTS exam.
+          This section is designed to build your fundamental English skills for the IELTS ieltsIntensiveExam.
           You will work through structured daily lessons and exercises covering Listening and Reading
           to establish a strong baseline before moving on to advanced strategies. Complete the tasks in sequential order to unlock the next steps.
         </p>
@@ -160,7 +160,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
                               {item.title}
                             </p>
                             <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5 uppercase tracking-widest font-bold">
-                              {item.skill} · {item.type === 'lesson' ? "Theory" : "Practice"}
+                              {item.skill} · {item.type === 'foundationVocabLesson' ? "Theory" : "Practice"}
                             </p>
                           </div>
                         </div>

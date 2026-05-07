@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { dictationApi, DictationVideo, DictationSentence } from '@/services/dictation.api';
 
 interface UseDictationLessonReturn {
-  lesson: DictationVideo | null;
+  foundationVocabLesson: DictationVideo | null;
   isInitializing: boolean;
   sentences: DictationSentence[];
   isYouTube: boolean;
@@ -12,7 +12,7 @@ interface UseDictationLessonReturn {
 }
 
 export function useDictationLesson(lessonId: string | undefined): UseDictationLessonReturn {
-  const [lesson, setLesson] = useState<DictationVideo | null>(null);
+  const [foundationVocabLesson, setLesson] = useState<DictationVideo | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export function useDictationLesson(lessonId: string | undefined): UseDictationLe
         }
         setLesson(data);
       } catch (error) {
-        console.error('Failed to fetch dictation lesson:', error);
+        console.error('Failed to fetch dictation foundationVocabLesson:', error);
       } finally {
         setIsInitializing(false);
       }
@@ -45,12 +45,12 @@ export function useDictationLesson(lessonId: string | undefined): UseDictationLe
   }, [lessonId]);
 
   return {
-    lesson,
+    foundationVocabLesson,
     isInitializing,
-    sentences: lesson?.sentences || [],
-    isYouTube: !!lesson?.youtubeVideoId,
-    audioUrl: lesson?.audioUrl,
-    lessonTitle: lesson?.title || '',
-    totalSentences: lesson?.sentences?.length || 0,
+    sentences: foundationVocabLesson?.sentences || [],
+    isYouTube: !!foundationVocabLesson?.youtubeVideoId,
+    audioUrl: foundationVocabLesson?.audioUrl,
+    lessonTitle: foundationVocabLesson?.title || '',
+    totalSentences: foundationVocabLesson?.sentences?.length || 0,
   };
 }

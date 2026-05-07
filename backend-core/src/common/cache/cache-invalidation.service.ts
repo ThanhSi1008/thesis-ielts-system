@@ -7,7 +7,7 @@ const CACHE_INVALIDATION_QUEUE = "cache_invalidation";
 const CACHE_INVALIDATION_EXCHANGE = "cache_events";
 
 export interface CacheInvalidationEvent {
-  pattern: string; // Redis key pattern to invalidate (e.g., 'vocabulary:*')
+  pattern: string; // Redis key pattern to invalidate (e.g., 'foundationVocabWord:*')
   source: string; // Source module that triggered the event
   timestamp: number;
 }

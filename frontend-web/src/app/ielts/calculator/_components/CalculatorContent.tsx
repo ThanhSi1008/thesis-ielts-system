@@ -92,7 +92,7 @@ function OverallBandCalculator() {
           </div>
         </div>
 
-        {/* Result */}
+        {/* IeltsIntensiveResult */}
         <div className="flex flex-col items-center justify-center px-8 py-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm min-w-[140px]">
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
             Estimated

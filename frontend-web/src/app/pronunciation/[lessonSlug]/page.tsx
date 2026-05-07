@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { pronunciationApi } from '@/services/learning.api';
-import type { PronunciationSound, WordProgress } from '@/types';
+import type { FoundationPronunciationSound, WordProgress } from '@/types';
 import SoundDetailContent from '@/app/ielts/pronunciation/sounds/[symbol]/_components/SoundDetailContent';
 import PageHeader from '@/components/PageHeader';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +14,7 @@ const BACK_HREF = '/pronunciation';
 export default function SoundPage() {
   const params = useParams();
   const { user } = useAuth();
-  const [sound, setSound] = useState<PronunciationSound | null>(null);
+  const [sound, setSound] = useState<FoundationPronunciationSound | null>(null);
   const [wordProgress, setWordProgress] = useState<WordProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

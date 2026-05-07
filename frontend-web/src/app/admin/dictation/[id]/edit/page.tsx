@@ -11,13 +11,13 @@ import { DictationLessonForm } from "../../_components/DictationLessonForm";
 export default function EditDictationLessonPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const [lesson, setLesson] = useState<DictationVideo | null>(null);
+  const [foundationVocabLesson, setLesson] = useState<DictationVideo | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     adminDictationApi.getById(id)
       .then(setLesson)
-      .catch(() => setFetchError("Lesson not found or could not be loaded."));
+      .catch(() => setFetchError("FoundationVocabLesson not found or could not be loaded."));
   }, [id]);
 
   if (fetchError) {
@@ -29,7 +29,7 @@ export default function EditDictationLessonPage({ params }: { params: { id: stri
     );
   }
 
-  if (!lesson) {
+  if (!foundationVocabLesson) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -37,20 +37,20 @@ export default function EditDictationLessonPage({ params }: { params: { id: stri
     );
   }
 
-  return <EditForm lesson={lesson} lessonId={id} />;
+  return <EditForm foundationVocabLesson={foundationVocabLesson} lessonId={id} />;
 }
 
-function EditForm({ lesson, lessonId }: { lesson: DictationVideo; lessonId: string }) {
+function EditForm({ foundationVocabLesson, lessonId }: { foundationVocabLesson: DictationVideo; lessonId: string }) {
   const router = useRouter();
   const {
     formData, errors, isSubmitting,
     setField, addSentence, removeSentence, updateSentence, moveSentence,
     submitUpdate,
-  } = useAdminDictationForm(lesson);
+  } = useAdminDictationForm(foundationVocabLesson);
 
   const handleSubmit = async () => {
-    const result = await submitUpdate(lessonId);
-    if (result) {
+    const ieltsIntensiveResult = await submitUpdate(lessonId);
+    if (ieltsIntensiveResult) {
       router.push("/admin/dictation");
     }
   };
@@ -65,8 +65,8 @@ function EditForm({ lesson, lessonId }: { lesson: DictationVideo; lessonId: stri
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 19l-7-7 7-7" /></svg>
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit Lesson</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{lesson.title}</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit FoundationVocabLesson</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{foundationVocabLesson.title}</p>
         </div>
       </div>
 

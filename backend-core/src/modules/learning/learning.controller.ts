@@ -15,8 +15,8 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { LearningService } from "./learning.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { CreateLessonDto } from "./dto/create-lesson.dto";
-import { CreateVocabularyDto } from "./dto/create-vocabulary.dto";
+import { CreateLessonDto } from "./dto/create-foundationVocabLesson.dto";
+import { CreateVocabularyDto } from "./dto/create-foundationVocabWord.dto";
 import { CreateGrammarDto } from "./dto/create-grammar.dto";
 import { UpdateProgressDto } from "./dto/update-progress.dto";
 import { CheckPronunciationDto } from "./dto/check-pronunciation.dto";
@@ -27,7 +27,7 @@ import { RequiresQuota } from "../subscriptions/decorators/requires-quota.decora
 
 /**
  * Learning Controller
- * Handles HTTP requests for learning materials, lessons, vocabulary, grammar, and pronunciation
+ * Handles HTTP requests for learning materials, lessons, foundationVocabWord, grammar, and pronunciation
  */
 @Controller("learning")
 @UseGuards(JwtAuthGuard)
@@ -77,8 +77,8 @@ export class LearningController {
   }
 
   /**
-   * Get a single lesson with all vocabulary and grammar items
-   * @param id - Lesson ID
+   * Get a single foundationVocabLesson with all foundationVocabWord and grammar items
+   * @param id - FoundationVocabLesson ID
    */
   @Get("lessons/:id")
   async findLessonById(@Param("id") id: string) {
@@ -86,8 +86,8 @@ export class LearningController {
   }
 
   /**
-   * Create a new lesson (Admin only)
-   * @param createLessonDto - Lesson data
+   * Create a new foundationVocabLesson (Admin only)
+   * @param createLessonDto - FoundationVocabLesson data
    */
   @Post("lessons")
   async createLesson(@Body() createLessonDto: CreateLessonDto) {
@@ -98,19 +98,19 @@ export class LearningController {
   // ==================== VOCABULARY ENDPOINTS ====================
 
   /**
-   * Get all vocabulary for a lesson
-   * @param lessonId - Lesson ID
+   * Get all foundationVocabWord for a foundationVocabLesson
+   * @param lessonId - FoundationVocabLesson ID
    */
-  @Get("vocabulary/:lessonId")
+  @Get("foundationVocabWord/:lessonId")
   async findVocabularyByLesson(@Param("lessonId") lessonId: string) {
     return this.learningService.findVocabularyByLesson(lessonId);
   }
 
   /**
-   * Add vocabulary to a lesson (Admin only)
-   * @param createVocabularyDto - Vocabulary data
+   * Add foundationVocabWord to a foundationVocabLesson (Admin only)
+   * @param createVocabularyDto - FoundationVocabWord data
    */
-  @Post("vocabulary")
+  @Post("foundationVocabWord")
   async createVocabulary(@Body() createVocabularyDto: CreateVocabularyDto) {
     // TODO: Add RolesGuard and @Roles('ADMIN') decorator
     return this.learningService.createVocabulary(createVocabularyDto);
@@ -119,8 +119,8 @@ export class LearningController {
   // ==================== GRAMMAR ENDPOINTS ====================
 
   /**
-   * Get all grammar for a lesson
-   * @param lessonId - Lesson ID
+   * Get all grammar for a foundationVocabLesson
+   * @param lessonId - FoundationVocabLesson ID
    */
   @Get("grammar/:lessonId")
   async findGrammarByLesson(@Param("lessonId") lessonId: string) {
@@ -128,7 +128,7 @@ export class LearningController {
   }
 
   /**
-   * Add grammar to a lesson (Admin only)
+   * Add grammar to a foundationVocabLesson (Admin only)
    * @param createGrammarDto - Grammar data
    */
   @Post("grammar")
@@ -179,7 +179,7 @@ export class LearningController {
       }
 
       this.logger.log(
-        `📤 Pronunciation check request - User: ${body.userId}, Vocabulary: ${body.vocabularyId}`,
+        `📤 Pronunciation check request - User: ${body.userId}, FoundationVocabWord: ${body.vocabularyId}`,
       );
 
       // Upload file to storage
@@ -193,18 +193,18 @@ export class LearningController {
 
       // If vocabularyId is provided, verify it and get the word
       if (body.vocabularyId) {
-        const vocabulary = await this.learningService[
+        const foundationVocabWord = await this.learningService[
           "prisma"
-        ].vocabulary.findUnique({
+        ].foundationVocabWord.findUnique({
           where: { id: body.vocabularyId },
         });
 
-        if (!vocabulary) {
+        if (!foundationVocabWord) {
           throw new BadRequestException(
-            `Vocabulary with ID ${body.vocabularyId} not found`,
+            `FoundationVocabWord with ID ${body.vocabularyId} not found`,
           );
         }
-        targetWord = vocabulary.word;
+        targetWord = foundationVocabWord.word;
       }
 
       if (!targetWord) {

@@ -20,8 +20,8 @@ export class ShadowingLessonsService {
     });
 
     if (limit !== Infinity) {
-      lessons = lessons.map((lesson, index) => ({
-        ...lesson,
+      lessons = lessons.map((foundationVocabLesson, index) => ({
+        ...foundationVocabLesson,
         isLocked: index >= (limit as number),
       }));
     }
@@ -30,10 +30,10 @@ export class ShadowingLessonsService {
   }
 
   async findById(id: string) {
-    const lesson = await this.prisma.shadowingVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.shadowingVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("Shadowing lesson not found");
-    return lesson;
+    if (!foundationVocabLesson) throw new NotFoundException("Shadowing foundationVocabLesson not found");
+    return foundationVocabLesson;
   }
 }

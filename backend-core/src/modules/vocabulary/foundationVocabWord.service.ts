@@ -11,10 +11,10 @@ import {
   UpdateVocabularyUnitDto,
   CreateVocabularyWordDto,
   UpdateVocabularyWordDto,
-} from "./dto/vocabulary.dto";
+} from "./dto/foundationVocabWord.dto";
 
 const CACHE_TTL = 3600; // 1 hour
-const CACHE_PREFIX = "vocabulary";
+const CACHE_PREFIX = "foundationVocabWord";
 
 @Injectable()
 export class VocabularyService {
@@ -35,7 +35,7 @@ export class VocabularyService {
     let books: any[] = Array.isArray(cached) ? cached : [];
 
     if (!Array.isArray(cached) || books.length === 0) {
-      books = await this.prisma.vocabularyBook.findMany({
+      books = await this.prisma.foundationVocabBook.findMany({
         orderBy: { order: "asc" },
         select: {
           id: true,
@@ -66,7 +66,7 @@ export class VocabularyService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const book = await this.prisma.vocabularyBook.findUnique({
+    const book = await this.prisma.foundationVocabBook.findUnique({
       where: { id: bookId },
       include: {
         units: {
@@ -85,7 +85,7 @@ export class VocabularyService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const unit = await this.prisma.vocabularyUnit.findUnique({
+    const unit = await this.prisma.foundationVocabUnit.findUnique({
       where: { id: unitId },
       include: {
         book: { select: { id: true, name: true } },
@@ -102,13 +102,13 @@ export class VocabularyService {
   // ==================== BOOK CRUD ====================
 
   async createBook(dto: CreateVocabularyBookDto) {
-    const book = await this.prisma.vocabularyBook.create({ data: dto });
+    const book = await this.prisma.foundationVocabBook.create({ data: dto });
     await this.invalidateCache();
     return book;
   }
 
   async updateBook(id: string, dto: UpdateVocabularyBookDto) {
-    const book = await this.prisma.vocabularyBook.update({
+    const book = await this.prisma.foundationVocabBook.update({
       where: { id },
       data: dto,
     });
@@ -117,7 +117,7 @@ export class VocabularyService {
   }
 
   async deleteBook(id: string) {
-    await this.prisma.vocabularyBook.delete({ where: { id } });
+    await this.prisma.foundationVocabBook.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Book deleted successfully" };
   }
@@ -125,13 +125,13 @@ export class VocabularyService {
   // ==================== UNIT CRUD ====================
 
   async createUnit(dto: CreateVocabularyUnitDto) {
-    const unit = await this.prisma.vocabularyUnit.create({ data: dto });
+    const unit = await this.prisma.foundationVocabUnit.create({ data: dto });
     await this.invalidateCache();
     return unit;
   }
 
   async updateUnit(id: string, dto: UpdateVocabularyUnitDto) {
-    const unit = await this.prisma.vocabularyUnit.update({
+    const unit = await this.prisma.foundationVocabUnit.update({
       where: { id },
       data: dto,
     });
@@ -140,7 +140,7 @@ export class VocabularyService {
   }
 
   async deleteUnit(id: string) {
-    await this.prisma.vocabularyUnit.delete({ where: { id } });
+    await this.prisma.foundationVocabUnit.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Unit deleted successfully" };
   }
@@ -148,13 +148,13 @@ export class VocabularyService {
   // ==================== WORD CRUD ====================
 
   async createWord(dto: CreateVocabularyWordDto) {
-    const word = await this.prisma.vocabularyWord.create({ data: dto });
+    const word = await this.prisma.foundationVocabItem.create({ data: dto });
     await this.invalidateCache();
     return word;
   }
 
   async updateWord(id: string, dto: UpdateVocabularyWordDto) {
-    const word = await this.prisma.vocabularyWord.update({
+    const word = await this.prisma.foundationVocabItem.update({
       where: { id },
       data: dto,
     });
@@ -163,7 +163,7 @@ export class VocabularyService {
   }
 
   async deleteWord(id: string) {
-    await this.prisma.vocabularyWord.delete({ where: { id } });
+    await this.prisma.foundationVocabItem.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Word deleted successfully" };
   }
@@ -180,7 +180,7 @@ export class VocabularyService {
    * Get user progress for all units in a book
    */
   async getUserProgress(userId: string, bookId: string) {
-    const book = await this.prisma.vocabularyBook.findUnique({
+    const book = await this.prisma.foundationVocabBook.findUnique({
       where: { id: bookId },
       include: {
         units: {
@@ -197,7 +197,7 @@ export class VocabularyService {
 
     if (!book) return null;
 
-    const progress = await this.prisma.vocabularyProgress.findMany({
+    const progress = await this.prisma.foundationVocabProgress.findMany({
       where: {
         userId,
         unitId: { in: book.units.map((u) => u.id) },
@@ -235,7 +235,7 @@ export class VocabularyService {
     unitId: string,
     wordsLearned: number,
   ) {
-    const unit = await this.prisma.vocabularyUnit.findUnique({
+    const unit = await this.prisma.foundationVocabUnit.findUnique({
       where: { id: unitId },
       include: { _count: { select: { words: true } } },
     });
@@ -244,12 +244,12 @@ export class VocabularyService {
 
     const completed = wordsLearned >= unit._count.words;
 
-    const existingProgress = await this.prisma.vocabularyProgress.findUnique({
+    const existingProgress = await this.prisma.foundationVocabProgress.findUnique({
       where: { userId_unitId: { userId, unitId } },
     });
 
     if (existingProgress) {
-      const updated = await this.prisma.vocabularyProgress.update({
+      const updated = await this.prisma.foundationVocabProgress.update({
         where: { id: existingProgress.id },
         data: {
           wordsLearned,
@@ -271,7 +271,7 @@ export class VocabularyService {
       return updated;
     }
 
-    const created = await this.prisma.vocabularyProgress.create({
+    const created = await this.prisma.foundationVocabProgress.create({
       data: {
         userId,
         unitId,
@@ -303,7 +303,7 @@ export class VocabularyService {
     unitId: string,
     answers: { exerciseId: string; answer: string }[],
   ) {
-    const exercises = await this.prisma.vocabularyExercise.findMany({
+    const exercises = await this.prisma.foundationVocabExercise.findMany({
       where: { unitId },
     });
 
@@ -321,12 +321,12 @@ export class VocabularyService {
 
     const score = Math.round((correctCount / exercises.length) * 100);
 
-    const progress = await this.prisma.vocabularyProgress.findUnique({
+    const progress = await this.prisma.foundationVocabProgress.findUnique({
       where: { userId_unitId: { userId, unitId } },
     });
 
     if (progress) {
-      const updated = await this.prisma.vocabularyProgress.update({
+      const updated = await this.prisma.foundationVocabProgress.update({
         where: { id: progress.id },
         data: { exerciseScore: score },
       });
@@ -338,7 +338,7 @@ export class VocabularyService {
       return { score, correctCount, totalQuestions: exercises.length, results };
     }
 
-    await this.prisma.vocabularyProgress.create({
+    await this.prisma.foundationVocabProgress.create({
       data: { userId, unitId, exerciseScore: score },
     });
 
@@ -357,7 +357,7 @@ export class VocabularyService {
     unitId: string,
     answers: { questionId: string; answer: string }[],
   ) {
-    const questions = await this.prisma.vocabularyQuestion.findMany({
+    const questions = await this.prisma.foundationVocabQuestion.findMany({
       where: { unitId },
     });
 
@@ -383,7 +383,7 @@ export class VocabularyService {
 
     // Update progress and mark as completed
     try {
-      const progress = await this.prisma.vocabularyProgress.upsert({
+      const progress = await this.prisma.foundationVocabProgress.upsert({
         where: {
           userId_unitId: { userId, unitId },
         },

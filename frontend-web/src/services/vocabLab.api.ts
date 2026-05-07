@@ -98,7 +98,7 @@ export const vocabLabApi = {
     return data;
   },
   createFlashcardFromVocabulary: async (payload: { bookName: string; word: any }) => {
-    const { data } = await api.post<Flashcard>('/vocab-lab/from-vocabulary', payload);
+    const { data } = await api.post<Flashcard>('/vocab-lab/from-foundationVocabWord', payload);
     return data;
   },
 

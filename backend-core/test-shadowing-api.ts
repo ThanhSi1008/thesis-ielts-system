@@ -30,7 +30,7 @@ async function main() {
     const existingProgress = await prisma.shadowingProgress.findMany({ where: { userId } });
     console.log('Existing progress:', existingProgress);
 
-    console.log('Updating progress for lesson toeic-1...');
+    console.log('Updating progress for foundationVocabLesson toeic-1...');
     await prisma.shadowingProgress.upsert({
       where: {
         userId_lessonId: { userId, lessonId: 'toeic-1' }

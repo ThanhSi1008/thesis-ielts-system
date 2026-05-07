@@ -16,13 +16,13 @@ export class IeltsService {
   ) {}
 
   async findAllSkills() {
-    return this.prisma.ieltsSkill.findMany({
+    return this.prisma.ieltsBasicSkill.findMany({
       orderBy: { order: "asc" },
     });
   }
 
   async findLessonsBySkill(skillName: string) {
-    const skill = await this.prisma.ieltsSkill.findUnique({
+    const skill = await this.prisma.ieltsBasicSkill.findUnique({
       where: { name: skillName },
     });
 
@@ -30,29 +30,29 @@ export class IeltsService {
       throw new NotFoundException(`Skill ${skillName} not found`);
     }
 
-    return this.prisma.ieltsLesson.findMany({
+    return this.prisma.ieltsBasicLesson.findMany({
       where: { skillId: skill.id },
       orderBy: { order: "asc" },
     });
   }
 
   async findLessonById(lessonId: string) {
-    const lesson = await this.prisma.ieltsLesson.findUnique({
+    const foundationVocabLesson = await this.prisma.ieltsBasicLesson.findUnique({
       where: { id: lessonId },
       include: { skill: { select: { name: true } } },
     });
 
-    if (!lesson) {
-      throw new NotFoundException(`Lesson with ID ${lessonId} not found`);
+    if (!foundationVocabLesson) {
+      throw new NotFoundException(`FoundationVocabLesson with ID ${lessonId} not found`);
     }
 
-    return lesson;
+    return foundationVocabLesson;
   }
 
   // ── Listening ──────────────────────────────────────────────────────────
 
   async findListeningExercisesByLesson(lessonId: string) {
-    return this.prisma.ieltsListeningExercise.findMany({
+    return this.prisma.ieltsBasicListeningExercise.findMany({
       where: { lessonId },
       orderBy: { order: "asc" },
       select: { id: true, topic: true, order: true },
@@ -60,7 +60,7 @@ export class IeltsService {
   }
 
   async findListeningExerciseById(exerciseId: string) {
-    const exercise = await this.prisma.ieltsListeningExercise.findUnique({
+    const exercise = await this.prisma.ieltsBasicListeningExercise.findUnique({
       where: { id: exerciseId },
     });
 
@@ -76,7 +76,7 @@ export class IeltsService {
   // ── Reading ────────────────────────────────────────────────────────────
 
   async findReadingExercisesByLesson(lessonId: string) {
-    return this.prisma.ieltsReadingExercise.findMany({
+    return this.prisma.ieltsBasicReadingExercise.findMany({
       where: { lessonId },
       orderBy: { order: "asc" },
       select: { id: true, topic: true, order: true },
@@ -84,7 +84,7 @@ export class IeltsService {
   }
 
   async findReadingExerciseById(exerciseId: string) {
-    const exercise = await this.prisma.ieltsReadingExercise.findUnique({
+    const exercise = await this.prisma.ieltsBasicReadingExercise.findUnique({
       where: { id: exerciseId },
     });
 
@@ -100,7 +100,7 @@ export class IeltsService {
   // ── Writing ────────────────────────────────────────────────────────────
 
   async findWritingExercisesByLesson(lessonId: string) {
-    return this.prisma.ieltsWritingExercise.findMany({
+    return this.prisma.ieltsBasicWritingExercise.findMany({
       where: { lessonId },
       orderBy: { order: "asc" },
       select: { id: true, topic: true, order: true },
@@ -108,7 +108,7 @@ export class IeltsService {
   }
 
   async findWritingExerciseById(exerciseId: string) {
-    const exercise = await this.prisma.ieltsWritingExercise.findUnique({
+    const exercise = await this.prisma.ieltsBasicWritingExercise.findUnique({
       where: { id: exerciseId },
     });
 
@@ -238,25 +238,25 @@ export class IeltsService {
   }
 
   async getLibraryStats(userId: string) {
-    const skills = await this.prisma.ieltsSkill.findMany({
+    const skills = await this.prisma.ieltsBasicSkill.findMany({
       orderBy: { order: "asc" },
     });
-    const result = [];
+    const ieltsIntensiveResult = [];
 
     for (const skill of skills) {
-      const lessons = await this.prisma.ieltsLesson.findMany({
+      const lessons = await this.prisma.ieltsBasicLesson.findMany({
         where: { skillId: skill.id },
         select: { id: true },
       });
-      const listeningEx = await this.prisma.ieltsListeningExercise.findMany({
+      const listeningEx = await this.prisma.ieltsBasicListeningExercise.findMany({
         where: { skillId: skill.id },
         select: { id: true },
       });
-      const readingEx = await this.prisma.ieltsReadingExercise.findMany({
+      const readingEx = await this.prisma.ieltsBasicReadingExercise.findMany({
         where: { skillId: skill.id },
         select: { id: true },
       });
-      const writingEx = await this.prisma.ieltsWritingExercise.findMany({
+      const writingEx = await this.prisma.ieltsBasicWritingExercise.findMany({
         where: { skillId: skill.id },
         select: { id: true },
       });
@@ -311,7 +311,7 @@ export class IeltsService {
       const actualCompletedWriteEx =
         writingExIds.length > 0 ? completedWritingEx : 0;
 
-      result.push({
+      ieltsIntensiveResult.push({
         id: skill.id,
         skill: skill.name,
         lessons: {
@@ -328,7 +328,7 @@ export class IeltsService {
       });
     }
 
-    return result;
+    return ieltsIntensiveResult;
   }
 
   async resetProgress(userId: string) {
@@ -343,17 +343,17 @@ export class IeltsService {
     let exercise: any;
 
     if (type === "listening") {
-      exercise = await this.prisma.ieltsListeningExercise.findUnique({
+      exercise = await this.prisma.ieltsBasicListeningExercise.findUnique({
         where: { id },
         select: { id: true, topic: true, instructions: true, content: true },
       });
     } else if (type === "reading") {
-      exercise = await this.prisma.ieltsReadingExercise.findUnique({
+      exercise = await this.prisma.ieltsBasicReadingExercise.findUnique({
         where: { id },
         select: { id: true, topic: true, instructions: true, content: true },
       });
     } else if (type === "writing") {
-      exercise = await this.prisma.ieltsWritingExercise.findUnique({
+      exercise = await this.prisma.ieltsBasicWritingExercise.findUnique({
         where: { id },
         select: {
           id: true,
@@ -395,7 +395,7 @@ export class IeltsService {
     exerciseId: string,
     answers: { intro: string; overview: string; body1: string; body2: string },
   ) {
-    return this.prisma.ieltsWritingUserAnswer.upsert({
+    return this.prisma.ieltsBasicWritingAnswer.upsert({
       where: {
         userId_writingExerciseId: {
           userId,
@@ -420,7 +420,7 @@ export class IeltsService {
   }
 
   async getWritingUserAnswer(userId: string, exerciseId: string) {
-    return this.prisma.ieltsWritingUserAnswer.findUnique({
+    return this.prisma.ieltsBasicWritingAnswer.findUnique({
       where: {
         userId_writingExerciseId: {
           userId,
@@ -433,10 +433,10 @@ export class IeltsService {
   // ── Placement Test ──────────────────────────────────────────────────────
 
   async getPlacementExercises() {
-    const listening = await this.prisma.ieltsListeningExercise.findFirst({
+    const listening = await this.prisma.ieltsBasicListeningExercise.findFirst({
       orderBy: { order: "asc" },
     });
-    const reading = await this.prisma.ieltsReadingExercise.findFirst({
+    const reading = await this.prisma.ieltsBasicReadingExercise.findFirst({
       orderBy: { order: "asc" },
     });
     return { listening, reading, writing: null };

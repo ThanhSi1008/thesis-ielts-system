@@ -75,7 +75,7 @@ interface AchievementsSectionProps {
 }
 
 const CATEGORY_CONFIG: Record<string, { label: string, icon: any }> = {
-  FOUNDATION_VOCAB: { label: "Foundation: Vocabulary", icon: BookOpen },
+  FOUNDATION_VOCAB: { label: "Foundation: FoundationVocabWord", icon: BookOpen },
   FOUNDATION_GRAMMAR: { label: "Foundation: Grammar", icon: PenTool },
   FOUNDATION_PRONUNCIATION: { label: "Foundation: Pronunciation", icon: Mic },
   IELTS_BASIC: { label: "IELTS Basic", icon: Circle },

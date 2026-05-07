@@ -21,17 +21,17 @@ export class AdminShadowingService {
   }
 
   async findById(id: string) {
-    const lesson = await this.prisma.shadowingVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.shadowingVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("System lesson not found");
-    return lesson;
+    if (!foundationVocabLesson) throw new NotFoundException("System foundationVocabLesson not found");
+    return foundationVocabLesson;
   }
 
   async create(dto: AdminCreateLessonDto) {
     return this.prisma.shadowingVideo.create({
       data: {
-        userId: null, // System lesson
+        userId: null, // System foundationVocabLesson
         title: dto.title,
         youtubeVideoId: dto.youtubeVideoId ?? null,
         audioUrl: dto.audioUrl ?? null,
@@ -47,10 +47,10 @@ export class AdminShadowingService {
   }
 
   async update(id: string, dto: AdminUpdateLessonDto) {
-    const lesson = await this.prisma.shadowingVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.shadowingVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("System lesson not found");
+    if (!foundationVocabLesson) throw new NotFoundException("System foundationVocabLesson not found");
 
     return this.prisma.shadowingVideo.update({
       where: { id },
@@ -70,10 +70,10 @@ export class AdminShadowingService {
   }
 
   async delete(id: string) {
-    const lesson = await this.prisma.shadowingVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.shadowingVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("System lesson not found");
+    if (!foundationVocabLesson) throw new NotFoundException("System foundationVocabLesson not found");
     return this.prisma.shadowingVideo.delete({ where: { id } });
   }
 
@@ -87,7 +87,7 @@ export class AdminShadowingService {
 
     const video = await this.prisma.shadowingVideo.create({
       data: {
-        userId: null, // System lesson
+        userId: null, // System foundationVocabLesson
         title: dto.title,
         youtubeVideoId,
         imageUrl,

@@ -13,7 +13,7 @@ export class IeltsAdvancedService {
 
   async getListeningParts(questionType?: string) {
     const where = questionType ? { questionTypes: { has: questionType } } : {};
-    return this.prisma.ieltsPracticeListeningPart.findMany({
+    return this.prisma.ieltsAdvancedListeningPart.findMany({
       where,
       orderBy: { partNumber: "asc" },
       select: {
@@ -27,7 +27,7 @@ export class IeltsAdvancedService {
   }
 
   async getListeningPartDetail(partId: string) {
-    const part = await this.prisma.ieltsPracticeListeningPart.findUnique({
+    const part = await this.prisma.ieltsAdvancedListeningPart.findUnique({
       where: { id: partId },
     });
     if (!part) {
@@ -130,7 +130,7 @@ export class IeltsAdvancedService {
       }
     }
 
-    const session = await this.prisma.ieltsPracticeSession.create({
+    const session = await this.prisma.ieltsAdvancedListeningSession.create({
       data: {
         userId,
         partId,
@@ -167,7 +167,7 @@ export class IeltsAdvancedService {
   }
 
   async getStatistics(userId: string) {
-    const sessions = await this.prisma.ieltsPracticeSession.findMany({
+    const sessions = await this.prisma.ieltsAdvancedListeningSession.findMany({
       where: { userId },
       select: { scoreData: true },
     });
@@ -201,7 +201,7 @@ export class IeltsAdvancedService {
     const whereClause: any = { userId };
     if (partId) whereClause.partId = partId;
 
-    return this.prisma.ieltsPracticeSession.findMany({
+    return this.prisma.ieltsAdvancedListeningSession.findMany({
       where: whereClause,
       include: {
         part: { select: { title: true } },
@@ -211,7 +211,7 @@ export class IeltsAdvancedService {
   }
 
   async getHistoryDetail(userId: string, sessionId: string) {
-    const session = await this.prisma.ieltsPracticeSession.findUnique({
+    const session = await this.prisma.ieltsAdvancedListeningSession.findUnique({
       where: { id: sessionId },
       include: { part: true },
     });
@@ -224,7 +224,7 @@ export class IeltsAdvancedService {
 
   async getReadingParts(questionType?: string) {
     const where = questionType ? { questionTypes: { has: questionType } } : {};
-    return this.prisma.ieltsPracticeReadingPart.findMany({
+    return this.prisma.ieltsAdvancedReadingPart.findMany({
       where,
       orderBy: { partNumber: "asc" },
       select: {
@@ -238,7 +238,7 @@ export class IeltsAdvancedService {
   }
 
   async getReadingPartDetail(partId: string) {
-    const part = await this.prisma.ieltsPracticeReadingPart.findUnique({
+    const part = await this.prisma.ieltsAdvancedReadingPart.findUnique({
       where: { id: partId },
     });
     if (!part) {
@@ -296,7 +296,7 @@ export class IeltsAdvancedService {
       }
     }
 
-    const session = await this.prisma.ieltsPracticeReadingSession.create({
+    const session = await this.prisma.ieltsAdvancedReadingSession.create({
       data: {
         userId,
         partId,
@@ -336,7 +336,7 @@ export class IeltsAdvancedService {
     const whereClause: any = { userId };
     if (partId) whereClause.partId = partId;
 
-    return this.prisma.ieltsPracticeReadingSession.findMany({
+    return this.prisma.ieltsAdvancedReadingSession.findMany({
       where: whereClause,
       include: {
         part: { select: { title: true } },
@@ -346,7 +346,7 @@ export class IeltsAdvancedService {
   }
 
   async getReadingHistoryDetail(userId: string, sessionId: string) {
-    const session = await this.prisma.ieltsPracticeReadingSession.findUnique({
+    const session = await this.prisma.ieltsAdvancedReadingSession.findUnique({
       where: { id: sessionId },
       include: { part: true },
     });

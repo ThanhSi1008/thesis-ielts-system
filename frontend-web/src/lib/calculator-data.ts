@@ -126,7 +126,7 @@ export const WRITING_TASK_1_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Uses cohesion in such a way that it attracts no attention; skilfully manages paragraphing.",
       lexicalResource:
-        "Uses a wide range of vocabulary with very natural and sophisticated control of lexical features; rare minor errors occur only as 'slips'.",
+        "Uses a wide range of foundationVocabWord with very natural and sophisticated control of lexical features; rare minor errors occur only as 'slips'.",
       grammaticalRange:
         "Uses a wide range of structures with full flexibility and accuracy; rare minor errors occur only as 'slips'.",
     },
@@ -139,7 +139,7 @@ export const WRITING_TASK_1_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Sequences information and ideas logically; manages all aspects of cohesion well; uses paragraphing sufficiently and appropriately.",
       lexicalResource:
-        "Uses a wide range of vocabulary fluently and flexibly to convey precise meanings; skilfully uses uncommon lexical items but there may be occasional inaccuracies in word choice and collocation; produces rare errors in spelling and/or word formation.",
+        "Uses a wide range of foundationVocabWord fluently and flexibly to convey precise meanings; skilfully uses uncommon lexical items but there may be occasional inaccuracies in word choice and collocation; produces rare errors in spelling and/or word formation.",
       grammaticalRange:
         "Uses a wide range of structures; the majority of sentences are error-free; makes only very occasional errors or inappropriacies.",
     },
@@ -152,7 +152,7 @@ export const WRITING_TASK_1_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Logically organises information and ideas; there is clear progression throughout; uses a range of cohesive devices appropriately although there may be some under-/over-use.",
       lexicalResource:
-        "Uses a sufficient range of vocabulary to allow some flexibility and precision; uses less common lexical items with some awareness of style and collocation; may produce occasional errors in word choice, spelling and/or word formation.",
+        "Uses a sufficient range of foundationVocabWord to allow some flexibility and precision; uses less common lexical items with some awareness of style and collocation; may produce occasional errors in word choice, spelling and/or word formation.",
       grammaticalRange:
         "Uses a variety of complex structures; produces frequent error-free sentences; has good control of grammar and punctuation but may make a few errors.",
     },
@@ -165,7 +165,7 @@ export const WRITING_TASK_1_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Arranges information and ideas coherently and there is a clear overall progression; uses cohesive devices effectively, but cohesion within and/or between sentences may be faulty or mechanical; may not always use referencing clearly or appropriately.",
       lexicalResource:
-        "Uses an adequate range of vocabulary for the task; attempts to use less common vocabulary but with some inaccuracy; makes some errors in spelling and/or word formation, but they do not impede communication.",
+        "Uses an adequate range of foundationVocabWord for the task; attempts to use less common foundationVocabWord but with some inaccuracy; makes some errors in spelling and/or word formation, but they do not impede communication.",
       grammaticalRange:
         "Uses a mix of simple and complex sentence forms; makes some errors in grammar and punctuation but they rarely reduce communication.",
     },
@@ -178,7 +178,7 @@ export const WRITING_TASK_1_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Presents information with some organisation but there may be a lack of overall progression; makes inadequate, inaccurate or over-use of cohesive devices; may be repetitive because of lack of referencing and substitution.",
       lexicalResource:
-        "Uses a limited range of vocabulary, but this is minimally adequate for the task; may make noticeable errors in spelling and/or word formation that may cause some difficulty for the reader.",
+        "Uses a limited range of foundationVocabWord, but this is minimally adequate for the task; may make noticeable errors in spelling and/or word formation that may cause some difficulty for the reader.",
       grammaticalRange:
         "Uses only a limited range of structures; attempts complex sentences but these tend to be less accurate than simple sentences; may make frequent grammatical errors and punctuation may be faulty; errors can cause some difficulty for the reader.",
     },
@@ -191,7 +191,7 @@ export const WRITING_TASK_1_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Presents information and ideas but these are not arranged coherently and there is no clear progression in the response; uses some basic cohesive devices but these may be inaccurate or repetitive.",
       lexicalResource:
-        "Uses only basic vocabulary which may be used repetitively or which may be inappropriate for the task; has limited control of word formation and/or spelling; errors may cause strain for the reader.",
+        "Uses only basic foundationVocabWord which may be used repetitively or which may be inappropriate for the task; has limited control of word formation and/or spelling; errors may cause strain for the reader.",
       grammaticalRange:
         "Uses only a very limited range of structures with only rare use of subordinate clauses; some structures are accurate but errors predominate, and punctuation is often faulty.",
     },
@@ -215,7 +215,7 @@ export const WRITING_TASK_1_DESCRIPTORS: BandDescriptorRow[] = [
       taskAchievement: "Answer is barely related to the task.",
       coherenceCohesion: "Has very little control of organisational features.",
       lexicalResource:
-        "Uses an extremely limited range of vocabulary; essentially no control of word formation and/or spelling.",
+        "Uses an extremely limited range of foundationVocabWord; essentially no control of word formation and/or spelling.",
       grammaticalRange: "Cannot use sentence forms except in memorised phrases.",
     },
   },
@@ -263,7 +263,7 @@ export const WRITING_TASK_2_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Uses cohesion in such a way that it attracts no attention; skilfully manages paragraphing.",
       lexicalResource:
-        "Uses a wide range of vocabulary with very natural and sophisticated control of lexical features; rare minor errors occur only as 'slips'.",
+        "Uses a wide range of foundationVocabWord with very natural and sophisticated control of lexical features; rare minor errors occur only as 'slips'.",
       grammaticalRange:
         "Uses a wide range of structures with full flexibility and accuracy; rare minor errors occur only as 'slips'.",
     },
@@ -276,7 +276,7 @@ export const WRITING_TASK_2_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Sequences information and ideas logically; manages all aspects of cohesion well; uses paragraphing sufficiently and appropriately.",
       lexicalResource:
-        "Uses a wide range of vocabulary fluently and flexibly to convey precise meanings; skilfully uses uncommon lexical items but there may be occasional inaccuracies in word choice and collocation; produces rare errors in spelling and/or word formation.",
+        "Uses a wide range of foundationVocabWord fluently and flexibly to convey precise meanings; skilfully uses uncommon lexical items but there may be occasional inaccuracies in word choice and collocation; produces rare errors in spelling and/or word formation.",
       grammaticalRange:
         "Uses a wide range of structures; the majority of sentences are error-free; makes only very occasional errors or inappropriacies.",
     },
@@ -289,7 +289,7 @@ export const WRITING_TASK_2_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Logically organises information and ideas; there is clear progression throughout; uses a range of cohesive devices appropriately although there may be some under-/over-use; presents a clear central topic within each paragraph.",
       lexicalResource:
-        "Uses a sufficient range of vocabulary to allow some flexibility and precision; uses less common lexical items with some awareness of style and collocation; may produce occasional errors in word choice, spelling and/or word formation.",
+        "Uses a sufficient range of foundationVocabWord to allow some flexibility and precision; uses less common lexical items with some awareness of style and collocation; may produce occasional errors in word choice, spelling and/or word formation.",
       grammaticalRange:
         "Uses a variety of complex structures; produces frequent error-free sentences; has good control of grammar and punctuation but may make a few errors.",
     },
@@ -302,7 +302,7 @@ export const WRITING_TASK_2_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Arranges information and ideas coherently and there is a clear overall progression; uses cohesive devices effectively, but cohesion within and/or between sentences may be faulty or mechanical; may not always use referencing clearly or appropriately; uses paragraphing, but not always logically.",
       lexicalResource:
-        "Uses an adequate range of vocabulary for the task; attempts to use less common vocabulary but with some inaccuracy; makes some errors in spelling and/or word formation, but they do not impede communication.",
+        "Uses an adequate range of foundationVocabWord for the task; attempts to use less common foundationVocabWord but with some inaccuracy; makes some errors in spelling and/or word formation, but they do not impede communication.",
       grammaticalRange:
         "Uses a mix of simple and complex sentence forms; makes some errors in grammar and punctuation but they rarely reduce communication.",
     },
@@ -315,7 +315,7 @@ export const WRITING_TASK_2_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Presents information with some organisation but there may be a lack of overall progression; makes inadequate, inaccurate or over-use of cohesive devices; may be repetitive because of lack of referencing and substitution; may not write in paragraphs, or paragraphing may be inadequate.",
       lexicalResource:
-        "Uses a limited range of vocabulary, but this is minimally adequate for the task; may make noticeable errors in spelling and/or word formation that may cause some difficulty for the reader.",
+        "Uses a limited range of foundationVocabWord, but this is minimally adequate for the task; may make noticeable errors in spelling and/or word formation that may cause some difficulty for the reader.",
       grammaticalRange:
         "Uses only a limited range of structures; attempts complex sentences but these tend to be less accurate than simple sentences; may make frequent grammatical errors and punctuation may be faulty; errors can cause some difficulty for the reader.",
     },
@@ -328,7 +328,7 @@ export const WRITING_TASK_2_DESCRIPTORS: BandDescriptorRow[] = [
       coherenceCohesion:
         "Presents information and ideas but these are not arranged coherently and there is no clear progression in the response; uses some basic cohesive devices but these may be inaccurate or repetitive; may not write in paragraphs, or paragraphing may be confusing.",
       lexicalResource:
-        "Uses only basic vocabulary which may be used repetitively or which may be inappropriate for the task; has limited control of word formation and/or spelling; errors may cause strain for the reader.",
+        "Uses only basic foundationVocabWord which may be used repetitively or which may be inappropriate for the task; has limited control of word formation and/or spelling; errors may cause strain for the reader.",
       grammaticalRange:
         "Uses only a very limited range of structures with only rare use of subordinate clauses; some structures are accurate but errors predominate, and punctuation is often faulty.",
     },
@@ -352,7 +352,7 @@ export const WRITING_TASK_2_DESCRIPTORS: BandDescriptorRow[] = [
       taskResponse: "Barely responds to the task; does not express a position; may attempt a few ideas but there is no development.",
       coherenceCohesion: "Has very little control of organisational features.",
       lexicalResource:
-        "Uses an extremely limited range of vocabulary; essentially no control of word formation and/or spelling.",
+        "Uses an extremely limited range of foundationVocabWord; essentially no control of word formation and/or spelling.",
       grammaticalRange: "Cannot use sentence forms except in memorised phrases.",
     },
   },
@@ -400,7 +400,7 @@ export const SPEAKING_DESCRIPTORS: BandDescriptorRow[] = [
       fluencyCoherence:
         "Speaks fluently with only rare repetition or self-correction; any hesitation is content-related rather than to find words or grammar; speaks coherently with fully appropriate cohesive features; develops topics fully and appropriately.",
       lexicalResource:
-        "Uses vocabulary with full flexibility and precision in all topics; uses idiomatic language naturally and accurately.",
+        "Uses foundationVocabWord with full flexibility and precision in all topics; uses idiomatic language naturally and accurately.",
       grammaticalRange:
         "Uses a full range of structures naturally and appropriately; produces consistently accurate structures apart from 'slips' characteristic of native speaker speech.",
       pronunciation:
@@ -413,7 +413,7 @@ export const SPEAKING_DESCRIPTORS: BandDescriptorRow[] = [
       fluencyCoherence:
         "Speaks fluently with only occasional repetition or self-correction; hesitation is usually content-related and only rarely to search for language; develops topics coherently and appropriately.",
       lexicalResource:
-        "Uses a wide vocabulary resource readily and flexibly to convey precise meaning; uses less common and idiomatic vocabulary skilfully, with occasional inaccuracies; uses paraphrase effectively as required.",
+        "Uses a wide foundationVocabWord resource readily and flexibly to convey precise meaning; uses less common and idiomatic foundationVocabWord skilfully, with occasional inaccuracies; uses paraphrase effectively as required.",
       grammaticalRange:
         "Uses a wide range of structures flexibly; produces a majority of error-free sentences with only very occasional inappropriacies or basic/non-systematic errors.",
       pronunciation:
@@ -426,7 +426,7 @@ export const SPEAKING_DESCRIPTORS: BandDescriptorRow[] = [
       fluencyCoherence:
         "Speaks at length without noticeable effort or loss of coherence; may demonstrate language-related hesitation at times, or some repetition and/or self-correction; uses a range of connectives and discourse markers with some flexibility.",
       lexicalResource:
-        "Uses vocabulary resource flexibly to discuss a variety of topics; uses some less common and idiomatic vocabulary and shows some awareness of style and collocation, with some inappropriate choices; uses paraphrase effectively.",
+        "Uses foundationVocabWord resource flexibly to discuss a variety of topics; uses some less common and idiomatic foundationVocabWord and shows some awareness of style and collocation, with some inappropriate choices; uses paraphrase effectively.",
       grammaticalRange:
         "Uses a range of complex structures with some flexibility; frequently produces error-free sentences, though some grammatical mistakes persist.",
       pronunciation:
@@ -439,7 +439,7 @@ export const SPEAKING_DESCRIPTORS: BandDescriptorRow[] = [
       fluencyCoherence:
         "Is willing to speak at length, though may lose coherence at times due to occasional repetition, self-correction or hesitation; uses a range of connectives and discourse markers but not always appropriately.",
       lexicalResource:
-        "Has a wide enough vocabulary to discuss topics at length and make meaning clear in spite of inappropriacies; generally paraphrases successfully.",
+        "Has a wide enough foundationVocabWord to discuss topics at length and make meaning clear in spite of inappropriacies; generally paraphrases successfully.",
       grammaticalRange:
         "Uses a mix of simple and complex structures, but with limited flexibility; may make frequent mistakes with complex structures, though these rarely cause comprehension problems.",
       pronunciation:
@@ -452,7 +452,7 @@ export const SPEAKING_DESCRIPTORS: BandDescriptorRow[] = [
       fluencyCoherence:
         "Usually maintains flow of speech but uses repetition, self-correction and/or slow speech to keep going; may over-use certain connectives and discourse markers; produces simple speech fluently, but more complex communication causes fluency problems.",
       lexicalResource:
-        "Manages to talk about familiar and unfamiliar topics but uses vocabulary with limited flexibility; attempts to use paraphrase but with mixed success.",
+        "Manages to talk about familiar and unfamiliar topics but uses foundationVocabWord with limited flexibility; attempts to use paraphrase but with mixed success.",
       grammaticalRange:
         "Produces basic sentence forms with reasonable accuracy; uses a limited range of more complex structures, but these usually contain errors and may cause some comprehension problems.",
       pronunciation:
@@ -478,7 +478,7 @@ export const SPEAKING_DESCRIPTORS: BandDescriptorRow[] = [
       fluencyCoherence:
         "Speaks with long pauses; has limited ability to link simple sentences; gives only simple responses and is frequently unable to convey basic message.",
       lexicalResource:
-        "Uses simple vocabulary to convey personal information; has insufficient vocabulary for less familiar topics.",
+        "Uses simple foundationVocabWord to convey personal information; has insufficient foundationVocabWord for less familiar topics.",
       grammaticalRange:
         "Attempts basic sentence forms but with limited success, or relies on apparently memorised utterances; makes numerous errors except in memorised expressions.",
       pronunciation:

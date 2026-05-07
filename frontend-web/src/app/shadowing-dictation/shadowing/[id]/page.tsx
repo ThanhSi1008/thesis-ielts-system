@@ -24,7 +24,7 @@ export default function ShadowingPracticePage() {
   const id = params.id as string;
   const router = useRouter();
 
-  const { lesson, isInitializing, sentences, isYouTube, audioUrl, totalSentences } = useShadowingLesson(id);
+  const { foundationVocabLesson, isInitializing, sentences, isYouTube, audioUrl, totalSentences } = useShadowingLesson(id);
 
   const {
     completedSentences,
@@ -32,7 +32,7 @@ export default function ShadowingPracticePage() {
     setCurrentIndex,
     markCompleted,
     isFinished,
-  } = useShadowingProgress({ lessonId: lesson?.id, totalSentences, isInitializing });
+  } = useShadowingProgress({ lessonId: foundationVocabLesson?.id, totalSentences, isInitializing });
 
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [showTranslation, setShowTranslation] = useState(true);
@@ -45,7 +45,7 @@ export default function ShadowingPracticePage() {
   const {
     playerRef: ytPlayerRef,
     isReady: isYtReady,
-  } = useYouTubePlayer({ videoId: lesson?.youtubeVideoId || null, containerRef });
+  } = useYouTubePlayer({ videoId: foundationVocabLesson?.youtubeVideoId || null, containerRef });
 
   const {
     isPlaying,
@@ -126,10 +126,10 @@ export default function ShadowingPracticePage() {
     );
   }
 
-  if (!lesson || !currentSentence) {
+  if (!foundationVocabLesson || !currentSentence) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Lesson not found or empty.</div>
+        <div className="text-gray-500">FoundationVocabLesson not found or empty.</div>
       </div>
     );
   }
@@ -140,7 +140,7 @@ export default function ShadowingPracticePage() {
       <div className="flex-1 flex flex-col bg-black min-w-0 justify-center">
         <div className="w-full max-w-[1280px] mx-auto aspect-video">
           <ShadowingVideoPlayer
-            lesson={lesson}
+            foundationVocabLesson={foundationVocabLesson}
             isYouTube={isYouTube}
             ytState={{ isPlaying }}
             playerRef={isYouTube ? containerRef : { current: null }}
@@ -216,7 +216,7 @@ export default function ShadowingPracticePage() {
 
       {isFinished && (
         <ShadowingCompletionScreen
-          lesson={lesson}
+          foundationVocabLesson={foundationVocabLesson}
           onRetry={() => {
             setCurrentIndex(0);
             clearRecording();

@@ -32,7 +32,7 @@ export interface SpeakingFeedback {
 interface SpeakingResultViewProps {
   feedback: SpeakingFeedback;
   answers?: Record<string, any>;
-  exam?: any;
+  ieltsIntensiveExam?: any;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -183,7 +183,7 @@ function CriterionCard({
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export default function SpeakingResultView({ feedback, answers, exam }: SpeakingResultViewProps) {
+export default function SpeakingResultView({ feedback, answers, ieltsIntensiveExam }: SpeakingResultViewProps) {
   const [detailedOpen, setDetailedOpen] = useState(true);
 
   const CRITERIA_KEYS = [

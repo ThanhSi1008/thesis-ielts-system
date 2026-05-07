@@ -160,7 +160,7 @@ export function SentenceEditor({ sentences, onAdd, onRemove, onUpdate, onMove }:
     <div className="flex flex-col gap-3">
       {sentences.length === 0 && (
         <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center text-gray-400 text-sm">
-          No sentences yet. Click "Add Sentence" to start building the lesson.
+          No sentences yet. Click "Add Sentence" to start building the foundationVocabLesson.
         </div>
       )}
       {sentences.map((s, i) => (

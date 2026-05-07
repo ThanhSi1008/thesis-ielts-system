@@ -1,5 +1,5 @@
 const fs = require('fs');
-const filePath = 'prisma/data/vocabulary.ts';
+const filePath = 'prisma/data/foundationVocabWord.ts';
 
 let content = fs.readFileSync(filePath, 'utf8');
 

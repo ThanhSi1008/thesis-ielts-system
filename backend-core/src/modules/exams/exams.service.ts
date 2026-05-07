@@ -97,17 +97,17 @@ export class ExamsService {
     });
 
     const parsed = exams
-      .map((e) => ({ exam: e, meta: this.parseCambridgeTitle(e.title) }))
+      .map((e) => ({ ieltsIntensiveExam: e, meta: this.parseCambridgeTitle(e.title) }))
       .filter(
         (x) => x.meta !== null && x.meta.groupId !== "cambridge-13",
       ) as Array<{
-      exam: (typeof exams)[number];
+      ieltsIntensiveExam: (typeof exams)[number];
       meta: NonNullable<ReturnType<ExamsService["parseCambridgeTitle"]>>;
     }>;
 
-    const examIds = parsed.map((p) => p.exam.id);
+    const examIds = parsed.map((p) => p.ieltsIntensiveExam.id);
 
-    // Participants: count distinct userId per exam from sessions.
+    // Participants: count distinct userId per ieltsIntensiveExam from sessions.
     const sessions = await this.prisma.examSession.findMany({
       where: { examId: { in: examIds } },
       select: { examId: true, userId: true, status: true },
@@ -126,7 +126,7 @@ export class ExamsService {
       }
     }
 
-    // Results drive "myScore" (latest result per exam for current user).
+    // Results drive "myScore" (latest ieltsIntensiveResult per ieltsIntensiveExam for current user).
     const myResults = await this.prisma.result.findMany({
       where: {
         userId: params.userId,
@@ -181,21 +181,21 @@ export class ExamsService {
       const g = groupsMap.get(p.meta.groupId) ?? {
         id: p.meta.groupId,
         title: p.meta.groupTitle,
-        imageUrl: p.exam.imageUrl || undefined,
+        imageUrl: p.ieltsIntensiveExam.imageUrl || undefined,
         participantsCount: 0,
         completedCount: 0,
         tests: [],
       };
 
-      const participantsCount = participantsByExam.get(p.exam.id)?.size ?? 0;
-      const completedCount = completedByExam.get(p.exam.id) ?? 0;
-      const myScore = myScoreByExam.get(p.exam.id)?.score;
+      const participantsCount = participantsByExam.get(p.ieltsIntensiveExam.id)?.size ?? 0;
+      const completedCount = completedByExam.get(p.ieltsIntensiveExam.id) ?? 0;
+      const myScore = myScoreByExam.get(p.ieltsIntensiveExam.id)?.score;
 
       g.tests.push({
-        examId: p.exam.id,
+        examId: p.ieltsIntensiveExam.id,
         testNumber: p.meta.testNumber,
-        durationMinutes: p.exam.duration,
-        difficulty: p.exam.difficulty,
+        durationMinutes: p.ieltsIntensiveExam.duration,
+        difficulty: p.ieltsIntensiveExam.difficulty,
         myScore,
         participantsCount,
         completedCount,
@@ -241,15 +241,15 @@ export class ExamsService {
     });
 
     const parsed = exams
-      .map((e) => ({ exam: e, meta: this.parseCambridgeTitle(e.title) }))
+      .map((e) => ({ ieltsIntensiveExam: e, meta: this.parseCambridgeTitle(e.title) }))
       .filter(
         (x) => x.meta !== null && x.meta.groupId === "cambridge-13",
       ) as Array<{
-      exam: (typeof exams)[number];
+      ieltsIntensiveExam: (typeof exams)[number];
       meta: NonNullable<ReturnType<ExamsService["parseCambridgeTitle"]>>;
     }>;
 
-    const examIds = parsed.map((p) => p.exam.id);
+    const examIds = parsed.map((p) => p.ieltsIntensiveExam.id);
 
     // Get all sessions for these exams that have a practicePart
     const sessions = (await (this.prisma.examSession as any).findMany({
@@ -275,7 +275,7 @@ export class ExamsService {
     const practiceItems: any[] = [];
 
     for (const p of parsed) {
-      const q: any = p.exam.questions || {};
+      const q: any = p.ieltsIntensiveExam.questions || {};
       const partsArr = Array.isArray(q.parts)
         ? q.parts
         : Array.isArray(q.passages)
@@ -295,7 +295,7 @@ export class ExamsService {
 
         // Find sessions for this part
         const partSessions = sessions.filter(
-          (s) => s.examId === p.exam.id && s.practicePart === partNumber,
+          (s) => s.examId === p.ieltsIntensiveExam.id && s.practicePart === partNumber,
         );
 
         const mySessions = partSessions.filter(
@@ -323,8 +323,8 @@ export class ExamsService {
         }
 
         practiceItems.push({
-          id: `${p.exam.id}-${partNumber}`,
-          examId: p.exam.id,
+          id: `${p.ieltsIntensiveExam.id}-${partNumber}`,
+          examId: p.ieltsIntensiveExam.id,
           testTitle: `${p.meta.groupTitle} Test ${p.meta.testNumber}`,
           partNumber,
           partType:
@@ -374,7 +374,7 @@ export class ExamsService {
     await this.prisma.exam.delete({
       where: { id },
     });
-    return { message: "Exam deleted successfully" };
+    return { message: "IeltsIntensiveExam deleted successfully" };
   }
   async getHistory(userId: string) {
     const sessions = await this.prisma.examSession.findMany({
@@ -487,14 +487,14 @@ export class ExamsService {
     sessionId: string,
     submitDto: SubmitSessionDto,
   ): Promise<ExamSession & { result?: any }> {
-    // 1. Fetch the existing session and exam details
+    // 1. Fetch the existing session and ieltsIntensiveExam details
     const existing = await this.prisma.examSession.findUnique({
       where: { id: sessionId },
       include: { exam: true },
     });
 
     if (!existing) {
-      throw new BadRequestException("Exam session not found.");
+      throw new BadRequestException("IeltsIntensiveExam session not found.");
     }
 
     let status: SessionStatus = "SUBMITTED";
@@ -583,7 +583,7 @@ export class ExamsService {
       },
     });
 
-    // 4. Create or Update Result if graded
+    // 4. Create or Update IeltsIntensiveResult if graded
     let resultRecord: any = null;
     if (graded) {
       const resultData = {
@@ -667,7 +667,7 @@ export class ExamsService {
       throw new BadRequestException("Session not found.");
     }
 
-    // Delete associated result first (if any)
+    // Delete associated ieltsIntensiveResult first (if any)
     await this.prisma.result.deleteMany({
       where: { sessionId },
     });

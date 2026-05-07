@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
-import type { IeltsIntensiveCatalogResponse, IeltsIntensiveGroup, IeltsSkill, PracticeCatalogResponse } from "@/types";
+import type { IeltsIntensiveCatalogResponse, IeltsIntensiveGroup, IeltsBasicSkill, PracticeCatalogResponse } from "@/types";
 
 import { Headphones, BookOpen, PenTool, Mic, Search, X, TrendingUp } from "lucide-react";
 
-const SKILLS: Array<{ key: IeltsSkill; label: string; icon: JSX.Element }> = [
+const SKILLS: Array<{ key: IeltsBasicSkill; label: string; icon: JSX.Element }> = [
   { key: "LISTENING", label: "Listening", icon: <Headphones className="w-4 h-4" /> },
   { key: "READING", label: "Reading", icon: <BookOpen className="w-4 h-4" /> },
   { key: "WRITING", label: "Writing", icon: <PenTool className="w-4 h-4" /> },
@@ -101,7 +101,7 @@ function TestCard({
   skill,
   test,
 }: {
-  skill: IeltsSkill;
+  skill: IeltsBasicSkill;
   test: IeltsIntensiveGroup["tests"][number];
 }) {
   const rawScore = test.myScore ?? 0;
@@ -202,7 +202,7 @@ function getIeltsReadingBand(score: number): number {
 
 function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: boolean; initialView?: string }) {
   const searchParams = useSearchParams();
-  const [skill, setSkill] = useState<IeltsSkill>("LISTENING");
+  const [skill, setSkill] = useState<IeltsBasicSkill>("LISTENING");
   const [data, setData] = useState<IeltsIntensiveCatalogResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -391,7 +391,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
           </select>
         </div>
 
-        {/* Result summary */}
+        {/* IeltsIntensiveResult summary */}
         {hasActiveFilter && !loading && (
           <p className="text-xs text-gray-400 dark:text-slate-500 mb-4">
             Showing <span className="font-semibold text-gray-600 dark:text-slate-300">{totalResults}</span> test{totalResults !== 1 ? "s" : ""}
@@ -432,7 +432,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
             {hasActiveFilter
               ? "No tests match your search or filters. Try adjusting them."
               : <>
-                No published Cambridge exams found for {skill}. Make sure exam titles follow:
+                No published Cambridge exams found for {skill}. Make sure ieltsIntensiveExam titles follow:
                 <div className="mt-2 font-mono text-xs text-amber-900/80 dark:text-amber-400/80">
                   Cambridge IELTS 17 - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test 1
                 </div>
@@ -610,9 +610,9 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
             </div>
           </div>
 
-          {/* Exam Selector */}
+          {/* IeltsIntensiveExam Selector */}
           <div className="mb-8">
-            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">2. Select Exam Source</div>
+            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">2. Select IeltsIntensiveExam Source</div>
             {loading && <div className="h-12 bg-gray-100 dark:bg-slate-800 animate-pulse rounded-xl shadow-inner w-full" />}
             {!loading && (
               <div className="relative border-2 border-gray-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm hover:border-gray-200 dark:hover:border-slate-700 transition overflow-hidden">

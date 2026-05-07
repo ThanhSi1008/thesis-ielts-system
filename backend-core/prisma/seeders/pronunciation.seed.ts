@@ -7,7 +7,7 @@ export async function seedPronunciation(prisma: PrismaClient) {
   for (const sound of pronunciationSounds) {
     const { exampleWords, ...soundData } = sound;
 
-    const created = await prisma.pronunciationSound.upsert({
+    const created = await prisma.foundationPronunciationSound.upsert({
       where: { symbol: soundData.symbol },
       update: {
         ...soundData,

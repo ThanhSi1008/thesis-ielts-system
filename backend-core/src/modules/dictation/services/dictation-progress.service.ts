@@ -24,7 +24,7 @@ export class DictationProgressService {
   }
 
   async upsert(userId: string, dto: UpsertDictationProgressDto) {
-    const result = await this.prisma.dictationProgress.upsert({
+    const ieltsIntensiveResult = await this.prisma.dictationProgress.upsert({
       where: { userId_lessonId: { userId, lessonId: dto.lessonId } },
       update: {
         completedSentences: dto.completedSentences,
@@ -44,7 +44,7 @@ export class DictationProgressService {
     const existingCount = existing?.completedSentences ? (existing.completedSentences as number[]).length : 0;
     const newCount = dto.completedSentences.length;
 
-    // Notify when lesson is fully completed
+    // Notify when foundationVocabLesson is fully completed
     const isNowCompleted = dto.totalSentences && dto.completedSentences.length >= dto.totalSentences;
     const wasAlreadyCompleted = existingCount >= (dto.totalSentences || Infinity);
 
@@ -75,7 +75,7 @@ export class DictationProgressService {
         .catch(() => {});
     }
 
-    return result;
+    return ieltsIntensiveResult;
   }
 
   async findAllByUser(userId: string) {

@@ -3,7 +3,7 @@ import { PlayCircle } from 'lucide-react';
 import { DictationVideo, DictationSentence } from '@/services/dictation.api';
 
 export interface DictationVideoPlayerProps {
-  lesson: DictationVideo;
+  foundationVocabLesson: DictationVideo;
   isYouTube: boolean;
   ytState: any;
   playerRef: React.RefObject<any>;
@@ -14,7 +14,7 @@ export interface DictationVideoPlayerProps {
 }
 
 export default function DictationVideoPlayer({
-  lesson,
+  foundationVocabLesson,
   isYouTube,
   ytState,
   playerRef,

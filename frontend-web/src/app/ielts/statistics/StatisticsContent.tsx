@@ -188,7 +188,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
             practicePart: true,
             maxScore: h.totalQuestions,
             rawScore: h.totalScore,
-            examId: h.partId,
+            examId: h.partI
           }));
           const combinedPractice = [...listPractice, ...readPractice].sort(
             (a, b) => new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime()
@@ -436,14 +436,14 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
               </div>
             </div>
 
-            {/* Sub-bar: Exam Date & Actions */}
+            {/* Sub-bar: IeltsIntensiveExam Date & Actions */}
             <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-4 text-slate-600">
                 <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
                   <Calendar className="w-5 h-5 text-slate-400" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">Upcoming Exam</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">Upcoming IeltsIntensiveExam</span>
                   <div className="flex items-center gap-3">
                     <span className="text-[15px] font-bold text-slate-900 dark:text-white">
                       {examDate ? (() => {
@@ -451,7 +451,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                         if (days < 0) return "Completed on " + new Date(examDate).toLocaleDateString();
                         if (days === 0) return "Happening Today!";
                         return `${new Date(examDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} (${days} days left)`;
-                      })() : "No exam date scheduled"}
+                      })() : "No ieltsIntensiveExam date scheduled"}
                     </span>
                     {!isTeacherMode && (
                       <button onClick={() => setIsEditingExamDate(true)} className="text-slate-300 hover:text-primary transition-colors">
@@ -486,7 +486,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                   onClick={() => setIsEditingExamDate(true)}
                   className="px-6 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95 uppercase tracking-wider shadow-sm"
                 >
-                  Schedule Exam
+                  Schedule IeltsIntensiveExam
                 </button>
               )}
             </div>
@@ -702,7 +702,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                             <div className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{getBandForHistoryItem(h).toFixed(1)}</div>
                           </div>
                           <Link
-                            href={h.practicePart ? `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}` : `/ielts/intensive/${h.examId}/result/${h.id}`}
+                            href={h.practicePart ? `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}` : `/ielts/intensive/${h.examId}/ieltsIntensiveResult/${h.id}`}
                             className="flex items-center gap-2 text-[11px] font-bold text-slate-400 group-hover:text-primary uppercase tracking-widest transition-all"
                           >
                             Review
@@ -768,7 +768,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                                   href={`/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}`}
                                   className="text-sm font-medium text-primary hover:underline"
                                 >
-                                  View Result
+                                  View IeltsIntensiveResult
                                 </Link>
                               </div>
                             </div>
@@ -902,7 +902,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                                   <td className="py-4 px-4">
                                     <div className="flex items-center gap-4">
                                       <Link
-                                        href={`/ielts/intensive/${h.examId}/result/${h.id}`}
+                                        href={`/ielts/intensive/${h.examId}/ieltsIntensiveResult/${h.id}`}
                                         className="text-sm font-medium text-primary hover:underline"
                                       >
                                         Review

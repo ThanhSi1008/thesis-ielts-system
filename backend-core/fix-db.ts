@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const ex = await prisma.ieltsListeningExercise.findFirst({
+  const ex = await prisma.ieltsBasicListeningExercise.findFirst({
     where: { topic: 'Fun Fortress Theme Park Map' }
   });
   if (!ex) return console.log('Exercise not found');
@@ -19,7 +19,7 @@ async function main() {
   });
 
   if (updated) {
-    await prisma.ieltsListeningExercise.update({
+    await prisma.ieltsBasicListeningExercise.update({
       where: { id: ex.id },
       data: { content: newContent }
     });

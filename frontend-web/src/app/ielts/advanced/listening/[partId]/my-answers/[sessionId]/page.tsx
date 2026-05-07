@@ -251,7 +251,7 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
             >
               <ChevronLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Practice Result</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Practice IeltsIntensiveResult</h1>
          </div>
       </div>
 

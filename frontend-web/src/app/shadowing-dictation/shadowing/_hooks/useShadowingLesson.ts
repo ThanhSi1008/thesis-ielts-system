@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { shadowingApi, ShadowingVideo, ShadowingSentence } from '@/services/shadowing.api';
 
 interface UseShadowingLessonReturn {
-  lesson: ShadowingVideo | null;
+  foundationVocabLesson: ShadowingVideo | null;
   isInitializing: boolean;
   sentences: ShadowingSentence[];
   isYouTube: boolean;
@@ -12,7 +12,7 @@ interface UseShadowingLessonReturn {
 }
 
 export function useShadowingLesson(lessonId: string | undefined): UseShadowingLessonReturn {
-  const [lesson, setLesson] = useState<ShadowingVideo | null>(null);
+  const [foundationVocabLesson, setLesson] = useState<ShadowingVideo | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export function useShadowingLesson(lessonId: string | undefined): UseShadowingLe
         }
         setLesson(data);
       } catch (error) {
-        console.error('Failed to fetch shadowing lesson:', error);
+        console.error('Failed to fetch shadowing foundationVocabLesson:', error);
       } finally {
         setIsInitializing(false);
       }
@@ -45,12 +45,12 @@ export function useShadowingLesson(lessonId: string | undefined): UseShadowingLe
   }, [lessonId]);
 
   return {
-    lesson,
+    foundationVocabLesson,
     isInitializing,
-    sentences: lesson?.sentences || [],
-    isYouTube: !!lesson?.youtubeVideoId,
-    audioUrl: lesson?.audioUrl,
-    lessonTitle: lesson?.title || '',
-    totalSentences: lesson?.sentences?.length || 0,
+    sentences: foundationVocabLesson?.sentences || [],
+    isYouTube: !!foundationVocabLesson?.youtubeVideoId,
+    audioUrl: foundationVocabLesson?.audioUrl,
+    lessonTitle: foundationVocabLesson?.title || '',
+    totalSentences: foundationVocabLesson?.sentences?.length || 0,
   };
 }

@@ -7,10 +7,10 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
   console.log("  Seeding IELTS basic data from:", baseDir);
 
   // Clean existing data.
-  await prisma.ieltsListeningExercise.deleteMany({});
-  await prisma.ieltsReadingExercise.deleteMany({});
-  await prisma.ieltsWritingExercise.deleteMany({});
-  await prisma.ieltsLesson.deleteMany({});
+  await prisma.ieltsBasicListeningExercise.deleteMany({});
+  await prisma.ieltsBasicReadingExercise.deleteMany({});
+  await prisma.ieltsBasicWritingExercise.deleteMany({});
+  await prisma.ieltsBasicLesson.deleteMany({});
 
   // 1. Ensure skills exist
   const skillsData = [
@@ -21,7 +21,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
   ];
 
   for (const s of skillsData) {
-    await prisma.ieltsSkill.upsert({
+    await prisma.ieltsBasicSkill.upsert({
       where: { name: s.name },
       update: { order: s.order },
       create: s,
@@ -32,7 +32,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
   const activeSkills = ["listening", "reading", "writing"];
 
   for (const skillName of activeSkills) {
-    const skillRecord = await prisma.ieltsSkill.findUnique({
+    const skillRecord = await prisma.ieltsBasicSkill.findUnique({
       where: { name: skillName.charAt(0).toUpperCase() + skillName.slice(1) },
     });
     if (!skillRecord) continue;
@@ -51,7 +51,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
     // Insert lessons
     let order = 1;
     for (const theory of theoryArr) {
-      const lesson = await prisma.ieltsLesson.create({
+      const foundationVocabLesson = await prisma.ieltsBasicLesson.create({
         data: {
           skillId: skillRecord.id,
           chapter: `Chapter ${String(order).padStart(2, "0")}`,
@@ -61,7 +61,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
           order: order++,
         },
       });
-      console.log(`    -> Created lesson: ${lesson.title}`);
+      console.log(`    -> Created foundationVocabLesson: ${foundationVocabLesson.title}`);
 
       // Robust matching between theory title and filename
       const cleanTheoryTitle = theory.title
@@ -83,10 +83,10 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
       for (const ex of matchedExs) {
         if (ex.seeded) continue;
         if (skillName === "listening") {
-          await prisma.ieltsListeningExercise.create({
+          await prisma.ieltsBasicListeningExercise.create({
             data: {
               skillId: skillRecord.id,
-              lessonId: lesson.id,
+              lessonId: foundationVocabLesson.id,
               topic: ex.topic,
               instructions: ex.instructions,
               audioUrl: ex.audioUrl!,
@@ -96,10 +96,10 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
             },
           });
         } else if (skillName === "reading") {
-          await prisma.ieltsReadingExercise.create({
+          await prisma.ieltsBasicReadingExercise.create({
             data: {
               skillId: skillRecord.id,
-              lessonId: lesson.id,
+              lessonId: foundationVocabLesson.id,
               topic: ex.topic,
               instructions: ex.instructions,
               passage: ex.passage!,
@@ -118,13 +118,13 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
     const unmatched = exercisesArr.filter((e: any) => !e.seeded);
     if (unmatched.length > 0) {
       console.log(
-        `    -> Found ${unmatched.length} unmatched exercises for ${skillName}. Linking directly to skill without lesson.`,
+        `    -> Found ${unmatched.length} unmatched exercises for ${skillName}. Linking directly to skill without foundationVocabLesson.`,
       );
     }
 
     for (const ex of unmatched) {
       if (skillName === "listening") {
-        await prisma.ieltsListeningExercise.create({
+        await prisma.ieltsBasicListeningExercise.create({
           data: {
             skillId: skillRecord.id,
             topic: ex.topic,
@@ -136,7 +136,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
           },
         });
       } else if (skillName === "reading") {
-        await prisma.ieltsReadingExercise.create({
+        await prisma.ieltsBasicReadingExercise.create({
           data: {
             skillId: skillRecord.id,
             topic: ex.topic,
@@ -187,7 +187,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
       }
     }
 
-    const writingSkillRecord = await prisma.ieltsSkill.findUnique({
+    const writingSkillRecord = await prisma.ieltsBasicSkill.findUnique({
       where: { name: "Writing" },
     });
 
@@ -220,14 +220,14 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
         if (promptText) {
           const topicName = subCategory ? `${theme} - ${subCategory}` : theme;
 
-          const lesson = await prisma.ieltsLesson.findFirst({
+          const foundationVocabLesson = await prisma.ieltsBasicLesson.findFirst({
             where: { skillId: writingSkillRecord.id, title: theme },
           });
 
-          await prisma.ieltsWritingExercise.create({
+          await prisma.ieltsBasicWritingExercise.create({
             data: {
               skillId: writingSkillRecord.id,
-              lessonId: lesson ? lesson.id : null,
+              lessonId: foundationVocabLesson ? foundationVocabLesson.id : null,
               topic: topicName,
               instructions:
                 "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",

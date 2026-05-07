@@ -39,21 +39,21 @@ export default function DictationLibraryPage() {
     return unique.sort();
   }, [lessons]);
 
-  const getProgressPercent = (lesson: DictationVideo) => {
-    const progressData = progressMap[lesson.id];
+  const getProgressPercent = (foundationVocabLesson: DictationVideo) => {
+    const progressData = progressMap[foundationVocabLesson.id];
     const completedCount = progressData?.completedSentences?.length || 0;
-    const totalCount = (lesson.sentences as any[])?.length || 0;
+    const totalCount = (foundationVocabLesson.sentences as any[])?.length || 0;
     return totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   };
 
   const filteredLessons = useMemo(() => {
-    return lessons.filter(lesson => {
+    return lessons.filter(foundationVocabLesson => {
       const matchesSearch = !searchQuery ||
-        lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
+        foundationVocabLesson.title.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesCategory = selectedCategory === 'all' || lesson.category === selectedCategory;
+      const matchesCategory = selectedCategory === 'all' || foundationVocabLesson.category === selectedCategory;
 
-      const pct = getProgressPercent(lesson);
+      const pct = getProgressPercent(foundationVocabLesson);
       const matchesStatus =
         selectedStatus === 'all' ||
         (selectedStatus === 'not-started' && pct === 0) ||
@@ -176,14 +176,14 @@ export default function DictationLibraryPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLessons.map((lesson) => {
-            const progressPercent = getProgressPercent(lesson);
+          {filteredLessons.map((foundationVocabLesson) => {
+            const progressPercent = getProgressPercent(foundationVocabLesson);
 
             return (
-              <div key={lesson.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow">
-                {lesson.imageUrl ? (
+              <div key={foundationVocabLesson.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow">
+                {foundationVocabLesson.imageUrl ? (
                   <div className="aspect-video w-full overflow-hidden bg-gray-100">
-                    <img src={lesson.imageUrl} alt={lesson.title} className="w-full h-full object-cover" />
+                    <img src={foundationVocabLesson.imageUrl} alt={foundationVocabLesson.title} className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div className="aspect-video w-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
@@ -192,11 +192,11 @@ export default function DictationLibraryPage() {
                 )}
 
                 <div className="p-5">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 min-h-[3rem]">{lesson.title}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 min-h-[3rem]">{foundationVocabLesson.title}</h3>
 
                   <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {lesson.duration}</span>
-                    <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded text-xs font-medium">{lesson.category}</span>
+                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {foundationVocabLesson.duration}</span>
+                    <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded text-xs font-medium">{foundationVocabLesson.category}</span>
                   </div>
 
                   {progressPercent > 0 && (
@@ -219,7 +219,7 @@ export default function DictationLibraryPage() {
                       <span className="text-sm text-gray-400 dark:text-gray-500">Not started</span>
                     )}
                     <Link
-                      href={`/shadowing-dictation/dictation/${lesson.id}`}
+                      href={`/shadowing-dictation/dictation/${foundationVocabLesson.id}`}
                       className={`bg-primary text-gray-900 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity ${progressPercent === 0 ? '' : 'ml-auto'}`}
                     >
                       {progressPercent > 0 ? 'Continue' : 'Start'}

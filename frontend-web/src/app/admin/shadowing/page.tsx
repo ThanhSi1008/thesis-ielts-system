@@ -33,20 +33,20 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── Delete Confirm Dialog ───
 function DeleteDialog({
-  lesson,
+  foundationVocabLesson,
   onConfirm,
   onCancel,
 }: {
-  lesson: ShadowingVideo;
+  foundationVocabLesson: ShadowingVideo;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-2xl p-6 max-w-sm w-full">
-        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">Delete Lesson?</h3>
+        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">Delete FoundationVocabLesson?</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-          This will permanently delete <span className="font-semibold text-gray-800 dark:text-gray-200">&ldquo;{lesson.title}&rdquo;</span> and cannot be undone.
+          This will permanently delete <span className="font-semibold text-gray-800 dark:text-gray-200">&ldquo;{foundationVocabLesson.title}&rdquo;</span> and cannot be undone.
         </p>
         <div className="flex gap-3 justify-end">
           <button onClick={onCancel} className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
@@ -104,7 +104,7 @@ function YoutubeImportModal({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Lesson Title *</label>
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">FoundationVocabLesson Title *</label>
             <input
               type="text"
               value={title}
@@ -178,7 +178,7 @@ export default function AdminShadowingListPage() {
             className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary rounded-xl hover:opacity-90 transition-opacity"
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-            Add Lesson
+            Add FoundationVocabLesson
           </Link>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function AdminShadowingListPage() {
         <div className="text-center py-20 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
           <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">No system lessons yet.</p>
           <Link href="/admin/shadowing/new" className="mt-3 inline-block text-sm text-primary hover:underline font-semibold">
-            Create your first lesson →
+            Create your first foundationVocabLesson →
           </Link>
         </div>
       ) : (
@@ -218,38 +218,38 @@ export default function AdminShadowingListPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-              {lessons.map(lesson => (
-                <tr key={lesson.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+              {lessons.map(foundationVocabLesson => (
+                <tr key={foundationVocabLesson.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
                   <td className="px-5 py-4">
-                    <div className="font-semibold text-gray-900 dark:text-gray-100 max-w-[280px] truncate">{lesson.title}</div>
-                    {lesson.youtubeVideoId && (
+                    <div className="font-semibold text-gray-900 dark:text-gray-100 max-w-[280px] truncate">{foundationVocabLesson.title}</div>
+                    {foundationVocabLesson.youtubeVideoId && (
                       <a
-                        href={`https://www.youtube.com/watch?v=${lesson.youtubeVideoId}`}
+                        href={`https://www.youtube.com/watch?v=${foundationVocabLesson.youtubeVideoId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-gray-400 hover:text-primary mt-0.5 block"
                       >
-                        {lesson.youtubeVideoId}
+                        {foundationVocabLesson.youtubeVideoId}
                       </a>
                     )}
                   </td>
-                  <td className="px-5 py-4 text-gray-600 dark:text-gray-400">{lesson.category}</td>
-                  <td className="px-5 py-4 text-gray-600 dark:text-gray-400">{lesson.duration}</td>
+                  <td className="px-5 py-4 text-gray-600 dark:text-gray-400">{foundationVocabLesson.category}</td>
+                  <td className="px-5 py-4 text-gray-600 dark:text-gray-400">{foundationVocabLesson.duration}</td>
                   <td className="px-5 py-4 text-gray-600 dark:text-gray-400">
-                    {(lesson.sentences as any[]).length}
+                    {(foundationVocabLesson.sentences as any[]).length}
                   </td>
-                  <td className="px-5 py-4"><StatusBadge status={lesson.status} /></td>
+                  <td className="px-5 py-4"><StatusBadge status={foundationVocabLesson.status} /></td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        href={`/admin/shadowing/${lesson.id}/edit`}
+                        href={`/admin/shadowing/${foundationVocabLesson.id}/edit`}
                         className="p-2 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         aria-label="Edit"
                       >
                         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                       </Link>
                       <button
-                        onClick={() => setDeleteTarget(lesson)}
+                        onClick={() => setDeleteTarget(foundationVocabLesson)}
                         className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                         aria-label="Delete"
                       >
@@ -266,7 +266,7 @@ export default function AdminShadowingListPage() {
 
       {/* Dialogs */}
       {deleteTarget && (
-        <DeleteDialog lesson={deleteTarget} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
+        <DeleteDialog foundationVocabLesson={deleteTarget} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
       )}
       {showImport && (
         <YoutubeImportModal

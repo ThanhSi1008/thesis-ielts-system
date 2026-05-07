@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PronunciationSound, WordProgress } from '@/types';
+import type { FoundationPronunciationSound, WordProgress } from '@/types';
 import WordProgressCounter from './WordProgressCounter';
 import SoundHeroSection from './SoundHeroSection';
 import SoundInstructionSection from './SoundInstructionSection';
@@ -7,7 +7,7 @@ import ExampleWordCard from './ExampleWordCard';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface SoundDetailContentProps {
-  sound: PronunciationSound;
+  sound: FoundationPronunciationSound;
   wordProgress: WordProgress[];
   onPracticeComplete: (score: number) => void;
 }

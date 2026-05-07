@@ -15,7 +15,7 @@ export default async function ExercisesPage({
   let exercises: any[] = [];
 
   try {
-    // 1. Fetch lessons for the skill to get lesson IDs
+    // 1. Fetch lessons for the skill to get foundationVocabLesson IDs
     const lessonsRes = await fetch(
       `http://localhost:3000/api/v1/ielts/skills/${skillCapitalized}/lessons`,
       { cache: "no-store" }
@@ -27,7 +27,7 @@ export default async function ExercisesPage({
       if (allLessons.length > 0 && (isListening || isReading || isWriting)) {
         const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : "reading-exercises";
 
-        // 2. Fetch exercises for each lesson
+        // 2. Fetch exercises for each foundationVocabLesson
         const exPromises = allLessons.map(async (l: any) => {
           try {
             const exRes = await fetch(
@@ -43,7 +43,7 @@ export default async function ExercisesPage({
               }));
             }
           } catch (e) {
-            console.error(`Failed to fetch exercises for lesson ${l.id}`, e);
+            console.error(`Failed to fetch exercises for foundationVocabLesson ${l.id}`, e);
           }
           return [];
         });

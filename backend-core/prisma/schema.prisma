@@ -28,10 +28,10 @@ model User {
   examSessions          ExamSession[]
   results               Result[]
   progress              LearningProgress[]
-  pronunciationAttempts PronunciationAttempt[]
-  pronunciationProgress PronunciationProgress[]
-  vocabularyProgress    VocabularyProgress[]
-  grammarProgress       GrammarProgress[]
+  pronunciationAttempts FoundationPronunciationAttempt[]
+  pronunciationProgress FoundationPronunciationProgress[]
+  vocabularyProgress    FoundationVocabProgress[]
+  grammarProgress       FoundationGrammarProgress[]
   decks                 Deck[]
   sharedDecks           SharedDeck[]
   questionNotes             QuestionNote[]
@@ -42,9 +42,9 @@ model User {
   dictationFolders          DictationFolder[]  @relation("UserDictationFolders")
   dictationProgress         DictationProgress[] @relation("UserDictationProgress")
   ieltsBasicProgress         IeltsBasicProgress[]
-  ieltsWritingAnswers        IeltsWritingUserAnswer[]
-  practiceSessions           IeltsPracticeSession[]
-  practiceReadingSessions    IeltsPracticeReadingSession[]
+  ieltsWritingAnswers        IeltsBasicWritingAnswer[]
+  practiceSessions           IeltsAdvancedListeningSession[]
+  practiceReadingSessions    IeltsAdvancedReadingSession[]
 
   userAchievements     UserAchievement[]
   xpLogs               XpLog[]
@@ -151,7 +151,7 @@ model Result {
   updatedAt       DateTime @updatedAt
 
   // Relations
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@map("results")
@@ -204,8 +204,8 @@ model LearningProgress {
   @@map("learning_progress")
 }
 
-// Lesson model - represents a learning lesson/unit
-model Lesson {
+// FoundationVocabLesson model - represents a learning lesson/unit
+model FoundationVocabLesson {
   id          String     @id @default(uuid())
   title       String
   description String?
@@ -216,14 +216,14 @@ model Lesson {
   updatedAt   DateTime   @updatedAt
 
   // Relations
-  vocabularies Vocabulary[]
+  vocabularies FoundationVocabWord[]
   grammars     Grammar[]
 
   @@map("lessons")
 }
 
-// Vocabulary model - individual vocabulary items within a lesson
-model Vocabulary {
+// FoundationVocabWord model - individual vocabulary items within a lesson
+model FoundationVocabWord {
   id           String   @id @default(uuid())
   lessonId     String
   word         String
@@ -236,8 +236,8 @@ model Vocabulary {
   updatedAt    DateTime @updatedAt
 
   // Relations
-  lesson                Lesson                  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  pronunciationAttempts PronunciationAttempt[]
+  lesson                FoundationVocabLesson                  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  pronunciationAttempts FoundationPronunciationAttempt[]
 
   @@map("vocabularies")
 }
@@ -253,13 +253,13 @@ model Grammar {
   updatedAt DateTime @updatedAt
 
   // Relations
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson FoundationVocabLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@map("grammars")
 }
 
-// PronunciationAttempt model - tracks user pronunciation practice attempts
-model PronunciationAttempt {
+// FoundationPronunciationAttempt model - tracks user pronunciation practice attempts
+model FoundationPronunciationAttempt {
   id              String                   @id @default(uuid())
   userId          String
   vocabularyId    String?
@@ -274,7 +274,7 @@ model PronunciationAttempt {
 
   // Relations
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vocabulary Vocabulary? @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  vocabulary FoundationVocabWord? @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
 
   @@map("pronunciation_attempts")
 }
@@ -287,11 +287,11 @@ enum PronunciationStatus {
 }
 
 // ============================================================
-// LEARNING CONTENT MODELS (Vocabulary, Grammar, Pronunciation)
+// LEARNING CONTENT MODELS (FoundationVocabWord, Grammar, Pronunciation)
 // ============================================================
 
-// Vocabulary Book (e.g., "4000 Essential English Words Book 1")
-model VocabularyBook {
+// FoundationVocabWord Book (e.g., "4000 Essential English Words Book 1")
+model FoundationVocabBook {
   id        String   @id @default(uuid())
   name      String
   imageUrl  String
@@ -300,13 +300,13 @@ model VocabularyBook {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  units VocabularyUnit[]
+  units FoundationVocabUnit[]
 
   @@map("vocabulary_books")
 }
 
-// Vocabulary Unit (e.g., "Unit 1: The Lion and the Rabbit")
-model VocabularyUnit {
+// FoundationVocabWord Unit (e.g., "Unit 1: The Lion and the Rabbit")
+model FoundationVocabUnit {
   id        String   @id @default(uuid())
   bookId    String
   title     String
@@ -318,17 +318,17 @@ model VocabularyUnit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  book  VocabularyBook  @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  words VocabularyWord[]
-  exercises VocabularyExercise[]
-  questions VocabularyQuestion[]
-  progress  VocabularyProgress[]
+  book  FoundationVocabBook  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  words FoundationVocabItem[]
+  exercises FoundationVocabExercise[]
+  questions FoundationVocabQuestion[]
+  progress  FoundationVocabProgress[]
 
   @@map("vocabulary_units")
 }
 
-// Vocabulary Word within a unit
-model VocabularyWord {
+// FoundationVocabWord Word within a unit
+model FoundationVocabItem {
   id           String   @id @default(uuid())
   unitId       String
   word         String
@@ -342,13 +342,13 @@ model VocabularyWord {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit FoundationVocabUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@map("vocabulary_words")
 }
 
-// Vocabulary Exercise (definition matching quiz)
-model VocabularyExercise {
+// FoundationVocabWord Exercise (definition matching quiz)
+model FoundationVocabExercise {
   id       String @id @default(uuid())
   unitId   String
   question String // The definition
@@ -356,13 +356,13 @@ model VocabularyExercise {
   options  Json   // Array of word options
   order    Int    @default(0)
 
-  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit FoundationVocabUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@map("vocabulary_exercises")
 }
 
-// Vocabulary Question (story comprehension)
-model VocabularyQuestion {
+// FoundationVocabWord Question (story comprehension)
+model FoundationVocabQuestion {
   id       String @id @default(uuid())
   unitId   String
   question String
@@ -371,13 +371,13 @@ model VocabularyQuestion {
   answer   String
   order    Int    @default(0)
 
-  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit FoundationVocabUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@map("vocabulary_questions")
 }
 
-// Vocabulary Progress - tracks user learning progress per unit
-model VocabularyProgress {
+// FoundationVocabWord Progress - tracks user learning progress per unit
+model FoundationVocabProgress {
   id            String    @id @default(uuid())
   userId        String
   unitId        String
@@ -392,14 +392,14 @@ model VocabularyProgress {
 
   // Relations
   user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unit VocabularyUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit FoundationVocabUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@unique([userId, unitId])
   @@map("vocabulary_progress")
 }
 
 // Grammar Book (Cambridge Grammar in Use series)
-model GrammarBook {
+model FoundationGrammarBook {
   id        String   @id @default(uuid())
   slug      String   @unique
   name      String
@@ -411,13 +411,13 @@ model GrammarBook {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  units GrammarUnit[]
+  units FoundationGrammarUnit[]
 
   @@map("grammar_books")
 }
 
 // Grammar Unit (e.g., "Unit 1: Present Continuous")
-model GrammarUnit {
+model FoundationGrammarUnit {
   id            String   @id @default(uuid())
   bookId        String
   title         String
@@ -426,15 +426,15 @@ model GrammarUnit {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  book      GrammarBook       @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  exercises GrammarExercise[]
-  progress  GrammarProgress[]
+  book      FoundationGrammarBook       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  exercises FoundationGrammarExercise[]
+  progress  FoundationGrammarProgress[]
 
   @@map("grammar_units")
 }
 
 // Grammar Exercise
-model GrammarExercise {
+model FoundationGrammarExercise {
   id       String @id @default(uuid())
   unitId   String
   section  String // "1.1", "1.2", etc.
@@ -444,13 +444,13 @@ model GrammarExercise {
   answer   String @db.Text
   order    Int    @default(0)
 
-  unit GrammarUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit FoundationGrammarUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@map("grammar_exercises")
 }
 
 // Grammar Progress (per-user, per-unit)
-model GrammarProgress {
+model FoundationGrammarProgress {
   id               String   @id @default(uuid())
   userId           String
   unitId           String
@@ -462,14 +462,14 @@ model GrammarProgress {
   updatedAt        DateTime @updatedAt
 
   user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unit GrammarUnit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit FoundationGrammarUnit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@unique([userId, unitId])
   @@map("grammar_progress")
 }
 
 // Pronunciation Sound (IPA symbols)
-model PronunciationSound {
+model FoundationPronunciationSound {
   id          String   @id @default(uuid())
   symbol      String   @unique
   type        String   // "monophthong", "diphthong", "consonant"
@@ -486,13 +486,13 @@ model PronunciationSound {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  exampleWords SoundExampleWord[]
-  progress     PronunciationProgress[]
+  exampleWords FoundationSoundExample[]
+  progress     FoundationPronunciationProgress[]
 
   @@map("pronunciation_sounds")
 }
 
-model SoundExampleWord {
+model FoundationSoundExample {
   id          String  @id @default(uuid())
   soundId     String
   word        String  // e.g. "sheep"
@@ -500,12 +500,12 @@ model SoundExampleWord {
   audioUrl    String? // Audio URL for this specific word
   order       Int     @default(0)
 
-  sound PronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
+  sound FoundationPronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
 
   @@map("sound_example_words")
 }
 
-model PronunciationProgress {
+model FoundationPronunciationProgress {
   id             String   @id @default(uuid())
   userId         String
   soundId        String
@@ -517,7 +517,7 @@ model PronunciationProgress {
   updatedAt      DateTime @updatedAt
 
   user  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sound PronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
+  sound FoundationPronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
 
   @@unique([userId, soundId])
   @@map("pronunciation_progress")
@@ -829,21 +829,21 @@ model DictationProgress {
 // IELTS BASIC LEARNING MODELS
 // ============================================================
 
-model IeltsSkill {
+model IeltsBasicSkill {
   id                 String                   @id @default(uuid())
   name               String                   @unique // "Listening", "Reading", "Writing", "Speaking"
   order              Int
-  lessons            IeltsLesson[]
-  listeningExercises IeltsListeningExercise[]
-  readingExercises   IeltsReadingExercise[]
-  writingExercises   IeltsWritingExercise[]
+  lessons            IeltsBasicLesson[]
+  listeningExercises IeltsBasicListeningExercise[]
+  readingExercises   IeltsBasicReadingExercise[]
+  writingExercises   IeltsBasicWritingExercise[]
   createdAt          DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
 
   @@map("ielts_skills")
 }
 
-model IeltsLesson {
+model IeltsBasicLesson {
   id                 String                   @id @default(uuid())
   skillId            String
   chapter            String?                  // e.g., "Chapter 01"
@@ -854,16 +854,16 @@ model IeltsLesson {
   createdAt          DateTime                 @default(now())
   updatedAt          DateTime                 @updatedAt
 
-  skill              IeltsSkill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  listeningExercises IeltsListeningExercise[]
-  readingExercises   IeltsReadingExercise[]
-  writingExercises   IeltsWritingExercise[]
+  skill              IeltsBasicSkill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  listeningExercises IeltsBasicListeningExercise[]
+  readingExercises   IeltsBasicReadingExercise[]
+  writingExercises   IeltsBasicWritingExercise[]
   progress           IeltsBasicProgress[]
 
   @@map("ielts_lessons")
 }
 
-model IeltsListeningExercise {
+model IeltsBasicListeningExercise {
   id           String      @id @default(uuid())
   skillId      String
   lessonId     String?
@@ -876,14 +876,14 @@ model IeltsListeningExercise {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  skill        IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson       IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   progress     IeltsBasicProgress[]
 
   @@map("ielts_listening_exercises")
 }
 
-model IeltsReadingExercise {
+model IeltsBasicReadingExercise {
   id                   String      @id @default(uuid())
   skillId              String
   lessonId             String?
@@ -896,8 +896,8 @@ model IeltsReadingExercise {
   createdAt            DateTime    @default(now())
   updatedAt            DateTime    @updatedAt
 
-  skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  skill        IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson       IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   progress     IeltsBasicProgress[]
 
   @@map("ielts_reading_exercises")
@@ -915,16 +915,16 @@ model IeltsBasicProgress {
   updatedAt           DateTime @updatedAt
 
   user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson            IeltsLesson?            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  listeningExercise IeltsListeningExercise? @relation(fields: [listeningExerciseId], references: [id], onDelete: Cascade)
-  readingExercise   IeltsReadingExercise?   @relation(fields: [readingExerciseId], references: [id], onDelete: Cascade)
-  writingExercise   IeltsWritingExercise?   @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
+  lesson            IeltsBasicLesson?            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  listeningExercise IeltsBasicListeningExercise? @relation(fields: [listeningExerciseId], references: [id], onDelete: Cascade)
+  readingExercise   IeltsBasicReadingExercise?   @relation(fields: [readingExerciseId], references: [id], onDelete: Cascade)
+  writingExercise   IeltsBasicWritingExercise?   @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId, listeningExerciseId, readingExerciseId, writingExerciseId], name: "user_item_unique")
   @@map("ielts_basic_progress")
 }
 
-model IeltsWritingExercise {
+model IeltsBasicWritingExercise {
   id           String      @id @default(uuid())
   skillId      String
   lessonId     String?
@@ -937,15 +937,15 @@ model IeltsWritingExercise {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  skill        IeltsSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  lesson       IeltsLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  skill        IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson       IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   progress     IeltsBasicProgress[]
-  userAnswers  IeltsWritingUserAnswer[]
+  userAnswers  IeltsBasicWritingAnswer[]
 
   @@map("ielts_writing_exercises")
 }
 
-model IeltsWritingUserAnswer {
+model IeltsBasicWritingAnswer {
   id                String   @id @default(uuid())
   userId            String
   writingExerciseId String
@@ -957,7 +957,7 @@ model IeltsWritingUserAnswer {
   updatedAt         DateTime @updatedAt
 
   user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  writingExercise   IeltsWritingExercise @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
+  writingExercise   IeltsBasicWritingExercise @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, writingExerciseId])
   @@map("ielts_writing_user_answers")
@@ -967,7 +967,7 @@ model IeltsWritingUserAnswer {
 // IELTS ADVANCED PRACTICE
 // ============================================================
 
-model IeltsPracticeListeningPart {
+model IeltsAdvancedListeningPart {
   id             String   @id @default(uuid())
   title          String   // e.g. "Cambridge 20 Test 4 - Listening Part 1"
   partNumber     Int      // 1, 2, 3, 4
@@ -978,12 +978,12 @@ model IeltsPracticeListeningPart {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  sessions       IeltsPracticeSession[]
+  sessions       IeltsAdvancedListeningSession[]
 
   @@map("ielts_practice_listening_parts")
 }
 
-model IeltsPracticeSession {
+model IeltsAdvancedListeningSession {
   id             String   @id @default(uuid())
   userId         String
   partId         String
@@ -994,13 +994,13 @@ model IeltsPracticeSession {
   totalQuestions Int
   createdAt      DateTime @default(now())
 
-  part           IeltsPracticeListeningPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  part           IeltsAdvancedListeningPart @relation(fields: [partId], references: [id], onDelete: Cascade)
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ielts_practice_sessions")
 }
 
-model IeltsPracticeReadingPart {
+model IeltsAdvancedReadingPart {
   id             String   @id @default(uuid())
   title          String   // e.g. "Cambridge 17 Test 1 - Reading Part 1"
   partNumber     Int      // 1, 2, 3
@@ -1011,12 +1011,12 @@ model IeltsPracticeReadingPart {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  sessions       IeltsPracticeReadingSession[]
+  sessions       IeltsAdvancedReadingSession[]
 
   @@map("ielts_practice_reading_parts")
 }
 
-model IeltsPracticeReadingSession {
+model IeltsAdvancedReadingSession {
   id             String   @id @default(uuid())
   userId         String
   partId         String
@@ -1026,7 +1026,7 @@ model IeltsPracticeReadingSession {
   totalQuestions Int
   createdAt      DateTime @default(now())
 
-  part           IeltsPracticeReadingPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  part           IeltsAdvancedReadingPart @relation(fields: [partId], references: [id], onDelete: Cascade)
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ielts_practice_reading_sessions")

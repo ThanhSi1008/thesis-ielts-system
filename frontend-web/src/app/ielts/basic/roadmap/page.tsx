@@ -37,7 +37,7 @@ export default function RoadmapDashboard() {
       
       if (nextItem) {
         let idParam: string;
-        if (nextItem.type === 'lesson') {
+        if (nextItem.type === 'foundationVocabLesson') {
           idParam = `lessonId=${nextItem.id}`;
         } else {
           idParam = `exerciseId=${nextItem.id}${nextItem.lessonId ? `&lessonId=${nextItem.lessonId}` : ''}`;
@@ -57,14 +57,14 @@ export default function RoadmapDashboard() {
         </div>
         <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Welcome to Your Roadmap</h2>
         <p className="text-gray-500 max-w-sm">
-          Select a lesson or exercise from the sidebar to begin. 
+          Select a foundationVocabLesson or exercise from the sidebar to begin. 
           You must complete Step 1 before Step 2 unlocks.
         </p>
       </div>
     );
   }
 
-  if (type === "lesson" && lessonId) {
+  if (type === "foundationVocabLesson" && lessonId) {
     return (
       <div className="animate-fade-in w-full">
         <LessonDetailContent 

@@ -32,7 +32,7 @@ export class PronunciationService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const sounds = await this.prisma.pronunciationSound.findMany({
+    const sounds = await this.prisma.foundationPronunciationSound.findMany({
       orderBy: [{ type: "asc" }, { order: "asc" }],
       include: {
         exampleWords: {
@@ -56,7 +56,7 @@ export class PronunciationService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const sound = await this.prisma.pronunciationSound.findUnique({
+    const sound = await this.prisma.foundationPronunciationSound.findUnique({
       where: { symbol },
       include: {
         exampleWords: {
@@ -72,13 +72,13 @@ export class PronunciationService {
   // ==================== SOUND CRUD ====================
 
   async createSound(dto: CreatePronunciationSoundDto) {
-    const sound = await this.prisma.pronunciationSound.create({ data: dto });
+    const sound = await this.prisma.foundationPronunciationSound.create({ data: dto });
     await this.invalidateCache();
     return sound;
   }
 
   async updateSound(id: string, dto: UpdatePronunciationSoundDto) {
-    const sound = await this.prisma.pronunciationSound.update({
+    const sound = await this.prisma.foundationPronunciationSound.update({
       where: { id },
       data: dto,
     });
@@ -87,7 +87,7 @@ export class PronunciationService {
   }
 
   async deleteSound(id: string) {
-    await this.prisma.pronunciationSound.delete({ where: { id } });
+    await this.prisma.foundationPronunciationSound.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Pronunciation sound deleted successfully" };
   }
@@ -106,18 +106,18 @@ export class PronunciationService {
     if (cached) return cached as GetProgressResponseDto[];
 
     // Get all sounds + user's progress
-    const sounds = await this.prisma.pronunciationSound.findMany({
+    const sounds = await this.prisma.foundationPronunciationSound.findMany({
       orderBy: [{ type: "asc" }, { order: "asc" }],
       select: { id: true, symbol: true, type: true },
     });
 
-    const progressRecords = await this.prisma.pronunciationProgress.findMany({
+    const progressRecords = await this.prisma.foundationPronunciationProgress.findMany({
       where: { userId },
     });
 
     const progressMap = new Map(progressRecords.map(p => [p.soundId, p]));
 
-    const result = sounds.map(sound => {
+    const ieltsIntensiveResult = sounds.map(sound => {
       const progress = progressMap.get(sound.id);
       return {
         soundId: sound.id,
@@ -130,8 +130,8 @@ export class PronunciationService {
       };
     });
 
-    await this.redis.setJson(cacheKey, result, 300); // 5 min cache
-    return result;
+    await this.redis.setJson(cacheKey, ieltsIntensiveResult, 300); // 5 min cache
+    return ieltsIntensiveResult;
   }
 
   async getUserStats(userId: string): Promise<PronunciationStatsDto> {
@@ -152,7 +152,7 @@ export class PronunciationService {
 
   async getWordProgress(userId: string, soundId: string): Promise<WordProgressDto[]> {
     // Get the example words for this sound
-    const sound = await this.prisma.pronunciationSound.findUnique({
+    const sound = await this.prisma.foundationPronunciationSound.findUnique({
       where: { id: soundId },
       select: { exampleWords: { select: { word: true } } },
     });
@@ -161,8 +161,8 @@ export class PronunciationService {
 
     const wordList = sound.exampleWords.map(w => w.word.toLowerCase());
 
-    // Aggregate best score + attempt count per targetWord from PronunciationAttempt
-    const attempts = await this.prisma.pronunciationAttempt.findMany({
+    // Aggregate best score + attempt count per targetWord from FoundationPronunciationAttempt
+    const attempts = await this.prisma.foundationPronunciationAttempt.findMany({
       where: {
         userId,
         targetWord: { in: wordList },
@@ -198,13 +198,13 @@ export class PronunciationService {
 
   async updateProgress(userId: string, soundId: string, accuracyScore: number) {
     const MASTERY_THRESHOLD = 80;
-    const existingProgress = await this.prisma.pronunciationProgress.findUnique({
+    const existingProgress = await this.prisma.foundationPronunciationProgress.findUnique({
       where: { userId_soundId: { userId, soundId } },
     });
 
     const newStatus = accuracyScore >= MASTERY_THRESHOLD ? 'MASTERED' : 'PRACTICING';
 
-    const progress = await this.prisma.pronunciationProgress.upsert({
+    const progress = await this.prisma.foundationPronunciationProgress.upsert({
       where: { userId_soundId: { userId, soundId } },
       create: {
         userId,

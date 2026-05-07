@@ -13,7 +13,7 @@ import {
   cambridgeIelts17ListeningTest4Questions,
   cambridgeIelts13ListeningTest1Questions,
 } from "./data/mock-tests";
-import { vocabularyBooks } from "./data/vocabulary";
+import { vocabularyBooks } from "./data/foundationVocabWord";
 import { grammarBooks } from "./data/grammar";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -40,13 +40,13 @@ async function upsertCambridgeExam(params: {
   questions: any;
   isPublished: boolean;
 }) {
-  const existing = await prisma.exam.findFirst({
+  const existing = await prisma.ieltsIntensiveExam.findFirst({
     where: { title: params.title, type: params.type as any },
     select: { id: true },
   });
 
   if (existing) {
-    await prisma.exam.update({
+    await prisma.ieltsIntensiveExam.update({
       where: { id: existing.id },
       data: {
         difficulty: params.difficulty as any,
@@ -56,11 +56,11 @@ async function upsertCambridgeExam(params: {
         isPublished: params.isPublished,
       },
     });
-    console.log(`  ✓ Updated exam: ${params.title}`);
+    console.log(`  ✓ Updated ieltsIntensiveExam: ${params.title}`);
     return;
   }
 
-  await prisma.exam.create({
+  await prisma.ieltsIntensiveExam.create({
     data: {
       title: params.title,
       description: null,
@@ -72,30 +72,30 @@ async function upsertCambridgeExam(params: {
       isPublished: params.isPublished,
     },
   });
-  console.log(`  ✓ Created exam: ${params.title}`);
+  console.log(`  ✓ Created ieltsIntensiveExam: ${params.title}`);
 }
 
 async function main() {
-  console.log("🌱 Seeding database with comprehensive vocabulary data...");
+  console.log("🌱 Seeding database with comprehensive foundationVocabWord data...");
 
   // Clear existing data safely
   console.log("🗑️  Clearing existing progress data...");
   try {
-    await prisma.vocabularyProgress.deleteMany();
-    await prisma.pronunciationAttempt.deleteMany();
+    await prisma.foundationVocabProgress.deleteMany();
+    await prisma.foundationPronunciationAttempt.deleteMany();
   } catch (e) {
     console.warn("⚠️  Could not clear some data...");
   }
 
-  // Seed Vocabulary Books
-  console.log("📚 Seeding vocabulary books...");
+  // Seed FoundationVocabWord Books
+  console.log("📚 Seeding foundationVocabWord books...");
   for (const book of vocabularyBooks) {
-    let existingBook = await prisma.vocabularyBook.findFirst({
+    let existingBook = await prisma.foundationVocabBook.findFirst({
       where: { name: book.name }
     });
 
     if (existingBook) {
-      existingBook = await prisma.vocabularyBook.update({
+      existingBook = await prisma.foundationVocabBook.update({
         where: { id: existingBook.id },
         data: {
           imageUrl: book.imageUrl,
@@ -104,7 +104,7 @@ async function main() {
         }
       });
     } else {
-      existingBook = await prisma.vocabularyBook.create({
+      existingBook = await prisma.foundationVocabBook.create({
         data: {
           name: book.name,
           imageUrl: book.imageUrl,
@@ -118,12 +118,12 @@ async function main() {
 
     // Create units
     for (const unit of book.units) {
-      let existingUnit = await prisma.vocabularyUnit.findFirst({
+      let existingUnit = await prisma.foundationVocabUnit.findFirst({
         where: { bookId, title: unit.title }
       });
 
       if (existingUnit) {
-        existingUnit = await prisma.vocabularyUnit.update({
+        existingUnit = await prisma.foundationVocabUnit.update({
           where: { id: existingUnit.id },
           data: {
             order: unit.order,
@@ -133,7 +133,7 @@ async function main() {
           }
         });
       } else {
-        existingUnit = await prisma.vocabularyUnit.create({
+        existingUnit = await prisma.foundationVocabUnit.create({
           data: {
             bookId,
             title: unit.title,
@@ -148,12 +148,12 @@ async function main() {
       const unitId = existingUnit.id;
 
       // Clean and recreate children
-      await prisma.vocabularyWord.deleteMany({ where: { unitId } });
-      await prisma.vocabularyExercise.deleteMany({ where: { unitId } });
-      await prisma.vocabularyQuestion.deleteMany({ where: { unitId } });
+      await prisma.foundationVocabItem.deleteMany({ where: { unitId } });
+      await prisma.foundationVocabExercise.deleteMany({ where: { unitId } });
+      await prisma.foundationVocabQuestion.deleteMany({ where: { unitId } });
 
       if ((unit as any).words) {
-        await prisma.vocabularyWord.createMany({
+        await prisma.foundationVocabItem.createMany({
           data: (unit as any).words.map((w: any) => ({
             unitId,
             word: w.word,
@@ -169,7 +169,7 @@ async function main() {
       }
 
       if ((unit as any).exercises) {
-        await prisma.vocabularyExercise.createMany({
+        await prisma.foundationVocabExercise.createMany({
           data: (unit as any).exercises.map((e: any) => ({
             unitId,
             question: e.question,
@@ -181,7 +181,7 @@ async function main() {
       }
 
       if ((unit as any).questions && (unit as any).questions.length > 0) {
-        await prisma.vocabularyQuestion.createMany({
+        await prisma.foundationVocabQuestion.createMany({
           data: (unit as any).questions.map((q: any) => ({
             unitId,
             question: q.question,
@@ -199,9 +199,9 @@ async function main() {
   // Seed Grammar Books
   console.log("📖 Seeding grammar books...");
   for (const book of grammarBooks) {
-    const existing = await prisma.grammarBook.findUnique({ where: { slug: book.slug } });
+    const existing = await prisma.foundationGrammarBook.findUnique({ where: { slug: book.slug } });
     if (existing) {
-      await prisma.grammarBook.update({
+      await prisma.foundationGrammarBook.update({
         where: { slug: book.slug },
         data: {
           name: book.name,
@@ -213,7 +213,7 @@ async function main() {
         }
       });
     } else {
-      await prisma.grammarBook.create({
+      await prisma.foundationGrammarBook.create({
         data: {
           slug: book.slug,
           name: book.name,
@@ -225,7 +225,7 @@ async function main() {
         }
       });
     }
-    const bookId = existing ? existing.id : (await prisma.grammarBook.findUnique({ where: { slug: book.slug } }))!.id;
+    const bookId = existing ? existing.id : (await prisma.foundationGrammarBook.findUnique({ where: { slug: book.slug } }))!.id;
 
     const unitsToSeed = book.slug === 'intermediate' ? intermediateData.units : book.units;
 
@@ -234,9 +234,9 @@ async function main() {
         ? (intermediateData.content as any)[unitData.order.toString()] 
         : null;
 
-      const unit = await prisma.grammarUnit.upsert({
+      const unit = await prisma.foundationGrammarUnit.upsert({
         where: {
-          id: existing ? (await prisma.grammarUnit.findFirst({ where: { bookId, order: unitData.order } }))?.id || 'new-unit-placeholder' : 'new-unit-placeholder'
+          id: existing ? (await prisma.foundationGrammarUnit.findFirst({ where: { bookId, order: unitData.order } }))?.id || 'new-unit-placeholder' : 'new-unit-placeholder'
         },
         create: {
           bookId,
@@ -255,9 +255,9 @@ async function main() {
       });
 
       if (content?.exercises?.length) {
-        await prisma.grammarExercise.deleteMany({ where: { unitId: unit.id } });
+        await prisma.foundationGrammarExercise.deleteMany({ where: { unitId: unit.id } });
         for (const ex of content.exercises) {
-          await prisma.grammarExercise.create({
+          await prisma.foundationGrammarExercise.create({
             data: {
               unitId: unit.id,
               section: ex.id,

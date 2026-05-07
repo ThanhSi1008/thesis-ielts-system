@@ -22,7 +22,7 @@ async function fetchTranscript() {
             };
         });
 
-        const lesson = {
+        const foundationVocabLesson = {
             id: "4",
             title: "Car Accident Dating Drama",
             audioUrl: "",
@@ -33,7 +33,7 @@ async function fetchTranscript() {
             sentences: sentences
         };
 
-        fs.writeFileSync('transcript.json', JSON.stringify(lesson, null, 2));
+        fs.writeFileSync('transcript.json', JSON.stringify(foundationVocabLesson, null, 2));
         console.log("Successfully fetched and saved to transcript.json");
     } catch (e) {
         console.error("Error fetching transcript:", e);

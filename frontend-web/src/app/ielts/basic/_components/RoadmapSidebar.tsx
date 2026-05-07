@@ -6,7 +6,7 @@ import { CheckCircle2, Lock, ChevronDown, ChevronUp, BookOpen, Headphones, PenTo
 export interface RoadmapItem {
   id: string;
   title: string;
-  type: 'lesson' | 'exercise';
+  type: 'foundationVocabLesson' | 'exercise';
   skill: string;
   url: string;
   isCompleted: boolean;
@@ -51,7 +51,7 @@ export function RoadmapSidebar() {
   useEffect(() => {
     fetchRoadmap();
     
-    // Setup a custom event listener so when a user finishes a lesson, we can refetch the roadmap
+    // Setup a custom event listener so when a user finishes a foundationVocabLesson, we can refetch the roadmap
     const handleProgressUpdate = () => fetchRoadmap();
     window.addEventListener("roadmap-progress-update", handleProgressUpdate);
     return () => window.removeEventListener("roadmap-progress-update", handleProgressUpdate);
@@ -71,8 +71,8 @@ export function RoadmapSidebar() {
     if (item.isLocked) return;
     
     // Determine the precise URL for the roadmap viewer
-    const idParam = item.type === 'lesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
-    // E.g. `/ielts/basic/roadmap?type=lesson&skill=listening&lessonId=abc`
+    const idParam = item.type === 'foundationVocabLesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
+    // E.g. `/ielts/basic/roadmap?type=foundationVocabLesson&skill=listening&lessonId=abc`
     const url = `/ielts/basic/roadmap?type=${item.type}&skill=${item.skill.toLowerCase()}&${idParam}`;
     router.push(url);
   };
@@ -83,8 +83,8 @@ export function RoadmapSidebar() {
     const currentExerciseId = searchParams.get("exerciseId");
     if (!currentType) return false;
 
-    if (item.type === 'lesson') {
-      return currentType === 'lesson' && currentLessonId === item.id;
+    if (item.type === 'foundationVocabLesson') {
+      return currentType === 'foundationVocabLesson' && currentLessonId === item.id;
     } else {
       return currentType === 'exercise' && currentExerciseId === item.id;
     }
@@ -163,7 +163,7 @@ export function RoadmapSidebar() {
                               {item.title}
                             </p>
                             <p className="text-[11px] text-gray-400 mt-1 uppercase tracking-wider font-semibold">
-                              {item.skill} · {item.type === 'lesson' ? "Theory" : "Practice"}
+                              {item.skill} · {item.type === 'foundationVocabLesson' ? "Theory" : "Practice"}
                             </p>
                           </div>
                         </div>

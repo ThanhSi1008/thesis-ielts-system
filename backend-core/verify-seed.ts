@@ -6,15 +6,15 @@ async function checkSeeding() {
   console.log('🔍 Kiểm tra dữ liệu trong database...');
   
   try {
-    const vocabBooks = await prisma.vocabularyBook.count();
-    const grammarBooks = await prisma.grammarBook.count();
-    const sounds = await prisma.pronunciationSound.count();
+    const vocabBooks = await prisma.foundationVocabBook.count();
+    const grammarBooks = await prisma.foundationGrammarBook.count();
+    const sounds = await prisma.foundationPronunciationSound.count();
     const exams = await prisma.exam.count();
-    const readingEx = await prisma.ieltsReadingExercise.count();
-    const listeningEx = await prisma.ieltsListeningExercise.count();
-    const writingEx = await prisma.ieltsWritingExercise.count();
+    const readingEx = await prisma.ieltsBasicReadingExercise.count();
+    const listeningEx = await prisma.ieltsBasicListeningExercise.count();
+    const writingEx = await prisma.ieltsBasicWritingExercise.count();
     
-    console.log(`📚 Vocabulary Books: ${vocabBooks}`);
+    console.log(`📚 FoundationVocabWord Books: ${vocabBooks}`);
     console.log(`📖 Grammar Books: ${grammarBooks}`);
     console.log(`🔊 Pronunciation Sounds: ${sounds}`);
     console.log(`🧪 Cambridge Exams: ${exams}`);

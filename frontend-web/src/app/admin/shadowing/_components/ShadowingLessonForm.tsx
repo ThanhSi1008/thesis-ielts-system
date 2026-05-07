@@ -96,7 +96,7 @@ export function ShadowingLessonForm({
         <div>
           <FieldLabel label="Title" required />
           <input
-            id="lesson-title"
+            id="foundationVocabLesson-title"
             type="text"
             value={formData.title}
             onChange={e => onSetField("title", e.target.value)}
@@ -111,7 +111,7 @@ export function ShadowingLessonForm({
           <div>
             <FieldLabel label="Category" required />
             <select
-              id="lesson-category"
+              id="foundationVocabLesson-category"
               value={formData.category}
               onChange={e => onSetField("category", e.target.value)}
               className={inputClass}
@@ -123,7 +123,7 @@ export function ShadowingLessonForm({
           <div>
             <FieldLabel label="Duration" required />
             <input
-              id="lesson-duration"
+              id="foundationVocabLesson-duration"
               type="text"
               value={formData.duration}
               onChange={e => onSetField("duration", e.target.value)}
@@ -160,7 +160,7 @@ export function ShadowingLessonForm({
         <div>
           <FieldLabel label="YouTube Video ID" />
           <input
-            id="lesson-youtube-id"
+            id="foundationVocabLesson-youtube-id"
             type="text"
             value={formData.youtubeVideoId}
             onChange={e => {

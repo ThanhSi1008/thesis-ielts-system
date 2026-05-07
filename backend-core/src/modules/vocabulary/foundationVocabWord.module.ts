@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { VocabularyController } from "./vocabulary.controller";
-import { VocabularyService } from "./vocabulary.service";
+import { VocabularyController } from "./foundationVocabWord.controller";
+import { VocabularyService } from "./foundationVocabWord.service";
 
 import { PrismaModule } from "../../common/prisma/prisma.module";
 import { RedisModule } from "../../common/redis/redis.module";

@@ -14,8 +14,8 @@ export default function NewShadowingLessonPage() {
   } = useAdminShadowingForm();
 
   const handleSubmit = async () => {
-    const result = await submitCreate();
-    if (result) {
+    const ieltsIntensiveResult = await submitCreate();
+    if (ieltsIntensiveResult) {
       router.push("/admin/shadowing");
     }
   };
@@ -31,8 +31,8 @@ export default function NewShadowingLessonPage() {
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 19l-7-7 7-7" /></svg>
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Add Shadowing Lesson</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Create a new system-wide shadowing lesson</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Add Shadowing FoundationVocabLesson</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Create a new system-wide shadowing foundationVocabLesson</p>
         </div>
       </div>
 
@@ -40,7 +40,7 @@ export default function NewShadowingLessonPage() {
         formData={formData}
         errors={errors}
         isSubmitting={isSubmitting}
-        submitLabel="Create Lesson"
+        submitLabel="Create FoundationVocabLesson"
         onSetField={setField}
         onAddSentence={addSentence}
         onRemoveSentence={removeSentence}

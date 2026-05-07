@@ -6,9 +6,9 @@ async function clean() {
         await prisma.shadowingVideo.delete({
             where: { id: "8" }
         });
-        console.log("Deleted lesson 8 from ShadowingVideo");
+        console.log("Deleted foundationVocabLesson 8 from ShadowingVideo");
     } catch (e) {
-        console.log("Lesson 8 already deleted or not found in ShadowingVideo");
+        console.log("FoundationVocabLesson 8 already deleted or not found in ShadowingVideo");
     }
 }
 clean().then(() => prisma.$disconnect());

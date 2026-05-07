@@ -154,7 +154,7 @@ export default function BookPage() {
                       return (
                         <Link
                           key={unit.id}
-                          href={`/ielts/vocabulary/${bookId}/${unit.id}`}
+                          href={`/ielts/foundationVocabWord/${bookId}/${unit.id}`}
                           className="block group"
                         >
                           <div

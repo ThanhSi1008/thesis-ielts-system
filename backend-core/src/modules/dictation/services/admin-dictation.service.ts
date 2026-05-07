@@ -21,17 +21,17 @@ export class AdminDictationService {
   }
 
   async findById(id: string) {
-    const lesson = await this.prisma.dictationVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.dictationVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("System dictation lesson not found");
-    return lesson;
+    if (!foundationVocabLesson) throw new NotFoundException("System dictation foundationVocabLesson not found");
+    return foundationVocabLesson;
   }
 
   async create(dto: AdminCreateDictationLessonDto) {
     return this.prisma.dictationVideo.create({
       data: {
-        userId: null, // System lesson
+        userId: null, // System foundationVocabLesson
         title: dto.title,
         youtubeVideoId: dto.youtubeVideoId ?? null,
         audioUrl: dto.audioUrl ?? null,
@@ -47,10 +47,10 @@ export class AdminDictationService {
   }
 
   async update(id: string, dto: AdminUpdateDictationLessonDto) {
-    const lesson = await this.prisma.dictationVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.dictationVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("System dictation lesson not found");
+    if (!foundationVocabLesson) throw new NotFoundException("System dictation foundationVocabLesson not found");
 
     return this.prisma.dictationVideo.update({
       where: { id },
@@ -70,10 +70,10 @@ export class AdminDictationService {
   }
 
   async delete(id: string) {
-    const lesson = await this.prisma.dictationVideo.findFirst({
+    const foundationVocabLesson = await this.prisma.dictationVideo.findFirst({
       where: { id, userId: null },
     });
-    if (!lesson) throw new NotFoundException("System dictation lesson not found");
+    if (!foundationVocabLesson) throw new NotFoundException("System dictation foundationVocabLesson not found");
     return this.prisma.dictationVideo.delete({ where: { id } });
   }
 
@@ -87,7 +87,7 @@ export class AdminDictationService {
 
     const video = await this.prisma.dictationVideo.create({
       data: {
-        userId: null, // System lesson
+        userId: null, // System foundationVocabLesson
         title: dto.title,
         youtubeVideoId,
         imageUrl,

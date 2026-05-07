@@ -1,7 +1,7 @@
 import { IsString, IsOptional, IsUUID } from "class-validator";
 
 /**
- * DTO for adding vocabulary to a lesson
+ * DTO for adding foundationVocabWord to a foundationVocabLesson
  */
 export class CreateVocabularyDto {
   @IsUUID()

@@ -5,7 +5,7 @@
 export interface PaymentProviderInterface {
   /**
    * Create a checkout session for a subscription plan.
-   * Returns a checkout result with session ID and (optional) redirect URL.
+   * Returns a checkout ieltsIntensiveResult with session ID and (optional) redirect URL.
    */
   createCheckout(params: {
     userId: string;

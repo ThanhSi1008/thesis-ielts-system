@@ -32,7 +32,7 @@ export async function seedIeltsAdvanced(prisma: PrismaClient) {
     },
   ];
 
-  await (prisma as any).ieltsPracticeListeningPart.deleteMany({});
+  await (prisma as any).ieltsAdvancedListeningPart.deleteMany({});
 
   for (const p of parts) {
     const jsonPath = path.join(
@@ -48,7 +48,7 @@ export async function seedIeltsAdvanced(prisma: PrismaClient) {
     }
     const jsonData = JSON.parse(fs.readFileSync(jsonPath, "utf8"))[0];
 
-    const part = await (prisma as any).ieltsPracticeListeningPart.create({
+    const part = await (prisma as any).ieltsAdvancedListeningPart.create({
       data: {
         title: p.title,
         partNumber: p.partNumber,
@@ -78,7 +78,7 @@ export async function seedIeltsAdvanced(prisma: PrismaClient) {
     },
   ];
 
-  await (prisma as any).ieltsPracticeReadingPart.deleteMany({});
+  await (prisma as any).ieltsAdvancedReadingPart.deleteMany({});
 
   for (const p of readingParts) {
     const jsonPath = path.join(
@@ -98,7 +98,7 @@ export async function seedIeltsAdvanced(prisma: PrismaClient) {
     const qTypes = jsonData.content.map((c: any) => c.type);
     const uniqueTypes = Array.from(new Set(qTypes)) as string[];
 
-    const part = await (prisma as any).ieltsPracticeReadingPart.create({
+    const part = await (prisma as any).ieltsAdvancedReadingPart.create({
       data: {
         title: jsonData.title,
         partNumber: p.partNumber,

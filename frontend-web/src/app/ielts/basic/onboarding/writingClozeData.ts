@@ -1,5 +1,5 @@
 export const writingClozeData = {
-  instructions: "Complete the paragraph by selecting the correct word for each blank. This tests your vocabulary, collocations, and grammar in an academic context.",
+  instructions: "Complete the paragraph by selecting the correct word for each blank. This tests your foundationVocabWord, collocations, and grammar in an academic context.",
   paragraph: [
     { type: "text", content: "The bar chart " },
     { type: "blank", id: 1, options: ["illustrates", "tells", "says", "writes"], correct: 0 },

@@ -47,7 +47,7 @@ async function main() {
     updateJsonFiles(entry);
     
     // DB Update
-    const ex = await prisma.ieltsListeningExercise.findFirst({
+    const ex = await prisma.ieltsBasicListeningExercise.findFirst({
       where: { topic: entry.topic }
     });
     
@@ -63,7 +63,7 @@ async function main() {
       });
 
       if (updated) {
-        await prisma.ieltsListeningExercise.update({
+        await prisma.ieltsBasicListeningExercise.update({
           where: { id: ex.id },
           data: { content: newContent }
         });

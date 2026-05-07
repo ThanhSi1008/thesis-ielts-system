@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { lessonService } from '@/services/lesson.service';
-import type { Lesson } from '@/types';
+import { lessonService } from '@/services/foundationVocabLesson.service';
+import type { FoundationVocabLesson } from '@/types';
 import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 
@@ -13,7 +13,7 @@ const difficultyColors = {
 };
 
 export default function LessonsPage() {
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [lessons, setLessons] = useState<FoundationVocabLesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<string>('ALL');
@@ -86,32 +86,32 @@ export default function LessonsPage() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLessons.map((lesson) => (
+          {filteredLessons.map((foundationVocabLesson) => (
             <Link
-              key={lesson.id}
-              href={`/lessons/${lesson.id}`}
+              key={foundationVocabLesson.id}
+              href={`/lessons/${foundationVocabLesson.id}`}
               className="block bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col"
             >
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-start justify-between mb-3">
                   <h2 className="text-xl font-semibold text-gray-800 flex-1 line-clamp-2">
-                    {lesson.title}
+                    {foundationVocabLesson.title}
                   </h2>
                   <span className="text-sm font-bold text-gray-400 ml-2">
-                    #{lesson.order}
+                    #{foundationVocabLesson.order}
                   </span>
                 </div>
 
                 <p className="text-gray-600 mb-4 line-clamp-2 flex-grow">
-                  {lesson.description}
+                  {foundationVocabLesson.description}
                 </p>
 
                 <div className="flex items-center justify-between mt-auto">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium border ${difficultyColors[lesson.difficulty]
+                    className={`px-3 py-1 rounded-full text-sm font-medium border ${difficultyColors[foundationVocabLesson.difficulty]
                       }`}
                   >
-                    {lesson.difficulty}
+                    {foundationVocabLesson.difficulty}
                   </span>
 
                   <button className="bg-primary text-white font-bold py-2 px-5 rounded-2xl hover:opacity-90 transition-opacity">

@@ -197,7 +197,7 @@ export class VocabLabController {
     return this.vocabLabService.createFlashcard(req.user.id, dto);
   }
 
-  @Post("from-vocabulary")
+  @Post("from-foundationVocabWord")
   async createFlashcardFromVocabulary(
     @Request() req: any,
     @Body() dto: { bookName: string; word: any },

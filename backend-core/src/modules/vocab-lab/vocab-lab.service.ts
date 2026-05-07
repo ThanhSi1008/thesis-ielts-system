@@ -675,7 +675,7 @@ export class VocabLabService {
     });
 
     // Use createMany for performance
-    const result = await this.prisma.flashcard.createMany({
+    const ieltsIntensiveResult = await this.prisma.flashcard.createMany({
       data: flashcardData,
     });
 
@@ -683,7 +683,7 @@ export class VocabLabService {
       deckId: newDeck.id,
       deckName: newDeck.name,
       cardTypeId,
-      cardsImported: result.count,
+      cardsImported: ieltsIntensiveResult.count,
     };
   }
 
@@ -1138,8 +1138,8 @@ export class VocabLabService {
 
     const now = new Date();
     const rating = toFsrsRating(dto.rating);
-    const result = f.next(fsrsCard, now, rating);
-    const next = result.card;
+    const ieltsIntensiveResult = f.next(fsrsCard, now, rating);
+    const next = ieltsIntensiveResult.card;
 
     const updatedCard = await this.prisma.flashcard.update({
       where: { id: dto.flashcardId },

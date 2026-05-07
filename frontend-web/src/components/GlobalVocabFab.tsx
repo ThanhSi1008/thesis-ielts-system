@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AddCardTab } from '@/app/vocab-lab/components/AddCardTab';
+import { usePathname } from 'next/navigation';
 
 export function GlobalVocabFab() {
   const { user } = useAuth();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number | null, y: number | null }>({ x: null, y: null });
   const [isDragging, setIsDragging] = useState(false);
@@ -42,7 +44,9 @@ export function GlobalVocabFab() {
     e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
-  if (!user) return null;
+  const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start") || pathname === "/ielts/basic/onboarding";
+
+  if (!user || isTakePage) return null;
 
   return (
     <>

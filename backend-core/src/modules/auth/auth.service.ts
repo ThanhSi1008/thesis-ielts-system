@@ -32,8 +32,8 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user || !user.password) return null;
     if (await bcrypt.compare(password, user.password)) {
-      const { password: _pw, ...result } = user;
-      return result;
+      const { password: _pw, ...ieltsIntensiveResult } = user;
+      return ieltsIntensiveResult;
     }
     return null;
   }
@@ -55,8 +55,8 @@ export class AuthService {
         data: { userId: user.id, name: "Default" },
       });
 
-      const { password, ...result } = user;
-      return result;
+      const { password, ...ieltsIntensiveResult } = user;
+      return ieltsIntensiveResult;
     } catch (error) {
       if (error.code === "P2002") {
         throw new BadRequestException("Email already exists");

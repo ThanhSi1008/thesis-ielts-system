@@ -43,7 +43,7 @@ interface QuizQuestion {
   explanation?: string;
 }
 
-interface Lesson {
+interface FoundationVocabLesson {
   id: string;
   title: string;
   chapter: string;
@@ -316,7 +316,7 @@ export function LessonDetailContent({
   onNext?: () => void;
 }) {
   const router = useRouter();
-  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [foundationVocabLesson, setLesson] = useState<FoundationVocabLesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string>("");
 
@@ -325,7 +325,7 @@ export function LessonDetailContent({
       await api.post("/ielts/progress/mark-completed", { lessonId });
       if (onComplete) onComplete();
     } catch (err) {
-      console.error("Failed to mark lesson completed", err);
+      console.error("Failed to mark foundationVocabLesson completed", err);
     }
   };
 
@@ -336,7 +336,7 @@ export function LessonDetailContent({
         const res = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}`);
         setLesson(res.data);
       } catch (err) {
-        console.error("Failed to fetch lesson:", err);
+        console.error("Failed to fetch foundationVocabLesson:", err);
       } finally {
         setLoading(false);
       }
@@ -345,15 +345,15 @@ export function LessonDetailContent({
   }, [lessonId]);
 
   const tocItems = useMemo(() => {
-    if (!lesson?.content || !Array.isArray(lesson.content)) return [];
-    return lesson.content.map((block, idx) => {
+    if (!foundationVocabLesson?.content || !Array.isArray(foundationVocabLesson.content)) return [];
+    return foundationVocabLesson.content.map((block, idx) => {
       const cfg = blockConfig[block.type] ?? blockConfig.section;
       const title = block.title || cfg.label;
-      return { title, id: `lesson-block-${idx}`, type: block.type };
+      return { title, id: `foundationVocabLesson-block-${idx}`, type: block.type };
     }).filter(item => item.title);
-  }, [lesson]);
+  }, [foundationVocabLesson]);
 
-  const hasQuiz = Array.isArray(lesson?.quiz) && (lesson?.quiz?.length || 0) > 0;
+  const hasQuiz = Array.isArray(foundationVocabLesson?.quiz) && (foundationVocabLesson?.quiz?.length || 0) > 0;
 
   useEffect(() => {
     if (tocItems.length === 0 && !hasQuiz) return;
@@ -372,24 +372,24 @@ export function LessonDetailContent({
       if (el) observer.observe(el);
     });
     if (hasQuiz) {
-      const el = document.getElementById("lesson-quiz-section");
+      const el = document.getElementById("foundationVocabLesson-quiz-section");
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
-  }, [tocItems, hasQuiz, lesson]);
+  }, [tocItems, hasQuiz, foundationVocabLesson]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400 animate-pulse font-medium">
-        Loading lesson...
+        Loading foundationVocabLesson...
       </div>
     );
   }
 
-  if (!lesson) {
+  if (!foundationVocabLesson) {
     return (
       <div className="flex items-center justify-center h-full text-red-500 font-bold">
-        Lesson not found.
+        FoundationVocabLesson not found.
       </div>
     );
   }
@@ -402,23 +402,23 @@ export function LessonDetailContent({
             <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1 flex items-center justify-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
               <Link href="/ielts/basic/library" className="hover:text-gray-900 transition-colors px-1">Library</Link>
               <span className="opacity-30">/</span>
-              <Link href={`/ielts/basic/${skill?.toLowerCase() || 'listening'}/lessons`} className="hover:text-gray-900 transition-colors px-1">{lesson.skill?.name || skill}</Link>
+              <Link href={`/ielts/basic/${skill?.toLowerCase() || 'listening'}/lessons`} className="hover:text-gray-900 transition-colors px-1">{foundationVocabLesson.skill?.name || skill}</Link>
               <span className="opacity-30">/</span>
-              <span className="px-1 text-gray-300">{lesson.chapter}</span>
+              <span className="px-1 text-gray-300">{foundationVocabLesson.chapter}</span>
             </div>
             <h1 className="text-2xl font-extrabold text-[#111] tracking-tight">
-              {lesson.title}
+              {foundationVocabLesson.title}
             </h1>
           </div>
           <div className="px-6 lg:px-12 py-8 flex-1">
             <div className="max-w-3xl mx-auto flex flex-col gap-6 w-full">
-              {Array.isArray(lesson.content) &&
-                lesson.content.map((block, idx) => {
+              {Array.isArray(foundationVocabLesson.content) &&
+                foundationVocabLesson.content.map((block, idx) => {
                   if (block.type === "example" && block.exerciseId && block.exerciseType) {
                     return (
                       <ExerciseExampleBlock
                         key={idx}
-                        id={`lesson-block-${idx}`}
+                        id={`foundationVocabLesson-block-${idx}`}
                         title={block.title}
                         exerciseType={block.exerciseType}
                         exerciseId={block.exerciseId}
@@ -432,7 +432,7 @@ export function LessonDetailContent({
                   return (
                     <div
                       key={idx}
-                      id={`lesson-block-${idx}`}
+                      id={`foundationVocabLesson-block-${idx}`}
                       className={`rounded-xl ${cfg.bg} ${cfg.border} ${isSection ? "pt-2 pb-4" : "p-6"}`}
                     >
                       <div className={`flex items-start gap-2.5 ${isSection ? "mb-1" : "mb-3"}`}>
@@ -450,13 +450,13 @@ export function LessonDetailContent({
                   );
                 })}
               {hasQuiz && (
-                <div id="lesson-quiz-section" className="mt-4">
+                <div id="foundationVocabLesson-quiz-section" className="mt-4">
                   <div className="flex items-center gap-3 mb-5">
                     <h2 className="text-[18px] font-extrabold text-gray-900">
                       Check Your Understanding
                     </h2>
                   </div>
-                  <LessonQuiz key={lesson.id} questions={lesson.quiz!.slice(0, 4)} onCompletion={handleLessonCompletion} onNext={onNext} />
+                  <LessonQuiz key={foundationVocabLesson.id} questions={foundationVocabLesson.quiz!.slice(0, 4)} onCompletion={handleLessonCompletion} onNext={onNext} />
                 </div>
               )}
               <div className="h-4" />
@@ -496,12 +496,12 @@ export function LessonDetailContent({
                 <div className="relative flex items-center mt-2">
                   <button
                     onClick={() => {
-                      const el = document.getElementById("lesson-quiz-section");
+                      const el = document.getElementById("foundationVocabLesson-quiz-section");
                       if (el) {
                         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }
                     }}
-                    className={`text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeId === "lesson-quiz-section"
+                    className={`text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeId === "foundationVocabLesson-quiz-section"
                         ? 'border-gray-900 text-gray-900 font-extrabold'
                         : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium'
                       }`}

@@ -3,7 +3,7 @@ import { PlayCircle } from 'lucide-react';
 import { ShadowingVideo, ShadowingSentence } from '@/services/shadowing.api';
 
 export interface ShadowingVideoPlayerProps {
-  lesson: ShadowingVideo;
+  foundationVocabLesson: ShadowingVideo;
   isYouTube: boolean;
   ytState: any;
   playerRef: React.RefObject<any>;
@@ -14,7 +14,7 @@ export interface ShadowingVideoPlayerProps {
 }
 
 export default function ShadowingVideoPlayer({
-  lesson,
+  foundationVocabLesson,
   isYouTube,
   ytState,
   playerRef,

@@ -8,7 +8,7 @@ import { SubscriptionsModule } from "../subscriptions/subscriptions.module";
 
 /**
  * Learning Module
- * Provides learning materials, lessons, vocabulary, grammar, and pronunciation features
+ * Provides learning materials, lessons, foundationVocabWord, grammar, and pronunciation features
  */
 @Module({
   imports: [

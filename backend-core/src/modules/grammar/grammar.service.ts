@@ -34,7 +34,7 @@ export class GrammarService {
     let books: any[] = Array.isArray(cached) ? cached : [];
 
     if (!Array.isArray(cached) || books.length === 0) {
-      books = await this.prisma.grammarBook.findMany({
+      books = await this.prisma.foundationGrammarBook.findMany({
         orderBy: { level: "asc" },
         select: {
           id: true,
@@ -65,7 +65,7 @@ export class GrammarService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const book = await this.prisma.grammarBook.findUnique({
+    const book = await this.prisma.foundationGrammarBook.findUnique({
       where: { slug },
       include: {
         units: {
@@ -84,7 +84,7 @@ export class GrammarService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const unit = await this.prisma.grammarUnit.findUnique({
+    const unit = await this.prisma.foundationGrammarUnit.findUnique({
       where: { id: unitId },
       include: {
         book: { select: { id: true, slug: true, name: true } },
@@ -101,7 +101,7 @@ export class GrammarService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const unit = await this.prisma.grammarUnit.findFirst({
+    const unit = await this.prisma.foundationGrammarUnit.findFirst({
       where: {
         book: { slug: bookSlug },
         order: unitOrder,
@@ -139,13 +139,13 @@ export class GrammarService {
   // ==================== BOOK CRUD ====================
 
   async createBook(dto: CreateGrammarBookDto) {
-    const book = await this.prisma.grammarBook.create({ data: dto });
+    const book = await this.prisma.foundationGrammarBook.create({ data: dto });
     await this.invalidateCache();
     return book;
   }
 
   async updateBook(id: string, dto: UpdateGrammarBookDto) {
-    const book = await this.prisma.grammarBook.update({
+    const book = await this.prisma.foundationGrammarBook.update({
       where: { id },
       data: dto,
     });
@@ -154,7 +154,7 @@ export class GrammarService {
   }
 
   async deleteBook(id: string) {
-    await this.prisma.grammarBook.delete({ where: { id } });
+    await this.prisma.foundationGrammarBook.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Grammar book deleted successfully" };
   }
@@ -162,13 +162,13 @@ export class GrammarService {
   // ==================== UNIT CRUD ====================
 
   async createUnit(dto: CreateGrammarUnitDto) {
-    const unit = await this.prisma.grammarUnit.create({ data: dto });
+    const unit = await this.prisma.foundationGrammarUnit.create({ data: dto });
     await this.invalidateCache();
     return unit;
   }
 
   async updateUnit(id: string, dto: UpdateGrammarUnitDto) {
-    const unit = await this.prisma.grammarUnit.update({
+    const unit = await this.prisma.foundationGrammarUnit.update({
       where: { id },
       data: dto,
     });
@@ -177,7 +177,7 @@ export class GrammarService {
   }
 
   async deleteUnit(id: string) {
-    await this.prisma.grammarUnit.delete({ where: { id } });
+    await this.prisma.foundationGrammarUnit.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Grammar unit deleted successfully" };
   }
@@ -185,7 +185,7 @@ export class GrammarService {
   // ==================== PROGRESS ====================
 
   async getProgress(userId: string, bookSlug: string) {
-    const progress = await this.prisma.grammarProgress.findMany({
+    const progress = await this.prisma.foundationGrammarProgress.findMany({
       where: {
         userId,
         unit: { book: { slug: bookSlug } },
@@ -214,7 +214,7 @@ export class GrammarService {
     userId: string,
     dto: UpdateGrammarProgressDto,
   ) {
-    const existing = await this.prisma.grammarProgress.findUnique({
+    const existing = await this.prisma.foundationGrammarProgress.findUnique({
       where: { userId_unitId: { userId, unitId: dto.unitId } },
     });
 
@@ -224,7 +224,7 @@ export class GrammarService {
       dto.exerciseTotal != null &&
       dto.exerciseScore === dto.exerciseTotal;
 
-    const progress = await this.prisma.grammarProgress.upsert({
+    const progress = await this.prisma.foundationGrammarProgress.upsert({
       where: { userId_unitId: { userId, unitId: dto.unitId } },
       create: {
         userId,

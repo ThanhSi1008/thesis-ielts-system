@@ -13,7 +13,7 @@ const PLANS = [
     intervalCount: 1,
     order: 1,
     features: [
-      "All Vocabulary & Grammar books",
+      "All FoundationVocabWord & Grammar books",
       "Unlimited pronunciation practice",
       "All IELTS lessons & exercises",
       "IELTS Advanced Practice (Cambridge)",
@@ -24,7 +24,7 @@ const PLANS = [
       "Unlimited Vocab Lab decks & cards",
       "50 AI-generated cards/month",
       "Community Marketplace access",
-      "Full exam history",
+      "Full ieltsIntensiveExam history",
       "Premium badge",
     ],
   },

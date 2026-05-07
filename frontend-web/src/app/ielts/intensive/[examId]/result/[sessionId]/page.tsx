@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import { notesApi, type QuestionNote } from "@/services/notes.api";
 import { Calendar, Clock, ChevronDown, ChevronUp, Play, Pause, Volume2, SkipBack, SkipForward, Headphones, MapPin, Lightbulb, StickyNote } from "lucide-react";
-import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser";
+import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/ieltsIntensiveExam-parser";
 import WritingResultView from "@/components/WritingResultView";
 import SpeakingResultView from "@/components/SpeakingResultView";
 import FloatingSelectionManager from "@/components/FloatingSelectionManager";
@@ -142,7 +142,7 @@ function Breadcrumbs() {
     { label: "IELTS", href: "/ielts" },
     { label: "Intensive IELTS", href: "/ielts/intensive" },
     { label: "Test History", href: "/ielts/history" },
-    { label: "Result" },
+    { label: "IeltsIntensiveResult" },
   ];
   return (
     <nav className="text-sm font-semibold text-gray-700 flex items-center flex-wrap gap-2">
@@ -910,7 +910,7 @@ function ReviewItemField({
                       {letter}
                     </th>
                   ))}
-                  <th className="p-3 w-[80px] text-center font-bold border-l border-[#999999] bg-[#f9fafb]">Result</th>
+                  <th className="p-3 w-[80px] text-center font-bold border-l border-[#999999] bg-[#f9fafb]">IeltsIntensiveResult</th>
                 </tr>
               </thead>
               <tbody>
@@ -1052,9 +1052,9 @@ function ReviewItemField({
 // Review & Explanation Section
 // ─────────────────────────────────────────────────────────────
 function ReviewSection({
-  exam, correctMap, userAnswers, examId, userId, aiFeedback, practicePart,
+  ieltsIntensiveExam, correctMap, userAnswers, examId, userId, aiFeedback, practicePart,
 }: {
-  exam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any; practicePart?: number;
+  ieltsIntensiveExam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any; practicePart?: number;
 }) {
   const [open, setOpen] = useState(true);
   const [activePartIdx, setActivePartIdx] = useState(0);
@@ -1065,8 +1065,8 @@ function ReviewSection({
   const [activeCriterion, setActiveCriterion] = useState<string>("fluency_and_coherence");
   const criteriaScrollRef = useRef<HTMLDivElement | null>(null);
 
-  const isSpeaking = exam?.type === "SPEAKING";
-  const allParts: any[] = exam?.questions?.parts ?? [];
+  const isSpeaking = ieltsIntensiveExam?.type === "SPEAKING";
+  const allParts: any[] = ieltsIntensiveExam?.questions?.parts ?? [];
   // For practice sessions, filter to only the practiced part
   const parts: any[] = practicePart
     ? allParts.filter((p: any) => (p.part_number || p.passage_number || p.task_number || 1) === practicePart)
@@ -1076,7 +1076,7 @@ function ReviewSection({
   const transcript: any[] = activePart?.transcript ?? [];
   const partItems = useMemo(() => extractAllItemsFromPart(activePart), [activePart]);
 
-  // Load notes for this exam
+  // Load notes for this ieltsIntensiveExam
   useEffect(() => {
     if (!userId) return;
     notesApi.getExamNotes(userId, examId)
@@ -1094,7 +1094,7 @@ function ReviewSection({
 
   // Locate = scroll transcript or passage to that question's location
   const handleLocate = useCallback((qNum: number) => {
-    if (exam?.type === "READING") {
+    if (ieltsIntensiveExam?.type === "READING") {
       const el = document.getElementById(`reading-loc-${qNum}`);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1105,7 +1105,7 @@ function ReviewSection({
       const el = transcriptRefs.current[qNum];
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-  }, [exam?.type]);
+  }, [ieltsIntensiveExam?.type]);
 
   const handleNoteReady = useCallback((note: QuestionNote) => {
     setNotes((prev) => {
@@ -1361,7 +1361,7 @@ function ReviewSection({
 
                 {/* Right: Transcript or Passage */}
                 <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
-                  {exam?.type === "READING" ? (
+                  {ieltsIntensiveExam?.type === "READING" ? (
                     <>
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Reading Passage</div>
                       <div className="text-[15px] text-[#1a1a1a] leading-relaxed space-y-5 pb-20">
@@ -1543,18 +1543,18 @@ export default function IeltsResultPage() {
     examsApi
       .getSession(sessionId)
       .then((s) => { if (mounted) setSession(s); })
-      .catch((e: any) => { if (mounted) setError(e?.message || "Failed to load result"); })
+      .catch((e: any) => { if (mounted) setError(e?.message || "Failed to load ieltsIntensiveResult"); })
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [sessionId]);
 
-  const exam = session?.exam;
-  const result = session?.result;
+  const ieltsIntensiveExam = session?.ieltsIntensiveExam;
+  const ieltsIntensiveResult = session?.ieltsIntensiveResult;
   const userAnswers: Record<string, any> = session?.answers || {};
-  const isWriting = exam?.type === "WRITING";
-  const isSpeaking = exam?.type === "SPEAKING";
+  const isWriting = ieltsIntensiveExam?.type === "WRITING";
+  const isSpeaking = ieltsIntensiveExam?.type === "SPEAKING";
   const aiGradingPending = (isWriting || isSpeaking) && session?.status === "SUBMITTED";
-  const feedbackRaw = result?.feedback || null;
+  const feedbackRaw = ieltsIntensiveResult?.feedback || null;
   const aiFeedback = typeof feedbackRaw === "string" ? JSON.parse(feedbackRaw) : feedbackRaw;
 
   // Poll every 5s when grading is pending
@@ -1562,7 +1562,7 @@ export default function IeltsResultPage() {
     if (!aiGradingPending) return;
     const interval = setInterval(() => {
       examsApi.getSession(sessionId).then((s) => {
-        if (s?.status === "COMPLETED" || s?.result?.feedback) {
+        if (s?.status === "COMPLETED" || s?.ieltsIntensiveResult?.feedback) {
           setSession(s);
           clearInterval(interval);
         }
@@ -1573,25 +1573,25 @@ export default function IeltsResultPage() {
 
   const correctMap = useMemo(() => {
     const map = new Map<string, any>();
-    if (exam?.questions) extractCorrectAnswers(exam.questions, map);
+    if (ieltsIntensiveExam?.questions) extractCorrectAnswers(ieltsIntensiveExam.questions, map);
     return map;
-  }, [exam]);
+  }, [ieltsIntensiveExam]);
 
   const isPractice = !!session?.practicePart;
   const practicePart = session?.practicePart as number | undefined;
 
   // For practice sessions, only count questions from the specific part
   const practiceCorrectMap = useMemo(() => {
-    if (!isPractice || !practicePart || !exam?.questions?.parts) return correctMap;
-    const partArr = exam.questions.parts as any[];
+    if (!isPractice || !practicePart || !ieltsIntensiveExam?.questions?.parts) return correctMap;
+    const partArr = ieltsIntensiveExam.questions.parts as any[];
     const part = partArr.find((p: any) => (p.part_number || p.passage_number || p.task_number || 1) === practicePart);
     if (!part) return correctMap;
     const partMap = new Map<string, any>();
     extractCorrectAnswers(part, partMap);
     return partMap;
-  }, [isPractice, practicePart, exam, correctMap]);
+  }, [isPractice, practicePart, ieltsIntensiveExam, correctMap]);
 
-  const rawScore = result?.totalScore ?? 0;
+  const rawScore = ieltsIntensiveResult?.totalScore ?? 0;
   const maxScore = isPractice ? practiceCorrectMap.size || 10 : (correctMap.size > 0 ? correctMap.size : 40);
 
   let band = 1.0;
@@ -1601,7 +1601,7 @@ export default function IeltsResultPage() {
     band = aiFeedback?.overall_band || 0;
   } else if (isSpeaking) {
     band = aiFeedback?.overall_band || 0;
-  } else if (exam?.type === "READING") {
+  } else if (ieltsIntensiveExam?.type === "READING") {
     band = getIeltsReadingBand(rawScore);
   } else {
     band = getIeltsBand(rawScore);
@@ -1620,8 +1620,8 @@ export default function IeltsResultPage() {
       Object.values(obj).forEach((v) => collectQNums(v, acc));
     }
 
-    if (exam?.questions?.parts) {
-      (exam.questions.parts as any[]).forEach((p, i) => {
+    if (ieltsIntensiveExam?.questions?.parts) {
+      (ieltsIntensiveExam.questions.parts as any[]).forEach((p, i) => {
         const qNums: number[] = [];
         collectQNums(p, qNums);
         const uniqueSorted = Array.from(new Set(qNums)).sort((a, b) => a - b);
@@ -1636,30 +1636,30 @@ export default function IeltsResultPage() {
       }
     }
     return ps;
-  }, [exam]);
+  }, [ieltsIntensiveExam]);
 
   // Answer sheet parts: filter to only the practice part if applicable
   const answerSheetParts = useMemo(() => {
     if (!isPractice || !practicePart) return parts;
     return parts.filter((p) => {
       const [min] = p.partRange;
-      // find which part index in the exam corresponds to practicePart
-      if (!exam?.questions?.parts) return true;
-      const examParts = exam.questions.parts as any[];
+      // find which part index in the ieltsIntensiveExam corresponds to practicePart
+      if (!ieltsIntensiveExam?.questions?.parts) return true;
+      const examParts = ieltsIntensiveExam.questions.parts as any[];
       const idx = examParts.findIndex((ep: any) => (ep.part_number || ep.passage_number || ep.task_number || 1) === practicePart);
       if (idx < 0) return true;
       const refPart = parts[idx];
       return refPart && p.label === refPart.label;
     });
-  }, [isPractice, practicePart, parts, exam]);
+  }, [isPractice, practicePart, parts, ieltsIntensiveExam]);
 
-  const examTitle = exam?.title ?? "Test";
+  const examTitle = ieltsIntensiveExam?.title ?? "Test";
   const shortTitle = examTitle.replace("Cambridge IELTS ", "Cambridge ");
 
   const submittedAt = session?.submittedAt ? new Date(session.submittedAt) : null;
   const startedAt = session?.startedAt ? new Date(session.startedAt) : null;
   const timeTakenSecs = session?.timeTaken ?? (submittedAt && startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null);
-  const totalSecs = (exam?.duration ?? 0) * 60;
+  const totalSecs = (ieltsIntensiveExam?.duration ?? 0) * 60;
 
   function fmtTime(s: number) {
     const m = Math.floor(s / 60);
@@ -1673,11 +1673,11 @@ export default function IeltsResultPage() {
         <div className="container px-6 py-8 space-y-6">
           <Breadcrumbs />
 
-          {/* ── Result Card ── */}
+          {/* ── IeltsIntensiveResult Card ── */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <button onClick={() => setResultOpen(!resultOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
               {resultOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-              <span className="font-extrabold text-gray-900">Result</span>
+              <span className="font-extrabold text-gray-900">IeltsIntensiveResult</span>
             </button>
 
             {resultOpen && (
@@ -1775,22 +1775,22 @@ export default function IeltsResultPage() {
             </div>
           )}
 
-          {/* ── Writing: Full Result View ── */}
+          {/* ── Writing: Full IeltsIntensiveResult View ── */}
           {!loading && isWriting && !aiGradingPending && aiFeedback && (
             <WritingResultView
               feedback={aiFeedback}
               answers={userAnswers as any}
-              exam={exam}
+              ieltsIntensiveExam={ieltsIntensiveExam}
               practicePart={practicePart}
             />
           )}
 
-          {/* ── Speaking: Full Result View ── */}
+          {/* ── Speaking: Full IeltsIntensiveResult View ── */}
           {!loading && isSpeaking && !aiGradingPending && aiFeedback && (
             <SpeakingResultView
               feedback={aiFeedback}
               answers={userAnswers as any}
-              exam={exam}
+              ieltsIntensiveExam={ieltsIntensiveExam}
             />
           )}
 
@@ -1820,9 +1820,9 @@ export default function IeltsResultPage() {
           )}
 
           {/* ── Review & Explanation Card ── */}
-          {!loading && !error && session && exam?.questions?.parts && (
+          {!loading && !error && session && ieltsIntensiveExam?.questions?.parts && (
             <ReviewSection
-              exam={exam}
+              ieltsIntensiveExam={ieltsIntensiveExam}
               correctMap={isPractice ? practiceCorrectMap : correctMap}
               userAnswers={userAnswers}
               examId={examId}

@@ -4,9 +4,9 @@ const prisma = new PrismaClient();
 
 const ACHIEVEMENTS = [
   // ── FOUNDATION: VOCABULARY ──
-  { key: "FV_FIRST_WORDS", name: "First Words", description: "Complete your first vocabulary unit", icon: "📖", category: "FOUNDATION_VOCAB", tier: 1, xpReward: 20, order: 1 },
-  { key: "FV_BOOKWORM", name: "Bookworm", description: "Complete all units in one vocabulary book", icon: "📗", category: "FOUNDATION_VOCAB", tier: 2, xpReward: 50, order: 2 },
-  { key: "FV_PERFECT", name: "Perfect Vocab", description: "Score 100% on any vocabulary exercise", icon: "💯", category: "FOUNDATION_VOCAB", tier: 2, xpReward: 30, order: 3 },
+  { key: "FV_FIRST_WORDS", name: "First Words", description: "Complete your first foundationVocabWord unit", icon: "📖", category: "FOUNDATION_VOCAB", tier: 1, xpReward: 20, order: 1 },
+  { key: "FV_BOOKWORM", name: "Bookworm", description: "Complete all units in one foundationVocabWord book", icon: "📗", category: "FOUNDATION_VOCAB", tier: 2, xpReward: 50, order: 2 },
+  { key: "FV_PERFECT", name: "Perfect Vocab", description: "Score 100% on any foundationVocabWord exercise", icon: "💯", category: "FOUNDATION_VOCAB", tier: 2, xpReward: 30, order: 3 },
 
   // ── FOUNDATION: GRAMMAR ──
   { key: "FG_STARTER", name: "Grammar Starter", description: "Complete your first grammar unit", icon: "✏️", category: "FOUNDATION_GRAMMAR", tier: 1, xpReward: 20, order: 10 },
@@ -18,7 +18,7 @@ const ACHIEVEMENTS = [
   { key: "FP_NATIVE", name: "Native Speaker", description: "Master all IPA sounds", icon: "👄", category: "FOUNDATION_PRONUNCIATION", tier: 3, xpReward: 100, order: 22 },
 
   // ── IELTS BASIC ──
-  { key: "IB_LESSON_5", name: "Lesson Learner", description: "Complete 5 IELTS basic lessons", icon: "📗", category: "IELTS_BASIC", tier: 1, xpReward: 30, order: 30 },
+  { key: "IB_LESSON_5", name: "FoundationVocabLesson Learner", description: "Complete 5 IELTS basic lessons", icon: "📗", category: "IELTS_BASIC", tier: 1, xpReward: 30, order: 30 },
   { key: "IB_LISTENING_3", name: "Listening Rookie", description: "Complete 3 listening exercises", icon: "🎧", category: "IELTS_BASIC", tier: 1, xpReward: 25, order: 31 },
   { key: "IB_READING_3", name: "Reading Rookie", description: "Complete 3 reading exercises", icon: "📖", category: "IELTS_BASIC", tier: 1, xpReward: 25, order: 32 },
   { key: "IB_WRITING_3", name: "Writing Rookie", description: "Submit 3 writing exercises", icon: "✍️", category: "IELTS_BASIC", tier: 1, xpReward: 25, order: 33 },
@@ -29,21 +29,21 @@ const ACHIEVEMENTS = [
   { key: "IA_HIGH_ACHIEVER", name: "High Achiever", description: "Score ≥80% on any advanced practice", icon: "🏅", category: "IELTS_ADVANCED", tier: 2, xpReward: 30, order: 42 },
 
   // ── IELTS INTENSIVE ──
-  { key: "II_FIRST_EXAM", name: "First Exam", description: "Submit your first full IELTS exam", icon: "📝", category: "IELTS_INTENSIVE", tier: 1, xpReward: 30, order: 50 },
-  { key: "II_BAND_6", name: "Band 6", description: "Score ≥6.0 on any exam", icon: "🎯", category: "IELTS_INTENSIVE", tier: 1, xpReward: 40, order: 51 },
-  { key: "II_BAND_7", name: "Band 7", description: "Score ≥7.0 on any exam", icon: "⭐", category: "IELTS_INTENSIVE", tier: 2, xpReward: 60, order: 52 },
-  { key: "II_BAND_8", name: "Band 8", description: "Score ≥8.0 on any exam", icon: "💎", category: "IELTS_INTENSIVE", tier: 3, xpReward: 100, order: 53 },
-  { key: "II_VETERAN", name: "Exam Veteran", description: "Complete 10 full exams", icon: "🏆", category: "IELTS_INTENSIVE", tier: 2, xpReward: 50, order: 54 },
+  { key: "II_FIRST_EXAM", name: "First IeltsIntensiveExam", description: "Submit your first full IELTS ieltsIntensiveExam", icon: "📝", category: "IELTS_INTENSIVE", tier: 1, xpReward: 30, order: 50 },
+  { key: "II_BAND_6", name: "Band 6", description: "Score ≥6.0 on any ieltsIntensiveExam", icon: "🎯", category: "IELTS_INTENSIVE", tier: 1, xpReward: 40, order: 51 },
+  { key: "II_BAND_7", name: "Band 7", description: "Score ≥7.0 on any ieltsIntensiveExam", icon: "⭐", category: "IELTS_INTENSIVE", tier: 2, xpReward: 60, order: 52 },
+  { key: "II_BAND_8", name: "Band 8", description: "Score ≥8.0 on any ieltsIntensiveExam", icon: "💎", category: "IELTS_INTENSIVE", tier: 3, xpReward: 100, order: 53 },
+  { key: "II_VETERAN", name: "IeltsIntensiveExam Veteran", description: "Complete 10 full exams", icon: "🏆", category: "IELTS_INTENSIVE", tier: 2, xpReward: 50, order: 54 },
 
   // ── SHADOWING ──
-  { key: "SH_ECHO", name: "Echo", description: "Complete your first shadowing lesson", icon: "🎙️", category: "SHADOWING", tier: 1, xpReward: 20, order: 60 },
+  { key: "SH_ECHO", name: "Echo", description: "Complete your first shadowing foundationVocabLesson", icon: "🎙️", category: "SHADOWING", tier: 1, xpReward: 20, order: 60 },
   { key: "SH_PARROT", name: "Parrot", description: "Complete 10 shadowing lessons", icon: "🗣️", category: "SHADOWING", tier: 2, xpReward: 40, order: 61 },
   { key: "SH_VOICE_ACTOR", name: "Voice Actor", description: "Complete 30 shadowing lessons", icon: "🎤", category: "SHADOWING", tier: 3, xpReward: 80, order: 62 },
 
   // ── DICTATION ──
-  { key: "DI_FIRST", name: "First Dictation", description: "Complete your first dictation lesson", icon: "🎧", category: "DICTATION", tier: 1, xpReward: 20, order: 70 },
+  { key: "DI_FIRST", name: "First Dictation", description: "Complete your first dictation foundationVocabLesson", icon: "🎧", category: "DICTATION", tier: 1, xpReward: 20, order: 70 },
   { key: "DI_REGULAR", name: "Dictation Regular", description: "Complete 10 dictation lessons", icon: "📝", category: "DICTATION", tier: 2, xpReward: 40, order: 71 },
-  { key: "DI_EXPERT", name: "Dictation Expert", description: "Complete a lesson on Expert difficulty", icon: "🏆", category: "DICTATION", tier: 3, xpReward: 60, order: 72 },
+  { key: "DI_EXPERT", name: "Dictation Expert", description: "Complete a foundationVocabLesson on Expert difficulty", icon: "🏆", category: "DICTATION", tier: 3, xpReward: 60, order: 72 },
 
   // ── VOCAB LAB ──
   { key: "VL_DECK_BUILDER", name: "Deck Builder", description: "Create your first deck", icon: "📦", category: "VOCAB_LAB", tier: 1, xpReward: 10, order: 80 },

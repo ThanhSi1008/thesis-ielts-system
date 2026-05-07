@@ -105,7 +105,14 @@ export default function Navbar() {
     }
   }, [user, pathname]); // Re-fetch occasionally when navigating around
 
-  if (pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start") || pathname === "/ielts/basic/onboarding") {
+  if (
+    pathname.includes("/take/") ||
+    pathname.includes("/practice/") ||
+    pathname.endsWith("/start") ||
+    pathname === "/ielts/basic/onboarding" ||
+    pathname === "/login" ||
+    pathname === "/register"
+  ) {
     return null;
   }
 

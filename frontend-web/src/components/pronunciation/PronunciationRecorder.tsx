@@ -10,8 +10,8 @@ interface PronunciationRecorderProps {
   vocabularyId?: string;
   userId: string;
   targetWord: string;
-  /** Called with the full result when scoring is complete */
-  onSuccess?: (result: PronunciationResult) => void;
+  /** Called with the full ieltsIntensiveResult when scoring is complete */
+  onSuccess?: (ieltsIntensiveResult: PronunciationResult) => void;
 }
 
 export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
@@ -22,7 +22,7 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [result, setResult] = useState<PronunciationResult | null>(null);
+  const [ieltsIntensiveResult, setResult] = useState<PronunciationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -122,8 +122,8 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
     }
   };
 
-  if (result) {
-    return <ResultView result={result} targetWord={targetWord} audioUrl={audioUrl} onRetry={handleReset} />;
+  if (ieltsIntensiveResult) {
+    return <ResultView ieltsIntensiveResult={ieltsIntensiveResult} targetWord={targetWord} audioUrl={audioUrl} onRetry={handleReset} />;
   }
 
   return (
@@ -176,13 +176,13 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
 // ─────────────────────────────────────────────
 
 interface ResultViewProps {
-  result: PronunciationResult;
+  ieltsIntensiveResult: PronunciationResult;
   targetWord: string;
   audioUrl: string | null;
   onRetry: () => void;
 }
 
-function ResultView({ result, targetWord, audioUrl, onRetry }: ResultViewProps) {
+function ResultView({ ieltsIntensiveResult, targetWord, audioUrl, onRetry }: ResultViewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const playAudio = () => {
@@ -192,7 +192,7 @@ function ResultView({ result, targetWord, audioUrl, onRetry }: ResultViewProps) 
     audio.onended = () => setIsPlaying(false);
     audio.play().catch(() => setIsPlaying(false));
   };
-  const { score, feedback } = result;
+  const { score, feedback } = ieltsIntensiveResult;
   const { text: textColor, bg, label } = getScoreColor(score);
   const details = feedback?.details;
 

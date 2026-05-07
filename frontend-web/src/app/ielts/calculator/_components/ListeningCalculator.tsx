@@ -102,7 +102,7 @@ export default function ListeningCalculator() {
 
       {highlightedBand !== null && (
         <div className="flex items-center gap-3 px-4 py-3 bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-xl">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Result:</span>
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">IeltsIntensiveResult:</span>
           <span className="text-base font-bold text-slate-900 dark:text-white">
             Raw Score {rawInput} → Band{" "}
             <span className="text-primary">

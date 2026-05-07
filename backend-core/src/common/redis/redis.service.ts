@@ -47,11 +47,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async exists(key: string): Promise<boolean> {
-    const result = await this.client.exists(key);
-    return result === 1;
+    const ieltsIntensiveResult = await this.client.exists(key);
+    return ieltsIntensiveResult === 1;
   }
 
-  // Delete all keys matching a pattern (e.g., 'vocabulary:*')
+  // Delete all keys matching a pattern (e.g., 'foundationVocabWord:*')
   async delByPattern(pattern: string): Promise<number> {
     const keys = await this.client.keys(pattern);
     if (keys.length === 0) return 0;

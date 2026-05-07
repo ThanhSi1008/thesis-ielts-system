@@ -47,7 +47,7 @@ export default function HomePage() {
             className="text-lg lg:text-xl xl:text-2xl font-light mb-10 max-w-2xl drop-shadow-sm opacity-90 leading-relaxed animate-slide-in-right"
             style={{ animationDelay: '0.25s' }}
           >
-            An intelligent learning platform that helps you build vocabulary,
+            An intelligent learning platform that helps you build foundationVocabWord,
             improve speaking, and prepare for IELTS with personalized guidance
           </p>
 

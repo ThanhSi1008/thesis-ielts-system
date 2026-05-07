@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { grammarApi } from '@/services/learning.api';
-import type { GrammarBook } from '@/types';
+import type { FoundationGrammarBook } from '@/types';
 
 export default function GrammarContent({ embedded }: { embedded?: boolean }) {
-  const [grammarBooks, setGrammarBooks] = useState<GrammarBook[]>([]);
+  const [grammarBooks, setGrammarBooks] = useState<FoundationGrammarBook[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

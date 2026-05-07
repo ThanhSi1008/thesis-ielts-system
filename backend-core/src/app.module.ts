@@ -13,7 +13,7 @@ import { AiClientModule } from "./modules/ai-client/ai-client.module";
 import { IeltsModule } from "./modules/ielts/ielts.module";
 
 // Learning content modules
-import { VocabularyModule } from "./modules/vocabulary/vocabulary.module";
+import { VocabularyModule } from "./modules/vocabulary/foundationVocabWord.module";
 import { GrammarModule } from "./modules/grammar/grammar.module";
 import { PronunciationModule } from "./modules/pronunciation/pronunciation.module";
 import { VocabLabModule } from "./modules/vocab-lab/vocab-lab.module";

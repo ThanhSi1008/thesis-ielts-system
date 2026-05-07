@@ -1,0 +1,929 @@
+classDiagram
+  class UserRole {
+    <<enumeration>>
+    +STUDENT
+    +ADMIN
+    +INSTRUCTOR
+  }
+  class ExamType {
+    <<enumeration>>
+    +FULL_TEST
+    +READING
+    +LISTENING
+    +SPEAKING
+    +WRITING
+    +PRACTICE
+  }
+  class Difficulty {
+    <<enumeration>>
+    +BEGINNER
+    +INTERMEDIATE
+    +ADVANCED
+  }
+  class SessionStatus {
+    <<enumeration>>
+    +IN_PROGRESS
+    +SUBMITTED
+    +GRADING
+    +GRADED
+    +COMPLETED
+    +ABANDONED
+    +GRADING_FAILED
+  }
+  class MaterialType {
+    <<enumeration>>
+    +LESSON
+    +VOCABULARY
+    +GRAMMAR
+    +PRACTICE
+    +VIDEO
+    +AUDIO
+  }
+  class PronunciationStatus {
+    <<enumeration>>
+    +PENDING
+    +PROCESSING
+    +COMPLETED
+    +FAILED
+  }
+  class PronunciationMastery {
+    <<enumeration>>
+    +NEW
+    +PRACTICING
+    +MASTERED
+  }
+  class CardState {
+    <<enumeration>>
+    +NEW
+    +LEARNING
+    +REVIEW
+    +RELEARNING
+  }
+  class SubscriptionTier {
+    <<enumeration>>
+    +FREE
+    +PREMIUM
+    +PRO
+  }
+  class SubscriptionStatus {
+    <<enumeration>>
+    +ACTIVE
+    +TRIALING
+    +PAST_DUE
+    +CANCELED
+    +EXPIRED
+  }
+  class PaymentProvider {
+    <<enumeration>>
+    +MOCK
+    +STRIPE
+    +MANUAL
+  }
+  class NotificationType {
+    <<enumeration>>
+    +STREAK_MILESTONE
+    +LESSON_COMPLETED
+    +REVIEW_DUE
+    +DECK_MASTERED
+    +EXAM_GRADED
+    +NEW_EXAM_AVAILABLE
+    +DICTATION_COMPLETE
+    +NEW_LESSON
+    +SYSTEM_ANNOUNCEMENT
+    +ACHIEVEMENT
+  }
+  class PostType {
+    <<enumeration>>
+    +STUDY_TIP
+    +SCORE_ACHIEVEMENT
+    +GENERAL
+  }
+  class User {
+    +String id
+    +String email
+    +String? password
+    +String? googleId
+    +String? avatar
+    +String? firstName
+    +String? lastName
+    +Boolean isActive
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Exam {
+    +String id
+    +String title
+    +String? description
+    +String? imageUrl
+    +Int duration
+    +Boolean isPublished
+    +Json questions
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class ExamSession {
+    +String id
+    +String userId
+    +String examId
+    +Json answers
+    +Int? timeTaken
+    +Int? practicePart
+    +DateTime startedAt
+    +DateTime? submittedAt
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Result {
+    +String id
+    +String userId
+    +String sessionId
+    +Float totalScore
+    +Int? readingScore
+    +Int? listeningScore
+    +Float? speakingScore
+    +Float? writingScore
+    +Json? feedback
+    +DateTime gradedAt
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class LearningMaterial {
+    +String id
+    +String title
+    +String? description
+    +Json content
+    +String[] tags
+    +Boolean isPublished
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class LearningProgress {
+    +String id
+    +String userId
+    +String materialId
+    +Int progress
+    +Boolean completed
+    +DateTime lastAccess
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Lesson {
+    +String id
+    +String title
+    +String? description
+    +Int order
+    +Boolean isPublished
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Vocabulary {
+    +String id
+    +String lessonId
+    +String word
+    +String meaning
+    +String? ipa
+    +String? audioUrl
+    +String? example
+    +String? partOfSpeech
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Grammar {
+    +String id
+    +String lessonId
+    +String title
+    +String rule
+    +String example
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class PronunciationAttempt {
+    +String id
+    +String userId
+    +String? vocabularyId
+    +String audioUrl
+    +String? transcribedText
+    +String targetWord
+    +Int? score
+    +Json? feedback
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class VocabularyBook {
+    +String id
+    +String name
+    +String imageUrl
+    +Int wordCount
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class VocabularyUnit {
+    +String id
+    +String bookId
+    +String title
+    +Int order
+    +String? storyTitle
+    +String? storyContent
+    +String? storyImageUrl
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class VocabularyWord {
+    +String id
+    +String unitId
+    +String word
+    +String meaning
+    +String? ipa
+    +String? partOfSpeech
+    +String? example
+    +String? imageUrl
+    +String? audioUrl
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class VocabularyExercise {
+    +String id
+    +String unitId
+    +String question
+    +String answer
+    +Json options
+    +Int order
+  }
+  class VocabularyQuestion {
+    +String id
+    +String unitId
+    +String question
+    +String type
+    +Json? options
+    +String answer
+    +Int order
+  }
+  class VocabularyProgress {
+    +String id
+    +String userId
+    +String unitId
+    +Int wordsLearned
+    +Int totalWords
+    +Int? exerciseScore
+    +Int? questionScore
+    +Boolean isCompleted
+    +DateTime? completedAt
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class GrammarBook {
+    +String id
+    +String slug
+    +String name
+    +String author
+    +String level
+    +String imageUrl
+    +String color
+    +Int unitCount
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class GrammarUnit {
+    +String id
+    +String bookId
+    +String title
+    +Int order
+    +String? theoryContent
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class GrammarExercise {
+    +String id
+    +String unitId
+    +String section
+    +String question
+    +String type
+    +Json? options
+    +String answer
+    +Int order
+  }
+  class GrammarProgress {
+    +String id
+    +String userId
+    +String unitId
+    +Boolean theoryCompleted
+    +Int? exerciseScore
+    +Int? exerciseTotal
+    +DateTime? completedAt
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class PronunciationSound {
+    +String id
+    +String symbol
+    +String type
+    +String word
+    +String? name
+    +String? description
+    +String? tip
+    +String? imageUrl
+    +String? audioUrl
+    +String? videoUrl
+    +Boolean? voiced
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class SoundExampleWord {
+    +String id
+    +String soundId
+    +String word
+    +String? ipa
+    +String? audioUrl
+    +Int order
+  }
+  class PronunciationProgress {
+    +String id
+    +String userId
+    +String soundId
+    +Int practiceCount
+    +Int? bestScore
+    +DateTime? lastPracticedAt
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Deck {
+    +String id
+    +String userId
+    +String name
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Flashcard {
+    +String id
+    +String deckId
+    +String front
+    +String back
+    +String[] tags
+    +DateTime due
+    +Float stability
+    +Float difficulty
+    +Int elapsedDays
+    +Int scheduledDays
+    +Int reps
+    +Int lapses
+    +DateTime? lastReview
+    +DateTime nextReviewDate
+    +String? cardTypeId
+    +Json fieldValues
+    +Json? fieldStyles
+    +Json? cardStyle
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class FlashcardReview {
+    +String id
+    +String flashcardId
+    +Int rating
+    +DateTime reviewedAt
+    +Int scheduledDays
+    +Int elapsedDays
+  }
+  class CardType {
+    +String id
+    +String? userId
+    +String name
+    +String? description
+    +Boolean isBuiltIn
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class CardTypeField {
+    +String id
+    +String cardTypeId
+    +String name
+    +Int order
+    +String? description
+    +String fieldType
+    +DateTime createdAt
+  }
+  class CardTemplate {
+    +String id
+    +String cardTypeId
+    +String name
+    +String[] frontFields
+    +String[] backFields
+    +Json fieldStyles
+    +Json cardStyle
+    +DateTime createdAt
+  }
+  class SharedDeck {
+    +String id
+    +String publisherId
+    +String name
+    +String? description
+    +String[] tags
+    +Json lexonPayload
+    +Int importCount
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class QuestionNote {
+    +String id
+    +String userId
+    +String examId
+    +Int questionNumber
+    +String noteText
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class ShadowingVideo {
+    +String id
+    +String? userId
+    +String title
+    +String? youtubeVideoId
+    +String? audioUrl
+    +String? imageUrl
+    +String[] tags
+    +String folder
+    +String category
+    +String duration
+    +Json sentences
+    +String status
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class ShadowingFolder {
+    +String id
+    +String userId
+    +String name
+    +Int order
+  }
+  class ShadowingProgress {
+    +String id
+    +String userId
+    +String lessonId
+    +Int[] completedSentences
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class DictationVideo {
+    +String id
+    +String? userId
+    +String title
+    +String? youtubeVideoId
+    +String? audioUrl
+    +String? imageUrl
+    +String[] tags
+    +String folder
+    +String category
+    +String duration
+    +Json sentences
+    +String status
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class DictationFolder {
+    +String id
+    +String userId
+    +String name
+    +Int order
+  }
+  class DictationProgress {
+    +String id
+    +String userId
+    +String lessonId
+    +Int[] completedSentences
+    +String difficulty
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsSkill {
+    +String id
+    +String name
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsLesson {
+    +String id
+    +String skillId
+    +String? chapter
+    +String title
+    +Json content
+    +Json? quiz
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsListeningExercise {
+    +String id
+    +String skillId
+    +String? lessonId
+    +String topic
+    +String? instructions
+    +String audioUrl
+    +Json transcript
+    +Json content
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsReadingExercise {
+    +String id
+    +String skillId
+    +String? lessonId
+    +String topic
+    +String? instructions
+    +String passage
+    +Json? passageWithLocations
+    +Json content
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsBasicProgress {
+    +String id
+    +String userId
+    +String? lessonId
+    +String? listeningExerciseId
+    +String? readingExerciseId
+    +String? writingExerciseId
+    +Boolean isCompleted
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsWritingExercise {
+    +String id
+    +String skillId
+    +String? lessonId
+    +String topic
+    +String? instructions
+    +String prompt
+    +String? diagramUrl
+    +Json modelAnswer
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsWritingUserAnswer {
+    +String id
+    +String userId
+    +String writingExerciseId
+    +String intro
+    +String overview
+    +String body1
+    +String body2
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsPracticeListeningPart {
+    +String id
+    +String title
+    +Int partNumber
+    +String audioUrl
+    +Json transcript
+    +Json content
+    +String[] questionTypes
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsPracticeSession {
+    +String id
+    +String userId
+    +String partId
+    +Json answers
+    +Json scoreData
+    +Int totalScore
+    +Int totalQuestions
+    +DateTime createdAt
+  }
+  class IeltsPracticeReadingPart {
+    +String id
+    +String title
+    +Int partNumber
+    +String passage
+    +Json? passageWithLocations
+    +Json content
+    +String[] questionTypes
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class IeltsPracticeReadingSession {
+    +String id
+    +String userId
+    +String partId
+    +Json answers
+    +Json scoreData
+    +Int totalScore
+    +Int totalQuestions
+    +DateTime createdAt
+  }
+  class IeltsProfile {
+    +String id
+    +String userId
+    +Float? targetBand
+    +Int? dailyCommitmentMins
+    +DateTime? examDate
+    +Int? placementScore
+    +Int? placementListening
+    +Int? placementReading
+    +Int? placementWriting
+    +Boolean onboardingCompleted
+    +Int currentStreak
+    +Int longestStreak
+    +DateTime? lastActiveDate
+    +Int totalXp
+    +Int level
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class StudentTeacherLink {
+    +String id
+    +String studentId
+    +String teacherId
+    +String status
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Notification {
+    +String id
+    +String userId
+    +String title
+    +String body
+    +String? icon
+    +String? thumbnail
+    +String? link
+    +Boolean isRead
+    +DateTime createdAt
+  }
+  class Achievement {
+    +String id
+    +String key
+    +String name
+    +String description
+    +String icon
+    +String category
+    +Int tier
+    +Int xpReward
+    +Int order
+    +DateTime createdAt
+  }
+  class UserAchievement {
+    +String id
+    +String userId
+    +String achievementId
+    +DateTime earnedAt
+  }
+  class XpLog {
+    +String id
+    +String userId
+    +Int amount
+    +String reason
+    +DateTime createdAt
+  }
+  class Post {
+    +String id
+    +String authorId
+    +String? title
+    +String body
+    +String[] imageUrls
+    +String[] tags
+    +Json? metadata
+    +Int likeCount
+    +Int commentCount
+    +Int bookmarkCount
+    +Boolean isPinned
+    +Boolean isHidden
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Comment {
+    +String id
+    +String postId
+    +String authorId
+    +String? parentId
+    +String body
+    +Boolean isHidden
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class PostLike {
+    +String id
+    +String postId
+    +String userId
+    +DateTime createdAt
+  }
+  class PostBookmark {
+    +String id
+    +String postId
+    +String userId
+    +DateTime createdAt
+  }
+  class Subscription {
+    +String id
+    +String userId
+    +String? providerSubId
+    +DateTime? currentPeriodStart
+    +DateTime? currentPeriodEnd
+    +DateTime? canceledAt
+    +DateTime? trialEndsAt
+    +Boolean trialUsed
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class Payment {
+    +String id
+    +String subscriptionId
+    +Int amount
+    +String currency
+    +String? providerPayId
+    +String status
+    +Json? metadata
+    +DateTime createdAt
+  }
+  class UsageRecord {
+    +String id
+    +String subscriptionId
+    +String feature
+    +Int count
+    +DateTime periodStart
+    +DateTime periodEnd
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  class PricingPlan {
+    +String id
+    +String name
+    +String? description
+    +Int priceAmount
+    +String currency
+    +String interval
+    +Int intervalCount
+    +Json features
+    +Boolean isActive
+    +Int order
+    +DateTime createdAt
+    +DateTime updatedAt
+  }
+  User --> "1" UserRole : role
+  User --> "*" ExamSession : examSessions
+  User --> "*" Result : results
+  User --> "*" LearningProgress : progress
+  User --> "*" PronunciationAttempt : pronunciationAttempts
+  User --> "*" PronunciationProgress : pronunciationProgress
+  User --> "*" VocabularyProgress : vocabularyProgress
+  User --> "*" GrammarProgress : grammarProgress
+  User --> "*" Deck : decks
+  User --> "*" SharedDeck : sharedDecks
+  User --> "*" QuestionNote : questionNotes
+  User --> "*" ShadowingVideo : shadowingVideos
+  User --> "*" ShadowingFolder : shadowingFolders
+  User --> "*" ShadowingProgress : shadowingProgress
+  User --> "*" DictationVideo : dictationVideos
+  User --> "*" DictationFolder : dictationFolders
+  User --> "*" DictationProgress : dictationProgress
+  User --> "*" IeltsBasicProgress : ieltsBasicProgress
+  User --> "*" IeltsWritingUserAnswer : ieltsWritingAnswers
+  User --> "*" IeltsPracticeSession : practiceSessions
+  User --> "*" IeltsPracticeReadingSession : practiceReadingSessions
+  User --> "*" UserAchievement : userAchievements
+  User --> "*" XpLog : xpLogs
+  User --> "1" IeltsProfile : ieltsProfile
+  User --> "*" StudentTeacherLink : teacherLinks
+  User --> "*" StudentTeacherLink : studentLinks
+  User --> "*" Notification : notifications
+  User --> "*" Post : posts
+  User --> "*" Comment : comments
+  User --> "*" PostLike : postLikes
+  User --> "*" PostBookmark : bookmarks
+  User --> "1" Subscription : subscription
+  Exam --> "1" ExamType : type
+  Exam --> "1" Difficulty : difficulty
+  Exam --> "*" ExamSession : sessions
+  ExamSession --> "1" SessionStatus : status
+  ExamSession --> "1" User : user
+  ExamSession --> "1" Exam : exam
+  ExamSession --> "1" Result : result
+  Result --> "1" User : user
+  Result --> "1" ExamSession : session
+  LearningMaterial --> "1" MaterialType : type
+  LearningMaterial --> "1" Difficulty : difficulty
+  LearningMaterial --> "*" LearningProgress : progress
+  LearningProgress --> "1" User : user
+  LearningProgress --> "1" LearningMaterial : material
+  Lesson --> "1" Difficulty : difficulty
+  Lesson --> "*" Vocabulary : vocabularies
+  Lesson --> "*" Grammar : grammars
+  Vocabulary --> "1" Lesson : lesson
+  Vocabulary --> "*" PronunciationAttempt : pronunciationAttempts
+  Grammar --> "1" Lesson : lesson
+  PronunciationAttempt --> "1" PronunciationStatus : status
+  PronunciationAttempt --> "1" User : user
+  PronunciationAttempt --> "1" Vocabulary : vocabulary
+  VocabularyBook --> "*" VocabularyUnit : units
+  VocabularyUnit --> "1" VocabularyBook : book
+  VocabularyUnit --> "*" VocabularyWord : words
+  VocabularyUnit --> "*" VocabularyExercise : exercises
+  VocabularyUnit --> "*" VocabularyQuestion : questions
+  VocabularyUnit --> "*" VocabularyProgress : progress
+  VocabularyWord --> "1" VocabularyUnit : unit
+  VocabularyExercise --> "1" VocabularyUnit : unit
+  VocabularyQuestion --> "1" VocabularyUnit : unit
+  VocabularyProgress --> "1" User : user
+  VocabularyProgress --> "1" VocabularyUnit : unit
+  GrammarBook --> "*" GrammarUnit : units
+  GrammarUnit --> "1" GrammarBook : book
+  GrammarUnit --> "*" GrammarExercise : exercises
+  GrammarUnit --> "*" GrammarProgress : progress
+  GrammarExercise --> "1" GrammarUnit : unit
+  GrammarProgress --> "1" User : user
+  GrammarProgress --> "1" GrammarUnit : unit
+  PronunciationSound --> "*" SoundExampleWord : exampleWords
+  PronunciationSound --> "*" PronunciationProgress : progress
+  SoundExampleWord --> "1" PronunciationSound : sound
+  PronunciationProgress --> "1" PronunciationMastery : status
+  PronunciationProgress --> "1" User : user
+  PronunciationProgress --> "1" PronunciationSound : sound
+  Deck --> "1" User : user
+  Deck --> "*" Flashcard : flashcards
+  Flashcard --> "1" CardState : cardState
+  Flashcard --> "1" Deck : deck
+  Flashcard --> "1" CardType : cardType
+  Flashcard --> "*" FlashcardReview : reviews
+  FlashcardReview --> "1" CardState : state
+  FlashcardReview --> "1" Flashcard : flashcard
+  CardType --> "*" CardTypeField : fields
+  CardType --> "*" CardTemplate : templates
+  CardType --> "*" Flashcard : flashcards
+  CardTypeField --> "1" CardType : cardType
+  CardTemplate --> "1" CardType : cardType
+  SharedDeck --> "1" User : publisher
+  QuestionNote --> "1" User : user
+  ShadowingVideo --> "1" User : user
+  ShadowingFolder --> "1" User : user
+  ShadowingProgress --> "1" User : user
+  DictationVideo --> "1" User : user
+  DictationFolder --> "1" User : user
+  DictationProgress --> "1" User : user
+  IeltsSkill --> "*" IeltsLesson : lessons
+  IeltsSkill --> "*" IeltsListeningExercise : listeningExercises
+  IeltsSkill --> "*" IeltsReadingExercise : readingExercises
+  IeltsSkill --> "*" IeltsWritingExercise : writingExercises
+  IeltsLesson --> "1" IeltsSkill : skill
+  IeltsLesson --> "*" IeltsListeningExercise : listeningExercises
+  IeltsLesson --> "*" IeltsReadingExercise : readingExercises
+  IeltsLesson --> "*" IeltsWritingExercise : writingExercises
+  IeltsLesson --> "*" IeltsBasicProgress : progress
+  IeltsListeningExercise --> "1" IeltsSkill : skill
+  IeltsListeningExercise --> "1" IeltsLesson : lesson
+  IeltsListeningExercise --> "*" IeltsBasicProgress : progress
+  IeltsReadingExercise --> "1" IeltsSkill : skill
+  IeltsReadingExercise --> "1" IeltsLesson : lesson
+  IeltsReadingExercise --> "*" IeltsBasicProgress : progress
+  IeltsBasicProgress --> "1" User : user
+  IeltsBasicProgress --> "1" IeltsLesson : lesson
+  IeltsBasicProgress --> "1" IeltsListeningExercise : listeningExercise
+  IeltsBasicProgress --> "1" IeltsReadingExercise : readingExercise
+  IeltsBasicProgress --> "1" IeltsWritingExercise : writingExercise
+  IeltsWritingExercise --> "1" IeltsSkill : skill
+  IeltsWritingExercise --> "1" IeltsLesson : lesson
+  IeltsWritingExercise --> "*" IeltsBasicProgress : progress
+  IeltsWritingExercise --> "*" IeltsWritingUserAnswer : userAnswers
+  IeltsWritingUserAnswer --> "1" User : user
+  IeltsWritingUserAnswer --> "1" IeltsWritingExercise : writingExercise
+  IeltsPracticeListeningPart --> "*" IeltsPracticeSession : sessions
+  IeltsPracticeSession --> "1" IeltsPracticeListeningPart : part
+  IeltsPracticeSession --> "1" User : user
+  IeltsPracticeReadingPart --> "*" IeltsPracticeReadingSession : sessions
+  IeltsPracticeReadingSession --> "1" IeltsPracticeReadingPart : part
+  IeltsPracticeReadingSession --> "1" User : user
+  IeltsProfile --> "1" User : user
+  StudentTeacherLink --> "1" User : student
+  StudentTeacherLink --> "1" User : teacher
+  Notification --> "1" User : user
+  Notification --> "1" NotificationType : type
+  Achievement --> "*" UserAchievement : userAchievements
+  UserAchievement --> "1" User : user
+  UserAchievement --> "1" Achievement : achievement
+  XpLog --> "1" User : user
+  Post --> "1" PostType : type
+  Post --> "1" User : author
+  Post --> "*" Comment : comments
+  Post --> "*" PostLike : likes
+  Post --> "*" PostBookmark : bookmarks
+  Comment --> "1" Post : post
+  Comment --> "1" User : author
+  Comment --> "1" Comment : parent
+  Comment --> "*" Comment : replies
+  PostLike --> "1" Post : post
+  PostLike --> "1" User : user
+  PostBookmark --> "1" Post : post
+  PostBookmark --> "1" User : user
+  Subscription --> "1" SubscriptionTier : tier
+  Subscription --> "1" SubscriptionStatus : status
+  Subscription --> "1" PaymentProvider : provider
+  Subscription --> "1" User : user
+  Subscription --> "*" Payment : payments
+  Subscription --> "*" UsageRecord : usageRecords
+  Payment --> "1" PaymentProvider : provider
+  Payment --> "1" Subscription : subscription
+  UsageRecord --> "1" Subscription : subscription
+  PricingPlan --> "1" SubscriptionTier : tier

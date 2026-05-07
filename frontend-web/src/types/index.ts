@@ -51,7 +51,7 @@ export interface AuthResponse {
 
 // ==================== VOCABULARY ====================
 
-export interface VocabularyBook {
+export interface FoundationVocabBook {
   id: string;
   name: string;
   imageUrl: string;
@@ -59,13 +59,13 @@ export interface VocabularyBook {
   _count?: { units: number };
 }
 
-export interface VocabularyUnit {
+export interface FoundationVocabUnit {
   id: string;
   title: string;
   order: number;
 }
 
-export interface VocabularyWord {
+export interface FoundationVocabItem {
   id: string;
   word: string;
   meaning: string;
@@ -74,26 +74,26 @@ export interface VocabularyWord {
   example?: string;
   imageUrl?: string;
   audioUrl?: string;
-  lessonId?: string; // From Lesson Service
+  lessonId?: string; // From FoundationVocabLesson Service
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface VocabularyBookWithUnits extends VocabularyBook {
-  units: VocabularyUnit[];
+export interface VocabularyBookWithUnits extends FoundationVocabBook {
+  units: FoundationVocabUnit[];
 }
 
-export interface VocabularyUnitWithContent extends VocabularyUnit {
+export interface VocabularyUnitWithContent extends FoundationVocabUnit {
   book: { id: string; name: string };
-  words: VocabularyWord[];
-  exercises: VocabularyExercise[];
-  questions: VocabularyQuestion[];
+  words: FoundationVocabItem[];
+  exercises: FoundationVocabExercise[];
+  questions: FoundationVocabQuestion[];
   storyTitle?: string;
   storyContent?: string;
   storyImageUrl?: string;
 }
 
-export interface VocabularyExercise {
+export interface FoundationVocabExercise {
   id: string;
   question: string;
   answer: string;
@@ -101,7 +101,7 @@ export interface VocabularyExercise {
   order: number;
 }
 
-export interface VocabularyQuestion {
+export interface FoundationVocabQuestion {
   id: string;
   question: string;
   type: 'multiple_choice' | 'fill_blank';
@@ -156,7 +156,7 @@ export interface SubmitQuestionsResponse {
 
 // ==================== GRAMMAR ====================
 
-export interface GrammarBook {
+export interface FoundationGrammarBook {
   id: string;
   slug: string;
   name: string;
@@ -168,18 +168,18 @@ export interface GrammarBook {
   _count?: { units: number };
 }
 
-export interface GrammarUnit {
+export interface FoundationGrammarUnit {
   id: string;
   title: string;
   order: number;
   theoryContent?: string;
 }
 
-export interface GrammarBookWithUnits extends GrammarBook {
-  units: GrammarUnit[];
+export interface GrammarBookWithUnits extends FoundationGrammarBook {
+  units: FoundationGrammarUnit[];
 }
 
-export interface GrammarUnitWithContent extends GrammarUnit {
+export interface GrammarUnitWithContent extends FoundationGrammarUnit {
   book: { id: string; slug: string; name: string };
   exercises: any[];
 }
@@ -193,7 +193,7 @@ export interface GrammarUnitProgress {
   completedAt: string | null;
 }
 
-export interface GrammarRule { // From Lesson Service
+export interface GrammarRule { // From FoundationVocabLesson Service
   id: string;
   lessonId: string;
   title: string;
@@ -205,7 +205,7 @@ export interface GrammarRule { // From Lesson Service
 
 // ==================== PRONUNCIATION ====================
 
-export interface PronunciationSound {
+export interface FoundationPronunciationSound {
   id: string;
   symbol: string;
   name?: string;
@@ -218,10 +218,10 @@ export interface PronunciationSound {
   audioUrl?: string;
   voiced?: boolean;
   order: number;
-  exampleWords: SoundExampleWord[];
+  exampleWords: FoundationSoundExample[];
 }
 
-export interface SoundExampleWord {
+export interface FoundationSoundExample {
   id: string;
   word: string;
   ipa?: string;
@@ -283,14 +283,14 @@ export interface PronunciationResult {
 }
 
 export interface PronunciationData {
-  monophthongs: PronunciationSound[];
-  diphthongs: PronunciationSound[];
-  consonants: PronunciationSound[];
+  monophthongs: FoundationPronunciationSound[];
+  diphthongs: FoundationPronunciationSound[];
+  consonants: FoundationPronunciationSound[];
 }
 
 // ==================== LESSONS ====================
 
-export interface Lesson {
+export interface FoundationVocabLesson {
   id: string;
   title: string;
   description: string;
@@ -299,7 +299,7 @@ export interface Lesson {
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
-  vocabularies?: VocabularyWord[];
+  vocabularies?: FoundationVocabItem[];
   grammars?: GrammarRule[];
 }
 
@@ -467,7 +467,7 @@ export interface VocabLabStats {
 
 // ==================== IELTS EXAMS (Intensive Catalog) ====================
 
-export type IeltsSkill = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
+export type IeltsBasicSkill = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
 
 export interface IeltsIntensiveTestCard {
   examId: string;
@@ -489,7 +489,7 @@ export interface IeltsIntensiveGroup {
 }
 
 export interface IeltsIntensiveCatalogResponse {
-  skill: IeltsSkill;
+  skill: IeltsBasicSkill;
   groups: IeltsIntensiveGroup[];
 }
 
@@ -508,7 +508,7 @@ export interface PracticeItem {
 }
 
 export interface PracticeCatalogResponse {
-  skill: IeltsSkill;
+  skill: IeltsBasicSkill;
   items: PracticeItem[];
 }
 
@@ -527,7 +527,7 @@ export interface ExamDetail {
   updatedAt?: string;
 }
 
-export interface IeltsWritingExercise {
+export interface IeltsBasicWritingExercise {
   id: string;
   skillId: string;
   lessonId?: string;
@@ -552,7 +552,7 @@ export interface ExamSessionDetail {
   answers: any;
   startedAt: string;
   submittedAt?: string | null;
-  result?: any;
+  ieltsIntensiveResult?: any;
   practicePart?: number | null;
   createdAt?: string;
   updatedAt?: string;
@@ -687,6 +687,8 @@ export interface PricingPlan {
   features: string[];
   isActive: boolean;
   order: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserSubscription {

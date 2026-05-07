@@ -1,14 +1,14 @@
 import api from '@/lib/api';
-import type { ExamDetail, ExamSessionDetail, IeltsIntensiveCatalogResponse, PracticeCatalogResponse, IeltsSkill } from '@/types';
+import type { ExamDetail, ExamSessionDetail, IeltsIntensiveCatalogResponse, PracticeCatalogResponse, IeltsBasicSkill } from '@/types';
 
 export const examsApi = {
-  getIntensiveCatalog: async (skill: IeltsSkill) => {
+  getIntensiveCatalog: async (skill: IeltsBasicSkill) => {
     const { data } = await api.get<IeltsIntensiveCatalogResponse>('/exams/intensive/catalog', {
       params: { skill },
     });
     return data;
   },
-  getPracticeCatalog: async (skill: IeltsSkill) => {
+  getPracticeCatalog: async (skill: IeltsBasicSkill) => {
     const { data } = await api.get<PracticeCatalogResponse>('/exams/intensive/practice-catalog', {
       params: { skill },
     });
@@ -27,7 +27,7 @@ export const examsApi = {
     return data;
   },
   getSession: async (sessionId: string) => {
-    const { data } = await api.get<ExamSessionDetail & { exam: any; result: any }>(`/exams/sessions/${encodeURIComponent(sessionId)}`);
+    const { data } = await api.get<ExamSessionDetail & { ieltsIntensiveExam: any; ieltsIntensiveResult: any }>(`/exams/sessions/${encodeURIComponent(sessionId)}`);
     return data;
   },
   submitSession: async (sessionId: string, answers: Record<string, string | number | string[]>, timeTaken?: number) => {

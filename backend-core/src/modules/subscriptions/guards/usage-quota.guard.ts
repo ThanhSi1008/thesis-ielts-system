@@ -32,8 +32,8 @@ export class UsageQuotaGuard implements CanActivate {
 
     if (DAILY_QUOTA_FEATURES.includes(quota.feature as any)) {
       isDaily = true;
-      const result = await this.subscriptionsService.checkDailyUsage(userId, quota.feature);
-      allowed = result.allowed;
+      const ieltsIntensiveResult = await this.subscriptionsService.checkDailyUsage(userId, quota.feature);
+      allowed = ieltsIntensiveResult.allowed;
     } else {
       allowed = await this.subscriptionsService.incrementUsage(
         userId,

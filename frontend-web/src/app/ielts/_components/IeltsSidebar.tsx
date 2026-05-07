@@ -191,7 +191,7 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
           /* ── Mini mode ── */
           if (isMini) {
             if (item.isAccordion) {
-              // In mini mode, foundation → link to vocabulary
+              // In mini mode, foundation → link to foundationVocabWord
               return (
                 <Link
                   key={item.key}

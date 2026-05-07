@@ -4,24 +4,24 @@ import { SHADOWING_LESSONS } from '../data/shadowing-lessons';
 export async function seedShadowingLessons(prisma: PrismaClient) {
   console.log('Seeding Shadowing lessons...');
 
-  for (const lesson of SHADOWING_LESSONS) {
-    if (lesson.type === 'dictation') continue;
+  for (const foundationVocabLesson of SHADOWING_LESSONS) {
+    if (foundationVocabLesson.type === 'dictation') continue;
     
     const data = {
-      title: lesson.title,
-      youtubeVideoId: lesson.youtubeVideoId || null,
-      audioUrl: lesson.audioUrl,
-      imageUrl: lesson.image,
-      tags: lesson.tags,
-      duration: lesson.duration,
-      sentences: lesson.sentences as any,
+      title: foundationVocabLesson.title,
+      youtubeVideoId: foundationVocabLesson.youtubeVideoId || null,
+      audioUrl: foundationVocabLesson.audioUrl,
+      imageUrl: foundationVocabLesson.image,
+      tags: foundationVocabLesson.tags,
+      duration: foundationVocabLesson.duration,
+      sentences: foundationVocabLesson.sentences as any,
     };
 
     // Seed into ShadowingVideo (with vietnamese/phonetic fields preserved)
     await prisma.shadowingVideo.upsert({
-      where: { id: lesson.id },
+      where: { id: foundationVocabLesson.id },
       update: data,
-      create: { id: lesson.id, ...data },
+      create: { id: foundationVocabLesson.id, ...data },
     });
   }
 
@@ -31,21 +31,21 @@ export async function seedShadowingLessons(prisma: PrismaClient) {
 export async function seedDictationLessons(prisma: PrismaClient) {
   console.log('Seeding Dictation lessons...');
 
-  for (const lesson of SHADOWING_LESSONS) {
-    if (lesson.type === 'shadowing') continue;
+  for (const foundationVocabLesson of SHADOWING_LESSONS) {
+    if (foundationVocabLesson.type === 'shadowing') continue;
 
     // Dictation uses a different ID namespace to keep tables fully isolated
-    const dictationId = `dictation-${lesson.id}`;
+    const dictationId = `dictation-${foundationVocabLesson.id}`;
 
     const data = {
-      title: lesson.title,
-      youtubeVideoId: lesson.youtubeVideoId || null,
-      audioUrl: lesson.audioUrl,
-      imageUrl: lesson.image,
-      tags: lesson.tags,
-      duration: lesson.duration,
+      title: foundationVocabLesson.title,
+      youtubeVideoId: foundationVocabLesson.youtubeVideoId || null,
+      audioUrl: foundationVocabLesson.audioUrl,
+      imageUrl: foundationVocabLesson.image,
+      tags: foundationVocabLesson.tags,
+      duration: foundationVocabLesson.duration,
       // Strip vietnamese/phonetic — dictation doesn't need them
-      sentences: (lesson.sentences as any[]).map((s: any) => ({
+      sentences: (foundationVocabLesson.sentences as any[]).map((s: any) => ({
         id: s.id,
         english: s.english,
         words: s.words,

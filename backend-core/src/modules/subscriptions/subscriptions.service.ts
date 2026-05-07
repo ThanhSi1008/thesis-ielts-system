@@ -186,13 +186,13 @@ export class SubscriptionsService {
     }
 
     // Count today's usage from the relevant table
-    // For pronunciation: count PronunciationAttempt records created today
+    // For pronunciation: count FoundationPronunciationAttempt records created today
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
     let used = 0;
     if (feature === "PRONUNCIATION_ATTEMPT") {
-      used = await this.prisma.pronunciationAttempt.count({
+      used = await this.prisma.foundationPronunciationAttempt.count({
         where: {
           userId,
           createdAt: { gte: startOfDay },
@@ -287,7 +287,7 @@ export class SubscriptionsService {
     if (!plan.isActive) throw new BadRequestException("This plan is no longer available");
 
     // Create checkout via provider
-    const result = await this.paymentProvider.createCheckout({
+    const ieltsIntensiveResult = await this.paymentProvider.createCheckout({
       userId,
       planId: plan.id,
       planName: plan.name,
@@ -297,14 +297,14 @@ export class SubscriptionsService {
     });
 
     // For mock provider, payment auto-completes
-    if (result.status === "completed") {
-      return this.activateSubscription(userId, plan, result.providerSubId, result.sessionId);
+    if (ieltsIntensiveResult.status === "completed") {
+      return this.activateSubscription(userId, plan, ieltsIntensiveResult.providerSubId, ieltsIntensiveResult.sessionId);
     }
 
     // For real providers (Stripe), return redirect URL
     return {
-      sessionId: result.sessionId,
-      redirectUrl: result.redirectUrl,
+      sessionId: ieltsIntensiveResult.sessionId,
+      redirectUrl: ieltsIntensiveResult.redirectUrl,
     };
   }
 

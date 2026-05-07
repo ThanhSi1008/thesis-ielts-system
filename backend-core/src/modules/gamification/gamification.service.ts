@@ -152,13 +152,13 @@ export class GamificationService {
       switch (key) {
         // Vocab Foundation
         case "FV_FIRST_WORDS":
-          shouldGrant = (await this.prisma.vocabularyProgress.count({ where: { userId, isCompleted: true } })) >= 1;
+          shouldGrant = (await this.prisma.foundationVocabProgress.count({ where: { userId, isCompleted: true } })) >= 1;
           break;
         case "FV_BOOKWORM": {
           // Check if any book has all units completed
-          const books = await this.prisma.vocabularyBook.findMany({ include: { units: true } });
+          const books = await this.prisma.foundationVocabBook.findMany({ include: { units: true } });
           for (const book of books) {
-            const completed = await this.prisma.vocabularyProgress.count({
+            const completed = await this.prisma.foundationVocabProgress.count({
               where: { userId, isCompleted: true, unitId: { in: book.units.map((u) => u.id) } },
             });
             if (completed === book.units.length && book.units.length > 0) { shouldGrant = true; break; }
@@ -168,16 +168,16 @@ export class GamificationService {
 
         // Grammar
         case "FG_STARTER":
-          shouldGrant = (await this.prisma.grammarProgress.count({ where: { userId, theoryCompleted: true, exerciseScore: { not: null } } })) >= 1;
+          shouldGrant = (await this.prisma.foundationGrammarProgress.count({ where: { userId, theoryCompleted: true, exerciseScore: { not: null } } })) >= 1;
           break;
 
         // Pronunciation
         case "FP_SHARP_EAR":
-          shouldGrant = (await this.prisma.pronunciationProgress.count({ where: { userId, status: "MASTERED" } })) >= 10;
+          shouldGrant = (await this.prisma.foundationPronunciationProgress.count({ where: { userId, status: "MASTERED" } })) >= 10;
           break;
         case "FP_NATIVE": {
-          const totalSounds = await this.prisma.pronunciationSound.count();
-          const masteredSounds = await this.prisma.pronunciationProgress.count({ where: { userId, status: "MASTERED" } });
+          const totalSounds = await this.prisma.foundationPronunciationSound.count();
+          const masteredSounds = await this.prisma.foundationPronunciationProgress.count({ where: { userId, status: "MASTERED" } });
           shouldGrant = totalSounds > 0 && masteredSounds === totalSounds;
           break;
         }
@@ -193,15 +193,15 @@ export class GamificationService {
           shouldGrant = (await this.prisma.ieltsBasicProgress.count({ where: { userId, isCompleted: true, readingExerciseId: { not: null } } })) >= 3;
           break;
         case "IB_WRITING_3":
-          shouldGrant = (await this.prisma.ieltsWritingUserAnswer.count({ where: { userId } })) >= 3;
+          shouldGrant = (await this.prisma.ieltsBasicWritingAnswer.count({ where: { userId } })) >= 3;
           break;
 
         // IELTS Advanced
         case "IA_LISTENER_5":
-          shouldGrant = (await this.prisma.ieltsPracticeSession.count({ where: { userId } })) >= 5;
+          shouldGrant = (await this.prisma.ieltsAdvancedListeningSession.count({ where: { userId } })) >= 5;
           break;
         case "IA_READER_5":
-          shouldGrant = (await this.prisma.ieltsPracticeReadingSession.count({ where: { userId } })) >= 5;
+          shouldGrant = (await this.prisma.ieltsAdvancedReadingSession.count({ where: { userId } })) >= 5;
           break;
 
         // IELTS Intensive
@@ -214,7 +214,7 @@ export class GamificationService {
 
         // Shadowing
         case "SH_ECHO":
-          shouldGrant = true; // Triggered only when a full lesson is completed
+          shouldGrant = true; // Triggered only when a full foundationVocabLesson is completed
           break;
         case "SH_PARROT":
           shouldGrant = (await this.prisma.shadowingProgress.count({ where: { userId, completedSentences: { isEmpty: false } } })) >= 10; // Simple approximation if array not empty, since full check requires fetching the video sentence length
@@ -222,7 +222,7 @@ export class GamificationService {
 
         // Dictation
         case "DI_FIRST":
-          shouldGrant = true; // Triggered only when a full lesson is completed
+          shouldGrant = true; // Triggered only when a full foundationVocabLesson is completed
           break;
         case "DI_REGULAR":
           shouldGrant = (await this.prisma.dictationProgress.count({ where: { userId, completedSentences: { isEmpty: false } } })) >= 10;

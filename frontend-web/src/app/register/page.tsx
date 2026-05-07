@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import PreviewCarousel from "@/components/PreviewCarousel";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
@@ -41,51 +42,22 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-slate-950">
-      {/* Left Panel - Visuals */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 overflow-hidden items-center justify-center">
-        {/* Animated ambient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 z-0"></div>
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#FFC600]/15 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[8000ms]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
-
-        <div className="relative z-10 p-12 text-center max-w-xl flex flex-col items-center">
-          <Link href="/">
-            <img
-              src="https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
-              alt="Lexon Logo"
-              className="h-14 mb-12 drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-            />
-          </Link>
-          <h2 className="text-4xl font-extrabold text-white mb-6 leading-[1.15] tracking-tight">
-            Start your journey to<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFC600] to-amber-300">English fluency.</span>
-          </h2>
-          <p className="text-slate-400 text-lg leading-relaxed font-medium">
-            Join a community of ambitious learners achieving their dream band scores with personalized, AI-powered study plans.
-          </p>
-        </div>
-      </div>
-
-      {/* Right Panel - Interactive Form */}
+      {/* Left Panel - Interactive Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-12 py-12 lg:py-0 relative">
-        {/* Mobile Logo - Only shows on small screens */}
-        <div className="absolute top-8 left-6 sm:left-12 lg:hidden">
-          <Link href="/">
-            <img
-              src="https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
-              alt="Lexon Logo"
-              className="h-8 dark:hidden"
-            />
-            <img
-              src="https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
-              alt="Lexon Logo"
-              className="h-8 hidden dark:block"
-            />
-          </Link>
-        </div>
-
         <div className="max-w-[420px] w-full mt-10 sm:mt-0">
-          <div className="mb-10 text-center">
+          <div className="mb-8 text-center">
+            <Link href="/" className="inline-block mb-8">
+              <img
+                src="https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+                alt="Lexon Logo"
+                className="h-16 dark:hidden"
+              />
+              <img
+                src="https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
+                alt="Lexon Logo"
+                className="h-16 hidden dark:block"
+              />
+            </Link>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Create Account</h1>
             <p className="text-gray-500 dark:text-slate-400 font-medium text-sm">Join Lexon and start your IELTS journey today.</p>
           </div>
@@ -167,6 +139,18 @@ export default function RegisterPage() {
               Sign in instead
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Visuals */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 overflow-hidden items-center justify-center">
+        {/* Animated ambient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 z-0"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#FFC600]/15 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[8000ms]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[10000ms] delay-1000"></div>
+
+        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+          <PreviewCarousel />
         </div>
       </div>
     </div>

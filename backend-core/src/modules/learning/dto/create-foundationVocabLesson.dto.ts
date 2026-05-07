@@ -14,7 +14,7 @@ enum Difficulty {
 }
 
 /**
- * DTO for creating a new lesson
+ * DTO for creating a new foundationVocabLesson
  */
 export class CreateLessonDto {
   @IsString()

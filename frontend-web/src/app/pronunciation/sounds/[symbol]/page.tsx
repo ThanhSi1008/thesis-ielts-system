@@ -6,13 +6,13 @@ import { useParams } from 'next/navigation';
 import { pronunciationApi } from '@/services/learning.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { PronunciationRecorder } from '@/components/pronunciation/PronunciationRecorder';
-import type { PronunciationSound } from '@/types';
+import type { FoundationPronunciationSound } from '@/types';
 import PageHeader from '@/components/PageHeader';
 
 export default function SoundDetailPage() {
   const params = useParams();
   const { user } = useAuth();
-  const [sound, setSound] = useState<PronunciationSound | null>(null);
+  const [sound, setSound] = useState<FoundationPronunciationSound | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

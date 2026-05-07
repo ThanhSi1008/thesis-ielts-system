@@ -1,14 +1,14 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { CreateLessonDto } from "./dto/create-lesson.dto";
-import { CreateVocabularyDto } from "./dto/create-vocabulary.dto";
+import { CreateLessonDto } from "./dto/create-foundationVocabLesson.dto";
+import { CreateVocabularyDto } from "./dto/create-foundationVocabWord.dto";
 import { CreateGrammarDto } from "./dto/create-grammar.dto";
 import { UpdateProgressDto } from "./dto/update-progress.dto";
-import { Vocabulary } from "@prisma/client";
+import { FoundationVocabWord } from "@prisma/client";
 
 /**
  * Learning Service
- * Handles business logic for learning materials, lessons, vocabulary, and grammar
+ * Handles business logic for learning materials, lessons, foundationVocabWord, and grammar
  */
 @Injectable()
 export class LearningService {
@@ -66,13 +66,13 @@ export class LearningService {
   // ==================== LESSON METHODS ====================
 
   /**
-   * Create a new lesson
-   * @param createLessonDto - Lesson data
-   * @returns Created lesson
+   * Create a new foundationVocabLesson
+   * @param createLessonDto - FoundationVocabLesson data
+   * @returns Created foundationVocabLesson
    */
   async createLesson(createLessonDto: CreateLessonDto) {
     try {
-      const lesson = await this.prisma.lesson.create({
+      const foundationVocabLesson = await this.prisma.foundationVocabLesson.create({
         data: {
           title: createLessonDto.title,
           description: createLessonDto.description,
@@ -82,10 +82,10 @@ export class LearningService {
         },
       });
 
-      this.logger.log(`✅ Lesson created: ${lesson.id}`);
-      return lesson;
+      this.logger.log(`✅ FoundationVocabLesson created: ${foundationVocabLesson.id}`);
+      return foundationVocabLesson;
     } catch (error) {
-      this.logger.error(`❌ Failed to create lesson: ${error.message}`);
+      this.logger.error(`❌ Failed to create foundationVocabLesson: ${error.message}`);
       throw error;
     }
   }
@@ -110,7 +110,7 @@ export class LearningService {
         where.isPublished = filters.isPublished;
       }
 
-      const lessons = await this.prisma.lesson.findMany({
+      const lessons = await this.prisma.foundationVocabLesson.findMany({
         where,
         orderBy: { order: "asc" },
         include: {
@@ -131,13 +131,13 @@ export class LearningService {
   }
 
   /**
-   * Find a lesson by ID with all vocabulary and grammar items
-   * @param id - Lesson ID
-   * @returns Lesson with vocabulary and grammar
+   * Find a foundationVocabLesson by ID with all foundationVocabWord and grammar items
+   * @param id - FoundationVocabLesson ID
+   * @returns FoundationVocabLesson with foundationVocabWord and grammar
    */
   async findLessonById(id: string) {
     try {
-      const lesson = await this.prisma.lesson.findUnique({
+      const foundationVocabLesson = await this.prisma.foundationVocabLesson.findUnique({
         where: { id },
         include: {
           vocabularies: {
@@ -149,13 +149,13 @@ export class LearningService {
         },
       });
 
-      if (!lesson) {
-        throw new NotFoundException(`Lesson with ID ${id} not found`);
+      if (!foundationVocabLesson) {
+        throw new NotFoundException(`FoundationVocabLesson with ID ${id} not found`);
       }
 
-      return lesson;
+      return foundationVocabLesson;
     } catch (error) {
-      this.logger.error(`❌ Failed to fetch lesson: ${error.message}`);
+      this.logger.error(`❌ Failed to fetch foundationVocabLesson: ${error.message}`);
       throw error;
     }
   }
@@ -163,35 +163,35 @@ export class LearningService {
   // ==================== VOCABULARY METHODS ====================
 
   /**
-   * Get vocabulary by ID
-   * @param id - Vocabulary ID
-   * @returns Vocabulary or null
+   * Get foundationVocabWord by ID
+   * @param id - FoundationVocabWord ID
+   * @returns FoundationVocabWord or null
    */
-  async getVocabularyById(id: string): Promise<Vocabulary | null> {
-    return this.prisma.vocabulary.findUnique({
+  async getVocabularyById(id: string): Promise<FoundationVocabWord | null> {
+    return this.prisma.foundationVocabWord.findUnique({
       where: { id },
     });
   }
 
   /**
-   * Create a vocabulary item
-   * @param createVocabularyDto - Vocabulary data
-   * @returns Created vocabulary
+   * Create a foundationVocabWord item
+   * @param createVocabularyDto - FoundationVocabWord data
+   * @returns Created foundationVocabWord
    */
   async createVocabulary(createVocabularyDto: CreateVocabularyDto) {
     try {
-      // Verify lesson exists
-      const lesson = await this.prisma.lesson.findUnique({
+      // Verify foundationVocabLesson exists
+      const foundationVocabLesson = await this.prisma.foundationVocabLesson.findUnique({
         where: { id: createVocabularyDto.lessonId },
       });
 
-      if (!lesson) {
+      if (!foundationVocabLesson) {
         throw new NotFoundException(
-          `Lesson with ID ${createVocabularyDto.lessonId} not found`,
+          `FoundationVocabLesson with ID ${createVocabularyDto.lessonId} not found`,
         );
       }
 
-      const vocabulary = await this.prisma.vocabulary.create({
+      const foundationVocabWord = await this.prisma.foundationVocabWord.create({
         data: {
           lessonId: createVocabularyDto.lessonId,
           word: createVocabularyDto.word,
@@ -204,30 +204,30 @@ export class LearningService {
       });
 
       this.logger.log(
-        `✅ Vocabulary created: ${vocabulary.id} - ${vocabulary.word}`,
+        `✅ FoundationVocabWord created: ${foundationVocabWord.id} - ${foundationVocabWord.word}`,
       );
-      return vocabulary;
+      return foundationVocabWord;
     } catch (error) {
-      this.logger.error(`❌ Failed to create vocabulary: ${error.message}`);
+      this.logger.error(`❌ Failed to create foundationVocabWord: ${error.message}`);
       throw error;
     }
   }
 
   /**
-   * Find all vocabulary items for a lesson
-   * @param lessonId - Lesson ID
-   * @returns List of vocabulary items
+   * Find all foundationVocabWord items for a foundationVocabLesson
+   * @param lessonId - FoundationVocabLesson ID
+   * @returns List of foundationVocabWord items
    */
   async findVocabularyByLesson(lessonId: string) {
     try {
-      const vocabularies = await this.prisma.vocabulary.findMany({
+      const vocabularies = await this.prisma.foundationVocabWord.findMany({
         where: { lessonId },
         orderBy: { createdAt: "asc" },
       });
 
       return vocabularies;
     } catch (error) {
-      this.logger.error(`❌ Failed to fetch vocabulary: ${error.message}`);
+      this.logger.error(`❌ Failed to fetch foundationVocabWord: ${error.message}`);
       throw error;
     }
   }
@@ -241,14 +241,14 @@ export class LearningService {
    */
   async createGrammar(createGrammarDto: CreateGrammarDto) {
     try {
-      // Verify lesson exists
-      const lesson = await this.prisma.lesson.findUnique({
+      // Verify foundationVocabLesson exists
+      const foundationVocabLesson = await this.prisma.foundationVocabLesson.findUnique({
         where: { id: createGrammarDto.lessonId },
       });
 
-      if (!lesson) {
+      if (!foundationVocabLesson) {
         throw new NotFoundException(
-          `Lesson with ID ${createGrammarDto.lessonId} not found`,
+          `FoundationVocabLesson with ID ${createGrammarDto.lessonId} not found`,
         );
       }
 
@@ -270,8 +270,8 @@ export class LearningService {
   }
 
   /**
-   * Find all grammar items for a lesson
-   * @param lessonId - Lesson ID
+   * Find all grammar items for a foundationVocabLesson
+   * @param lessonId - FoundationVocabLesson ID
    * @returns List of grammar items
    */
   async findGrammarByLesson(lessonId: string) {
@@ -302,7 +302,7 @@ export class LearningService {
     targetWord: string;
   }) {
     try {
-      const attempt = await this.prisma.pronunciationAttempt.create({
+      const attempt = await this.prisma.foundationPronunciationAttempt.create({
         data: {
           userId: data.userId,
           vocabularyId: data.vocabularyId,
@@ -338,7 +338,7 @@ export class LearningService {
     },
   ) {
     try {
-      const attempt = await this.prisma.pronunciationAttempt.update({
+      const attempt = await this.prisma.foundationPronunciationAttempt.update({
         where: { id: attemptId },
         data: {
           transcribedText: data.transcribedText,
@@ -365,7 +365,7 @@ export class LearningService {
    */
   async findUserPronunciationAttempts(userId: string) {
     try {
-      const attempts = await this.prisma.pronunciationAttempt.findMany({
+      const attempts = await this.prisma.foundationPronunciationAttempt.findMany({
         where: { userId },
         include: {
           vocabulary: {

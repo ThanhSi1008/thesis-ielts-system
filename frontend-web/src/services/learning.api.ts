@@ -1,16 +1,16 @@
 import api from '@/lib/api';
 import type {
-  VocabularyBook,
+  FoundationVocabBook,
   VocabularyBookWithUnits,
   VocabularyUnitWithContent,
   VocabularyBookProgress,
   SubmitExerciseResponse,
   SubmitQuestionsResponse,
-  GrammarBook,
+  FoundationGrammarBook,
   GrammarBookWithUnits,
   GrammarUnitWithContent,
   PronunciationData,
-  PronunciationSound,
+  FoundationPronunciationSound,
   SoundProgress,
   PronunciationStats,
   WordProgress,
@@ -23,33 +23,33 @@ import type {
 
 export const vocabularyApi = {
   getBooks: async () => {
-    const { data } = await api.get<VocabularyBook[]>('/vocabulary/books');
+    const { data } = await api.get<FoundationVocabBook[]>('/foundationVocabWord/books');
     return data;
   },
   getBook: async (id: string) => {
-    const { data } = await api.get<VocabularyBookWithUnits>(`/vocabulary/books/${id}`);
+    const { data } = await api.get<VocabularyBookWithUnits>(`/foundationVocabWord/books/${id}`);
     return data;
   },
   getUnit: async (id: string) => {
-    const { data } = await api.get<VocabularyUnitWithContent>(`/vocabulary/units/${id}`);
+    const { data } = await api.get<VocabularyUnitWithContent>(`/foundationVocabWord/units/${id}`);
     return data;
   },
 
   // Progress tracking
   getProgress: async (bookId: string) => {
-    const { data } = await api.get<VocabularyBookProgress>(`/vocabulary/progress/${bookId}`);
+    const { data } = await api.get<VocabularyBookProgress>(`/foundationVocabWord/progress/${bookId}`);
     return data;
   },
   updateWordProgress: async (unitId: string, wordsLearned: number) => {
-    const { data } = await api.post('/vocabulary/progress/words', { unitId, wordsLearned });
+    const { data } = await api.post('/foundationVocabWord/progress/words', { unitId, wordsLearned });
     return data;
   },
   submitExercise: async (unitId: string, answers: { exerciseId: string; answer: string }[]) => {
-    const { data } = await api.post<SubmitExerciseResponse>('/vocabulary/progress/exercise', { unitId, answers });
+    const { data } = await api.post<SubmitExerciseResponse>('/foundationVocabWord/progress/exercise', { unitId, answers });
     return data;
   },
   submitQuestions: async (unitId: string, answers: { questionId: string; answer: string }[]) => {
-    const { data } = await api.post<SubmitQuestionsResponse>('/vocabulary/progress/questions', { unitId, answers });
+    const { data } = await api.post<SubmitQuestionsResponse>('/foundationVocabWord/progress/questions', { unitId, answers });
     return data;
   },
 };
@@ -60,7 +60,7 @@ export const vocabularyApi = {
 
 export const grammarApi = {
   getBooks: async () => {
-    const { data } = await api.get<GrammarBook[]>('/grammar/books');
+    const { data } = await api.get<FoundationGrammarBook[]>('/grammar/books');
     return data;
   },
   getBook: async (slug: string) => {
@@ -95,7 +95,7 @@ export const pronunciationApi = {
     return data;
   },
   getSound: async (symbol: string) => {
-    const { data } = await api.get<PronunciationSound>(`/pronunciation/sounds/${encodeURIComponent(symbol)}`);
+    const { data } = await api.get<FoundationPronunciationSound>(`/pronunciation/sounds/${encodeURIComponent(symbol)}`);
     return data;
   },
   getProgress: async () => {

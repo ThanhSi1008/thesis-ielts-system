@@ -13,13 +13,12 @@ export default function IeltsLayout({
   const { mode } = useIeltsSidebar();
   const pathname = usePathname();
   const isOnboarding = pathname === "/ielts/basic/onboarding";
-  
-  // Hide sidebar on the vocabulary unit learning page (which has 2 dynamic segments after vocabulary)
-  const isVocabularyUnitPage = pathname.match(/^\/ielts\/vocabulary\/[^\/]+\/[^\/]+$/) !== null;
-  // Hide sidebar on the grammar unit learning page
+  const isVocabularyUnitPage = pathname.match(/^\/ielts\/foundationVocabWord\/[^\/]+\/[^\/]+$/) !== null;
   const isGrammarUnitPage = pathname.match(/^\/ielts\/grammar\/[^\/]+\/[^\/]+$/) !== null;
-  const shouldHideSidebar = isOnboarding || isVocabularyUnitPage || isGrammarUnitPage;
-
+  const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start");
+  const isNavbarHidden = isTakePage || isOnboarding || pathname === "/login" || pathname === "/register";
+  const shouldHideSidebar = isNavbarHidden || isVocabularyUnitPage || isGrammarUnitPage;
+  
   useEffect(() => {
     // Enable scrolling on the main body (it was previously hidden)
     document.body.style.overflow = "unset";
@@ -28,8 +27,10 @@ export default function IeltsLayout({
     };
   }, []);
 
+  const heightClass = isNavbarHidden ? "h-screen" : "h-[calc(100vh-56px)]";
+
   return (
-    <div className="h-[calc(100vh-56px)] bg-white dark:bg-slate-950 font-sans overflow-hidden">
+    <div className={`${heightClass} bg-white dark:bg-slate-950 font-sans overflow-hidden`}>
       {/* Overlay drawer — always mounted (visibility controlled internally) */}
       <IeltsSidebarOverlay />
 

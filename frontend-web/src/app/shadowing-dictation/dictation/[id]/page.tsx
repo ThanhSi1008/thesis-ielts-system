@@ -25,7 +25,7 @@ export default function DictationPracticePage() {
   const id = params.id as string;
   const router = useRouter();
 
-  const { lesson, isInitializing, sentences, isYouTube, audioUrl, totalSentences } = useDictationLesson(id);
+  const { foundationVocabLesson, isInitializing, sentences, isYouTube, audioUrl, totalSentences } = useDictationLesson(id);
 
   const {
     completedSentences,
@@ -35,7 +35,7 @@ export default function DictationPracticePage() {
     isFinished,
     difficulty,
     setDifficulty,
-  } = useDictationProgress({ lessonId: lesson?.id, totalSentences, isInitializing });
+  } = useDictationProgress({ lessonId: foundationVocabLesson?.id, totalSentences, isInitializing });
 
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
 
@@ -45,7 +45,7 @@ export default function DictationPracticePage() {
   const {
     playerRef: ytPlayerRef,
     isReady: isYtReady,
-  } = useYouTubePlayer({ videoId: lesson?.youtubeVideoId || null, containerRef });
+  } = useYouTubePlayer({ videoId: foundationVocabLesson?.youtubeVideoId || null, containerRef });
 
   const {
     isPlaying,
@@ -139,10 +139,10 @@ export default function DictationPracticePage() {
     );
   }
 
-  if (!lesson || !currentSentence) {
+  if (!foundationVocabLesson || !currentSentence) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Lesson not found or empty.</div>
+        <div className="text-gray-500">FoundationVocabLesson not found or empty.</div>
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function DictationPracticePage() {
       <div className="flex-1 flex flex-col bg-black min-w-0 justify-center">
         <div className="w-full max-w-[1280px] mx-auto aspect-video">
           <DictationVideoPlayer
-            lesson={lesson}
+            foundationVocabLesson={foundationVocabLesson}
             isYouTube={isYouTube}
             ytState={{ isPlaying }}
             playerRef={isYouTube ? containerRef : { current: null }}
@@ -226,7 +226,7 @@ export default function DictationPracticePage() {
 
       {isFinished && (
         <DictationCompletionScreen
-          lesson={lesson}
+          foundationVocabLesson={foundationVocabLesson}
           onRestart={() => {
             setCurrentIndex(0);
             setTimeout(() => playCurrentSentence(), 500);

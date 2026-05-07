@@ -8,19 +8,19 @@ import SpeakingTaskBoard from "@/components/SpeakingTaskBoard";
 import { useGrading } from "@/contexts/GradingContext";
 
 interface TakeSpeakingBoardProps {
-  exam: ExamDetail;
+  ieltsIntensiveExam: ExamDetail;
   sessionInfo: any;
   secondsLeft: number;
 }
 
 export default function TakeSpeakingBoard({
-  exam,
+  ieltsIntensiveExam,
   sessionInfo,
   secondsLeft,
 }: TakeSpeakingBoardProps) {
   const router = useRouter();
   const sessionId = sessionInfo?.id as string;
-  const examId = exam.id as string;
+  const examId = ieltsIntensiveExam.id as string;
 
   const [submitting, setSubmitting] = useState(false);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
@@ -47,8 +47,8 @@ export default function TakeSpeakingBoard({
       examId,
       examType: "SPEAKING",
       answers: submittedAnswers,
-      timeTaken: exam.duration * 60 - secondsLeft,
-      resultUrl: `/ielts/intensive/${examId}/result/${sessionId}`,
+      timeTaken: ieltsIntensiveExam.duration * 60 - secondsLeft,
+      resultUrl: `/ielts/intensive/${examId}/ieltsIntensiveResult/${sessionId}`,
     });
   };
 
@@ -99,7 +99,7 @@ export default function TakeSpeakingBoard({
       <main className="flex-1 min-h-0 bg-white shadow-inner relative flex overflow-hidden">
         <SpeakingTaskBoard
           key="speaking-board"
-          exam={exam}
+          ieltsIntensiveExam={ieltsIntensiveExam}
           submitting={submitting || isAiProcessing}
           onSubmit={handleSubmit}
           onAnswersChange={(ans) => setAnswers(ans)}

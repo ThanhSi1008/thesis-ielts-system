@@ -221,7 +221,7 @@ export class UsersService {
     }));
 
     // 4. Fetch advanced listening practice history
-    const listeningHistory = await this.prisma.ieltsPracticeSession.findMany({
+    const listeningHistory = await this.prisma.ieltsAdvancedListeningSession.findMany({
       where: { userId: studentId },
       include: { part: { select: { id: true, title: true } } },
       orderBy: { createdAt: "desc" },
@@ -245,7 +245,7 @@ export class UsersService {
 
     // 5. Fetch advanced reading practice history
     const readingHistory =
-      await this.prisma.ieltsPracticeReadingSession.findMany({
+      await this.prisma.ieltsAdvancedReadingSession.findMany({
         where: { userId: studentId },
         include: { part: { select: { id: true, title: true } } },
         orderBy: { createdAt: "desc" },

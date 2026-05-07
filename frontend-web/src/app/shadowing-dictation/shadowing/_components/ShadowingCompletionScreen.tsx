@@ -3,13 +3,13 @@ import { CheckCircle2, RotateCcw } from 'lucide-react';
 import { ShadowingVideo } from '@/services/shadowing.api';
 
 export interface ShadowingCompletionScreenProps {
-  lesson: ShadowingVideo;
+  foundationVocabLesson: ShadowingVideo;
   onRetry: () => void;
   onBack: () => void;
 }
 
 export default function ShadowingCompletionScreen({
-  lesson,
+  foundationVocabLesson,
   onRetry,
   onBack,
 }: ShadowingCompletionScreenProps) {
@@ -22,8 +22,8 @@ export default function ShadowingCompletionScreen({
         Congratulations!
       </h2>
       <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 text-center max-w-md">
-        You've completed all {lesson.sentences.length} sentences of{' '}
-        <span className="font-medium text-gray-900 dark:text-gray-100">"{lesson.title}"</span> in{' '}
+        You've completed all {foundationVocabLesson.sentences.length} sentences of{' '}
+        <span className="font-medium text-gray-900 dark:text-gray-100">"{foundationVocabLesson.title}"</span> in{' '}
         Shadowing mode.
       </p>
       

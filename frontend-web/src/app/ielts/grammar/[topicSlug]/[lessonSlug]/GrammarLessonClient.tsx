@@ -18,7 +18,7 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showResult, setShowResult] = useState(false);
   const [showAnswerSheet, setShowAnswerSheet] = useState(false);
-  const [result, setResult] = useState<{ correct: number; total: number; errors: any[] }>({ correct: 0, total: 0, errors: [] });
+  const [ieltsIntensiveResult, setResult] = useState<{ correct: number; total: number; errors: any[] }>({ correct: 0, total: 0, errors: [] });
   const [lessonProgress, setLessonProgress] = useState({ theoryCompleted: false, exerciseCompleted: false });
 
   const [unitContent, setUnitContent] = useState<GrammarUnitWithContent | null>(null);
@@ -170,9 +170,9 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
 
   return (
     <div className="relative flex flex-col flex-1 min-h-0 w-full">
-      {/* Result Modal */}
+      {/* IeltsIntensiveResult Modal */}
       {showResult && (
-        <ResultModal result={result} onClose={() => setShowResult(false)} />
+        <ResultModal ieltsIntensiveResult={ieltsIntensiveResult} onClose={() => setShowResult(false)} />
       )}
 
       {/* Main Content: Side by Side */}

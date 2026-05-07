@@ -20,7 +20,7 @@ interface SpeakingPart {
 }
 
 interface SpeakingTaskBoardProps {
-  exam: any; // The full exam object
+  ieltsIntensiveExam: any; // The full ieltsIntensiveExam object
   onAnswersChange?: (ans: Record<string, any>) => void;
   onSubmit: (answers: Record<string, any>) => void;
   submitting: boolean;
@@ -30,13 +30,13 @@ interface SpeakingTaskBoardProps {
 type StepState = "IDLE" | "LISTEN_CAPTION" | "PLAYING" | "THINK_CAPTION" | "THINKING" | "PLAYING_2" | "RECORDING" | "RECORDED";
 
 export default function SpeakingTaskBoard({
-  exam,
+  ieltsIntensiveExam,
   onAnswersChange,
   onSubmit,
   submitting,
   partIndex,
 }: SpeakingTaskBoardProps) {
-  const parts: SpeakingPart[] = exam?.questions?.parts || [];
+  const parts: SpeakingPart[] = ieltsIntensiveExam?.questions?.parts || [];
 
   // Which part & question are we currently on?
   const [activePartIdx, setActivePartIdx] = useState(partIndex ?? 0);
@@ -109,7 +109,7 @@ export default function SpeakingTaskBoard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPlayNext, step, currentVideoUrl]);
 
-  // Auto-play the first question when the exam loads
+  // Auto-play the first question when the ieltsIntensiveExam loads
   useEffect(() => {
     if (!hasAutoStarted.current && currentVideoUrl && step === "IDLE") {
       hasAutoStarted.current = true;

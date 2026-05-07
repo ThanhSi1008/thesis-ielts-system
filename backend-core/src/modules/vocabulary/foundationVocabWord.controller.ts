@@ -10,7 +10,7 @@ import {
   UseGuards,
   Request,
 } from "@nestjs/common";
-import { VocabularyService } from "./vocabulary.service";
+import { VocabularyService } from "./foundationVocabWord.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
@@ -21,14 +21,14 @@ import {
   UpdateVocabularyUnitDto,
   CreateVocabularyWordDto,
   UpdateVocabularyWordDto,
-} from "./dto/vocabulary.dto";
+} from "./dto/foundationVocabWord.dto";
 import {
   UpdateWordProgressDto,
   SubmitExerciseDto,
   SubmitQuestionsDto,
 } from "./dto/progress.dto";
 
-@Controller("vocabulary")
+@Controller("foundationVocabWord")
 export class VocabularyController {
   constructor(private readonly vocabularyService: VocabularyService) {}
 
@@ -42,14 +42,14 @@ export class VocabularyController {
   @Get("books/:id")
   async getBook(@Param("id") id: string) {
     const book = await this.vocabularyService.getBookWithUnits(id);
-    if (!book) throw new NotFoundException("Vocabulary book not found");
+    if (!book) throw new NotFoundException("FoundationVocabWord book not found");
     return book;
   }
 
   @Get("units/:id")
   async getUnit(@Param("id") id: string) {
     const unit = await this.vocabularyService.getUnitWithContent(id);
-    if (!unit) throw new NotFoundException("Vocabulary unit not found");
+    if (!unit) throw new NotFoundException("FoundationVocabWord unit not found");
     return unit;
   }
 

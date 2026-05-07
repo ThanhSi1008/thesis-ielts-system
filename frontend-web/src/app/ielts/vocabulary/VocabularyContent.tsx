@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { vocabularyApi } from '@/services/learning.api';
-import type { VocabularyBook } from '@/types';
+import type { FoundationVocabBook } from '@/types';
 
 export default function VocabularyContent({ embedded }: { embedded?: boolean }) {
-  const [books, setBooks] = useState<VocabularyBook[]>([]);
+  const [books, setBooks] = useState<FoundationVocabBook[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +16,7 @@ export default function VocabularyContent({ embedded }: { embedded?: boolean }) 
         const data = await vocabularyApi.getBooks();
         setBooks(data);
       } catch (err: any) {
-        setError(err.message || 'Failed to load vocabulary books');
+        setError(err.message || 'Failed to load foundationVocabWord books');
       } finally {
         setLoading(false);
       }
@@ -50,7 +50,7 @@ export default function VocabularyContent({ embedded }: { embedded?: boolean }) 
         {books.map((book) => (
           <Link
             key={book.id}
-            href={`/ielts/vocabulary/${book.id}`}
+            href={`/ielts/foundationVocabWord/${book.id}`}
             className="block h-full"
           >
             <div

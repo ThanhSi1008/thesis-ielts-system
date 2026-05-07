@@ -17,7 +17,7 @@ export default async function UnitPage({
   // Extract unit ID
   const unitId = lessonSlug.replace("unit", "");
   const unit = book?.units.find(u => u.id === parseInt(unitId));
-  const unitTitle = unit?.title || "Grammar Lesson";
+  const unitTitle = unit?.title || "Grammar FoundationVocabLesson";
   const backLink = `/ielts/grammar/${topicSlug}`;
 
   return (

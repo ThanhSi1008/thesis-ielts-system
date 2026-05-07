@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ClientLessonList from "./ClientLessonList";
 
-interface Lesson {
+interface FoundationVocabLesson {
   id: string;
   title: string;
   chapter: string;
@@ -15,7 +15,7 @@ export default async function LessonsPage({
   const skillCapitalized =
     params.skill.charAt(0).toUpperCase() + params.skill.slice(1).toLowerCase();
 
-  let lessons: Lesson[] = [];
+  let lessons: FoundationVocabLesson[] = [];
 
   try {
     const res = await fetch(
