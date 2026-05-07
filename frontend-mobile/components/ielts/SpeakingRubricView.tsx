@@ -269,7 +269,7 @@ const ss = StyleSheet.create({
 
 function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: string }) {
   const [expanded, setExpanded] = useState(false);
-  const wc = wordCount(answer);
+  const isAudioUrl = Boolean(answer?.startsWith('http'));
   const label = PART_LABELS[partKey] ?? `Part ${partKey}`;
 
   if (!answer) return null;
@@ -278,21 +278,33 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
     <View style={ap.card}>
       <TouchableOpacity
         style={ap.header}
-        onPress={() => { LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); setExpanded(v => !v); }}
-        activeOpacity={0.8}
+        onPress={() => {
+          if (isAudioUrl) return;
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          setExpanded(v => !v);
+        }}
+        activeOpacity={isAudioUrl ? 1 : 0.8}
       >
         <View style={ap.headerLeft}>
-          <Ionicons name="chatbubble-ellipses-outline" size={15} color={COLORS.textSecondary} />
+          <Ionicons
+            name={isAudioUrl ? 'mic-outline' : 'chatbubble-ellipses-outline'}
+            size={15}
+            color={isAudioUrl ? COLORS.primary : COLORS.textSecondary}
+          />
           <Text style={ap.title} numberOfLines={1}>{label}</Text>
         </View>
         <View style={ap.headerRight}>
-          <View style={ap.wordBadge}>
-            <Text style={ap.wordCount}>{wc} words</Text>
+          <View style={[ap.wordBadge, isAudioUrl && ap.audioBadge]}>
+            <Text style={[ap.wordCount, isAudioUrl && ap.audioLabel]}>
+              {isAudioUrl ? 'Audio recorded' : `${wordCount(answer)} words`}
+            </Text>
           </View>
-          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={15} color={COLORS.textMuted} />
+          {!isAudioUrl && (
+            <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={15} color={COLORS.textMuted} />
+          )}
         </View>
       </TouchableOpacity>
-      {expanded && (
+      {expanded && !isAudioUrl && (
         <View style={ap.body}>
           <Text style={ap.answerText}>{answer}</Text>
         </View>
@@ -311,6 +323,8 @@ const ap = StyleSheet.create({
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   wordBadge: { backgroundColor: COLORS.surface, borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 3 },
   wordCount: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
+  audioBadge: { backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE' },
+  audioLabel: { color: COLORS.primary },
   body: { borderTopWidth: 1, borderColor: COLORS.border, padding: SPACING.md },
   answerText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 22 },
 });

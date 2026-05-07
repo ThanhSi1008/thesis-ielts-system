@@ -23,6 +23,8 @@ import {
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import SpeakingVideoPlayer from './SpeakingVideoPlayer';
+import { RecordButton } from '../voice/RecordButton';
+import { Waveform } from '../voice/Waveform';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -141,6 +143,18 @@ const tt = StyleSheet.create({
   skipText: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#16a34a' }
 });
 
+// ─── Metering Waveform (isolated so 100ms polling never re-renders the ScrollView) ──
+
+function MeteringWaveform({ recorder }: { recorder: ReturnType<typeof useAudioRecorder> }) {
+  const recorderState = useAudioRecorderState(recorder, 100);
+  return (
+    <Waveform
+      isRecording={true}
+      metering={recorderState.metering ?? -160}
+    />
+  );
+}
+
 // ─── Active Question View (VoiceRecorder + Notes) ────────────────────────────
 
 type VoiceRecorderStep =
@@ -180,8 +194,7 @@ function ActiveQuestionBlock({
   onSkip,
   isLastQuestion
 }: ActiveQuestionProps) {
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const recorderState = useAudioRecorderState(recorder, 500);
+  const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true });
 
   const [step, setStep] = useState<VoiceRecorderStep>('IDLE');
   const [recordTimeElapsed, setRecordTimeElapsed] = useState(0);
@@ -345,14 +358,12 @@ function ActiveQuestionBlock({
 
         {/* Recording Status & Controls */}
         <View style={aq.controlsPanel}>
+          {/* Status text */}
           <View style={aq.statusArea}>
             {step === 'PLAYING' || step === 'PLAYING_2' ? (
               <Text style={aq.statusText}>Listen to the examiner...</Text>
             ) : step === 'RECORDING' ? (
-              <View style={aq.recordStatus}>
-                <View style={aq.recDot} />
-                <RecordingTimer seconds={recordTimeElapsed} />
-              </View>
+              <RecordingTimer seconds={recordTimeElapsed} />
             ) : uploading ? (
               <View style={aq.recordStatus}>
                 <ActivityIndicator size="small" color={COLORS.primary} />
@@ -366,29 +377,20 @@ function ActiveQuestionBlock({
             ) : uploadError ? (
               <Text style={[aq.statusText, { color: '#ef4444' }]}>{uploadError}</Text>
             ) : (
-              <Text style={aq.statusText}>Ready to record</Text>
+              <Text style={aq.statusText}>Tap mic to start recording</Text>
             )}
           </View>
 
-          {/* Action Buttons */}
-          {step === 'RECORDING' ? (
-            <TouchableOpacity style={aq.stopBtn} onPress={stopAndUpload} activeOpacity={0.8}>
-              <View style={aq.stopIcon} />
-              <Text style={aq.stopBtnText}>Stop</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={[aq.recBtn, uploading && { opacity: 0.5 }]}
-              onPress={startRecording}
-              disabled={uploading || step === 'PLAYING' || step === 'PLAYING_2'}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="mic" size={18} color="#fff" />
-              <Text style={aq.recBtnText}>
-                {audioUploaded ? 'Re-record' : step === 'THINKING' ? 'Record Now' : 'Record'}
-              </Text>
-            </TouchableOpacity>
-          )}
+          {/* Animated record / stop button */}
+          <RecordButton
+            isRecording={step === 'RECORDING'}
+            isDisabled={uploading || step === 'PLAYING' || step === 'PLAYING_2'}
+            onPress={step === 'RECORDING' ? stopAndUpload : startRecording}
+            size={48}
+          />
+
+          {/* Live waveform — isolated component so 100ms polling stays out of this render tree */}
+          {step === 'RECORDING' && <MeteringWaveform recorder={recorder} />}
         </View>
 
         {/* Navigation (Next / Skip) */}
@@ -398,9 +400,9 @@ function ActiveQuestionBlock({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[aq.nextBtn, (!audioUploaded || uploading) && { opacity: 0.5 }]}
+            style={[aq.nextBtn, (!audioUploaded || uploading || step === 'RECORDING') && { opacity: 0.5 }]}
             onPress={onNext}
-            disabled={!audioUploaded || uploading}
+            disabled={!audioUploaded || uploading || step === 'RECORDING'}
             activeOpacity={0.8}
           >
             <Text style={aq.nextBtnText}>{isLastQuestion ? 'Submit Test' : 'Next Question'}</Text>
@@ -434,25 +436,11 @@ const aq = StyleSheet.create({
   controlsPanel: {
     backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.lg,
     borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.xl,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    alignItems: 'center', gap: SPACING.md,
   },
-  statusArea: { flex: 1 },
+  statusArea: { alignItems: 'center' },
   statusText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '500' },
   recordStatus: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  recDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#ef4444' },
-  recBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: COLORS.primary, borderRadius: RADIUS.full,
-    paddingHorizontal: SPACING.lg, paddingVertical: 10,
-  },
-  recBtnText: { color: '#fff', fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
-  stopBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#1e293b', borderRadius: RADIUS.full,
-    paddingHorizontal: SPACING.xl, paddingVertical: 10,
-  },
-  stopIcon: { width: 12, height: 12, backgroundColor: '#ef4444', borderRadius: 2 },
-  stopBtnText: { color: '#fff', fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   skipBtn: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.sm },
   skipBtnText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm, fontWeight: '600' },
@@ -536,7 +524,7 @@ function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
     <KeyboardAvoidingView 
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 110 : 0}
     >
       {/* Part tabs (read-only indicator) */}
       <View style={styles.tabs}>

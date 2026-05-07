@@ -406,6 +406,19 @@ export default function ResultScreen() {
       .finally(() => setLoading(false));
   }, [sessionId]);
 
+  // Poll every 5 s while AI grading is in progress
+  useEffect(() => {
+    if (!session || !['SUBMITTED', 'GRADING'].includes(session.status)) return;
+    const interval = setInterval(async () => {
+      try {
+        const data = await ieltsExamsApi.getSession(sessionId);
+        setSession(data);
+        if (!['SUBMITTED', 'GRADING'].includes(data.status)) clearInterval(interval);
+      } catch { /* ignore */ }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [session?.status, sessionId]);
+
   const handleRetake = useCallback(async () => {
     if (!session?.exam?.id) return;
     try {
@@ -493,6 +506,13 @@ export default function ResultScreen() {
 
   const userAnswers: Record<string, any> = session.answers ?? {};
   const totalQuestions = correctMap.size > 0 ? correctMap.size : 40;
+
+  const rawSpeakingFeedback = session.result?.feedback;
+  const speakingFeedback = rawSpeakingFeedback != null
+    ? (typeof rawSpeakingFeedback === 'string'
+        ? (() => { try { return JSON.parse(rawSpeakingFeedback); } catch { return null; } })()
+        : rawSpeakingFeedback)
+    : null;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -614,9 +634,9 @@ export default function ResultScreen() {
           />
         )}
 
-        {!isPending && examType === 'SPEAKING' && session.result?.speakingFeedback && (
+        {!isPending && examType === 'SPEAKING' && speakingFeedback && (
           <SpeakingRubricView
-            feedback={session.result.speakingFeedback}
+            feedback={speakingFeedback}
             answers={session.answers ?? {}}
             exam={session.exam}
           />
