@@ -579,7 +579,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
             <h2 className="text-[16px] font-bold text-gray-900 dark:text-gray-100 mb-5 leading-snug">
               Unit {unit.order}: {unit.title}
             </h2>
-            <Link href={`/ielts/foundationVocabWord/${bookId}`} className="text-[11px] font-extrabold text-gray-400 dark:text-gray-500 tracking-widest uppercase flex items-center gap-1 hover:text-gray-900 dark:hover:text-gray-300 transition-colors">
+            <Link href={`/ielts/vocabulary/${bookId}`} className="text-[11px] font-extrabold text-gray-400 dark:text-gray-500 tracking-widest uppercase flex items-center gap-1 hover:text-gray-900 dark:hover:text-gray-300 transition-colors">
               <ChevronLeft className="w-4 h-4 shrink-0 -ml-1" />
               <span className="truncate">{unit.book.name}</span>
             </Link>
@@ -873,7 +873,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
 
                       {isQuestionsComplete ? (
                         <div className="mt-6 flex flex-col gap-3">
-                          <Link href={`/ielts/foundationVocabWord/${bookId}`} className="w-full bg-black text-white text-center font-bold py-4 rounded-xl uppercase tracking-wide hover:opacity-90 transition-all shadow-md active:scale-[0.98]">
+                          <Link href={`/ielts/vocabulary/${bookId}`} className="w-full bg-black text-white text-center font-bold py-4 rounded-xl uppercase tracking-wide hover:opacity-90 transition-all shadow-md active:scale-[0.98]">
                             Return to Unit List
                           </Link>
                         </div>
@@ -1051,7 +1051,7 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
                 </button>
                 {isQuestionsComplete ? (
                   <Link
-                    href={`/ielts/foundationVocabWord/${bookId}`}
+                    href={`/ielts/vocabulary/${bookId}`}
                     className="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors"
                   >
                     Back to Units

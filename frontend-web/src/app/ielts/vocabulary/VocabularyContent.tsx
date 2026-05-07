@@ -16,7 +16,7 @@ export default function VocabularyContent({ embedded }: { embedded?: boolean }) 
         const data = await vocabularyApi.getBooks();
         setBooks(data);
       } catch (err: any) {
-        setError(err.message || 'Failed to load foundationVocabWord books');
+        setError(err.message || 'Failed to load vocabulary books');
       } finally {
         setLoading(false);
       }
@@ -50,7 +50,7 @@ export default function VocabularyContent({ embedded }: { embedded?: boolean }) 
         {books.map((book) => (
           <Link
             key={book.id}
-            href={`/ielts/foundationVocabWord/${book.id}`}
+            href={`/ielts/vocabulary/${book.id}`}
             className="block h-full"
           >
             <div
