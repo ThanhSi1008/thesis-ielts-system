@@ -168,7 +168,13 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
           setStreak(data.streak ?? { currentStreak: 0, longestStreak: 0 });
 
           const mockItems: any[] = Array.isArray(data.mockHistory) ? data.mockHistory : (data.mockHistory as any)?.history || (data.mockHistory as any)?.data || [];
-          setMockHistory(mockItems);
+          const advancedSpeakingItems: any[] = Array.isArray((data as any).advancedSpeakingHistory)
+            ? (data as any).advancedSpeakingHistory
+            : [];
+          const mergedMockItems = [...mockItems, ...advancedSpeakingItems].sort(
+            (a, b) => new Date(b.dateTaken || b.createdAt).getTime() - new Date(a.dateTaken || a.createdAt).getTime()
+          );
+          setMockHistory(mergedMockItems);
 
           const listPractice = (data.advancedListeningHistory || []).map((h: any) => ({
             ...h,
@@ -196,7 +202,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
           setPracticeHistory(combinedPractice);
 
           const toPoints = (skill: string) =>
-            mockItems
+            mergedMockItems
               .filter((h: any) => h.skill === skill)
               .sort((a: any, b: any) => new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime())
               .slice(-10)
@@ -230,13 +236,26 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
         }
 
         if (!hideCharts) {
-          const [mockItemsRaw, advListRes, advReadRes] = await Promise.all([
+          const [mockItemsRaw, advListRes, advReadRes, advSpeakRes] = await Promise.all([
             examsApi.getHistory(),
             api.get('/ielts/advanced/history').catch(() => ({ data: [] })),
-            api.get('/ielts/advanced/reading/history').catch(() => ({ data: [] }))
+            api.get('/ielts/advanced/reading/history').catch(() => ({ data: [] })),
+            api.get('/ielts/advanced/speaking/stats').catch(() => ({ data: [] })),
           ]);
           const mockItems = Array.isArray(mockItemsRaw) ? mockItemsRaw : (mockItemsRaw as any)?.history || (mockItemsRaw as any)?.data || [];
-          setMockHistory(mockItems);
+          const speakingAsMock = ((advSpeakRes.data as any[]) || []).map((s: any) => ({
+            ...s,
+            examId: s.partId,
+            sessionId: s.id,
+            dateTaken: s.dateTaken || s.createdAt,
+            examTitle: s.title || s.examTitle || "Advanced Speaking Practice",
+            skill: "SPEAKING",
+            practicePart: true,
+          }));
+          const mergedMockItems = [...mockItems, ...speakingAsMock].sort(
+            (a, b) => new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime()
+          );
+          setMockHistory(mergedMockItems);
 
           const listPractice = ((advListRes.data as any[]) || []).map((h: any) => ({
             ...h,
@@ -262,7 +281,7 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
           setPracticeHistory(combinedPractice);
 
           const toPoints = (skill: string) =>
-            mockItems
+            mergedMockItems
               .filter((h: any) => h.skill === skill)
               .sort((a: any, b: any) => new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime())
               .slice(-10)
@@ -702,7 +721,13 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                             <div className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{getBandForHistoryItem(h).toFixed(1)}</div>
                           </div>
                           <Link
-                            href={h.practicePart ? `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}` : `/ielts/intensive/${h.examId}/ieltsIntensiveResult/${h.id}`}
+                            href={
+                              h.practicePart
+                                ? h.skill === "SPEAKING"
+                                  ? `/ielts/advanced/speaking/${h.examId}/result/${h.sessionId || h.id}`
+                                  : `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}`
+                                : `/ielts/intensive/${h.examId}/ieltsIntensiveResult/${h.id}`
+                            }
                             className="flex items-center gap-2 text-[11px] font-bold text-slate-400 group-hover:text-primary uppercase tracking-widest transition-all"
                           >
                             Review
@@ -765,7 +790,11 @@ export default function StatisticsContent({ embedded, hideCharts, hideSummary, s
                                 </div>
 
                                 <Link
-                                  href={`/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}`}
+                                  href={
+                                    h.skill === "SPEAKING"
+                                      ? `/ielts/advanced/speaking/${h.examId}/result/${h.sessionId || h.id}`
+                                      : `/ielts/advanced/${h.skill.toLowerCase()}/${h.examId}/my-answers/${h.id}`
+                                  }
                                   className="text-sm font-medium text-primary hover:underline"
                                 >
                                   View IeltsIntensiveResult

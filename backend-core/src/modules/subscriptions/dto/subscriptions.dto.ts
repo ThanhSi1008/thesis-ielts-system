@@ -22,3 +22,11 @@ export class CancelSubscriptionDto {
   @IsString()
   reason?: string;
 }
+
+export class VerifyCheckoutDto {
+  @IsString()
+  sessionId: string;
+
+  @IsOptional()
+  vnpParams?: Record<string, string>;
+}

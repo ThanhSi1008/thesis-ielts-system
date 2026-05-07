@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info' | 'loading';
 
 interface Toast {
   id: string;
@@ -14,28 +14,53 @@ interface Toast {
 
 interface ToastState {
   toasts: Toast[];
-  addToast: (toast: Omit<Toast, 'id'>, duration?: number) => void;
+  addToast: (toast: Omit<Toast, 'id'>, duration?: number) => string;
   removeToast: (id: string) => void;
+  updateToast: (id: string, update: Partial<Omit<Toast, 'id'>>) => void;
 }
 
 export const useToastStore = create<ToastState>((set) => ({
   toasts: [],
-  addToast: (newToast, duration = 3000) => {
+  addToast: (newToast, duration) => {
     const id = Math.random().toString(36).substring(2, 9);
     set((state) => ({ toasts: [...state.toasts, { ...newToast, id }] }));
-    setTimeout(() => {
-      set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
-    }, duration);
+    // loading toasts persist until manually dismissed/updated
+    if (duration !== 0 && newToast.type !== 'loading') {
+      setTimeout(() => {
+        set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+      }, duration ?? 3000);
+    }
+    return id;
   },
   removeToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+  updateToast: (id, update) =>
+    set((state) => ({
+      toasts: state.toasts.map((t) =>
+        t.id === id ? { ...t, ...update } : t
+      ),
+    })),
 }));
 
 // Provide a convenient global proxy
 export const toast = {
-  success: (message: React.ReactNode, duration?: number) => useToastStore.getState().addToast({ message, type: 'success' }, duration),
-  error: (message: React.ReactNode, duration = 4000) => useToastStore.getState().addToast({ message, type: 'error' }, duration),
-  info: (message: React.ReactNode, duration?: number) => useToastStore.getState().addToast({ message, type: 'info' }, duration),
+  success: (message: React.ReactNode, duration?: number) =>
+    useToastStore.getState().addToast({ message, type: 'success' }, duration),
+  error: (message: React.ReactNode, duration = 4000) =>
+    useToastStore.getState().addToast({ message, type: 'error' }, duration),
+  info: (message: React.ReactNode, duration?: number) =>
+    useToastStore.getState().addToast({ message, type: 'info' }, duration),
+  loading: (message: React.ReactNode) =>
+    useToastStore.getState().addToast({ message, type: 'loading' }, 0),
+  dismiss: (id: string) =>
+    useToastStore.getState().removeToast(id),
+  update: (id: string, type: ToastType, message: React.ReactNode, duration?: number) => {
+    useToastStore.getState().updateToast(id, { type, message });
+    // auto-dismiss after update
+    setTimeout(() => {
+      useToastStore.getState().removeToast(id);
+    }, duration ?? (type === 'error' ? 4000 : 3000));
+  },
 };
 
 export function Toaster() {
@@ -78,6 +103,14 @@ export function Toaster() {
               <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-red-500/10 text-red-400 rounded-full">
                 <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+            )}
+            {t.type === 'loading' && (
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                <svg className="w-5 h-5 animate-spin text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                 </svg>
               </div>
             )}

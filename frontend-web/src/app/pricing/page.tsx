@@ -99,9 +99,27 @@ export default function PricingPage() {
     try {
       if (plan.tier === "PREMIUM" && !trialUsed && tier === "FREE") {
         await subscriptionsApi.startTrial();
-      } else if (plan.priceAmount > 0) {
-        await subscriptionsApi.checkout(plan.id);
+        await refresh();
+        router.push("/profile");
+        return;
       }
+
+      if (plan.priceAmount > 0) {
+        const result = await subscriptionsApi.checkout(plan.id);
+
+        // If provider returns a redirect URL (VNPay), redirect the user
+        if (result.redirectUrl) {
+          window.location.href = result.redirectUrl;
+          return; // User leaves the page — no further action
+        }
+
+        // If mock provider (auto-completed), go to profile
+        await refresh();
+        router.push("/profile");
+        return;
+      }
+
+      // Free plan or downgrade
       await refresh();
       router.push("/profile");
     } catch (err: any) {

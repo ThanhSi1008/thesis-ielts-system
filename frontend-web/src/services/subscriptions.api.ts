@@ -19,8 +19,26 @@ export const subscriptionsApi = {
     return data;
   },
 
+  /**
+   * Create a checkout session. Returns either:
+   * - Mock: { subscription, message } (auto-completed)
+   * - VNPay: { sessionId, redirectUrl } (needs redirect)
+   */
   checkout: async (planId: string) => {
     const { data } = await api.post("/subscriptions/checkout", { planId });
+    return data;
+  },
+
+  /**
+   * Verify a checkout after returning from the payment gateway.
+   * @param sessionId - The txnRef / session ID
+   * @param vnpParams - Full VNPay return URL query parameters
+   */
+  verifyCheckout: async (sessionId: string, vnpParams?: Record<string, string>) => {
+    const { data } = await api.post("/subscriptions/checkout/verify", {
+      sessionId,
+      vnpParams,
+    });
     return data;
   },
 

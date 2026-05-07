@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { Headphones, BookOpen, PenTool, Mic } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import api from "@/lib/api";
 import FeatureLock from "@/components/FeatureLock";
+import WritingCatalogContent from "./writing/WritingCatalogContent";
+import SpeakingCatalogContent from "./speaking/SpeakingCatalogContent";
 
 interface PracticePart {
   id: string;
@@ -24,10 +27,22 @@ const SKILLS = [
 ];
 
 export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
-  const [skill, setSkill] = useState("Listening");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const [skill, setSkill] = useState(searchParams.get("skill") || "Listening");
   const [parts, setParts] = useState<PracticePart[]>([]);
   const [selectedPart, setSelectedPart] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.get("skill") !== skill) {
+      params.set("skill", skill);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [skill, pathname, router, searchParams]);
 
   useEffect(() => {
     if (skill === "Listening" || skill === "Reading") {
@@ -105,7 +120,7 @@ export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
                 const items = parts.filter(p => p.partNumber === selectedPart);
                 if (items.length === 0) return <div className="py-10 text-center text-gray-500 dark:text-slate-400 font-medium bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">No practice items found for this part.</div>;
 
-                return items.map((item, idx) => (
+                return items.map((item) => (
                   <div key={item.id} className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
                     
                     <div className="flex gap-6 items-center flex-1 w-full">
@@ -148,13 +163,17 @@ export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
             )}
           </div>
         </>
+      ) : skill === "Writing" ? (
+        <WritingCatalogContent />
+      ) : skill === "Speaking" ? (
+        <SpeakingCatalogContent />
       ) : (
         <div className="py-20 text-center bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
           <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mx-auto mb-4">
             <span className="text-2xl text-gray-400 dark:text-slate-500">🚧</span>
           </div>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{skill} section coming soon</h3>
-          <p className="text-gray-500 dark:text-slate-400 text-sm max-w-sm mx-auto">We're currently preparing high-quality {skill.toLowerCase()} materials for you.</p>
+          <p className="text-gray-500 dark:text-slate-400 text-sm max-w-sm mx-auto">We&apos;re currently preparing high-quality {skill.toLowerCase()} materials for you.</p>
         </div>
       )}
       </div>

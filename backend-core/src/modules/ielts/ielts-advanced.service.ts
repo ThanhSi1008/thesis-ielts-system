@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { StreakService } from "./streak.service";
 import { GamificationService } from "../gamification/gamification.service";
+import { AiClientService } from "../ai-client/ai-client.service";
 
 @Injectable()
 export class IeltsAdvancedService {
@@ -9,6 +10,7 @@ export class IeltsAdvancedService {
     private readonly prisma: PrismaService,
     private readonly streakService: StreakService,
     private readonly gamificationService: GamificationService,
+    private readonly aiClientService: AiClientService,
   ) {}
 
   async getListeningParts(questionType?: string) {
@@ -353,5 +355,454 @@ export class IeltsAdvancedService {
     if (!session || session.userId !== userId)
       throw new NotFoundException("Session not found");
     return session;
+  }
+
+  // --- WRITING ENDPOINTS ---
+
+  async getWritingPrompts(
+    userId: string,
+    filters: {
+      taskType?: string;
+      subType?: string;
+      category?: string;
+      page: number;
+      limit: number;
+    },
+  ) {
+    const where: any = { isPublished: true };
+    if (filters.taskType) where.taskType = filters.taskType;
+    if (filters.subType) where.subType = filters.subType;
+    if (filters.category) where.category = filters.category;
+
+    const [prompts, total] = await Promise.all([
+      this.prisma.ieltsAdvancedWritingPrompt.findMany({
+        where,
+        skip: (filters.page - 1) * filters.limit,
+        take: filters.limit,
+        orderBy: [
+          { bookNumber: "asc" },
+          { testNumber: "asc" },
+          { taskType: "asc" },
+        ],
+        select: {
+          id: true,
+          taskType: true,
+          subType: true,
+          source: true,
+          category: true,
+          bookNumber: true,
+          testNumber: true,
+          title: true,
+          imageUrl: true,
+          minimumWords: true,
+          suggestedTime: true,
+          difficulty: true,
+          sessions: {
+            where: { userId, status: "GRADED" },
+            select: { bandScore: true, createdAt: true },
+            orderBy: { bandScore: "desc" },
+            take: 1,
+          },
+        },
+      }),
+      this.prisma.ieltsAdvancedWritingPrompt.count({ where }),
+    ]);
+
+    const data = prompts.map((p) => ({
+      ...p,
+      bestScore: p.sessions[0]?.bandScore ?? null,
+      lastAttempt: p.sessions[0]?.createdAt ?? null,
+      sessions: undefined,
+    }));
+
+    return {
+      data,
+      total,
+      page: filters.page,
+      limit: filters.limit,
+      totalPages: Math.ceil(total / filters.limit),
+    };
+  }
+
+  async getWritingPromptDetail(userId: string, promptId: string) {
+    const prompt = await this.prisma.ieltsAdvancedWritingPrompt.findUniqueOrThrow({
+      where: { id: promptId },
+      include: {
+        sessions: {
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            status: true,
+            bandScore: true,
+            timeTaken: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    const activeSession = await this.prisma.ieltsAdvancedWritingSession.findFirst({
+      where: { userId, promptId, status: "IN_PROGRESS" },
+      select: { id: true, draftEssay: true, createdAt: true },
+    });
+
+    return { ...prompt, activeSession };
+  }
+
+  async createWritingSession(userId: string, promptId: string) {
+    await this.prisma.ieltsAdvancedWritingPrompt.findUniqueOrThrow({
+      where: { id: promptId },
+    });
+
+    const existing = await this.prisma.ieltsAdvancedWritingSession.findFirst({
+      where: { userId, promptId, status: "IN_PROGRESS" },
+    });
+
+    if (existing) return existing;
+
+    return this.prisma.ieltsAdvancedWritingSession.create({
+      data: { userId, promptId },
+    });
+  }
+
+  async saveWritingDraft(userId: string, sessionId: string, draftEssay: string) {
+    const session = await this.prisma.ieltsAdvancedWritingSession.findFirst({
+      where: { id: sessionId, userId, status: "IN_PROGRESS" },
+    });
+
+    if (!session) throw new NotFoundException("Session not found or already submitted");
+
+    return this.prisma.ieltsAdvancedWritingSession.update({
+      where: { id: sessionId },
+      data: { draftEssay },
+    });
+  }
+
+  async submitWritingSession(
+    userId: string,
+    sessionId: string,
+    essay: string,
+    timeTaken?: number,
+  ) {
+    const session = await this.prisma.ieltsAdvancedWritingSession.findFirst({
+      where: { id: sessionId, userId, status: "IN_PROGRESS" },
+      include: { prompt: true },
+    });
+
+    if (!session) throw new NotFoundException("Session not found or already submitted");
+
+    const updated = await this.prisma.ieltsAdvancedWritingSession.update({
+      where: { id: sessionId },
+      data: {
+        essay,
+        timeTaken: timeTaken ?? null,
+        status: "GRADING",
+      },
+    });
+
+    await this.aiClientService.publishGradingTask({
+      type: "ADVANCED_WRITING",
+      sessionId: session.id,
+      taskType: session.prompt.taskType,
+      prompt: session.prompt.prompt,
+      essay,
+      imageUrl: session.prompt.imageUrl || "",
+    });
+
+    // Record streak activity
+    await this.streakService.recordActivity(userId);
+
+    // Gamification
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 20,
+        reason: "IELTS_ADVANCED_WRITING_SUBMIT",
+        achievementKeys: ["ADV_WRITING_FIRST", "ADV_WRITING_10"],
+      })
+      .catch(() => {});
+
+    return updated;
+  }
+
+  async getWritingSession(userId: string, sessionId: string) {
+    const session = await this.prisma.ieltsAdvancedWritingSession.findFirst({
+      where: { id: sessionId, userId },
+      include: {
+        prompt: {
+          select: {
+            id: true,
+            title: true,
+            taskType: true,
+            prompt: true,
+            imageUrl: true,
+          },
+        },
+      },
+    });
+
+    if (!session) throw new NotFoundException("Session not found");
+    return session;
+  }
+
+  async getWritingSessionsByPrompt(userId: string, promptId: string) {
+    return this.prisma.ieltsAdvancedWritingSession.findMany({
+      where: { userId, promptId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        status: true,
+        bandScore: true,
+        timeTaken: true,
+        essay: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async getWritingHistory(userId: string) {
+    return this.prisma.ieltsAdvancedWritingSession.findMany({
+      where: { userId, status: { not: "IN_PROGRESS" } },
+      include: {
+        prompt: {
+          select: {
+            id: true,
+            title: true,
+            taskType: true,
+            subType: true,
+            source: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+  }
+
+  // --- SPEAKING ENDPOINTS ---
+
+  async getSpeakingParts(
+    userId: string,
+    filters: {
+      partNumber?: number;
+      category?: string;
+      topic?: string;
+      page: number;
+      limit: number;
+    },
+  ) {
+    const where: any = { isPublished: true };
+    if (filters.partNumber) where.partNumber = filters.partNumber;
+    if (filters.category) where.category = filters.category;
+    if (filters.topic) {
+      where.topic = { contains: filters.topic, mode: "insensitive" };
+    }
+
+    const [parts, total] = await Promise.all([
+      this.prisma.ieltsAdvancedSpeakingPart.findMany({
+        where,
+        skip: (filters.page - 1) * filters.limit,
+        take: filters.limit,
+        orderBy: [{ bookNumber: "asc" }, { testNumber: "asc" }, { partNumber: "asc" }],
+        select: {
+          id: true,
+          partNumber: true,
+          partType: true,
+          topic: true,
+          source: true,
+          category: true,
+          bookNumber: true,
+          testNumber: true,
+          title: true,
+          questions: true,
+          sessions: {
+            where: { userId, status: "GRADED" },
+            select: { bandScore: true, createdAt: true },
+            orderBy: { bandScore: "desc" },
+            take: 1,
+          },
+        },
+      }),
+      this.prisma.ieltsAdvancedSpeakingPart.count({ where }),
+    ]);
+
+    const data = parts.map((p) => ({
+      ...p,
+      bestScore: p.sessions[0]?.bandScore ?? null,
+      lastAttempt: p.sessions[0]?.createdAt ?? null,
+      sessions: undefined,
+    }));
+
+    return {
+      data,
+      total,
+      page: filters.page,
+      limit: filters.limit,
+      totalPages: Math.ceil(total / filters.limit),
+    };
+  }
+
+  async getSpeakingPartDetail(userId: string, partId: string) {
+    const part = await this.prisma.ieltsAdvancedSpeakingPart.findUniqueOrThrow({
+      where: { id: partId },
+    });
+
+    const activeSession = await this.prisma.ieltsAdvancedSpeakingSession.findFirst({
+      where: { userId, partId, status: "IN_PROGRESS" },
+      select: { id: true, createdAt: true },
+    });
+
+    return { ...part, activeSession };
+  }
+
+  async getSpeakingSessionsByPart(userId: string, partId: string) {
+    return this.prisma.ieltsAdvancedSpeakingSession.findMany({
+      where: { userId, partId },
+      select: {
+        id: true,
+        status: true,
+        bandScore: true,
+        timeTaken: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  async createSpeakingSession(userId: string, partId: string) {
+    await this.prisma.ieltsAdvancedSpeakingPart.findUniqueOrThrow({
+      where: { id: partId },
+    });
+
+    const existing = await this.prisma.ieltsAdvancedSpeakingSession.findFirst({
+      where: { userId, partId, status: "IN_PROGRESS" },
+    });
+
+    if (existing) return existing;
+
+    return this.prisma.ieltsAdvancedSpeakingSession.create({
+      data: { userId, partId },
+    });
+  }
+
+  async submitSpeakingSession(
+    userId: string,
+    sessionId: string,
+    audioAnswers: Record<string, string>,
+    timeTaken?: number,
+  ) {
+    const session = await this.prisma.ieltsAdvancedSpeakingSession.findFirst({
+      where: { id: sessionId, userId, status: "IN_PROGRESS" },
+      include: { part: true },
+    });
+
+    if (!session) {
+      throw new NotFoundException("Session not found or already submitted");
+    }
+
+    const hasAudio = Object.values(audioAnswers || {}).some(
+      (value) => typeof value === "string" && value.trim().length > 0,
+    );
+    if (!hasAudio) {
+      throw new BadRequestException(
+        "Please record at least one response before submitting.",
+      );
+    }
+
+    const updated = await this.prisma.ieltsAdvancedSpeakingSession.update({
+      where: { id: sessionId },
+      data: {
+        audioUrls: audioAnswers as any,
+        timeTaken: timeTaken ?? null,
+        status: "GRADING",
+      },
+    });
+
+    const questions = ((session.part.questions as any[]) || []).map((q: any) => q.text);
+
+    await this.aiClientService.publishGradingTask({
+      type: "ADVANCED_SPEAKING",
+      sessionId: session.id,
+      partNumber: session.part.partNumber,
+      partType: session.part.partType,
+      questions,
+      audioAnswers,
+    });
+
+    await this.streakService.recordActivity(userId);
+
+    this.gamificationService
+      .onEvent(userId, {
+        xp: 20,
+        reason: "IELTS_ADVANCED_SPEAKING_SUBMIT",
+        achievementKeys: ["ADV_SPEAKING_FIRST", "ADV_SPEAKING_10"],
+      })
+      .catch(() => {});
+
+    return updated;
+  }
+
+  async getSpeakingStatsForUser(userId: string) {
+    const sessions = await this.prisma.ieltsAdvancedSpeakingSession.findMany({
+      where: { userId, status: "GRADED" },
+      include: {
+        part: { select: { title: true, partNumber: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return sessions.map((s) => ({
+      id: s.id,
+      partId: s.partId,
+      skill: "SPEAKING" as const,
+      title: s.part.title,
+      examTitle: s.part.title,
+      writingScore: s.bandScore,
+      rawScore: null,
+      source: "advanced",
+      dateTaken: s.createdAt.toISOString(),
+      createdAt: s.createdAt.toISOString(),
+    }));
+  }
+
+  async getSpeakingSession(userId: string, sessionId: string) {
+    const session = await this.prisma.ieltsAdvancedSpeakingSession.findFirst({
+      where: { id: sessionId, userId },
+      include: {
+        part: {
+          select: {
+            id: true,
+            title: true,
+            partNumber: true,
+            partType: true,
+            topic: true,
+            questions: true,
+          },
+        },
+      },
+    });
+
+    if (!session) throw new NotFoundException("Session not found");
+    return session;
+  }
+
+  async getSpeakingHistory(userId: string) {
+    return this.prisma.ieltsAdvancedSpeakingSession.findMany({
+      where: { userId, status: { not: "IN_PROGRESS" } },
+      include: {
+        part: {
+          select: {
+            id: true,
+            title: true,
+            partNumber: true,
+            partType: true,
+            topic: true,
+            source: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
   }
 }

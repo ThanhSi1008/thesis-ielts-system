@@ -47,7 +47,8 @@ export default function Navbar() {
 
   const plainPages = ["/login", "/register", "/profile", "/pricing"];
   const isAdminPage = pathname.startsWith("/admin");
-  const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || isAdminPage || isCommunityPage || forcePlain;
+  const isPaymentPage = pathname.startsWith("/payment");
+  const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || isAdminPage || isCommunityPage || isPaymentPage || forcePlain;
 
   // Close dropdown when clicking outside
   useEffect(() => {

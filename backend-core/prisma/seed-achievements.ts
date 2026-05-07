@@ -27,6 +27,9 @@ const ACHIEVEMENTS = [
   { key: "IA_LISTENER_5", name: "Cambridge Listener", description: "Complete 5 advanced listening sessions", icon: "🎧", category: "IELTS_ADVANCED", tier: 2, xpReward: 40, order: 40 },
   { key: "IA_READER_5", name: "Cambridge Reader", description: "Complete 5 advanced reading sessions", icon: "📖", category: "IELTS_ADVANCED", tier: 2, xpReward: 40, order: 41 },
   { key: "IA_HIGH_ACHIEVER", name: "High Achiever", description: "Score ≥80% on any advanced practice", icon: "🏅", category: "IELTS_ADVANCED", tier: 2, xpReward: 30, order: 42 },
+  { key: "ADV_WRITING_FIRST", name: "First Draft", description: "Complete first advanced writing practice", icon: "✍️", category: "IELTS_ADVANCED", tier: 1, xpReward: 20, order: 43 },
+  { key: "ADV_WRITING_10", name: "Consistent Writer", description: "Complete 10 writing practices", icon: "📝", category: "IELTS_ADVANCED", tier: 2, xpReward: 40, order: 44 },
+  { key: "ADV_WRITING_BAND_7", name: "Band 7 Writer", description: "Score 7.0 or higher on any writing task", icon: "⭐", category: "IELTS_ADVANCED", tier: 2, xpReward: 60, order: 45 },
 
   // ── IELTS INTENSIVE ──
   { key: "II_FIRST_EXAM", name: "First IeltsIntensiveExam", description: "Submit your first full IELTS ieltsIntensiveExam", icon: "📝", category: "IELTS_INTENSIVE", tier: 1, xpReward: 30, order: 50 },

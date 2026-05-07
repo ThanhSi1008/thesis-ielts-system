@@ -298,7 +298,8 @@ export class SubscriptionsService {
 
     // For mock provider, payment auto-completes
     if (ieltsIntensiveResult.status === "completed") {
-      return this.activateSubscription(userId, plan, ieltsIntensiveResult.providerSubId, ieltsIntensiveResult.sessionId);
+      const providerName = this.resolveProviderName();
+      return this.activateSubscription(userId, plan, ieltsIntensiveResult.providerSubId, ieltsIntensiveResult.sessionId, providerName);
     }
 
     // For real providers (Stripe), return redirect URL
@@ -310,12 +311,14 @@ export class SubscriptionsService {
 
   /**
    * Activate a subscription after successful payment.
+   * @param providerName — the PaymentProvider enum value to store (e.g., "MOCK", "VNPAY")
    */
-  private async activateSubscription(
+  async activateSubscription(
     userId: string,
     plan: { tier: string; interval: string; priceAmount: number; currency: string; name: string },
     providerSubId: string,
     sessionId: string,
+    providerName: "MOCK" | "VNPAY" | "STRIPE" | "MANUAL" = "MOCK",
   ) {
     const now = new Date();
     const periodEnd = new Date(now);
@@ -331,7 +334,7 @@ export class SubscriptionsService {
       update: {
         tier: plan.tier as "PREMIUM" | "PRO",
         status: "ACTIVE",
-        provider: "MOCK",
+        provider: providerName,
         providerSubId,
         currentPeriodStart: now,
         currentPeriodEnd: periodEnd,
@@ -341,7 +344,7 @@ export class SubscriptionsService {
         userId,
         tier: plan.tier as "PREMIUM" | "PRO",
         status: "ACTIVE",
-        provider: "MOCK",
+        provider: providerName,
         providerSubId,
         currentPeriodStart: now,
         currentPeriodEnd: periodEnd,
@@ -357,7 +360,7 @@ export class SubscriptionsService {
           subscriptionId: sub.id,
           amount: verification.amount,
           currency: verification.currency,
-          provider: "MOCK",
+          provider: providerName,
           providerPayId: verification.providerPayId,
           status: "succeeded",
           metadata: { planName: plan.name },
@@ -529,5 +532,98 @@ export class SubscriptionsService {
       },
       subscriptions: recentSubs,
     };
+  }
+
+  // ==================== CHECKOUT HELPERS ====================
+
+  /**
+   * Determine which PaymentProvider enum value to store based on the current provider.
+   */
+  private resolveProviderName(): "MOCK" | "VNPAY" | "STRIPE" | "MANUAL" {
+    const env = process.env.PAYMENT_PROVIDER?.toLowerCase();
+    switch (env) {
+      case "vnpay": return "VNPAY";
+      case "stripe": return "STRIPE";
+      default: return "MOCK";
+    }
+  }
+
+  // ==================== VERIFY CHECKOUT ====================
+
+  /**
+   * Verify a checkout after user returns from payment gateway (VNPay).
+   * Called by the frontend return page or by the IPN webhook.
+   */
+  async verifyCheckout(sessionId: string, vnpParams?: Record<string, string>) {
+    // Get session data BEFORE verifying, because verifyPayment might delete the session from memory
+    const sessionData = this.paymentProvider.getSessionData?.(sessionId);
+
+    // Verify payment with provider
+    const verification = await this.paymentProvider.verifyPayment(sessionId, vnpParams);
+
+    if (!verification.success) {
+      throw new BadRequestException("Payment verification failed. Please try again.");
+    }
+
+    // If session data is available from provider, use it
+    // Otherwise, try to extract from vnpParams
+    let plan: { tier: string; interval: string; priceAmount: number; currency: string; name: string } | null = null;
+    let userId: string | null = null;
+    let providerSubId: string = "";
+
+    if (sessionData) {
+      userId = sessionData.userId;
+      providerSubId = sessionData.providerSubId;
+      const dbPlan = await this.prisma.pricingPlan.findUnique({
+        where: { id: sessionData.planId },
+      });
+      if (dbPlan) {
+        plan = {
+          tier: dbPlan.tier,
+          interval: dbPlan.interval,
+          priceAmount: dbPlan.priceAmount,
+          currency: dbPlan.currency,
+          name: dbPlan.name,
+        };
+      }
+    }
+
+    if (!plan || !userId) {
+      // Fallback: look up pending payment by sessionId in the database
+      // This handles the case where the server restarted and in-memory sessions were lost
+      throw new BadRequestException("Checkout session expired or not found. Please try again.");
+    }
+
+    const providerName = this.resolveProviderName();
+    return this.activateSubscription(userId, plan, providerSubId, sessionId, providerName);
+  }
+
+  /**
+   * Handle VNPay IPN (Instant Payment Notification) callback.
+   * VNPay sends this server-to-server as a backup verification.
+   * Returns { RspCode, Message } as VNPay expects.
+   */
+  async handleVnpayIpn(vnpParams: Record<string, string>): Promise<{ RspCode: string; Message: string }> {
+    const txnRef = vnpParams["vnp_TxnRef"];
+    const responseCode = vnpParams["vnp_ResponseCode"];
+
+    if (!txnRef) {
+      return { RspCode: "99", Message: "Missing txnRef" };
+    }
+
+    // Only process successful payments
+    if (responseCode !== "00") {
+      this.logger.warn(`[IPN] Payment not successful: txnRef=${txnRef}, code=${responseCode}`);
+      return { RspCode: "00", Message: "Confirmed" };
+    }
+
+    try {
+      await this.verifyCheckout(txnRef, vnpParams);
+      return { RspCode: "00", Message: "Confirm Success" };
+    } catch (err) {
+      this.logger.error(`[IPN] Failed to process: txnRef=${txnRef}, error=${err}`);
+      // Still return 00 to prevent VNPay from retrying endlessly
+      return { RspCode: "00", Message: "Confirmed (already processed or error)" };
+    }
   }
 }
