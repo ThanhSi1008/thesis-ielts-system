@@ -205,11 +205,13 @@ export default function AdvancedPartScreen() {
         text: 'Submit', onPress: async () => {
           setSubmitting(true);
           try {
+            console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers })); // DEBUG
             const result = isListening
               ? await ieltsAdvancedApi.submitListening(partId, answers)
               : await ieltsAdvancedApi.submitReading(partId, answers);
+            console.log('[SUBMIT] response:', JSON.stringify(result)); // DEBUG
             router.replace(`/ielts/advanced/${skill}/${partId}/result/${result.id}` as any);
-          } catch { Alert.alert('Error', 'Submission failed.'); }
+          } catch (err) { console.error('[SUBMIT] error:', err); Alert.alert('Error', 'Submission failed.'); }
           finally { setSubmitting(false); }
         },
       },

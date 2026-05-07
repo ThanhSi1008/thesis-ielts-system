@@ -21,6 +21,15 @@ function extractCorrectAnswers(content: any[]): Record<string, string> {
   if (!Array.isArray(content)) return map;
 
   for (const group of content) {
+    // MCM: answers stored as string[] of correct letters (e.g. ['A','C'])
+    if (group.type === 'multiple_choice_multiple' && group.question_numbers && group.answers) {
+      const correctStr = (group.answers as string[]).slice().sort().join(', ');
+      (group.question_numbers as number[]).forEach(qNum => {
+        map[String(qNum)] = correctStr;
+      });
+      continue;
+    }
+
     const qs: any[] = [];
     if (group.points) qs.push(...group.points);
     if (Array.isArray(group.questions)) qs.push(...group.questions);
@@ -54,6 +63,27 @@ function extractCorrectAnswers(content: any[]): Record<string, string> {
   return map;
 }
 
+// Expand mcm-{idx} keys into individual question-number keys for AnswerSheet display
+function normalizeUserAnswers(
+  rawAnswers: Record<string, string>,
+  content: any[],
+): Record<string, string> {
+  const out = { ...rawAnswers };
+  if (!Array.isArray(content)) return out;
+  content.forEach((group, idx) => {
+    if (group.type === 'multiple_choice_multiple' && group.question_numbers) {
+      const mcmVal = rawAnswers[`mcm-${idx}`];
+      if (mcmVal != null) {
+        const sortedVal = mcmVal.split(',').filter(Boolean).sort().join(', ');
+        (group.question_numbers as number[]).forEach(qNum => {
+          out[String(qNum)] = sortedVal;
+        });
+      }
+    }
+  });
+  return out;
+}
+
 type Tab = 'score' | 'review';
 
 export default function AdvancedResultScreen() {
@@ -73,6 +103,7 @@ export default function AdvancedResultScreen() {
         const data = skill === 'listening'
           ? await ieltsAdvancedApi.getListeningHistoryDetail(resultId)
           : await ieltsAdvancedApi.getReadingHistoryDetail(resultId);
+        console.log('[RESULT] raw response:', JSON.stringify(data, null, 2)); // DEBUG
         setResult(data);
       } catch (e) { console.error('[Result] load failed:', e); }
       finally { setLoading(false); }
@@ -117,9 +148,9 @@ export default function AdvancedResultScreen() {
   const pct = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
   const scoreData: Record<string, { correct: number; total: number }> = result.scoreData || {};
 
-  const userAnswers: Record<string, string> = result.answers || {};
   const content: any[] = result.part?.content || [];
   const correctAnswers = extractCorrectAnswers(content);
+  const userAnswers: Record<string, string> = normalizeUserAnswers(result.answers || {}, content);
 
   const audioUrl: string | undefined = result.part?.audioUrl;
   const transcript: any[] | undefined = result.part?.transcript;

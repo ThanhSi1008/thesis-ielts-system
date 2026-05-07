@@ -8,8 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
-import { ieltsExamsApi } from '@/services/ielts.api';
-import { Badge, EmptyState } from '@/components/ui';
+import { ieltsAdvancedApi } from '@/services/ielts.api';
+import { EmptyState } from '@/components/ui';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -38,15 +38,11 @@ function SessionCard({ item, onPress }: { item: any; onPress: () => void }) {
   const date = new Date(item.dateTaken).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   });
-  const time = item.timeTaken
-    ? `${String(Math.floor(item.timeTaken / 60)).padStart(2, '0')}:${String(item.timeTaken % 60).padStart(2, '0')}`
-    : null;
-  const title = (item.examTitle ?? 'Session').split(' - ')[0];
+  const title = (item.examTitle ?? 'Practice Session').split(' - ')[0];
   const partLabel = item.practicePart ? PART_LABEL[skill]?.[item.practicePart] : null;
-  const score = item.rawScore ?? item.score ?? null;
-
-  // Band from score (listening/reading scale)
-  const band = score != null ? (score >= 30 ? 7.0 : score >= 23 ? 6.0 : score >= 16 ? 5.0 : 4.0) : null;
+  const score = item.rawScore ?? null;
+  const total = item.totalQuestions ?? null;
+  const pct = score != null && total ? Math.round((score / total) * 100) : null;
 
   return (
     <TouchableOpacity style={sc.card} onPress={onPress} activeOpacity={0.85}>
@@ -59,8 +55,8 @@ function SessionCard({ item, onPress }: { item: any; onPress: () => void }) {
           </View>
           {score != null && (
             <View style={[sc.scoreBadge, { borderColor: color + '60', backgroundColor: color + '12' }]}>
-              <Text style={[sc.scoreText, { color }]}>{score}</Text>
-              {band != null && <Text style={[sc.bandText, { color: color + 'AA' }]}>Band {band.toFixed(1)}</Text>}
+              <Text style={[sc.scoreText, { color }]}>{score}{total != null ? `/${total}` : ''}</Text>
+              {pct != null && <Text style={[sc.bandText, { color: color + 'AA' }]}>{pct}%</Text>}
             </View>
           )}
         </View>
@@ -68,12 +64,6 @@ function SessionCard({ item, onPress }: { item: any; onPress: () => void }) {
           {partLabel && (
             <View style={[sc.partBadge, { borderColor: color + '50', backgroundColor: color + '0D' }]}>
               <Text style={[sc.partText, { color }]}>Part {item.practicePart} · {partLabel}</Text>
-            </View>
-          )}
-          {time && (
-            <View style={sc.timePill}>
-              <Ionicons name="time-outline" size={10} color={COLORS.textMuted} />
-              <Text style={sc.timeText}>{time}</Text>
             </View>
           )}
           <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} style={{ marginLeft: 'auto' }} />
@@ -101,8 +91,6 @@ const sc = StyleSheet.create({
   meta: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flexWrap: 'wrap' },
   partBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: RADIUS.sm, borderWidth: 1 },
   partText: { fontSize: 10, fontFamily: FONTS.bold },
-  timePill: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  timeText: { fontSize: 10, color: COLORS.textMuted },
 });
 
 // ─── Skill Section (accordion) ────────────────────────────────────────────────
@@ -192,11 +180,35 @@ export default function AdvancedHistoryScreen() {
 
   const load = useCallback(async () => {
     try {
-      const data = await ieltsExamsApi.getHistory();
-      // Filter only practice sessions (have practicePart)
-      const practice = Array.isArray(data) ? data.filter(h => !!h.practicePart) : [];
-      setAllHistory(practice);
-    } catch { /* silent */ }
+      const [listening, reading] = await Promise.all([
+        ieltsAdvancedApi.getListeningHistory(),
+        ieltsAdvancedApi.getReadingHistory(),
+      ]);
+      const normalizeListening = (Array.isArray(listening) ? listening : []).map((s: any) => ({
+        id: s.id,
+        skill: 'LISTENING',
+        partId: s.partId,
+        dateTaken: s.createdAt,
+        examTitle: s.part?.title ?? 'Listening Practice',
+        practicePart: s.part?.partNumber ?? null,
+        rawScore: s.totalScore ?? null,
+        totalQuestions: s.totalQuestions ?? null,
+      }));
+      const normalizeReading = (Array.isArray(reading) ? reading : []).map((s: any) => ({
+        id: s.id,
+        skill: 'READING',
+        partId: s.partId,
+        dateTaken: s.createdAt,
+        examTitle: s.part?.title ?? 'Reading Practice',
+        practicePart: s.part?.partNumber ?? null,
+        rawScore: s.totalScore ?? null,
+        totalQuestions: s.totalQuestions ?? null,
+      }));
+      const merged = [...normalizeListening, ...normalizeReading].sort(
+        (a, b) => new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime(),
+      );
+      setAllHistory(merged);
+    } catch (err) { console.error('[AdvancedHistory] load failed:', err); }
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
@@ -212,10 +224,10 @@ export default function AdvancedHistoryScreen() {
   }, []);
 
   const handleCardPress = useCallback((item: any) => {
-    const id = item.id ?? item.sessionId;
-    if (!id) return;
+    const id = item.id;
+    if (!id || !item.partId) return;
     const skillPath = (item.skill ?? 'LISTENING').toLowerCase();
-    router.push(`/ielts/advanced/${skillPath}/${item.examId}/result/${id}` as any);
+    router.push(`/ielts/advanced/${skillPath}/${item.partId}/result/${id}` as any);
   }, [router]);
 
   // Group by skill, apply search filter
