@@ -63,7 +63,7 @@ export interface SpeakingVideoPlayerProps {
 // ─── Direct-URL player (expo-video) ─────────────────────────────────────────
 
 function NativeVideoPlayer({
-  uri, playing, onEnded, onReady, captionText,
+  uri, playing, onEnded, onReady, captionText, height = DEFAULT_HEIGHT,
 }: SpeakingVideoPlayerProps) {
   const player = useVideoPlayer(uri, p => {
     p.loop = false;
@@ -95,7 +95,7 @@ function NativeVideoPlayer({
   }, [onReady]);
 
   return (
-    <View style={pStyles.videoWrap}>
+    <View style={[pStyles.videoWrap, { height }]}>
       <VideoView
         player={player}
         style={pStyles.video}

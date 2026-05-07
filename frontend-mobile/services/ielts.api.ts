@@ -11,19 +11,29 @@ export const ieltsProfileApi = {
 
 // ==================== IELTS ADVANCED ====================
 export const ieltsAdvancedApi = {
-  getListeningParts: () => apiClient.get<any[]>('/ielts/advanced/listening'),
+  getListeningParts: (questionType?: string) =>
+    apiClient.get<any[]>(questionType
+      ? `/ielts/advanced/listening?questionType=${encodeURIComponent(questionType)}`
+      : '/ielts/advanced/listening'),
   getListeningPart: (id: string) => apiClient.get<any>(`/ielts/advanced/listening/${id}`),
   submitListening: (id: string, answers: Record<string, string>) =>
     apiClient.post<any>(`/ielts/advanced/listening/${id}/submit`, { answers }),
   getListeningHistory: () => apiClient.get<any[]>('/ielts/advanced/history'),
+  getListeningHistoryByPart: (partId: string) =>
+    apiClient.get<any[]>(`/ielts/advanced/history?partId=${encodeURIComponent(partId)}`),
   getListeningHistoryDetail: (sessionId: string) =>
     apiClient.get<any>(`/ielts/advanced/history/${sessionId}`),
 
-  getReadingParts: () => apiClient.get<any[]>('/ielts/advanced/reading'),
+  getReadingParts: (questionType?: string) =>
+    apiClient.get<any[]>(questionType
+      ? `/ielts/advanced/reading?questionType=${encodeURIComponent(questionType)}`
+      : '/ielts/advanced/reading'),
   getReadingPart: (id: string) => apiClient.get<any>(`/ielts/advanced/reading/${id}`),
   submitReading: (id: string, answers: Record<string, string>) =>
     apiClient.post<any>(`/ielts/advanced/reading/${id}/submit`, { answers }),
   getReadingHistory: () => apiClient.get<any[]>('/ielts/advanced/reading/history'),
+  getReadingHistoryByPart: (partId: string) =>
+    apiClient.get<any[]>(`/ielts/advanced/reading/history?partId=${encodeURIComponent(partId)}`),
   getReadingHistoryDetail: (sessionId: string) =>
     apiClient.get<any>(`/ielts/advanced/reading/history/${sessionId}`),
   getStatistics: () =>

@@ -7,7 +7,7 @@
  * 3. Part 2 Notes area during THINKING
  */
 
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo, useImperativeHandle } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ActivityIndicator, Platform, KeyboardAvoidingView, ScrollView,
@@ -155,6 +155,138 @@ function MeteringWaveform({ recorder }: { recorder: ReturnType<typeof useAudioRe
   );
 }
 
+// ─── Recording Controller ─────────────────────────────────────────────────────
+// Owns useAudioRecorder so that audio-session failure re-renders stay out of
+// the parent ScrollView's render tree.
+
+interface RecordingControllerProps {
+  answerKey: string;
+  partNumber: number;
+  maxRecordTime: number;
+  answer: string;
+  currentStep: VoiceRecorderStep;
+  isDisabled: boolean;
+  onAnswerChange: (url: string) => void;
+  onStepChange: (step: VoiceRecorderStep) => void;
+}
+
+const RecordingController = React.forwardRef<RecordingControllerHandle, RecordingControllerProps>(
+  ({ answerKey, partNumber, maxRecordTime, answer, currentStep, isDisabled, onAnswerChange, onStepChange }, ref) => {
+    const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true });
+    const isDegradedRef = useRef(false);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [recordTimeElapsed, setRecordTimeElapsed] = useState(0);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+
+    const audioUploaded = answer.startsWith('http');
+    const isRecording = currentStep === 'RECORDING';
+    const isUploading = currentStep === 'UPLOADING';
+
+    useEffect(() => {
+      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, []);
+
+    const stopAndUpload = useCallback(async () => {
+      try {
+        if (timerRef.current) clearInterval(timerRef.current);
+        await recorder.stop();
+        await setAudioModeAsync({ allowsRecording: false });
+        const uri = recorder.uri;
+        if (!uri) { setUploadError('No audio file.'); onStepChange('RECORDED'); return; }
+
+        onStepChange('UPLOADING');
+
+        const filename = `speaking_${answerKey}_${Date.now()}.m4a`;
+        const formData = new FormData();
+        formData.append('audio', { uri, name: filename, type: 'audio/m4a' } as any);
+
+        const { url } = await ieltsExamsApi.uploadSpeakingAudio(formData);
+        onAnswerChange(url);
+        onStepChange('RECORDED');
+      } catch {
+        setUploadError('Upload failed. Tap Record to try again.');
+        onStepChange('RECORDED');
+      }
+    }, [recorder, answerKey, onAnswerChange, onStepChange]);
+
+    const start = useCallback(async () => {
+      if (isDegradedRef.current) {
+        setUploadError('Microphone unavailable on this device.');
+        return;
+      }
+      try {
+        setUploadError(null);
+        const { granted } = await requestRecordingPermissionsAsync();
+        if (!granted) {
+          setUploadError('Microphone permission required.');
+          return;
+        }
+        await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+        await recorder.prepareToRecordAsync();
+        recorder.record();
+        setRecordTimeElapsed(0);
+        onStepChange('RECORDING');
+
+        if (timerRef.current) clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+          setRecordTimeElapsed(prev => {
+            if (prev >= maxRecordTime - 1) {
+              stopAndUpload();
+              return maxRecordTime;
+            }
+            return prev + 1;
+          });
+        }, 1000);
+      } catch (e: any) {
+        const msg = String(e?.message ?? e ?? '');
+        // Error -50 = invalid param (iOS simulator has no real mic). Flag as
+        // degraded so we never retry and perpetuate the failure loop.
+        if (msg.includes('-50') || msg.includes('ENODEV') || msg.toLowerCase().includes('no device')) {
+          isDegradedRef.current = true;
+        }
+        setUploadError('Could not start recording.');
+      }
+    }, [recorder, maxRecordTime, onStepChange, stopAndUpload]);
+
+    useImperativeHandle(ref, () => ({ start, stopAndUpload }), [start, stopAndUpload]);
+
+    return (
+      <View style={aq.controlsPanel}>
+        <View style={aq.statusArea}>
+          {currentStep === 'PLAYING' || currentStep === 'PLAYING_2' ? (
+            <Text style={aq.statusText}>Listen to the examiner...</Text>
+          ) : isRecording ? (
+            <RecordingTimer seconds={recordTimeElapsed} />
+          ) : isUploading ? (
+            <View style={aq.recordStatus}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+              <Text style={aq.statusText}>Uploading audio...</Text>
+            </View>
+          ) : audioUploaded ? (
+            <View style={aq.recordStatus}>
+              <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
+              <Text style={[aq.statusText, { color: '#22c55e', fontWeight: '700' }]}>Audio saved</Text>
+            </View>
+          ) : uploadError ? (
+            <Text style={[aq.statusText, { color: '#ef4444' }]}>{uploadError}</Text>
+          ) : (
+            <Text style={aq.statusText}>Tap mic to start recording</Text>
+          )}
+        </View>
+
+        <RecordButton
+          isRecording={isRecording}
+          isDisabled={isDisabled || isUploading || currentStep === 'PLAYING' || currentStep === 'PLAYING_2'}
+          onPress={isRecording ? stopAndUpload : start}
+          size={48}
+        />
+
+        {isRecording && <MeteringWaveform recorder={recorder} />}
+      </View>
+    );
+  }
+);
+
 // ─── Active Question View (VoiceRecorder + Notes) ────────────────────────────
 
 type VoiceRecorderStep =
@@ -165,7 +297,13 @@ type VoiceRecorderStep =
   | 'THINKING'
   | 'PLAYING_2'
   | 'RECORDING'
+  | 'UPLOADING'
   | 'RECORDED';
+
+interface RecordingControllerHandle {
+  start: () => Promise<void>;
+  stopAndUpload: () => Promise<void>;
+}
 
 interface ActiveQuestionProps {
   questionText: string;
@@ -194,15 +332,12 @@ function ActiveQuestionBlock({
   onSkip,
   isLastQuestion
 }: ActiveQuestionProps) {
-  const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true });
+  const scrollRef = useRef<ScrollView>(null);
+  const recorderRef = useRef<RecordingControllerHandle>(null);
 
   const [step, setStep] = useState<VoiceRecorderStep>('IDLE');
-  const [recordTimeElapsed, setRecordTimeElapsed] = useState(0);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [notes, setNotes] = useState(''); // Local state for Part 2 notes
+  const [notes, setNotes] = useState('');
 
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxRecordTime = getMaxRecordTime(partNumber);
   const thinkTime = getThinkTime(partNumber);
   const audioUploaded = answer.startsWith('http');
@@ -214,13 +349,6 @@ function ActiveQuestionBlock({
     }
   }, [videoUri]);
 
-  // Cleanup timer
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
   const startPlaybackFlow = useCallback(() => {
     setStep('LISTEN_CAPTION');
     setTimeout(() => setStep('PLAYING'), 2000);
@@ -231,7 +359,7 @@ function ActiveQuestionBlock({
       setStep('THINK_CAPTION');
       setTimeout(() => setStep('THINKING'), 1500);
     } else if (step === 'PLAYING_2') {
-      startRecording();
+      recorderRef.current?.start();
     }
   }, [step]);
 
@@ -239,66 +367,9 @@ function ActiveQuestionBlock({
     if (video2Uri) {
       setStep('PLAYING_2');
     } else {
-      startRecording();
+      recorderRef.current?.start();
     }
   }, [video2Uri]);
-
-  const startRecording = useCallback(async () => {
-    try {
-      setUploadError(null);
-      const { granted } = await requestRecordingPermissionsAsync();
-      if (!granted) {
-        setUploadError('Microphone permission required.');
-        setStep('IDLE');
-        return;
-      }
-      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
-      await recorder.prepareToRecordAsync();
-      recorder.record();
-      setRecordTimeElapsed(0);
-      setStep('RECORDING');
-
-      // Start elapsed timer
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setInterval(() => {
-        setRecordTimeElapsed(prev => {
-          if (prev >= maxRecordTime - 1) {
-            stopAndUpload();
-            return maxRecordTime;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    } catch {
-      setUploadError('Could not start recording.');
-      setStep('IDLE');
-    }
-  }, [recorder, maxRecordTime]);
-
-  const stopAndUpload = useCallback(async () => {
-    try {
-      if (timerRef.current) clearInterval(timerRef.current);
-      await recorder.stop();
-      await setAudioModeAsync({ allowsRecording: false });
-      const uri = recorder.uri;
-      if (!uri) { setUploadError('No audio file.'); return; }
-
-      setUploading(true);
-      setStep('RECORDED');
-      
-      const filename = `speaking_${answerKey}_${Date.now()}.m4a`;
-      const formData = new FormData();
-      formData.append('audio', { uri, name: filename, type: 'audio/m4a' } as any);
-      
-      const { url } = await ieltsExamsApi.uploadSpeakingAudio(formData);
-      onAnswerChange(url);
-    } catch {
-      setUploadError('Upload failed. Tap Record to try again.');
-      setStep('RECORDED');
-    } finally {
-      setUploading(false);
-    }
-  }, [recorder, answerKey, onAnswerChange]);
 
   const videoCaptionText =
     step === 'LISTEN_CAPTION' ? 'Listen to the question' :
@@ -307,91 +378,72 @@ function ActiveQuestionBlock({
   const activeVideoUri = step === 'PLAYING_2' ? video2Uri : (videoUri || video2Uri);
 
   return (
-    <ScrollView 
-      style={aq.container} 
-      contentContainerStyle={aq.scrollContent} 
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-    >
+    <View style={aq.container}>
+      {/* Step-dependent media/timer — ABOVE ScrollView so layout shifts here
+          never reset the scroll position of the question/controls below */}
+      {(videoUri || video2Uri) && (
+        <View style={aq.videoWrap}>
+          <SpeakingVideoPlayer
+            uri={activeVideoUri}
+            playing={step === 'PLAYING' || step === 'PLAYING_2'}
+            onEnded={handleVideoEnded}
+            captionText={videoCaptionText}
+          />
+        </View>
+      )}
+
+      {step === 'THINKING' && (
+        <ThinkTimer
+          seconds={thinkTime}
+          onDone={handleThinkDone}
+          showSkip={isCueCard}
+        />
+      )}
+
+      {isCueCard && step === 'THINKING' && (
+        <View style={aq.notesWrap}>
+          <Text style={aq.notesLabel}>Your Notes (optional, not graded)</Text>
+          <TextInput
+            style={aq.notesInput}
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Type quick notes here..."
+            placeholderTextColor={COLORS.textMuted}
+            multiline
+            textAlignVertical="top"
+          />
+        </View>
+      )}
+
+      {/* Stable scroll area — question text + recording controls + nav.
+          Content here never changes layout when step changes, so iOS will
+          not reset the scroll offset on re-renders. */}
+      <ScrollView
+        ref={scrollRef}
+        style={aq.scroll}
+        contentContainerStyle={aq.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Question Text / Cue Card */}
         <View style={isCueCard ? aq.cueCard : aq.questionCard}>
           {isCueCard && <Text style={aq.cueLabel}>Cue Card Topic</Text>}
           <Text style={isCueCard ? aq.cueText : aq.questionText}>{questionText}</Text>
         </View>
 
-        {/* Video Player */}
-        {(videoUri || video2Uri) && (
-          <View style={aq.videoWrap}>
-            <SpeakingVideoPlayer
-              uri={activeVideoUri}
-              playing={step === 'PLAYING' || step === 'PLAYING_2'}
-              onEnded={handleVideoEnded}
-              captionText={videoCaptionText}
-            />
-          </View>
-        )}
-
-        {/* Think Timer (Visible during THINKING state) */}
-        {step === 'THINKING' && (
-          <ThinkTimer 
-            seconds={thinkTime} 
-            onDone={handleThinkDone} 
-            showSkip={isCueCard} 
-          />
-        )}
-
-        {/* Part 2 Notes Area (Visible during THINKING for Cue Card) */}
-        {isCueCard && step === 'THINKING' && (
-          <View style={aq.notesWrap}>
-            <Text style={aq.notesLabel}>Your Notes (optional, not graded)</Text>
-            <TextInput
-              style={aq.notesInput}
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Type quick notes here..."
-              placeholderTextColor={COLORS.textMuted}
-              multiline
-              textAlignVertical="top"
-            />
-          </View>
-        )}
-
-        {/* Recording Status & Controls */}
-        <View style={aq.controlsPanel}>
-          {/* Status text */}
-          <View style={aq.statusArea}>
-            {step === 'PLAYING' || step === 'PLAYING_2' ? (
-              <Text style={aq.statusText}>Listen to the examiner...</Text>
-            ) : step === 'RECORDING' ? (
-              <RecordingTimer seconds={recordTimeElapsed} />
-            ) : uploading ? (
-              <View style={aq.recordStatus}>
-                <ActivityIndicator size="small" color={COLORS.primary} />
-                <Text style={aq.statusText}>Uploading audio...</Text>
-              </View>
-            ) : audioUploaded ? (
-              <View style={aq.recordStatus}>
-                <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-                <Text style={[aq.statusText, { color: '#22c55e', fontWeight: '700' }]}>Audio saved</Text>
-              </View>
-            ) : uploadError ? (
-              <Text style={[aq.statusText, { color: '#ef4444' }]}>{uploadError}</Text>
-            ) : (
-              <Text style={aq.statusText}>Tap mic to start recording</Text>
-            )}
-          </View>
-
-          {/* Animated record / stop button */}
-          <RecordButton
-            isRecording={step === 'RECORDING'}
-            isDisabled={uploading || step === 'PLAYING' || step === 'PLAYING_2'}
-            onPress={step === 'RECORDING' ? stopAndUpload : startRecording}
-            size={48}
-          />
-
-          {/* Live waveform — isolated component so 100ms polling stays out of this render tree */}
-          {step === 'RECORDING' && <MeteringWaveform recorder={recorder} />}
-        </View>
+        {/* Recording Controls — isolated component; useAudioRecorder lives here,
+            so audio-session failure re-renders never propagate up to this ScrollView */}
+        <RecordingController
+          ref={recorderRef}
+          answerKey={answerKey}
+          partNumber={partNumber}
+          maxRecordTime={maxRecordTime}
+          answer={answer}
+          currentStep={step}
+          isDisabled={false}
+          onAnswerChange={onAnswerChange}
+          onStepChange={setStep}
+        />
 
         {/* Navigation (Next / Skip) */}
         <View style={aq.navRow}>
@@ -400,9 +452,9 @@ function ActiveQuestionBlock({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[aq.nextBtn, (!audioUploaded || uploading || step === 'RECORDING') && { opacity: 0.5 }]}
+            style={[aq.nextBtn, (!audioUploaded || step === 'RECORDING' || step === 'UPLOADING') && { opacity: 0.5 }]}
             onPress={onNext}
-            disabled={!audioUploaded || uploading || step === 'RECORDING'}
+            disabled={!audioUploaded || step === 'RECORDING' || step === 'UPLOADING'}
             activeOpacity={0.8}
           >
             <Text style={aq.nextBtnText}>{isLastQuestion ? 'Submit Test' : 'Next Question'}</Text>
@@ -410,10 +462,12 @@ function ActiveQuestionBlock({
           </TouchableOpacity>
         </View>
       </ScrollView>
-    );
+    </View>
+  );
 }
 const aq = StyleSheet.create({
   container: { flex: 1 },
+  scroll: { flex: 1 },
   scrollContent: { padding: SPACING.lg, flexGrow: 1, paddingBottom: 100 },
   questionCard: {
     backgroundColor: '#fff', borderRadius: RADIUS.lg, padding: SPACING.lg,

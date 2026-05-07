@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   ActivityIndicator, Alert, TextInput,
@@ -6,19 +6,43 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
 import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
 import MatchingBlock from '@/components/ielts/MatchingBlock';
+import RichAudioPlayer from '@/components/ielts/RichAudioPlayer';
+import MCMultipleBlock from '@/components/ielts/MCMultipleBlock';
+import FormCompletionBlock from '@/components/ielts/FormCompletionBlock';
+import TranscriptReview from '@/components/ielts/TranscriptReview';
+import PassageReview from '@/components/ielts/PassageReview';
 
-// Reusable MCQ for advanced practice
-function MCQBlock({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: (v: string) => void }) {
+// ─── Question blocks ───────────────────────────────────────────────────────────
+
+function LocateButton({ onPress }: { onPress: () => void }) {
+  return (
+    <TouchableOpacity onPress={onPress} hitSlop={8} style={locate.btn}>
+      <Ionicons name="locate-outline" size={16} color={COLORS.textMuted} />
+    </TouchableOpacity>
+  );
+}
+
+const locate = StyleSheet.create({
+  btn: { padding: 4 },
+});
+
+function MCQBlock({
+  q, answer, onAnswer, onLocate,
+}: {
+  q: any; answer: string; onAnswer: (v: string) => void; onLocate?: () => void;
+}) {
   const options = q.options || [];
   return (
     <View style={styles.qBlock}>
-      <Text style={styles.qNum}>Q{q.question_number}</Text>
+      <View style={styles.qTopRow}>
+        <Text style={styles.qNum}>Q{q.question_number}</Text>
+        {onLocate && <LocateButton onPress={onLocate} />}
+      </View>
       <Text style={styles.qText}>{q.question || q.text || q.stem}</Text>
       {options.map((opt: any, i: number) => {
         const letter = opt.letter || String.fromCharCode(65 + i);
@@ -42,10 +66,17 @@ function MCQBlock({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: (
   );
 }
 
-function FillBlock({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: (v: string) => void }) {
+function FillBlock({
+  q, answer, onAnswer, onLocate,
+}: {
+  q: any; answer: string; onAnswer: (v: string) => void; onLocate?: () => void;
+}) {
   return (
     <View style={styles.qBlock}>
-      <Text style={styles.qNum}>Q{q.question_number}</Text>
+      <View style={styles.qTopRow}>
+        <Text style={styles.qNum}>Q{q.question_number}</Text>
+        {onLocate && <LocateButton onPress={onLocate} />}
+      </View>
       <Text style={styles.qText}>{q.question || q.text}</Text>
       <TextInput
         style={styles.input}
@@ -58,34 +89,44 @@ function FillBlock({ q, answer, onAnswer }: { q: any; answer: string; onAnswer: 
   );
 }
 
-const DIAGRAM_TYPES_ADV = new Set(['diagram_labelling', 'diagram_completion', 'map_labelling', 'plan_labelling']);
-const MATCHING_TYPES_ADV = new Set(['matching', 'matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings']);
+// ─── Type sets ─────────────────────────────────────────────────────────────────
 
-function renderGroup(group: any, answers: Record<string, string>, setAns: (k: string, v: string) => void, _idx = 0) {
+const DIAGRAM_TYPES = new Set(['diagram_labelling', 'diagram_completion', 'map_labelling', 'plan_labelling']);
+const MATCHING_TYPES = new Set(['matching', 'matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings']);
+const FORM_TYPES = new Set(['form_completion', 'note_completion', 'flowchart_completion', 'flow_chart']);
+
+// ─── Group renderer ────────────────────────────────────────────────────────────
+
+function renderGroup(
+  group: any,
+  answers: Record<string, string>,
+  setAns: (k: string, v: string) => void,
+  onLocate: (qNum: number) => void,
+  idx = 0,
+) {
   const type = group.type;
-  const qs = group.questions || group.points || [];
-  const baseKey = `g-${_idx}-${type}`;
+  const qs: any[] = group.questions || group.points || [];
+  const baseKey = `g-${idx}-${type}`;
 
-  if (DIAGRAM_TYPES_ADV.has(type)) {
+  if (DIAGRAM_TYPES.has(type)) {
+    return <DiagramMapBlock key={baseKey} group={group} answers={answers} onAnswer={setAns} />;
+  }
+  if (MATCHING_TYPES.has(type)) {
+    return <MatchingBlock key={baseKey} group={group} answers={answers} onAnswer={setAns} />;
+  }
+  if (type === 'multiple_choice_multiple') {
     return (
-      <DiagramMapBlock
+      <MCMultipleBlock
         key={baseKey}
         group={group}
-        answers={answers}
+        groupIdx={idx}
+        answer={answers[`mcm-${idx}`] || ''}
         onAnswer={setAns}
       />
     );
   }
-
-  if (MATCHING_TYPES_ADV.has(type)) {
-    return (
-      <MatchingBlock
-        key={baseKey}
-        group={group}
-        answers={answers}
-        onAnswer={setAns}
-      />
-    );
+  if (FORM_TYPES.has(type)) {
+    return <FormCompletionBlock key={baseKey} group={group} answers={answers} onAnswer={setAns} />;
   }
 
   return (
@@ -93,14 +134,33 @@ function renderGroup(group: any, answers: Record<string, string>, setAns: (k: st
       {group.instructions && <Text style={styles.instructions}>{group.instructions}</Text>}
       {qs.map((q: any) => {
         const num = String(q.question_number);
+        const handleLocate = q.question_number ? () => onLocate(Number(q.question_number)) : undefined;
         if (type === 'multiple_choice' || q.options) {
-          return <MCQBlock key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAns(num, v)} />;
+          return (
+            <MCQBlock
+              key={`${baseKey}-${num}`}
+              q={q}
+              answer={answers[num] || ''}
+              onAnswer={v => setAns(num, v)}
+              onLocate={handleLocate}
+            />
+          );
         }
-        return <FillBlock key={`${baseKey}-${num}`} q={q} answer={answers[num] || ''} onAnswer={v => setAns(num, v)} />;
+        return (
+          <FillBlock
+            key={`${baseKey}-${num}`}
+            q={q}
+            answer={answers[num] || ''}
+            onAnswer={v => setAns(num, v)}
+            onLocate={handleLocate}
+          />
+        );
       })}
     </View>
   );
 }
+
+// ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function AdvancedPartScreen() {
   const router = useRouter();
@@ -109,13 +169,16 @@ export default function AdvancedPartScreen() {
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  
-  const player = useAudioPlayer(part?.audioUrl || '');
+  const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
+  const [showTranscript, setShowTranscript] = useState(false);
+
+  const isListening = skill === 'listening';
+  const accentColor = isListening ? '#E11D48' : '#2563EB';
 
   useEffect(() => {
     const load = async () => {
       try {
-        const data = skill === 'listening'
+        const data = isListening
           ? await ieltsAdvancedApi.getListeningPart(partId)
           : await ieltsAdvancedApi.getReadingPart(partId);
         setPart(data);
@@ -123,18 +186,17 @@ export default function AdvancedPartScreen() {
       finally { setLoading(false); }
     };
     load();
-  }, [partId]);
+  }, [partId, isListening]);
 
-  const setAnswer = (key: string, value: string) =>
-    setAnswers(prev => ({ ...prev, [key]: value }));
+  const setAnswer = useCallback((key: string, value: string) =>
+    setAnswers(prev => ({ ...prev, [key]: value })), []);
 
-  const toggleAudio = () => {
-    if (player.playing) {
-      player.pause();
-    } else {
-      player.play();
-    }
-  };
+  const handleLocate = useCallback((qNum: number) => {
+    // Reset to re-trigger scroll effect in child even if same question
+    setLocatedQuestion(null);
+    setTimeout(() => setLocatedQuestion(qNum), 30);
+    if (isListening) setShowTranscript(true);
+  }, [isListening]);
 
   const handleSubmit = async () => {
     Alert.alert('Submit?', 'You cannot change answers after submitting.', [
@@ -143,56 +205,91 @@ export default function AdvancedPartScreen() {
         text: 'Submit', onPress: async () => {
           setSubmitting(true);
           try {
-            const result = skill === 'listening'
+            const result = isListening
               ? await ieltsAdvancedApi.submitListening(partId, answers)
               : await ieltsAdvancedApi.submitReading(partId, answers);
             router.replace(`/ielts/advanced/${skill}/${partId}/result/${result.id}` as any);
           } catch { Alert.alert('Error', 'Submission failed.'); }
           finally { setSubmitting(false); }
-        }
-      }
+        },
+      },
     ]);
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+  if (loading) {
+    return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+  }
 
   const content: any[] = part?.content || [];
-  const audioUrl = part?.audioUrl;
-  const isListening = skill === 'listening';
-  const accentColor = isListening ? '#E11D48' : '#2563EB';
+  const audioUrl: string | undefined = part?.audioUrl;
+  const transcript: any[] | undefined = part?.transcript;
+  const passage: string | undefined = part?.passage;
+  const passageWithLocations: any[] = part?.passageWithLocations ?? [];
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: accentColor }]}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={{ flex: 1, marginHorizontal: SPACING.md }}>
-          <Text style={styles.headerTitle} numberOfLines={2}>{part?.title}</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>{part?.title}</Text>
           <Text style={styles.headerSub}>Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}</Text>
         </View>
-        <Text style={styles.ansCount}>{Object.keys(answers).length} ans</Text>
+        <View style={styles.headerActions}>
+          <Text style={styles.ansCount}>{Object.keys(answers).length} ans</Text>
+          <TouchableOpacity
+            onPress={() => router.push(`/ielts/advanced/${skill}/${partId}/history` as any)}
+            hitSlop={8}
+            style={styles.historyBtn}
+          >
+            <Ionicons name="time-outline" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Audio bar */}
+      {/* Audio player (listening) */}
       {audioUrl && (
-        <TouchableOpacity
-          style={[styles.audioBanner, { borderColor: accentColor + '40', backgroundColor: accentColor + '0A' }]}
-          onPress={toggleAudio}
-        >
-          <Ionicons name={player.playing ? 'pause-circle' : 'play-circle'} size={32} color={accentColor} />
-          <Text style={[styles.audioLabel, { color: accentColor }]}>
-            {player.playing ? 'Playing…' : 'Tap to play audio'}
-          </Text>
-        </TouchableOpacity>
+        <RichAudioPlayer audioUrl={audioUrl} accentColor={accentColor} style={styles.audioPlayer} />
       )}
 
-      {/* Reading passage */}
-      {part?.passage && (
-        <ScrollView style={styles.passageBox} nestedScrollEnabled>
-          <Text style={styles.passageText}>{part.passage}</Text>
-        </ScrollView>
+      {/* Collapsible transcript (listening) */}
+      {isListening && transcript && transcript.length > 0 && (
+        <View style={styles.transcriptSection}>
+          <TouchableOpacity
+            style={[styles.transcriptToggle, { borderColor: accentColor + '40', backgroundColor: accentColor + '08' }]}
+            onPress={() => setShowTranscript(v => !v)}
+          >
+            <Ionicons name="document-text-outline" size={16} color={accentColor} />
+            <Text style={[styles.transcriptToggleText, { color: accentColor }]}>
+              {showTranscript ? 'Hide Transcript' : 'Show Transcript'}
+            </Text>
+            <Ionicons name={showTranscript ? 'chevron-up' : 'chevron-down'} size={14} color={accentColor} style={{ marginLeft: 'auto' }} />
+          </TouchableOpacity>
+          {showTranscript && (
+            <View style={styles.transcriptPanel}>
+              <TranscriptReview
+                transcript={transcript}
+                locatedQuestion={locatedQuestion}
+                accentColor={accentColor}
+              />
+            </View>
+          )}
+        </View>
+      )}
+
+      {/* Reading passage with locate support */}
+      {!isListening && passage && (
+        <View style={styles.passagePanel}>
+          <Text style={[styles.panelLabel, { color: accentColor }]}>Passage</Text>
+          <PassageReview
+            passage={passage}
+            passageWithLocations={passageWithLocations}
+            locatedQuestion={locatedQuestion}
+            accentColor={accentColor}
+          />
+        </View>
       )}
 
       {/* Questions */}
@@ -201,7 +298,7 @@ export default function AdvancedPartScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
       >
-        {content.map((g: any, gi: number) => renderGroup(g, answers, setAnswer, gi))}
+        {content.map((g: any, gi: number) => renderGroup(g, answers, setAnswer, handleLocate, gi))}
       </ScrollView>
 
       {/* Submit bar */}
@@ -215,31 +312,54 @@ export default function AdvancedPartScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
   },
   headerTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
   headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: FONT_SIZES.xs, marginTop: 2 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   ansCount: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
-  audioBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
-    padding: SPACING.md, borderBottomWidth: 1,
+  historyBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+
+  audioPlayer: { margin: SPACING.md, marginBottom: 0 },
+
+  transcriptSection: { marginHorizontal: SPACING.md, marginTop: SPACING.sm },
+  transcriptToggle: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
+    borderWidth: 1, borderRadius: RADIUS.lg, padding: SPACING.sm, paddingHorizontal: SPACING.md,
   },
-  audioLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
-  passageBox: {
-    maxHeight: 200, margin: SPACING.md,
-    backgroundColor: COLORS.surface, borderRadius: RADIUS.lg,
-    padding: SPACING.md, borderWidth: 1, borderColor: COLORS.border,
+  transcriptToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
+  transcriptPanel: {
+    maxHeight: 240, marginTop: 4,
+    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.lg,
+    backgroundColor: '#fff', overflow: 'hidden',
   },
-  passageText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
+
+  passagePanel: {
+    maxHeight: 220, marginHorizontal: SPACING.md, marginTop: SPACING.sm,
+    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.lg,
+    backgroundColor: '#fff', overflow: 'hidden', padding: SPACING.sm,
+  },
+  panelLabel: {
+    fontSize: FONT_SIZES.xs, fontWeight: '800', textTransform: 'uppercase',
+    letterSpacing: 0.5, marginBottom: 4, paddingHorizontal: SPACING.sm,
+  },
+
   scroll: { flex: 1 },
+
+  // Question blocks
   qBlock: {
     marginBottom: SPACING.xl, padding: SPACING.lg,
     backgroundColor: '#fff', borderRadius: RADIUS.xl,
     borderWidth: 1, borderColor: COLORS.border,
   },
-  qNum: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.primary, marginBottom: 4, textTransform: 'uppercase' },
+  qTopRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  qNum: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.primary, textTransform: 'uppercase' },
   qText: { fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.md, lineHeight: 22 },
   option: {
     flexDirection: 'row', alignItems: 'center', padding: SPACING.md,
@@ -265,6 +385,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md, padding: SPACING.md, backgroundColor: '#FFF9C4',
     borderRadius: RADIUS.md, borderLeftWidth: 3, borderLeftColor: COLORS.warning,
   },
+
   submitBar: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     padding: SPACING.lg, backgroundColor: '#fff',
