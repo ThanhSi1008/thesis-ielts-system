@@ -6,6 +6,10 @@ on:
       - main
       - deploy
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   PROJECT_ID: ielts-master-495612
   REGION: asia-southeast1
