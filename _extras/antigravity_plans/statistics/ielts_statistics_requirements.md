@@ -12,20 +12,19 @@ Your existing `StatisticsContent.tsx` is **938 lines** in a single component —
 
 | Module | Models | Key Data |
 |:---|:---|:---|
-| **Foundation** | `IeltsSkill`, `IeltsLesson`, `IeltsBasicProgress` (with `lessonId`) | Lesson completion (boolean) |
-| **Foundation — Vocabulary** | External vocab system (Decks, Flashcards, FSRS) | Cards reviewed, retention rate, due cards |
-| **Foundation — Grammar** | `IeltsLesson` (skill=Grammar) + `IeltsBasicProgress` | Lessons completed |
-| **Foundation — Pronunciation** | `UsageRecord` (feature=`PRONUNCIATION_ATTEMPT`) | Attempts count per period |
-| **IELTS Basic** | `IeltsLesson`, `IeltsListeningExercise`, `IeltsReadingExercise`, `IeltsWritingExercise`, `IeltsBasicProgress` | Per-lesson/exercise completion, writing answers |
-| **IELTS Advanced** | `IeltsPracticeListeningPart`, `IeltsPracticeSession`, `IeltsPracticeReadingPart`, `IeltsPracticeReadingSession` | Score per part, `scoreData` breakdown by question type |
-| **IELTS Intensive** | Mock test history (via `examsApi.getHistory()`) | Band scores (L/R/W/S), raw scores, time taken |
-| **Profile** | `IeltsProfile` | Target band, streak, XP, exam date, daily commitment |
+| **Foundation — Vocabulary** | `FoundationVocabBook`, `FoundationVocabUnit`, `FoundationVocabItem`, `FoundationVocabProgress` | Words learned, exercise scores, unit completion |
+| **Foundation — Grammar** | `FoundationGrammarBook`, `FoundationGrammarUnit`, `FoundationGrammarProgress` | Grammar units completed, exercise scores |
+| **Foundation — Pronunciation** | `FoundationPronunciationSound`, `FoundationPronunciationProgress` | Sounds mastered, practice count, best scores |
+| **IELTS Basic** | `IeltsBasicSkill`, `IeltsBasicLesson`, `IeltsBasicProgress` | Per-lesson/exercise completion |
+| **IELTS Advanced** | `IeltsAdvancedListeningPart`, `IeltsAdvancedReadingPart`, `IeltsAdvancedWritingSession`, `IeltsAdvancedSpeakingSession` | Score per part, band score, AI feedback |
+| **IELTS Intensive** | `Exam`, `ExamSession` (Mock tests via `examsApi`) | Band scores (L/R/W/S), raw scores, time taken |
+| **Profile** | `IeltsProfile` (Strictly IELTS-related data only) | Target band, streak, exam date, daily commitment |
 
 ---
 
 ## Section 1: Profile & Overview Header
 
-> **What it shows:** Identity, high-level KPIs, exam countdown.
+> **What it shows:** Identity, high-level IELTS KPIs, exam countdown. (Strictly excludes non-IELTS activities like general Vocab Lab or Dictation)
 
 ### Requirements
 
@@ -35,195 +34,40 @@ Your existing `StatisticsContent.tsx` is **938 lines** in a single component —
 | 1.2 | **Estimated Overall Band** (avg of latest L/R/W/S) | Computed from mock history |
 | 1.3 | **Target Band** (editable) | `IeltsProfile.targetBand` |
 | 1.4 | **Band Gap Indicator** — visual showing distance from target | Computed: `targetBand - estimatedBand` |
-| 1.5 | **Current Streak** + longest streak | `IeltsProfile.currentStreak`, `longestStreak` |
-| 1.6 | **Daily Goal** (mins/day) | `IeltsProfile.dailyCommitmentMins` |
-| 1.7 | **Exam Countdown** with inline date editor | `IeltsProfile.examDate` |
-| 1.8 | **XP & Level** display | `IeltsProfile.totalXp`, `level` |
+| 1.5 | **Daily Goal** (mins/day) | `IeltsProfile.dailyCommitmentMins` |
+| 1.6 | **Exam Countdown** with inline date editor | `IeltsProfile.examDate` |
 
 ### UI Suggestion
 - Keep the current header layout — it works well
 - Add a **radial progress ring** for "Band Gap" showing how close the user is to their target
-- Add a **weekly activity heatmap** (7 boxes, Mon–Sun) showing which days had activity
+- Add a **weekly activity heatmap** (7 boxes, Mon–Sun) showing which days had **IELTS-related** activity
 
 ---
 
-## Section 2: Foundation Analytics
+## Sub-Module Requirements
 
-> **What it shows:** Progress across Vocabulary, Grammar, and Pronunciation — the pre-IELTS building blocks.
+The detailed requirements and UI concepts for each of the 5 statistics tabs have been moved to dedicated files in the `tabs/` folder. Each tab contains exactly **5 core requirements** and a **Revamped Premium UI Concept**:
 
-### 2A. Vocabulary Stats
-
-| # | Requirement | Data Source |
-|:--|:---|:---|
-| 2A.1 | Total cards created across all decks | `Flashcard.count` |
-| 2A.2 | Cards by state: New / Learning / Review / Relearning | `Flashcard.cardState` aggregation |
-| 2A.3 | **Retention rate** (% of reviews rated Good or Easy) | `FlashcardReview.rating` (3 or 4 = success) |
-| 2A.4 | Daily reviews over last 30 days | `FlashcardReview.reviewedAt` grouped by date |
-| 2A.5 | Cards due today | `Flashcard.due <= now()` count |
-
-### 2B. Grammar Stats
-
-| # | Requirement | Data Source |
-|:--|:---|:---|
-| 2B.1 | Total grammar lessons available vs completed | `IeltsLesson` where skill=Grammar + `IeltsBasicProgress` |
-| 2B.2 | **Completion %** progress bar | `completed / total * 100` |
-| 2B.3 | Quiz scores (if stored in progress) | `IeltsBasicProgress` or lesson quiz JSON |
-
-### 2C. Pronunciation Stats
-
-| # | Requirement | Data Source |
-|:--|:---|:---|
-| 2C.1 | Total pronunciation attempts this period | `UsageRecord` where feature=`PRONUNCIATION_ATTEMPT` |
-| 2C.2 | Pronunciation lesson completion rate | `IeltsBasicProgress` where skill=Pronunciation |
-
-### UI Suggestion
-- **3-column card grid** (Vocabulary | Grammar | Pronunciation)
-- Each card shows a donut/ring chart with key metric + supporting numbers below
-- Vocabulary card could show a small **"card state" stacked bar** (New=gray, Learning=blue, Review=green, Relearning=red)
-
----
-
-## Section 3: IELTS Basic Progress
-
-> **What it shows:** Lesson & exercise completion across the structured Basic curriculum.
-
-### Requirements
-
-| # | Requirement | Data Source |
-|:--|:---|:---|
-| 3.1 | Per-skill progress (Listening / Reading / Writing / Speaking) | `IeltsBasicProgress` grouped by skill |
-| 3.2 | **Lesson completion rate** per skill | Count of `isCompleted=true` / total lessons |
-| 3.3 | **Exercise completion rate** per skill | Count of completed exercises (listening/reading/writing) |
-| 3.4 | Total lessons completed vs total available | Aggregate across all skills |
-| 3.5 | Last activity timestamp per skill | Max `updatedAt` from `IeltsBasicProgress` per skill |
-
-### UI Suggestion
-- **4 horizontal progress bars** (one per skill), each showing `X / Y lessons` with percentage
-- Use skill-specific colors: Listening=pink, Reading=blue, Writing=amber, Speaking=purple (matches existing badges)
-- A small **"Overall Basic Readiness"** percentage at the top
-
----
-
-## Section 4: IELTS Advanced Drill-Down
-
-> **What it shows:** Performance on individual practice parts with question-type accuracy.
-
-### Requirements
-
-| # | Requirement | Data Source |
-|:--|:---|:---|
-| 4.1 | Total practice sessions completed (Listening + Reading) | `IeltsPracticeSession.count` + `IeltsPracticeReadingSession.count` |
-| 4.2 | **Average accuracy** per skill | `totalScore / totalQuestions` across sessions |
-| 4.3 | **Question type breakdown** — accuracy per question type | `scoreData` JSON: `{ "form_completion": { correct, total }, ... }` |
-| 4.4 | **Weakest question types** — ranked by lowest accuracy | Aggregate `scoreData` across all sessions |
-| 4.5 | Score trend over time (line chart) | Sessions sorted by `createdAt` |
-| 4.6 | Per-part breakdown table | Group sessions by `partId` → show avg score |
-
-### UI Suggestion
-- **Question Type Heatmap**: A grid where rows are question types (form_completion, multiple_choice, matching_headings, etc.) and columns are recent attempts. Color-code cells green→red by accuracy.
-- **"Weak Spots" alert card**: Highlight the 2-3 question types with the lowest accuracy with actionable links to practice more.
-- Two side-by-side **radar/spider charts** (Listening question types vs Reading question types)
-
----
-
-## Section 5: IELTS Intensive (Mock Tests) Analytics
-
-> **What it shows:** Full mock test performance — band scores, trends, skill breakdown.
-
-### Requirements
-
-| # | Requirement | Data Source |
-|:--|:---|:---|
-| 5.1 | **Band Score Trend Charts** (one per skill: L/R/W/S) | Mock history filtered by skill, converted to band |
-| 5.2 | **Overall band trend** (average of 4 skills per test date) | Computed from aligned mock attempts |
-| 5.3 | **Practice Submissions Over Time** (line chart, monthly) | Mock history grouped by month |
-| 5.4 | **Submission Volume by Skill** (donut + difficulty bars) | Mock history grouped by skill + difficulty |
-| 5.5 | **Best / worst skill** indicator | Compare latest band across L/R/W/S |
-| 5.6 | **Time management** — avg time per test, trend | `timeTaken` field from mock history |
-| 5.7 | **Score distribution** — histogram of band scores | All historical band scores bucketed |
-
-### UI Suggestion
-- Keep the existing **BandScoreChart** component — it's well-built
-- Add a **"Skill Radar"** spider chart showing latest L/R/W/S bands vs target band overlay
-- Add a **"Score Distribution"** mini histogram (bands 1-9 on x-axis, count on y-axis)
-
----
-
-## Section 6: Cross-Module Insights
-
-> **What it shows:** Holistic learning analytics that connect the dots between modules.
-
-### Requirements
-
-| # | Requirement | Data Source |
-|:--|:---|:---|
-| 6.1 | **Study Time Heatmap** (GitHub-style, last 12 weeks) | All activity timestamps across modules |
-| 6.2 | **Module Balance** — pie chart showing time/activity distribution | Count activities per module |
-| 6.3 | **Recent Activity Feed** (last 10 items across all modules) | Merge all history sources, sort by date |
-| 6.4 | **Achievement Showcase** — recent unlocked achievements | `UserAchievement` with latest `earnedAt` |
-| 6.5 | **Recommendations** — "You haven't practiced Writing in 5 days" | Computed from last activity per skill |
-
-### UI Suggestion
-- The **heatmap** should be the visual centerpiece — similar to GitHub contributions
-- Recommendations should be **action cards** with CTAs: "Practice Writing Now →"
+1. **[Overview Tab](tabs/01-overview.md)** - High-level KPIs, Band Gap, and Heatmap.
+2. **[Foundation Tab](tabs/02-foundation.md)** - Vocabulary, Grammar, and Pronunciation mastery.
+3. **[Basic Tab](tabs/03-basic.md)** - Curriculum completion across L/R/W/S.
+4. **[Advanced Tab](tabs/04-advanced.md)** - Question type accuracy, AI feedback, and weak spots.
+5. **[Intensive Tab](tabs/05-intensive.md)** - Full mock test trends, score distribution, and time management.
 
 ---
 
 ## Proposed Layout (Top to Bottom)
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
-│  Profile Header (name, badge, KPIs, exam countdown) │
+│  Glassmorphic Profile Hero (Estimated Band, Gap)    │
 ├─────────────────────────────────────────────────────┤
 │  Tab Navigation: [Overview] [Foundation] [Basic]    │
-│                  [Advanced] [Intensive]              │
+│                  [Advanced] [Intensive]             │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
-│  [Overview Tab]                                     │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐            │
-│  │ Estimated │ │  Skill   │ │  Weekly  │            │
-│  │   Band    │ │  Radar   │ │ Activity │            │
-│  │   Ring    │ │  Chart   │ │ Heatmap  │            │
-│  └──────────┘ └──────────┘ └──────────┘            │
-│  ┌─────────────────────────────────────┐            │
-│  │   Study Time Heatmap (12 weeks)    │            │
-│  └─────────────────────────────────────┘            │
-│  ┌─────────────────────────────────────┐            │
-│  │     Recent Activity Feed           │            │
-│  └─────────────────────────────────────┘            │
-│                                                     │
-│  [Foundation Tab]                                   │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐            │
-│  │  Vocab   │ │ Grammar  │ │ Pronunc. │            │
-│  │  Stats   │ │  Stats   │ │  Stats   │            │
-│  └──────────┘ └──────────┘ └──────────┘            │
-│                                                     │
-│  [Basic Tab]                                        │
-│  ┌─────────────────────────────────────┐            │
-│  │   4× Skill Progress Bars           │            │
-│  └─────────────────────────────────────┘            │
-│                                                     │
-│  [Advanced Tab]                                     │
-│  ┌──────────┐ ┌──────────────────────┐              │
-│  │ Question │ │   Accuracy Trend     │              │
-│  │  Type    │ │   (Line Chart)       │              │
-│  │ Heatmap  │ │                      │              │
-│  └──────────┘ └──────────────────────┘              │
-│  ┌─────────────────────────────────────┐            │
-│  │   Practice Session History Table   │            │
-│  └─────────────────────────────────────┘            │
-│                                                     │
-│  [Intensive Tab]                                    │
-│  ┌──────────┐ ┌──────────┐                          │
-│  │ Band L   │ │ Band R   │                          │
-│  │ Trend    │ │ Trend    │                          │
-│  ├──────────┤ ├──────────┤                          │
-│  │ Band W   │ │ Band S   │                          │
-│  │ Trend    │ │ Trend    │                          │
-│  └──────────┘ └──────────┘                          │
-│  ┌─────────────────────────────────────┐            │
-│  │   Submission Volume + Mock History │            │
-│  └─────────────────────────────────────┘            │
+│  [ Selected Tab Content renders here with fluid   ] │
+│  [ entrance animations and dynamic charts         ] │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```

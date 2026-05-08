@@ -134,7 +134,7 @@ export default function PricingPage() {
     Math.round(((monthlyAmount * 12 - monthlyAmount * 10) / (monthlyAmount * 12)) * 100);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-8 pb-8 overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-gray-950 pt-8 pb-8 overflow-x-hidden">
       {/* Hero */}
       <div className="text-center mb-14 px-4">
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-semibold px-4 py-2 rounded-full mb-6">

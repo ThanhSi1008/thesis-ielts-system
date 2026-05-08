@@ -32,7 +32,10 @@ export default function Navbar() {
   const isVocabLabPage = pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/");
   const isCommunityPage = pathname === "/community" || pathname.startsWith("/community/");
   const isProfilePage = pathname === "/profile" || pathname.startsWith("/profile/");
+  
+  const isPricingPage = pathname === "/pricing";
   const isHeaderBorderless = isIeltsPage || isShadowingPage || isVocabLabPage || isCommunityPage || isProfilePage;
+  const shouldHideBorder = isHeaderBorderless || isPricingPage;
 
   const [forcePlain, setForcePlain] = useState(false);
 
@@ -125,7 +128,7 @@ export default function Navbar() {
   const headerBgClass = isIeltsDashboard
     ? "bg-transparent border-transparent shadow-none"
     : isPlain
-      ? `bg-white/95 dark:bg-gray-900/95 ${isHeaderBorderless ? '' : 'border-gray-200 dark:border-gray-800 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
+      ? `bg-white/95 dark:bg-gray-900/95 ${shouldHideBorder ? '' : 'border-gray-200 dark:border-gray-800 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
       : "bg-transparent border-transparent shadow-none";
 
 
@@ -149,7 +152,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`${positionClass} top-0 z-50 ${isHeaderBorderless ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
+      className={`${positionClass} top-0 z-50 ${shouldHideBorder ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
     >
       <div className={`${isHeaderBorderless ? "w-full max-w-none px-4" : "container mx-auto max-w-screen-xl px-4"} py-2 flex justify-between items-center`}>
         {/* Left: Hamburger (IELTS) + Logo + Nav */}

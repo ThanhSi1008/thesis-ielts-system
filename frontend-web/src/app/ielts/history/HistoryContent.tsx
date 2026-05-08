@@ -280,7 +280,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-4">
-                        <Link href={`/ielts/intensive/${encodeURIComponent(item.examId)}/ieltsIntensiveResult/${encodeURIComponent(item.id)}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+                        <Link href={`/ielts/intensive/${encodeURIComponent(item.examId)}/result/${encodeURIComponent(item.id)}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
                           Review <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
                         <button onClick={() => setPendingDeleteId(item.id)} disabled={deletingId === item.id} className="text-gray-400 dark:text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50" title="Delete ieltsIntensiveResult"><Trash2 className="w-4 h-4" /></button>
@@ -343,7 +343,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-4">
-                        <Link href={`/ielts/intensive/${encodeURIComponent(item.examId)}/ieltsIntensiveResult/${encodeURIComponent(item.id)}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+                        <Link href={`/ielts/intensive/${encodeURIComponent(item.examId)}/result/${encodeURIComponent(item.id)}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
                           Review <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
                         <button onClick={() => setPendingDeleteId(item.id)} disabled={deletingId === item.id} className="text-gray-400 dark:text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50" title="Delete ieltsIntensiveResult"><Trash2 className="w-4 h-4" /></button>

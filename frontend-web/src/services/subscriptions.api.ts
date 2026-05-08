@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { PricingPlan, UserSubscription } from "@/types";
+import type { PricingPlan, UserSubscription, CheckoutResponse } from "@/types";
 
 export const subscriptionsApi = {
   getPlans: async (): Promise<PricingPlan[]> => {
@@ -24,8 +24,8 @@ export const subscriptionsApi = {
    * - Mock: { subscription, message } (auto-completed)
    * - VNPay: { sessionId, redirectUrl } (needs redirect)
    */
-  checkout: async (planId: string) => {
-    const { data } = await api.post("/subscriptions/checkout", { planId });
+  checkout: async (planId: string): Promise<CheckoutResponse> => {
+    const { data } = await api.post<CheckoutResponse>("/subscriptions/checkout", { planId });
     return data;
   },
 
@@ -34,16 +34,16 @@ export const subscriptionsApi = {
    * @param sessionId - The txnRef / session ID
    * @param vnpParams - Full VNPay return URL query parameters
    */
-  verifyCheckout: async (sessionId: string, vnpParams?: Record<string, string>) => {
-    const { data } = await api.post("/subscriptions/checkout/verify", {
+  verifyCheckout: async (sessionId: string, vnpParams?: Record<string, string>): Promise<CheckoutResponse> => {
+    const { data } = await api.post<CheckoutResponse>("/subscriptions/checkout/verify", {
       sessionId,
       vnpParams,
     });
     return data;
   },
 
-  startTrial: async () => {
-    const { data } = await api.post("/subscriptions/start-trial");
+  startTrial: async (): Promise<CheckoutResponse> => {
+    const { data } = await api.post<CheckoutResponse>("/subscriptions/start-trial");
     return data;
   },
 

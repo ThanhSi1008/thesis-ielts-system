@@ -5,6 +5,8 @@ import { IeltsController } from "./ielts.controller";
 import { IeltsAdvancedController } from "./ielts-advanced.controller";
 import { IeltsAdvancedService } from "./ielts-advanced.service";
 import { StreakService } from "./streak.service";
+import { IeltsStatisticsController } from "./ielts-statistics.controller";
+import { IeltsStatisticsService } from "./ielts-statistics.service";
 import { PrismaModule } from "../../common/prisma/prisma.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { AiClientModule } from "../ai-client/ai-client.module";
@@ -13,12 +15,13 @@ import { SubscriptionsModule } from "../subscriptions/subscriptions.module";
 
 @Module({
   imports: [PrismaModule, NotificationsModule, AiClientModule, GamificationModule, SubscriptionsModule],
-  controllers: [IeltsController, IeltsAdvancedController],
+  controllers: [IeltsController, IeltsAdvancedController, IeltsStatisticsController],
   providers: [
     IeltsService,
     IeltsRoadmapService,
     IeltsAdvancedService,
     StreakService,
+    IeltsStatisticsService,
   ],
   exports: [
     IeltsService,
