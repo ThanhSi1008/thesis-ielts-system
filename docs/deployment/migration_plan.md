@@ -668,3 +668,6 @@ gcloud run deploy backend-ai \
 
 *Tài liệu này là kế hoạch — thực hiện từng Phase theo thứ tự, không bỏ qua bước kiểm tra.*
 *Phiên bản: 2.0 — cập nhật Grafana Alloy, healthcheck, log rotation, SSL, CI/CD fix.*
+
+git commit --allow-empty -m "ci: trigger redeploy frontend with new API URL"
+git push
