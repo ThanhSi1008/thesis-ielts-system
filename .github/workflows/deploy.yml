@@ -171,6 +171,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --memory 2Gi \
+            --min-instances 1 \
             --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL_DIRECT }}" \
             --set-env-vars "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" \
             --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \

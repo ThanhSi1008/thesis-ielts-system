@@ -1,7 +1,7 @@
 """
 FastAPI AI Service - Main Application
 Handles AI operations for TOEIC Master AI system
-v1.0.1
+v1.0.2
 """
 
 from fastapi import FastAPI

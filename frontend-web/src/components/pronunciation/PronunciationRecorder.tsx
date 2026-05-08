@@ -82,7 +82,7 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
     const start = Date.now();
     const pollInterval = setInterval(async () => {
       try {
-        if (Date.now() - start > 30_000) {
+        if (Date.now() - start > 90_000) {
           clearInterval(pollInterval);
           setIsProcessing(false);
           setError('Analysis timed out. Please try again.');
