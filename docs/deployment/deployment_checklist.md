@@ -28,7 +28,8 @@
 - [x] [AI] Tạo `docker-compose.yml` — `docs/deployment/vm-config/docker-compose.yml`
 - [ ] [AI] Tạo `monitoring/alloy-config.alloy` — (tạm gác)
 - [x] [AI] Tạo `nginx/nginx.conf` — `docs/deployment/vm-config/nginx/nginx.conf`
-- [x] [ME] Điền IP VM vào `nginx.conf` — `34.143.226.199`, HTTP-only tạm thời
+- [x] [ME] Điền domain thật vào `nginx.conf` — `dedangdown.io.vn`, HTTP→HTTPS redirect + SSL
+- [ ] [ME] Đặt SSL cert (`fullchain.pem`, `privkey.pem`) vào `nginx/ssl/` trên VM
 - [x] [ME] Kiểm tra `.gitignore` — đảm bảo `.env.*` không bị commit
 
 ---
