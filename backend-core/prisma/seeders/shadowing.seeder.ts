@@ -1,6 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 import { SHADOWING_LESSONS } from '../data/shadowing-lessons';
 
+const TAG_TO_CATEGORY: Record<string, string> = {
+  friends: 'Friends',
+  'the-office': 'The Office',
+  'ted-talk': 'Ted Talk',
+  kurzgesagt: 'Kurzgesagt',
+  'breaking-bad': 'Breaking Bad',
+  'stevie-emerson': 'Stevie Emerson',
+};
+
+function resolveCategory(tags: string[]): string {
+  const slug = tags.find((t) => t !== 'YOUTUBE');
+  if (!slug) return 'Other';
+  return TAG_TO_CATEGORY[slug] ?? 'Other';
+}
+
 export async function seedShadowingLessons(prisma: PrismaClient) {
   console.log('Seeding Shadowing lessons...');
 
@@ -13,6 +28,7 @@ export async function seedShadowingLessons(prisma: PrismaClient) {
       audioUrl: foundationVocabLesson.audioUrl,
       imageUrl: foundationVocabLesson.image,
       tags: foundationVocabLesson.tags,
+      category: resolveCategory(foundationVocabLesson.tags),
       duration: foundationVocabLesson.duration,
       sentences: foundationVocabLesson.sentences as any,
     };
@@ -43,6 +59,7 @@ export async function seedDictationLessons(prisma: PrismaClient) {
       audioUrl: foundationVocabLesson.audioUrl,
       imageUrl: foundationVocabLesson.image,
       tags: foundationVocabLesson.tags,
+      category: resolveCategory(foundationVocabLesson.tags),
       duration: foundationVocabLesson.duration,
       // Strip vietnamese/phonetic — dictation doesn't need them
       sentences: (foundationVocabLesson.sentences as any[]).map((s: any) => ({

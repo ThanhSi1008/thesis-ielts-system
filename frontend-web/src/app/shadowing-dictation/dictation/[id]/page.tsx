@@ -8,6 +8,7 @@ import { useDictationProgress } from '../_hooks/useDictationProgress';
 import { useYouTubePlayer } from '../_hooks/useYouTubePlayer';
 import { useAudioPlayer } from '../_hooks/useAudioPlayer';
 import { useDictation } from '../_hooks/useDictation';
+import { useDictationHints } from '../_hooks/useDictationHints';
 import { useDictationShortcuts } from '../_hooks/useDictationShortcuts';
 import { SPEED_PRESETS, normalizeWord, formatTime } from '../_constants';
 
@@ -87,8 +88,20 @@ export default function DictationPracticePage() {
     retry,
   } = useDictation(currentSentence as any, difficulty);
 
+  const {
+    getHintLevel,
+    requestHint,
+    requestHintForFocused,
+  } = useDictationHints({
+    words: currentSentence?.words,
+    hiddenIndices,
+    sentenceId: currentSentence?.id,
+    onAutoFill: handleInputChange,
+    isChecked,
+  });
+
   const handleCheck = () => {
-    checkAnswers();
+    checkAnswers(getHintLevel);
   };
 
   const handleNext = () => {
@@ -107,6 +120,7 @@ export default function DictationPracticePage() {
     onRepeat: playCurrentSentence,
     onToggleSpeed: toggleSpeed,
     onRetry: retry,
+    onHint: requestHintForFocused,
     canCheck: !isChecked,
     canRetry: isChecked && !isAllCorrect,
     canGoNext: isChecked && isAllCorrect && currentIndex < totalSentences - 1,
@@ -195,6 +209,8 @@ export default function DictationPracticePage() {
                 hiddenIndices={hiddenIndices}
                 isChecked={isChecked}
                 normalizeWord={normalizeWord}
+                getHintLevel={getHintLevel}
+                onRequestHint={requestHint}
               />
             </div>
           </FloatingSelectionManager>
