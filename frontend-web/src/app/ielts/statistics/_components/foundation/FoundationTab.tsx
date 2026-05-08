@@ -5,14 +5,16 @@ import { ieltsStatisticsApi } from "@/services/ielts-statistics.api";
 import type { IeltsFoundationStats } from "@/types";
 import FlipCard from "./FlipCard";
 import { BookOpen, PenLine, Mic2, LayoutGrid } from "lucide-react";
+import { BAND_TONE_STYLES, STAT_PALETTE_SEQUENCE } from "../../_utils/band-tone";
 
 function VocabBack({ stats }: { stats: IeltsFoundationStats }) {
+  const tone = BAND_TONE_STYLES.success;
   return (
     <div className="space-y-3">
-      <StatRow label="Words Learned" value={`${stats.vocabulary.wordsLearned} / ${stats.vocabulary.totalWords}`} color="var(--color-primary, #FFC600)" />
-      <StatRow label="Avg Quiz Score" value={`${stats.averageAccuracy}%`} color="currentColor" />
+      <StatRow label="Words Learned" value={`${stats.vocabulary.wordsLearned} / ${stats.vocabulary.totalWords}`} color={tone.hex} />
+      <StatRow label="Avg Quiz Score" value={`${stats.averageAccuracy}%`} color={tone.hex} />
       <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-2">
-        <div className="h-full rounded-full bg-primary"
+        <div className={`h-full rounded-full ${tone.bg}`}
           style={{ width: `${stats.vocabulary.totalWords > 0 ? (stats.vocabulary.wordsLearned / stats.vocabulary.totalWords) * 100 : 0}%` }} />
       </div>
     </div>
@@ -20,12 +22,13 @@ function VocabBack({ stats }: { stats: IeltsFoundationStats }) {
 }
 
 function GrammarBack({ stats }: { stats: IeltsFoundationStats }) {
+  const tone = BAND_TONE_STYLES.info;
   return (
     <div className="space-y-3">
-      <StatRow label="Units Completed" value={`${stats.grammar.completedUnits} / ${stats.grammar.totalUnits}`} color="var(--color-primary, #FFC600)" />
-      <StatRow label="Avg Exercise Score" value={`${stats.averageAccuracy}%`} color="currentColor" />
+      <StatRow label="Units Completed" value={`${stats.grammar.completedUnits} / ${stats.grammar.totalUnits}`} color={tone.hex} />
+      <StatRow label="Avg Exercise Score" value={`${stats.averageAccuracy}%`} color={tone.hex} />
       <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-2">
-        <div className="h-full rounded-full bg-primary"
+        <div className={`h-full rounded-full ${tone.bg}`}
           style={{ width: `${stats.grammar.totalUnits > 0 ? (stats.grammar.completedUnits / stats.grammar.totalUnits) * 100 : 0}%` }} />
       </div>
     </div>
@@ -33,17 +36,21 @@ function GrammarBack({ stats }: { stats: IeltsFoundationStats }) {
 }
 
 function PronunciationBack({ stats }: { stats: IeltsFoundationStats }) {
+  const masteredTone = BAND_TONE_STYLES.warning;
+  const practicingTone = BAND_TONE_STYLES.primary;
+  const newTone = BAND_TONE_STYLES.danger;
   const { mastered, practicing, new: newCount } = stats.pronunciation;
   const total = mastered + practicing + newCount;
   return (
     <div className="space-y-2">
-      <StatRow label="Mastered" value={`${mastered}`} color="var(--color-primary, #FFC600)" />
-      <StatRow label="Practicing" value={`${practicing}`} color="#94a3b8" />
-      <StatRow label="New" value={`${newCount}`} color="#cbd5e1" />
+      <StatRow label="Mastered" value={`${mastered}`} color={masteredTone.hex} />
+      <StatRow label="Practicing" value={`${practicing}`} color={practicingTone.hex} />
+      <StatRow label="New" value={`${newCount}`} color={newTone.hex} />
       <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-2 flex">
         {total > 0 && <>
-          <div style={{ width: `${(mastered / total) * 100}%` }} className="h-full bg-primary" />
-          <div style={{ width: `${(practicing / total) * 100}%` }} className="h-full bg-slate-400" />
+          <div style={{ width: `${(mastered / total) * 100}%` }} className={`h-full ${masteredTone.bg}`} />
+          <div style={{ width: `${(practicing / total) * 100}%` }} className={`h-full ${practicingTone.bg}`} />
+          <div style={{ width: `${(newCount / total) * 100}%` }} className={`h-full ${newTone.bg}`} />
         </>}
       </div>
     </div>
@@ -87,14 +94,19 @@ export default function FoundationTab() {
   const { mastered, practicing, new: newCount } = data.pronunciation;
   const totalSounds = mastered + practicing + newCount;
   const pronunciationPct = totalSounds > 0 ? Math.round((mastered / totalSounds) * 100) : 0;
+  const foundationTone = BAND_TONE_STYLES.success;
+  const vocabTone = BAND_TONE_STYLES.success;
+  const grammarTone = BAND_TONE_STYLES.info;
+  const pronunciationTone = BAND_TONE_STYLES.warning;
+  const distTones = STAT_PALETTE_SEQUENCE.map((tone) => BAND_TONE_STYLES[tone]);
 
   return (
     <div className="space-y-6">
       {/* Section header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-            <LayoutGrid className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+          <div className={`w-10 h-10 rounded-lg ${foundationTone.softBg} flex items-center justify-center`}>
+            <LayoutGrid className={`w-5 h-5 ${foundationTone.text}`} />
           </div>
           <div>
             <h3 className="font-bold text-slate-800 dark:text-white text-sm">Foundation Mastery</h3>
@@ -108,35 +120,35 @@ export default function FoundationTab() {
 
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <FlipCard color="var(--color-primary, #FFC600)" icon={<BookOpen size={18} className="text-slate-700" />} title="Vocabulary" subtitle="IELTS Foundation Words"
+        <FlipCard color={vocabTone.hex} icon={<BookOpen size={18} className={vocabTone.text} />} title="Vocabulary" subtitle="IELTS Foundation Words"
           percentage={vocabPct} statLabel="Words Learned"
           statValue={`${data.vocabulary.wordsLearned} / ${data.vocabulary.totalWords}`}
           backContent={<VocabBack stats={data} />} />
-        <FlipCard color="var(--color-primary, #FFC600)" icon={<PenLine size={18} className="text-slate-700" />} title="Grammar" subtitle="Foundation Grammar Units"
+        <FlipCard color={grammarTone.hex} icon={<PenLine size={18} className={grammarTone.text} />} title="Grammar" subtitle="Foundation Grammar Units"
           percentage={grammarPct} statLabel="Units Completed"
           statValue={`${data.grammar.completedUnits} / ${data.grammar.totalUnits}`}
           backContent={<GrammarBack stats={data} />} />
-        <FlipCard color="var(--color-primary, #FFC600)" icon={<Mic2 size={18} className="text-slate-700" />} title="Pronunciation" subtitle="IPA Sound Mastery"
+        <FlipCard color={pronunciationTone.hex} icon={<Mic2 size={18} className={pronunciationTone.text} />} title="Pronunciation" subtitle="IPA Sound Mastery"
           percentage={pronunciationPct} statLabel="Sounds Mastered"
           statValue={`${mastered} / ${totalSounds}`}
           backContent={<PronunciationBack stats={data} />} />
       </div>
 
       {/* Time Balance */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 overflow-hidden">
         <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
           Study Time Distribution
         </div>
         <div className="h-3 rounded-full overflow-hidden flex gap-1 bg-slate-100 dark:bg-slate-800 p-0.5">
-          <div style={{ width: `${data.timeBalance.vocab}%` }} className="h-full rounded-full bg-slate-700 dark:bg-slate-400" />
-          <div style={{ width: `${data.timeBalance.grammar}%` }} className="h-full rounded-full bg-slate-400 dark:bg-slate-600" />
-          <div style={{ width: `${data.timeBalance.pronunciation}%` }} className="h-full rounded-full bg-slate-300 dark:bg-slate-700" />
+          <div style={{ width: `${data.timeBalance.vocab}%` }} className={`h-full rounded-full ${distTones[1].bg}`} />
+          <div style={{ width: `${data.timeBalance.grammar}%` }} className={`h-full rounded-full ${distTones[2].bg}`} />
+          <div style={{ width: `${data.timeBalance.pronunciation}%` }} className={`h-full rounded-full ${distTones[3].bg}`} />
         </div>
         <div className="flex gap-6 mt-4">
           {[
-            { label: "Vocabulary", pct: data.timeBalance.vocab, color: "#334155" }, // slate-700
-            { label: "Grammar", pct: data.timeBalance.grammar, color: "#94a3b8" }, // slate-400
-            { label: "Pronunciation", pct: data.timeBalance.pronunciation, color: "#cbd5e1" }, // slate-300
+            { label: "Vocabulary", pct: data.timeBalance.vocab, color: distTones[1].hex },
+            { label: "Grammar", pct: data.timeBalance.grammar, color: distTones[2].hex },
+            { label: "Pronunciation", pct: data.timeBalance.pronunciation, color: distTones[3].hex },
           ].map(s => (
             <div key={s.label} className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: s.color }} />

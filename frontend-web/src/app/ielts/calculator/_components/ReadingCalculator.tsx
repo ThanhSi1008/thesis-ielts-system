@@ -9,7 +9,7 @@ import {
   getUniqueBands,
 } from "@/lib/calculator-data";
 import ScoreConversionTable from "./ScoreConversionTable";
-import { Hash, Star, Layout } from "lucide-react";
+import { Hash, Star, Layout, ChevronDown } from "lucide-react";
 
 type ReadingType = "ACADEMIC" | "GENERAL";
 const MAX_RAW = 40;
@@ -74,20 +74,20 @@ export default function ReadingCalculator() {
     <div className="flex flex-col gap-8">
       {/* Academic / General Training toggle */}
       <div className="flex flex-col gap-2.5">
-        <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-          <Layout className="w-4 h-4 text-slate-400" />
+        <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+          <Layout className="w-3 h-3 text-slate-400" />
           Test Type
         </label>
-        <div className="flex bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1.5 rounded-2xl max-w-sm shadow-sm">
+        <div className="flex bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 rounded-xl max-w-xs shadow-sm">
           {(["ACADEMIC", "GENERAL"] as ReadingType[]).map((type) => {
             const isActive = readingType === type;
             return (
               <button
                 key={type}
                 onClick={() => handleTypeChange(type)}
-                className={`flex-1 py-3 px-6 text-sm font-black rounded-xl transition-all duration-300 uppercase tracking-wider ${
+                className={`flex-1 py-2 px-4 text-[11px] font-black rounded-lg transition-all duration-300 uppercase tracking-wider ${
                   isActive
-                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-md border border-slate-200 dark:border-slate-600 scale-[1.02]"
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-600"
                     : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"
                 }`}
               >
@@ -99,11 +99,39 @@ export default function ReadingCalculator() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Band Score Dropdown */}
+        <div className="flex flex-col gap-2.5">
+          <label htmlFor="reading-band" className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <Star className="w-3 h-3 text-slate-400" />
+            Target Band Score
+          </label>
+          <div className="relative">
+            <select
+              id="reading-band"
+              value={highlightedBand ?? ""}
+              onChange={(e) => handleBandChange(e.target.value)}
+              className="w-full appearance-none px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-300 dark:focus:border-blue-700 transition-all shadow-sm cursor-pointer"
+            >
+              <option value="">Select a band</option>
+              {bands.map((b) => (
+                <option key={b} value={b}>
+                  Band {b === 0 ? "0" : b.toFixed(1)}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <div className="w-4 h-4 flex items-center justify-center text-slate-400">
+                <ChevronDown className="w-3 h-3" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Raw Score Input */}
         <div className="flex flex-col gap-2.5">
-          <label htmlFor="reading-raw" className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-            <Hash className="w-4 h-4 text-slate-400" />
-            Raw Score <span className="text-slate-400 dark:text-slate-500 font-medium">(0–40)</span>
+          <label htmlFor="reading-raw" className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <Hash className="w-3 h-3 text-slate-400" />
+            Raw Score <span className="text-slate-400 dark:text-slate-500 font-medium normal-case">(0–40)</span>
           </label>
           <div className="relative">
             <input
@@ -114,65 +142,16 @@ export default function ReadingCalculator() {
               value={rawInput}
               onChange={(e) => handleRawChange(e.target.value)}
               placeholder="e.g. 33"
-              className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-base font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-sm"
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-300 dark:focus:border-blue-700 transition-all shadow-sm"
             />
-            <div className="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300 uppercase tracking-widest pointer-events-none">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] pointer-events-none">
               Correct
-            </div>
-          </div>
-        </div>
-
-        {/* Band Score Dropdown */}
-        <div className="flex flex-col gap-2.5">
-          <label htmlFor="reading-band" className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-            <Star className="w-4 h-4 text-slate-400" />
-            Target Band Score
-          </label>
-          <div className="relative">
-            <select
-              id="reading-band"
-              value={highlightedBand ?? ""}
-              onChange={(e) => handleBandChange(e.target.value)}
-              className="w-full appearance-none px-5 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-base font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-sm cursor-pointer"
-            >
-              <option value="">Select a band</option>
-              {bands.map((b) => (
-                <option key={b} value={b}>
-                  Band {b === 0 ? "0" : b.toFixed(1)}
-                </option>
-              ))}
-            </select>
-            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
-              <div className="w-5 h-5 flex items-center justify-center text-slate-400">
-                ▼
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {highlightedBand !== null && (
-        <div className="relative overflow-hidden group animate-in fade-in slide-in-from-top-2 duration-500">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 dark:from-primary/30 dark:to-transparent opacity-50" />
-          <div className="relative flex items-center justify-between gap-4 px-8 py-6 border border-primary/20 dark:border-primary/40 rounded-2xl">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">
-                {readingType === "ACADEMIC" ? "Academic" : "General Training"} Result
-              </span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-bold text-slate-900 dark:text-white">Raw Score {rawInput}</span>
-                <span className="text-slate-400 font-bold">→</span>
-                <span className="text-2xl font-black text-primary drop-shadow-sm">
-                  Band {highlightedBand === 0 ? "0" : highlightedBand.toFixed(1)}
-                </span>
-              </div>
-            </div>
-            <div className="hidden sm:flex p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-              <Star className="w-5 h-5 text-primary fill-primary/20" />
-            </div>
-          </div>
-        </div>
-      )}
+
 
       <div className="mt-4">
         <div className="flex items-center gap-2 mb-4">
@@ -186,6 +165,7 @@ export default function ReadingCalculator() {
           data={scoreTable}
           highlightedBand={highlightedBand}
           onRowClick={handleRowClick}
+          themeColor="blue"
         />
       </div>
     </div>

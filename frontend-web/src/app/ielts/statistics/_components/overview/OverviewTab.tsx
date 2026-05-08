@@ -8,28 +8,19 @@ import ActivityHeatmap from "./ActivityHeatmap";
 import DailyGoalTracker from "./DailyGoalTracker";
 import ExamCountdown from "./ExamCountdown";
 import { TrendingUp, Sparkles, Activity } from "lucide-react";
+import { BAND_TONE_STYLES, getBandTone } from "../../_utils/band-tone";
 
-function OverviewSkeleton() {
+function StatCard({ label, value, subValue, icon: Icon, tone }: { label: string, value: string, subValue: string, icon: any, tone: any }) {
   return (
-    <div className="space-y-6 animate-pulse">
-      <div className="h-64 rounded-2xl bg-slate-200 dark:bg-slate-800" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="h-48 rounded-2xl bg-slate-200 dark:bg-slate-800" />
-        <div className="h-48 rounded-2xl bg-slate-200 dark:bg-slate-800" />
+    <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm flex items-center gap-5 border border-slate-200/40 dark:border-slate-800/40">
+      <div className={`w-14 h-14 rounded-2xl ${tone.softBg} flex items-center justify-center shrink-0`}>
+        <Icon className={`w-7 h-7 ${tone.text}`} />
       </div>
-    </div>
-  );
-}
-
-function EmptyBandState() {
-  return (
-    <div className="flex flex-col items-center gap-3 py-6">
-      <div className="w-16 h-16 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-        <TrendingUp className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+      <div>
+        <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">{label}</div>
+        <div className="text-xl font-black text-slate-900 dark:text-white leading-none">{value}</div>
+        <div className="text-[11px] font-bold text-slate-400 mt-1.5">{subValue}</div>
       </div>
-      <p className="text-sm font-medium text-slate-500 text-center max-w-[160px] leading-relaxed">
-        Complete a mock test to see your estimated band
-      </p>
     </div>
   );
 }
@@ -44,79 +35,142 @@ export default function OverviewTab() {
 
   if (loading) return <OverviewSkeleton />;
 
+  const overviewTone = BAND_TONE_STYLES[getBandTone(data?.estimatedBand)];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
-      {/* ── Professional Hero Card ── */}
-      <div className="rounded-2xl bg-white dark:bg-slate-900 p-8 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col md:flex-row items-center gap-10">
-          {/* Left: Band Gap Ring */}
-          <div className="shrink-0 flex flex-col items-center">
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Current Level</div>
-            {data?.estimatedBand != null
-              ? <BandGapRing estimatedBand={data.estimatedBand} targetBand={data.targetBand} />
-              : <EmptyBandState />}
+      {/* ── Top Row: Metric Cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          label="Estimated Band"
+          value={data?.estimatedBand?.toFixed(1) || "—"}
+          subValue={`Target: ${data?.targetBand?.toFixed(1) || "—"}`}
+          icon={TrendingUp}
+          tone={overviewTone}
+        />
+        <StatCard
+          label="Practice Time"
+          value={`${data?.dailyMinutesPracticed || 0}m`}
+          subValue={`Goal: ${data?.dailyCommitmentMins || 30}m today`}
+          icon={Activity}
+          tone={BAND_TONE_STYLES.info}
+        />
+        <StatCard
+          label="Tests Taken"
+          value="12" // Placeholder, need real data if available
+          subValue="+2 this week"
+          icon={Sparkles}
+          tone={BAND_TONE_STYLES.success}
+        />
+        <StatCard
+          label="Exam Prep"
+          value={data?.readinessScore ? `${data.readinessScore}%` : "—"}
+          subValue={data?.daysToExam ? `${data.daysToExam} days left` : "No exam date"}
+          icon={TrendingUp}
+          tone={BAND_TONE_STYLES.warning}
+        />
+      </div>
+
+      {/* ── Middle Row: Trends & Distribution ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Large Chart Area (2/3) */}
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200/40 dark:border-slate-800/40">
+          <div className="flex items-center justify-between mb-10">
+            <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 tracking-tight">Progress Over Time</h3>
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Last 6 Months</div>
           </div>
-
-          {/* Divider */}
-          <div className="hidden md:block w-px self-stretch bg-slate-200 dark:bg-slate-800" />
-
-          {/* Right: Goals and Countdown */}
-          <div className="flex-1 w-full space-y-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary" />
+          {/* Mock Bar Chart using CSS/SVG */}
+          <div className="h-[240px] flex items-end justify-between gap-4 px-2">
+            {[65, 45, 80, 55, 90, 75].map((h, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
+                <div className="w-full relative">
+                  <div 
+                    className={`w-full rounded-t-xl transition-all duration-500 group-hover:opacity-80 ${i === 4 ? overviewTone.bg : "bg-slate-100 dark:bg-slate-800"}`} 
+                    style={{ height: `${h}%` }}
+                  />
+                </div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  {["Jan", "Feb", "Mar", "Apr", "May", "Jun"][i]}
+                </span>
               </div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">IELTS Progress Dashboard</h3>
-            </div>
-
-            <ExamCountdown daysToExam={data?.daysToExam ?? null} readinessScore={data?.readinessScore ?? null} />
-
-            <div className="border-t border-slate-100 dark:border-slate-800/60 pt-6">
-              <DailyGoalTracker practiced={data?.dailyMinutesPracticed ?? 0} goal={data?.dailyCommitmentMins ?? 30} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Activity Heatmap Card ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-            <Activity className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-          </div>
-          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">Learning Activity (7 Days)</span>
-        </div>
-        <ActivityHeatmap heatmap={data?.heatmap ?? []} />
-      </div>
-
-      {/* ── Recent Activity Feed ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-          </div>
-          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">Recent Activity</span>
-        </div>
-
-        {data?.recentActivity && data.recentActivity.length > 0 ? (
-          <ol className="relative border-l-2 border-slate-200 dark:border-slate-800 ml-4 space-y-6">
-            {data.recentActivity.map((item: any, i: number) => (
-              <li key={i} className="ml-6">
-                <div className="absolute -left-[9px] mt-1.5 w-4 h-4 rounded-full bg-primary border-2 border-white dark:border-slate-900" />
-                <time className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">{item.date}</time>
-                <div className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1">{item.label}</div>
-                {item.detail && <div className="text-xs text-slate-500 mt-1">{item.detail}</div>}
-              </li>
             ))}
-          </ol>
-        ) : (
-          <div className="text-center py-10">
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No activity yet</p>
-            <p className="text-xs text-slate-500 mt-1">Complete a lesson or mock test to see your feed.</p>
           </div>
-        )}
+        </div>
+
+        {/* Skill Balance (1/3) */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200/40 dark:border-slate-800/40 flex flex-col items-center">
+          <div className="w-full mb-8">
+            <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 tracking-tight">Current Level</h3>
+          </div>
+          {data?.estimatedBand != null
+            ? <BandGapRing estimatedBand={data.estimatedBand} targetBand={data.targetBand} />
+            : <EmptyBandState />}
+        </div>
       </div>
+
+      {/* ── Bottom Row: Activity ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Activity Heatmap (2/3) */}
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200/40 dark:border-slate-800/40">
+          <div className="flex items-center gap-3 mb-8">
+            <div className={`w-8 h-8 rounded-lg ${overviewTone.softBg} flex items-center justify-center`}>
+              <Activity className={`w-4 h-4 ${overviewTone.text}`} />
+            </div>
+            <span className="font-black text-slate-800 dark:text-slate-200 text-sm tracking-tight">Learning Activity</span>
+          </div>
+          <ActivityHeatmap heatmap={data?.heatmap ?? []} />
+        </div>
+
+        {/* Recent Feed (1/3) */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-200/40 dark:border-slate-800/40">
+          <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 tracking-tight mb-8">Recent History</h3>
+          {data?.recentActivity && data.recentActivity.length > 0 ? (
+            <div className="space-y-6">
+              {data.recentActivity.slice(0, 4).map((item: any, i: number) => (
+                <div key={i} className="flex gap-4">
+                  <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${overviewTone.bg}`} />
+                  <div>
+                    <div className="text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-tight">{item.label}</div>
+                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1">{item.date}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-sm font-bold text-slate-500">No recent activity</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OverviewSkeleton() {
+  return (
+    <div className="space-y-8 animate-pulse">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map(i => <div key={i} className="h-32 rounded-3xl bg-slate-200 dark:bg-slate-800" />)}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 h-80 rounded-3xl bg-slate-200 dark:bg-slate-800" />
+        <div className="h-80 rounded-3xl bg-slate-200 dark:bg-slate-800" />
+      </div>
+    </div>
+  );
+}
+
+function EmptyBandState() {
+  return (
+    <div className="flex flex-col items-center gap-3 py-6">
+      <div className="w-16 h-16 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+        <TrendingUp className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+      </div>
+      <p className="text-sm font-medium text-slate-500 text-center max-w-[160px] leading-relaxed">
+        Complete a mock test to see your estimated band
+      </p>
     </div>
   );
 }

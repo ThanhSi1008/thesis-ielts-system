@@ -7,14 +7,24 @@ interface ScoreConversionTableProps {
   data: ScoreRow[];
   highlightedBand: number | null;
   onRowClick: (band: number) => void;
+  themeColor?: "emerald" | "blue" | "amber" | "rose" | "primary";
 }
 
 export default function ScoreConversionTable({
   data,
   highlightedBand,
   onRowClick,
+  themeColor = "primary",
 }: ScoreConversionTableProps) {
   const highlightedRef = useRef<HTMLTableRowElement>(null);
+
+  const colors = {
+    primary: { bg: "bg-primary/10", darkBg: "dark:bg-primary/20", border: "bg-primary", text: "text-primary" },
+    emerald: { bg: "bg-emerald-50", darkBg: "dark:bg-emerald-900/10", border: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400" },
+    blue: { bg: "bg-blue-50", darkBg: "dark:bg-blue-900/10", border: "bg-blue-500", text: "text-blue-600 dark:text-blue-400" },
+    amber: { bg: "bg-amber-50", darkBg: "dark:bg-amber-900/10", border: "bg-amber-500", text: "text-amber-600 dark:text-amber-400" },
+    rose: { bg: "bg-rose-50", darkBg: "dark:bg-rose-900/10", border: "bg-rose-500", text: "text-rose-600 dark:text-rose-400" },
+  }[themeColor];
 
   useEffect(() => {
     if (highlightedRef.current) {
@@ -55,13 +65,13 @@ export default function ScoreConversionTable({
                 className={[
                   "group relative cursor-pointer transition-all duration-300",
                   isHighlighted
-                    ? "bg-primary/10 dark:bg-primary/20"
+                    ? `${colors.bg} ${colors.darkBg}`
                     : "hover:bg-slate-50 dark:hover:bg-slate-800/50",
                 ].join(" ")}
               >
                 <td className="px-8 py-4.5 relative">
                   {isHighlighted && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${colors.border}`} />
                   )}
                   <span className={[
                     "text-sm tracking-tight transition-colors duration-300",
@@ -76,7 +86,7 @@ export default function ScoreConversionTable({
                   <span className={[
                     "text-sm tracking-tight transition-all duration-300",
                     isHighlighted 
-                      ? "text-base font-black text-primary" 
+                      ? `text-base font-black ${colors.text}` 
                       : "font-bold text-slate-900 dark:text-white/80 group-hover:text-slate-900 dark:group-hover:text-white"
                   ].join(" ")}>
                     {row.band === 0 ? "0" : row.band.toFixed(1)}

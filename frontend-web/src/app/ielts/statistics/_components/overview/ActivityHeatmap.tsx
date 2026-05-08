@@ -54,7 +54,7 @@ export default function ActivityHeatmap({ heatmap }: ActivityHeatmapProps) {
             transform: "translate(-50%, -100%)",
           }}
         >
-          <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 shadow-xl text-xs">
+          <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-xl px-3 py-2 text-xs">
             <div className="font-bold text-slate-800 dark:text-white">
               {new Date(tooltip.day.date).toLocaleDateString("en-US", {
                 weekday: "short",

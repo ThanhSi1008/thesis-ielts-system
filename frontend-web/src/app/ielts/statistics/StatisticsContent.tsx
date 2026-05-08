@@ -7,13 +7,14 @@ import FoundationTab from "./_components/foundation/FoundationTab";
 import BasicTab from "./_components/basic/BasicTab";
 import AdvancedTab from "./_components/advanced/AdvancedTab";
 import IntensiveTab from "./_components/intensive/IntensiveTab";
+import { BAND_TONE_STYLES, type BandTone } from "./_utils/band-tone";
 
 const TABS = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "foundation", label: "Foundation", icon: BookOpen },
-  { id: "basic", label: "Basic", icon: Layers },
-  { id: "advanced", label: "Advanced", icon: Target },
-  { id: "intensive", label: "Intensive", icon: Activity },
+  { id: "overview", label: "Overview", icon: LayoutDashboard, tone: "primary" as BandTone },
+  { id: "foundation", label: "Foundation", icon: BookOpen, tone: "success" as BandTone },
+  { id: "basic", label: "Basic", icon: Layers, tone: "info" as BandTone },
+  { id: "advanced", label: "Advanced", icon: Target, tone: "warning" as BandTone },
+  { id: "intensive", label: "Intensive", icon: Activity, tone: "danger" as BandTone },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -28,28 +29,41 @@ export default function StatisticsContent() {
   }
 
   return (
-    <div className="pt-6 pb-16 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-full bg-slate-50/50 dark:bg-slate-950/50">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-8 pb-16 space-y-8">
+        
+        {/* ── Header Area ── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Statistics
+            </h1>
+            <p className="text-sm font-medium text-slate-500 mt-1">
+              Analyze your IELTS performance and track your progress.
+            </p>
+          </div>
 
-        {/* ── Professional Tab Bar ── */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-1.5 flex items-center gap-1 shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-x-auto no-scrollbar">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => switchTab(tab.id)}
-                className={`relative flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-sm font-bold transition-all duration-200 whitespace-nowrap ${isActive
-                    ? "bg-primary text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  }`}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            );
-          })}
+          {/* ── Modern Tab Bar ── */}
+          <div className="bg-white dark:bg-slate-900 shadow-sm border border-slate-200/50 dark:border-slate-800 rounded-2xl p-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              const tone = BAND_TONE_STYLES[tab.tone];
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => switchTab(tab.id)}
+                  className={`relative flex items-center justify-center gap-2 py-2 px-5 rounded-xl text-[13px] font-bold transition-all duration-200 whitespace-nowrap ${isActive
+                      ? `${tone.bg} ${tone.text} shadow-sm`
+                      : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* ── Tab Content ── */}

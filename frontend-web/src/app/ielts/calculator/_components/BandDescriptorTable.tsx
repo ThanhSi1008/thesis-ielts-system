@@ -12,6 +12,7 @@ interface BandDescriptorTableProps {
   descriptors: BandDescriptorRow[];
   highlightedBand: number | null;
   onBandSelect: (band: number | null) => void;
+  themeColor?: "amber" | "rose" | "primary" | "emerald" | "blue";
 }
 
 export default function BandDescriptorTable({
@@ -20,8 +21,17 @@ export default function BandDescriptorTable({
   descriptors,
   highlightedBand,
   onBandSelect,
+  themeColor = "primary",
 }: BandDescriptorTableProps) {
   const highlightedRef = useRef<HTMLTableRowElement>(null);
+
+  const colors = {
+    primary: { bg: "bg-primary/10", darkBg: "dark:bg-primary/20", border: "bg-primary", labelBg: "bg-primary", labelText: "text-slate-950", shadow: "shadow-primary/30", focus: "focus:ring-primary/10", focusBorder: "focus:border-primary" },
+    amber: { bg: "bg-amber-50", darkBg: "dark:bg-amber-900/10", border: "bg-amber-500", labelBg: "bg-amber-500", labelText: "text-white", shadow: "shadow-amber-500/30", focus: "focus:ring-amber-500/10", focusBorder: "focus:border-amber-500" },
+    rose: { bg: "bg-rose-50", darkBg: "dark:bg-rose-900/10", border: "bg-rose-500", labelBg: "bg-rose-500", labelText: "text-white", shadow: "shadow-rose-500/30", focus: "focus:ring-rose-500/10", focusBorder: "focus:border-rose-500" },
+    emerald: { bg: "bg-emerald-50", darkBg: "dark:bg-emerald-900/10", border: "bg-emerald-500", labelBg: "bg-emerald-500", labelText: "text-white", shadow: "shadow-emerald-500/30", focus: "focus:ring-emerald-500/10", focusBorder: "focus:border-emerald-500" },
+    blue: { bg: "bg-blue-50", darkBg: "dark:bg-blue-900/10", border: "bg-blue-500", labelBg: "bg-blue-500", labelText: "text-white", shadow: "shadow-blue-500/30", focus: "focus:ring-blue-500/10", focusBorder: "focus:border-blue-500" },
+  }[themeColor];
 
   useEffect(() => {
     if (highlightedRef.current) {
@@ -49,7 +59,7 @@ export default function BandDescriptorTable({
               const val = e.target.value;
               onBandSelect(val === "" ? null : Number(val));
             }}
-            className="appearance-none pl-4 pr-10 py-2.5 text-sm font-bold border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all cursor-pointer shadow-sm min-w-[180px]"
+            className={`appearance-none pl-4 pr-10 py-2.5 text-sm font-bold border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none transition-all cursor-pointer shadow-sm min-w-[180px] ${colors.focus} ${colors.focusBorder}`}
           >
             <option value="">Select Band</option>
             {ALL_BANDS.map((b) => (
@@ -78,14 +88,14 @@ export default function BandDescriptorTable({
       <div className="overflow-x-auto -mx-0 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
         <table className="min-w-[1000px] w-full border-collapse" role="grid" aria-label="Band descriptors">
           <thead>
-            <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-              <th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 w-24">
+            <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+              <th className="px-5 py-4 text-left text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 w-20">
                 Band
               </th>
               {criteriaLabels.map((label) => (
                 <th
                   key={label}
-                  className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
+                  className="px-5 py-4 text-left text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
                 >
                   {label}
                 </th>
@@ -111,19 +121,19 @@ export default function BandDescriptorTable({
                     }
                   }}
                   className={[
-                    "group transition-all duration-300 align-top",
+                    "group transition-all duration-300 align-top cursor-pointer",
                     isHighlighted
-                      ? "bg-primary/10 dark:bg-primary/20"
+                      ? `${colors.bg} ${colors.darkBg}`
                       : "hover:bg-slate-50 dark:hover:bg-slate-800/50",
                   ].join(" ")}
                 >
-                  <td className="px-6 py-6 align-middle relative">
+                  <td className="px-5 py-4 align-middle relative">
                     {isHighlighted && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+                      <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${colors.border}`} />
                     )}
                     <span
-                      className={`inline-flex items-center justify-center w-10 h-10 rounded-xl text-sm font-black transition-all duration-300 ${isHighlighted
-                          ? "bg-primary text-slate-950 scale-110 shadow-lg shadow-primary/30"
+                      className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs font-black transition-all duration-300 ${isHighlighted
+                          ? `${colors.labelBg} ${colors.labelText} scale-110 shadow-lg ${colors.shadow}`
                           : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 group-hover:scale-105"
                         }`}
                     >
@@ -133,7 +143,7 @@ export default function BandDescriptorTable({
                   {criteriaKeys.map((key) => (
                     <td
                       key={key}
-                      className={`px-6 py-6 text-[13px] leading-relaxed transition-colors duration-300 ${isHighlighted ? "text-slate-900 dark:text-white font-medium" : "text-slate-600 dark:text-slate-400"
+                      className={`px-5 py-4 text-[12px] leading-relaxed transition-colors duration-300 ${isHighlighted ? "text-slate-900 dark:text-white font-medium" : "text-slate-600 dark:text-slate-400"
                         }`}
                     >
                       {row?.criteria[key] ?? "—"}

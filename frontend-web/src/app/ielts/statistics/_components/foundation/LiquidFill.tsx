@@ -20,8 +20,8 @@ export default function LiquidFill({ percentage, color, size = 100 }: LiquidFill
 
   return (
     <div
-      className="relative overflow-hidden rounded-full border-2 shrink-0"
-      style={{ width: size, height: size, borderColor: color + "40" }}
+      className="relative overflow-hidden rounded-full shrink-0 border-4 border-slate-100 dark:border-slate-800"
+      style={{ width: size, height: size, borderColor: `${color}15` }}
     >
       {/* Wave fill */}
       <svg
@@ -51,12 +51,6 @@ export default function LiquidFill({ percentage, color, size = 100 }: LiquidFill
           fillOpacity="0.15"
         />
       </svg>
-
-      {/* Glow ring */}
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{ boxShadow: `inset 0 0 16px ${color}30` }}
-      />
 
       {/* Center text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">

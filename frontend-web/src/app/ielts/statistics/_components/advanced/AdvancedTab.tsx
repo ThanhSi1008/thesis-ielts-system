@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ieltsStatisticsApi } from "@/services/ielts-statistics.api";
 import type { IeltsAdvancedStats } from "@/types";
 import { AlertTriangle, ChevronRight, TrendingUp, PenLine, Mic2, Target } from "lucide-react";
+import { BAND_TONE_STYLES } from "../../_utils/band-tone";
 
 // ---------------------------------------------------------------------------
 // Accuracy Dot Heatmap (Question Type × Recent Attempts)
@@ -84,7 +85,7 @@ function WeakSpotsAlert({ weakSpots }: { weakSpots: any[] }) {
       {weakSpots.slice(0, 3).map((spot: any) => (
         <div
           key={spot.type}
-          className="group flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-900 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow"
+          className="group flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-900"
         >
           <div className="relative w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-4 h-4 text-red-500" />
@@ -158,7 +159,7 @@ function ScoreTrendChart({ trend }: { trend: any[] }) {
 function FeedbackSummary({ title, icon, summary }: { title: string; icon: React.ReactNode; summary: any }) {
   const isEmpty = !summary || Object.keys(summary).length === 0;
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+    <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 overflow-hidden">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
           {icon}
@@ -167,11 +168,11 @@ function FeedbackSummary({ title, icon, summary }: { title: string; icon: React.
       </div>
 
       {isEmpty ? (
-        <p className="text-sm text-slate-500 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+        <p className="text-sm text-slate-500 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
           Submit a graded session to see AI feedback insights here.
         </p>
       ) : (
-        <div className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 h-32 overflow-y-auto no-scrollbar">
+        <div className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl h-32 overflow-y-auto no-scrollbar">
           <pre className="whitespace-pre-wrap font-sans">
             {JSON.stringify(summary, null, 2)}
           </pre>
@@ -212,14 +213,19 @@ export default function AdvancedTab() {
   }, []);
 
   if (loading) return <AdvancedSkeleton />;
+  const warningTone = BAND_TONE_STYLES.warning;
+  const infoTone = BAND_TONE_STYLES.info;
+  const dangerTone = BAND_TONE_STYLES.danger;
+  const successTone = BAND_TONE_STYLES.success;
+  const primaryTone = BAND_TONE_STYLES.primary;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-            <Target className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+          <div className={`w-10 h-10 rounded-lg ${warningTone.softBg} flex items-center justify-center`}>
+            <Target className={`w-5 h-5 ${warningTone.text}`} />
           </div>
           <div>
             <h3 className="font-bold text-slate-800 dark:text-white text-sm">Advanced Diagnostics</h3>
@@ -229,10 +235,10 @@ export default function AdvancedTab() {
       </div>
 
       {/* Heatmap */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 overflow-hidden">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-            <Target className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+          <div className={`w-8 h-8 rounded-lg ${infoTone.softBg} flex items-center justify-center`}>
+            <Target className={`w-4 h-4 ${infoTone.text}`} />
           </div>
           <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Question Type Accuracy</div>
         </div>
@@ -241,21 +247,21 @@ export default function AdvancedTab() {
 
       {/* Weak Spots + Score Trend */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 overflow-hidden">
           <div className="flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+            <div className={`w-8 h-8 rounded-lg ${dangerTone.softBg} flex items-center justify-center`}>
+              <AlertTriangle className={`w-4 h-4 ${dangerTone.text}`} />
             </div>
             <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Urgent Weak Spots</div>
           </div>
           <WeakSpotsAlert weakSpots={data?.weakSpots ?? []} />
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] flex flex-col">
+        <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 flex flex-col overflow-hidden">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <div className={`w-8 h-8 rounded-lg ${successTone.softBg} flex items-center justify-center`}>
+                <TrendingUp className={`w-4 h-4 ${successTone.text}`} />
               </div>
               <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Score Trend</div>
             </div>
@@ -270,12 +276,12 @@ export default function AdvancedTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FeedbackSummary
           title="Writing AI Feedback"
-          icon={<PenLine className="w-5 h-5" />}
+          icon={<PenLine className={`w-5 h-5 ${primaryTone.text}`} />}
           summary={data?.writingFeedbackSummary}
         />
         <FeedbackSummary
           title="Speaking AI Feedback"
-          icon={<Mic2 className="w-5 h-5" />}
+          icon={<Mic2 className={`w-5 h-5 ${warningTone.text}`} />}
           summary={data?.speakingFeedbackSummary}
         />
       </div>

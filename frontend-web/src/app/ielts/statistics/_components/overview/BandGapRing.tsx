@@ -1,18 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { BAND_TONE_STYLES, getBandTone } from "../../_utils/band-tone";
 
 interface BandGapRingProps {
   estimatedBand: number | null;
   targetBand: number | null;
-}
-
-function getBandColor(estimated: number, target: number): string {
-  const ratio = estimated / target;
-  if (ratio >= 0.95) return "#22c55e"; // green
-  if (ratio >= 0.80) return "#3b82f6"; // blue
-  if (ratio >= 0.65) return "#f59e0b"; // amber
-  return "#ef4444"; // red
 }
 
 export default function BandGapRing({ estimatedBand, targetBand }: BandGapRingProps) {
@@ -24,7 +17,7 @@ export default function BandGapRing({ estimatedBand, targetBand }: BandGapRingPr
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
   const progress = estimatedBand && targetBand ? Math.min(estimatedBand / targetBand, 1) : 0;
-  const color = estimatedBand && targetBand ? getBandColor(estimatedBand, targetBand) : "#6366f1";
+  const color = BAND_TONE_STYLES[getBandTone(estimatedBand)].hex;
 
   useEffect(() => {
     const timeout = setTimeout(() => {
