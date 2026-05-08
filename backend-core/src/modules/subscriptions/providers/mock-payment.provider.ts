@@ -53,7 +53,10 @@ export class MockPaymentProvider implements PaymentProviderInterface {
     };
   }
 
-  async verifyPayment(sessionId: string): Promise<PaymentVerification> {
+  async verifyPayment(
+    sessionId: string,
+    providerParams?: Record<string, string>,
+  ): Promise<PaymentVerification> {
     const session = this.pendingSessions.get(sessionId);
 
     if (!session) {
@@ -85,5 +88,18 @@ export class MockPaymentProvider implements PaymentProviderInterface {
   async cancelSubscription(providerSubId: string): Promise<{ success: boolean }> {
     this.logger.log(`[MOCK] Subscription canceled: ${providerSubId}`);
     return { success: true };
+  }
+
+  getSessionData(sessionId: string) {
+    const session = this.pendingSessions.get(sessionId);
+    if (!session) return null;
+    return {
+      userId: session.userId,
+      planId: "",
+      amount: session.amount,
+      currency: session.currency,
+      planName: session.planName,
+      providerSubId: "",
+    };
   }
 }

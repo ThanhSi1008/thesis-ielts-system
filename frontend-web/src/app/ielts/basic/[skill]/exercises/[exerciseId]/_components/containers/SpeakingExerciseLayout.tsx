@@ -88,11 +88,7 @@ export function SpeakingExerciseLayout({
     }
 
     if (!allAnswered) {
-      toast({
-        title: "Incomplete",
-        description: "Please fill in all the blanks before checking your answer.",
-        variant: "destructive",
-      });
+      toast.error("Please fill in all the blanks before checking your answer.");
       return;
     }
 
@@ -175,16 +171,16 @@ export function SpeakingExerciseLayout({
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm transition-colors">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-yellow-700">
+          <div className="w-10 h-10 rounded-full bg-primary/20 dark:bg-primary/10 flex items-center justify-center text-yellow-700 dark:text-primary">
             <Volume2 className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-bold text-gray-900">{exercise.topic}</h2>
-            <p className="text-sm text-gray-500">IELTS Speaking Part {exercise.partType}</p>
+            <h2 className="font-bold text-gray-900 dark:text-white">{exercise.topic}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">IELTS Speaking Part {exercise.partType}</p>
           </div>
         </div>
 
@@ -196,7 +192,9 @@ export function SpeakingExerciseLayout({
                 key={idx}
                 onClick={() => setActiveModal(activeModal === b.title ? null : (b.title || null))}
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                  activeModal === b.title ? color.bg.replace("hover:", "") : color.bg
+                  activeModal === b.title 
+                    ? color.bg.replace("hover:", "").replace("100", "200").replace("/20", "/40") 
+                    : `${color.bg} dark:bg-opacity-20`
                 }`}
                 title={b.title}
               >
@@ -210,10 +208,10 @@ export function SpeakingExerciseLayout({
               block={activeBlock}
               onClose={() => setActiveModal(null)}
               customTheme={{
-                bg: "bg-white",
-                border: "border-gray-200",
+                bg: "bg-white dark:bg-slate-800",
+                border: "border-gray-200 dark:border-gray-700",
                 icon: getSubBlockIcon(activeBlock.title || "", getSubBlockColor(activeBlock.title || "").text),
-                text: "text-gray-800",
+                text: "text-gray-800 dark:text-gray-200",
               }}
             />
           )}
@@ -221,7 +219,7 @@ export function SpeakingExerciseLayout({
           {showAnswer && onNext && (
             <button
               onClick={onNext}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-primary text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-yellow-400 transition-colors font-medium shadow-sm"
             >
               Next Exercise
               <ChevronRight className="w-4 h-4" />
@@ -233,41 +231,41 @@ export function SpeakingExerciseLayout({
       <div className="flex-1 overflow-y-auto p-8 flex justify-center">
         <div className="w-full max-w-4xl space-y-8 pb-20">
           {/* Instructions */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Instructions</h3>
-            <p className="text-gray-700">{exercise.instructions}</p>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">
+            <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Instructions</h3>
+            <p className="text-gray-700 dark:text-gray-300">{exercise.instructions}</p>
           </div>
 
           {/* Prompt */}
-          <div className="bg-primary/10 rounded-2xl p-6 border border-primary/20 shadow-sm">
-            <h3 className="text-sm font-bold text-yellow-800/60 uppercase tracking-wider mb-3">Examiner&apos;s Prompt</h3>
-            <div className="text-gray-900 font-medium whitespace-pre-wrap leading-relaxed text-lg">
+          <div className="bg-primary/10 dark:bg-primary/5 rounded-2xl p-6 border border-primary/20 dark:border-primary/10 shadow-sm transition-colors">
+            <h3 className="text-sm font-bold text-yellow-800/60 dark:text-primary/60 uppercase tracking-wider mb-3">Examiner&apos;s Prompt</h3>
+            <div className="text-gray-900 dark:text-white font-medium whitespace-pre-wrap leading-relaxed text-lg">
               {exercise.prompt}
             </div>
           </div>
 
           {/* Main Content Area */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-            {isMcq ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">
+            {isMcq && exercise.content ? (
               <SpeakingMcqView 
-                content={exercise.content} 
+                content={exercise.content as any} 
                 onCorrectComplete={markCompleted}
               />
-            ) : (
+            ) : !isMcq ? (
               <div className="space-y-6">
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Your Response</h3>
+                <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-100 dark:border-gray-800 pb-2">Your Response</h3>
                 {modelAnswer?.paragraphs?.map((p, idx) => (
                   <div key={idx} className="space-y-2">
-                    {p.title && <h4 className="font-semibold text-gray-700 text-sm">{p.title}</h4>}
-                    <div className="text-gray-800 leading-[2.5rem] text-lg">
+                    {p.title && <h4 className="font-semibold text-gray-700 dark:text-gray-400 text-sm">{p.title}</h4>}
+                    <div className="text-gray-800 dark:text-gray-200 leading-[2.5rem] text-lg">
                       {p.segments.map((s) => renderSegment(s))}
                     </div>
                   </div>
                 ))}
 
                 {/* Footer Actions */}
-                <div className="pt-8 mt-8 border-t border-gray-100 flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
+                <div className="pt-8 mt-8 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     {showAnswer ? "Review your answers and check the corrections." : "Select the best option from the dropdowns."}
                   </div>
                   {!showAnswer && (
@@ -281,6 +279,10 @@ export function SpeakingExerciseLayout({
                     </button>
                   )}
                 </div>
+              </div>
+            ) : (
+              <div className="p-12 text-center text-gray-400 dark:text-gray-600 italic">
+                Exercise content is not available.
               </div>
             )}
           </div>

@@ -62,7 +62,7 @@ export default function IntensiveTestTakePage() {
 
         if (session?.status === "COMPLETED") {
           router.replace(
-            `/ielts/intensive/${encodeURIComponent(examId)}/ieltsIntensiveResult/${encodeURIComponent(sessionId)}`
+            `/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`
           );
           return;
         }
@@ -90,7 +90,7 @@ export default function IntensiveTestTakePage() {
   useEffect(() => {
     if (submitResult) {
       router.replace(
-        `/ielts/intensive/${encodeURIComponent(examId)}/ieltsIntensiveResult/${encodeURIComponent(sessionId)}`
+        `/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`
       );
     }
   }, [submitResult, examId, sessionId, router]);

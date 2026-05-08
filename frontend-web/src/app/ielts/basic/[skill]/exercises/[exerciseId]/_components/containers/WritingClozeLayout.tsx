@@ -120,29 +120,29 @@ export function WritingClozeLayout({
   };
 
   return (
-    <div className="flex w-full flex-col bg-[#F9F6F0] overflow-hidden rounded-3xl border border-gray-200 shadow-sm h-[90vh]">
+    <div className="flex w-full flex-col bg-[#F9F6F0] dark:bg-slate-950 overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm h-[90vh] transition-colors duration-300">
       {/* Header */}
-      <div className="flex px-8 py-5 flex-none items-center justify-between border-b border-gray-200 bg-white">
+      <div className="flex px-8 py-5 flex-none items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 transition-colors">
         <div className="flex items-center gap-3">
-          <button className="text-gray-400 hover:text-gray-600 transition-colors">
+          <button className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </button>
           <div className="flex flex-col">
-            <span className="text-[12px] font-bold text-gray-400 tracking-wider uppercase">Exercise</span>
-            <h1 className="text-[15px] font-bold text-slate-800 tracking-tight">{category}: {subTopic}</h1>
+            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider uppercase">Exercise</span>
+            <h1 className="text-[15px] font-bold text-slate-800 dark:text-gray-100 tracking-tight">{category}: {subTopic}</h1>
           </div>
         </div>
 
         {/* Theory Buttons */}
         <div className="relative flex items-center gap-3">
-          <button onClick={() => setActiveModal(activeModal === "traps" ? null : "traps")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "traps" ? "bg-green-200" : "bg-green-100 hover:bg-green-200"}`} title="Task Achievement">
-            <Target size={18} className="text-green-700" />
+          <button onClick={() => setActiveModal(activeModal === "traps" ? null : "traps")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "traps" ? "bg-green-200 dark:bg-green-900/40" : "bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/30"}`} title="Task Achievement">
+            <Target size={18} className="text-green-700 dark:text-green-400" />
           </button>
-          <button onClick={() => setActiveModal(activeModal === "strategy" ? null : "strategy")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "strategy" ? "bg-pink-200" : "bg-pink-100 hover:bg-pink-200"}`} title="Grammar & Cohesion">
-             <Link size={18} className="text-pink-600" />
+          <button onClick={() => setActiveModal(activeModal === "strategy" ? null : "strategy")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "strategy" ? "bg-pink-200 dark:bg-pink-900/40" : "bg-pink-100 dark:bg-pink-900/20 hover:bg-pink-200 dark:hover:bg-pink-900/30"}`} title="Grammar & Cohesion">
+             <Link size={18} className="text-pink-600 dark:text-pink-400" />
           </button>
-          <button onClick={() => setActiveModal(activeModal === "tips" ? null : "tips")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "tips" ? "bg-yellow-200" : "bg-yellow-100 hover:bg-yellow-200"}`} title="Lexical Resource">
-            <BookOpen size={18} className="text-yellow-700" />
+          <button onClick={() => setActiveModal(activeModal === "tips" ? null : "tips")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "tips" ? "bg-yellow-200 dark:bg-yellow-900/40" : "bg-yellow-100 dark:bg-yellow-900/20 hover:bg-yellow-200 dark:hover:bg-yellow-900/30"}`} title="Lexical Resource">
+            <BookOpen size={18} className="text-yellow-700 dark:text-yellow-400" />
           </button>
           {modalBlock && (
             <TheoryPopup 
@@ -150,20 +150,20 @@ export function WritingClozeLayout({
               onClose={() => setActiveModal(null)} 
               customTheme={
                 activeModal === "traps" ? {
-                  bg: "bg-green-50",
-                  border: "border-green-200",
-                  icon: <Target size={20} className="text-green-600" />,
-                  text: "text-green-800"
+                  bg: "bg-green-50 dark:bg-green-950/20",
+                  border: "border-green-200 dark:border-green-900/30",
+                  icon: <Target size={20} className="text-green-600 dark:text-green-400" />,
+                  text: "text-green-800 dark:text-green-200"
                 } : activeModal === "strategy" ? {
-                  bg: "bg-pink-50",
-                  border: "border-pink-200",
-                  icon: <Link size={20} className="text-pink-600" />,
-                  text: "text-pink-800"
+                  bg: "bg-pink-50 dark:bg-pink-950/20",
+                  border: "border-pink-200 dark:border-pink-900/30",
+                  icon: <Link size={20} className="text-pink-600 dark:text-pink-400" />,
+                  text: "text-pink-800 dark:text-pink-200"
                 } : {
-                  bg: "bg-yellow-50",
-                  border: "border-yellow-200",
-                  icon: <BookOpen size={20} className="text-yellow-600" />,
-                  text: "text-yellow-800"
+                  bg: "bg-yellow-50 dark:bg-yellow-950/20",
+                  border: "border-yellow-200 dark:border-yellow-900/30",
+                  icon: <BookOpen size={20} className="text-yellow-600 dark:text-yellow-400" />,
+                  text: "text-yellow-800 dark:text-yellow-200"
                 }
               }
             />
@@ -174,13 +174,13 @@ export function WritingClozeLayout({
       {/* Main Two-Pane Split or Top-Bottom Split */}
       <div className={`flex flex-1 overflow-hidden px-6 py-6 gap-6 ${exercise?.diagramUrl ? "" : "flex-col"}`}>
         {/* Left Pane / Top Pane: Prompt and Image */}
-        <div className={`${exercise?.diagramUrl ? "w-[45%] overflow-y-auto" : "w-full flex-none"} bg-white rounded-2xl p-6 shadow-sm border border-gray-100`}>
-          <div className="text-[15px] font-medium text-slate-700 leading-relaxed">
+        <div className={`${exercise?.diagramUrl ? "w-[45%] overflow-y-auto" : "w-full flex-none"} bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 transition-colors`}>
+          <div className="text-[15px] font-medium text-slate-700 dark:text-gray-300 leading-relaxed">
             {exercise?.prompt}
           </div>
 
           {exercise?.diagramUrl && (
-            <div className="mt-8 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-white p-2">
+            <div className="mt-8 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-slate-800 p-2">
               <img
                 src={exercise.diagramUrl}
                 alt="Diagram"
@@ -191,19 +191,19 @@ export function WritingClozeLayout({
         </div>
 
         {/* Right Pane Container / Bottom Pane Container: Cloze Paragraphs */}
-        <div className="flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden transition-colors">
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-6 flex flex-col space-y-6">
             {modelAnswer.paragraphs?.map((para, i) => (
-              <div key={i} className="bg-[#F5EFE6] rounded-2xl p-6 shadow-sm">
+              <div key={i} className="bg-[#F5EFE6] dark:bg-slate-800/50 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-6 h-6 rounded-full bg-[#E5D5C5] text-[#8C7A6B] flex items-center justify-center font-bold text-sm">
+                  <div className="w-6 h-6 rounded-full bg-[#E5D5C5] dark:bg-slate-700 text-[#8C7A6B] dark:text-slate-300 flex items-center justify-center font-bold text-sm">
                     {para.number}
                   </div>
-                  <h3 className="font-bold text-gray-800 text-[16px]">{para.title}:</h3>
+                  <h3 className="font-bold text-gray-800 dark:text-gray-100 text-[16px]">{para.title}:</h3>
                 </div>
                 
-                <div className="text-[16px] leading-[2.5] text-gray-800">
+                <div className="text-[16px] leading-[2.5] text-gray-800 dark:text-gray-200">
                   {para.segments.map((seg, idx) => {
                     if (seg.type === "text") {
                       return <span key={idx}>{seg.value}</span>;
@@ -216,15 +216,15 @@ export function WritingClozeLayout({
                       
                       if (showAnswer) {
                          if (isCorrect(seg.id, seg.correctAnswer)) {
-                             selectClasses += "border-green-500 text-green-700 bg-green-50";
+                             selectClasses += "border-green-500 dark:border-green-400 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20";
                          } else {
-                             selectClasses += "border-red-500 text-red-700 bg-red-50";
+                             selectClasses += "border-red-500 dark:border-red-400 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20";
                          }
                       } else {
                          if (answered) {
-                             selectClasses += "border-gray-400 text-gray-900 hover:border-gray-500";
+                             selectClasses += "border-gray-400 dark:border-gray-600 text-gray-900 dark:text-white dark:bg-gray-800 hover:border-gray-500 dark:hover:border-gray-500";
                          } else {
-                             selectClasses += "border-gray-300 text-gray-500 hover:border-gray-400";
+                             selectClasses += "border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600";
                          }
                       }
 
@@ -258,7 +258,7 @@ export function WritingClozeLayout({
           </div>
 
           {/* Action Buttons */}
-          <div className="p-4 bg-white border-t border-gray-100 flex gap-3 w-full justify-end flex-none">
+          <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 flex gap-3 w-full justify-end flex-none transition-colors">
             {!showAnswer ? (
               <>
                 <button
@@ -280,7 +280,7 @@ export function WritingClozeLayout({
               <>
                 <button
                   onClick={handleTryAgain}
-                  className="px-8 py-2.5 text-[14px] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
+                  className="px-8 py-2.5 text-[14px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
                 >
                   Try again
                 </button>

@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, Gem, Loader2, AlertCircle, CalendarDays, Zap } from "lucide-react";
+import { Crown, Gem, Loader2, AlertCircle, CalendarDays, Zap, CreditCard, Calendar, ChevronRight } from "lucide-react";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
 import { subscriptionsApi } from "@/services/subscriptions.api";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -63,6 +63,14 @@ export default function SubscriptionSection({
   };
 
   const s = statusLabel[status];
+
+  const isExpiringSoon = useMemo(() => {
+    if (!currentPeriodEnd) return false;
+    const daysLeft = Math.ceil(
+      (new Date(currentPeriodEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+    return daysLeft <= 7 && daysLeft > 0;
+  }, [currentPeriodEnd]);
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-6 md:p-8">
@@ -158,6 +166,15 @@ export default function SubscriptionSection({
                 Resubscribe
               </button>
             )}
+            {(status === "CANCELED" || isExpiringSoon) && (
+              <a
+                href="/pricing"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-gray-900 font-bold rounded-full hover:opacity-90 transition-all text-sm shadow-sm"
+              >
+                Renew Subscription
+                <ChevronRight className="w-4 h-4" />
+              </a>
+            )}
           </>
         )}
       </div>
@@ -187,6 +204,119 @@ export default function SubscriptionSection({
           </div>
         </div>
       )}
+
+      {/* Payment History */}
+      <div className="mt-8">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          Payment History
+        </h3>
+        <PaymentHistory />
+      </div>
     </div>
   );
+}
+
+interface PaymentRecord {
+  id: string;
+  amount: number;
+  currency: string;
+  provider: string;
+  status: string;
+  createdAt: string;
+  metadata?: { planName?: string };
+}
+
+export function PaymentHistory() {
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    subscriptionsApi
+      .getPayments()
+      .then((data) => setPayments(data as PaymentRecord[]))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="animate-pulse space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-16 bg-gray-100 dark:bg-gray-800 rounded-xl"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (payments.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-400 dark:text-gray-600">
+        <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-50" />
+        <p className="text-sm">No payment history yet</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {payments.map((payment) => (
+        <div
+          key={payment.id}
+          className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <CreditCard className="w-4 h-4 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                {payment.metadata?.planName ?? "Subscription Payment"}
+              </p>
+              <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                <Calendar className="w-3 h-3" />
+                {new Date(payment.createdAt).toLocaleDateString("vi-VN", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
+                <span className="text-gray-300 dark:text-gray-700">•</span>
+                <span className="uppercase">{payment.provider}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-gray-900 dark:text-white">
+              {formatCurrency(payment.amount, payment.currency)}
+            </span>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                payment.status === "succeeded"
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                  : payment.status === "failed"
+                    ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                    : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+              }`}
+            >
+              {payment.status}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function formatCurrency(amount: number, currency: string): string {
+  if (currency === "VND") {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount);
+  }
+  // USD — stored in cents
+  return `$${(amount / 100).toFixed(2)}`;
 }

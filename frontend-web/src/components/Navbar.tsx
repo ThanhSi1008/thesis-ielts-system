@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { Flame } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
 import api from "@/lib/api";
@@ -31,7 +32,10 @@ export default function Navbar() {
   const isVocabLabPage = pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/");
   const isCommunityPage = pathname === "/community" || pathname.startsWith("/community/");
   const isProfilePage = pathname === "/profile" || pathname.startsWith("/profile/");
+  
+  const isPricingPage = pathname === "/pricing";
   const isHeaderBorderless = isIeltsPage || isShadowingPage || isVocabLabPage || isCommunityPage || isProfilePage;
+  const shouldHideBorder = isHeaderBorderless || isPricingPage;
 
   const [forcePlain, setForcePlain] = useState(false);
 
@@ -47,7 +51,8 @@ export default function Navbar() {
 
   const plainPages = ["/login", "/register", "/profile", "/pricing"];
   const isAdminPage = pathname.startsWith("/admin");
-  const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || isAdminPage || isCommunityPage || forcePlain;
+  const isPaymentPage = pathname.startsWith("/payment");
+  const isPlain = plainPages.includes(pathname) || isIeltsInternal || isShadowingPage || isVocabLabPage || isAdminPage || isCommunityPage || isPaymentPage || forcePlain;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -123,7 +128,7 @@ export default function Navbar() {
   const headerBgClass = isIeltsDashboard
     ? "bg-transparent border-transparent shadow-none"
     : isPlain
-      ? `bg-white/95 dark:bg-gray-900/95 ${isHeaderBorderless ? '' : 'border-gray-200 dark:border-gray-800 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
+      ? `bg-white/95 dark:bg-gray-900/95 ${shouldHideBorder ? '' : 'border-gray-200 dark:border-gray-800 shadow-[0_4px_30px_rgb(0,0,0,0.03)]'} backdrop-blur-xl`
       : "bg-transparent border-transparent shadow-none";
 
 
@@ -147,7 +152,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`${positionClass} top-0 z-50 ${isHeaderBorderless ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
+      className={`${positionClass} top-0 z-50 ${shouldHideBorder ? '' : 'border-b'} transition-all duration-300 ${headerBgClass} h-[56px] flex items-center`}
     >
       <div className={`${isHeaderBorderless ? "w-full max-w-none px-4" : "container mx-auto max-w-screen-xl px-4"} py-2 flex justify-between items-center`}>
         {/* Left: Hamburger (IELTS) + Logo + Nav */}
@@ -169,11 +174,11 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-2">
             <img
               src={
-                isOverlay
+                isOverlay || resolvedTheme === "dark"
                   ? "https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
                   : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
               }
-              alt="TOEIC Master AI Logo"
+              alt="Lexon Logo"
               className="h-10 w-auto object-contain"
             />
           </Link>
@@ -265,18 +270,19 @@ export default function Navbar() {
             /* ── Logged-in: streak + avatar + dropdown ── */
             <div className="flex items-center gap-3">
               {streak && streak.currentStreak > 0 && (
-                <div
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-bold shadow-sm cursor-help transition-all duration-300 hover:scale-105 ${isOverlay
+                <Link
+                  href="/profile?tab=gamification"
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-sm font-bold shadow-sm transition-all duration-300 hover:scale-105 ${isOverlay
                     ? "bg-white/10 border-white/20 text-white shadow-black/10 hover:bg-white/20"
                     : "bg-orange-50 border-orange-200 text-orange-600 shadow-orange-100/50 hover:bg-orange-100"
                     }`}
                   title={`🔥 ${streak.currentStreak}-day streak! Your longest: ${streak.longestStreak}`}
                 >
-                  <span className={`${streak.currentStreak >= 7 ? 'animate-pulse' : ''} text-orange-500 drop-shadow-sm`}>
-                    🔥
-                  </span>
+                  <Flame 
+                    className={`w-4 h-4 text-orange-500 ${streak.currentStreak >= 7 ? 'animate-pulse' : ''} drop-shadow-sm fill-orange-500`}
+                  />
                   <span>{streak.currentStreak}</span>
-                </div>
+                </Link>
               )}
 
               {/* Theme toggle button */}

@@ -8,6 +8,7 @@ import {
   getUniqueBands,
 } from "@/lib/calculator-data";
 import ScoreConversionTable from "./ScoreConversionTable";
+import { Hash, Star, ChevronDown } from "lucide-react";
 
 const MAX_RAW = 40;
 
@@ -58,65 +59,76 @@ export default function ListeningCalculator() {
   const bands = getUniqueBands(LISTENING_SCORE_TABLE);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* Raw Score Input */}
-        <div className="flex flex-col gap-1.5 flex-1">
-          <label htmlFor="listening-raw" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            Raw Score <span className="text-slate-400 dark:text-slate-500 font-normal">(0–40)</span>
+    <div className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Band Score Dropdown */}
+        <div className="flex flex-col gap-2.5">
+          <label htmlFor="listening-band" className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <Star className="w-3 h-3 text-slate-400" />
+            Target Band Score
           </label>
-          <input
-            id="listening-raw"
-            type="number"
-            min={0}
-            max={MAX_RAW}
-            value={rawInput}
-            onChange={(e) => handleRawChange(e.target.value)}
-            placeholder="e.g. 35"
-            aria-label="Enter raw score (0 to 40)"
-            className="px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all bg-white dark:bg-slate-800"
-          />
+          <div className="relative">
+            <select
+              id="listening-band"
+              value={highlightedBand ?? ""}
+              onChange={(e) => handleBandChange(e.target.value)}
+              className="w-full appearance-none px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-300 dark:focus:border-emerald-700 transition-all shadow-sm cursor-pointer"
+            >
+              <option value="">Select a band</option>
+              {bands.map((b) => (
+                <option key={b} value={b}>
+                  Band {b === 0 ? "0" : b.toFixed(1)}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <div className="w-4 h-4 flex items-center justify-center text-slate-400">
+                <ChevronDown className="w-3 h-3" />
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Band Score Dropdown */}
-        <div className="flex flex-col gap-1.5 flex-1">
-          <label htmlFor="listening-band" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            Band Score
+        {/* Raw Score Input */}
+        <div className="flex flex-col gap-2.5">
+          <label htmlFor="listening-raw" className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <Hash className="w-3 h-3 text-slate-400" />
+            Raw Score <span className="text-slate-400 dark:text-slate-500 font-medium normal-case">(0–40)</span>
           </label>
-          <select
-            id="listening-band"
-            aria-label="Select band score"
-            value={highlightedBand ?? ""}
-            onChange={(e) => handleBandChange(e.target.value)}
-            className="px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all bg-white dark:bg-slate-800"
-          >
-            <option value="">— Select a band —</option>
-            {bands.map((b) => (
-              <option key={b} value={b}>
-                {b === 0 ? "0" : b.toFixed(1)}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <input
+              id="listening-raw"
+              type="number"
+              min={0}
+              max={MAX_RAW}
+              value={rawInput}
+              onChange={(e) => handleRawChange(e.target.value)}
+              placeholder="e.g. 35"
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-300 dark:focus:border-emerald-700 transition-all shadow-sm"
+            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] pointer-events-none">
+              Questions
+            </div>
+          </div>
         </div>
       </div>
 
-      {highlightedBand !== null && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-xl">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">IeltsIntensiveResult:</span>
-          <span className="text-base font-bold text-slate-900 dark:text-white">
-            Raw Score {rawInput} → Band{" "}
-            <span className="text-primary">
-              {highlightedBand === 0 ? "0" : highlightedBand.toFixed(1)}
-            </span>
-          </span>
-        </div>
-      )}
 
-      <ScoreConversionTable
-        data={LISTENING_SCORE_TABLE}
-        highlightedBand={highlightedBand}
-        onRowClick={handleRowClick}
-      />
+
+      <div className="mt-4">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Score Conversion Table</span>
+          <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
+        </div>
+        <ScoreConversionTable
+          data={LISTENING_SCORE_TABLE}
+          highlightedBand={highlightedBand}
+          onRowClick={handleRowClick}
+          themeColor="emerald"
+        />
+      </div>
     </div>
   );
 }
+

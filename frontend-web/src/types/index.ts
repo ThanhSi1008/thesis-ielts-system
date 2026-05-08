@@ -718,3 +718,61 @@ export interface SubscriptionError {
   currentTier?: SubscriptionTier;
   upgradeUrl?: string;
 }
+
+export interface CheckoutResponse {
+  subscription?: UserSubscription;
+  message?: string;
+  sessionId?: string;
+  redirectUrl?: string;
+}
+
+// ==================== IELTS STATISTICS ====================
+
+export interface IeltsOverviewStats {
+  estimatedBand: number | null;
+  targetBand: number | null;
+  bandGap: number | null;
+  dailyMinutesPracticed: number;
+  dailyCommitmentMins: number;
+  heatmap: { date: string; minutes: number }[];
+  recentActivity: any[]; // Expand this when feed is ready
+  daysToExam: number | null;
+  readinessScore: number | null;
+}
+
+export interface IeltsFoundationStats {
+  vocabulary: { wordsLearned: number; totalWords: number };
+  grammar: { completedUnits: number; totalUnits: number };
+  pronunciation: { mastered: number; practicing: number; new: number };
+  averageAccuracy: number;
+  timeBalance: { vocab: number; grammar: number; pronunciation: number };
+}
+
+export interface IeltsBasicSkillStats {
+  skillId: string;
+  skillName: string;
+  completedItems: number;
+  totalItems: number;
+  completionRate: number;
+}
+
+export interface IeltsBasicStats {
+  skills: IeltsBasicSkillStats[];
+  overallReadiness: number;
+}
+
+export interface IeltsAdvancedStats {
+  heatmap: any[];
+  weakSpots: any[];
+  scoreTrend: any[];
+  writingFeedbackSummary: any;
+  speakingFeedbackSummary: any;
+}
+
+export interface IeltsIntensiveStats {
+  overallTrend: any[];
+  skillTrends: { listening: any[]; reading: any[]; writing: any[]; speaking: any[] };
+  scoreDistribution: any[];
+  timeManagement: { averageTimeTaken: number; optimalTime: number };
+  skillGap: { bestSkill: string; worstSkill: string; gap: number };
+}

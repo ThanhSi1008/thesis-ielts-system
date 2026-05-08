@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 /* ─── Nav items definition ─── */
 const NAV_ITEMS = [
@@ -21,11 +22,13 @@ const NAV_ITEMS = [
     ),
   },
   {
+    type: "header",
+    label: "LEARNING STAGES",
+  },
+  {
     key: "foundation",
     label: "Foundation",
     shortLabel: "Found.",
-    href: "#",
-    isAccordion: true,
     match: (p: string) => p.startsWith("/ielts/vocabulary") || p.startsWith("/ielts/grammar") || p.startsWith("/ielts/pronunciation"),
     icon: (
       <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -69,13 +72,20 @@ const NAV_ITEMS = [
     key: "intensive",
     label: "IELTS Intensive",
     shortLabel: "Intens.",
-    href: "/ielts/intensive",
-    match: (p: string) => p === "/ielts/intensive",
+    match: (p: string) => p === "/ielts/intensive" || p.startsWith("/ielts/history"),
     icon: (
       <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
       </svg>
     ),
+    children: [
+      { key: "mock-tests", label: "Mock Tests", href: "/ielts/intensive", match: (p: string) => p === "/ielts/intensive" },
+      { key: "history", label: "Test History", href: "/ielts/history", match: (p: string) => p.startsWith("/ielts/history") },
+    ],
+  },
+  {
+    type: "header",
+    label: "OTHER FEATURES",
   },
   {
     key: "roadmap",
@@ -87,19 +97,6 @@ const NAV_ITEMS = [
       <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 20l-5-5 5-5" />
         <path d="M4 15h11a4 4 0 0 0 4-4v-1" />
-      </svg>
-    ),
-  },
-  {
-    key: "history",
-    label: "Test History",
-    shortLabel: "History",
-    href: "/ielts/history",
-    match: (p: string) => p.startsWith("/ielts/history"),
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 8v4l3 3" />
-        <circle cx="12" cy="12" r="9" />
       </svg>
     ),
   },
@@ -158,74 +155,36 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
   const { mode } = useIeltsSidebar();
   const isMini = mode === "mini" && !isOverlay;
 
-  const [foundationOpen, setFoundationOpen] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("ielts-sidebar-foundation-open");
-      if (stored !== null) return stored === "true";
-    }
-    return false;
-  });
-  const isFoundationActive = NAV_ITEMS.find((n) => n.key === "foundation")!.match(pathname);
-
-  useEffect(() => {
-    if (isFoundationActive) {
-      setFoundationOpen(true);
-      localStorage.setItem("ielts-sidebar-foundation-open", "true");
-    }
-  }, [isFoundationActive]);
-
-  const toggleFoundation = () => {
-    setFoundationOpen((prev) => {
-      const next = !prev;
-      localStorage.setItem("ielts-sidebar-foundation-open", String(next));
-      return next;
-    });
-  };
-
   return (
     <div className={`flex flex-col h-full ${isMini ? "items-center py-2" : "p-3"}`}>
       <nav className={`flex flex-col ${isMini ? "gap-1 items-center w-full" : "gap-0.5"}`}>
-        {NAV_ITEMS.map((item) => {
-          const isActive = item.match(pathname);
+        {NAV_ITEMS.map((item, idx) => {
+          // Handle Header
+          if (item.type === "header") {
+            if (isMini) return <div key={`header-${idx}`} className="w-8 h-px bg-gray-100 dark:bg-slate-800 my-2" />;
+            return (
+              <div key={`header-${idx}`} className="px-4 pt-4 pb-2 text-[11px] font-bold text-gray-400 dark:text-slate-500 tracking-wider uppercase">
+                {item.label}
+              </div>
+            );
+          }
+
+          const isActive = item.match && item.match(pathname);
+          const hasChildren = item.children && item.children.length > 0;
 
           /* ── Mini mode ── */
           if (isMini) {
-            if (item.isAccordion) {
-              // In mini mode, foundation → link to foundationVocabWord
-              return (
-                <Link
-                  key={item.key}
-                  href="/ielts/vocabulary"
-                  onClick={onNavigate}
-                  title={item.label}
-                  className={`group relative flex flex-col items-center justify-center w-full py-3 rounded-xl transition-colors ${
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-slate-200"
-                  }`}
-                >
-                  {item.icon}
-                <span className="text-[14px] mt-1 font-semibold leading-none truncate max-w-[56px]">
-                    {item.shortLabel}
-                  </span>
-                  {/* Tooltip */}
-                  <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-gray-800 dark:bg-slate-700 text-white text-xs font-medium rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-[70]">
-                    {item.label}
-                  </div>
-                </Link>
-              );
-            }
+            const href = item.href || (hasChildren ? item.children![0].href : "#");
             return (
               <Link
                 key={item.key}
-                href={item.href}
+                href={href}
                 onClick={onNavigate}
                 title={item.label}
-                className={`group relative flex flex-col items-center justify-center w-full py-3 rounded-xl transition-colors ${
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-slate-200"
-                }`}
+                className={`group relative flex flex-col items-center justify-center w-full py-3 rounded-xl transition-colors ${isActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-slate-200"
+                  }`}
               >
                 {item.icon}
                 <span className="text-[10px] mt-1 font-semibold leading-none truncate max-w-[56px]">
@@ -240,71 +199,50 @@ function SidebarContent({ isOverlay, onNavigate }: { isOverlay?: boolean; onNavi
           }
 
           /* ── Expanded / Overlay mode ── */
-          if (item.isAccordion) {
-            return (
-              <div key={item.key} className="space-y-1">
-                <button
-                  onClick={toggleFoundation}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[14px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-slate-900 ${
-                    isActive ? "text-primary" : "text-gray-700 dark:text-slate-300"
-                  }`}
+          return (
+            <div key={item.key} className="space-y-0.5">
+              {/* Parent Item / Label */}
+              {item.href ? (
+                <Link
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] transition-colors ${isActive
+                    ? "font-semibold bg-primary/10 text-primary"
+                    : "font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white"
+                    }`}
                 >
                   {item.icon}
-                  <span className="flex-1 text-left font-semibold">{item.label}</span>
-                  <svg
-                    viewBox="0 0 24 24"
-                    className={`w-4 h-4 shrink-0 transition-transform duration-300 text-gray-400 ${foundationOpen ? "rotate-180" : ""}`}
-                    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-
-                <div
-                  className={`grid transition-all duration-300 ease-in-out ${
-                    foundationOpen ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <div className="ml-7 pl-3 border-l-2 border-gray-100 dark:border-slate-800 space-y-1 py-1">
-                      {item.children!.map((child) => {
-                        const childActive = child.match(pathname);
-                        return (
-                          <Link
-                            key={child.key}
-                            href={child.href}
-                            onClick={onNavigate}
-                            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
-                              childActive
-                                ? "font-semibold bg-primary/5 text-primary"
-                                : "font-medium text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-800 dark:hover:text-slate-200"
-                            }`}
-                          >
-                            {child.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  {item.label}
+                </Link>
+              ) : (
+                <div className={`w-full flex items-center gap-3 px-4 py-3 text-[14px] font-semibold ${isActive ? "text-primary" : "text-gray-900 dark:text-white"}`}>
+                  {item.icon}
+                  {item.label}
                 </div>
-              </div>
-            );
-          }
+              )}
 
-          return (
-            <Link
-              key={item.key}
-              href={item.href}
-              onClick={onNavigate}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] transition-colors ${
-                isActive
-                  ? "font-semibold bg-primary/10 text-primary"
-                  : "font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              {item.icon}
-              {item.label}
-            </Link>
+              {/* Indented Children */}
+              {hasChildren && (
+                <div className="ml-7 pl-3 border-l-2 border-gray-100 dark:border-slate-800 space-y-0.5 py-1">
+                  {item.children!.map((child) => {
+                    const childActive = child.match(pathname);
+                    return (
+                      <Link
+                        key={child.key}
+                        href={child.href}
+                        onClick={onNavigate}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${childActive
+                          ? "font-semibold bg-primary/5 text-primary"
+                          : "font-medium text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-800 dark:hover:text-slate-200"
+                          }`}
+                      >
+                        {child.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
@@ -322,7 +260,7 @@ export function IeltsSidebar() {
 
   return (
     <aside
-      className={`${width} shrink-0 bg-white dark:bg-slate-950 h-full sticky top-0 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out z-30`}
+      className={`${width} shrink-0 bg-white dark:bg-slate-950 h-full sticky top-0 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out z-30 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none`}
     >
       <SidebarContent />
     </aside>
@@ -332,22 +270,21 @@ export function IeltsSidebar() {
 /* ─── Overlay drawer (for practice pages) ─── */
 export function IeltsSidebarOverlay() {
   const { isOverlayOpen, closeOverlay } = useIeltsSidebar();
+  const { resolvedTheme } = useTheme();
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/40 z-[60] transition-opacity duration-300 ${
-          isOverlayOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 bg-black/40 z-[60] transition-opacity duration-300 ${isOverlayOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         onClick={closeOverlay}
       />
 
       {/* Drawer */}
       <aside
-        className={`fixed top-0 left-0 h-full w-[240px] bg-white dark:bg-slate-950 z-[65] transform transition-transform duration-300 ease-in-out ${
-          isOverlayOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-[240px] bg-white dark:bg-slate-950 z-[65] transform transition-transform duration-300 ease-in-out ${isOverlayOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Drawer header with close button */}
         <div className="h-[56px] flex items-center px-4">
@@ -364,7 +301,10 @@ export function IeltsSidebarOverlay() {
           </button>
           <Link href="/" className="ml-3" onClick={closeOverlay}>
             <img
-              src="https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+              src={resolvedTheme === "dark"
+                ? "https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
+                : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+              }
               alt="Lexon Logo"
               className="h-10 w-auto object-contain"
             />
@@ -372,7 +312,7 @@ export function IeltsSidebarOverlay() {
         </div>
 
         {/* Nav content */}
-        <div className="overflow-y-auto h-[calc(100%-56px)]">
+        <div className="overflow-y-auto h-[calc(100%-56px)] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none">
           <SidebarContent isOverlay onNavigate={closeOverlay} />
         </div>
       </aside>

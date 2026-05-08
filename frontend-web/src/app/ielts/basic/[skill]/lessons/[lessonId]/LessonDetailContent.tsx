@@ -59,27 +59,27 @@ const blockConfig: Record<
   { bg: string; border: string; icon: React.ReactNode; label: string }
 > = {
   traps: {
-    bg: "bg-[#FFF0F0]",
-    border: "border border-[#FFD6D6]",
+    bg: "bg-[#FFF0F0] dark:bg-red-950/20",
+    border: "border border-[#FFD6D6] dark:border-red-900/30",
     icon: <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />,
     label: "Common Traps",
   },
   strategy: {
-    bg: "bg-[#FFF9E6]",
-    border: "border border-[#FFF0C2]",
-    icon: <Lightbulb className="w-5 h-5 text-[#E0A800] shrink-0 mt-0.5" />,
+    bg: "bg-[#FFF9E6] dark:bg-amber-950/20",
+    border: "border border-[#FFF0C2] dark:border-amber-900/30",
+    icon: <Lightbulb className="w-5 h-5 text-[#E0A800] dark:text-amber-400 shrink-0 mt-0.5" />,
     label: "Step-by-Step Strategy",
   },
   tips: {
-    bg: "bg-[#F0F7FF]",
-    border: "border border-[#C8DFFF]",
-    icon: <Info className="w-5 h-5 text-[#3B82F6] shrink-0 mt-0.5" />,
+    bg: "bg-[#F0F7FF] dark:bg-blue-950/20",
+    border: "border border-[#C8DFFF] dark:border-blue-900/30",
+    icon: <Info className="w-5 h-5 text-[#3B82F6] dark:text-blue-400 shrink-0 mt-0.5" />,
     label: "Pro-Tips for Test Day",
   },
   overview: {
-    bg: "bg-[#F6F6F6]",
-    border: "border border-transparent",
-    icon: <BookOpen className="w-5 h-5 text-gray-500 shrink-0 mt-0.5" />,
+    bg: "bg-[#F6F6F6] dark:bg-slate-900/50",
+    border: "border border-transparent dark:border-slate-800",
+    icon: <BookOpen className="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0 mt-0.5" />,
     label: "Overview",
   },
   section: {
@@ -117,11 +117,17 @@ function LessonQuizQuestion({
   });
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm relative overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden transition-colors">
       <div className="mb-6">
-        <h3 className="font-bold text-gray-900 text-[16px] sm:text-[17px] leading-relaxed flex items-start">
-          <span className="text-gray-300 mr-4 font-black text-xl select-none">{index + 1}.</span>
-          <span className="flex-1 tracking-tight mt-0.5"><ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{q.question}</ReactMarkdown></span>
+        <h3 className="font-bold text-gray-900 dark:text-white text-[16px] sm:text-[17px] leading-relaxed flex items-start">
+          <span className="text-gray-300 dark:text-gray-700 mr-4 font-black text-xl select-none">{index + 1}.</span>
+          <span className="flex-1 tracking-tight mt-0.5">
+          <div className="dark:prose-invert">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+              {q.question}
+            </ReactMarkdown>
+          </div>
+          </span>
         </h3>
       </div>
 
@@ -131,15 +137,15 @@ function LessonQuizQuestion({
           const isThisCorrect = opt === q.answer || letter === q.answer;
           const isThisSelected = selected === opt || selected === letter;
 
-          let style = "bg-[#F8F9FA] text-gray-700 hover:bg-gray-100/80 border border-transparent";
+          let style = "bg-[#F8F9FA] dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 border border-transparent";
           if (submitted && isThisCorrect) {
-            style = "bg-[#E6F4EA] text-green-900 border border-[#CEEAD6]";
+            style = "bg-[#E6F4EA] dark:bg-green-900/20 text-green-900 dark:text-green-400 border border-[#CEEAD6] dark:border-green-800/30";
           } else if (submitted && isThisSelected && !isThisCorrect) {
-            style = "bg-[#FCE8E6] text-red-900 border border-[#FAD2CF]";
+            style = "bg-[#FCE8E6] dark:bg-red-900/20 text-red-900 dark:text-red-400 border border-[#FAD2CF] dark:border-red-800/30";
           } else if (submitted) {
-            style = "bg-transparent text-gray-400 cursor-not-allowed border border-transparent";
+            style = "bg-transparent text-gray-400 dark:text-gray-600 cursor-not-allowed border border-transparent";
           } else if (isThisSelected) {
-            style = "bg-[#FFF9E6] text-gray-900 border border-[#FFC107]/50";
+            style = "bg-[#FFF9E6] dark:bg-amber-900/20 text-gray-900 dark:text-amber-200 border border-[#FFC107]/50 dark:border-amber-500/30";
           }
 
           return (
@@ -149,7 +155,7 @@ function LessonQuizQuestion({
               onClick={() => onSelect(letter)}
               className={`flex items-center gap-4 px-5 py-4 rounded-xl text-[14px] transition-all text-left ${style}`}
             >
-              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 shadow-sm ${isThisSelected && !submitted ? "bg-white text-gray-900 ring-1 ring-gray-200" : "bg-white text-gray-500 ring-1 ring-gray-100"}`}>
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 shadow-sm transition-colors ${isThisSelected && !submitted ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white ring-1 ring-gray-200 dark:ring-gray-600" : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 ring-1 ring-gray-100 dark:ring-gray-700"}`}>
                 {letter}
               </span>
               <span className="flex-1 font-semibold text-[14.5px]">{opt.replace(/^([A-D])[.)]\s*/, "")}</span>
@@ -253,7 +259,7 @@ function LessonQuiz({ questions, onCompletion, onNext }: { questions: QuizQuesti
         />
       ))}
 
-      <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white border border-gray-100 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-4 mx-auto w-full md:max-w-2xl">
+      <div className="sticky bottom-6 z-20 flex items-center justify-between bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-black/20 mt-4 mx-auto w-full md:max-w-2xl transition-colors">
         <div className="text-[14px] font-extrabold text-gray-400 tracking-tight">
           {Object.keys(answers).length} / {questions.length} Answered
         </div>
@@ -396,17 +402,17 @@ export function LessonDetailContent({
 
   return (
     <FloatingSelectionManager>
-      <div className="flex flex-col lg:flex-row w-full items-stretch relative min-h-[700px]">
-        <div className="flex-1 flex flex-col w-full min-w-0 bg-white">
-          <div className="px-6 lg:px-12 pt-10 pb-6 bg-white shrink-0 flex flex-col items-center text-center">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1 flex items-center justify-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
-              <Link href="/ielts/basic/library" className="hover:text-gray-900 transition-colors px-1">Library</Link>
+      <div className="flex flex-col lg:flex-row w-full items-stretch relative min-h-[700px] bg-white dark:bg-slate-950 transition-colors">
+        <div className="flex-1 flex flex-col w-full min-w-0 bg-white dark:bg-slate-950">
+          <div className="px-6 lg:px-12 pt-10 pb-6 bg-white dark:bg-slate-950 shrink-0 flex flex-col items-center text-center">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1 flex items-center justify-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
+              <Link href="/ielts/basic/library" className="hover:text-gray-900 dark:hover:text-white transition-colors px-1">Library</Link>
               <span className="opacity-30">/</span>
-              <Link href={`/ielts/basic/${skill?.toLowerCase() || 'listening'}/lessons`} className="hover:text-gray-900 transition-colors px-1">{foundationVocabLesson.skill?.name || skill}</Link>
+              <Link href={`/ielts/basic/${skill?.toLowerCase() || 'listening'}/lessons`} className="hover:text-gray-900 dark:hover:text-white transition-colors px-1">{foundationVocabLesson.skill?.name || skill}</Link>
               <span className="opacity-30">/</span>
-              <span className="px-1 text-gray-300">{foundationVocabLesson.chapter}</span>
+              <span className="px-1 text-gray-300 dark:text-gray-700">{foundationVocabLesson.chapter}</span>
             </div>
-            <h1 className="text-2xl font-extrabold text-[#111] tracking-tight">
+            <h1 className="text-2xl font-extrabold text-[#111] dark:text-white tracking-tight">
               {foundationVocabLesson.title}
             </h1>
           </div>
@@ -437,11 +443,11 @@ export function LessonDetailContent({
                     >
                       <div className={`flex items-start gap-2.5 ${isSection ? "mb-1" : "mb-3"}`}>
                         {cfg.icon}
-                        <h3 className={`font-bold text-gray-900 tracking-tight ${isSection ? "text-[20px] md:text-[22px] mb-2" : "text-[14px] uppercase text-gray-700 tracking-wider"}`}>
+                        <h3 className={`font-bold text-gray-900 dark:text-white tracking-tight ${isSection ? "text-[20px] md:text-[22px] mb-2" : "text-[14px] uppercase text-gray-700 dark:text-gray-400 tracking-wider"}`}>
                           {block.title || cfg.label}
                         </h3>
                       </div>
-                      <div className={`prose prose-sm prose-slate max-w-none text-gray-600 leading-relaxed ${!isSection ? "pl-7" : ""}`}>
+                      <div className={`prose prose-sm prose-slate dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 leading-relaxed ${!isSection ? "pl-7" : ""}`}>
                         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                           {block.content ?? ""}
                         </ReactMarkdown>
@@ -452,7 +458,7 @@ export function LessonDetailContent({
               {hasQuiz && (
                 <div id="foundationVocabLesson-quiz-section" className="mt-4">
                   <div className="flex items-center gap-3 mb-5">
-                    <h2 className="text-[18px] font-extrabold text-gray-900">
+                    <h2 className="text-[18px] font-extrabold text-gray-900 dark:text-white">
                       Check Your Understanding
                     </h2>
                   </div>
@@ -464,9 +470,9 @@ export function LessonDetailContent({
           </div>
         </div>
         {tocItems.length > 0 && (
-          <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 sticky top-6 self-start max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar">
-            <h3 className="text-[11px] font-extrabold text-gray-400 mb-4 tracking-widest uppercase px-2">Table of contents</h3>
-            <div className="flex flex-col relative border-l border-gray-200 ml-2">
+          <aside className="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 sticky top-6 self-start max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar bg-white dark:bg-slate-950 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
+            <h3 className="text-[11px] font-extrabold text-gray-400 dark:text-gray-500 mb-4 tracking-widest uppercase px-2">Table of contents</h3>
+            <div className="flex flex-col relative border-l border-gray-200 dark:border-gray-800 ml-2">
               {tocItems.map((item, idx) => {
                 const isMainHeading = true;
                 const isActive = activeId === item.id;
@@ -481,8 +487,8 @@ export function LessonDetailContent({
                       }}
                       className={`text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full
                       ${isActive
-                          ? 'border-gray-900 text-gray-900 font-extrabold'
-                          : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium'
+                          ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white font-extrabold'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 font-medium'
                         }
                       ${isMainHeading ? 'pl-4 text-[13.5px]' : 'pl-6 text-[12.5px]'}
                     `}
@@ -502,8 +508,8 @@ export function LessonDetailContent({
                       }
                     }}
                     className={`text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeId === "foundationVocabLesson-quiz-section"
-                        ? 'border-gray-900 text-gray-900 font-extrabold'
-                        : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 font-medium'
+                        ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white font-extrabold'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 font-medium'
                       }`}
                   >
                     Check Your Understanding

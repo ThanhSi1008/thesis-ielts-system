@@ -18,6 +18,7 @@ export default function SpeakingDescriptors() {
       descriptors={SPEAKING_DESCRIPTORS}
       highlightedBand={highlightedBand}
       onBandSelect={setHighlightedBand}
+      themeColor="rose"
     />
   );
 }

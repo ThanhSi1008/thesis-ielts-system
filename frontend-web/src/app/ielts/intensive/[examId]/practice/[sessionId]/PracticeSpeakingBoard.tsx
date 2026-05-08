@@ -52,7 +52,7 @@ export default function PracticeSpeakingBoard({
       examType: "SPEAKING",
       answers: submittedAnswers,
       timeTaken: (initialSeconds || ieltsIntensiveExam.duration * 60) - secondsLeft,
-      resultUrl: `/ielts/intensive/${examId}/ieltsIntensiveResult/${sessionId}`,
+      resultUrl: `/ielts/intensive/${examId}/result/${sessionId}`,
     });
   };
 

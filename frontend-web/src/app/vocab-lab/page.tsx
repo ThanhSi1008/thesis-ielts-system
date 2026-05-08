@@ -10,6 +10,7 @@ import { BrowseTab } from './components/BrowseTab';
 import { StatsTab } from './components/StatsTab';
 import CommunityPage from './community/page';
 import { useIeltsSidebar } from '@/contexts/IeltsSidebarContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type Tab = 'decks' | 'add' | 'browse' | 'stats' | 'community';
 
@@ -49,6 +50,7 @@ const NAV_ITEMS = [
 export default function VocabLabPage() {
   const [activeTab, setActiveTab] = useState<Tab>('decks');
   const { mode, isOverlayOpen, closeOverlay } = useIeltsSidebar();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -131,7 +133,10 @@ export default function VocabLabPage() {
           </button>
           <Link href="/" className="ml-3" onClick={closeOverlay}>
             <img
-              src="https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+              src={resolvedTheme === 'dark'
+                ? 'https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png'
+                : 'https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png'
+              }
               alt="Lexon Logo"
               className="h-10 w-auto object-contain"
             />

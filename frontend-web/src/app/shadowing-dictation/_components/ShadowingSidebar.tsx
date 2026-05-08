@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 /* ─── Nav items definition ─── */
 interface NavItem {
@@ -199,6 +200,7 @@ export function ShadowingSidebar() {
 /* ─── Overlay drawer (for practice pages) ─── */
 export function ShadowingSidebarOverlay() {
   const { isOverlayOpen, closeOverlay } = useIeltsSidebar();
+  const { resolvedTheme } = useTheme();
 
   return (
     <>
@@ -231,7 +233,10 @@ export function ShadowingSidebarOverlay() {
           </button>
           <Link href="/" className="ml-3" onClick={closeOverlay}>
             <img
-              src="https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+              src={resolvedTheme === "dark"
+                ? "https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
+                : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+              }
               alt="Lexon Logo"
               className="h-10 w-auto object-contain"
             />

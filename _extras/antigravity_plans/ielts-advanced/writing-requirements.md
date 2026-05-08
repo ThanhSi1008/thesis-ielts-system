@@ -7,49 +7,89 @@ Add an **IELTS Advanced Writing** module under the IELTS Intensive section, prov
 ### Reference
 - **UI Inspiration**: [oneielts.com/ielts-writing/practice](https://oneielts.com/ielts-writing/practice)
 - **Scoring Pipeline Reference**: Existing `backend-ai/app/services/writing_grader.py` + `WritingResultView.tsx`
+- **Data Source**: [engnovate.com](https://engnovate.com/ielts-writing-tests/) — WordPress REST API (public, no auth required)
 
 ---
 
 ## 2. Data Source Strategy
 
-> **Problem**: There is no free public API for IELTS Writing prompts.
+> **Discovery**: engnovate.com exposes a **fully public WordPress REST API** with a custom post type `ielts_writing_test`. No authentication, no scraping libraries needed — just HTTP `GET` requests.
 
-### 2.1. Recommended: Static Dataset + AI Generation (Hybrid)
+### 2.1. API Endpoints (engnovate.com)
 
-| Source | Type | Details |
-|--------|------|---------|
-| **Kaggle — IELTS Writing Scored Essays** | CSV/JSON | [kaggle.com/datasets/mazlumi/ielts-writing-scored-essays-dataset](https://www.kaggle.com/datasets/mazlumi/ielts-writing-scored-essays-dataset) — 1,200+ essays with prompts, task type, and examiner comments. Extract unique prompts. |
-| **Hugging Face — chillies/IELTS-writing-task-2-evaluation** | Dataset | [huggingface.co/datasets/chillies/IELTS-writing-task-2-evaluation](https://huggingface.co/datasets/chillies/IELTS-writing-task-2-evaluation) — 10,000+ Task 2 essays with prompts and band scores. |
-| **Hugging Face — Jackrong/IELTS-writing-feedback-reasoning** | Dataset | [huggingface.co/datasets/Jackrong/IELTS-writing-feedback-reasoning](https://huggingface.co/datasets/Jackrong/IELTS-writing-feedback-reasoning) — ~9,000 samples with examiner-style feedback. |
-| **Existing Cambridge Exams** | Already in DB | The system already has Cambridge IELTS 14–19 Writing exams seeded. These can be used as-is for the "Full Test" flow. |
-| **AI-Generated Prompts** | On-the-fly | Use Gemini API to generate additional unique prompts on demand (admin tool or scheduled seed job). |
+| Endpoint | Purpose | Example |
+|----------|---------|---------|
+| `GET /wp-json/wp/v2/ielts_writing_test` | List all writing tests | `?per_page=100&page=1&_fields=id,slug,title,featured_media,ielts_writing_test_category` |
+| `GET /wp-json/wp/v2/ielts_writing_test/{id}` | Get single test metadata | Returns `featured_media` (image ID), `title`, `slug`, `category` |
+| `GET /wp-json/wp/v2/media/{media_id}` | Get image URL + metadata | Returns `source_url`, `alt_text`, `media_details.sizes` |
+| `GET /wp-json/wp/v2/ielts_writing_test_category` | Get all categories | 9 categories, 234 total tests |
 
-### 2.2. Suggested Data Pipeline
+### 2.2. Available Data (234 tests across 9 categories)
+
+| Category ID | Name | Count | Type |
+|-------------|------|-------|------|
+| `1546` | **Cambridge Academic** | 132 | Task 1 (charts) + Task 2 (essays) |
+| `1623` | Cambridge General | 40 | Task 1 (letters) + Task 2 (essays) |
+| `1644` | Forecast Academic | 10 | Predicted exam topics |
+| `1635` | Official Guide Academic | 8 | Official Cambridge guide material |
+| `1636` | Official Guide General | 2 | Official Cambridge guide material |
+| `1632` | Practice Test Plus Academic | 18 | Extra practice material |
+| `1634` | Practice Test Plus General | 3 | Extra practice material |
+| `1642` | Recent Actual Tests Academic | 15 | Real past exam questions |
+| `1643` | Recent Actual Tests General | 6 | Real past exam questions |
+| | **Total** | **234** | |
+
+> **Key Finding**: The `content.rendered` field is **empty** — prompt text is loaded dynamically by the frontend React app. We need to **combine** the API (metadata + images) with **HTML parsing** (prompt text from the page) for complete data.
+
+### 2.3. Data Per Test (API Response)
+
+| Field | Available via API? | Example |
+|-------|--------------------|---------|
+| `id` | ✅ | `14944` |
+| `slug` | ✅ | `cambridge-ielts-13-academic-writing-test-2-task-1` |
+| `title.rendered` | ✅ | `Cambridge IELTS 13 Academic Writing Test 2 (Task 1)` |
+| `featured_media` | ✅ | `14938` → resolves to image URL via Media API |
+| `ielts_writing_test_category` | ✅ | `[1546]` → Cambridge Academic |
+| **Prompt text** | ❌ (HTML parse needed) | "The bar chart below shows..." |
+| **Image URL** | ✅ (via Media API) | `https://engnovate.com/wp-content/uploads/2023/08/cambridge-ielts-13-academic-writing-2.jpg` |
+
+### 2.4. Data Pipeline
 
 ```
-1. Download Kaggle + HuggingFace datasets (one-time)
-2. Python script: Extract unique prompts → deduplicate → categorize by topic/task type
-3. Store as JSON seed file: prisma/data/ielts-advanced/writing-prompts.json
-4. Seeder writes to DB (IeltsAdvancedWritingPrompt table)
-5. Optional: Admin panel "Generate Prompt" button → Gemini API → adds to DB
+1. Node.js script: Fetch all tests from WP REST API (paginated, ~3 pages)
+2. For each test with featured_media > 0: resolve → image URL via Media API
+3. For each test: HTTP GET the page HTML → parse prompt text from DOM
+4. Parse slug to extract: book number, test number, task number
+5. Categorize: Task 1 (has image) vs Task 2 (text only)
+6. Output: prisma/data/ielts-advanced/writing-prompts.json
+7. Seeder writes to DB (IeltsAdvancedWritingPrompt table)
 ```
 
-### 2.3. Prompt Data Schema (JSON)
+### 2.5. Prompt Data Schema (JSON)
 
 ```json
 {
-  "id": "wp-001",
-  "taskType": "TASK_1 | TASK_2",
-  "subType": "line_graph | bar_chart | pie_chart | table | map | process | mixed | opinion | discussion | problem_solution | advantages_disadvantages | two_part",
-  "topic": "Education",
-  "prompt": "The graph below shows the percentage of...",
-  "imageUrl": "https://...",
+  "id": "engnovate-14944",
+  "taskType": "TASK_1",
+  "subType": "bar_chart",
+  "source": "cambridge_13",
+  "bookNumber": 13,
+  "testNumber": 2,
+  "category": "cambridge-academic",
+  "prompt": "The bar chart below shows the percentage of Australian men and women in different age groups who did regular physical activity in 2010.",
+  "imageUrl": "https://engnovate.com/wp-content/uploads/2023/08/cambridge-ielts-13-academic-writing-2.jpg",
   "minimumWords": 150,
   "suggestedTime": 20,
-  "sampleAnswer": "...",
   "difficulty": "medium",
-  "source": "cambridge_17 | kaggle | ai_generated"
+  "engnovateSlug": "cambridge-ielts-13-academic-writing-test-2-task-1"
 }
+```
+
+### 2.6. Scraping Script Location
+
+```
+backend-core/prisma/scripts/
+└── scrape-engnovate-writing.mjs   # Node.js script (fetch + cheerio)
 ```
 
 ---

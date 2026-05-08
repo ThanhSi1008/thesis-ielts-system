@@ -107,7 +107,7 @@ export default function TakeReadingBoard({
       examType: "READING",
       answers,
       timeTaken,
-      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/ieltsIntensiveResult/${sessionInfo.id}`,
+      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/result/${sessionInfo.id}`,
     });
   };
 

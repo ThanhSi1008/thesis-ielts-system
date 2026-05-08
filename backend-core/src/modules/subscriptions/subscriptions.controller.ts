@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from "@nestjs/common";
+import { Controller, Get, Post, Body, UseGuards, Request, Query } from "@nestjs/common";
 import { SubscriptionsService } from "./subscriptions.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
-import { AdminGrantDto, CheckoutDto, CancelSubscriptionDto } from "./dto/subscriptions.dto";
+import { AdminGrantDto, CheckoutDto, CancelSubscriptionDto, VerifyCheckoutDto } from "./dto/subscriptions.dto";
 
 @Controller("subscriptions")
 export class SubscriptionsController {
@@ -53,6 +53,26 @@ export class SubscriptionsController {
   @UseGuards(JwtAuthGuard)
   async checkout(@Request() req: any, @Body() dto: CheckoutDto) {
     return this.subscriptionsService.checkout(req.user.id, dto.planId);
+  }
+
+  /**
+   * POST /api/v1/subscriptions/checkout/verify — Verify payment after redirect
+   * Called by the frontend after user returns from VNPay.
+   */
+  @Post("checkout/verify")
+  @UseGuards(JwtAuthGuard)
+  async verifyCheckout(@Body() dto: VerifyCheckoutDto) {
+    return this.subscriptionsService.verifyCheckout(dto.sessionId, dto.vnpParams);
+  }
+
+  /**
+   * GET /api/v1/subscriptions/webhook/vnpay — VNPay IPN callback
+   * Called server-to-server by VNPay. No JWT auth.
+   * VNPay sends params as query strings on a GET request.
+   */
+  @Get("webhook/vnpay")
+  async vnpayIpn(@Query() query: Record<string, string>) {
+    return this.subscriptionsService.handleVnpayIpn(query);
   }
 
   /**

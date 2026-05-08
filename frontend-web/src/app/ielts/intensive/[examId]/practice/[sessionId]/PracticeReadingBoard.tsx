@@ -143,7 +143,7 @@ export default function PracticeReadingBoard({
       examType: "READING",
       answers,
       timeTaken,
-      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/ieltsIntensiveResult/${sessionInfo.id}`,
+      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/result/${sessionInfo.id}`,
     });
   };
 

@@ -14,9 +14,9 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String?             // Nullable: Google OAuth users have no password
-  googleId  String?  @unique    // Google sub — unique per Google account
-  avatar    String?             // Google profile picture URL
+  password  String? // Nullable: Google OAuth users have no password
+  googleId  String?  @unique // Google sub — unique per Google account
+  avatar    String? // Google profile picture URL
   firstName String?
   lastName  String?
   role      UserRole @default(STUDENT)
@@ -25,39 +25,41 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  examSessions          ExamSession[]
-  results               Result[]
-  progress              LearningProgress[]
-  pronunciationAttempts FoundationPronunciationAttempt[]
-  pronunciationProgress FoundationPronunciationProgress[]
-  vocabularyProgress    FoundationVocabProgress[]
-  grammarProgress       FoundationGrammarProgress[]
-  decks                 Deck[]
-  sharedDecks           SharedDeck[]
-  questionNotes             QuestionNote[]
-  shadowingVideos           ShadowingVideo[]   @relation("UserShadowingVideos")
-  shadowingFolders          ShadowingFolder[]  @relation("UserShadowingFolders")
-  shadowingProgress         ShadowingProgress[] @relation("UserShadowingProgress")
-  dictationVideos           DictationVideo[]   @relation("UserDictationVideos")
-  dictationFolders          DictationFolder[]  @relation("UserDictationFolders")
-  dictationProgress         DictationProgress[] @relation("UserDictationProgress")
-  ieltsBasicProgress         IeltsBasicProgress[]
-  ieltsWritingAnswers        IeltsBasicWritingAnswer[]
-  practiceSessions           IeltsAdvancedListeningSession[]
-  practiceReadingSessions    IeltsAdvancedReadingSession[]
+  examSessions             ExamSession[]
+  results                  Result[]
+  progress                 LearningProgress[]
+  pronunciationAttempts    FoundationPronunciationAttempt[]
+  pronunciationProgress    FoundationPronunciationProgress[]
+  vocabularyProgress       FoundationVocabProgress[]
+  grammarProgress          FoundationGrammarProgress[]
+  decks                    Deck[]
+  sharedDecks              SharedDeck[]
+  questionNotes            QuestionNote[]
+  shadowingVideos          ShadowingVideo[]                  @relation("UserShadowingVideos")
+  shadowingFolders         ShadowingFolder[]                 @relation("UserShadowingFolders")
+  shadowingProgress        ShadowingProgress[]               @relation("UserShadowingProgress")
+  dictationVideos          DictationVideo[]                  @relation("UserDictationVideos")
+  dictationFolders         DictationFolder[]                 @relation("UserDictationFolders")
+  dictationProgress        DictationProgress[]               @relation("UserDictationProgress")
+  ieltsBasicProgress       IeltsBasicProgress[]
+  ieltsWritingAnswers      IeltsBasicWritingAnswer[]
+  practiceSessions         IeltsAdvancedListeningSession[]
+  practiceReadingSessions  IeltsAdvancedReadingSession[]
+  advancedWritingSessions  IeltsAdvancedWritingSession[]
+  advancedSpeakingSessions IeltsAdvancedSpeakingSession[]
 
-  userAchievements     UserAchievement[]
-  xpLogs               XpLog[]
+  userAchievements UserAchievement[]
+  xpLogs           XpLog[]
 
-  ieltsProfile               IeltsProfile?
-  teacherLinks               StudentTeacherLink[] @relation("StudentLinks")
-  studentLinks               StudentTeacherLink[] @relation("TeacherLinks")
-  notifications              Notification[]
-  posts              Post[]         @relation("UserPosts")
-  comments           Comment[]      @relation("UserComments")
-  postLikes          PostLike[]     @relation("UserPostLikes")
-  bookmarks          PostBookmark[] @relation("UserBookmarks")
-  subscription       Subscription?
+  ieltsProfile  IeltsProfile?
+  teacherLinks  StudentTeacherLink[] @relation("StudentLinks")
+  studentLinks  StudentTeacherLink[] @relation("TeacherLinks")
+  notifications Notification[]
+  posts         Post[]               @relation("UserPosts")
+  comments      Comment[]            @relation("UserComments")
+  postLikes     PostLike[]           @relation("UserPostLikes")
+  bookmarks     PostBookmark[]       @relation("UserBookmarks")
+  subscription  Subscription?
 
   @@map("users")
 }
@@ -105,21 +107,21 @@ enum Difficulty {
 
 // ExamSession model - tracks individual exam attempts
 model ExamSession {
-  id          String        @id @default(uuid())
-  userId      String
-  examId      String
-  status      SessionStatus @default(IN_PROGRESS)
-  answers     Json // Stores user answers
-  timeTaken   Int?          // Exact time spent in seconds
+  id           String        @id @default(uuid())
+  userId       String
+  examId       String
+  status       SessionStatus @default(IN_PROGRESS)
+  answers      Json // Stores user answers
+  timeTaken    Int? // Exact time spent in seconds
   practicePart Int?
-  startedAt   DateTime      @default(now())
-  submittedAt DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  startedAt    DateTime      @default(now())
+  submittedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   // Relations
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exam   Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam   Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
   result Result?
 
   @@map("exam_sessions")
@@ -137,21 +139,21 @@ enum SessionStatus {
 
 // Result model - stores exam scores and feedback
 model Result {
-  id              String   @id @default(uuid())
-  userId          String
-  sessionId       String   @unique
-  totalScore      Float
-  readingScore    Int?
-  listeningScore  Int?
-  speakingScore   Float?
-  writingScore    Float?
-  feedback        Json? // AI-generated feedback
-  gradedAt        DateTime @default(now())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(uuid())
+  userId         String
+  sessionId      String   @unique
+  totalScore     Float
+  readingScore   Int?
+  listeningScore Int?
+  speakingScore  Float?
+  writingScore   Float?
+  feedback       Json? // AI-generated feedback
+  gradedAt       DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relations
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@map("results")
@@ -159,16 +161,16 @@ model Result {
 
 // LearningMaterial model - stores learning content
 model LearningMaterial {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   title       String
   description String?
   content     Json // Stores content in structured format
   type        MaterialType
   difficulty  Difficulty
   tags        String[]
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isPublished Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   // Relations
   progress LearningProgress[]
@@ -236,7 +238,7 @@ model FoundationVocabWord {
   updatedAt    DateTime @updatedAt
 
   // Relations
-  lesson                FoundationVocabLesson                  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson                FoundationVocabLesson            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   pronunciationAttempts FoundationPronunciationAttempt[]
 
   @@map("vocabularies")
@@ -260,7 +262,7 @@ model Grammar {
 
 // FoundationPronunciationAttempt model - tracks user pronunciation practice attempts
 model FoundationPronunciationAttempt {
-  id              String                   @id @default(uuid())
+  id              String              @id @default(uuid())
   userId          String
   vocabularyId    String?
   audioUrl        String // User's recording URL
@@ -268,12 +270,12 @@ model FoundationPronunciationAttempt {
   targetWord      String // Expected word
   score           Int? // 0-100
   feedback        Json? // Detailed feedback
-  status          PronunciationStatus      @default(PENDING)
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+  status          PronunciationStatus @default(PENDING)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   // Relations
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   vocabulary FoundationVocabWord? @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
 
   @@map("pronunciation_attempts")
@@ -307,19 +309,19 @@ model FoundationVocabBook {
 
 // FoundationVocabWord Unit (e.g., "Unit 1: The Lion and the Rabbit")
 model FoundationVocabUnit {
-  id        String   @id @default(uuid())
-  bookId    String
-  title     String
-  order     Int
+  id            String   @id @default(uuid())
+  bookId        String
+  title         String
+  order         Int
   // Story content for reading comprehension
-  storyTitle   String?
-  storyContent String?  @db.Text
+  storyTitle    String?
+  storyContent  String?  @db.Text
   storyImageUrl String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  book  FoundationVocabBook  @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  words FoundationVocabItem[]
+  book      FoundationVocabBook       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  words     FoundationVocabItem[]
   exercises FoundationVocabExercise[]
   questions FoundationVocabQuestion[]
   progress  FoundationVocabProgress[]
@@ -353,7 +355,7 @@ model FoundationVocabExercise {
   unitId   String
   question String // The definition
   answer   String // The correct word
-  options  Json   // Array of word options
+  options  Json // Array of word options
   order    Int    @default(0)
 
   unit FoundationVocabUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
@@ -367,7 +369,7 @@ model FoundationVocabQuestion {
   unitId   String
   question String
   type     String // "multiple_choice" or "fill_blank"
-  options  Json?  // For multiple choice
+  options  Json? // For multiple choice
   answer   String
   order    Int    @default(0)
 
@@ -383,15 +385,15 @@ model FoundationVocabProgress {
   unitId        String
   wordsLearned  Int       @default(0)
   totalWords    Int       @default(20)
-  exerciseScore Int?      // Score out of 100
-  questionScore Int?      // Score out of 100
+  exerciseScore Int? // Score out of 100
+  questionScore Int? // Score out of 100
   isCompleted   Boolean   @default(false)
   completedAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   unit FoundationVocabUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@unique([userId, unitId])
@@ -404,9 +406,9 @@ model FoundationGrammarBook {
   slug      String   @unique
   name      String
   author    String
-  level     String   // "Elementary", "Intermediate", "Advanced"
+  level     String // "Elementary", "Intermediate", "Advanced"
   imageUrl  String
-  color     String   // Hex color for UI
+  color     String // Hex color for UI
   unitCount Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -451,18 +453,18 @@ model FoundationGrammarExercise {
 
 // Grammar Progress (per-user, per-unit)
 model FoundationGrammarProgress {
-  id               String   @id @default(uuid())
-  userId           String
-  unitId           String
-  theoryCompleted  Boolean  @default(false)
-  exerciseScore    Int?     // Best score (correct count)
-  exerciseTotal    Int?     // Total exercise count
-  completedAt      DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String    @id @default(uuid())
+  userId          String
+  unitId          String
+  theoryCompleted Boolean   @default(false)
+  exerciseScore   Int? // Best score (correct count)
+  exerciseTotal   Int? // Total exercise count
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unit FoundationGrammarUnit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  user User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit FoundationGrammarUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
   @@unique([userId, unitId])
   @@map("grammar_progress")
@@ -472,14 +474,14 @@ model FoundationGrammarProgress {
 model FoundationPronunciationSound {
   id          String   @id @default(uuid())
   symbol      String   @unique
-  type        String   // "monophthong", "diphthong", "consonant"
-  word        String   // Primary example word (shown on chart tile)
-  name        String?  // Human-readable name, e.g. "Long E", "Voiceless Dental Fricative"
-  description String?  @db.Text  // How to produce the sound (paragraph)
-  tip         String?  @db.Text  // Short pronunciation tip (displayed in a callout)
-  imageUrl    String?  // Mouth position diagram URL
-  audioUrl    String?  // Audio of the isolated sound
-  videoUrl    String?  // Optional video demonstration URL
+  type        String // "monophthong", "diphthong", "consonant"
+  word        String // Primary example word (shown on chart tile)
+  name        String? // Human-readable name, e.g. "Long E", "Voiceless Dental Fricative"
+  description String?  @db.Text // How to produce the sound (paragraph)
+  tip         String?  @db.Text // Short pronunciation tip (displayed in a callout)
+  imageUrl    String? // Mouth position diagram URL
+  audioUrl    String? // Audio of the isolated sound
+  videoUrl    String? // Optional video demonstration URL
   voiced      Boolean? // For consonants
   order       Int      @default(0)
   createdAt   DateTime @default(now())
@@ -493,12 +495,12 @@ model FoundationPronunciationSound {
 }
 
 model FoundationSoundExample {
-  id          String  @id @default(uuid())
-  soundId     String
-  word        String  // e.g. "sheep"
-  ipa         String? // e.g. "/ʃiːp/"
-  audioUrl    String? // Audio URL for this specific word
-  order       Int     @default(0)
+  id       String  @id @default(uuid())
+  soundId  String
+  word     String // e.g. "sheep"
+  ipa      String? // e.g. "/ʃiːp/"
+  audioUrl String? // Audio URL for this specific word
+  order    Int     @default(0)
 
   sound FoundationPronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
 
@@ -506,17 +508,17 @@ model FoundationSoundExample {
 }
 
 model FoundationPronunciationProgress {
-  id             String   @id @default(uuid())
-  userId         String
-  soundId        String
-  status         PronunciationMastery @default(NEW)
-  practiceCount  Int      @default(0)   // Total practice attempts on this sound
-  bestScore      Int?                   // Best score achieved (0-100)
+  id              String               @id @default(uuid())
+  userId          String
+  soundId         String
+  status          PronunciationMastery @default(NEW)
+  practiceCount   Int                  @default(0) // Total practice attempts on this sound
+  bestScore       Int? // Best score achieved (0-100)
   lastPracticedAt DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
-  user  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
   sound FoundationPronunciationSound @relation(fields: [soundId], references: [id], onDelete: Cascade)
 
   @@unique([userId, soundId])
@@ -524,9 +526,9 @@ model FoundationPronunciationProgress {
 }
 
 enum PronunciationMastery {
-  NEW         // Never practiced
-  PRACTICING  // Practiced but best score < 80
-  MASTERED    // Best score >= 80
+  NEW // Never practiced
+  PRACTICING // Practiced but best score < 80
+  MASTERED // Best score >= 80
 }
 
 // ============================================================
@@ -559,9 +561,10 @@ enum SubscriptionStatus {
 }
 
 enum PaymentProvider {
-  MOCK       // Thesis demo — simulated payments
-  STRIPE     // Future — real payment processing
-  MANUAL     // Admin-granted subscriptions
+  MOCK // Thesis demo — simulated payments
+  VNPAY // VNPay payment gateway
+  STRIPE // Future — real payment processing
+  MANUAL // Admin-granted subscriptions
 }
 
 model Deck {
@@ -609,13 +612,13 @@ model Flashcard {
 }
 
 model FlashcardReview {
-  id          String   @id @default(uuid())
-  flashcardId String
-  rating      Int      // 1=Again, 2=Hard, 3=Good, 4=Easy (FSRS scale)
-  reviewedAt  DateTime @default(now())
+  id            String     @id @default(uuid())
+  flashcardId   String
+  rating        Int // 1=Again, 2=Hard, 3=Good, 4=Easy (FSRS scale)
+  reviewedAt    DateTime   @default(now())
   // FSRS review log fields
-  scheduledDays Int    @default(0)
-  elapsedDays   Int    @default(0)
+  scheduledDays Int        @default(0)
+  elapsedDays   Int        @default(0)
   state         CardState?
 
   flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
@@ -626,7 +629,7 @@ model FlashcardReview {
 // Card Types (Anki-style field definitions)
 model CardType {
   id          String   @id @default(uuid())
-  userId      String?  // null = built-in system type
+  userId      String? // null = built-in system type
   name        String
   description String?  @db.Text // AI prompt context: what this card type is for
   isBuiltIn   Boolean  @default(false)
@@ -674,17 +677,17 @@ model CardTemplate {
 // ============================================================
 
 model SharedDeck {
-  id            String   @id @default(uuid())
-  publisherId   String
-  name          String
-  description   String?  @db.Text
-  tags          String[]
-  lexonPayload  Json
-  importCount   Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(uuid())
+  publisherId  String
+  name         String
+  description  String?  @db.Text
+  tags         String[]
+  lexonPayload Json
+  importCount  Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  publisher     User     @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  publisher User @relation(fields: [publisherId], references: [id], onDelete: Cascade)
 
   @@index([publisherId])
   @@index([importCount])
@@ -718,7 +721,7 @@ model QuestionNote {
 // sentences JSON: {id, english, vietnamese, phonetic, words[], audioStart, audioEnd}
 model ShadowingVideo {
   id             String   @id @default(uuid())
-  userId         String?  // null = system lesson
+  userId         String? // null = system lesson
   title          String
   youtubeVideoId String?
   audioUrl       String?
@@ -775,7 +778,7 @@ model ShadowingProgress {
 // sentences JSON: {id, english, words[], audioStart, audioEnd}  (no vietnamese/phonetic)
 model DictationVideo {
   id             String   @id @default(uuid())
-  userId         String?  // null = system lesson
+  userId         String? // null = system lesson
   title          String
   youtubeVideoId String?
   audioUrl       String?
@@ -830,30 +833,30 @@ model DictationProgress {
 // ============================================================
 
 model IeltsBasicSkill {
-  id                 String                   @id @default(uuid())
-  name               String                   @unique // "Listening", "Reading", "Writing", "Speaking"
+  id                 String                        @id @default(uuid())
+  name               String                        @unique // "Listening", "Reading", "Writing", "Speaking"
   order              Int
   lessons            IeltsBasicLesson[]
   listeningExercises IeltsBasicListeningExercise[]
   readingExercises   IeltsBasicReadingExercise[]
   writingExercises   IeltsBasicWritingExercise[]
   speakingExercises  IeltsBasicSpeakingExercise[]
-  createdAt          DateTime                 @default(now())
-  updatedAt          DateTime                 @updatedAt
+  createdAt          DateTime                      @default(now())
+  updatedAt          DateTime                      @updatedAt
 
   @@map("ielts_skills")
 }
 
 model IeltsBasicLesson {
-  id                 String                   @id @default(uuid())
-  skillId            String
-  chapter            String?                  // e.g., "Chapter 01"
-  title              String                   // e.g., "Multiple Choice"
-  content            Json                     // Structured array of content blocks
-  quiz               Json?                    // Array of { question, options, answer, hint, explanation }
-  order              Int
-  createdAt          DateTime                 @default(now())
-  updatedAt          DateTime                 @updatedAt
+  id        String   @id @default(uuid())
+  skillId   String
+  chapter   String? // e.g., "Chapter 01"
+  title     String // e.g., "Multiple Choice"
+  content   Json // Structured array of content blocks
+  quiz      Json? // Array of { question, options, answer, hint, explanation }
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   skill              IeltsBasicSkill               @relation(fields: [skillId], references: [id], onDelete: Cascade)
   listeningExercises IeltsBasicListeningExercise[]
@@ -866,41 +869,41 @@ model IeltsBasicLesson {
 }
 
 model IeltsBasicListeningExercise {
-  id           String      @id @default(uuid())
+  id           String   @id @default(uuid())
   skillId      String
   lessonId     String?
-  topic        String      // e.g., "Melbourne City Tour Inquiry"
+  topic        String // e.g., "Melbourne City Tour Inquiry"
   instructions String?
-  audioUrl     String      // Always required for listening
-  transcript   Json        // Array of { speaker, text, question_number?, highlight_text? }
-  content      Json        // Array of question groups (type: multiple_choice | table | map_labelling | ...)
+  audioUrl     String // Always required for listening
+  transcript   Json // Array of { speaker, text, question_number?, highlight_text? }
+  content      Json // Array of question groups (type: multiple_choice | table | map_labelling | ...)
   order        Int
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  skill        IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  lesson       IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  progress     IeltsBasicProgress[]
+  skill    IeltsBasicSkill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson   IeltsBasicLesson?    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress IeltsBasicProgress[]
 
   @@map("ielts_listening_exercises")
 }
 
 model IeltsBasicReadingExercise {
-  id                   String      @id @default(uuid())
+  id                   String   @id @default(uuid())
   skillId              String
   lessonId             String?
-  topic                String      // e.g., "The Automobile and the American Dream"
+  topic                String // e.g., "The Automobile and the American Dream"
   instructions         String?
-  passage              String      // Plain text passage
-  passageWithLocations Json?       // Annotated array with inline question anchors
-  content              Json        // Array of question groups (type: multiple_choice | matching_headings | ...)
+  passage              String // Plain text passage
+  passageWithLocations Json? // Annotated array with inline question anchors
+  content              Json // Array of question groups (type: multiple_choice | matching_headings | ...)
   order                Int
-  createdAt            DateTime    @default(now())
-  updatedAt            DateTime    @updatedAt
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  skill        IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  lesson       IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  progress     IeltsBasicProgress[]
+  skill    IeltsBasicSkill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson   IeltsBasicLesson?    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress IeltsBasicProgress[]
 
   @@map("ielts_reading_exercises")
 }
@@ -917,7 +920,7 @@ model IeltsBasicProgress {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson            IeltsBasicLesson?            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   listeningExercise IeltsBasicListeningExercise? @relation(fields: [listeningExerciseId], references: [id], onDelete: Cascade)
   readingExercise   IeltsBasicReadingExercise?   @relation(fields: [readingExerciseId], references: [id], onDelete: Cascade)
@@ -929,23 +932,23 @@ model IeltsBasicProgress {
 }
 
 model IeltsBasicWritingExercise {
-  id           String      @id @default(uuid())
+  id           String   @id @default(uuid())
   skillId      String
   lessonId     String?
   topic        String
   instructions String?
-  prompt       String      @db.Text
+  prompt       String   @db.Text
   diagramUrl   String?
   modelAnswer  Json
   order        Int
-  taskType     Int         @default(1)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  taskType     Int      @default(1)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  skill        IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  lesson       IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  progress     IeltsBasicProgress[]
-  userAnswers  IeltsBasicWritingAnswer[]
+  skill       IeltsBasicSkill           @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson      IeltsBasicLesson?         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress    IeltsBasicProgress[]
+  userAnswers IeltsBasicWritingAnswer[]
 
   @@map("ielts_writing_exercises")
 }
@@ -954,36 +957,36 @@ model IeltsBasicWritingAnswer {
   id                String   @id @default(uuid())
   userId            String
   writingExerciseId String
-  answers           Json     @default("{}")  // Map of blankId → selectedAnswer
-  score             Int?     // Number of correct blanks
-  totalBlanks       Int?     // Total number of blanks
+  answers           Json     @default("{}") // Map of blankId → selectedAnswer
+  score             Int? // Number of correct blanks
+  totalBlanks       Int? // Total number of blanks
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  writingExercise   IeltsBasicWritingExercise @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
+  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  writingExercise IeltsBasicWritingExercise @relation(fields: [writingExerciseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, writingExerciseId])
   @@map("ielts_writing_user_answers")
 }
 
 model IeltsBasicSpeakingExercise {
-  id            String      @id @default(uuid())
-  skillId       String
-  lessonId      String?
-  topic         String                    
-  partType      Int                       
-  questionType  String      @default("cloze")  
-  instructions  String?
-  prompt        String      @db.Text
-  content       Json?                     
-  modelAnswer   Json?                     
-  order         Int
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id           String   @id @default(uuid())
+  skillId      String
+  lessonId     String?
+  topic        String
+  partType     Int
+  questionType String   @default("cloze")
+  instructions String?
+  prompt       String   @db.Text
+  content      Json?
+  modelAnswer  Json?
+  order        Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  skill    IeltsBasicSkill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  lesson   IeltsBasicLesson? @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  skill    IeltsBasicSkill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  lesson   IeltsBasicLesson?    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   progress IeltsBasicProgress[]
 
   @@map("ielts_speaking_exercises")
@@ -994,17 +997,17 @@ model IeltsBasicSpeakingExercise {
 // ============================================================
 
 model IeltsAdvancedListeningPart {
-  id             String   @id @default(uuid())
-  title          String   // e.g. "Cambridge 20 Test 4 - Listening Part 1"
-  partNumber     Int      // 1, 2, 3, 4
-  audioUrl       String
-  transcript     Json     // Speaker and text segments
-  content        Json     // Structure array using basic component types
-  questionTypes  String[] // e.g., ["form_completion", "multiple_choice"]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(uuid())
+  title         String // e.g. "Cambridge 20 Test 4 - Listening Part 1"
+  partNumber    Int // 1, 2, 3, 4
+  audioUrl      String
+  transcript    Json // Speaker and text segments
+  content       Json // Structure array using basic component types
+  questionTypes String[] // e.g., ["form_completion", "multiple_choice"]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  sessions       IeltsAdvancedListeningSession[]
+  sessions IeltsAdvancedListeningSession[]
 
   @@map("ielts_practice_listening_parts")
 }
@@ -1013,31 +1016,31 @@ model IeltsAdvancedListeningSession {
   id             String   @id @default(uuid())
   userId         String
   partId         String
-  answers        Json     // User's submitted answers
-  scoreData      Json     // Detailed struct tracking correct/total by question type
-                           // e.g. {"form_completion": {"correct": 0, "total": 10}, "multiple_choice": ...}
+  answers        Json // User's submitted answers
+  scoreData      Json // Detailed struct tracking correct/total by question type
+  // e.g. {"form_completion": {"correct": 0, "total": 10}, "multiple_choice": ...}
   totalScore     Int
   totalQuestions Int
   createdAt      DateTime @default(now())
 
-  part           IeltsAdvancedListeningPart @relation(fields: [partId], references: [id], onDelete: Cascade)
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  part IeltsAdvancedListeningPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  user User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ielts_practice_sessions")
 }
 
 model IeltsAdvancedReadingPart {
-  id             String   @id @default(uuid())
-  title          String   // e.g. "Cambridge 17 Test 1 - Reading Part 1"
-  partNumber     Int      // 1, 2, 3
-  passage        String   @db.Text
+  id                   String   @id @default(uuid())
+  title                String // e.g. "Cambridge 17 Test 1 - Reading Part 1"
+  partNumber           Int // 1, 2, 3
+  passage              String   @db.Text
   passageWithLocations Json?
-  content        Json     // Structure array using basic component types
-  questionTypes  String[] // e.g., ["multiple_choice", "matching_headings"]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  content              Json // Structure array using basic component types
+  questionTypes        String[] // e.g., ["multiple_choice", "matching_headings"]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  sessions       IeltsAdvancedReadingSession[]
+  sessions IeltsAdvancedReadingSession[]
 
   @@map("ielts_practice_reading_parts")
 }
@@ -1052,35 +1055,127 @@ model IeltsAdvancedReadingSession {
   totalQuestions Int
   createdAt      DateTime @default(now())
 
-  part           IeltsAdvancedReadingPart @relation(fields: [partId], references: [id], onDelete: Cascade)
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  part IeltsAdvancedReadingPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+  user User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ielts_practice_reading_sessions")
 }
 
+// ── IELTS ADVANCED WRITING ──
+
+model IeltsAdvancedWritingPrompt {
+  id            String   @id @default(uuid())
+  taskType      String // "TASK_1" or "TASK_2"
+  subType       String // e.g. "line_graph", "bar_chart", "opinion", "discussion"
+  source        String   @default("engnovate") // "cambridge_13", "forecast", etc.
+  category      String   @default("cambridge-academic") // category slug
+  bookNumber    Int?
+  testNumber    Int?
+  title         String
+  prompt        String   @db.Text
+  imageUrl      String?
+  minimumWords  Int      @default(150)
+  suggestedTime Int      @default(20) // minutes
+  difficulty    String   @default("medium")
+  engnovateSlug String?  @unique
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions IeltsAdvancedWritingSession[]
+
+  @@map("ielts_advanced_writing_prompts")
+}
+
+model IeltsAdvancedWritingSession {
+  id         String   @id @default(uuid())
+  userId     String
+  promptId   String
+  essay      String?  @db.Text
+  draftEssay String?  @db.Text // auto-saved draft
+  timeTaken  Int? // seconds spent writing
+  status     String   @default("IN_PROGRESS") // IN_PROGRESS | SUBMITTED | GRADING | GRADED | GRADING_FAILED
+  feedback   Json? // AI grading result (same shape as existing WritingFeedback)
+  bandScore  Float? // overall band score
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt IeltsAdvancedWritingPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([promptId])
+  @@map("ielts_advanced_writing_sessions")
+}
+
+// ── IELTS ADVANCED SPEAKING ──
+
+model IeltsAdvancedSpeakingPart {
+  id            String   @id @default(uuid())
+  partNumber    Int // 1, 2, or 3
+  partType      String // "interview" | "cue_card" | "discussion"
+  topic         String // e.g. "Personal Qualities", "News & Media"
+  source        String   @default("engnovate") // "cambridge_20", "forecast", etc.
+  category      String   @default("cambridge-academic") // category slug
+  bookNumber    Int?
+  testNumber    Int?
+  title         String
+  questions     Json // Array of { text: string }
+  engnovateSlug String?
+  isPublished   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions IeltsAdvancedSpeakingSession[]
+
+  @@unique([engnovateSlug, partNumber])
+  @@map("ielts_advanced_speaking_parts")
+}
+
+model IeltsAdvancedSpeakingSession {
+  id            String   @id @default(uuid())
+  userId        String
+  partId        String
+  audioUrls     Json? // Array of base64 audio strings (one per question)
+  transcription Json? // AI-generated transcription per question
+  timeTaken     Int? // total seconds spent
+  status        String   @default("IN_PROGRESS") // IN_PROGRESS | SUBMITTED | GRADING | GRADED | GRADING_FAILED
+  feedback      Json? // AI grading result
+  bandScore     Float? // overall band score
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  part IeltsAdvancedSpeakingPart @relation(fields: [partId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([partId])
+  @@map("ielts_advanced_speaking_sessions")
+}
+
 model IeltsProfile {
-  id                  String   @id @default(uuid())
-  userId              String   @unique
+  id     String @id @default(uuid())
+  userId String @unique
 
   targetBand          Float?
-  dailyCommitmentMins Int?     @default(30)
+  dailyCommitmentMins Int?      @default(30)
   examDate            DateTime?
   placementScore      Int?
   placementListening  Int?
   placementReading    Int?
   placementWriting    Int?
-  onboardingCompleted Boolean  @default(false)
-  
+  onboardingCompleted Boolean   @default(false)
+
   // ── Streak Tracking ──
-  currentStreak       Int      @default(0)
-  longestStreak       Int      @default(0)
-  lastActiveDate      DateTime? // Date of last activity (no time data, or start of day)
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate DateTime? // Date of last activity (no time data, or start of day)
 
-  totalXp             Int      @default(0)
-  level               Int      @default(0)
+  totalXp Int @default(0)
+  level   Int @default(0)
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -1099,13 +1194,12 @@ model StudentTeacherLink {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  student   User @relation("StudentLinks", fields: [studentId], references: [id], onDelete: Cascade)
-  teacher   User @relation("TeacherLinks", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User @relation("StudentLinks", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher User @relation("TeacherLinks", fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, teacherId])
   @@map("student_teacher_links")
 }
-
 
 // ============================================================
 // NOTIFICATIONS
@@ -1125,19 +1219,19 @@ enum NotificationType {
 }
 
 model Notification {
-  id        String           @id @default(uuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   type      NotificationType
   title     String
   body      String
-  icon      String?          // emoji or image URL
-  thumbnail String?          // right-side thumbnail URL (YouTube style)
-  link      String?          // frontend route to navigate to on click
+  icon      String? // emoji or image URL
+  thumbnail String? // right-side thumbnail URL (YouTube style)
+  link      String? // frontend route to navigate to on click
 
-  isRead    Boolean          @default(false)
-  createdAt DateTime         @default(now())
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
@@ -1161,6 +1255,7 @@ model Achievement {
   createdAt   DateTime @default(now())
 
   userAchievements UserAchievement[]
+
   @@map("achievements")
 }
 
@@ -1201,29 +1296,29 @@ enum PostType {
 }
 
 model Post {
-  id            String     @id @default(uuid())
-  authorId      String
-  type          PostType   @default(GENERAL)
-  title         String?
-  body          String     @db.Text
-  imageUrls     String[]   @default([])
-  tags          String[]   @default([])   // skill tags: "Listening", "Reading", etc.
-  metadata      Json?                      // type-specific context (examTitle, score, etc.)
+  id        String   @id @default(uuid())
+  authorId  String
+  type      PostType @default(GENERAL)
+  title     String?
+  body      String   @db.Text
+  imageUrls String[] @default([])
+  tags      String[] @default([]) // skill tags: "Listening", "Reading", etc.
+  metadata  Json? // type-specific context (examTitle, score, etc.)
 
-  likeCount     Int        @default(0)
-  commentCount  Int        @default(0)
-  bookmarkCount Int        @default(0)
+  likeCount     Int @default(0)
+  commentCount  Int @default(0)
+  bookmarkCount Int @default(0)
 
-  isPinned      Boolean    @default(false)
-  isHidden      Boolean    @default(false)
+  isPinned Boolean @default(false)
+  isHidden Boolean @default(false)
 
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  author        User       @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
-  comments      Comment[]
-  likes         PostLike[]
-  bookmarks     PostBookmark[]
+  author    User           @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  likes     PostLike[]
+  bookmarks PostBookmark[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -1232,21 +1327,21 @@ model Post {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  postId    String
-  authorId  String
-  parentId  String?  // null = top-level comment, non-null = reply
-  body      String   @db.Text
+  id       String  @id @default(uuid())
+  postId   String
+  authorId String
+  parentId String? // null = top-level comment, non-null = reply
+  body     String  @db.Text
 
-  isHidden  Boolean  @default(false)
+  isHidden Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author    User     @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
-  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
+  post    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User      @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
 
   @@index([postId, createdAt])
   @@index([authorId])
@@ -1289,7 +1384,7 @@ model Subscription {
   tier               SubscriptionTier   @default(FREE)
   status             SubscriptionStatus @default(ACTIVE)
   provider           PaymentProvider?
-  providerSubId      String?            // Provider-specific subscription ID
+  providerSubId      String? // Provider-specific subscription ID
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?
   canceledAt         DateTime?
@@ -1298,9 +1393,9 @@ model Subscription {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments       Payment[]
-  usageRecords   UsageRecord[]
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments     Payment[]
+  usageRecords UsageRecord[]
 
   @@map("subscriptions")
 }
@@ -1308,11 +1403,11 @@ model Subscription {
 model Payment {
   id             String          @id @default(uuid())
   subscriptionId String
-  amount         Int             // In cents (999 = $9.99)
+  amount         Int // In cents (999 = $9.99)
   currency       String          @default("USD")
   provider       PaymentProvider
-  providerPayId  String?         // Provider-specific payment/transaction ID
-  status         String          // "succeeded", "failed", "pending", "refunded"
+  providerPayId  String? // Provider-specific payment/transaction ID
+  status         String // "succeeded", "failed", "pending", "refunded"
   metadata       Json?
   createdAt      DateTime        @default(now())
 
@@ -1325,7 +1420,7 @@ model Payment {
 model UsageRecord {
   id             String   @id @default(uuid())
   subscriptionId String
-  feature        String   // "AI_WRITING_GRADING", "AI_SPEAKING_GRADING", "AI_CARD_GEN", "PRONUNCIATION_ATTEMPT"
+  feature        String // "AI_WRITING_GRADING", "AI_SPEAKING_GRADING", "AI_CARD_GEN", "PRONUNCIATION_ATTEMPT"
   count          Int      @default(0)
   periodStart    DateTime
   periodEnd      DateTime
@@ -1341,13 +1436,13 @@ model UsageRecord {
 model PricingPlan {
   id            String           @id @default(uuid())
   tier          SubscriptionTier
-  name          String           // "Premium Monthly", "Pro Annual"
+  name          String // "Premium Monthly", "Pro Annual"
   description   String?
-  priceAmount   Int              // In cents (999 = $9.99)
+  priceAmount   Int // In cents (999 = $9.99)
   currency      String           @default("USD")
-  interval      String           // "month" | "year"
+  interval      String // "month" | "year"
   intervalCount Int              @default(1)
-  features      Json             // Array of feature strings for display
+  features      Json // Array of feature strings for display
   isActive      Boolean          @default(true)
   order         Int              @default(0)
   createdAt     DateTime         @default(now())

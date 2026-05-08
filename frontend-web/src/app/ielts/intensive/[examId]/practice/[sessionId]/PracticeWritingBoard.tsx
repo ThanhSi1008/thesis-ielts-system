@@ -48,7 +48,7 @@ export default function PracticeWritingBoard({
       examType: "WRITING",
       answers: { task1, task2 },
       timeTaken: (initialSeconds || ieltsIntensiveExam.duration * 60) - secondsLeft,
-      resultUrl: `/ielts/intensive/${examId}/ieltsIntensiveResult/${sessionId}`,
+      resultUrl: `/ielts/intensive/${examId}/result/${sessionId}`,
     });
   };
 

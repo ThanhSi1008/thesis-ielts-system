@@ -98,7 +98,7 @@ export default function PracticeListeningBoard({
       examType: "LISTENING",
       answers,
       timeTaken,
-      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/ieltsIntensiveResult/${sessionInfo.id}`
+      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/result/${sessionInfo.id}`
     });
   };
 
