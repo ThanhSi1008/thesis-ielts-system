@@ -1,0 +1,598 @@
+\chapter{PHÂN TÍCH}
+
+\section{Quy trình nghiệp vụ}
+Hệ thống được phân chia thành hai nhóm tác nhân chính: Người học (Learner) và Người quản lý (Manager). Dưới đây là mô tả chi tiết quy trình nghiệp vụ của từng phân hệ.
+
+% =================================================================
+% 1. NGHIỆP VỤ NGƯỜI HỌC
+% =================================================================
+\subsection{Nghiệp vụ dành cho Người học}
+
+\subsubsection{Quản lý tài khoản và Hồ sơ cá nhân}
+Để bắt đầu sử dụng dịch vụ, người dùng thực hiện đăng ký tài khoản bằng cách cung cấp địa chỉ email và mật khẩu; hệ thống mã hóa mật khẩu bằng bcrypt và cấp JWT ngay sau khi đăng ký thành công. Ngoài ra, hệ thống hỗ trợ đăng ký nhanh thông qua Google OAuth. Sau khi đăng ký, người dùng tiến hành đăng nhập bằng email/mật khẩu hoặc Google để truy cập hệ thống. Trong trường hợp muốn thay đổi mật khẩu, người dùng có thể thực hiện trực tiếp trong phần cài đặt tài khoản sau khi đăng nhập. Khi đã truy cập thành công vào trang cá nhân, người dùng có quyền thay đổi thông tin để cập nhật hồ sơ như chỉnh sửa biệt danh, số điện thoại, địa chỉ hoặc thay đổi ảnh đại diện; đồng thời tại đây, người dùng cũng có thể theo dõi tổng quan tiến độ học tập của mình thông qua cấp độ hiện tại, biểu đồ thống kê kỹ năng, lịch sử hoạt động và nhận các danh hiệu cũng như điểm thưởng khi đạt được các mốc thành tích nhất định. 
+
+\subsubsection{Hoạt động học tập}
+Quy trình học tập được chia thành ba giai đoạn chính: Xây dựng nền tảng, Phát triển kỹ năng và Luyện thi IELTS.
+
+\paragraph{1. Xây dựng nền tảng}
+\begin{description}
+    \item[Từ vựng (Vocabulary):] Dựa trên kết quả bài kiểm tra đầu vào, ứng dụng sẽ đề xuất lộ trình học từ vựng phù hợp với trình độ hiện tại của người học. Cụ thể, nếu người học ở mức A2, hệ thống sẽ gợi ý bắt đầu từ Book 1; nếu ở mức B1, gợi ý từ Book 3; nếu đạt B2, gợi ý từ Book 4; và nếu trình độ là C1, hệ thống sẽ đề xuất học từ Book 6 trở đi. 
+
+Mỗi cuốn sách bao gồm 600 từ vựng, được chia thành 30 unit. Trong mỗi unit có 2 bài tập, mỗi bài gồm 20 câu hỏi nhằm luyện tập và củng cố từ vựng. Ở cuối mỗi unit, người học sẽ đọc một đoạn văn chứa 20 từ vựng đã học và trả lời 5 câu hỏi liên quan để kiểm tra khả năng hiểu và vận dụng trong ngữ cảnh. Ngoài ra, người học có thể lưu từ vựng vào mục ôn tập, với đầy đủ thông tin đã được hệ thống cung cấp sẵn như từ, nghĩa, ví dụ minh họa và hình ảnh. 
+
+Đối với mục ôn tập từ vựng bằng flashcard, ứng dụng áp dụng phương pháp Active Recall (nhớ chủ động). Người học có thể tạo và lựa chọn thư mục riêng cho các thẻ, đồng thời phân loại thẻ theo nhu cầu học tập. Cụ thể, loại thẻ “Basic” gồm mặt trước và mặt sau truyền thống, trong khi loại “Cloze” cho phép ẩn một hoặc nhiều từ ở mặt trước và hỗ trợ chèn hình ảnh, âm thanh để tăng hiệu quả ghi nhớ. 
+
+Bên cạnh đó, hệ thống còn tích hợp phương pháp Spaced Repetition (lặp lại ngắt quãng) nhằm tối ưu hóa khả năng ghi nhớ dài hạn. Trong quá trình ôn tập, sau khi trả lời mỗi thẻ, người học sẽ đánh giá mức độ ghi nhớ của mình thông qua bốn lựa chọn: “Again”, “Hard”, “Good”, “Easy”; từ đó, hệ thống sẽ tự động điều chỉnh thời điểm xuất hiện lại của thẻ cho các lần ôn tập tiếp theo: 
+
+\begin{itemize}
+    \item \textbf{Again:} hệ thống đánh giá người học đã quên hoàn toàn; thẻ được đặt lại về trạng thái học mới (New/Relearning), độ ổn định (Stability) giảm mạnh và thẻ xuất hiện lại rất sớm trong phiên ôn.
+    \item \textbf{Hard:} người học nhớ nhưng còn gặp khó khăn; FSRS tính khoảng cách lặp lại ngắn hơn khoảng cách tối ưu, đồng thời điều chỉnh giảm Difficulty và Stability của thẻ.
+    \item \textbf{Good:} người học nhớ đúng ở mức kỳ vọng; FSRS tính khoảng cách tiếp theo theo công thức $I' = S \times \ln(R_{target}) / \ln(0.9)$ với tỉ lệ nhớ mục tiêu 90\%, Stability tăng bình thường.
+    \item \textbf{Easy:} người học nhớ rất chắc, vượt kỳ vọng; FSRS áp dụng hệ số tăng tốc (easy bonus), Stability tăng nhanh hơn, Difficulty giảm nhẹ giúp thẻ xuất hiện thưa hơn về lâu dài.
+\end{itemize}
+
+Mỗi ngày mục ôn từ vựng sẽ hiển thị hai loại thẻ: thẻ mới (số lượng do người học tự chọn) và thẻ ôn tập (được hệ thống tự động sắp lịch dựa trên thuật toán). 
+    
+    \item[Ngữ pháp (Grammar):] Nguồn học từ ba cuốn English Grammar in Use. Dựa trên kết quả đánh giá đầu vào của người học, hệ thống sẽ đưa ra gợi ý học tập phù hợp như sau: nếu trình độ hiện tại của người học nằm trong khoảng A1–B1, hệ thống sẽ đề xuất học cuốn 1 (Elementary); nếu trình độ ở mức B1–B2, hệ thống sẽ gợi ý cuốn 2 (Intermediate); và nếu trình độ hiện tại đạt C1–C2, hệ thống sẽ đề xuất cuốn 3 (Advanced) nhằm hoàn thiện và nâng cao năng lực ngữ pháp.  
+
+Mỗi cuốn sách gồm khoảng 105 đến 145 unit, trong đó mỗi unit tập trung vào một chủ điểm ngữ pháp riêng biệt. Cấu trúc của mỗi unit bao gồm phần trình bày lý thuyết nhằm giải thích quy tắc và cách sử dụng, cùng với phần bài tập thực hành để củng cố kiến thức. Dựa trên câu trả lời của người học, hệ thống sẽ đánh giá và chấm điểm mức độ nắm vững ngữ pháp tương ứng với từng unit.
+    
+    \item[Phát âm (Pronunciation):] Tiếng Anh bao gồm 43 âm vị (theo bảng phiên âm quốc tế IPA). Ứng dụng cung cấp bản ghi âm phát âm chuẩn, hình ảnh mô phỏng khẩu hình miệng, hướng dẫn cách đặt lưỡi và vị trí môi, kèm theo mô tả chi tiết cho từng âm. Đồng thời cho phép người học thu âm giọng nói của mình. Các bản thu âm này sẽ được hệ thống AI phân tích và đánh giá, dựa trên các tiêu chí như độ chính xác của âm, vị trí lưỡi - môi và mức độ gần với phát âm chuẩn, từ đó hỗ trợ người học điều chỉnh và cải thiện phát âm một cách hiệu quả.
+\end{description}
+
+\paragraph{2. Phát triển kỹ năng}
+\begin{description}
+    \item[Kỹ năng Nghe (Listening):] Dựa trên level hiện tại của người học, hệ thống sẽ gợi ý người học lựa chọn một bài dictation cụ thể. Hệ thống phát đoạn audio chuẩn, cho phép người học nghe nghe từng câu, đồng thời hỗ trợ điều chỉnh tốc độ nghe để phù hợp với năng lực tiếp nhận. Trong quá trình nghe, người học nhập trực tiếp nội dung mình nghe được vào ô soạn thảo. Khi hoàn thành, bài làm được gửi lên hệ thống để xử lý, tại đó hệ thống tiến hành so sánh từng từ, từng cụm từ trong câu trả lời của người học với transcript chuẩn. Các lỗi sai được phân tích chi tiết theo từng loại, bao gồm thiếu từ, sai chính tả, sai dạng từ hoặc sai trật tự từ trong câu. Dựa trên kết quả so sánh, hệ thống tính toán mức độ chính xác và hiển thị phản hồi trực quan bằng cách đánh dấu các vị trí sai, đồng thời cung cấp đáp án đúng để người học đối chiếu. Sau khi xem kết quả, người học có thể nghe lại audio kết hợp với transcript chuẩn, thực hiện lại bài luyện để cải thiện điểm số và ghi nhớ các lỗi thường gặp. Toàn bộ quá trình làm bài và kết quả đánh giá được hệ thống lưu trữ nhằm theo dõi tiến trình học tập, qua đó hỗ trợ người học cải thiện kỹ năng nghe và chép chính tả một cách có hệ thống và liên tục. 
+    
+    \item[Kỹ năng Nói (Speaking):] Được phân loại theo trình độ, chủ đề, độ dài và giọng đọc. Hệ thống cung cấp audio mẫu chuẩn kèm transcript đồng bộ theo từng câu hoặc từng đoạn ngắn. Khi bắt đầu bài luyện, audio được phát liên tục và người học thực hiện nói đuổi theo gần như đồng thời với người nói, với độ trễ rất ngắn. Trong quá trình này, hệ thống cho phép thu âm giọng nói của người học theo thời gian thực, đồng bộ với mốc thời gian của audio gốc. Sau khi kết thúc lượt luyện, hệ thống tiến hành xử lý và phân tích bản thu âm bằng AI, trong đó đối chiếu giọng nói của người học với audio mẫu dựa trên các tiêu chí như độ chính xác của âm vị, trọng âm, nhịp điệu, ngữ điệu và mức độ trôi chảy. Kết quả phân tích được tổng hợp thành điểm đánh giá tổng thể, đồng thời hiển thị phản hồi chi tiết theo từng câu. Dựa trên kết quả này, người học có thể nghe lại audio mẫu, nghe lại bản thu âm của chính mình, và luyện tập lại từng câu hoặc toàn bộ bài shadowing để cải thiện. Hệ thống lưu trữ lịch sử luyện tập và kết quả đánh giá nhằm theo dõi tiến trình phát triển kỹ năng Speaking theo thời gian.
+
+    \item[Kỹ năng Đọc (Reading):] Các bài luyện Reading được tổ chức theo dạng bài chuẩn IELTS Academic, bao gồm đoạn văn học thuật dài 700–1000 từ kèm theo nhiều dạng câu hỏi khác nhau: True/False/Not Given (xác định thông tin đúng/sai/không có trong bài), Matching Headings (ghép tiêu đề đoạn), Matching Information (ghép thông tin), Short Answer Question (trả lời ngắn) và Multiple Choice (trắc nghiệm). Người học chọn bài luyện theo độ khó (Band 4.0–5.0, 5.5–6.5, 7.0+), đọc đoạn văn và trả lời các câu hỏi trong thời gian quy định. Sau khi nộp bài, hệ thống chấm điểm tự động, hiển thị đáp án, giải thích từng câu và đánh dấu vị trí thông tin trong đoạn văn để người học đối chiếu. Toàn bộ lịch sử bài làm và tỷ lệ chính xác theo dạng câu hỏi được ghi nhận để phân tích điểm yếu và đề xuất dạng bài cần luyện thêm.
+
+    \item[Kỹ năng Viết (Writing):] Hệ thống hỗ trợ luyện tập cả hai loại bài viết IELTS Writing. Đối với Writing Task 1, người học được cung cấp biểu đồ, bản đồ hoặc sơ đồ quy trình và viết mô tả trong ô soạn thảo với đếm số từ tự động. Đối với Writing Task 2, người học viết bài luận phản hồi luận điểm được đưa ra. Sau khi nộp bài, hệ thống gửi đề bài và bài viết đến Gemini API. Tại đây, AI phân tích theo 4 tiêu chí chấm điểm IELTS Writing — Task Achievement/Response, Coherence and Cohesion, Lexical Resource và Grammatical Range and Accuracy — trả về band điểm ước tính (0.0–9.0) cho từng tiêu chí, nhận xét tổng thể và danh sách lỗi cụ thể kèm gợi ý cải thiện. Điểm kỹ thuật quan trọng nhất ở đây là việc thiết kế prompt engineering chi tiết: hệ thống không chỉ gửi bài viết mà còn truyền đầy đủ ngữ cảnh (loại task, đề bài, yêu cầu số từ) và hướng dẫn định dạng đầu ra JSON cụ thể để Gemini trả về kết quả có cấu trúc dễ parse và hiển thị.
+\end{description}
+
+\paragraph{3. Luyện thi IELTS}
+Người học có thể lựa chọn luyện tập theo từng kỹ năng riêng biệt hoặc thi thử toàn phần mô phỏng kỳ thi IELTS thực tế. Hệ thống cung cấp hai hình thức:
+\begin{itemize}
+    \item \textbf{Chế độ luyện tập theo kỹ năng:} Người học chọn luyện một trong bốn kỹ năng (Listening, Reading, Writing, Speaking) theo dạng bài cụ thể và thời lượng linh hoạt (không giới hạn thời gian hoặc tự đặt thời gian). Sau khi nộp bài, hệ thống phân tích kết quả chi tiết: với Listening/Reading hiển thị đáp án và giải thích, với Writing/Speaking trả về band điểm theo tiêu chí và nhận xét của AI. Người học có thể làm lại để cải thiện điểm số.
+    \item \textbf{Chế độ thi thử (Mock Test):} Hệ thống mô phỏng sát điều kiện kỳ thi IELTS thực tế với đồng hồ đếm ngược theo đúng thời gian quy định (Listening: 30 phút, Reading: 60 phút, Writing: 60 phút, Speaking: ~14 phút). Toàn bộ bài thi được xử lý sau khi nộp và hệ thống quy đổi điểm thô sang band điểm IELTS ước tính (0.0–9.0) theo bảng quy đổi chuẩn, cùng với phân tích điểm mạnh/yếu theo từng kỹ năng.
+\end{itemize}
+
+\paragraph{4. Theo dõi và Thống kê}
+Hệ thống ghi nhận và hiển thị lịch sử làm bài, bao gồm ngày thực hiện, kết quả, thời gian hoàn thành, đồng thời cho phép xem chi tiết từng bài thi đã thực hiện nhằm hỗ trợ người học theo dõi quá trình học tập. 
+Hệ thống cung cấp chức năng thống kê và phân tích kết quả học tập, thể hiện số lượng đề đã hoàn thành, tỷ lệ chính xác, thời gian làm bài trung bình, điểm số cao nhất, được phân tích theo mốc thời gian và theo từng kỹ năng, giúp người học đánh giá sự tiến bộ và xác định điểm mạnh, điểm cần cải thiện. 
+
+\paragraph{5. Đặt mục tiêu học tập và xem thông báo nhắc nhở }
+Hệ thống cho phép tạo lịch học tập, to-do list theo ngày, tháng, năm
+
+% =================================================================
+% 2. NGHIỆP VỤ NGƯỜI QUẢN LÝ
+% =================================================================
+\subsection{Nghiệp vụ dành cho Người quản lý}
+
+\subsubsection{Quản lý nội dung học tập}
+Người quản lý truy cập vào hệ thống quản trị nội dung (CMS) với quyền hạn cao nhất để thực hiện các thao tác biên tập và cấu hình học liệu cho từng kỹ năng IELTS. Đối với phân hệ Từ vựng, người quản lý tạo mới các đầu sách từ vựng và xây dựng cấu trúc phân cấp theo từng Unit; mỗi thẻ từ vựng (Flashcard) được nhập liệu chi tiết bao gồm từ gốc, phiên âm IPA, định nghĩa, câu ví dụ song ngữ, đồng thời tải lên tệp âm thanh phát âm chuẩn và hình ảnh minh họa để phục vụ thuật toán Spaced Repetition. Trong phân hệ Ngữ pháp, người quản lý soạn thảo nội dung lý thuyết định dạng Rich Text cho từng chủ điểm và thiết lập ngân hàng câu hỏi trắc nghiệm/điền từ kèm đáp án để hệ thống tự động chấm điểm. Đối với kỹ năng Listening, người quản lý tải lên các file audio chất lượng cao và nhập văn bản Transcript chuẩn xác tuyệt đối đến từng từ — đây là dữ liệu gốc để hệ thống so khớp và phát hiện lỗi của người học khi Dictation. Đối với kỹ năng Reading, người quản lý soạn thảo đoạn văn học thuật, phân loại theo độ khó và cấu hình các dạng câu hỏi kèm đáp án và giải thích. Đối với kỹ năng Writing, người quản lý tạo đề bài Task 1 (tải lên ảnh biểu đồ/bản đồ) và Task 2 (soạn luận điểm) kèm band điểm tham chiếu và bài mẫu. Đối với kỹ năng Speaking, người quản lý tải lên audio mẫu Shadowing và thiết lập chủ đề cho AI Conversation theo cấu trúc IELTS Speaking Part 1/2/3. Sau khi hoàn tất biên soạn, người quản lý kích hoạt trạng thái ``Xuất bản'' để nội dung chính thức hiển thị cho người học. 
+
+\subsubsection{Quản lý đề thi}
+Trong phân hệ quản lý đề thi, người quản trị chịu trách nhiệm xây dựng ngân hàng câu hỏi và cấu trúc đề thi Mock Test bám sát chuẩn IELTS Academic. Đề Mock Test được tổ chức thành 4 phần riêng biệt tương ứng với 4 kỹ năng. Đối với phần Listening, người quản lý tải lên audio đoạn hội thoại/độc thoại theo 4 section chuẩn IELTS (Section 1: hội thoại trong bối cảnh xã hội, Section 2: độc thoại phi học thuật, Section 3: thảo luận học thuật, Section 4: bài giảng) kèm câu hỏi dạng điền vào chỗ trống, trắc nghiệm và kế hoạch/sơ đồ. Đối với phần Reading, người quản lý nhập 3 đoạn văn học thuật dài (khoảng 750–900 từ mỗi đoạn) với đa dạng dạng câu hỏi. Đối với phần Writing, người quản lý cấu hình đề Task 1 và Task 2 kèm tiêu chí chấm điểm và bài mẫu tham khảo. Đối với phần Speaking, người quản lý thiết lập câu hỏi theo cấu trúc Part 1/2/3. Sau khi hoàn tất, người quản lý thiết lập bảng quy đổi điểm thô sang band IELTS cho phần Listening và Reading, kích hoạt trạng thái ``Xuất bản'' để bộ đề Mock Test chính thức hiển thị cho người học. 
+
+\subsubsection{Quản lý học viên}
+Trong phân hệ quản lý học viên, người quản trị nắm quyền kiểm soát toàn diện đối với cơ sở dữ liệu người dùng nhằm đảm bảo môi trường học tập văn minh và ổn định. Quy trình bắt đầu từ việc truy cập vào danh sách tổng hợp, nơi hệ thống hiển thị đầy đủ hồ sơ của tất cả tài khoản đã đăng ký kèm theo các bộ lọc thông minh cho phép tra cứu nhanh theo tên, email hoặc thời gian tham gia. Khi truy cập vào chi tiết từng hồ sơ, người quản lý có thể theo dõi sát sao toàn bộ hành trình của người học, bao gồm các chỉ số về tiến độ hoàn thành lộ trình từ vựng, lịch sử điểm số các bài thi thử IELTS và tần suất luyện tập các kỹ năng, từ đó có cái nhìn tổng quan về mức độ chuyên cần và năng lực thực tế của từng cá nhân. Đặc biệt, người quản lý nắm giữ các công cụ can thiệp trực tiếp vào trạng thái tài khoản để xử lý các vấn đề phát sinh: đối với những trường hợp vi phạm quy định cộng đồng, có hành vi gian lận hoặc spam, người quản lý có quyền thực hiện vô hiệu hóa (Block) tài khoản tạm thời hoặc vĩnh viễn để ngăn chặn quyền truy cập; ngược lại, hệ thống cũng cho phép mở khóa (Unblock) hoặc hỗ trợ kích hoạt lại tài khoản trong các trường hợp cần thiết, đảm bảo công tác quản lý người dùng diễn ra chặt chẽ và linh hoạt.
+
+\subsubsection{Thống kê báo cáo}
+Hệ thống cung cấp cho người quản lý các biểu đồ và số liệu thống kê tổng quan về tình hình hoạt động của hệ thống, bao gồm: số lượng người dùng mới, tần suất truy cập hàng ngày (DAU), tỷ lệ hoàn thành bài học, và phổ điểm trung bình của các bài thi thử. Các báo cáo này hỗ trợ người quản lý trong việc đánh giá hiệu quả của nội dung học tập và đưa ra các quyết định điều chỉnh phù hợp để nâng cao chất lượng đào tạo.
+
+\section{Use-case tổng quát}
+\begin{figure}[H] % [H] để ép ảnh nằm ngay tại đây, không bị trôi đi chỗ khác
+    \centering
+    % Thay 'ten-file-anh' bằng tên file thực tế của bạn (ví dụ: so-do-lop.png)
+    % width=0.8\linewidth nghĩa là ảnh rộng bằng 80% chiều ngang trang giấy
+    \includegraphics[width=0.8\linewidth]{use-case.jpg} 
+    
+    \caption{Sơ đồ use-case} % Ví dụ: Sơ đồ Use-case tổng quát
+    \label{fig:ten-goi-nho-0} % Dùng để trích dẫn (VD: Hình \ref{fig:ten-goi-nho})
+\end{figure}
+
+\section{Danh sách tác nhân và mô tả}
+
+Hệ thống có hai tác nhân chính tương tác trực tiếp:
+
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabularx}{\linewidth}{|l|X|}
+        \hline
+        \textbf{Tác nhân} & \textbf{Mô tả} \\ \hline
+        Người học (Learner) & Người dùng cuối đã đăng ký tài khoản. Người học sử dụng hệ thống để thực hiện kiểm tra đầu vào, học từ vựng, ngữ pháp, luyện 4 kỹ năng IELTS, thi thử Mock Test và theo dõi tiến độ học tập cá nhân. \\ \hline
+        Người quản lý (Admin) & Người có quyền quản trị hệ thống. Admin chịu trách nhiệm tạo và quản lý toàn bộ nội dung học tập (từ vựng, ngữ pháp, bài nghe, bài đọc, đề Writing, đề Speaking, đề thi Mock Test), quản lý tài khoản học viên và theo dõi báo cáo thống kê hoạt động hệ thống. \\ \hline
+    \end{tabularx}
+    \caption{Danh sách tác nhân và mô tả}
+    \label{tab:actors}
+\end{table}
+
+\section{Danh sách các tình huống hoạt động chính}
+
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|p{1.5cm}|p{4.5cm}|p{8.0cm}|}
+    \caption{Danh sách các tình huống hoạt động chính}
+    \label{tab:uc_list} \\
+    \hline
+    \textbf{Mã UC} & \textbf{Tên use case} & \textbf{Mô tả ngắn} \\ \hline
+    \endfirsthead
+    \multicolumn{3}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Mã UC} & \textbf{Tên use case} & \textbf{Mô tả ngắn} \\ \hline
+    \endhead
+    \hline \multicolumn{3}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    UC01 & Đăng ký tài khoản & Người học tạo tài khoản mới bằng email và mật khẩu; hệ thống mã hóa mật khẩu và cấp JWT ngay sau khi đăng ký. \\ \hline
+    UC02 & Đăng nhập & Người học đăng nhập bằng email/mật khẩu hoặc Google OAuth; hệ thống xác thực và cấp JWT. \\ \hline
+    UC03 & Kiểm tra đầu vào & Người học hoàn thành Placement Test để xác định trình độ CEFR và nhận lộ trình học đề xuất. \\ \hline
+    UC04 & Học từ vựng & Người học học từ vựng theo đơn vị (unit), trả lời câu hỏi ôn tập và đọc hiểu cuối unit. \\ \hline
+    UC05 & Ôn từ vựng & Người học ôn từ vựng đã lưu bằng Flashcard với thuật toán Spaced Repetition (FSRS). \\ \hline
+    UC06 & Học ngữ pháp & Người học học lý thuyết ngữ pháp theo unit và hoàn thành bài tập thực hành. \\ \hline
+    UC07 & Luyện phát âm & Người học nghe phát âm chuẩn, thu âm và nhận đánh giá AI về độ chính xác từng âm vị. \\ \hline
+    UC08 & Luyện Listening & Người học nghe audio và nhập transcript (Dictation); nhận phản hồi chi tiết theo loại lỗi. \\ \hline
+    UC09 & Luyện Reading & Người học đọc đoạn văn IELTS Academic và trả lời các dạng câu hỏi đọc hiểu. \\ \hline
+    UC10 & Luyện Writing Task 1 & Người học viết mô tả biểu đồ/quy trình; nhận band điểm và nhận xét tự động từ AI. \\ \hline
+    UC11 & Luyện Writing Task 2 & Người học viết bài luận IELTS; nhận band điểm theo 4 tiêu chí và gợi ý cải thiện từ AI. \\ \hline
+    UC12 & Luyện Speaking -- Shadowing & Người học nói đuổi theo audio mẫu; hệ thống đánh giá phát âm và nhịp điệu bằng AI. \\ \hline
+    UC13 & Luyện Speaking -- AI Conversation & Người học hội thoại với AI theo chủ đề IELTS Part 1/2/3; nhận phản hồi về kỹ năng Speaking. \\ \hline
+    UC14 & Thi thử IELTS (Mock Test) & Người học thi thử IELTS toàn phần hoặc theo kỹ năng; nhận kết quả và band điểm ước tính. \\ \hline
+    UC15 & Xem kết quả và phân tích lỗi & Người học xem lại kết quả bài làm, đáp án và phân tích lỗi chi tiết theo từng câu. \\ \hline
+    UC16 & Đặt mục tiêu học tập & Người học thiết lập band điểm mục tiêu, thời hạn và kế hoạch học hàng ngày. \\ \hline
+    UC17 & Xem tiến độ học tập & Người học theo dõi tiến độ qua biểu đồ thống kê theo kỹ năng và theo thời gian. \\ \hline
+    UC18 & Quản lý nội dung học tập & Admin tạo, chỉnh sửa và xuất bản học liệu cho tất cả các kỹ năng. \\ \hline
+    UC19 & Quản lý đề thi & Admin xây dựng ngân hàng câu hỏi và cấu trúc đề Mock Test chuẩn IELTS. \\ \hline
+    UC20 & Quản lý học viên & Admin xem hồ sơ, tiến độ và quản lý trạng thái tài khoản học viên. \\ \hline
+    UC21 & Xem thống kê báo cáo & Admin xem các chỉ số hệ thống: DAU, tỷ lệ hoàn thành bài, phổ band điểm. \\ \hline
+\end{longtable}
+
+\section{Đặc tả các yêu cầu chức năng}
+
+Trong phần này, chúng em trình bày đặc tả chi tiết cho các use case quan trọng nhất. Mỗi use case bao gồm bảng mô tả luồng sự kiện (chính và thay thế), sơ đồ activity và mô tả kỹ thuật chi tiết.
+
+\subsection{Đăng ký tài khoản (UC01)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC01} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người dùng chưa có tài khoản và truy cập trang đăng ký.} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tài khoản được tạo thành công; hệ thống cấp JWT và chuyển người dùng đến màn hình Kiểm tra đầu vào (Placement Test).} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+
+        1. Người học nhập địa chỉ email và mật khẩu (tối thiểu 8 ký tự), sau đó chọn "Đăng ký". & \\ \hline
+
+        & 2. Hệ thống kiểm tra định dạng email hợp lệ và xác nhận email chưa tồn tại trong cơ sở dữ liệu. \\ \hline
+
+        & 3. Hệ thống mã hóa mật khẩu bằng thuật toán bcrypt (salt rounds = 10) và tạo bản ghi người dùng trong PostgreSQL qua Passport.js. \\ \hline
+
+        & 4. Hệ thống cấp JWT access token (hiệu lực 7 ngày) và chuyển hướng người học đến màn hình Placement Test. \\ \hline
+
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative Flow)}} \\ \hline
+
+        & 2a. Email đã được đăng ký: hệ thống hiển thị thông báo "Email đã tồn tại, vui lòng đăng nhập" và dừng luồng. \\ \hline
+
+        & 2b. Mật khẩu dưới 8 ký tự: hệ thống hiển thị thông báo yêu cầu và dừng luồng. \\ \hline
+
+    \end{tabularx}
+    \caption{Đặc tả Use-case Đăng ký tài khoản (UC01)}
+    \label{tab:uc01_spec}
+\end{table}
+
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-uc01.png}
+    \caption{Sơ đồ activity UC01 -- Đăng ký tài khoản}
+    \label{fig:activity-uc01}
+\end{figure}
+
+\subsubsection{Mô tả kỹ thuật chi tiết}
+
+Điểm kỹ thuật quan trọng nhất trong UC01 là cơ chế bảo mật tại bước tạo tài khoản. Mật khẩu của người học không bao giờ được lưu dưới dạng plain text. Thay vào đó, NestJS Authentication Service gọi hàm \texttt{bcrypt.hash(password, 10)} để tạo hash cùng salt 10 vòng -- con số này cân bằng giữa độ bảo mật và tốc độ xử lý trên phần cứng hiện đại.
+
+\begin{sloppypar}
+NestJS Auth Service tạo bản ghi trong bảng \texttt{users} của PostgreSQL ngay sau khi nhận yêu cầu đăng ký hợp lệ. JWT được phát hành bởi \texttt{@nestjs/jwt}: access token (payload: \texttt{sub, email, role}; TTL 7 ngày). Toàn bộ authentication được xử lý bởi Passport.js với hai strategy: \texttt{LocalStrategy} (email/password) và \texttt{JwtStrategy} (bearer token). Ngoài ra, hệ thống hỗ trợ đăng ký/đăng nhập qua Google OAuth thông qua endpoint \texttt{POST /auth/google} bằng cách xác thực Google ID Token qua thư viện \texttt{google-auth-library}.
+\end{sloppypar}
+
+\subsection{Đăng nhập (UC02)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC02} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã có tài khoản đăng ký trong hệ thống.} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Người học truy cập thành công vào Dashboard; hệ thống cấp JWT.} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+
+        1. Người học nhập địa chỉ email và mật khẩu, sau đó chọn "Đăng nhập". & \\ \hline
+
+        & 2. Hệ thống truy vấn cơ sở dữ liệu bằng email, gọi \texttt{bcrypt.compare()} để so sánh mật khẩu nhập vào với hash đã lưu. \\ \hline
+
+        & 3. Hệ thống tạo JWT access token (hiệu lực 7 ngày) và chuyển hướng người học đến màn hình Dashboard. \\ \hline
+
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative Flow)}} \\ \hline
+
+        & 2a. Email không tồn tại hoặc mật khẩu sai: hệ thống hiển thị thông báo "Email hoặc mật khẩu không đúng" và dừng luồng. \\ \hline
+
+        & (Google OAuth): Người học chọn "Đăng nhập với Google"; hệ thống xác thực Google ID Token qua \texttt{POST /auth/google} và cấp JWT tương tự luồng chính. \\ \hline
+
+    \end{tabularx}
+    \caption{Đặc tả Use-case Đăng nhập (UC02)}
+    \label{tab:uc02_spec}
+\end{table}
+
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-uc02.png}
+    \caption{Sơ đồ activity UC02 -- Đăng nhập}
+    \label{fig:activity-uc02}
+\end{figure}
+
+\subsubsection{Mô tả kỹ thuật chi tiết}
+
+Điểm kỹ thuật cốt lõi trong UC02 là quá trình xác thực mật khẩu. Hàm \texttt{bcrypt.compare()} sử dụng constant-time comparison -- thời gian thực thi không phụ thuộc vào vị trí ký tự sai, giúp ngăn timing attack. NestJS Auth Service sử dụng \texttt{LocalStrategy} của Passport.js để xử lý luồng email/password: strategy gọi \texttt{validateUser()} để truy vấn DB và so sánh hash, kết quả user object được đính kèm vào \texttt{req.user} trước khi controller tạo JWT.
+
+\begin{sloppypar}
+JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route yêu cầu xác thực đều sử dụng \texttt{JwtAuthGuard} để giải mã token và xác nhận tính hợp lệ. Ngoài email/password, hệ thống hỗ trợ đăng nhập Google OAuth qua endpoint \texttt{POST /auth/google}: client gửi Google ID Token, Auth Service xác thực token bằng \texttt{google-auth-library}, sau đó tạo hoặc tra cứu tài khoản tương ứng trong DB và cấp JWT theo cùng quy trình.
+\end{sloppypar}
+
+\subsection{Học từ vựng (UC04)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1} % Tăng chiều cao dòng cho dễ đọc
+    % Định nghĩa bảng: Chiều rộng bằng dòng chữ, có 2 cột bằng nhau (X)
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC04} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công vào hệ thống.} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hệ thống ghi nhận và hiển thị trạng thái hoàn thành của unit tương ứng.} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+        
+        1. Người học lựa chọn một đơn vị bài học (unit). & \\ \hline
+        
+        & 2. Hệ thống hiển thị danh sách từ vựng unit theo thứ tự, mỗi từ bao gồm: từ vựng, nghĩa, câu ví dụ minh họa và phát âm. \\ \hline
+        
+        3. Người học đọc, nghe phát âm, chọn từ tiếp theo hoặc thêm từ vựng vào mục ôn từ vựng và chọn hoàn thành. & \\ \hline
+        
+        & 4. Hệ thống hiển thị các câu hỏi ôn tập tương ứng, lần lượt từng câu một. \\ \hline
+        
+        5. Người học trả lời các câu hỏi và nộp bài. & \\ \hline
+        
+        & 6. Hệ thống kiểm tra kết quả và hiển thị đáp án. \\ \hline
+        
+        7. Người học xem lại kết quả và chọn tiếp tục. & \\ \hline
+        
+        & 8. Hệ thống hiển thị một đoạn văn chứa các từ vựng vừa học, kèm theo tệp âm thanh và các câu hỏi đọc hiểu. \\ \hline
+        
+        9. Người học đọc đoạn văn, trả lời câu hỏi hoặc thêm từ vựng vào mục ôn từ vựng và nộp bài. & \\ \hline
+        
+        & 10. Hệ thống kiểm tra kết quả và hiển thị đáp án cho phần đọc hiểu. \\ \hline
+        
+        11. Người dùng xem và chọn hoàn thành. & \\ \hline
+        
+        & 12. Hệ thống cập nhật trạng thái hoàn thành và chuyển người học trở về màn hình chính học từ vựng. \\ \hline
+        
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative Flow)}} \\ \hline
+        
+        & 6. Hiển thị đáp án không hợp lệ và quay lại bước 4. \\ \hline
+        
+        & 10. Hiển thị đáp án không hợp lệ và quay lại bước 8. \\ \hline
+        
+    \end{tabularx}
+    \caption{Đặc tả Use-case Học từ vựng (UC04)}
+    \label{tab:uc04_spec}
+\end{table}
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-uc04.png}
+    \caption{Sơ đồ activity UC04 -- Học từ vựng}
+    \label{fig:activity-uc04}
+\end{figure}
+
+\subsection{Ôn từ vựng (UC05)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1} % Tăng khoảng cách dòng
+    % Tạo bảng với 2 cột rộng bằng nhau (X), tổng chiều rộng bằng trang giấy
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC05} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công vào hệ thống.} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hệ thống ghi nhận trạng thái hoàn thành của bộ thẻ (deck) và cập nhật tiến độ ôn tập của người học.} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+        
+        1. Người học chọn chức năng “Ôn từ vựng”. & \\ \hline
+        
+        & 2. Hệ thống hiển thị danh sách các deck có sẵn để ôn tập. \\ \hline
+        
+        3. Người học chọn một deck cần ôn. & \\ \hline
+        
+        & 4. Hệ thống kiểm tra xem trong deck còn thẻ (card) chưa ôn hay không. Nếu còn, hệ thống hiển thị mặt trước của thẻ tiếp theo (gồm từ vựng cần ôn). \\ \hline
+        
+        5. Người học cố gắng ghi nhớ nghĩa và chọn “Hiển thị đáp án”. & \\ \hline
+        
+        & 6. Hệ thống hiển thị mặt sau của thẻ (nghĩa, ví dụ, phát âm) và bốn lựa chọn: “Again”, “Hard”, “Good”, “Easy”. \\ \hline
+        
+        7. Người học chọn một trong bốn lựa chọn. & \\ \hline
+        
+        & 8. Hệ thống ghi nhận lựa chọn của người học, tính toán thời điểm xuất hiện lại của thẻ theo thuật toán lặp lại ngắt quãng, sau đó hiển thị thẻ tiếp theo. \\ \hline
+        
+        & 9. Khi toàn bộ các thẻ trong deck đã được ôn, hệ thống thông báo hoàn thành và chuyển người học về màn hình chính. \\ \hline
+        
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện ngoại lệ (Alternative Flow)}} \\ \hline
+        
+        % (Để trống vì trong hình không hiển thị nội dung phần này)
+        & \\ \hline
+
+    \end{tabularx}
+    \caption{Đặc tả Use-case Ôn từ vựng (UC05)}
+    \label{tab:uc05_spec}
+\end{table}
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{on-tu-activity.png} 
+    
+    \caption{Sơ đồ activity UC05 -- Ôn từ vựng}
+    \label{fig:activity-uc05}
+\end{figure}
+
+\subsection{Luyện Listening (UC08)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC08} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập và chọn một bài luyện Listening từ hệ thống.} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hệ thống ghi nhận kết quả bài làm, lưu lịch sử luyện tập và hiển thị phân tích lỗi chi tiết.} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+
+        1. Người học chọn bài luyện Listening theo chủ đề hoặc dạng đề. & \\ \hline
+
+        & 2. Hệ thống tải audio từ Google Cloud Storage (GCS) và hiển thị danh sách câu hỏi Dictation (điền vào chỗ trống theo những gì nghe được). \\ \hline
+
+        3. Người học nhấn phát, nghe audio và nhập câu trả lời vào các ô điền tương ứng. Người học có thể tua lại và phát lại nhiều lần. & \\ \hline
+
+        4. Người học hoàn tất và nộp bài. & \\ \hline
+
+        & 5. Hệ thống chuẩn hóa văn bản nhập vào (chuyển thường, loại bỏ dấu câu thừa) và so sánh với đáp án chuẩn theo từng ô. \\ \hline
+
+        & 6. Hệ thống phân loại kết quả từng ô: Đúng hoàn toàn, Gần đúng (khoảng cách Levenshtein $\leq$ 1) hoặc Sai. Tính điểm và phân tích loại lỗi (sai từ, thiếu từ, thêm từ). \\ \hline
+
+        & 7. Hệ thống hiển thị bảng kết quả: tỉ lệ đúng, điểm số, từng câu kèm đáp án đúng và phân loại lỗi (màu xanh/đỏ). \\ \hline
+
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative Flow)}} \\ \hline
+
+        & 2a. Không thể tải audio (lỗi mạng): hệ thống thử lại tối đa 3 lần; nếu vẫn thất bại, hiển thị thông báo lỗi và cho phép chọn bài khác. \\ \hline
+
+        & 4a. Người học nộp khi còn ô trống: hệ thống cảnh báo số ô chưa điền và cho phép tiếp tục hoặc nộp thẳng. \\ \hline
+
+    \end{tabularx}
+    \caption{Đặc tả Use-case Luyện Listening (UC08)}
+    \label{tab:uc08_spec}
+\end{table}
+
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-uc08.png}
+    \caption{Sơ đồ activity UC08 -- Luyện Listening}
+    \label{fig:activity-uc08}
+\end{figure}
+
+\subsubsection{Mô tả kỹ thuật chi tiết}
+
+Tính năng Luyện Listening tập trung vào dạng bài Dictation -- người học nghe và điền từ còn thiếu -- mô phỏng sát dạng câu hỏi điền từ phổ biến trong IELTS Listening. Audio được lưu trên Google Cloud Storage (GCS) với đường dẫn CDN công khai, trình duyệt phát trực tiếp qua thẻ HTML5 \texttt{<audio>} (trên web) hoặc đối tượng \texttt{expo-av} Audio (trên mobile), cho phép tua ngẫu nhiên và điều chỉnh tốc độ phát.
+
+Điểm kỹ thuật quan trọng nhất là thuật toán chấm điểm linh hoạt tại bước 5--6. Sau khi nhận câu trả lời, Assessment Service thực hiện ba bước xử lý: (1) \textit{Chuẩn hóa:} chuyển toàn bộ về chữ thường, loại bỏ ký tự dấu câu không cần thiết (\texttt{.,!?}), trim khoảng trắng thừa; (2) \textit{Tokenize:} tách chuỗi thành mảng từ; (3) \textit{So sánh:} với từng cặp (từ người học, từ đáp án), tính khoảng cách Levenshtein -- nếu khoảng cách $\leq$ 1 và độ dài từ $\geq$ 5, đánh dấu "gần đúng" (vẫn tính điểm đầy đủ). Ngưỡng này bỏ qua lỗi chính tả nhỏ không ảnh hưởng đến nghĩa, phản ánh đúng tinh thần chấm điểm IELTS Listening.
+
+Kết quả được phân loại thành ba loại lỗi: \textbf{Wrong Word} (từ sai hoàn toàn), \textbf{Missing Word} (người học bỏ trống) và \textbf{Extra Word} (người học điền thêm từ không có trong đáp án). Phân loại này giúp người học nhận ra điểm yếu cụ thể: lỗi Missing Word liên tục gợi ý người học nghe không kịp tốc độ, còn lỗi Wrong Word gợi ý cần cải thiện phân biệt âm vị (phoneme discrimination).
+
+\subsection{Luyện Writing Task 2 (UC11)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC11} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập và chọn một đề Writing Task 2.} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hệ thống lưu bài viết, hiển thị band điểm theo 4 tiêu chí IELTS Writing và gợi ý cải thiện chi tiết.} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+
+        1. Người học chọn đề Writing Task 2 và chọn "Bắt đầu làm bài". & \\ \hline
+
+        & 2. Hệ thống hiển thị đề bài (chủ đề, thể loại bài luận) cùng editor soạn thảo và bộ đếm từ real-time. \\ \hline
+
+        3. Người học viết bài luận trong editor. Bộ đếm từ cập nhật liên tục khi người học gõ. & \\ \hline
+
+        4. Người học hoàn thành và chọn "Nộp bài". & \\ \hline
+
+        & 5. Hệ thống lưu bài viết vào cơ sở dữ liệu và gửi yêu cầu chấm điểm đến Assessment Service. \\ \hline
+
+        & 6. Assessment Service xây dựng prompt và gửi đến Gemini API (\texttt{gemini-1.5-flash}): prompt chứa đề bài, bài viết của người học và JSON schema kết quả mong muốn. \\ \hline
+
+        & 7. Gemini API phân tích bài viết theo 4 tiêu chí IELTS Writing Task 2 và trả về JSON: band từng tiêu chí, band tổng, nhận xét tổng quan, danh sách điểm mạnh và điểm cần cải thiện. \\ \hline
+
+        & 8. Hệ thống hiển thị kết quả: band điểm từng tiêu chí (TA, CC, LR, GRA), band tổng ước tính và nhận xét chi tiết kèm ví dụ cụ thể từ bài viết. \\ \hline
+
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative Flow)}} \\ \hline
+
+        & 4a. Bài viết dưới 250 từ: hệ thống cảnh báo "Bài viết cần ít nhất 250 từ để đạt điểm tối đa" nhưng vẫn cho phép nộp. \\ \hline
+
+        & 7a. Gemini API không phản hồi sau 30 giây: hệ thống thử lại một lần; nếu vẫn thất bại, hiển thị "Dịch vụ chấm điểm đang bận, vui lòng thử lại sau". \\ \hline
+
+    \end{tabularx}
+    \caption{Đặc tả Use-case Luyện Writing Task 2 (UC11)}
+    \label{tab:uc11_spec}
+\end{table}
+
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-uc11.png}
+    \caption{Sơ đồ activity UC11 -- Luyện Writing Task 2}
+    \label{fig:activity-uc11}
+\end{figure}
+
+\subsubsection{Mô tả kỹ thuật chi tiết}
+
+Cơ chế chấm điểm Writing Task 2 dựa hoàn toàn vào Gemini API với kỹ thuật \textit{prompt engineering} và \textit{structured output}. Cụ thể, Assessment Service xây dựng prompt theo ba phần: (1) \textit{System instruction:} định nghĩa vai trò của Gemini là giám khảo IELTS chuyên nghiệp, hiểu rõ rubric chính thức và chỉ trả về JSON theo schema quy định; (2) \textit{Essay context:} đề bài Writing Task 2 và loại bài luận (opinion, discussion, problem-solution, direct question); (3) \textit{Essay text:} nội dung bài viết của người học nguyên vẹn.
+
+Để đảm bảo Gemini trả về đúng cấu trúc dữ liệu, hệ thống sử dụng tham số \texttt{responseSchema} của Gemini API. Schema bắt buộc gồm: \texttt{band\_ta} (float), \texttt{band\_cc} (float), \texttt{band\_lr} (float), \texttt{band\_gra} (float), \texttt{overall\_band} (float), \texttt{overview} (string), \texttt{strengths} (mảng string) và \texttt{improvements} (mảng object gồm category, issue, example, suggestion).
+
+Bốn tiêu chí chấm điểm tương ứng với 4 tiêu chí IELTS Writing chính thức: \textbf{Task Achievement (TA)} -- mức độ đáp ứng yêu cầu đề bài và phát triển luận điểm; \textbf{Coherence and Cohesion (CC)} -- tính liên kết giữa các đoạn và câu; \textbf{Lexical Resource (LR)} -- phạm vi và độ chính xác của từ vựng; \textbf{Grammatical Range and Accuracy (GRA)} -- đa dạng và chính xác cấu trúc ngữ pháp. Overall band được tính bằng trung bình cộng bốn tiêu chí, sau đó làm tròn xuống bội số 0.5 gần nhất theo quy tắc IELTS chính thức.
+
+\subsection{Luyện Speaking -- AI Conversation (UC13)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC13} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập, thiết bị có microphone và kết nối Internet ổn định.} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hệ thống lưu transcript hội thoại, hiển thị band điểm Speaking ước tính và phản hồi cải thiện chi tiết.} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+
+        1. Người học chọn chủ đề Speaking AI Conversation (Part 1, 2 hoặc 3). & \\ \hline
+
+        & 2. Hệ thống gửi câu hỏi đầu tiên dưới dạng văn bản theo định dạng IELTS Speaking Part X thông qua Gemini API. \\ \hline
+
+        3. Người học nghe câu hỏi, nhấn "Bắt đầu ghi âm" và trả lời bằng giọng nói. & \\ \hline
+
+        4. Người học nhấn "Kết thúc ghi âm". & \\ \hline
+
+        & 5. Hệ thống gửi file audio lên Assessment Service, gọi faster-whisper API để chuyển đổi thành transcript. \\ \hline
+
+        & 6. Hệ thống thêm transcript vào ngữ cảnh hội thoại và gửi đến Gemini API để tạo câu hỏi tiếp theo theo luồng IELTS Speaking. \\ \hline
+
+        7. Người học nghe câu hỏi tiếp theo và trả lời. Lặp lại bước 3--6 cho đến hết bài. & \\ \hline
+
+        & 8. Sau câu hỏi cuối, Gemini phân tích toàn bộ transcript và trả về band ước tính cho 4 tiêu chí Speaking cùng nhận xét chi tiết. \\ \hline
+
+        & 9. Hệ thống hiển thị tổng kết: band Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy, Pronunciation và nhận xét cụ thể từ bài nói. \\ \hline
+
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative Flow)}} \\ \hline
+
+        & 5a. faster-whisper trả transcript rỗng (im lặng hoặc tiếng ồn): hệ thống thông báo "Không phát hiện giọng nói rõ ràng" và cho phép ghi âm lại. \\ \hline
+
+        & (Phiên bị gián đoạn do mất kết nối): lịch sử hội thoại được client lưu cục bộ; người học cần bắt đầu lại phiên mới. \\ \hline
+
+    \end{tabularx}
+    \caption{Đặc tả Use-case Luyện Speaking -- AI Conversation (UC13)}
+    \label{tab:uc13_spec}
+\end{table}
+
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-uc13.png}
+    \caption{Sơ đồ activity UC13 -- Luyện Speaking AI Conversation}
+    \label{fig:activity-uc13}
+\end{figure}
+
+\subsubsection{Mô tả kỹ thuật chi tiết}
+
+Tính năng luyện Speaking AI Conversation kết hợp hai thành phần: chatbot Gemini API (hỏi đáp tương tác) và faster-whisper (chuyển giọng nói thành transcript). Luồng xử lý diễn ra theo mô hình request-response qua REST API, không qua WebSocket.
+
+Lịch sử hội thoại được quản lý phía client dưới dạng mảng \texttt{messages} (mỗi phần tử gồm \texttt{role: "user"|"model"} và \texttt{content: string}). Mỗi lượt tương tác, client gửi toàn bộ lịch sử cùng câu trả lời mới đến endpoint \texttt{POST /ai/chat} của FastAPI AI Worker. FastAPI gửi mảng này đến Gemini API (model \texttt{gemini-2.5-flash}) để sinh câu hỏi tiếp theo theo định dạng IELTS Speaking Part 1/2/3. Khi người học trả lời bằng giọng nói, client ghi âm và gửi file audio đến endpoint \texttt{POST /ai/transcription} để faster-whisper chuyển thành văn bản; transcript này được thêm vào mảng \texttt{messages} trước khi gửi lên chat endpoint.
+
+Sau lượt hỏi cuối, client gửi toàn bộ transcript hội thoại cùng đề bài đến endpoint \texttt{POST /ai/speaking/grade}. FastAPI Worker chuyển sang vai trò giám khảo: dùng Gemini API để phân tích transcript và trả về band ước tính cho 4 tiêu chí IELTS Speaking chính thức: Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy, Pronunciation. Với bài thi Intensive (Mock Test), luồng chấm điểm được xử lý bất đồng bộ qua RabbitMQ để không chặn response.
+
+\subsection{Thi thử IELTS -- Mock Test (UC14)}
+\subsubsection{Mô tả use case}
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabularx}{\linewidth}{|X|X|}
+        \hline
+        \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use case:} UC14} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập và chọn đề thi Mock Test (toàn phần hoặc theo từng kỹ năng).} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hệ thống lưu toàn bộ bài làm, quy đổi band điểm và hiển thị báo cáo kết quả đầy đủ theo từng kỹ năng.} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic Flow)}} \\ \hline
+        \textbf{Tác nhân} & \textbf{Hệ thống} \\ \hline
+
+        1. Người học chọn đề Mock Test và xác nhận bắt đầu. & \\ \hline
+
+        & 2. Hệ thống tạo phiên thi mới trong cơ sở dữ liệu với timestamp bắt đầu và thời gian giới hạn từng section (Listening: 30 phút; Reading: 60 phút; Writing: 60 phút; Speaking: 15 phút). \\ \hline
+
+        & 3. Hệ thống hiển thị section Listening (4 sections, 40 câu) cùng đồng hồ đếm ngược đồng bộ server. \\ \hline
+
+        4. Người học nghe audio và trả lời câu hỏi. Phiên thi được lưu ở trạng thái \texttt{IN\_PROGRESS} cho đến khi nộp. & \\ \hline
+
+        & 5. Hết giờ Listening: hệ thống tự động chuyển sang section Reading (3 passages, 40 câu) với đồng hồ mới. \\ \hline
+
+        5. Người học hoàn thành Reading, hệ thống chuyển sang Writing rồi Speaking theo thứ tự. & \\ \hline
+
+        6. Người học nộp bài sau khi hoàn thành Speaking hoặc hết giờ. & \\ \hline
+
+        & 7. Hệ thống chấm tự động Listening và Reading (raw score $\rightarrow$ band theo bảng quy đổi IELTS). Writing và Speaking được gửi đến Gemini để chấm AI. \\ \hline
+
+        & 8. Hệ thống tính Overall band bằng trung bình cộng 4 kỹ năng, làm tròn xuống bội số 0.5 gần nhất, và hiển thị báo cáo kết quả đầy đủ. \\ \hline
+
+        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative Flow)}} \\ \hline
+
+        & 4a. Người học thoát giữa chừng: phiên thi ở trạng thái \texttt{IN\_PROGRESS} vẫn tồn tại trong DB; khi quay lại, người học có thể tiếp tục bằng cách truy xuất lại \texttt{exam\_session\_id} đã lưu. \\ \hline
+
+        & (Reload trang): client lấy lại \texttt{exam\_session\_id} từ localStorage và gọi \texttt{GET /exams/sessions/:sessionId} để khôi phục trạng thái phiên thi. \\ \hline
+
+    \end{tabularx}
+    \caption{Đặc tả Use-case Thi thử IELTS -- Mock Test (UC14)}
+    \label{tab:uc14_spec}
+\end{table}
+
+\subsubsection{Sơ đồ activity}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-uc14.png}
+    \caption{Sơ đồ activity UC14 -- Thi thử IELTS (Mock Test)}
+    \label{fig:activity-uc14}
+\end{figure}
+
+\subsubsection{Mô tả kỹ thuật chi tiết}
+
+Mock Test là use case đòi hỏi độ chính xác cao nhất về thời gian và tính toàn vẹn dữ liệu. Khi người học bắt đầu, Exam Service tạo bản ghi \texttt{ExamSession} trong bảng \texttt{exam\_sessions} với \texttt{status = IN\_PROGRESS} và ghi nhận \texttt{startedAt}. Client tự quản lý đồng hồ đếm ngược dựa trên thời gian quy định của từng section (Listening: 30 phút, Reading: 60 phút, Writing: 60 phút, Speaking: 15 phút) và \texttt{startedAt} nhận từ server.
+
+Phiên thi được duy trì ở trạng thái \texttt{IN\_PROGRESS} cho đến khi người học nộp bài qua \texttt{POST /exams/sessions/:sessionId/submit}. Nếu người học thoát và quay lại, client lấy \texttt{exam\_session\_id} từ localStorage rồi gọi \texttt{GET /exams/sessions/:sessionId} để khôi phục phiên. Khi nộp, toàn bộ câu trả lời được gửi kèm trong payload; Exam Service lưu trường \texttt{answers: Json} và cập nhật \texttt{status} tương ứng (SUBMITTED → GRADING → GRADED/COMPLETED).
+
+Hệ thống quy đổi điểm sử dụng hai bảng tra cứu riêng biệt cho Listening và Reading, phản ánh thang điểm IELTS chính thức. Ví dụ với Listening: raw score 39--40 tương ứng band 9.0; 37--38 tương ứng band 8.5; 35--36 tương ứng band 8.0. Overall band được tính theo công thức $\text{Overall} = \lfloor \frac{L + R + W + S}{4} \times 2 \rfloor \div 2$ -- nhân đôi, làm tròn xuống số nguyên, chia đôi để đạt kết quả là bội số của 0.5. Toàn bộ kết quả được lưu vào bảng \texttt{mock\_test\_results} và hiển thị trong trang báo cáo chi tiết kèm phân tích điểm mạnh/yếu từng kỹ năng.
+

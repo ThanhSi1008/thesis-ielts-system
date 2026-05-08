@@ -1,0 +1,312 @@
+\chapter{THIẾT KẾ VÀ HIỆN THỰC}
+
+Chương này trình bày quá trình thiết kế và hiện thực hệ thống, bao gồm: sơ đồ lớp, sơ đồ cơ sở dữ liệu, kiến trúc phần mềm, luồng màn hình, giao diện người dùng và kết quả kiểm thử. Các sơ đồ và thiết kế được xây dựng trực tiếp từ kết quả phân tích ở Chương 3, phản ánh cách hệ thống được hiện thực bằng NestJS~\cite{nestjs-docs}, Next.js~\cite{nextjs-docs} và React Native~\cite{reactnative-docs}.
+
+\section{Sơ đồ lớp}
+
+Sơ đồ lớp của hệ thống IELTS Learning System được chia thành hai nhóm module nhằm tăng tính rõ ràng và dễ bảo trì: nhóm \textbf{User \& Auth} quản lý tài khoản, xác thực và hồ sơ người học; nhóm \textbf{Learning} quản lý bài tập 4 kỹ năng, từ vựng, đề thi và tiến độ học tập~\cite{fowler2002patterns}.
+
+Trong nhóm User \& Auth, lớp \texttt{User} giữ vai trò trung tâm với các thuộc tính: \texttt{id}, \texttt{email}, \texttt{passwordHash}, \texttt{role} (learner/admin), \texttt{failedAttempts}, \texttt{lockUntil} và \texttt{createdAt}. Lớp \texttt{OtpToken} liên kết 1-nhiều với \texttt{User} thông qua \texttt{userId}, lưu mã OTP 6 chữ số và thời gian hết hạn. Lớp \texttt{RefreshToken} lưu refresh token theo từng phiên đăng nhập, cho phép vô hiệu hoá đơn lẻ khi người dùng đăng xuất trên một thiết bị cụ thể mà không ảnh hưởng các phiên khác.
+
+Trong nhóm Learning, lớp \texttt{Skill} phân loại 4 kỹ năng (Listening, Reading, Writing, Speaking). Lớp \texttt{Exercise} liên kết với \texttt{Skill} và chứa nội dung bài tập (audio URL, passage, writing prompt). Lớp \texttt{UserExerciseResult} ghi nhận kết quả mỗi lần làm bài của từng người học theo thời gian. Lớp \texttt{VocabularyItem} và \texttt{UserVocabularyCard} hiện thực thuật toán Spaced Repetition với các trường \texttt{easeFactor} và \texttt{nextReview}. Lớp \texttt{ExamSession} và \texttt{ExamSectionDraft} quản lý phiên thi Mock Test với cơ chế auto-save và khôi phục.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{class-diagram-user.png}
+    \caption{Sơ đồ lớp nhóm User \& Auth}
+    \label{fig:class-user}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{class-diagram-learning.png}
+    \caption{Sơ đồ lớp nhóm Learning}
+    \label{fig:class-learning}
+\end{figure}
+
+\section{Sơ đồ cơ sở dữ liệu}
+
+\subsection{Sơ đồ cơ sở dữ liệu có cấu trúc (SQL)}
+
+Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua \texttt{DATABASE\_URL} connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file \texttt{schema.prisma} và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Sơ đồ ERD (Entity-Relationship Diagram) bên dưới thể hiện các bảng chính cùng quan hệ giữa chúng.
+
+Các bảng cốt lõi được tổ chức theo nhóm: nhóm xác thực gồm \texttt{users}, \texttt{otp\_tokens}, \texttt{refresh\_tokens}; nhóm bài tập gồm \texttt{skills}, \texttt{exercises}, \texttt{exercise\_options}, \texttt{user\_exercise\_results}; nhóm từ vựng gồm \texttt{vocabulary\_items}, \texttt{user\_vocabulary\_cards}; nhóm thi thử gồm \texttt{exam\_papers}, \texttt{exam\_sessions}, \texttt{exam\_section\_drafts}, \texttt{mock\_test\_results}. Khóa ngoại được thiết lập đầy đủ với \texttt{ON DELETE CASCADE} ở các bảng con để đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{erd-sql.png}
+    \caption{Sơ đồ cơ sở dữ liệu quan hệ (ERD -- PostgreSQL)}
+    \label{fig:erd-sql}
+\end{figure}
+
+\section{Sơ đồ kiến trúc phần mềm}
+
+Hệ thống IELTS Learning System được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm hai thành phần chính: (1) \textbf{NestJS Modular Monolith} -- một ứng dụng NestJS 10 duy nhất chứa toàn bộ business logic được tổ chức thành 18 module nghiệp vụ (auth, exams, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, gamification, community, subscriptions, notifications...) giao tiếp nội bộ qua Dependency Injection; (2) \textbf{FastAPI AI Worker} -- microservice Python độc lập xử lý toàn bộ AI inference, kết nối với NestJS qua RabbitMQ message queue.
+
+Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào \texttt{exam-grading-queue} trên RabbitMQ; FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL 16 (trực tiếp trên GCP VM) và Google Cloud Storage (GCS) lưu trữ file audio và hình ảnh bài tập. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{architecture.png}
+    \caption{Sơ đồ kiến trúc phần mềm hệ thống IELTS Learning System}
+    \label{fig:architecture}
+\end{figure}
+
+\section{Sơ đồ luồng màn hình}
+
+\subsection{Sơ đồ luồng màn hình website}
+
+Trên nền tảng Web (Next.js), người dùng bắt đầu từ \textbf{Landing Page}, tiếp tục đến màn hình \textbf{Đăng nhập / Đăng ký}, sau đó vào \textbf{Dashboard} chính. Từ Dashboard, người học có thể chuyển sang 4 nhánh chính: \textbf{Luyện kỹ năng} (Listening / Reading / Writing / Speaking), \textbf{Từ vựng} (học mới và ôn luyện flashcard), \textbf{Mock Test} (chọn đề và làm bài toàn phần), và \textbf{Kết quả} (xem báo cáo tiến độ). Người quản lý (Admin) có nhánh riêng dẫn vào \textbf{Admin Dashboard} với các chức năng quản lý nội dung, đề thi và học viên.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{flow-web.png}
+    \caption{Sơ đồ luồng màn hình website (Next.js)}
+    \label{fig:flow-web}
+\end{figure}
+
+\subsection{Sơ đồ luồng màn hình mobile}
+
+Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụng Tab Navigation ở tầng dưới cùng với 4 tab chính: \textbf{Trang chủ}, \textbf{Luyện tập}, \textbf{Từ vựng} và \textbf{Hồ sơ}. Các màn hình con được quản lý bằng Stack Navigator. Luồng Mock Test trên mobile được thiết kế dạng fullscreen để tránh xao nhãng, với thanh điều hướng section cố định phía trên và nút đếm câu đã trả lời phía dưới.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{flow-mobile.png}
+    \caption{Sơ đồ luồng màn hình mobile (React Native)}
+    \label{fig:flow-mobile}
+\end{figure}
+
+\section{Giao diện chương trình}
+
+Phần này trình bày các giao diện chính của hệ thống trên cả hai nền tảng Web và Mobile, thể hiện kết quả hiện thực thực tế của các use case đã phân tích ở Chương 3.
+
+\subsection{Giao diện trang chủ (Landing Page)}
+
+Trang chủ giới thiệu tổng quan hệ thống với banner nêu bật tính năng AI scoring, thanh điều hướng nhanh đến 4 kỹ năng và nút kêu gọi hành động (CTA) dẫn đến trang đăng ký. Giao diện sử dụng TailwindCSS với bảng màu xanh dương -- trắng nhất quán, đảm bảo tính chuyên nghiệp và dễ đọc.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-landing.png}
+    \caption{Giao diện trang chủ (Landing Page)}
+    \label{fig:ui-landing}
+\end{figure}
+
+\subsection{Giao diện Dashboard người học}
+
+Dashboard hiển thị tóm tắt tiến độ học tập theo tuần, bao gồm: biểu đồ điểm từng kỹ năng, chuỗi ngày học liên tiếp (streak), số từ vựng cần ôn hôm nay theo Spaced Repetition và danh sách bài luyện gần đây. Bố cục dạng lưới 2 cột: cột trái là biểu đồ thống kê, cột phải là lịch học và thông báo từ hệ thống.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-dashboard.png}
+    \caption{Giao diện Dashboard người học}
+    \label{fig:ui-dashboard}
+\end{figure}
+
+\subsection{Giao diện Luyện Listening}
+
+Giao diện Listening gồm audio player tùy chỉnh (hỗ trợ điều chỉnh tốc độ 0.75x -- 1.5x và cuộn lại 10 giây), phía dưới là khu vực câu hỏi đa dạng (Multiple Choice, Short Answer, Matching, Labelling). Sau khi nộp bài, giao diện chuyển sang trang kết quả: câu đúng hiển thị màu xanh lá, câu sai màu đỏ kèm đáp án đúng và phân tích loại lỗi (Wrong Word / Missing Word / Extra Word) cho dạng Short Answer.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-listening.png}
+    \caption{Giao diện luyện Listening}
+    \label{fig:ui-listening}
+\end{figure}
+
+\subsection{Giao diện Luyện Reading}
+
+Giao diện Reading sử dụng layout 2 cột: cột trái (60\% chiều rộng) hiển thị đoạn văn với hỗ trợ highlight từ khoá khi di chuột; cột phải (40\%) hiển thị các câu hỏi. Hai cột có thanh cuộn độc lập, giúp người học vừa đọc vừa trả lời mà không cần cuộn trang nhiều lần -- đây là điểm cải tiến đáng kể so với giao diện luyện Reading thông thường.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-reading.png}
+    \caption{Giao diện luyện Reading}
+    \label{fig:ui-reading}
+\end{figure}
+
+\subsection{Giao diện Luyện Writing và phản hồi AI}
+
+Giao diện Writing gồm 2 tab: tab \textbf{Đề bài} hiển thị topic, task type và yêu cầu số từ; tab \textbf{Bài làm} là textarea với bộ đếm từ real-time ở góc phải. Sau khi nộp bài, màn hình phản hồi AI hiển thị điểm từng tiêu chí (TA, CC, LR, GRA), Overall band nổi bật ở đầu trang và nhận xét chi tiết dạng văn xuôi với các điểm mạnh được highlight xanh và điểm cần cải thiện highlight vàng.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-writing.png}
+    \caption{Giao diện luyện Writing -- Đề bài và khu vực soạn thảo}
+    \label{fig:ui-writing}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-writing-feedback.png}
+    \caption{Giao diện phản hồi AI cho bài Writing}
+    \label{fig:ui-writing-feedback}
+\end{figure}
+
+\subsection{Giao diện Luyện Speaking}
+
+Giao diện Speaking hiển thị chủ đề hội thoại và câu hỏi hiện tại của AI. Người học nhấn giữ nút microphone để ghi âm; thanh sóng âm (waveform) hiển thị trực quan xác nhận đang thu âm thành công. Sau mỗi lượt, transcript của người học xuất hiện và câu hỏi tiếp theo của AI được phát qua loa tự động. Cuối phiên, trang kết quả hiển thị band ước tính theo 4 tiêu chí và transcript toàn bộ cuộc hội thoại để người học tự phân tích.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-speaking.png}
+    \caption{Giao diện luyện Speaking -- AI Conversation}
+    \label{fig:ui-speaking}
+\end{figure}
+
+\subsection{Giao diện Mock Test}
+
+Giao diện Mock Test hiển thị toàn màn hình với: tiêu đề section hiện tại (Listening / Reading / Writing / Speaking), đồng hồ đếm ngược ở góc trên phải (chuyển màu đỏ khi còn dưới 5 phút), và thanh điều hướng câu hỏi dạng lưới số ở cột bên phải (xanh lá = đã trả lời, trắng = chưa trả lời). Khi hết giờ mỗi section, hệ thống tự động submit và chuyển sang section tiếp theo mà không yêu cầu thao tác từ người học.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-mocktest.png}
+    \caption{Giao diện Mock Test -- Giao diện làm bài}
+    \label{fig:ui-mocktest}
+\end{figure}
+
+\subsection{Giao diện kết quả và tiến độ}
+
+Trang kết quả Mock Test hiển thị Overall band nổi bật ở trung tâm, tiếp theo là biểu đồ radar (spider chart) thể hiện 4 kỹ năng và bên dưới là phân tích chi tiết từng kỹ năng (số câu đúng/sai với Listening/Reading; nhận xét AI với Writing/Speaking). Trang tiến độ học tập dài hạn hiển thị biểu đồ cột theo tuần và lịch học dạng heatmap tương tự GitHub contribution graph.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-result.png}
+    \caption{Giao diện kết quả Mock Test và báo cáo tiến độ}
+    \label{fig:ui-result}
+\end{figure}
+
+\subsection{Giao diện Từ vựng và Flashcard}
+
+Giao diện từ vựng gồm hai chế độ: chế độ \textbf{Học mới} dùng flashcard lật với nút nhớ / quên để cập nhật ease factor; chế độ \textbf{Ôn luyện} dùng quiz trắc nghiệm 4 đáp án. Danh sách từ vựng hiển thị dạng bảng với các cột: từ, phiên âm, nghĩa, ngày ôn tiếp theo và trạng thái (New / Learning / Review / Mature). Trên Mobile, flashcard hỗ trợ gesture vuốt phải (nhớ) và vuốt trái (quên) để thao tác nhanh hơn.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-vocabulary.png}
+    \caption{Giao diện từ vựng và flashcard (Spaced Repetition)}
+    \label{fig:ui-vocabulary}
+\end{figure}
+
+\subsection{Giao diện Admin}
+
+Giao diện Admin sử dụng sidebar navigation với các mục: \textbf{Tổng quan} (thống kê số người dùng, lượt làm bài theo ngày, phân phối band điểm); \textbf{Quản lý nội dung} (thêm/sửa/xóa bài tập theo từng kỹ năng, bao gồm upload audio cho Listening); \textbf{Quản lý đề thi} (tạo và phân bổ đề Mock Test, thiết lập thời gian từng section); \textbf{Quản lý học viên} (xem danh sách người dùng, xem tiến độ từng học viên, khoá tài khoản); \textbf{Thống kê} (báo cáo biểu đồ tăng trưởng người dùng và điểm trung bình theo thời gian).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{ui-admin.png}
+    \caption{Giao diện Admin -- Trang tổng quan và quản lý}
+    \label{fig:ui-admin}
+\end{figure}
+
+\section{Kiểm thử hệ thống}
+
+\subsection{Danh sách các test case}
+
+Chúng em thực hiện kiểm thử hộp đen (Black-box Testing) cho các chức năng chính của hệ thống. Mỗi test case bao gồm mã định danh, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong đợi. Tổng cộng 22 tình huống kiểm thử được xây dựng cho 7 nhóm chức năng cốt lõi.
+
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|p{1.3cm}|p{2.8cm}|p{2.8cm}|p{4.0cm}|p{3.0cm}|}
+    \caption{Danh sách các test case}
+    \label{tab:testcase_list} \\
+    \hline
+    \textbf{Mã TC} & \textbf{Chức năng} & \textbf{Tiền điều kiện} & \textbf{Tình huống} & \textbf{Kết quả mong đợi} \\ \hline
+    \endfirsthead
+    \multicolumn{5}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Mã TC} & \textbf{Chức năng} & \textbf{Tiền điều kiện} & \textbf{Tình huống} & \textbf{Kết quả mong đợi} \\ \hline
+    \endhead
+    \hline \multicolumn{5}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+
+    TC01-01 & Đăng ký tài khoản & Email chưa tồn tại trong hệ thống & Nhập email hợp lệ, mật khẩu $\geq$8 ký tự & Gửi OTP về email, thông báo kiểm tra hộp thư \\ \hline
+
+    TC01-02 & Đăng ký tài khoản & Email đã đăng ký trước đó & Nhập email đã tồn tại & Thông báo ``Email đã được sử dụng'', không gửi OTP \\ \hline
+
+    TC01-03 & Đăng ký tài khoản & OTP đã được gửi thành công & Nhập đúng OTP trong vòng 5 phút & Kích hoạt tài khoản, redirect đến Placement Test \\ \hline
+
+    TC01-04 & Đăng ký tài khoản & OTP đã được gửi & Nhập OTP sai 3 lần liên tiếp & Huỷ OTP, yêu cầu gửi lại mã mới \\ \hline
+
+    TC01-05 & Đăng ký tài khoản & -- & Nhập mật khẩu ít hơn 8 ký tự & Thông báo lỗi validation ngay tại trường nhập \\ \hline
+
+    TC02-01 & Đăng nhập & Tài khoản đã kích hoạt & Email và mật khẩu đúng & Đăng nhập thành công, redirect đến Dashboard \\ \hline
+
+    TC02-02 & Đăng nhập & Tài khoản bình thường & Nhập mật khẩu sai 5 lần liên tiếp & Khoá tài khoản 15 phút, thông báo thời gian còn lại \\ \hline
+
+    TC02-03 & Đăng nhập & Tài khoản đang bị khoá & Nhập đúng mật khẩu & Thông báo tài khoản bị khoá kèm thời gian mở khoá \\ \hline
+
+    TC02-04 & Đăng nhập & Đang đăng nhập & Access token hết hạn (15 phút) & Silent refresh tự động, người dùng không bị gián đoạn \\ \hline
+
+    TC02-05 & Đăng nhập & Đang đăng nhập & Refresh token hết hạn (7 ngày không dùng) & Tự động đăng xuất, redirect về trang đăng nhập \\ \hline
+
+    TC03-01 & Luyện Listening & Đã đăng nhập, chọn bài Listening & Nghe và điền đáp án đúng hoàn toàn & 100\% điểm, hiển thị tất cả câu màu xanh lá \\ \hline
+
+    TC03-02 & Luyện Listening & Đã đăng nhập, chọn bài Listening & Điền đáp án sai 1 ký tự (typo), từ $\geq$5 ký tự & Hệ thống chấp nhận đúng (Levenshtein $\leq$1) \\ \hline
+
+    TC03-03 & Luyện Listening & Đã đăng nhập, chọn bài Listening & Điền đáp án hoàn toàn sai & 0 điểm câu đó, hiển thị đáp án đúng màu đỏ \\ \hline
+
+    TC04-01 & Luyện Writing & Đã đăng nhập, chọn Task 2 & Viết bài $\geq$250 từ, nhấn nộp bài & Gemini trả về JSON điểm 4 tiêu chí và Overall band trong $\leq$10 giây \\ \hline
+
+    TC04-02 & Luyện Writing & Đã đăng nhập, chọn Task 2 & Nhấn nộp bài khi bài viết $<$50 từ & Thông báo yêu cầu số từ tối thiểu, không gọi API \\ \hline
+
+    TC05-01 & Luyện Speaking & Đã đăng nhập, microphone cấp quyền & Ghi âm câu trả lời Part 1 & Transcript hiển thị, AI đặt câu hỏi tiếp theo qua audio \\ \hline
+
+    TC05-02 & Luyện Speaking & Đã đăng nhập, microphone cấp quyền & Ghi âm nhưng không có giọng nói & Thông báo ``Không phát hiện giọng nói'', yêu cầu thử lại \\ \hline
+
+    TC06-01 & Mock Test & Đã đăng nhập, chọn đề Mock Test & Làm bài đến hết giờ Listening & Tự động submit section, chuyển sang Reading \\ \hline
+
+    TC06-02 & Mock Test & Đang làm Mock Test & Reload trang giữa chừng & Khôi phục bài thi từ auto-save cuối, đồng hồ tiếp tục đúng \\ \hline
+
+    TC06-03 & Mock Test & Đã hoàn thành tất cả 4 section & Nhấn nộp bài & Hiển thị báo cáo kết quả đầy đủ với Overall band và chi tiết từng kỹ năng \\ \hline
+
+    TC07-01 & Admin -- Quản lý nội dung & Đã đăng nhập Admin & Tạo bài tập Listening mới với audio URL hợp lệ & Lưu thành công, bài tập xuất hiện trong danh sách \\ \hline
+
+    TC07-02 & Admin -- Quản lý nội dung & Đã đăng nhập Admin & Tạo bài tập không có tiêu đề & Thông báo lỗi validation, không lưu \\ \hline
+
+\end{longtable}
+
+\subsection{Bảng báo cáo kết quả kiểm thử}
+
+Sau khi hoàn thiện hệ thống, chúng em tiến hành thực thi toàn bộ 22 test case. Kết quả kiểm thử được ghi nhận trong bảng dưới đây. Tất cả các test case đều đạt kết quả \textbf{Pass}, xác nhận hệ thống hoạt động đúng theo yêu cầu đã đặc tả.
+
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|p{1.3cm}|p{3.5cm}|p{3.5cm}|p{2.5cm}|p{1.5cm}|p{1.5cm}|}
+    \caption{Bảng báo cáo kết quả kiểm thử}
+    \label{tab:testcase_result} \\
+    \hline
+    \textbf{Mã TC} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} & \textbf{Người thực hiện} & \textbf{Pass/Fail} & \textbf{Ngày} \\ \hline
+    \endfirsthead
+    \multicolumn{6}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Mã TC} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} & \textbf{Người thực hiện} & \textbf{Pass/Fail} & \textbf{Ngày} \\ \hline
+    \endhead
+    \hline \multicolumn{6}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+
+    TC01-01 & Gửi OTP về email & OTP nhận được trong 30 giây & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
+    TC01-02 & Thông báo email đã tồn tại & Hiển thị thông báo đúng & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
+    TC01-03 & Kích hoạt tài khoản & Tài khoản active, redirect Placement Test & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
+    TC01-04 & Huỷ OTP sau 3 lần sai & OTP bị vô hiệu, cần gửi lại & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
+    TC01-05 & Lỗi validation mật khẩu & Thông báo lỗi hiện đúng vị trí & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
+    TC02-01 & Đăng nhập thành công & Redirect đến Dashboard & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
+    TC02-02 & Khoá tài khoản 15 phút & Tài khoản bị khoá đúng thời hạn & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
+    TC02-03 & Thông báo tài khoản bị khoá & Hiển thị thời gian còn lại chính xác & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
+    TC02-04 & Silent refresh thành công & Người dùng không bị gián đoạn & Lai Thanh Sĩ & Pass & 02/05/2026 \\ \hline
+    TC02-05 & Tự động đăng xuất & Redirect về trang đăng nhập & Lai Thanh Sĩ & Pass & 02/05/2026 \\ \hline
+    TC03-01 & 100\% điểm Listening & Tất cả câu hiển thị xanh & Phạm Đức Tài & Pass & 02/05/2026 \\ \hline
+    TC03-02 & Chấp nhận typo 1 ký tự & Câu tính đúng & Phạm Đức Tài & Pass & 02/05/2026 \\ \hline
+    TC03-03 & Hiển thị đáp án đúng & Đáp án đúng hiển thị màu đỏ & Lai Thanh Sĩ & Pass & 02/05/2026 \\ \hline
+    TC04-01 & AI trả về điểm 4 tiêu chí & Nhận kết quả JSON trong $\leq$8 giây & Lai Thanh Sĩ & Pass & 03/05/2026 \\ \hline
+    TC04-02 & Chặn nộp bài thiếu từ & Thông báo lỗi, không gọi API & Phạm Đức Tài & Pass & 03/05/2026 \\ \hline
+    TC05-01 & Transcript và câu hỏi AI & Transcript đúng, audio AI phát sau 3 giây & Lai Thanh Sĩ & Pass & 03/05/2026 \\ \hline
+    TC05-02 & Thông báo không có giọng nói & Thông báo xuất hiện sau 5 giây im lặng & Phạm Đức Tài & Pass & 03/05/2026 \\ \hline
+    TC06-01 & Tự động chuyển section & Section Reading bắt đầu tự động & Phạm Đức Tài & Pass & 04/05/2026 \\ \hline
+    TC06-02 & Khôi phục bài thi & Bài thi khôi phục đúng câu và thời gian & Lai Thanh Sĩ & Pass & 04/05/2026 \\ \hline
+    TC06-03 & Báo cáo kết quả đầy đủ & Overall band và chi tiết 4 kỹ năng hiển thị & Lai Thanh Sĩ & Pass & 04/05/2026 \\ \hline
+    TC07-01 & Lưu bài tập thành công & Bài tập mới trong danh sách & Phạm Đức Tài & Pass & 05/05/2026 \\ \hline
+    TC07-02 & Thông báo lỗi validation & Không lưu, thông báo hiển thị đúng & Phạm Đức Tài & Pass & 05/05/2026 \\ \hline
+
+\end{longtable}
+

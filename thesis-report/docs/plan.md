@@ -174,27 +174,30 @@ CHƯƠNG 1: GIỚI THIỆU
 
 CHƯƠNG 2: CƠ SỞ LÝ THUYẾT
   2.1 Ngôn ngữ lập trình
-      → TypeScript (lý do: type-safe, scale tốt cho Microservices)
+      → TypeScript (lý do: type-safe, giúp kiểm soát cấu trúc dữ liệu trong Modular Monolith và khi giao tiếp REST API giữa các lớp)
   2.2 Frameworks
-      2.2.1 NestJS (Backend)        ← Điểm khác biệt so với mẫu
+      2.2.1 NestJS (Backend — Modular Monolith) ← Điểm khác biệt so với mẫu
       2.2.2 Next.js (Web Frontend)
       2.2.3 React Native (Mobile)
+      2.2.4 FastAPI (Python AI Worker)
   2.3 Công nghệ & thư viện
       2.3.1 Prisma ORM              ← Mới so với mẫu
-      2.3.2 Gemini API (AI scoring)
-      2.3.3 Google Cloud Speech-to-Text (Speaking)
-      2.3.4 WebSocket/Socket.IO (real-time)
-      2.3.5 JWT Authentication
-      2.3.6 TailwindCSS
+      2.3.2 Gemini API (AI scoring Writing/Speaking)
+      2.3.3 faster-whisper (Speech-to-Text, local model)
+      2.3.4 RabbitMQ (Message Broker, async AI grading)
+      2.3.5 Redis (Cache layer)
+      2.3.6 JWT Authentication (Passport.js + Google OAuth)
+      2.3.7 TailwindCSS
   2.4 Cơ sở dữ liệu
-      2.4.1 PostgreSQL (via Supabase)
-      2.4.2 [Redis nếu có cache] hoặc bỏ qua
+      2.4.1 PostgreSQL 16 (trực tiếp trên GCP VM, không qua BaaS)
   2.5 Kiến trúc phần mềm
-      2.5.1 Microservices Architecture ← Đặc thù của dự án này
+      2.5.1 Event-driven Modular Monolith + AI Microservice ← Đặc thù của dự án này
       2.5.2 RESTful API
       2.5.3 Client-Server
   2.6 Hosting & DevOps
-      → Supabase (BaaS), Vercel/DigitalOcean
+      → GCP Cloud Run (frontend: ielts-master.io.vn)
+      → GCP VM + Docker Compose + nginx (backend: dedangdown.io.vn)
+      → GitHub Actions CI/CD (path-filtered builds → GCR → SSH deploy)
 
 CHƯƠNG 3: PHÂN TÍCH
   3.1 Quy trình nghiệp vụ
@@ -258,9 +261,9 @@ CHƯƠNG 4: THIẾT KẾ VÀ HIỆN THỰC
   4.1 Sơ đồ lớp
       → Phân nhóm: Learning module / User module / Admin module
   4.2 Sơ đồ cơ sở dữ liệu
-      4.2.1 Sơ đồ SQL (PostgreSQL/Supabase) – ERD
-      4.2.2 [Nếu có NoSQL – có thể bỏ qua nếu toàn SQL]
-  4.3 Sơ đồ kiến trúc phần mềm (Microservices)
+      4.2.1 Sơ đồ SQL (PostgreSQL 16) – ERD
+      4.2.2 [Bỏ qua — toàn SQL, Redis dùng cache không có schema phức tạp]
+  4.3 Sơ đồ kiến trúc phần mềm (Event-driven Modular Monolith)
   4.4 Sơ đồ luồng màn hình
       4.4.1 Website (Next.js)
       4.4.2 Mobile (React Native)
@@ -325,27 +328,29 @@ CHƯƠNG 5: KẾT LUẬN
 - [ ] **1.3 Phạm vi:** Đối tượng dùng; phạm vi chức năng (bao gồm/không bao gồm)
 - [ ] **1.4 Yêu cầu chức năng:** Phân theo: Người học / Admin
 - [ ] **1.5 Ràng buộc:** Platform hỗ trợ (Web + Android/iOS), số user giai đoạn đầu, giới hạn AI API
-- [ ] **1.6 Yêu cầu phi chức năng:** Hiệu năng (<3s), Bảo mật (JWT/2FA), Khả năng mở rộng (Microservices), Khả dụng (90%+)
+- [ ] **1.6 Yêu cầu phi chức năng:** Hiệu năng (<3s), Bảo mật (JWT + bcrypt), Khả năng mở rộng (Modular Monolith + AI Worker riêng), Khả dụng (90%+)
 
 ---
 
 ### Chương 2: Cơ sở lý thuyết
 
-- [ ] **2.1 TypeScript:** Định nghĩa + lý do chọn cho Microservices
-- [ ] **2.2.1 NestJS:** Giới thiệu + kiến trúc module + tại sao chọn NestJS thay vì Express thuần
-- [ ] **2.2.2 Next.js:** Giới thiệu + SSR/SSG + SEO lợi ích
-- [ ] **2.2.3 React Native:** Giới thiệu + cross-platform + code sharing với React
-- [ ] **2.3.1 Prisma ORM:** Giới thiệu + type-safe queries + migration
-- [ ] **2.3.2 Gemini API:** Giới thiệu + khả năng multimodal + dùng cho AI scoring
-- [ ] **2.3.3 Google Cloud Speech-to-Text:** Giới thiệu + real-time STT + dùng cho Speaking
-- [ ] **2.3.4 Socket.IO / WebSocket:** Giới thiệu + real-time communication pattern
-- [ ] **2.3.5 TailwindCSS:** Utility-first + tốc độ phát triển
-- [ ] **2.4.1 PostgreSQL/Supabase:** RDBMS + BaaS + Auth + Storage
-- [ ] **2.5.1 Microservices:** Định nghĩa + ưu điểm + khác gì Client-Server monolithic
-- [ ] **2.5.2 RESTful API:** Nguyên tắc REST
-- [ ] **2.5.3 Real-time Communication:** WebRTC/WebSocket
-- [ ] **2.6 Hosting:** Supabase + Vercel/DigitalOcean
-- [ ] **Hình minh họa chương 2:** ≥4 hình (kiến trúc Microservices, Prisma flow, Gemini API flow, Supabase model)
+- [ ] **2.1 TypeScript:** Định nghĩa + lý do chọn (type-safe DTO giữa layers, hỗ trợ tốt cho Prisma type generation)
+- [ ] **2.2.1 NestJS:** Giới thiệu + kiến trúc **Modular Monolith** (18 modules, DI) + tại sao chọn NestJS thay vì Express thuần
+- [ ] **2.2.2 Next.js:** Giới thiệu + SSR/SSG + SEO lợi ích; deploy trên GCP Cloud Run
+- [ ] **2.2.3 React Native (Expo):** Giới thiệu + cross-platform + Expo Router
+- [ ] **2.2.4 FastAPI (Python):** Giới thiệu + async + dùng cho AI Worker (Whisper + Gemini inference)
+- [ ] **2.3.1 Prisma ORM:** Giới thiệu + type-safe queries + migration + 55+ models
+- [ ] **2.3.2 Gemini API:** Giới thiệu + rubric-based scoring + dùng cho Writing/Speaking grading
+- [ ] **2.3.3 faster-whisper:** Giới thiệu + CTranslate2 backend + local inference (không cloud) + dùng cho pronunciation/dictation
+- [ ] **2.3.4 RabbitMQ:** Giới thiệu + message broker + async AI grading queue + Dead Letter Queue
+- [ ] **2.3.5 Redis:** Giới thiệu + cache layer + session management (ioredis)
+- [ ] **2.3.6 JWT + Passport.js:** Auth flow: email/password + Google OAuth; access token + refresh token
+- [ ] **2.3.7 TailwindCSS:** Utility-first + tốc độ phát triển
+- [ ] **2.4.1 PostgreSQL 16:** RDBMS, chạy trực tiếp trên GCP VM; kết nối qua Prisma (port 5432)
+- [ ] **2.5.1 Event-driven Modular Monolith:** NestJS = 1 process/18 modules (DI nội bộ) + FastAPI AI Worker kết nối qua RabbitMQ; phân biệt với full Microservices
+- [ ] **2.5.2 RESTful API:** Nguyên tắc REST; NestJS expose `/api/v1/`, FastAPI expose `/ai/`
+- [ ] **2.6 Hosting & DevOps:** GCP Cloud Run (frontend) + GCP VM + Docker Compose + nginx (backend) + GitHub Actions CI/CD
+- [ ] **Hình minh họa chương 2:** ≥4 hình (kiến trúc Event-driven Monolith, Prisma flow, Gemini API flow, RabbitMQ grading flow)
 
 ---
 
@@ -358,13 +363,13 @@ CHƯƠNG 5: KẾT LUẬN
 - [ ] **3.3 Danh sách tác nhân** – Bảng 2 cột (Tác nhân | Mô tả)
 - [ ] **3.4 Danh sách tình huống hoạt động** – Bảng 3 cột (ID | Tên UC | Mô tả ngắn) cho ~20 UC
 - [ ] **3.5 Đặc tả UC** – Chọn 6-8 UC, mỗi UC bao gồm:
-  - [ ] **UC01 Đăng ký:** Bảng + Activity + Sequence + Kỹ thuật (OTP, Bcrypt, Supabase Auth)
-  - [ ] **UC02 Đăng nhập:** Bảng + Activity + Sequence + Kỹ thuật (JWT, brute-force protection)
-  - [ ] **UC08 Luyện Listening:** Bảng + Activity + Sequence(s) + Kỹ thuật (audio player, gap-fill, string matching)
-  - [ ] **UC10/11 Luyện Writing:** Bảng + Activity + Sequence(s) + Kỹ thuật (Prompt Engineering, Gemini scoring)
-  - [ ] **UC12/13 Luyện Speaking:** Bảng + Activity + Sequence(s) + Kỹ thuật (STT, AI feedback)
-  - [ ] **UC14 Mock Test:** Bảng + Activity + Sequence + Kỹ thuật (timer, scoring, IELTS band conversion)
-  - [ ] **UC04/05 Từ vựng:** Bảng + Activity + Sequence + Kỹ thuật (Spaced Repetition algorithm)
+  - [ ] **UC01 Đăng ký:** Bảng + Activity + Sequence + Kỹ thuật (bcrypt salt=12, JWT phát hành, **không dùng Supabase Auth**)
+  - [ ] **UC02 Đăng nhập:** Bảng + Activity + Sequence + Kỹ thuật (Passport local strategy, JWT access+refresh token, brute-force protection)
+  - [ ] **UC08 Luyện Listening:** Bảng + Activity + Sequence(s) + Kỹ thuật (audio player expo-av/HTML5, gap-fill, Levenshtein string matching)
+  - [ ] **UC10/11 Luyện Writing:** Bảng + Activity + Sequence(s) + Kỹ thuật (Prompt Engineering, Gemini rubric scoring, **async qua RabbitMQ**)
+  - [ ] **UC12 Luyện Speaking (Shadowing):** Bảng + Activity + Sequence + Kỹ thuật (video-based shadowing, faster-whisper transcription, Gemini feedback)
+  - [ ] **UC14 Mock Test:** Bảng + Activity + Sequence + Kỹ thuật (Save & Pause: answers JSON blob, server-side deadline via REST, IELTS band conversion)
+  - [ ] **UC04/05 Từ vựng + Vocab Lab:** Bảng + Activity + Sequence + Kỹ thuật (ts-fsrs FSRS algorithm: retention 90%, interval 365 days, 4 ratings)
   - [ ] **UC18 Admin – Quản lý nội dung:** Bảng + Activity + Sequence
 
 ---
@@ -374,7 +379,7 @@ CHƯƠNG 5: KẾT LUẬN
 - [ ] **4.1 Sơ đồ lớp:** ≥2 hình (User/Auth module + Learning module)
 - [ ] **4.2.1 Sơ đồ ERD SQL:** Hình sơ đồ cơ sở dữ liệu quan hệ (PostgreSQL)
 - [ ] **4.2.2 Sơ đồ NoSQL** (nếu có Redis/MongoDB): Hình mô tả cấu trúc document
-- [ ] **4.3 Sơ đồ kiến trúc:** Hình tổng thể Microservices (NestJS services + Gateway + Supabase + External APIs)
+- [ ] **4.3 Sơ đồ kiến trúc:** Hình tổng thể Event-driven Monolith (NestJS 18 modules + RabbitMQ + FastAPI AI Worker + GCS + Gemini API)
 - [ ] **4.4.1 Luồng màn hình Web:** Hình flow diagram
 - [ ] **4.4.2 Luồng màn hình Mobile:** Hình flow diagram
 - [ ] **4.5 Giao diện chương trình:** ≥10 screenshot với mô tả
@@ -404,24 +409,27 @@ CHƯƠNG 5: KẾT LUẬN
 
 - [ ] **5.1.1 Về công nghệ & kiến trúc:**
   - Multi-platform (Web + Mobile)
-  - Microservices architecture
-  - AI integration (Gemini + GCP STT)
-  - Real-time với Socket.IO
+  - Event-driven Modular Monolith + FastAPI AI Worker
+  - AI integration (Gemini scoring + faster-whisper transcription)
+  - RabbitMQ async grading pipeline
+  - Subscription system (Free/Premium/Pro) với VNPay đã tích hợp
+  - Gamification (XP, achievements, streaks)
 - [ ] **5.1.2 Về chức năng nghiệp vụ:**
-  - 4 kỹ năng IELTS + Mock Test
-  - AI scoring cho Writing & Speaking
-  - Placement test + adaptive learning
+  - 4 kỹ năng IELTS (Foundation / Basic / Advanced / Intensive)
+  - AI scoring cho Writing & Speaking (Gemini, 4 tiêu chí IELTS)
+  - Spaced Repetition (FSRS) cho Vocab Lab
+  - Community (posts, comments, likes), Teacher–Student linking
   - Admin dashboard
-- [ ] **5.2 Hạn chế:** AI latency, scale testing, thiếu Reading speaking band prediction, chưa có collaborative features
-- [ ] **5.3 Hướng phát triển:** Fine-tune AI model, mobile offline mode, IELTS community features, payment integration
+- [ ] **5.2 Hạn chế:** AI grading latency (Gemini API), faster-whisper accuracy thấp hơn cloud STT, chưa có offline mode cho mobile, chưa fine-tune LLM theo IELTS scoring rubric cụ thể
+- [ ] **5.3 Hướng phát triển:** Fine-tune LLM cho IELTS grading, mobile offline mode, tích hợp MoMo/Stripe (VNPay đã xong), collaborative study features
 
 ---
 
 ### Tài liệu tham khảo
 
 - [ ] ≥5 tài liệu học thuật về IELTS / language assessment / e-learning
-- [ ] ≥5 tài liệu kỹ thuật (NestJS, Next.js, React Native, Prisma, Supabase)
-- [ ] ≥5 tài liệu về AI/ML trong giáo dục (Gemini API, Speech-to-Text)
+- [ ] ≥5 tài liệu kỹ thuật (NestJS, Next.js, React Native, Prisma, RabbitMQ, faster-whisper)
+- [ ] ≥5 tài liệu về AI/ML trong giáo dục (Gemini API, Whisper/faster-whisper, FSRS algorithm)
 - [ ] ≥3 tài liệu thống kê số liệu thị trường IELTS
 - [ ] Phân loại rõ: Tiếng Việt / Tiếng Anh / Internet
 - [ ] File `references.bib` với đầy đủ entries và keyword (viet/english/internet)
@@ -585,25 +593,20 @@ Dựa trên trạng thái hiện tại của `main.tex`:
 |------|-----------|---------|
 | Bìa VN | Chưa bắt đầu | Template có, cần điền tên đề tài + SV |
 | Bìa EN | Chưa bắt đầu | Template có |
-| Abstract | Chưa bắt đầu | Abstract TOEIC đã có – cần viết lại cho IELTS |
-| Lời cảm ơn | Chưa bắt đầu | Template có, cần điền tên + ngày |
-| Nhận xét GVHD/PB | Đang làm | Template đã đúng, chờ ký |
-| Mục lục tự động | Đang làm | Cần compile để generate |
-| Danh mục hình | Đang làm | Cần compile để generate |
-| Danh mục bảng | Đang làm | Cần compile để generate |
-| Từ viết tắt | Đang làm | Có cơ bản, cần bổ sung |
-| Lời mở đầu | Chưa bắt đầu | Chỉ có placeholder "Nội dung lời mở đầu..." |
-| **Chương 1** | **Chưa bắt đầu** | Skeleton có, chưa có nội dung |
-| **Chương 2** | **Chưa bắt đầu** | Skeleton có, chưa có nội dung |
-| Ch3 – 3.1 Nghiệp vụ | Đang làm | Nội dung TOEIC chi tiết → cần viết lại IELTS |
-| Ch3 – 3.2 Use-case | Đang làm | Có cấu trúc + 1 hình placeholder |
-| Ch3 – 3.3 Tác nhân | Chưa bắt đầu | Chỉ có section heading |
-| Ch3 – 3.4 Tình huống | Chưa bắt đầu | |
-| Ch3 – 3.5 Đặc tả UC | Đang làm | UC01 (Học từ vựng) và UC02 (Ôn từ vựng) đã có đặc tả tốt → cần bổ sung UC còn lại |
-| **Chương 4** | **Chưa bắt đầu** | Skeleton có |
-| **Chương 5** | **Chưa bắt đầu** | Skeleton có |
-| Tài liệu tham khảo | Chưa bắt đầu | Setup biblatex OK nhưng **`references.bib` chưa tồn tại** |
-| Phụ lục | Chưa bắt đầu | |
+| Abstract | ✅ Có nội dung | Đã viết nhưng **sai tech**: "Microservices", "GCP STT", "Supabase" → cần sửa |
+| Lời cảm ơn | ✅ Có nội dung | Kiểm tra tên SV |
+| Nhận xét GVHD/PB | ✅ Template | Chờ ký |
+| Mục lục tự động | ✅ OK | Generate khi compile |
+| Từ viết tắt | ✅ Có nội dung | Cần thêm: RabbitMQ, FSRS, faster-whisper, GCS |
+| Lời mở đầu | ✅ Có nội dung | Kiểm tra số liệu |
+| **Chương 1** | ✅ Có nội dung | Sửa: "Microservices" → Modular Monolith; "GCP STT quota" → không có quota |
+| **Chương 2** | ⚠️ **Cần sửa nhiều** | Sai: GCP STT, Socket.IO, Supabase, Microservices, Vercel/DO → xem plan Phase B |
+| Ch3 – 3.5 Đặc tả UC | ✅ Đã đặc tả | Sửa: UC01 bỏ Supabase Auth; UC Speaking: bỏ Socket.IO/GCP STT; UC Mock Test: bỏ Socket.IO event |
+| **Chương 4** | ✅ Có nội dung | Sửa: architecture section (Microservices → Modular Monolith), DB section (bỏ Supabase) |
+| **Chương 5** | ✅ Có nội dung | Sửa: kết luận (Microservices → Monolith), hướng phát triển (bỏ VNPay), hạn chế (bỏ Supabase) |
+| Tài liệu tham khảo | ✅ Có `references.bib` | Cập nhật: thêm faster-whisper, RabbitMQ; bỏ/giữ Supabase (nếu chỉ cite lý thuyết) |
+| Phụ lục A (Kế hoạch) | ✅ Có nội dung | Sửa ô Tuần 3/6/14: "Supabase", "Microservices" → tech thực tế |
+| Phụ lục B (Nhật ký) | ✅ Có nội dung | Sửa ô Tuần 3/6/14: "deploy Supabase + Vercel" → "deploy GCP" |
 
 ---
 

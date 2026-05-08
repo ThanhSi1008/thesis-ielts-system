@@ -1,0 +1,106 @@
+% ==========================================
+% BÌA 1: TIẾNG VIỆT
+% ==========================================
+\begin{titlepage}
+    % Khung viền đôi chuẩn IUH: 2cm đều 4 cạnh (viền ngoài dày), 2.15cm (viền trong mỏng)
+    \begin{tikzpicture}[remember picture, overlay]
+        \draw [line width=2pt]   ($(current page.north west) + (2cm,-2cm)$)    rectangle ($(current page.south east) + (-2cm,2cm)$);
+        \draw [line width=0.5pt] ($(current page.north west) + (2.15cm,-2.15cm)$) rectangle ($(current page.south east) + (-2.15cm,2.15cm)$);
+    \end{tikzpicture}
+
+    \begin{center}
+        \textbf{\fontsize{14pt}{21pt}\selectfont BỘ CÔNG THƯƠNG}\\
+        \textbf{\fontsize{14pt}{21pt}\selectfont TRƯỜNG ĐẠI HỌC CÔNG NGHIỆP TP.HCM}\\
+        \textbf{\fontsize{14pt}{21pt}\selectfont KHOA CÔNG NGHỆ THÔNG TIN}\\
+
+        \vspace{1.5cm}
+        \includegraphics[width=0.5\textwidth]{logo.jpg}
+        \par
+        \vspace{1.5cm}
+
+        \textbf{\fontsize{14pt}{21pt}\selectfont LAI THANH SĨ}\\
+        \vspace{0.2cm}
+        \textbf{\fontsize{14pt}{21pt}\selectfont PHẠM ĐỨC TÀI}\\
+
+        \vspace{2.0cm}
+        \textbf{\fontsize{18pt}{27pt}\selectfont HỆ THỐNG HỌC VÀ LUYỆN THI IELTS}\\
+        \vspace{0.3cm}
+        \textbf{\fontsize{18pt}{27pt}\selectfont TÍCH HỢP ĐÁNH GIÁ KỸ NĂNG}\\
+        \vspace{0.3cm}
+        \textbf{\fontsize{18pt}{27pt}\selectfont DỰA TRÊN TRÍ TUỆ NHÂN TẠO}\\
+
+        \vspace{2.0cm}
+        \textbf{\fontsize{14pt}{21pt}\selectfont Chuyên ngành: Kỹ thuật phần mềm}\\
+        \vspace{2.0cm}
+        \textbf{\fontsize{14pt}{21pt}\selectfont Giảng viên hướng dẫn: ThS. Nguyễn Thị Hoàng Khánh}\\
+
+        \vfill
+        \textbf{\fontsize{14pt}{21pt}\selectfont TP. HỒ CHÍ MINH, THÁNG 4 NĂM 2026}
+    \end{center}
+\end{titlepage}
+
+% ==========================================
+% BÌA 2: TIẾNG ANH
+% ==========================================
+\begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+        \draw [line width=2pt]   ($(current page.north west) + (2cm,-2cm)$)    rectangle ($(current page.south east) + (-2cm,2cm)$);
+        \draw [line width=0.5pt] ($(current page.north west) + (2.15cm,-2.15cm)$) rectangle ($(current page.south east) + (-2.15cm,2.15cm)$);
+    \end{tikzpicture}
+
+    \begin{center}
+        \textbf{\fontsize{14pt}{21pt}\selectfont MINISTRY OF INDUSTRY AND TRADE}\\
+        \textbf{\fontsize{14pt}{21pt}\selectfont INDUSTRIAL UNIVERSITY OF HO CHI MINH CITY}\\
+        \textbf{\fontsize{14pt}{21pt}\selectfont FACULTY OF INFORMATION TECHNOLOGY}\\
+
+        \vspace{1.5cm}
+        \includegraphics[width=0.5\textwidth]{logo.jpg}
+        \par
+        \vspace{1.5cm}
+
+        \textbf{\fontsize{14pt}{21pt}\selectfont LAI THANH SI}\\
+        \vspace{0.2cm}
+        \textbf{\fontsize{14pt}{21pt}\selectfont PHAM DUC TAI}\\
+
+        \vspace{2.0cm}
+        \textbf{\fontsize{18pt}{27pt}\selectfont AN IELTS LEARNING AND TEST PREPARATION}\\
+        \vspace{0.3cm}
+        \textbf{\fontsize{18pt}{27pt}\selectfont SYSTEM WITH AI-BASED}\\
+        \vspace{0.3cm}
+        \textbf{\fontsize{18pt}{27pt}\selectfont SKILL ASSESSMENT}\\
+
+        \vspace{2.0cm}
+        \textbf{\fontsize{14pt}{21pt}\selectfont Major: Software Engineering}\\
+        \vspace{2.0cm}
+        \textbf{\fontsize{14pt}{21pt}\selectfont Supervisor: Nguyen Thi Hoang Khanh, MSc}\\
+
+        \vfill
+        \textbf{\fontsize{14pt}{21pt}\selectfont HO CHI MINH CITY, APRIL 2026}
+    \end{center}
+\end{titlepage}
+
+% --- ABSTRACT ---
+\newpage
+\pagenumbering{roman} 
+\setcounter{page}{1}
+\thispagestyle{plain} 
+
+\begin{center}
+    \textbf{\fontsize{16pt}{19pt}\selectfont AN IELTS LEARNING AND TEST PREPARATION}\\
+    \textbf{\fontsize{16pt}{19pt}\selectfont SYSTEM WITH AI-BASED}\\
+    \textbf{\fontsize{16pt}{19pt}\selectfont SKILL ASSESSMENT}\\
+    \vspace{1cm}
+    \textbf{\fontsize{14pt}{16pt}\selectfont ABSTRACT}
+\end{center}
+\justify
+\begin{sloppypar}
+IELTS (International English Language Testing System) is one of the most widely recognized English proficiency certification programs in the world, with over 3.5 million test-takers annually. However, the majority of existing preparation platforms fall short in providing a fully integrated, multi-skill environment that combines personalized AI-based feedback with realistic exam simulation on both web and mobile platforms. This thesis presents the design and implementation of an IELTS learning and test preparation system targeting learners aiming for Band 4.0 to 7.5+.
+
+The system is built on an event-driven modular monolith architecture: a NestJS 10 backend (18 feature modules) paired with a dedicated FastAPI AI worker connected via RabbitMQ, a Next.js 14 web portal deployed on Google Cloud Run, and a React Native Expo mobile application. PostgreSQL 16 and Redis are managed directly on a GCP VM, with Google Cloud Storage for media assets. Key features include structured learning modules across four tiers (Foundation, Basic, Advanced, Intensive) for all four IELTS skills, automated AI grading for Writing and Speaking via the Gemini API and faster-whisper transcription, full-length Mock Test simulation with Save \& Pause session persistence, a Spaced Repetition flashcard system using the FSRS algorithm, gamification (XP, achievements, streaks), community features, and a subscription system with VNPay payment integration.
+
+Experimental results confirm that the platform operates stably across devices, delivering real-time AI feedback and accurately assessing learner performance across all four skills. The project demonstrates the feasibility and effectiveness of integrating modern web-mobile architecture with generative AI in building a comprehensive IELTS preparation environment.
+\end{sloppypar}
+
+\vspace{0.5cm}
+{\sloppy \noindent \textbf{Keywords:} IELTS Preparation, AI Assessment, Modular Monolith, NestJS, Next.js, React Native, Gemini API, faster-whisper, RabbitMQ, Spaced Repetition, FSRS.\par}
+
