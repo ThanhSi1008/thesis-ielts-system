@@ -1,0 +1,176 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+      - deploy
+
+env:
+  PROJECT_ID: ielts-master-495612
+  REGION: us-central1
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Detect which services changed
+  # ─────────────────────────────────────────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend-core: ${{ steps.filter.outputs.backend-core }}
+      backend-ai: ${{ steps.filter.outputs.backend-ai }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend-web/**'
+            backend-core:
+              - 'backend-core/**'
+            backend-ai:
+              - 'backend-ai/**'
+
+  # ─────────────────────────────────────────────
+  # Deploy frontend-web
+  # ─────────────────────────────────────────────
+  deploy-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build and push image
+        working-directory: frontend-web
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
+            --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }} \
+            -t gcr.io/${{ env.PROJECT_ID }}/frontend-web:${{ github.sha }} \
+            -t gcr.io/${{ env.PROJECT_ID }}/frontend-web:latest \
+            .
+          docker push gcr.io/${{ env.PROJECT_ID }}/frontend-web:${{ github.sha }}
+          docker push gcr.io/${{ env.PROJECT_ID }}/frontend-web:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy frontend-web \
+            --image gcr.io/${{ env.PROJECT_ID }}/frontend-web:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" \
+            --set-env-vars "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}"
+
+  # ─────────────────────────────────────────────
+  # Deploy backend-core
+  # ─────────────────────────────────────────────
+  deploy-backend-core:
+    needs: changes
+    if: needs.changes.outputs.backend-core == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build and push image
+        working-directory: backend-core
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }} \
+            -t gcr.io/${{ env.PROJECT_ID }}/backend-core:latest \
+            .
+          docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }}
+          docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy backend-core \
+            --image gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "NODE_ENV=production" \
+            --set-env-vars "API_PREFIX=api/v1" \
+            --set-env-vars "REDIS_TTL=3600" \
+            --set-env-vars "RABBITMQ_QUEUE_GRADING=exam-grading-queue" \
+            --set-env-vars "RABBITMQ_EXCHANGE=toeic-exchange" \
+            --set-env-vars "JWT_EXPIRATION=7d" \
+            --set-env-vars "JWT_REFRESH_EXPIRATION=30d" \
+            --set-env-vars "LOG_LEVEL=info" \
+            --set-env-vars "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" \
+            --set-secrets "DATABASE_URL=DATABASE_URL:latest" \
+            --set-secrets "DIRECT_URL=DIRECT_URL:latest" \
+            --set-secrets "REDIS_URL=REDIS_URL:latest" \
+            --set-secrets "RABBITMQ_URL=RABBITMQ_URL:latest" \
+            --set-secrets "JWT_SECRET=JWT_SECRET:latest" \
+            --set-secrets "JWT_REFRESH_SECRET=JWT_REFRESH_SECRET:latest" \
+            --set-secrets "CLOUDINARY_CLOUD_NAME=CLOUDINARY_CLOUD_NAME:latest" \
+            --set-secrets "CLOUDINARY_API_KEY=CLOUDINARY_API_KEY:latest" \
+            --set-secrets "CLOUDINARY_API_SECRET=CLOUDINARY_API_SECRET:latest" \
+            --set-secrets "GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest" \
+            --set-secrets "GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest"
+
+  # ─────────────────────────────────────────────
+  # Deploy backend-ai
+  # ─────────────────────────────────────────────
+  deploy-backend-ai:
+    needs: changes
+    if: needs.changes.outputs.backend-ai == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build and push image
+        working-directory: backend-ai
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }} \
+            -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest \
+            .
+          docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }}
+          docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy backend-ai \
+            --image gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
+            --set-env-vars "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" \
+            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
+            --set-env-vars "GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}"
