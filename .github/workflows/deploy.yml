@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run
+name: Deploy
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
 env:
   PROJECT_ID: ielts-master-495612
   REGION: asia-southeast1
+  VM_HOST: 34.143.226.199
+  VM_USER: xis108
 
 jobs:
   # ─────────────────────────────────────────────
@@ -34,7 +36,7 @@ jobs:
               - 'backend-ai/**'
 
   # ─────────────────────────────────────────────
-  # Deploy frontend-web
+  # Deploy frontend-web (Cloud Run — không đổi)
   # ─────────────────────────────────────────────
   deploy-frontend:
     needs: changes
@@ -76,11 +78,13 @@ jobs:
             --set-env-vars "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}"
 
   # ─────────────────────────────────────────────
-  # Deploy backend-core
+  # Deploy backend lên VM
   # ─────────────────────────────────────────────
-  deploy-backend-core:
+  deploy-backend:
     needs: changes
-    if: needs.changes.outputs.backend-core == 'true'
+    if: |
+      needs.changes.outputs.backend-core == 'true' ||
+      needs.changes.outputs.backend-ai == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -94,85 +98,50 @@ jobs:
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker gcr.io --quiet
 
-      - name: Build and push image
-        working-directory: backend-core
+      - name: Build and push changed images
         run: |
-          docker build \
-            --platform linux/amd64 \
-            -t gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }} \
-            -t gcr.io/${{ env.PROJECT_ID }}/backend-core:latest \
-            .
-          docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }}
-          docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:latest
+          if [ "${{ needs.changes.outputs.backend-core }}" == "true" ]; then
+            docker build --platform linux/amd64 \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }} \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-core:latest \
+              ./backend-core
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }}
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:latest
+          fi
+          if [ "${{ needs.changes.outputs.backend-ai }}" == "true" ]; then
+            docker build --platform linux/amd64 \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }} \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest \
+              ./backend-ai
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }}
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest
+          fi
 
-      - name: Deploy to Cloud Run
+      - name: Setup SSH key
         run: |
-          gcloud run deploy backend-core \
-            --image gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }} \
-            --region ${{ env.REGION }} \
-            --platform managed \
-            --allow-unauthenticated \
-            --set-env-vars "NODE_ENV=production" \
-            --set-env-vars "API_PREFIX=api/v1" \
-            --set-env-vars "REDIS_TTL=3600" \
-            --set-env-vars "RABBITMQ_QUEUE_GRADING=exam-grading-queue" \
-            --set-env-vars "RABBITMQ_EXCHANGE=toeic-exchange" \
-            --set-env-vars "JWT_EXPIRATION=7d" \
-            --set-env-vars "JWT_REFRESH_EXPIRATION=30d" \
-            --set-env-vars "LOG_LEVEL=info" \
-            --set-env-vars "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" \
-            --set-secrets "DATABASE_URL=DATABASE_URL:latest" \
-            --set-secrets "DIRECT_URL=DIRECT_URL:latest" \
-            --set-secrets "REDIS_URL=REDIS_URL:latest" \
-            --set-secrets "RABBITMQ_URL=RABBITMQ_URL:latest" \
-            --set-secrets "JWT_SECRET=JWT_SECRET:latest" \
-            --set-secrets "JWT_REFRESH_SECRET=JWT_REFRESH_SECRET:latest" \
-            --set-secrets "CLOUDINARY_CLOUD_NAME=CLOUDINARY_CLOUD_NAME:latest" \
-            --set-secrets "CLOUDINARY_API_KEY=CLOUDINARY_API_KEY:latest" \
-            --set-secrets "CLOUDINARY_API_SECRET=CLOUDINARY_API_SECRET:latest" \
-            --set-secrets "GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest" \
-            --set-secrets "GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VM_SSH_PRIVATE_KEY }}" > ~/.ssh/vm_key
+          chmod 600 ~/.ssh/vm_key
+          ssh-keyscan -H ${{ env.VM_HOST }} >> ~/.ssh/known_hosts
 
-  # ─────────────────────────────────────────────
-  # Deploy backend-ai
-  # ─────────────────────────────────────────────
-  deploy-backend-ai:
-    needs: changes
-    if: needs.changes.outputs.backend-ai == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker gcr.io --quiet
-
-      - name: Build and push image
-        working-directory: backend-ai
+      - name: Deploy to VM
         run: |
-          docker build \
-            --platform linux/amd64 \
-            -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }} \
-            -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest \
-            .
-          docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }}
-          docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest
+          ssh -i ~/.ssh/vm_key ${{ env.VM_USER }}@${{ env.VM_HOST }} << 'ENDSSH'
+            set -e
+            cd /opt/app
 
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy backend-ai \
-            --image gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }} \
-            --region ${{ env.REGION }} \
-            --platform managed \
-            --allow-unauthenticated \
-            --memory 2Gi \
-            --min-instances 1 \
-            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL_DIRECT }}" \
-            --set-env-vars "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" \
-            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
-            --set-env-vars "GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}"
+            if [ "${{ needs.changes.outputs.backend-core }}" == "true" ]; then
+              echo "🔄 Updating backend-core..."
+              docker compose pull backend-core
+              docker compose up -d --no-deps backend-core
+            fi
+
+            if [ "${{ needs.changes.outputs.backend-ai }}" == "true" ]; then
+              echo "🔄 Updating backend-ai..."
+              docker compose pull backend-ai
+              docker compose up -d --no-deps backend-ai
+            fi
+
+            docker image prune -f
+            echo "✅ Deploy complete"
+          ENDSSH
