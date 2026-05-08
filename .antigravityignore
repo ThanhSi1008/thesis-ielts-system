@@ -1,23 +1,84 @@
-# Ignore heavy Node.js directories
+# ==========================================
+# 1. CORE & VCS
+# ==========================================
+.git/
+.svn/
+.hg/
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# 2. NODE.JS (Backend Core, Frontend Web)
+# ==========================================
 node_modules/
 **/node_modules/
-
-# Ignore build and output directories
 dist/
-build/
-.next/
-out/
 **/dist/
-**/build/
-
-# Ignore lockfiles and generated package files (frequent updates but not human content)
+.next/
+**/.next/
+.cache/
+**/.cache/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Ignore python env caches if any
-__pycache__/
-.venv/
+# ==========================================
+# 3. MOBILE (Frontend Mobile - Android/iOS)
+# ==========================================
+android/
+ios/
+**/android/
+**/ios/
+**/build/
+**/.cxx/
+**/.gradle/
+**/.expo/
 
-# Ignore version control metadata
-.git/
+# ==========================================
+# 4. PYTHON & AI (Backend AI)
+# ==========================================
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Large Model Weights
+*.pt
+*.pth
+*.h5
+*.onnx
+*.safetensors
+*.bin
+*.pkl
+
+# Data
+datasets/
+data/
+
+# ==========================================
+# 5. LARGE TEXT FILES & LOGS
+# ==========================================
+*.log
+*.sql
+*.sqlite
+*.db
+*.csv
+# Chặn các file commit và text cực lớn trong folder này
+commit_*.txt
+recent_commits.txt
+past_*.txt
+old_seed.ts
+
+# ==========================================
+# 6. IDE & EXTRA
+# ==========================================
+.vscode/
+.idea/
+.env
+.env.*
+_extras/
+_scripts/
