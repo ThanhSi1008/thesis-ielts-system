@@ -65,8 +65,7 @@ prisma/migrations/
 # Docker
 *.env.docker
 
-# VM deployment config — chứa credentials thật, không commit
-docs/deployment/vm-config/.env.*
+# VM deployment — SSL certs không commit, .example files được commit
 docs/deployment/vm-config/nginx/ssl/
 
 # OS

@@ -29,7 +29,7 @@
 - [ ] [AI] Tạo `monitoring/alloy-config.alloy` — (tạm gác)
 - [x] [AI] Tạo `nginx/nginx.conf` — `docs/deployment/vm-config/nginx/nginx.conf`
 - [x] [ME] Điền domain thật vào `nginx.conf` — `dedangdown.io.vn`, HTTP→HTTPS redirect + SSL
-- [ ] [ME] Đặt SSL cert (`fullchain.pem`, `privkey.pem`) vào `nginx/ssl/` trên VM
+- [x] [ME] Đặt SSL cert (`fullchain.pem`, `privkey.pem`) vào `nginx/ssl/` trên VM
 - [x] [ME] Kiểm tra `.gitignore` — đảm bảo `.env.*` không bị commit
 
 ---
@@ -46,6 +46,8 @@
 - [x] [ME] Khởi động `nginx` — cả 3 containers healthy
 - [x] [ME] Test health check qua Nginx — `http://34.143.226.199/api/v1/health` ✅ và `http://34.143.226.199/ai/health` ✅
 - [x] [ME] Đo TTFB — 72ms (HTTP, Singapore → VN, chấp nhận được)
+- [x] [ME] Test HTTPS — `https://dedangdown.io.vn/api/v1/health` ✅ và `https://dedangdown.io.vn/ai/health` ✅
+- [x] [ME] Fix CORS — `CORS_ORIGIN` hỗ trợ comma-separated, đã thêm `https://ielts-master.io.vn`
 
 ---
 
@@ -54,11 +56,11 @@
 > Chuyển deploy target từ Cloud Run sang VM
 
 - [x] [AI] Tạo `deploy.yml` mới — `.github/workflows/deploy.yml`, dùng SSH key thay gcloud ssh
-- [ ] [ME] Tạo SSH key pair — `ssh-keygen -t ed25519 -f ~/.ssh/vm_deploy_key -N ""`
-- [ ] [ME] Thêm public key vào VM — `gcloud compute ssh app-vm ... --command "echo '...' >> ~/.ssh/authorized_keys"`
-- [ ] [ME] Thêm GitHub Secret `VM_SSH_PRIVATE_KEY` — nội dung `~/.ssh/vm_deploy_key`
-- [ ] [ME] Cập nhật GitHub Secret `NEXT_PUBLIC_API_URL` — trỏ về `http://34.143.226.199/api/v1`
-- [ ] [ME] Cập nhật GitHub Secret `CORS_ORIGIN` trong `.env.backend-core` trên VM — URL frontend Cloud Run thật
+- [x] [ME] Tạo SSH key pair — `ssh-keygen -t ed25519 -f ~/.ssh/vm_deploy_key -N ""`
+- [x] [ME] Thêm public key vào VM — `gcloud compute ssh app-vm ... --command "echo '...' >> ~/.ssh/authorized_keys"`
+- [x] [ME] Thêm GitHub Secret `VM_SSH_PRIVATE_KEY` — nội dung `~/.ssh/vm_deploy_key`
+- [x] [ME] Cập nhật GitHub Secret `NEXT_PUBLIC_API_URL` — `https://dedangdown.io.vn/api/v1`
+- [x] [ME] Cập nhật `CORS_ORIGIN` trong `.env.backend-core` trên VM — `https://ielts-master.io.vn,https://dedangdown.io.vn`
 - [ ] [ME+AI] Test push code → verify CI/CD chạy đúng, chỉ build service có thay đổi
 
 ---
