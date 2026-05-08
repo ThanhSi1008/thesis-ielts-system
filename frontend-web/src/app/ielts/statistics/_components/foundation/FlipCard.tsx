@@ -43,10 +43,9 @@ export default function FlipCard({
       >
         {/* ── FRONT ── */}
         <div
-          className="absolute inset-0 rounded-2xl border p-5 flex flex-col items-center justify-between bg-white dark:bg-slate-900 shadow-md hover:shadow-xl transition-shadow"
+          className="absolute inset-0 rounded-2xl p-5 flex flex-col items-center justify-between bg-white dark:bg-slate-900 shadow-[0_2px_12px_rgba(0,0,0,0.04)] transition-shadow"
           style={{
             backfaceVisibility: "hidden",
-            borderColor: color + "30",
           }}
         >
           {/* Header */}
@@ -82,11 +81,10 @@ export default function FlipCard({
 
         {/* ── BACK ── */}
         <div
-          className="absolute inset-0 rounded-2xl border p-5 flex flex-col justify-between bg-white dark:bg-slate-900 shadow-md overflow-hidden"
+          className="absolute inset-0 rounded-2xl p-5 flex flex-col justify-between bg-white dark:bg-slate-900 shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
-            borderColor: color + "30",
           }}
         >
           {/* Decorative accent top */}

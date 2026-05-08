@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { ieltsStatisticsApi } from "@/services/ielts-statistics.api";
 import type { IeltsAdvancedStats } from "@/types";
-import { AlertTriangle, ChevronRight, TrendingUp, PenLine, Mic2 } from "lucide-react";
+import { AlertTriangle, ChevronRight, TrendingUp, PenLine, Mic2, Target } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Accuracy Dot Heatmap (Question Type × Recent Attempts)
@@ -11,22 +11,23 @@ import { AlertTriangle, ChevronRight, TrendingUp, PenLine, Mic2 } from "lucide-r
 function AccuracyHeatmap({ heatmap }: { heatmap: any[] }) {
   if (!heatmap || heatmap.length === 0) {
     return (
-      <div className="text-center py-10 text-slate-400 text-sm">
-        Complete Advanced practice sessions to see your heatmap.
+      <div className="flex flex-col items-center justify-center h-40 text-slate-500 text-sm">
+        <Target className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
+        Complete Advanced sessions to see your heatmap.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto no-scrollbar">
       <table className="w-full text-xs">
         <thead>
           <tr>
-            <th className="text-left font-semibold text-slate-400 pb-2 pr-4 min-w-[140px]">
+            <th className="text-left font-bold text-slate-500 uppercase tracking-widest pb-3 pr-4 min-w-[140px]">
               Question Type
             </th>
             {heatmap[0]?.attempts?.map((_: any, i: number) => (
-              <th key={i} className="text-center font-medium text-slate-300 pb-2 px-1">
+              <th key={i} className="text-center font-bold text-slate-500 uppercase tracking-widest pb-3 px-1">
                 #{i + 1}
               </th>
             ))}
@@ -34,18 +35,21 @@ function AccuracyHeatmap({ heatmap }: { heatmap: any[] }) {
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
           {heatmap.map((row: any) => (
-            <tr key={row.type}>
-              <td className="py-2 pr-4 font-medium text-slate-600 dark:text-slate-300 capitalize">
+            <tr key={row.type} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+              <td className="py-2.5 pr-4 font-semibold text-slate-700 dark:text-slate-300 capitalize">
                 {row.type.replace(/_/g, " ")}
               </td>
               {row.attempts?.map((pct: number, i: number) => {
-                const bg =
-                  pct >= 80 ? "#22c55e" : pct >= 60 ? "#3b82f6" : pct >= 40 ? "#f59e0b" : "#ef4444";
+                const isHigh = pct >= 80;
+                const isMed = pct >= 60;
+                const bg = isHigh ? "bg-slate-800 dark:bg-slate-200" : isMed ? "bg-slate-400" : pct >= 40 ? "bg-primary" : "bg-red-500";
+                const textColor = isHigh ? "text-white dark:text-slate-900" : (pct >= 40 && pct < 60) ? "text-slate-900" : "text-white";
+
                 return (
-                  <td key={i} className="py-2 px-1 text-center">
+                  <td key={i} className="py-2.5 px-1 text-center">
                     <div
-                      className="w-7 h-7 mx-auto rounded-lg flex items-center justify-center text-white font-bold text-[10px]"
-                      style={{ backgroundColor: bg + "90" }}
+                      className={`w-8 h-8 mx-auto rounded-lg flex items-center justify-center font-bold text-[10px] ${bg} ${textColor}`}
+                      title={`${pct}% accuracy`}
                     >
                       {pct}
                     </div>
@@ -66,7 +70,10 @@ function AccuracyHeatmap({ heatmap }: { heatmap: any[] }) {
 function WeakSpotsAlert({ weakSpots }: { weakSpots: any[] }) {
   if (!weakSpots || weakSpots.length === 0) {
     return (
-      <div className="text-center py-6 text-slate-400 text-sm">
+      <div className="flex flex-col items-center justify-center h-32 text-slate-500 text-sm">
+        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-2">
+          <AlertTriangle className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+        </div>
         No weak spots detected yet. Keep practicing!
       </div>
     );
@@ -77,22 +84,22 @@ function WeakSpotsAlert({ weakSpots }: { weakSpots: any[] }) {
       {weakSpots.slice(0, 3).map((spot: any) => (
         <div
           key={spot.type}
-          className="flex items-center gap-4 p-4 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50/60 dark:bg-red-900/10 relative overflow-hidden"
-          style={{ boxShadow: "0 0 0 1px rgba(239,68,68,0.15)" }}
+          className="group flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-900 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow"
         >
-          {/* Pulsating border */}
-          <div className="absolute inset-0 rounded-xl animate-pulse opacity-20 border border-red-400 pointer-events-none" />
-          <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+          <div className="relative w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-4 h-4 text-red-500" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-slate-700 dark:text-slate-200 text-sm capitalize">
+
+          <div className="relative flex-1 min-w-0">
+            <div className="font-bold text-slate-800 dark:text-slate-200 text-sm capitalize truncate">
               {spot.type?.replace(/_/g, " ")}
             </div>
-            <div className="text-xs text-red-500 font-medium">{spot.accuracy}% accuracy</div>
+            <div className="text-xs font-bold text-slate-500 tracking-wide mt-0.5">{spot.accuracy}% Accuracy</div>
           </div>
-          <button className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-600 whitespace-nowrap hover:underline">
-            Practice <ChevronRight className="w-3 h-3" />
+
+          <button className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+            Practice
+            <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
       ))}
@@ -106,13 +113,13 @@ function WeakSpotsAlert({ weakSpots }: { weakSpots: any[] }) {
 function ScoreTrendChart({ trend }: { trend: any[] }) {
   if (!trend || trend.length < 2) {
     return (
-      <div className="text-center py-10 text-slate-400 text-sm">
+      <div className="flex flex-col items-center justify-center h-32 text-slate-500 text-sm">
         Need at least 2 sessions to draw a trend.
       </div>
     );
   }
 
-  const W = 500; const H = 120; const PAD = { t: 16, r: 16, b: 24, l: 36 };
+  const W = 500; const H = 140; const PAD = { t: 16, r: 16, b: 24, l: 36 };
   const cW = W - PAD.l - PAD.r;
   const cH = H - PAD.t - PAD.b;
   const maxV = Math.max(...trend.map((p: any) => p.accuracy));
@@ -127,18 +134,20 @@ function ScoreTrendChart({ trend }: { trend: any[] }) {
   const areaD = `${pathD} L${xs[xs.length - 1]},${PAD.t + cH} L${xs[0]},${PAD.t + cH} Z`;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 120 }}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full min-h-[140px]">
       <defs>
         <linearGradient id="adv-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+          <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#94a3b8" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={areaD} fill="url(#adv-grad)" />
-      <path d={pathD} stroke="#6366f1" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={pathD} stroke="#475569" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
       {trend.map((p: any, i: number) => (
-        <circle key={i} cx={xs[i]} cy={ys[i]} r="4" fill="#6366f1" stroke="white" strokeWidth="2" />
+        <circle key={i} cx={xs[i]} cy={ys[i]} r="4" fill="white" stroke="#475569" strokeWidth="2" />
       ))}
+      {/* Dashed baseline */}
+      <line x1={PAD.l} y1={PAD.t + cH} x2={W - PAD.r} y2={PAD.t + cH} stroke="#cbd5e1" strokeDasharray="4 4" strokeWidth="1" className="dark:stroke-slate-700" />
     </svg>
   );
 }
@@ -149,21 +158,24 @@ function ScoreTrendChart({ trend }: { trend: any[] }) {
 function FeedbackSummary({ title, icon, summary }: { title: string; icon: React.ReactNode; summary: any }) {
   const isEmpty = !summary || Object.keys(summary).length === 0;
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
           {icon}
         </div>
-        <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">{title}</span>
+        <span className="font-bold text-slate-800 dark:text-slate-200">{title}</span>
       </div>
+
       {isEmpty ? (
-        <p className="text-xs text-slate-400">
+        <p className="text-sm text-slate-500 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
           Submit a graded session to see AI feedback insights here.
         </p>
       ) : (
-        <pre className="text-xs text-slate-500 dark:text-slate-400 whitespace-pre-wrap">
-          {JSON.stringify(summary, null, 2)}
-        </pre>
+        <div className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 h-32 overflow-y-auto no-scrollbar">
+          <pre className="whitespace-pre-wrap font-sans">
+            {JSON.stringify(summary, null, 2)}
+          </pre>
+        </div>
       )}
     </div>
   );
@@ -174,11 +186,11 @@ function FeedbackSummary({ title, icon, summary }: { title: string; icon: React.
 // ---------------------------------------------------------------------------
 function AdvancedSkeleton() {
   return (
-    <div className="space-y-4 animate-pulse">
-      <div className="h-48 rounded-2xl bg-slate-100 dark:bg-slate-800" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="h-32 rounded-2xl bg-slate-100 dark:bg-slate-800" />
-        <div className="h-32 rounded-2xl bg-slate-100 dark:bg-slate-800" />
+    <div className="space-y-6 animate-pulse">
+      <div className="h-64 rounded-2xl bg-slate-200 dark:bg-slate-800" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="h-56 rounded-2xl bg-slate-200 dark:bg-slate-800" />
+        <div className="h-56 rounded-2xl bg-slate-200 dark:bg-slate-800" />
       </div>
     </div>
   );
@@ -202,53 +214,68 @@ export default function AdvancedTab() {
   if (loading) return <AdvancedSkeleton />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <div className="w-1.5 h-5 rounded-full bg-indigo-500" />
-        <h3 className="font-bold text-slate-800 dark:text-white text-sm tracking-wide uppercase">
-          Advanced Diagnostics
-        </h3>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+            <Target className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-800 dark:text-white text-sm">Advanced Diagnostics</h3>
+            <p className="text-xs text-slate-500">Deep-dive into accuracy, trends, and AI feedback</p>
+          </div>
+        </div>
       </div>
 
       {/* Heatmap */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
-          Question Type Accuracy Heatmap
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+            <Target className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+          </div>
+          <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Question Type Accuracy</div>
         </div>
         <AccuracyHeatmap heatmap={data?.heatmap ?? []} />
       </div>
 
-      {/* Weak Spots + Score Trend side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
-            ⚠️ Weak Spots
+      {/* Weak Spots + Score Trend */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+            </div>
+            <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Urgent Weak Spots</div>
           </div>
           <WeakSpotsAlert weakSpots={data?.weakSpots ?? []} />
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp className="w-4 h-4 text-indigo-500" />
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Score Trend (Last 10 Sessions)
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              </div>
+              <div className="text-sm font-bold text-slate-800 dark:text-slate-200">Score Trend</div>
             </div>
           </div>
-          <ScoreTrendChart trend={data?.scoreTrend ?? []} />
+          <div className="flex-1 flex items-center">
+            <ScoreTrendChart trend={data?.scoreTrend ?? []} />
+          </div>
         </div>
       </div>
 
       {/* AI Feedback Summaries */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FeedbackSummary
           title="Writing AI Feedback"
-          icon={<PenLine className="w-4 h-4 text-indigo-500" />}
+          icon={<PenLine className="w-5 h-5" />}
           summary={data?.writingFeedbackSummary}
         />
         <FeedbackSummary
           title="Speaking AI Feedback"
-          icon={<Mic2 className="w-4 h-4 text-indigo-500" />}
+          icon={<Mic2 className="w-5 h-5" />}
           summary={data?.speakingFeedbackSummary}
         />
       </div>
