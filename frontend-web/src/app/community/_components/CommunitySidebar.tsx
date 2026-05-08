@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useIeltsSidebar } from "@/contexts/IeltsSidebarContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Layers, Lightbulb, Trophy, Medal, User } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -145,6 +146,7 @@ export function CommunitySidebar() {
 
 export function CommunitySidebarOverlay() {
   const { isOverlayOpen, closeOverlay } = useIeltsSidebar();
+  const { resolvedTheme } = useTheme();
 
   return (
     <>
@@ -174,7 +176,10 @@ export function CommunitySidebarOverlay() {
           </button>
           <Link href="/" className="ml-3" onClick={closeOverlay}>
             <img
-              src="https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+              src={resolvedTheme === "dark"
+                ? "https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
+                : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
+              }
               alt="Lexon Logo"
               className="h-10 w-auto object-contain"
             />

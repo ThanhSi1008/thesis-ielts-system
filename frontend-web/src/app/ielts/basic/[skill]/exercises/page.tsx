@@ -80,14 +80,14 @@ export default async function ExercisesPage({
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-gray-100 p-6 lg:p-8">
-      <div className="flex flex-col items-start mb-8 pb-4 border-b border-gray-100">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
-          <Link href="/ielts/basic/library" className="hover:text-gray-900 transition-colors px-1">Library</Link>
+    <div className="flex flex-col h-full bg-white dark:bg-slate-950 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 lg:p-8 transition-colors">
+      <div className="flex flex-col items-start mb-8 pb-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
+          <Link href="/ielts/basic/library" className="hover:text-gray-900 dark:hover:text-white transition-colors px-1">Library</Link>
           <span className="opacity-30">/</span>
-          <span className="px-1 text-gray-300">{skillCapitalized}</span>
+          <span className="px-1 text-gray-300 dark:text-gray-700">{skillCapitalized}</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
           {skillCapitalized} Exercises
         </h1>
       </div>

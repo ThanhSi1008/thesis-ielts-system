@@ -174,11 +174,11 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-2">
             <img
               src={
-                isOverlay
+                isOverlay || resolvedTheme === "dark"
                   ? "https://res.cloudinary.com/dalaaegob/image/upload/v1772714388/Logo_rvszzb.png"
                   : "https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png"
               }
-              alt="TOEIC Master AI Logo"
+              alt="Lexon Logo"
               className="h-10 w-auto object-contain"
             />
           </Link>

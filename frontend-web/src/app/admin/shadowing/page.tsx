@@ -42,7 +42,7 @@ function DeleteDialog({
   onCancel: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-2xl p-6 max-w-sm w-full">
         <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">Delete FoundationVocabLesson?</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
@@ -85,7 +85,7 @@ function YoutubeImportModal({
   const CATEGORIES = ["Conversation", "TED Talk", "Movie Clip", "Music", "News", "Other"];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-2xl p-6 max-w-md w-full">
         <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">Import from YouTube</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
