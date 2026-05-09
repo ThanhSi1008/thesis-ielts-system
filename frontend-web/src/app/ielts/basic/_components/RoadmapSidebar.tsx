@@ -33,7 +33,13 @@ export function RoadmapSidebar() {
 
   const fetchRoadmap = async () => {
     try {
-      const res = await api.get<{ steps: RoadmapStep[]; currentStep: number }>("/ielts/roadmap");
+      const res = await api.get<{ steps: RoadmapStep[]; currentStep: number; requiresOnboarding?: boolean }>("/ielts/roadmap");
+      
+      if (res.data.requiresOnboarding) {
+        router.push("/ielts/basic/onboarding");
+        return;
+      }
+
       setSteps(res.data.steps);
       setCurrentStep(res.data.currentStep);
       
