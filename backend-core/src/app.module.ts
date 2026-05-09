@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
@@ -33,6 +34,10 @@ import { CacheModule } from "./common/cache/cache.module";
 
 @Module({
   imports: [
+    PrometheusModule.register({
+      path: '/api/v1/metrics',
+      defaultMetrics: { enabled: true },
+    }),
     ScheduleModule.forRoot(),
     // Configuration module - loads environment variables
     ConfigModule.forRoot({
