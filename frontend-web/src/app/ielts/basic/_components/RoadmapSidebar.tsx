@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { CheckCircle2, Lock, ChevronDown, ChevronUp, BookOpen, Headphones, PenTool, Mic, Check, ChevronLeft } from "lucide-react";
 
@@ -23,7 +23,6 @@ export interface RoadmapStep {
 
 export function RoadmapSidebar() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [steps, setSteps] = useState<RoadmapStep[]>([]);
