@@ -24,6 +24,8 @@ import { seedPronunciation } from "./seeders/pronunciation.seed";
 import { seedIeltsBasic } from "./seeders/ielts-basic.seeder";
 import { seedIeltsAdvanced } from "./seeders/ielts-advanced.seeder";
 import { seedShadowingLessons, seedDictationLessons } from "./seeders/shadowing.seeder";
+import { seedAchievements } from "./seed-achievements";
+import { seedPlans } from "./seed-plans";
 
 async function upsertCambridgeExam(params: {
   title: string;
@@ -674,6 +676,9 @@ async function main() {
 
   await seedShadowingLessons(prisma);
   await seedDictationLessons(prisma);
+
+  await seedAchievements(prisma);
+  await seedPlans(prisma);
 
   console.log("\n✅ Database seeding completed!");
 }

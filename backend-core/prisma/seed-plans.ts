@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
 const PLANS = [
   {
     tier: "PREMIUM" as const,
@@ -79,30 +77,27 @@ const PLANS = [
   },
 ];
 
-async function main() {
-  console.log("Seeding pricing plans...");
+export async function seedPlans(prisma: PrismaClient) {
+  console.log("💳 Seeding pricing plans...");
 
   for (const plan of PLANS) {
-    // Use name as the unique identifier for upsert (since no unique field in schema)
     const existing = await prisma.pricingPlan.findFirst({
       where: { name: plan.name },
     });
 
     if (existing) {
-      await prisma.pricingPlan.update({
-        where: { id: existing.id },
-        data: plan,
-      });
-      console.log(`  Updated: ${plan.name}`);
+      await prisma.pricingPlan.update({ where: { id: existing.id }, data: plan });
     } else {
       await prisma.pricingPlan.create({ data: plan });
-      console.log(`  Created: ${plan.name}`);
     }
   }
 
-  console.log(`✅ Seeded ${PLANS.length} pricing plans`);
+  console.log(`  ✓ Seeded ${PLANS.length} pricing plans`);
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+if (require.main === module) {
+  const prisma = new PrismaClient();
+  seedPlans(prisma)
+    .catch(console.error)
+    .finally(() => prisma.$disconnect());
+}

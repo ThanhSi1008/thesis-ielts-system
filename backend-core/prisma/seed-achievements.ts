@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
 const ACHIEVEMENTS = [
   // ── FOUNDATION: VOCABULARY ──
   { key: "FV_FIRST_WORDS", name: "First Words", description: "Complete your first foundationVocabWord unit", icon: "📖", category: "FOUNDATION_VOCAB", tier: 1, xpReward: 20, order: 1 },
@@ -66,8 +64,8 @@ const ACHIEVEMENTS = [
   { key: "XM_DEDICATED", name: "Dedicated Learner", description: "Reach Level 10", icon: "🎓", category: "CROSS_MODULE", tier: 2, xpReward: 50, order: 103 },
 ];
 
-async function main() {
-  console.log("Seeding achievements...");
+export async function seedAchievements(prisma: PrismaClient) {
+  console.log("🏆 Seeding achievements...");
   for (const a of ACHIEVEMENTS) {
     await prisma.achievement.upsert({
       where: { key: a.key },
@@ -75,9 +73,12 @@ async function main() {
       create: { ...a },
     });
   }
-  console.log(`✅ Seeded ${ACHIEVEMENTS.length} achievements`);
+  console.log(`  ✓ Seeded ${ACHIEVEMENTS.length} achievements`);
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+if (require.main === module) {
+  const prisma = new PrismaClient();
+  seedAchievements(prisma)
+    .catch(console.error)
+    .finally(() => prisma.$disconnect());
+}
