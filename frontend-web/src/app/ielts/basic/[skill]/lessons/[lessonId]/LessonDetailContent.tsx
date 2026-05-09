@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/constants";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import api from "@/lib/api";
@@ -311,7 +311,6 @@ function LessonQuiz({ questions, onCompletion, onNext }: { questions: QuizQuesti
 export function LessonDetailContent({
   lessonId,
   skill,
-  onBack,
   onComplete,
   onNext
 }: {
@@ -321,7 +320,6 @@ export function LessonDetailContent({
   onComplete?: () => void;
   onNext?: () => void;
 }) {
-  const router = useRouter();
   const [foundationVocabLesson, setLesson] = useState<FoundationVocabLesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string>("");
@@ -339,7 +337,7 @@ export function LessonDetailContent({
     const fetchLesson = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}`);
+        const res = await axios.get(`${API_BASE_URL}/ielts/lessons/${lessonId}`);
         setLesson(res.data);
       } catch (err) {
         console.error("Failed to fetch foundationVocabLesson:", err);

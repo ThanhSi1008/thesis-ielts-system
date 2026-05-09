@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -9,10 +8,10 @@ import { extractAllItemsFromPart } from "@/lib/ieltsIntensiveExam-parser";
 
 interface PracticeListeningBoardProps {
   ieltsIntensiveExam: ExamDetail;
-  sessionInfo: any;
-  submitAndTrack: (data: any) => Promise<any>;
+  sessionInfo: Record<string, unknown>;
+  submitAndTrack: (data: Record<string, unknown>) => Promise<unknown>;
   submitting: boolean;
-  submitResult: any;
+  submitResult: unknown;
   submitError: string | null;
   answers: AnswersState;
   setAnswers: (a: AnswersState) => void;
@@ -38,7 +37,7 @@ export default function PracticeListeningBoard({
   partIndex,
   onDurationDetected,
 }: PracticeListeningBoardProps) {
-  const [activePartIdx, setActivePartIdx] = useState(partIndex ?? 0);
+  const activePartIdx = partIndex ?? 0;
   const [focusedQn, setFocusedQn] = useState<number | null>(null);
   const [hasStartedAudio, setHasStartedAudio] = useState(false);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
@@ -48,7 +47,7 @@ export default function PracticeListeningBoard({
   const autoSubmit = searchParams ? searchParams.get("autoSubmit") !== "false" : true;
 
   const parts = useMemo(() => {
-    return (ieltsIntensiveExam?.questions?.parts as any[]) || [];
+    return (ieltsIntensiveExam?.questions?.parts as Record<string, unknown>[]) || [];
   }, [ieltsIntensiveExam]);
 
   const activePart = parts[activePartIdx] || null;
@@ -65,8 +64,6 @@ export default function PracticeListeningBoard({
     return s;
   }, [answers]);
 
-  const allQNumbers = useMemo(() => questionNumbersFromItems(parts.flatMap(p => extractAllItemsFromPart(p))), [parts]);
-
   useEffect(() => {
     if (autoSubmit && !submitting && !submitResult && secondsLeft === 0 && !isConfirmingSubmit) {
       handleFinalSubmit();
@@ -80,7 +77,7 @@ export default function PracticeListeningBoard({
       audioRef.current.play().catch(() => { });
     }
     try {
-      await fetch("http://localhost:3000/api/external/elevenlabs/voices");
+      await fetch("/api/external/elevenlabs/voices");
     } catch { }
   };
 
@@ -140,7 +137,7 @@ export default function PracticeListeningBoard({
           </button>
           <button
             onClick={() => setIsConfirmingSubmit(true)}
-            disabled={submitting || submitResult}
+            disabled={submitting || !!submitResult}
             className="ml-2 px-4 py-1.5 text-[13px] font-black rounded bg-[#D51025] hover:bg-red-700 text-white transition-all active:scale-95 disabled:opacity-60 uppercase"
           >
             {submitting ? "..." : "FINISH"}
@@ -151,7 +148,7 @@ export default function PracticeListeningBoard({
       <main className="flex-1 min-h-0 bg-[#f5f5f5] relative overflow-hidden">
         <audio
           ref={audioRef}
-          src={playingAudioPart?.audio_url || playingAudioPart?.audioUrl}
+          src={(playingAudioPart?.audio_url as string) || (playingAudioPart?.audioUrl as string)}
           autoPlay={hasStartedAudio}
           onLoadedMetadata={(e) => {
             if (partIndex !== undefined && onDurationDetected) {

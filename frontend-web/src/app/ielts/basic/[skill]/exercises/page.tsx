@@ -1,5 +1,13 @@
 import Link from "next/link";
 import ClientExerciseListGroup from "./ClientExerciseListGroup";
+import { API_BASE_URL } from "@/constants";
+import { Exercise } from "./[exerciseId]/_components/utils/SharedExerciseTypes";
+
+type ExerciseWithLesson = Exercise & {
+  lessonTitle: string;
+  lessonId: string;
+  order: number;
+};
 
 export default async function ExercisesPage({
   params,
@@ -13,12 +21,12 @@ export default async function ExercisesPage({
   const skillCapitalized =
     params.skill.charAt(0).toUpperCase() + params.skill.slice(1).toLowerCase();
 
-  let exercises: any[] = [];
+  let exercises: ExerciseWithLesson[] = [];
 
   try {
     // 1. Fetch lessons for the skill to get foundationVocabLesson IDs
     const lessonsRes = await fetch(
-      `http://localhost:3000/api/v1/ielts/skills/${skillCapitalized}/lessons`,
+      `${API_BASE_URL}/ielts/skills/${skillCapitalized}/lessons`,
       { cache: "no-store" }
     );
 
@@ -29,18 +37,19 @@ export default async function ExercisesPage({
         const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : isSpeaking ? "exercises/speaking" : "reading-exercises";
 
         // 2. Fetch exercises for each foundationVocabLesson
-        const exPromises = allLessons.map(async (l: any) => {
+        const exPromises = allLessons.map(async (l: { id: string; title: string }) => {
           try {
             const url = isSpeaking 
-              ? `http://localhost:3000/api/v1/ielts/${endpoint}/${l.id}`
-              : `http://localhost:3000/api/v1/ielts/lessons/${l.id}/${endpoint}`;
+              ? `${API_BASE_URL}/ielts/${endpoint}/${l.id}`
+              : `${API_BASE_URL}/ielts/lessons/${l.id}/${endpoint}`;
             const exRes = await fetch(url, { cache: "no-store" });
             if (exRes.ok) {
               const exData = await exRes.json();
-              return exData.map((ex: any) => ({
+              return exData.map((ex: Record<string, unknown>) => ({
                 ...ex,
                 lessonTitle: l.title,
                 lessonId: l.id,
+                order: (ex.order as number) || 0,
               }));
             }
           } catch (e) {
@@ -68,7 +77,7 @@ export default async function ExercisesPage({
   const toTypeLabel = (title: string) =>
     (title || "Other").replace(/^(Task \d+\s*[-–]\s*)?Chapter\s+\d+\s*[-–]\s*/i, "").trim() || "Other";
 
-  const groups: { title: string; items: any[] }[] = [];
+  const groups: { title: string; items: ExerciseWithLesson[] }[] = [];
   for (const ex of exercises) {
     const groupTitle = toTypeLabel(ex.lessonTitle || "Other");
     const existing = groups.find((g) => g.title === groupTitle);

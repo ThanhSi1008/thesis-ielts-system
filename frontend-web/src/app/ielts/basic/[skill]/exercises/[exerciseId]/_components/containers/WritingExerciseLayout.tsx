@@ -2,12 +2,29 @@
 
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { ChevronRight, ChevronDown, FileCheck, Save } from "lucide-react";
+import { API_BASE_URL } from "@/constants";
+import { ChevronDown, FileCheck, Save } from "lucide-react";
 import { LessonBlock } from "../utils/SharedExerciseTypes";
 import { TheoryPopup } from "../ui/TheoryModal";
 import { authService } from "@/services/auth.service";
 import { toast } from "@/components/Toaster";
 import api from "@/lib/api";
+import Image from "next/image";
+
+interface WritingExercise {
+    id: string;
+    topic?: string;
+    diagramUrl?: string;
+    instructions?: string;
+    prompt?: string;
+    modelAnswer?: {
+        intro?: string;
+        overview?: string;
+        body1?: string;
+        body2?: string;
+    };
+    [key: string]: unknown;
+}
 
 export function WritingExerciseLayout({
     exercise,
@@ -15,7 +32,7 @@ export function WritingExerciseLayout({
     onComplete,
     onNext,
 }: {
-    exercise: any;
+    exercise: WritingExercise;
     lessonBlocks?: LessonBlock[];
     onComplete?: () => void;
     onNext?: () => void;
@@ -34,7 +51,7 @@ export function WritingExerciseLayout({
             if (!exercise?.id) return;
             try {
                 const token = authService.getToken();
-                const res = await axios.get(`http://localhost:3000/api/v1/ielts/writing-exercises/${exercise.id}/my-answer`, {
+                const res = await axios.get(`${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/my-answer`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.data) {
@@ -57,7 +74,7 @@ export function WritingExerciseLayout({
         setIsSaving(true);
         try {
             const token = authService.getToken();
-            await axios.post(`http://localhost:3000/api/v1/ielts/writing-exercises/${exercise.id}/save-answer`, answers, {
+            await axios.post(`${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/save-answer`, answers, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             await api.post("/ielts/progress/mark-completed", { writingExerciseId: exercise.id });
@@ -142,10 +159,15 @@ export function WritingExerciseLayout({
 
                     {exercise?.diagramUrl && (
                         <div className="mt-6 rounded-lg p-2 shadow-sm bg-white">
-                            <img
+                            <Image
                                 src={exercise.diagramUrl}
                                 alt="Diagram"
-                                className="w-full h-auto object-contain rounded"
+                                width={0}
+                                height={0}
+                                sizes="100vw"
+                                style={{ width: '100%', height: 'auto' }}
+                                className="rounded"
+                                unoptimized
                             />
                         </div>
                     )}

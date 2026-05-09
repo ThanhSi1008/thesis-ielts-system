@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "@/constants";
 import { BookOpen, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { ContentGroup } from "../../../[skill]/exercises/[exerciseId]/_components/utils/SharedExerciseTypes";
 
 // ─── Listening renderers ─────────────────────────────────────────────────────
 // [skill]/lessons/[lessonId]/ → ../../.. → [skill]/ → components/
@@ -43,7 +45,7 @@ interface Snippet {
   exerciseId: string;
   topic: string;
   instructions: string | null;
-  group: any;
+  group: ContentGroup;
   groupIndex: number;
   exerciseType: string;
 }
@@ -51,7 +53,7 @@ interface Snippet {
 // A stub audioRef that does nothing — used so renderers don't break
 const noopAudioRef = { current: null } as unknown as React.RefObject<HTMLAudioElement>;
 
-function renderGroup(group: any, exerciseType: string) {
+function renderGroup(group: ContentGroup, exerciseType: string) {
   if (!group) return null;
 
   // Read-only preview: submitted=false so answers are NOT shown, pointer-events-none
@@ -96,7 +98,7 @@ function renderGroup(group: any, exerciseType: string) {
       const pts = (group.points ?? []) as FormPoint[];
       return (
         <FormCompletionGroup
-          heading={group.heading ?? ""}
+          heading={(group.heading as string) ?? ""}
           points={pts}
           answers={{}}
           onAnswer={noop}
@@ -111,7 +113,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "table") {
       return (
         <TableCompletionGroup
-          group={group as TableGroup}
+          group={group as unknown as TableGroup}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -125,7 +127,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "flow_chart") {
       return (
         <FlowChartCompletionGroup
-          group={group as FlowChartGroup}
+          group={group as unknown as FlowChartGroup}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -139,7 +141,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "summary_completion") {
       return (
         <SummaryCompletionGroup
-          group={group as SummaryGroup}
+          group={group as unknown as SummaryGroup}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -153,7 +155,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "matching") {
       return (
         <MatchingCompletionGroup
-          group={group as MatchingGroup}
+          group={group as unknown as MatchingGroup}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -167,7 +169,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "map_labelling" || type === "plan_labelling") {
       return (
         <MapLabellingGroup
-          group={group as MapLabellingGroupType}
+          group={group as unknown as MapLabellingGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -181,7 +183,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "diagram_labelling") {
       return (
         <DiagramLabellingGroup
-          group={group as DiagramLabellingGroupType}
+          group={group as unknown as DiagramLabellingGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -195,7 +197,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "short_answer") {
       return (
         <ShortAnswerGroup
-          group={group as ShortAnswerGroupType}
+          group={group as unknown as ShortAnswerGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -212,7 +214,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "true_false_not_given" || type === "yes_no_not_given") {
       return (
         <TrueFalseNotGivenGroup
-          group={group as TFNGGroup}
+          group={group as unknown as TFNGGroup}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -225,7 +227,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "note_completion") {
       return (
         <NoteCompletionGroup
-          group={group as NoteCompletionGroupType}
+          group={group as unknown as NoteCompletionGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -238,7 +240,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "flowchart_completion") {
       return (
         <FlowchartCompletionGroup
-          group={group as RFlowchartGroupType}
+          group={group as unknown as RFlowchartGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -251,7 +253,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "diagram_completion") {
       return (
         <DiagramCompletionGroup
-          group={group as RDiagramGroupType}
+          group={group as unknown as RDiagramGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -264,7 +266,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "sentence_completion" || type === "matching_sentence_endings") {
       return (
         <MatchingSentenceEndingsGroup
-          group={group as MatchingSentenceEndingsGroupType}
+          group={group as unknown as MatchingSentenceEndingsGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -277,7 +279,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "matching_features") {
       return (
         <MatchingFeaturesGroup
-          group={group as MatchingFeaturesGroupType}
+          group={group as unknown as MatchingFeaturesGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -290,7 +292,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "matching_information") {
       return (
         <MatchingInformationGroup
-          group={group as MatchingInformationGroupType}
+          group={group as unknown as MatchingInformationGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -303,7 +305,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "matching_headings") {
       return (
         <MatchingHeadingsGroup
-          group={group as MatchingHeadingsGroupType}
+          group={group as unknown as MatchingHeadingsGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -316,7 +318,7 @@ function renderGroup(group: any, exerciseType: string) {
     if (type === "summary_completion") {
       return (
         <RSummaryGroup
-          group={group as RSummaryGroupType}
+          group={group as unknown as RSummaryGroupType}
           answers={{}}
           onAnswer={noop}
           submitted={false}
@@ -344,7 +346,7 @@ function renderGroup(group: any, exerciseType: string) {
     return (
       <div>
         <p className="text-[13px] text-gray-500 mb-5">
-          {(group as any).instruction || "Choose the correct letter."}
+          {group.instruction || "Choose the correct letter."}
         </p>
         {questions.map((q) => (
           <div id={`question-${q.question_number}`} key={q.question_number}>
@@ -383,7 +385,7 @@ export function ExerciseExampleBlock({
   useEffect(() => {
     const controller = new AbortController();
     axios
-      .get(`http://localhost:3000/api/v1/ielts/exercise-snippet`, {
+      .get(`${API_BASE_URL}/ielts/exercise-snippet`, {
         params: { type: exerciseType, id: exerciseId, groupIndex },
         signal: controller.signal,
       })

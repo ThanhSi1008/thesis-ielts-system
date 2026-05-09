@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { ChevronRight, FileCheck, Save, Target, Link, BookOpen } from "lucide-react";
+import Image from "next/image";
+import { API_BASE_URL } from "@/constants";
+import { ChevronRight, Save, Target, Link, BookOpen } from "lucide-react";
 import { LessonBlock } from "../utils/SharedExerciseTypes";
 import { TheoryPopup } from "../ui/TheoryModal";
 import { authService } from "@/services/auth.service";
@@ -24,13 +26,21 @@ type ClozeModelAnswer = {
   paragraphs: ClozeParagraph[];
 };
 
+type WritingExercise = {
+  id: string;
+  topic?: string;
+  prompt?: string;
+  diagramUrl?: string;
+  modelAnswer?: ClozeModelAnswer;
+};
+
 export function WritingClozeLayout({
   exercise,
   lessonBlocks = [],
   onComplete,
   onNext,
 }: {
-  exercise: any;
+  exercise: WritingExercise;
   lessonBlocks?: LessonBlock[];
   onComplete?: () => void;
   onNext?: () => void;
@@ -45,7 +55,7 @@ export function WritingClozeLayout({
       try {
         const token = authService.getToken();
         const res = await axios.get(
-          `http://localhost:3000/api/v1/ielts/writing-exercises/${exercise.id}/my-answer`,
+          `${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/my-answer`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (res.data?.answers) {
@@ -64,7 +74,7 @@ export function WritingClozeLayout({
     try {
       const token = authService.getToken();
       await axios.post(
-        `http://localhost:3000/api/v1/ielts/writing-exercises/${exercise.id}/save-answer`,
+        `${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/save-answer`,
         { answers },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -85,7 +95,7 @@ export function WritingClozeLayout({
       if (exercise?.id) {
         const token = authService.getToken();
         await axios.post(
-          `http://localhost:3000/api/v1/ielts/writing-exercises/${exercise.id}/save-answer`,
+          `${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/save-answer`,
           { answers },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -181,10 +191,13 @@ export function WritingClozeLayout({
 
           {exercise?.diagramUrl && (
             <div className="mt-8 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-slate-800 p-2">
-              <img
+              <Image
                 src={exercise.diagramUrl}
                 alt="Diagram"
-                className="w-full h-auto object-contain rounded-lg"
+                width={800}
+                height={600}
+                style={{ width: '100%', height: 'auto' }}
+                className="object-contain rounded-lg"
               />
             </div>
           )}

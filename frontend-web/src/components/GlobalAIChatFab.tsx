@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePathname } from "next/navigation";
-import axios from "axios";
 import type { CardType } from "@/types";
 import { vocabLabApi } from "@/services/vocabLab.api";
 import api from "@/lib/api";
@@ -12,7 +11,7 @@ type SuggestionMsg = {
   id: string;
   label: string;
   actionType: "EXPLAIN_NOTE" | "ADD_VOCAB";
-  payload: any;
+  payload: unknown;
 };
 
 type Message = {
@@ -156,7 +155,7 @@ export function GlobalAIChatFab() {
   // --- User context for RAG personalization ---
   const [streak, setStreak] = useState<number>(0);
   const [vocabDue, setVocabDue] = useState<number>(0);
-  const [recentScores, setRecentScores] = useState<Record<string, number | null>>({});
+  const [recentScores] = useState<Record<string, number | null>>({});
 
   useEffect(() => {
     if (!user) return;
@@ -213,25 +212,25 @@ export function GlobalAIChatFab() {
         );
       }
     }
-  }, [messages.length, isTyping]);
+  }, [messages.length, isTyping, isOpen, messages]);
 
-  const explainAsCardType = async (
+  const explainAsCardType = useCallback(async (
     word: string,
     context: string,
-    cardType: any,
-    allCardTypes: any[],
+    cardType: CardType,
+    allCardTypes: CardType[],
   ) => {
     setIsTyping(true);
     const fieldDescriptions = cardType.fields
       .map(
-        (f: any) => `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
+        (f: { name: string; description?: string | null }) => `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
       )
       .join(", ");
 
     try {
       const prompt = `Act as an expert English Teacher. The user highlighted the word '${word}' from the sentence: "${context}". Use the **${cardType.name}** card type format to explain it. Cover precisely these aspects based on their descriptions: ${fieldDescriptions}. Make the explanation clear, conversational, and highly educational.`;
 
-      const response = await axios.post("http://localhost:8000/api/v1/chat", {
+      const response = await api.post<{ response: string }>("/chat", {
         messages: [{ role: "user", content: prompt }],
         userContext,
       });
@@ -249,8 +248,8 @@ export function GlobalAIChatFab() {
               payload: { word, context, cardType },
             },
             ...(allCardTypes || [])
-              .filter((t: any) => t.id !== cardType.id)
-              .map((t: any) => ({
+              .filter((t: CardType) => t.id !== cardType.id)
+              .map((t: CardType) => ({
                 id: t.id,
                 label: `Explain as ${t.name}`,
                 actionType: "EXPLAIN_NOTE" as const,
@@ -273,10 +272,11 @@ export function GlobalAIChatFab() {
     } finally {
       setIsTyping(false);
     }
-  };
+  }, [userContext]);
 
   useEffect(() => {
-    const handleOpen = async (e: any) => {
+    const handleOpen = async (ev: Event) => {
+      const e = ev as CustomEvent<{ word: string; context: string }>;
       setIsOpen(true);
       if (e.detail?.word && e.detail?.context) {
         try {
@@ -308,7 +308,7 @@ export function GlobalAIChatFab() {
               {
                 role: "model",
                 content: `Hello! Curious about the word **"${e.detail.word}"** from your practice? I'm here to help.\n\nPlease choose a format below to explain it:`,
-                suggestions: types.map((t: any) => ({
+                suggestions: types.map((t: CardType) => ({
                   id: t.id,
                   label: `Explain as ${t.name}`,
                   actionType: "EXPLAIN_NOTE" as const,
@@ -336,7 +336,7 @@ export function GlobalAIChatFab() {
     };
     window.addEventListener("open-ai-chat-fab", handleOpen);
     return () => window.removeEventListener("open-ai-chat-fab", handleOpen);
-  }, []);
+  }, [explainAsCardType]);
 
   const handleSuggestionClick = async (
     messageIndex: number,
@@ -356,17 +356,17 @@ export function GlobalAIChatFab() {
     });
 
     if (suggestion.actionType === "EXPLAIN_NOTE") {
-      const { word, context, cardType, allCardTypes } = suggestion.payload;
+      const { word, context, cardType, allCardTypes } = suggestion.payload as { word: string; context: string; cardType: CardType; allCardTypes: CardType[] };
       await explainAsCardType(word, context, cardType, allCardTypes);
     } else if (suggestion.actionType === "ADD_VOCAB") {
-      const { word, context, cardType } = suggestion.payload;
+      const { word, context, cardType } = suggestion.payload as { word: string; context: string; cardType: CardType };
       const fieldDescriptions = cardType.fields
         .map(
-          (f: any) =>
+          (f: { name: string; description?: string | null }) =>
             `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
         )
         .join(", ");
-      const fieldKeys = cardType.fields.map((f: any) => f.name).join(", ");
+      const fieldKeys = cardType.fields.map((f: { name: string }) => f.name).join(", ");
 
       try {
         // Add a temporary matching response
@@ -377,7 +377,7 @@ export function GlobalAIChatFab() {
 
         const prompt = `Act as an expert English Teacher generating a flashcard for the word '${word}' from the sentence: "${context}". Use the **${cardType.name}** card type. Generate content fulfilling these fields: ${fieldDescriptions}. Return a strictly formatted JSON object where the keys are exactly these field names: [${fieldKeys}] and the values are strings of the generated content. Do not include markdown blocks, explanation text, or anything other than the raw JSON object.`;
 
-        const response = await axios.post("http://localhost:8000/api/v1/chat", {
+        const response = await api.post<{ response: string }>("/chat", {
           messages: [{ role: "user", content: prompt }],
         });
 
@@ -452,8 +452,8 @@ export function GlobalAIChatFab() {
     e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSend = async (e?: React.FormEvent | React.KeyboardEvent) => {
+    e?.preventDefault();
     if (!input.trim() || isTyping) return;
 
     const userMsg: Message = { role: "user", content: input.trim() };
@@ -463,7 +463,7 @@ export function GlobalAIChatFab() {
     setIsTyping(true);
 
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/chat", {
+      const response = await api.post<{ response: string }>("/chat", {
         messages: newMessages,
         userContext,
       });
@@ -684,7 +684,7 @@ export function GlobalAIChatFab() {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     if (input.trim() && !isTyping) {
-                      handleSend(e as any);
+                      handleSend(e);
                     }
                   }
                 }}
