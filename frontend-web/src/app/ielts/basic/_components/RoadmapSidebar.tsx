@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { CheckCircle2, Lock, ChevronDown, ChevronUp, BookOpen, Headphones, PenTool, Mic, Check, ChevronLeft } from "lucide-react";
@@ -30,7 +30,7 @@ export function RoadmapSidebar() {
   const [loading, setLoading] = useState(true);
   const [expandedSteps, setExpandedSteps] = useState<number[]>([]);
 
-  const fetchRoadmap = async () => {
+  const fetchRoadmap = useCallback(async () => {
     try {
       const res = await api.get<{ steps: RoadmapStep[]; currentStep: number; requiresOnboarding?: boolean }>("/ielts/roadmap");
       
@@ -43,15 +43,18 @@ export function RoadmapSidebar() {
       setCurrentStep(res.data.currentStep);
       
       // Default toggle is open: Expand all steps initially
-      if (expandedSteps.length === 0) {
-        setExpandedSteps(res.data.steps.map(s => s.step));
-      }
+      setExpandedSteps(prev => {
+        if (prev.length === 0) {
+          return res.data.steps.map(s => s.step);
+        }
+        return prev;
+      });
     } catch (err) {
       console.error("Failed to fetch roadmap", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchRoadmap();
@@ -60,7 +63,7 @@ export function RoadmapSidebar() {
     const handleProgressUpdate = () => fetchRoadmap();
     window.addEventListener("roadmap-progress-update", handleProgressUpdate);
     return () => window.removeEventListener("roadmap-progress-update", handleProgressUpdate);
-  }, []);
+  }, [fetchRoadmap]);
 
   const getSkillIcon = (skill: string) => {
     switch (skill) {
