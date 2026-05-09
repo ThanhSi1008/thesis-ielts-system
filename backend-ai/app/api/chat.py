@@ -2,6 +2,7 @@ import os
 import logging
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from google import genai
@@ -62,16 +63,20 @@ async def chat_endpoint(request: ChatRequest):
             role = "model" if msg.role == "model" else "user"
             contents.append(types.Content(role=role, parts=[types.Part(text=msg.content)]))
 
-        response = await _client.aio.models.generate_content(
-            model=MODEL,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                temperature=0.7,
-            ),
-        )
+        async def stream_generator():
+            response_stream = await _client.aio.models.generate_content_stream(
+                model=MODEL,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.7,
+                ),
+            )
+            async for chunk in response_stream:
+                if chunk.text:
+                    yield f"data: {chunk.text}\n\n"
 
-        return {"response": response.text}
+        return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
     except Exception as e:
         logger.error(f"[Chat] Failed to generate chat response: {e}", exc_info=True)

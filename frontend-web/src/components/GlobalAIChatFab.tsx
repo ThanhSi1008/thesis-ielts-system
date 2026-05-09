@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import type { CardType } from "@/types";
 import { vocabLabApi } from "@/services/vocabLab.api";
 import api from "@/lib/api";
+import { authService } from "@/services/auth.service";
+import { API_BASE_URL } from "@/constants";
 
 type SuggestionMsg = {
   id: string;
@@ -463,14 +465,60 @@ export function GlobalAIChatFab() {
     setIsTyping(true);
 
     try {
-      const response = await api.post<{ response: string }>("/chat", {
-        messages: newMessages,
-        userContext,
+      const token = authService.getToken();
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          messages: newMessages,
+          userContext,
+        }),
       });
-      setMessages([
-        ...newMessages,
-        { role: "model", content: response.data.response },
-      ]);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let text = "";
+
+      // Add a pending message to the UI
+      setMessages([...newMessages, { role: "model", content: "" }]);
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunkValue = decoder.decode(value);
+        
+        // Parse SSE format (data: ...\n\n)
+        const lines = chunkValue.split("\n\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const content = line.slice(6);
+            text += content;
+            
+            // Update the last message with the new text
+            setMessages((prev) => {
+              const updated = [...prev];
+              if (updated.length > 0) {
+                updated[updated.length - 1] = {
+                  ...updated[updated.length - 1],
+                  content: text,
+                };
+              }
+              return updated;
+            });
+          }
+        }
+      }
     } catch (error) {
       console.error("Chat error:", error);
       setMessages([
