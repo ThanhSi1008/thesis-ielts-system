@@ -32,6 +32,7 @@ import { PrismaModule } from "./common/prisma/prisma.module";
 import { RedisModule } from "./common/redis/redis.module";
 import { CacheModule } from "./common/cache/cache.module";
 
+// Trigger CI/CD: Added Prometheus metrics endpoint
 @Module({
   imports: [
     PrometheusModule.register({
