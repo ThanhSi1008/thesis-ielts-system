@@ -98,6 +98,8 @@ Hệ thống cung cấp cho người quản lý các biểu đồ và số liệ
 Hệ thống có hai tác nhân chính tương tác trực tiếp:
 
 \begin{table}[!ht]
+    \caption{Danh sách tác nhân và mô tả}
+    \label{tab:actors}
     \centering
     \renewcommand{\arraystretch}{1.3}
     \begin{tabularx}{\linewidth}{|l|X|}
@@ -106,8 +108,6 @@ Hệ thống có hai tác nhân chính tương tác trực tiếp:
         Người học (Learner) & Người dùng cuối đã đăng ký tài khoản. Người học sử dụng hệ thống để thực hiện kiểm tra đầu vào, học từ vựng, ngữ pháp, luyện 4 kỹ năng IELTS, thi thử Mock Test và theo dõi tiến độ học tập cá nhân. \\ \hline
         Người quản lý (Admin) & Người có quyền quản trị hệ thống. Admin chịu trách nhiệm tạo và quản lý toàn bộ nội dung học tập (từ vựng, ngữ pháp, bài nghe, bài đọc, đề Writing, đề Speaking, đề thi Mock Test), quản lý tài khoản học viên và theo dõi báo cáo thống kê hoạt động hệ thống. \\ \hline
     \end{tabularx}
-    \caption{Danh sách tác nhân và mô tả}
-    \label{tab:actors}
 \end{table}
 
 \section{Danh sách các tình huống hoạt động chính}
@@ -157,6 +157,8 @@ Trong phần này, chúng em trình bày đặc tả chi tiết cho các use cas
 \subsection{Đăng ký tài khoản (UC01)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Đăng ký tài khoản (UC01)}
+    \label{tab:uc01_spec}
     \centering
     \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -184,8 +186,6 @@ Trong phần này, chúng em trình bày đặc tả chi tiết cho các use cas
         & 2b. Mật khẩu dưới 8 ký tự: hệ thống hiển thị thông báo yêu cầu và dừng luồng. \\ \hline
 
     \end{tabularx}
-    \caption{Đặc tả Use-case Đăng ký tài khoản (UC01)}
-    \label{tab:uc01_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -207,6 +207,8 @@ NestJS Auth Service tạo bản ghi trong bảng \texttt{users} của PostgreSQL
 \subsection{Đăng nhập (UC02)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Đăng nhập (UC02)}
+    \label{tab:uc02_spec}
     \centering
     \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -232,8 +234,6 @@ NestJS Auth Service tạo bản ghi trong bảng \texttt{users} của PostgreSQL
         & (Google OAuth): Người học chọn "Đăng nhập với Google"; hệ thống xác thực Google ID Token qua \texttt{POST /auth/google} và cấp JWT tương tự luồng chính. \\ \hline
 
     \end{tabularx}
-    \caption{Đặc tả Use-case Đăng nhập (UC02)}
-    \label{tab:uc02_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -255,9 +255,10 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
 \subsection{Học từ vựng (UC04)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Học từ vựng (UC04)}
+    \label{tab:uc04_spec}
     \centering
-    \renewcommand{\arraystretch}{1.1} % Tăng chiều cao dòng cho dễ đọc
-    % Định nghĩa bảng: Chiều rộng bằng dòng chữ, có 2 cột bằng nhau (X)
+    \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
         \hline
         \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
@@ -299,8 +300,6 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
         & 10. Hiển thị đáp án không hợp lệ và quay lại bước 8. \\ \hline
         
     \end{tabularx}
-    \caption{Đặc tả Use-case Học từ vựng (UC04)}
-    \label{tab:uc04_spec}
 \end{table}
 \subsubsection{Sơ đồ activity}
 \begin{figure}[H]
@@ -313,9 +312,10 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
 \subsection{Ôn từ vựng (UC05)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Ôn từ vựng (UC05)}
+    \label{tab:uc05_spec}
     \centering
-    \renewcommand{\arraystretch}{1.1} % Tăng khoảng cách dòng
-    % Tạo bảng với 2 cột rộng bằng nhau (X), tổng chiều rộng bằng trang giấy
+    \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
         \hline
         \multicolumn{2}{|l|}{\textbf{Đặc tả use case}} \\ \hline
@@ -350,8 +350,6 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
         & \\ \hline
 
     \end{tabularx}
-    \caption{Đặc tả Use-case Ôn từ vựng (UC05)}
-    \label{tab:uc05_spec}
 \end{table}
 \subsubsection{Sơ đồ activity}
 \begin{figure}[H]
@@ -365,6 +363,8 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
 \subsection{Luyện Listening (UC08)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Luyện Listening (UC08)}
+    \label{tab:uc08_spec}
     \centering
     \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -398,8 +398,6 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
         & 4a. Người học nộp khi còn ô trống: hệ thống cảnh báo số ô chưa điền và cho phép tiếp tục hoặc nộp thẳng. \\ \hline
 
     \end{tabularx}
-    \caption{Đặc tả Use-case Luyện Listening (UC08)}
-    \label{tab:uc08_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -421,6 +419,8 @@ Kết quả được phân loại thành ba loại lỗi: \textbf{Wrong Word} (t
 \subsection{Luyện Writing Task 2 (UC11)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Luyện Writing Task 2 (UC11)}
+    \label{tab:uc11_spec}
     \centering
     \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -456,8 +456,6 @@ Kết quả được phân loại thành ba loại lỗi: \textbf{Wrong Word} (t
         & 7a. Gemini API không phản hồi sau 30 giây: hệ thống thử lại một lần; nếu vẫn thất bại, hiển thị "Dịch vụ chấm điểm đang bận, vui lòng thử lại sau". \\ \hline
 
     \end{tabularx}
-    \caption{Đặc tả Use-case Luyện Writing Task 2 (UC11)}
-    \label{tab:uc11_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -479,6 +477,8 @@ Bốn tiêu chí chấm điểm tương ứng với 4 tiêu chí IELTS Writing c
 \subsection{Luyện Speaking -- AI Conversation (UC13)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Luyện Speaking -- AI Conversation (UC13)}
+    \label{tab:uc13_spec}
     \centering
     \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -516,8 +516,6 @@ Bốn tiêu chí chấm điểm tương ứng với 4 tiêu chí IELTS Writing c
         & (Phiên bị gián đoạn do mất kết nối): lịch sử hội thoại được client lưu cục bộ; người học cần bắt đầu lại phiên mới. \\ \hline
 
     \end{tabularx}
-    \caption{Đặc tả Use-case Luyện Speaking -- AI Conversation (UC13)}
-    \label{tab:uc13_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -539,6 +537,8 @@ Sau lượt hỏi cuối, client gửi toàn bộ transcript hội thoại cùng
 \subsection{Thi thử IELTS -- Mock Test (UC14)}
 \subsubsection{Mô tả use case}
 \begin{table}[!ht]
+    \caption{Đặc tả Use-case Thi thử IELTS -- Mock Test (UC14)}
+    \label{tab:uc14_spec}
     \centering
     \renewcommand{\arraystretch}{1.1}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -576,8 +576,6 @@ Sau lượt hỏi cuối, client gửi toàn bộ transcript hội thoại cùng
         & (Reload trang): client lấy lại \texttt{exam\_session\_id} từ localStorage và gọi \texttt{GET /exams/sessions/:sessionId} để khôi phục trạng thái phiên thi. \\ \hline
 
     \end{tabularx}
-    \caption{Đặc tả Use-case Thi thử IELTS -- Mock Test (UC14)}
-    \label{tab:uc14_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}

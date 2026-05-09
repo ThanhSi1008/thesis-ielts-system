@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { GradingProvider } from "@/contexts/GradingContext";
 import { IeltsSidebarProvider } from "@/contexts/IeltsSidebarContext";
@@ -53,6 +54,7 @@ export default function RootLayout({
             <SubscriptionProvider>
               <NotificationProvider>
                 <GradingProvider>
+                  <Suspense fallback={null}>
                   <IeltsSidebarProvider>
                     <ScrollToTop />
                     <Navbar />
@@ -62,6 +64,7 @@ export default function RootLayout({
                     <GlobalUpgradeModal />
                     {children}
                   </IeltsSidebarProvider>
+                  </Suspense>
                 </GradingProvider>
               </NotificationProvider>
             </SubscriptionProvider>

@@ -26,8 +26,6 @@ Trong nhóm Learning, lớp \texttt{Skill} phân loại 4 kỹ năng (Listening,
 
 \section{Sơ đồ cơ sở dữ liệu}
 
-\subsection{Sơ đồ cơ sở dữ liệu có cấu trúc (SQL)}
-
 Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua \texttt{DATABASE\_URL} connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file \texttt{schema.prisma} và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Sơ đồ ERD (Entity-Relationship Diagram) bên dưới thể hiện các bảng chính cùng quan hệ giữa chúng.
 
 Các bảng cốt lõi được tổ chức theo nhóm: nhóm xác thực gồm \texttt{users}, \texttt{otp\_tokens}, \texttt{refresh\_tokens}; nhóm bài tập gồm \texttt{skills}, \texttt{exercises}, \texttt{exercise\_options}, \texttt{user\_exercise\_results}; nhóm từ vựng gồm \texttt{vocabulary\_items}, \texttt{user\_vocabulary\_cards}; nhóm thi thử gồm \texttt{exam\_papers}, \texttt{exam\_sessions}, \texttt{exam\_section\_drafts}, \texttt{mock\_test\_results}. Khóa ngoại được thiết lập đầy đủ với \texttt{ON DELETE CASCADE} ở các bảng con để đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha.
@@ -267,7 +265,7 @@ Chúng em thực hiện kiểm thử hộp đen (Black-box Testing) cho các ch�
 
 \subsection{Bảng báo cáo kết quả kiểm thử}
 
-Sau khi hoàn thiện hệ thống, chúng em tiến hành thực thi toàn bộ 22 test case. Kết quả kiểm thử được ghi nhận trong bảng dưới đây. Tất cả các test case đều đạt kết quả \textbf{Pass}, xác nhận hệ thống hoạt động đúng theo yêu cầu đã đặc tả.
+Sau khi hoàn thiện hệ thống, chúng em tiến hành thực thi toàn bộ 22 test case. Kết quả kiểm thử được ghi nhận trong bảng~\ref{tab:testcase_result}. Tất cả các test case đều đạt kết quả \textbf{Pass}, xác nhận hệ thống hoạt động đúng theo yêu cầu đã đặc tả.
 
 \renewcommand{\arraystretch}{1.2}
 \begin{longtable}{|p{1.3cm}|p{3.5cm}|p{3.5cm}|p{2.5cm}|p{1.5cm}|p{1.5cm}|}
