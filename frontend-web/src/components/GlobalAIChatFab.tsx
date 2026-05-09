@@ -235,6 +235,7 @@ export function GlobalAIChatFab() {
       const response = await api.post<{ response: string }>("/chat", {
         messages: [{ role: "user", content: prompt }],
         userContext,
+        stream: false,
       });
 
       setMessages((prev) => [
@@ -381,6 +382,7 @@ export function GlobalAIChatFab() {
 
         const response = await api.post<{ response: string }>("/chat", {
           messages: [{ role: "user", content: prompt }],
+          stream: false,
         });
 
         let jsonStr = response.data.response || "";

@@ -40,6 +40,7 @@ class ChatRequest(BaseModel):
     system_instruction: Optional[str] = None
     # Real-time user context for personalization (Phase 2)
     userContext: Optional[UserContext] = None
+    stream: bool = True
 
 
 @router.post("")
@@ -62,6 +63,17 @@ async def chat_endpoint(request: ChatRequest):
         for msg in request.messages:
             role = "model" if msg.role == "model" else "user"
             contents.append(types.Content(role=role, parts=[types.Part(text=msg.content)]))
+
+        if not request.stream:
+            response = await _client.aio.models.generate_content(
+                model=MODEL,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.7,
+                ),
+            )
+            return {"response": response.text}
 
         async def stream_generator():
             response_stream = await _client.aio.models.generate_content_stream(
