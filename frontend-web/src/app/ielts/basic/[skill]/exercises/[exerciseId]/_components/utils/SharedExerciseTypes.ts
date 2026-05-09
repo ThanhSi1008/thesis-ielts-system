@@ -23,6 +23,7 @@ export type PassageSegment = string | { question_number: number; text: string };
 
 export interface ContentGroup {
   type: string;
+  instruction?: string;
   questions: MCQuestion[];
   question_numbers?: number[];
   text?: string;

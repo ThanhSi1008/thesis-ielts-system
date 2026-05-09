@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -7,14 +6,13 @@ import { useSearchParams } from "next/navigation";
 import { type ExamDetail } from "@/types";
 import { type AnswersState, AnswerField, getPartTitle, questionNumbersFromItems } from "@/components/AnswerField";
 import { extractAllItemsFromPart } from "@/lib/ieltsIntensiveExam-parser";
-import { getIeltsListeningBand } from "@/lib/bands";
 
 interface TakeListeningBoardProps {
   ieltsIntensiveExam: ExamDetail;
-  sessionInfo: any;
-  submitAndTrack: (data: any) => Promise<any>;
+  sessionInfo: Record<string, unknown>;
+  submitAndTrack: (data: Record<string, unknown>) => Promise<unknown>;
   submitting: boolean;
-  submitResult: any;
+  submitResult: unknown;
   submitError: string | null;
   answers: AnswersState;
   setAnswers: (a: AnswersState) => void;
@@ -44,7 +42,7 @@ export default function TakeListeningBoard({
   const autoSubmit = searchParams ? searchParams.get("autoSubmit") !== "false" : true;
 
   const parts = useMemo(() => {
-    return (ieltsIntensiveExam?.questions?.parts as any[]) || [];
+    return (ieltsIntensiveExam?.questions?.parts as Record<string, unknown>[]) || [];
   }, [ieltsIntensiveExam]);
 
   const activePart = parts[activePartIdx] || null;
@@ -76,7 +74,7 @@ export default function TakeListeningBoard({
       audioRef.current.play().catch(() => { });
     }
     try {
-      await fetch("http://localhost:3000/api/external/elevenlabs/voices");
+      await fetch("/api/external/elevenlabs/voices");
     } catch { }
   };
 
@@ -136,7 +134,7 @@ export default function TakeListeningBoard({
           </button>
           <button
             onClick={() => setIsConfirmingSubmit(true)}
-            disabled={submitting || submitResult}
+            disabled={submitting || !!submitResult}
             className="ml-2 px-4 py-1.5 text-[13px] font-black rounded bg-[#D51025] hover:bg-red-700 text-white transition-all active:scale-95 disabled:opacity-60 uppercase"
           >
             {submitting ? "..." : "FINISH"}
@@ -147,7 +145,7 @@ export default function TakeListeningBoard({
       <main className="flex-1 min-h-0 bg-[#f5f5f5] relative overflow-hidden">
         <audio
           ref={audioRef}
-          src={playingAudioPart?.audio_url || playingAudioPart?.audioUrl}
+          src={(playingAudioPart?.audio_url as string) || (playingAudioPart?.audioUrl as string)}
           autoPlay={hasStartedAudio}
           onEnded={() => {
             if (playingAudioIdx < parts.length - 1) {

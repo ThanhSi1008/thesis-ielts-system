@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ClientLessonList from "./ClientLessonList";
+import { API_BASE_URL } from "@/constants";
 
 interface FoundationVocabLesson {
   id: string;
@@ -19,7 +20,7 @@ export default async function LessonsPage({
 
   try {
     const res = await fetch(
-      `http://localhost:3000/api/v1/ielts/skills/${skillCapitalized}/lessons`,
+      `${API_BASE_URL}/ielts/skills/${skillCapitalized}/lessons`,
       { cache: "no-store" } // Ensure fresh data during dev
     );
     if (res.ok) {

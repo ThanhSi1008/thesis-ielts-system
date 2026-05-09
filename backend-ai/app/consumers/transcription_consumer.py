@@ -20,8 +20,7 @@ class TranscriptionConsumer(threading.Thread):
         self.connection = None
         self.channel = None
         self.queue_name = "dictation-transcription-queue"
-        # In a real setup, this comes from config, but we hardcode for MVP:
-        self.backend_core_url = "http://localhost:3000"
+        self.backend_core_url = settings.backend_core_url
 
     def run(self):
         try:
@@ -89,7 +88,7 @@ class TranscriptionConsumer(threading.Thread):
                     })
                 
                 # Callback to backend-core — route depends on video type
-                callback_url = f"{self.backend_core_url}/api/v1/{video_type}/webhooks/videos/{video_id}/complete"
+                callback_url = f"{self.backend_core_url}/{video_type}/webhooks/videos/{video_id}/complete"
                 payload = {
                     "sentences": sentences,
                     "duration": duration_str

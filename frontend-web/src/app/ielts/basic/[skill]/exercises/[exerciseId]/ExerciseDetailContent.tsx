@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "@/constants";
 import {
   Exercise,
   LessonBlock,
@@ -38,11 +39,11 @@ export function ExerciseDetailContent({
       setLoading(true);
       try {
         const endpoint = isReading ? "reading-exercises" : isWriting ? "writing-exercises" : isSpeaking ? "exercises/speaking/detail" : "listening-exercises";
-        const exRes = await axios.get(`http://localhost:3000/api/v1/ielts/${endpoint}/${exerciseId}`);
+        const exRes = await axios.get(`${API_BASE_URL}/ielts/${endpoint}/${exerciseId}`);
         setExercise(exRes.data);
 
         if (lessonId) {
-          const lessonRes = await axios.get(`http://localhost:3000/api/v1/ielts/lessons/${lessonId}`);
+          const lessonRes = await axios.get(`${API_BASE_URL}/ielts/lessons/${lessonId}`);
           const blocks: LessonBlock[] = Array.isArray(lessonRes.data.content)
             ? lessonRes.data.content.filter((b: LessonBlock) => ["traps", "strategy", "tips"].includes(b.type))
             : [];
@@ -55,7 +56,7 @@ export function ExerciseDetailContent({
       }
     };
     if (exerciseId) fetchData();
-  }, [exerciseId, lessonId, isReading]);
+  }, [exerciseId, lessonId, isReading, isWriting, isSpeaking]);
 
   if (loading) {
     return (
