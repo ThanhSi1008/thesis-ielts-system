@@ -7,7 +7,7 @@ export class ChatController {
   @Post()
   async proxyChat(@Body() body: any, @Res({ passthrough: false }) res: Response) {
     const options = {
-      hostname: "localhost",
+      hostname: "backend-ai",
       port: 8000,
       path: "/api/v1/chat",
       method: "POST",
