@@ -6,11 +6,6 @@ import * as http from "http";
 export class ChatController {
   @Post()
   async proxyChat(@Body() body: any, @Res({ passthrough: false }) res: Response) {
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-    res.flushHeaders();
-
     const options = {
       hostname: "localhost",
       port: 8000,
@@ -22,8 +17,12 @@ export class ChatController {
     };
 
     const req = http.request(options, (aiRes) => {
-      // Forward status code and headers if needed, or just pipe
+      // Set status and headers before flushing
       res.status(aiRes.statusCode);
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      res.flushHeaders();
       
       // Pipe the stream from Backend AI directly to the client
       aiRes.pipe(res);
