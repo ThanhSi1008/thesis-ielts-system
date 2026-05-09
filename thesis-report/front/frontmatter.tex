@@ -68,60 +68,104 @@ Chúng em xin chân thành cảm ơn!
 \end{flushright}
 
 % --- MỤC LỤC ---
-\newpage
-\addcontentsline{toc}{chapter}{MỤC LỤC}
+\clearpage
 \pagestyle{frontmatter}
+\begingroup
+\let\clearpage\relax
+\addcontentsline{toc}{chapter}{MỤC LỤC}
 \tableofcontents
+\endgroup
 \thispagestyle{frontmatter}
 
-\newpage
+% --- DANH MỤC HÌNH ẢNH ---
+\clearpage
+\begingroup
+\let\clearpage\relax
 \addcontentsline{toc}{chapter}{DANH MỤC CÁC HÌNH ẢNH}
 \listoffigures
+\endgroup
 \thispagestyle{frontmatter}
 
-\newpage
+% --- DANH MỤC BẢNG BIỂU ---
+\clearpage
+\begingroup
+\let\clearpage\relax
 \addcontentsline{toc}{chapter}{DANH MỤC CÁC BẢNG BIỂU}
 \listoftables
+\endgroup
 \thispagestyle{frontmatter}
 
-\newpage
+% --- DANH MỤC TỪ VIẾT TẮT ---
+\clearpage
 \chapter*{DANH MỤC CÁC TỪ VIẾT TẮT}
 \addcontentsline{toc}{chapter}{DANH MỤC CÁC TỪ VIẾT TẮT}
 \thispagestyle{frontmatter}
 
-\begin{center}
-\begin{tabular}{l p{10cm}}
+\begin{longtable}{|l|p{10cm}|}
     \hline
     \textbf{Từ viết tắt} & \textbf{Nghĩa đầy đủ} \\
     \hline
+    \endfirsthead
+    \hline
+    \textbf{Từ viết tắt} & \textbf{Nghĩa đầy đủ} \\
+    \hline
+    \endhead
     AI      & Artificial Intelligence (Trí tuệ nhân tạo) \\
+    \hline
     API     & Application Programming Interface (Giao diện lập trình ứng dụng) \\
+    \hline
     BaaS    & Backend as a Service (Dịch vụ backend đám mây) \\
+    \hline
     CEFR    & Common European Framework of Reference for Languages \\
+    \hline
     CNTT    & Công nghệ thông tin \\
+    \hline
     CMS     & Content Management System (Hệ thống quản lý nội dung) \\
+    \hline
     DTO     & Data Transfer Object \\
+    \hline
     ERD     & Entity–Relationship Diagram (Sơ đồ thực thể – quan hệ) \\
+    \hline
+    FSRS    & Free Spaced Repetition Scheduler (Thuật toán lặp lại ngắt quãng thế hệ mới) \\
+    \hline
     GCP     & Google Cloud Platform \\
+    \hline
     GVHD   & Giảng viên hướng dẫn \\
+    \hline
     GVPB   & Giảng viên phản biện \\
+    \hline
     HTTP    & HyperText Transfer Protocol \\
+    \hline
     IELTS   & International English Language Testing System \\
+    \hline
     IPA     & International Phonetic Alphabet (Bảng phiên âm quốc tế) \\
+    \hline
     JWT     & JSON Web Token \\
+    \hline
     NLP     & Natural Language Processing (Xử lý ngôn ngữ tự nhiên) \\
+    \hline
     ORM     & Object-Relational Mapping \\
+    \hline
     OTP     & One-Time Password (Mã xác thực một lần) \\
+    \hline
     REST    & Representational State Transfer \\
+    \hline
     SDK     & Software Development Kit \\
+    \hline
     SQL     & Structured Query Language \\
+    \hline
     SSG     & Static Site Generation \\
+    \hline
     SSR     & Server-Side Rendering \\
+    \hline
     STT     & Speech-to-Text (Chuyển giọng nói thành văn bản) \\
+    \hline
     TTS     & Text-to-Speech (Chuyển văn bản thành giọng nói) \\
+    \hline
     UC      & Use Case (Tình huống hoạt động) \\
+    \hline
     UI      & User Interface (Giao diện người dùng) \\
+    \hline
     UX      & User Experience (Trải nghiệm người dùng) \\
     \hline
-\end{tabular}
-\end{center}
+\end{longtable}

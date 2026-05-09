@@ -1,6 +1,6 @@
 % !TEX program = xelatex
 
-\documentclass[a4paper,12pt]{extreport}
+\documentclass[a4paper,13pt]{extreport}
 
 % ===================================================
 % 1. KHAI BÁO GÓI (PREAMBLE)
@@ -32,15 +32,18 @@
 % Cấu hình lề trang
 \usepackage[
   paper=a4paper,
-  top=3cm, bottom=3cm, left=3.5cm, right=2cm,
+  top=2.5cm, bottom=2.5cm, left=3.5cm, right=2.5cm,
   headheight=15pt
 ]{geometry}
 
 \usepackage{setspace}
-\onehalfspacing
+\setstretch{1.3}
 
 % Các gói tiện ích
 \usepackage{amsmath, amssymb}
+\numberwithin{figure}{chapter}
+\numberwithin{table}{chapter}
+\numberwithin{equation}{chapter}
 \usepackage{array, booktabs}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
@@ -101,9 +104,20 @@
 % Style cho nội dung chính (Main)
 \fancypagestyle{mainstyle}{
     \fancyhf{}
-    \fancyhead[L]{\small \textit{Khóa luận tốt nghiệp}}
+    \fancyhead[L]{\small \textit{Khóa luận tốt nghiệp ngành Kỹ thuật phần mềm}}
     \fancyhead[R]{\small \textit{Hệ thống học và luyện thi IELTS}}
-    \fancyfoot[L]{\small \textit{SVTH: Lai Thanh Sĩ - Phạm Đức Tài}}
+    \fancyfoot[L]{
+        \begin{tabular}{@{}l@{}}
+            \small \textit{Lai Thanh Sĩ} \\[-2pt]
+            \small \textit{Phạm Đức Tài}
+        \end{tabular}
+    }
+    \fancyfoot[R]{
+        \begin{tabular}{@{}r@{}}
+            \small \textit{DHKTPM18B} \\[-2pt]
+            \small \textit{DHKTPM18A}
+        \end{tabular}
+    }
     \fancyfoot[C]{\thepage}
     \renewcommand{\headrulewidth}{0.5pt}
     \renewcommand{\footrulewidth}{0.5pt}
@@ -123,10 +137,15 @@
 
 % Cấu hình tiêu đề Chương
 \titleformat{\chapter}[display]
-  {\normalfont\bfseries\centering\fontsize{16pt}{19pt}\selectfont}
+  {\normalfont\bfseries\centering\fontsize{18pt}{21.6pt}\selectfont}
   {\chaptertitlename\ \thechapter}
   {6pt}
   {\MakeUppercase}
+
+\titlespacing*{\chapter}{0pt}{6pt}{0pt}
+\titlespacing*{\section}{0pt}{6pt}{0pt}
+\titlespacing*{\subsection}{0pt}{6pt}{0pt}
+\titlespacing*{\subsubsection}{0pt}{6pt}{0pt}
 
 % ===================================================
 % BẮT ĐẦU TÀI LIỆU
