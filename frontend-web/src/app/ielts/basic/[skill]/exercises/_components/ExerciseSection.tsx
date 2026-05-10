@@ -28,14 +28,14 @@ export function ExerciseSection({
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex flex-col p-4 rounded-lg bg-gray-50/50">
+    <div className="flex flex-col p-4 rounded-lg bg-gray-50/50 dark:bg-slate-900/40 transition-colors">
       {/* Header */}
       <div
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-3 cursor-pointer group select-none py-1"
       >
-        <div className="w-5 h-5 rounded-full bg-[#FFF3C2] text-[#A07000] font-bold text-xs flex items-center justify-center shrink-0">{index + 1}</div>
-        <h3 className="text-[14px] font-extrabold text-gray-800 tracking-wide group-hover:text-[#FFC107] transition-colors">
+        <div className="w-5 h-5 rounded-full bg-[#FFF3C2] dark:bg-amber-900/40 text-[#A07000] dark:text-amber-400 font-bold text-xs flex items-center justify-center shrink-0">{index + 1}</div>
+        <h3 className="text-[14px] font-extrabold text-gray-800 dark:text-gray-100 tracking-wide group-hover:text-[#FFC107] transition-colors">
           {title}
         </h3>
         <div className={`ml-auto transition-transform duration-300 transform ${isOpen ? "rotate-180" : ""}`}>
@@ -77,9 +77,9 @@ export function ExerciseSection({
                         key={ex.id}
                         href={`/ielts/basic/${skill}/exercises/${ex.id}${ex.lessonId ? `?lessonId=${ex.lessonId}` : ""}`}
                       >
-                        <div className="flex items-center gap-4 px-5 py-3.5 bg-[#F9F9F9] hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-transparent group">
+                        <div className="flex items-center gap-4 px-5 py-3.5 bg-[#F9F9F9] dark:bg-slate-800/50 hover:bg-[#FFF9E6] dark:hover:bg-amber-900/20 hover:border-[#FFC107]/30 dark:hover:border-amber-500/30 transition-all rounded-xl cursor-pointer border border-transparent dark:border-gray-800/50 group">
                           <div className="flex-1 min-w-0">
-                            <p className="text-[14px] font-semibold text-gray-900 truncate leading-none">
+                            <p className="text-[14px] font-semibold text-gray-900 dark:text-white truncate leading-none">
                               {displayTitle}
                             </p>
                           </div>
@@ -88,7 +88,7 @@ export function ExerciseSection({
                               Completed ✓
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-400 font-medium shrink-0 group-hover:text-[#FFC107] transition-colors">
+                            <span className="text-xs text-gray-400 dark:text-gray-500 font-medium shrink-0 group-hover:text-[#FFC107] transition-colors">
                               Start →
                             </span>
                           )}
@@ -101,10 +101,10 @@ export function ExerciseSection({
 
               {subGroups.map((sg) => (
                 <div key={sg.name} className="flex flex-col mt-3 mb-2">
-                  <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3">
+                  <h4 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest pl-2 mb-3">
                     {sg.name}
                   </h4>
-                  <div className="flex flex-col gap-2 border-l-2 border-gray-200 ml-2 pl-4">
+                  <div className="flex flex-col gap-2 border-l-2 border-gray-200 dark:border-gray-800 ml-2 pl-4">
                     {sg.items.map((ex, i) => {
                       const isFinished = completedExerciseIds?.has(ex.id) || false;
                       const displayTitle = `Practice ${i + 1}`;
@@ -113,9 +113,9 @@ export function ExerciseSection({
                           key={ex.id}
                           href={`/ielts/basic/${skill}/exercises/${ex.id}${ex.lessonId ? `?lessonId=${ex.lessonId}` : ""}`}
                         >
-                          <div className="flex items-center gap-4 px-5 py-3.5 bg-white hover:bg-[#FFF9E6] hover:border-[#FFC107]/30 transition-all rounded-xl cursor-pointer border border-gray-100 shadow-sm group">
+                        <div className="flex items-center gap-4 px-5 py-3.5 bg-white dark:bg-slate-800 hover:bg-[#FFF9E6] dark:hover:bg-amber-900/20 hover:border-[#FFC107]/30 dark:hover:border-amber-500/30 transition-all rounded-xl cursor-pointer border border-gray-100 dark:border-gray-700 shadow-sm group">
                             <div className="flex-1 min-w-0">
-                              <p className="text-[14px] font-semibold text-gray-900 truncate leading-none">
+                              <p className="text-[14px] font-semibold text-gray-900 dark:text-white truncate leading-none">
                                 {displayTitle}
                               </p>
                             </div>
@@ -124,7 +124,7 @@ export function ExerciseSection({
                                 ✓
                               </span>
                             ) : (
-                              <span className="text-xs text-gray-400 font-medium shrink-0 group-hover:text-[#FFC107] transition-colors">
+                              <span className="text-xs text-gray-400 dark:text-gray-500 font-medium shrink-0 group-hover:text-[#FFC107] transition-colors">
                                 Start →
                               </span>
                             )}

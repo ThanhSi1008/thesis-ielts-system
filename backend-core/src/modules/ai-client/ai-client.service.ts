@@ -7,6 +7,7 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
   private connection: any; // amqp.Connection causes type conflicts
   private channel: any; // amqp.Channel
   private queueName: string;
+  private transcriptionQueueName: string;
 
   constructor(private configService: ConfigService) {}
 
@@ -15,6 +16,10 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
     this.queueName = this.configService.get<string>(
       "RABBITMQ_QUEUE_GRADING",
       "exam-grading-queue",
+    );
+    this.transcriptionQueueName = this.configService.get<string>(
+      "RABBITMQ_QUEUE_TRANSCRIPTION",
+      "dictation-transcription-queue",
     );
 
     try {
@@ -27,6 +32,9 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
           'x-dead-letter-exchange': '',
           'x-dead-letter-routing-key': 'exam-grading-dlq'
         }
+      });
+      await this.channel.assertQueue(this.transcriptionQueueName, {
+        durable: true,
       });
       console.log("✅ RabbitMQ connected successfully");
     } catch (error) {
@@ -46,5 +54,13 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
       persistent: true,
     });
     console.log(`📤 Published grading task for session: ${task.sessionId}`);
+  }
+
+  async publishTranscriptionTask(task: { videoId: string; youtubeUrl: string }): Promise<void> {
+    const message = JSON.stringify(task);
+    this.channel.sendToQueue(this.transcriptionQueueName, Buffer.from(message), {
+      persistent: true,
+    });
+    console.log(`📤 Published transcription task for video: ${task.videoId}`);
   }
 }

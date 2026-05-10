@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsBoolean, IsEnum } from "class-validator";
+import { IsOptional, IsString, IsBoolean, IsEnum, IsEmail } from "class-validator";
 
 export enum UserRole {
   STUDENT = "STUDENT",
@@ -14,6 +14,10 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   lastName?: string;
+
+  @IsOptional()
+  @IsEmail({}, { message: "Invalid email format" })
+  email?: string;
 
   @IsOptional()
   @IsBoolean()

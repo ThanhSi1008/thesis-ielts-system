@@ -38,7 +38,7 @@ export function FormCompletionGroup({
     audioRef.current.play();
   };
 
-  // Render text with a bordered box input (IELTS exam paper style)
+  // Render text with a bordered box input (IELTS ieltsIntensiveExam paper style)
   const renderBoxedText = (point: FormPoint) => {
     const blankRegex = /\b(\d+)\s*\.{3,}|\|G\|/;
     const match = point.text.match(blankRegex);

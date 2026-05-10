@@ -1,0 +1,697 @@
+- speaking + theory
+    - Introduction to Speaking
+        - Content
+            ## 1. Test Format
+            
+            The IELTS Speaking test is a face-to-face interview with an examiner. It lasts between 11 and 14 minutes and consists of three parts:
+            
+            - **Part 1 (4-5 mins):** Introduction and interview. You will answer familiar questions about your home, family, work, studies, and interests.
+            - **Part 2 (3-4 mins):** Individual long turn. You receive a cue card with a topic, have 1 minute to prepare, and must speak for 1 to 2 minutes continuously.
+            - **Part 3 (4-5 mins):** Two-way discussion. The examiner asks more abstract questions related to the topic in Part 2.
+            
+            ## 2. Scoring Criteria
+            
+            You are evaluated on four equally weighted criteria (25% each):
+            
+            1. **Fluency and Coherence (FC):** How smoothly you speak without long pauses, and how well your ideas connect.
+            2. **Lexical Resource (LR):** The range and accuracy of your vocabulary.
+            3. **Grammatical Range and Accuracy (GRA):** The variety of grammatical structures you use and how few errors you make.
+            4. **Pronunciation (PR):** How understandable your English is, including word stress, sentence stress, and intonation. Note: Having an accent is perfectly fine, as long as your speech is clear!
+            
+            ## 3. General Preparation Strategies
+            
+            - **Record yourself:** The best way to improve is to listen to your own mistakes.
+            - **Don't memorize answers:** Examiners are highly trained to spot scripted responses and will penalize you.
+            - **Extend your answers:** Never give one-word answers like "Yes" or "No". Always add reasons and examples.
+            
+            - Fluency & Coherence
+                ### Understanding Fluency
+                
+                Fluency does **not** mean speaking fast. In fact, speaking too fast often leads to grammar mistakes and poor pronunciation. Fluency means speaking at a natural, steady pace without uncomfortable silences.
+                
+                ### Self-Correction
+                
+                Native speakers make mistakes and correct themselves. It is okay to self-correct during the exam, provided you don't do it excessively.
+                
+                *Good:* "I went to the... sorry, I mean, I *visited* the museum."
+                
+                ### Signposting
+                
+                Use signposting words to guide the examiner through your thoughts:
+                - "First of all..."
+                - "What I mean is..."
+                - "The thing is..."
+                - "Looking at it from another perspective..."
+                
+            - Grammar & Pronunciation
+                ### Grammar Variety
+                
+                To score a Band 7 or higher in GRA, you must demonstrate a mix of simple and complex sentences. Don't just string together short sentences.
+                
+                Use conditional structures to show range:
+                - "If I had more time, I would definitely read more often."
+                - "If it hadn't rained, we would have enjoyed the picnic."
+                
+                ### Pronunciation: Word Stress
+                
+                Misplacing stress can make a word incomprehensible. For example, the stress shifts in word families:
+                - **PHO**tograph (noun)
+                - pho**TOG**raphy (noun)
+                - pho**TO**grapher (noun)
+                
+            - Lexical Resource
+                ### The Golden Rule: Paraphrase!
+                
+                Never repeat the examiner's question word-for-word. This shows a limited vocabulary.
+                
+                **Examiner:** "Do you like reading books?"
+                **Poor:** "Yes, I like reading books."
+                **Better:** "Yes, I'm quite passionate about literature."
+                
+                ### Vocabulary Topics to Prepare
+                
+                Make sure you have a strong vocabulary bank for these essential topics:
+                - Hometown and living area
+                - Studies and work
+                - Free time activities and hobbies
+                - Food and cooking
+                - Travel and holidays
+                
+        - Quiz
+            1. How long does the entire IELTS Speaking test last?
+            A) 5-10 minutes
+            B) 11-14 minutes
+            C) 15-20 minutes
+            D) 25-30 minutes
+            **Hint:** It is the shortest part of the IELTS exam.
+            **Answer:** B
+            **Why:** The test is strictly timed to last between 11 and 14 minutes.
+            2. Which of the following is NOT one of the four scoring criteria?
+            A) Fluency and Coherence
+            B) Lexical Resource
+            C) Accent Reduction
+            D) Pronunciation
+            **Hint:** Examiners do not penalize you for sounding like you are from your home country.
+            **Answer:** C
+            **Why:** The criteria is Pronunciation, not Accent Reduction. As long as your pronunciation is clear, your accent does not matter.
+            3. In Part 2 of the test, how much preparation time are you given?
+            A) 30 seconds
+            B) 1 minute
+            C) 2 minutes
+            D) You don't get any preparation time
+            **Hint:** You are given a pencil and paper to make notes.
+            **Answer:** B
+            **Why:** You receive the cue card and exactly 1 minute to prepare your response before you start speaking.
+            4. What does "fluency" mean in the context of the IELTS test?
+            A) Speaking as fast as possible
+            B) Speaking without an accent
+            C) Speaking at a steady pace without long pauses
+            D) Speaking without ever making a grammatical mistake
+            **Hint:** Think about "flow" rather than "speed".
+            **Answer:** C
+            **Why:** Fluency refers to the smooth, natural flow of speech without uncomfortable silences or hesitations.
+            5. What is the best response if you realize you just made a grammar mistake while speaking?
+            A) Stop speaking entirely
+            B) Say "I'm sorry, I failed"
+            C) Naturally self-correct and continue
+            D) Start the entire sentence over from the beginning
+            **Hint:** Native speakers do this all the time.
+            **Answer:** C
+            **Why:** Natural self-correction shows awareness of language and does not negatively impact your score if done sparingly.
+            6. Why shouldn't you repeat the examiner's question in your answer?
+            A) It takes up too much time
+            B) It confuses the examiner
+            C) It demonstrates a lack of vocabulary range
+            D) It is considered rude
+            **Hint:** Think about the Lexical Resource criteria.
+            **Answer:** C
+            **Why:** Paraphrasing the question shows that you have a wide vocabulary, which is essential for a high Lexical Resource score.
+    - Part 1 — Personal Questions
+        - Content
+            ## 1. Overview of Part 1
+            
+            Part 1 serves as an icebreaker. It lasts 4-5 minutes. The examiner will first ask about your ID, and then ask questions about familiar topics such as your hometown, job, studies, family, and hobbies.
+            
+            ## 2. The Golden Rule of Part 1: Expand!
+            
+            The most common mistake in Part 1 is giving answers that are too short. You must show the examiner what you can do. Aim for **2-3 sentences per answer**.
+            
+            ### The AREA Method
+            
+            A great way to ensure your answers are the right length is the **AREA method**:
+            - **A**nswer the question directly
+            - **R**eason (explain why)
+            - **E**xample (give a specific detail)
+            - **A**dd-on (an extra thought, contrast, or detail)
+            
+            **Example: "Do you like watching movies?"**
+            - *(Answer)* "Yes, I'm absolutely a huge fan of cinema."
+            - *(Reason)* "I find that getting lost in a good story is the best way to unwind."
+            - *(Example)* "For instance, I recently watched a sci-fi film that completely blew my mind."
+            - *(Add-on)* "Although I prefer watching them at home rather than at the theatre nowadays."
+            
+            ## 3. Common Part 1 Topics
+            
+            Be prepared to talk about:
+            - Your hometown (location, weather, what it's known for)
+            - Your accommodation (house vs. flat, favorite room)
+            - Daily routines (mornings, weekends)
+            - Food (cooking, eating out, healthy diets)
+            
+            - Fluency & Coherence
+                ### Natural Openers
+                
+                Don't start every sentence with "I think...". Use a variety of natural conversational openers:
+                - "Well, to be honest..."
+                - "Actually, I'd have to say..."
+                - "As a matter of fact..."
+                - "That's an interesting question..."
+                
+                ### Linking Ideas
+                
+                Connect your sentences smoothly to improve coherence:
+                - Adding info: "...and on top of that...", "...not to mention..."
+                - Contrasting: "...although occasionally...", "...having said that..."
+                - Results: "...so because of that...", "...which means that..."
+                
+            - Grammar & Pronunciation
+                ### Tense Accuracy in Part 1
+                
+                Part 1 often tests your ability to switch between tenses accurately.
+                
+                **Habits vs. Current Actions:**
+                Use *Present Simple* for routines: "I usually **wake up** at 7 AM."
+                Use *Present Continuous* for temporary situations: "I **am currently studying** for my exams."
+                
+                **Past Habits:**
+                "I **used to play** football, but now I don't have the time."
+                
+                ### Intonation Patterns
+                
+                Use rising intonation for lists, and falling intonation for the end of a statement:
+                "I enjoy reading ↗, swimming ↗, and painting ↘."
+                
+            - Lexical Resource
+                ### Expressing Likes and Dislikes
+                
+                Instead of saying "I like" or "I don't like", upgrade your vocabulary:
+                
+                **Positive:**
+                - "I'm quite keen on..."
+                - "I'm really passionate about..."
+                - "I'm fond of..."
+                - "I'm a big fan of..."
+                
+                **Negative:**
+                - "I'm not particularly interested in..."
+                - "It's not really my cup of tea."
+                - "I can't stand..." (for strong dislike)
+                
+        - Quiz
+            1. What is the primary purpose of Part 1?
+            A) To test your academic knowledge
+            B) To act as an icebreaker with familiar topics
+            C) To see how long you can speak without stopping
+            D) To test your ability to debate
+            **Hint:** The questions are about your personal life.
+            **Answer:** B
+            **Why:** Part 1 focuses on familiar topics to help you settle in and warm up for the rest of the test.
+            2. How long should a typical Part 1 answer be?
+            A) 1 word
+            B) 1 sentence
+            C) 2-3 sentences
+            D) 1-2 minutes
+            **Hint:** You need to expand, but not give a speech.
+            **Answer:** C
+            **Why:** 2-3 sentences is the "sweet spot". It's long enough to show your English ability, but short enough to keep the conversation moving.
+            3. What does the "E" in the AREA method stand for?
+            A) Explanation
+            B) Energy
+            C) Example
+            D) Ending
+            **Hint:** You provide one of these to support your reason.
+            **Answer:** C
+            **Why:** The AREA method is Answer, Reason, Example, Add-on.
+            4. Which of the following is a good alternative to "I like"?
+            A) I am hatred of
+            B) I'm quite keen on
+            C) I am indifferent to
+            D) It is not my cup of tea
+            **Hint:** Look for a phrase that expresses enthusiasm.
+            **Answer:** B
+            **Why:** "I'm quite keen on" is an excellent, natural-sounding alternative to "I like".
+            5. Which tense should you use to describe a routine you do every week?
+            A) Present Continuous
+            B) Present Simple
+            C) Past Simple
+            D) Present Perfect
+            **Hint:** It is a habit.
+            **Answer:** B
+            **Why:** The Present Simple tense is used to describe habits, routines, and permanent situations.
+            6. What type of intonation should you use at the end of a statement?
+            A) Rising intonation
+            B) Falling intonation
+            C) Flat intonation
+            D) Fluctuating intonation
+            **Hint:** It signals that you are finished speaking.
+            **Answer:** B
+            **Why:** Falling intonation at the end of a sentence signals to the listener that the thought is complete.
+    - Part 2 — The Cue Card
+        - Content
+            ## 1. Overview of Part 2
+            
+            In Part 2, the examiner gives you a booklet with a "cue card". You will be given a pencil and paper and have **exactly 1 minute to prepare**. You must then speak for **1 to 2 minutes** continuously on the topic.
+            
+            ## 2. Anatomy of a Cue Card
+            
+            A cue card typically asks you to describe a person, place, object, event, or experience. It always contains:
+            1. A main topic (e.g., "Describe a beautiful place you visited")
+            2. Three bullet points (e.g., where it was, who you went with, what you did)
+            3. A final explanation point (e.g., "and explain why you found it beautiful")
+            
+            ## 3. The 1-Minute Planning Strategy
+            
+            Many students waste their 1 minute writing full sentences. **Do not write sentences!** You will not have time, and reading aloud sounds unnatural.
+            
+            Instead, write **keywords**.
+            Create a simple grid or list corresponding to the bullet points. Write 2-3 evocative vocabulary words for each point. This will trigger your memory while you speak.
+            
+            ## 4. Structuring Your 2 Minutes
+            
+            - **Introduction (15 sec):** State clearly what you will talk about.
+            - **Body (1 min):** Address the first three bullet points, spending about 20 seconds on each. Add details!
+            - **Conclusion/Explanation (45 sec):** Focus heavily on the final "and explain why" bullet point. This is usually where you can show off your best vocabulary and complex grammar.
+            
+            - Fluency & Coherence
+                ### Signposting Your Talk
+                
+                Because you are speaking for up to 2 minutes alone, you must guide the listener.
+                
+                - **Starting:** "I'd like to talk about...", "The person I've chosen to describe is..."
+                - **Moving on:** "Moving on to where it was...", "As for who I went with..."
+                - **Wrapping up:** "Ultimately, the reason why this was so memorable is..."
+                
+                ### Time Management
+                
+                If the examiner stops you at 2 minutes, **do not panic**. It means you have spoken fluently enough to fill the time! It is not a penalty to be stopped.
+                
+            - Grammar & Pronunciation
+                ### Tense Consistency
+                
+                Part 2 often asks you to "Describe a time when...". This requires strict control of narrative tenses.
+                
+                - **Past Simple:** For the main events ("I **went** to Paris").
+                - **Past Continuous:** For background actions ("The sun **was shining** when we arrived").
+                - **Past Perfect:** For actions that happened *before* the main story ("I **had never seen** anything like it before").
+                
+                ### Sentence Stress
+                
+                Use sentence stress to emphasize the most important information, making your story more engaging.
+                "It was **absolutely** the most **terrifying** experience of my life."
+                
+            - Lexical Resource
+                ### Upgrading Adjectives
+                
+                Part 2 requires highly descriptive language. Avoid basic adjectives like "good", "bad", "big", or "nice".
+                
+                Instead of *very good*: **outstanding, magnificent, exceptional**
+                Instead of *very beautiful*: **breathtaking, stunning, picturesque**
+                Instead of *very bad*: **dreadful, appalling, disastrous**
+                Instead of *very interesting*: **fascinating, captivating, thought-provoking**
+                
+        - Quiz
+            1. How much time do you have to prepare your notes in Part 2?
+            A) 30 seconds
+            B) 1 minute
+            C) 2 minutes
+            D) 3 minutes
+            **Hint:** It is a very short amount of time.
+            **Answer:** B
+            **Why:** You are given exactly 1 minute to make notes before you must start speaking.
+            2. What is the biggest mistake you can make during the 1-minute prep time?
+            A) Not making eye contact with the examiner
+            B) Writing down keywords
+            C) Trying to write full sentences
+            D) Thinking of high-level vocabulary
+            **Hint:** You don't have enough time to write a script.
+            **Answer:** C
+            **Why:** Trying to write full sentences wastes time and leads to unnatural reading. You should only write keywords.
+            3. Which part of the cue card should you usually spend the most time on?
+            A) The introduction
+            B) The first bullet point
+            C) The second bullet point
+            D) The final "and explain why" point
+            **Hint:** It requires the most complex explanation.
+            **Answer:** D
+            **Why:** The final point usually asks for an explanation or reflection, which is your best opportunity to use complex grammar and vocabulary.
+            4. What does it mean if the examiner interrupts you and stops you from speaking?
+            A) You have failed the test
+            B) You were speaking off-topic
+            C) Your 2 minutes are up
+            D) Your pronunciation was bad
+            **Hint:** The examiner strictly times the test.
+            **Answer:** C
+            **Why:** The examiner will stop you when exactly 2 minutes have passed. It is not a penalty; it just means you successfully spoke for the full duration.
+            5. What tense is mostly used when answering a "Describe a memorable event" cue card?
+            A) Future Simple
+            B) Past Simple
+            C) Present Continuous
+            D) Present Simple
+            **Hint:** An event is something that has already happened.
+            **Answer:** B
+            **Why:** Narrative topics require the use of past tenses, primarily the Past Simple, to describe completed actions.
+            6. Which of the following is a high-level alternative to "very beautiful"?
+            A) Nice
+            B) Good-looking
+            C) Breathtaking
+            D) Okay
+            **Hint:** It means so beautiful it takes your breath away.
+            **Answer:** C
+            **Why:** "Breathtaking" is an excellent, advanced adjective to describe stunning scenery or places.
+    - Part 3 — Abstract Discussion
+        - Content
+            ## 1. Overview of Part 3
+            
+            Part 3 is a two-way discussion lasting 4-5 minutes. The questions here are abstract and thematically linked to your Part 2 topic.
+            
+            *If Part 2 was about a "memorable holiday", Part 3 will be about the "tourism industry", "environmental impacts of travel", or "how travel broadens the mind".*
+            
+            ## 2. The Nature of Part 3
+            
+            Part 3 is **not** about you. Do not talk about your personal life here. You must discuss society, people in general, the future, and broader concepts.
+            
+            *Incorrect:* "I think technology is bad because my phone battery dies fast."
+            *Correct:* "It could be argued that society's over-reliance on technology is detrimental, as people are losing the ability to connect face-to-face."
+            
+            ## 3. How to Answer Abstract Questions
+            
+            Use a structured approach similar to writing a paragraph:
+            1. **Direct Answer / Opinion**
+            2. **Explanation (Why?)**
+            3. **Example (from society/the world, not yourself)**
+            4. **Alternative View (Optional but impressive)**
+            
+            - Fluency & Coherence
+                ### Buying Thinking Time
+                
+                Part 3 questions are difficult. It is perfectly natural to need a second to think. Use "fillers" to buy time gracefully:
+                - "That's a very interesting question..."
+                - "I've never really thought about it before, but..."
+                - "Let me consider that for a moment..."
+                
+                ### Discussing Both Sides
+                
+                High-scoring candidates often explore multiple angles of an issue before concluding:
+                - "On the one hand, some people believe X. However, I tend to lean towards Y because..."
+                - "While there are certainly drawbacks, such as A, the benefits, like B, are much more significant."
+                
+            - Grammar & Pronunciation
+                ### Modals of Speculation
+                
+                Part 3 often asks you to predict the future or hypothesize. Use modal verbs to show uncertainty:
+                - "It's **highly likely that** artificial intelligence **will** replace..."
+                - "Governments **might** need to implement..."
+                - "This trend **could** potentially lead to..."
+                
+                ### Passive Voice
+                
+                Using the passive voice makes your arguments sound more objective and formal:
+                - "It **is widely believed** that..."
+                - "Steps **must be taken** to address..."
+                
+            - Lexical Resource
+                ### Stating Opinions Formally
+                
+                Upgrade your opinion language from "I think":
+                - "From my perspective..."
+                - "I'm firmly convinced that..."
+                - "It seems to me that..."
+                
+                ### Vocabulary for Social Issues
+                
+                Prepare vocabulary for massive global themes:
+                - **Environment:** sustainability, carbon footprint, legislation
+                - **Society:** inequality, demographic shift, globalization
+                - **Economy:** infrastructure, cost of living, allocation of resources
+                
+        - Quiz
+            1. What is the relationship between Part 2 and Part 3?
+            A) They are completely unrelated
+            B) Part 3 asks the exact same questions as Part 2
+            C) Part 3 questions are abstract, but linked to the topic of Part 2
+            D) Part 3 requires you to write an essay about Part 2
+            **Hint:** There is a thematic connection.
+            **Answer:** C
+            **Why:** Part 3 takes the personal topic from Part 2 and expands it into a broader, abstract discussion about society.
+            2. What kind of examples should you use in Part 3?
+            A) Stories from your childhood
+            B) Examples involving your family members
+            C) Broad examples regarding society, the world, or people in general
+            D) No examples at all
+            **Hint:** Part 3 is not about you personally.
+            **Answer:** C
+            **Why:** Part 3 requires abstract thinking, so your examples should reflect societal trends rather than personal anecdotes.
+            3. What is a good way to buy thinking time if a question is difficult?
+            A) Stare at the examiner in silence
+            B) Ask the examiner what the answer is
+            C) Say "That's a very interesting question, let me think..."
+            D) Skip the question
+            **Hint:** Use language to fill the silence naturally.
+            **Answer:** C
+            **Why:** Using a native-like filler phrase buys you a few seconds to organize your thoughts without awkward silence.
+            4. Why is using the passive voice useful in Part 3?
+            A) It makes you sound less confident
+            B) It makes your arguments sound more objective and formal
+            C) It is the only grammar structure allowed
+            D) It speeds up your talking
+            **Hint:** Think about how news anchors speak.
+            **Answer:** B
+            **Why:** The passive voice (e.g., "It is widely believed") shifts focus away from the speaker, making statements sound more authoritative and objective.
+            5. Which modal verb is best used to speculate about the future?
+            A) Did
+            B) Was
+            C) Might
+            D) Had
+            **Hint:** Look for a word expressing possibility.
+            **Answer:** C
+            **Why:** "Might" (along with may, could, and will) is a modal verb used to express future possibility or speculation.
+            6. Which of the following is an excellent formal way to state an opinion?
+            A) I guess...
+            B) Maybe...
+            C) I'm firmly convinced that...
+            D) Whatever...
+            **Hint:** It shows strong belief.
+            **Answer:** C
+            **Why:** "I'm firmly convinced that" demonstrates a high level of lexical resource and strongly asserts your position.
+    - Fluency & Coherence Mastery
+        - Content
+            ## 1. What is Fluency?
+            
+            Many candidates mistakenly believe fluency means speaking at lightning speed. **It does not.** Fluency is about the *flow* of your speech. It means speaking smoothly, without awkward hesitations, long pauses, or constantly searching for words.
+            
+            ## 2. What is Coherence?
+            
+            Coherence is about logic. Do your ideas make sense? Do they follow a logical order? Do you use words that connect your ideas together so the listener can easily follow your argument?
+            
+            ## 3. Good Fillers vs. Bad Fillers
+            
+            Everyone hesitates when speaking, even native speakers. The difference is *how* you hesitate.
+            
+            **Bad Fillers:**
+            - "Ummm..."
+            - "Ahhh..."
+            - Silence
+            
+            **Good Fillers (Lexical chunks):**
+            - "Well, I suppose..."
+            - "To be perfectly honest..."
+            - "You know, it's funny you ask that..."
+            
+            - Fluency & Coherence
+                ### Discourse Markers Masterclass
+                
+                Discourse markers are the "glue" that holds your speech together. They are essential for a high score in Coherence.
+                
+                **To add information:**
+                - "On top of that..."
+                - "Not only that, but..."
+                - "Another thing to consider is..."
+                
+                **To contrast:**
+                - "Having said that..."
+                - "At the same time..."
+                - "Then again..."
+                
+                **To clarify:**
+                - "What I mean by that is..."
+                - "In other words..."
+                
+            - Grammar & Pronunciation
+                ### Chunking
+                
+                Native speakers do not pronounce every word individually. They speak in "chunks" (groups of words), pausing slightly between chunks.
+                
+                *Robotic:* "I / went / to / the / store / to / buy / some / milk."
+                *Natural:* "I went to the store / to buy some milk."
+                
+                Mastering chunking dramatically improves how fluent you sound.
+                
+            - Lexical Resource
+                ### Using Idioms (Carefully!)
+                
+                To get a Band 7 or higher in Lexical Resource, you need to show some awareness of idiomatic vocabulary. However, forced idioms sound terrible.
+                
+                **Good, natural idioms:**
+                - "Once in a blue moon" (rarely)
+                - "Cost an arm and a leg" (expensive)
+                - "A piece of cake" (easy)
+                - "Over the moon" (very happy)
+                
+                *Warning: Do not use informal idioms (slang) in Part 3, as it requires a more academic tone.*
+                
+        - Quiz
+            1. Does speaking faster guarantee a higher fluency score?
+            A) Yes, speed is the only measure of fluency
+            B) No, fluency is about smooth flow, not speed
+            C) Yes, if you speak fast the examiner cannot hear your mistakes
+            D) No, you should speak as slowly as possible
+            **Hint:** Think about natural conversation.
+            **Answer:** B
+            **Why:** Speaking too fast often causes more grammar and pronunciation errors. Fluency is about smooth, steady delivery.
+            2. What does Coherence measure?
+            A) How loudly you speak
+            B) How many big words you use
+            C) How logical and connected your ideas are
+            D) How fast you speak
+            **Hint:** It's about how well the listener can follow your thoughts.
+            **Answer:** C
+            **Why:** Coherence relates to the logical organization of your ideas and how well you connect them using linking words.
+            3. Which of the following is a "good filler"?
+            A) Ummm...
+            B) Ahhh...
+            C) Silence
+            D) Well, I suppose...
+            **Hint:** It uses real language to buy time.
+            **Answer:** D
+            **Why:** "Well, I suppose" is a natural lexical chunk that native speakers use while thinking.
+            4. What is a discourse marker?
+            A) A pen used by the examiner
+            B) Words or phrases that connect and organize speech
+            C) A grammatical error
+            D) A type of intonation
+            **Hint:** They act like road signs for your listener.
+            **Answer:** B
+            **Why:** Discourse markers (like "however", "moreover", "on top of that") glue your ideas together and improve coherence.
+            5. What is "chunking" in pronunciation?
+            A) Eating food while speaking
+            B) Speaking word-by-word like a robot
+            C) Grouping words together into meaningful phrases
+            D) Shouting the most important word
+            **Hint:** It relates to the rhythm of speech.
+            **Answer:** C
+            **Why:** Chunking involves grouping words naturally, which makes your speech sound much more fluent and easier to understand.
+            6. When should you generally avoid using highly informal idioms/slang?
+            A) In Part 1
+            B) In Part 2
+            C) In Part 3
+            D) You should never use them
+            **Hint:** Which part requires an abstract, formal discussion?
+            **Answer:** C
+            **Why:** Part 3 is an abstract, academic discussion. Highly informal idioms or slang sound out of place here.
+    - Pronunciation & Lexical Resource
+        - Content
+            ## 1. The Reality of Pronunciation
+            
+            Pronunciation is 25% of your score, but it is often misunderstood. **You do not need a British or American accent.** Examiners are trained to accept all global accents. 
+            
+            What matters is **intelligibility** (how easily the examiner can understand you) and your control of pronunciation features (stress, intonation, connected speech).
+            
+            ## 2. Building Lexical Resource
+            
+            Lexical Resource is not just about memorizing long, obscure words. It is about using the *right* word in the *right* context. 
+            
+            Examiners look for:
+            - **Range:** Can you discuss a variety of topics?
+            - **Accuracy:** Do you use words correctly?
+            - **Collocations:** Do you know which words naturally go together?
+            - **Flexibility:** Can you paraphrase if you forget a word?
+            
+            - Fluency & Coherence
+                ### The Link Between Pronunciation and Fluency
+                
+                Poor pronunciation destroys fluency. If the examiner has to strain to understand your words, communication breaks down. 
+                
+                Practicing connected speech (how words merge together in rapid speech) will make you sound infinitely more fluent.
+                For example, "Do you want to go?" often sounds like "D'ya wanna go?"
+                
+            - Grammar & Pronunciation
+                ### Key Pronunciation Features
+                
+                1. **Individual Sounds (Phonemes):** Ensure you differentiate between confusing sounds (e.g., /l/ vs /r/, /θ/ vs /t/).
+                2. **Word Stress:** Emphasizing the correct syllable (e.g., eXAMple, not exAMple).
+                3. **Sentence Stress:** Stressing the "content" words (nouns, main verbs) and un-stressing "function" words (articles, prepositions).
+                4. **Intonation:** The rise and fall of your voice to show emotion, ask questions, or finish a thought.
+                
+            - Lexical Resource
+                ### The Power of Collocations
+                
+                Collocations are words that naturally go together. Mastering these is the secret to sounding like a native speaker.
+                
+                Instead of saying "make a choice", native speakers say "make an informed decision".
+                Instead of "heavy rain", we don't say "strong rain".
+                
+                **Examples of strong collocations:**
+                - *Strictly* forbidden (not highly forbidden)
+                - *Bitterly* cold (not strongly cold)
+                - *Deeply* offensive (not highly offensive)
+                - *Make* an effort (not do an effort)
+                
+        - Quiz
+            1. Do you need a British accent to get a Band 9 in Pronunciation?
+            A) Yes, British or American only
+            B) Yes, but Australian is also acceptable
+            C) No, accents do not matter as long as your speech is clear and intelligible
+            D) No, but you get bonus points for it
+            **Hint:** The test assesses your English, not your nationality.
+            **Answer:** C
+            **Why:** Examiners are trained to accept all accents. Intelligibility and control of pronunciation features are what determine your score.
+            2. What is word stress?
+            A) Feeling nervous before speaking
+            B) Emphasizing the correct syllable in a multi-syllable word
+            C) Speaking very loudly
+            D) Repeating a word multiple times
+            **Hint:** Consider the word pho-TOG-ra-phy.
+            **Answer:** B
+            **Why:** Word stress is the emphasis placed on a specific syllable within a word. Misplacing it can make the word difficult to understand.
+            3. What types of words are usually stressed in a sentence?
+            A) Function words (articles, prepositions)
+            B) Content words (nouns, main verbs, adjectives)
+            C) Only the first word
+            D) Only the last word
+            **Hint:** The words that carry the meaning.
+            **Answer:** B
+            **Why:** Content words carry the meaning of the sentence and are naturally stressed, while function words are usually unstressed.
+            4. What is a collocation?
+            A) A type of grammar mistake
+            B) A very long word
+            C) Words that naturally and commonly go together
+            D) A synonym
+            **Hint:** "Heavy rain" is one, but "strong rain" is not.
+            **Answer:** C
+            **Why:** Collocations are word partnerships that sound natural to native speakers (e.g., "make a mistake", "bitterly cold").
+            5. Why is paraphrasing important for Lexical Resource?
+            A) It proves you memorized the dictionary
+            B) It demonstrates a flexible vocabulary range
+            C) It confuses the examiner
+            D) It is a trick to waste time
+            **Hint:** It shows you have more than one way to express an idea.
+            **Answer:** B
+            **Why:** Being able to paraphrase (express the same meaning using different words) proves you have a wide and flexible vocabulary.
+            6. What does "connected speech" refer to?
+            A) Speaking on the telephone
+            B) How words merge and link together in natural, continuous speech
+            C) Using the internet while speaking
+            D) Speaking without breathing
+            **Hint:** "Do you want to" becoming "D'ya wanna".
+            **Answer:** B
+            **Why:** Connected speech happens when sounds join together, change, or disappear when spoken quickly and naturally.

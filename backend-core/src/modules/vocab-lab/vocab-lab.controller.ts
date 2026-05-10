@@ -18,6 +18,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { VocabLabService } from "./vocab-lab.service";
 import { StorageService } from "../../common/storage/storage.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { SubscriptionGuard } from "../subscriptions/guards/subscription.guard";
+import { RequiresTier } from "../subscriptions/decorators/requires-tier.decorator";
 import {
   CreateDeckDto,
   CreateFlashcardDto,
@@ -29,6 +31,9 @@ import {
   CreateCardTypeFieldDto,
   UpdateCardTypeFieldDto,
   UpdateCardTemplateDto,
+  ImportDeckDto,
+  PublishDeckDto,
+  BrowseSharedDecksDto,
 } from "./dto/vocab-lab.dto";
 import { CardState } from "@prisma/client";
 
@@ -140,6 +145,51 @@ export class VocabLabController {
     return this.vocabLabService.deleteDeck(req.user.id, id);
   }
 
+  @Get("decks/:id/export")
+  async exportDeck(@Request() req: any, @Param("id") id: string) {
+    return this.vocabLabService.exportDeck(req.user.id, id);
+  }
+
+  @Post("decks/import")
+  async importDeck(@Request() req: any, @Body() dto: ImportDeckDto) {
+    return this.vocabLabService.importDeck(req.user.id, dto);
+  }
+
+  @Post("decks/:id/publish")
+  @UseGuards(SubscriptionGuard)
+  @RequiresTier("PREMIUM")
+  async publishDeck(
+    @Request() req: any,
+    @Param("id") id: string,
+    @Body() dto: PublishDeckDto
+  ) {
+    return this.vocabLabService.publishDeck(req.user.id, id, dto);
+  }
+
+  // ==================== COMMUNITY (SHARED DECKS) ENDPOINTS ====================
+
+  @Get("community/decks")
+  async browseSharedDecks(@Query() query: BrowseSharedDecksDto) {
+    return this.vocabLabService.browseSharedDecks(query);
+  }
+
+  @Get("community/decks/:id")
+  async getSharedDeck(@Param("id") id: string) {
+    return this.vocabLabService.getSharedDeckById(id);
+  }
+
+  @Post("community/decks/:id/import")
+  @UseGuards(SubscriptionGuard)
+  @RequiresTier("PREMIUM")
+  async importSharedDeck(@Request() req: any, @Param("id") id: string) {
+    return this.vocabLabService.importSharedDeck(req.user.id, id);
+  }
+
+  @Delete("community/decks/:id")
+  async unpublishDeck(@Request() req: any, @Param("id") id: string) {
+    return this.vocabLabService.unpublishDeck(req.user.id, id);
+  }
+
   // ==================== FLASHCARD ENDPOINTS ====================
 
   @Post("cards")
@@ -147,7 +197,7 @@ export class VocabLabController {
     return this.vocabLabService.createFlashcard(req.user.id, dto);
   }
 
-  @Post("from-vocabulary")
+  @Post("from-foundationVocabWord")
   async createFlashcardFromVocabulary(
     @Request() req: any,
     @Body() dto: { bookName: string; word: any },
@@ -201,8 +251,8 @@ export class VocabLabController {
   // ==================== STATS & TAGS ====================
 
   @Get("stats")
-  async getStats(@Request() req: any) {
-    return this.vocabLabService.getStats(req.user.id);
+  async getStats(@Request() req: any, @Query("range") range?: string) {
+    return this.vocabLabService.getStats(req.user.id, range ? parseInt(range, 10) : 30);
   }
 
   @Get("tags")

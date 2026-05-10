@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 type SidebarMode = "expanded" | "mini" | "hidden";
@@ -25,28 +25,23 @@ export function useIeltsSidebar() {
 
 const LS_KEY = "ielts-sidebar-pref";
 
+// Reads searchParams and notifies parent — renders nothing, must be inside <Suspense>
+function SearchParamsSyncer({ onSync }: { onSync: (isRoadmapPractice: boolean) => void }) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const isRoadmap = pathname === "/ielts/basic/roadmap";
+    const hasParams = searchParams.has("lessonId") || searchParams.has("exerciseId");
+    onSync(isRoadmap && hasParams);
+  }, [searchParams, pathname, onSync]);
+
+  return null;
+}
+
 export function IeltsSidebarProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // Determine if we're on a "practice" page where sidebar should be hidden
-  const isRoadmapPractice =
-    pathname === "/ielts/basic/roadmap" &&
-    (searchParams.has("lessonId") || searchParams.has("exerciseId"));
-
-  const isSpecificPractice =
-    !!pathname.match(/\/ielts\/advanced\/(reading|listening)\/.+/) ||
-    !!pathname.match(/\/ielts\/intensive\/.+/) ||
-    !!pathname.match(/\/ielts\/basic\/[^/]+\/lessons\/.+/) ||
-    !!pathname.match(/\/ielts\/basic\/[^/]+\/exercises\/.+/) ||
-    !!pathname.match(/\/shadowing-dictation\/[^/]+\/(shadowing|dictation)/) ||
-    !!pathname.match(/\/vocab-lab\/study\/.+/) ||
-    isRoadmapPractice;
-
-  const isIeltsPage = pathname === "/ielts" || pathname.startsWith("/ielts/");
-  const isVocabLabPage = pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/");
-
-  // User preference for browsing pages (expanded vs mini)
+  const [isRoadmapPractice, setIsRoadmapPractice] = useState(false);
   const [userPref, setUserPref] = useState<"expanded" | "mini">("expanded");
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
@@ -65,10 +60,23 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
     setIsOverlayOpen(false);
   }, [pathname]);
 
-  // Compute the effective mode
-  let mode: SidebarMode;
+  const isSpecificPractice =
+    !!pathname.match(/\/ielts\/advanced\/(reading|listening)\/.+/) ||
+    !!pathname.match(/\/ielts\/intensive\/.+/) ||
+    !!pathname.match(/\/ielts\/basic\/[^/]+\/lessons\/.+/) ||
+    !!pathname.match(/\/ielts\/basic\/[^/]+\/exercises\/.+/) ||
+    !!pathname.match(/\/shadowing-dictation\/(shadowing|dictation)\/(?!my-videos).+/) ||
+    !!pathname.match(/\/vocab-lab\/study\/.+/) ||
+    isRoadmapPractice;
+
+  const isIeltsPage = pathname === "/ielts" || pathname.startsWith("/ielts/");
+  const isVocabLabPage = pathname === "/vocab-lab" || pathname.startsWith("/vocab-lab/");
+  const isCommunityPage = pathname === "/community" || pathname.startsWith("/community/");
   const isShadowingPage = pathname.startsWith("/shadowing-dictation");
-  if (!isIeltsPage && !isShadowingPage && !isVocabLabPage) {
+  const isProfilePage = pathname.startsWith("/profile");
+
+  let mode: SidebarMode;
+  if (!isIeltsPage && !isShadowingPage && !isVocabLabPage && !isProfilePage && !isCommunityPage) {
     mode = "hidden";
   } else if (isSpecificPractice) {
     mode = "hidden";
@@ -78,10 +86,8 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
 
   const toggleSidebar = useCallback(() => {
     if (mode === "hidden") {
-      // On practice/hidden pages, toggle the overlay drawer
       setIsOverlayOpen((prev) => !prev);
     } else {
-      // On browsing pages, toggle expanded ↔ mini
       setUserPref((prev) => {
         const next = prev === "expanded" ? "mini" : "expanded";
         try { localStorage.setItem(LS_KEY, next); } catch {}
@@ -96,6 +102,10 @@ export function IeltsSidebarProvider({ children }: { children: React.ReactNode }
 
   return (
     <IeltsSidebarContext.Provider value={{ mode, isOverlayOpen, toggleSidebar, closeOverlay }}>
+      {/* SearchParamsSyncer renders null — Suspense required by Next.js for useSearchParams */}
+      <Suspense fallback={null}>
+        <SearchParamsSyncer onSync={setIsRoadmapPractice} />
+      </Suspense>
       {children}
     </IeltsSidebarContext.Provider>
   );

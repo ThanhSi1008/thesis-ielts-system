@@ -1,15 +1,17 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { GamificationService } from "../gamification/gamification.service";
 
 @Injectable()
 export class StreakService {
   private readonly logger = new Logger(StreakService.name);
-  private readonly STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
+  private readonly STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 365];
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly gamificationService: GamificationService,
   ) {}
 
   /**
@@ -73,6 +75,23 @@ export class StreakService {
             .notifyStreakMilestone(userId, newStreak)
             .catch(() => {});
         }
+
+        // Gamification
+        this.gamificationService
+          .onEvent(userId, {
+            xp: 5 * newStreak,
+            reason: "STREAK_DAILY",
+            achievementKeys:
+              newStreak >= 100
+                ? ["XM_ON_FIRE", "XM_MARATHON", "XM_UNSTOPPABLE"]
+                : newStreak >= 30
+                  ? ["XM_ON_FIRE", "XM_MARATHON"]
+                  : newStreak >= 7
+                    ? ["XM_ON_FIRE"]
+                    : [],
+          })
+          .catch(() => {});
+
         return updated;
       } else {
         // Missed yesterday -> reset streak to 1

@@ -28,7 +28,7 @@ export default function IntensiveTestTakePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [exam, setExam] = useState<ExamDetail | null>(null);
+  const [ieltsIntensiveExam, setExam] = useState<ExamDetail | null>(null);
   const [sessionInfo, setSessionInfo] = useState<any>(null);
 
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -80,12 +80,12 @@ export default function IntensiveTestTakePage() {
 
   // Global countdown (used only by Listening/Reading boards; Writing/Speaking own their timer via secondsLeft prop)
   useEffect(() => {
-    if (loading || !!error || !exam || submitting || submitResult) return;
+    if (loading || !!error || !ieltsIntensiveExam || submitting || submitResult) return;
     const intervalId = setInterval(() => {
       setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(intervalId);
-  }, [loading, error, exam, submitting, submitResult]);
+  }, [loading, error, ieltsIntensiveExam, submitting, submitResult]);
 
   useEffect(() => {
     if (submitResult) {
@@ -99,9 +99,9 @@ export default function IntensiveTestTakePage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const result = await examsApi.submitSession(data.sessionId, data.answers, data.timeTaken);
-      setSubmitResult(result);
-      return result;
+      const ieltsIntensiveResult = await examsApi.submitSession(data.sessionId, data.answers, data.timeTaken);
+      setSubmitResult(ieltsIntensiveResult);
+      return ieltsIntensiveResult;
     } catch (err: any) {
       setSubmitError(err.message || "Failed to submit answers");
       setSubmitting(false);
@@ -119,7 +119,7 @@ export default function IntensiveTestTakePage() {
     );
   }
 
-  if (error || !exam) {
+  if (error || !ieltsIntensiveExam) {
     return (
       <div className="min-h-screen bg-[#faf9f8] flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-[#e2e1df] p-8 text-center">
@@ -133,22 +133,22 @@ export default function IntensiveTestTakePage() {
 
   return (
     <>
-      {exam.type === "WRITING" ? (
+      {ieltsIntensiveExam.type === "WRITING" ? (
         <TakeWritingBoard
-          exam={exam}
+          ieltsIntensiveExam={ieltsIntensiveExam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
           formatTime={formatTime}
         />
-      ) : exam.type === "SPEAKING" ? (
+      ) : ieltsIntensiveExam.type === "SPEAKING" ? (
         <TakeSpeakingBoard
-          exam={exam}
+          ieltsIntensiveExam={ieltsIntensiveExam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
         />
-      ) : exam.type === "READING" ? (
+      ) : ieltsIntensiveExam.type === "READING" ? (
         <TakeReadingBoard
-          exam={exam}
+          ieltsIntensiveExam={ieltsIntensiveExam}
           sessionInfo={sessionInfo}
           answers={answers}
           setAnswers={setAnswers}
@@ -161,7 +161,7 @@ export default function IntensiveTestTakePage() {
         />
       ) : (
         <TakeListeningBoard
-          exam={exam}
+          ieltsIntensiveExam={ieltsIntensiveExam}
           sessionInfo={sessionInfo}
           answers={answers}
           setAnswers={setAnswers}

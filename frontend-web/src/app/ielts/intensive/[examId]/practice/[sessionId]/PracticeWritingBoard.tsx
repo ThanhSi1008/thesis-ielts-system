@@ -8,7 +8,7 @@ import WritingTaskBoard from "@/components/WritingTaskBoard";
 import { useGrading } from "@/contexts/GradingContext";
 
 interface PracticeWritingBoardProps {
-  exam: ExamDetail;
+  ieltsIntensiveExam: ExamDetail;
   sessionInfo: any;
   secondsLeft: number;
   initialSeconds: number;
@@ -17,7 +17,7 @@ interface PracticeWritingBoardProps {
 }
 
 export default function PracticeWritingBoard({
-  exam,
+  ieltsIntensiveExam,
   sessionInfo,
   secondsLeft,
   initialSeconds,
@@ -26,12 +26,12 @@ export default function PracticeWritingBoard({
 }: PracticeWritingBoardProps) {
   const router = useRouter();
   const sessionId = sessionInfo?.id as string;
-  const examId = exam.id as string;
+  const examId = ieltsIntensiveExam.id as string;
 
   const [submitting, setSubmitting] = useState(false);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
   const writingAnswersRef = useRef<{ task1: string; task2: string }>({ task1: "", task2: "" });
-  const allWritingTasks = (exam.questions?.tasks as any[]) || [];
+  const allWritingTasks = (ieltsIntensiveExam.questions?.tasks as any[]) || [];
   const writingTasks = partIndex !== undefined ? [allWritingTasks[partIndex]].filter(Boolean) : allWritingTasks;
 
   const { submitAndTrack, jobs } = useGrading();
@@ -47,7 +47,7 @@ export default function PracticeWritingBoard({
       examId,
       examType: "WRITING",
       answers: { task1, task2 },
-      timeTaken: (initialSeconds || exam.duration * 60) - secondsLeft,
+      timeTaken: (initialSeconds || ieltsIntensiveExam.duration * 60) - secondsLeft,
       resultUrl: `/ielts/intensive/${examId}/result/${sessionId}`,
     });
   };
@@ -100,7 +100,7 @@ export default function PracticeWritingBoard({
         <WritingTaskBoard
           key="writing-board"
           tasks={writingTasks}
-          examTitle={exam.title}
+          examTitle={ieltsIntensiveExam.title}
           secondsLeft={secondsLeft}
           formatTime={formatTime}
           submitting={submitting || isAiProcessing}

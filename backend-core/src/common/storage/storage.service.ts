@@ -36,13 +36,13 @@ export class StorageService {
           folder: folder,
           resource_type: "auto",
         },
-        (error, result) => {
+        (error, ieltsIntensiveResult) => {
           if (error) {
             this.logger.error(`❌ File upload failed: ${error.message}`);
             return reject(error);
           }
-          this.logger.log(`✅ File uploaded: ${result.secure_url}`);
-          resolve(result.secure_url);
+          this.logger.log(`✅ File uploaded: ${ieltsIntensiveResult.secure_url}`);
+          resolve(ieltsIntensiveResult.secure_url);
         },
       );
       Readable.from(file.buffer).pipe(upload);

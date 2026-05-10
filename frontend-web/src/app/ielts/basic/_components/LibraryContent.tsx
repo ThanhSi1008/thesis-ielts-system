@@ -14,30 +14,30 @@ interface LibraryStats {
 
 const SKILL_THEMES: Record<string, any> = {
   Speaking: {
-    bg: "bg-[#FAF7F2]",
-    text: "text-danger",
-    circleBase: "bg-danger/10",
+    bg: "bg-[#FAF7F2] dark:bg-rose-950/20",
+    text: "text-danger dark:text-rose-400",
+    circleBase: "bg-danger/10 dark:bg-rose-500/10",
     fillColor: "#F44336",
     icon: Mic,
   },
   Writing: {
-    bg: "bg-[#FAF7F2]",
-    text: "text-warning",
-    circleBase: "bg-warning/10",
+    bg: "bg-[#FAF7F2] dark:bg-amber-950/20",
+    text: "text-warning dark:text-amber-400",
+    circleBase: "bg-warning/10 dark:bg-amber-500/10",
     fillColor: "#FF9800",
     icon: PenTool,
   },
   Reading: {
-    bg: "bg-[#FAF7F2]",
-    text: "text-info",
-    circleBase: "bg-info/10",
+    bg: "bg-[#FAF7F2] dark:bg-blue-950/20",
+    text: "text-info dark:text-blue-400",
+    circleBase: "bg-info/10 dark:bg-blue-500/10",
     fillColor: "#2196F3",
     icon: BookOpen,
   },
   Listening: {
-    bg: "bg-[#FAF7F2]",
-    text: "text-success",
-    circleBase: "bg-success/10",
+    bg: "bg-[#FAF7F2] dark:bg-emerald-950/20",
+    text: "text-success dark:text-emerald-400",
+    circleBase: "bg-success/10 dark:bg-emerald-500/10",
     fillColor: "#4CAF50",
     icon: Headphones,
   },
@@ -148,9 +148,9 @@ export default function LibraryContent({ embedded }: { embedded?: boolean }) {
   });
 
   return (
-    <div className="flex-1 min-w-0 bg-white overflow-hidden p-4 md:p-6 flex flex-col items-start gap-8 w-full shrink-0">
+    <div className="flex-1 min-w-0 bg-white dark:bg-slate-950 overflow-hidden p-4 md:p-6 flex flex-col items-start gap-8 w-full shrink-0">
       <div className="flex items-center justify-between pb-4 w-full shrink-0">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
           Library
         </h1>
       </div>
@@ -197,16 +197,16 @@ export default function LibraryContent({ embedded }: { embedded?: boolean }) {
           })}
         </div>
 
-        <div className="bg-[#FAF7F2] rounded-3xl p-2 lg:py-4 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-3 text-gray-800">
+        <div className="bg-[#FAF7F2] dark:bg-slate-900/40 rounded-3xl p-2 lg:py-4 lg:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-3 text-gray-800 dark:text-gray-200">
             <Bookmark className="w-6 h-6 stroke-[2]" />
             <h2 className="text-xl font-bold tracking-tight">Bookmarks</h2>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-full bg-[#E5ECEE] border-[2px] border-[#668B98] flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-[#4F6C76]" />
+            <div className="w-14 h-14 rounded-full bg-[#E5ECEE] dark:bg-slate-800 border-[2px] border-[#668B98] dark:border-slate-700 flex items-center justify-center">
+              <GraduationCap className="w-6 h-6 text-[#4F6C76] dark:text-slate-400" />
             </div>
-            <span className="text-[13px] font-semibold text-gray-500">
+            <span className="text-[13px] font-semibold text-gray-500 dark:text-gray-400">
               1/1
             </span>
           </div>

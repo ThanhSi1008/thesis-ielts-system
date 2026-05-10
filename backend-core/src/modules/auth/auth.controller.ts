@@ -1,9 +1,14 @@
-import { Controller, Post, Body, UseGuards, Request } from "@nestjs/common";
+import { Controller, Post, Body, UseGuards, Request, Req } from "@nestjs/common";
+import { ThrottlerGuard } from "@nestjs/throttler";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
+import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { RegisterDto } from "./dto/auth.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
+import { GoogleAuthDto } from "./dto/google-auth.dto";
 
 @Controller("auth")
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -22,5 +27,16 @@ export class AuthController {
   async refresh(@Body() refreshDto: any) {
     // TODO: Implement refresh token logic
     return { message: "Refresh token endpoint - to be implemented" };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("change-password")
+  async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user.id, dto);
+  }
+
+  @Post("google")
+  async googleLogin(@Body() dto: GoogleAuthDto) {
+    return this.authService.googleLogin(dto.idToken);
   }
 }

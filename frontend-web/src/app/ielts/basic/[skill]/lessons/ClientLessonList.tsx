@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import api from "@/lib/api";
 
-interface Lesson {
+interface FoundationVocabLesson {
   id: string;
   title: string;
   chapter: string;
@@ -23,7 +23,7 @@ export default function ClientLessonList({
   lessons,
   skill,
 }: {
-  lessons: Lesson[];
+  lessons: FoundationVocabLesson[];
   skill: string;
 }) {
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
@@ -50,18 +50,18 @@ export default function ClientLessonList({
 
   return (
     <div className="flex flex-col gap-4">
-      {lessons.map((lesson, idx) => {
-        const isFinished = completedLessonIds.has(lesson.id);
+      {lessons.map((foundationVocabLesson, idx) => {
+        const isFinished = completedLessonIds.has(foundationVocabLesson.id);
 
         return (
-          <Link key={lesson.id} href={`/ielts/basic/${skill}/lessons/${lesson.id}`}>
+          <Link key={foundationVocabLesson.id} href={`/ielts/basic/${skill}/lessons/${foundationVocabLesson.id}`}>
             <div className="flex items-center gap-4 p-5 bg-[#F9F9F9] hover:bg-gray-100 transition-colors rounded-2xl cursor-pointer shadow-sm border border-transparent hover:border-gray-200">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF3C2] text-[#E0A800] font-extrabold text-sm shrink-0">
                 {idx + 1}
               </div>
               <div>
                 <h3 className="text-[16px] font-extrabold text-gray-900 mb-1 leading-none">
-                  {lesson.title}
+                  {foundationVocabLesson.title}
                 </h3>
                 <p className="text-gray-400 text-[13px]">Read theory and strategy</p>
               </div>

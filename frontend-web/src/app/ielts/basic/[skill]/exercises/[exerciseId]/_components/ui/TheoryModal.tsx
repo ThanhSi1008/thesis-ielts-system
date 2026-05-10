@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { LessonBlock } from "../utils/SharedExerciseTypes";
 
-export function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: () => void }) {
+export function TheoryPopup({ block, onClose, customTheme }: { block: LessonBlock; onClose: () => void; customTheme?: { bg: string; border: string; icon: React.ReactNode; text?: string } }) {
   const config = {
     traps: {
       bg: "bg-[#FFF0F0]",
@@ -26,7 +26,8 @@ export function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: (
     },
   } as Record<string, { bg: string; border: string; icon: React.ReactNode; default: string }>;
 
-  const c = config[block.type] ?? config.tips;
+  const c = customTheme ?? config[block.type] ?? config.tips;
+  const textColor = customTheme?.text ?? "text-gray-900";
 
   return (
     <div
@@ -34,7 +35,7 @@ export function TheoryPopup({ block, onClose }: { block: LessonBlock; onClose: (
     >
       <div className="flex items-center gap-2 mb-4">
         {c.icon}
-        <h3 className="font-bold text-[15px] text-gray-900">{block.title || c.default}</h3>
+        <h3 className={`font-bold text-[15px] ${textColor}`}>{block.title || (config[block.type] ? config[block.type].default : "Pro-Tips")}</h3>
       </div>
       <div className="prose prose-sm prose-gray max-w-none text-gray-800 leading-relaxed">
         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>

@@ -90,7 +90,7 @@ export class NotificationsService {
     return this.create({
       userId,
       type: NotificationType.EXAM_GRADED,
-      title: "📝 Exam Graded",
+      title: "📝 IeltsIntensiveExam Graded",
       body: `Your submission for "${examTitle}" has been graded. Tap to see your results.`,
       icon: "📝",
       link: `/ielts`,

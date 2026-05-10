@@ -1,0 +1,2888 @@
+[
+  {
+    "theme": "Opinion Essay",
+    "subCategory": "Education",
+    "prompt": "Some people believe that university education should be free for all students. To what extent do you agree or disagree?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "It is widely "
+            },
+            {
+              "type": "blank",
+              "id": "b1",
+              "correctAnswer": "argued",
+              "options": [
+                "denied",
+                "proven",
+                "forgotten",
+                "argued"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that tertiary education should be made available at no cost to all students. I "
+            },
+            {
+              "type": "blank",
+              "id": "b2",
+              "correctAnswer": "firmly",
+              "options": [
+                "loosely",
+                "somewhat",
+                "vaguely",
+                "firmly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b3",
+              "correctAnswer": "believe",
+              "options": [
+                "believe",
+                "assume",
+                "deny",
+                "doubt"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that making university education free would yield significant benefits for individuals and society as a whole."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The most "
+            },
+            {
+              "type": "blank",
+              "id": "b4",
+              "correctAnswer": "compelling",
+              "options": [
+                "minor",
+                "questionable",
+                "compelling",
+                "weak"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " argument in favour of free university education is that it promotes social equality. Currently, many talented students from low-income families are unable to pursue higher education due to prohibitive "
+            },
+            {
+              "type": "blank",
+              "id": "b5",
+              "correctAnswer": "tuition",
+              "options": [
+                "tuition",
+                "taxation",
+                "employment",
+                "inflation"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " fees. By removing this financial barrier, governments can ensure that academic potential, rather than economic status, determines who receives a quality education. For instance, countries such as Germany and Norway have implemented free tertiary education, resulting in higher enrollment rates across all socioeconomic groups."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b6",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "Although,",
+                "Nevertheless,",
+                "Furthermore,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " a more educated workforce contributes "
+            },
+            {
+              "type": "blank",
+              "id": "b7",
+              "correctAnswer": "significantly",
+              "options": [
+                "significantly",
+                "negligibly",
+                "minimally",
+                "slightly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " to economic growth. University graduates tend to earn higher salaries, pay more taxes, and are less likely to depend on government welfare programs. "
+            },
+            {
+              "type": "blank",
+              "id": "b8",
+              "correctAnswer": "Consequently,",
+              "options": [
+                "Conversely",
+                "Similarly",
+                "Meanwhile",
+                "Consequently,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the initial investment in free education can generate substantial long-term returns for the economy. Additionally, sectors facing skill shortages, such as healthcare and technology, would benefit from a larger pool of qualified professionals."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b9",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "detail,",
+                "contrast,",
+                "addition,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " I "
+            },
+            {
+              "type": "blank",
+              "id": "b10",
+              "correctAnswer": "strongly",
+              "options": [
+                "somewhat",
+                "slightly",
+                "partially",
+                "strongly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b11",
+              "correctAnswer": "believe",
+              "options": [
+                "doubt",
+                "believe",
+                "deny",
+                "assume"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that the advantages of free university education, including greater social mobility and enhanced economic productivity, far outweigh the associated costs. Governments should prioritise making higher education accessible to all citizens."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Opinion Essay",
+    "subCategory": "Technology",
+    "prompt": "Some people think that the increasing use of technology in the workplace is a positive development. To what extent do you agree or disagree?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "It is often "
+            },
+            {
+              "type": "blank",
+              "id": "b12",
+              "correctAnswer": "argued",
+              "options": [
+                "proven",
+                "denied",
+                "argued",
+                "forgotten"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that the integration of advanced technology in the workplace represents a progressive step forward. I "
+            },
+            {
+              "type": "blank",
+              "id": "b13",
+              "correctAnswer": "strongly",
+              "options": [
+                "strongly",
+                "partially",
+                "somewhat",
+                "slightly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " agree that the increasing use of technology is a positive development because it enhances efficiency and fosters global collaboration."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The primary reason I hold this view is that "
+            },
+            {
+              "type": "blank",
+              "id": "b14",
+              "correctAnswer": "automation",
+              "options": [
+                "immigration",
+                "automation",
+                "conservation",
+                "regulation"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b15",
+              "correctAnswer": "significantly",
+              "options": [
+                "significantly",
+                "negligibly",
+                "minimally",
+                "slightly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " boosts productivity. By allowing machines and software to handle repetitive and time-consuming tasks, employees are freed to focus on more complex, creative, and strategic activities. For example, automated data entry systems in accounting firms have drastically reduced human error and allowed accountants to provide higher-level financial analysis. "
+            },
+            {
+              "type": "blank",
+              "id": "b16",
+              "correctAnswer": "Consequently,",
+              "options": [
+                "Similarly",
+                "Conversely",
+                "Meanwhile",
+                "Consequently,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " businesses can operate much more efficiently."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b17",
+              "correctAnswer": "Moreover,",
+              "options": [
+                "Moreover,",
+                "However,",
+                "Nevertheless,",
+                "Conversely,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " technology has revolutionized workplace communication and flexibility. Tools such as video conferencing and project management software have made remote work and global collaboration a reality. This not only allows companies to hire top talent regardless of geographical location but also offers employees a better work-life balance. "
+            },
+            {
+              "type": "blank",
+              "id": "b18",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "However",
+                "Similarly",
+                "Meanwhile",
+                "Therefore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the modern digital workplace is more dynamic and inclusive than ever before."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b19",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "addition,",
+                "detail,",
+                "contrast,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the proliferation of technology in the workplace brings "
+            },
+            {
+              "type": "blank",
+              "id": "b20",
+              "correctAnswer": "substantial",
+              "options": [
+                "substantial",
+                "slight",
+                "minimal",
+                "negligible"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " benefits. By improving operational efficiency and enabling flexible working arrangements, it is undeniably a highly positive development for both employers and employees."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Opinion Essay",
+    "subCategory": "Environment",
+    "prompt": "Some people argue that governments should invest more in public transport rather than building new roads. To what extent do you agree or disagree?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "It is often "
+            },
+            {
+              "type": "blank",
+              "id": "b21",
+              "correctAnswer": "argued",
+              "options": [
+                "argued",
+                "forgotten",
+                "proven",
+                "denied"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that state funds should be allocated towards improving public transport infrastructure instead of constructing more highways. I "
+            },
+            {
+              "type": "blank",
+              "id": "b22",
+              "correctAnswer": "firmly",
+              "options": [
+                "firmly",
+                "somewhat",
+                "loosely",
+                "vaguely"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " agree with this statement, as investing in public transit is "
+            },
+            {
+              "type": "blank",
+              "id": "b23",
+              "correctAnswer": "crucial",
+              "options": [
+                "crucial",
+                "optional",
+                "minor",
+                "trivial"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " for environmental sustainability and urban efficiency."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The most "
+            },
+            {
+              "type": "blank",
+              "id": "b24",
+              "correctAnswer": "compelling",
+              "options": [
+                "compelling",
+                "questionable",
+                "weak",
+                "minor"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " reason for this view is the urgent need to reduce carbon "
+            },
+            {
+              "type": "blank",
+              "id": "b25",
+              "correctAnswer": "emissions.",
+              "options": [
+                "traditions",
+                "emissions.",
+                "investments",
+                "revenues"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " Private vehicles are a major contributor to air pollution and global warming. By investing in efficient and affordable public transport networks, governments can encourage citizens to leave their cars at home. For instance, cities with extensive subway systems report "
+            },
+            {
+              "type": "blank",
+              "id": "b26",
+              "correctAnswer": "significantly",
+              "options": [
+                "significantly",
+                "slightly",
+                "minimally",
+                "negligibly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " lower levels of urban air pollution. Consequently, a shift towards public transit is essential for a greener future."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b27",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "Although,",
+                "Furthermore,",
+                "Nevertheless,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " building new roads often fails to solve traffic congestion in the long term. This phenomenon, known as induced demand, occurs when new highways simply encourage more people to drive, quickly leading to the same level of gridlock. "
+            },
+            {
+              "type": "blank",
+              "id": "b28",
+              "correctAnswer": "Conversely,",
+              "options": [
+                "Conversely,",
+                "Similarly,",
+                "Likewise,",
+                "Furthermore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " high-capacity public transport, such as trains and buses, can move large numbers of people efficiently without taking up excessive urban space. "
+            },
+            {
+              "type": "blank",
+              "id": "b29",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "Therefore,",
+                "Meanwhile",
+                "Similarly",
+                "However"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " prioritizing public transit creates more livable cities."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b30",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "contrast,",
+                "detail,",
+                "addition,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " I "
+            },
+            {
+              "type": "blank",
+              "id": "b31",
+              "correctAnswer": "strongly",
+              "options": [
+                "strongly",
+                "slightly",
+                "somewhat",
+                "partially"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b32",
+              "correctAnswer": "believe",
+              "options": [
+                "believe",
+                "assume",
+                "deny",
+                "doubt"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that governments must prioritize public transport over road construction. This approach not only combats environmental degradation but also provides a more sustainable solution to urban traffic challenges."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Opinion Essay",
+    "subCategory": "Health",
+    "prompt": "Some people believe that the government should be responsible for people's health, while others think individuals should take care of their own health. To what extent do you agree or disagree?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The debate over whether public health should be the responsibility of the state or the individual is a complex one. "
+            },
+            {
+              "type": "blank",
+              "id": "b33",
+              "correctAnswer": "While",
+              "options": [
+                "While",
+                "When",
+                "Because",
+                "Since"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " personal choices play a role, I "
+            },
+            {
+              "type": "blank",
+              "id": "b34",
+              "correctAnswer": "firmly",
+              "options": [
+                "loosely",
+                "vaguely",
+                "firmly",
+                "somewhat"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b35",
+              "correctAnswer": "believe",
+              "options": [
+                "believe",
+                "deny",
+                "doubt",
+                "assume"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that the government must bear the primary responsibility for the health of its citizens."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The main reason for this is that many health issues are systemic and require state intervention. Problems such as air pollution, unsafe drinking water, and the outbreak of infectious diseases cannot be managed by individuals acting alone. During a "
+            },
+            {
+              "type": "blank",
+              "id": "b36",
+              "correctAnswer": "pandemic,",
+              "options": [
+                "celebration",
+                "tradition",
+                "innovation",
+                "pandemic,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " for example, only a centralized government has the authority and resources to implement nationwide testing, vaccination programs, and quarantine measures. "
+            },
+            {
+              "type": "blank",
+              "id": "b37",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "Therefore,",
+                "Meanwhile",
+                "Similarly",
+                "However"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " a robust public healthcare system is essential for national security and stability."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b38",
+              "correctAnswer": "Admittedly,",
+              "options": [
+                "Admittedly,",
+                "Evidently,",
+                "Obviously,",
+                "Clearly,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " individuals should make healthy lifestyle choices, such as eating a balanced diet and exercising regularly. "
+            },
+            {
+              "type": "blank",
+              "id": "b39",
+              "correctAnswer": "However,",
+              "options": [
+                "Additionally,",
+                "Moreover,",
+                "However,",
+                "Furthermore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the government still plays a "
+            },
+            {
+              "type": "blank",
+              "id": "b40",
+              "correctAnswer": "crucial",
+              "options": [
+                "trivial",
+                "optional",
+                "crucial",
+                "minor"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " role in shaping these choices. Through legislation, the state can regulate the food industry, tax sugary drinks, and ensure that urban planning includes safe spaces for physical activity. Consequently, state policies directly influence individual health outcomes."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b41",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "detail,",
+                "addition,",
+                "contrast,",
+                "conclusion,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " while citizens should take reasonable steps to "
+            },
+            {
+              "type": "blank",
+              "id": "b42",
+              "correctAnswer": "maintain",
+              "options": [
+                "maintain",
+                "deny",
+                "reject",
+                "question"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " their well-being, the government must take the lead. By providing comprehensive healthcare and creating healthy environments, the state ensures a healthier, more productive society."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Discussion Essay",
+    "subCategory": "Technology",
+    "prompt": "Some people think social media has a negative impact on society. Others believe it brings many benefits. Discuss both views and give your opinion.",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The rise of social networking platforms has sparked intense debate regarding their societal impact. "
+            },
+            {
+              "type": "blank",
+              "id": "b43",
+              "correctAnswer": "While",
+              "options": [
+                "Because",
+                "Since",
+                "While",
+                "When"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " some critics argue that social media is detrimental to society, proponents "
+            },
+            {
+              "type": "blank",
+              "id": "b44",
+              "correctAnswer": "maintain",
+              "options": [
+                "reject",
+                "deny",
+                "maintain",
+                "question"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that it offers "
+            },
+            {
+              "type": "blank",
+              "id": "b45",
+              "correctAnswer": "significant",
+              "options": [
+                "significant",
+                "minimal",
+                "negligible",
+                "slight"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " advantages. In my opinion, although there are valid concerns, the benefits of enhanced connectivity outweigh the drawbacks."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "On the one hand, opponents argue that social media has severe negative consequences. A major concern is the spread of misinformation, which can manipulate public opinion and create political polarization. "
+            },
+            {
+              "type": "blank",
+              "id": "b46",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "However,",
+                "Although,",
+                "Nevertheless,",
+                "Furthermore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the constant use of these platforms has been linked to rising rates of anxiety and depression, particularly among young people who compare themselves to unrealistic online standards. "
+            },
+            {
+              "type": "blank",
+              "id": "b47",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "Similarly",
+                "Meanwhile",
+                "However",
+                "Therefore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " it is clear that unregulated use can be harmful."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "On the other hand, supporters highlight the unprecedented level of global connectivity social media provides. These platforms allow individuals to "
+            },
+            {
+              "type": "blank",
+              "id": "b48",
+              "correctAnswer": "maintain",
+              "options": [
+                "maintain",
+                "question",
+                "reject",
+                "deny"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " relationships across vast distances and facilitate the rapid sharing of important information during crises. "
+            },
+            {
+              "type": "blank",
+              "id": "b49",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Additionally,",
+                "Nevertheless,",
+                "Conversely,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " social media gives marginalized groups a voice and allows for grassroots movements to gain momentum and enact real-world change. "
+            },
+            {
+              "type": "blank",
+              "id": "b50",
+              "correctAnswer": "Consequently,",
+              "options": [
+                "Consequently,",
+                "Meanwhile",
+                "Conversely",
+                "Similarly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " it serves as a powerful tool for social progress."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b51",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "detail,",
+                "conclusion,",
+                "addition,",
+                "contrast,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " both sides present valid arguments. "
+            },
+            {
+              "type": "blank",
+              "id": "b52",
+              "correctAnswer": "However,",
+              "options": [
+                "Furthermore,",
+                "Moreover,",
+                "However,",
+                "Additionally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " I "
+            },
+            {
+              "type": "blank",
+              "id": "b53",
+              "correctAnswer": "firmly",
+              "options": [
+                "loosely",
+                "firmly",
+                "vaguely",
+                "somewhat"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " believe that the positive aspects of social media, such as global communication and community building, are more significant. Society must focus on educating users rather than simply condemning the platforms."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Discussion Essay",
+    "subCategory": "Education",
+    "prompt": "Some people think children should be taught to be competitive. Others believe cooperation is more important. Discuss both views and give your opinion.",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "There is an ongoing debate regarding the most valuable skills to instill in young children. "
+            },
+            {
+              "type": "blank",
+              "id": "b54",
+              "correctAnswer": "While",
+              "options": [
+                "Since",
+                "Because",
+                "When",
+                "While"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " some argue that competitiveness is "
+            },
+            {
+              "type": "blank",
+              "id": "b55",
+              "correctAnswer": "crucial",
+              "options": [
+                "minor",
+                "trivial",
+                "optional",
+                "crucial"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " for success, others "
+            },
+            {
+              "type": "blank",
+              "id": "b56",
+              "correctAnswer": "believe",
+              "options": [
+                "believe",
+                "assume",
+                "deny",
+                "doubt"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that teaching cooperation is more beneficial. In my opinion, while competition can be a motivator, collaborative skills are far more important in the modern world."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "On the one hand, proponents of competitiveness argue that it prepares children for the harsh realities of adult life. In academic and professional environments, individuals are frequently judged against their peers for scholarships or promotions. By learning to compete from an early age, children develop resilience, ambition, and the drive to excel. "
+            },
+            {
+              "type": "blank",
+              "id": "b57",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "Therefore,",
+                "Meanwhile",
+                "Similarly",
+                "However"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " a competitive spirit can lead to high personal achievement."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "On the other hand, advocates for cooperation "
+            },
+            {
+              "type": "blank",
+              "id": "b58",
+              "correctAnswer": "maintain",
+              "options": [
+                "maintain",
+                "question",
+                "reject",
+                "deny"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that teamwork is essential for societal progress. Most modern workplaces require employees to work in diverse teams to solve complex problems that no single individual could tackle alone. "
+            },
+            {
+              "type": "blank",
+              "id": "b59",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "Furthermore,",
+                "Although,",
+                "Nevertheless,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " children who are taught to cooperate tend to develop stronger empathy, communication skills, and conflict-resolution abilities. "
+            },
+            {
+              "type": "blank",
+              "id": "b60",
+              "correctAnswer": "Consequently,",
+              "options": [
+                "Conversely",
+                "Consequently,",
+                "Similarly",
+                "Meanwhile"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " they are better equipped to build harmonious relationships."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b61",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "contrast,",
+                "addition,",
+                "detail,",
+                "conclusion,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " while learning to handle competition has its merits, I "
+            },
+            {
+              "type": "blank",
+              "id": "b62",
+              "correctAnswer": "strongly",
+              "options": [
+                "partially",
+                "slightly",
+                "strongly",
+                "somewhat"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " agree that cooperation is the superior skill. The ability to collaborate effectively is not only more highly valued by employers but also fosters a more supportive and peaceful society."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Discussion Essay",
+    "subCategory": "Society",
+    "prompt": "Some people believe that cultural traditions will be destroyed by modern technology. Others think technology helps preserve them. Discuss both views and give your opinion.",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The rapid advancement of technology has led to concerns regarding its impact on cultural heritage. Some fear that modernization will inevitably destroy traditional customs, whereas others argue that technology acts as a preservation tool. From my perspective, technology provides powerful means to safeguard and promote cultural traditions globally."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Those who worry about the erosion of traditions point to the homogenizing effect of globalization. With the widespread use of the internet and global media, younger generations are increasingly exposed to dominant Western cultures. This exposure often leads them to abandon local dialects, traditional clothing, and indigenous practices in favor of a globalized lifestyle. "
+            },
+            {
+              "type": "blank",
+              "id": "b63",
+              "correctAnswer": "Consequently,",
+              "options": [
+                "Meanwhile",
+                "Consequently,",
+                "Conversely",
+                "Similarly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " unique cultural identities face the threat of assimilation."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b64",
+              "correctAnswer": "Conversely,",
+              "options": [
+                "Similarly,",
+                "Likewise,",
+                "Furthermore,",
+                "Conversely,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " technology offers unprecedented methods for cultural preservation. Digital archives, high-definition video recording, and virtual reality allow ancient rituals and languages to be recorded and stored indefinitely. "
+            },
+            {
+              "type": "blank",
+              "id": "b65",
+              "correctAnswer": "Moreover,",
+              "options": [
+                "However,",
+                "Nevertheless,",
+                "Conversely,",
+                "Moreover,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " social media platforms enable diaspora communities to stay connected to their roots and share their heritage with a worldwide audience. "
+            },
+            {
+              "type": "blank",
+              "id": "b66",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "However",
+                "Similarly",
+                "Therefore,",
+                "Meanwhile"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " technology can actually revitalize waning traditions."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b67",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "contrast,",
+                "addition,",
+                "detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " while it is true that modern media can spread dominant cultures, I "
+            },
+            {
+              "type": "blank",
+              "id": "b68",
+              "correctAnswer": "firmly",
+              "options": [
+                "loosely",
+                "firmly",
+                "somewhat",
+                "vaguely"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b69",
+              "correctAnswer": "believe",
+              "options": [
+                "doubt",
+                "believe",
+                "deny",
+                "assume"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that technology is ultimately a force for preservation. By utilizing digital tools, societies can ensure their unique traditions survive and thrive for future generations."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Discussion Essay",
+    "subCategory": "Work",
+    "prompt": "Some people think it is better to work for the same company throughout their career. Others believe changing jobs regularly is beneficial. Discuss both views and give your opinion.",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The modern career trajectory has changed "
+            },
+            {
+              "type": "blank",
+              "id": "b70",
+              "correctAnswer": "significantly",
+              "options": [
+                "significantly",
+                "negligibly",
+                "minimally",
+                "slightly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " in recent decades. "
+            },
+            {
+              "type": "blank",
+              "id": "b71",
+              "correctAnswer": "While",
+              "options": [
+                "While",
+                "Because",
+                "When",
+                "Since"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " some individuals prefer the stability of remaining with a single employer, others argue that frequently changing jobs yields greater benefits. In my opinion, although long-term loyalty has its advantages, job mobility is much more beneficial for professional growth."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Proponents of staying with one company emphasize job security and deep expertise. Employees who show loyalty are often rewarded with steady promotions, comprehensive benefits, and a strong sense of belonging within the corporate culture. "
+            },
+            {
+              "type": "blank",
+              "id": "b72",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "However,",
+                "Nevertheless,",
+                "Furthermore,",
+                "Although,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " they develop an intricate understanding of the company's operations, making them invaluable assets during times of crisis. "
+            },
+            {
+              "type": "blank",
+              "id": "b73",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "However",
+                "Similarly",
+                "Therefore,",
+                "Meanwhile"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " long-term tenure can provide a very comfortable and stable life."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b74",
+              "correctAnswer": "However,",
+              "options": [
+                "Furthermore,",
+                "Moreover,",
+                "However,",
+                "Additionally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " those who advocate for changing jobs highlight the rapid acquisition of diverse skills. By moving between different organizations, professionals are exposed to varied management styles, new technologies, and broader industry networks. This adaptability makes them highly competitive in a rapidly changing economy. "
+            },
+            {
+              "type": "blank",
+              "id": "b75",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Conversely,",
+                "However,",
+                "Additionally,",
+                "Nevertheless,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " switching employers is often the fastest route to "
+            },
+            {
+              "type": "blank",
+              "id": "b76",
+              "correctAnswer": "significant",
+              "options": [
+                "significant",
+                "minimal",
+                "negligible",
+                "slight"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " salary increases. Consequently, job hopping can accelerate career advancement."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b77",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "detail,",
+                "addition,",
+                "contrast,",
+                "conclusion,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " while staying with a single employer offers stability, I "
+            },
+            {
+              "type": "blank",
+              "id": "b78",
+              "correctAnswer": "firmly",
+              "options": [
+                "somewhat",
+                "firmly",
+                "vaguely",
+                "loosely"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b79",
+              "correctAnswer": "believe",
+              "options": [
+                "believe",
+                "doubt",
+                "deny",
+                "assume"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that changing jobs periodically is more advantageous. The diverse experience and increased adaptability gained from job mobility are crucial for thriving in today's dynamic workforce."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Problem & Solution",
+    "subCategory": "Environment",
+    "prompt": "In many cities, traffic congestion is a growing problem. What are the causes of this problem and what measures could be taken to solve it?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Urban areas worldwide are increasingly plagued by severe traffic congestion. This essay will examine the primary causes of this issue and propose viable solutions to alleviate the problem and improve city transportation."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The root cause of traffic congestion is the overreliance on private vehicles. As populations grow and urban sprawl increases, many people find public transport to be inadequate, unreliable, or overcrowded. "
+            },
+            {
+              "type": "blank",
+              "id": "b80",
+              "correctAnswer": "Consequently,",
+              "options": [
+                "Similarly",
+                "Conversely",
+                "Meanwhile",
+                "Consequently,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the majority of commuters choose to drive, leading to an sheer volume of cars that exceeds the capacity of existing road networks. "
+            },
+            {
+              "type": "blank",
+              "id": "b81",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "Furthermore,",
+                "Nevertheless,",
+                "Although,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the lack of dedicated cycling infrastructure in many cities discourages alternative, space-saving modes of transport."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "To tackle this issue, governments must implement comprehensive public transport policies. A highly effective measure would be to heavily subsidize trains and buses to make them more affordable and frequent. "
+            },
+            {
+              "type": "blank",
+              "id": "b82",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Additionally,",
+                "Nevertheless,",
+                "Conversely,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " city planners could introduce congestion pricing, charging drivers a fee to enter busy city centers during peak hours. This has been proven to reduce traffic in cities like London and Singapore, encouraging commuters to switch to public transit."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b83",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "detail,",
+                "addition,",
+                "contrast,",
+                "conclusion,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " urban traffic congestion is primarily driven by an overdependence on cars and poor public transit infrastructure. By investing heavily in public transportation and implementing congestion charges, cities can successfully mitigate this growing problem."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Problem & Solution",
+    "subCategory": "Health",
+    "prompt": "In many countries, obesity is an increasing problem among young people. What are the causes and what solutions can you suggest?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The rising rates of "
+            },
+            {
+              "type": "blank",
+              "id": "b84",
+              "correctAnswer": "obesity",
+              "options": [
+                "popularity",
+                "stability",
+                "prosperity",
+                "obesity"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " among children and teenagers have become a major public health crisis in many developed nations. This essay will outline the main factors contributing to this epidemic and suggest effective measures to combat it."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "A primary factor driving childhood "
+            },
+            {
+              "type": "blank",
+              "id": "b85",
+              "correctAnswer": "obesity",
+              "options": [
+                "prosperity",
+                "popularity",
+                "obesity",
+                "stability"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " is the widespread availability and marketing of heavily processed foods. Fast food and sugary snacks are often cheaper and more accessible than fresh produce, leading many families to rely on them. "
+            },
+            {
+              "type": "blank",
+              "id": "b86",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Conversely,",
+                "Nevertheless,",
+                "Additionally,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " modern lifestyles have become increasingly "
+            },
+            {
+              "type": "blank",
+              "id": "b87",
+              "correctAnswer": "sedentary.",
+              "options": [
+                "active",
+                "mobile",
+                "sedentary.",
+                "dynamic"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " Children now spend vast amounts of time indoors engaged with electronic devices, rather than participating in physical outdoor activities. This combination of poor diet and lack of exercise inevitably leads to weight gain."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "To address this problem, a multi-faceted approach is required. Firstly, governments should implement stricter regulations on the advertising of junk food to minors and consider a \"sugar tax\" to discourage consumption. Secondly, schools must play a proactive role by ensuring that only nutritious meals are served in cafeterias and by making physical education a mandatory, daily part of the "
+            },
+            {
+              "type": "blank",
+              "id": "b88",
+              "correctAnswer": "curriculum.",
+              "options": [
+                "infrastructure",
+                "legislation",
+                "revenue",
+                "curriculum."
+              ]
+            },
+            {
+              "type": "text",
+              "value": " These steps would promote healthier habits from a young age."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b89",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "detail,",
+                "contrast,",
+                "addition,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the "
+            },
+            {
+              "type": "blank",
+              "id": "b90",
+              "correctAnswer": "obesity",
+              "options": [
+                "prosperity",
+                "obesity",
+                "stability",
+                "popularity"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " epidemic among youth is fueled by unhealthy diets and "
+            },
+            {
+              "type": "blank",
+              "id": "b91",
+              "correctAnswer": "sedentary",
+              "options": [
+                "mobile",
+                "active",
+                "dynamic",
+                "sedentary"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " lifestyles. By regulating the food industry and promoting physical activity in schools, society can effectively tackle this severe health issue."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Problem & Solution",
+    "subCategory": "Education",
+    "prompt": "Many students find it difficult to concentrate in class. What are the reasons for this, and what can schools do to address it?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "A growing number of educators are reporting that students struggle to "
+            },
+            {
+              "type": "blank",
+              "id": "b92",
+              "correctAnswer": "maintain",
+              "options": [
+                "deny",
+                "reject",
+                "question",
+                "maintain"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " focus during lessons. This essay will discuss the underlying reasons for this lack of concentration and propose practical solutions that schools can implement."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "One of the primary causes of distraction in the classroom is the pervasive use of smartphones and digital devices. Constant notifications from social media disrupt a student's attention span, making it difficult to engage with prolonged academic tasks. "
+            },
+            {
+              "type": "blank",
+              "id": "b93",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "However,",
+                "Nevertheless,",
+                "Furthermore,",
+                "Although,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " a lack of sufficient sleep "
+            },
+            {
+              "type": "blank",
+              "id": "b94",
+              "correctAnswer": "significantly",
+              "options": [
+                "significantly",
+                "slightly",
+                "minimally",
+                "negligibly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " impairs cognitive function. Many teenagers stay up late using technology, arriving at school fatigued and unable to concentrate on complex subjects."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Schools can take decisive action to alleviate this problem. A highly effective measure would be to enforce a strict \"no-phone\" policy during school hours, requiring devices to be kept in lockers. This instantly removes the main source of digital distraction. "
+            },
+            {
+              "type": "blank",
+              "id": "b95",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "However,",
+                "Conversely,",
+                "Nevertheless,",
+                "Additionally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " teachers could adopt more interactive and varied teaching methods, such as group discussions and project-based learning, which actively engage students and reduce the monotony of traditional lectures."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b96",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "contrast,",
+                "addition,",
+                "detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " students' inability to focus is largely driven by digital distractions and sleep deprivation. By banning smartphones in classrooms and modernizing teaching techniques, schools can create a much more focused and productive learning environment."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Advantages & Disadvantages",
+    "subCategory": "Technology",
+    "prompt": "Many people now work from home rather than in an office. Do the advantages of working from home outweigh the disadvantages?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The transition from traditional office environments to remote working has accelerated rapidly in recent years. "
+            },
+            {
+              "type": "blank",
+              "id": "b97",
+              "correctAnswer": "While",
+              "options": [
+                "Since",
+                "Because",
+                "When",
+                "While"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there are certainly challenges associated with telecommuting, I "
+            },
+            {
+              "type": "blank",
+              "id": "b98",
+              "correctAnswer": "firmly",
+              "options": [
+                "vaguely",
+                "somewhat",
+                "loosely",
+                "firmly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " "
+            },
+            {
+              "type": "blank",
+              "id": "b99",
+              "correctAnswer": "believe",
+              "options": [
+                "doubt",
+                "deny",
+                "assume",
+                "believe"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that the advantages significantly outweigh the disadvantages."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The most "
+            },
+            {
+              "type": "blank",
+              "id": "b100",
+              "correctAnswer": "substantial",
+              "options": [
+                "negligible",
+                "substantial",
+                "minimal",
+                "slight"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " benefit of working from home is the improvement in work-life balance. Employees save countless hours each week by eliminating the daily commute, giving them more time for family, exercise, and rest. "
+            },
+            {
+              "type": "blank",
+              "id": "b101",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "Furthermore,",
+                "Although,",
+                "Nevertheless,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the flexibility to manage one's own schedule often leads to higher productivity, as individuals can work during their peak focus hours. For businesses, this model reduces overhead costs associated with renting and maintaining large office spaces."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b102",
+              "correctAnswer": "However,",
+              "options": [
+                "However,",
+                "Moreover,",
+                "Furthermore,",
+                "Additionally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there are notable drawbacks to remote work. A major disadvantage is the potential for professional isolation and the loss of spontaneous collaboration that occurs in an office setting. Without face-to-face interaction, team cohesion can suffer, and newer employees may find it difficult to integrate into the company culture. "
+            },
+            {
+              "type": "blank",
+              "id": "b103",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Additionally,",
+                "Nevertheless,",
+                "Conversely,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the blurred lines between home and work life can lead to burnout if individuals struggle to disconnect at the end of the day."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b104",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "contrast,",
+                "addition,",
+                "conclusion,",
+                "detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " although remote working presents challenges regarding team collaboration and work-life boundaries, the benefits of increased flexibility, zero commuting time, and reduced costs are far more profound. "
+            },
+            {
+              "type": "blank",
+              "id": "b105",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "However",
+                "Similarly",
+                "Meanwhile",
+                "Therefore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the advantages clearly overshadow the disadvantages."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Advantages & Disadvantages",
+    "subCategory": "Education",
+    "prompt": "An increasing number of schools are using computers and tablets in the classroom. Do the advantages outweigh the disadvantages?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The integration of digital devices such as tablets and laptops into classrooms has become commonplace. "
+            },
+            {
+              "type": "blank",
+              "id": "b106",
+              "correctAnswer": "While",
+              "options": [
+                "Since",
+                "While",
+                "Because",
+                "When"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the use of technology in education presents certain risks, I am "
+            },
+            {
+              "type": "blank",
+              "id": "b107",
+              "correctAnswer": "convinced",
+              "options": [
+                "uncertain",
+                "skeptical",
+                "doubtful",
+                "convinced"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " that the educational benefits far outweigh the potential drawbacks."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "There are several notable advantages to using technology in schools. Primarily, digital devices provide instant access to an infinite array of educational resources and interactive media. This allows teachers to cater to different learning styles through videos, educational games, and real-time quizzes. "
+            },
+            {
+              "type": "blank",
+              "id": "b108",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "However,",
+                "Nevertheless,",
+                "Although,",
+                "Furthermore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " equipping students with digital "
+            },
+            {
+              "type": "blank",
+              "id": "b109",
+              "correctAnswer": "literacy",
+              "options": [
+                "commerce",
+                "literacy",
+                "tourism",
+                "agriculture"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " skills is essential for their future, as almost all modern careers require proficiency with computers and software."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b110",
+              "correctAnswer": "Nevertheless,",
+              "options": [
+                "Moreover,",
+                "Furthermore,",
+                "Additionally,",
+                "Nevertheless,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the use of screens in the classroom is not without negative consequences. The most "
+            },
+            {
+              "type": "blank",
+              "id": "b111",
+              "correctAnswer": "significant",
+              "options": [
+                "minimal",
+                "negligible",
+                "slight",
+                "significant"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " concern is the potential for distraction; students may easily navigate to non-educational websites or social media if left unsupervised. "
+            },
+            {
+              "type": "blank",
+              "id": "b112",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Additionally,",
+                "However,",
+                "Conversely,",
+                "Nevertheless,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " excessive screen time has been linked to physical issues such as eye strain and poor posture. There is also the danger that overreliance on typing may degrade traditional handwriting skills."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b113",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "detail,",
+                "addition,",
+                "contrast,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " while schools must carefully manage screen time and monitor usage to prevent distraction, the ability of technology to enhance learning and prepare students for the modern workforce is invaluable. The positive aspects undeniably eclipse the negative ones."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Advantages & Disadvantages",
+    "subCategory": "Society",
+    "prompt": "In some countries, people are moving from rural areas to cities. Do the advantages of urbanisation outweigh the disadvantages?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The mass migration of populations from the countryside to urban centers is a defining trend of the modern era. "
+            },
+            {
+              "type": "blank",
+              "id": "b114",
+              "correctAnswer": "Although",
+              "options": [
+                "When",
+                "Since",
+                "Because",
+                "Although"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " rapid urbanization causes "
+            },
+            {
+              "type": "blank",
+              "id": "b115",
+              "correctAnswer": "significant",
+              "options": [
+                "negligible",
+                "minimal",
+                "significant",
+                "slight"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " societal strain, I "
+            },
+            {
+              "type": "blank",
+              "id": "b116",
+              "correctAnswer": "firmly",
+              "options": [
+                "vaguely",
+                "loosely",
+                "somewhat",
+                "firmly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " believe that the economic and social advantages it brings outweigh the disadvantages."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The primary benefit of moving to a city is access to superior opportunities and services. Urban areas serve as economic hubs, offering a vast array of employment prospects and higher wages compared to rural regions. "
+            },
+            {
+              "type": "blank",
+              "id": "b117",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "Although,",
+                "Nevertheless,",
+                "However,",
+                "Furthermore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " cities provide concentrated access to high-quality healthcare, advanced educational institutions, and diverse cultural amenities. For many families, rural-to-urban migration is the most viable path to escaping poverty and securing a better standard of living."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "blank",
+              "id": "b118",
+              "correctAnswer": "However,",
+              "options": [
+                "Furthermore,",
+                "However,",
+                "Moreover,",
+                "Additionally,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " there are severe drawbacks associated with rapid urban growth. A major disadvantage is the immense pressure placed on city infrastructure, often resulting in severe traffic congestion, pollution, and a shortage of affordable housing. This can lead to the development of slums and increased crime rates as cities struggle to accommodate the influx of new residents. Meanwhile, rural areas suffer from a \"brain drain,\" losing their young, able-bodied workforce."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b119",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "conclusion,",
+                "contrast,",
+                "addition,",
+                "detail,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " while urbanization presents monumental challenges for city planners and the environment, the profound improvements it offers in terms of employment, education, and healthcare are more "
+            },
+            {
+              "type": "blank",
+              "id": "b120",
+              "correctAnswer": "significant.",
+              "options": [
+                "significant.",
+                "slight",
+                "negligible",
+                "minimal"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " The benefits of urban migration ultimately surpass the negative consequences."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Two-Part Question",
+    "subCategory": "Society",
+    "prompt": "In many countries, the gap between the rich and the poor is increasing. Why is this happening? Is this a positive or negative development?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Globally, wealth "
+            },
+            {
+              "type": "blank",
+              "id": "b121",
+              "correctAnswer": "inequality",
+              "options": [
+                "prosperity",
+                "stability",
+                "inequality",
+                "harmony"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " is widening, with a small percentage of the population accumulating vast fortunes while others struggle. This essay will explore the economic drivers behind this trend and argue that it is a highly detrimental development for society."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "There are several factors contributing to the growing wealth gap. Firstly, the forces of globalization and technological "
+            },
+            {
+              "type": "blank",
+              "id": "b122",
+              "correctAnswer": "automation",
+              "options": [
+                "automation",
+                "conservation",
+                "regulation",
+                "immigration"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " disproportionately benefit highly skilled workers and corporate owners, while suppressing the wages of low-skilled laborers. Secondly, tax systems in many nations favor the wealthy, with loopholes and low capital gains taxes allowing the rich to multiply their assets faster than the working class can save. "
+            },
+            {
+              "type": "blank",
+              "id": "b123",
+              "correctAnswer": "Consequently,",
+              "options": [
+                "Consequently,",
+                "Meanwhile",
+                "Conversely",
+                "Similarly"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " wealth naturally concentrates at the top of the economic pyramid."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In terms of its impact, I "
+            },
+            {
+              "type": "blank",
+              "id": "b124",
+              "correctAnswer": "believe",
+              "options": [
+                "believe",
+                "assume",
+                "deny",
+                "doubt"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " this is a severely negative development. Extreme "
+            },
+            {
+              "type": "blank",
+              "id": "b125",
+              "correctAnswer": "inequality",
+              "options": [
+                "inequality",
+                "harmony",
+                "stability",
+                "prosperity"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " undermines social cohesion and can lead to rising crime rates, as disenfranchised individuals feel the system is rigged against them. "
+            },
+            {
+              "type": "blank",
+              "id": "b126",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "Although,",
+                "Nevertheless,",
+                "Furthermore,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " when a large portion of the population lacks disposable income, consumer spending drops, which can stagnate the broader economy. Ultimately, a society with a massive disparity in wealth is inherently unstable."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b127",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "addition,",
+                "conclusion,",
+                "detail,",
+                "contrast,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the increasing divide between the rich and poor is driven by technological shifts and unequal tax policies. This trend is undeniably negative, as it threatens social harmony and economic stability, requiring urgent governmental intervention to correct."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Two-Part Question",
+    "subCategory": "Education",
+    "prompt": "Some children spend a lot of time on electronic devices rather than playing outdoors. Why is this the case? Is this a positive or negative trend?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In recent years, it has become increasingly common for children to favor screen time over outdoor play. This essay will examine the reasons behind this behavioral shift and argue that it represents a deeply negative trend for child development."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "Regarding the reasons behind this trend, the primary factor is the highly addictive design of modern digital entertainment. Video games and social media algorithms are engineered to capture and hold users' attention, offering instant gratification that outdoor play often cannot match. "
+            },
+            {
+              "type": "blank",
+              "id": "b128",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Conversely,",
+                "Additionally,",
+                "However,",
+                "Nevertheless,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " parental concerns about safety in urban environments frequently result in children being kept indoors. As a result, electronic devices have become the default, convenient babysitter for many modern families."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "As to whether this is positive or negative, I consider it a highly detrimental development. Physically, a lack of outdoor exercise directly contributes to rising rates of childhood "
+            },
+            {
+              "type": "blank",
+              "id": "b129",
+              "correctAnswer": "obesity",
+              "options": [
+                "popularity",
+                "obesity",
+                "stability",
+                "prosperity"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " and related health issues. Psychologically, excessive screen time is associated with poor social skills, as children miss out on the "
+            },
+            {
+              "type": "blank",
+              "id": "b130",
+              "correctAnswer": "crucial",
+              "options": [
+                "crucial",
+                "minor",
+                "trivial",
+                "optional"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " face-to-face interactions and unstructured play that build emotional intelligence. "
+            },
+            {
+              "type": "blank",
+              "id": "b131",
+              "correctAnswer": "Therefore,",
+              "options": [
+                "Therefore,",
+                "Meanwhile",
+                "Similarly",
+                "However"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " this sedentary, screen-heavy lifestyle harms both body and mind."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b132",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "detail,",
+                "conclusion,",
+                "addition,",
+                "contrast,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " children are drawn to devices due to their engaging nature and safety concerns restricting outdoor play. "
+            },
+            {
+              "type": "blank",
+              "id": "b133",
+              "correctAnswer": "However,",
+              "options": [
+                "Furthermore,",
+                "Moreover,",
+                "Additionally,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " this is undoubtedly a negative trend, as it deprives young people of essential physical exercise and social development."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "theme": "Two-Part Question",
+    "subCategory": "Environment",
+    "prompt": "The amount of waste produced globally is increasing every year. Why is this happening? What measures could be taken to address this issue?",
+    "diagramUrl": null,
+    "taskType": 2,
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Introduction",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The volume of garbage generated around the world continues to rise at an alarming rate. This essay will identify the main causes behind this surge in waste production and propose practical measures that can be implemented to address the crisis."
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Body 1",
+          "segments": [
+            {
+              "type": "text",
+              "value": "The primary cause of the waste crisis is the global rise of consumer culture and the \"throwaway\" society. Fast fashion, single-use plastics, and planned obsolescence in electronics encourage consumers to constantly buy new products and quickly discard old ones. "
+            },
+            {
+              "type": "blank",
+              "id": "b134",
+              "correctAnswer": "Furthermore,",
+              "options": [
+                "However,",
+                "Nevertheless,",
+                "Although,",
+                "Furthermore,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " rapid population growth and urbanization mean there are simply more people consuming goods than ever before. This relentless consumption inevitably leads to overflowing landfills and severe environmental pollution."
+            }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Body 2",
+          "segments": [
+            {
+              "type": "text",
+              "value": "To tackle this issue, governments and individuals must take concerted action. A "
+            },
+            {
+              "type": "blank",
+              "id": "b135",
+              "correctAnswer": "crucial",
+              "options": [
+                "crucial",
+                "minor",
+                "trivial",
+                "optional"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " measure would be for legislation to ban non-recyclable, single-use plastics and force manufacturers to use sustainable packaging. "
+            },
+            {
+              "type": "blank",
+              "id": "b136",
+              "correctAnswer": "Additionally,",
+              "options": [
+                "Nevertheless,",
+                "Additionally,",
+                "Conversely,",
+                "However,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " public education campaigns must promote the principles of the circular economy: reduce, reuse, and recycle. By heavily taxing waste production and making recycling programs accessible, society can dramatically cut down on the garbage it produces."
+            }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Conclusion",
+          "segments": [
+            {
+              "type": "text",
+              "value": "In "
+            },
+            {
+              "type": "blank",
+              "id": "b137",
+              "correctAnswer": "conclusion,",
+              "options": [
+                "addition,",
+                "contrast,",
+                "detail,",
+                "conclusion,"
+              ]
+            },
+            {
+              "type": "text",
+              "value": " the escalating waste problem is driven by a culture of overconsumption and disposable products. By implementing strict environmental regulations and shifting towards sustainable habits, this pressing global issue can be effectively managed."
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

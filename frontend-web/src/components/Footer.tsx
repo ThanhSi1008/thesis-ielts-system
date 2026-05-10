@@ -79,7 +79,7 @@ export default function Footer() {
               Start Your IELTS<br />Journey Today
             </h3>
             <p className="text-[#c5beb7] text-lg leading-relaxed mb-10 font-light">
-              Build vocabulary, improve speaking, and track your
+              Build foundationVocabWord, improve speaking, and track your
               progress with advanced AI-powered learning tools built for success.
             </p>
             <Link href="/ielts" className="group inline-flex items-center justify-between w-48 bg-white text-gray-900 font-bold py-4 px-7 rounded-full hover:bg-gray-50 transition-all duration-300 shadow-[0_4px_14px_0_rgba(255,198,0,0.2)] hover:shadow-[0_6px_20px_rgba(255,198,0,0.4)] hover:-translate-y-1">

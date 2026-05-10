@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@common/prisma/prisma.service";
 import { RedisService } from "@common/redis/redis.service";
 import {
@@ -6,42 +6,58 @@ import {
   UpdateGrammarBookDto,
   CreateGrammarUnitDto,
   UpdateGrammarUnitDto,
+  UpdateGrammarProgressDto,
 } from "./dto/grammar.dto";
+import { GamificationService } from "../gamification/gamification.service";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { TIER_LIMITS, TierKey } from "../subscriptions/constants/feature-limits";
 
 const CACHE_TTL = 3600;
 const CACHE_PREFIX = "grammar";
 
 @Injectable()
 export class GrammarService {
+  private readonly logger = new Logger(GrammarService.name);
+
   constructor(
     private prisma: PrismaService,
     private redis: RedisService,
+    private gamificationService: GamificationService,
+    private subscriptionsService: SubscriptionsService,
   ) {}
 
   // ==================== READ OPERATIONS ====================
 
-  async getBooks() {
+  async getBooks(userId?: string) {
     const cacheKey = `${CACHE_PREFIX}:books`;
     const cached = await this.redis.getJson(cacheKey);
-    if (cached) return cached;
+    let books: any[] = Array.isArray(cached) ? cached : [];
 
-    const books = await this.prisma.grammarBook.findMany({
-      orderBy: { level: "asc" },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        author: true,
-        level: true,
-        imageUrl: true,
-        color: true,
-        unitCount: true,
-        _count: { select: { units: true } },
-      },
-    });
+    if (!Array.isArray(cached) || books.length === 0) {
+      books = await this.prisma.foundationGrammarBook.findMany({
+        orderBy: { level: "asc" },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          author: true,
+          level: true,
+          imageUrl: true,
+          color: true,
+          unitCount: true,
+          _count: { select: { units: true } },
+        },
+      });
+      await this.redis.setJson(cacheKey, books, CACHE_TTL);
+    }
 
-    await this.redis.setJson(cacheKey, books, CACHE_TTL);
-    return books;
+    const tier = userId ? await this.subscriptionsService.getEffectiveTier(userId) : "FREE";
+    const allowedLevels = TIER_LIMITS[tier].GRAMMAR_LEVELS;
+
+    return books.map((book) => ({
+      ...book,
+      isLocked: !allowedLevels.includes(book.level),
+    }));
   }
 
   async getBookBySlug(slug: string) {
@@ -49,7 +65,7 @@ export class GrammarService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const book = await this.prisma.grammarBook.findUnique({
+    const book = await this.prisma.foundationGrammarBook.findUnique({
       where: { slug },
       include: {
         units: {
@@ -68,7 +84,7 @@ export class GrammarService {
     const cached = await this.redis.getJson(cacheKey);
     if (cached) return cached;
 
-    const unit = await this.prisma.grammarUnit.findUnique({
+    const unit = await this.prisma.foundationGrammarUnit.findUnique({
       where: { id: unitId },
       include: {
         book: { select: { id: true, slug: true, name: true } },
@@ -80,16 +96,56 @@ export class GrammarService {
     return unit;
   }
 
+  async getUnitByBookAndOrder(bookSlug: string, unitOrder: number) {
+    const cacheKey = `${CACHE_PREFIX}:unit:${bookSlug}:${unitOrder}`;
+    const cached = await this.redis.getJson(cacheKey);
+    if (cached) return cached;
+
+    const unit = await this.prisma.foundationGrammarUnit.findFirst({
+      where: {
+        book: { slug: bookSlug },
+        order: unitOrder,
+      },
+      include: {
+        book: { select: { id: true, slug: true, name: true, level: true, color: true } },
+        exercises: { orderBy: { order: "asc" } },
+      },
+    });
+
+    if (!unit) return null;
+
+    // Parse exercise answer JSON strings into objects
+    const parsedUnit = {
+      ...unit,
+      exercises: unit.exercises.map(ex => ({
+        ...ex,
+        items: this.parseExerciseAnswer(ex.answer),
+        options: ex.options ?? null,
+      })),
+    };
+
+    await this.redis.setJson(cacheKey, parsedUnit, CACHE_TTL);
+    return parsedUnit;
+  }
+
+  private parseExerciseAnswer(answer: string): any[] {
+    try {
+      return JSON.parse(answer);
+    } catch {
+      return [];
+    }
+  }
+
   // ==================== BOOK CRUD ====================
 
   async createBook(dto: CreateGrammarBookDto) {
-    const book = await this.prisma.grammarBook.create({ data: dto });
+    const book = await this.prisma.foundationGrammarBook.create({ data: dto });
     await this.invalidateCache();
     return book;
   }
 
   async updateBook(id: string, dto: UpdateGrammarBookDto) {
-    const book = await this.prisma.grammarBook.update({
+    const book = await this.prisma.foundationGrammarBook.update({
       where: { id },
       data: dto,
     });
@@ -98,7 +154,7 @@ export class GrammarService {
   }
 
   async deleteBook(id: string) {
-    await this.prisma.grammarBook.delete({ where: { id } });
+    await this.prisma.foundationGrammarBook.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Grammar book deleted successfully" };
   }
@@ -106,13 +162,13 @@ export class GrammarService {
   // ==================== UNIT CRUD ====================
 
   async createUnit(dto: CreateGrammarUnitDto) {
-    const unit = await this.prisma.grammarUnit.create({ data: dto });
+    const unit = await this.prisma.foundationGrammarUnit.create({ data: dto });
     await this.invalidateCache();
     return unit;
   }
 
   async updateUnit(id: string, dto: UpdateGrammarUnitDto) {
-    const unit = await this.prisma.grammarUnit.update({
+    const unit = await this.prisma.foundationGrammarUnit.update({
       where: { id },
       data: dto,
     });
@@ -121,9 +177,82 @@ export class GrammarService {
   }
 
   async deleteUnit(id: string) {
-    await this.prisma.grammarUnit.delete({ where: { id } });
+    await this.prisma.foundationGrammarUnit.delete({ where: { id } });
     await this.invalidateCache();
     return { message: "Grammar unit deleted successfully" };
+  }
+
+  // ==================== PROGRESS ====================
+
+  async getProgress(userId: string, bookSlug: string) {
+    const progress = await this.prisma.foundationGrammarProgress.findMany({
+      where: {
+        userId,
+        unit: { book: { slug: bookSlug } },
+      },
+      select: {
+        unitId: true,
+        theoryCompleted: true,
+        exerciseScore: true,
+        exerciseTotal: true,
+        completedAt: true,
+        unit: { select: { order: true } },
+      },
+    });
+
+    return progress.map(p => ({
+      unitOrder: p.unit.order,
+      theoryCompleted: p.theoryCompleted,
+      exerciseScore: p.exerciseScore,
+      exerciseTotal: p.exerciseTotal,
+      isCompleted: p.theoryCompleted && p.exerciseScore != null && p.exerciseScore === p.exerciseTotal,
+      completedAt: p.completedAt,
+    }));
+  }
+
+  async updateProgress(
+    userId: string,
+    dto: UpdateGrammarProgressDto,
+  ) {
+    const existing = await this.prisma.foundationGrammarProgress.findUnique({
+      where: { userId_unitId: { userId, unitId: dto.unitId } },
+    });
+
+    const isNowComplete =
+      (dto.theoryCompleted ?? existing?.theoryCompleted ?? false) &&
+      dto.exerciseScore != null &&
+      dto.exerciseTotal != null &&
+      dto.exerciseScore === dto.exerciseTotal;
+
+    const progress = await this.prisma.foundationGrammarProgress.upsert({
+      where: { userId_unitId: { userId, unitId: dto.unitId } },
+      create: {
+        userId,
+        unitId: dto.unitId,
+        theoryCompleted: dto.theoryCompleted ?? false,
+        exerciseScore: dto.exerciseScore,
+        exerciseTotal: dto.exerciseTotal,
+        completedAt: isNowComplete ? new Date() : null,
+      },
+      update: {
+        theoryCompleted: dto.theoryCompleted ?? undefined,
+        exerciseScore: dto.exerciseScore ?? undefined,
+        exerciseTotal: dto.exerciseTotal ?? undefined,
+        completedAt: isNowComplete ? new Date() : undefined,
+      },
+    });
+
+    if (isNowComplete && (!existing?.theoryCompleted || existing?.exerciseScore == null || existing.exerciseScore !== existing.exerciseTotal)) {
+      this.gamificationService
+        .onEvent(userId, {
+          xp: 15,
+          reason: "GRAMMAR_UNIT_COMPLETE",
+          achievementKeys: ["FG_STARTER", "FG_GRADUATE"],
+        })
+        .catch(() => {});
+    }
+
+    return progress;
   }
 
   // ==================== CACHE ====================

@@ -46,7 +46,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
     if (item.isLocked) return;
 
     // Determine the precise URL for the roadmap viewer
-    const idParam = item.type === 'lesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
+    const idParam = item.type === 'foundationVocabLesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
     const url = `/ielts/basic/roadmap?type=${item.type}&skill=${item.skill.toLowerCase()}&${idParam}`;
     router.push(url);
   };
@@ -63,8 +63,8 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
   }
 
   const safeSteps = Array.isArray(steps) ? steps : [];
-  const totalLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'lesson').length, 0);
-  const completedLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'lesson' && i.isCompleted).length, 0);
+  const totalLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'foundationVocabLesson').length, 0);
+  const completedLessons = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'foundationVocabLesson' && i.isCompleted).length, 0);
   const totalExercises = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'exercise').length, 0);
   const completedExercises = safeSteps.reduce((acc, step) => acc + (step.items || []).filter(i => i.type === 'exercise' && i.isCompleted).length, 0);
 
@@ -84,27 +84,27 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
   }
 
   return (
-    <div className="flex-1 min-w-0 bg-white overflow-y-auto p-4 md:p-6 flex flex-col items-start gap-8 w-full shrink-0 h-full">
+    <div className="flex-1 min-w-0 bg-white dark:bg-slate-950 overflow-y-auto p-4 md:p-6 flex flex-col items-start gap-8 w-full shrink-0 h-full">
       {/* Summary Section */}
-      <div className="bg-[#FAF7F2] p-6 lg:p-8 rounded-3xl flex flex-col w-full">
-        <h2 className="text-2xl font-extrabold text-gray-900 mb-6 tracking-tight">IELTS Basic Mastery Roadmap</h2>
+      <div className="bg-[#FAF7F2] dark:bg-slate-900 p-6 lg:p-8 rounded-3xl flex flex-col w-full">
+        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">IELTS Basic Mastery Roadmap</h2>
 
         <div className="flex flex-wrap items-center gap-5 mb-6">
           <div className="flex items-center gap-1.5">
-            <span className="text-[12px] font-semibold text-gray-400">Lessons left</span>
-            <span className="text-[12px] font-bold text-gray-500">{lessonsLeft}</span>
-            <span className="text-[12px] text-gray-300">/ {totalLessons}</span>
+            <span className="text-[12px] font-semibold text-gray-400 dark:text-slate-500">Lessons left</span>
+            <span className="text-[12px] font-bold text-gray-500 dark:text-slate-400">{lessonsLeft}</span>
+            <span className="text-[12px] text-gray-300 dark:text-slate-600">/ {totalLessons}</span>
           </div>
-          <span className="text-gray-200 text-[12px]">·</span>
+          <span className="text-gray-200 dark:text-slate-700 text-[12px]">·</span>
           <div className="flex items-center gap-1.5">
-            <span className="text-[12px] font-semibold text-gray-400">Exercises left</span>
-            <span className="text-[12px] font-bold text-gray-500">{exercisesLeft}</span>
-            <span className="text-[12px] text-gray-300">/ {totalExercises}</span>
+            <span className="text-[12px] font-semibold text-gray-400 dark:text-slate-500">Exercises left</span>
+            <span className="text-[12px] font-bold text-gray-500 dark:text-slate-400">{exercisesLeft}</span>
+            <span className="text-[12px] text-gray-300 dark:text-slate-600">/ {totalExercises}</span>
           </div>
         </div>
 
-        <p className="text-gray-600 leading-relaxed max-w-[90%] text-[14px] font-medium">
-          This section is designed to build your fundamental English skills for the IELTS exam.
+        <p className="text-gray-600 dark:text-slate-400 leading-relaxed max-w-[90%] text-[14px] font-medium">
+          This section is designed to build your fundamental English skills for the IELTS ieltsIntensiveExam.
           You will work through structured daily lessons and exercises covering Listening and Reading
           to establish a strong baseline before moving on to advanced strategies. Complete the tasks in sequential order to unlock the next steps.
         </p>
@@ -119,9 +119,9 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
           return (
             <div key={step.step} className="flex flex-col mb-8 md:pl-2">
               {/* Step Header */}
-              <div className={`flex items-center justify-between py-3 px-2 border-b-2 border-gray-100 mb-6 ${step.isLocked ? "opacity-50" : ""}`}>
+              <div className={`flex items-center justify-between py-3 px-2 border-b-2 border-gray-100 dark:border-slate-800 mb-6 ${step.isLocked ? "opacity-50" : ""}`}>
                 <div className="flex items-center gap-3">
-                  <h3 className={`text-lg font-extrabold ${isActiveStep ? "text-[#FFC107]" : (isCompletedStep ? "text-green-600" : "text-gray-900")}`}>
+                  <h3 className={`text-lg font-extrabold ${isActiveStep ? "text-[#FFC107]" : (isCompletedStep ? "text-green-600 dark:text-green-500" : "text-gray-900 dark:text-white")}`}>
                     Day {step.step}
                   </h3>
                   {isCompletedStep && <CheckCircle2 className="w-5 h-5 text-green-500" />}
@@ -130,7 +130,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
               </div>
 
               {/* Step Items */}
-              <div className="ml-5 border-l-[3px] border-[#EEEEEE] pl-7 py-2 flex flex-col gap-6 relative">
+              <div className="ml-5 border-l-[3px] border-[#EEEEEE] dark:border-slate-800 pl-7 py-2 flex flex-col gap-6 relative">
                 {(step.items || []).map((item) => {
                   const isNextItem = nextItem?.id === item.id;
 
@@ -150,17 +150,17 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
                         `} />
                       )}
 
-                      <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${isNextItem ? "bg-[#FFF9E6] border-[#FFC107]/40 shadow-sm" : "bg-white border-gray-100 hover:border-gray-200"}`}>
+                      <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${isNextItem ? "bg-[#FFF9E6] dark:bg-amber-900/10 border-[#FFC107]/40 shadow-sm" : "bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800 hover:border-gray-200 dark:hover:border-slate-700"}`}>
                         <div className="flex items-start gap-4">
-                          <div className={`mt-0.5 shrink-0 flex items-center justify-center p-2.5 rounded-xl ${isNextItem ? "bg-[#FFF0C2] text-[#E0A800]" : (item.isCompleted ? "bg-green-50 text-green-600" : "bg-gray-50 text-gray-400")}`}>
-                            {item.isLocked ? <Lock className="w-5 h-5 text-gray-300" /> : getSkillIcon(item.skill)}
+                          <div className={`mt-0.5 shrink-0 flex items-center justify-center p-2.5 rounded-xl ${isNextItem ? "bg-[#FFF0C2] dark:bg-amber-900/30 text-[#E0A800] dark:text-amber-500" : (item.isCompleted ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-500" : "bg-gray-50 dark:bg-slate-800 text-gray-400 dark:text-slate-500")}`}>
+                            {item.isLocked ? <Lock className="w-5 h-5 text-gray-300 dark:text-slate-600" /> : getSkillIcon(item.skill)}
                           </div>
                           <div className="flex flex-col justify-center py-0.5">
-                            <p className={`text-[14px] leading-tight ${isNextItem ? "text-gray-900 font-extrabold" : "text-gray-800 font-bold"}`}>
+                            <p className={`text-[14px] leading-tight ${isNextItem ? "text-gray-900 dark:text-white font-extrabold" : "text-gray-800 dark:text-slate-200 font-bold"}`}>
                               {item.title}
                             </p>
-                            <p className="text-[11px] text-gray-400 mt-0.5 uppercase tracking-widest font-bold">
-                              {item.skill} · {item.type === 'lesson' ? "Theory" : "Practice"}
+                            <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5 uppercase tracking-widest font-bold">
+                              {item.skill} · {item.type === 'foundationVocabLesson' ? "Theory" : "Practice"}
                             </p>
                           </div>
                         </div>
@@ -178,7 +178,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
                           {item.isCompleted && (
                             <button
                               onClick={() => handleItemClick(item)}
-                              className="flex items-center gap-2 bg-white border-2 border-gray-100 text-gray-600 text-[13px] font-bold py-2 px-5 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                              className="flex items-center gap-2 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 text-gray-600 dark:text-slate-300 text-[13px] font-bold py-2 px-5 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
                               Review
                             </button>

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { lessonService } from '@/services/lesson.service';
-import type { Lesson, VocabularyWord, GrammarRule } from '@/types';
+import { lessonService } from '@/services/foundationVocabLesson.service';
+import type { FoundationVocabLesson, FoundationVocabItem, GrammarRule } from '@/types';
 import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 
@@ -11,11 +11,11 @@ export default function LessonDetailPage() {
   const params = useParams();
   const lessonId = params.id as string;
 
-  const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [vocabulary, setVocabulary] = useState<VocabularyWord[]>([]);
+  const [foundationVocabLesson, setLesson] = useState<FoundationVocabLesson | null>(null);
+  const [foundationVocabWord, setVocabulary] = useState<FoundationVocabItem[]>([]);
   const [grammar, setGrammar] = useState<GrammarRule[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'vocabulary' | 'grammar'>('vocabulary');
+  const [activeTab, setActiveTab] = useState<'foundationVocabWord' | 'grammar'>('foundationVocabWord');
   const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function LessonDetailPage() {
       setVocabulary(vocabData);
       setGrammar(grammarData);
     } catch (error) {
-      console.error('Failed to load lesson:', error);
+      console.error('Failed to load foundationVocabLesson:', error);
     } finally {
       setLoading(false);
     }
@@ -56,17 +56,17 @@ export default function LessonDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading lesson...</p>
+          <p className="text-gray-600">Loading foundationVocabLesson...</p>
         </div>
       </div>
     );
   }
 
-  if (!lesson) {
+  if (!foundationVocabLesson) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">Lesson not found</p>
+          <p className="text-xl text-gray-600 mb-4">FoundationVocabLesson not found</p>
           <Link href="/lessons" className="text-blue-600 hover:underline">
             Back to lessons
           </Link>
@@ -78,11 +78,11 @@ export default function LessonDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <PageHeader
-        title={lesson.title}
+        title={foundationVocabLesson.title}
         breadcrumbs={[
           { label: 'Homepage', href: '/' },
           { label: 'Lessons', href: '/lessons' },
-          { label: lesson.title },
+          { label: foundationVocabLesson.title },
         ]}
       />
 
@@ -92,13 +92,13 @@ export default function LessonDetailPage() {
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6" aria-label="Tabs">
               <button
-                onClick={() => setActiveTab('vocabulary')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${activeTab === 'vocabulary'
+                onClick={() => setActiveTab('foundationVocabWord')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition ${activeTab === 'foundationVocabWord'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
               >
-                Vocabulary ({vocabulary.length})
+                Vocabulary ({foundationVocabWord.length})
               </button>
               <button
                 onClick={() => setActiveTab('grammar')}
@@ -114,9 +114,9 @@ export default function LessonDetailPage() {
 
           <div className="p-6">
             {/* Vocabulary Tab */}
-            {activeTab === 'vocabulary' && (
+            {activeTab === 'foundationVocabWord' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {vocabulary.map((word) => (
+                {foundationVocabWord.map((word) => (
                   <div
                     key={word.id}
                     onClick={() => toggleCard(word.id)}
@@ -173,9 +173,9 @@ export default function LessonDetailPage() {
             )}
 
             {/* Empty states */}
-            {activeTab === 'vocabulary' && vocabulary.length === 0 && (
+            {activeTab === 'foundationVocabWord' && foundationVocabWord.length === 0 && (
               <div className="text-center py-12 text-gray-500">
-                No vocabulary words yet
+                No foundationVocabWord words yet
               </div>
             )}
             {activeTab === 'grammar' && grammar.length === 0 && (

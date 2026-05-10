@@ -110,7 +110,7 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
   };
 
   const mainContent = (
-    <main className={`flex-1 min-w-0 bg-white overflow-y-auto flex flex-col ${embedded ? 'h-full' : ''}`}>
+    <main className={`flex-1 min-w-0 bg-white dark:bg-slate-950 overflow-y-auto flex flex-col ${embedded ? 'h-full' : ''}`}>
       <div className="px-3 md:px-6 flex-1">
         {/* Header section with modern gradient background */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-6 md:p-8 text-white mt-8 mb-8 pb-12 w-full">
@@ -131,7 +131,7 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
         <div className="flex items-center gap-8 px-4">
           <button
             onClick={() => setActiveTab("student")}
-            className={`relative py-4 text-sm md:text-base font-bold flex items-center gap-2 transition-colors ${activeTab === "student" ? "text-primary" : "text-gray-400 hover:text-gray-700"}`}
+            className={`relative py-4 text-sm md:text-base font-bold flex items-center gap-2 transition-colors ${activeTab === "student" ? "text-primary" : "text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-300"}`}
           >
             <Users className="w-5 h-5" />
             I'm a Student
@@ -139,7 +139,7 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
           </button>
           <button
             onClick={() => setActiveTab("teacher")}
-            className={`relative py-4 text-sm md:text-base font-bold flex items-center gap-2 transition-colors ${activeTab === "teacher" ? "text-primary" : "text-gray-400 hover:text-gray-700"}`}
+            className={`relative py-4 text-sm md:text-base font-bold flex items-center gap-2 transition-colors ${activeTab === "teacher" ? "text-primary" : "text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-300"}`}
           >
             <GraduationCap className="w-5 h-5" />
             I'm a Teacher
@@ -152,19 +152,19 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
             <div className="flex flex-col lg:flex-row gap-12">
               {/* Link Teacher Form */}
               <div className="w-full lg:w-1/3 space-y-6">
-                <div className="bg-gray-50 rounded-2xl p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Link with your Teacher</h3>
-                  <p className="text-sm text-gray-500 mb-6">Ask your teacher for their unique ID and enter it below to share your progress.</p>
+                <div className="bg-gray-50 dark:bg-slate-900 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Link with your Teacher</h3>
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">Ask your teacher for their unique ID and enter it below to share your progress.</p>
                   
                   <form onSubmit={handleLinkTeacher} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Teacher ID</label>
+                      <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-2">Teacher ID</label>
                       <input
                         type="text"
                         value={teacherIdInput}
                         onChange={(e) => setTeacherIdInput(e.target.value)}
                         placeholder="e.g. 550e8400-e29b-41d4..."
-                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-0 text-sm font-medium transition-colors"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-700 bg-transparent dark:text-white focus:border-primary focus:ring-0 text-sm font-medium transition-colors"
                         required
                       />
                     </div>
@@ -188,29 +188,29 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
 
               {/* Teachers List */}
               <div className="w-full lg:w-2/3">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-gray-400" /> My Linked Teachers
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-gray-400 dark:text-slate-500" /> My Linked Teachers
                 </h3>
                 
                 {loading ? (
                   <div className="space-y-3">
-                    {[1, 2].map(i => <div key={i} className="h-20 bg-gray-50 rounded-xl animate-pulse" />)}
+                    {[1, 2].map(i => <div key={i} className="h-20 bg-gray-50 dark:bg-slate-800 rounded-xl animate-pulse" />)}
                   </div>
                 ) : teachers.length === 0 ? (
-                  <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl p-12 text-center flex flex-col items-center">
-                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                      <Users className="w-8 h-8 text-gray-300" />
+                  <div className="bg-white dark:bg-slate-900 border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center">
+                    <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                      <Users className="w-8 h-8 text-gray-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-gray-900 font-bold text-lg mb-1">No teachers linked yet</p>
-                    <p className="text-gray-500 text-sm max-w-sm">When you link with a teacher, they will appear here and can monitor your IELTS practice progress.</p>
+                    <p className="text-gray-900 dark:text-white font-bold text-lg mb-1">No teachers linked yet</p>
+                    <p className="text-gray-500 dark:text-slate-400 text-sm max-w-sm">When you link with a teacher, they will appear here and can monitor your IELTS practice progress.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {teachers.map((link) => (
-                      <div key={link.id} className="relative group bg-white rounded-2xl p-5 hover:bg-gray-50 transition-all">
+                      <div key={link.id} className="relative group bg-white dark:bg-slate-900 rounded-2xl p-5 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-all">
                          <button 
                             onClick={() => handleUnlink(link.teacher.id)}
-                            className="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                            className="absolute top-4 right-4 text-gray-300 dark:text-slate-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                             title="Unlink teacher"
                           >
                             <X className="w-5 h-5" />
@@ -223,12 +223,12 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
                               </span>
                             </div>
                             <div>
-                              <h4 className="font-bold text-gray-900">
+                              <h4 className="font-bold text-gray-900 dark:text-white">
                                 {link.teacher.firstName} {link.teacher.lastName}
                                 {(!link.teacher.firstName && !link.teacher.lastName) && "Unknown Teacher"}
                               </h4>
-                              <p className="text-xs text-gray-500">{link.teacher.email}</p>
-                              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full inline-flex">
+                              <p className="text-xs text-gray-500 dark:text-slate-400">{link.teacher.email}</p>
+                              <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full inline-flex">
                                 <CheckCircle2 className="w-3 h-3" /> Linked
                               </div>
                             </div>
@@ -266,35 +266,35 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
 
               {/* Students List */}
               <div className="w-full lg:w-2/3">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-gray-400" /> My Students
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-gray-400 dark:text-slate-500" /> My Students
                 </h3>
                 
                 {loading ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-50 rounded-xl animate-pulse" />)}
+                    {[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-50 dark:bg-slate-800 rounded-xl animate-pulse" />)}
                   </div>
                 ) : students.length === 0 ? (
-                   <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl p-12 text-center flex flex-col items-center">
-                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                      <GraduationCap className="w-8 h-8 text-gray-300" />
+                   <div className="bg-white dark:bg-slate-900 border-2 border-dashed border-gray-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center">
+                    <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                      <GraduationCap className="w-8 h-8 text-gray-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-gray-900 font-bold text-lg mb-1">No students linked yet</p>
-                    <p className="text-gray-500 text-sm max-w-sm">Share your Teacher ID with your students to grant you access to their IELTS performance dashboards.</p>
+                    <p className="text-gray-900 dark:text-white font-bold text-lg mb-1">No students linked yet</p>
+                    <p className="text-gray-500 dark:text-slate-400 text-sm max-w-sm">Share your Teacher ID with your students to grant you access to their IELTS performance dashboards.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gray-50 dark:bg-slate-900">
                         <tr>
-                          <th className="px-6 py-4 font-bold text-xs text-gray-500 tracking-wider uppercase">Student</th>
-                          <th className="px-6 py-4 font-bold text-xs text-gray-500 tracking-wider uppercase">Linked On</th>
-                          <th className="px-6 py-4 font-bold text-xs text-gray-500 tracking-wider uppercase text-right">View Stats</th>
+                          <th className="px-6 py-4 font-bold text-xs text-gray-500 dark:text-slate-400 tracking-wider uppercase">Student</th>
+                          <th className="px-6 py-4 font-bold text-xs text-gray-500 dark:text-slate-400 tracking-wider uppercase">Linked On</th>
+                          <th className="px-6 py-4 font-bold text-xs text-gray-500 dark:text-slate-400 tracking-wider uppercase text-right">View Stats</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                         {students.map((link) => (
-                          <tr key={link.id} className="hover:bg-gray-50 transition-colors group">
+                          <tr key={link.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-sm font-bold text-sm">
@@ -302,22 +302,22 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
                                   {(!link.student.firstName && !link.student.lastName) && <Users className="w-4 h-4" />}
                                 </div>
                                 <div>
-                                  <div className="font-bold text-gray-900 group-hover:text-primary transition-colors">
+                                  <div className="font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
                                     {link.student.firstName} {link.student.lastName}
                                     {(!link.student.firstName && !link.student.lastName) && "Unknown Student"}
                                   </div>
-                                  <div className="text-xs text-gray-500">{link.student.email}</div>
+                                  <div className="text-xs text-gray-500 dark:text-slate-400">{link.student.email}</div>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
+                            <td className="px-6 py-4 text-gray-500 dark:text-slate-400 whitespace-nowrap">
                               {new Date(link.createdAt).toLocaleDateString()}
                             </td>
                             <td className="px-6 py-4 text-right">
                               <div className="flex justify-end pr-2">
                                 <Link
                                   href={`/ielts/student-teacher/student/${link.student.id}`}
-                                  className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm"
+                                  className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm"
                                   title="View Performance"
                                 >
                                   <ChevronRight className="w-4 h-4" />
@@ -341,31 +341,31 @@ export default function StudentTeacherContent({ embedded }: { embedded?: boolean
   if (embedded) return mainContent;
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white dark:bg-slate-950 font-sans">
       <div className="container mx-auto max-w-screen-xl px-2 py-4">
         
         <div className="flex gap-6 mt-2">
           {/* Sidebar - Using the same visual style from intensive page for consistency */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="h-full bg-white overflow-hidden">
+            <div className="h-full bg-white dark:bg-slate-950 overflow-hidden">
               <div className="p-4 space-y-1">
-                <Link href="/ielts/intensive?view=dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                <Link href="/ielts/intensive?view=dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white transition-colors">
                   <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                   Dashboard
                 </Link>
                 
-                <Link href="/ielts/intensive" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                <Link href="/ielts/intensive" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white transition-colors">
                   <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                   Mock Test
                 </Link>
 
-                <Link href="/ielts/history" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                <Link href="/ielts/history" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white transition-colors">
                   <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 opacity-70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
                   Test History
                 </Link>
 
                 <div className="pt-2">
-                  <Link href="/ielts/student-teacher" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-primary/10 text-primary transition-colors">
+                  <Link href="/ielts/student-teacher" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold bg-primary/10 dark:bg-primary/20 text-primary transition-colors">
                     <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     Student/Teacher
                   </Link>

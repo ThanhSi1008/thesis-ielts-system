@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
-import type { IeltsIntensiveCatalogResponse, IeltsIntensiveGroup, IeltsSkill, PracticeCatalogResponse } from "@/types";
+import type { IeltsIntensiveCatalogResponse, IeltsIntensiveGroup, IeltsBasicSkill, PracticeCatalogResponse } from "@/types";
 
 import { Headphones, BookOpen, PenTool, Mic, Search, X, TrendingUp } from "lucide-react";
 
-const SKILLS: Array<{ key: IeltsSkill; label: string; icon: JSX.Element }> = [
+const SKILLS: Array<{ key: IeltsBasicSkill; label: string; icon: JSX.Element }> = [
   { key: "LISTENING", label: "Listening", icon: <Headphones className="w-4 h-4" /> },
   { key: "READING", label: "Reading", icon: <BookOpen className="w-4 h-4" /> },
   { key: "WRITING", label: "Writing", icon: <PenTool className="w-4 h-4" /> },
@@ -57,16 +57,16 @@ function toneClasses(tone: CardTone) {
       return { bg: "bg-info/20", border: "border-info", text: "text-info", badge: "bg-info", label: "Upper-Intermediate" };
     case "primary":
     default:
-      return { bg: "bg-primary/10", border: "border-primary", text: "text-primary", badge: "", label: "Not taken yet" };
+      return { bg: "bg-primary/10 dark:bg-primary/20", border: "border-primary", text: "text-primary dark:text-primary", badge: "", label: "Not taken yet" };
   }
 }
 
 function StatPill({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="flex items-center gap-2 text-xs text-gray-500">
-      <span className="text-gray-400">{icon}</span>
-      <span className="font-semibold text-gray-700">{value}</span>
-      <span className="text-gray-400">{label}</span>
+    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
+      <span className="text-gray-400 dark:text-slate-500">{icon}</span>
+      <span className="font-semibold text-gray-700 dark:text-slate-300">{value}</span>
+      <span className="text-gray-400 dark:text-slate-500">{label}</span>
     </div>
   );
 }
@@ -101,7 +101,7 @@ function TestCard({
   skill,
   test,
 }: {
-  skill: IeltsSkill;
+  skill: IeltsBasicSkill;
   test: IeltsIntensiveGroup["tests"][number];
 }) {
   const rawScore = test.myScore ?? 0;
@@ -132,23 +132,23 @@ function TestCard({
             </span>
           </div>
         ) : (
-          <div className="relative h-14 w-14 flex flex-col items-center justify-center shrink-0 text-gray-300">
+          <div className="relative h-14 w-14 flex flex-col items-center justify-center shrink-0 text-gray-300 dark:text-slate-600">
             <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full">
               <polygon fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" points="50,5 89,27.5 89,72.5 50,95 11,72.5 11,27.5" />
               <polygon fill="none" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.4" strokeLinejoin="round" strokeDasharray="4 4" points="50,14 81,32 81,68 50,86 19,68 19,32" />
             </svg>
-            <span className="relative z-10 text-[16px] font-bold text-gray-400 leading-none mt-0.5">
+            <span className="relative z-10 text-[16px] font-bold text-gray-400 dark:text-slate-500 leading-none mt-0.5">
               -
             </span>
           </div>
         )}
         <div className="p-4 flex flex-col justify-between h-full gap-2 relative z-10 w-full">
           <div className="flex justify-between items-start gap-2 w-full">
-            <div className="font-bold text-gray-900 transition-colors flex-1">
+            <div className="font-bold text-gray-900 dark:text-white transition-colors flex-1">
               {skill.charAt(0) + skill.slice(1).toLowerCase()} Test {test.testNumber}
             </div>
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-gray-600 font-medium">
+          <div className="flex items-center gap-3 text-[11px] text-gray-600 dark:text-slate-400 font-medium">
             <div className="flex items-center gap-1.5"><SmallIcon name="users" /> {test.participantsCount}</div>
             <div className="flex items-center gap-1.5"><SmallIcon name="clock" /> {test.durationMinutes}m</div>
           </div>
@@ -202,7 +202,7 @@ function getIeltsReadingBand(score: number): number {
 
 function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: boolean; initialView?: string }) {
   const searchParams = useSearchParams();
-  const [skill, setSkill] = useState<IeltsSkill>("LISTENING");
+  const [skill, setSkill] = useState<IeltsBasicSkill>("LISTENING");
   const [data, setData] = useState<IeltsIntensiveCatalogResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -332,7 +332,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
   const hasActiveFilter = search !== "" || statusFilter !== "all";
 
   const mainContent = (
-    <main className={`flex-1 min-w-0 bg-white overflow-y-auto px-3 md:px-6 py-2 ${embedded ? 'h-full' : ''}`}>
+    <main className={`flex-1 min-w-0 bg-white dark:bg-slate-950 overflow-y-auto px-3 md:px-6 py-2 ${embedded ? 'h-full' : ''}`}>
 
 
       {/* Mock Test view — existing tabs + catalog */}
@@ -345,7 +345,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
               <button
                 key={s.key}
                 onClick={() => setSkill(s.key)}
-                className={`whitespace-nowrap relative py-4 text-sm font-bold flex items-center gap-2 transition-colors ${active ? "text-gray-900" : "text-gray-400 hover:text-gray-700"}`}
+                className={`whitespace-nowrap relative py-4 text-sm font-bold flex items-center gap-2 transition-colors ${active ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-300"}`}
               >
                 {s.icon}
                 {s.label}
@@ -361,18 +361,18 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search Cambridge IELTS books…"
-              className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+              className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 text-sm text-gray-800 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -383,7 +383,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="shrink-0 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-semibold text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition cursor-pointer"
+            className="shrink-0 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 text-sm font-semibold text-gray-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition cursor-pointer"
           >
             <option value="all">All tests</option>
             <option value="not-taken">Not taken</option>
@@ -391,11 +391,11 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
           </select>
         </div>
 
-        {/* Result summary */}
+        {/* IeltsIntensiveResult summary */}
         {hasActiveFilter && !loading && (
-          <p className="text-xs text-gray-400 mb-4">
-            Showing <span className="font-semibold text-gray-600">{totalResults}</span> test{totalResults !== 1 ? "s" : ""}
-            {search && <> matching &ldquo;<span className="font-semibold text-gray-700">{search}</span>&rdquo;</>}
+          <p className="text-xs text-gray-400 dark:text-slate-500 mb-4">
+            Showing <span className="font-semibold text-gray-600 dark:text-slate-300">{totalResults}</span> test{totalResults !== 1 ? "s" : ""}
+            {search && <> matching &ldquo;<span className="font-semibold text-gray-700 dark:text-slate-200">{search}</span>&rdquo;</>}
           </p>
         )}
 
@@ -403,11 +403,11 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
         {loading && (
           <div className="space-y-6">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-gray-50 rounded-2xl p-6 animate-pulse">
-                <div className="h-6 w-56 bg-gray-200 rounded mb-4" />
+              <div key={i} className="bg-gray-50 dark:bg-slate-900 rounded-2xl p-6 animate-pulse">
+                <div className="h-6 w-56 bg-gray-200 dark:bg-slate-800 rounded mb-4" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[1, 2, 3, 4].map((k) => (
-                    <div key={k} className="h-20 bg-gray-200 rounded-2xl" />
+                    <div key={k} className="h-20 bg-gray-200 dark:bg-slate-800 rounded-2xl" />
                   ))}
                 </div>
               </div>
@@ -416,11 +416,11 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
         )}
 
         {!loading && error && (
-          <div className="bg-red-50 text-red-700 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center">
             <p className="font-semibold">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 font-bold rounded-xl transition-colors text-sm"
+              className="px-4 py-2 bg-red-100 dark:bg-red-900/40 hover:bg-red-200 dark:hover:bg-red-900/60 text-red-800 dark:text-red-300 font-bold rounded-xl transition-colors text-sm"
             >
               Reload Page
             </button>
@@ -428,12 +428,12 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
         )}
 
         {!loading && !error && groups.length === 0 && (
-          <div className="bg-amber-50 text-amber-800 border border-amber-100 rounded-2xl p-5">
+          <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-5">
             {hasActiveFilter
               ? "No tests match your search or filters. Try adjusting them."
               : <>
-                No published Cambridge exams found for {skill}. Make sure exam titles follow:
-                <div className="mt-2 font-mono text-xs text-amber-900/80">
+                No published Cambridge exams found for {skill}. Make sure ieltsIntensiveExam titles follow:
+                <div className="mt-2 font-mono text-xs text-amber-900/80 dark:text-amber-400/80">
                   Cambridge IELTS 17 - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test 1
                 </div>
               </>
@@ -447,7 +447,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
             {groups.map((g) => {
               const isCollapsed = collapsed[g.id] ?? false;
               return (
-                <section key={g.id} className="bg-white shadow-sm border border-black/1 rounded-2xl">
+                <section key={g.id} className="bg-white dark:bg-slate-900 shadow-sm border border-black/1 dark:border-slate-800 rounded-2xl">
                   <button
                     onClick={() => setCollapsed((prev) => ({ ...prev, [g.id]: !isCollapsed }))}
                     className="w-full px-6 py-5 flex items-center justify-between gap-4"
@@ -456,20 +456,20 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                       {g.imageUrl ? (
                         <img src={g.imageUrl} alt={g.title} className="w-[50px] h-[70px] object-cover rounded shadow-sm flex-shrink-0" />
                       ) : (
-                        <div className="w-[50px] h-[70px] rounded bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
-                          <span className="text-[10px] font-bold text-gray-500 text-center px-1 leading-tight">
+                        <div className="w-[50px] h-[70px] rounded bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[10px] font-bold text-gray-500 dark:text-slate-400 text-center px-1 leading-tight">
                             {g.title.replace("Cambridge IELTS ", "IELTS\n")}
                           </span>
                         </div>
                       )}
                       <div className="min-w-0 text-left flex flex-col gap-1">
-                        <div className="font-extrabold text-gray-900 truncate">{g.title}</div>
+                        <div className="font-extrabold text-gray-900 dark:text-white truncate">{g.title}</div>
                         <StatPill icon={<SmallIcon name="users" />} value={`${g.participantsCount}`} label="participants" />
                         <StatPill icon={<SmallIcon name="check" />} value={`${g.completedCount}`} label="completed" />
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 text-gray-400">
+                    <div className="flex items-center gap-3 text-gray-400 dark:text-slate-500">
                       <span className="text-xs font-bold uppercase tracking-wide hidden sm:inline">
                         {isCollapsed ? "Expand" : "Collapse"}
                       </span>
@@ -503,14 +503,14 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
 
       {view === "practice" && (
         <>
-          <div className="flex items-center gap-4 md:gap-8 mb-6 border-b border-gray-100 overflow-x-auto">
+          <div className="flex items-center gap-4 md:gap-8 mb-6 border-b border-gray-100 dark:border-slate-800 overflow-x-auto">
             {SKILLS.map((s) => {
               const active = skill === s.key;
               return (
                 <button
                   key={s.key}
                   onClick={() => { setSkill(s.key); setActivePartNumber(1); }}
-                  className={`whitespace-nowrap relative py-4 text-sm font-bold flex items-center gap-2 transition-colors ${active ? "text-gray-900" : "text-gray-400 hover:text-gray-700"}`}
+                  className={`whitespace-nowrap relative py-4 text-sm font-bold flex items-center gap-2 transition-colors ${active ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-300"}`}
                 >
                   {s.icon}
                   {s.label}
@@ -527,9 +527,9 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                 <button
                   key={partNum}
                   onClick={() => setActivePartNumber(partNum)}
-                  className={`shrink-0 flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-2xl flex-1 border transition-colors ${active ? "bg-white border-primary shadow-sm text-primary font-bold" : "bg-gray-50/50 border-gray-100 text-gray-500 font-semibold hover:bg-gray-50"}`}
+                  className={`shrink-0 flex items-center justify-center gap-2 px-4 md:px-6 py-3 rounded-2xl flex-1 border transition-colors ${active ? "bg-white dark:bg-slate-800 border-primary shadow-sm text-primary font-bold" : "bg-gray-50/50 dark:bg-slate-900/50 border-gray-100 dark:border-slate-800 text-gray-500 dark:text-slate-400 font-semibold hover:bg-gray-50 dark:hover:bg-slate-800"}`}
                 >
-                  <svg viewBox="0 0 24 24" className={`hidden sm:block w-5 h-5 ${active ? "text-primary" : "text-gray-400"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                  <svg viewBox="0 0 24 24" className={`hidden sm:block w-5 h-5 ${active ? "text-primary" : "text-gray-400 dark:text-slate-500"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
                   <div className="flex flex-col items-start gap-[1px]">
                     <span className="text-sm">Part {partNum}</span>
                     {skill === "LISTENING" && <span className="hidden lg:block text-[10px] opacity-70 font-medium tracking-wide whitespace-nowrap">
@@ -542,20 +542,20 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
           </div>
 
           <div className="space-y-4 pb-4">
-            {practiceLoading && <div className="py-10 text-center text-gray-500 font-medium">Loading practice items...</div>}
+            {practiceLoading && <div className="py-10 text-center text-gray-500 dark:text-slate-400 font-medium">Loading practice items...</div>}
             {!practiceLoading && practiceData?.items && (() => {
               const items = practiceData.items.filter(i => i.partNumber === activePartNumber);
-              if (items.length === 0) return <div className="py-10 text-center text-gray-500 font-medium bg-gray-50 rounded-2xl border border-gray-100">No practice items found for this part.</div>;
+              if (items.length === 0) return <div className="py-10 text-center text-gray-500 dark:text-slate-400 font-medium bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">No practice items found for this part.</div>;
 
               return items.map(item => (
-                <div key={item.id} className="relative overflow-hidden rounded-2xl bg-white border border-gray-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+                <div key={item.id} className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
 
                   <div className="flex gap-6 items-center flex-1 w-full">
-                    <div className={`relative shrink-0 w-16 h-16 rounded-full border-[3px] flex flex-col items-center justify-center bg-white ${item.myScore !== undefined ? "border-green-500 text-green-600" : "border-gray-200 text-gray-400"}`}>
+                    <div className={`relative shrink-0 w-16 h-16 rounded-full border-[3px] flex flex-col items-center justify-center bg-white dark:bg-slate-900 ${item.myScore !== undefined ? "border-green-500 text-green-600 dark:border-green-500 dark:text-green-500" : "border-gray-200 text-gray-400 dark:border-slate-700 dark:text-slate-500"}`}>
                       {item.myScore !== undefined ? (
                         <>
                           <span className="font-black leading-none text-xl">{item.myScore}</span>
-                          <span className="text-[10px] font-bold text-gray-400 mt-0.5">/ {item.totalQuestions}</span>
+                          <span className="text-[10px] font-bold text-gray-400 dark:text-slate-500 mt-0.5">/ {item.totalQuestions}</span>
                         </>
                       ) : (
                         <span className="font-extrabold leading-none text-xl">-</span>
@@ -564,16 +564,16 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
 
                     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-[3px] rounded-md bg-gray-100 text-gray-700 text-[10px] font-bold tracking-wide uppercase truncate">{item.testTitle}</span>
+                        <span className="px-2.5 py-[3px] rounded-md bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 text-[10px] font-bold tracking-wide uppercase truncate">{item.testTitle}</span>
                       </div>
-                      <h3 className="text-lg font-black text-gray-900 tracking-tight truncate">{item.topic}</h3>
+                      <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight truncate">{item.topic}</h3>
                     </div>
                   </div>
 
                   <div className="shrink-0 flex items-center justify-end w-full md:w-auto mt-4 md:mt-0">
                     <button
                       onClick={() => window.location.href = `/ielts/intensive/${item.examId}/start?practicePart=${item.partNumber}`}
-                      className="w-full md:w-auto px-6 py-3 rounded-xl border-2 border-primary hover:bg-primary hover:text-white text-primary text-sm font-bold shadow-sm transition-all bg-white flex items-center justify-center gap-2 group"
+                      className="w-full md:w-auto px-6 py-3 rounded-xl border-2 border-primary hover:bg-primary hover:text-white text-primary text-sm font-bold shadow-sm transition-all bg-white dark:bg-slate-800 flex items-center justify-center gap-2 group"
                     >
                       Start Test
                       <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -588,12 +588,12 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
 
       {view === "custom-practice" && (
         <div className="flex flex-col h-full max-w-3xl pb-8">
-          <div className="text-xl font-extrabold text-gray-900 mb-2">Custom Practice</div>
-          <div className="text-gray-500 text-sm mb-8">Build your own practice session exactly the way you want.</div>
+          <div className="text-xl font-extrabold text-gray-900 dark:text-white mb-2">Custom Practice</div>
+          <div className="text-gray-500 dark:text-slate-400 text-sm mb-8">Build your own practice session exactly the way you want.</div>
 
           {/* Skill Selector */}
           <div className="mb-8">
-            <div className="font-bold text-gray-900 mb-3 text-sm">1. Select Skill</div>
+            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">1. Select Skill</div>
             <div className="flex flex-wrap gap-3">
               {SKILLS.map((s) => {
                 const active = skill === s.key;
@@ -601,7 +601,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                   <button
                     key={s.key}
                     onClick={() => { setSkill(s.key); setCustomPart("all"); }}
-                    className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all border-2 ${active ? "border-primary bg-primary/5 text-gray-900 shadow-sm" : "border-gray-100 bg-white text-gray-400 hover:border-gray-200"}`}
+                    className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all border-2 ${active ? "border-primary bg-primary/5 text-gray-900 dark:text-white shadow-sm" : "border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-400 dark:text-slate-500 hover:border-gray-200 dark:hover:border-slate-700"}`}
                   >
                     {s.icon} {s.label}
                   </button>
@@ -610,16 +610,16 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
             </div>
           </div>
 
-          {/* Exam Selector */}
+          {/* IeltsIntensiveExam Selector */}
           <div className="mb-8">
-            <div className="font-bold text-gray-900 mb-3 text-sm">2. Select Exam Source</div>
-            {loading && <div className="h-12 bg-gray-100 animate-pulse rounded-xl shadow-inner w-full" />}
+            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">2. Select IeltsIntensiveExam Source</div>
+            {loading && <div className="h-12 bg-gray-100 dark:bg-slate-800 animate-pulse rounded-xl shadow-inner w-full" />}
             {!loading && (
-              <div className="relative border-2 border-gray-100 rounded-xl bg-white shadow-sm hover:border-gray-200 transition overflow-hidden">
+              <div className="relative border-2 border-gray-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm hover:border-gray-200 dark:hover:border-slate-700 transition overflow-hidden">
                 <select
                   value={customExamId}
                   onChange={(e) => setCustomExamId(e.target.value)}
-                  className="w-full px-4 py-3 bg-transparent text-gray-800 font-bold focus:outline-none focus:ring-0 appearance-none cursor-pointer text-sm"
+                  className="w-full px-4 py-3 bg-transparent text-gray-800 dark:text-slate-200 font-bold focus:outline-none focus:ring-0 appearance-none cursor-pointer text-sm"
                 >
                   {data?.groups.map(g => (
                     <optgroup key={g.id} label={g.title}>
@@ -631,18 +631,18 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                     </optgroup>
                   ))}
                 </select>
-                <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
               </div>
             )}
           </div>
 
           {/* Parts Selector */}
           <div className="mb-8">
-            <div className="font-bold text-gray-900 mb-3 text-sm">3. Select Parts</div>
+            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">3. Select Parts</div>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => setCustomPart("all")}
-                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${customPart === "all" ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${customPart === "all" ? "border-primary bg-primary/5 text-gray-900 dark:text-white" : "border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 hover:border-gray-200 dark:hover:border-slate-700"}`}
               >
                 All Parts
               </button>
@@ -650,7 +650,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                 <button
                   key={i + 1}
                   onClick={() => setCustomPart(i + 1)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${customPart === i + 1 ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${customPart === i + 1 ? "border-primary bg-primary/5 text-gray-900 dark:text-white" : "border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 hover:border-gray-200 dark:hover:border-slate-700"}`}
                 >
                   Part {i + 1}
                 </button>
@@ -660,20 +660,20 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
 
           {/* Time Limit */}
           <div className="mb-8">
-            <div className="font-bold text-gray-900 mb-3 text-sm">4. Time Limit</div>
+            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">4. Time Limit</div>
             <div className="flex flex-wrap gap-3 mb-4">
               {[10, 20, 30, 40, 60].map(mins => (
                 <button
                   key={mins}
                   onClick={() => { setIsCustomTimeMode(false); setCustomTime(mins); }}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${!isCustomTimeMode && customTime === mins ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${!isCustomTimeMode && customTime === mins ? "border-primary bg-primary/5 text-gray-900 dark:text-white" : "border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 hover:border-gray-200 dark:hover:border-slate-700"}`}
                 >
                   {mins} min
                 </button>
               ))}
               <button
                 onClick={() => setIsCustomTimeMode(true)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${isCustomTimeMode ? "border-primary bg-primary/5 text-gray-900" : "border-gray-100 bg-white text-gray-500 hover:border-gray-200"}`}
+                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${isCustomTimeMode ? "border-primary bg-primary/5 text-gray-900 dark:text-white" : "border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 hover:border-gray-200 dark:hover:border-slate-700"}`}
               >
                 Custom
               </button>
@@ -688,24 +688,24 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                     const v = parseInt(e.target.value);
                     if (!isNaN(v) && v > 0) setCustomTime(v);
                   }}
-                  className="w-24 px-4 py-2.5 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none font-bold text-gray-900 text-center"
+                  className="w-24 px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-slate-800 focus:border-primary focus:outline-none font-bold text-gray-900 dark:text-white text-center bg-transparent"
                   min="1"
                   max="180"
                 />
-                <span className="text-sm font-bold text-gray-500">minutes</span>
+                <span className="text-sm font-bold text-gray-500 dark:text-slate-400">minutes</span>
               </div>
             )}
           </div>
 
           {/* Auto Submit */}
-          <div className="mb-10 flex items-center gap-4 border-t border-gray-100 pt-6">
+          <div className="mb-10 flex items-center gap-4 border-t border-gray-100 dark:border-slate-800 pt-6">
             <div className="flex-1">
-              <div className="font-bold text-gray-900 text-sm">Auto-Submit when time is up</div>
-              <div className="text-xs text-gray-500 mt-1">If turned off, you can continue practicing after the timer reaches zero.</div>
+              <div className="font-bold text-gray-900 dark:text-white text-sm">Auto-Submit when time is up</div>
+              <div className="text-xs text-gray-500 dark:text-slate-400 mt-1">If turned off, you can continue practicing after the timer reaches zero.</div>
             </div>
             <button
               onClick={() => setCustomAutoSubmit(!customAutoSubmit)}
-              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${customAutoSubmit ? "bg-primary" : "bg-gray-200"}`}
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${customAutoSubmit ? "bg-primary" : "bg-gray-200 dark:bg-slate-700"}`}
             >
               <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${customAutoSubmit ? "translate-x-6" : "translate-x-1"}`} />
             </button>
@@ -719,7 +719,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
               url += `&customTime=${customTime}&autoSubmit=${customAutoSubmit}`;
               window.location.href = url;
             }}
-            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gray-900 hover:bg-black text-white font-black shadow-lg shadow-gray-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gray-900 dark:bg-slate-800 hover:bg-black dark:hover:bg-slate-700 text-white font-black shadow-lg shadow-gray-900/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             Start Custom Practice
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -733,20 +733,20 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
   if (embedded) return mainContent;
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 font-sans">
       <div className="container mx-auto max-w-screen-xl px-4 py-4">
 
         <div className="flex gap-4 mt-2">
           {/* Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="h-full bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
               <div className="p-4 space-y-1">
                 {/* Custom Practice */}
                 <button
                   onClick={() => setView("custom-practice")}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${view === "custom-practice"
                     ? "font-bold bg-primary/10 text-primary"
-                    : "font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    : "font-semibold text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white"
                     }`}
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21v-7" /><path d="M4 10V3" /><path d="M12 21v-9" /><path d="M12 8V3" /><path d="M20 21v-5" /><path d="M20 12V3" /><path d="M1 14h6" /><path d="M9 8h6" /><path d="M17 16h6" /></svg>
@@ -757,21 +757,21 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                 <div className="space-y-0.5">
                   <button
                     onClick={() => setMockTestOpen(o => !o)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors hover:bg-gray-50 ${view === "mock-test" || view === "practice" ? "text-primary" : "text-gray-700"}`}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-colors hover:bg-gray-50 dark:hover:bg-slate-900 ${view === "mock-test" || view === "practice" ? "text-primary" : "text-gray-700 dark:text-slate-300"}`}
                   >
                     <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                     Mock Test
-                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 transition-transform duration-200 ${mockTestOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 dark:text-slate-500 transition-transform duration-200 ${mockTestOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
                   </button>
 
                   {mockTestOpen && (
-                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 ml-6">
+                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 dark:border-slate-800 ml-6">
                       {/* Per Part sub-item */}
                       <button
                         onClick={() => setView("practice")}
                         className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${view === "practice"
                           ? "font-bold bg-primary/10 text-primary"
-                          : "font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                          : "font-semibold text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-800 dark:hover:text-slate-200"
                           }`}
                       >
                         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
@@ -783,7 +783,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                         onClick={() => setView("mock-test")}
                         className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${view === "mock-test"
                           ? "font-bold bg-primary/10 text-primary"
-                          : "font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                          : "font-semibold text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-800 dark:hover:text-slate-200"
                           }`}
                       >
                         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h12M4 14h8" /></svg>
@@ -791,10 +791,10 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                       </button>
 
                       {/* Per Test — coming soon placeholder */}
-                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 dark:text-slate-600 cursor-not-allowed select-none">
                         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
                         Per Test
-                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 uppercase tracking-wide">Soon</span>
+                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 uppercase tracking-wide">Soon</span>
                       </div>
                     </div>
                   )}
@@ -804,18 +804,18 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                 <div className="space-y-0.5 pt-2">
                   <button
                     onClick={() => setTestHistoryOpen(o => !o)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-900 transition-colors"
                   >
                     <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 3" /><circle cx="12" cy="12" r="9" /></svg>
                     Test History
-                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 transition-transform duration-200 ${testHistoryOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                    <svg viewBox="0 0 24 24" className={`w-4 h-4 shrink-0 ml-auto text-gray-400 dark:text-slate-500 transition-transform duration-200 ${testHistoryOpen ? "" : "-rotate-90"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
                   </button>
 
                   {testHistoryOpen && (
-                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 ml-6">
+                    <div className="pl-3 space-y-0.5 border-l-2 border-gray-100 dark:border-slate-800 ml-6">
                       <Link
                         href="/ielts/history?mode=practice"
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-800 dark:hover:text-slate-200 transition-colors"
                       >
                         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
                         Per Part
@@ -823,16 +823,16 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
 
                       <Link
                         href="/ielts/history?mode=mock"
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-800 dark:hover:text-slate-200 transition-colors"
                       >
                         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 10h12M4 14h8" /></svg>
                         Part Skill
                       </Link>
 
-                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed select-none">
+                      <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-300 dark:text-slate-600 cursor-not-allowed select-none">
                         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
                         Per Test
-                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 uppercase tracking-wide">Soon</span>
+                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 uppercase tracking-wide">Soon</span>
                       </div>
                     </div>
                   )}
@@ -842,7 +842,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
                 <div className="pt-2">
                   <Link
                     href="/ielts/student-teacher"
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-900 hover:text-gray-900 dark:hover:text-white transition-colors"
                   >
                     <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     Student/Teacher

@@ -74,24 +74,24 @@ export function ReadingExerciseLayout({
 
   return (
     <FloatingSelectionManager>
-    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white rounded-2xl border border-gray-100/50 shadow-sm w-full overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white dark:bg-slate-950 rounded-2xl border border-gray-100/50 dark:border-gray-800 shadow-sm w-full overflow-hidden transition-colors duration-300">
       {/* ── Header ── */}
-      <div className="border-b border-gray-100 px-6 lg:px-10 pt-6 pb-3">
+      <div className="border-b border-gray-100 dark:border-gray-800 px-6 lg:px-10 pt-6 pb-3">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">
               {breadcrumb}
             </p>
-            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{exercise.topic}</h1>
+            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">{exercise.topic}</h1>
           </div>
           <div className="relative flex items-center gap-2 mt-1">
-            <button onClick={() => setActiveModal(activeModal === "traps" ? null : "traps")} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "traps" ? "bg-red-200" : "bg-red-50 hover:bg-red-100"}`} title="Common Traps">
+            <button onClick={() => setActiveModal(activeModal === "traps" ? null : "traps")} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "traps" ? "bg-red-200 dark:bg-red-900/40" : "bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30"}`} title="Common Traps">
               <Flag className="w-4 h-4 text-red-500" />
             </button>
-            <button onClick={() => setActiveModal(activeModal === "strategy" ? null : "strategy")} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "strategy" ? "bg-yellow-200" : "bg-yellow-50 hover:bg-yellow-100"}`} title="Step-by-Step Strategy">
+            <button onClick={() => setActiveModal(activeModal === "strategy" ? null : "strategy")} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "strategy" ? "bg-yellow-200 dark:bg-yellow-900/40" : "bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30"}`} title="Step-by-Step Strategy">
               <Bookmark className="w-4 h-4 text-yellow-500" />
             </button>
-            <button onClick={() => setActiveModal(activeModal === "tips" ? null : "tips")} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "tips" ? "bg-blue-200" : "bg-blue-50 hover:bg-blue-100"}`} title="Pro-Tips for Test Day">
+            <button onClick={() => setActiveModal(activeModal === "tips" ? null : "tips")} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${activeModal === "tips" ? "bg-blue-200 dark:bg-blue-900/40" : "bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30"}`} title="Pro-Tips for Test Day">
               <FileText className="w-4 h-4 text-blue-500" />
             </button>
             {modalBlock && <TheoryPopup block={modalBlock as LessonBlock} onClose={() => setActiveModal(null)} />}
@@ -102,7 +102,7 @@ export function ReadingExerciseLayout({
       {/* ── Body ── */}
       <div className="flex flex-1 overflow-hidden">
         {/* Reading: Passage always on LEFT */}
-        <div className="w-1/2 overflow-hidden py-3 pl-6 lg:pl-10 border-r border-gray-100">
+        <div className="w-1/2 overflow-hidden py-3 pl-6 lg:pl-10 border-r border-gray-100 dark:border-gray-800">
           <ReadingPassagePanel
             passageWithLocations={exercise.passageWithLocations}
             passage={exercise.passage}
@@ -125,8 +125,8 @@ export function ReadingExerciseLayout({
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 lg:px-10 py-3 flex items-center justify-between z-10 rounded-b-2xl">
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
+      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 px-6 lg:px-10 py-3 flex items-center justify-between z-10 rounded-b-2xl transition-colors">
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
           <span>Questions</span>
           <div className="flex flex-wrap items-center gap-1 ml-1 max-w-[60vw]">
             {allTrackerItems.map(({ qNum, groupKey }) => {
@@ -135,9 +135,9 @@ export function ReadingExerciseLayout({
                 <button
                   key={qNum}
                   onClick={() => document.getElementById(`question-${qNum}`)?.scrollIntoView({ behavior: "smooth", block: "center" })}
-                  className="w-7 h-9 flex flex-col items-center justify-between text-[13px] font-bold transition-all pt-1 text-gray-700 hover:bg-gray-50 outline-none focus:outline-none"
+                  className="w-7 h-9 flex flex-col items-center justify-between text-[13px] font-bold transition-all pt-1 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 outline-none focus:outline-none"
                 >
-                  <div className={`w-4 h-[3px] rounded-full transition-colors ${isAnswered ? "bg-[#4CAF50]" : "bg-gray-200"}`} />
+                  <div className={`w-4 h-[3px] rounded-full transition-colors ${isAnswered ? "bg-[#4CAF50]" : "bg-gray-200 dark:bg-gray-700"}`} />
                   <span className="mb-0.5">{qNum}</span>
                 </button>
               );
@@ -148,13 +148,13 @@ export function ReadingExerciseLayout({
         <div className="flex items-center gap-2 shrink-0">
           {submitted ? (
             <div className="flex items-center gap-3">
-              <span className="text-[14.5px] font-extrabold text-[#0F172A] bg-white px-5 py-2.5 rounded-xl border border-gray-200 shadow-sm leading-none whitespace-nowrap tracking-wide">
+              <span className="text-[14.5px] font-extrabold text-[#0F172A] dark:text-white bg-white dark:bg-gray-800 px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm leading-none whitespace-nowrap tracking-wide">
                 {score}/{allTrackerItems.length} correct
               </span>
               {!isPerfectScore ? (
                 <button
                   onClick={() => setSubmitted(false)}
-                  className="px-6 py-2.5 rounded-xl bg-[#0F172A] text-white text-[14.5px] font-bold hover:bg-[#1E293B] transition-colors shadow-sm leading-none flex items-center justify-center tracking-wide"
+                  className="px-6 py-2.5 rounded-xl bg-[#0F172A] dark:bg-primary text-white dark:text-gray-900 text-[14.5px] font-bold hover:bg-[#1E293B] dark:hover:bg-yellow-400 transition-colors shadow-sm leading-none flex items-center justify-center tracking-wide"
                 >
                   Retry
                 </button>
@@ -162,7 +162,7 @@ export function ReadingExerciseLayout({
                 <div className="flex gap-3">
                   <button
                     onClick={() => { setSubmitted(false); setAnswers({}); }}
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#F8F9FA] text-[#0F172A] text-[14.5px] font-bold hover:bg-gray-100 transition-colors shadow-sm leading-none tracking-wide"
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#F8F9FA] dark:bg-gray-800 text-[#0F172A] dark:text-white text-[14.5px] font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm leading-none tracking-wide"
                   >
                     <RotateCcw className="w-4 h-4" strokeWidth={2.5}/>
                     Retry
@@ -183,9 +183,9 @@ export function ReadingExerciseLayout({
             <button
               onClick={handleSubmit}
               disabled={Object.keys(answers).length === 0}
-              className="w-11 h-11 rounded-full bg-[#0F172A] flex items-center justify-center hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+              className="w-11 h-11 rounded-full bg-[#0F172A] dark:bg-primary flex items-center justify-center hover:bg-black dark:hover:bg-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
             >
-              <Check className="w-[22px] h-[22px] text-white" strokeWidth={3} />
+              <Check className="w-[22px] h-[22px] text-white dark:text-gray-900" strokeWidth={3} />
             </button>
           )}
         </div>

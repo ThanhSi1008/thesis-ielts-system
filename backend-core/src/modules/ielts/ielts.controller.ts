@@ -83,13 +83,16 @@ export class IeltsController {
   async saveWritingUserAnswer(
     @Request() req: any,
     @Param("id") id: string,
-    @Body()
-    body: { intro: string; overview: string; body1: string; body2: string },
+    @Body() body: { answers: Record<string, string> },
   ) {
-    return this.ieltsService.saveWritingUserAnswer(req.user.id, id, body);
+    return this.ieltsService.saveWritingUserAnswer(
+      req.user.id,
+      id,
+      body.answers,
+    );
   }
 
-  // ── Exercise Snippet (public — used for lesson examples) ────────────────
+  // ── Exercise Snippet (public — used for foundationVocabLesson examples) ────────────────
 
   @Get("exercise-snippet")
   async getExerciseSnippet(
@@ -102,6 +105,18 @@ export class IeltsController {
       id,
       parseInt(groupIndex ?? "0", 10),
     );
+  }
+
+  // ── Speaking ──────────────────────────────────────────────────────────
+
+  @Get("exercises/speaking/:lessonId")
+  async getSpeakingExercises(@Param("lessonId") lessonId: string) {
+    return this.ieltsService.findSpeakingExercisesByLesson(lessonId);
+  }
+
+  @Get("exercises/speaking/detail/:id")
+  async getSpeakingExerciseDetail(@Param("id") id: string) {
+    return this.ieltsService.findSpeakingExerciseById(id);
   }
 
   // ── Progress Tracking ───────────────────────────────────────────────────
@@ -122,6 +137,7 @@ export class IeltsController {
       listeningExerciseId?: string;
       readingExerciseId?: string;
       writingExerciseId?: string;
+      speakingExerciseId?: string;
     },
   ) {
     return this.ieltsService.markItemCompleted(req.user.id, body);

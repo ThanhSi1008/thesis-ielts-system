@@ -1,0 +1,382 @@
+- speaking + exercise
+    - Part 1 — Personal Questions
+        - Hobbies
+            - Exercise 1
+                - Question
+                    - Prompt
+
+                        Do you have any hobbies?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        Well, to be honest, I'm quite into outdoor activities. I particularly enjoy hiking because it helps me unwind after a long week. On top of that, I find that being in nature really clears my mind and gives me a fresh perspective on things.
+
+        - Hometown
+            - Exercise 2
+                - Question
+                    - Prompt
+
+                        Can you describe your hometown?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        Actually, I grew up in a rather small coastal town. It's quite famous locally for its breathtaking scenery and incredibly fresh seafood. Moreover, the people there are deeply passionate about their local traditions, which makes it a fascinating place to visit.
+
+        - Work/Studies
+            - Exercise 3
+                - Question
+                    - Prompt
+
+                        What do you do for a living?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        Currently, I work as a software developer. I specifically focus on building mobile applications. I find it really rewarding because it constantly challenges my problem-solving skills, and consequently, I feel like I'm always learning something new.
+
+        - Daily Routine
+            - Exercise 4
+                - Question
+                    - Prompt
+
+                        Can you describe a typical day for you?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        Well, my weekdays are generally quite busy. I usually start my day early with a quick workout, because I find it gives me a significant energy boost. Furthermore, it helps me stay focused when I sit down to tackle my tasks later in the morning.
+
+        - Food
+            - Exercise 5
+                - Question
+                    - Prompt
+
+                        What kind of food do you enjoy?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        I'm quite fond of spicy dishes, to be frank. I especially love Thai cuisine because the flavors are so rich and diverse. Additionally, I enjoy experimenting with different recipes at home when I have some free time on the weekends.
+
+        - Weather
+            - Exercise 6
+                - Question
+                    - Prompt
+
+                        What is the weather like in your country?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        Well, the climate where I live is quite unpredictable. We often experience heavy rain during the summer months, which can be somewhat frustrating. However, the autumns are absolutely remarkable, with cool breezes and clear skies.
+
+    - Part 2 — The Cue Card
+        - A Person
+            - Exercise 1
+                - Question
+                    - Prompt
+
+                        Describe a person who has influenced you. You should say: who this person is, how you know them, what they have done, and explain why they influenced you.
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        I'd like to talk about my high school history teacher, Mr. Davis. I first met him during my sophomore year when I took his world history class. What made him so remarkable was his ability to make past events feel incredibly relevant to our modern lives. Furthermore, he always encouraged us to question conventional narratives rather than just memorizing dates. Ultimately, I am firmly convinced that his passion for critical thinking shaped the way I approach problems today.
+
+        - A Place
+            - Exercise 2
+                - Question
+                    - Prompt
+
+                        Describe a place you have visited that you found very beautiful. You should say: where it was, when you went there, what you did there, and explain why you found it beautiful.
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        The place I've chosen to describe is a secluded beach in Bali that I visited last summer. We spent most of our time there just relaxing on the pristine white sand and snorkeling in the crystal-clear water. Moving on to why it was so special, the scenery was absolutely breathtaking, especially during the sunset. Moreover, the sheer tranquility of the area provided a much-needed escape from the overwhelming noise of the city.
+
+        - An Event
+            - Exercise 3
+                - Question
+                    - Prompt
+
+                        Describe a memorable event in your life. You should say: what it was, when it happened, who was involved, and explain why it was memorable.
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        I'm going to tell you about my university graduation ceremony, which took place a couple of years ago. My entire extended family traveled from out of town to attend, which made the day feel even more significant. As for why it stands out in my memory, it felt like the culmination of years of hard work finally paying off. Additionally, celebrating that achievement alongside my closest friends was an incredibly rewarding experience.
+
+        - An Object
+            - Exercise 4
+                - Question
+                    - Prompt
+
+                        Describe a gift you received that was important to you. You should say: what it was, who gave it to you, when you received it, and explain why it was important.
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        I'd like to talk about a vintage watch that my grandfather gave me on my 18th birthday. It's a classic mechanical timepiece with a beautifully worn leather strap. What makes it particularly valuable to me is the sentimental attachment, as he wore it every day for decades. Consequently, whenever I wear it now, it serves as a fascinating reminder of his legacy and the strong bond we shared.
+
+    - Part 3 — Abstract Discussion
+        - Technology
+            - Exercise 1
+                - Question
+                    - Prompt
+
+                        Do you think technology has made people's lives better or worse?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        From my perspective, the impact of technology has been overwhelmingly beneficial. On the one hand, some argue that it has made us more isolated, which is a valid concern. However, I strongly believe that the advantages, particularly in terms of medical advancements and global communication, far outweigh the drawbacks. Consequently, our standard of living has improved significantly over the past few decades.
+
+        - Education
+            - Exercise 2
+                - Question
+                    - Prompt
+
+                        How important is it for young people to go to university?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        I'm firmly convinced that higher education plays a crucial role in personal development. While it's true that not every career requires a degree, university teaches vital critical thinking skills. Furthermore, it exposes young adults to a diverse range of ideas and cultures. Therefore, it is highly likely that graduates will have better opportunities to secure stable employment in an increasingly competitive job market.
+
+        - Environment
+            - Exercise 3
+                - Question
+                    - Prompt
+
+                        What can individuals do to help protect the environment?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        It seems to me that individuals have a significant responsibility to adopt sustainable habits. For instance, making simple changes like reducing single-use plastics can have a remarkable impact over time. Moreover, citizens can support environmentally conscious businesses. Having said that, I also believe that governments must implement stricter regulations, because individual actions alone are not enough to combat climate change.
+
+        - Society
+            - Exercise 4
+                - Question
+                    - Prompt
+
+                        Do you think there is too much emphasis on material wealth in modern society?
+
+                    - QuestionType
+
+                        cloze
+
+                - Answer
+                    - Model Response
+
+                        That's a very interesting question. Actually, I tend to agree that society has become overly materialistic. People often equate financial success with personal happiness, which I find quite concerning. Consequently, many individuals work excessively long hours, sacrificing their well-being and relationships. Ultimately, I believe we need a shift in perspective to value experiences over possessions.
+
+    - Best Response Practice
+        - Part 1
+            - Exercise 1
+                - Question
+                    - Prompt
+
+                        Examiner asks: "Do you enjoy cooking?"
+
+                    - QuestionType
+
+                        mcq
+
+                - Answer
+                    - Options
+
+                        A) Yes.
+                        B) Yes, I love cooking. I cook every day. Cooking is my hobby.
+                        C) Well, actually I'm quite passionate about cooking. I particularly enjoy experimenting with Thai cuisine because the combination of flavours is incredibly diverse.
+                        D) I think cooking is very important for health.
+
+                    - CorrectAnswer
+
+                        C
+
+                    - Feedback A
+
+                        Too short — the examiner expects extended answers of 2-3 sentences.
+
+                    - Feedback B
+
+                        Repetitive — uses 'cooking' 3 times with no vocabulary variety.
+
+                    - Feedback C
+
+                        Excellent — extended, natural, uses range, gives a specific example.
+
+                    - Feedback D
+
+                        Doesn't directly answer whether YOU enjoy cooking.
+
+            - Exercise 2
+                - Question
+                    - Prompt
+
+                        Examiner asks: "Do you prefer reading books or watching movies?"
+
+                    - QuestionType
+
+                        mcq
+
+                - Answer
+                    - Options
+
+                        A) I like movies because they are fun.
+                        B) To be honest, I lean more towards watching movies. I find that immersing myself in a visually stunning film is the perfect way to unwind after a stressful day.
+                        C) Books are good but movies are good too.
+                        D) I don't know, maybe movies.
+
+                    - CorrectAnswer
+
+                        B
+
+                    - Feedback A
+
+                        Too basic — lacks vocabulary range and doesn't fully explain why.
+
+                    - Feedback B
+
+                        Excellent — uses a natural opener, good vocabulary ('lean towards', 'immersing myself', 'unwind'), and gives a clear reason.
+
+                    - Feedback C
+
+                        Too simple and repetitive — doesn't actually answer which one you prefer.
+
+                    - Feedback D
+
+                        Hesitant and underdeveloped — you must take a position and explain it.
+
+        - Part 3
+            - Exercise 3
+                - Question
+                    - Prompt
+
+                        Examiner asks: "Do you think children should learn a musical instrument?"
+
+                    - QuestionType
+
+                        mcq
+
+                - Answer
+                    - Options
+
+                        A) Yes, they should because it's good for their brain and makes them smart.
+                        B) I think music is nice.
+                        C) Absolutely. From my perspective, learning an instrument is highly beneficial. It not only fosters creativity but also teaches discipline, which are crucial skills for their future development.
+                        D) Some kids like piano, some kids like guitar.
+
+                    - CorrectAnswer
+
+                        C
+
+                    - Feedback A
+
+                        A bit too informal for Part 3 ('makes them smart') and the sentence structure is very basic.
+
+                    - Feedback B
+
+                        Fails to answer the specific question about children learning an instrument.
+
+                    - Feedback C
+
+                        Excellent — uses formal opinion language ('From my perspective'), advanced vocabulary ('fosters', 'crucial'), and a complex sentence structure ('not only... but also').
+
+                    - Feedback D
+
+                        Doesn't answer the question of whether they *should* learn an instrument.
+
+            - Exercise 4
+                - Question
+                    - Prompt
+
+                        Examiner asks: "Is it better to live in the city or the countryside?"
+
+                    - QuestionType
+
+                        mcq
+
+                - Answer
+                    - Options
+
+                        A) City is better because it has many shops and restaurants.
+                        B) I live in the city and I like it.
+                        C) The countryside has fresh air.
+                        D) That's an interesting question. I'd argue that it depends on your stage in life. While the city offers incredible career opportunities for young professionals, the countryside provides a tranquil environment that is often more suitable for raising a family.
+
+                    - CorrectAnswer
+
+                        D
+
+                    - Feedback A
+
+                        Answers the question but uses very basic vocabulary and simple sentence structure.
+
+                    - Feedback B
+
+                        Too personal — Part 3 is about society in general, not just your personal life.
+
+                    - Feedback C
+
+                        Only presents one side and fails to make a comparison or reach a conclusion.
+
+                    - Feedback D
+
+                        Excellent — uses a natural filler to buy time, presents a balanced view ('While...'), and uses high-level vocabulary ('tranquil', 'suitable').

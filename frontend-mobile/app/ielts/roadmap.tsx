@@ -1,142 +1,204 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View, Text, ScrollView, StyleSheet, TouchableOpacity,
+  Animated, ActivityIndicator, RefreshControl,
+} from 'react-native';
+import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { apiClient } from '@/services/api-client';
 
-const ROADMAP_STEPS = [
-  {
-    id: 1, icon: '🎯', title: 'IELTS Onboarding',
-    desc: 'Set your target band, daily commitment, and exam date.',
-    route: '/ielts/onboarding', color: '#6366F1',
+// Sub-components
+import { RoadmapItem } from '@/components/ielts/LessonRow';
+import { RoadmapSummary } from '@/components/ielts/RoadmapSummary';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { RoadmapStepSection } from '@/components/ielts/RoadmapStepSection';
+
+/* ─── Types ─── */
+interface RoadmapStep {
+  step: number;
+  items: RoadmapItem[];
+  isLocked: boolean;
+  isCompleted: boolean;
+}
+
+/* ─── Nav items ─── */
+const NAV_ITEMS = [
+  { key: 'dashboard',      label: 'Dashboard',        icon: 'grid-outline' as const,        route: '/ielts/dashboard' },
+  { 
+    key: 'foundation',     
+    label: 'Foundation',       
+    icon: 'book-outline' as const,        
+    route: '#',
+    children: [
+      { key: 'pronunciation', label: 'Pronunciation', route: '/(tabs)/pronunciation' },
+      { key: 'vocabulary',    label: 'Vocabulary',    route: '/(tabs)/vocabulary' },
+      { key: 'grammar',       label: 'Grammar',       route: '/(tabs)/grammar' }
+    ]
   },
-  {
-    id: 2, icon: '📚', title: 'Learn the Basics',
-    desc: 'Study IELTS strategies for all 4 skills.',
-    route: '/(tabs)', color: '#2563EB',
-  },
-  {
-    id: 3, icon: '🎧', title: 'Advanced Practice',
-    desc: 'Practice specific question types with Cambridge parts.',
-    route: '/ielts/advanced', color: '#E11D48',
-  },
-  {
-    id: 4, icon: '📝', title: 'Mock Tests',
-    desc: 'Take full-length mock tests under timed conditions.',
-    route: '/ielts/intensive', color: '#D97706',
-  },
-  {
-    id: 5, icon: '📊', title: 'Review Statistics',
-    desc: 'Track your band score trends and progress over time.',
-    route: '/ielts/statistics', color: '#059669',
-  },
-  {
-    id: 6, icon: '🏆', title: 'Achieve Your Target',
-    desc: 'Consistent daily practice leads to IELTS success.',
-    route: null, color: '#7C3AED',
-  },
+  { key: 'basic',          label: 'IELTS Basic',       icon: 'information-circle-outline' as const, route: '/(tabs)/ielts' },
+  { key: 'advanced',       label: 'IELTS Advanced',    icon: 'trending-up-outline' as const, route: '/ielts/advanced' },
+  { key: 'intensive',      label: 'IELTS Intensive',   icon: 'flash-outline' as const,       route: '/ielts/intensive' },
+  { key: 'roadmap',        label: 'Roadmap',           icon: 'map-outline' as const,         route: '/ielts/roadmap', isActive: true },
+  { key: 'history',        label: 'Test History',      icon: 'time-outline' as const,        route: '/ielts/history' },
+  { key: 'statistics',     label: 'Statistics',        icon: 'bar-chart-outline' as const,   route: '/ielts/statistics' },
+  { key: 'student-teacher',label: 'Student/Teacher',   icon: 'people-outline' as const,      route: '/student-teacher' },
 ];
 
-export default function RoadmapScreen() {
+export default function IeltsRoadmapScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const [steps, setSteps]               = useState<RoadmapStep[]>([]);
+  const [currentStep, setCurrentStep]   = useState(1);
+  const [loading, setLoading]           = useState(true);
+  const [refreshing, setRefreshing]     = useState(false);
+  const [drawerOpen, setDrawerOpen]     = useState(false);
+  
+  const drawerAnim   = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const fetchRoadmap = async () => {
+    try {
+      const data = await apiClient.get<{
+        steps: RoadmapStep[];
+        currentStep: number;
+        requiresOnboarding?: boolean;
+      }>('/ielts/roadmap');
+
+      if (data.requiresOnboarding) {
+        router.replace('/ielts/onboarding' as any);
+        return;
+      }
+      setSteps(data.steps ?? []);
+      setCurrentStep(data.currentStep ?? 1);
+    } catch (e: any) {
+      console.error('Roadmap fetch error:', e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => { fetchRoadmap(); }, []);
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim,   { toValue: 0,    useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1,    duration: 250,         useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim,   { toValue: -280, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 0,    duration: 200,         useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== '/ielts/roadmap') {
+      setTimeout(() => router.push(route as any), 200);
+    }
+  };
+
+  let nextItem: RoadmapItem | null = null;
+  for (const step of steps) {
+    for (const item of step.items) {
+      if (!item.isCompleted && !item.isLocked) { nextItem = item; break; }
+    }
+    if (nextItem) break;
+  }
+
+  const totalLessons     = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'lesson').length, 0);
+  const completedLessons = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'lesson' && i.isCompleted).length, 0);
+  const totalExercises     = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'exercise').length, 0);
+  const completedExercises = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'exercise' && i.isCompleted).length, 0);
+
+  const handleItemPress = (item: RoadmapItem) => {
+    if (item.isLocked) return;
+    if (item.type === 'lesson') {
+      router.push(`/ielts/basic/lesson/${item.id}?skill=${item.skill.toLowerCase()}` as any);
+    } else {
+      const q = item.lessonId ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}` : `?skill=${item.skill.toLowerCase()}`;
+      router.push(`/ielts/basic/exercise/${item.id}${q}` as any);
+    }
+  };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>IELTS Roadmap</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
-      >
-        <Text style={styles.subtitle}>Your personalized path to IELTS success</Text>
-
-        {ROADMAP_STEPS.map((step, i) => (
-          <View key={step.id} style={styles.stepContainer}>
-            {/* Connector line */}
-            {i < ROADMAP_STEPS.length - 1 && (
-              <View style={[styles.connector, { backgroundColor: step.color + '40' }]} />
-            )}
-
-            <TouchableOpacity
-              style={styles.stepCard}
-              onPress={() => step.route && router.push(step.route as any)}
-              activeOpacity={step.route ? 0.8 : 1}
-            >
-              {/* Step number + icon */}
-              <View style={[styles.stepIcon, { backgroundColor: step.color + '15', borderColor: step.color }]}>
-                <Text style={styles.stepEmoji}>{step.icon}</Text>
-              </View>
-
-              {/* Content */}
-              <View style={styles.stepContent}>
-                <View style={styles.stepTop}>
-                  <Text style={[styles.stepNum, { color: step.color }]}>Step {step.id}</Text>
-                  {step.route && <Ionicons name="chevron-forward" size={16} color={step.color} />}
-                </View>
-                <Text style={styles.stepTitle}>{step.title}</Text>
-                <Text style={styles.stepDesc}>{step.desc}</Text>
-              </View>
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          title: 'Your Roadmap',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#fff' },
+          headerTitleStyle: { fontFamily: FONTS.bold, fontSize: FONT_SIZES.lg, color: COLORS.text },
+          headerLeft: () => (
+            <TouchableOpacity style={[styles.menuBtn, { marginLeft: SPACING.md }]} onPress={openDrawer}>
+              <Ionicons name="menu" size={24} color={COLORS.text} />
             </TouchableOpacity>
-          </View>
-        ))}
+          ),
+          headerRight: () => (
+            <TouchableOpacity style={{ marginRight: SPACING.md }} onPress={() => router.back()}>
+              <Ionicons name="close" size={24} color={COLORS.text} />
+            </TouchableOpacity>
+          )
+        }} 
+      />
 
-        <View style={{ height: 80 }} />
-      </ScrollView>
-    </SafeAreaView>
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading your roadmap…</Text>
+        </View>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => { setRefreshing(true); fetchRoadmap(); }}
+            />
+          }
+        >
+          <RoadmapSummary 
+            totalLessons={totalLessons}
+            completedLessons={completedLessons}
+            totalExercises={totalExercises}
+            completedExercises={completedExercises}
+          />
+
+          {steps.map((step) => (
+            <RoadmapStepSection 
+              key={step.step}
+              step={step}
+              currentStep={currentStep}
+              nextItemId={nextItem?.id}
+              onItemPress={handleItemPress}
+            />
+          ))}
+        </ScrollView>
+      )}
+
+      <SharedDrawer 
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        navItems={NAV_ITEMS}
+        onClose={closeDrawer}
+        onNavPress={handleNavPress}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  header: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-  },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
-  scroll: { padding: SPACING.lg },
-  subtitle: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginBottom: SPACING.xl, textAlign: 'center' },
-  stepContainer: { position: 'relative', marginBottom: SPACING.md },
-  connector: { position: 'absolute', left: 36, top: 80, width: 3, height: SPACING.md + 8, zIndex: 0 },
-  stepCard: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    gap: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-    zIndex: 1,
-  },
-  stepIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: RADIUS.xl,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  stepEmoji: { fontSize: 26 },
-  stepContent: { flex: 1 },
-  stepTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 },
-  stepNum: { fontSize: FONT_SIZES.xs, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-  stepTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: 4 },
-  stepDesc: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, lineHeight: 20 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
+  loadingText: { fontFamily: FONTS.medium, color: COLORS.textSecondary, fontSize: FONT_SIZES.sm },
+  menuBtn: { width: 40, height: 40, justifyContent: 'center' },
 });

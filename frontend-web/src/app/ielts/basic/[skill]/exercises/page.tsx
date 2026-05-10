@@ -1,5 +1,13 @@
 import Link from "next/link";
 import ClientExerciseListGroup from "./ClientExerciseListGroup";
+import { API_BASE_URL } from "@/constants";
+import { Exercise } from "./[exerciseId]/_components/utils/SharedExerciseTypes";
+
+type ExerciseWithLesson = Exercise & {
+  lessonTitle: string;
+  lessonId: string;
+  order: number;
+};
 
 export default async function ExercisesPage({
   params,
@@ -9,41 +17,43 @@ export default async function ExercisesPage({
   const isListening = params.skill.toLowerCase() === "listening";
   const isReading = params.skill.toLowerCase() === "reading";
   const isWriting = params.skill.toLowerCase() === "writing";
+  const isSpeaking = params.skill.toLowerCase() === "speaking";
   const skillCapitalized =
     params.skill.charAt(0).toUpperCase() + params.skill.slice(1).toLowerCase();
 
-  let exercises: any[] = [];
+  let exercises: ExerciseWithLesson[] = [];
 
   try {
-    // 1. Fetch lessons for the skill to get lesson IDs
+    // 1. Fetch lessons for the skill to get foundationVocabLesson IDs
     const lessonsRes = await fetch(
-      `http://localhost:3000/api/v1/ielts/skills/${skillCapitalized}/lessons`,
+      `${API_BASE_URL}/ielts/skills/${skillCapitalized}/lessons`,
       { cache: "no-store" }
     );
 
     if (lessonsRes.ok) {
       const allLessons = await lessonsRes.json();
 
-      if (allLessons.length > 0 && (isListening || isReading || isWriting)) {
-        const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : "reading-exercises";
+      if (allLessons.length > 0 && (isListening || isReading || isWriting || isSpeaking)) {
+        const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : isSpeaking ? "exercises/speaking" : "reading-exercises";
 
-        // 2. Fetch exercises for each lesson
-        const exPromises = allLessons.map(async (l: any) => {
+        // 2. Fetch exercises for each foundationVocabLesson
+        const exPromises = allLessons.map(async (l: { id: string; title: string }) => {
           try {
-            const exRes = await fetch(
-              `http://localhost:3000/api/v1/ielts/lessons/${l.id}/${endpoint}`,
-              { cache: "no-store" }
-            );
+            const url = isSpeaking 
+              ? `${API_BASE_URL}/ielts/${endpoint}/${l.id}`
+              : `${API_BASE_URL}/ielts/lessons/${l.id}/${endpoint}`;
+            const exRes = await fetch(url, { cache: "no-store" });
             if (exRes.ok) {
               const exData = await exRes.json();
-              return exData.map((ex: any) => ({
+              return exData.map((ex: Record<string, unknown>) => ({
                 ...ex,
                 lessonTitle: l.title,
                 lessonId: l.id,
+                order: (ex.order as number) || 0,
               }));
             }
           } catch (e) {
-            console.error(`Failed to fetch exercises for lesson ${l.id}`, e);
+            console.error(`Failed to fetch exercises for foundationVocabLesson ${l.id}`, e);
           }
           return [];
         });
@@ -65,9 +75,9 @@ export default async function ExercisesPage({
   }
 
   const toTypeLabel = (title: string) =>
-    (title || "Other").replace(/^Chapter\s+\d+\s*[-–]\s*/i, "").trim() || "Other";
+    (title || "Other").replace(/^(Task \d+\s*[-–]\s*)?Chapter\s+\d+\s*[-–]\s*/i, "").trim() || "Other";
 
-  const groups: { title: string; items: any[] }[] = [];
+  const groups: { title: string; items: ExerciseWithLesson[] }[] = [];
   for (const ex of exercises) {
     const groupTitle = toTypeLabel(ex.lessonTitle || "Other");
     const existing = groups.find((g) => g.title === groupTitle);
@@ -79,14 +89,14 @@ export default async function ExercisesPage({
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-gray-100 p-6 lg:p-8">
-      <div className="flex flex-col items-start mb-8 pb-4 border-b border-gray-100">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
-          <Link href="/ielts/basic/library" className="hover:text-gray-900 transition-colors px-1">Library</Link>
+    <div className="flex flex-col h-full bg-white dark:bg-slate-950 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 lg:p-8 transition-colors">
+      <div className="flex flex-col items-start mb-8 pb-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
+          <Link href="/ielts/basic/library" className="hover:text-gray-900 dark:hover:text-white transition-colors px-1">Library</Link>
           <span className="opacity-30">/</span>
-          <span className="px-1 text-gray-300">{skillCapitalized}</span>
+          <span className="px-1 text-gray-300 dark:text-gray-700">{skillCapitalized}</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
           {skillCapitalized} Exercises
         </h1>
       </div>

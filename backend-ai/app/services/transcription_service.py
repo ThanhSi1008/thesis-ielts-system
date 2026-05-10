@@ -76,7 +76,7 @@ class TranscriptionService:
                 audio_path,
                 language=language,
                 beam_size=5,
-                vad_filter=True,  # Voice Activity Detection
+                vad_filter=False,  # Disabled: VAD aggressively filters out short single-word recordings
                 word_timestamps=True  # Enable per-word confidence scores
             )
 

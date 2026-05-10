@@ -194,10 +194,10 @@ const styles = StyleSheet.create({
   dividerHorizontal: { height: 1, backgroundColor: COLORS.border, marginVertical: SPACING.sm },
   dividerVertical: { width: 1, backgroundColor: COLORS.border, marginHorizontal: SPACING.sm },
   // Chip
-  chip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs + 2, borderRadius: RADIUS.full, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, marginRight: SPACING.sm },
+  chip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm + 2, minHeight: 40, borderRadius: RADIUS.full, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, marginRight: SPACING.sm },
   chipActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  chipText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '500' },
-  chipTextActive: { color: '#fff', fontWeight: '700' },
+  chipText: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary, fontWeight: '600' },
+  chipTextActive: { color: '#fff', fontWeight: '800' },
   // Score badge
   scoreBadge: { borderWidth: 2, borderRadius: RADIUS.md, paddingHorizontal: SPACING.sm, paddingVertical: 2 },
   scoreText: { fontSize: FONT_SIZES.lg, fontWeight: '800' },

@@ -1,16 +1,19 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
+import { usePathname } from "next/navigation";
 import type { CardType } from "@/types";
 import { vocabLabApi } from "@/services/vocabLab.api";
+import api from "@/lib/api";
+import { authService } from "@/services/auth.service";
+import { API_BASE_URL } from "@/constants";
 
 type SuggestionMsg = {
   id: string;
   label: string;
   actionType: "EXPLAIN_NOTE" | "ADD_VOCAB";
-  payload: any;
+  payload: unknown;
 };
 
 type Message = {
@@ -25,14 +28,14 @@ const parseInlineStyles = (line: string) => {
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
       return (
-        <strong key={i} className="font-bold text-gray-900">
+        <strong key={i} className="font-bold text-gray-900 dark:text-gray-100">
           {part.slice(2, -2)}
         </strong>
       );
     }
     if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
       return (
-        <em key={i} className="italic text-gray-800">
+        <em key={i} className="italic text-gray-800 dark:text-gray-200">
           {part.slice(1, -1)}
         </em>
       );
@@ -131,6 +134,7 @@ const NeutralBlackHoleIcon = ({ className }: { className?: string }) => (
 
 export function GlobalAIChatFab() {
   const { user } = useAuth();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number | null; y: number | null }>({
     x: null,
@@ -143,12 +147,37 @@ export function GlobalAIChatFab() {
     {
       role: "model",
       content:
-        "Hello! I am your AI assistant. How can I help you studying today?",
+        `Hello${user?.firstName ? `, **${user.firstName}**` : ''}! I'm **Lexon AI**, your personal IELTS study assistant. How can I help you today?`,
     },
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // --- User context for RAG personalization ---
+  const [streak, setStreak] = useState<number>(0);
+  const [vocabDue, setVocabDue] = useState<number>(0);
+  const [recentScores] = useState<Record<string, number | null>>({});
+
+  useEffect(() => {
+    if (!user) return;
+    // Fetch streak
+    api.get<{ currentStreak: number }>("/ielts/streak")
+      .then(r => setStreak(r.data.currentStreak ?? 0))
+      .catch(() => {});
+    // Fetch vocab due
+    vocabLabApi.getDecks()
+      .then(decks => setVocabDue(decks.reduce((s, d) => s + d.newCount + d.learningCount + d.dueCount, 0)))
+      .catch(() => {});
+  }, [user]);
+
+  const userContext = useMemo(() => ({
+    name: user?.firstName || undefined,
+    currentPage: pathname,
+    studyStreak: streak || undefined,
+    vocabDueCount: vocabDue || undefined,
+    recentScores: Object.keys(recentScores).length ? recentScores : undefined,
+  }), [user, pathname, streak, vocabDue, recentScores]);
 
   useEffect(() => {
     if (isOpen) {
@@ -185,26 +214,28 @@ export function GlobalAIChatFab() {
         );
       }
     }
-  }, [messages.length, isTyping]);
+  }, [messages.length, isTyping, isOpen, messages]);
 
-  const explainAsCardType = async (
+  const explainAsCardType = useCallback(async (
     word: string,
     context: string,
-    cardType: any,
-    allCardTypes: any[],
+    cardType: CardType,
+    allCardTypes: CardType[],
   ) => {
     setIsTyping(true);
     const fieldDescriptions = cardType.fields
       .map(
-        (f: any) => `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
+        (f: { name: string; description?: string | null }) => `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
       )
       .join(", ");
 
     try {
       const prompt = `Act as an expert English Teacher. The user highlighted the word '${word}' from the sentence: "${context}". Use the **${cardType.name}** card type format to explain it. Cover precisely these aspects based on their descriptions: ${fieldDescriptions}. Make the explanation clear, conversational, and highly educational.`;
 
-      const response = await axios.post("http://localhost:8000/api/v1/chat", {
+      const response = await api.post<{ response: string }>("/chat", {
         messages: [{ role: "user", content: prompt }],
+        userContext,
+        stream: false,
       });
 
       setMessages((prev) => [
@@ -220,8 +251,8 @@ export function GlobalAIChatFab() {
               payload: { word, context, cardType },
             },
             ...(allCardTypes || [])
-              .filter((t: any) => t.id !== cardType.id)
-              .map((t: any) => ({
+              .filter((t: CardType) => t.id !== cardType.id)
+              .map((t: CardType) => ({
                 id: t.id,
                 label: `Explain as ${t.name}`,
                 actionType: "EXPLAIN_NOTE" as const,
@@ -244,10 +275,11 @@ export function GlobalAIChatFab() {
     } finally {
       setIsTyping(false);
     }
-  };
+  }, [userContext]);
 
   useEffect(() => {
-    const handleOpen = async (e: any) => {
+    const handleOpen = async (ev: Event) => {
+      const e = ev as CustomEvent<{ word: string; context: string }>;
       setIsOpen(true);
       if (e.detail?.word && e.detail?.context) {
         try {
@@ -279,7 +311,7 @@ export function GlobalAIChatFab() {
               {
                 role: "model",
                 content: `Hello! Curious about the word **"${e.detail.word}"** from your practice? I'm here to help.\n\nPlease choose a format below to explain it:`,
-                suggestions: types.map((t: any) => ({
+                suggestions: types.map((t: CardType) => ({
                   id: t.id,
                   label: `Explain as ${t.name}`,
                   actionType: "EXPLAIN_NOTE" as const,
@@ -307,7 +339,7 @@ export function GlobalAIChatFab() {
     };
     window.addEventListener("open-ai-chat-fab", handleOpen);
     return () => window.removeEventListener("open-ai-chat-fab", handleOpen);
-  }, []);
+  }, [explainAsCardType]);
 
   const handleSuggestionClick = async (
     messageIndex: number,
@@ -327,17 +359,17 @@ export function GlobalAIChatFab() {
     });
 
     if (suggestion.actionType === "EXPLAIN_NOTE") {
-      const { word, context, cardType, allCardTypes } = suggestion.payload;
+      const { word, context, cardType, allCardTypes } = suggestion.payload as { word: string; context: string; cardType: CardType; allCardTypes: CardType[] };
       await explainAsCardType(word, context, cardType, allCardTypes);
     } else if (suggestion.actionType === "ADD_VOCAB") {
-      const { word, context, cardType } = suggestion.payload;
+      const { word, context, cardType } = suggestion.payload as { word: string; context: string; cardType: CardType };
       const fieldDescriptions = cardType.fields
         .map(
-          (f: any) =>
+          (f: { name: string; description?: string | null }) =>
             `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
         )
         .join(", ");
-      const fieldKeys = cardType.fields.map((f: any) => f.name).join(", ");
+      const fieldKeys = cardType.fields.map((f: { name: string }) => f.name).join(", ");
 
       try {
         // Add a temporary matching response
@@ -348,8 +380,9 @@ export function GlobalAIChatFab() {
 
         const prompt = `Act as an expert English Teacher generating a flashcard for the word '${word}' from the sentence: "${context}". Use the **${cardType.name}** card type. Generate content fulfilling these fields: ${fieldDescriptions}. Return a strictly formatted JSON object where the keys are exactly these field names: [${fieldKeys}] and the values are strings of the generated content. Do not include markdown blocks, explanation text, or anything other than the raw JSON object.`;
 
-        const response = await axios.post("http://localhost:8000/api/v1/chat", {
+        const response = await api.post<{ response: string }>("/chat", {
           messages: [{ role: "user", content: prompt }],
+          stream: false,
         });
 
         let jsonStr = response.data.response || "";
@@ -423,8 +456,8 @@ export function GlobalAIChatFab() {
     e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSend = async (e?: React.FormEvent | React.KeyboardEvent) => {
+    e?.preventDefault();
     if (!input.trim() || isTyping) return;
 
     const userMsg: Message = { role: "user", content: input.trim() };
@@ -434,13 +467,60 @@ export function GlobalAIChatFab() {
     setIsTyping(true);
 
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/chat", {
-        messages: newMessages,
+      const token = authService.getToken();
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          messages: newMessages,
+          userContext,
+        }),
       });
-      setMessages([
-        ...newMessages,
-        { role: "model", content: response.data.response },
-      ]);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let text = "";
+
+      // Add a pending message to the UI
+      setMessages([...newMessages, { role: "model", content: "" }]);
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunkValue = decoder.decode(value);
+        
+        // Parse SSE format (data: ...\n\n)
+        const lines = chunkValue.split("\n\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const content = line.slice(6);
+            text += content;
+            
+            // Update the last message with the new text
+            setMessages((prev) => {
+              const updated = [...prev];
+              if (updated.length > 0) {
+                updated[updated.length - 1] = {
+                  ...updated[updated.length - 1],
+                  content: text,
+                };
+              }
+              return updated;
+            });
+          }
+        }
+      }
     } catch (error) {
       console.error("Chat error:", error);
       setMessages([
@@ -456,19 +536,21 @@ export function GlobalAIChatFab() {
     }
   };
 
-  if (!user) return null;
+  const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start") || pathname === "/ielts/basic/onboarding";
+
+  if (!user || isTakePage) return null;
 
   return (
     <>
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-[8999] flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-gray-200 hover:border-gray-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-95 transition-all duration-200 focus:outline-none group"
-        title="Gemini AI Chat"
+        className="fixed bottom-6 right-6 z-[8999] flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-900 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] active:scale-95 transition-all duration-200 focus:outline-none group"
+        title="Lexon AI"
       >
         {isOpen ? (
           <svg
-            className="w-4 h-4 text-gray-500 group-hover:text-gray-800 transition-colors"
+            className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -512,7 +594,7 @@ export function GlobalAIChatFab() {
             bottom: pos.y !== null ? "auto" : undefined,
             transition: isDragging ? "none" : undefined,
           }}
-          className={`fixed bottom-[10vh] right-[100px] z-[9000] w-[475px] min-w-[300px] max-w-[90vw] h-[80vh] min-h-[400px] max-h-[85vh] bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden border border-gray-200 ${pos.x === null ? "animate-fade-in-up" : ""}`}
+          className={`fixed bottom-[10vh] right-[100px] z-[9000] w-[475px] min-w-[300px] max-w-[90vw] h-[80vh] min-h-[400px] max-h-[85vh] bg-white dark:bg-gray-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-700 ${pos.x === null ? "animate-fade-in-up" : ""}`}
         >
           {/* Modal Header */}
           <div
@@ -520,7 +602,7 @@ export function GlobalAIChatFab() {
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
-            className="flex items-center justify-between px-5 py-3.5 bg-white text-gray-900 border-b border-gray-100 z-10 sticky top-0 shrink-0 cursor-move select-none touch-none rounded-t-2xl"
+            className="flex items-center justify-between px-5 py-3.5 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 z-10 sticky top-0 shrink-0 cursor-move select-none touch-none rounded-t-2xl"
           >
             <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
               <svg
@@ -547,11 +629,11 @@ export function GlobalAIChatFab() {
                   fill="url(#gemini-grad-header)"
                 />
               </svg>
-              Gemini
+              Lexon AI
             </h2>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-full transition-colors focus:outline-none"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 p-1.5 rounded-full transition-colors focus:outline-none"
             >
               <svg
                 className="w-5 h-5"
@@ -570,7 +652,7 @@ export function GlobalAIChatFab() {
           </div>
 
           {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
+          <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 dark:bg-gray-950 flex flex-col gap-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-600">
             {messages.map((message, idx) => (
               <div
                 key={idx}
@@ -586,8 +668,8 @@ export function GlobalAIChatFab() {
                   <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
                     <div
                       className={`px-4 py-2.5 shadow-sm text-[14px] ${message.role === "user"
-                        ? "bg-[#111111] text-white rounded-[20px] self-end"
-                        : "bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm self-start"
+                        ? "bg-[#111111] dark:bg-gray-800 text-white rounded-[20px] self-end"
+                        : "bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm self-start"
                         }`}
                       style={{
                         wordBreak: "break-word",
@@ -604,7 +686,7 @@ export function GlobalAIChatFab() {
                       <button
                         key={s.id}
                         onClick={() => handleSuggestionClick(idx, s)}
-                        className="text-right bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-4 py-2.5 rounded-[20px] shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 text-[14px] max-w-[85%]"
+                        className="text-right bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2.5 rounded-[20px] shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 text-[14px] max-w-[85%]"
                       >
                         {s.label}
                       </button>
@@ -616,7 +698,7 @@ export function GlobalAIChatFab() {
             {isTyping && (
               <div className="flex justify-start items-end gap-2">
                 <NeutralBlackHoleIcon className="mb-0.5" />
-                <div className="bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex items-center gap-1.5 h-fit">
+                <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex items-center gap-1.5 h-fit">
                   <div
                     className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
                     style={{ animationDelay: "0ms" }}
@@ -638,7 +720,7 @@ export function GlobalAIChatFab() {
           {/* Input Area */}
           <form
             onSubmit={handleSend}
-            className="p-3 bg-white border-t border-gray-100 shrink-0"
+            className="p-3 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shrink-0"
           >
             <div className="flex gap-2 items-end">
               <textarea
@@ -652,13 +734,13 @@ export function GlobalAIChatFab() {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     if (input.trim() && !isTyping) {
-                      handleSend(e as any);
+                      handleSend(e);
                     }
                   }
                 }}
                 placeholder="Ask me anything..."
                 rows={1}
-                className="flex-1 bg-gray-100 text-gray-900 rounded-[20px] px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-white transition-all resize-none min-h-[44px] max-h-[120px] overflow-y-auto break-words leading-relaxed"
+                className="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-[20px] px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-500/50 focus:bg-white dark:focus:bg-gray-700 transition-all resize-none min-h-[44px] max-h-[120px] overflow-y-auto break-words leading-relaxed placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 disabled={isTyping}
                 style={{ height: input ? undefined : 'auto' }}
               />

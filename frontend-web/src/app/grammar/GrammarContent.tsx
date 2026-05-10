@@ -1,17 +1,36 @@
 "use client";
 
-import React from 'react';
-import { grammarBooks } from './data';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { grammarApi } from '@/services/learning.api';
+import type { FoundationGrammarBook } from '@/types';
 
 export default function GrammarContent({ embedded }: { embedded?: boolean }) {
+  const [grammarBooks, setGrammarBooks] = useState<FoundationGrammarBook[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    grammarApi.getBooks().then(data => {
+      setGrammarBooks(data);
+      setIsLoading(false);
+    }).catch(console.error);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className='flex-1 min-w-0 bg-white overflow-y-auto p-6 md:p-8 w-full h-full shrink-0 flex items-center justify-center'>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
     <div className='flex-1 min-w-0 bg-white overflow-y-auto p-6 md:p-8 w-full h-full shrink-0'>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {grammarBooks.map((book, index) => (
+        {grammarBooks?.map((book, index) => (
           <Link
             key={index}
-            href={`/grammar/${book.id}`}
+            href={`/ielts/grammar/${book.slug}`}
             className="block h-full group"
           >
             <div
@@ -46,7 +65,7 @@ export default function GrammarContent({ embedded }: { embedded?: boolean }) {
 
                 <div className="flex gap-2 items-center mb-6">
                   <img src="https://res.cloudinary.com/dalaaegob/image/upload/v1769774878/dictionary-icon_qxfgms.png" alt="" className="w-5 h-5 opacity-60" />
-                  <p className="text-gray-500 font-medium text-sm">{book.unit_count} units</p>
+                  <p className="text-gray-500 font-medium text-sm">{book.unitCount} units</p>
                 </div>
 
                 <button className="mt-auto w-full bg-[#FACC15] text-black font-bold py-3 px-4 rounded-xl uppercase tracking-wide hover:opacity-90 transition-opacity">

@@ -37,22 +37,22 @@ export default function IeltsAdvancedStatisticsPage() {
   return (
     <div className="flex flex-col">
        <div className="mb-8 flex items-center gap-2">
-         <h2 className="text-2xl font-extrabold text-gray-900">Skill Accuracy</h2>
-         <Info className="w-5 h-5 text-gray-400" />
+         <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white">Skill Accuracy</h2>
+         <Info className="w-5 h-5 text-gray-400 dark:text-slate-500" />
        </div>
 
        {/* Skill Filters */}
-       <div className="flex items-center gap-4 mb-8">
-         <button className="px-6 py-2 rounded-xl bg-pink-50 text-pink-500 font-extrabold text-[15px] border border-pink-100">
+       <div className="flex items-center gap-4 mb-8 overflow-x-auto pb-2">
+         <button className="px-6 py-2 rounded-xl bg-pink-50 dark:bg-pink-900/20 text-pink-500 dark:text-pink-400 font-extrabold text-[15px] border border-pink-100 dark:border-pink-900/50">
            Listening
          </button>
-         <button className="px-6 py-2 rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 font-extrabold text-[15px] transition-colors">
+         <button className="px-6 py-2 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 font-extrabold text-[15px] transition-colors">
            Reading
          </button>
-         <button className="px-6 py-2 rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 font-extrabold text-[15px] transition-colors">
+         <button className="px-6 py-2 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 font-extrabold text-[15px] transition-colors">
            Writing
          </button>
-         <button className="px-6 py-2 rounded-xl bg-gray-50 text-gray-500 hover:bg-gray-100 font-extrabold text-[15px] transition-colors">
+         <button className="px-6 py-2 rounded-xl bg-gray-50 dark:bg-slate-900 text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 font-extrabold text-[15px] transition-colors">
            Speaking
          </button>
        </div>
@@ -68,20 +68,20 @@ export default function IeltsAdvancedStatisticsPage() {
              const hasAttempted = stat.attempted > 0;
 
              return (
-               <div key={qt.id} className="flex gap-4">
-                 <div className="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+                <div key={qt.id} className="flex gap-4">
+                 <div className="w-12 h-12 rounded-xl bg-blue-500 dark:bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
                     {qt.icon}
                  </div>
                  <div className="flex-1 flex flex-col justify-center">
-                    <div className="text-[13px] font-bold text-gray-500 mb-1.5">{qt.label}</div>
+                    <div className="text-[13px] font-bold text-gray-500 dark:text-slate-400 mb-1.5">{qt.label}</div>
                     {hasAttempted ? (
-                      <div className="relative h-6 bg-blue-100 rounded flex overflow-hidden">
-                        <div className="absolute left-0 top-0 h-full bg-blue-500 transition-all" style={{ width: `${percentage}%` }}></div>
+                      <div className="relative h-6 bg-blue-100 dark:bg-blue-900/50 rounded flex overflow-hidden">
+                        <div className="absolute left-0 top-0 h-full bg-blue-500 dark:bg-blue-600 transition-all" style={{ width: `${percentage}%` }}></div>
                         <span className="relative z-10 text-[12px] font-bold text-white px-2 mt-0.5">{percentage}%</span>
                       </div>
                     ) : (
-                      <div className="h-6 bg-blue-200/50 rounded flex items-center px-2">
-                        <span className="text-[12px] font-bold text-white leading-none mt-0.5">Not Attempted</span>
+                      <div className="h-6 bg-blue-200/50 dark:bg-slate-800 rounded flex items-center px-2">
+                        <span className="text-[12px] font-bold text-white dark:text-slate-500 leading-none mt-0.5">Not Attempted</span>
                       </div>
                     )}
                  </div>

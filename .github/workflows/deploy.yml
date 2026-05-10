@@ -1,0 +1,151 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - deploy
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PROJECT_ID: ielts-master-495612
+  REGION: asia-southeast1
+  VM_HOST: 34.143.226.199
+  VM_USER: xis108
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Detect which services changed
+  # ─────────────────────────────────────────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend-core: ${{ steps.filter.outputs.backend-core }}
+      backend-ai: ${{ steps.filter.outputs.backend-ai }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend-web/**'
+            backend-core:
+              - 'backend-core/**'
+            backend-ai:
+              - 'backend-ai/**'
+
+  # ─────────────────────────────────────────────
+  # Deploy frontend-web (Cloud Run — không đổi)
+  # ─────────────────────────────────────────────
+  deploy-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build and push image
+        working-directory: frontend-web
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
+            --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }} \
+            -t gcr.io/${{ env.PROJECT_ID }}/frontend-web:${{ github.sha }} \
+            -t gcr.io/${{ env.PROJECT_ID }}/frontend-web:latest \
+            .
+          docker push gcr.io/${{ env.PROJECT_ID }}/frontend-web:${{ github.sha }}
+          docker push gcr.io/${{ env.PROJECT_ID }}/frontend-web:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy frontend-web \
+            --image gcr.io/${{ env.PROJECT_ID }}/frontend-web:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" \
+            --set-env-vars "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}"
+
+  # ─────────────────────────────────────────────
+  # Deploy backend lên VM
+  # ─────────────────────────────────────────────
+  deploy-backend:
+    needs: changes
+    if: |
+      needs.changes.outputs.backend-core == 'true' ||
+      needs.changes.outputs.backend-ai == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Build and push changed images
+        run: |
+          if [ "${{ needs.changes.outputs.backend-core }}" == "true" ]; then
+            docker build --platform linux/amd64 \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }} \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-core:latest \
+              ./backend-core
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:${{ github.sha }}
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-core:latest
+          fi
+          if [ "${{ needs.changes.outputs.backend-ai }}" == "true" ]; then
+            docker build --platform linux/amd64 \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }} \
+              -t gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest \
+              ./backend-ai
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:${{ github.sha }}
+            docker push gcr.io/${{ env.PROJECT_ID }}/backend-ai:latest
+          fi
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VM_SSH_PRIVATE_KEY }}" > ~/.ssh/vm_key
+          chmod 600 ~/.ssh/vm_key
+          ssh-keyscan -H ${{ env.VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VM
+        run: |
+          ssh -i ~/.ssh/vm_key ${{ env.VM_USER }}@${{ env.VM_HOST }} << 'ENDSSH'
+            set -e
+            cd /opt/app
+
+            if [ "${{ needs.changes.outputs.backend-core }}" == "true" ]; then
+              echo "🔄 Updating backend-core..."
+              docker compose pull backend-core
+              docker compose up -d --no-deps backend-core
+            fi
+
+            if [ "${{ needs.changes.outputs.backend-ai }}" == "true" ]; then
+              echo "🔄 Updating backend-ai..."
+              docker compose pull backend-ai
+              docker compose up -d --no-deps backend-ai
+            fi
+
+            docker image prune -f
+            echo "✅ Deploy complete"
+          ENDSSH

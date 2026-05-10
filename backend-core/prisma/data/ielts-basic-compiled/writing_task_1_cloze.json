@@ -1,0 +1,103 @@
+[
+  {
+    "theme": "Introduction to IELTS WRITING TASK 1",
+    "subCategory": "Bar Chart",
+    "prompt": "The chart below shows the percentage of people who went to the cinema on different days of the week in 2003 and 2007. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "diagramUrl": "https://lexon.io/dummy-bar-chart.png",
+    "modelAnswer": {
+      "paragraphs": [
+        {
+          "number": 1,
+          "title": "Paragraph 1: Introduction",
+          "segments": [
+            { "type": "text", "value": "The bar chart " },
+            {
+              "type": "blank",
+              "id": "b1",
+              "correctAnswer": "illustrates",
+              "options": ["illustrates", "shows up", "tells", "describes about"]
+            },
+            { "type": "text", "value": " the percentage of people going to cinemas on different days of the week in " },
+            {
+              "type": "blank",
+              "id": "b2",
+              "correctAnswer": "2003 and 2007",
+              "options": ["2003 and 2007", "two years", "the past", "2003 to 2007"]
+            },
+            { "type": "text", "value": "." }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Paragraph 2: Overview",
+          "segments": [
+            { "type": "text", "value": "Overall, the most popular day for watching movies was " },
+            {
+              "type": "blank",
+              "id": "b3",
+              "correctAnswer": "Saturday",
+              "options": ["Friday", "Saturday", "Sunday", "Tuesday"]
+            },
+            { "type": "text", "value": " in both years, while " },
+            {
+              "type": "blank",
+              "id": "b4",
+              "correctAnswer": "Monday",
+              "options": ["Monday", "Wednesday", "Thursday", "Friday"]
+            },
+            { "type": "text", "value": " was consistently the least popular. It is also noticeable that attendance generally " },
+            {
+              "type": "blank",
+              "id": "b5",
+              "correctAnswer": "increased",
+              "options": ["increased", "decreased", "fluctuated", "remained stable"]
+            },
+            { "type": "text", "value": " across all days between the two years." }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Paragraph 3",
+          "segments": [
+            { "type": "text", "value": "In 2003, 40% of people went to cinemas on a " },
+            {
+              "type": "blank",
+              "id": "b6",
+              "correctAnswer": "Saturday",
+              "options": ["Saturday", "Sunday", "weekend", "Friday"]
+            },
+            { "type": "text", "value": ", compared to 30% on Friday or Sunday each. On the other days, the proportion of movie-goers was higher on Tuesday, at 20%, while the " },
+            {
+              "type": "blank",
+              "id": "b7",
+              "correctAnswer": "lowest figure",
+              "options": ["lowest figure", "highest number", "same amount", "bottom peak"]
+            },
+            { "type": "text", "value": " can be seen on Monday, at only 10%." }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Paragraph 4",
+          "segments": [
+            { "type": "text", "value": "Over the next four years, the percentage of people going to the cinema on weekends " },
+            {
+              "type": "blank",
+              "id": "b8",
+              "correctAnswer": "rose slightly",
+              "options": ["rose slightly", "fell dramatically", "stayed the same", "doubled"]
+            },
+            { "type": "text", "value": " to 45% and 35% for Saturday and Sunday respectively. " },
+            {
+              "type": "blank",
+              "id": "b9",
+              "correctAnswer": "Similarly",
+              "options": ["Similarly", "In contrast", "However", "Despite this"]
+            },
+            { "type": "text", "value": ", Thursday and Monday became more popular among cinema-goers, with about 2% more people choosing these days." }
+          ]
+        }
+      ]
+    }
+  }
+]

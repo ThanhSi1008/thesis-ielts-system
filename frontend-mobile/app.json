@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./assets/images/splash.png",
       "backgroundColor": "#3B82F6",
       "resizeMode": "contain"
     },
@@ -18,6 +19,7 @@
     },
     "android": {
       "package": "com.ieltsmasterai.app",
+      "usesCleartextTraffic": true,
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ]
@@ -30,7 +32,16 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for dictation and shadowing.",
           "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to recognize your speech for shadowing exercises."
         }
-      ]
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone for speaking tests."
+        }
+      ],
+      "expo-video",
+      "@react-native-community/datetimepicker",
+      "expo-font"
     ],
     "scheme": "ielts-master-ai"
   }

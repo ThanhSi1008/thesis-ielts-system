@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
     "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
@@ -23,6 +24,7 @@
       "@config/*": ["src/config/*"]
     }
   },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "scripts", "tmp_audio_deps", "prisma"]
 }
 

@@ -1,13 +1,14 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { LessonDetailContent } from "../[skill]/lessons/[lessonId]/LessonDetailContent";
 import { ExerciseDetailContent } from "../[skill]/exercises/[exerciseId]/ExerciseDetailContent";
 import { Info } from "lucide-react";
 import api from "@/lib/api";
 import { RoadmapStep } from "../_components/RoadmapSidebar";
 
-export default function RoadmapDashboard() {
+function RoadmapDashboardContent() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
   const skill = searchParams.get("skill");
@@ -37,7 +38,7 @@ export default function RoadmapDashboard() {
       
       if (nextItem) {
         let idParam: string;
-        if (nextItem.type === 'lesson') {
+        if (nextItem.type === 'foundationVocabLesson') {
           idParam = `lessonId=${nextItem.id}`;
         } else {
           idParam = `exerciseId=${nextItem.id}${nextItem.lessonId ? `&lessonId=${nextItem.lessonId}` : ''}`;
@@ -51,12 +52,12 @@ export default function RoadmapDashboard() {
 
   if (!type || !skill) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-10 animate-fade-in bg-white rounded-2xl shadow-sm border border-gray-100/50 flex-1">
-        <div className="w-16 h-16 rounded-full bg-[#FFF9E6] flex items-center justify-center mb-6 shadow-sm border border-[#FFF0C2]">
-          <Info className="w-8 h-8 text-[#E0A800]" />
+      <div className="flex flex-col items-center justify-center h-full text-center p-10 animate-fade-in bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100/50 dark:border-slate-800 flex-1">
+        <div className="w-16 h-16 rounded-full bg-[#FFF9E6] dark:bg-amber-900/20 flex items-center justify-center mb-6 shadow-sm border border-[#FFF0C2] dark:border-amber-900/30">
+          <Info className="w-8 h-8 text-[#E0A800] dark:text-amber-500" />
         </div>
-        <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Welcome to Your Roadmap</h2>
-        <p className="text-gray-500 max-w-sm">
+        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-2">Welcome to Your Roadmap</h2>
+        <p className="text-gray-500 dark:text-gray-400 max-w-sm">
           Select a lesson or exercise from the sidebar to begin. 
           You must complete Step 1 before Step 2 unlocks.
         </p>
@@ -64,7 +65,7 @@ export default function RoadmapDashboard() {
     );
   }
 
-  if (type === "lesson" && lessonId) {
+  if (type === "foundationVocabLesson" && lessonId) {
     return (
       <div className="animate-fade-in w-full">
         <LessonDetailContent 
@@ -96,5 +97,13 @@ export default function RoadmapDashboard() {
     <div className="flex items-center justify-center h-full text-red-500 font-bold p-10">
       Invalid Roadmap Item Selection.
     </div>
+  );
+}
+
+export default function RoadmapDashboard() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" /></div>}>
+      <RoadmapDashboardContent />
+    </Suspense>
   );
 }

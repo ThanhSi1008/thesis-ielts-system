@@ -71,7 +71,7 @@ export function GradingProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         
-        const res = session?.result;
+        const res = session?.ieltsIntensiveResult;
         const isGraded =
           res &&
           (res.speakingScore != null ||

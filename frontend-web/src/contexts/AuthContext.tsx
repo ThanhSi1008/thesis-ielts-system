@@ -2,13 +2,16 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService } from '@/services/auth.service';
+import { usersApi } from '@/services/users.api';
 import type { AuthResponse, User } from '@/types';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   register: (email: string, password: string, fullName: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
   loading: boolean;
 }
@@ -43,6 +46,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    try {
+      const data: AuthResponse = await authService.googleLogin(idToken);
+      if (data.user) {
+        setUser(data.user);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
+  };
+
   const register = async (email: string, password: string, fullName: string) => {
     try {
       const nameParts = fullName.trim().split(/\s+/);
@@ -62,13 +77,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      const freshUser = await usersApi.getMe();
+      setUser(freshUser);
+      localStorage.setItem('user', JSON.stringify(freshUser));
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         login,
+        loginWithGoogle,
         register,
         logout,
+        refreshUser,
         isAuthenticated: !!user,
         loading,
       }}

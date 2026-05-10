@@ -11,16 +11,34 @@ import {
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { ThrottlerGuard } from "@nestjs/throttler";
 import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Controller("users")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ThrottlerGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  // --- Self-service profile routes (must be ABOVE :id) ---
+
+  @Get("me")
+  getMe(@Req() req: any) {
+    return this.usersService.findOne(req.user.id);
+  }
+
+  @Patch("me")
+  updateMe(@Req() req: any, @Body() dto: UpdateUserDto) {
+    return this.usersService.update(req.user.id, dto);
+  }
+
+  @Delete("me")
+  deleteMe(@Req() req: any) {
+    return this.usersService.remove(req.user.id);
   }
 
   // --- Student-Teacher Linking ---

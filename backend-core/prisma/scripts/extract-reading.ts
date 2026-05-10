@@ -20,17 +20,17 @@ function parsePassageWithLocations(text: string) {
   const regex = /\*\*(.*?)\*\*\s*\*\((Q\d+)[^*]*\)\*/g;
   let lastIndex = 0;
   let match;
-  const result: any[] = [];
+  const ieltsIntensiveResult: any[] = [];
 
   while ((match = regex.exec(text)) !== null) {
     // text before the match
     if (match.index > lastIndex) {
-      result.push(cleanMarkdown(text.substring(lastIndex, match.index)));
+      ieltsIntensiveResult.push(cleanMarkdown(text.substring(lastIndex, match.index)));
     }
     const extractText = match[1].replace(/`/g, '');
     const qNum = parseInt(match[2].replace('Q', ''), 10);
     
-    result.push({
+    ieltsIntensiveResult.push({
       question_number: qNum,
       text: extractText
     });
@@ -39,15 +39,15 @@ function parsePassageWithLocations(text: string) {
   }
   
   if (lastIndex < text.length) {
-    result.push(cleanMarkdown(text.substring(lastIndex)));
+    ieltsIntensiveResult.push(cleanMarkdown(text.substring(lastIndex)));
   }
 
   // if the text has no questions, return array with just cleaned text
-  if (result.length === 0) {
+  if (ieltsIntensiveResult.length === 0) {
     return [cleanMarkdown(text)];
   }
 
-  return result;
+  return ieltsIntensiveResult;
 }
 
 function mapQuestionGroups(groups: any[]) {
@@ -68,12 +68,12 @@ function mapQuestionGroups(groups: any[]) {
     
     if (g.items) {
       questionsContent = g.items.map((item: any) => {
-         const result: any = { ...item };
+         const ieltsIntensiveResult: any = { ...item };
          if (item.question_text) {
-             result.text = item.question_text;
-             delete result.question_text;
+             ieltsIntensiveResult.text = item.question_text;
+             delete ieltsIntensiveResult.question_text;
          }
-         return result;
+         return ieltsIntensiveResult;
       });
     } else if (g.content) {
       // note completion or summary completion

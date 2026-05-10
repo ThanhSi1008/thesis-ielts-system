@@ -7,10 +7,11 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
   console.log("  Seeding IELTS basic data from:", baseDir);
 
   // Clean existing data.
-  await prisma.ieltsListeningExercise.deleteMany({});
-  await prisma.ieltsReadingExercise.deleteMany({});
-  await prisma.ieltsWritingExercise.deleteMany({});
-  await prisma.ieltsLesson.deleteMany({});
+  await prisma.ieltsBasicListeningExercise.deleteMany({});
+  await prisma.ieltsBasicReadingExercise.deleteMany({});
+  await prisma.ieltsBasicWritingExercise.deleteMany({});
+  await prisma.ieltsBasicSpeakingExercise.deleteMany({});
+  await prisma.ieltsBasicLesson.deleteMany({});
 
   // 1. Ensure skills exist
   const skillsData = [
@@ -21,7 +22,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
   ];
 
   for (const s of skillsData) {
-    await prisma.ieltsSkill.upsert({
+    await prisma.ieltsBasicSkill.upsert({
       where: { name: s.name },
       update: { order: s.order },
       create: s,
@@ -32,7 +33,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
   const activeSkills = ["listening", "reading", "writing"];
 
   for (const skillName of activeSkills) {
-    const skillRecord = await prisma.ieltsSkill.findUnique({
+    const skillRecord = await prisma.ieltsBasicSkill.findUnique({
       where: { name: skillName.charAt(0).toUpperCase() + skillName.slice(1) },
     });
     if (!skillRecord) continue;
@@ -51,7 +52,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
     // Insert lessons
     let order = 1;
     for (const theory of theoryArr) {
-      const lesson = await prisma.ieltsLesson.create({
+      const foundationVocabLesson = await prisma.ieltsBasicLesson.create({
         data: {
           skillId: skillRecord.id,
           chapter: `Chapter ${String(order).padStart(2, "0")}`,
@@ -61,7 +62,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
           order: order++,
         },
       });
-      console.log(`    -> Created lesson: ${lesson.title}`);
+      console.log(`    -> Created foundationVocabLesson: ${foundationVocabLesson.title}`);
 
       // Robust matching between theory title and filename
       const cleanTheoryTitle = theory.title
@@ -83,10 +84,10 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
       for (const ex of matchedExs) {
         if (ex.seeded) continue;
         if (skillName === "listening") {
-          await prisma.ieltsListeningExercise.create({
+          await prisma.ieltsBasicListeningExercise.create({
             data: {
               skillId: skillRecord.id,
-              lessonId: lesson.id,
+              lessonId: foundationVocabLesson.id,
               topic: ex.topic,
               instructions: ex.instructions,
               audioUrl: ex.audioUrl!,
@@ -96,10 +97,10 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
             },
           });
         } else if (skillName === "reading") {
-          await prisma.ieltsReadingExercise.create({
+          await prisma.ieltsBasicReadingExercise.create({
             data: {
               skillId: skillRecord.id,
-              lessonId: lesson.id,
+              lessonId: foundationVocabLesson.id,
               topic: ex.topic,
               instructions: ex.instructions,
               passage: ex.passage!,
@@ -118,13 +119,13 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
     const unmatched = exercisesArr.filter((e: any) => !e.seeded);
     if (unmatched.length > 0) {
       console.log(
-        `    -> Found ${unmatched.length} unmatched exercises for ${skillName}. Linking directly to skill without lesson.`,
+        `    -> Found ${unmatched.length} unmatched exercises for ${skillName}. Linking directly to skill without foundationVocabLesson.`,
       );
     }
 
     for (const ex of unmatched) {
       if (skillName === "listening") {
-        await prisma.ieltsListeningExercise.create({
+        await prisma.ieltsBasicListeningExercise.create({
           data: {
             skillId: skillRecord.id,
             topic: ex.topic,
@@ -136,7 +137,7 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
           },
         });
       } else if (skillName === "reading") {
-        await prisma.ieltsReadingExercise.create({
+        await prisma.ieltsBasicReadingExercise.create({
           data: {
             skillId: skillRecord.id,
             topic: ex.topic,
@@ -151,94 +152,183 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
     }
   }
 
-  // 3. Parse Writing Task 1 Exercises
+  // 3. Parse Writing Task 1 Exercises (Auto-Generated Cloze format)
   const writingTask1ExercisesPath = path.join(
     baseDir,
-    "writing_task_1_exercises.txt",
+    "writing_task_1_cloze_auto.json",
   );
   if (fs.existsSync(writingTask1ExercisesPath)) {
-    console.log("  Seeding Writing Task 1 Exercises...");
-    const text = fs
-      .readFileSync(writingTask1ExercisesPath, "utf-8")
-      .replace(/\r\n/g, "\n");
-    const lines = text.split("\n");
-    let currentTheme = "";
-    let currentSubcategory = "";
-    const exercisesToSeed = [];
+    console.log("  Seeding Writing Task 1 Exercises (Cloze Auto)...");
+    const text = fs.readFileSync(writingTask1ExercisesPath, "utf-8");
+    const exercisesToSeed = JSON.parse(text);
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      if (line.startsWith("    - ")) {
-        currentTheme = line.replace("    - ", "").trim();
-        currentSubcategory = "";
-      } else if (
-        line.startsWith("        - ") &&
-        !line.includes("- Exercise")
-      ) {
-        currentSubcategory = line.replace("        - ", "").trim();
-      } else if (line.indexOf("- Exercise") !== -1) {
-        exercisesToSeed.push({
-          theme: currentTheme,
-          subCategory: currentSubcategory,
-          content: "",
-        });
-      } else if (exercisesToSeed.length > 0) {
-        exercisesToSeed[exercisesToSeed.length - 1].content += line + "\n";
-      }
-    }
-
-    const writingSkillRecord = await prisma.ieltsSkill.findUnique({
+    const writingSkillRecord = await prisma.ieltsBasicSkill.findUnique({
       where: { name: "Writing" },
     });
 
     if (writingSkillRecord) {
       let exOrder = 1;
       for (const exObj of exercisesToSeed) {
-        const { theme, subCategory, content } = exObj;
-        const promptMatch = content.match(
-          /- Prompt\s+([\s\S]*?)\s+-(?: Diagram| Digram) Image Link/,
-        );
-        const diagramMatch = content.match(
-          /-(?: Diagram| Digram) Image Link\s+([\s\S]*?)\s+- Answer/,
-        );
-        const introMatch = content.match(
-          /- Introduction\s+([\s\S]*?)\s+- Overview/,
-        );
-        const overviewMatch = content.match(
-          /- Overview\s+([\s\S]*?)\s+- Body 1/,
-        );
-        const body1Match = content.match(/- Body 1\s+([\s\S]*?)\s+- Body 2/);
-        const body2Match = content.match(/- Body 2\s+([\s\S]+)/);
+        const { theme, subCategory, prompt, diagramUrl, modelAnswer } = exObj;
+        const topicName = subCategory ? `${theme} - ${subCategory}` : theme;
 
-        const promptText = promptMatch ? promptMatch[1].trim() : "";
-        const diagramUrl = diagramMatch ? diagramMatch[1].trim() : "";
-        const intro = introMatch ? introMatch[1].trim() : "";
-        const overview = overviewMatch ? overviewMatch[1].trim() : "";
-        const body1 = body1Match ? body1Match[1].trim() : "";
-        const body2 = body2Match ? body2Match[1].trim() : "";
+        const foundationVocabLesson = await prisma.ieltsBasicLesson.findFirst({
+          where: { skillId: writingSkillRecord.id, title: theme },
+        });
 
-        if (promptText) {
-          const topicName = subCategory ? `${theme} - ${subCategory}` : theme;
+        await prisma.ieltsBasicWritingExercise.create({
+          data: {
+            skillId: writingSkillRecord.id,
+            lessonId: foundationVocabLesson ? foundationVocabLesson.id : null,
+            topic: topicName,
+            instructions: "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+            prompt: prompt || "",
+            diagramUrl: diagramUrl || "",
+            modelAnswer: modelAnswer,
+            order: exOrder++,
+          },
+        });
+        console.log(`    Created writing exercise: ${topicName}`);
+      }
+    }
+  }
 
-          const lesson = await prisma.ieltsLesson.findFirst({
-            where: { skillId: writingSkillRecord.id, title: theme },
-          });
+  // 4. Parse Writing Task 2 Theory (separate file)
+  const task2TheoryPath = path.join(baseDir, "writing_task_2_theory.txt");
+  if (fs.existsSync(task2TheoryPath)) {
+    console.log("  Seeding Writing Task 2 Theory...");
+    const writingSkillRecord = await prisma.ieltsBasicSkill.findUnique({
+      where: { name: "Writing" },
+    });
 
-          await prisma.ieltsWritingExercise.create({
-            data: {
-              skillId: writingSkillRecord.id,
-              lessonId: lesson ? lesson.id : null,
-              topic: topicName,
-              instructions:
-                "Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
-              prompt: promptText,
-              diagramUrl: diagramUrl,
-              modelAnswer: { intro, overview, body1, body2 },
-              order: exOrder++,
-            },
-          });
-          console.log(`    Created writing exercise: ${topicName}`);
-        }
+    if (writingSkillRecord) {
+      const task2TheoryArr = getTheoryLessons(task2TheoryPath);
+      let order = 100; // Start at 100 to separate from Task 1 lessons
+      for (const theory of task2TheoryArr) {
+        const lesson = await prisma.ieltsBasicLesson.create({
+          data: {
+            skillId: writingSkillRecord.id,
+            chapter: `Task 2 - Chapter ${String(order - 99).padStart(2, "0")}`,
+            title: theory.title,
+            content: theory.content,
+            quiz: theory.quiz,
+            order: order++,
+          },
+        });
+        console.log(`    -> Created Task 2 lesson: ${lesson.title}`);
+      }
+    }
+  }
+
+  // 5. Parse Writing Task 2 Exercises (Auto-Generated Cloze format)
+  const writingTask2ExercisesPath = path.join(
+    baseDir,
+    "writing_task_2_cloze_auto.json",
+  );
+  if (fs.existsSync(writingTask2ExercisesPath)) {
+    console.log("  Seeding Writing Task 2 Exercises (Cloze Auto)...");
+    const task2Text = fs.readFileSync(writingTask2ExercisesPath, "utf-8");
+    const task2Exercises = JSON.parse(task2Text);
+
+    const writingSkillRecord = await prisma.ieltsBasicSkill.findUnique({
+      where: { name: "Writing" },
+    });
+
+    if (writingSkillRecord) {
+      let exOrder = 100; // Start at 100 to avoid collision with Task 1 orders
+      for (const exObj of task2Exercises) {
+        const { theme, subCategory, prompt, diagramUrl, modelAnswer } = exObj;
+        const topicName = subCategory ? `${theme} - ${subCategory}` : theme;
+
+        // Try to match to a Task 2 lesson
+        const lesson = await prisma.ieltsBasicLesson.findFirst({
+          where: { skillId: writingSkillRecord.id, title: theme },
+        });
+
+        await prisma.ieltsBasicWritingExercise.create({
+          data: {
+            skillId: writingSkillRecord.id,
+            lessonId: lesson ? lesson.id : null,
+            topic: topicName,
+            instructions:
+              "Write about the following topic. Give reasons for your answer and include any relevant examples from your own knowledge or experience.",
+            prompt: prompt || "",
+            diagramUrl: diagramUrl || null,
+            modelAnswer: modelAnswer,
+            taskType: 2,
+            order: exOrder++,
+          },
+        });
+        console.log(`    Created Task 2 writing exercise: ${topicName}`);
+      }
+    }
+  }
+
+  // 6. Parse Speaking Theory
+  const speakingTheoryPath = path.join(baseDir, "speaking_theory.txt");
+  if (fs.existsSync(speakingTheoryPath)) {
+    console.log("  Seeding Speaking Theory...");
+    const speakingSkill = await prisma.ieltsBasicSkill.findUnique({
+      where: { name: "Speaking" },
+    });
+
+    if (speakingSkill) {
+      const speakingTheoryArr = getTheoryLessons(speakingTheoryPath);
+      let order = 1;
+      for (const theory of speakingTheoryArr) {
+        const lesson = await prisma.ieltsBasicLesson.create({
+          data: {
+            skillId: speakingSkill.id,
+            chapter: `Chapter ${String(order).padStart(2, "0")}`,
+            title: theory.title,
+            content: theory.content,
+            quiz: theory.quiz,
+            order: order++,
+          },
+        });
+        console.log(`    -> Created Speaking lesson: ${lesson.title}`);
+      }
+    }
+  }
+
+  // 7. Parse Speaking Exercises (Auto-Generated Cloze + MCQ)
+  const speakingExercisesPath = path.join(baseDir, "speaking_cloze_auto.json");
+  if (fs.existsSync(speakingExercisesPath)) {
+    console.log("  Seeding Speaking Exercises...");
+    const speakingText = fs.readFileSync(speakingExercisesPath, "utf-8");
+    const speakingExercises = JSON.parse(speakingText);
+
+    const speakingSkill = await prisma.ieltsBasicSkill.findUnique({
+      where: { name: "Speaking" },
+    });
+
+    if (speakingSkill) {
+      let exOrder = 1;
+      for (const exObj of speakingExercises) {
+        const { theme, subCategory, prompt, partType, questionType, modelAnswer, content } = exObj;
+        const topicName = subCategory ? `${theme} - ${subCategory}` : theme;
+
+        const lesson = await prisma.ieltsBasicLesson.findFirst({
+          where: { skillId: speakingSkill.id, title: theme },
+        });
+
+        await prisma.ieltsBasicSpeakingExercise.create({
+          data: {
+            skillId: speakingSkill.id,
+            lessonId: lesson ? lesson.id : null,
+            topic: topicName,
+            partType: partType || 1,
+            questionType: questionType || "cloze",
+            instructions: questionType === "mcq"
+              ? "Select the best response to the examiner's question."
+              : "Complete the model answer by selecting the most appropriate word or phrase.",
+            prompt: prompt || "",
+            content: content || null,
+            modelAnswer: modelAnswer || null,
+            order: exOrder++,
+          },
+        });
+        console.log(`    Created speaking exercise: ${topicName}`);
       }
     }
   }
@@ -376,6 +466,7 @@ function getTheoryLessons(txtPath: string) {
             text.includes("task achievement") ||
             text.includes("grammar") ||
             text.includes("lexical") ||
+            text.includes("fluency") ||
             text.includes("question type") ||
             text.includes("quetion type")
           ) {
@@ -399,7 +490,8 @@ function getTheoryLessons(txtPath: string) {
 
         if (
           lowerTitle.includes("trap") ||
-          lowerTitle.includes("task achievement")
+          lowerTitle.includes("task achievement") ||
+          lowerTitle.includes("fluency")
         ) {
           currentContentType = "traps";
         } else if (

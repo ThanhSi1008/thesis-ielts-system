@@ -22,10 +22,11 @@ export interface User {
   id: string;
   email: string;
   fullName?: string;
-  firstName?: string; // Standardize names later
+  firstName?: string;
   lastName?: string;
   role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
   avatar?: string;
+  googleId?: string;   // Present if signed in via Google
   createdAt: string;
 }
 
@@ -50,7 +51,7 @@ export interface AuthResponse {
 
 // ==================== VOCABULARY ====================
 
-export interface VocabularyBook {
+export interface FoundationVocabBook {
   id: string;
   name: string;
   imageUrl: string;
@@ -58,13 +59,13 @@ export interface VocabularyBook {
   _count?: { units: number };
 }
 
-export interface VocabularyUnit {
+export interface FoundationVocabUnit {
   id: string;
   title: string;
   order: number;
 }
 
-export interface VocabularyWord {
+export interface FoundationVocabItem {
   id: string;
   word: string;
   meaning: string;
@@ -73,26 +74,26 @@ export interface VocabularyWord {
   example?: string;
   imageUrl?: string;
   audioUrl?: string;
-  lessonId?: string; // From Lesson Service
+  lessonId?: string; // From FoundationVocabLesson Service
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface VocabularyBookWithUnits extends VocabularyBook {
-  units: VocabularyUnit[];
+export interface VocabularyBookWithUnits extends FoundationVocabBook {
+  units: FoundationVocabUnit[];
 }
 
-export interface VocabularyUnitWithContent extends VocabularyUnit {
+export interface VocabularyUnitWithContent extends FoundationVocabUnit {
   book: { id: string; name: string };
-  words: VocabularyWord[];
-  exercises: VocabularyExercise[];
-  questions: VocabularyQuestion[];
+  words: FoundationVocabItem[];
+  exercises: FoundationVocabExercise[];
+  questions: FoundationVocabQuestion[];
   storyTitle?: string;
   storyContent?: string;
   storyImageUrl?: string;
 }
 
-export interface VocabularyExercise {
+export interface FoundationVocabExercise {
   id: string;
   question: string;
   answer: string;
@@ -100,7 +101,7 @@ export interface VocabularyExercise {
   order: number;
 }
 
-export interface VocabularyQuestion {
+export interface FoundationVocabQuestion {
   id: string;
   question: string;
   type: 'multiple_choice' | 'fill_blank';
@@ -155,7 +156,7 @@ export interface SubmitQuestionsResponse {
 
 // ==================== GRAMMAR ====================
 
-export interface GrammarBook {
+export interface FoundationGrammarBook {
   id: string;
   slug: string;
   name: string;
@@ -167,23 +168,32 @@ export interface GrammarBook {
   _count?: { units: number };
 }
 
-export interface GrammarUnit {
+export interface FoundationGrammarUnit {
   id: string;
   title: string;
   order: number;
   theoryContent?: string;
 }
 
-export interface GrammarBookWithUnits extends GrammarBook {
-  units: GrammarUnit[];
+export interface GrammarBookWithUnits extends FoundationGrammarBook {
+  units: FoundationGrammarUnit[];
 }
 
-export interface GrammarUnitWithContent extends GrammarUnit {
+export interface GrammarUnitWithContent extends FoundationGrammarUnit {
   book: { id: string; slug: string; name: string };
   exercises: any[];
 }
 
-export interface GrammarRule { // From Lesson Service
+export interface GrammarUnitProgress {
+  unitOrder: number;
+  theoryCompleted: boolean;
+  exerciseScore: number | null;
+  exerciseTotal: number | null;
+  isCompleted: boolean;
+  completedAt: string | null;
+}
+
+export interface GrammarRule { // From FoundationVocabLesson Service
   id: string;
   lessonId: string;
   title: string;
@@ -195,29 +205,92 @@ export interface GrammarRule { // From Lesson Service
 
 // ==================== PRONUNCIATION ====================
 
-export interface PronunciationSound {
+export interface FoundationPronunciationSound {
   id: string;
   symbol: string;
-  name?: string; // e.g. "Long e"
+  name?: string;
   type: string;
   word: string;
   description?: string;
+  tip?: string;
   imageUrl?: string;
-  videoUrl?: string; // For mouth animation
+  videoUrl?: string;
   audioUrl?: string;
   voiced?: boolean;
-  exampleWords?: string[]; // Practice words
+  order: number;
+  exampleWords: FoundationSoundExample[];
+}
+
+export interface FoundationSoundExample {
+  id: string;
+  word: string;
+  ipa?: string;
+  audioUrl?: string;
+  order: number;
+}
+
+export interface SoundProgress {
+  soundId: string;
+  symbol: string;
+  type: string;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+  practiceCount: number;
+  bestScore: number | null;
+  lastPracticedAt: string | null;
+}
+
+export interface PronunciationStats {
+  totalSounds: number;
+  masteredCount: number;
+  practicingCount: number;
+  newCount: number;
+  overallMastery: number;
+}
+
+export interface WordProgress {
+  word: string;
+  bestScore: number | null;
+  attemptCount: number;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+}
+
+export interface PronunciationWordFeedback {
+  word: string;
+  targetIPA: string;
+  spokenIPA: string;
+  spoken: string;
+  phonemeScore: number;
+  confidence: number;
+  match: 'correct' | 'incorrect' | 'missing';
+}
+
+export interface PronunciationResult {
+  score: number;
+  transcribedText: string;
+  feedback: {
+    level: string;
+    message: string;
+    color: string;
+    details: {
+      targetIPA: string;
+      transcribedIPA: string;
+      phonemeAccuracy: number;
+      confidenceScore: number;
+      textAccuracy: number;
+    };
+    words: PronunciationWordFeedback[];
+  };
 }
 
 export interface PronunciationData {
-  monophthongs: PronunciationSound[];
-  diphthongs: PronunciationSound[];
-  consonants: PronunciationSound[];
+  monophthongs: FoundationPronunciationSound[];
+  diphthongs: FoundationPronunciationSound[];
+  consonants: FoundationPronunciationSound[];
 }
 
 // ==================== LESSONS ====================
 
-export interface Lesson {
+export interface FoundationVocabLesson {
   id: string;
   title: string;
   description: string;
@@ -226,7 +299,7 @@ export interface Lesson {
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
-  vocabularies?: VocabularyWord[];
+  vocabularies?: FoundationVocabItem[];
   grammars?: GrammarRule[];
 }
 
@@ -337,15 +410,64 @@ export interface SubmitReviewRequest {
 }
 
 export interface VocabLabStats {
+  // Flat backward-compat fields
   newCount: number;
   learningCount: number;
   reviewCount: number;
   totalCount: number;
+
+  cardCounts: {
+    newCount: number;
+    learningCount: number;
+    reviewCount: number;
+    relearningCount: number;
+    totalCount: number;
+  };
+
+  reviewActivity: {
+    date: string;
+    reviewCount: number;
+    againCount: number;
+    hardCount: number;
+    goodCount: number;
+    easyCount: number;
+  }[];
+
+  streakData: {
+    currentStreak: number;
+    longestStreak: number;
+    totalReviewDays: number;
+    totalReviews: number;
+  };
+
+  maturityDistribution: {
+    young: number;
+    mature: number;
+    suspended: number;
+  };
+
+  forecast: {
+    date: string;
+    dueCount: number;
+    cumulativeCount: number;
+  }[];
+
+  averages: {
+    averageEasePercent: number;
+    averageLapses: number;
+    averageInterval: number;
+    retentionRatePercent: number;
+  };
+
+  hourlyActivity: {
+    hour: number;
+    count: number;
+  }[];
 }
 
 // ==================== IELTS EXAMS (Intensive Catalog) ====================
 
-export type IeltsSkill = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
+export type IeltsBasicSkill = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
 
 export interface IeltsIntensiveTestCard {
   examId: string;
@@ -367,7 +489,7 @@ export interface IeltsIntensiveGroup {
 }
 
 export interface IeltsIntensiveCatalogResponse {
-  skill: IeltsSkill;
+  skill: IeltsBasicSkill;
   groups: IeltsIntensiveGroup[];
 }
 
@@ -386,7 +508,7 @@ export interface PracticeItem {
 }
 
 export interface PracticeCatalogResponse {
-  skill: IeltsSkill;
+  skill: IeltsBasicSkill;
   items: PracticeItem[];
 }
 
@@ -405,7 +527,7 @@ export interface ExamDetail {
   updatedAt?: string;
 }
 
-export interface IeltsWritingExercise {
+export interface IeltsBasicWritingExercise {
   id: string;
   skillId: string;
   lessonId?: string;
@@ -430,8 +552,227 @@ export interface ExamSessionDetail {
   answers: any;
   startedAt: string;
   submittedAt?: string | null;
-  result?: any;
+  ieltsIntensiveResult?: any;
   practicePart?: number | null;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface SharedDeck {
+  id: string;
+  publisherId: string;
+  name: string;
+  description: string | null;
+  tags: string[];
+  importCount: number;
+  createdAt: string;
+  updatedAt: string;
+  cardCount: number;
+  publisher: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    avatar: string | null;
+  };
+}
+
+// ==================== COMMUNITY POSTS ====================
+
+export type PostType = 'STUDY_TIP' | 'SCORE_ACHIEVEMENT' | 'GENERAL';
+
+export interface PostAuthor {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+}
+
+export interface Post {
+  id: string;
+  authorId: string;
+  type: PostType;
+  title: string | null;
+  body: string;
+  imageUrls: string[];
+  tags: string[];
+  metadata: Record<string, any> | null;
+  likeCount: number;
+  commentCount: number;
+  bookmarkCount: number;
+  isPinned: boolean;
+  isLiked: boolean;
+  isBookmarked: boolean;
+  createdAt: string;
+  updatedAt: string;
+  author: PostAuthor;
+}
+
+export interface Comment {
+  id: string;
+  postId: string;
+  authorId: string;
+  parentId: string | null;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+  author: PostAuthor;
+  replies?: Comment[];
+}
+
+export interface PostListResponse {
+  items: Post[];
+  nextCursor: string | null;
+}
+
+export interface PostListParams {
+  cursor?: string;
+  limit?: number;
+  type?: PostType;
+  tag?: string;
+  authorId?: string;
+}
+
+// ==================== GAMIFICATION ====================
+
+export interface AchievementItem {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  tier: number;  // 1=Bronze, 2=Silver, 3=Gold
+  earned: boolean;
+  earnedAt: string | null;
+}
+
+export interface GamificationProfile {
+  totalXp: number;
+  level: number;
+  currentLevelXp: number;
+  xpNeeded: number;
+  achievementCount: number;
+  totalAchievements: number;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  name: string;
+  avatar: string | null;
+  value: number;
+}
+
+export interface XpLogEntry {
+  id: string;
+  amount: number;
+  reason: string;
+  createdAt: string;
+}
+
+// ==================== SUBSCRIPTION ====================
+
+export type SubscriptionTier = "FREE" | "PREMIUM" | "PRO";
+export type SubscriptionStatus = "ACTIVE" | "TRIALING" | "PAST_DUE" | "CANCELED" | "EXPIRED";
+
+export interface PricingPlan {
+  id: string;
+  tier: SubscriptionTier;
+  name: string;
+  description: string | null;
+  priceAmount: number; // cents
+  currency: string;
+  interval: "month" | "year";
+  intervalCount: number;
+  features: string[];
+  isActive: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserSubscription {
+  id: string;
+  userId: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  canceledAt: string | null;
+  trialEndsAt: string | null;
+  trialUsed: boolean;
+  usage: Record<string, { used: number; limit: number }>;
+  limits: Record<string, unknown>;
+}
+
+export interface SubscriptionError {
+  statusCode: 403;
+  error:
+    | "SUBSCRIPTION_REQUIRED"
+    | "QUOTA_EXCEEDED"
+    | "DECK_LIMIT_REACHED"
+    | "CARD_LIMIT_REACHED"
+    | "DAILY_QUOTA_EXCEEDED";
+  message: string;
+  requiredTier?: SubscriptionTier;
+  currentTier?: SubscriptionTier;
+  upgradeUrl?: string;
+}
+
+export interface CheckoutResponse {
+  subscription?: UserSubscription;
+  message?: string;
+  sessionId?: string;
+  redirectUrl?: string;
+}
+
+// ==================== IELTS STATISTICS ====================
+
+export interface IeltsOverviewStats {
+  estimatedBand: number | null;
+  targetBand: number | null;
+  bandGap: number | null;
+  dailyMinutesPracticed: number;
+  dailyCommitmentMins: number;
+  heatmap: { date: string; minutes: number }[];
+  recentActivity: any[]; // Expand this when feed is ready
+  daysToExam: number | null;
+  readinessScore: number | null;
+}
+
+export interface IeltsFoundationStats {
+  vocabulary: { wordsLearned: number; totalWords: number };
+  grammar: { completedUnits: number; totalUnits: number };
+  pronunciation: { mastered: number; practicing: number; new: number };
+  averageAccuracy: number;
+  timeBalance: { vocab: number; grammar: number; pronunciation: number };
+}
+
+export interface IeltsBasicSkillStats {
+  skillId: string;
+  skillName: string;
+  completedItems: number;
+  totalItems: number;
+  completionRate: number;
+}
+
+export interface IeltsBasicStats {
+  skills: IeltsBasicSkillStats[];
+  overallReadiness: number;
+}
+
+export interface IeltsAdvancedStats {
+  heatmap: any[];
+  weakSpots: any[];
+  scoreTrend: any[];
+  writingFeedbackSummary: any;
+  speakingFeedbackSummary: any;
+}
+
+export interface IeltsIntensiveStats {
+  overallTrend: any[];
+  skillTrends: { listening: any[]; reading: any[]; writing: any[]; speaking: any[] };
+  scoreDistribution: any[];
+  timeManagement: { averageTimeTaken: number; optimalTime: number };
+  skillGap: { bestSkill: string; worstSkill: string; gap: number };
 }

@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { CheckCircle2, Lock, ChevronDown, ChevronUp, BookOpen, Headphones, PenTool, Mic, Check, ChevronLeft } from "lucide-react";
 
 export interface RoadmapItem {
   id: string;
   title: string;
-  type: 'lesson' | 'exercise';
+  type: 'foundationVocabLesson' | 'exercise';
   skill: string;
   url: string;
   isCompleted: boolean;
@@ -23,7 +23,6 @@ export interface RoadmapStep {
 
 export function RoadmapSidebar() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [steps, setSteps] = useState<RoadmapStep[]>([]);
@@ -31,31 +30,40 @@ export function RoadmapSidebar() {
   const [loading, setLoading] = useState(true);
   const [expandedSteps, setExpandedSteps] = useState<number[]>([]);
 
-  const fetchRoadmap = async () => {
+  const fetchRoadmap = useCallback(async () => {
     try {
-      const res = await api.get<{ steps: RoadmapStep[]; currentStep: number }>("/ielts/roadmap");
+      const res = await api.get<{ steps: RoadmapStep[]; currentStep: number; requiresOnboarding?: boolean }>("/ielts/roadmap");
+      
+      if (res.data.requiresOnboarding) {
+        router.push("/ielts/basic/onboarding");
+        return;
+      }
+
       setSteps(res.data.steps);
       setCurrentStep(res.data.currentStep);
       
       // Default toggle is open: Expand all steps initially
-      if (expandedSteps.length === 0) {
-        setExpandedSteps(res.data.steps.map(s => s.step));
-      }
+      setExpandedSteps(prev => {
+        if (prev.length === 0) {
+          return res.data.steps.map(s => s.step);
+        }
+        return prev;
+      });
     } catch (err) {
       console.error("Failed to fetch roadmap", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchRoadmap();
     
-    // Setup a custom event listener so when a user finishes a lesson, we can refetch the roadmap
+    // Setup a custom event listener so when a user finishes a foundationVocabLesson, we can refetch the roadmap
     const handleProgressUpdate = () => fetchRoadmap();
     window.addEventListener("roadmap-progress-update", handleProgressUpdate);
     return () => window.removeEventListener("roadmap-progress-update", handleProgressUpdate);
-  }, []);
+  }, [fetchRoadmap]);
 
   const getSkillIcon = (skill: string) => {
     switch (skill) {
@@ -71,8 +79,8 @@ export function RoadmapSidebar() {
     if (item.isLocked) return;
     
     // Determine the precise URL for the roadmap viewer
-    const idParam = item.type === 'lesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
-    // E.g. `/ielts/basic/roadmap?type=lesson&skill=listening&lessonId=abc`
+    const idParam = item.type === 'foundationVocabLesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
+    // E.g. `/ielts/basic/roadmap?type=foundationVocabLesson&skill=listening&lessonId=abc`
     const url = `/ielts/basic/roadmap?type=${item.type}&skill=${item.skill.toLowerCase()}&${idParam}`;
     router.push(url);
   };
@@ -83,8 +91,8 @@ export function RoadmapSidebar() {
     const currentExerciseId = searchParams.get("exerciseId");
     if (!currentType) return false;
 
-    if (item.type === 'lesson') {
-      return currentType === 'lesson' && currentLessonId === item.id;
+    if (item.type === 'foundationVocabLesson') {
+      return currentType === 'foundationVocabLesson' && currentLessonId === item.id;
     } else {
       return currentType === 'exercise' && currentExerciseId === item.id;
     }
@@ -101,10 +109,10 @@ export function RoadmapSidebar() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white relative">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-950 relative">
       <button 
         onClick={() => router.push('/ielts/roadmap')}
-        className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-gray-400 hover:text-gray-600 font-extrabold mb-5 transition-colors w-fit group"
+        className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 font-extrabold mb-5 transition-colors w-fit group"
       >
         <ChevronLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
         Roadmap
@@ -123,18 +131,18 @@ export function RoadmapSidebar() {
                 onClick={() => toggleStep(step.step)}
               >
                 <div className="flex items-center gap-2">
-                  <h3 className={`text-[14px] font-extrabold ${isActiveStep ? "text-[#FFC107]" : "text-gray-900"}`}>
+                  <h3 className={`text-[14px] font-extrabold ${isActiveStep ? "text-[#FFC107]" : "text-gray-900 dark:text-white"}`}>
                     Day {step.step}
                   </h3>
                   {step.isCompleted && <CheckCircle2 className="w-4 h-4 text-green-500" />}
-                  {step.isLocked && <Lock className="w-3.5 h-3.5 text-gray-400" />}
+                  {step.isLocked && <Lock className="w-3.5 h-3.5 text-gray-400 dark:text-gray-600" />}
                 </div>
                 {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
               </div>
 
               {/* Step Items */}
               <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${isExpanded ? "max-h-[1000px] mt-2 opacity-100" : "max-h-0 opacity-0 pointer-events-none"}`}>
-                <div className="ml-3 border-l-2 border-[#EEEEEE] pl-3 py-1 flex flex-col gap-3 relative">
+                <div className="ml-3 border-l-2 border-[#EEEEEE] dark:border-slate-800 pl-3 py-1 flex flex-col gap-3 relative">
                   {step.items.map((item) => {
                     const active = isItemActive(item);
                     return (
@@ -145,25 +153,25 @@ export function RoadmapSidebar() {
                       >
                         {/* Dot indicator connecting to the line */}
                         {item.isCompleted ? (
-                          <div className="absolute -left-[19.5px] top-1.5 w-[15px] h-[15px] rounded-full bg-green-500 border border-white flex items-center justify-center shadow-sm">
+                          <div className="absolute -left-[19.5px] top-1.5 w-[15px] h-[15px] rounded-full bg-green-500 border border-white dark:border-slate-950 flex items-center justify-center shadow-sm">
                             <Check className="w-2.5 h-2.5 text-white stroke-[3.5]" />
                           </div>
                         ) : (
-                          <div className={`absolute -left-[16px] top-2 w-2 h-2 rounded-full border-2 border-white 
-                            ${active ? "bg-[#FFC107] w-2.5 h-2.5 -left-[17px]" : (item.isLocked ? "bg-gray-200" : "bg-[#D6D6D6]")}
+                          <div className={`absolute -left-[16px] top-2 w-2 h-2 rounded-full border-2 border-white dark:border-slate-950 
+                            ${active ? "bg-[#FFC107] w-2.5 h-2.5 -left-[17px]" : (item.isLocked ? "bg-gray-200 dark:bg-slate-800" : "bg-[#D6D6D6] dark:bg-slate-700")}
                           `} />
                         )}
                         
-                        <div className={`flex items-start gap-2 p-2 rounded-lg transition-colors ${active ? "bg-[#FFF9E6]" : "hover:bg-gray-50"}`}>
-                          <div className={`mt-0.5 shrink-0 flex items-center justify-center ${active ? "text-[#FFC107]" : "text-gray-400"}`}>
-                            {item.isLocked ? <Lock className="w-3.5 h-3.5 text-gray-300" /> : getSkillIcon(item.skill)}
+                        <div className={`flex items-start gap-2 p-2 rounded-lg transition-colors ${active ? "bg-[#FFF9E6] dark:bg-amber-900/20" : "hover:bg-gray-50 dark:hover:bg-slate-900"}`}>
+                          <div className={`mt-0.5 shrink-0 flex items-center justify-center ${active ? "text-[#FFC107]" : "text-gray-400 dark:text-gray-500"}`}>
+                            {item.isLocked ? <Lock className="w-3.5 h-3.5 text-gray-300 dark:text-gray-700" /> : getSkillIcon(item.skill)}
                           </div>
                           <div>
-                            <p className={`text-[13px] font-medium leading-tight ${active ? "text-gray-900 font-bold" : "text-gray-600 group-hover:text-gray-900"}`}>
+                            <p className={`text-[13px] font-medium leading-tight ${active ? "text-gray-900 dark:text-white font-bold" : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}`}>
                               {item.title}
                             </p>
-                            <p className="text-[11px] text-gray-400 mt-1 uppercase tracking-wider font-semibold">
-                              {item.skill} · {item.type === 'lesson' ? "Theory" : "Practice"}
+                            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-wider font-semibold">
+                              {item.skill} · {item.type === 'foundationVocabLesson' ? "Theory" : "Practice"}
                             </p>
                           </div>
                         </div>

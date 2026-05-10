@@ -1,8 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import AdvancedContent from "./AdvancedContent";
 
 export default function IeltsAdvancedPracticePage() {
-  return <AdvancedContent embedded />;
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading...</div>}>
+      <AdvancedContent embedded />
+    </Suspense>
+  );
 }

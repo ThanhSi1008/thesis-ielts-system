@@ -73,3 +73,36 @@ export class UpdatePronunciationSoundDto {
   @IsOptional()
   order?: number;
 }
+
+export class UpdateProgressDto {
+  @IsString()
+  soundId: string;
+
+  @IsInt()
+  @Min(0)
+  score: number;
+}
+
+export class GetProgressResponseDto {
+  soundId: string;
+  symbol: string;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+  practiceCount: number;
+  bestScore: number | null;
+  lastPracticedAt: string | null;
+}
+
+export class PronunciationStatsDto {
+  totalSounds: number;
+  masteredCount: number;
+  practicingCount: number;
+  newCount: number;
+  overallMastery: number;
+}
+
+export class WordProgressDto {
+  word: string;
+  bestScore: number | null;
+  attemptCount: number;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+}

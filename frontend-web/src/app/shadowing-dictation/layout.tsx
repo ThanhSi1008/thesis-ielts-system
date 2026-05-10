@@ -12,7 +12,7 @@ export default function ShadowingDictationLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-[calc(100vh-56px)] overflow-hidden bg-white">
+        <div className="flex h-[calc(100vh-56px)] overflow-hidden bg-white dark:bg-slate-950">
             <ShadowingSidebarOverlay />
             <ShadowingSidebar />
             <main className="flex-1 h-full overflow-y-auto min-w-0">

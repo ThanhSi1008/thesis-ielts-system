@@ -26,7 +26,7 @@ export default function DeckDetailScreen() {
     try {
       const [deckRes, cardsRes] = await Promise.allSettled([
         vocabLabApi.getDeckDetail(deckId),
-        vocabLabApi.browseCards(deckId),
+        vocabLabApi.browseCards({ deckId }),
       ]);
       if (deckRes.status === 'fulfilled') setDeck(deckRes.value);
       if (cardsRes.status === 'fulfilled') setCards(cardsRes.value);
@@ -123,18 +123,50 @@ export default function DeckDetailScreen() {
             const stateColor = STATE_COLORS[state] ?? COLORS.primary;
 
             return (
-              <View key={card.id} style={styles.cardRow}>
+              <View 
+                key={card.id} 
+                style={[
+                  styles.cardRow,
+                  card.cardType?.templates?.[0]?.cardStyle 
+                    ? { backgroundColor: card.cardType.templates[0].cardStyle.backgroundColor || '#fff' }
+                    : null
+                ]}
+              >
                 <View style={styles.cardContent}>
                   <View style={styles.cardTexts}>
-                    <Text style={styles.cardFront} numberOfLines={2}>{frontText}</Text>
-                    <Text style={styles.cardBack} numberOfLines={2}>{backText}</Text>
+                    <Text 
+                      style={[
+                        styles.cardFront,
+                        card.cardType?.templates?.[0]?.cardStyle?.color 
+                          ? { color: card.cardType.templates[0].cardStyle.color }
+                          : null
+                      ]} 
+                      numberOfLines={2}
+                    >
+                      {frontText}
+                    </Text>
+                    <Text 
+                      style={[
+                        styles.cardBack,
+                        card.cardType?.templates?.[0]?.cardStyle?.color 
+                          ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.7 }
+                          : null
+                      ]} 
+                      numberOfLines={2}
+                    >
+                      {backText}
+                    </Text>
                   </View>
                   <View style={[styles.stateBadge, { backgroundColor: stateColor + '1A' }]}>
                     <Text style={[styles.stateLabel, { color: stateColor }]}>{state}</Text>
                   </View>
                 </View>
                 <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteCard(card.id)}>
-                  <Ionicons name="trash-outline" size={18} color={COLORS.textMuted} />
+                  <Ionicons 
+                    name="trash-outline" 
+                    size={18} 
+                    color={card.cardType?.templates?.[0]?.cardStyle?.color || COLORS.textMuted} 
+                  />
                 </TouchableOpacity>
               </View>
             );

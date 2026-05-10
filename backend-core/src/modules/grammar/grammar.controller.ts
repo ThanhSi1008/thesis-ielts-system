@@ -8,6 +8,7 @@ import {
   Body,
   NotFoundException,
   UseGuards,
+  Req,
 } from "@nestjs/common";
 import { GrammarService } from "./grammar.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -18,6 +19,7 @@ import {
   UpdateGrammarBookDto,
   CreateGrammarUnitDto,
   UpdateGrammarUnitDto,
+  UpdateGrammarProgressDto,
 } from "./dto/grammar.dto";
 
 @Controller("grammar")
@@ -43,6 +45,36 @@ export class GrammarController {
     const unit = await this.grammarService.getUnitWithContent(id);
     if (!unit) throw new NotFoundException("Grammar unit not found");
     return unit;
+  }
+
+  @Get("books/:slug/units/:order")
+  async getUnitByOrder(
+    @Param("slug") slug: string,
+    @Param("order") order: string,
+  ) {
+    const unit = await this.grammarService.getUnitByBookAndOrder(slug, parseInt(order, 10));
+    if (!unit) throw new NotFoundException("Grammar unit not found");
+    return unit;
+  }
+
+  // ==================== PROGRESS ENDPOINTS ====================
+
+  @Get("progress/:bookSlug")
+  @UseGuards(JwtAuthGuard)
+  async getProgress(
+    @Req() req: any,
+    @Param("bookSlug") bookSlug: string,
+  ) {
+    return this.grammarService.getProgress(req.user.id, bookSlug);
+  }
+
+  @Post("progress")
+  @UseGuards(JwtAuthGuard)
+  async updateProgress(
+    @Req() req: any,
+    @Body() dto: UpdateGrammarProgressDto,
+  ) {
+    return this.grammarService.updateProgress(req.user.id, dto);
   }
 
   // ==================== ADMIN BOOK ENDPOINTS ====================

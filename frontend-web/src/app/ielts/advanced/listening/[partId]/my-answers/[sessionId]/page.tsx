@@ -80,7 +80,7 @@ function AnswerColumn({ partLabel, mapKeys, correctMap, userAnswers }: {
   }
 
   return (
-    <div className="flex-1 min-w-[280px] bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+    <div className="flex-1 min-w-[280px] bg-slate-50/50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
       <div className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-4 pl-[32px]">{partLabel}</div>
       <div className="flex flex-col gap-1.5">{rows}</div>
     </div>
@@ -144,26 +144,26 @@ function AudioPlayer({ audioUrl, audioRef }: { audioUrl: string; audioRef: React
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 py-4 px-6 bg-gray-50 border border-gray-100 rounded-2xl w-full">
+    <div className="flex flex-col items-center gap-3 py-4 px-6 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl w-full">
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
       <div className="flex items-center gap-4">
-        <button onClick={() => skip(-5)} className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors">
+        <button onClick={() => skip(-5)} className="flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 transition-colors">
           <SkipBack className="w-4 h-4" /> 5s
         </button>
         <button onClick={togglePlay} className="w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-md hover:bg-yellow-400 transition-colors">
           {playing ? <Pause className="w-5 h-5 text-gray-900" /> : <Play className="w-5 h-5 text-gray-900 ml-0.5" />}
         </button>
-        <button onClick={() => skip(5)} className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors">
+        <button onClick={() => skip(5)} className="flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 transition-colors">
           5s <SkipForward className="w-4 h-4" />
         </button>
       </div>
       <div className="w-full flex items-center gap-3">
-        <span className="text-xs font-mono text-gray-500 w-10 text-right">{fmt(currentTime)}</span>
-        <div ref={progressRef} onClick={seekTo} className="flex-1 h-2 bg-gray-200 rounded-full cursor-pointer relative overflow-hidden">
+        <span className="text-xs font-mono text-gray-500 dark:text-slate-400 w-10 text-right">{fmt(currentTime)}</span>
+        <div ref={progressRef} onClick={seekTo} className="flex-1 h-2 bg-gray-200 dark:bg-slate-800 rounded-full cursor-pointer relative overflow-hidden">
           <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
         </div>
-        <span className="text-xs font-mono text-gray-500 w-10">{fmt(duration)}</span>
-        <Volume2 className="w-4 h-4 text-gray-400 ml-1" />
+        <span className="text-xs font-mono text-gray-500 dark:text-slate-400 w-10">{fmt(duration)}</span>
+        <Volume2 className="w-4 h-4 text-gray-400 dark:text-slate-500 ml-1" />
       </div>
     </div>
   );
@@ -243,29 +243,29 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
   return (
     <div className="flex flex-col animate-fade-up">
       <div className="mb-6 flex items-center justify-between">
-         <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <Link
               href={`/ielts/advanced/listening/${params.partId}/my-answers`}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:border-gray-400 transition-all shadow-sm"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-400 dark:text-slate-500 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-slate-500 transition-all shadow-sm"
               title="Back to answer history"
             >
               <ChevronLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Practice Result</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Practice IeltsIntensiveResult</h1>
          </div>
       </div>
 
-      <div className="bg-white border text-left border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-0 rounded-3xl overflow-hidden mb-8">
-        <div className="p-5 border-b border-gray-100">
-          <h3 className="font-extrabold text-gray-900 text-lg">Score Report</h3>
+      <div className="bg-white dark:bg-slate-900 border text-left border-gray-200 dark:border-slate-800 shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)] p-0 rounded-3xl overflow-hidden mb-8">
+        <div className="p-5 border-b border-gray-100 dark:border-slate-800">
+          <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Score Report</h3>
         </div>
 
         <div className="p-6 flex flex-col md:flex-row gap-6">
           {/* Big Score Box */}
-          <div className="bg-[#EBF3FF] border border-blue-100 rounded-xl p-6 flex flex-col items-center justify-center shrink-0 w-48">
-            <span className="text-blue-500 font-bold text-sm mb-1">Marks</span>
-            <div className="text-4xl font-black text-blue-500">
-              {session.totalScore} <span className="text-2xl text-blue-300">/ {session.totalQuestions}</span>
+          <div className="bg-[#EBF3FF] dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl p-6 flex flex-col items-center justify-center shrink-0 w-48">
+            <span className="text-blue-500 dark:text-blue-400 font-bold text-sm mb-1">Marks</span>
+            <div className="text-4xl font-black text-blue-500 dark:text-blue-400">
+              {session.totalScore} <span className="text-2xl text-blue-300 dark:text-blue-500/50">/ {session.totalQuestions}</span>
             </div>
           </div>
 
@@ -273,22 +273,22 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
           <div className="flex-1 overflow-x-auto">
             <table className="w-full text-left text-[14px]">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="pb-3 text-gray-500 font-bold">Question type</th>
-                  <th className="pb-3 text-gray-500 font-bold text-center">Total</th>
-                  <th className="pb-3 text-gray-500 font-bold text-center">Attempted</th>
-                  <th className="pb-3 text-gray-500 font-bold text-center">Correct</th>
-                  <th className="pb-3 text-gray-500 font-bold text-right">Marks</th>
+                <tr className="border-b border-gray-100 dark:border-slate-800">
+                  <th className="pb-3 text-gray-500 dark:text-slate-400 font-bold">Question type</th>
+                  <th className="pb-3 text-gray-500 dark:text-slate-400 font-bold text-center">Total</th>
+                  <th className="pb-3 text-gray-500 dark:text-slate-400 font-bold text-center">Attempted</th>
+                  <th className="pb-3 text-gray-500 dark:text-slate-400 font-bold text-center">Correct</th>
+                  <th className="pb-3 text-gray-500 dark:text-slate-400 font-bold text-right">Marks</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(scoreData).map(([type, stats]: [string, any]) => (
-                  <tr key={type} className="border-b border-gray-50 last:border-0">
-                    <td className="py-4 font-bold text-gray-800 capitalize">{type.replace('_', ' ')}</td>
-                    <td className="py-4 text-gray-600 font-medium text-center">{stats.total}</td>
-                    <td className="py-4 text-gray-600 font-medium text-center">{stats.total}</td>
-                    <td className="py-4 text-gray-600 font-medium text-center">{stats.correct}</td>
-                    <td className="py-4 text-gray-800 font-extrabold text-right">{stats.correct}/{stats.total}</td>
+                  <tr key={type} className="border-b border-gray-50 dark:border-slate-800/50 last:border-0">
+                    <td className="py-4 font-bold text-gray-800 dark:text-slate-200 capitalize">{type.replace('_', ' ')}</td>
+                    <td className="py-4 text-gray-600 dark:text-slate-400 font-medium text-center">{stats.total}</td>
+                    <td className="py-4 text-gray-600 dark:text-slate-400 font-medium text-center">{stats.total}</td>
+                    <td className="py-4 text-gray-600 dark:text-slate-400 font-medium text-center">{stats.correct}</td>
+                    <td className="py-4 text-gray-800 dark:text-slate-200 font-extrabold text-right">{stats.correct}/{stats.total}</td>
                   </tr>
                 ))}
               </tbody>
@@ -299,9 +299,9 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
 
       {/* Answer Sheet Card */}
       {allQuestionKeys.length > 0 && (
-        <div className="bg-white border text-left border-gray-100 shadow-sm p-0 rounded-2xl overflow-hidden mb-6">
-          <div className="p-5 border-b border-gray-100">
-            <h3 className="font-extrabold text-gray-900 text-lg">Answer Sheet</h3>
+        <div className="bg-white dark:bg-slate-900 border text-left border-gray-100 dark:border-slate-800 shadow-sm p-0 rounded-2xl overflow-hidden mb-6">
+          <div className="p-5 border-b border-gray-100 dark:border-slate-800">
+            <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Answer Sheet</h3>
           </div>
           <div className="p-6">
             <div className="flex flex-wrap gap-6">
@@ -324,20 +324,20 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
         </div>
       )}
 
-      <div className="bg-white border text-left border-gray-200 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-0 rounded-3xl overflow-hidden mt-8 mb-8">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="font-extrabold text-gray-900 text-xl tracking-tight">Explanation</h3>
+      <div className="bg-white dark:bg-slate-900 border text-left border-gray-200 dark:border-slate-800 shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)] p-0 rounded-3xl overflow-hidden mt-8 mb-8">
+        <div className="p-6 border-b border-gray-100 dark:border-slate-800">
+          <h3 className="font-extrabold text-gray-900 dark:text-white text-xl tracking-tight">Explanation</h3>
         </div>
         {session.part?.audioUrl && (
-          <div className="p-6 pb-2 border-b border-gray-100">
+          <div className="p-6 pb-2 border-b border-gray-100 dark:border-slate-800">
             <AudioPlayer audioUrl={session.part.audioUrl} audioRef={audioRef} />
           </div>
         )}
 
-        <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-gray-100 max-h-[800px]">
+        <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-slate-800 max-h-[800px]">
           {/* Left side: Questions */}
-          <div className="flex-1 overflow-y-auto px-8 py-6 bg-white shrink-[2] lg:min-w-[50%] custom-scrollbar">
-            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
+          <div className="flex-1 overflow-y-auto px-8 py-6 bg-white dark:bg-slate-900 shrink-[2] lg:min-w-[50%] custom-scrollbar">
+            <div className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-4">Question Review</div>
             <div className="space-y-8">
               {session.part?.content?.map((group: any, idx: number) => {
                 if (group.type === 'form_completion' || group.type === 'note_completion' || (!group.type && group.points)) {
@@ -393,7 +393,7 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
                 if (group.type === 'multiple_choice') {
                   return (
                     <div key={idx} className="space-y-4">
-                      {group.heading && <h3 className="text-[15px] font-extrabold text-gray-900 mb-2">{group.heading}</h3>}
+                      {group.heading && <h3 className="text-[15px] font-extrabold text-gray-900 dark:text-white mb-2">{group.heading}</h3>}
                       {group.questions?.map((q: any) => (
                         <MCQuestionItem
                           key={q.question_number}
@@ -410,16 +410,16 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
                   );
                 }
 
-                return <div key={idx} className="text-gray-500 italic p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">Review for {group.type} coming soon.</div>;
+                return <div key={idx} className="text-gray-500 dark:text-slate-400 italic p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">Review for {group.type} coming soon.</div>;
               })}
             </div>
           </div>
 
           {/* Right side: Transcript */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar bg-gray-50/30">
-            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Audio Transcript</div>
+          <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar bg-gray-50/30 dark:bg-slate-950/50">
+            <div className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-4">Audio Transcript</div>
             {!session.part?.transcript || session.part.transcript.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">Transcript not available for this part.</p>
+              <p className="text-sm text-gray-400 dark:text-slate-500 italic">Transcript not available for this part.</p>
             ) : (
               <div className="space-y-4 pr-2">
                 {session.part.transcript.map((line: any, idx: number) => {
@@ -437,14 +437,14 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
                       key={idx}
                       id={primaryQNum ? `transcript-q-${primaryQNum}` : undefined}
                       className={`flex flex-col transition-all duration-500 rounded-2xl ${isLocated
-                          ? "bg-gray-50 p-4 -mx-4 ring-1 ring-gray-100/50"
+                          ? "bg-gray-50 dark:bg-slate-800 p-4 -mx-4 ring-1 ring-gray-100/50 dark:ring-slate-700/50"
                           : "bg-transparent p-0"
                         }`}
                     >
-                      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 select-none">
+                      <span className="text-[11px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-1 select-none">
                         {line.speaker}
                       </span>
-                      <p className={`transition-colors text-sm leading-relaxed ${isLocated ? "text-gray-900 font-medium" : "text-gray-700"}`}>
+                      <p className={`transition-colors text-sm leading-relaxed ${isLocated ? "text-gray-900 dark:text-white font-medium" : "text-gray-700 dark:text-slate-300"}`}>
                         {hasQ ? (
                           <span>
                             {(() => {
@@ -464,9 +464,9 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
                                     parts.forEach((part, pi) => {
                                       if (re.test(part)) {
                                         nextElements.push(
-                                          <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-[#FFF9E6] text-gray-900 px-1.5 py-0.5 rounded-[4px] font-semibold not-italic" style={{ textDecorationColor: '#FFC107' }}>
+                                          <mark key={`${marker.question_number}-${index}-${pi}`} className="bg-[#FFF9E6] dark:bg-yellow-900/30 text-gray-900 dark:text-yellow-100 px-1.5 py-0.5 rounded-[4px] font-semibold not-italic" style={{ textDecorationColor: '#FFC107' }}>
                                             {marker.question_number && (
-                                              <span className="inline-flex items-center justify-center bg-gray-900 text-white text-[9px] font-extrabold px-[5px] py-[2px] rounded-[3px] mr-1.5 tracking-wider align-middle select-none">
+                                              <span className="inline-flex items-center justify-center bg-gray-900 dark:bg-black text-white text-[9px] font-extrabold px-[5px] py-[2px] rounded-[3px] mr-1.5 tracking-wider align-middle select-none">
                                                 Q{marker.question_number}
                                               </span>
                                             )}

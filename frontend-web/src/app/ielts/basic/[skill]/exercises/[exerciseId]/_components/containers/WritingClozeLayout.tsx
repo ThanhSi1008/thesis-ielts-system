@@ -1,0 +1,313 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import axios from "axios";
+import Image from "next/image";
+import { API_BASE_URL } from "@/constants";
+import { ChevronRight, Save, Target, Link, BookOpen } from "lucide-react";
+import { LessonBlock } from "../utils/SharedExerciseTypes";
+import { TheoryPopup } from "../ui/TheoryModal";
+import { authService } from "@/services/auth.service";
+import { toast } from "@/components/Toaster";
+import api from "@/lib/api";
+
+// Types based on the new JSON structure
+type ClozeSegment =
+  | { type: "text"; value: string }
+  | { type: "blank"; id: string; correctAnswer: string; options: string[] };
+
+type ClozeParagraph = {
+  number: number;
+  title: string;
+  segments: ClozeSegment[];
+};
+
+type ClozeModelAnswer = {
+  paragraphs: ClozeParagraph[];
+};
+
+type WritingExercise = {
+  id: string;
+  topic?: string;
+  prompt?: string;
+  diagramUrl?: string;
+  modelAnswer?: ClozeModelAnswer;
+};
+
+export function WritingClozeLayout({
+  exercise,
+  lessonBlocks = [],
+  onComplete,
+  onNext,
+}: {
+  exercise: WritingExercise;
+  lessonBlocks?: LessonBlock[];
+  onComplete?: () => void;
+  onNext?: () => void;
+}) {
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchSavedAnswers = async () => {
+      if (!exercise?.id) return;
+      try {
+        const token = authService.getToken();
+        const res = await axios.get(
+          `${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/my-answer`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (res.data?.answers) {
+          setAnswers(res.data.answers);
+        }
+      } catch (err) {
+        console.error("Failed to load saved answers:", err);
+      }
+    };
+    fetchSavedAnswers();
+  }, [exercise?.id]);
+
+  const handleSaveProgress = async () => {
+    if (!exercise?.id) return;
+    setIsSaving(true);
+    try {
+      const token = authService.getToken();
+      await axios.post(
+        `${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/save-answer`,
+        { answers },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await api.post("/ielts/progress/mark-completed", { writingExerciseId: exercise.id });
+      toast.success("Progress saved successfully!");
+      if (onComplete) onComplete();
+    } catch (err) {
+      console.error("Failed to save progress:", err);
+      toast.error("Failed to save tracking progress");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleShowAnswer = async () => {
+    setShowAnswer(true);
+    try {
+      if (exercise?.id) {
+        const token = authService.getToken();
+        await axios.post(
+          `${API_BASE_URL}/ielts/writing-exercises/${exercise.id}/save-answer`,
+          { answers },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        await api.post("/ielts/progress/mark-completed", { writingExerciseId: exercise.id });
+      }
+      if (onComplete) onComplete();
+    } catch (err) {
+      console.error("Failed to mark completed", err);
+    }
+  };
+
+  const handleTryAgain = () => {
+    setShowAnswer(false);
+    setAnswers({});
+  };
+
+  const [activeModal, setActiveModal] = useState<"traps" | "strategy" | "tips" | null>(null);
+
+  const modelAnswer = (exercise?.modelAnswer as ClozeModelAnswer) || { paragraphs: [] };
+  const modalBlock = activeModal
+    ? lessonBlocks.find((b) => b.type === activeModal) ?? { type: activeModal, content: "_No content available._" }
+    : null;
+
+  const topicRaw = exercise?.topic || "Writing Task 1";
+  const hasSeparator = topicRaw.includes(" - ");
+  const category = hasSeparator ? topicRaw.split(" - ")[0] : "IELTS Writing";
+  const subTopic = hasSeparator ? topicRaw.split(" - ").slice(1).join(" - ") : topicRaw;
+
+  // Check answers
+  const isCorrect = (blankId: string, correctAnswer: string) => {
+    return answers[blankId] === correctAnswer;
+  };
+
+  return (
+    <div className="flex w-full flex-col bg-[#F9F6F0] dark:bg-slate-950 overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm h-[90vh] transition-colors duration-300">
+      {/* Header */}
+      <div className="flex px-8 py-5 flex-none items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 transition-colors">
+        <div className="flex items-center gap-3">
+          <button className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div className="flex flex-col">
+            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider uppercase">Exercise</span>
+            <h1 className="text-[15px] font-bold text-slate-800 dark:text-gray-100 tracking-tight">{category}: {subTopic}</h1>
+          </div>
+        </div>
+
+        {/* Theory Buttons */}
+        <div className="relative flex items-center gap-3">
+          <button onClick={() => setActiveModal(activeModal === "traps" ? null : "traps")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "traps" ? "bg-green-200 dark:bg-green-900/40" : "bg-green-100 dark:bg-green-900/20 hover:bg-green-200 dark:hover:bg-green-900/30"}`} title="Task Achievement">
+            <Target size={18} className="text-green-700 dark:text-green-400" />
+          </button>
+          <button onClick={() => setActiveModal(activeModal === "strategy" ? null : "strategy")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "strategy" ? "bg-pink-200 dark:bg-pink-900/40" : "bg-pink-100 dark:bg-pink-900/20 hover:bg-pink-200 dark:hover:bg-pink-900/30"}`} title="Grammar & Cohesion">
+             <Link size={18} className="text-pink-600 dark:text-pink-400" />
+          </button>
+          <button onClick={() => setActiveModal(activeModal === "tips" ? null : "tips")} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeModal === "tips" ? "bg-yellow-200 dark:bg-yellow-900/40" : "bg-yellow-100 dark:bg-yellow-900/20 hover:bg-yellow-200 dark:hover:bg-yellow-900/30"}`} title="Lexical Resource">
+            <BookOpen size={18} className="text-yellow-700 dark:text-yellow-400" />
+          </button>
+          {modalBlock && (
+            <TheoryPopup 
+              block={modalBlock as LessonBlock} 
+              onClose={() => setActiveModal(null)} 
+              customTheme={
+                activeModal === "traps" ? {
+                  bg: "bg-green-50 dark:bg-green-950/20",
+                  border: "border-green-200 dark:border-green-900/30",
+                  icon: <Target size={20} className="text-green-600 dark:text-green-400" />,
+                  text: "text-green-800 dark:text-green-200"
+                } : activeModal === "strategy" ? {
+                  bg: "bg-pink-50 dark:bg-pink-950/20",
+                  border: "border-pink-200 dark:border-pink-900/30",
+                  icon: <Link size={20} className="text-pink-600 dark:text-pink-400" />,
+                  text: "text-pink-800 dark:text-pink-200"
+                } : {
+                  bg: "bg-yellow-50 dark:bg-yellow-950/20",
+                  border: "border-yellow-200 dark:border-yellow-900/30",
+                  icon: <BookOpen size={20} className="text-yellow-600 dark:text-yellow-400" />,
+                  text: "text-yellow-800 dark:text-yellow-200"
+                }
+              }
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Main Two-Pane Split or Top-Bottom Split */}
+      <div className={`flex flex-1 overflow-hidden px-6 py-6 gap-6 ${exercise?.diagramUrl ? "" : "flex-col"}`}>
+        {/* Left Pane / Top Pane: Prompt and Image */}
+        <div className={`${exercise?.diagramUrl ? "w-[45%] overflow-y-auto" : "w-full flex-none"} bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 transition-colors`}>
+          <div className="text-[15px] font-medium text-slate-700 dark:text-gray-300 leading-relaxed">
+            {exercise?.prompt}
+          </div>
+
+          {exercise?.diagramUrl && (
+            <div className="mt-8 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-slate-800 p-2">
+              <Image
+                src={exercise.diagramUrl}
+                alt="Diagram"
+                width={800}
+                height={600}
+                style={{ width: '100%', height: 'auto' }}
+                className="object-contain rounded-lg"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Right Pane Container / Bottom Pane Container: Cloze Paragraphs */}
+        <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden transition-colors">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col space-y-6">
+            {modelAnswer.paragraphs?.map((para, i) => (
+              <div key={i} className="bg-[#F5EFE6] dark:bg-slate-800/50 rounded-2xl p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-6 h-6 rounded-full bg-[#E5D5C5] dark:bg-slate-700 text-[#8C7A6B] dark:text-slate-300 flex items-center justify-center font-bold text-sm">
+                    {para.number}
+                  </div>
+                  <h3 className="font-bold text-gray-800 dark:text-gray-100 text-[16px]">{para.title}:</h3>
+                </div>
+                
+                <div className="text-[16px] leading-[2.5] text-gray-800 dark:text-gray-200">
+                  {para.segments.map((seg, idx) => {
+                    if (seg.type === "text") {
+                      return <span key={idx}>{seg.value}</span>;
+                    }
+
+                    if (seg.type === "blank") {
+                      const selected = answers[seg.id] || "";
+                      const answered = !!selected;
+                      let selectClasses = "mx-1 px-3 py-1.5 rounded-xl border appearance-none outline-none font-medium text-center inline-block cursor-pointer transition-colors shadow-sm bg-white ";
+                      
+                      if (showAnswer) {
+                         if (isCorrect(seg.id, seg.correctAnswer)) {
+                             selectClasses += "border-green-500 dark:border-green-400 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20";
+                         } else {
+                             selectClasses += "border-red-500 dark:border-red-400 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20";
+                         }
+                      } else {
+                         if (answered) {
+                             selectClasses += "border-gray-400 dark:border-gray-600 text-gray-900 dark:text-white dark:bg-gray-800 hover:border-gray-500 dark:hover:border-gray-500";
+                         } else {
+                             selectClasses += "border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-600";
+                         }
+                      }
+
+                      return (
+                        <span key={seg.id} className="relative inline-block">
+                          <select
+                            value={showAnswer ? seg.correctAnswer : selected}
+                            onChange={(e) => setAnswers({ ...answers, [seg.id]: e.target.value })}
+                            disabled={showAnswer}
+                            className={selectClasses}
+                            style={{ minWidth: "120px", paddingRight: "30px" }}
+                          >
+                            <option value="" disabled>Choose</option>
+                            {seg.options.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                          </div>
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 flex gap-3 w-full justify-end flex-none transition-colors">
+            {!showAnswer ? (
+              <>
+                <button
+                  onClick={handleSaveProgress}
+                  disabled={isSaving}
+                  className="px-6 py-2.5 flex items-center justify-center gap-2 text-[14px] bg-sky-50 text-sky-600 hover:bg-sky-100 font-bold rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-sky-100 focus:ring-offset-2 disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" />
+                  {isSaving ? "Saving..." : "Save Progress"}
+                </button>
+                <button
+                  onClick={handleShowAnswer}
+                  className="px-8 py-2.5 text-[14px] bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-[#FFC107] focus:ring-offset-2"
+                >
+                  Check Answers
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleTryAgain}
+                  className="px-8 py-2.5 text-[14px] bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
+                >
+                  Try again
+                </button>
+                <button
+                  onClick={onNext}
+                  className="px-8 py-2.5 text-[14px] bg-[#FFC107] hover:bg-[#FFB300] text-black font-bold rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-[#FFC107] focus:ring-offset-2 flex items-center gap-1"
+                >
+                  Next <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

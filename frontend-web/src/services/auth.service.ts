@@ -21,6 +21,20 @@ export const authService = {
   },
 
   /**
+   * Sign in or register via Google OAuth ID token
+   */
+  async googleLogin(idToken: string): Promise<AuthResponse> {
+    const { data } = await api.post<AuthResponse>('/auth/google', { idToken });
+    if (data.access_token) {
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.access_token);
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+    }
+    return data;
+  },
+
+  /**
    * Register new user
    */
   async register(userData: RegisterRequest): Promise<any> {

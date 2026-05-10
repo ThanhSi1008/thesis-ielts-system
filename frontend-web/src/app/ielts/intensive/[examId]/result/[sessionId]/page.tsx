@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import { notesApi, type QuestionNote } from "@/services/notes.api";
 import { Calendar, Clock, ChevronDown, ChevronUp, Play, Pause, Volume2, SkipBack, SkipForward, Headphones, MapPin, Lightbulb, StickyNote } from "lucide-react";
-import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser";
+import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/ieltsIntensiveExam-parser";
 import WritingResultView from "@/components/WritingResultView";
 import SpeakingResultView from "@/components/SpeakingResultView";
 import FloatingSelectionManager from "@/components/FloatingSelectionManager";
@@ -142,7 +142,7 @@ function Breadcrumbs() {
     { label: "IELTS", href: "/ielts" },
     { label: "Intensive IELTS", href: "/ielts/intensive" },
     { label: "Test History", href: "/ielts/history" },
-    { label: "Result" },
+    { label: "IeltsIntensiveResult" },
   ];
   return (
     <nav className="text-sm font-semibold text-gray-700 flex items-center flex-wrap gap-2">
@@ -910,7 +910,7 @@ function ReviewItemField({
                       {letter}
                     </th>
                   ))}
-                  <th className="p-3 w-[80px] text-center font-bold border-l border-[#999999] bg-[#f9fafb]">Result</th>
+                  <th className="p-3 w-[80px] text-center font-bold border-l border-[#999999] bg-[#f9fafb]">IeltsIntensiveResult</th>
                 </tr>
               </thead>
               <tbody>
@@ -1052,9 +1052,9 @@ function ReviewItemField({
 // Review & Explanation Section
 // ─────────────────────────────────────────────────────────────
 function ReviewSection({
-  exam, correctMap, userAnswers, examId, userId, aiFeedback, practicePart,
+  ieltsIntensiveExam, correctMap, userAnswers, examId, userId, aiFeedback, practicePart,
 }: {
-  exam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any; practicePart?: number;
+  ieltsIntensiveExam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any; practicePart?: number;
 }) {
   const [open, setOpen] = useState(true);
   const [activePartIdx, setActivePartIdx] = useState(0);
@@ -1065,8 +1065,8 @@ function ReviewSection({
   const [activeCriterion, setActiveCriterion] = useState<string>("fluency_and_coherence");
   const criteriaScrollRef = useRef<HTMLDivElement | null>(null);
 
-  const isSpeaking = exam?.type === "SPEAKING";
-  const allParts: any[] = exam?.questions?.parts ?? [];
+  const isSpeaking = ieltsIntensiveExam?.type === "SPEAKING";
+  const allParts: any[] = ieltsIntensiveExam?.questions?.parts ?? [];
   // For practice sessions, filter to only the practiced part
   const parts: any[] = practicePart
     ? allParts.filter((p: any) => (p.part_number || p.passage_number || p.task_number || 1) === practicePart)
@@ -1076,7 +1076,7 @@ function ReviewSection({
   const transcript: any[] = activePart?.transcript ?? [];
   const partItems = useMemo(() => extractAllItemsFromPart(activePart), [activePart]);
 
-  // Load notes for this exam
+  // Load notes for this ieltsIntensiveExam
   useEffect(() => {
     if (!userId) return;
     notesApi.getExamNotes(userId, examId)
@@ -1094,7 +1094,7 @@ function ReviewSection({
 
   // Locate = scroll transcript or passage to that question's location
   const handleLocate = useCallback((qNum: number) => {
-    if (exam?.type === "READING") {
+    if (ieltsIntensiveExam?.type === "READING") {
       const el = document.getElementById(`reading-loc-${qNum}`);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1105,7 +1105,7 @@ function ReviewSection({
       const el = transcriptRefs.current[qNum];
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-  }, [exam?.type]);
+  }, [ieltsIntensiveExam?.type]);
 
   const handleNoteReady = useCallback((note: QuestionNote) => {
     setNotes((prev) => {
@@ -1361,7 +1361,7 @@ function ReviewSection({
 
                 {/* Right: Transcript or Passage */}
                 <div key={`right-${activePartIdx}`} className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
-                  {exam?.type === "READING" ? (
+                  {ieltsIntensiveExam?.type === "READING" ? (
                     <>
                       <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Reading Passage</div>
                       <div className="text-[15px] text-[#1a1a1a] leading-relaxed space-y-5 pb-20">
@@ -1543,18 +1543,18 @@ export default function IeltsResultPage() {
     examsApi
       .getSession(sessionId)
       .then((s) => { if (mounted) setSession(s); })
-      .catch((e: any) => { if (mounted) setError(e?.message || "Failed to load result"); })
+      .catch((e: any) => { if (mounted) setError(e?.message || "Failed to load ieltsIntensiveResult"); })
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [sessionId]);
 
-  const exam = session?.exam;
-  const result = session?.result;
+  const ieltsIntensiveExam = session?.ieltsIntensiveExam;
+  const ieltsIntensiveResult = session?.ieltsIntensiveResult;
   const userAnswers: Record<string, any> = session?.answers || {};
-  const isWriting = exam?.type === "WRITING";
-  const isSpeaking = exam?.type === "SPEAKING";
+  const isWriting = ieltsIntensiveExam?.type === "WRITING";
+  const isSpeaking = ieltsIntensiveExam?.type === "SPEAKING";
   const aiGradingPending = (isWriting || isSpeaking) && session?.status === "SUBMITTED";
-  const feedbackRaw = result?.feedback || null;
+  const feedbackRaw = ieltsIntensiveResult?.feedback || null;
   const aiFeedback = typeof feedbackRaw === "string" ? JSON.parse(feedbackRaw) : feedbackRaw;
 
   // Poll every 5s when grading is pending
@@ -1562,7 +1562,7 @@ export default function IeltsResultPage() {
     if (!aiGradingPending) return;
     const interval = setInterval(() => {
       examsApi.getSession(sessionId).then((s) => {
-        if (s?.status === "COMPLETED" || s?.result?.feedback) {
+        if (s?.status === "COMPLETED" || s?.ieltsIntensiveResult?.feedback) {
           setSession(s);
           clearInterval(interval);
         }
@@ -1573,25 +1573,25 @@ export default function IeltsResultPage() {
 
   const correctMap = useMemo(() => {
     const map = new Map<string, any>();
-    if (exam?.questions) extractCorrectAnswers(exam.questions, map);
+    if (ieltsIntensiveExam?.questions) extractCorrectAnswers(ieltsIntensiveExam.questions, map);
     return map;
-  }, [exam]);
+  }, [ieltsIntensiveExam]);
 
   const isPractice = !!session?.practicePart;
   const practicePart = session?.practicePart as number | undefined;
 
   // For practice sessions, only count questions from the specific part
   const practiceCorrectMap = useMemo(() => {
-    if (!isPractice || !practicePart || !exam?.questions?.parts) return correctMap;
-    const partArr = exam.questions.parts as any[];
+    if (!isPractice || !practicePart || !ieltsIntensiveExam?.questions?.parts) return correctMap;
+    const partArr = ieltsIntensiveExam.questions.parts as any[];
     const part = partArr.find((p: any) => (p.part_number || p.passage_number || p.task_number || 1) === practicePart);
     if (!part) return correctMap;
     const partMap = new Map<string, any>();
     extractCorrectAnswers(part, partMap);
     return partMap;
-  }, [isPractice, practicePart, exam, correctMap]);
+  }, [isPractice, practicePart, ieltsIntensiveExam, correctMap]);
 
-  const rawScore = result?.totalScore ?? 0;
+  const rawScore = ieltsIntensiveResult?.totalScore ?? 0;
   const maxScore = isPractice ? practiceCorrectMap.size || 10 : (correctMap.size > 0 ? correctMap.size : 40);
 
   let band = 1.0;
@@ -1601,7 +1601,7 @@ export default function IeltsResultPage() {
     band = aiFeedback?.overall_band || 0;
   } else if (isSpeaking) {
     band = aiFeedback?.overall_band || 0;
-  } else if (exam?.type === "READING") {
+  } else if (ieltsIntensiveExam?.type === "READING") {
     band = getIeltsReadingBand(rawScore);
   } else {
     band = getIeltsBand(rawScore);
@@ -1620,8 +1620,8 @@ export default function IeltsResultPage() {
       Object.values(obj).forEach((v) => collectQNums(v, acc));
     }
 
-    if (exam?.questions?.parts) {
-      (exam.questions.parts as any[]).forEach((p, i) => {
+    if (ieltsIntensiveExam?.questions?.parts) {
+      (ieltsIntensiveExam.questions.parts as any[]).forEach((p, i) => {
         const qNums: number[] = [];
         collectQNums(p, qNums);
         const uniqueSorted = Array.from(new Set(qNums)).sort((a, b) => a - b);
@@ -1636,30 +1636,30 @@ export default function IeltsResultPage() {
       }
     }
     return ps;
-  }, [exam]);
+  }, [ieltsIntensiveExam]);
 
   // Answer sheet parts: filter to only the practice part if applicable
   const answerSheetParts = useMemo(() => {
     if (!isPractice || !practicePart) return parts;
     return parts.filter((p) => {
       const [min] = p.partRange;
-      // find which part index in the exam corresponds to practicePart
-      if (!exam?.questions?.parts) return true;
-      const examParts = exam.questions.parts as any[];
+      // find which part index in the ieltsIntensiveExam corresponds to practicePart
+      if (!ieltsIntensiveExam?.questions?.parts) return true;
+      const examParts = ieltsIntensiveExam.questions.parts as any[];
       const idx = examParts.findIndex((ep: any) => (ep.part_number || ep.passage_number || ep.task_number || 1) === practicePart);
       if (idx < 0) return true;
       const refPart = parts[idx];
       return refPart && p.label === refPart.label;
     });
-  }, [isPractice, practicePart, parts, exam]);
+  }, [isPractice, practicePart, parts, ieltsIntensiveExam]);
 
-  const examTitle = exam?.title ?? "Test";
+  const examTitle = ieltsIntensiveExam?.title ?? "Test";
   const shortTitle = examTitle.replace("Cambridge IELTS ", "Cambridge ");
 
   const submittedAt = session?.submittedAt ? new Date(session.submittedAt) : null;
   const startedAt = session?.startedAt ? new Date(session.startedAt) : null;
   const timeTakenSecs = session?.timeTaken ?? (submittedAt && startedAt ? Math.floor((submittedAt.getTime() - startedAt.getTime()) / 1000) : null);
-  const totalSecs = (exam?.duration ?? 0) * 60;
+  const totalSecs = (ieltsIntensiveExam?.duration ?? 0) * 60;
 
   function fmtTime(s: number) {
     const m = Math.floor(s / 60);
@@ -1670,191 +1670,189 @@ export default function IeltsResultPage() {
   return (
     <FloatingSelectionManager>
       <div className="min-h-screen bg-gray-50 font-sans">
-        <div className="container mx-auto max-w-screen-xl px-4 py-8 space-y-6">
-        <Breadcrumbs />
+        <div className="container px-6 py-8 space-y-6">
+          <Breadcrumbs />
 
-        {/* ── Result Card ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <button onClick={() => setResultOpen(!resultOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
-            {resultOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-            <span className="font-extrabold text-gray-900">Result</span>
-          </button>
+          {/* ── IeltsIntensiveResult Card ── */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <button onClick={() => setResultOpen(!resultOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
+              {resultOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+              <span className="font-extrabold text-gray-900">IeltsIntensiveResult</span>
+            </button>
 
-          {resultOpen && (
-            <div className="px-8 pb-8 pt-2">
-              {loading ? (
-                <div className="flex gap-10 animate-pulse">
-                  <div className="w-24 h-32 bg-gray-200 rounded-xl" />
-                  <div className="flex flex-col gap-3 pt-4">
-                    <div className="h-4 w-32 bg-gray-200 rounded" />
-                    <div className="h-6 w-56 bg-gray-200 rounded" />
-                    <div className="h-8 w-44 bg-gray-200 rounded-full" />
-                    <div className="h-8 w-36 bg-gray-200 rounded-full" />
+            {resultOpen && (
+              <div className="px-8 pb-8 pt-2">
+                {loading ? (
+                  <div className="flex gap-10 animate-pulse">
+                    <div className="w-24 h-32 bg-gray-200 rounded-xl" />
+                    <div className="flex flex-col gap-3 pt-4">
+                      <div className="h-4 w-32 bg-gray-200 rounded" />
+                      <div className="h-6 w-56 bg-gray-200 rounded" />
+                      <div className="h-8 w-44 bg-gray-200 rounded-full" />
+                      <div className="h-8 w-36 bg-gray-200 rounded-full" />
+                    </div>
                   </div>
-                </div>
-              ) : error ? (
-                <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-4">{error}</div>
-              ) : (
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-4">
-                  {isPractice ? (
-                    /* Practice score display – simple circle, no band */
-                    <div className="flex flex-col items-center gap-2">
-                      <div className={`relative w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center border-[6px] ${
-                        rawScore >= maxScore * 0.8 ? "border-green-400 bg-green-50" :
-                        rawScore >= maxScore * 0.5 ? "border-amber-400 bg-amber-50" :
-                        "border-red-400 bg-red-50"
-                      }`}>
-                        <span className={`text-[42px] font-black leading-none ${
-                          rawScore >= maxScore * 0.8 ? "text-green-600" :
-                          rawScore >= maxScore * 0.5 ? "text-amber-600" :
-                          "text-red-600"
-                        }`}>{rawScore}</span>
-                        <span className="text-sm font-bold text-gray-400 mt-1">/ {maxScore}</span>
+                ) : error ? (
+                  <div className="bg-red-50 text-red-700 border border-red-100 rounded-xl p-4">{error}</div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-10 py-4">
+                    {isPractice ? (
+                      /* Practice score display – simple circle, no band */
+                      <div className="flex flex-col items-center gap-2">
+                        <div className={`relative w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center border-[6px] ${rawScore >= maxScore * 0.8 ? "border-green-400 bg-green-50" :
+                            rawScore >= maxScore * 0.5 ? "border-amber-400 bg-amber-50" :
+                              "border-red-400 bg-red-50"
+                          }`}>
+                          <span className={`text-[42px] font-black leading-none ${rawScore >= maxScore * 0.8 ? "text-green-600" :
+                              rawScore >= maxScore * 0.5 ? "text-amber-600" :
+                                "text-red-600"
+                            }`}>{rawScore}</span>
+                          <span className="text-sm font-bold text-gray-400 mt-1">/ {maxScore}</span>
+                        </div>
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Practice Score</span>
                       </div>
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Practice Score</span>
-                    </div>
-                  ) : (
-                    <BandShield
-                      band={band}
-                      rawScore={(isWriting || isSpeaking) ? null : rawScore}
-                      maxScore={(isWriting || isSpeaking) ? null : maxScore}
-                      color={color}
-                    />
-                  )}
-                  <div className="flex flex-col items-center sm:items-start gap-4 sm:ml-6">
-                    <div className="text-center sm:text-left flex flex-col">
-                      <div className="text-base text-slate-500 font-medium pb-2">
-                        {[session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(" ") || "Student"}
+                    ) : (
+                      <BandShield
+                        band={band}
+                        rawScore={(isWriting || isSpeaking) ? null : rawScore}
+                        maxScore={(isWriting || isSpeaking) ? null : maxScore}
+                        color={color}
+                      />
+                    )}
+                    <div className="flex flex-col items-center sm:items-start gap-4 sm:ml-6">
+                      <div className="text-center sm:text-left flex flex-col">
+                        <div className="text-base text-slate-500 font-medium pb-2">
+                          {[session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(" ") || "Student"}
+                        </div>
+                        <h1 className="text-2xl sm:text-[28px] font-extrabold text-slate-800 tracking-tight leading-tight">
+                          {shortTitle}{isPractice ? ` — Part ${practicePart} Practice` : ""}
+                        </h1>
                       </div>
-                      <h1 className="text-2xl sm:text-[28px] font-extrabold text-slate-800 tracking-tight leading-tight">
-                        {shortTitle}{isPractice ? ` — Part ${practicePart} Practice` : ""}
-                      </h1>
-                    </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-2">
-                      {submittedAt && (
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-xl bg-amber-50 shrink-0">
-                            <Calendar className="w-4 h-4 text-amber-500" strokeWidth={2.5} />
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-2">
+                        {submittedAt && (
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-amber-50 shrink-0">
+                              <Calendar className="w-4 h-4 text-amber-500" strokeWidth={2.5} />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Completed</span>
+                              <span className="text-sm font-semibold text-slate-700">{submittedAt.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                            </div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Completed</span>
-                            <span className="text-sm font-semibold text-slate-700">{submittedAt.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                        )}
+                        {timeTakenSecs !== null && (
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 rounded-xl bg-blue-50 shrink-0">
+                              <Clock className="w-4 h-4 text-blue-500" strokeWidth={2.5} />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Time Taken</span>
+                              <span className="text-sm font-semibold text-slate-700">{fmtTime(timeTakenSecs)} <span className="text-slate-400 font-medium">/ {fmtTime(totalSecs)}</span></span>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {timeTakenSecs !== null && (
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-xl bg-blue-50 shrink-0">
-                            <Clock className="w-4 h-4 text-blue-500" strokeWidth={2.5} />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Time Taken</span>
-                            <span className="text-sm font-semibold text-slate-700">{fmtTime(timeTakenSecs)} <span className="text-slate-400 font-medium">/ {fmtTime(totalSecs)}</span></span>
-                          </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── AI Grading: Pending Banner ── */}
+          {!loading && (isWriting || isSpeaking) && aiGradingPending && (
+            <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+              <div className="px-8 py-10 flex flex-col items-center text-center gap-4">
+                <div className="w-14 h-14 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">
+                    {isSpeaking ? "AI is grading your transcription…" : "AI is grading your essays…"}
+                  </h2>
+                  <p className="text-sm text-gray-500">This usually takes 15–30 seconds. The page will update automatically.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Writing: Full IeltsIntensiveResult View ── */}
+          {!loading && isWriting && !aiGradingPending && aiFeedback && (
+            <WritingResultView
+              feedback={aiFeedback}
+              answers={userAnswers as any}
+              ieltsIntensiveExam={ieltsIntensiveExam}
+              practicePart={practicePart}
+            />
+          )}
+
+          {/* ── Speaking: Full IeltsIntensiveResult View ── */}
+          {!loading && isSpeaking && !aiGradingPending && aiFeedback && (
+            <SpeakingResultView
+              feedback={aiFeedback}
+              answers={userAnswers as any}
+              ieltsIntensiveExam={ieltsIntensiveExam}
+            />
+          )}
+
+          {/* ── Answer Sheet Card (Listening / Reading only) ── */}
+          {!loading && !error && session && !isWriting && !isSpeaking && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <button onClick={() => setAnswerSheetOpen(!answerSheetOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
+                {answerSheetOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                <span className="font-extrabold text-gray-900">Answer sheet</span>
+              </button>
+              {answerSheetOpen && (
+                <div className="px-8 pb-6 pt-2">
+                  <div className="flex flex-wrap gap-8">
+                    {answerSheetParts.map((p) => (
+                      <AnswerColumn
+                        key={p.label}
+                        partLabel={p.label}
+                        range={p.partRange}
+                        correctMap={isPractice ? practiceCorrectMap : correctMap}
+                        userAnswers={userAnswers}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
             </div>
           )}
-        </div>
 
-        {/* ── AI Grading: Pending Banner ── */}
-        {!loading && (isWriting || isSpeaking) && aiGradingPending && (
-          <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
-            <div className="px-8 py-10 flex flex-col items-center text-center gap-4">
-              <div className="w-14 h-14 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
-              <div>
-                <h2 className="text-lg font-bold text-gray-900 mb-1">
-                  {isSpeaking ? "AI is grading your transcription…" : "AI is grading your essays…"}
-                </h2>
-                <p className="text-sm text-gray-500">This usually takes 15–30 seconds. The page will update automatically.</p>
-              </div>
+          {/* ── Review & Explanation Card ── */}
+          {!loading && !error && session && ieltsIntensiveExam?.questions?.parts && (
+            <ReviewSection
+              ieltsIntensiveExam={ieltsIntensiveExam}
+              correctMap={isPractice ? practiceCorrectMap : correctMap}
+              userAnswers={userAnswers}
+              examId={examId}
+              userId={session?.user?.id ?? ""}
+              aiFeedback={aiFeedback}
+              practicePart={practicePart}
+            />
+          )}
+
+          {/* ── Actions ── */}
+          {!loading && !error && (
+            <div className="flex gap-4">
+              <Link
+                href={isPractice
+                  ? `/ielts/intensive/${encodeURIComponent(examId)}/start?practicePart=${practicePart}`
+                  : `/ielts/intensive/${encodeURIComponent(examId)}`}
+                className="px-6 py-3 bg-primary hover:bg-yellow-400 text-gray-900 font-bold rounded-xl text-sm transition-colors shadow-sm"
+              >
+                {isPractice ? "Practice Again" : "Try Again"}
+              </Link>
+              <Link
+                href={isPractice ? "/ielts/intensive?view=practice" : "/ielts/intensive"}
+                className="px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-colors"
+              >
+                {isPractice ? "Back to Practice" : "Back to Mock Tests"}
+              </Link>
             </div>
-          </div>
-        )}
-
-        {/* ── Writing: Full Result View ── */}
-        {!loading && isWriting && !aiGradingPending && aiFeedback && (
-          <WritingResultView
-            feedback={aiFeedback}
-            answers={userAnswers as any}
-            exam={exam}
-            practicePart={practicePart}
-          />
-        )}
-
-        {/* ── Speaking: Full Result View ── */}
-        {!loading && isSpeaking && !aiGradingPending && aiFeedback && (
-          <SpeakingResultView
-            feedback={aiFeedback}
-            answers={userAnswers as any}
-            exam={exam}
-          />
-        )}
-
-        {/* ── Answer Sheet Card (Listening / Reading only) ── */}
-        {!loading && !error && session && !isWriting && !isSpeaking && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <button onClick={() => setAnswerSheetOpen(!answerSheetOpen)} className="w-full flex items-center gap-2 px-6 py-4 text-left transition-colors">
-              {answerSheetOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-              <span className="font-extrabold text-gray-900">Answer sheet</span>
-            </button>
-            {answerSheetOpen && (
-              <div className="px-8 pb-6 pt-2">
-                <div className="flex flex-wrap gap-8">
-                  {answerSheetParts.map((p) => (
-                    <AnswerColumn
-                      key={p.label}
-                      partLabel={p.label}
-                      range={p.partRange}
-                      correctMap={isPractice ? practiceCorrectMap : correctMap}
-                      userAnswers={userAnswers}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Review & Explanation Card ── */}
-        {!loading && !error && session && exam?.questions?.parts && (
-          <ReviewSection
-            exam={exam}
-            correctMap={isPractice ? practiceCorrectMap : correctMap}
-            userAnswers={userAnswers}
-            examId={examId}
-            userId={session?.user?.id ?? ""}
-            aiFeedback={aiFeedback}
-            practicePart={practicePart}
-          />
-        )}
-
-        {/* ── Actions ── */}
-        {!loading && !error && (
-          <div className="flex gap-4">
-          <Link
-              href={isPractice
-                ? `/ielts/intensive/${encodeURIComponent(examId)}/start?practicePart=${practicePart}`
-                : `/ielts/intensive/${encodeURIComponent(examId)}`}
-              className="px-6 py-3 bg-primary hover:bg-yellow-400 text-gray-900 font-bold rounded-xl text-sm transition-colors shadow-sm"
-            >
-              {isPractice ? "Practice Again" : "Try Again"}
-            </Link>
-            <Link
-              href={isPractice ? "/ielts/intensive?view=practice" : "/ielts/intensive"}
-              className="px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-bold rounded-xl text-sm transition-colors"
-            >
-              {isPractice ? "Back to Practice" : "Back to Mock Tests"}
-            </Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </FloatingSelectionManager>
   );
 }

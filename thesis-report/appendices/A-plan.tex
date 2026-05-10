@@ -1,0 +1,33 @@
+\chapter{Kế hoạch thực hiện}
+\label{app:kehoach}
+
+Bảng~\ref{tab:kehoach} trình bày kế hoạch thực hiện đồ án được chia thành 15 tuần, từ tuần 1 đến tuần 15, theo đúng quy định của nhà trường. Các tuần được phân bổ hợp lý giữa các giai đoạn: nghiên cứu và phân tích yêu cầu, thiết kế hệ thống, lập trình hiện thực, kiểm thử và hoàn thiện báo cáo.
+
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|c|p{4.0cm}|p{5.5cm}|p{3.5cm}|}
+    \caption{Kế hoạch thực hiện đồ án}
+    \label{tab:kehoach} \\
+    \hline
+    \textbf{Tuần} & \textbf{Giai đoạn} & \textbf{Nội dung công việc} & \textbf{Sản phẩm đầu ra} \\ \hline
+    \endfirsthead
+    \multicolumn{4}{r}{\footnotesize\textit{(tiếp theo)}} \\
+    \hline
+    \textbf{Tuần} & \textbf{Giai đoạn} & \textbf{Nội dung công việc} & \textbf{Sản phẩm đầu ra} \\ \hline
+    \endhead
+    \hline \multicolumn{4}{r}{\footnotesize\textit{(còn tiếp)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1--2 & Nghiên cứu đề tài & Tìm hiểu bài toán, phân tích nhu cầu người dùng; nghiên cứu các hệ thống IELTS hiện có (ELSA Speak, Cambly, British Council...); xác định phạm vi và mục tiêu đề tài & Tài liệu đặc tả yêu cầu sơ bộ \\ \hline
+    3 & Nghiên cứu công nghệ & Nghiên cứu tech stack: NestJS, Next.js, React Native, Prisma ORM, PostgreSQL, RabbitMQ, Redis, Gemini API, faster-whisper; đánh giá và lựa chọn công nghệ phù hợp & Bảng so sánh công nghệ, báo cáo lý do lựa chọn \\ \hline
+    4 & Phân tích và thiết kế & Phân tích nghiệp vụ chi tiết; xây dựng use-case diagram, đặc tả các use case chính; thiết kế cơ sở dữ liệu (ERD), sơ đồ lớp, sơ đồ kiến trúc Event-driven Modular Monolith & Use-case diagram, ERD, sơ đồ lớp \\ \hline
+    5 & Thiết kế giao diện & Thiết kế wireframe và mockup giao diện Web (Next.js) và Mobile (React Native); xây dựng sơ đồ luồng màn hình; lấy ý kiến phản hồi từ GVHD & Bộ wireframe/mockup, sơ đồ luồng màn hình \\ \hline
+    6--7 & Lập trình Backend & Xây dựng NestJS Modular Monolith (18 modules) và FastAPI AI Worker; cấu hình JWT + Passport.js, PostgreSQL/Prisma, RabbitMQ message queue & Backend API hoàn chỉnh với tài liệu Swagger \\ \hline
+    8--9 & Lập trình Frontend Web & Xây dựng giao diện Next.js: trang chủ, dashboard, 4 kỹ năng IELTS, Mock Test, quản lý tài khoản; tích hợp với Backend API & Website hoạt động đầy đủ \\ \hline
+    10--11 & Lập trình Mobile & Xây dựng ứng dụng React Native: màn hình đăng nhập, luyện tập 4 kỹ năng, Mock Test, theo dõi tiến độ; tích hợp faster-whisper cho Speaking & Ứng dụng Mobile chạy trên Android \\ \hline
+    12 & Tích hợp AI & Tích hợp Gemini API cho AI scoring Writing và AI Conversation Speaking; tinh chỉnh prompt engineering; kiểm thử kết quả AI scoring & Module AI scoring hoàn chỉnh \\ \hline
+    13 & Kiểm thử hệ thống & Thực hiện kiểm thử toàn diện: black-box testing 22 test case; kiểm thử tích hợp end-to-end (NestJS, FastAPI, RabbitMQ, PostgreSQL); sửa lỗi phát sinh & Báo cáo kết quả kiểm thử, danh sách lỗi đã sửa \\ \hline
+    14 & Hoàn thiện sản phẩm & Tối ưu hiệu năng, sửa lỗi còn tồn đọng; deploy lên GCP (Cloud Run + VM); thu thập phản hồi người dùng thử & Sản phẩm hoàn thiện, đã deploy \\ \hline
+    15 & Hoàn thiện báo cáo & Viết báo cáo đồ án đầy đủ theo mẫu nhà trường; chỉnh sửa theo góp ý của GVHD; chuẩn bị bài thuyết trình; nộp báo cáo & Báo cáo đồ án hoàn chỉnh, slide thuyết trình \\ \hline
+\end{longtable}
+

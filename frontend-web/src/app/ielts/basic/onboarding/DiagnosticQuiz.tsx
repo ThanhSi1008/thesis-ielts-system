@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "@/constants";
 import { ChevronRight, Check } from "lucide-react";
 import { ListeningQuestionsPanel } from "../[skill]/exercises/[exerciseId]/_components/ui/ListeningQuestionsPanel";
 import { AudioPlayer } from "../[skill]/exercises/[exerciseId]/_components/ui/AudioPlayer";
@@ -9,6 +10,7 @@ import { ReadingPassagePanel } from "../[skill]/exercises/[exerciseId]/_componen
 import { ReadingQuestionsPanel } from "../[skill]/exercises/[exerciseId]/_components/ui/ReadingQuestionsPanel";
 import { calcScore, getTrackerItems } from "../[skill]/exercises/[exerciseId]/_components/utils/SharedScoreUtils";
 import { writingClozeData } from "./writingClozeData";
+import { ListeningExercise, ReadingExercise } from "../[skill]/exercises/[exerciseId]/_components/utils/SharedExerciseTypes";
 
 interface Scores {
   listening: number;
@@ -25,7 +27,7 @@ export function DiagnosticQuiz({
   isSubmitting: boolean;
 }) {
   const [stage, setStage] = useState<"listening" | "reading" | "writing" | "finish">("listening");
-  const [exercises, setExercises] = useState<{ listening: any; reading: any } | null>(null);
+  const [exercises, setExercises] = useState<{ listening: ListeningExercise; reading: ReadingExercise } | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Scores
@@ -34,7 +36,7 @@ export function DiagnosticQuiz({
   useEffect(() => {
     const fetchEx = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/v1/ielts/placement-exercises");
+        const res = await axios.get(`${API_BASE_URL}/ielts/placement-exercises`);
         setExercises(res.data);
       } catch (err) {
         console.error(err);
@@ -121,7 +123,7 @@ export function DiagnosticQuiz({
 }
 
 // ── Listening Stage ─────────────────────────────────────────────────────────
-function ListeningStage({ exercise, onNext }: { exercise: any; onNext: (score: number, total: number) => void }) {
+function ListeningStage({ exercise, onNext }: { exercise: ListeningExercise; onNext: (score: number, total: number) => void }) {
   const [answers, setAnswers] = useState<Record<string | number, string>>({});
   const total = getTrackerItems(exercise.content).length;
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -156,7 +158,7 @@ function ListeningStage({ exercise, onNext }: { exercise: any; onNext: (score: n
 }
 
 // ── Reading Stage ─────────────────────────────────────────────────────────
-function ReadingStage({ exercise, onNext }: { exercise: any; onNext: (score: number, total: number) => void }) {
+function ReadingStage({ exercise, onNext }: { exercise: ReadingExercise; onNext: (score: number, total: number) => void }) {
   const [answers, setAnswers] = useState<Record<string | number, string>>({});
   const total = getTrackerItems(exercise.content).length;
 
@@ -262,7 +264,7 @@ function FinishStage({ scores, onFinish, isSubmitting }: { scores: Scores; onFin
         <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
       </div>
       <h2 className="text-xl font-semibold text-gray-900 mb-2">Diagnostic Complete!</h2>
-      <p className="text-sm text-gray-500 mb-8">We've personalized your roadmap based on your results.</p>
+      <p className="text-sm text-gray-500 mb-8">We&apos;ve personalized your roadmap based on your results.</p>
 
       <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-5 mx-auto">
         {[

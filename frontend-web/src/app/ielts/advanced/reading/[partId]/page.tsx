@@ -56,17 +56,17 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
     }
   };
 
-  if (loading) return <div className="p-10 font-bold text-gray-500 flex justify-center mt-20">Loading Reading Part...</div>;
+  if (loading) return <div className="p-10 font-bold text-gray-500 dark:text-slate-400 flex justify-center mt-20">Loading Reading Part...</div>;
   if (!part) return <div className="p-10 font-bold text-red-500 flex justify-center mt-20">Reading part not found</div>;
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)]">
-       <div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-4 shrink-0 px-4">
+       <div className="mb-4 flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4 shrink-0 px-4">
          <div className="flex items-center gap-3">
-            <Link href="/ielts/advanced" className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50">
-              <ChevronLeft className="w-4 h-4 text-gray-600" />
+            <Link href="/ielts/advanced" className="p-2 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
+              <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-slate-400" />
             </Link>
-            <h2 className="text-xl font-extrabold text-gray-900">{part.title}</h2>
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">{part.title}</h2>
          </div>
          <div className="flex justify-end pr-4">
             {!submitted ? (
@@ -74,16 +74,16 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
                  Submit Answers
                </button>
             ) : (
-               <Link href="/ielts/advanced/statistics" className="px-6 py-2.5 bg-gray-900 text-white text-sm font-extrabold rounded-xl hover:bg-gray-800 shadow-sm">
+               <Link href="/ielts/advanced/statistics" className="px-6 py-2.5 bg-gray-900 dark:bg-slate-800 text-white text-sm font-extrabold rounded-xl hover:bg-gray-800 dark:hover:bg-slate-700 shadow-sm">
                  View Accuracy Statistics
                </Link>
             )}
          </div>
        </div>
 
-       <div className="flex-1 min-h-0 container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+       <div className="flex-1 min-h-0 container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white dark:bg-slate-900 rounded-2xl shadow-sm dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-slate-800 overflow-hidden">
           {/* Left: Reading Passage */}
-          <div className="h-full border-r border-gray-100 pl-6 lg:pl-10 pt-6 relative">
+          <div className="h-full border-r border-gray-100 dark:border-slate-800 pl-6 lg:pl-10 pt-6 relative">
             <ReadingPassagePanel
               passageWithLocations={part.passageWithLocations}
               passage={part.passage}

@@ -22,7 +22,7 @@ export default function IeltsOnboardingPage() {
     { mins: 15, label: "15 min/day", desc: "Light practice" },
     { mins: 30, label: "30 min/day", desc: "Steady progress" },
     { mins: 60, label: "60 min/day", desc: "Intensive prep" },
-    { mins: 120, label: "2 hrs/day", desc: "Exam ready" },
+    { mins: 120, label: "2 hrs/day", desc: "IeltsIntensiveExam ready" },
   ];
 
   const handleComplete = async (
@@ -147,10 +147,10 @@ export default function IeltsOnboardingPage() {
                       ))}
                     </div>
                   </div>
-                  {/* Exam Date */}
+                  {/* IeltsIntensiveExam Date */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-600 mb-2">
-                       Target Exam Date <span className="font-normal text-gray-400">(Optional)</span>
+                       Target IeltsIntensiveExam Date <span className="font-normal text-gray-400">(Optional)</span>
                     </label>
                     <input
                       type="date"
