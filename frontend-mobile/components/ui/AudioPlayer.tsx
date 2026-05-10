@@ -1,97 +1,135 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { Audio } from 'expo-av';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, useWindowDimensions, Pressable } from 'react-native';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { Ionicons } from '@expo/vector-icons';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS } from '@/constants';
 
 interface AudioPlayerProps {
   url: string;
 }
 
 export function AudioPlayer({ url }: AudioPlayerProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const player = useAudioPlayer(url);
+  const status = useAudioPlayerStatus(player);
+  const [trackWidth, setTrackWidth] = React.useState(0);
 
-  const handlePlay = async () => {
-    if (isPlaying && soundRef.current) {
-      await soundRef.current.pauseAsync();
-      setIsPlaying(false);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      if (soundRef.current) {
-        await soundRef.current.playAsync();
-      } else {
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: url },
-          { shouldPlay: true },
-        );
-        soundRef.current = sound;
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            setIsPlaying(false);
-          }
-        });
-      }
-      setIsPlaying(true);
-    } catch (error) {
-      console.warn('[AudioPlayer] Playback error:', error);
-    } finally {
-      setIsLoading(false);
+  const handlePlay = () => {
+    if (player.playing) {
+      player.pause();
+    } else {
+      player.play();
     }
   };
+
+  const handleSeek = (event: any) => {
+    const { locationX } = event.nativeEvent;
+    if (trackWidth > 0 && status.duration) {
+      const seekPos = (locationX / trackWidth) * status.duration;
+      player.seekTo(seekPos);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const isLoading = !!(status.isBuffering || (!status.isLoaded && url));
+  const currentTime = status.currentTime || 0;
+  const duration = status.duration || player.duration || 0;
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={[styles.button, isPlaying && styles.buttonActive]}
+        style={styles.playBtn}
         onPress={handlePlay}
-        activeOpacity={0.7}
+        activeOpacity={0.8}
         disabled={isLoading}
       >
         {isLoading ? (
-          <ActivityIndicator size="small" color={COLORS.primary} />
+          <ActivityIndicator size="small" color="#000" />
         ) : (
-          <Text style={styles.icon}>{isPlaying ? '⏸' : '▶️'}</Text>
+          <Ionicons 
+            name={player.playing ? "pause" : "play"} 
+            size={18} 
+            color="#000" 
+            style={!player.playing && { marginLeft: 2 }}
+          />
         )}
-        <Text style={[styles.label, isPlaying && styles.labelActive]}>
-          {isLoading ? 'Loading...' : isPlaying ? 'Pause' : 'Play Audio'}
-        </Text>
       </TouchableOpacity>
+
+      <Pressable 
+        style={styles.progressContainer} 
+        onPress={handleSeek}
+        onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
+      >
+        <View style={styles.track}>
+          <View style={[styles.fill, { width: `${progress}%` }]} />
+        </View>
+      </Pressable>
+
+      <View style={styles.timeContainer}>
+        <Text style={styles.currentTime}>{formatTime(currentTime)}</Text>
+        <Text style={styles.duration}> / {formatTime(duration)}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: SPACING.sm,
-  },
-  button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
-    borderRadius: RADIUS.lg,
+    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#F3F4F6',
+    borderRadius: 20,
+    padding: 8,
+    paddingRight: 16,
+    gap: 12,
+    marginVertical: SPACING.md,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
   },
-  buttonActive: {
-    backgroundColor: COLORS.primary + '10',
-    borderColor: COLORS.primary,
+  playBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFC107',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  icon: {
-    fontSize: 18,
-    marginRight: SPACING.sm,
+  progressContainer: {
+    flex: 1,
+    height: 24, // Larger hit area for seeking
+    justifyContent: 'center',
   },
-  label: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-    color: COLORS.text,
+  track: {
+    height: 6,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 3,
+    overflow: 'hidden',
   },
-  labelActive: {
-    color: COLORS.primary,
+  fill: {
+    height: '100%',
+    backgroundColor: '#FFC107',
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  currentTime: {
+    fontFamily: FONTS.bold,
+    fontSize: 12,
+    color: '#374151',
+    fontVariant: ['tabular-nums'],
+  },
+  duration: {
+    fontFamily: FONTS.bold,
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontVariant: ['tabular-nums'],
   },
 });

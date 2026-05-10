@@ -378,7 +378,7 @@ export class ExamsService {
   }
   async getHistory(userId: string) {
     const sessions = await this.prisma.examSession.findMany({
-      where: { userId, status: "COMPLETED" },
+      where: { userId, status: { in: ["COMPLETED", "GRADED"] } },
       include: {
         exam: {
           select: { title: true, type: true, duration: true, difficulty: true },

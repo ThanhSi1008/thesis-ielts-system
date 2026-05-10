@@ -153,6 +153,30 @@ export interface GroupedSounds {
   consonants: PronunciationSound[];
 }
 
+export interface WordScore {
+  word: string;
+  accuracyScore: number;
+  errorType?: 'None' | 'Omission' | 'Insertion' | 'Substitution' | 'Mispronunciation';
+}
+
+export interface PronunciationScore {
+  accuracyScore: number;
+  completenessScore: number;
+  fluencyScore: number;
+  pronScore: number;
+  words?: WordScore[];
+}
+
+export interface PronunciationCheckResponse {
+  // Immediate response: queue acknowledgment
+  attemptId?: string;
+  status?: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  message?: string;
+  // Populated later when AI processing completes
+  score?: PronunciationScore;
+  audioUrl?: string;
+}
+
 // ==================== EXAMS ====================
 
 export interface Exam {
@@ -172,6 +196,14 @@ export interface ExamResult {
   completedAt: string;
 }
 
+export interface ShadowingSentence {
+  index: number;
+  startTime: number;
+  endTime: number;
+  text: string;
+  vietnamese?: string;
+}
+
 // ==================== LEARNING PROGRESS ====================
 
 export interface LearningProgress {
@@ -183,4 +215,133 @@ export interface LearningProgress {
   pronunciationTotal: number;
   examsTaken: number;
   averageScore: number;
+}
+
+// ==================== VOCAB LAB ====================
+
+export interface Deck {
+  id: string;
+  name: string;
+  newCount?: number;
+  learningCount?: number;
+  dueCount?: number;
+  totalCount?: number;
+  totalCards?: number;
+}
+
+export interface CardField {
+  id: string;
+  name: string;
+  order: number;
+  fieldType?: string;
+  description?: string;
+}
+
+export interface CardTemplate {
+  id: string;
+  name: string;
+  frontFields: string[];
+  backFields: string[];
+  fieldStyles?: Record<string, Record<string, string>>;
+  cardStyle?: Record<string, string>;
+}
+
+export interface CardType {
+  id: string;
+  name: string;
+  isBuiltIn: boolean;
+  fields: CardField[];
+  templates?: CardTemplate[];
+}
+
+export interface Flashcard {
+  id: string;
+  deckId: string;
+  front: string;
+  back: string;
+  state?: 'new' | 'learning' | 'review';
+  cardTypeId?: string;
+  fieldValues?: Record<string, string>;
+  fieldStyles?: Record<string, any>;
+  tags?: string[];
+}
+
+export interface VocabStats {
+  totalCards?: number;
+  totalCount?: number;
+  totalDue?: number;
+  dueCount?: number;
+  totalLearned?: number;
+  reviewCount?: number;
+  newCount?: number;
+  learningCount?: number;
+}
+
+// ==================== SHADOWING ====================
+
+export interface ShadowingVideo {
+  id: string;
+  title: string;
+  youtubeVideoId: string;
+  folder?: string;
+  category?: string;
+  duration: string;
+  sentences: ShadowingSentence[];
+}
+
+export interface ShadowingProgress {
+  lessonId: string;
+  type: 'shadowing' | 'dictation';
+  completedSentences: number[];
+  dictationDifficulty?: string;
+}
+
+// ==================== IELTS ====================
+
+export interface IeltsSkill {
+  id: string;
+  title: string;
+  icon?: string;
+}
+
+export interface IeltsLesson {
+  id: string;
+  title: string;
+  skillId: string;
+  isCompleted?: boolean;
+}
+
+export interface IeltsExercise {
+  id: string;
+  topic?: string;
+  audioUrl?: string;
+  passage?: string;
+  content?: IeltsContentGroup[];
+  prompt?: string;
+  diagramUrl?: string;
+  modelAnswer?: Record<string, string>;
+}
+
+export interface IeltsContentGroup {
+  type: string;
+  questions?: IeltsMCQuestion[];
+  question_numbers?: number[];
+  options?: IeltsMCOption[];
+  answers?: string[];
+  instructions?: string;
+  passage?: string;
+  [key: string]: unknown;
+}
+
+export interface IeltsMCQuestion {
+  question_number: number;
+  text: string;
+  options: IeltsMCOption[];
+  answer: string;
+  explanation?: string;
+}
+
+export interface IeltsMCOption {
+  letter: string;
+  text: string;
 }

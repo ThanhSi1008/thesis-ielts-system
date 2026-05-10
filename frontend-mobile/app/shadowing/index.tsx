@@ -1,31 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, TextInput, Image, RefreshControl, Alert,
+  ActivityIndicator, TextInput, Image, RefreshControl,
+  Animated, Pressable
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { shadowingApi } from '@/services/features.api';
 import { Chip, EmptyState } from '@/components/ui';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { SHADOWING_LESSONS } from '@/constants/shadowing-lessons';
 
-// Static IELTS lessons bundled into the app (same IDs as web)
-const STATIC_LESSONS = [
-  { id: 'ielts-1', title: 'IELTS Part 1 – People at Work', youtubeVideoId: '', duration: '3:20', tags: ['IELTS'], sentences: [] },
-  { id: 'ielts-2', title: 'IELTS Part 2 – Short Conversations', youtubeVideoId: '', duration: '4:10', tags: ['IELTS'], sentences: [] },
+const CATEGORIES = ['All', 'TOEIC', 'YOUTUBE'];
+
+type Tab = 'library' | 'my-video';
+
+const NAV_ITEMS = [
+  { key: 'library',  label: 'Library',   icon: 'library-outline' as const, route: 'library' },
+  { key: 'my-video', label: 'My Video',  icon: 'videocam-outline' as const, route: 'my-video' },
 ];
-
-const CATEGORIES = ['All', 'IELTS', 'YOUTUBE'];
 
 export default function ShadowingScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [activeTab, setActiveTab] = useState<Tab>('library');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [userVideos, setUserVideos] = useState<any[]>([]);
   const [progress, setProgress] = useState<Record<string, { shadowing: number; dictation: number }>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Drawer Animation
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim   = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim,   { toValue: 0,    useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1,    duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim,   { toValue: -280, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 0,    duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+
+  const handleNavPress = (route: string) => { 
+    const key = route as Tab;
+    setActiveTab(key); 
+    // Filter categories based on active tab
+    if (key === 'my-video') {
+      setCategory('YOUTUBE');
+    } else {
+      setCategory('All');
+    }
+    closeDrawer(); 
+  };
 
   const fetchData = async () => {
     try {
@@ -37,7 +75,7 @@ export default function ShadowingScreen() {
       if (progressRes.status === 'fulfilled') {
         const rawProgress = progressRes.value;
         const computed: Record<string, { shadowing: number; dictation: number }> = {};
-        [...STATIC_LESSONS, ...((videosRes.status === 'fulfilled' ? videosRes.value : []) as any[])].forEach((lesson: any) => {
+        [...SHADOWING_LESSONS, ...((videosRes.status === 'fulfilled' ? videosRes.value : []) as any[])].forEach((lesson: any) => {
           const p = rawProgress[lesson.id];
           const total = lesson.sentences?.length || 1;
           computed[lesson.id] = {
@@ -53,30 +91,42 @@ export default function ShadowingScreen() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const allLessons = [...STATIC_LESSONS, ...userVideos.map(v => ({ ...v, tags: ['YOUTUBE'] }))];
-  const filtered = allLessons.filter(l => {
+  const allLessons = [
+    ...SHADOWING_LESSONS.map(l => ({ ...l, tags: l.tags })),
+    ...userVideos.map(v => ({ ...v, tags: ['YOUTUBE'] })),
+  ];
+  
+  // Filter based on active sidebar tab
+  const tabLessons = activeTab === 'my-video' 
+    ? allLessons.filter(l => l.tags.includes('YOUTUBE'))
+    : allLessons;
+
+  const filtered = tabLessons.filter(l => {
     const matchCat = category === 'All' || l.tags.includes(category);
     const matchSearch = l.title.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity style={styles.menuBtn} onPress={openDrawer}>
+          <Ionicons name="menu" size={24} color={COLORS.text} />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Shadowing & Dictation</Text>
         <TouchableOpacity
           style={styles.addBtn}
           onPress={() => router.push('/shadowing/create' as any)}
         >
-          <Ionicons name="add" size={22} color="#fff" />
+          <Ionicons name="add" size={24} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
 
       {/* Search */}
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
-          <Ionicons name="search" size={18} color={COLORS.textMuted} />
+          <Ionicons name="search" size={20} color={COLORS.textMuted} />
           <TextInput
             style={styles.searchInput}
             value={search}
@@ -85,8 +135,8 @@ export default function ShadowingScreen() {
             placeholderTextColor={COLORS.textMuted}
           />
           {search.length > 0 && (
-            <TouchableOpacity onPress={() => setSearch('')}>
-              <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+            <TouchableOpacity onPress={() => setSearch('')} style={styles.clearBtn}>
+              <Ionicons name="close-circle" size={20} color={COLORS.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -188,7 +238,18 @@ export default function ShadowingScreen() {
           )}
         </ScrollView>
       )}
-    </SafeAreaView>
+
+      {/* Shared Drawer */}
+      <SharedDrawer 
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        navItems={NAV_ITEMS.map(item => ({ ...item, isActive: activeTab === item.key }))}
+        onClose={closeDrawer}
+        onNavPress={handleNavPress}
+      />
+    </View>
   );
 }
 
@@ -196,17 +257,20 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#fff',
     flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm,
+    borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  headerTitle: { flex: 1, color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700', marginHorizontal: SPACING.md },
-  addBtn: { width: 36, height: 36, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center' },
-  searchRow: { padding: SPACING.md, backgroundColor: COLORS.surface, borderBottomWidth: 1, borderColor: COLORS.border },
-  searchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: '#fff', borderRadius: RADIUS.xl, paddingHorizontal: SPACING.md, borderWidth: 1, borderColor: COLORS.border },
-  searchInput: { flex: 1, paddingVertical: SPACING.sm + 2, fontSize: FONT_SIZES.md, color: COLORS.text },
-  catBar: { borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 52 },
+  menuBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 },
+  headerTitle: { flex: 1, color: COLORS.text, fontSize: FONT_SIZES.lg, fontWeight: '800' },
+  addBtn: { width: 44, height: 44, backgroundColor: 'rgba(255, 198, 0, 0.15)', borderRadius: RADIUS.full, alignItems: 'center', justifyContent: 'center' },
+  searchRow: { padding: SPACING.md, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border },
+  searchBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, paddingHorizontal: SPACING.md, height: 48 },
+  searchInput: { flex: 1, height: '100%', fontSize: FONT_SIZES.md, color: COLORS.text },
+  clearBtn: { padding: 8 },
+  catBar: { borderBottomWidth: 1, borderColor: COLORS.border, maxHeight: 60 },
   lessonCard: {
     backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.lg,
     borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden',
@@ -233,11 +297,11 @@ const styles = StyleSheet.create({
   progressBg: { flex: 1, height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
   progressPct: { fontSize: 11, color: COLORS.textSecondary, fontWeight: '600', width: 32, textAlign: 'right' },
-  actionRow: { flexDirection: 'row', gap: SPACING.sm },
+  actionRow: { flexDirection: 'row', gap: SPACING.sm, marginTop: SPACING.sm },
   actionBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: SPACING.xs, paddingVertical: SPACING.sm,
-    borderWidth: 2, borderRadius: RADIUS.xl,
+    gap: SPACING.xs, height: 44,
+    borderWidth: 1.5, borderRadius: RADIUS.xl,
   },
   actionLabel: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
 });

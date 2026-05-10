@@ -1,4 +1,5 @@
 {
+  "extends": "expo/tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
     "target": "ESNext",
@@ -59,10 +60,10 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "nativewind-env.d.ts"
   ],
   "exclude": [
     "node_modules"
-  ],
-  "extends": "expo/tsconfig.base"
+  ]
 }

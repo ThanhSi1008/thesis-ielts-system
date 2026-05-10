@@ -280,6 +280,8 @@ async function main() {
   // IELTS exams
   console.log("🧪 Seeding Cambridge IELTS exams...");
   const cambridge17Image = "https://res.cloudinary.com/dalaaegob/image/upload/v1773932448/ed06fa88-6d9c-4142-9c7e-3bcd8613f175.png";
+
+  // ── Reading Tests (Cambridge 17) ─────────────────────────────────────────
   await upsertCambridgeExam({
     title: "Cambridge IELTS 17 - Reading Test 1",
     difficulty: "ADVANCED",
@@ -316,6 +318,7 @@ async function main() {
     imageUrl: cambridge17Image,
     questions: cambridgeIelts17ReadingTest4Questions,
   });
+  // ── Listening Tests (Cambridge 17) ────────────────────────────────────────
   await upsertCambridgeExam({
     title: "Cambridge IELTS 17 - Listening Test 1",
     difficulty: "ADVANCED",
@@ -352,6 +355,7 @@ async function main() {
     imageUrl: cambridge17Image,
     questions: cambridgeIelts17ListeningTest4Questions,
   });
+  // ── Listening Tests (Cambridge 13) ────────────────────────────────────────
   await upsertCambridgeExam({
     title: "Cambridge IELTS 13 - Listening Test 1",
     difficulty: "INTERMEDIATE",
@@ -361,7 +365,6 @@ async function main() {
     imageUrl: cambridge17Image,
     questions: cambridgeIelts13ListeningTest1Questions,
   });
-
 // ─── Writing Tests ───────────────────────────────────────────
   await upsertCambridgeExam({
     title: "Cambridge IELTS 17 - Writing Test 1",

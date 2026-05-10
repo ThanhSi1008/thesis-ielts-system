@@ -1,15 +1,41 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Switch, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES, RADIUS } from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { vocabLabApi } from '@/services/features.api';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [stats, setStats] = useState({ streak: 0, words: 0, accuracy: 0 });
+  const [loadingStats, setLoadingStats] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
+
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    try {
+      const data = (await vocabLabApi.getStats()) as any;
+      setStats({
+        streak: data.streak || 0,
+        words: data.totalWords || data.words || data.totalCards || 0,
+        accuracy: data.accuracy || 0,
+      });
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -36,132 +62,148 @@ export default function ProfileScreen() {
     router.push('/(auth)/login');
   };
 
+  const displayName = user?.firstName || user?.lastName 
+    ? `${user.firstName || ''} ${user.lastName || ''}`.trim() 
+    : user?.email || 'Guest User';
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header Profile Info */}
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          <Image
-            source={{ uri: user?.avatar || 'https://ui-avatars.com/api/?name=' + (user?.firstName || 'User') + '&background=random' }}
-            style={styles.avatar}
-          />
-          <TouchableOpacity style={styles.editAvatarButton}>
-            <Ionicons name="camera" size={20} color="#fff" />
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Header Profile Info */}
+        <View style={styles.header}>
+          <View style={styles.avatarContainer}>
+            <Image
+              source={{ uri: user?.avatar || 'https://ui-avatars.com/api/?name=' + (user?.firstName || 'User') + '&background=random' }}
+              style={styles.avatar}
+            />
+            <TouchableOpacity style={styles.editAvatarButton}>
+              <Ionicons name="camera" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.email}>{user?.email || 'Sign in to sync your progress'}</Text>
+          
+          {!user && (
+             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+               <Text style={styles.loginButtonText}>Log In / Sign Up</Text>
+             </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Stats Overview */}
+        {user && (
+          <View style={styles.statsContainer}>
+            {loadingStats ? (
+              <ActivityIndicator color={COLORS.primary} size="small" />
+            ) : (
+              <>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{stats.streak}</Text>
+                  <Text style={styles.statLabel}>Days Streak</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{stats.words}</Text>
+                  <Text style={styles.statLabel}>Words</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{stats.accuracy}%</Text>
+                  <Text style={styles.statLabel}>Accuracy</Text>
+                </View>
+              </>
+            )}
+          </View>
+        )}
+
+        {/* Settings Options */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Settings</Text>
+          
+          <View style={styles.optionItem}>
+            <View style={styles.optionLeft}>
+              <View style={[styles.iconContainer, { backgroundColor: '#E0F2FE' }]}>
+                <Ionicons name="moon" size={20} color={COLORS.primary} />
+              </View>
+              <Text style={styles.optionText}>Dark Mode</Text>
+            </View>
+            <Switch 
+              value={isDarkMode} 
+              onValueChange={setIsDarkMode}
+              trackColor={{ false: '#767577', true: COLORS.primary }}
+            />
+          </View>
+
+          <View style={styles.optionItem}>
+            <View style={styles.optionLeft}>
+              <View style={[styles.iconContainer, { backgroundColor: '#DCFCE7' }]}>
+                <Ionicons name="notifications" size={20} color={COLORS.success} />
+              </View>
+              <Text style={styles.optionText}>Notifications</Text>
+            </View>
+            <Switch 
+              value={notificationsEnabled} 
+              onValueChange={setNotificationsEnabled}
+              trackColor={{ false: '#767577', true: COLORS.success }}
+            />
+          </View>
+          
+          <TouchableOpacity style={styles.optionItem}>
+            <View style={styles.optionLeft}>
+              <View style={[styles.iconContainer, { backgroundColor: '#FEF3C7' }]}>
+                <Ionicons name="globe" size={20} color={COLORS.warning} />
+              </View>
+              <Text style={styles.optionText}>Language</Text>
+            </View>
+            <View style={styles.optionRight}>
+              <Text style={styles.optionValue}>English</Text>
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            </View>
           </TouchableOpacity>
         </View>
-        <Text style={styles.name}>{user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email : 'Guest User'}</Text>
-        <Text style={styles.email}>{user?.email || 'Sign in to sync your progress'}</Text>
-        
-        {!user && (
-           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-             <Text style={styles.loginButtonText}>Log In / Sign Up</Text>
-           </TouchableOpacity>
-        )}
-      </View>
 
-      {/* Stats Overview */}
-      {user && (
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Days Streak</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>450</Text>
-            <Text style={styles.statLabel}>Words</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>85%</Text>
-            <Text style={styles.statLabel}>Accuracy</Text>
-          </View>
-        </View>
-      )}
-
-      {/* Settings Options */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Settings</Text>
-        
-        <View style={styles.optionItem}>
-          <View style={styles.optionLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: '#E0F2FE' }]}>
-              <Ionicons name="moon" size={20} color={COLORS.primary} />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Support</Text>
+          
+          <TouchableOpacity style={styles.optionItem}>
+            <View style={styles.optionLeft}>
+              <View style={[styles.iconContainer, { backgroundColor: '#F3E8FF' }]}>
+                <Ionicons name="help-circle" size={20} color="#9333EA" />
+              </View>
+              <Text style={styles.optionText}>Help Center</Text>
             </View>
-            <Text style={styles.optionText}>Dark Mode</Text>
-          </View>
-          <Switch 
-            value={isDarkMode} 
-            onValueChange={setIsDarkMode}
-            trackColor={{ false: '#767577', true: COLORS.primary }}
-          />
-        </View>
-
-        <View style={styles.optionItem}>
-          <View style={styles.optionLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: '#DCFCE7' }]}>
-              <Ionicons name="notifications" size={20} color={COLORS.success} />
-            </View>
-            <Text style={styles.optionText}>Notifications</Text>
-          </View>
-          <Switch 
-            value={notificationsEnabled} 
-            onValueChange={setNotificationsEnabled}
-            trackColor={{ false: '#767577', true: COLORS.success }}
-          />
-        </View>
-        
-        <TouchableOpacity style={styles.optionItem}>
-          <View style={styles.optionLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: '#FEF3C7' }]}>
-              <Ionicons name="globe" size={20} color={COLORS.warning} />
-            </View>
-            <Text style={styles.optionText}>Language</Text>
-          </View>
-          <View style={styles.optionRight}>
-            <Text style={styles.optionValue}>English</Text>
             <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-          </View>
-        </TouchableOpacity>
-      </View>
+          </TouchableOpacity>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Support</Text>
+          <TouchableOpacity style={styles.optionItem}>
+            <View style={styles.optionLeft}>
+              <View style={[styles.iconContainer, { backgroundColor: '#FFE4E6' }]}>
+                <Ionicons name="information-circle" size={20} color="#E11D48" />
+              </View>
+              <Text style={styles.optionText}>About</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
+        </View>
+
+        {user && (
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        )}
         
-        <TouchableOpacity style={styles.optionItem}>
-          <View style={styles.optionLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: '#F3E8FF' }]}>
-              <Ionicons name="help-circle" size={20} color="#9333EA" />
-            </View>
-            <Text style={styles.optionText}>Help Center</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.optionItem}>
-          <View style={styles.optionLeft}>
-            <View style={[styles.iconContainer, { backgroundColor: '#FFE4E6' }]}>
-              <Ionicons name="information-circle" size={20} color="#E11D48" />
-            </View>
-            <Text style={styles.optionText}>About</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-        </TouchableOpacity>
-      </View>
-
-      {user && (
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
-      )}
-      
-      <Text style={styles.versionText}>Version 1.0.0</Text>
-      <View style={{ height: 20 }} />
-    </ScrollView>
+        <Text style={styles.versionText}>Version 1.0.0</Text>
+        <View style={{ height: 20 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
