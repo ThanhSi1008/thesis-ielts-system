@@ -36,7 +36,7 @@ import { CacheModule } from "./common/cache/cache.module";
 @Module({
   imports: [
     PrometheusModule.register({
-      path: '/api/v1/metrics',
+      path: '/metrics',
       defaultMetrics: { enabled: true },
     }),
     ScheduleModule.forRoot(),
