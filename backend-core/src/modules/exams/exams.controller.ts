@@ -19,6 +19,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { StorageService } from "../../common/storage/storage.service";
 import { ExamsService } from "./exams.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { ThrottlerGuard } from "@nestjs/throttler";
 import {
   CreateExamDto,
   UpdateExamDto,
@@ -28,7 +29,7 @@ import {
 } from "./dto/exams.dto";
 
 @Controller("exams")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ThrottlerGuard)
 export class ExamsController {
   constructor(
     private readonly examsService: ExamsService,

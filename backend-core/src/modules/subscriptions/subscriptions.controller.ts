@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards, Request, Query } from "@nestjs/common";
+import { ThrottlerGuard } from "@nestjs/throttler";
 import { SubscriptionsService } from "./subscriptions.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
@@ -6,6 +7,7 @@ import { Roles } from "../auth/decorators/roles.decorator";
 import { AdminGrantDto, CheckoutDto, CancelSubscriptionDto, VerifyCheckoutDto } from "./dto/subscriptions.dto";
 
 @Controller("subscriptions")
+@UseGuards(ThrottlerGuard)
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
