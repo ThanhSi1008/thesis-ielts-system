@@ -21,7 +21,13 @@ export default function LoginScreen() {
       await login({ email, password });
       // Redirect handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'Invalid credentials');
+      let message = 'An error occurred during login';
+      if (error.message === 'Invalid credentials') {
+        message = 'Incorrect email or password';
+      } else if (error.message) {
+        message = error.message;
+      }
+      Alert.alert('Login Failed', message);
     }
   };
 
