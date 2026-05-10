@@ -38,3 +38,9 @@ yt-dlp>=2024.3.10
 
 # Google Gemini AI
 google-genai>=0.1.0
+
+# OpenTelemetry
+opentelemetry-sdk
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-otlp-proto-http
+opentelemetry-instrumentation-httpx

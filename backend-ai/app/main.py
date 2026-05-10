@@ -14,6 +14,7 @@ from app.api import health, grading, writing, speaking, chat
 from app.consumers.grading_consumer import GradingConsumer
 from app.consumers.pronunciation_consumer import PronunciationConsumer
 from app.consumers.transcription_consumer import TranscriptionConsumer
+from app.telemetry import setup_telemetry
 
 # Configure logging
 logging.basicConfig(
@@ -73,6 +74,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+setup_telemetry(app)
 
 # Configure CORS
 app.add_middleware(
