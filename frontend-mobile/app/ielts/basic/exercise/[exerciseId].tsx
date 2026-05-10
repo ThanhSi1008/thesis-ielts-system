@@ -3,7 +3,7 @@ import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   ActivityIndicator, TextInput, Alert, Image, useWindowDimensions
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, API_BASE_URL, FONTS } from '@/constants';
@@ -350,24 +350,21 @@ export default function ExerciseViewerScreen() {
   const isWriting = skillLc === 'writing';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={{ padding: 4 }}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.text} />
-        </TouchableOpacity>
-        <View style={{ flex: 1, marginHorizontal: SPACING.md }}>
-          <Text style={styles.breadcrumb}>{skillUpper} · PRACTICE</Text>
-          <Text style={styles.headerTitle} numberOfLines={1}>{exercise.topic ?? 'Exercise'}</Text>
-        </View>
-        {!submitted && !isWriting && (
-          <Text style={styles.ansCount}>{answeredCount} / {total}</Text>
-        )}
-        {submitted && !isWriting && (
-          <Text style={[styles.ansCount, { color: isPerfect ? '#16A34A' : '#D97706' }]}>
-            {score}/{total} ✓
-          </Text>
-        )}
-      </View>
+    <View style={styles.safe}>
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          title: exercise.topic ?? 'Exercise',
+          headerBackTitle: skillUpper ?? 'Back',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#fff' },
+          headerRight: () => {
+            if (isWriting) return null;
+            if (!submitted) return <Text style={styles.ansCount}>{answeredCount} / {total}</Text>;
+            return <Text style={[styles.ansCount, { color: isPerfect ? '#16A34A' : '#D97706' }]}>{score}/{total} ✓</Text>;
+          }
+        }} 
+      />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -486,7 +483,7 @@ export default function ExerciseViewerScreen() {
           </View>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -503,7 +500,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.text, marginTop: 2 },
   ansCount: { fontSize: FONT_SIZES.sm, fontWeight: '800', color: COLORS.primary },
   passageBox: {
-    backgroundColor: COLORS.surface, borderRadius: RADIUS.xl,
+    backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderCurve: 'continuous',
     borderWidth: 1, borderColor: COLORS.border,
     padding: SPACING.lg, marginBottom: SPACING.lg, maxHeight: 240,
   },
@@ -513,12 +510,11 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 0, left: 0, right: 0,
     padding: SPACING.lg, backgroundColor: '#fff',
     borderTopWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.08, shadowRadius: 12, elevation: 8,
+    boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.08)",
   },
   submitBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: SPACING.sm,
-    backgroundColor: '#1E293B', borderRadius: RADIUS.xl, paddingVertical: SPACING.md,
+    backgroundColor: '#1E293B', borderRadius: RADIUS.xl, borderCurve: 'continuous', paddingVertical: SPACING.md,
   },
   submitText: { fontSize: FONT_SIZES.md, fontWeight: '800', color: '#fff' },
   scoreText: { fontSize: FONT_SIZES.lg, fontWeight: '800' },
@@ -526,37 +522,37 @@ const styles = StyleSheet.create({
   retryBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: '#1E293B', paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.lg, borderCurve: 'continuous',
   },
   retryText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#fff' },
   nextBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: '#FCD34D', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg,
+    borderRadius: RADIUS.lg, borderCurve: 'continuous',
   },
   nextText: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.text },
 
   writingContainer: { marginTop: SPACING.md },
   writingPromptBox: {
-    backgroundColor: COLORS.surface, borderRadius: RADIUS.xl,
+    backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderCurve: 'continuous',
     borderWidth: 1, borderColor: COLORS.border,
     padding: SPACING.lg, marginBottom: SPACING.xl,
   },
   writingPromptText: { fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 24, fontWeight: '600' },
-  diagramContainer: { marginTop: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  diagramContainer: { marginTop: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.md, borderCurve: 'continuous', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   writingInputsContainer: { gap: SPACING.lg },
   writingSection: { gap: SPACING.xs },
   writingSectionHeader: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, paddingVertical: 4 },
   writingSectionLabel: { fontSize: FONT_SIZES.sm, fontWeight: '800', color: '#1F2937' },
   writingSectionContent: { marginTop: 4 },
   writingInput: {
-    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md,
+    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md, borderCurve: 'continuous',
     padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text,
     minHeight: 120, textAlignVertical: 'top', backgroundColor: '#fff',
   },
   modelAnswerBox: {
     marginTop: SPACING.sm, padding: SPACING.md,
-    backgroundColor: '#F0FDF4', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#BBF7D0',
+    backgroundColor: '#F0FDF4', borderRadius: RADIUS.md, borderCurve: 'continuous', borderWidth: 1, borderColor: '#BBF7D0',
   },
   modelAnswerText: { fontSize: FONT_SIZES.sm, color: '#15803D', lineHeight: 22, fontWeight: '500' },
 });

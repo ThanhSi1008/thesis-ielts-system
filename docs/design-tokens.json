@@ -1,0 +1,111 @@
+{
+  "colors": {
+    "primary": "#FFC600",
+    "primaryHover": "#FFC600E6",
+    "secondary": "#EDEDED",
+    "background": {
+      "page": "#FFFFFF",
+      "card": "#FFFFFF",
+      "input": "#f8f9fa"
+    },
+    "text": {
+      "primary": "#212529",
+      "secondary": "#64748b",
+      "disabled": "#cbd5e1",
+      "onPrimary": "#212529"
+    },
+    "border": {
+      "default": "#e2e8f0",
+      "focus": "#FFC600",
+      "error": "#F44336"
+    },
+    "status": {
+      "success": "#4CAF50",
+      "warning": "#FF9800",
+      "error": "#F44336",
+      "info": "#2196F3"
+    },
+    "ielts": {
+      "reading": "",
+      "listening": "",
+      "writing": "",
+      "speaking": ""
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "heading": "Farro",
+      "body": "Farro",
+      "mono": "ui-monospace"
+    },
+    "fontSize": {
+      "xs": 12,
+      "sm": 14,
+      "base": 16,
+      "lg": 18,
+      "xl": 20,
+      "2xl": 24,
+      "3xl": 30,
+      "4xl": 36
+    },
+    "fontWeight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "lineHeight": {
+      "tight": 1.25,
+      "normal": 1.5,
+      "relaxed": 1.625
+    },
+    "letterSpacing": {
+      "tight": "-0.025em",
+      "normal": "0em",
+      "wide": "0.025em"
+    }
+  },
+  "spacing": {
+    "1": 4,
+    "2": 8,
+    "3": 12,
+    "4": 16,
+    "6": 24,
+    "8": 32,
+    "10": 40,
+    "12": 48,
+    "16": 64,
+    "20": 80
+  },
+  "borderRadius": {
+    "sm": "4px",
+    "md": "6px",
+    "lg": "8px",
+    "xl": "12px",
+    "full": "9999px"
+  },
+  "shadow": {
+    "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+    "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+    "card": "0 1px 4px 0 rgba(0, 0, 0, 0.03)",
+    "modal": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+  },
+  "animation": {
+    "duration": {
+      "fast": "300ms",
+      "normal": "600ms",
+      "slow": "1000ms"
+    },
+    "easing": {
+      "default": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "bounce": "ease-in-out"
+    }
+  },
+  "breakpoints": {
+    "sm": "640px",
+    "md": "768px",
+    "lg": "1024px",
+    "xl": "1280px"
+  }
+}

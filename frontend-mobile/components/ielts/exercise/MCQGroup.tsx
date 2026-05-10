@@ -135,7 +135,7 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                     style={{
                       alignSelf: 'flex-start',
                       backgroundColor: '#F3F4F6',
-                      borderRadius: RADIUS.sm,
+                      borderRadius: RADIUS.sm, borderCurve: 'continuous',
                       paddingHorizontal: 10,
                       paddingVertical: 4,
                       marginBottom: 6,
@@ -151,7 +151,7 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                         backgroundColor: '#EFF6FF',
                         borderWidth: 1,
                         borderColor: '#BFDBFE',
-                        borderRadius: RADIUS.md,
+                        borderRadius: RADIUS.md, borderCurve: 'continuous',
                         padding: SPACING.md,
                       }}
                     >

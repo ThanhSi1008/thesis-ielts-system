@@ -6,8 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { StatusBar } from 'expo-status-bar';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('test@gmail.com');
+  const [password, setPassword] = useState('123456');
   const { login, isLoading } = useAuth();
   const router = useRouter();
 

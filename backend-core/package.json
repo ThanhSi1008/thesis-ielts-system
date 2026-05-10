@@ -114,6 +114,5 @@
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
-  "main": "get_durations.js",
   "keywords": []
 }

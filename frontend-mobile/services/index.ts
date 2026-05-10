@@ -4,6 +4,7 @@
 
 export { apiClient } from './api-client';
 export { vocabularyApi, grammarApi, pronunciationApi, authApi } from './api';
+export { learningApi } from './learning.api';
 
 // Re-export types for convenience
 export type {
