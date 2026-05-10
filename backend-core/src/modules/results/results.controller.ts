@@ -1,9 +1,10 @@
 import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import { ThrottlerGuard } from "@nestjs/throttler";
 import { ResultsService } from "./results.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 
 @Controller("results")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ThrottlerGuard)
 export class ResultsController {
   constructor(private readonly resultsService: ResultsService) {}
 

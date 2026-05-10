@@ -3,7 +3,7 @@
  */
 
 // API Configuration
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.2:3000/api/v1';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://dedangdown.io.vn/api/v1';
 
 // Storage Keys
 export const STORAGE_KEYS = {

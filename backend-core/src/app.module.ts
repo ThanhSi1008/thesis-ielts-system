@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { ScheduleModule } from "@nestjs/schedule";
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { AppController } from "./app.controller";
@@ -40,6 +41,10 @@ import { CacheModule } from "./common/cache/cache.module";
       defaultMetrics: { enabled: true },
     }),
     ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
     // Configuration module - loads environment variables
     ConfigModule.forRoot({
       isGlobal: true,
