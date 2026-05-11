@@ -6,7 +6,7 @@ import { CheckCircle2, Lock, ChevronDown, ChevronUp, BookOpen, Headphones, PenTo
 export interface RoadmapItem {
   id: string;
   title: string;
-  type: 'foundationVocabLesson' | 'exercise';
+  type: 'lesson' | 'exercise';
   skill: string;
   url: string;
   isCompleted: boolean;
@@ -71,7 +71,7 @@ export function RoadmapSidebar() {
     if (item.isLocked) return;
     
     // Determine the precise URL for the roadmap viewer
-    const idParam = item.type === 'foundationVocabLesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
+    const idParam = item.type === 'lesson' ? `lessonId=${item.id}` : `exerciseId=${item.id}${item.lessonId ? `&lessonId=${item.lessonId}` : ''}`;
     // E.g. `/ielts/basic/roadmap?type=foundationVocabLesson&skill=listening&lessonId=abc`
     const url = `/ielts/basic/roadmap?type=${item.type}&skill=${item.skill.toLowerCase()}&${idParam}`;
     router.push(url);
@@ -83,8 +83,8 @@ export function RoadmapSidebar() {
     const currentExerciseId = searchParams.get("exerciseId");
     if (!currentType) return false;
 
-    if (item.type === 'foundationVocabLesson') {
-      return currentType === 'foundationVocabLesson' && currentLessonId === item.id;
+    if (item.type === 'lesson') {
+      return currentType === 'lesson' && currentLessonId === item.id;
     } else {
       return currentType === 'exercise' && currentExerciseId === item.id;
     }
@@ -163,7 +163,7 @@ export function RoadmapSidebar() {
                               {item.title}
                             </p>
                             <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-wider font-semibold">
-                              {item.skill} · {item.type === 'foundationVocabLesson' ? "Theory" : "Practice"}
+                              {item.skill} · {item.type === 'lesson' ? "Theory" : "Practice"}
                             </p>
                           </div>
                         </div>

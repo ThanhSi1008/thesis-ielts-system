@@ -322,7 +322,6 @@ model FoundationVocabUnit {
 
   book      FoundationVocabBook       @relation(fields: [bookId], references: [id], onDelete: Cascade)
   words     FoundationVocabItem[]
-  exercises FoundationVocabExercise[]
   questions FoundationVocabQuestion[]
   progress  FoundationVocabProgress[]
 
@@ -349,19 +348,7 @@ model FoundationVocabItem {
   @@map("vocabulary_words")
 }
 
-// FoundationVocabWord Exercise (definition matching quiz)
-model FoundationVocabExercise {
-  id       String @id @default(uuid())
-  unitId   String
-  question String // The definition
-  answer   String // The correct word
-  options  Json // Array of word options
-  order    Int    @default(0)
 
-  unit FoundationVocabUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-
-  @@map("vocabulary_exercises")
-}
 
 // FoundationVocabWord Question (story comprehension)
 model FoundationVocabQuestion {
@@ -385,7 +372,6 @@ model FoundationVocabProgress {
   unitId        String
   wordsLearned  Int       @default(0)
   totalWords    Int       @default(20)
-  exerciseScore Int? // Score out of 100
   questionScore Int? // Score out of 100
   isCompleted   Boolean   @default(false)
   completedAt   DateTime?

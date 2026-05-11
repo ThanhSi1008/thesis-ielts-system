@@ -4,7 +4,6 @@ import type {
   VocabularyBookWithUnits,
   VocabularyUnitWithContent,
   VocabularyBookProgress,
-  SubmitExerciseResponse,
   SubmitQuestionsResponse,
   FoundationGrammarBook,
   GrammarBookWithUnits,
@@ -44,10 +43,7 @@ export const vocabularyApi = {
     const { data } = await api.post('/foundationVocabWord/progress/words', { unitId, wordsLearned });
     return data;
   },
-  submitExercise: async (unitId: string, answers: { exerciseId: string; answer: string }[]) => {
-    const { data } = await api.post<SubmitExerciseResponse>('/foundationVocabWord/progress/exercise', { unitId, answers });
-    return data;
-  },
+
   submitQuestions: async (unitId: string, answers: { questionId: string; answer: string }[]) => {
     const { data } = await api.post<SubmitQuestionsResponse>('/foundationVocabWord/progress/questions', { unitId, answers });
     return data;

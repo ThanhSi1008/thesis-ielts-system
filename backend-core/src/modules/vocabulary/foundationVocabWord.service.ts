@@ -14,7 +14,7 @@ import {
 } from "./dto/foundationVocabWord.dto";
 
 const CACHE_TTL = 3600; // 1 hour
-const CACHE_PREFIX = "foundationVocabWord";
+const CACHE_PREFIX = "vocabulary";
 
 @Injectable()
 export class VocabularyService {
@@ -90,7 +90,6 @@ export class VocabularyService {
       include: {
         book: { select: { id: true, name: true } },
         words: { orderBy: { order: "asc" } },
-        exercises: { orderBy: { order: "asc" } },
         questions: { orderBy: { order: "asc" } },
       },
     });
@@ -219,7 +218,6 @@ export class VocabularyService {
           order: unit.order,
           totalWords: unit._count.words,
           wordsLearned: unitProgress?.wordsLearned || 0,
-          exerciseScore: unitProgress?.exerciseScore,
           questionScore: unitProgress?.questionScore,
           isCompleted: unitProgress?.isCompleted || false,
         };
@@ -295,59 +293,7 @@ export class VocabularyService {
     return created;
   }
 
-  /**
-   * Submit and grade exercise answers
-   */
-  async submitExercise(
-    userId: string,
-    unitId: string,
-    answers: { exerciseId: string; answer: string }[],
-  ) {
-    const exercises = await this.prisma.foundationVocabExercise.findMany({
-      where: { unitId },
-    });
 
-    if (exercises.length === 0) {
-      return { score: 0, correctCount: 0, totalQuestions: 0, results: [] };
-    }
-
-    let correctCount = 0;
-    const results = answers.map((a) => {
-      const exercise = exercises.find((e) => e.id === a.exerciseId);
-      const isCorrect = exercise?.answer.toLowerCase() === a.answer.toLowerCase();
-      if (isCorrect) correctCount++;
-      return { exerciseId: a.exerciseId, userAnswer: a.answer, correctAnswer: exercise?.answer || "Unknown", isCorrect };
-    });
-
-    const score = Math.round((correctCount / exercises.length) * 100);
-
-    const progress = await this.prisma.foundationVocabProgress.findUnique({
-      where: { userId_unitId: { userId, unitId } },
-    });
-
-    if (progress) {
-      const updated = await this.prisma.foundationVocabProgress.update({
-        where: { id: progress.id },
-        data: { exerciseScore: score },
-      });
-
-      if (score === 100 && (!progress.exerciseScore || progress.exerciseScore < 100)) {
-        this.gamificationService.onEvent(userId, { xp: 5, reason: "VOCAB_PERFECT_SCORE", achievementKeys: ["FV_PERFECT"] }).catch(() => {});
-      }
-
-      return { score, correctCount, totalQuestions: exercises.length, results };
-    }
-
-    await this.prisma.foundationVocabProgress.create({
-      data: { userId, unitId, exerciseScore: score },
-    });
-
-    if (score === 100) {
-      this.gamificationService.onEvent(userId, { xp: 5, reason: "VOCAB_PERFECT_SCORE", achievementKeys: ["FV_PERFECT"] }).catch(() => {});
-    }
-
-    return { score, correctCount, totalQuestions: exercises.length, results };
-  }
 
   /**
    * Submit and grade comprehension question answers

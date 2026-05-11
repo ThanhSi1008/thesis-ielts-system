@@ -1,5 +1,5 @@
-// Auto-generated foundationVocabWord data from 4000 Essential English Words
-// Generated: 2026-04-27T13:30:20.406Z
+// Auto-generated vocabulary data from 4000 Essential English Words
+// Generated: 2026-05-10T10:24:03.239Z
 // Source: https://www.essentialenglish.review
 
 export const vocabularyBooks = [
@@ -324,6 +324,96 @@ export const vocabularyBooks = [
               "not worried about begin hurt"
             ],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. A clever person can solve a puzzle easily.",
+            "options": [
+              "a. A clever person can solve a puzzle easily.",
+              "b. When a plane arrives, it leaves the ground and goes into the sky."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If I break my brother’s bike, he will be angry.",
+            "options": [
+              "a. At noon, the sun is near the bottom of the sky.",
+              "b. If I break my brother’s bike, he will be angry."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It is easy to hide in a dark place.",
+            "options": [
+              "a. It is easy to hide in a dark place.",
+              "b. Many kinds of fish are afraid of water."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Heavy things will go down to the bottom of the ocean.",
+            "options": [
+              "a. At night, your parents may say, “Hide your eyes and go to sleep.”",
+              "b. Heavy things will go down to the bottom of the ocean."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It is cruel to keep a dog in a small cage all day.",
+            "options": [
+              "a. It is cruel to keep a dog in a small cage all day.",
+              "b. Your mother will be angry when you get good grades in school."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. It is a good idea to arrive early for class.",
+            "options": [
+              "a. Animals cannot hunt because they do not have hands.",
+              "b. It is a good idea to arrive early for class."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Some people are afraid of spiders.",
+            "options": [
+              "a. People sometimes attack pictures to email messages.",
+              "b. Some people are afraid of spiders."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. A moment is like a second or two.",
+            "options": [
+              "a. A moment is like a second or two.",
+              "b. New shoes are usually not very comfortable or clever."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Small animals do not usually attack big animals.",
+            "options": [
+              "a. Small animals do not usually attack big animals.",
+              "b. There are twelve moments in a year."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. You can use a gun to hunt in the forest.",
+            "options": [
+              "a. A cruel person will try to help others at all times.",
+              "b. You can use a gun to hunt in the forest."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -596,34 +686,89 @@ export const vocabularyBooks = [
         ],
         "exercises": [
           {
+            "question": "Part A: Circle two words that are related in each group.",
+            "answer": "laboratory",
+            "options": [
+              "laboratory",
+              "experiment",
+              "shout",
+              "smell"
+            ],
+            "order": 1
+          },
+          {
+            "question": "Part A: Circle two words that are related in each group.",
+            "answer": "shout",
+            "options": [
+              "shout",
+              "carefully",
+              "create",
+              "laugh"
+            ],
+            "order": 2
+          },
+          {
+            "question": "Part A: Circle two words that are related in each group.",
+            "answer": "terrible",
+            "options": [
+              "nervous",
+              "terrible",
+              "approach",
+              "worse"
+            ],
+            "order": 3
+          },
+          {
+            "question": "Part A: Circle two words that are related in each group.",
+            "answer": "loud",
+            "options": [
+              "chemical",
+              "secret",
+              "loud",
+              "noise"
+            ],
+            "order": 4
+          },
+          {
+            "question": "Part A: Circle two words that are related in each group.",
+            "answer": "nervous",
+            "options": [
+              "nervous",
+              "adventure",
+              "project",
+              "scare"
+            ],
+            "order": 5
+          },
+          {
             "question": "William wanted to make a new thing. cre____ ____ ____",
             "answer": "create",
             "options": [],
-            "order": 1
+            "order": 6
           },
           {
             "question": "I’m not having fun, so let’s go on an exciting trip. adven____ ____ ____ ____",
             "answer": "adventure",
             "options": [],
-            "order": 2
+            "order": 7
           },
           {
             "question": "Mrs. O’Malley asked me to get close to the desk and write my name. app____ ____ ____ ____ ____",
             "answer": "approach",
             "options": [],
-            "order": 3
+            "order": 8
           },
           {
             "question": "Don’t worry. I won’t tell anyone your thing that other people don’t know. se____ ____ ____ ____",
             "answer": "secret",
             "options": [],
-            "order": 4
+            "order": 9
           },
           {
             "question": "I have to finish my special job before I can go home. p____ ____ ____ ____ ____ ____",
             "answer": "project",
             "options": [],
-            "order": 5
+            "order": 10
           },
           {
             "question": "When the jar hit the floor, __________.",
@@ -632,7 +777,7 @@ export const vocabularyBooks = [
               "a. it made a very loud sound",
               "b. it shouted on the ground"
             ],
-            "order": 6
+            "order": 11
           },
           {
             "question": "When the sun went down, __________.",
@@ -641,7 +786,7 @@ export const vocabularyBooks = [
               "a. it was scared",
               "b. the woods looked evil"
             ],
-            "order": 7
+            "order": 12
           },
           {
             "question": "To test his idea, the scientist __________.",
@@ -650,7 +795,7 @@ export const vocabularyBooks = [
               "a. went on an adventure",
               "b. did an experiment"
             ],
-            "order": 8
+            "order": 13
           },
           {
             "question": "Your phone will not work __________.",
@@ -659,7 +804,7 @@ export const vocabularyBooks = [
               "a. someone kills the window",
               "b. if you don’t carefully pay attention to your power supply"
             ],
-            "order": 9
+            "order": 14
           },
           {
             "question": "The dog seemed unhappy when __________.",
@@ -668,7 +813,7 @@ export const vocabularyBooks = [
               "a. I approached it",
               "b. it created me"
             ],
-            "order": 10
+            "order": 15
           },
           {
             "question": "Alex likes his class because he gets to __________.",
@@ -677,7 +822,7 @@ export const vocabularyBooks = [
               "a. do fun projects",
               "b. be a laboratory"
             ],
-            "order": 11
+            "order": 16
           },
           {
             "question": "What is wrong with your hair? __________!",
@@ -686,7 +831,7 @@ export const vocabularyBooks = [
               "a. It is a chemical",
               "b. It looks terrible"
             ],
-            "order": 12
+            "order": 17
           },
           {
             "question": "She’s quite funny. We always __________.",
@@ -695,7 +840,7 @@ export const vocabularyBooks = [
               "a. laugh at her jokes",
               "b. don’t tell me your secret"
             ],
-            "order": 13
+            "order": 18
           },
           {
             "question": "Did you hear that? __________.",
@@ -704,7 +849,7 @@ export const vocabularyBooks = [
               "a. I just made it worse",
               "b. There was a noise"
             ],
-            "order": 14
+            "order": 19
           },
           {
             "question": "I have a very important test tomorrow. __________.",
@@ -713,7 +858,7 @@ export const vocabularyBooks = [
               "a. I am nervous",
               "b. I will smell it"
             ],
-            "order": 15
+            "order": 20
           }
         ],
         "questions": [
@@ -1494,6 +1639,96 @@ export const vocabularyBooks = [
             "answer": "avoided",
             "options": [],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The girl’s positive words made me feel better.",
+            "options": [
+              "a. The girl’s positive words made me feel better.",
+              "b. We took the village out of the house."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The team members asked Kate to represent them at the dinner.",
+            "options": [
+              "a. The calm girl yelled a lot.",
+              "b. The team members asked Kate to represent them at the dinner."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. I was content to stay at home by the warm fire.",
+            "options": [
+              "a. I was content to stay at home by the warm fire.",
+              "b. My mom punished me for doing my homework."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The man expected me to say yes.",
+            "options": [
+              "a. The man expected me to say yes.",
+              "b. The issue did not taste very good."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I avoided my friend because she had laughed at me.",
+            "options": [
+              "a. I behaved wisely while I was asleep.",
+              "b. I avoided my friend because she had laughed at me."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. At first I was nervous, but then I started to feel calm.",
+            "options": [
+              "a. At first I was nervous, but then I started to feel calm.",
+              "b. The angry bear looked content."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Few people live in the village.",
+            "options": [
+              "a. When my dog died, it made me feel positive.",
+              "b. Few people live in the village."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The class needed to talk about the issue.",
+            "options": [
+              "a. I wanted to avoid food, so I bought a sandwich.",
+              "b. The class needed to talk about the issue."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The students behaved quite well for their new teacher.",
+            "options": [
+              "a. The students behaved quite well for their new teacher.",
+              "b. Students are expected to be late to class."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. I was punished because I broke the window.",
+            "options": [
+              "a. I was punished because I broke the window.",
+              "b. The man represented the award to the girl."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -1714,11 +1949,11 @@ export const vocabularyBooks = [
             "order": 15
           },
           {
-            "word": "ieltsIntensiveResult",
-            "meaning": "A ieltsIntensiveResult is something that happens because of something else.",
+            "word": "result",
+            "meaning": "A result is something that happens because of something else.",
             "ipa": "/rɪˈzʌlt/",
             "partOfSpeech": "n",
-            "example": "Asa ieltsIntensiveResult of all the rain, the man had to climb on the roof.",
+            "example": "Asa result of all the rain, the man had to climb on the roof.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-1/data/unit-5/wordlist/23179.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-1/data/unit-5/wordlist/23179.mp3",
             "order": 16
@@ -1893,7 +2128,7 @@ export const vocabularyBooks = [
               "experience",
               "reside",
               "judgment",
-              "ieltsIntensiveResult"
+              "result"
             ],
             "order": 12
           },
@@ -2020,7 +2255,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Jackal and the Sun Child",
-          "content": "<p>A jackal is a <strong>wild </strong>dog with a big black back. It <strong>resides </strong>in the desert. But how did the jackal get his black back? This was how it happened.</p><p>One day, the jackal saw a girl. She was sitting upon a rock. She was not a <strong>normal </strong>child. She was a <strong>rare </strong>and beautiful sun child. She was bright and warm like the sun. The child saw the jackal and smiled.</p><p>She said, “Jackal, I have been <strong>relaxing </strong>on this rock for too long. I must get home soon. But, I am slow and you are fast. You will <strong>likely </strong>get me home more quickly.” Then she <strong>requested</strong>, “Will you carry me home? If you do, I’ll give you a gift. This necklace <strong>belongs </strong>to me, but I will give it to you.”</p><p>The wild jackal agreed. So the sun child sat on the dog’s back. They started to walk. But soon, the jackal felt ill. The sun child was very hot on his back. The heat was <strong>hurting </strong>his back very <strong>badly</strong>. “I made a terrible <strong>error </strong>in <strong>judgment</strong>.” he thought. He shouldn’t have agreed to carry her. So he asked her to get off.</p><p>But she did not. The jackal’s back <strong>continued </strong>to get hotter and hotter. He had to get away from the sun child. So he made a plan. First, he ran as fast as he could. He hoped the sun child would fall off. But she did not. So when the sun child was looking at the sky, not <strong>aware </strong>of the jackal’s next plan, he jumped into a <strong>field </strong>of flowers. As a <strong>ieltsIntensiveResult</strong>, the child <strong>rolled </strong>off his back. The jackal ran away.</p><p>But the sun child left a mark on the jackal’s back, a <strong>visible </strong>black mark. Ever <strong>since </strong>his <strong>experience </strong>with the sun child, the jackal has had a black back.</p>",
+          "content": "<p>A jackal is a <strong>wild </strong>dog with a big black back. It <strong>resides </strong>in the desert. But how did the jackal get his black back? This was how it happened.</p><p>One day, the jackal saw a girl. She was sitting upon a rock. She was not a <strong>normal </strong>child. She was a <strong>rare </strong>and beautiful sun child. She was bright and warm like the sun. The child saw the jackal and smiled.</p><p>She said, “Jackal, I have been <strong>relaxing </strong>on this rock for too long. I must get home soon. But, I am slow and you are fast. You will <strong>likely </strong>get me home more quickly.” Then she <strong>requested</strong>, “Will you carry me home? If you do, I’ll give you a gift. This necklace <strong>belongs </strong>to me, but I will give it to you.”</p><p>The wild jackal agreed. So the sun child sat on the dog’s back. They started to walk. But soon, the jackal felt ill. The sun child was very hot on his back. The heat was <strong>hurting </strong>his back very <strong>badly</strong>. “I made a terrible <strong>error </strong>in <strong>judgment</strong>.” he thought. He shouldn’t have agreed to carry her. So he asked her to get off.</p><p>But she did not. The jackal’s back <strong>continued </strong>to get hotter and hotter. He had to get away from the sun child. So he made a plan. First, he ran as fast as he could. He hoped the sun child would fall off. But she did not. So when the sun child was looking at the sky, not <strong>aware </strong>of the jackal’s next plan, he jumped into a <strong>field </strong>of flowers. As a <strong>result</strong>, the child <strong>rolled </strong>off his back. The jackal ran away.</p><p>But the sun child left a mark on the jackal’s back, a <strong>visible </strong>black mark. Ever <strong>since </strong>his <strong>experience </strong>with the sun child, the jackal has had a black back.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-1/data/unit-5-the-jackal-and-the-sun-child/reading/23760.jpg"
         }
       },
@@ -4744,6 +4979,96 @@ export const vocabularyBooks = [
             "answer": "attitude",
             "options": [],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. You can read articles in a newspaper.",
+            "options": [
+              "a. When you are alone, you are with another person.",
+              "b. You can read articles in a newspaper."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If you make a profit, you have more money than you did before",
+            "options": [
+              "a. If you make a profit, you have more money than you did before",
+              "b. If you have professional training, you can’t do a difficult job."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If something is a symbol, it stands for something else.",
+            "options": [
+              "a. The Earth is a very thin planet.",
+              "b. If something is a symbol, it stands for something else."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. You can use stairs to go up inside a building.",
+            "options": [
+              "a. You can use stairs to go up inside a building.",
+              "b. Since she is a lawyer, people call my wife an artist."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. There are many apartments in one building.",
+            "options": [
+              "a. There are many apartments in one building.",
+              "b. Your attitude is the way you look."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If you compare two things, you say how they are different.",
+            "options": [
+              "a. You cannot get information from a magazine.",
+              "b. If you compare two things, you say how they are different."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If you judge something, you know if it is good or bad.",
+            "options": [
+              "a. If you judge something, you know if it is good or bad.",
+              "b. Neighbors are people who live far from you."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. A meal has food and a drink.",
+            "options": [
+              "a. A meal has food and a drink.",
+              "b. A shape is something you cannot see."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. You must have space to add more things to a room.",
+            "options": [
+              "a. A symbol is a picture of two different things.",
+              "b. You must have space to add more things to a room."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. A material is used to make something else.",
+            "options": [
+              "a. If something has low quality, it is very good.",
+              "b. A material is used to make something else."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -5224,11 +5549,11 @@ export const vocabularyBooks = [
             "order": 4
           },
           {
-            "word": "ieltsIntensiveExam",
-            "meaning": "An ieltsIntensiveExam is a test.",
+            "word": "exam",
+            "meaning": "An exam is a test.",
             "ipa": "/ɪɡˈzam/",
             "partOfSpeech": "n",
-            "example": "I did some practice questions for the math ieltsIntensiveExam on the board.",
+            "example": "I did some practice questions for the math exam on the board.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-1/data/unit-14/wordlist/23384.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-1/data/unit-14/wordlist/23384.mp3",
             "order": 5
@@ -5432,7 +5757,7 @@ export const vocabularyBooks = [
           },
           {
             "question": "He got a low score on the science test. ex____ ____",
-            "answer": "ieltsIntensiveExam",
+            "answer": "exam",
             "options": [],
             "order": 6
           },
@@ -5519,7 +5844,7 @@ export const vocabularyBooks = [
             "answer": "a. I can control it",
             "options": [
               "a. I can control it",
-              "b. He is doing an ieltsIntensiveExam"
+              "b. He is doing an exam"
             ],
             "order": 17
           },
@@ -5583,7 +5908,7 @@ export const vocabularyBooks = [
               "She should make other people suffer.",
               "Simple stories are the best.",
               "She must limit her power.",
-              "She should not read during an ieltsIntensiveExam."
+              "She should not read during an exam."
             ],
             "answer": "She must limit her power.",
             "order": 3
@@ -5610,7 +5935,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "A Magical Book",
-          "content": "<p>Sarah loved to read. She read <strong>novels </strong>and poems. She loved the beautiful <strong>descriptions </strong>and phrases. She loved reading work from <strong>poets </strong>and novelists. She didn’t like video games or <strong>technology</strong>. She was on the basketball team, but she didn’t like sports. Her parents made her play basketball. In fact, Sarah’s parents made her do many things. But she didn’t want to do those things. She just wanted to sit and read all day.</p><p>One day, a small book came in the <strong>mail</strong>. It was for Sarah. The book looked very special. It was <strong>printed </strong>on <strong>sheets </strong>of gold. Sarah began to read. The <strong>outline </strong>of the story was simple. It was about a <strong>magical </strong>place. Strange things happened there. One <strong>example </strong>from the book was about a boy who could <strong>control </strong>people. In one <strong>scene</strong>, he made his friends tell funny jokes.</p><p>Sarah loved the book. She read it all the time. Then something strange happened. The book gave Sarah a special power. She could control other people. She was like the boy in the book. During one <strong>ieltsIntensiveExam</strong>, she made her friend tell <strong>silly </strong>jokes. Her friend got in trouble.</p><p>After school, Sarah did not make a <strong>direct </strong>trip home. On the way, she went to the <strong>local</strong> <strong>store</strong>. She wanted to play more tricks on people. She caused problems. She made people fall down. She laughed and had fun.</p><p>Finally she left and started to walk home. Then she saw something. Her basketball <strong>coach </strong>was about to walk in front of a bus. He was looking the other way. She had to stop him! She used her power. She controlled him. She made him stop walking.</p><p>Sarah learned something that day. It was better to help people than make them <strong>suffer</strong>. So, she put a <strong>limit </strong>on how she used her power. She did not want to do bad things with it anymore. She only wanted to do good.</p>",
+          "content": "<p>Sarah loved to read. She read <strong>novels </strong>and poems. She loved the beautiful <strong>descriptions </strong>and phrases. She loved reading work from <strong>poets </strong>and novelists. She didn’t like video games or <strong>technology</strong>. She was on the basketball team, but she didn’t like sports. Her parents made her play basketball. In fact, Sarah’s parents made her do many things. But she didn’t want to do those things. She just wanted to sit and read all day.</p><p>One day, a small book came in the <strong>mail</strong>. It was for Sarah. The book looked very special. It was <strong>printed </strong>on <strong>sheets </strong>of gold. Sarah began to read. The <strong>outline </strong>of the story was simple. It was about a <strong>magical </strong>place. Strange things happened there. One <strong>example </strong>from the book was about a boy who could <strong>control </strong>people. In one <strong>scene</strong>, he made his friends tell funny jokes.</p><p>Sarah loved the book. She read it all the time. Then something strange happened. The book gave Sarah a special power. She could control other people. She was like the boy in the book. During one <strong>exam</strong>, she made her friend tell <strong>silly </strong>jokes. Her friend got in trouble.</p><p>After school, Sarah did not make a <strong>direct </strong>trip home. On the way, she went to the <strong>local</strong> <strong>store</strong>. She wanted to play more tricks on people. She caused problems. She made people fall down. She laughed and had fun.</p><p>Finally she left and started to walk home. Then she saw something. Her basketball <strong>coach </strong>was about to walk in front of a bus. He was looking the other way. She had to stop him! She used her power. She controlled him. She made him stop walking.</p><p>Sarah learned something that day. It was better to help people than make them <strong>suffer</strong>. So, she put a <strong>limit </strong>on how she used her power. She did not want to do bad things with it anymore. She only wanted to do good.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-1/data/unit-14-a-magical-book/reading/23847.jpg"
         }
       },
@@ -5931,34 +6256,79 @@ export const vocabularyBooks = [
             "order": 10
           },
           {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Being tall is a characteristic of many trees.",
+            "options": [
+              "a. Being tall is a characteristic of many trees.",
+              "b. I was fortunate because I received some useless gifts."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Because he left work early, Carl had an opportunity to go to the concert.",
+            "options": [
+              "a. Because he left work early, Carl had an opportunity to go to the concert.",
+              "b. I could feel the length of the air outside."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Our team won. We were fortunate.",
+            "options": [
+              "a. Angela felt fear when she got a good grade on her test.",
+              "b. Our team won. We were fortunate."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Jeremy thought his hair was just the right length.",
+            "options": [
+              "a. Jeremy thought his hair was just the right length.",
+              "b. Michelle left her characteristic at my house."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Billy feels fear when he has to talk in front of people.",
+            "options": [
+              "a. Theresa found an opportunity on the ground outside.",
+              "b. Billy feels fear when he has to talk in front of people."
+            ],
+            "order": 15
+          },
+          {
             "question": "I had to walk to the other side of the school to get to my next class. acr____ ____ ____",
             "answer": "across",
             "options": [],
-            "order": 11
+            "order": 16
           },
           {
             "question": "Brad chose not to give an answer when I asked about his weekend. resp____ ____ ____",
             "answer": "respond",
             "options": [],
-            "order": 12
+            "order": 17
           },
           {
             "question": "Sarah ran around the park to get ready for the contest where people run against each other. ra____ ____",
             "answer": "race",
             "options": [],
-            "order": 13
+            "order": 18
           },
           {
             "question": "Michael saw the accident that occurred today. obs____ ____ ____ ____ ____",
             "answer": "observed",
             "options": [],
-            "order": 14
+            "order": 19
           },
           {
             "question": "Renee knew there was a chance of something bad happening when she went swimming in the ocean. r____ ____ ____",
             "answer": "risk",
             "options": [],
-            "order": 15
+            "order": 20
           }
         ],
         "questions": [
@@ -6339,6 +6709,61 @@ export const vocabularyBooks = [
               "to get a book ready to sell"
             ],
             "order": 10
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "process",
+            "options": [
+              "process",
+              "maybe",
+              "flat",
+              "publish"
+            ],
+            "order": 11
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "century",
+            "options": [
+              "board",
+              "century",
+              "pound",
+              "ancient"
+            ],
+            "order": 12
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "concert",
+            "options": [
+              "county",
+              "concert",
+              "theater",
+              "clue"
+            ],
+            "order": 13
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "gentleman",
+            "options": [
+              "gentleman",
+              "officer",
+              "exist",
+              "concert"
+            ],
+            "order": 14
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "ancient",
+            "options": [
+              "ancient",
+              "original",
+              "process",
+              "dictionary"
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -7829,6 +8254,96 @@ export const vocabularyBooks = [
               "a small amount of something"
             ],
             "order": 5
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If a toy is worth $1, it costs $1.",
+            "options": [
+              "a. A basic tool has many parts.",
+              "b. If a toy is worth $1, it costs $1."
+            ],
+            "order": 6
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Anyone can pet a real dog.",
+            "options": [
+              "a. Anyone can pet a real dog.",
+              "b. If a man has extra socks, he does not have enough."
+            ],
+            "order": 7
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It is not smart to lie to your parents.",
+            "options": [
+              "a. It is not smart to lie to your parents.",
+              "b. If a woman considers leaving, she doesn’t want to go."
+            ],
+            "order": 8
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. When you eat vegetables, you are eating plants.",
+            "options": [
+              "a. If a bike is worth $50, it costs much less.",
+              "b. When you eat vegetables, you are eating plants."
+            ],
+            "order": 9
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Some people entertain others by telling funny stories.",
+            "options": [
+              "a. When a teacher advises her students, she asks them what they want to do.",
+              "b. Some people entertain others by telling funny stories."
+            ],
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If a boy considers studying, he is thinking about doing it.",
+            "options": [
+              "a. If a boy considers studying, he is thinking about doing it.",
+              "b. Many people like making new types of vegetables."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. A basic answer is a simple one.",
+            "options": [
+              "a. A basic answer is a simple one.",
+              "b. A bit of food is a lot of it."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If a girl brings extra paper, she has more than she needs.",
+            "options": [
+              "a. If a girl brings extra paper, she has more than she needs.",
+              "b. People entertain others to make them sad."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. When you advise your friend, you tell him what to do.",
+            "options": [
+              "a. People believe others who lie often.",
+              "b. When you advise your friend, you tell him what to do."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. A bit of paper is a small piece.",
+            "options": [
+              "a. A real story never happened.",
+              "b. A bit of paper is a small piece."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -8144,6 +8659,96 @@ export const vocabularyBooks = [
               "b. refused to get into the car"
             ],
             "order": 5
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Because the base of the lamp was broken, it could not stand up.",
+            "options": [
+              "a. Because the base of the lamp was broken, it could not stand up.",
+              "b. I decided to leave early so that I could be late."
+            ],
+            "order": 6
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I had an operation to fix my broken nose.",
+            "options": [
+              "a. The roof was at the base of the house.",
+              "b. I had an operation to fix my broken nose."
+            ],
+            "order": 7
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I like dogs, though I don’t like most animals.",
+            "options": [
+              "a. The various movies were all the same.",
+              "b. I like dogs, though I don’t like most animals."
+            ],
+            "order": 8
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. I will leave early in the morning to catch my plane.",
+            "options": [
+              "a. I will leave early in the morning to catch my plane.",
+              "b. My friends and I decided to throw an operation for my sister."
+            ],
+            "order": 9
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I made an effort to get the job done.",
+            "options": [
+              "a. Though I was rich, I bought a lot of cars.",
+              "b. I made an effort to get the job done."
+            ],
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. He never used his brain when he faced problems!",
+            "options": [
+              "a. He never used his brain when he faced problems!",
+              "b. The job appeared very quickly."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. I entered the house through the door.",
+            "options": [
+              "a. I entered the house through the door.",
+              "b. I threw the effort with all my might."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. She appeared very happy on her birthday.",
+            "options": [
+              "a. She appeared very happy on her birthday.",
+              "b. People use their brains to exercise."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. I informed him of the new rules.",
+            "options": [
+              "a. I informed him of the new rules.",
+              "b. I entered out of the room."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. There were various things to do at the event.",
+            "options": [
+              "a. The rock informed me that I was too heavy.",
+              "b. There were various things to do at the event."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -8471,13 +9076,58 @@ export const vocabularyBooks = [
             "order": 5
           },
           {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If you steal money, you can get in trouble.",
+            "options": [
+              "a. If I receive a present, I give someone something.",
+              "b. If you steal money, you can get in trouble."
+            ],
+            "order": 6
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If a woman is sad, someone should comfort her.",
+            "options": [
+              "a. A man who is alone can contact many people.",
+              "b. If a woman is sad, someone should comfort her."
+            ],
+            "order": 7
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. You eat dinner off a plate.",
+            "options": [
+              "a. He was given a reward for his poor work performance.",
+              "b. You eat dinner off a plate."
+            ],
+            "order": 8
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Everything that is for sale has a charge.",
+            "options": [
+              "a. Everything that is for sale has a charge.",
+              "b. A customer sells things to people."
+            ],
+            "order": 9
+          },
+          {
+            "question": "Part B: Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Postmen deliver mail from one house to another.",
+            "options": [
+              "a. If you earn something, you give it to someone.",
+              "b. Postmen deliver mail from one house to another."
+            ],
+            "order": 10
+          },
+          {
             "question": "Who should manage the classroom?",
             "answer": "a. The teacher should be in charge.",
             "options": [
               "a. The teacher should be in charge.",
               "b. The students should go to the classroom."
             ],
-            "order": 6
+            "order": 11
           },
           {
             "question": "When did the theft occur?",
@@ -8486,7 +9136,7 @@ export const vocabularyBooks = [
               "a. It happened this afternoon.",
               "b. It stopped early."
             ],
-            "order": 7
+            "order": 12
           },
           {
             "question": "What is the actual number of people there?",
@@ -8495,7 +9145,7 @@ export const vocabularyBooks = [
               "a. There are 31,872 people there.",
               "b. There are a lot of people there."
             ],
-            "order": 8
+            "order": 13
           },
           {
             "question": "Did that movie amaze you?",
@@ -8504,7 +9154,7 @@ export const vocabularyBooks = [
               "a. Yes, I had seen it many times before.",
               "b. Yes, the ending surprised me very much."
             ],
-            "order": 9
+            "order": 14
           },
           {
             "question": "Where should I set this book?",
@@ -8513,7 +9163,7 @@ export const vocabularyBooks = [
               "a. Put it on the bookshelf.",
               "b. It came from the library"
             ],
-            "order": 10
+            "order": 15
           },
           {
             "question": "Does the wall have a gate?",
@@ -8522,7 +9172,7 @@ export const vocabularyBooks = [
               "a. Yes, and it is often locked.",
               "b. Yes, the wall is very high"
             ],
-            "order": 11
+            "order": 16
           },
           {
             "question": "Does the book include a CD?",
@@ -8531,7 +9181,7 @@ export const vocabularyBooks = [
               "a. No, it is inside the book.",
               "b. No, we must buy the extra CD."
             ],
-            "order": 12
+            "order": 17
           },
           {
             "question": "Has he received my present?",
@@ -8540,7 +9190,7 @@ export const vocabularyBooks = [
               "a. He got it yesterday.",
               "b. He sent it to you yesterday"
             ],
-            "order": 13
+            "order": 18
           },
           {
             "question": "What happened to the plate?",
@@ -8549,7 +9199,7 @@ export const vocabularyBooks = [
               "a. It broke when I dropped it.",
               "b. It helped me with my homework."
             ],
-            "order": 14
+            "order": 19
           },
           {
             "question": "Did you hearthe news about the thief?",
@@ -8558,7 +9208,7 @@ export const vocabularyBooks = [
               "a. He stole some expensive diamonds from the jewelry store.",
               "b. There was a person buying something."
             ],
-            "order": 15
+            "order": 20
           }
         ],
         "questions": [
@@ -8891,6 +9541,51 @@ export const vocabularyBooks = [
             "order": 10
           },
           {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Webs are made by spiders.",
+            "options": [
+              "a. I was behind the winner, so I won the race!",
+              "b. Webs are made by spiders."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Reading increases your mental activity.",
+            "options": [
+              "a. Reading increases your mental activity.",
+              "b. We removed the city last week."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. My shoes were behind the couch.",
+            "options": [
+              "a. My shoes were behind the couch.",
+              "b. This mental exercise makes my arms tired."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I lowered the box onto the ground.",
+            "options": [
+              "a. Have you ever found a bird’s web?",
+              "b. I lowered the box onto the ground."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Be sure to remove the trash from the house.",
+            "options": [
+              "a. Could you help me lower my seat please?",
+              "b. Be sure to remove the trash from the house."
+            ],
+            "order": 15
+          },
+          {
             "question": "to move through water",
             "answer": "swim",
             "options": [
@@ -8899,7 +9594,7 @@ export const vocabularyBooks = [
               "advance",
               "swim"
             ],
-            "order": 11
+            "order": 16
           },
           {
             "question": "something nice to read",
@@ -8910,7 +9605,7 @@ export const vocabularyBooks = [
               "member",
               "behind"
             ],
-            "order": 12
+            "order": 17
           },
           {
             "question": "the condition free from any danger",
@@ -8921,7 +9616,7 @@ export const vocabularyBooks = [
               "athlete",
               "personality"
             ],
-            "order": 13
+            "order": 18
           },
           {
             "question": "a metal or wooden stick used to support things",
@@ -8932,7 +9627,7 @@ export const vocabularyBooks = [
               "passenger",
               "sound"
             ],
-            "order": 14
+            "order": 19
           },
           {
             "question": "the way you act",
@@ -8943,7 +9638,7 @@ export const vocabularyBooks = [
               "course",
               "behavior"
             ],
-            "order": 15
+            "order": 20
           }
         ],
         "questions": [
@@ -9714,6 +10409,96 @@ export const vocabularyBooks = [
               "tradition"
             ],
             "order": 5
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. They make toys in a toy factory.",
+            "options": [
+              "a. When you mix things, you take them somewhere.",
+              "b. They make toys in a toy factory."
+            ],
+            "order": 6
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. A feature of this computer is its small size.",
+            "options": [
+              "a. A feature of this computer is its small size.",
+              "b. We populate over the ocean."
+            ],
+            "order": 7
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. We put the trash outside so it could be taken away.",
+            "options": [
+              "a. We put the trash outside so it could be taken away.",
+              "b. We ate chicken once, so now it is a tradition."
+            ],
+            "order": 8
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Doing a book report involves reading.",
+            "options": [
+              "a. He went to the tip of the school.",
+              "b. Doing a book report involves reading."
+            ],
+            "order": 9
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I associate dogs with good pets.",
+            "options": [
+              "a. The garbage truck came and produced some sunshine.",
+              "b. I associate dogs with good pets."
+            ],
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. You recognize someone whom you have already met.",
+            "options": [
+              "a. You recognize someone whom you have already met.",
+              "b. Blue is a range of color."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I have a regular schedule. It doesn’t change.",
+            "options": [
+              "a. The sign was open all evening.",
+              "b. I have a regular schedule. It doesn’t change."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Don’t forget to organize a meeting for next week.",
+            "options": [
+              "a. The tree is very wide because it is small.",
+              "b. Don’t forget to organize a meeting for next week."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Our environment has many plants and animals.",
+            "options": [
+              "a. The clothing store had a sale on medicine.",
+              "b. Our environment has many plants and animals."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. An instance of kindness is sharing food.",
+            "options": [
+              "a. An instance of kindness is sharing food.",
+              "b. He had no period to work."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -10811,13 +11596,68 @@ export const vocabularyBooks = [
         ],
         "exercises": [
           {
+            "question": "Circle two words that are related in each group.",
+            "answer": "see",
+            "options": [
+              "cancel",
+              "see",
+              "notice",
+              "own"
+            ],
+            "order": 1
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "band",
+            "options": [
+              "band",
+              "boring",
+              "instrument",
+              "predict"
+            ],
+            "order": 2
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "tour",
+            "options": [
+              "magic",
+              "rush",
+              "tour",
+              "trip"
+            ],
+            "order": 3
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "bite",
+            "options": [
+              "bite",
+              "within",
+              "hunger",
+              "share"
+            ],
+            "order": 4
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "schedule",
+            "options": [
+              "schedule",
+              "message",
+              "stage",
+              "list"
+            ],
+            "order": 5
+          },
+          {
             "question": "I don’t like this show. __________.",
             "answer": "a. It is very boring",
             "options": [
               "a. It is very boring",
               "b. It is a long list"
             ],
-            "order": 1
+            "order": 6
           },
           {
             "question": "A treasure appeared in the middle of the room. __________.",
@@ -10826,7 +11666,7 @@ export const vocabularyBooks = [
               "a. It owned us",
               "b. It was magic"
             ],
-            "order": 2
+            "order": 7
           },
           {
             "question": "The man read the weather report. __________.",
@@ -10835,7 +11675,7 @@ export const vocabularyBooks = [
               "a. He rushed through the building",
               "b. He predicted rain"
             ],
-            "order": 3
+            "order": 8
           },
           {
             "question": "I have many things to do today. __________.",
@@ -10844,7 +11684,7 @@ export const vocabularyBooks = [
               "a. My schedule is full",
               "b. I can share with you"
             ],
-            "order": 4
+            "order": 9
           },
           {
             "question": "When the play started, __________.",
@@ -10853,7 +11693,7 @@ export const vocabularyBooks = [
               "a. the actors walked onto the stage",
               "b. there were no people within the room"
             ],
-            "order": 5
+            "order": 10
           }
         ],
         "questions": [
@@ -12137,6 +12977,96 @@ export const vocabularyBooks = [
               "excited"
             ],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. A landscape may have snow during the winter.",
+            "options": [
+              "a. It is hard to seek for things when it is sunny.",
+              "b. A landscape may have snow during the winter."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Most children are eager to get gifts.",
+            "options": [
+              "a. Most children are eager to get gifts.",
+              "b. Good friends are awful to have around."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. People may feel anxious when they give a speech.",
+            "options": [
+              "a. The lungs help move blood through the body.",
+              "b. People may feel anxious when they give a speech."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It isn’t polite to take things without asking first.",
+            "options": [
+              "a. It isn’t polite to take things without asking first.",
+              "b. You should help spill the dishes after dinner."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If you work at a fast pace, things will get done quickly.",
+            "options": [
+              "a. If you work at a fast pace, things will get done quickly.",
+              "b. It is important to lift your notes before a test."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. You should get help when lifting heavy boxes.",
+            "options": [
+              "a. People are eager to leave when they don’t want to go anywhere.",
+              "b. You should get help when lifting heavy boxes."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Everyone has awful days where nothing goes right.",
+            "options": [
+              "a. Some people live in the landscape while others live in the city.",
+              "b. Everyone has awful days where nothing goes right."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It is good to seek advice when you have a problem.",
+            "options": [
+              "a. It is good to seek advice when you have a problem.",
+              "b. Students feel anxious when they get good grades."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. When you breathe, air goes into your lungs.",
+            "options": [
+              "a. When you breathe, air goes into your lungs.",
+              "b. Some students pace to school every day."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. When you spill something, you should clean it up right away.",
+            "options": [
+              "a. Polite people do not say “please” or “thank you.”",
+              "b. When you spill something, you should clean it up right away."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -12409,34 +13339,179 @@ export const vocabularyBooks = [
         ],
         "exercises": [
           {
+            "question": "Circle two words that are related in each group.",
+            "answer": "explosion",
+            "options": [
+              "counsel",
+              "explosion",
+              "meteor",
+              "bring"
+            ],
+            "order": 1
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "northern",
+            "options": [
+              "northern",
+              "remote",
+              "meteor",
+              "southern"
+            ],
+            "order": 2
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "castle",
+            "options": [
+              "land",
+              "steam",
+              "castle",
+              "temple"
+            ],
+            "order": 3
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "northern",
+            "options": [
+              "northern",
+              "wing",
+              "upper",
+              "meteor"
+            ],
+            "order": 4
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "command",
+            "options": [
+              "statue",
+              "command",
+              "weed",
+              "submit"
+            ],
+            "order": 5
+          },
+          {
             "question": "The bird hurt its body part that helps it fly.wi____ ____",
             "answer": "wing",
             "options": [],
-            "order": 1
+            "order": 6
           },
           {
             "question": "There are many stone images in the museum.sta____ ____ ____ ____",
             "answer": "statues",
             "options": [],
-            "order": 2
+            "order": 7
           },
           {
             "question": "The fire made the water turn into hot misty air.st____ ____ ____",
             "answer": "steam",
             "options": [],
-            "order": 3
+            "order": 8
           },
           {
             "question": "The teacher told me to listen to and follow his rules.s____ ____ ____ ____ ____ to",
             "answer": "submit to",
             "options": [],
-            "order": 4
+            "order": 9
           },
           {
             "question": "Go to the higher part of the building and clean the windows.u____ ____ ____ ____",
             "answer": "upper",
             "options": [],
-            "order": 5
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Many castles are built with thick stone walls.",
+            "options": [
+              "a. Many castles are built with thick stone walls.",
+              "b. When you command somebody, you work for them."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Some women wear jewelry on their ears and hands.",
+            "options": [
+              "a. All children bring live animals to the zoo.",
+              "b. Some women wear jewelry on their ears and hands."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. When I counsel you, I am trying to help you.",
+            "options": [
+              "a. You put on jewelry when you take a bath.",
+              "b. When I counsel you, I am trying to help you."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It takes a long time to get to remote places.",
+            "options": [
+              "a. It takes a long time to get to remote places.",
+              "b. Weeds make a house more beautiful."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Good parents ensure that their children are safe.",
+            "options": [
+              "a. Good parents ensure that their children are safe.",
+              "b. The people were happy when the monster was elected president."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I forgot to bring my camera when I went on vacation.",
+            "options": [
+              "a. The explosion made everyone sleepy.",
+              "b. I forgot to bring my camera when I went on vacation."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If I command you to work, then I want you to work.",
+            "options": [
+              "a. If I command you to work, then I want you to work.",
+              "b. You can easily ensure that it rains."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The scary monster caused much damage to the village.",
+            "options": [
+              "a. The scary monster caused much damage to the village.",
+              "b. Students visit remote places after school every day."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If you don’t keep your yard clean, weeds will grow.",
+            "options": [
+              "a. Many people have a castle inside their house.",
+              "b. If you don’t keep your yard clean, weeds will grow."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The explosion in the sky was caused by the fireworks.",
+            "options": [
+              "a. Students must counsel their teachers.",
+              "b. The explosion in the sky was caused by the fireworks."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -12913,7 +13988,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "consequence",
-            "meaning": "A consequence is a ieltsIntensiveResult of a choice or action.",
+            "meaning": "A consequence is a result of a choice or action.",
             "ipa": "/ˈkɒnsɪkwəns/",
             "partOfSpeech": "n",
             "example": "Asa consequence of missing my bus, I had to find another way to work.",
@@ -13147,6 +14222,96 @@ export const vocabularyBooks = [
               "disaster"
             ],
             "order": 5
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. A marathon can last for hours.",
+            "options": [
+              "a. Eating rotten eggs satisfies me.",
+              "b. A marathon can last for hours."
+            ],
+            "order": 6
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. I have confidence that I can win the race.",
+            "options": [
+              "a. I have confidence that I can win the race.",
+              "b. It was a disaster when the students did well on the test."
+            ],
+            "order": 7
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Some people scream when they watch a scary movie.",
+            "options": [
+              "a. Some people scream when they watch a scary movie.",
+              "b. The narrow river was a mile wide."
+            ],
+            "order": 8
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. A heart is inside a person’s chest.",
+            "options": [
+              "a. A heart is inside a person’s chest.",
+              "b. My mother made a threat of giving me ice cream."
+            ],
+            "order": 9
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The consequence of stealing is being punished.",
+            "options": [
+              "a. The consequence of stealing is being punished.",
+              "b. If you win a prize, then you are a victim."
+            ],
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. She supplemented her salary by working part-time on Saturdays.",
+            "options": [
+              "a. The boy wore pants on his chest.",
+              "b. She supplemented her salary by working part-time on Saturdays."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The bully made several threats to scare his classmates.",
+            "options": [
+              "a. The bully made several threats to scare his classmates.",
+              "b. It’s a marathon from my front door to my bedroom."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The town was a disaster after the hurricane struck.",
+            "options": [
+              "a. When the girl did not know what to do, she had confidence.",
+              "b. The town was a disaster after the hurricane struck."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The victim was badly hurt.",
+            "options": [
+              "a. You should always scream in the library.",
+              "b. The victim was badly hurt."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It was hard to stay on the narrow path.",
+            "options": [
+              "a. It was hard to stay on the narrow path.",
+              "b. The boy created a consequence before the test started."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -13529,34 +14694,89 @@ export const vocabularyBooks = [
             "order": 10
           },
           {
+            "question": "Circle two words that are related in each group.",
+            "answer": "wrap",
+            "options": [
+              "wrap",
+              "praise",
+              "surround",
+              "proceed"
+            ],
+            "order": 11
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "frame",
+            "options": [
+              "heaven",
+              "frame",
+              "border",
+              "sink"
+            ],
+            "order": 12
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "praise",
+            "options": [
+              "praise",
+              "surround",
+              "proceed",
+              "congratulate"
+            ],
+            "order": 13
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "superior",
+            "options": [
+              "silent",
+              "incredible",
+              "superior",
+              "senior"
+            ],
+            "order": 14
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "relative",
+            "options": [
+              "relative",
+              "sink",
+              "ancestor",
+              "legend"
+            ],
+            "order": 15
+          },
+          {
             "question": "Josh couldn’t see anything from that direction from which he was looking. ang____ ____",
             "answer": "angle",
             "options": [],
-            "order": 11
+            "order": 16
           },
           {
             "question": "For school, I have to learn about a family member from the past. an ance____ ____ ____ ____",
             "answer": "ancestor",
             "options": [],
-            "order": 12
+            "order": 17
           },
           {
             "question": "The TV was on. but it was not having any sound. sil____ ____ ____",
             "answer": "silent",
             "options": [],
-            "order": 13
+            "order": 18
           },
           {
             "question": "Have you heard the story from the past of Robin Hood? le____ ____ ____ ____",
             "answer": "legend",
             "options": [],
-            "order": 14
+            "order": 19
           },
           {
             "question": "The lake was filled with clear and beautiful blue water. p____ ____ ____",
             "answer": "pure",
             "options": [],
-            "order": 15
+            "order": 20
           }
         ],
         "questions": [
@@ -14259,34 +15479,179 @@ export const vocabularyBooks = [
         ],
         "exercises": [
           {
+            "question": "Circle two words that are related in each group.",
+            "answer": "scholar",
+            "options": [
+              "volcano",
+              "scholar",
+              "colleague",
+              "cage"
+            ],
+            "order": 1
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "persuade",
+            "options": [
+              "persuade",
+              "basis",
+              "mission",
+              "debate"
+            ],
+            "order": 2
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "colony",
+            "options": [
+              "depress",
+              "colony",
+              "occupation",
+              "overseas"
+            ],
+            "order": 3
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "route",
+            "options": [
+              "route",
+              "depart",
+              "cheer",
+              "fascinate"
+            ],
+            "order": 4
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "factual",
+            "options": [
+              "ruins",
+              "factual",
+              "significant",
+              "nevertheless"
+            ],
+            "order": 5
+          },
+          {
             "question": "He had a very important job that he loved. m____ ____ ____ ____ ____ ____",
             "answer": "mission",
             "options": [],
-            "order": 1
+            "order": 6
           },
           {
             "question": "Linda was happy that she had good people at work. col____ ____ ____ ____ ____ ____ ____",
             "answer": "colleagues",
             "options": [],
-            "order": 2
+            "order": 7
           },
           {
             "question": "Bernie had never taken that way home before. r____ ____ ____ ____",
             "answer": "route",
             "options": [],
-            "order": 3
+            "order": 8
           },
           {
             "question": "This is a true movie about her life. fac____ ____ ____ ____",
             "answer": "factual",
             "options": [],
-            "order": 4
+            "order": 9
           },
           {
             "question": "Our country used to have one other country under our control. col____ ____ ____",
             "answer": "colony",
             "options": [],
-            "order": 5
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Scholars can teach you many things that you didn’t know.",
+            "options": [
+              "a. Scholars can teach you many things that you didn’t know.",
+              "b. Some people like to live in cities, while others like to live in ruins."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Most people fly on a plane when they go overseas.",
+            "options": [
+              "a. Most people fly on a plane when they go overseas.",
+              "b. You should watch factual movies if you want to laugh."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Many people feel happy when they depart on a trip.",
+            "options": [
+              "a. Many people feel happy when they depart on a trip.",
+              "b. Doctors never persuade people to take medicine."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Seeing new things fascinates most people.",
+            "options": [
+              "a. If you travel overseas, you are still in the same country.",
+              "b. Seeing new things fascinates most people."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Some people like to visit ruins to learn about the past.",
+            "options": [
+              "a. Some people like to visit ruins to learn about the past.",
+              "b. Getting something they want often depresses people."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. When people debate about something, they have different ideas.",
+            "options": [
+              "a. Some students like biology because they learn about rocks.",
+              "b. When people debate about something, they have different ideas."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. People who talk about sad things can depress you.",
+            "options": [
+              "a. You should see a scholar if you don’t want to do your homework.",
+              "b. People who talk about sad things can depress you."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I tried to persuade my friends to meet me for lunch today.",
+            "options": [
+              "a. Some students debate to get their work done faster.",
+              "b. I tried to persuade my friends to meet me for lunch today."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If you study biology, you will learn about different animals.",
+            "options": [
+              "a. If you study biology, you will learn about different animals.",
+              "b. People fall asleep when a movie fascinates them."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. People who like to know the truth like factual stories.",
+            "options": [
+              "a. If you depart late, you can get to school early.",
+              "b. People who like to know the truth like factual stories."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -14889,13 +16254,113 @@ export const vocabularyBooks = [
         ],
         "exercises": [
           {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Parents have authority over their children.",
+            "options": [
+              "a. Parents have authority over their children.",
+              "b. Poor people aid rich people by giving them money."
+            ],
+            "order": 1
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. When people cooperate, they can get more done.",
+            "options": [
+              "a. When you have authority, you cannot do anything.",
+              "b. When people cooperate, they can get more done."
+            ],
+            "order": 2
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Learning a new language can frustrate some people.",
+            "options": [
+              "a. You should admire people who tell lies.",
+              "b. Learning a new language can frustrate some people."
+            ],
+            "order": 3
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If you aid someone, he or she will usually thank you.",
+            "options": [
+              "a. If you aid someone, he or she will usually thank you.",
+              "b. If you cooperate with your friends, you will feel lonely."
+            ],
+            "order": 4
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Most students admire teachers who work hard.",
+            "options": [
+              "a. You should frustrate your friends when they help you.",
+              "b. Most students admire teachers who work hard."
+            ],
+            "order": 5
+          },
+          {
+            "question": "Circle the two words that are opposites in each group.",
+            "answer": "destruction",
+            "options": [
+              "destruction",
+              "aid",
+              "admire",
+              "govern"
+            ],
+            "order": 6
+          },
+          {
+            "question": "Circle the two words that are opposites in each group.",
+            "answer": "frustrate",
+            "options": [
+              "frustrate",
+              "admire",
+              "plenty",
+              "relieve"
+            ],
+            "order": 7
+          },
+          {
+            "question": "Circle the two words that are opposites in each group.",
+            "answer": "disorder",
+            "options": [
+              "disorder",
+              "enable",
+              "cooperate",
+              "attempt"
+            ],
+            "order": 8
+          },
+          {
+            "question": "Circle the two words that are opposites in each group.",
+            "answer": "royal",
+            "options": [
+              "enable",
+              "royal",
+              "slave",
+              "reputation"
+            ],
+            "order": 9
+          },
+          {
+            "question": "Circle the two words that are opposites in each group.",
+            "answer": "struggle",
+            "options": [
+              "reputation",
+              "struggle",
+              "stupid",
+              "cooperate"
+            ],
+            "order": 10
+          },
+          {
             "question": "If you help other people, __________.",
             "answer": "a. they will admire you",
             "options": [
               "a. they will admire you",
               "b. they will struggle with you"
             ],
-            "order": 1
+            "order": 11
           },
           {
             "question": "After the fight, __________.",
@@ -14904,7 +16369,7 @@ export const vocabularyBooks = [
               "a. the room was in disorder",
               "b. the room got a reputation"
             ],
-            "order": 2
+            "order": 12
           },
           {
             "question": "The people wanted change, __________.",
@@ -14913,7 +16378,7 @@ export const vocabularyBooks = [
               "a. so they defended themselves",
               "b. so they elected a new person to govern the country"
             ],
-            "order": 3
+            "order": 13
           },
           {
             "question": "Because I could not solve the problem, __________.",
@@ -14922,7 +16387,7 @@ export const vocabularyBooks = [
               "a. I became frustrated",
               "b. there was a division between the animals"
             ],
-            "order": 4
+            "order": 14
           },
           {
             "question": "She found a mistake on her homework, so __________.",
@@ -14931,7 +16396,7 @@ export const vocabularyBooks = [
               "a. she aided it to be fixed",
               "b. she attempted to correct it"
             ],
-            "order": 5
+            "order": 15
           },
           {
             "question": "After returning from the library, __________.",
@@ -14940,7 +16405,7 @@ export const vocabularyBooks = [
               "a. we could cooperate with our books",
               "b. we had plenty of books to read"
             ],
-            "order": 6
+            "order": 16
           },
           {
             "question": "After her friends laughed at her, __________.",
@@ -14949,7 +16414,7 @@ export const vocabularyBooks = [
               "a. she thought that the royal palace looked beautiful",
               "b. she knew that her last remark was stupid"
             ],
-            "order": 7
+            "order": 17
           },
           {
             "question": "You cannot tell me what to do. __________.",
@@ -14958,7 +16423,7 @@ export const vocabularyBooks = [
               "a. I live in the capital city",
               "b. You don’t have any authority"
             ],
-            "order": 8
+            "order": 18
           },
           {
             "question": "Read the directions carefully. __________.",
@@ -14967,7 +16432,7 @@ export const vocabularyBooks = [
               "a. They will cause destruction",
               "b. They will enable you to complete the project"
             ],
-            "order": 9
+            "order": 19
           },
           {
             "question": "Before he can feel better, __________.",
@@ -14976,7 +16441,7 @@ export const vocabularyBooks = [
               "a. he must find a way to relieve the pain",
               "b. he must become a slave"
             ],
-            "order": 10
+            "order": 20
           }
         ],
         "questions": [
@@ -15747,6 +17212,51 @@ export const vocabularyBooks = [
             "answer": "principal",
             "options": [],
             "order": 10
+          },
+          {
+            "question": "Check (v) the sentence with the bolded word that makes better sense.",
+            "answer": "__ b. Do not interfere when I am working.",
+            "options": [
+              "__ a. We learned about grammar in astronomy class.",
+              "__ b. Do not interfere when I am working."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (v) the sentence with the bolded word that makes better sense.",
+            "answer": "__ b. Which shelf should I put this on?",
+            "options": [
+              "__ a. It was very kind of him to spite his sister.",
+              "__ b. Which shelf should I put this on?"
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (v) the sentence with the bolded word that makes better sense.",
+            "answer": "__ b. In astronomy class, I learned about the Solar System.",
+            "options": [
+              "__ a. Do you have a shelf in your yard?",
+              "__ b. In astronomy class, I learned about the Solar System."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (v) the sentence with the bolded word that makes better sense.",
+            "answer": "__ b. Mrs. Joyner is a strict principal, but she is actually very nice.",
+            "options": [
+              "__ a. He drank all the milk in the fridge to spite me.",
+              "__ b. Mrs. Joyner is a strict principal, but she is actually very nice."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (v) the sentence with the bolded word that makes better sense.",
+            "answer": "__ a. The loud music interferes with my concentration.",
+            "options": [
+              "__ a. The loud music interferes with my concentration.",
+              "__ b. It is against his principals to be dishonest."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -16074,13 +17584,68 @@ export const vocabularyBooks = [
             "order": 5
           },
           {
+            "question": "Part B: Circle two words that are related in each group.",
+            "answer": "debt",
+            "options": [
+              "debt",
+              "fund",
+              "bean",
+              "abuse"
+            ],
+            "order": 6
+          },
+          {
+            "question": "Part B: Circle two words that are related in each group.",
+            "answer": "fault",
+            "options": [
+              "fault",
+              "abuse",
+              "monitor",
+              "sue"
+            ],
+            "order": 7
+          },
+          {
+            "question": "Part B: Circle two words that are related in each group.",
+            "answer": "bake",
+            "options": [
+              "afford",
+              "bake",
+              "insist",
+              "ingredient"
+            ],
+            "order": 8
+          },
+          {
+            "question": "Part B: Circle two words that are related in each group.",
+            "answer": "decrease",
+            "options": [
+              "fault",
+              "decrease",
+              "quantity",
+              "convert"
+            ],
+            "order": 9
+          },
+          {
+            "question": "Part B: Circle two words that are related in each group.",
+            "answer": "debt",
+            "options": [
+              "debt",
+              "monitor",
+              "afford",
+              "generous"
+            ],
+            "order": 10
+          },
+          {
             "question": "To make sure the door was built strong, __________.",
             "answer": "a. it was made out of metal",
             "options": [
               "a. it was made out of metal",
               "b. it was monitored to the floor"
             ],
-            "order": 6
+            "order": 11
           },
           {
             "question": "I was treated unfairly by my company, so __________.",
@@ -16089,7 +17654,7 @@ export const vocabularyBooks = [
               "a. we decreased the table",
               "b. I decided to sue them in court"
             ],
-            "order": 7
+            "order": 12
           },
           {
             "question": "I went to the grocery store. __________.",
@@ -16098,7 +17663,7 @@ export const vocabularyBooks = [
               "a. I converted the milk",
               "b. I got a small quantity of eggs"
             ],
-            "order": 8
+            "order": 13
           },
           {
             "question": "When your friend borrows money from you, __________.",
@@ -16107,7 +17672,7 @@ export const vocabularyBooks = [
               "a. he owes you a debt",
               "b. he opposes you"
             ],
-            "order": 9
+            "order": 14
           },
           {
             "question": "The man wants to cook noodles. __________.",
@@ -16116,7 +17681,7 @@ export const vocabularyBooks = [
               "a. He will get the ingredients",
               "b. He will insist the water"
             ],
-            "order": 10
+            "order": 15
           },
           {
             "question": "I have enough money. __________.",
@@ -16125,7 +17690,7 @@ export const vocabularyBooks = [
               "a. My fund is too small",
               "b. I can afford to buy the shirt"
             ],
-            "order": 11
+            "order": 16
           },
           {
             "question": "When the oven was hot enough, __________.",
@@ -16134,7 +17699,7 @@ export const vocabularyBooks = [
               "a. it baked the potato",
               "b. it made a mess in the kitchen"
             ],
-            "order": 12
+            "order": 17
           },
           {
             "question": "In case the power goes out, __________.",
@@ -16143,7 +17708,7 @@ export const vocabularyBooks = [
               "a. you should keep candles at home",
               "b. you will be generous"
             ],
-            "order": 13
+            "order": 18
           },
           {
             "question": "When the girl became hungry, __________.",
@@ -16152,7 +17717,7 @@ export const vocabularyBooks = [
               "a. she became passive and decided to do something about it",
               "b. she cooked some beans"
             ],
-            "order": 14
+            "order": 19
           },
           {
             "question": "My homework was not turned in. __________.",
@@ -16161,7 +17726,7 @@ export const vocabularyBooks = [
               "a. I abused it at home",
               "b. It was all my fault"
             ],
-            "order": 15
+            "order": 20
           }
         ],
         "questions": [
@@ -16223,7 +17788,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Mean Chef",
-          "content": "<p>Once there was a chef, who was mean to his cooks. He was mean to the people who came in to eat. He charged too much for meals. Many people were not able to <strong>afford </strong>the cheapest <strong>bean </strong>dish. When his <strong>metal </strong>oven broke, he did not have it fixed. So everything <strong>baked </strong>in it burned. The only light was from <strong>candles</strong>, and the whole place was a <strong>mess</strong>. Sometimes, he didn’t pay his waiters. Since they had no <strong>funds</strong>, they had many <strong>debts</strong>.</p><p>The chef behaved this way all the time. He <strong>monitored </strong>the cooks and yelled if they did not do things his way.</p><p>One day, the cooks decided that they were tired of the <strong>abuse </strong>and that they would not be <strong>passive </strong>anymore. Everyone <strong>opposed </strong>the chef. At first, they thought about <strong>suing </strong>him. Instead, they tied up the chef with rope. Now, they controlled the restaurant! They <strong>decreased </strong>the price of food. They used the best <strong>ingredients </strong>and made large <strong>quantities </strong>of food. They turned on the lights. The restaurant was <strong>converted </strong>into a happy place. For the first time, many people came to eat.</p><p>The chef realized that the restaurant’s problems were his <strong>fault</strong>. The chef learned an important foundationVocabLesson. The new, <strong>generous </strong>chef <strong>insisted </strong>on giving the customers a free meal.</p>",
+          "content": "<p>Once there was a chef, who was mean to his cooks. He was mean to the people who came in to eat. He charged too much for meals. Many people were not able to <strong>afford </strong>the cheapest <strong>bean </strong>dish. When his <strong>metal </strong>oven broke, he did not have it fixed. So everything <strong>baked </strong>in it burned. The only light was from <strong>candles</strong>, and the whole place was a <strong>mess</strong>. Sometimes, he didn’t pay his waiters. Since they had no <strong>funds</strong>, they had many <strong>debts</strong>.</p><p>The chef behaved this way all the time. He <strong>monitored </strong>the cooks and yelled if they did not do things his way.</p><p>One day, the cooks decided that they were tired of the <strong>abuse </strong>and that they would not be <strong>passive </strong>anymore. Everyone <strong>opposed </strong>the chef. At first, they thought about <strong>suing </strong>him. Instead, they tied up the chef with rope. Now, they controlled the restaurant! They <strong>decreased </strong>the price of food. They used the best <strong>ingredients </strong>and made large <strong>quantities </strong>of food. They turned on the lights. The restaurant was <strong>converted </strong>into a happy place. For the first time, many people came to eat.</p><p>The chef realized that the restaurant’s problems were his <strong>fault</strong>. The chef learned an important lesson. The new, <strong>generous </strong>chef <strong>insisted </strong>on giving the customers a free meal.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-2/data/unit-12-the-mean-chef/reading/25352.jpg"
         }
       },
@@ -16542,6 +18107,51 @@ export const vocabularyBooks = [
               "being happy with yourself"
             ],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. I should quit eating candy because it is bad for me.",
+            "options": [
+              "a. I should quit eating candy because it is bad for me.",
+              "b. The tiny tower stretched to the sky."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I will need water if I’m going to hike the long trail.",
+            "options": [
+              "a. We ran far above the mountain peak.",
+              "b. I will need water if I’m going to hike the long trail."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The tiny ant crawled in under the door.",
+            "options": [
+              "a. If I want to get better at sports, I should quit playing.",
+              "b. The tiny ant crawled in under the door."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The clouds look like they can touch the mountain peaks.",
+            "options": [
+              "a. The clouds look like they can touch the mountain peaks.",
+              "b. I have a great deal of pride when I lose a contest."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The boy was filled with pride when he learned how to read.",
+            "options": [
+              "a. The boy was filled with pride when he learned how to read.",
+              "b. I hiked downstairs from my room."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -17683,7 +19293,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "thus",
-            "meaning": "Thus means as a ieltsIntensiveResult or for that reason.",
+            "meaning": "Thus means as a result or for that reason.",
             "ipa": "/ðʌs/",
             "partOfSpeech": "adv",
             "example": "The sun was shining. Thus, I wore my sunglasses.",
@@ -17858,7 +19468,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "bet",
-            "meaning": "To bet is to risk money on the ieltsIntensiveResult of a game or a business.",
+            "meaning": "To bet is to risk money on the result of a game or a business.",
             "ipa": "/bet/",
             "partOfSpeech": "v",
             "example": "How much will you bet that your horse will win?",
@@ -18122,6 +19732,96 @@ export const vocabularyBooks = [
             "answer": "carriage",
             "options": [],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "b. You should go to a mechanic if you have a problem with your car.",
+            "options": [
+              "a. It is a good idea to bet your money on silly things.",
+              "b. You should go to a mechanic if you have a problem with your car."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "b. You should attach a stamp to a letter before you mail it.",
+            "options": [
+              "a. Drivers use signals to make their cars go faster.",
+              "b. You should attach a stamp to a letter before you mail it."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "a. If you and your date differ too much, you might not like each other.",
+            "options": [
+              "a. If you and your date differ too much, you might not like each other.",
+              "b. When you confirm the results of the test, you make them better."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "b. Teachers often criticize lazy students.",
+            "options": [
+              "a. It is O.K. to wear sandals to a formal party.",
+              "b. Teachers often criticize lazy students."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "a. People must pay attention to signals when they are driving.",
+            "options": [
+              "a. People must pay attention to signals when they are driving.",
+              "b. When you visit a mechanic they will sell you a new car."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "a. You should wear nice clothing if you go to a formal event.",
+            "options": [
+              "a. You should wear nice clothing if you go to a formal event.",
+              "b. Good friends like to criticize each other."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "b. If you commute to work, you have to travel a certain distance.",
+            "options": [
+              "a. Husbands and wives who differ are often very busy people.",
+              "b. If you commute to work, you have to travel a certain distance."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "a. It is a good idea to confirm your plans before you travel.",
+            "options": [
+              "a. It is a good idea to confirm your plans before you travel.",
+              "b. If you attach a large sign to your door, no one will see it."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "a. If your aim is to learn how to swim, you must get in the water.",
+            "options": [
+              "a. If your aim is to learn how to swim, you must get in the water.",
+              "b. Everyone commutes in math class."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes the better sense.",
+            "answer": "b. When you bet money, you might lose it.",
+            "options": [
+              "a. People who have an aim to succeed are very lazy.",
+              "b. When you bet money, you might lose it."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -18502,6 +20202,61 @@ export const vocabularyBooks = [
               "things you do well"
             ],
             "order": 10
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "agriculture",
+            "options": [
+              "agriculture",
+              "label",
+              "grain",
+              "odd"
+            ],
+            "order": 11
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "monk",
+            "options": [
+              "diary",
+              "abilities",
+              "monk",
+              "priest"
+            ],
+            "order": 12
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "curious",
+            "options": [
+              "faith",
+              "curious",
+              "investigate",
+              "greet"
+            ],
+            "order": 13
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "delay",
+            "options": [
+              "delay",
+              "ceiling",
+              "joy",
+              "pause"
+            ],
+            "order": 14
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "curious",
+            "options": [
+              "greet",
+              "curious",
+              "profession",
+              "odd"
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -18860,7 +20615,7 @@ export const vocabularyBooks = [
             "answer": "a. the teacher kindly asked for us to stop talking",
             "options": [
               "a. the teacher kindly asked for us to stop talking",
-              "b. the teacher exclaimed the foundationVocabLesson"
+              "b. the teacher exclaimed the lesson"
             ],
             "order": 9
           },
@@ -19202,6 +20957,51 @@ export const vocabularyBooks = [
             "answer": "rent",
             "options": [],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Learning Spanish was a gradual process for me.",
+            "options": [
+              "a. Learning Spanish was a gradual process for me.",
+              "b. The boy retired his mother."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The bottle fell and broke in an instant.",
+            "options": [
+              "a. The bottle fell and broke in an instant.",
+              "b. I accomplish sleeping before I go to bed."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The old man retired from his job.",
+            "options": [
+              "a. Four is the approximate number of forty.",
+              "b. The old man retired from his job."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. It is not always easy to accomplish hard goals.",
+            "options": [
+              "a. It is not always easy to accomplish hard goals.",
+              "b. The race car won by going at a gradual speed."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. His approximate height is two meters.",
+            "options": [
+              "a. Peanuts are an instant to grow and eat.",
+              "b. His approximate height is two meters."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -19962,6 +21762,96 @@ export const vocabularyBooks = [
               "qualify"
             ],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Be careful not to slip on the ice.",
+            "options": [
+              "a. Be careful not to slip on the ice.",
+              "b. I hope my yard is ready to eat."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The man robbed the store of over 200 dollars.",
+            "options": [
+              "a. I made a cake with my stable.",
+              "b. The man robbed the store of over 200 dollars."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The boy carried sand in his bucket.",
+            "options": [
+              "a. The boy carried sand in his bucket.",
+              "b. He used the contest to clean the floor."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The award for winning the game is a new toy.",
+            "options": [
+              "a. The award for winning the game is a new toy.",
+              "b. The boy pulled the car apart by washing it."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. An alarm sounds to warn us of a fire.",
+            "options": [
+              "a. The mother arrested dinner for her family.",
+              "b. An alarm sounds to warn us of a fire."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The stable tree did not fall in the wind.",
+            "options": [
+              "a. The stable tree did not fall in the wind.",
+              "b. She slipped the table after dinner."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. My dog likes to play in the yard.",
+            "options": [
+              "a. My dog likes to play in the yard.",
+              "b. The man was upset after he robbed himself."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I won the contest because I was the fastest runner.",
+            "options": [
+              "a. I fell down and got hurt as an award.",
+              "b. I won the contest because I was the fastest runner."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. China and Mexico are far apart.",
+            "options": [
+              "a. China and Mexico are far apart.",
+              "b. The alarm washed away the dirt."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. If you steal, the police will arrest you.",
+            "options": [
+              "a. The bucket wrote down every word.",
+              "b. If you steal, the police will arrest you."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -21077,6 +22967,96 @@ export const vocabularyBooks = [
               "fence"
             ],
             "order": 5
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I keep all of my money in my wallet.",
+            "options": [
+              "a. My beans yelled when I dropped them.",
+              "b. I keep all of my money in my wallet."
+            ],
+            "order": 6
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The fence around the house needed to be painted.",
+            "options": [
+              "a. The rude boy always said “please” and “thank you.”",
+              "b. The fence around the house needed to be painted."
+            ],
+            "order": 7
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The criminal was sent to jail.",
+            "options": [
+              "a. The criminal was sent to jail.",
+              "b. I can admit to a race because I am fast."
+            ],
+            "order": 8
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The man built a cabin in the forest.",
+            "options": [
+              "a. The man built a cabin in the forest.",
+              "b. The cash tasted good tonight."
+            ],
+            "order": 9
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The coach kept the footballs in a large bin.",
+            "options": [
+              "a. The penalty for your birthday is a big cake.",
+              "b. The coach kept the footballs in a large bin."
+            ],
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. We were nice to the rude man, but he was mean to us.",
+            "options": [
+              "a. We were nice to the rude man, but he was mean to us.",
+              "b. The wallet made his dinner taste better."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. It was loud at the party, so he had to yell for me to hear him.",
+            "options": [
+              "a. The strong fence let all of the sheep go into the field.",
+              "b. It was loud at the party, so he had to yell for me to hear him."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. When he does something wrong, he always admits it.",
+            "options": [
+              "a. When he does something wrong, he always admits it.",
+              "b.The mean cabin told the boy to go away."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. If you cheat during the game, there will be a penalty.",
+            "options": [
+              "a. If you cheat during the game, there will be a penalty.",
+              "b. Criminals are always nice to people."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I do not have enough cash to buy a car.",
+            "options": [
+              "a. She liked to bin her toys.",
+              "b. I do not have enough cash to buy a car."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -21468,7 +23448,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Two Captains",
-          "content": "<p>Once there were two ships. Both ships carried <strong>cotton</strong>. The captains were very different. Thomas was <strong>strict</strong>. He made his crew <strong>engage </strong>in difficult <strong>tasks</strong>. “Make sure the ship’s deck is <strong>firm </strong>and that nothing falls! Put more <strong>fuel </strong>in the tank!” he said. His ship was very <strong>plain</strong>, but he never had a problem with it.</p><p>The second captain, William, was not serious. He had a <strong>grand </strong>ship, and he loved having fun. His crew <strong>amused </strong>him by singing and dancing. But his crew never fixed anything on the ship. They just wanted to <strong>surf</strong>.</p><p>One day, Thomas saw a <strong>hurricane </strong>ahead. He knew that his ship needed to turn around. But he was sure William did not see the storm. He <strong>adjusted </strong>the dials on the radio and called his friend. Thomas said, “You’ll hit the <strong>reef</strong>. It’s made completely of <strong>coral</strong>. Turn around to ensure that you do not <strong>crash</strong>.”</p><p>William said, “We will go under the <strong>deck </strong>and <strong>shut </strong>the door. We will dance and sing until we are past the danger <strong>zone</strong>.”</p><p>When William’s ship got to the hurricane, the wind blew it into the reef. The ship crashed, and water flowed below the deck. William’s crew <strong>accused </strong>him of being a bad captain. The <strong>loss </strong>of the ship taught William a foundationVocabLesson. There are times to have fun, but there are also times to be serious.</p>",
+          "content": "<p>Once there were two ships. Both ships carried <strong>cotton</strong>. The captains were very different. Thomas was <strong>strict</strong>. He made his crew <strong>engage </strong>in difficult <strong>tasks</strong>. “Make sure the ship’s deck is <strong>firm </strong>and that nothing falls! Put more <strong>fuel </strong>in the tank!” he said. His ship was very <strong>plain</strong>, but he never had a problem with it.</p><p>The second captain, William, was not serious. He had a <strong>grand </strong>ship, and he loved having fun. His crew <strong>amused </strong>him by singing and dancing. But his crew never fixed anything on the ship. They just wanted to <strong>surf</strong>.</p><p>One day, Thomas saw a <strong>hurricane </strong>ahead. He knew that his ship needed to turn around. But he was sure William did not see the storm. He <strong>adjusted </strong>the dials on the radio and called his friend. Thomas said, “You’ll hit the <strong>reef</strong>. It’s made completely of <strong>coral</strong>. Turn around to ensure that you do not <strong>crash</strong>.”</p><p>William said, “We will go under the <strong>deck </strong>and <strong>shut </strong>the door. We will dance and sing until we are past the danger <strong>zone</strong>.”</p><p>When William’s ship got to the hurricane, the wind blew it into the reef. The ship crashed, and water flowed below the deck. William’s crew <strong>accused </strong>him of being a bad captain. The <strong>loss </strong>of the ship taught William a lesson. There are times to have fun, but there are also times to be serious.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-2/data/unit-26-the-two-captains/reading/25767.jpg"
         }
       },
@@ -22177,6 +24157,96 @@ export const vocabularyBooks = [
               "the air you take in"
             ],
             "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. It’s raining so much that it’s a virtual flood.",
+            "options": [
+              "a. It is easy to seed your dinner.",
+              "b. It’s raining so much that it’s a virtual flood."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. I don’t care what sort of food I eat.",
+            "options": [
+              "a. The boy whispered as loudly as he could.",
+              "b. I don’t care what sort of food I eat."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Will you accompany me to the party?",
+            "options": [
+              "a. Will you accompany me to the party?",
+              "b. The dog made a branch to catch the ball."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The door was bare when we took the paint off of it.",
+            "options": [
+              "a. The door was bare when we took the paint off of it.",
+              "b. She put the net inside the fish."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The man dared to leap over the big fire.",
+            "options": [
+              "a. The man dared to leap over the big fire.",
+              "b. It is important to weigh your math tests."
+            ],
+            "order": 15
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. When I tell a secret, I whisper so no one else will hear.",
+            "options": [
+              "a. The virtual in my house was dirty.",
+              "b. When I tell a secret, I whisper so no one else will hear."
+            ],
+            "order": 16
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. You should save the seed so you can grow another plant.",
+            "options": [
+              "a. You should save the seed so you can grow another plant.",
+              "b. Sort your hands before dinner."
+            ],
+            "order": 17
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. The fish could not get out of the net.",
+            "options": [
+              "a. The boy was accompanied alone to school.",
+              "b. The fish could not get out of the net."
+            ],
+            "order": 18
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. The bird built a nest on the highest branch.",
+            "options": [
+              "a. The bird built a nest on the highest branch.",
+              "b. I dare my bed before going to sleep."
+            ],
+            "order": 19
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. You can weigh yourself to see if your diet is working.",
+            "options": [
+              "a. The bare tree was covered in leaves and bark.",
+              "b. You can weigh yourself to see if your diet is working."
+            ],
+            "order": 20
           }
         ],
         "questions": [
@@ -22298,7 +24368,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "deserve",
-            "meaning": "To deserve is to be worthy of something as a ieltsIntensiveResult of one’s actions.",
+            "meaning": "To deserve is to be worthy of something as a result of one’s actions.",
             "ipa": "/dɪˈzəːrv/",
             "partOfSpeech": "v",
             "example": "The dog deserved a bone for behaving very well.",
@@ -22477,6 +24547,96 @@ export const vocabularyBooks = [
             "answer": "obtain",
             "options": [],
             "order": 5
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. In the past three years, the city has had two floods.",
+            "options": [
+              "a. Many people wear a shell before going out into the rain.",
+              "b. In the past three years, the city has had two floods."
+            ],
+            "order": 6
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Nowadays, many students like using the Internet to do research.",
+            "options": [
+              "a. Nowadays, many students like using the Internet to do research.",
+              "b. Many groups have annual meetings every month."
+            ],
+            "order": 7
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. You cannot ride a bicycle if it doesn’t have wheels.",
+            "options": [
+              "a. Some dogs have interesting feathers.",
+              "b. You cannot ride a bicycle if it doesn’t have wheels."
+            ],
+            "order": 8
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. Birds use their feathers to help them fly.",
+            "options": [
+              "a. Churches don’t let people read religious books.",
+              "b. Birds use their feathers to help them fly."
+            ],
+            "order": 9
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. Many people enjoy watching romantic movies.",
+            "options": [
+              "a. Many people enjoy watching romantic movies.",
+              "b. If you get good grades, you don’t deserve to graduate."
+            ],
+            "order": 10
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. A crab is an example of an animal that has a shell.",
+            "options": [
+              "a. A crab is an example of an animal that has a shell.",
+              "b. People never go fishing near the shore."
+            ],
+            "order": 11
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. People who do bad things deserve to be punished.",
+            "options": [
+              "a. People who do bad things deserve to be punished.",
+              "b. Mountains and hills are examples of floods."
+            ],
+            "order": 12
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. People who are religious go to church.",
+            "options": [
+              "a. Horses are more common than cars nowadays.",
+              "b. People who are religious go to church."
+            ],
+            "order": 13
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "b. There are beaches along the shore of some oceans and lakes.",
+            "options": [
+              "a. If you are romantic, you probably don’t like movies about love.",
+              "b. There are beaches along the shore of some oceans and lakes."
+            ],
+            "order": 14
+          },
+          {
+            "question": "Check (V) the sentence with the bolded word that makes better sense.",
+            "answer": "a. You should see your doctor once a year for an annual checkup.",
+            "options": [
+              "a. You should see your doctor once a year for an annual checkup.",
+              "b. The wind makes the wheels of a car turn."
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -23773,6 +25933,61 @@ export const vocabularyBooks = [
               "less excited"
             ],
             "order": 10
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "lodge",
+            "options": [
+              "discourage",
+              "lodge",
+              "venture",
+              "hut"
+            ],
+            "order": 11
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "shepherd",
+            "options": [
+              "shepherd",
+              "caretaker",
+              "repay",
+              "wheat"
+            ],
+            "order": 12
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "fake",
+            "options": [
+              "offense",
+              "fake",
+              "hatred",
+              "deceive"
+            ],
+            "order": 13
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "awkward",
+            "options": [
+              "acquire",
+              "awkward",
+              "newcomer",
+              "ridiculous"
+            ],
+            "order": 14
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "overlook",
+            "options": [
+              "overlook",
+              "inferior",
+              "neglect",
+              "satisfactory"
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -23890,7 +26105,7 @@ export const vocabularyBooks = [
             "meaning": "Disgrace is a feeling of shame.",
             "ipa": "/dɪsˈgreɪs/",
             "partOfSpeech": "n",
-            "example": "He felt a sense of disgrace after failing his big ieltsIntensiveExam.",
+            "example": "He felt a sense of disgrace after failing his big exam.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-3/wordlist/26008.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-3/wordlist/26008.mp3",
             "order": 6
@@ -23970,7 +26185,7 @@ export const vocabularyBooks = [
             "meaning": "To persist means to keep doing something even when it is hard.",
             "ipa": "/pə:rsɪst/",
             "partOfSpeech": "v",
-            "example": "Even though the foundationVocabLesson was difficult, he persisted until he understood.",
+            "example": "Even though the lesson was difficult, he persisted until he understood.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-3/wordlist/26016.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-3/wordlist/26016.mp3",
             "order": 14
@@ -28842,7 +31057,63 @@ export const vocabularyBooks = [
             "order": 20
           }
         ],
-        "exercises": [],
+        "exercises": [
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "nut",
+            "options": [
+              "theft",
+              "nut",
+              "cereal",
+              "routine"
+            ],
+            "order": 1
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "roast",
+            "options": [
+              "roast",
+              "pharaoh",
+              "stove",
+              "pardon"
+            ],
+            "order": 2
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "assembly",
+            "options": [
+              "assembly",
+              "affair",
+              "bless",
+              "exploit"
+            ],
+            "order": 3
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "merry",
+            "options": [
+              "exploit",
+              "famine",
+              "merry",
+              "cheerful"
+            ],
+            "order": 4
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "ripe",
+            "options": [
+              "scheme",
+              "slim",
+              "ripe",
+              "harvest"
+            ],
+            "order": 5
+          }
+        ],
         "questions": [
           {
             "question": "The pharaoh gave a party for all the animals because _______.",
@@ -28900,7 +31171,7 @@ export const vocabularyBooks = [
         }
       },
       {
-        "title": "Matthew Learns a FoundationVocabLesson",
+        "title": "Matthew Learns a Lesson",
         "order": 16,
         "words": [
           {
@@ -29258,7 +31529,7 @@ export const vocabularyBooks = [
             "type": "multiple_choice",
             "options": [
               "He complimented the jury.",
-              "He persuaded the jury he had learned his foundationVocabLesson.",
+              "He persuaded the jury he had learned his lesson.",
               "He picked up trash as a punishment.",
               "He hindered the jury from making a decision."
             ],
@@ -29267,9 +31538,9 @@ export const vocabularyBooks = [
           }
         ],
         "story": {
-          "title": "Matthew Learns a FoundationVocabLesson",
+          "title": "Matthew Learns a Lesson",
           "content": "<p>Matthew was a <strong>sensible </strong>boy. He always kept his room <strong>tidy </strong>and had a natural <strong>literary</strong> <strong>aptitude</strong>. One day, he hoped to have a career in <strong>journalism</strong>. The <strong>adolescent </strong>spent much of his time reading and liked having privacy. But his quiet personality <strong>hindered </strong>his ability to make friends.</p><p>One day, Matthew went to the <strong>pharmacy </strong>to pick up some <strong>pills </strong>for his grandmother. He saw some boys leaning against a pole outside. One of the boys <strong>complimented </strong>Matthew. “ I like your jacket.”</p><p>Another boy asked, “ Do you want to go to Nate’s Restaurant?”</p><p>“ Sure!” Matthew said.</p><p>The boys walked to the restaurant. They were going to have <strong>slices </strong>of pizza. They ordered their food and drank soda with <strong>straws</strong>. They ate until their bellies <strong>swelled </strong>up. Matthew was having so much fun.</p><p>One of the boys said, “ Let’s leave without paying.”</p><p>Matthew didn’t want to. But he <strong>presumed </strong>his new friends wouldn’t like him if he didn’t.</p><p>Suddenly, the waiter yelled, “ Stop!” The two other boys ran, leaving Matthew there alone.</p><p>Soon, the police arrived. “ Leaving without paying for your meal is the same as stealing,” said the police officer. “ The restaurant wants <strong>justice</strong>. So next week you have to go to court and let a <strong>jury </strong>decide your punishment.”</p><p>When he went to court, the judge asked, “ Do you have anything to say, Matthew?”</p><p>He said, “ I feel <strong>sorrow </strong>for what I’ve done. Now I know that real friends won’t ask you to do something illegal.”</p><p>The jury then let him have his <strong>liberty</strong>. But they made Matthew pick up trash as <strong>punishment</strong>.</p><p>Much to Matthew’s surprise, he ended up meeting some new friends.</p>",
-          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-16-matthew-learns-a-foundationVocabLesson/reading/26426.jpg"
+          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-16-matthew-learns-a-lesson/reading/26426.jpg"
         }
       },
       {
@@ -29905,6 +32176,61 @@ export const vocabularyBooks = [
               "a group attack"
             ],
             "order": 10
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "withdraw",
+            "options": [
+              "withdraw",
+              "armor",
+              "steep",
+              "retreat"
+            ],
+            "order": 11
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "blaze",
+            "options": [
+              "blaze",
+              "flame",
+              "summit",
+              "independence"
+            ],
+            "order": 12
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "rebel",
+            "options": [
+              "cliff",
+              "spear",
+              "rebel",
+              "revolution"
+            ],
+            "order": 13
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "knight",
+            "options": [
+              "yield",
+              "knight",
+              "warrior",
+              "boom"
+            ],
+            "order": 14
+          },
+          {
+            "question": "Circle two words that are related in each group.",
+            "answer": "thunder",
+            "options": [
+              "thunder",
+              "troop",
+              "lightning",
+              "steep"
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -30815,7 +33141,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "Little Wolf and Mother Wolf",
-          "content": "<p>Mother Wolf was a <strong>magnificent </strong>animal. She had all the <strong>traits </strong>of a <strong>terrific </strong>hunter. She was very strong and fast. She knew how to hide and how to <strong>seize </strong>prey. Mother Wolf was the forest’s <strong>supreme </strong>creature. Her skills were <strong>evident </strong>to all the other animals.</p><p>Mother Wolf lived in a den <strong>beneath </strong>a tree with her <strong>cub</strong>, Little Wolf. At <strong>dawn</strong>, Little Wolf and Mother Wolf were eating breakfast. Little Wolf looked sad. Mother Wolf said, “ What is wrong, my cub?”</p><p>Little Wolf said, “ I want to be big like you. You can run and <strong>leap </strong>better than anyone. You can <strong>howl </strong>so loudly. Being big is a <strong>necessity</strong>, and I am so small.”</p><p>Mother Wolf said, “ Don’t be <strong>dissatisfied </strong>with your size. Being small can be very helpful sometimes.”</p><p>Just then, rain and <strong>hail </strong>began to fall. The tree was hit by lightning. It fell on the wolves’ den. Little Wolf was scared. The wolves knew that escaping the den was <strong>vital</strong>. Mother Wolf said, “ Little Wolf, I cannot move the heavy <strong>pile </strong>of branches. But you can escape with <strong>ease</strong>. You can get out and find help!”</p><p>Little Wolf crawled out of the den and called all the large animals for help. They went to the den and pulled away the branches. Mother Wolf came out and said, “ Thank you Little Wolf! You saved my life!” She softly <strong>squeezed </strong>Little Wolf and kissed her.</p><p>Little Wolf smiled. She said, “ Mother, this <strong>outcome </strong>has taught me a <strong>profound </strong>foundationVocabLesson. Even though I’m small, I’m still important.”</p>",
+          "content": "<p>Mother Wolf was a <strong>magnificent </strong>animal. She had all the <strong>traits </strong>of a <strong>terrific </strong>hunter. She was very strong and fast. She knew how to hide and how to <strong>seize </strong>prey. Mother Wolf was the forest’s <strong>supreme </strong>creature. Her skills were <strong>evident </strong>to all the other animals.</p><p>Mother Wolf lived in a den <strong>beneath </strong>a tree with her <strong>cub</strong>, Little Wolf. At <strong>dawn</strong>, Little Wolf and Mother Wolf were eating breakfast. Little Wolf looked sad. Mother Wolf said, “ What is wrong, my cub?”</p><p>Little Wolf said, “ I want to be big like you. You can run and <strong>leap </strong>better than anyone. You can <strong>howl </strong>so loudly. Being big is a <strong>necessity</strong>, and I am so small.”</p><p>Mother Wolf said, “ Don’t be <strong>dissatisfied </strong>with your size. Being small can be very helpful sometimes.”</p><p>Just then, rain and <strong>hail </strong>began to fall. The tree was hit by lightning. It fell on the wolves’ den. Little Wolf was scared. The wolves knew that escaping the den was <strong>vital</strong>. Mother Wolf said, “ Little Wolf, I cannot move the heavy <strong>pile </strong>of branches. But you can escape with <strong>ease</strong>. You can get out and find help!”</p><p>Little Wolf crawled out of the den and called all the large animals for help. They went to the den and pulled away the branches. Mother Wolf came out and said, “ Thank you Little Wolf! You saved my life!” She softly <strong>squeezed </strong>Little Wolf and kissed her.</p><p>Little Wolf smiled. She said, “ Mother, this <strong>outcome </strong>has taught me a <strong>profound </strong>lesson. Even though I’m small, I’m still important.”</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-20-little-wolf-and-mother-wolf/reading/26542.jpg"
         }
       },
@@ -30895,10 +33221,10 @@ export const vocabularyBooks = [
           },
           {
             "word": "fable",
-            "meaning": "A fable is a short story that teaches a foundationVocabLesson.",
+            "meaning": "A fable is a short story that teaches a lesson.",
             "ipa": "/ˈfeibəl/",
             "partOfSpeech": "n",
-            "example": "In the fable about the tortoise and the hare, the foundationVocabLesson is consistency.",
+            "example": "In the fable about the tortoise and the hare, the lesson is consistency.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-21/wordlist/26554.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-21/wordlist/26554.mp3",
             "order": 8
@@ -31879,7 +34205,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "Lazy Hans",
-          "content": "<p>Hans was lazy. He <strong>seldom </strong>helped his mother with anything. He didn’t cook and he never <strong>mowed </strong>the <strong>lawn</strong>. He didn’t even <strong>shave</strong>! He spent the <strong>daytime</strong> <strong>gambling </strong>with his mother’s money. One day, his mother realized that her money was gone from her <strong>purse</strong>. “You’re <strong>banned </strong>from my house!” she shouted. “ Don’t come back until you’ve learned your foundationVocabLesson!”</p><p>Hans went to live in the forest like an <strong>outlaw</strong>. But it was cold, and Hans couldn’t find food. He went to a <strong>cottage </strong>to ask for a meal.</p><p>An <strong>Aborigine </strong>answered the door. “ Can I stay here please?” Hans asked.</p><p>“You can stay if you work,” the man replied.</p><p>Hans liked the <strong>prospect </strong>of food and warmth, so he agreed.</p><p>The man pointed to a field. “ Take this <strong>rod </strong>and plant it over there. I am a <strong>wizard</strong>, and this magic rod will bring us food.”</p><p>The field was far away. Hans knew it would be hard to walk there. So he just threw the rod behind the cottage and sat by the river. When daylight <strong>faded</strong>, he returned to the cottage and went to sleep.</p><p>The next morning, the old man looked very <strong>fierce</strong>. “ You didn’t take the rod to the field!” he shouted.</p><p>“ No,” <strong>confessed </strong>Hans, “ it was too far!”</p><p>“ Because of you we have nothing to eat!” replied the man.</p><p>Hans was <strong>terrified </strong>that the man would punish him. So he ran home. “ Mama!” he cried, “ I’m <strong>desperate </strong>to come back!” His mother was <strong>cautious</strong>.</p><p>“ Do you promise to work?” she asked.</p><p>“ Yes!” said Hans, “ I’ll never be lazy again!”</p>",
+          "content": "<p>Hans was lazy. He <strong>seldom </strong>helped his mother with anything. He didn’t cook and he never <strong>mowed </strong>the <strong>lawn</strong>. He didn’t even <strong>shave</strong>! He spent the <strong>daytime</strong> <strong>gambling </strong>with his mother’s money. One day, his mother realized that her money was gone from her <strong>purse</strong>. “You’re <strong>banned </strong>from my house!” she shouted. “ Don’t come back until you’ve learned your lesson!”</p><p>Hans went to live in the forest like an <strong>outlaw</strong>. But it was cold, and Hans couldn’t find food. He went to a <strong>cottage </strong>to ask for a meal.</p><p>An <strong>Aborigine </strong>answered the door. “ Can I stay here please?” Hans asked.</p><p>“You can stay if you work,” the man replied.</p><p>Hans liked the <strong>prospect </strong>of food and warmth, so he agreed.</p><p>The man pointed to a field. “ Take this <strong>rod </strong>and plant it over there. I am a <strong>wizard</strong>, and this magic rod will bring us food.”</p><p>The field was far away. Hans knew it would be hard to walk there. So he just threw the rod behind the cottage and sat by the river. When daylight <strong>faded</strong>, he returned to the cottage and went to sleep.</p><p>The next morning, the old man looked very <strong>fierce</strong>. “ You didn’t take the rod to the field!” he shouted.</p><p>“ No,” <strong>confessed </strong>Hans, “ it was too far!”</p><p>“ Because of you we have nothing to eat!” replied the man.</p><p>Hans was <strong>terrified </strong>that the man would punish him. So he ran home. “ Mama!” he cried, “ I’m <strong>desperate </strong>to come back!” His mother was <strong>cautious</strong>.</p><p>“ Do you promise to work?” she asked.</p><p>“ Yes!” said Hans, “ I’ll never be lazy again!”</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-23-lazy-hans/reading/26627.jpg"
         }
       },
@@ -32432,7 +34758,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "tremble",
-            "meaning": "To tremble is to shake as a ieltsIntensiveResult of cold weather.",
+            "meaning": "To tremble is to shake as a result of cold weather.",
             "ipa": "/ˈtrembəl/",
             "partOfSpeech": "v",
             "example": "Harry was not used to the cold, so he trembled most of the day.",
@@ -32571,6 +34897,61 @@ export const vocabularyBooks = [
               "a line of light"
             ],
             "order": 10
+          },
+          {
+            "question": "Circle two words in each group that are related.",
+            "answer": "tremble",
+            "options": [
+              "tremble",
+              "circulate",
+              "ray",
+              "frost"
+            ],
+            "order": 11
+          },
+          {
+            "question": "Circle two words in each group that are related.",
+            "answer": "marine",
+            "options": [
+              "dynasty",
+              "marine",
+              "navy",
+              "merit"
+            ],
+            "order": 12
+          },
+          {
+            "question": "Circle two words in each group that are related.",
+            "answer": "lieutenant",
+            "options": [
+              "lieutenant",
+              "derive",
+              "polar",
+              "invade"
+            ],
+            "order": 13
+          },
+          {
+            "question": "Circle two words in each group that are related.",
+            "answer": "consequent",
+            "options": [
+              "consequent",
+              "underlying",
+              "fraction",
+              "resign"
+            ],
+            "order": 14
+          },
+          {
+            "question": "Circle two words in each group that are related.",
+            "answer": "suicide",
+            "options": [
+              "illusion",
+              "suicide",
+              "via",
+              "drown"
+            ],
+            "order": 15
           }
         ],
         "questions": [
@@ -32625,7 +35006,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "How Did Greenland Get Its Name?",
-          "content": "<p>The nation of Greenland isn’t very green. The sun’s <strong>rays </strong>don’t shine there for three whole months. As a ieltsIntensiveResult, it’s covered with snow, ice and <strong>frost</strong>. Then how was the name <strong>derived</strong>? It started with a Viking named Erik the Red. Erik had many <strong>merits</strong>. However, there was an <strong>underlying</strong> problem . . . he got angry easily. People were scared of him. However, he was married to the niece of a very powerful man. So everybody tried to be nice to him.</p><p>One day, Erik fought with his neighbor and killed him. His <strong>consequent </strong>punishment was to leave Iceland.</p><p>Many stories <strong>circulated </strong>about a land west of Iceland. But only a <strong>fraction </strong>of the people in Iceland believed them. Still, Erik wanted to find it.</p><p>Erik sailed toward the land <strong>via </strong>the Atlantic Ocean. His <strong>marine </strong>knowledge was good, but the trip was hard. Some of his men <strong>drowned</strong>. Erik’s <strong>lieutenant </strong>wanted to <strong>resign </strong>from his position. Others thought about committing <strong>suicide</strong>.</p><p>Suddenly, Erik thought he saw something. “ I don’t believe it,” said Erik. “ It must be an <strong>illusion</strong>.” But it was no trick—it was the new land!</p><p>Erik <strong>trembled </strong>in the cold <strong>polar </strong>air. He saw that there was ice everywhere. He realized that the ice could keep enemies out. Not even the best <strong>navy </strong>could <strong>invade </strong>the new land. He could start a new <strong>dynasty </strong>in his name. But how could he convince people to live here?</p><p>“ I’ll call it ‘Greenland,’” he said. Erik’s plan worked Within two years, over a thousand people moved to Greenland. In the end, Greenland got its name all because of a trick.</p>",
+          "content": "<p>The nation of Greenland isn’t very green. The sun’s <strong>rays </strong>don’t shine there for three whole months. As a result, it’s covered with snow, ice and <strong>frost</strong>. Then how was the name <strong>derived</strong>? It started with a Viking named Erik the Red. Erik had many <strong>merits</strong>. However, there was an <strong>underlying</strong> problem . . . he got angry easily. People were scared of him. However, he was married to the niece of a very powerful man. So everybody tried to be nice to him.</p><p>One day, Erik fought with his neighbor and killed him. His <strong>consequent </strong>punishment was to leave Iceland.</p><p>Many stories <strong>circulated </strong>about a land west of Iceland. But only a <strong>fraction </strong>of the people in Iceland believed them. Still, Erik wanted to find it.</p><p>Erik sailed toward the land <strong>via </strong>the Atlantic Ocean. His <strong>marine </strong>knowledge was good, but the trip was hard. Some of his men <strong>drowned</strong>. Erik’s <strong>lieutenant </strong>wanted to <strong>resign </strong>from his position. Others thought about committing <strong>suicide</strong>.</p><p>Suddenly, Erik thought he saw something. “ I don’t believe it,” said Erik. “ It must be an <strong>illusion</strong>.” But it was no trick—it was the new land!</p><p>Erik <strong>trembled </strong>in the cold <strong>polar </strong>air. He saw that there was ice everywhere. He realized that the ice could keep enemies out. Not even the best <strong>navy </strong>could <strong>invade </strong>the new land. He could start a new <strong>dynasty </strong>in his name. But how could he convince people to live here?</p><p>“ I’ll call it ‘Greenland,’” he said. Erik’s plan worked Within two years, over a thousand people moved to Greenland. In the end, Greenland got its name all because of a trick.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-3/data/unit-25-how-did-greenland-get-its-name/reading/26684.jpg"
         }
       },
@@ -32834,7 +35215,63 @@ export const vocabularyBooks = [
             "order": 20
           }
         ],
-        "exercises": [],
+        "exercises": [
+          {
+            "question": "Circle two words that are related in the group.",
+            "answer": "collapse",
+            "options": [
+              "collapse",
+              "alter",
+              "wire",
+              "crush"
+            ],
+            "order": 1
+          },
+          {
+            "question": "Circle two words that are related in the group.",
+            "answer": "envy",
+            "options": [
+              "disgusting",
+              "envy",
+              "jealous",
+              "wipe"
+            ],
+            "order": 2
+          },
+          {
+            "question": "Circle two words that are related in the group.",
+            "answer": "ginger",
+            "options": [
+              "ginger",
+              "autumn",
+              "receipt",
+              "flour"
+            ],
+            "order": 3
+          },
+          {
+            "question": "Circle two words that are related in the group.",
+            "answer": "fuse",
+            "options": [
+              "fuse",
+              "curve",
+              "fireworks",
+              "drain"
+            ],
+            "order": 4
+          },
+          {
+            "question": "Circle two words that are related in the group.",
+            "answer": "paste",
+            "options": [
+              "aside",
+              "paste",
+              "blend",
+              "embrace"
+            ],
+            "order": 5
+          }
+        ],
         "questions": [
           {
             "question": "All of the following happened when the brothers tried to cook EXCEPT ______.",
@@ -35634,7 +38071,7 @@ export const vocabularyBooks = [
             "question": "Why did Fox moan and weep?",
             "type": "multiple_choice",
             "options": [
-              "The animals taught him a foundationVocabLesson.",
+              "The animals taught him a lesson.",
               "He saw Eagle in her roost.",
               "He felt trivial.",
               "He felt utterly helpless."
@@ -35657,7 +38094,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Tricky Fox",
-          "content": "<p>There was a fox that lived in the forest. Fox loved to play mean tricks on the other animals. One day, he used the sharp <strong>rim </strong>of a bottle to dig a <strong>pit </strong>in the ground. He hid in a tree until Rabbit came to the pit’s edge. Then, he jumped out and pushed Rabbit into the pit. Fox laughed and ran away. The angry Rabbit climbed out and told the other animals what happened.</p><p>The others said, “That is <strong>typical </strong>behavior for Fox. He does mean things all the time. Sometimes, he is completely <strong>immoral</strong>. We all <strong>disapprove</strong> of his actions, so we should teach him a foundationVocabLesson. Tomorrow, we’ll push Fox into that pit.”</p><p>The next day, all of the animals hid near the pit and waited for Fox. Fox was <strong>oblivious </strong>to the hidden animals. He walked up to the pit to see if Rabbit was still trapped. Just then, the other animals ran up to Fox and pushed him in. All the animals laughed and cheered, <strong>except </strong>Fox, of course.</p><p>Fox couldn’t get out! The walls of the pit were covered in <strong>damp</strong> <strong>ivy</strong>. It was too <strong>slippery </strong>for him to climb out. He was <strong>utterly </strong>helpless. He <strong>moaned </strong>and began to <strong>weep</strong>.</p><p>At last, he saw Eagle watching him from her <strong>roost</strong>. He yelled, “Eagle, please help me! If I don’t get out of here, I will <strong>perish</strong>!”</p><p>Eagle said, “You may think your tricks are <strong>trivial</strong>, but you hurt others when you do mean things. I’ll help you if you promise to be nice.”</p><p>Fox said, “I promise!”</p><p>Eagle began her <strong>flight </strong>to the bottom of the pit. She picked up Fox with her <strong>beak </strong>and <strong>soared </strong>out of the pit. She dropped Fox safely on the ground.</p><p>Fox thanked Eagle and kept his promise. He was nice to the other animals. The animals even became <strong>fond </strong>of Fox, and the forest was happy place.</p>",
+          "content": "<p>There was a fox that lived in the forest. Fox loved to play mean tricks on the other animals. One day, he used the sharp <strong>rim </strong>of a bottle to dig a <strong>pit </strong>in the ground. He hid in a tree until Rabbit came to the pit’s edge. Then, he jumped out and pushed Rabbit into the pit. Fox laughed and ran away. The angry Rabbit climbed out and told the other animals what happened.</p><p>The others said, “That is <strong>typical </strong>behavior for Fox. He does mean things all the time. Sometimes, he is completely <strong>immoral</strong>. We all <strong>disapprove</strong> of his actions, so we should teach him a lesson. Tomorrow, we’ll push Fox into that pit.”</p><p>The next day, all of the animals hid near the pit and waited for Fox. Fox was <strong>oblivious </strong>to the hidden animals. He walked up to the pit to see if Rabbit was still trapped. Just then, the other animals ran up to Fox and pushed him in. All the animals laughed and cheered, <strong>except </strong>Fox, of course.</p><p>Fox couldn’t get out! The walls of the pit were covered in <strong>damp</strong> <strong>ivy</strong>. It was too <strong>slippery </strong>for him to climb out. He was <strong>utterly </strong>helpless. He <strong>moaned </strong>and began to <strong>weep</strong>.</p><p>At last, he saw Eagle watching him from her <strong>roost</strong>. He yelled, “Eagle, please help me! If I don’t get out of here, I will <strong>perish</strong>!”</p><p>Eagle said, “You may think your tricks are <strong>trivial</strong>, but you hurt others when you do mean things. I’ll help you if you promise to be nice.”</p><p>Fox said, “I promise!”</p><p>Eagle began her <strong>flight </strong>to the bottom of the pit. She picked up Fox with her <strong>beak </strong>and <strong>soared </strong>out of the pit. She dropped Fox safely on the ground.</p><p>Fox thanked Eagle and kept his promise. He was nice to the other animals. The animals even became <strong>fond </strong>of Fox, and the forest was happy place.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-4-the-tricky-fox/reading/27021.jpg"
         }
       },
@@ -35750,7 +38187,7 @@ export const vocabularyBooks = [
             "meaning": "To highlight something means to mark it with a color so that it is easy to see.",
             "ipa": "/ˈhaɪlaɪt/",
             "partOfSpeech": "v",
-            "example": " I read my foundationVocabWord list and highlighted the most difficult words.",
+            "example": " I read my vocabulary list and highlighted the most difficult words.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-5/wordlist/27032.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-5/wordlist/27032.mp3",
             "order": 9
@@ -38419,7 +40856,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Sun and the North Wind",
-          "content": "<p>The Sun and the North Wind were talking to each other in the sky. The North Wind was saying that he was better than everyone else. The Sun listened as the North Wind talked with <strong>enthusiasm </strong>about how powerful he was and how he could push something from one <strong>continent </strong>to another with one breath. He said, “I am the strongest thing in the sky.”</p><p>“Really?” asked the Sun. “How do you know that you are more powerful than the stars, or the rain, or even me?”</p><p>The North Wind laughed with <strong>disrespect</strong>. He yelled, “You? That’s a joke!”</p><p>This hurt the Sun. He was usually <strong>timid </strong>and did not want to cause <strong>conflict</strong>. Today he decided that he should teach the North Wind a foundationVocabLesson.</p><p>In the <strong>meantime</strong>, a man began walking along the <strong>avenue </strong>down on Earth. When the Sun looked down on the <strong>terrain </strong>below, he saw the man. He pointed down to the Earth and said, “Do you see that man walking below? I bet I can get his jacket off of him. Can you?”</p><p>“Of course!” the North Wind replied as he took a deep breath and filled his lungs with air. He used all of his <strong>muscles </strong>in his face and <strong>belly </strong>to <strong>blow</strong> winds at his target in <strong>succession</strong>.</p><p>The <strong>harsh </strong>air <strong>currents </strong>made the man cold. The man pulled his jacket more tightly around him. It did not come off. The Sun decided to <strong>rescue </strong>the man from the <strong>mischief </strong>of the North Wind. He said, “May I try?” Then he sent down sunlight that made the man warm. The man <strong>leaned </strong>against a tree. He took off his jacket and enjoyed the nice weather.</p><p>“You are very powerful,” the Sun said to the North Wind, “but you use <strong>violence </strong>in your <strong>bid </strong>to appear strong. You should think of an <strong>alternative</strong>. The strongest people don’t use force to get what they want.”</p>",
+          "content": "<p>The Sun and the North Wind were talking to each other in the sky. The North Wind was saying that he was better than everyone else. The Sun listened as the North Wind talked with <strong>enthusiasm </strong>about how powerful he was and how he could push something from one <strong>continent </strong>to another with one breath. He said, “I am the strongest thing in the sky.”</p><p>“Really?” asked the Sun. “How do you know that you are more powerful than the stars, or the rain, or even me?”</p><p>The North Wind laughed with <strong>disrespect</strong>. He yelled, “You? That’s a joke!”</p><p>This hurt the Sun. He was usually <strong>timid </strong>and did not want to cause <strong>conflict</strong>. Today he decided that he should teach the North Wind a lesson.</p><p>In the <strong>meantime</strong>, a man began walking along the <strong>avenue </strong>down on Earth. When the Sun looked down on the <strong>terrain </strong>below, he saw the man. He pointed down to the Earth and said, “Do you see that man walking below? I bet I can get his jacket off of him. Can you?”</p><p>“Of course!” the North Wind replied as he took a deep breath and filled his lungs with air. He used all of his <strong>muscles </strong>in his face and <strong>belly </strong>to <strong>blow</strong> winds at his target in <strong>succession</strong>.</p><p>The <strong>harsh </strong>air <strong>currents </strong>made the man cold. The man pulled his jacket more tightly around him. It did not come off. The Sun decided to <strong>rescue </strong>the man from the <strong>mischief </strong>of the North Wind. He said, “May I try?” Then he sent down sunlight that made the man warm. The man <strong>leaned </strong>against a tree. He took off his jacket and enjoyed the nice weather.</p><p>“You are very powerful,” the Sun said to the North Wind, “but you use <strong>violence </strong>in your <strong>bid </strong>to appear strong. You should think of an <strong>alternative</strong>. The strongest people don’t use force to get what they want.”</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-12-the-sun-and-the-north-wind/reading/27233.jpg"
         }
       },
@@ -42419,11 +44856,11 @@ export const vocabularyBooks = [
             "type": "multiple_choice",
             "options": [
               "to make the innkeeper sane",
-              "to teach the innkeeper a foundationVocabLesson",
+              "to teach the innkeeper a lesson",
               "to be a predator",
               "to sell it and make money"
             ],
-            "answer": "to teach the innkeeper a foundationVocabLesson",
+            "answer": "to teach the innkeeper a lesson",
             "order": 2
           },
           {
@@ -42453,7 +44890,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Traveler and the Innkeeper",
-          "content": "<p>A traveler stopped at an inn. He sat and watched people closely, like a <strong>predator</strong>. He heard the old innkeeper talking to a young man in the <strong>core</strong> of the inn.</p><p>“I just need to borrow some money. I swear that I’ll spend it in <strong>moderation</strong>, and my friend will pay you back tomorrow,” the man said. The innkeeper gave his <strong>consent </strong>and pulled out some money.</p><p>The traveler knew that this was a trick. The man was going to leave with the poor innkeeper’s money and never return. He felt <strong>compassion </strong>for the nice innkeeper and did not want him to be tricked. The <strong>cunning </strong>traveler decided to teach the innkeeper a foundationVocabLesson.</p><p>The traveler walked over to the innkeeper and sat down. The innkeeper had started to <strong>grind </strong>coffee beans to make coffee. He made the coffee and handed the traveler a <strong>saucer </strong>and a cup. The two started talking. After a while the traveler yawned and then <strong>growled </strong>like a wolf.</p><p>“Are you not <strong>sane</strong>? I thought I just heard you growl,” said the innkeeper.</p><p>“I did. I am cursed. Every time I yawn three times in a row, I turn into a wolf and attack people.”</p><p>The innkeeper became <strong>tense</strong>. Then the traveler yawned again. As the traveler started to yawn a third time, the innkeeper turned to run outside. As he ran, the traveler <strong>snatched </strong>his coat. The scared innkeeper <strong>staggered </strong>outside and <strong>tumbled </strong>into the street.</p><p>The traveler followed him out because he did not want to <strong>withhold </strong>the truth any longer. He just wanted to <strong>foster </strong>happiness and restore the innkeeper’s emotional <strong>equilibrium</strong>. The innkeeper was <strong>dizzy</strong>, and he <strong>stumbled</strong>. The traveler helped him stand up.</p><p>“That was a trick,” the traveler said as he returned the coat.</p><p>“Oh, good. I <strong>cherish </strong>this coat,” responded the innkeeper.</p><p>“Well, hopefully this will teach you that you shouldn’t believe every story that you hear.”</p>",
+          "content": "<p>A traveler stopped at an inn. He sat and watched people closely, like a <strong>predator</strong>. He heard the old innkeeper talking to a young man in the <strong>core</strong> of the inn.</p><p>“I just need to borrow some money. I swear that I’ll spend it in <strong>moderation</strong>, and my friend will pay you back tomorrow,” the man said. The innkeeper gave his <strong>consent </strong>and pulled out some money.</p><p>The traveler knew that this was a trick. The man was going to leave with the poor innkeeper’s money and never return. He felt <strong>compassion </strong>for the nice innkeeper and did not want him to be tricked. The <strong>cunning </strong>traveler decided to teach the innkeeper a lesson.</p><p>The traveler walked over to the innkeeper and sat down. The innkeeper had started to <strong>grind </strong>coffee beans to make coffee. He made the coffee and handed the traveler a <strong>saucer </strong>and a cup. The two started talking. After a while the traveler yawned and then <strong>growled </strong>like a wolf.</p><p>“Are you not <strong>sane</strong>? I thought I just heard you growl,” said the innkeeper.</p><p>“I did. I am cursed. Every time I yawn three times in a row, I turn into a wolf and attack people.”</p><p>The innkeeper became <strong>tense</strong>. Then the traveler yawned again. As the traveler started to yawn a third time, the innkeeper turned to run outside. As he ran, the traveler <strong>snatched </strong>his coat. The scared innkeeper <strong>staggered </strong>outside and <strong>tumbled </strong>into the street.</p><p>The traveler followed him out because he did not want to <strong>withhold </strong>the truth any longer. He just wanted to <strong>foster </strong>happiness and restore the innkeeper’s emotional <strong>equilibrium</strong>. The innkeeper was <strong>dizzy</strong>, and he <strong>stumbled</strong>. The traveler helped him stand up.</p><p>“That was a trick,” the traveler said as he returned the coat.</p><p>“Oh, good. I <strong>cherish </strong>this coat,” responded the innkeeper.</p><p>“Well, hopefully this will teach you that you shouldn’t believe every story that you hear.”</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-24-the-traveler-and-the-innkeeper/reading/27555.jpg"
         }
       },
@@ -42881,7 +45318,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "Gilbert and the Lizard",
-          "content": "<p>Eliza disliked Australia. Firstly, she’d had to spend twenty uncomfortable hours on an <strong>aircraft </strong>getting here. She wanted to go to the beach, but her husband was a <strong>zoology </strong>professor and wanted to look for some interesting animals. So now she was <strong>traversing </strong>a <strong>swamp </strong>in the midday heat.</p><p>“Let me sit down, Gilbert. I’m not <strong>hardy </strong>like you,” she said, eventually.</p><p>They sat under a tree. There were lots of birds in that <strong>secluded</strong>, <strong>rural </strong>place, and they watched them flying <strong>overhead</strong>.</p><p>Then suddenly Gilbert saw something on a rock. “That’s strange,” said Gilbert. “That looks like a Red Swamp Lizard, but I thought that <strong>species</strong> was <strong>extinct</strong>.” He carefully picked it up. “Yes, it is! I’m going to take it back to the Zoology <strong>Institute</strong>. They will be filled with so much <strong>jealousy</strong> when they see what I have found!”</p><p>“Are you sure we should take it from its home?” asked Eliza.</p><p>“Nonsense, many animals <strong>migrate</strong>. They’re used to changes,” said Gilbert.</p><p>“Hmm, I don’t agree with the <strong>principle </strong>of it,” said Eliza. “It isn’t <strong>ethical</strong>.” But Gilbert was <strong>decisive </strong>and took the lizard back to the hotel in the city. He thought that this find would make him a highly <strong>esteemed</strong> <strong>celebrity </strong>at the Zoology Institute.</p><p>For the next few days, Gilbert fed and <strong>nurtured </strong>the lizard. But the lizard wasn’t happy. It lost its beautiful red color and began to look ordinary. In fact, Gilbert started to wonder whether it was special at all. He went outside and found a common lizard on a piece of <strong>concrete</strong>. When he compared them, they looked exactly alike. The lizard was only red in the swamp!</p><p>Gilbert said to Eliza, “I’m going to return this lizard to the swamp. I’ve learned an important foundationVocabLesson. Home is where we are happiest. At home, we are special like the red lizard. We can never be so happy when we are away.”</p><p>“Good,” said Eliza. “So, can we go home now?”</p>",
+          "content": "<p>Eliza disliked Australia. Firstly, she’d had to spend twenty uncomfortable hours on an <strong>aircraft </strong>getting here. She wanted to go to the beach, but her husband was a <strong>zoology </strong>professor and wanted to look for some interesting animals. So now she was <strong>traversing </strong>a <strong>swamp </strong>in the midday heat.</p><p>“Let me sit down, Gilbert. I’m not <strong>hardy </strong>like you,” she said, eventually.</p><p>They sat under a tree. There were lots of birds in that <strong>secluded</strong>, <strong>rural </strong>place, and they watched them flying <strong>overhead</strong>.</p><p>Then suddenly Gilbert saw something on a rock. “That’s strange,” said Gilbert. “That looks like a Red Swamp Lizard, but I thought that <strong>species</strong> was <strong>extinct</strong>.” He carefully picked it up. “Yes, it is! I’m going to take it back to the Zoology <strong>Institute</strong>. They will be filled with so much <strong>jealousy</strong> when they see what I have found!”</p><p>“Are you sure we should take it from its home?” asked Eliza.</p><p>“Nonsense, many animals <strong>migrate</strong>. They’re used to changes,” said Gilbert.</p><p>“Hmm, I don’t agree with the <strong>principle </strong>of it,” said Eliza. “It isn’t <strong>ethical</strong>.” But Gilbert was <strong>decisive </strong>and took the lizard back to the hotel in the city. He thought that this find would make him a highly <strong>esteemed</strong> <strong>celebrity </strong>at the Zoology Institute.</p><p>For the next few days, Gilbert fed and <strong>nurtured </strong>the lizard. But the lizard wasn’t happy. It lost its beautiful red color and began to look ordinary. In fact, Gilbert started to wonder whether it was special at all. He went outside and found a common lizard on a piece of <strong>concrete</strong>. When he compared them, they looked exactly alike. The lizard was only red in the swamp!</p><p>Gilbert said to Eliza, “I’m going to return this lizard to the swamp. I’ve learned an important lesson. Home is where we are happiest. At home, we are special like the red lizard. We can never be so happy when we are away.”</p><p>“Good,” said Eliza. “So, can we go home now?”</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-25-gilbert-and-the-lizard/reading/27582.jpg"
         }
       },
@@ -43307,7 +45744,7 @@ export const vocabularyBooks = [
             "meaning": "If something is comprehensive, it has all the details about something else.",
             "ipa": "/ˌkɒmpriˈhensiv/",
             "partOfSpeech": "adj",
-            "example": "The teacher gave us a comprehensive review for the ieltsIntensiveExam.",
+            "example": "The teacher gave us a comprehensive review for the exam.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-27/wordlist/27616.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-27/wordlist/27616.mp3",
             "order": 5
@@ -44029,7 +46466,7 @@ export const vocabularyBooks = [
             "order": 2
           },
           {
-            "question": "What fundamental foundationVocabLesson did the people learn?",
+            "question": "What fundamental lesson did the people learn?",
             "type": "multiple_choice",
             "options": [
               "The plague was a punishment",
@@ -44055,7 +46492,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "Thucydides and the Plague of Athens",
-          "content": "<p>Thucydides was the world’s first historian. <strong>Presently</strong>, we get most of our knowledge about ancient Greece from his writing. But Thucydides didn’t just write about history, he lived through it. However, he almost didn’t survive one historical event: the <strong>Plague </strong>of Athens.</p><p>In 430 BCE, an army attacked the city of Athens, where Thucydides lived. Thousands of people hid from the army behind Athens’ large walls. The city became very crowded as the population <strong>expanded</strong>. Then a <strong>horrifying </strong>disease broke out. People <strong>summoned </strong>doctors. But it was to no <strong>avail</strong> because no one understood how the disease spread. It seemed <strong>random</strong>. They didn’t know that it was an <strong>organism</strong>. Instead, they <strong>defined </strong>disease as a punishment from their gods. Thucydides was <strong>incredulous </strong>that gods caused the plague, but he explained why others believed it. There was an old, long verse which predicted the disease. To <strong>paraphrase </strong>it, the verse said the gods would send a disease during a war. As a ieltsIntensiveResult, large crowds gathered at <strong>shrines </strong>to ask the gods to stop the plague. But the situation only <strong>worsened </strong>because these people were so close to each other they became sick. That’s how they learned a <strong>fundamental </strong>foundationVocabLesson about the plague: it spread from person to person.</p><p>People wanted to leave the crowded city, but they <strong>dreaded </strong>what the army outside would do to them. At this time, Thucydides got sick, too. He quickly <strong>scribbled </strong>down notes because he thought he would soon die. His writing shows a <strong>stark </strong>contrast between people’s behavior before and during the plague. There were <strong>riots</strong>, and people ignored laws. They didn’t think they’d live long enough to be punished. Many sick people were left to die in <strong>solitude </strong>because no one wanted to be near them. The plague <strong>lingered </strong>for two years. But luckily, Thucydides survived. Without his writing, we would know much less about ancient Greece and the Plague of Athens.</p>",
+          "content": "<p>Thucydides was the world’s first historian. <strong>Presently</strong>, we get most of our knowledge about ancient Greece from his writing. But Thucydides didn’t just write about history, he lived through it. However, he almost didn’t survive one historical event: the <strong>Plague </strong>of Athens.</p><p>In 430 BCE, an army attacked the city of Athens, where Thucydides lived. Thousands of people hid from the army behind Athens’ large walls. The city became very crowded as the population <strong>expanded</strong>. Then a <strong>horrifying </strong>disease broke out. People <strong>summoned </strong>doctors. But it was to no <strong>avail</strong> because no one understood how the disease spread. It seemed <strong>random</strong>. They didn’t know that it was an <strong>organism</strong>. Instead, they <strong>defined </strong>disease as a punishment from their gods. Thucydides was <strong>incredulous </strong>that gods caused the plague, but he explained why others believed it. There was an old, long verse which predicted the disease. To <strong>paraphrase </strong>it, the verse said the gods would send a disease during a war. As a result, large crowds gathered at <strong>shrines </strong>to ask the gods to stop the plague. But the situation only <strong>worsened </strong>because these people were so close to each other they became sick. That’s how they learned a <strong>fundamental </strong>lesson about the plague: it spread from person to person.</p><p>People wanted to leave the crowded city, but they <strong>dreaded </strong>what the army outside would do to them. At this time, Thucydides got sick, too. He quickly <strong>scribbled </strong>down notes because he thought he would soon die. His writing shows a <strong>stark </strong>contrast between people’s behavior before and during the plague. There were <strong>riots</strong>, and people ignored laws. They didn’t think they’d live long enough to be punished. Many sick people were left to die in <strong>solitude </strong>because no one wanted to be near them. The plague <strong>lingered </strong>for two years. But luckily, Thucydides survived. Without his writing, we would know much less about ancient Greece and the Plague of Athens.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-4/data/unit-28-thucydides-and-the-plague-of-athens/reading/27662.jpg"
         }
       },
@@ -45534,7 +47971,7 @@ export const vocabularyBooks = [
         }
       },
       {
-        "title": "The Bachelor’s FoundationVocabLesson",
+        "title": "The Bachelor’s Lesson",
         "order": 3,
         "words": [
           {
@@ -45722,7 +48159,7 @@ export const vocabularyBooks = [
             "meaning": "Sociology is the study of human society, its organizations, and problems.",
             "ipa": "/ˌsousiˈɒlədʒi/",
             "partOfSpeech": "n",
-            "example": "Sociology teaches that people’s problems are a ieltsIntensiveResult of their society.",
+            "example": "Sociology teaches that people’s problems are a result of their society.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-5/data/unit-3/wordlist/27831.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-5/data/unit-3/wordlist/27831.mp3",
             "order": 19
@@ -45943,9 +48380,9 @@ export const vocabularyBooks = [
           }
         ],
         "story": {
-          "title": "The Bachelor’s FoundationVocabLesson",
-          "content": "<p>A <strong>keen </strong>young <strong>bachelor </strong>had finished his studies at the university. As soon as he had received his <strong>diploma</strong>, he <strong>asserted </strong>to everyone he met that he was the smartest person in town.</p><p>“I <strong>excel </strong>at everything I study,” he said, bragging about his knowledge. “I’ve mastered <strong>calculus </strong>and <strong>physiology</strong>. I even understand the great <strong>theoretical </strong>teachings of science, such as relativity. There is nothing that I don’t know. Whether it’s the movements of <strong>celestial </strong>objects, like planets and stars, or how to <strong>harness </strong>the power of <strong>radioactive </strong>substances, I know everything.”</p><p>But actually, there was something the bachelor did not know. Though his <strong>analytic </strong>abilities were great, he failed to notice he was missing something very important in his life.</p><p>One day while walking through town, the bachelor witnessed a <strong>collision </strong>between two cars. Both drivers appeared to be injured, but the scholar only stood and watched.</p><p>He thought to himself, “Those idiots should have been more alert. They really must not be very <strong>competent</strong>.” He never thought the drivers needed help.</p><p>“Please help me,” said the female driver in a weak voice. “Help me, too,” said the male driver. “I’m hurt and can’t move.”</p><p>Suddenly the bachelor realized he was the only person near the accident. He quit thinking and ran to help the drivers. He carefully helped them out of their vehicles and then called an ambulance.</p><p>The drivers were saved, and the bachelor felt the best he had in his entire life. Studying <strong>mythology</strong>, <strong>sociology</strong>, and <strong>geology </strong>didn’t give him this wonderful feeling. It was the act of helping others, not his <strong>cognitive </strong>skills, that gave him this great feeling.</p><p>He had learned an important foundationVocabLesson. He learned that <strong>intellect </strong>isn’t everything; being helpful is just as important. “Having only a brain is not enough,” he thought. “You must also have a heart.”</p>",
-          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-5/data/unit-3-the-bachelor-s-foundationVocabLesson/reading/27838.jpg"
+          "title": "The Bachelor’s Lesson",
+          "content": "<p>A <strong>keen </strong>young <strong>bachelor </strong>had finished his studies at the university. As soon as he had received his <strong>diploma</strong>, he <strong>asserted </strong>to everyone he met that he was the smartest person in town.</p><p>“I <strong>excel </strong>at everything I study,” he said, bragging about his knowledge. “I’ve mastered <strong>calculus </strong>and <strong>physiology</strong>. I even understand the great <strong>theoretical </strong>teachings of science, such as relativity. There is nothing that I don’t know. Whether it’s the movements of <strong>celestial </strong>objects, like planets and stars, or how to <strong>harness </strong>the power of <strong>radioactive </strong>substances, I know everything.”</p><p>But actually, there was something the bachelor did not know. Though his <strong>analytic </strong>abilities were great, he failed to notice he was missing something very important in his life.</p><p>One day while walking through town, the bachelor witnessed a <strong>collision </strong>between two cars. Both drivers appeared to be injured, but the scholar only stood and watched.</p><p>He thought to himself, “Those idiots should have been more alert. They really must not be very <strong>competent</strong>.” He never thought the drivers needed help.</p><p>“Please help me,” said the female driver in a weak voice. “Help me, too,” said the male driver. “I’m hurt and can’t move.”</p><p>Suddenly the bachelor realized he was the only person near the accident. He quit thinking and ran to help the drivers. He carefully helped them out of their vehicles and then called an ambulance.</p><p>The drivers were saved, and the bachelor felt the best he had in his entire life. Studying <strong>mythology</strong>, <strong>sociology</strong>, and <strong>geology </strong>didn’t give him this wonderful feeling. It was the act of helping others, not his <strong>cognitive </strong>skills, that gave him this great feeling.</p><p>He had learned an important lesson. He learned that <strong>intellect </strong>isn’t everything; being helpful is just as important. “Having only a brain is not enough,” he thought. “You must also have a heart.”</p>",
+          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-5/data/unit-3-the-bachelor-s-lesson/reading/27838.jpg"
         }
       },
       {
@@ -48361,7 +50798,7 @@ export const vocabularyBooks = [
             "meaning": "When something is upcoming, that means it will happen in the near future.",
             "ipa": "/ˈʌpkʌmiŋ/",
             "partOfSpeech": "adj",
-            "example": "The kids were worried about their upcoming ieltsIntensiveExam.",
+            "example": "The kids were worried about their upcoming exam.",
             "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-5/data/unit-10/wordlist/28048.jpg",
             "audioUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-5/data/unit-10/wordlist/28048.mp3",
             "order": 20
@@ -48550,7 +50987,7 @@ export const vocabularyBooks = [
             "order": 2
           },
           {
-            "question": "What was the ieltsIntensiveResult of Bill dedicating himself to his exquisite farm?",
+            "question": "What was the result of Bill dedicating himself to his exquisite farm?",
             "type": "fill_blank",
             "options": null,
             "answer": "Bill was happy.",
@@ -49633,7 +52070,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "imprint",
-            "meaning": "An imprint is an effect or foundationVocabLesson from an experience that is hard to forget.",
+            "meaning": "An imprint is an effect or lesson from an experience that is hard to forget.",
             "ipa": "/imˈprint/",
             "partOfSpeech": "n",
             "example": "The experience ofwarleftan imprint on his mind that troubled him.",
@@ -51673,7 +54110,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Soldier’s Decision",
-          "content": "<p>A soldier was captured while fighting in an enemy king’s land. It was well known that this king would make <strong>captives </strong>fight one another. This was <strong>commonplace </strong>during his <strong>reign</strong>. For these fights, the king had built several large <strong>arenas</strong>. He often awarded the winners by setting them free or even having them join his elite army <strong>corps</strong>.</p><p>The soldier, however, decided he had seen too much violence. He now felt that all life was <strong>sacred</strong>. The night before his first match, he made a risky decision. He decided that he would not engage in <strong>combat</strong>. He knew he may never be set free, but it was a decision that he was willing to accept.</p><p>In the morning, he was led from the prisoners’ <strong>compound </strong>to one of the king’s arenas. A gate coated in <strong>rust </strong>stood between him and the <strong>auditorium</strong>’s floor. He was worried, but he knew what he had to do.</p><p>When the gate opened, he calmly walked to the center of the arena and sat. He started to <strong>meditate</strong>. His <strong>foe </strong>Darius, who was skilled in the <strong>realm</strong> of sword fighting and was typically not very <strong>aggressive</strong>, would not fight the quiet soldier until he attacked Darius first.</p><p>Darius tried to <strong>provoke </strong>him by <strong>hacking </strong>at the air close to his head with his sword. But the soldier was not <strong>distracted</strong>. He sat quietly, as if he were <strong>dumb</strong>, and looked calmly up at the sky. Even when Darius <strong>nicked </strong>him on the cheek with the edge of his sword, the soldier did not move.</p><p>At last he threw down his sword and shield and gave up. “I can’t fight someone who refuses to fight me!” Darius shouted to the king.</p><p>The king was very impressed with the soldier. Never in any battle had he seen someone so brave. As a ieltsIntensiveResult, he gave the peaceful soldier <strong>amnesty</strong>. The soldier’s actions proved to the king and everyone in the arena that peace was more powerful than fighting.</p>",
+          "content": "<p>A soldier was captured while fighting in an enemy king’s land. It was well known that this king would make <strong>captives </strong>fight one another. This was <strong>commonplace </strong>during his <strong>reign</strong>. For these fights, the king had built several large <strong>arenas</strong>. He often awarded the winners by setting them free or even having them join his elite army <strong>corps</strong>.</p><p>The soldier, however, decided he had seen too much violence. He now felt that all life was <strong>sacred</strong>. The night before his first match, he made a risky decision. He decided that he would not engage in <strong>combat</strong>. He knew he may never be set free, but it was a decision that he was willing to accept.</p><p>In the morning, he was led from the prisoners’ <strong>compound </strong>to one of the king’s arenas. A gate coated in <strong>rust </strong>stood between him and the <strong>auditorium</strong>’s floor. He was worried, but he knew what he had to do.</p><p>When the gate opened, he calmly walked to the center of the arena and sat. He started to <strong>meditate</strong>. His <strong>foe </strong>Darius, who was skilled in the <strong>realm</strong> of sword fighting and was typically not very <strong>aggressive</strong>, would not fight the quiet soldier until he attacked Darius first.</p><p>Darius tried to <strong>provoke </strong>him by <strong>hacking </strong>at the air close to his head with his sword. But the soldier was not <strong>distracted</strong>. He sat quietly, as if he were <strong>dumb</strong>, and looked calmly up at the sky. Even when Darius <strong>nicked </strong>him on the cheek with the edge of his sword, the soldier did not move.</p><p>At last he threw down his sword and shield and gave up. “I can’t fight someone who refuses to fight me!” Darius shouted to the king.</p><p>The king was very impressed with the soldier. Never in any battle had he seen someone so brave. As a result, he gave the peaceful soldier <strong>amnesty</strong>. The soldier’s actions proved to the king and everyone in the arena that peace was more powerful than fighting.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-5/data/unit-18-the-soldier-s-decision/reading/28299.jpg"
         }
       },
@@ -54003,7 +56440,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "thereby",
-            "meaning": "If something happens thereby an action, then it is the ieltsIntensiveResult of that action.",
+            "meaning": "If something happens thereby an action, then it is the result of that action.",
             "ipa": "/ˈðɛə:rˈbai/",
             "partOfSpeech": "adv",
             "example": "He didn’t score a goal, thereby ending his chance at setting a record.",
@@ -54819,7 +57256,7 @@ export const vocabularyBooks = [
         ],
         "exercises": [
           {
-            "question": "What thing is a ieltsIntensiveResult of heredity?",
+            "question": "What thing is a result of heredity?",
             "answer": "Eye color",
             "options": [
               "Eye color",
@@ -54904,7 +57341,7 @@ export const vocabularyBooks = [
             "order": 4
           },
           {
-            "question": "What was the ieltsIntensiveResult of Richard’s transition after his therapy?",
+            "question": "What was the result of Richard’s transition after his therapy?",
             "type": "fill_blank",
             "options": null,
             "answer": "Richard was a healthy, happy person.",
@@ -55113,7 +57550,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "ultimate",
-            "meaning": "When something is ultimate, it is the final ieltsIntensiveResult or aim of a long series of events.",
+            "meaning": "When something is ultimate, it is the final result or aim of a long series of events.",
             "ipa": "/ˈʌltəmit/",
             "partOfSpeech": "adj",
             "example": "By trying hard in school, I will reach my ultimate goal of becoming a doctor.",
@@ -55146,7 +57583,7 @@ export const vocabularyBooks = [
             "order": 2
           },
           {
-            "question": "What is the ultimate ieltsIntensiveResult of going to college?",
+            "question": "What is the ultimate result of going to college?",
             "answer": "Getting a degree",
             "options": [
               "Signing up for classes",
@@ -57170,7 +59607,7 @@ export const vocabularyBooks = [
           },
           {
             "word": "hence",
-            "meaning": "If something happens hence, then it happens as a ieltsIntensiveResult of something.",
+            "meaning": "If something happens hence, then it happens as a result of something.",
             "ipa": "/hens/",
             "partOfSpeech": "adv",
             "example": "John forgot the key. Hence, we couldn’t open the door.",
@@ -57866,7 +60303,7 @@ export const vocabularyBooks = [
               "All the students doing their homework",
               "Her students always arriving on time",
               "Her students not coming to class",
-              "Her students all passing an ieltsIntensiveExam"
+              "Her students all passing an exam"
             ],
             "order": 10
           },
@@ -58850,7 +61287,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "Greek Magical Papyri",
-          "content": "<p>The Greek Magical Papyri is a collection of writing about magic. After it was found in the Egyptian desert, it took experts years to <strong>decipher </strong>it. The text was written in at least three different ancient languages. After many years, experts realized it contained a number of spells that varied greatly in <strong>scope</strong>.</p><p>The most common types of magic in the collection dealt with healing illnesses like <strong>pneumonia</strong>. Some spells also gave advice for treating people with mental illnesses, such as those who became <strong>psychotic</strong>. Some spells asked for unusual things, like crocodile <strong>dung</strong>. But <strong>botany </strong>was an important part of the magic. Many healing spells gave instructions on how to use herbs and plants that were believed to be <strong>therapeutic</strong>. For example, in order to cure <strong>arthritis</strong>, the book says that the magician should build an <strong>ornate</strong> <strong>altar</strong>. Then he should <strong>mash </strong>different types of herbs and place them on top of it. At dusk, he is supposed to say a spell, so the gods would be <strong>gratified</strong>.</p><p>Other parts of the collection describe how to <strong>hone </strong>one’s <strong>psychic </strong>abilities and how to give <strong>credible </strong>descriptions of the future. Often, the book advised people how to use different objects to tell the future, including tea leaves. Also, one part of the book tells what different dreams might mean. It gives advice for using dreams to tell the future.</p><p>A small part of the book, however, is more <strong>sinister </strong>than the rest. It is meant to cause <strong>strife </strong>and <strong>deception</strong>. For example, one tells how to give someone warts, while another will make all of the victim’s farm animals die. However, if someone’s farm animals died as a ieltsIntensiveResult of a curse, he could ask a magician to perform magic that makes the <strong>deceased </strong>come back to life.</p>",
+          "content": "<p>The Greek Magical Papyri is a collection of writing about magic. After it was found in the Egyptian desert, it took experts years to <strong>decipher </strong>it. The text was written in at least three different ancient languages. After many years, experts realized it contained a number of spells that varied greatly in <strong>scope</strong>.</p><p>The most common types of magic in the collection dealt with healing illnesses like <strong>pneumonia</strong>. Some spells also gave advice for treating people with mental illnesses, such as those who became <strong>psychotic</strong>. Some spells asked for unusual things, like crocodile <strong>dung</strong>. But <strong>botany </strong>was an important part of the magic. Many healing spells gave instructions on how to use herbs and plants that were believed to be <strong>therapeutic</strong>. For example, in order to cure <strong>arthritis</strong>, the book says that the magician should build an <strong>ornate</strong> <strong>altar</strong>. Then he should <strong>mash </strong>different types of herbs and place them on top of it. At dusk, he is supposed to say a spell, so the gods would be <strong>gratified</strong>.</p><p>Other parts of the collection describe how to <strong>hone </strong>one’s <strong>psychic </strong>abilities and how to give <strong>credible </strong>descriptions of the future. Often, the book advised people how to use different objects to tell the future, including tea leaves. Also, one part of the book tells what different dreams might mean. It gives advice for using dreams to tell the future.</p><p>A small part of the book, however, is more <strong>sinister </strong>than the rest. It is meant to cause <strong>strife </strong>and <strong>deception</strong>. For example, one tells how to give someone warts, while another will make all of the victim’s farm animals die. However, if someone’s farm animals died as a result of a curse, he could ask a magician to perform magic that makes the <strong>deceased </strong>come back to life.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-7-greek-magical-papyri/reading/28910.jpg"
         }
       },
@@ -60086,16 +62523,16 @@ export const vocabularyBooks = [
             "order": 4
           },
           {
-            "question": "What poignant foundationVocabLesson did Randy learn from his experience?",
+            "question": "What poignant lesson did Randy learn from his experience?",
             "type": "fill_blank",
             "options": null,
-            "answer": "Randy learned the poignant foundationVocabLesson that he was only a mortal and that nature was much more powerful than him.",
+            "answer": "Randy learned the poignant lesson that he was only a mortal and that nature was much more powerful than him.",
             "order": 5
           }
         ],
         "story": {
           "title": "The Avalanche",
-          "content": "<p>Randy was a forest <strong>ranger</strong>. Because of his job, he was <strong>secluded </strong>in a cabin in the wilderness.</p><p>One day, the radio reported, “<strong>Convection </strong>in the atmosphere is causing a lot of clouds to form. A serious storm ...” Suddenly, the radio went silent. The signal was lost.</p><p>He went outside and looked at the <strong>overcast </strong>sky. Anybody else would have taken the dark sky as an <strong>omen </strong>of a very bad storm, but not Randy. His <strong>upbringing </strong>had taught him <strong>consistency</strong>. He had done this job for years, and nothing could stop him. Besides, he thought nothing could hurt him.</p><p>Today, he had a very important task to do. The snow was starting to pile up high on the mountain. If too much <strong>accumulated</strong>, it could cause an <strong>avalanche</strong>. But Randy had an <strong>apparatus </strong>to get rid of the snow. It used dynamite to shake the snow and make the top * layer of snow come down.</p><p>As the snow started falling, he thought about returning to the office until the storm stopped, but he decided not to. Suddenly, he heard a loud noise behind him. It was an avalanche! He started to run, but within seconds, he was knocked <strong>sideways </strong>and buried by the snow and <strong>rubble</strong> from an old cabin that had been destroyed. An <strong>aerial </strong>rescue team came quickly. Randy was just a <strong>speck </strong>amongst the great pile of snow, but the team found him thanks to his brightly colored jacket. They quickly took him to a hospital.</p><p>After a few hours, Randy woke up in the hospital. He looked at the <strong>sober </strong>faces of the doctors and saw his wife <strong>sobbing</strong>.</p><p>“What’s wrong?” he asked. He didn’t remember what had happened.</p><p>“You were almost killed!” his wife said.</p><p>“You broke several ribs. But the rest of you is still reasonably <strong>intact</strong>. You are really lucky to be alive,” the doctor said.</p><p>After five days, Randy was <strong>discharged </strong>from the hospital. The experience had taught him a <strong>poignant </strong>foundationVocabLesson: he was a <strong>mortal</strong>, and nature was much more powerful than him.</p>",
+          "content": "<p>Randy was a forest <strong>ranger</strong>. Because of his job, he was <strong>secluded </strong>in a cabin in the wilderness.</p><p>One day, the radio reported, “<strong>Convection </strong>in the atmosphere is causing a lot of clouds to form. A serious storm ...” Suddenly, the radio went silent. The signal was lost.</p><p>He went outside and looked at the <strong>overcast </strong>sky. Anybody else would have taken the dark sky as an <strong>omen </strong>of a very bad storm, but not Randy. His <strong>upbringing </strong>had taught him <strong>consistency</strong>. He had done this job for years, and nothing could stop him. Besides, he thought nothing could hurt him.</p><p>Today, he had a very important task to do. The snow was starting to pile up high on the mountain. If too much <strong>accumulated</strong>, it could cause an <strong>avalanche</strong>. But Randy had an <strong>apparatus </strong>to get rid of the snow. It used dynamite to shake the snow and make the top * layer of snow come down.</p><p>As the snow started falling, he thought about returning to the office until the storm stopped, but he decided not to. Suddenly, he heard a loud noise behind him. It was an avalanche! He started to run, but within seconds, he was knocked <strong>sideways </strong>and buried by the snow and <strong>rubble</strong> from an old cabin that had been destroyed. An <strong>aerial </strong>rescue team came quickly. Randy was just a <strong>speck </strong>amongst the great pile of snow, but the team found him thanks to his brightly colored jacket. They quickly took him to a hospital.</p><p>After a few hours, Randy woke up in the hospital. He looked at the <strong>sober </strong>faces of the doctors and saw his wife <strong>sobbing</strong>.</p><p>“What’s wrong?” he asked. He didn’t remember what had happened.</p><p>“You were almost killed!” his wife said.</p><p>“You broke several ribs. But the rest of you is still reasonably <strong>intact</strong>. You are really lucky to be alive,” the doctor said.</p><p>After five days, Randy was <strong>discharged </strong>from the hospital. The experience had taught him a <strong>poignant </strong>lesson: he was a <strong>mortal</strong>, and nature was much more powerful than him.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-10-the-avalanche/reading/29003.jpg"
         }
       },
@@ -61400,7 +63837,7 @@ export const vocabularyBooks = [
         }
       },
       {
-        "title": "The Coward’s FoundationVocabLesson",
+        "title": "The Coward’s Lesson",
         "order": 14,
         "words": [
           {
@@ -61754,9 +64191,9 @@ export const vocabularyBooks = [
           }
         ],
         "story": {
-          "title": "The Coward’s FoundationVocabLesson",
+          "title": "The Coward’s Lesson",
           "content": "<p>Tom was easily frightened. He <strong>enlisted </strong>in the army because he thought the military would teach him courage. And though he needed courage, he never imagined how he would learn it.</p><p>During a march across a <strong>tract </strong>of wilderness near his country’s <strong>frontier</strong>, Tom <strong>strayed </strong>from his squad. He had stopped to gaze at a <strong>splendid</strong> view of a <strong>lush </strong>valley. When he turned around, his squad was gone. He searched for them, but because their <strong>outfits </strong>had <strong>camouflage</strong>, he couldn’t find them.</p><p>It was getting dark, and Tom grew <strong>weary</strong>. All he had was a knife, a boomerang, and his <strong>handbook</strong>. He made a camp for the night. It was cold, and the ground was hard. He wished he had his cot and a blanket. Instead, he made a fire, wrapped himself tightly in his jacket, and fell asleep.</p><p>A loud noise roused him from his sleep. “What was that?” he wondered.</p><p>Then he noticed it. An animal of <strong>substantial </strong>size had left a print from its <strong>paw </strong>in the dirt. He sat closer to the fire and looked into the darkness. He imagined a large beast jumping from the gloom and attacking him. He shook so much from fear that it felt like the <strong>marrow </strong>in his bones <strong>quivered</strong>.</p><p>Tom <strong>contemplated </strong>many different plans. He was <strong>hesitant </strong>to act. He decided to stay by the fire, but during his <strong>vigil</strong>, he heard more noises.</p><p>He couldn’t <strong>contend </strong>with his fear any longer. He knew what he had to do. He made a <strong>torch </strong>and followed the prints. He heard a twig snap very close ahead, but he bravely went on. Seconds later, he discovered what had scared him. It was only a kangaroo.</p><p>Tom went back to his camp and slept. In the morning, he found his squad. He had finally learned courage. He learned that he had to confront his fear in order to conquer it.</p>",
-          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-14-the-coward-s-foundationVocabLesson/reading/29102.jpg"
+          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-14-the-coward-s-lesson/reading/29102.jpg"
         }
       },
       {
@@ -62895,7 +65332,7 @@ export const vocabularyBooks = [
         }
       },
       {
-        "title": "The Nurse’s FoundationVocabLesson",
+        "title": "The Nurse’s Lesson",
         "order": 18,
         "words": [
           {
@@ -63304,9 +65741,9 @@ export const vocabularyBooks = [
           }
         ],
         "story": {
-          "title": "The Nurse’s FoundationVocabLesson",
+          "title": "The Nurse’s Lesson",
           "content": "<p>One of the children in the <strong>nursery </strong>was sick. The child’s mother, who was usually quite <strong>vivacious </strong>and <strong>chattered </strong>constantly, was quiet and worried. She knew that if she did not act quickly, the child’s condition would <strong>deteriorate</strong>.</p><p>She summoned the children’s nurse and said to her, “The monks make a medicine that can cure my child’s sickness. Please, hurry tonight to the <strong>monastery </strong>and get it.”</p><p>The nurse immediately hurried from the <strong>manor </strong>to get the medicine. The monastery was far away by Rabbit <strong>Cove</strong>, and there was no <strong>freeway</strong> leading to it. The only way there was to walk along a dark and <strong>winding </strong>trail.</p><p>The temperature was close to zero degrees <strong>centigrade</strong>, and it was raining. Luckily, the nurse had grabbed her raincoat <strong>beforehand</strong>. She <strong>zipped </strong>it up and pulled the hood over her head.</p><p>“ I’ll never make it there,” she thought. “ Perhaps I should return and go in the morning.” But she remembered the sick child and decided to continue.</p><p>Finally, she arrived at the monastery. It was very late. She feared the monks would not be <strong>hospitable</strong>. But she approached the door and knocked anyway. The rain had <strong>condensed </strong>on the <strong>exterior </strong>of the windows by the door. All she could see was the <strong>profile </strong>of a large man coming to answer the door. Again, she was filled with fear.</p><p>But the monk smiled at her when he opened the door. He took her <strong>outstretched </strong>hand and welcomed her with a <strong>hearty </strong>voice. The place was warm, and she heard a <strong>concerto </strong>playing in another room. She relaxed.</p><p>“ How can I help you?” the monk asked, and the nurse explained the situation.</p><p>He instantly knew what to do. He grabbed a <strong>parcel </strong>of medicine and took her back to the manor in a carriage. The medicine worked. The nurse was happy she had persevered through the bad weather and found the monastery. Now the boy would be able to live a long natural life.</p>",
-          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-18-the-nurse-s-foundationVocabLesson/reading/29175.jpg"
+          "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-18-the-nurse-s-lesson/reading/29175.jpg"
         }
       },
       {
@@ -63720,7 +66157,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "Seizures Then and Now",
-          "content": "<p>If a person who lived 200 years ago was treated for a <strong>seizure </strong>today, they would be surprised by the treatment’s <strong>novelty</strong>. That’s because doctors in the 1800s were influenced more by <strong>primal </strong>medical beliefs than science.</p><p>Rather than thinking the brain caused seizures, people in the 180' still thought they were the ieltsIntensiveResult of strange forces. They <strong>equated </strong>seizures with the work of evil spirits. Others felt that the seizures had a cosmic or <strong>lunar </strong>cause. They believed that the cycles of the moon and <strong>constellations </strong>could make someone have a seizure.</p><p>During a <strong>session </strong>to treat a patient who had seizures, doctors would force the patient to <strong>invoke </strong>the grace of the <strong>Almighty</strong>. They thought if the patient did this, then the patient would rid themselves of the evil spirits causing the seizures.</p><p>The <strong>advent </strong>of modern <strong>psychiatry </strong>occurred during the 1800s. At that time people who suffered from seizures were placed in <strong>psychiatric</strong> hospitals. They were treated like they were insane. However, none of the <strong>outmoded </strong>treatments worked.</p><p>It wasn’t until the late 1850s that the causes of seizures were understood. We know today that these causes <strong>pertain </strong>to the brain. Misfired signals from the brain cause a jerking <strong>reflex </strong>in the body. These usually occur when someone is very tired.</p><p>Once the causes of seizures were known, <strong>definitive </strong>treatments were developed. Today, treatments range from taking pills to having surgery. Treatment is <strong>personalized </strong>according to the type of seizure the patient has.</p><p>Even today, some people are unsure about seizures. Their most common mistake is thinking that a person having a seizure will swallow their tongue. They often shove some <strong>utensil </strong>in the person’s mouth. However, this doesn’t help. The utensil often blocks the <strong>airway </strong>and prevents the person from <strong>inhaling</strong>. Yet most of the public no longer fear people who have seizures. Instead, they can now help and comfort a person if they have a seizure.</p>",
+          "content": "<p>If a person who lived 200 years ago was treated for a <strong>seizure </strong>today, they would be surprised by the treatment’s <strong>novelty</strong>. That’s because doctors in the 1800s were influenced more by <strong>primal </strong>medical beliefs than science.</p><p>Rather than thinking the brain caused seizures, people in the 180' still thought they were the result of strange forces. They <strong>equated </strong>seizures with the work of evil spirits. Others felt that the seizures had a cosmic or <strong>lunar </strong>cause. They believed that the cycles of the moon and <strong>constellations </strong>could make someone have a seizure.</p><p>During a <strong>session </strong>to treat a patient who had seizures, doctors would force the patient to <strong>invoke </strong>the grace of the <strong>Almighty</strong>. They thought if the patient did this, then the patient would rid themselves of the evil spirits causing the seizures.</p><p>The <strong>advent </strong>of modern <strong>psychiatry </strong>occurred during the 1800s. At that time people who suffered from seizures were placed in <strong>psychiatric</strong> hospitals. They were treated like they were insane. However, none of the <strong>outmoded </strong>treatments worked.</p><p>It wasn’t until the late 1850s that the causes of seizures were understood. We know today that these causes <strong>pertain </strong>to the brain. Misfired signals from the brain cause a jerking <strong>reflex </strong>in the body. These usually occur when someone is very tired.</p><p>Once the causes of seizures were known, <strong>definitive </strong>treatments were developed. Today, treatments range from taking pills to having surgery. Treatment is <strong>personalized </strong>according to the type of seizure the patient has.</p><p>Even today, some people are unsure about seizures. Their most common mistake is thinking that a person having a seizure will swallow their tongue. They often shove some <strong>utensil </strong>in the person’s mouth. However, this doesn’t help. The utensil often blocks the <strong>airway </strong>and prevents the person from <strong>inhaling</strong>. Yet most of the public no longer fear people who have seizures. Instead, they can now help and comfort a person if they have a seizure.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-19-seizures-then-and-now/reading/29181.jpg"
         }
       },
@@ -64135,7 +66572,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "The Greedy Bee",
-          "content": "<p>A young bee had passed his <strong>intermediate </strong>level exams. He now knew everything about flowers. He understood how they used <strong>photosynthesis </strong>to make oxygen and which ones produced the best <strong>pollen</strong>. Bees had an important <strong>dependency </strong>on pollen. From the beginning of time, bees’ <strong>eternal</strong> task was to gather pollen and make honey with it.</p><p>Since he passed his exams, the little bee had earned his <strong>inclusion </strong>in the <strong>swarms </strong>that gathered pollen. He was excited because he was finally allowed to leave the hive. He left with the next swarm and was determined to find the perfect flower. Soon he saw a large, <strong>vibrant </strong>flower full of pollen. He landed on a petal and walked toward the pollen at the flower’s center.</p><p>Immediately, he began rolling in the pollen, gathering it on his legs and wings. The fine <strong>texture </strong>of the pollen <strong>tickled </strong>when it stuck to his body. It was the best experience the little bee had ever had. He gathered as much as he could.</p><p>But when he was flying back home, he realized that all the pollen had an <strong>adverse </strong>effect. He had no control over his flight. The <strong>intermittent </strong>wind <strong>fluctuated </strong>in power. He was blown to and <strong>fro</strong>. One minute he was flying straight, and the next minute the wind had <strong>reversed </strong>his course.</p><p>He tried to <strong>dump </strong>some of the pollen, but it acted as an <strong>adhesive</strong>. He couldn’t get it off. He became tired and fell to the ground.</p><p>“What am I going to do now?” he thought. Just then, his mentor landed next to him and began cleaning the excess pollen off the little bee. “You shouldn’t have taken so much,” his <strong>mentor </strong>said.</p><p>Finally, with the pollen off of him, the bee easily <strong>regained </strong>his strength, and like a <strong>phoenix</strong>, the young bee flew back into the air. When he returned to the hive, he turned to his mentor and said, “ I learned an important foundationVocabLesson today. I will never be greedy again.”</p>",
+          "content": "<p>A young bee had passed his <strong>intermediate </strong>level exams. He now knew everything about flowers. He understood how they used <strong>photosynthesis </strong>to make oxygen and which ones produced the best <strong>pollen</strong>. Bees had an important <strong>dependency </strong>on pollen. From the beginning of time, bees’ <strong>eternal</strong> task was to gather pollen and make honey with it.</p><p>Since he passed his exams, the little bee had earned his <strong>inclusion </strong>in the <strong>swarms </strong>that gathered pollen. He was excited because he was finally allowed to leave the hive. He left with the next swarm and was determined to find the perfect flower. Soon he saw a large, <strong>vibrant </strong>flower full of pollen. He landed on a petal and walked toward the pollen at the flower’s center.</p><p>Immediately, he began rolling in the pollen, gathering it on his legs and wings. The fine <strong>texture </strong>of the pollen <strong>tickled </strong>when it stuck to his body. It was the best experience the little bee had ever had. He gathered as much as he could.</p><p>But when he was flying back home, he realized that all the pollen had an <strong>adverse </strong>effect. He had no control over his flight. The <strong>intermittent </strong>wind <strong>fluctuated </strong>in power. He was blown to and <strong>fro</strong>. One minute he was flying straight, and the next minute the wind had <strong>reversed </strong>his course.</p><p>He tried to <strong>dump </strong>some of the pollen, but it acted as an <strong>adhesive</strong>. He couldn’t get it off. He became tired and fell to the ground.</p><p>“What am I going to do now?” he thought. Just then, his mentor landed next to him and began cleaning the excess pollen off the little bee. “You shouldn’t have taken so much,” his <strong>mentor </strong>said.</p><p>Finally, with the pollen off of him, the bee easily <strong>regained </strong>his strength, and like a <strong>phoenix</strong>, the young bee flew back into the air. When he returned to the hive, he turned to his mentor and said, “ I learned an important lesson today. I will never be greedy again.”</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-20-the-greedy-bee/reading/29285.jpg"
         }
       },
@@ -65714,7 +68151,7 @@ export const vocabularyBooks = [
         ],
         "story": {
           "title": "Hundred Plays",
-          "content": "<p>Over two thousand years ago, Chinese farmers had a problem. Even though they were very <strong>industrious</strong>, the weather became too cold outside to plant their <strong>staple </strong>food, rice. So what did they do? Since they had so much free time during the long, cold winters, the <strong>inventive </strong>farmers started performing tricks to entertain themselves. They used their farm tools and anything they could find to make their tricks more spectacular. They even twisted their bodies into crazy shapes and performed awesome jumps. Overtime, they became great <strong>acrobats</strong>, and their art form came to be known as “ Hundred Plays.”</p><p>Hundred Plays involves doing many kinds of tricks. For example, in <strong>Mandarin</strong>-speaking parts of China, performers do the lion dance. They wear costumes and <strong>mimic </strong>the animal’s movements. Early performers also did tricks on ropes and <strong>vines </strong>that were high above the ground.</p><p>Even though the acrobats’ <strong>fluid </strong>movements may have looked easy, they took a lot of work.</p><p>Learning Hundred Plays is a <strong>communal </strong>event. A <strong>veteran </strong>of the acrobatic arts usually teaches younger people in the village. They spend a lot of time <strong>rehearsing</strong>. The young performers also learn an old philosophy. The teachings help them <strong>harmonize </strong>the <strong>sensory </strong>aspects of acrobatics with mental aspects. In other words, it teaches them to use their physical and mental strength together.</p><p>Since the art has its origins with poor farmers, rich people used to <strong>scorn </strong>acrobats. They thought acrobats were <strong>villains</strong>. The rich people thought the acrobats just wanted to trick them. But later, their <strong>misguided </strong>opinions changed. Acrobats came to be respected in Chinese society. They were invited to perform in <strong>metropolitan </strong>areas as well as in small villages. They performed for important people, including <strong>judicial </strong>officers. Arts <strong>advocacy </strong>groups convinced the government to support Chinese acrobatics. As a ieltsIntensiveResult, there is now a <strong>statute </strong>that made several villages the center of training future acrobats.</p>",
+          "content": "<p>Over two thousand years ago, Chinese farmers had a problem. Even though they were very <strong>industrious</strong>, the weather became too cold outside to plant their <strong>staple </strong>food, rice. So what did they do? Since they had so much free time during the long, cold winters, the <strong>inventive </strong>farmers started performing tricks to entertain themselves. They used their farm tools and anything they could find to make their tricks more spectacular. They even twisted their bodies into crazy shapes and performed awesome jumps. Overtime, they became great <strong>acrobats</strong>, and their art form came to be known as “ Hundred Plays.”</p><p>Hundred Plays involves doing many kinds of tricks. For example, in <strong>Mandarin</strong>-speaking parts of China, performers do the lion dance. They wear costumes and <strong>mimic </strong>the animal’s movements. Early performers also did tricks on ropes and <strong>vines </strong>that were high above the ground.</p><p>Even though the acrobats’ <strong>fluid </strong>movements may have looked easy, they took a lot of work.</p><p>Learning Hundred Plays is a <strong>communal </strong>event. A <strong>veteran </strong>of the acrobatic arts usually teaches younger people in the village. They spend a lot of time <strong>rehearsing</strong>. The young performers also learn an old philosophy. The teachings help them <strong>harmonize </strong>the <strong>sensory </strong>aspects of acrobatics with mental aspects. In other words, it teaches them to use their physical and mental strength together.</p><p>Since the art has its origins with poor farmers, rich people used to <strong>scorn </strong>acrobats. They thought acrobats were <strong>villains</strong>. The rich people thought the acrobats just wanted to trick them. But later, their <strong>misguided </strong>opinions changed. Acrobats came to be respected in Chinese society. They were invited to perform in <strong>metropolitan </strong>areas as well as in small villages. They performed for important people, including <strong>judicial </strong>officers. Arts <strong>advocacy </strong>groups convinced the government to support Chinese acrobatics. As a result, there is now a <strong>statute </strong>that made several villages the center of training future acrobats.</p>",
           "imageUrl": "https://www.essentialenglish.review/apps-data/4000-essential-english-words-6/data/unit-25-hundred-plays/reading/29388.jpg"
         }
       },

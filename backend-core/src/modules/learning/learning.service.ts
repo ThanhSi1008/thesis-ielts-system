@@ -67,7 +67,7 @@ export class LearningService {
 
   /**
    * Create a new foundationVocabLesson
-   * @param createLessonDto - FoundationVocabLesson data
+   * @param createLessonDto - Lesson data
    * @returns Created foundationVocabLesson
    */
   async createLesson(createLessonDto: CreateLessonDto) {
@@ -132,7 +132,7 @@ export class LearningService {
 
   /**
    * Find a foundationVocabLesson by ID with all foundationVocabWord and grammar items
-   * @param id - FoundationVocabLesson ID
+   * @param id - Lesson ID
    * @returns FoundationVocabLesson with foundationVocabWord and grammar
    */
   async findLessonById(id: string) {
@@ -215,7 +215,7 @@ export class LearningService {
 
   /**
    * Find all foundationVocabWord items for a foundationVocabLesson
-   * @param lessonId - FoundationVocabLesson ID
+   * @param lessonId - Lesson ID
    * @returns List of foundationVocabWord items
    */
   async findVocabularyByLesson(lessonId: string) {
@@ -271,7 +271,7 @@ export class LearningService {
 
   /**
    * Find all grammar items for a foundationVocabLesson
-   * @param lessonId - FoundationVocabLesson ID
+   * @param lessonId - Lesson ID
    * @returns List of grammar items
    */
   async findGrammarByLesson(lessonId: string) {

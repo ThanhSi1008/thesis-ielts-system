@@ -56,79 +56,7 @@ function urlFriendly(name) {
 // ─── EXERCISE PARSER ──────────────────────────────────────────
 
 function parseExercisesFromHtml(exerciseEntries) {
-  const exercises = [];
-  let order = 1;
-
-  for (const entry of exerciseEntries) {
-    if (entry.en === 'Answer Key') continue;
-    const html = entry.story;
-    if (!html) continue;
-
-    let match;
-    // Quote-agnostic regex: handles both ' and "
-    // Match up to </ul></li> to avoid premature match on nested <li>
-    const liRegex = /<li[^>]*?class=['"]answer-the-questions-section['"][^>]*?answer-index=['"](\d+)['"][^>]*>[\s\S]*?<\/ul>\s*<\/li>/g;
-    const liRegex2 = /<li[^>]*?answer-index=['"](\d+)['"][^>]*?class=['"]answer-the-questions-section['"][^>]*>[\s\S]*?<\/ul>\s*<\/li>/g;
-
-    const allLiMatches = [];
-    while ((match = liRegex.exec(html)) !== null) {
-      allLiMatches.push({ fullMatch: match[0], answerIndex: parseInt(match[1]), index: match.index });
-    }
-    while ((match = liRegex2.exec(html)) !== null) {
-      if (!allLiMatches.some(m => m.index === match.index)) {
-        allLiMatches.push({ fullMatch: match[0], answerIndex: parseInt(match[1]), index: match.index });
-      }
-    }
-    allLiMatches.sort((a, b) => a.index - b.index);
-
-    for (const { fullMatch, answerIndex } of allLiMatches) {
-      const contentMatch = fullMatch.match(/>([^<][\s\S]*)<\/ul>/s);
-      if (!contentMatch) continue;
-      const content = contentMatch[1] + '</ul>';
-
-      const ulMatch = content.match(/<ul[^>]*class=['"]ul-choose-answer['"][^>]*>([\s\S]*?)<\/ul>/);
-      if (!ulMatch) continue;
-
-      const options = [];
-      const optRegex = /<li>([\s\S]*?)<\/li>/g;
-      let optMatch;
-      while ((optMatch = optRegex.exec(ulMatch[1])) !== null) {
-        options.push(stripHtml(optMatch[1]));
-      }
-      if (options.length === 0) continue;
-
-      const questionText = stripHtml(content.replace(/<ul[\s\S]*<\/ul>/, ''));
-      if (!questionText) continue;
-
-      const correctAnswer = options[answerIndex] || '';
-      const cleanedOptions = options.map(o => o.replace(/^[a-z]\.\s*/i, '').replace(/^____\s*/, '').trim());
-      const cleanedAnswer = correctAnswer.replace(/^[a-z]\.\s*/i, '').replace(/^____\s*/, '').trim();
-
-      exercises.push({
-        question: questionText,
-        answer: cleanedAnswer,
-        options: cleanedOptions,
-        order: order++,
-      });
-    }
-    
-    // Fill-blank (char) exercises
-    const charRegex = /<li[^>]*class=['"]answer-the-questions-section-char['"][^>]*value=['"]([^'"]*?)['"][^>]*>([\s\S]*?)<\/li>/g;
-    while ((match = charRegex.exec(html)) !== null) {
-      const answer = decodeHtmlEntities(match[1]);
-      const questionContent = match[2];
-      const questionText = stripHtml(questionContent.replace(/<br\s*\/?>/g, ' ').replace(/_+/g, '____').trim());
-
-      exercises.push({
-        question: questionText,
-        answer: answer,
-        options: [],
-        order: order++,
-      });
-    }
-  }
-
-  return exercises;
+  return [];
 }
 
 // ─── READING COMPREHENSION PARSER ─────────────────────────────
@@ -145,25 +73,21 @@ function parseReadingQuestions(readingEntries) {
     let match;
 
     // Multiple-choice questions (quote-agnostic)
-    const liRegex = /<li[^>]*?class=['"]answer-the-questions-section['"][^>]*?answer-index=['"](\d+)['"][^>]*>[\s\S]*?<\/ul>\s*<\/li>/g;
-    const liRegex2 = /<li[^>]*?answer-index=['"](\d+)['"][^>]*?class=['"]answer-the-questions-section['"][^>]*>[\s\S]*?<\/ul>\s*<\/li>/g;
+    const liRegex = /<li[^>]*?class=['"]answer-the-questions-section['"][^>]*?answer-index=['"]([^'"]+?)['"][^>]*>([\s\S]*?<\/ul>\s*)<\/li>/g;
+    const liRegex2 = /<li[^>]*?answer-index=['"]([^'"]+?)['"][^>]*?class=['"]answer-the-questions-section['"][^>]*>([\s\S]*?<\/ul>\s*)<\/li>/g;
 
     const allLiMatches = [];
     while ((match = liRegex.exec(html)) !== null) {
-      allLiMatches.push({ fullMatch: match[0], answerIndex: parseInt(match[1]), index: match.index });
+      allLiMatches.push({ fullMatch: match[0], answerIndexRaw: match[1], content: match[2], index: match.index });
     }
     while ((match = liRegex2.exec(html)) !== null) {
       if (!allLiMatches.some(m => m.index === match.index)) {
-        allLiMatches.push({ fullMatch: match[0], answerIndex: parseInt(match[1]), index: match.index });
+        allLiMatches.push({ fullMatch: match[0], answerIndexRaw: match[1], content: match[2], index: match.index });
       }
     }
     allLiMatches.sort((a, b) => a.index - b.index);
 
-    for (const { fullMatch, answerIndex } of allLiMatches) {
-      const contentMatch = fullMatch.match(/>([^<][\s\S]*)<\/ul>/s);
-      if (!contentMatch) continue;
-      const content = contentMatch[1] + '</ul>';
-
+    for (const { content, answerIndexRaw, index } of allLiMatches) {
       const ulMatch = content.match(/<ul[^>]*class=['"]ul-choose-answer['"][^>]*>([\s\S]*?)<\/ul>/);
       if (!ulMatch) continue;
 
@@ -174,13 +98,25 @@ function parseReadingQuestions(readingEntries) {
         options.push(stripHtml(optMatch[1]).replace(/^[a-z]\.\s*/i, '').trim());
       }
 
-      const questionText = stripHtml(content.replace(/<ul[\s\S]*<\/ul>/, ''));
+      let questionText = stripHtml(content.replace(/<ul[\s\S]*<\/ul>/, ''));
+      if (!questionText) {
+        const h4Regex = /<h4>([\s\S]*?)<\/h4>/g;
+        let h4Match;
+        let lastH4 = 'Answer the question.';
+        while ((h4Match = h4Regex.exec(html)) !== null) {
+          if (h4Match.index < index) lastH4 = stripHtml(h4Match[1]);
+        }
+        questionText = lastH4;
+      }
+
+      const answerIndices = answerIndexRaw.split(',').map(s => parseInt(s.trim()));
+      const primaryIndex = answerIndices[0];
 
       questions.push({
         question: questionText,
         type: 'multiple_choice',
         options,
-        answer: options[answerIndex] || '',
+        answer: options[primaryIndex] || '',
         order: order++,
       });
     }
@@ -241,7 +177,7 @@ const bookImageUrls = [
 const allBooks = [];
 
 for (let bookNum = 1; bookNum <= 6; bookNum++) {
-  const dataPath = join(__dirname, `book${bookNum}_data.json`);
+  const dataPath = join(__dirname, 'srt', '4000-essential-english-word', `book${bookNum}_data.json`);
   console.log(`Reading book ${bookNum} from ${dataPath}...`);
 
   const raw = readFileSync(dataPath, 'utf-8').replace(/^\uFEFF/, '');
@@ -288,14 +224,14 @@ for (let bookNum = 1; bookNum <= 6; bookNum++) {
     // Parse story
     const story = parseStory(fc.reading || [], bookNum, unitLabel);
 
-    units.push({
-      title: storyTitle,
-      order: units.length + 1,
-      words,
-      exercises,
-      questions,
-      story,
-    });
+      units.push({
+        title: unit.en,
+        order: unit.order,
+        words: words,
+        exercises: [],
+        questions: questions,
+        story: story,
+      });
   }
 
   allBooks.push({
