@@ -284,15 +284,31 @@ export default function ProfileScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Subscription</Text>
         <View style={styles.subscriptionBox}>
-          <View>
-            <Text style={styles.subTier}>{tier === 'FREE' ? 'Free Plan' : `${tier} Plan`}</Text>
-            <Text style={styles.subDesc}>{tier === 'FREE' ? 'Basic access to all modules' : `Valid until ${subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString() : 'Auto-renew'}`}</Text>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <Text style={styles.subTier}>{tier === 'FREE' ? 'Free Plan' : `${tier} Plan`}</Text>
+              {tier !== 'FREE' && (
+                <View style={{ backgroundColor: tier === 'PRO' ? '#3B82F6' : '#8B5CF6', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>
+                  <Text style={{ fontFamily: 'Farro-Bold', fontSize: 10, color: '#fff' }}>ACTIVE</Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.subDesc}>
+              {tier === 'FREE'
+                ? 'Upgrade to unlock all premium features'
+                : subscription?.currentPeriodEnd
+                  ? `Renews ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}`
+                  : 'Premium features unlocked'}
+            </Text>
           </View>
-          {tier === 'FREE' && (
-            <TouchableOpacity style={styles.upgradeBtn} onPress={() => router.push('/pricing')}>
-              <Text style={styles.upgradeBtnText}>Upgrade</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={[styles.upgradeBtn, tier !== 'FREE' && { backgroundColor: '#EFF6FF' }]}
+            onPress={() => router.push('/pricing')}
+          >
+            <Text style={[styles.upgradeBtnText, tier !== 'FREE' && { color: '#3B82F6' }]}>
+              {tier === 'FREE' ? 'Upgrade' : 'Manage'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

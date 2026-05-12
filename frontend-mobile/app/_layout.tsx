@@ -16,10 +16,10 @@ interface TextInputWithDefaultProps extends TextInput {
 }
 
 ((Text as unknown) as TextWithDefaultProps).defaultProps = ((Text as unknown) as TextWithDefaultProps).defaultProps || {};
-((Text as unknown) as TextWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Regular' };
+((Text as unknown) as TextWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
 
 ((TextInput as unknown) as TextInputWithDefaultProps).defaultProps = ((TextInput as unknown) as TextInputWithDefaultProps).defaultProps || {};
-((TextInput as unknown) as TextInputWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Regular' };
+((TextInput as unknown) as TextInputWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -86,6 +86,9 @@ export default function RootLayout() {
         {/* Student / Teacher */}
         <Stack.Screen name="student-teacher/index" />
         <Stack.Screen name="student-teacher/[studentId]" />
+
+        {/* Pricing / Subscription */}
+        <Stack.Screen name="pricing" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>
     </AuthProvider>
   );

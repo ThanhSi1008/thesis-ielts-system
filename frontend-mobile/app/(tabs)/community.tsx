@@ -11,7 +11,7 @@ import { COLORS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { postsApi, gamificationApi } from '@/services/posts.api';
 import { timeAgo } from '@/utils/timeAgo';
-import type { Post, PostType, LeaderboardEntry } from '@/types';
+import type { Post, PostType, Comment, LeaderboardEntry } from '@/types';
 
 // ─── Avatar ────────────────────────────────────────────────────
 function Avatar({ name, avatar, color, size = 38 }: { name?: string; avatar?: string | null; color?: string; size?: number }) {
@@ -45,9 +45,10 @@ function TypePill({ type }: { type: PostType }) {
 }
 
 // ─── PostCard ──────────────────────────────────────────────────
-function PostCard({ post, currentUserId, onLike, onBookmark, onDelete }: {
+function PostCard({ post, currentUserId, onLike, onBookmark, onDelete, onOpenComments }: {
   post: Post; currentUserId?: string;
-  onLike: (id: string) => void; onBookmark: (id: string) => void; onDelete: (id: string) => void;
+  onLike: (id: string) => void; onBookmark: (id: string) => void;
+  onDelete: (id: string) => void; onOpenComments: (id: string) => void;
 }) {
   const authorName = [post.author.firstName, post.author.lastName].filter(Boolean).join(' ') || 'Anonymous';
   const isOwner = post.authorId === currentUserId;
@@ -92,17 +93,17 @@ function PostCard({ post, currentUserId, onLike, onBookmark, onDelete }: {
       )}
 
       <View style={s.actions}>
-        <TouchableOpacity onPress={() => onLike(post.id)} style={s.actionBtn}>
-          <Ionicons name={post.isLiked ? 'heart' : 'heart-outline'} size={18} color={post.isLiked ? '#ef4444' : '#9ca3af'} />
+        <TouchableOpacity onPress={() => onLike(post.id)} style={s.actionBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Ionicons name={post.isLiked ? 'heart' : 'heart-outline'} size={24} color={post.isLiked ? '#ef4444' : '#9ca3af'} />
           {post.likeCount > 0 && <Text style={[s.actionText, post.isLiked && { color: '#ef4444' }]}>{post.likeCount}</Text>}
         </TouchableOpacity>
-        <TouchableOpacity style={s.actionBtn}>
-          <Ionicons name="chatbubble-outline" size={17} color="#9ca3af" />
+        <TouchableOpacity onPress={() => onOpenComments(post.id)} style={s.actionBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Ionicons name="chatbubble-outline" size={23} color="#9ca3af" />
           {post.commentCount > 0 && <Text style={s.actionText}>{post.commentCount}</Text>}
         </TouchableOpacity>
         <View style={{ flex: 1 }} />
-        <TouchableOpacity onPress={() => onBookmark(post.id)} style={s.actionBtn}>
-          <Ionicons name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'} size={18} color={post.isBookmarked ? COLORS.primary : '#9ca3af'} />
+        <TouchableOpacity onPress={() => onBookmark(post.id)} style={s.actionBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Ionicons name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'} size={23} color={post.isBookmarked ? COLORS.primary : '#9ca3af'} />
         </TouchableOpacity>
       </View>
     </View>
@@ -110,6 +111,7 @@ function PostCard({ post, currentUserId, onLike, onBookmark, onDelete }: {
 }
 
 // ─── CreatePostModal ───────────────────────────────────────────
+
 const TAGS = ['Listening', 'Reading', 'Writing', 'Speaking', 'Grammar', 'Pronunciation', 'TOEIC', 'IELTS'];
 const POST_TYPES: { value: PostType; label: string }[] = [
   { value: 'GENERAL', label: 'General' },
@@ -353,6 +355,108 @@ function LeaderboardView({ currentUserId }: { currentUserId?: string }) {
   );
 }
 
+// ─── CommentSection ───────────────────────────────────────────
+function CommentSection({ postId, currentUserId, onCommentAdded }: {
+  postId: string; currentUserId?: string; onCommentAdded: () => void;
+}) {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [text, setText] = useState('');
+  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchComments = useCallback(async () => {
+    try {
+      const post = await postsApi.getPost(postId);
+      setComments(post.comments ?? []);
+    } catch { /* silent */ }
+    finally { setLoading(false); }
+  }, [postId]);
+
+  useEffect(() => { fetchComments(); }, [fetchComments]);
+
+  const submit = async () => {
+    if (!text.trim()) return;
+    setSubmitting(true);
+    try {
+      await postsApi.createComment(postId, { body: text.trim(), parentId: replyTo?.id });
+      setText(''); setReplyTo(null);
+      fetchComments();
+      onCommentAdded();
+    } catch { Alert.alert('Error', 'Failed to post comment'); }
+    finally { setSubmitting(false); }
+  };
+
+  const handleDelete = async (commentId: string) => {
+    setComments(prev => prev.filter(c => c.id !== commentId && c.parentId !== commentId));
+    try { await postsApi.deleteComment(commentId); fetchComments(); onCommentAdded(); }
+    catch { fetchComments(); }
+  };
+
+  const renderComment = (c: Comment, isReply = false) => {
+    const name = [c.author.firstName, c.author.lastName].filter(Boolean).join(' ') || 'Anonymous';
+    return (
+      <View key={c.id} style={[s.commentRow, isReply && { marginLeft: 44, marginTop: 10 }]}>
+        <Avatar name={name} avatar={c.author.avatar} size={36} />
+        <View style={{ flex: 1 }}>
+          <View style={s.commentBubble}>
+            <Text style={s.commentAuthor}>{name}</Text>
+            <Text style={s.commentBody}>{c.body}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 4, marginLeft: 4 }}>
+            <Text style={s.commentTime}>{timeAgo(c.createdAt)}</Text>
+            {!isReply && (
+              <TouchableOpacity onPress={() => setReplyTo({ id: c.id, name })}>
+                <Text style={[s.commentTime, { color: COLORS.primary }]}>Reply</Text>
+              </TouchableOpacity>
+            )}
+            {c.authorId === currentUserId && (
+              <TouchableOpacity onPress={() => handleDelete(c.id)}>
+                <Text style={[s.commentTime, { color: '#ef4444' }]}>Delete</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          {c.replies?.map(r => renderComment(r, true))}
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <View style={s.commentSection}>
+      {loading
+        ? <ActivityIndicator size="small" color={COLORS.primary} style={{ marginVertical: 8 }} />
+        : comments.length === 0
+          ? <Text style={{ fontFamily: 'Farro-Regular', fontSize: 13, color: '#9ca3af', textAlign: 'center', paddingVertical: 12 }}>No comments yet. Be the first!</Text>
+          : comments.map(c => renderComment(c))
+      }
+      {replyTo && (
+        <View style={s.replyBanner}>
+          <Text style={{ fontFamily: 'Farro-Medium', fontSize: 13, color: COLORS.primary }}>Replying to {replyTo.name}</Text>
+          <TouchableOpacity onPress={() => setReplyTo(null)}>
+            <Ionicons name="close" size={16} color={COLORS.primary} />
+          </TouchableOpacity>
+        </View>
+      )}
+      <View style={s.commentInputRow}>
+        <TextInput
+          value={text} onChangeText={setText}
+          placeholder={replyTo ? 'Write a reply…' : 'Write a comment…'}
+          placeholderTextColor="#9ca3af"
+          style={s.commentInput}
+          returnKeyType="send"
+          onSubmitEditing={submit}
+        />
+        <TouchableOpacity onPress={submit} disabled={!text.trim() || submitting} style={[s.sendBtn, (!text.trim() || submitting) && { opacity: 0.45 }]}>
+          {submitting
+            ? <ActivityIndicator size="small" color="#212529" />
+            : <Ionicons name="send" size={18} color="#212529" />}
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 // ─── Main Screen ───────────────────────────────────────────────
 const TABS = [
   { id: 'all', icon: 'albums-outline', label: 'All Posts' },
@@ -361,6 +465,7 @@ const TABS = [
   { id: 'leaderboard', icon: 'bar-chart-outline', label: 'Leaderboard' },
 ] as const;
 type TabId = typeof TABS[number]['id'];
+
 
 const TAB_TYPE_MAP: Record<string, PostType | undefined> = {
   tips: 'STUDY_TIP',
@@ -376,6 +481,17 @@ export default function CommunityScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [openedCommentPostId, setOpenedCommentPostId] = useState<string | null>(null);
+
+  const handleOpenComments = (postId: string) => {
+    setOpenedCommentPostId(prev => prev === postId ? null : postId);
+  };
+
+  const handleCommentAdded = (postId: string) => {
+    setPosts(prev => prev.map(p =>
+      p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p
+    ));
+  };
 
   const fetchPosts = useCallback(async (cursor?: string) => {
     const type = TAB_TYPE_MAP[activeTab];
@@ -489,13 +605,15 @@ export default function CommunityScreen() {
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={{ padding: 16, gap: 10 }}
+          contentContainerStyle={{ padding: 16, gap: 12 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />}
           onScroll={({ nativeEvent: e }) => {
             const near = e.layoutMeasurement.height + e.contentOffset.y >= e.contentSize.height - 200;
             if (near) loadMore();
           }}
           scrollEventThrottle={400}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets
         >
           {/* Create box */}
           <TouchableOpacity style={s.createBox} onPress={() => setShowCreate(true)}>
@@ -510,8 +628,18 @@ export default function CommunityScreen() {
               <Text style={{ fontFamily: 'Farro-Medium', color: '#9ca3af', marginTop: 12 }}>No posts yet. Be the first!</Text>
             </View>
           ) : posts.map(post => (
-            <PostCard key={post.id} post={post} currentUserId={user?.id}
-              onLike={handleLike} onBookmark={handleBookmark} onDelete={handleDelete} />
+            <View key={post.id}>
+              <PostCard post={post} currentUserId={user?.id}
+                onLike={handleLike} onBookmark={handleBookmark}
+                onDelete={handleDelete} onOpenComments={handleOpenComments} />
+              {openedCommentPostId === post.id && (
+                <CommentSection
+                  postId={post.id}
+                  currentUserId={user?.id}
+                  onCommentAdded={() => handleCommentAdded(post.id)}
+                />
+              )}
+            </View>
           ))}
 
           {loadingMore && <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 12 }} />}
@@ -546,9 +674,9 @@ const s = StyleSheet.create({
   postBody: { fontFamily: 'Farro-Regular', fontSize: 15, color: '#374151', lineHeight: 22, marginBottom: 10 },
   tag: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
   tagText: { fontFamily: 'Farro-Medium', fontSize: 12, color: '#64748b' },
-  actions: { flexDirection: 'row', alignItems: 'center', paddingTop: 10, borderTopWidth: 1, borderTopColor: '#f9fafb' },
-  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, marginRight: 14 },
-  actionText: { fontFamily: 'Farro-Bold', fontSize: 13, color: '#9ca3af' },
+  actions: { flexDirection: 'row', alignItems: 'center', paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0', gap: 4 },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, marginRight: 4 },
+  actionText: { fontFamily: 'Farro-Bold', fontSize: 15, color: '#9ca3af' },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 3, paddingHorizontal: 8, borderRadius: 12 },
   pillText: { fontFamily: 'Farro-Bold', fontSize: 10, letterSpacing: 0.5 },
   rankRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, borderWidth: 1, borderColor: '#f0f0f0', marginBottom: 6 },
@@ -573,4 +701,15 @@ const s = StyleSheet.create({
   modalToolbar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0', backgroundColor: '#fff' },
   toolbarBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   toolbarBtnText: { fontFamily: 'Farro-Bold', fontSize: 14, color: COLORS.primary },
+  // Comment Section
+  commentSection: { backgroundColor: '#fff', marginTop: -10, borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20, borderBottomLeftRadius: 18, borderBottomRightRadius: 18, borderWidth: 1, borderColor: '#f0f0f0' },
+  commentRow: { flexDirection: 'row', gap: 12, marginBottom: 18 },
+  commentBubble: { backgroundColor: '#f3f4f6', borderRadius: 18, paddingHorizontal: 16, paddingVertical: 12, alignSelf: 'flex-start', maxWidth: '100%' },
+  commentAuthor: { fontFamily: 'Farro-Bold', fontSize: 15, color: '#212529', marginBottom: 4 },
+  commentBody: { fontFamily: 'Farro-Regular', fontSize: 15, color: '#374151', lineHeight: 22 },
+  commentTime: { fontFamily: 'Farro-Medium', fontSize: 13, color: '#9ca3af' },
+  commentInputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
+  commentInput: { flex: 1, backgroundColor: '#f3f4f6', borderRadius: 28, paddingHorizontal: 18, paddingVertical: 13, fontFamily: 'Farro-Regular', fontSize: 15, color: '#212529', minHeight: 48 },
+  sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
+  replyBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: COLORS.primary + '18', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, marginBottom: 10 },
 });
