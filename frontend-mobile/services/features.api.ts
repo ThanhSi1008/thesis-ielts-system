@@ -79,3 +79,47 @@ export const ieltsBasicApi = {
   getUserProgress: () => apiClient.get<any[]>('/ielts/progress'),
 };
 
+// ==================== SUBSCRIPTIONS ====================
+export interface PricingPlan {
+  id: string;
+  tier: 'FREE' | 'PREMIUM' | 'PRO';
+  name: string;
+  description: string;
+  priceAmount: number;    // in cents, e.g. 999 = $9.99
+  currency: string;
+  interval: 'month' | 'year';
+  intervalCount: number;
+  features: string[];
+  isActive: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CheckoutResponse {
+  redirectUrl?: string;
+  subscription?: any;
+  message?: string;
+}
+
+export const subscriptionsApi = {
+  /** GET /subscriptions/plans — returns paid plans from backend */
+  getPlans: (): Promise<PricingPlan[]> =>
+    apiClient.get<PricingPlan[]>('/subscriptions/plans'),
+
+  /** GET /subscriptions/me — current user's subscription info */
+  getMySubscription: (): Promise<any> =>
+    apiClient.get<any>('/subscriptions/me'),
+
+  /** POST /subscriptions/start-trial */
+  startTrial: (): Promise<CheckoutResponse> =>
+    apiClient.post<CheckoutResponse>('/subscriptions/start-trial', {}),
+
+  /** POST /subscriptions/checkout — create checkout session */
+  checkout: (planId: string): Promise<CheckoutResponse> =>
+    apiClient.post<CheckoutResponse>('/subscriptions/checkout', { planId }),
+
+  /** POST /subscriptions/cancel */
+  cancel: (reason?: string): Promise<any> =>
+    apiClient.post<any>('/subscriptions/cancel', { reason }),
+};

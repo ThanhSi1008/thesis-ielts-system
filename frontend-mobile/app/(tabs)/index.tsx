@@ -47,6 +47,18 @@ export default function HomeTab() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
+        {/* Header / Notifications */}
+        <View style={styles.headerArea}>
+          <View style={{ flex: 1 }} />
+          <Link href="/(tabs)/notification" asChild>
+            <Pressable style={styles.notifButton}>
+              <Ionicons name="notifications-outline" size={24} color="#FFF" />
+              {/* Notification Badge */}
+              <View style={styles.notifBadge} />
+            </Pressable>
+          </Link>
+        </View>
+
         {/* Top Content Section */}
         <View style={styles.topSection}>
           {/* Hero Title */}
@@ -115,8 +127,41 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingTop: 80,
+    paddingTop: 60,
     paddingBottom: 60,
+  },
+  headerArea: {
+    paddingHorizontal: SPACING.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+    zIndex: 20,
+  },
+  notifButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  notifBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 12,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ef4444',
+    borderWidth: 1.5,
+    borderColor: '#212529',
   },
   topSection: {
     paddingHorizontal: SPACING.lg,

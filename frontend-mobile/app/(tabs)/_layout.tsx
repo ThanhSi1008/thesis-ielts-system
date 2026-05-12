@@ -32,20 +32,16 @@ export default function TabLayout() {
         options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} /> }}
       />
       <Tabs.Screen
+        name="explore"
+        options={{ title: 'Explore', tabBarIcon: ({ color, size }) => <Ionicons name="compass" size={size} color={color} /> }}
+      />
+      <Tabs.Screen
         name="ielts"
         options={{ title: 'IELTS', tabBarIcon: ({ color, size }) => <Ionicons name="school" size={size} color={color} /> }}
       />
       <Tabs.Screen
-        name="shadowing"
-        options={{ title: 'Shadowing', tabBarIcon: ({ color, size }) => <Ionicons name="headset" size={size} color={color} /> }}
-      />
-      <Tabs.Screen
-        name="vocablab"
-        options={{ title: 'Vocab Lab', tabBarIcon: ({ color, size }) => <Ionicons name="library" size={size} color={color} /> }}
-      />
-      <Tabs.Screen
-        name="notification"
-        options={{ title: 'Notifs', tabBarIcon: ({ color, size }) => <Ionicons name="notifications" size={size} color={color} /> }}
+        name="community"
+        options={{ title: 'Community', tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="profile"
@@ -53,6 +49,9 @@ export default function TabLayout() {
       />
       
       {/* Ẩn các màn hình khác khỏi bottom tab bar */}
+      <Tabs.Screen name="vocablab" options={{ href: null }} />
+      <Tabs.Screen name="notification" options={{ href: null }} />
+      <Tabs.Screen name="shadowing" options={{ href: null }} />
       <Tabs.Screen name="pronunciation" options={{ href: null }} />
       <Tabs.Screen name="vocabulary" options={{ href: null }} />
       <Tabs.Screen name="more" options={{ href: null }} />

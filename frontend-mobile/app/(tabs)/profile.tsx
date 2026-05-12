@@ -116,6 +116,20 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {/* Subscription Options */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Subscription</Text>
+          <TouchableOpacity style={styles.optionItem} onPress={() => router.push('/pricing')}>
+            <View style={styles.optionLeft}>
+              <View style={[styles.iconContainer, { backgroundColor: '#FEF9C3' }]}>
+                <Ionicons name="star" size={20} color="#EAB308" />
+              </View>
+              <Text style={styles.optionText}>Upgrade Plan</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
+        </View>
+
         {/* Settings Options */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
