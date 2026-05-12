@@ -74,14 +74,18 @@ export class AuthService {
   }
 
   async googleLogin(idToken: string) {
-    const clientId = this.configService.get<string>("GOOGLE_CLIENT_ID");
+    // ✅ Verify với tất cả client IDs
+    const audience = [
+      this.configService.get<string>("GOOGLE_CLIENT_ID"),         // Web
+      this.configService.get<string>("GOOGLE_IOS_CLIENT_ID"),     // iOS
+      this.configService.get<string>("GOOGLE_ANDROID_CLIENT_ID"), // Android
+    ].filter(Boolean); // loại bỏ undefined nếu chưa có
 
-    // 1. Verify the ID token with Google
     let ticket: any;
     try {
       ticket = await this.googleClient.verifyIdToken({
         idToken,
-        audience: clientId,
+        audience, // ✅ array thay vì single string
       });
     } catch {
       throw new UnauthorizedException("Invalid Google ID token");

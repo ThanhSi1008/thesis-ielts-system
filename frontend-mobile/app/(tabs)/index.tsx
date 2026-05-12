@@ -50,7 +50,7 @@ export default function HomeTab() {
         {/* Header / Notifications */}
         <View style={styles.headerArea}>
           <View style={{ flex: 1 }} />
-          <Link href="/(tabs)/notification" asChild>
+          <Link href="/notification" asChild>
             <Pressable style={styles.notifButton}>
               <Ionicons name="notifications-outline" size={24} color="#FFF" />
               {/* Notification Badge */}

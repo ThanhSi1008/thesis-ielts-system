@@ -9,9 +9,11 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -91,6 +93,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    setIsLoading(true);
+    try {
+      const response = await authService.googleLogin(idToken);
+      if (response.user) {
+        setUser(response.user);
+        await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
+      }
+    } catch (error) {
+      console.error('Google Login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const register = async (data: RegisterRequest) => {
     setIsLoading(true);
     try {
@@ -109,13 +127,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await authService.logout();
       setUser(null);
+      // ✅ Thêm dòng này để clear storage chắc chắn
+      await AsyncStorage.removeItem(STORAGE_KEYS.USER_DATA);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const userProfile = await authService.getCurrentUser();
+      setUser(userProfile);
+      await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userProfile));
+    } catch (e) {
+      console.error('Refresh user failed:', e);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, checkAuth }}>
+    <AuthContext.Provider value={{ user, isLoading, login, loginWithGoogle, register, logout, checkAuth, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

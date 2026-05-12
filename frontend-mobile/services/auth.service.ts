@@ -21,6 +21,14 @@ class AuthService extends ApiClient {
     return response;
   }
 
+  async googleLogin(idToken: string): Promise<AuthResponse> {
+    const response = await this.post<AuthResponse>('/google', { idToken });
+    if (response.access_token) {
+      await this.setSession(response.access_token, response.refresh_token);
+    }
+    return response;
+  }
+
   async logout(): Promise<void> {
     // Optional: Call backend logout if implemented
     await this.clearSession();

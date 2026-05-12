@@ -42,6 +42,8 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="notification" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="chat-ai" options={{ presentation: 'modal' }} />
 
         {/* Vocabulary nested */}
         <Stack.Screen name="vocabulary/[bookId]" options={{ headerShown: true, title: 'Units', headerStyle: { backgroundColor: '#FFC600' }, headerTintColor: '#FFFFFF' }} />

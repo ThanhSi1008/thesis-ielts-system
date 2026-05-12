@@ -2,7 +2,7 @@ import { apiClient } from './api-client';
 import { 
   Deck, Flashcard, CardType, VocabStats, 
   ShadowingVideo, ShadowingProgress, ShadowingSentence,
-  IeltsSkill, IeltsLesson, IeltsExercise
+  IeltsSkill, IeltsLesson, IeltsExercise, GamificationProfile, AchievementItem
 } from '@/types';
 
 // ==================== VOCAB LAB ====================
@@ -119,7 +119,12 @@ export const subscriptionsApi = {
   checkout: (planId: string): Promise<CheckoutResponse> =>
     apiClient.post<CheckoutResponse>('/subscriptions/checkout', { planId }),
 
-  /** POST /subscriptions/cancel */
   cancel: (reason?: string): Promise<any> =>
     apiClient.post<any>('/subscriptions/cancel', { reason }),
+};
+
+// ==================== GAMIFICATION ====================
+export const gamificationApi = {
+  getProfile: () => apiClient.get<GamificationProfile>('/gamification/profile'),
+  getAchievements: () => apiClient.get<AchievementItem[]>('/gamification/achievements'),
 };

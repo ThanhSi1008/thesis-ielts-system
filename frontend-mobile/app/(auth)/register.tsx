@@ -1,17 +1,49 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { Link, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatusBar } from 'expo-status-bar';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { useEffect } from 'react';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { register, isLoading } = useAuth();
+  const { register: registerUser, loginWithGoogle, isLoading } = useAuth();
   const router = useRouter();
+
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'your-google-client-id.apps.googleusercontent.com',
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      if (id_token) {
+        handleGoogleSuccess(id_token);
+      }
+    } else if (response?.type === 'error') {
+      Alert.alert('Google Login Failed', 'Authentication failed or was canceled.');
+    }
+  }, [response]);
+
+  const handleGoogleSuccess = async (idToken: string) => {
+    try {
+      await loginWithGoogle(idToken);
+      // Redirect handled by AuthContext
+    } catch (error: any) {
+      Alert.alert('Google Login Failed', error.message || 'Something went wrong');
+    }
+  };
 
   const handleRegister = async () => {
     if (!email || !fullName || !password || !confirmPassword) {
@@ -39,7 +71,7 @@ export default function RegisterScreen() {
         }
       }
       
-      await register({ email, password, firstName, lastName });
+      await registerUser({ email, password, firstName, lastName });
       Alert.alert(
         'Success', 
         'Account created successfully! Please log in.',
@@ -118,6 +150,23 @@ export default function RegisterScreen() {
             ) : (
               <Text style={styles.buttonText}>Sign Up</Text>
             )}
+          </TouchableOpacity>
+
+          <View style={styles.dividerContainer}>
+            <View style={styles.divider} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.divider} />
+          </View>
+
+          <TouchableOpacity 
+            style={styles.googleButton} 
+            onPress={() => {
+              if (request) promptAsync();
+            }}
+            disabled={!request || isLoading}
+          >
+            <Ionicons name="logo-google" size={20} color="#4285F4" style={styles.googleIcon} />
+            <Text style={styles.googleButtonText}>Continue with Google</Text>
           </TouchableOpacity>
 
           <View style={styles.footer}>
@@ -211,6 +260,45 @@ const styles = StyleSheet.create({
   },
   link: {
     color: COLORS.primary,
+    fontSize: FONT_SIZES.md,
+    fontWeight: 'bold',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: SPACING.xl,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: COLORS.border,
+  },
+  dividerText: {
+    marginHorizontal: SPACING.md,
+    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '500',
+  },
+  googleButton: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  googleIcon: {
+    marginRight: SPACING.sm,
+  },
+  googleButtonText: {
+    color: COLORS.text,
     fontSize: FONT_SIZES.md,
     fontWeight: 'bold',
   },
