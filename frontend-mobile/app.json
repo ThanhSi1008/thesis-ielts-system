@@ -14,8 +14,16 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.ieltsmasterai.app"
+      "bundleIdentifier": "com.ieltsmasterai.app",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.972613399189-253neiuhg06gf6ij83coff4bp81p2p0s"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.ieltsmasterai.app",
@@ -41,7 +49,8 @@
       ],
       "expo-video",
       "@react-native-community/datetimepicker",
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "scheme": "ielts-master-ai"
   }

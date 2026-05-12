@@ -24,6 +24,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   avatar?: string;
+  googleId?: string;
   role: 'USER' | 'ADMIN';
   createdAt: string;
 }
@@ -344,4 +345,32 @@ export interface IeltsMCQuestion {
 export interface IeltsMCOption {
   letter: string;
   text: string;
+}
+
+// ==================== GAMIFICATION ====================
+
+export interface GamificationProfile {
+  id: string;
+  userId: string;
+  level: number;
+  totalXp: number;
+  currentLevelXp: number;
+  xpNeeded: number;
+  achievementCount: number;
+  totalAchievements: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AchievementItem {
+  id: string;
+  badgeId: string;
+  name: string;
+  description: string;
+  icon: string;
+  conditionType: string;
+  conditionValue: number;
+  xpReward: number;
+  earnedAt?: string;
+  progress?: number;
 }

@@ -31,6 +31,7 @@ const NAV_ITEMS = [
   { key: 'advanced',       label: 'IELTS Advanced',    icon: 'trending-up-outline' as const, route: '/ielts/advanced' },
   { key: 'intensive',      label: 'IELTS Intensive',   icon: 'flash-outline' as const,       route: '/ielts/intensive' },
   { key: 'roadmap',        label: 'Roadmap',           icon: 'map-outline' as const,         route: '/ielts/roadmap' },
+  { key: 'calculator',     label: 'Calculator',        icon: 'calculator-outline' as const,  route: '/ielts/calculator' },
   { key: 'history',        label: 'Test History',      icon: 'time-outline' as const,        route: '/ielts/history' },
   { key: 'statistics',     label: 'Statistics',        icon: 'bar-chart-outline' as const,   route: '/ielts/statistics' },
   { key: 'student-teacher',label: 'Student/Teacher',   icon: 'people-outline' as const,      route: '/ielts/student-teacher' },

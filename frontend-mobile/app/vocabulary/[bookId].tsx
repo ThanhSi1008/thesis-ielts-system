@@ -1,40 +1,135 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl, Image,
+  ActivityIndicator, RefreshControl
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { vocabularyApi } from '@/services/ielts.api';
 
-const BOOK_COLORS = ['#E11D48', '#2563EB', '#D97706', '#059669', '#7C3AED', '#DB2777'];
+const THEME = {
+  P: '#FFC600',
+  FG1: '#212529',
+  FG2: '#64748b',
+  FG3: '#9ca3af',
+  BDR: '#e5e7eb',
+  SRF: '#f8f9fa',
+  WH: '#ffffff',
+  BLU: '#2196F3',
+};
 
-// ─── Progress ring (simple arc via border radius hack) ────────────────────────
-function ProgressRing({ pct, size = 40, color }: { pct: number; size?: number; color: string }) {
-  const filled = Math.round(pct * 100);
+// Group component for 10 units
+function UnitGroup({ 
+  groupIndex, units, progressMap, isExpanded, onToggle, router, bookId
+}: { 
+  groupIndex: number, units: any[], progressMap: any, 
+  isExpanded: boolean, onToggle: () => void, router: any, bookId: string 
+}) {
+  const startNum = groupIndex * 10 + 1;
+  const endNum = startNum + units.length - 1;
+  const groupTitle = `Units ${startNum}–${endNum}`;
+  
+  const completedCount = units.filter(u => progressMap[u.id]?.isCompleted).length;
+  const totalWords = units.reduce((sum, u) => sum + (progressMap[u.id]?.totalWords || 20), 0);
+
   return (
-    <View style={[pr.wrap, { width: size, height: size, borderRadius: size / 2, borderColor: color + '20' }]}>
-      <View style={[pr.fill, {
-        width: size - 6, height: size - 6, borderRadius: (size - 6) / 2,
-        borderColor: color,
-        borderWidth: filled > 0 ? 2.5 : 0,
-        backgroundColor: filled >= 100 ? color + '20' : 'transparent',
-      }]} />
-      {filled >= 100 && <Ionicons name="checkmark" size={size * 0.4} color={color} style={pr.check} />}
-      {filled < 100 && (
-        <Text style={[pr.text, { fontSize: size * 0.25, color }]}>{filled}%</Text>
+    <View style={[styles.groupCard, !isExpanded && completedCount === 0 && styles.groupCardInactive]}>
+      {/* Group header */}
+      <TouchableOpacity 
+        onPress={onToggle} 
+        style={[styles.groupHeader, isExpanded && styles.groupHeaderExpanded]}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.groupToggleBtn, isExpanded && styles.groupToggleBtnActive]}>
+          <Ionicons name={isExpanded ? 'chevron-down' : 'chevron-forward'} size={14} color={isExpanded ? THEME.FG1 : THEME.FG3} />
+        </View>
+        <View style={styles.groupInfo}>
+          <Text style={styles.groupTitle}>{groupTitle}</Text>
+          <Text style={styles.groupSubtitle}>{units.length} units · {totalWords} words</Text>
+        </View>
+        <View style={styles.groupProgressCol}>
+          <Text style={[styles.groupProgressText, completedCount > 0 && { color: THEME.FG2 }]}>
+            {completedCount}/{units.length}
+          </Text>
+          {completedCount > 0 && (
+            <View style={styles.groupProgressBar}>
+              <View style={[styles.groupProgressFill, { width: `${(completedCount / units.length) * 100}%` }]} />
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+
+      {/* Unit rows */}
+      {isExpanded && (
+        <View style={styles.groupContent}>
+          {units.map((unit, idx) => {
+            const up = progressMap[unit.id];
+            const isComp = up?.isCompleted ?? false;
+            const wordsLearned = up?.wordsLearned ?? 0;
+            const totalWords = up?.totalWords ?? 20;
+            const isIP = !isComp && wordsLearned > 0;
+            const orderNum = startNum + idx;
+
+            return (
+              <TouchableOpacity
+                key={unit.id}
+                style={[
+                  styles.unitRow,
+                  isComp ? styles.unitRowCompleted : styles.unitRowDefault
+                ]}
+                onPress={() => router.push(`/vocabulary/${bookId}/${unit.id}` as any)}
+                activeOpacity={0.8}
+              >
+                {/* Badge */}
+                <View style={[
+                  styles.unitBadge,
+                  isComp ? styles.unitBadgeCompleted : styles.unitBadgeDefault
+                ]}>
+                  {isComp ? (
+                    <Ionicons name="checkmark" size={14} color={THEME.FG1} />
+                  ) : (
+                    <Text style={styles.unitBadgeText}>{orderNum}</Text>
+                  )}
+                </View>
+                
+                {/* Info */}
+                <View style={styles.unitMain}>
+                  <Text style={[styles.unitName, isComp && { color: THEME.FG1 }]} numberOfLines={1}>
+                    {unit.title}
+                  </Text>
+                  
+                  {isComp && (
+                    <Text style={styles.unitCompletedLabel}>COMPLETED</Text>
+                  )}
+                  
+                  {isIP && (
+                    <View style={styles.unitIPRow}>
+                      <View style={styles.unitIPBar}>
+                        <View style={[styles.unitIPFill, { width: `${(wordsLearned/totalWords)*100}%` }]} />
+                      </View>
+                      <Text style={styles.unitIPText}>{wordsLearned}/{totalWords}</Text>
+                    </View>
+                  )}
+                </View>
+                
+                {/* Stats */}
+                <View style={styles.unitStats}>
+                  <Text style={[styles.unitStatsCount, isComp && { color: 'rgba(0,0,0,0.45)' }]}>
+                    {wordsLearned}/{totalWords}
+                  </Text>
+                  <Text style={[styles.unitStatsStatus, isComp && { color: 'rgba(0,0,0,0.35)' }]}>
+                    {isComp ? '✓ Reading' : isIP ? 'Pending' : '—'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       )}
     </View>
   );
 }
-const pr = StyleSheet.create({
-  wrap: { borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  fill: { position: 'absolute' },
-  check: { position: 'absolute' },
-  text: { fontFamily: FONTS.bold, position: 'absolute' },
-});
 
 export default function VocabularyBookScreen() {
   const router = useRouter();
@@ -44,6 +139,9 @@ export default function VocabularyBookScreen() {
   const [progress, setProgress] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Track expanded groups (index based)
+  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({ 0: true });
 
   const load = useCallback(async () => {
     try {
@@ -65,15 +163,17 @@ export default function VocabularyBookScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={s.container} edges={['top']}>
-        <View style={s.header}>
-          <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-            <Ionicons name="chevron-back" size={24} color="#fff" />
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={18} color={THEME.FG1} />
           </TouchableOpacity>
-          <Text style={s.headerTitle}>Loading…</Text>
-          <View style={{ width: 40 }} />
+          <View style={styles.headerTitleCol}>
+            <Text style={styles.headerEyebrow}>Vocabulary</Text>
+            <Text style={styles.headerTitle} numberOfLines={1}>Loading...</Text>
+          </View>
         </View>
-        <View style={s.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>
+        <View style={styles.center}><ActivityIndicator size="large" color={THEME.P} /></View>
       </SafeAreaView>
     );
   }
@@ -82,146 +182,138 @@ export default function VocabularyBookScreen() {
   const progressMap: Record<string, any> = {};
   (progress?.units ?? []).forEach((u: any) => { progressMap[u.id] = u; });
 
-  // Compute overall completion
   const units = book?.units ?? [];
+  const totalUnits = units.length;
   const completedCount = units.filter((u: any) => progressMap[u.id]?.isCompleted).length;
-  const overallPct = units.length > 0 ? completedCount / units.length : 0;
 
-  // Book index for color (use book order - 1 or default 0)
-  const bookOrder = (book?.order ?? 1) - 1;
-  const accentColor = BOOK_COLORS[bookOrder % BOOK_COLORS.length];
+  // Chunk units into groups of 10
+  const groups = [];
+  for (let i = 0; i < totalUnits; i += 10) {
+    groups.push(units.slice(i, i + 10));
+  }
+
+  const toggleGroup = (index: number) => {
+    setExpandedGroups(prev => ({ ...prev, [index]: !prev[index] }));
+  };
 
   return (
-    <SafeAreaView style={s.container} edges={['top']}>
-      {/* Header */}
-      <View style={[s.header, { backgroundColor: accentColor }]}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={s.headerTitle} numberOfLines={1}>{book?.name ?? 'Vocabulary'}</Text>
-        <View style={{ width: 40 }} />
-      </View>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.headerWrapper} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={18} color={THEME.FG1} />
+          </TouchableOpacity>
+          <View style={styles.headerTitleCol}>
+            <Text style={styles.headerEyebrow}>Vocabulary</Text>
+            <Text style={styles.headerTitle} numberOfLines={1}>
+              {book?.name ?? 'Word List'}
+            </Text>
+          </View>
+          <View style={styles.headerBadge}>
+            <Text style={styles.headerBadgeVal}>{completedCount}/{totalUnits}</Text>
+            <Text style={styles.headerBadgeLbl}>UNITS</Text>
+          </View>
+        </View>
+      </SafeAreaView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
-        contentContainerStyle={{ paddingBottom: 60 }}
+        contentContainerStyle={styles.content}
       >
-        {/* Book hero */}
-        <View style={[s.hero, { backgroundColor: accentColor }]}>
-          {book?.imageUrl ? (
-            <Image source={{ uri: book.imageUrl }} style={s.coverImg} resizeMode="cover" />
-          ) : (
-            <View style={[s.coverPlaceholder, { borderColor: 'rgba(255,255,255,0.4)' }]}>
-              <Text style={{ fontSize: 36 }}>📚</Text>
-            </View>
-          )}
-          <View style={s.heroInfo}>
-            <Text style={s.heroStats}>{units.length} units · {book?.wordCount ?? 600} words</Text>
-            <View style={s.progressBar}>
-              <View style={[s.progressFill, { width: `${overallPct * 100}%`, backgroundColor: '#fff' }]} />
-            </View>
-            <Text style={s.progressLabel}>{completedCount}/{units.length} units completed</Text>
-          </View>
-        </View>
-
-        {/* Unit list */}
-        <View style={s.listWrap}>
-          <Text style={s.sectionTitle}>Units</Text>
-          {units.map((unit: any, idx: number) => {
-            const up = progressMap[unit.id];
-            const wordsLearned = up?.wordsLearned ?? 0;
-            const totalWords = up?.totalWords ?? 20;
-            const wordPct = totalWords > 0 ? wordsLearned / totalWords : 0;
-            const isCompleted = up?.isCompleted ?? false;
-            const exerciseScore = up?.exerciseScore;
-            const questionScore = up?.questionScore;
-
-            return (
-              <TouchableOpacity
-                key={unit.id}
-                style={s.unitRow}
-                onPress={() => router.push(`/vocabulary/${bookId}/${unit.id}` as any)}
-                activeOpacity={0.8}
-              >
-                {/* Unit number */}
-                <View style={[s.unitNumBadge, { backgroundColor: accentColor + '18' }]}>
-                  <Text style={[s.unitNum, { color: accentColor }]}>{idx + 1}</Text>
-                </View>
-
-                {/* Info */}
-                <View style={s.unitInfo}>
-                  <Text style={s.unitTitle} numberOfLines={1}>{unit.title}</Text>
-                  {/* Word progress bar */}
-                  <View style={s.wordProgressTrack}>
-                    <View style={[s.wordProgressFill, { width: `${wordPct * 100}%`, backgroundColor: accentColor }]} />
-                  </View>
-                  <View style={s.scoreRow}>
-                    <Text style={s.scoreText}>{wordsLearned}/{totalWords} words</Text>
-                    {exerciseScore != null && (
-                      <View style={s.scorePill}>
-                        <Text style={s.scorePillText}>Ex: {exerciseScore}%</Text>
-                      </View>
-                    )}
-                    {questionScore != null && (
-                      <View style={s.scorePill}>
-                        <Text style={s.scorePillText}>Q: {questionScore}%</Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-
-                {/* Status */}
-                <ProgressRing pct={wordPct} color={accentColor} size={36} />
-                <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {groups.map((groupUnits, idx) => (
+          <UnitGroup
+            key={idx}
+            groupIndex={idx}
+            units={groupUnits}
+            progressMap={progressMap}
+            isExpanded={!!expandedGroups[idx]}
+            onToggle={() => toggleGroup(idx)}
+            router={router}
+            bookId={bookId!}
+          />
+        ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: THEME.SRF },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  
+  headerWrapper: {
+    backgroundColor: 'rgba(248,249,250,0.97)',
+    borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+    zIndex: 10,
+  },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    paddingHorizontal: 16, paddingBottom: 10, paddingTop: 8,
   },
-  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { flex: 1, color: '#fff', fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, textAlign: 'center' },
-  hero: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.lg,
-    paddingHorizontal: SPACING.lg, paddingBottom: SPACING.xl,
+  backBtn: {
+    width: 32, height: 32, borderRadius: 10, backgroundColor: THEME.WH,
+    borderWidth: 1, borderColor: THEME.BDR,
+    alignItems: 'center', justifyContent: 'center',
   },
-  coverImg: { width: 60, height: 84, borderRadius: RADIUS.md, borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)' },
-  coverPlaceholder: {
-    width: 60, height: 84, borderRadius: RADIUS.md, borderWidth: 2,
-    alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)',
+  headerTitleCol: { flex: 1 },
+  headerEyebrow: { fontFamily: 'Farro-Bold', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.6, color: THEME.FG3 },
+  headerTitle: { fontFamily: 'Farro-Bold', fontSize: 15, color: THEME.FG1, letterSpacing: -0.1 },
+  headerBadge: { alignItems: 'center' },
+  headerBadgeVal: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG1 },
+  headerBadgeLbl: { fontFamily: 'Farro-Regular', fontSize: 9, color: THEME.FG3, letterSpacing: 0.4 },
+
+  content: { padding: 14, paddingBottom: 60 },
+  
+  groupCard: {
+    backgroundColor: THEME.WH, borderRadius: 16, borderWidth: 1, borderColor: THEME.BDR,
+    overflow: 'hidden', marginBottom: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 2,
   },
-  heroInfo: { flex: 1 },
-  heroStats: { color: 'rgba(255,255,255,0.8)', fontSize: FONT_SIZES.xs, marginBottom: SPACING.sm },
-  progressBar: { height: 6, backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: 3, overflow: 'hidden', marginBottom: 4 },
-  progressFill: { height: '100%', borderRadius: 3 },
-  progressLabel: { color: 'rgba(255,255,255,0.9)', fontSize: 10, fontFamily: FONTS.bold },
-  listWrap: { padding: SPACING.lg },
-  sectionTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: SPACING.md },
+  groupCardInactive: { opacity: 0.45 },
+  
+  groupHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14,
+    backgroundColor: THEME.WH,
+  },
+  groupHeaderExpanded: { backgroundColor: THEME.SRF, borderBottomWidth: 1, borderBottomColor: THEME.BDR },
+  groupToggleBtn: {
+    width: 30, height: 30, borderRadius: 15, backgroundColor: '#f3f4f6',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  groupToggleBtnActive: { backgroundColor: THEME.P, shadowColor: THEME.P, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 4 },
+  groupInfo: { flex: 1 },
+  groupTitle: { fontFamily: 'Farro-Bold', fontSize: 14, color: THEME.FG1 },
+  groupSubtitle: { fontFamily: 'Farro-Regular', fontSize: 11, color: THEME.FG3, marginTop: 1 },
+  groupProgressCol: { alignItems: 'flex-end' },
+  groupProgressText: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG3 },
+  groupProgressBar: { width: 60, height: 3, backgroundColor: '#f0f0f0', borderRadius: 2, overflow: 'hidden', marginTop: 4 },
+  groupProgressFill: { height: '100%', backgroundColor: THEME.P, borderRadius: 2 },
+  
+  groupContent: { paddingHorizontal: 10, paddingVertical: 8, gap: 6, backgroundColor: 'rgba(248,249,250,0.5)' },
+  
   unitRow: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.md, marginBottom: SPACING.sm,
-    borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    paddingVertical: 9, paddingHorizontal: 12, borderRadius: 12,
   },
-  unitNumBadge: { width: 36, height: 36, borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center' },
-  unitNum: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
-  unitInfo: { flex: 1 },
-  unitTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: 4 },
-  wordProgressTrack: { height: 4, backgroundColor: COLORS.border, borderRadius: 2, overflow: 'hidden', marginBottom: 3 },
-  wordProgressFill: { height: '100%', borderRadius: 2 },
-  scoreRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  scoreText: { fontSize: 10, color: COLORS.textSecondary },
-  scorePill: { backgroundColor: COLORS.background, borderRadius: RADIUS.full, paddingHorizontal: 6, paddingVertical: 1 },
-  scorePillText: { fontSize: 9, color: COLORS.textMuted, fontFamily: FONTS.bold },
+  unitRowDefault: { backgroundColor: THEME.WH, borderWidth: 1, borderColor: THEME.BDR, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 2, elevation: 1 },
+  unitRowCompleted: { backgroundColor: THEME.P, shadowColor: THEME.P, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 3 },
+  
+  unitBadge: { width: 34, height: 34, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  unitBadgeDefault: { backgroundColor: '#f3f4f6' },
+  unitBadgeCompleted: { backgroundColor: 'rgba(0,0,0,0.12)' },
+  unitBadgeText: { fontFamily: 'Farro-Bold', fontSize: 12, color: THEME.FG2 },
+  
+  unitMain: { flex: 1 },
+  unitName: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG1 },
+  unitCompletedLabel: { fontFamily: 'Farro-Bold', fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.6, color: 'rgba(0,0,0,0.45)', marginTop: 1 },
+  
+  unitIPRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+  unitIPBar: { flex: 1, maxWidth: 72, height: 3, backgroundColor: '#f0f0f0', borderRadius: 2, overflow: 'hidden' },
+  unitIPFill: { height: '100%', backgroundColor: THEME.BLU, borderRadius: 2 },
+  unitIPText: { fontFamily: 'Farro-Medium', fontSize: 9, color: THEME.FG3 },
+  
+  unitStats: { alignItems: 'flex-end' },
+  unitStatsCount: { fontFamily: 'Farro-Bold', fontSize: 10, color: THEME.FG3 },
+  unitStatsStatus: { fontFamily: 'Farro-Regular', fontSize: 9, color: THEME.FG3, marginTop: 2 },
 });
