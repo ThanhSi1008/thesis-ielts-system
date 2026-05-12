@@ -97,10 +97,11 @@ export default function ChatAIScreen() {
         </TouchableOpacity>
       </View>
 
-      <KeyboardAvoidingView 
-        style={styles.flex1} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+        <KeyboardAvoidingView 
+          style={styles.flex1} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        >
         {/* Chat Area */}
         <ScrollView 
           ref={scrollViewRef}
