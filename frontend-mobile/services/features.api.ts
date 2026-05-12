@@ -50,6 +50,18 @@ export const vocabLabApi = {
     formData.append('file', { uri, name: fileName, type: mimeType });
     return apiClient.postForm<{ url: string }>('/vocab-lab/media/upload', formData);
   },
+  // Community Marketplace
+  browseSharedDecks: (params?: { search?: string; sort?: string; category?: string; limit?: number; publisherId?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.search) q.set('search', params.search);
+    if (params?.sort) q.set('sort', params.sort);
+    if (params?.category) q.set('category', params.category);
+    if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.publisherId) q.set('publisherId', params.publisherId);
+    const qs = q.toString();
+    return apiClient.get<any[]>(`/vocab-lab/community/decks${qs ? `?${qs}` : ''}`);
+  },
+  importSharedDeck: (id: string) => apiClient.post<void>(`/vocab-lab/community/decks/${id}/import`, {}),
 };
 
 // ==================== SHADOWING ====================

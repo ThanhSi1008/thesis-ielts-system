@@ -12,16 +12,18 @@ import { DecksTab } from '@/components/vocab-lab/DecksTab';
 import { AddTab } from '@/components/vocab-lab/AddTab';
 import { BrowseTab } from '@/components/vocab-lab/BrowseTab';
 import { StatsTab } from '@/components/vocab-lab/StatsTab';
+import { MarketplaceTab } from '@/components/vocab-lab/MarketplaceTab';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { GlobalAddCardFab } from '@/components/vocab-lab/GlobalAddCardFab';
 
-type Tab = 'decks' | 'add' | 'browse' | 'stats';
+type Tab = 'decks' | 'add' | 'browse' | 'stats' | 'marketplace';
 
 const NAV_ITEMS = [
-  { key: 'decks',  label: 'My Decks',   icon: 'library-outline' as const, route: 'decks' },
-  { key: 'add',    label: 'Add Card',    icon: 'add-circle-outline' as const, route: 'add' },
-  { key: 'browse', label: 'Browse Cards',icon: 'search-outline' as const, route: 'browse' },
-  { key: 'stats',  label: 'Statistics',  icon: 'bar-chart-outline' as const, route: 'stats' },
+  { key: 'decks',       label: 'My Decks',       icon: 'library-outline'       as const, route: 'decks' },
+  { key: 'add',         label: 'Add Card',        icon: 'add-circle-outline'    as const, route: 'add' },
+  { key: 'browse',      label: 'Browse Cards',    icon: 'search-outline'        as const, route: 'browse' },
+  { key: 'stats',       label: 'Statistics',      icon: 'bar-chart-outline'     as const, route: 'stats' },
+  { key: 'marketplace', label: 'Community',       icon: 'storefront-outline'    as const, route: 'marketplace' },
 ];
 
 export default function VocabLabScreen() {
@@ -59,10 +61,11 @@ export default function VocabLabScreen() {
 
       {/* Content */}
       <View style={{ flex: 1 }}>
-        {activeTab === 'decks'  && <DecksTab />}
-        {activeTab === 'add'    && <AddTab />}
-        {activeTab === 'browse' && <BrowseTab />}
-        {activeTab === 'stats'  && <StatsTab />}
+        {activeTab === 'decks'       && <DecksTab />}
+        {activeTab === 'add'          && <AddTab />}
+        {activeTab === 'browse'       && <BrowseTab />}
+        {activeTab === 'stats'        && <StatsTab />}
+        {activeTab === 'marketplace'  && <MarketplaceTab />}
       </View>
 
       {/* Shared Drawer */}
