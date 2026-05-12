@@ -234,6 +234,60 @@ Phụ lục chứa các tài liệu bổ trợ, minh họa, **không nằm trong
 
 ---
 
+## 8. Văn phong và hành văn
+
+> **Tài liệu tham chiếu:** Mọi đoạn văn viết mới phải căn chỉnh văn phong theo file mẫu `thesis-report/docs/Sample-report.md`.
+
+### 8.1 Phong cách chung
+
+- **Ngôn ngữ:** Tiếng Việt học thuật, trang trọng. Thuật ngữ kỹ thuật tiếng Anh (JWT, bcrypt, API, endpoint, payload…) giữ nguyên không dịch, viết nghiêng hoặc in thẳng tùy ngữ cảnh.
+- **Giọng văn:** Mô tả khách quan, ưu tiên chủ thể là "hệ thống", "máy chủ", "người học" thay vì "chúng em" hay "tác giả". Tránh lối viết bình luận cá nhân trong phần đặc tả kỹ thuật.
+- **Câu văn:** Ngắn gọn, mỗi câu một ý. Tránh câu ghép quá dài bằng cách tách thành nhiều câu hoặc dùng danh sách khi liệt kê từ 3 ý trở lên.
+- **Từ nối:** Dùng "Tiếp theo", "Sau khi", "Tại đây", "Kết quả là", "Cụ thể" để dẫn dắt tự nhiên giữa các bước kỹ thuật.
+
+### 8.2 Phong cách từng loại phần
+
+| Phần | Yêu cầu phong cách |
+|---|---|
+| **Quy trình nghiệp vụ** | Văn xuôi liền mạch, mô tả hành trình người dùng từ đầu đến cuối. Dùng danh sách gạch đầu dòng khi cần liệt kê các bước con. |
+| **Bảng đặc tả use-case** | Ngắn, súc tích — mỗi ô chứa một hành động đơn. Actor: mô tả thao tác người dùng. Hệ thống: mô tả phản hồi/xử lý. Không giải thích kỹ thuật trong bảng. |
+| **Mô tả kỹ thuật chi tiết** | Giải thích cơ chế kỹ thuật thực tế (thuật toán, endpoint, thư viện). Dùng \texttt{...} cho tên hàm/endpoint. Tập trung vào **lý do kỹ thuật** (tại sao chọn cách này), không chỉ mô tả việc đang làm. |
+| **Sơ đồ/Hình vẽ** | Caption hình phải mô tả nội dung hình đủ để đọc độc lập, không dùng "Hình trên" hay "Hình dưới". |
+
+### 8.3 Quy tắc bảng đặc tả use-case (LaTeX)
+
+Bảng đặc tả use-case **phải** tuân theo cấu trúc sau (căn theo bài mẫu):
+
+```latex
+\begin{table}[H]
+  \caption{Đặc tả chức năng <Tên> (<Mã>)}
+  \label{tab:ucXX_spec}
+  \centering
+  \renewcommand{\arraystretch}{1.3}
+  \begin{tabularx}{\linewidth}{|X|X|}         % Hai cột BẰNG NHAU
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UCXX} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{...}|}{\textbf{Tiền điều kiện:} ...} \\ \hline
+    \multicolumn{2}{|p{...}|}{\textbf{Hậu điều kiện:} ...} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    1. <Thao tác actor> & \\ \hline
+    & 2. <Phản hồi hệ thống> \\ \hline
+    ...
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & X.1. <Lỗi/rẽ nhánh> \\ \hline
+  \end{tabularx}
+\end{table}
+```
+
+- Dùng `[H]` (chữ hoa, từ gói `float`) để ép bảng hiển thị ngay tại chỗ, tránh bảng bị "trôi" sang trang khác.
+- Hai cột **phải** là `|X|X|` — không dùng `|l|X|` vì cột `l` không tự co dãn, dễ gây tràn nội dung.
+- Các hàng header (Đặc tả, Mã, Actor, Tiền/Hậu điều kiện, tên luồng) **phải** dùng `\multicolumn{2}{|...|}{...}` để gộp hai cột.
+
+---
+
 ## 7. Checklist trước khi hoàn thiện
 
 Trước khi xuất file báo cáo cuối, AI Agent cần xác nhận toàn bộ các mục sau:
