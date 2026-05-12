@@ -1,6 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
 import { DictationSentence } from '@/services/dictation.api';
-import { normalizeWord } from '../_constants';
+import { normalizeWord, HINT_SCORE_MULTIPLIERS } from '../_constants';
+
+export interface CheckResult {
+  isAllCorrect: boolean;
+  score: number;
+  correctCount: number;
+  totalHidden: number;
+}
 
 export function useDictation(currentSentence: DictationSentence | undefined, difficulty: string) {
   const [userInputs, setUserInputs] = useState<string[]>([]);
@@ -44,19 +51,33 @@ export function useDictation(currentSentence: DictationSentence | undefined, dif
     return new Set(indices.slice(0, numToHide));
   }, [currentSentence?.id, difficulty]); // Depend on ID, not object ref
 
-  const checkAnswers = () => {
-    if (!currentSentence?.words) return false;
-    let allCorrect = true;
+  const checkAnswers = (getHintLevel?: (wordIndex: number) => number): CheckResult => {
+    if (!currentSentence?.words) {
+      return { isAllCorrect: false, score: 0, correctCount: 0, totalHidden: 0 };
+    }
+
+    let correctCount = 0;
+    let weightedScore = 0;
+    const totalHidden = hiddenIndices.size;
+
     currentSentence.words.forEach((word, idx) => {
-      if (hiddenIndices.has(idx)) {
-        if (normalizeWord(userInputs[idx]) !== normalizeWord(word)) {
-          allCorrect = false;
-        }
-      }
+      if (!hiddenIndices.has(idx)) return;
+
+      const isMatch = normalizeWord(userInputs[idx]) === normalizeWord(word);
+      if (!isMatch) return;
+
+      correctCount++;
+      const hintLevel = getHintLevel?.(idx) ?? 0;
+      const multiplier = HINT_SCORE_MULTIPLIERS[Math.min(hintLevel, HINT_SCORE_MULTIPLIERS.length - 1)];
+      weightedScore += multiplier;
     });
+
+    const score = totalHidden > 0 ? Math.round((weightedScore / totalHidden) * 100) : 100;
+    const isAllCorrect = correctCount === totalHidden;
+
     setIsChecked(true);
-    setIsAllCorrect(allCorrect);
-    return allCorrect;
+    setIsAllCorrect(isAllCorrect);
+    return { isAllCorrect, score, correctCount, totalHidden };
   };
 
   const retry = () => {

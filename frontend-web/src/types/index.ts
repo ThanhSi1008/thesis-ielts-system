@@ -74,7 +74,7 @@ export interface FoundationVocabItem {
   example?: string;
   imageUrl?: string;
   audioUrl?: string;
-  lessonId?: string; // From FoundationVocabLesson Service
+  lessonId?: string; // From Lesson Service
   createdAt?: string;
   updatedAt?: string;
 }
@@ -86,20 +86,13 @@ export interface VocabularyBookWithUnits extends FoundationVocabBook {
 export interface VocabularyUnitWithContent extends FoundationVocabUnit {
   book: { id: string; name: string };
   words: FoundationVocabItem[];
-  exercises: FoundationVocabExercise[];
   questions: FoundationVocabQuestion[];
   storyTitle?: string;
   storyContent?: string;
   storyImageUrl?: string;
 }
 
-export interface FoundationVocabExercise {
-  id: string;
-  question: string;
-  answer: string;
-  options: string[];
-  order: number;
-}
+
 
 export interface FoundationVocabQuestion {
   id: string;
@@ -116,7 +109,6 @@ export interface VocabularyUnitProgress {
   order: number;
   totalWords: number;
   wordsLearned: number;
-  exerciseScore?: number;
   questionScore?: number;
   isCompleted: boolean;
 }
@@ -126,12 +118,7 @@ export interface VocabularyBookProgress {
   units: VocabularyUnitProgress[];
 }
 
-export interface ExerciseResult {
-  exerciseId: string;
-  userAnswer: string;
-  correctAnswer: string;
-  isCorrect: boolean;
-}
+
 
 export interface QuestionResult {
   questionId: string;
@@ -140,12 +127,7 @@ export interface QuestionResult {
   isCorrect: boolean;
 }
 
-export interface SubmitExerciseResponse {
-  score: number;
-  correctCount: number;
-  totalQuestions: number;
-  results: ExerciseResult[];
-}
+
 
 export interface SubmitQuestionsResponse {
   score: number;
@@ -193,7 +175,7 @@ export interface GrammarUnitProgress {
   completedAt: string | null;
 }
 
-export interface GrammarRule { // From FoundationVocabLesson Service
+export interface GrammarRule { // From Lesson Service
   id: string;
   lessonId: string;
   title: string;

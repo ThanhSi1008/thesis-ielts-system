@@ -4,7 +4,7 @@ import { PrismaService } from "../../common/prisma/prisma.service";
 export interface RoadmapItem {
   id: string;
   title: string;
-  type: "foundationVocabLesson" | "exercise";
+  type: "lesson" | "exercise";
   skill: string;
   url: string;
   isCompleted: boolean;
@@ -48,11 +48,11 @@ export class IeltsRoadmapService {
 
     // Quick lookup for completions
     const isCompleted = (
-      type: "foundationVocabLesson" | "listeningExercise" | "readingExercise",
+      type: "lesson" | "listeningExercise" | "readingExercise",
       id: string,
     ) => {
       return progressRecords.some((p) => {
-        if (type === "foundationVocabLesson") return p.lessonId === id && p.isCompleted;
+        if (type === "lesson") return p.lessonId === id && p.isCompleted;
         if (type === "listeningExercise")
           return p.listeningExerciseId === id && p.isCompleted;
         if (type === "readingExercise")
@@ -90,10 +90,10 @@ export class IeltsRoadmapService {
         q.push({
           id: foundationVocabLesson.id,
           title: foundationVocabLesson.title,
-          type: "foundationVocabLesson",
+          type: "lesson",
           skill: skill.name,
           url: `/ielts/basic/${skill.name.toLowerCase()}/lessons/${foundationVocabLesson.id}`,
-          isCompleted: isCompleted("foundationVocabLesson", foundationVocabLesson.id),
+          isCompleted: isCompleted("lesson", foundationVocabLesson.id),
         });
 
         // Push associated exercises
@@ -208,7 +208,7 @@ export class IeltsRoadmapService {
     let currentStepMins = 0;
 
     for (const item of flattenedQueue) {
-      const itemMins = item.type === "foundationVocabLesson" ? 10 : 15;
+      const itemMins = item.type === "lesson" ? 10 : 15;
 
       if (
         currentStepItems.length > 0 &&

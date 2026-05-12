@@ -7,6 +7,7 @@ interface DictationShortcutConfig {
   onToggleSpeed?: () => void;
   onCycleDifficulty?: () => void;
   onRetry?: () => void;
+  onHint?: () => void;
   canCheck: boolean;
   canGoNext: boolean;
   canRetry?: boolean;
@@ -19,6 +20,7 @@ export function useDictationShortcuts({
   onToggleSpeed,
   onCycleDifficulty,
   onRetry,
+  onHint,
   canCheck,
   canGoNext,
   canRetry,
@@ -50,11 +52,14 @@ export function useDictationShortcuts({
         } else if (e.key.toLowerCase() === 'm') {
           e.preventDefault();
           onCycleDifficulty?.();
+        } else if (e.key.toLowerCase() === 'h') {
+          e.preventDefault();
+          onHint?.();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onCheck, onNext, onRepeat, onToggleSpeed, onCycleDifficulty, onRetry, canCheck, canGoNext, canRetry]);
+  }, [onCheck, onNext, onRepeat, onToggleSpeed, onCycleDifficulty, onRetry, onHint, canCheck, canGoNext, canRetry]);
 }

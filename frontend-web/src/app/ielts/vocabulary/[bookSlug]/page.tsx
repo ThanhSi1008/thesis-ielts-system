@@ -102,43 +102,43 @@ export default function BookPage() {
         <div className="space-y-4">
           {groupedUnits.map((group) => {
             const isExpanded = expandedGroup === group.title;
-            
+
             // Calculate group progress
             let completedInGroup = 0;
             group.units.forEach(unit => {
-                const up = progress.get(unit.id);
-                if (up?.isCompleted) completedInGroup++;
+              const up = progress.get(unit.id);
+              if (up?.isCompleted) completedInGroup++;
             });
             const totalInGroup = group.units.length;
 
             return (
               <div key={group.title} className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                 <button
-                    onClick={() => setExpandedGroup(isExpanded ? null : group.title)}
-                    className={`w-full flex items-center justify-between p-5 transition-colors ${isExpanded ? 'bg-gray-50 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                  onClick={() => setExpandedGroup(isExpanded ? null : group.title)}
+                  className={`w-full flex items-center justify-between p-5 transition-colors ${isExpanded ? 'bg-gray-50 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
-                    <div className="flex items-center gap-4">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-black bg-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                            </svg>
-                        </div>
-                        <div className="text-left">
-                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{group.title}</h2>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{totalInGroup} Units</p>
-                        </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-black bg-primary">
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2 hidden md:block">
-                            <div 
-                                className="bg-primary h-2 rounded-full transition-all" 
-                                style={{ width: `${(completedInGroup / totalInGroup) * 100}%` }}
-                            ></div>
-                        </div>
-                        <span className="text-sm font-bold text-gray-600 dark:text-gray-400 w-12 text-right">
-                            {completedInGroup}/{totalInGroup}
-                        </span>
+                    <div className="text-left">
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{group.title}</h2>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{totalInGroup} Units</p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2 hidden md:block">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all"
+                        style={{ width: `${(completedInGroup / totalInGroup) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-bold text-gray-600 dark:text-gray-400 w-12 text-right">
+                      {completedInGroup}/{totalInGroup}
+                    </span>
+                  </div>
                 </button>
 
                 {isExpanded && (
@@ -146,10 +146,9 @@ export default function BookPage() {
                     {group.units.map((unit) => {
                       const unitProgress = progress.get(unit.id);
                       const isCompleted = unitProgress?.isCompleted || false;
-                      const completedSections =
-                        ((unitProgress?.wordsLearned || 0) > 0 ? 1 : 0) +
-                        (unitProgress?.exerciseScore !== null && unitProgress?.exerciseScore !== undefined ? 1 : 0) +
-                        (unitProgress?.questionScore !== null && unitProgress?.questionScore !== undefined ? 1 : 0);
+                      const wordsLearned = unitProgress?.wordsLearned || 0;
+                      const totalWords = unitProgress?.totalWords || 20;
+                      const hasReading = unitProgress?.questionScore !== null && unitProgress?.questionScore !== undefined;
 
                       return (
                         <Link
@@ -168,7 +167,7 @@ export default function BookPage() {
                           >
                             <div className="flex items-center gap-4">
                               <div className={`w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center font-bold text-xs shrink-0 ${isCompleted ? 'bg-black/10 text-black' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
-                                  {unit.order}
+                                {unit.order}
                               </div>
 
                               <div>
@@ -176,18 +175,21 @@ export default function BookPage() {
                                   {unit.title}
                                 </span>
                                 {isCompleted && (
-                                    <span className="text-[10px] font-bold opacity-80 uppercase tracking-wider flex items-center gap-1 mt-0.5 text-black">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                        </svg>
-                                        Completed
-                                    </span>
+                                  <span className="text-[10px] font-bold opacity-80 uppercase tracking-wider flex items-center gap-1 mt-0.5 text-black">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                    </svg>
+                                    Completed
+                                  </span>
                                 )}
                               </div>
                             </div>
 
-                            <div className={`font-bold text-sm ${isCompleted ? 'text-black' : 'text-gray-400 dark:text-gray-500'}`}>
-                              {completedSections}/3
+                            <div className={`flex flex-col items-end gap-1 text-xs font-bold ${isCompleted ? 'text-black/80' : 'text-gray-400 dark:text-gray-500'}`}>
+                              <span>Words: {wordsLearned}/{totalWords}</span>
+                              <span className="flex items-center gap-1">
+                                Reading: {hasReading ? '✓ Done' : 'Pending'}
+                              </span>
                             </div>
                           </div>
                         </Link>

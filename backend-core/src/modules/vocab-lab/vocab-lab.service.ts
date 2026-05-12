@@ -91,7 +91,7 @@ export class VocabLabService {
     private readonly notifications: NotificationsService,
     private readonly gamificationService: GamificationService,
     private readonly subscriptionsService: SubscriptionsService,
-  ) {}
+  ) { }
 
   // ==================== NOTE TYPE OPERATIONS ====================
 
@@ -155,7 +155,7 @@ export class VocabLabService {
         },
         include: { fields: true },
       });
-      
+
       const fields = (essential as any).fields as Array<{ id: string; name: string }>;
       await this.prisma.cardTemplate.create({
         data: {
@@ -497,7 +497,7 @@ export class VocabLabService {
         reason: "VOCAB_LAB_DECK_CREATED",
         achievementKeys: ["VL_DECK_BUILDER"],
       })
-      .catch(() => {});
+      .catch(() => { });
 
     return deck;
   }
@@ -767,7 +767,7 @@ export class VocabLabService {
         reason: "VOCAB_LAB_PUBLISH",
         achievementKeys: ["VL_PUBLISHER"],
       })
-      .catch(() => {});
+      .catch(() => { });
 
     return sharedDeck;
   }
@@ -1011,6 +1011,29 @@ export class VocabLabService {
     });
   }
 
+  /**
+   * Creates a flashcard from a vocabulary word and immediately submits
+   * an initial FSRS review with the given rating.
+   * This gives the card a real SRS schedule from day one.
+   */
+  async createFlashcardFromVocabularyWithReview(
+    userId: string,
+    bookName: string,
+    word: any,
+    rating: number,
+  ) {
+    // 1. Create the flashcard (reuses existing dedup + card-type logic)
+    const flashcard = await this.createFlashcardFromVocabulary(userId, bookName, word);
+
+    // 2. Submit the initial review to set the FSRS schedule
+    const reviewed = await this.submitReview(userId, {
+      flashcardId: flashcard.id,
+      rating,
+    });
+
+    return reviewed;
+  }
+
   async updateFlashcard(
     userId: string,
     cardId: string,
@@ -1173,7 +1196,7 @@ export class VocabLabService {
         reason: "VOCAB_LAB_REVIEW",
         achievementKeys: ["VL_COLLECTOR"],
       })
-      .catch(() => {});
+      .catch(() => { });
 
     if (toPrismaState(next.state) === "REVIEW" && card.cardState !== "REVIEW") {
       this.gamificationService
@@ -1182,7 +1205,7 @@ export class VocabLabService {
           reason: "VOCAB_LAB_CARD_GRADUATED",
           achievementKeys: ["VL_MEMORY_MASTER"],
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     return updatedCard;

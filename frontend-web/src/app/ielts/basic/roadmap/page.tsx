@@ -38,7 +38,7 @@ function RoadmapDashboardContent() {
       
       if (nextItem) {
         let idParam: string;
-        if (nextItem.type === 'foundationVocabLesson') {
+        if (nextItem.type === 'lesson') {
           idParam = `lessonId=${nextItem.id}`;
         } else {
           idParam = `exerciseId=${nextItem.id}${nextItem.lessonId ? `&lessonId=${nextItem.lessonId}` : ''}`;
@@ -65,7 +65,7 @@ function RoadmapDashboardContent() {
     );
   }
 
-  if (type === "foundationVocabLesson" && lessonId) {
+  if (type === "lesson" && lessonId) {
     return (
       <div className="animate-fade-in w-full">
         <LessonDetailContent 

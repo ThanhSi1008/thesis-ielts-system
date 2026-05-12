@@ -151,7 +151,6 @@ async function main() {
 
       // Clean and recreate children
       await prisma.foundationVocabItem.deleteMany({ where: { unitId } });
-      await prisma.foundationVocabExercise.deleteMany({ where: { unitId } });
       await prisma.foundationVocabQuestion.deleteMany({ where: { unitId } });
 
       if ((unit as any).words) {
@@ -166,18 +165,6 @@ async function main() {
             imageUrl: w.imageUrl || null,
             audioUrl: w.audioUrl || null,
             order: w.order,
-          })),
-        });
-      }
-
-      if ((unit as any).exercises) {
-        await prisma.foundationVocabExercise.createMany({
-          data: (unit as any).exercises.map((e: any) => ({
-            unitId,
-            question: e.question,
-            answer: e.answer,
-            options: e.options,
-            order: e.order,
           })),
         });
       }
@@ -232,9 +219,12 @@ async function main() {
     const unitsToSeed = book.slug === 'intermediate' ? intermediateData.units : book.units;
 
     for (const unitData of unitsToSeed) {
-      const content = book.slug === 'intermediate' && intermediateData.content && unitData.order.toString() in intermediateData.content 
+      const intermediateContent = book.slug === 'intermediate' && intermediateData.content && unitData.order.toString() in intermediateData.content 
         ? (intermediateData.content as any)[unitData.order.toString()] 
         : null;
+
+      const theoryContent = intermediateContent ? intermediateContent.theory : null;
+      const exercisesToSeed = intermediateContent ? intermediateContent.exercises : (unitData as any).exercises;
 
       const unit = await prisma.foundationGrammarUnit.upsert({
         where: {
@@ -243,33 +233,48 @@ async function main() {
         create: {
           bookId,
           title: unitData.title,
+          theoryContent: theoryContent,
           order: unitData.order,
-          theoryContent: book.slug === 'intermediate' 
-            ? `<img src="/images/grammar/intermediate/unit_${unitData.order}.png" alt="Unit ${unitData.order} Theory" class="w-full h-auto object-contain rounded-xl shadow-sm border border-gray-200 bg-white" />` 
-            : (content?.theory || null),
         },
         update: {
           title: unitData.title,
-          theoryContent: book.slug === 'intermediate' 
-            ? `<img src="/images/grammar/intermediate/unit_${unitData.order}.png" alt="Unit ${unitData.order} Theory" class="w-full h-auto object-contain rounded-xl shadow-sm border border-gray-200 bg-white" />` 
-            : (content?.theory || null),
-        },
+          theoryContent: theoryContent,
+          order: unitData.order,
+        }
       });
 
-      if (content?.exercises?.length) {
-        await prisma.foundationGrammarExercise.deleteMany({ where: { unitId: unit.id } });
-        for (const ex of content.exercises) {
-          await prisma.foundationGrammarExercise.create({
-            data: {
-              unitId: unit.id,
-              section: ex.id,
-              question: ex.question,
-              type: ex.type || (ex.matches ? 'match' : 'fill_blank'),
-              options: ex.options ? (ex.options.verbs ? { verbs: ex.options.verbs } : ex.options) : (ex.verbs ? { verbs: ex.verbs } : null),
-              answer: JSON.stringify(ex.items || ex.matches || []),
-              order: parseInt(ex.id.split('.')[1]) || 0,
-            },
-          });
+      const unitId = unit.id;
+      if (exercisesToSeed) {
+        await prisma.foundationGrammarExercise.deleteMany({ where: { unitId } });
+        for (const ex of exercisesToSeed) {
+          if (ex.items && ex.items.length > 0) {
+            for (let i = 0; i < ex.items.length; i++) {
+              const item = ex.items[i];
+              await prisma.foundationGrammarExercise.create({
+                data: {
+                  unitId,
+                  section: ex.id || `${unitData.order}.${ex.order}`,
+                  question: item.label || ex.question,
+                  type: ex.type,
+                  options: ex.options || null,
+                  answer: item.answer || "",
+                  order: i,
+                },
+              });
+            }
+          } else {
+            await prisma.foundationGrammarExercise.create({
+              data: {
+                unitId,
+                section: ex.id || `${unitData.order}.${ex.order}`,
+                question: ex.question,
+                type: ex.type,
+                options: ex.options || null,
+                answer: ex.answer || "",
+                order: parseInt(ex.id?.split('.')[1]) || 0,
+              },
+            });
+          }
         }
       }
     }

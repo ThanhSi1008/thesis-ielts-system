@@ -12,38 +12,6 @@ interface UnitLearningClientProps {
 
 // Hardcoded data for Unit 1 content matching screenshots
 const unit1Data = {
-  exercise: [
-    {
-      id: 1,
-      question: "bad or hurting others",
-      options: ["a. afraid", "b. clever", "c. cruel", "d. hunt"],
-      answer: "c" // cruel
-    },
-    {
-      id: 2,
-      question: "at last or at the end",
-      options: ["a. angry", "b. clever", "c. finally", "d. reply"],
-      answer: "c" // finally
-    },
-    {
-      id: 3,
-      question: "to try to fight or hurt",
-      options: ["a. attack", "b. middle", "c. pleased", "d. trick"],
-      answer: "a" // attack
-    },
-    {
-      id: 4,
-      question: "to not let others see",
-      options: ["a. agree", "b. hide", "c. safe", "d. well"],
-      answer: "b" // hide
-    },
-    {
-      id: 5,
-      question: "the lowest part",
-      options: ["a. bottom", "b. lot", "c. moment", "d. promise"], // extrapolated options
-      answer: "a" // bottom
-    }
-  ],
   reading: {
     title: "The Lion and the Rabbit",
     text: [
@@ -103,32 +71,26 @@ const unit1Data = {
     {
       id: 5,
       question: "What did the lion see when it looked in the well?",
-      options: [], // Input type answer in demo? Or maybe options cut off. Screenshot shows text input area? No, looks like options in previous, but last one might be text. Actually screenshot shows an input box for #5? "What did the lion see..." and gray box.
+      options: [],
       isInput: true
     }
   ]
 };
 
 export default function UnitLearningClient({ bookName, unitId, unitTitle, bookSlug }: UnitLearningClientProps) {
-  const [activeTab, setActiveTab] = useState<'word-list' | 'exercise' | 'reading' | 'questions'>('word-list');
+  const [activeTab, setActiveTab] = useState<'word-list' | 'reading' | 'questions'>('word-list');
 
   // Helper to check if tab is complete (mocked)
   const isComplete = (tab: string) => {
     if (tab === 'word-list' && activeTab !== 'word-list') return true;
-    if (tab === 'exercise' && (activeTab === 'reading' || activeTab === 'questions')) return true;
+    if (tab === 'reading' && activeTab === 'questions') return true;
     return false;
   };
 
   const getTabIcon = (tab: string) => {
-    if (activeTab === tab) {
-      // Active: Yellow Checkmark style or just filled
+    if (activeTab === tab || isComplete(tab)) {
       return <div className="w-5 h-5 rounded-full bg-[#FFC600] flex items-center justify-center text-white text-xs font-bold">✓</div>;
     }
-    if (isComplete(tab)) {
-      // Complete: Yellow Checkmark
-      return <div className="w-5 h-5 rounded-full bg-[#FFC600] flex items-center justify-center text-white text-xs font-bold">✓</div>;
-    }
-    // Inactive: Empty circle
     return <div className="w-5 h-5 rounded-full border-2 border-gray-200"></div>;
   };
 
@@ -155,13 +117,6 @@ export default function UnitLearningClient({ bookName, unitId, unitTitle, bookSl
               >
                 {getTabIcon('word-list')}
                 Word List
-              </li>
-              <li
-                className={`flex items-center gap-3 cursor-pointer ${getTabClass('exercise')}`}
-                onClick={() => setActiveTab('exercise')}
-              >
-                {getTabIcon('exercise')}
-                Exercise
               </li>
               <li
                 className={`flex items-center gap-3 cursor-pointer ${getTabClass('reading')}`}
@@ -223,7 +178,7 @@ export default function UnitLearningClient({ bookName, unitId, unitTitle, bookSl
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 <button
                   className="bg-[#5B9557] hover:bg-[#4a7a47] text-white font-bold py-4 rounded-xl uppercase tracking-wide transition-colors"
-                  onClick={() => setActiveTab('exercise')} // Mock completion
+                  onClick={() => setActiveTab('reading')}
                 >
                   ALREADY KNOW
                 </button>
@@ -234,35 +189,7 @@ export default function UnitLearningClient({ bookName, unitId, unitTitle, bookSl
             </div>
           )}
 
-          {/* TAB 2: EXERCISE */}
-          {activeTab === 'exercise' && (
-            <div className="animate-in fade-in duration-300">
-              <div className="flex justify-between items-center mb-8 pb-4 border-b">
-                <h2 className="text-xl font-bold">Exercise 1</h2>
-                <span className="font-bold">14/20 correct</span>
-              </div>
-
-              <h3 className="font-bold text-lg mb-6">Part A: Choose the right word for the given definition.</h3>
-
-              <div className="space-y-8">
-                {unit1Data.exercise.map((ex, idx) => (
-                  <div key={ex.id}>
-                    <p className="font-semibold mb-3">{idx + 1}. {ex.question}</p>
-                    <div className="space-y-1 ml-4">
-                      {ex.options.map((opt, optIdx) => (
-                        <label key={optIdx} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded block">
-                          <input type="radio" name={`q-${ex.id}`} className="w-4 h-4 text-primary focus:ring-primary" />
-                          <span>{opt}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: READING */}
+          {/* TAB 2: READING */}
           {activeTab === 'reading' && (
             <div className="animate-in fade-in duration-300">
               <div className="flex items-center gap-4 mb-6">
@@ -292,10 +219,19 @@ export default function UnitLearningClient({ bookName, unitId, unitTitle, bookSl
                   </div>
                 </div>
               </div>
+
+              <div className="mt-8 flex justify-end">
+                <button 
+                  className="bg-[#FFC600] text-black font-bold py-3 px-8 rounded-xl uppercase tracking-wide hover:opacity-90 transition-opacity"
+                  onClick={() => setActiveTab('questions')}
+                >
+                  Go to questions
+                </button>
+              </div>
             </div>
           )}
 
-          {/* TAB 4: QUESTIONS */}
+          {/* TAB 3: QUESTIONS */}
           {activeTab === 'questions' && (
             <div className="animate-in fade-in duration-300">
               <h2 className="text-xl font-bold mb-6">Answer the questions.</h2>
