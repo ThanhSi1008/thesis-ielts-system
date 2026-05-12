@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { DictationSentence } from '@/services/dictation.api';
+import { getHintText } from '../_constants';
+import HintButton from './HintButton';
 
 export interface DictationInputRowProps {
   sentence: DictationSentence;
@@ -8,6 +10,8 @@ export interface DictationInputRowProps {
   hiddenIndices: Set<number>;
   isChecked: boolean;
   normalizeWord: (w: string) => string;
+  getHintLevel: (wordIndex: number) => number;
+  onRequestHint: (wordIndex: number) => void;
 }
 
 export default function DictationInputRow({
@@ -17,6 +21,8 @@ export default function DictationInputRow({
   hiddenIndices,
   isChecked,
   normalizeWord,
+  getHintLevel,
+  onRequestHint,
 }: DictationInputRowProps) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -75,6 +81,7 @@ export default function DictationInputRow({
           const normCorrect = normalizeWord(word);
           const userInput = userInputs[idx] || '';
           const isMatch = normalizeWord(userInput) === normCorrect;
+          const wordHintLevel = getHintLevel(idx);
 
           if (!isHidden) {
             return (
@@ -85,6 +92,9 @@ export default function DictationInputRow({
           }
 
           let stateClass = 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-primary focus:border-primary';
+          if (!isChecked && wordHintLevel > 0) {
+            stateClass = 'bg-amber-50/50 dark:bg-amber-900/10 border-amber-300 dark:border-amber-700 text-gray-900 dark:text-gray-100 focus:ring-amber-400 focus:border-amber-400';
+          }
           if (isChecked) {
             stateClass = isMatch
               ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400 font-medium'
@@ -100,6 +110,7 @@ export default function DictationInputRow({
                 onChange={(e) => onInputChange(idx, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, idx)}
                 disabled={isChecked}
+                data-word-index={idx}
                 className={`text-2xl text-center font-medium rounded-lg px-2 py-1 outline-none transition-all w-full
                   border-b-2 shadow-sm placeholder-gray-200
                   ${stateClass}
@@ -108,10 +119,17 @@ export default function DictationInputRow({
                   width: `calc(${Math.max(rawCorrect.length, userInput.length, 2)}ch + 24px)`,
                   minWidth: '60px',
                 }}
-                placeholder="_"
+                placeholder={getHintText(rawCorrect, wordHintLevel)}
                 autoComplete="off"
                 spellCheck="false"
               />
+              {!isChecked && (
+                <HintButton
+                  hintLevel={wordHintLevel}
+                  onRequestHint={() => onRequestHint(idx)}
+                  disabled={isChecked}
+                />
+              )}
               {isChecked && !isMatch && (
                 <div className="absolute top-full mt-1 px-2 py-0.5 bg-gray-900 text-white text-sm rounded shadow-sm whitespace-nowrap z-10 animate-fade-in">
                   {rawCorrect}

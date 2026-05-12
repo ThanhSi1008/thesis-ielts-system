@@ -1,4 +1,4 @@
-import { ApiClient } from './api-client';
+import { ApiClient, apiClient } from './api-client';
 import { LoginRequest, RegisterRequest, AuthResponse, User } from '@/types';
 import { STORAGE_KEYS, API_BASE_URL } from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,7 +27,7 @@ class AuthService extends ApiClient {
   }
 
   async getCurrentUser(): Promise<User> {
-    const response = await this.get<User>('/me');
+    const response = await apiClient.get<User>('/users/me');
     return response;
   }
   

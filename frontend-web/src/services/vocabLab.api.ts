@@ -101,6 +101,17 @@ export const vocabLabApi = {
     const { data } = await api.post<Flashcard>('/vocab-lab/from-foundationVocabWord', payload);
     return data;
   },
+  createFlashcardFromVocabularyWithReview: async (payload: {
+    bookName: string;
+    word: any;
+    rating: number; // 1=Again, 2=Hard, 3=Good, 4=Easy
+  }) => {
+    const { data } = await api.post<Flashcard>(
+      '/vocab-lab/from-foundationVocabWord/with-review',
+      payload,
+    );
+    return data;
+  },
 
   // ==================== STUDY / REVIEW ====================
   getStudyCards: async (deckId: string) => {

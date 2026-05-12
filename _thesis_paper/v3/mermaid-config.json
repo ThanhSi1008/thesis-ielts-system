@@ -1,0 +1,16 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#ffffff",
+    "primaryBorderColor": "#000000",
+    "primaryTextColor": "#000000",
+    "lineColor": "#000000",
+    "fontFamily": "Arial, sans-serif",
+    "fontSize": "13px",
+    "classText": "#000000"
+  },
+  "class": {
+    "defaultRenderer": "dagre-wrapper"
+  },
+  "curve": "linear"
+}

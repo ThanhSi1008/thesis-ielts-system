@@ -95,6 +95,19 @@ export class SubmitReviewDto {
   rating: number; // 0=Again, 3=Hard, 4=Good, 5=Easy
 }
 
+export class CreateFlashcardFromVocabWithReviewDto {
+  @IsString()
+  bookName: string;
+
+  @IsObject()
+  word: any;
+
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  rating: number; // 1=Again, 2=Hard, 3=Good, 4=Easy
+}
+
 // ==================== CARD TYPE DTOs ====================
 
 export class CreateCardTypeDto {

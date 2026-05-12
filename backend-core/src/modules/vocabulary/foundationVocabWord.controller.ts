@@ -24,7 +24,6 @@ import {
 } from "./dto/foundationVocabWord.dto";
 import {
   UpdateWordProgressDto,
-  SubmitExerciseDto,
   SubmitQuestionsDto,
 } from "./dto/progress.dto";
 
@@ -79,15 +78,7 @@ export class VocabularyController {
     );
   }
 
-  @Post("progress/exercise")
-  @UseGuards(JwtAuthGuard)
-  async submitExercise(@Body() dto: SubmitExerciseDto, @Request() req: any) {
-    return this.vocabularyService.submitExercise(
-      req.user.id,
-      dto.unitId,
-      dto.answers,
-    );
-  }
+
 
   @Post("progress/questions")
   @UseGuards(JwtAuthGuard)

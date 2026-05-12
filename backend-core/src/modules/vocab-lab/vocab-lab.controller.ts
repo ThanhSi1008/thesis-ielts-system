@@ -25,6 +25,7 @@ import {
   CreateFlashcardDto,
   UpdateFlashcardDto,
   SubmitReviewDto,
+  CreateFlashcardFromVocabWithReviewDto,
   CreateCardTypeDto,
   RenameCardTypeDto,
   UpdateCardTypeDescriptionDto,
@@ -206,6 +207,22 @@ export class VocabLabController {
       throw new BadRequestException("bookName and word are required");
     }
     return this.vocabLabService.createFlashcardFromVocabulary(req.user.id, dto.bookName, dto.word);
+  }
+
+  @Post("from-foundationVocabWord/with-review")
+  async createFlashcardFromVocabularyWithReview(
+    @Request() req: any,
+    @Body() dto: CreateFlashcardFromVocabWithReviewDto,
+  ) {
+    if (!dto.bookName || !dto.word || !dto.rating) {
+      throw new BadRequestException("bookName, word, and rating are required");
+    }
+    return this.vocabLabService.createFlashcardFromVocabularyWithReview(
+      req.user.id,
+      dto.bookName,
+      dto.word,
+      dto.rating,
+    );
   }
 
   @Put("cards/:id")

@@ -195,7 +195,10 @@ export default function GrammarLessonClient({ topicName, topicSlug, unitId, unit
           ) : (
             <div className="animate-in fade-in duration-300 h-full">
               {unitContent.theoryContent && (
-                <div dangerouslySetInnerHTML={{ __html: unitContent.theoryContent }} className="w-full" />
+                <div 
+                  dangerouslySetInnerHTML={{ __html: unitContent.theoryContent }} 
+                  className="w-full prose dark:prose-invert max-w-none p-8 lg:p-10 prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-table:min-w-full prose-td:border prose-td:border-gray-200 dark:prose-td:border-gray-800 prose-td:px-4 prose-td:py-2 prose-th:border prose-th:border-gray-200 dark:prose-th:border-gray-800 prose-th:px-4 prose-th:py-2 prose-th:bg-gray-50 dark:prose-th:bg-gray-800/50 prose-p:leading-relaxed prose-li:my-1 prose-img:rounded-xl prose-img:shadow-sm" 
+                />
               )}
             </div>
           )}

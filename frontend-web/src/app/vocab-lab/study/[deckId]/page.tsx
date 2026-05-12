@@ -107,23 +107,49 @@ export default function StudyPage() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
 
-  useEffect(() => {
-    const fetchStudyCards = async () => {
-      try {
-        const data = await vocabLabApi.getStudyCards(deckId);
+  const fetchStudyCards = async (isInitial = true) => {
+    if (isInitial) setLoading(true);
+    else setIsRefetching(true);
+
+    try {
+      const data = await vocabLabApi.getStudyCards(deckId);
+      
+      if (isInitial) {
         setCards(data);
-      } catch (error) {
-        console.error('Failed to fetch study cards:', error);
-      } finally {
-        setLoading(false);
+      } else {
+        const existingIds = new Set(cards.map(c => c.id));
+        const newDueCards = data.filter(c => !existingIds.has(c.id));
+        
+        if (newDueCards.length > 0) {
+          setCards(prev => [...prev, ...newDueCards]);
+        }
       }
-    };
-    if (deckId) fetchStudyCards();
+    } catch (error) {
+      console.error('Failed to fetch study cards:', error);
+    } finally {
+      if (isInitial) setLoading(false);
+      else setIsRefetching(false);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    if (deckId) fetchStudyCards(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deckId]);
 
+  // Refetch when reaching the end of the queue
+  useEffect(() => {
+    if (!loading && cards.length > 0 && currentIndex === cards.length && !isRefetching) {
+      fetchStudyCards(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, cards.length, loading, isRefetching]);
+
   const currentCard = cards[currentIndex];
-  const isComplete = !loading && cards.length > 0 && currentIndex >= cards.length;
+  const isComplete = !loading && !isRefetching && cards.length > 0 && currentIndex >= cards.length;
   const isNoCards = !loading && cards.length === 0;
 
   const handleRating = async (rating: number) => {
@@ -138,6 +164,12 @@ export default function StudyPage() {
 
       // Notify the Header badge to refresh
       window.dispatchEvent(new CustomEvent('vocabduechanged'));
+
+      // --- NEW LOGIC: Anki "Again" Re-insertion ---
+      // If the user pressed "Again" (1), push the card to the end of the queue
+      if (rating === 1) {
+        setCards(prevCards => [...prevCards, currentCard]);
+      }
 
       // Move to next card
       setShowAnswer(false);
@@ -291,10 +323,12 @@ export default function StudyPage() {
           )}
 
           <div className="w-full mx-auto relative flex justify-center flex-1">
-            {loading ? (
+            {loading || isRefetching ? (
               <div className="min-h-[50vh] flex flex-col items-center justify-center w-full">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                <p className="text-gray-500 font-medium">Loading your flashcards...</p>
+                <p className="text-gray-500 font-medium">
+                  {isRefetching ? 'Checking for more learning steps...' : 'Loading your flashcards...'}
+                </p>
               </div>
             ) : isNoCards ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center max-w-md w-full self-center mt-12">

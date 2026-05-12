@@ -78,7 +78,7 @@ export class LearningController {
 
   /**
    * Get a single foundationVocabLesson with all foundationVocabWord and grammar items
-   * @param id - FoundationVocabLesson ID
+   * @param id - Lesson ID
    */
   @Get("lessons/:id")
   async findLessonById(@Param("id") id: string) {
@@ -87,7 +87,7 @@ export class LearningController {
 
   /**
    * Create a new foundationVocabLesson (Admin only)
-   * @param createLessonDto - FoundationVocabLesson data
+   * @param createLessonDto - Lesson data
    */
   @Post("lessons")
   async createLesson(@Body() createLessonDto: CreateLessonDto) {
@@ -99,7 +99,7 @@ export class LearningController {
 
   /**
    * Get all foundationVocabWord for a foundationVocabLesson
-   * @param lessonId - FoundationVocabLesson ID
+   * @param lessonId - Lesson ID
    */
   @Get("foundationVocabWord/:lessonId")
   async findVocabularyByLesson(@Param("lessonId") lessonId: string) {
@@ -110,7 +110,7 @@ export class LearningController {
    * Add foundationVocabWord to a foundationVocabLesson (Admin only)
    * @param createVocabularyDto - FoundationVocabWord data
    */
-  @Post("foundationVocabWord")
+  @Post("vocabulary")
   async createVocabulary(@Body() createVocabularyDto: CreateVocabularyDto) {
     // TODO: Add RolesGuard and @Roles('ADMIN') decorator
     return this.learningService.createVocabulary(createVocabularyDto);
@@ -120,7 +120,7 @@ export class LearningController {
 
   /**
    * Get all grammar for a foundationVocabLesson
-   * @param lessonId - FoundationVocabLesson ID
+   * @param lessonId - Lesson ID
    */
   @Get("grammar/:lessonId")
   async findGrammarByLesson(@Param("lessonId") lessonId: string) {
