@@ -9,7 +9,7 @@ async function checkSeeding() {
     const vocabBooks = await prisma.foundationVocabBook.count();
     const grammarBooks = await prisma.foundationGrammarBook.count();
     const sounds = await prisma.foundationPronunciationSound.count();
-    const exams = await prisma.exam.count();
+    const exams = await prisma.ieltsIntensiveExam.count();
     const readingEx = await prisma.ieltsBasicReadingExercise.count();
     const listeningEx = await prisma.ieltsBasicListeningExercise.count();
     const writingEx = await prisma.ieltsBasicWritingExercise.count();

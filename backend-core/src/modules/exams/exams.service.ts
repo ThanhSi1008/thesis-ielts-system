@@ -12,7 +12,7 @@ import {
   SubmitSessionDto,
   WritingResultCallbackDto,
 } from "./dto/exams.dto";
-import { Exam, ExamSession, ExamType, SessionStatus } from "@prisma/client";
+import { IeltsIntensiveExam, IeltsIntensiveSession, IeltsIntensiveExamType, IeltsIntensiveSessionStatus } from "@prisma/client";
 import { AiClientService } from "../ai-client/ai-client.service";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 
@@ -28,7 +28,7 @@ export class ExamsService {
     groupId: string;
     groupTitle: string;
     testNumber: number;
-    skill: ExamType;
+    skill: IeltsIntensiveExamType;
   } | null {
     // Expected examples:
     // "Cambridge IELTS 17 - Listening Test 1"
@@ -41,11 +41,11 @@ export class ExamsService {
     const rawSkill = m[2].toLowerCase();
     const testNumber = Number(m[3]);
 
-    const skillMap: Record<string, ExamType> = {
-      listening: ExamType.LISTENING,
-      reading: ExamType.READING,
-      writing: ExamType.WRITING,
-      speaking: ExamType.SPEAKING,
+    const skillMap: Record<string, IeltsIntensiveExamType> = {
+      listening: IeltsIntensiveExamType.LISTENING,
+      reading: IeltsIntensiveExamType.READING,
+      writing: IeltsIntensiveExamType.WRITING,
+      speaking: IeltsIntensiveExamType.SPEAKING,
     };
 
     const skill = skillMap[rawSkill];
@@ -60,27 +60,27 @@ export class ExamsService {
     };
   }
 
-  private normalizeSkill(skill?: string): ExamType {
+  private normalizeSkill(skill?: string): IeltsIntensiveExamType {
     const s = (skill || "").toUpperCase().trim();
-    const allowed = new Set<ExamType>([
-      ExamType.LISTENING,
-      ExamType.READING,
-      ExamType.WRITING,
-      ExamType.SPEAKING,
+    const allowed = new Set<IeltsIntensiveExamType>([
+      IeltsIntensiveExamType.LISTENING,
+      IeltsIntensiveExamType.READING,
+      IeltsIntensiveExamType.WRITING,
+      IeltsIntensiveExamType.SPEAKING,
     ]);
-    if (!s) return ExamType.READING; // screenshot default is Reading tab selected
-    if (!allowed.has(s as ExamType)) {
+    if (!s) return IeltsIntensiveExamType.READING; // screenshot default is Reading tab selected
+    if (!allowed.has(s as IeltsIntensiveExamType)) {
       throw new BadRequestException(
         `Invalid skill. Expected one of: LISTENING, READING, WRITING, SPEAKING`,
       );
     }
-    return s as ExamType;
+    return s as IeltsIntensiveExamType;
   }
 
   async getIntensiveCatalog(params: { userId: string; skill?: string }) {
     const skill = this.normalizeSkill(params.skill);
 
-    const exams = await this.prisma.exam.findMany({
+    const exams = await this.prisma.ieltsIntensiveExam.findMany({
       where: {
         isPublished: true,
         type: skill,
@@ -108,7 +108,7 @@ export class ExamsService {
     const examIds = parsed.map((p) => p.ieltsIntensiveExam.id);
 
     // Participants: count distinct userId per ieltsIntensiveExam from sessions.
-    const sessions = await this.prisma.examSession.findMany({
+    const sessions = await this.prisma.ieltsIntensiveSession.findMany({
       where: { examId: { in: examIds } },
       select: { examId: true, userId: true, status: true },
     });
@@ -121,21 +121,21 @@ export class ExamsService {
       set.add(s.userId);
       participantsByExam.set(s.examId, set);
 
-      if (s.status === SessionStatus.COMPLETED) {
+      if (s.status === IeltsIntensiveSessionStatus.COMPLETED) {
         completedByExam.set(s.examId, (completedByExam.get(s.examId) ?? 0) + 1);
       }
     }
 
     // Results drive "myScore" (latest ieltsIntensiveResult per ieltsIntensiveExam for current user).
-    const myResults = await this.prisma.result.findMany({
+    const myResults = await this.prisma.ieltsIntensiveResult.findMany({
       where: {
         userId: params.userId,
-        session: { examId: { in: examIds } },
+        ieltsIntensiveSession: { examId: { in: examIds } },
       },
       select: {
         totalScore: true,
         gradedAt: true,
-        session: { select: { examId: true, submittedAt: true } },
+        ieltsIntensiveSession: { select: { examId: true, submittedAt: true } },
       },
       orderBy: { gradedAt: "desc" },
     });
@@ -146,12 +146,12 @@ export class ExamsService {
     >();
 
     for (const r of myResults) {
-      const existing = myScoreByExam.get(r.session.examId);
+      const existing = myScoreByExam.get(r.ieltsIntensiveSession.examId);
       if (!existing) {
-        myScoreByExam.set(r.session.examId, {
+        myScoreByExam.set(r.ieltsIntensiveSession.examId, {
           score: r.totalScore,
           gradedAt: r.gradedAt,
-          submittedAt: r.session.submittedAt,
+          submittedAt: r.ieltsIntensiveSession.submittedAt,
         });
       }
     }
@@ -226,7 +226,7 @@ export class ExamsService {
   async getPracticeCatalog(params: { userId: string; skill?: string }) {
     const skill = this.normalizeSkill(params.skill);
 
-    const exams = await this.prisma.exam.findMany({
+    const exams = await this.prisma.ieltsIntensiveExam.findMany({
       where: {
         isPublished: true,
         type: skill,
@@ -252,7 +252,7 @@ export class ExamsService {
     const examIds = parsed.map((p) => p.ieltsIntensiveExam.id);
 
     // Get all sessions for these exams that have a practicePart
-    const sessions = (await (this.prisma.examSession as any).findMany({
+    const sessions = (await (this.prisma.ieltsIntensiveSession as any).findMany({
       where: { examId: { in: examIds }, practicePart: { not: null } },
       select: {
         id: true,
@@ -260,7 +260,7 @@ export class ExamsService {
         userId: true,
         status: true,
         practicePart: true,
-        result: true,
+        ieltsIntensiveResult: true,
       },
       orderBy: { createdAt: "desc" },
     })) as Array<{
@@ -269,7 +269,7 @@ export class ExamsService {
       userId: string;
       status: string;
       practicePart: number | null;
-      result: any;
+      ieltsIntensiveResult: { totalScore: number } | null;
     }>;
 
     const practiceItems: any[] = [];
@@ -302,13 +302,13 @@ export class ExamsService {
           (s) => s.userId === params.userId,
         );
         const completedSessions = mySessions.filter(
-          (s) => s.status === SessionStatus.COMPLETED,
+          (s) => s.status === IeltsIntensiveSessionStatus.COMPLETED,
         );
 
         let highestScore = 0;
         for (const cs of completedSessions) {
-          if (cs.result?.totalScore && cs.result.totalScore > highestScore) {
-            highestScore = cs.result.totalScore;
+          if (cs.ieltsIntensiveResult?.totalScore && cs.ieltsIntensiveResult.totalScore > highestScore) {
+            highestScore = cs.ieltsIntensiveResult.totalScore;
           }
         }
 
@@ -345,45 +345,45 @@ export class ExamsService {
     return { skill, items: practiceItems };
   }
 
-  async create(createExamDto: CreateExamDto): Promise<Exam> {
-    return this.prisma.exam.create({
+  async create(createExamDto: CreateExamDto): Promise<IeltsIntensiveExam> {
+    return this.prisma.ieltsIntensiveExam.create({
       data: createExamDto,
     });
   }
 
-  async findAll(): Promise<Exam[]> {
-    return this.prisma.exam.findMany({
+  async findAll(): Promise<IeltsIntensiveExam[]> {
+    return this.prisma.ieltsIntensiveExam.findMany({
       where: { isPublished: true },
     });
   }
 
-  async findOne(id: string): Promise<Exam | null> {
-    return this.prisma.exam.findUnique({
+  async findOne(id: string): Promise<IeltsIntensiveExam | null> {
+    return this.prisma.ieltsIntensiveExam.findUnique({
       where: { id },
     });
   }
 
-  async update(id: string, updateExamDto: UpdateExamDto): Promise<Exam> {
-    return this.prisma.exam.update({
+  async update(id: string, updateExamDto: UpdateExamDto): Promise<IeltsIntensiveExam> {
+    return this.prisma.ieltsIntensiveExam.update({
       where: { id },
       data: updateExamDto,
     });
   }
 
   async remove(id: string): Promise<{ message: string }> {
-    await this.prisma.exam.delete({
+    await this.prisma.ieltsIntensiveExam.delete({
       where: { id },
     });
     return { message: "IeltsIntensiveExam deleted successfully" };
   }
   async getHistory(userId: string) {
-    const sessions = await this.prisma.examSession.findMany({
+    const sessions = await this.prisma.ieltsIntensiveSession.findMany({
       where: { userId, status: "COMPLETED" },
       include: {
-        exam: {
+        ieltsIntensiveExam: {
           select: { title: true, type: true, duration: true, difficulty: true },
         },
-        result: true,
+        ieltsIntensiveResult: true,
       },
       orderBy: { submittedAt: "desc" },
     });
@@ -391,14 +391,14 @@ export class ExamsService {
     return sessions.map((s) => ({
       id: s.id,
       examId: s.examId,
-      examTitle: s.exam.title,
-      skill: s.exam.type,
-      difficulty: s.exam.difficulty,
+      examTitle: s.ieltsIntensiveExam.title,
+      skill: s.ieltsIntensiveExam.type,
+      difficulty: s.ieltsIntensiveExam.difficulty,
       dateTaken: s.submittedAt ?? s.createdAt,
-      durationMinutes: s.exam.duration,
+      durationMinutes: s.ieltsIntensiveExam.duration,
       timeTaken: s.timeTaken ?? null,
-      rawScore: s.result?.totalScore ?? 0,
-      writingScore: s.result?.writingScore ?? null,
+      rawScore: s.ieltsIntensiveResult?.totalScore ?? 0,
+      writingScore: s.ieltsIntensiveResult?.writingScore ?? null,
       maxScore: 40,
       practicePart: (s as any).practicePart ?? null,
     }));
@@ -407,8 +407,8 @@ export class ExamsService {
   async createSession(
     examId: string,
     createSessionDto: CreateSessionDto,
-  ): Promise<ExamSession> {
-    return (this.prisma.examSession as any).create({
+  ): Promise<IeltsIntensiveSession> {
+    return (this.prisma.ieltsIntensiveSession as any).create({
       data: {
         examId,
         userId: createSessionDto.userId,
@@ -416,7 +416,7 @@ export class ExamsService {
         status: "IN_PROGRESS",
         practicePart: createSessionDto.practicePart ?? null,
       },
-    }) as Promise<ExamSession>;
+    }) as Promise<IeltsIntensiveSession>;
   }
 
   private parseIELTSAnswer(correct: string): string[] {
@@ -486,28 +486,28 @@ export class ExamsService {
   async submitSession(
     sessionId: string,
     submitDto: SubmitSessionDto,
-  ): Promise<ExamSession & { result?: any }> {
+  ): Promise<IeltsIntensiveSession & { result?: any }> {
     // 1. Fetch the existing session and ieltsIntensiveExam details
-    const existing = await this.prisma.examSession.findUnique({
+    const existing = await this.prisma.ieltsIntensiveSession.findUnique({
       where: { id: sessionId },
-      include: { exam: true },
+      include: { ieltsIntensiveExam: true },
     });
 
     if (!existing) {
       throw new BadRequestException("IeltsIntensiveExam session not found.");
     }
 
-    let status: SessionStatus = "SUBMITTED";
+    let status: IeltsIntensiveSessionStatus = "SUBMITTED";
     let totalScore = 0;
     let graded = false;
 
     // 2. Synchronous grading for IELTS LISTENING and READING
     if (
-      existing.exam.type === ExamType.LISTENING ||
-      existing.exam.type === ExamType.READING
+      existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.LISTENING ||
+      existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.READING
     ) {
       const ansMap = new Map<string, any>();
-      this.extractCorrectAnswers(existing.exam.questions, ansMap);
+      this.extractCorrectAnswers(existing.ieltsIntensiveExam.questions, ansMap);
 
       for (const [key, correct] of ansMap.entries()) {
         const userAns = submitDto.answers[key];
@@ -551,8 +551,8 @@ export class ExamsService {
     }
 
     // 2b. WRITING & SPEAKING: AI grading
-    const isWriting = existing.exam.type === ExamType.WRITING;
-    const isSpeaking = existing.exam.type === ExamType.SPEAKING;
+    const isWriting = existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.WRITING;
+    const isSpeaking = existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.SPEAKING;
     if (isWriting || isSpeaking) {
       const feature = isWriting ? "AI_WRITING_GRADING" : "AI_SPEAKING_GRADING";
       const allowed = await this.subscriptionsService.incrementUsage(existing.userId, feature);
@@ -573,7 +573,7 @@ export class ExamsService {
     }
 
     // 3. Update session with answers and status
-    const session = await this.prisma.examSession.update({
+    const session = await this.prisma.ieltsIntensiveSession.update({
       where: { id: sessionId },
       data: {
         answers: submitDto.answers,
@@ -591,13 +591,13 @@ export class ExamsService {
         sessionId: existing.id,
         totalScore,
         listeningScore:
-          existing.exam.type === ExamType.LISTENING ? totalScore : null,
+          existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.LISTENING ? totalScore : null,
         readingScore:
-          existing.exam.type === ExamType.READING ? totalScore : null,
+          existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.READING ? totalScore : null,
         gradedAt: new Date(),
       };
 
-      resultRecord = await this.prisma.result.upsert({
+      resultRecord = await this.prisma.ieltsIntensiveResult.upsert({
         where: { sessionId: existing.id },
         update: resultData,
         create: resultData,
@@ -608,30 +608,30 @@ export class ExamsService {
     if (isWriting || isSpeaking) {
       await this.aiClientService.publishGradingTask({
         sessionId: session.id,
-        examType: existing.exam.type,
+        examType: existing.ieltsIntensiveExam.type,
         userId: existing.userId,
         answers: submitDto.answers,
-        questions: existing.exam.questions,
+        questions: existing.ieltsIntensiveExam.questions,
       });
       // The status remains 'SUBMITTED', the consumer will update it to 'GRADED'
     }
 
-    const updatedSession = await this.prisma.examSession.update({
+    const updatedSession = await this.prisma.ieltsIntensiveSession.update({
       where: { id: sessionId },
       data: {
         status,
       },
-      include: { result: true },
+      include: { ieltsIntensiveResult: true },
     });
 
     return updatedSession;
   }
 
   async getSession(sessionId: string) {
-    const session = await this.prisma.examSession.findUnique({
+    const session = await this.prisma.ieltsIntensiveSession.findUnique({
       where: { id: sessionId },
       include: {
-        exam: {
+        ieltsIntensiveExam: {
           select: {
             id: true,
             title: true,
@@ -640,7 +640,7 @@ export class ExamsService {
             questions: true,
           },
         },
-        result: true,
+        ieltsIntensiveResult: true,
         user: {
           select: {
             id: true,
@@ -660,7 +660,7 @@ export class ExamsService {
   }
 
   async deleteSession(sessionId: string) {
-    const session = await this.prisma.examSession.findUnique({
+    const session = await this.prisma.ieltsIntensiveSession.findUnique({
       where: { id: sessionId },
     });
     if (!session) {
@@ -668,12 +668,12 @@ export class ExamsService {
     }
 
     // Delete associated ieltsIntensiveResult first (if any)
-    await this.prisma.result.deleteMany({
+    await this.prisma.ieltsIntensiveResult.deleteMany({
       where: { sessionId },
     });
 
     // Delete the session
-    await this.prisma.examSession.delete({
+    await this.prisma.ieltsIntensiveSession.delete({
       where: { id: sessionId },
     });
 

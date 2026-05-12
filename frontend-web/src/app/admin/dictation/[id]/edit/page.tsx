@@ -49,8 +49,8 @@ function EditForm({ foundationVocabLesson, lessonId }: { foundationVocabLesson: 
   } = useAdminDictationForm(foundationVocabLesson);
 
   const handleSubmit = async () => {
-    const ieltsIntensiveResult = await submitUpdate(lessonId);
-    if (ieltsIntensiveResult) {
+    const result = await submitUpdate(lessonId);
+    if (result) {
       router.push("/admin/dictation");
     }
   };

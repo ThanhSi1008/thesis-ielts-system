@@ -38,7 +38,7 @@ export interface WritingFeedback {
 interface WritingResultViewProps {
   feedback: WritingFeedback;
   answers?: { task1?: string; task2?: string };
-  ieltsIntensiveExam?: any;
+  exam?: any;
   practicePart?: number;
 }
 
@@ -220,7 +220,7 @@ function CriterionCard({
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export default function WritingResultView({ feedback, answers, ieltsIntensiveExam, practicePart }: WritingResultViewProps) {
+export default function WritingResultView({ feedback, answers, exam, practicePart }: WritingResultViewProps) {
   const [detailedOpen, setDetailedOpen] = useState(true);
   const [reviewOpen, setReviewOpen] = useState(true);
   const [activeTask, setActiveTask] = useState<1 | 2>(practicePart === 2 ? 2 : 1);
@@ -278,7 +278,7 @@ export default function WritingResultView({ feedback, answers, ieltsIntensiveExa
   // Split Pane Implementation Data
   const currentFeedback = activeTask === 1 ? feedback.task1 : feedback.task2;
   const currentAnswer = activeTask === 1 ? answers?.task1 : answers?.task2;
-  const tasks = ieltsIntensiveExam?.questions?.tasks || [];
+  const tasks = exam?.questions?.tasks || [];
   const currentPromptObj = tasks.find((t: any) => t.task_number === activeTask) || {};
 
   const ReviewExplanation = (

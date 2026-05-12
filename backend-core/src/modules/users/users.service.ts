@@ -188,10 +188,10 @@ export class UsersService {
     });
 
     // 3. Fetch completed mock test sessions (shaped like /exams/history)
-    const examSessions = await this.prisma.examSession.findMany({
+    const examSessions = await this.prisma.ieltsIntensiveSession.findMany({
       where: { userId: studentId, status: "COMPLETED" },
       include: {
-        exam: {
+        ieltsIntensiveExam: {
           select: {
             id: true,
             title: true,
@@ -200,7 +200,7 @@ export class UsersService {
             difficulty: true,
           },
         },
-        result: true,
+        ieltsIntensiveResult: true,
       },
       orderBy: { submittedAt: "desc" },
     });
@@ -208,14 +208,14 @@ export class UsersService {
     const mockHistory = examSessions.map((s) => ({
       id: s.id,
       examId: s.examId,
-      examTitle: (s.exam as any).title,
-      skill: (s.exam as any).type,
-      difficulty: (s.exam as any).difficulty,
+      examTitle: (s.ieltsIntensiveExam as any).title,
+      skill: (s.ieltsIntensiveExam as any).type,
+      difficulty: (s.ieltsIntensiveExam as any).difficulty,
       dateTaken: (s as any).submittedAt ?? s.createdAt,
-      durationMinutes: (s.exam as any).duration,
+      durationMinutes: (s.ieltsIntensiveExam as any).duration,
       timeTaken: (s as any).timeTaken ?? null,
-      rawScore: s.result?.totalScore ?? 0,
-      writingScore: s.result?.writingScore ?? null,
+      rawScore: s.ieltsIntensiveResult?.totalScore ?? 0,
+      writingScore: s.ieltsIntensiveResult?.writingScore ?? null,
       maxScore: 40,
       practicePart: (s as any).practicePart ?? null,
     }));

@@ -58,7 +58,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
       await examsApi.deleteSession(pendingDeleteId);
       setHistoryItems(prev => prev.filter(item => item.id !== pendingDeleteId));
     } catch (err) {
-      alert("Failed to delete the test ieltsIntensiveResult. Please try again.");
+      alert("Failed to delete the test result. Please try again.");
     } finally {
       setDeletingId(null);
       setPendingDeleteId(null);
@@ -283,7 +283,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
                         <Link href={`/ielts/intensive/${encodeURIComponent(item.examId)}/result/${encodeURIComponent(item.id)}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
                           Review <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
-                        <button onClick={() => setPendingDeleteId(item.id)} disabled={deletingId === item.id} className="text-gray-400 dark:text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50" title="Delete ieltsIntensiveResult"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => setPendingDeleteId(item.id)} disabled={deletingId === item.id} className="text-gray-400 dark:text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50" title="Delete result"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>
@@ -346,7 +346,7 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
                         <Link href={`/ielts/intensive/${encodeURIComponent(item.examId)}/result/${encodeURIComponent(item.id)}`} className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
                           Review <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
-                        <button onClick={() => setPendingDeleteId(item.id)} disabled={deletingId === item.id} className="text-gray-400 dark:text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50" title="Delete ieltsIntensiveResult"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => setPendingDeleteId(item.id)} disabled={deletingId === item.id} className="text-gray-400 dark:text-slate-500 hover:text-red-500 transition-colors disabled:opacity-50" title="Delete result"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>
@@ -359,8 +359,8 @@ function HistoryContentInner({ embedded }: { embedded?: boolean }) {
 
       <ConfirmModal
         isOpen={!!pendingDeleteId}
-        title="Delete Test IeltsIntensiveResult"
-        message="Are you sure you want to delete this test ieltsIntensiveResult? This action cannot be undone."
+        title="Delete Test Result"
+        message="Are you sure you want to delete this test result? This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
         isDestructive

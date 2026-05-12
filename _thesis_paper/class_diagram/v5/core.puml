@@ -1,0 +1,426 @@
+@startuml
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+hide methods
+
+enum UserRole {
+  + STUDENT
+  + ADMIN
+  + INSTRUCTOR
+}
+
+enum CardState {
+  + NEW
+  + LEARNING
+  + REVIEW
+  + RELEARNING
+}
+
+enum SubscriptionTier {
+  + FREE
+  + PREMIUM
+  + PRO
+}
+
+enum SubscriptionStatus {
+  + ACTIVE
+  + TRIALING
+  + PAST_DUE
+  + CANCELED
+  + EXPIRED
+}
+
+enum PaymentProvider {
+  + MOCK
+  + STRIPE
+  + MANUAL
+}
+
+enum NotificationType {
+  + STREAK_MILESTONE
+  + LESSON_COMPLETED
+  + REVIEW_DUE
+  + DECK_MASTERED
+  + EXAM_GRADED
+  + NEW_EXAM_AVAILABLE
+  + DICTATION_COMPLETE
+  + NEW_LESSON
+  + SYSTEM_ANNOUNCEMENT
+  + ACHIEVEMENT
+}
+
+enum PostType {
+  + STUDY_TIP
+  + SCORE_ACHIEVEMENT
+  + GENERAL
+}
+
+class User {
+  - id: String
+  - email: String
+  - password: String [0..1]
+  - googleId: String [0..1]
+  - avatar: String [0..1]
+  - firstName: String [0..1]
+  - lastName: String [0..1]
+  - isActive: Boolean
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class Deck {
+  - id: String
+  - userId: String
+  - name: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class Flashcard {
+  - id: String
+  - deckId: String
+  - front: String
+  - back: String
+  - tags: String[]
+  - due: DateTime
+  - stability: Float
+  - difficulty: Float
+  - elapsedDays: Int
+  - scheduledDays: Int
+  - reps: Int
+  - lapses: Int
+  - lastReview: DateTime [0..1]
+  - nextReviewDate: DateTime
+  - cardTypeId: String [0..1]
+  - fieldValues: Json
+  - fieldStyles: Json [0..1]
+  - cardStyle: Json [0..1]
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class FlashcardReview {
+  - id: String
+  - flashcardId: String
+  - rating: Int
+  - reviewedAt: DateTime
+  - scheduledDays: Int
+  - elapsedDays: Int
+}
+
+class CardType {
+  - id: String
+  - userId: String [0..1]
+  - name: String
+  - description: String [0..1]
+  - isBuiltIn: Boolean
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class CardTypeField {
+  - id: String
+  - cardTypeId: String
+  - name: String
+  - order: Int
+  - description: String [0..1]
+  - fieldType: String
+  - createdAt: DateTime
+}
+
+class CardTemplate {
+  - id: String
+  - cardTypeId: String
+  - name: String
+  - frontFields: String[]
+  - backFields: String[]
+  - fieldStyles: Json
+  - cardStyle: Json
+  - createdAt: DateTime
+}
+
+class SharedDeck {
+  - id: String
+  - publisherId: String
+  - name: String
+  - description: String [0..1]
+  - tags: String[]
+  - lexonPayload: Json
+  - importCount: Int
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class QuestionNote {
+  - id: String
+  - userId: String
+  - examId: String
+  - questionNumber: Int
+  - noteText: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class ShadowingVideo {
+  - id: String
+  - userId: String [0..1]
+  - title: String
+  - youtubeVideoId: String [0..1]
+  - audioUrl: String [0..1]
+  - imageUrl: String [0..1]
+  - tags: String[]
+  - folder: String
+  - category: String
+  - duration: String
+  - sentences: Json
+  - status: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class ShadowingFolder {
+  - id: String
+  - userId: String
+  - name: String
+  - order: Int
+}
+
+class ShadowingProgress {
+  - id: String
+  - userId: String
+  - lessonId: String
+  - completedSentences: Int[]
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class DictationVideo {
+  - id: String
+  - userId: String [0..1]
+  - title: String
+  - youtubeVideoId: String [0..1]
+  - audioUrl: String [0..1]
+  - imageUrl: String [0..1]
+  - tags: String[]
+  - folder: String
+  - category: String
+  - duration: String
+  - sentences: Json
+  - status: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class DictationFolder {
+  - id: String
+  - userId: String
+  - name: String
+  - order: Int
+}
+
+class DictationProgress {
+  - id: String
+  - userId: String
+  - lessonId: String
+  - completedSentences: Int[]
+  - difficulty: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class StudentTeacherLink {
+  - id: String
+  - studentId: String
+  - teacherId: String
+  - status: String
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class Notification {
+  - id: String
+  - userId: String
+  - title: String
+  - body: String
+  - icon: String [0..1]
+  - thumbnail: String [0..1]
+  - link: String [0..1]
+  - isRead: Boolean
+  - createdAt: DateTime
+}
+
+class Achievement {
+  - id: String
+  - key: String
+  - name: String
+  - description: String
+  - icon: String
+  - category: String
+  - tier: Int
+  - xpReward: Int
+  - order: Int
+  - createdAt: DateTime
+}
+
+class UserAchievement {
+  - id: String
+  - userId: String
+  - achievementId: String
+  - earnedAt: DateTime
+}
+
+class XpLog {
+  - id: String
+  - userId: String
+  - amount: Int
+  - reason: String
+  - createdAt: DateTime
+}
+
+class Post {
+  - id: String
+  - authorId: String
+  - title: String [0..1]
+  - body: String
+  - imageUrls: String[]
+  - tags: String[]
+  - metadata: Json [0..1]
+  - likeCount: Int
+  - commentCount: Int
+  - bookmarkCount: Int
+  - isPinned: Boolean
+  - isHidden: Boolean
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class Comment {
+  - id: String
+  - postId: String
+  - authorId: String
+  - parentId: String [0..1]
+  - body: String
+  - isHidden: Boolean
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class PostLike {
+  - id: String
+  - postId: String
+  - userId: String
+  - createdAt: DateTime
+}
+
+class PostBookmark {
+  - id: String
+  - postId: String
+  - userId: String
+  - createdAt: DateTime
+}
+
+class Subscription {
+  - id: String
+  - userId: String
+  - providerSubId: String [0..1]
+  - currentPeriodStart: DateTime [0..1]
+  - currentPeriodEnd: DateTime [0..1]
+  - canceledAt: DateTime [0..1]
+  - trialEndsAt: DateTime [0..1]
+  - trialUsed: Boolean
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class Payment {
+  - id: String
+  - subscriptionId: String
+  - amount: Int
+  - currency: String
+  - providerPayId: String [0..1]
+  - status: String
+  - metadata: Json [0..1]
+  - createdAt: DateTime
+}
+
+class UsageRecord {
+  - id: String
+  - subscriptionId: String
+  - feature: String
+  - count: Int
+  - periodStart: DateTime
+  - periodEnd: DateTime
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+class PricingPlan {
+  - id: String
+  - name: String
+  - description: String [0..1]
+  - priceAmount: Int
+  - currency: String
+  - interval: String
+  - intervalCount: Int
+  - features: Json
+  - isActive: Boolean
+  - order: Int
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+' --- Merged Relationships ---
+
+' User Relationships
+User "1" --> "1" UserRole
+User "1" -- "0..*" Deck
+User "1" -- "0..*" SharedDeck
+User "1" -- "0..*" QuestionNote
+User "1" -- "0..*" ShadowingVideo
+User "1" -- "0..*" ShadowingFolder
+User "1" -- "0..*" ShadowingProgress
+User "1" -- "0..*" DictationVideo
+User "1" -- "0..*" DictationFolder
+User "1" -- "0..*" DictationProgress
+User "1" -- "0..*" UserAchievement
+User "1" -- "0..*" XpLog
+User "1" -- "0..*" StudentTeacherLink
+User "1" -- "0..*" Notification
+User "1" -- "0..*" Post
+User "1" -- "0..*" Comment
+User "1" -- "0..*" PostLike
+User "1" -- "0..*" PostBookmark
+User "1" -- "0..1" Subscription
+
+' Flashcard System Relationships
+Deck "1" *-- "0..*" Flashcard
+Flashcard "1" --> "1" CardState
+Flashcard "1" -- "0..1" CardType
+Flashcard "1" -- "0..*" FlashcardReview
+FlashcardReview "1" --> "0..1" CardState
+CardType "1" *-- "0..*" CardTypeField
+CardType "1" *-- "0..*" CardTemplate
+
+' Notification System
+Notification "1" --> "1" NotificationType
+
+' Gamification / Achievements
+Achievement "1" -- "0..*" UserAchievement
+
+' Community / Forums
+Post "1" --> "1" PostType
+Post "1" *-- "0..*" Comment
+Post "1" *-- "0..*" PostLike
+Post "1" *-- "0..*" PostBookmark
+Comment "0..1" -- "0..*" Comment
+
+' Billing / Subscriptions
+Subscription "1" --> "1" SubscriptionTier
+Subscription "1" --> "1" SubscriptionStatus
+Subscription "1" --> "0..1" PaymentProvider
+Subscription "1" -- "0..*" Payment
+Subscription "1" -- "0..*" UsageRecord
+Payment "1" --> "1" PaymentProvider
+PricingPlan "1" --> "1" SubscriptionTier
+
+@enduml

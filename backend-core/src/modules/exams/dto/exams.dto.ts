@@ -11,7 +11,7 @@ import {
   Max,
   Allow,
 } from "class-validator";
-import { ExamType, Difficulty } from "@prisma/client";
+import { IeltsIntensiveExamType, Difficulty } from "@prisma/client";
 
 export class CreateExamDto {
   @IsString()
@@ -22,9 +22,9 @@ export class CreateExamDto {
   @IsOptional()
   description?: string;
 
-  @IsEnum(ExamType)
+  @IsEnum(IeltsIntensiveExamType)
   @IsNotEmpty()
-  type: ExamType;
+  type: IeltsIntensiveExamType;
 
   @IsEnum(Difficulty)
   @IsNotEmpty()

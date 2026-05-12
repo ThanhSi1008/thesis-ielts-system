@@ -1,5 +1,5 @@
 import React from "react";
-import { type NormalizedItem } from "@/lib/ieltsIntensiveExam-parser";
+import { type NormalizedItem } from "@/lib/exam-parser";
 
 export type AnswersState = Record<string, string | string[]>;
 
