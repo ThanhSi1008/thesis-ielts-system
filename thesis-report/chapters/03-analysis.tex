@@ -436,7 +436,7 @@ Trong phần đọc hiểu, endpoint \texttt{POST /foundationVocabWord/progress/
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC06} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở trang thư viện IELTS Basic.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài học lý thuyết hoặc bài tập luyện nghe được đánh dấu hoàn thành (\texttt{isCompleted = true}, \texttt{completedAt} được ghi nhận); người học nhận 10~XP khi hoàn thành bài học hoặc 15~XP khi hoàn thành bài tập với điểm tuyệt đối; kết quả được lưu vào bảng \texttt{IeltsBasicProgress}.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
@@ -450,23 +450,27 @@ Trong phần đọc hiểu, endpoint \texttt{POST /foundationVocabWord/progress/
     \endfoot
     \hline
     \endlastfoot
-    1. Nhấn vào thẻ kỹ năng ``Listening'' trong thư viện IELTS Basic. & \\ \hline
-    & 2. Gọi \texttt{GET /ielts/library/stats} và \texttt{GET /ielts/skills/Listening/lessons}; hiển thị danh sách bài học theo thứ tự chương, mỗi bài kèm tiêu đề và trạng thái hoàn thành. \\ \hline
-    3a. Chọn một bài học lý thuyết từ danh sách. & \\ \hline
-    & 4a. Gọi \texttt{GET /ielts/lessons/\{lessonId\}}; hiển thị trang bài học với các khối nội dung lý thuyết (strategy, tips, traps, overview, section) được render từ Markdown và thanh mục lục điều hướng bên cạnh. Cuối trang là quiz trắc nghiệm tối đa 4 câu. \\ \hline
-    5a. Đọc nội dung lý thuyết, trả lời các câu hỏi quiz và nhấn ``Submit''. & \\ \hline
-    & 6a. Chấm điểm quiz phía client; gọi \texttt{POST /ielts/progress/mark-completed} với \texttt{\{lessonId\}}; tạo hoặc cập nhật bản ghi \texttt{IeltsBasicProgress} qua thao tác \texttt{upsert} của Prisma, đánh dấu \texttt{isCompleted = true}; kích hoạt sự kiện gamification (10~XP, achievement key \texttt{IB\_LESSON\_5}); gọi \texttt{StreakService.recordActivity()} và cập nhật thanh tiến độ. Kết thúc nhánh bài học. \\ \hline
-    3b. Chuyển sang tab ``Exercises'' và chọn một bài tập Listening. & \\ \hline
-    & 4b. Gọi \texttt{GET /ielts/listening-exercises/\{exerciseId\}}; hiển thị giao diện bài tập gồm: trình phát âm thanh tùy chỉnh (hỗ trợ seek theo thời gian), khu vực câu hỏi được render theo dạng bài và thanh theo dõi tiến độ câu hỏi ở phía dưới màn hình. \\ \hline
-    5b. Nghe audio, điền câu trả lời vào từng câu hỏi theo dạng bài tương ứng. & \\ \hline
-    & 6b. Cập nhật trạng thái đã điền của từng câu hỏi trên thanh theo dõi theo thời gian thực (xử lý hoàn toàn phía client). \\ \hline
-    7b. Nhấn ``Submit Answers'' sau khi hoàn thành tất cả câu hỏi. & \\ \hline
-    & 8b. Tính điểm qua \texttt{SharedScoreUtils.calculateScore()}: so sánh không phân biệt hoa thường cho dạng điền từ, so sánh chính xác giá trị cho trắc nghiệm, hỗ trợ mảng \texttt{acceptable\_answers} cho Short Answer. Hiển thị kết quả số câu đúng trên tổng số câu. \\ \hline
-    & 9b. Nếu tất cả câu trả lời đúng (điểm tuyệt đối): gọi \texttt{POST /ielts/progress/mark-completed} với \texttt{\{listeningExerciseId\}}; đánh dấu \texttt{isCompleted = true}; kích hoạt sự kiện gamification (15~XP, achievement key \texttt{IB\_LISTENING\_3}); gọi \texttt{StreakService.recordActivity()}; mở khóa bảng Transcript bên phải với nội dung đồng bộ theo câu hỏi; hiển thị nút ``Next Step''. Kết thúc use-case. \\ \hline
+    1. Nhấn vào mục ``IELTS Basic'' trên thanh điều hướng bên trái (sidebar) của phân hệ IELTS. & \\ \hline
+    & 2. Gọi \texttt{GET /ielts/library/stats}; hiển thị trang thư viện kỹ năng gồm 4 thẻ: \textit{Listening}, \textit{Reading}, \textit{Writing}, \textit{Speaking}. Mỗi thẻ kỹ năng hiển thị hai phần: \textbf{Lessons} (bài học lý thuyết) và \textbf{Exercises} (bài tập luyện tập) kèm tiến độ hoàn thành tương ứng. \\ \hline
+    3a. Nhấn vào phần ``Lessons'' của thẻ kỹ năng Listening. & \\ \hline
+    & 4a. Gọi \texttt{GET /ielts/skills/Listening/lessons}; hiển thị danh sách các bài học lý thuyết theo thứ tự chương, mỗi bài kèm tiêu đề và trạng thái hoàn thành. \\ \hline
+    5a. Chọn một bài học từ danh sách. & \\ \hline
+    & 6a. Gọi \texttt{GET /ielts/lessons/\{lessonId\}}; hiển thị trang bài học với các khối nội dung lý thuyết (strategy, tips, traps, overview, section) được render từ Markdown và thanh mục lục điều hướng bên cạnh. Cuối trang là quiz trắc nghiệm tối đa 4 câu. \\ \hline
+    7a. Đọc nội dung lý thuyết, trả lời các câu hỏi quiz và nhấn ``Submit''. & \\ \hline
+    & 8a. Chấm điểm quiz phía client; gọi \texttt{POST /ielts/progress/mark-completed} với \texttt{\{lessonId\}}; tạo hoặc cập nhật bản ghi \texttt{IeltsBasicProgress} qua thao tác \texttt{upsert} của Prisma, đánh dấu \texttt{isCompleted = true}; kích hoạt sự kiện gamification (10~XP, achievement key \texttt{IB\_LESSON\_5}); gọi \texttt{StreakService.recordActivity()} và cập nhật thanh tiến độ. Kết thúc nhánh A. \\ \hline
+    3b. Nhấn vào phần ``Exercises'' của thẻ kỹ năng Listening. & \\ \hline
+    & 4b. Gọi \texttt{GET /ielts/skills/Listening/exercises}; hiển thị danh sách các bài tập luyện nghe kèm tiêu đề, loại dạng bài và trạng thái hoàn thành. \\ \hline
+    5b. Chọn một bài tập từ danh sách. & \\ \hline
+    & 6b. Gọi \texttt{GET /ielts/listening-exercises/\{exerciseId\}}; hiển thị giao diện bài tập gồm: trình phát âm thanh tùy chỉnh (hỗ trợ seek theo thời gian), khu vực câu hỏi được render theo dạng bài và thanh theo dõi tiến độ câu hỏi ở phía dưới màn hình. \\ \hline
+    7b. Nghe audio, điền câu trả lời vào từng câu hỏi theo dạng bài tương ứng. & \\ \hline
+    & 8b. Cập nhật trạng thái đã điền của từng câu hỏi trên thanh theo dõi theo thời gian thực (xử lý hoàn toàn phía client). \\ \hline
+    9b. Nhấn ``Submit Answers'' sau khi hoàn thành tất cả câu hỏi. & \\ \hline
+    & 10b. Tính điểm qua \texttt{SharedScoreUtils.calculateScore()}: so sánh không phân biệt hoa thường cho dạng điền từ, so sánh chính xác giá trị cho trắc nghiệm, hỗ trợ mảng \texttt{acceptable\_answers} cho Short Answer. Hiển thị kết quả số câu đúng trên tổng số câu. \\ \hline
+    & 11b. Nếu tất cả câu trả lời đúng (điểm tuyệt đối): gọi \texttt{POST /ielts/progress/mark-completed} với \texttt{\{listeningExerciseId\}}; đánh dấu \texttt{isCompleted = true}; kích hoạt sự kiện gamification (15~XP, achievement key \texttt{IB\_LISTENING\_3}); gọi \texttt{StreakService.recordActivity()}; mở khóa bảng Transcript bên phải với nội dung đồng bộ theo câu hỏi; hiển thị nút ``Next Step''. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 8b.1. Điểm số chưa đạt tuyệt đối: hiển thị số câu đúng và nút ``Retry''; không gọi API đánh dấu hoàn thành; bảng Transcript không được mở khóa. Quay lại bước 5b. \\ \hline
-    & 6a.1. Bài học đã có \texttt{isCompleted = true} từ lần học trước: giao diện hiển thị trạng thái đã hoàn thành; người học xem lại lý thuyết mà không cần làm lại quiz. \\ \hline
-    & 4b.1. Câu hỏi trong bài tập có trường \texttt{timestamp\_seconds}: nút ``Listen from here'' xuất hiện cạnh câu hỏi tương ứng; nhấn nút này sẽ seek trình phát đến đúng mốc thời gian trong audio mà không phát lại từ đầu. \\ \hline
+    & 10b.1. Điểm số chưa đạt tuyệt đối: hiển thị số câu đúng và nút ``Retry''; không gọi API đánh dấu hoàn thành; bảng Transcript không được mở khóa. Quay lại bước 7b. \\ \hline
+    & 8a.1. Bài học đã có \texttt{isCompleted = true} từ lần học trước: giao diện hiển thị trạng thái đã hoàn thành; người học xem lại lý thuyết mà không cần làm lại quiz. \\ \hline
+    & 6b.1. Câu hỏi trong bài tập có trường \texttt{timestamp\_seconds}: nút ``Listen from here'' xuất hiện cạnh câu hỏi tương ứng; nhấn nút này sẽ seek trình phát đến đúng mốc thời gian trong audio mà không phát lại từ đầu. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
@@ -499,7 +503,55 @@ Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được m�
 % ============================================================
 \subsection{Luyện Reading IELTS nâng cao (UC07)}
 \subsubsection{Mô tả use case}
-% TODO: Bổ sung bảng đặc tả use case UC07
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+    \caption{Đặc tả chức năng Luyện Reading IELTS nâng cao (UC07)} \label{tab:uc07_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC07} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và có gói đăng ký Premium hoặc Pro đang hoạt động.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bản ghi \texttt{IeltsAdvancedReadingSession} được tạo với điểm số, câu trả lời và dữ liệu phân tích theo loại câu hỏi (\texttt{scoreData}); người học nhận 20~XP (achievement key \texttt{IA\_READER\_5}); nếu tỷ lệ đúng $\geq 80\%$ nhận thêm 10~XP (achievement key \texttt{IA\_HIGH\_ACHIEVER}); chuỗi học liên tiếp được cập nhật.} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1. Nhấn vào mục ``IELTS Advanced'' trên thanh điều hướng bên trái (sidebar) của phân hệ IELTS. & \\ \hline
+    & 2. Kiểm tra gói đăng ký qua \texttt{SubscriptionGuard} (\texttt{@RequiresTier("PREMIUM")}); hiển thị giao diện IELTS Advanced với 4 tab kỹ năng: Listening, Reading, Writing, Speaking; mặc định đứng ở tab \textbf{Listening}. \\ \hline
+    3. Nhấn tab ``Reading''. & \\ \hline
+    & 4. Cập nhật query param \texttt{?skill=Reading}; gọi \texttt{GET /ielts/advanced/reading}; hiển thị danh sách bài luyện tập kèm bộ chọn Part (Part~1, Part~2, Part~3 --- Reading không có Part~4); mặc định chọn Part~1; mỗi thẻ bài kèm tiêu đề, nhãn loại câu hỏi (\texttt{questionTypes}) và điểm cao nhất đã đạt (nếu đã từng làm). \\ \hline
+    5. Nhấn vào một Part (ví dụ: Part~2) trong bộ chọn. & \\ \hline
+    & 6. Lọc và hiển thị danh sách các bài luyện tập thuộc Part đã chọn. \\ \hline
+    7. Nhấn nút ``Practice Now'' trên một bài luyện tập. & \\ \hline
+    & 8. Điều hướng đến \texttt{/ielts/advanced/reading/\{partId\}}; gọi \texttt{GET /ielts/advanced/reading/\{partId\}}; hiển thị giao diện luyện tập chia hai cột: bên trái là \texttt{ReadingPassagePanel} (đoạn văn với đánh dấu vị trí câu hỏi), bên phải là \texttt{ReadingQuestionsPanel} (các nhóm câu hỏi được render theo dạng bài bởi component riêng biệt). \\ \hline
+    9. Đọc đoạn văn và điền câu trả lời vào từng câu hỏi. & \\ \hline
+    10. Nhấn nút ``Submit Answers'' sau khi hoàn thành. & \\ \hline
+    & 11. Gọi \texttt{POST /ielts/advanced/reading/\{partId\}/submit}; chấm điểm từng câu (so sánh không phân biệt hoa thường, hỗ trợ mảng \texttt{acceptable\_answers} cho Short Answer); tổng hợp \texttt{scoreData} theo từng loại câu hỏi; tạo bản ghi \texttt{IeltsAdvancedReadingSession}; kích hoạt sự kiện gamification (20~XP, achievement key \texttt{IA\_READER\_5}; nếu $\geq 80\%$: thêm 10~XP, achievement key \texttt{IA\_HIGH\_ACHIEVER}); gọi \texttt{StreakService.recordActivity()}; điều hướng đến trang Score Report. \\ \hline
+    & 12. Hiển thị trang ``Score Report'' gồm: bảng điểm tổng (\texttt{totalScore} / \texttt{totalQuestions}) và bảng chi tiết theo loại câu hỏi (Total / Attempted / Correct / Marks); phía dưới chia hai cột: bên trái là \texttt{ReadingPassagePanel}, bên phải là ``Question Review'' (\texttt{ReadingQuestionsPanel} với \texttt{showAnswers=true}); mỗi câu hỏi kèm nút \textbf{Locate}, \textbf{Explain} và \textbf{Note}. \\ \hline
+    \multicolumn{2}{|l|}{\textit{Tương tác trên trang Score Report (tùy chọn)}} \\ \hline
+    13a. Nhấn nút ``Locate'' trên một câu hỏi. & \\ \hline
+    & 14a. Scroll \texttt{ReadingPassagePanel} đến đúng vị trí đánh dấu tương ứng (dựa trên \texttt{passageWithLocations}); highlight vị trí khoảng 3~giây rồi tắt. \\ \hline
+    13b. Nhấn nút ``Explain'' trên một câu hỏi. & \\ \hline
+    & 14b. Mở rộng khung giải thích phía dưới câu hỏi; hiển thị từ khóa (\texttt{keyword}), lý giải đáp án (\texttt{rationale}) và phân tích đáp án nhiễu (\texttt{distractor\_analysis}) từ trường \texttt{explanation} của câu hỏi. \\ \hline
+    13c. Nhấn nút ``Note'' trên một câu hỏi để ghi chú cá nhân. & \\ \hline
+    & 14c. Hiển thị ô nhập văn bản ghi chú cho câu hỏi tương ứng; người học nhập và lưu nội dung ghi chú. \\ \hline
+    \multicolumn{2}{|l|}{\textit{Nhánh B --- Xem lại lịch sử làm bài}} \\ \hline
+    15. Nhấn tab ``My Answers'' trên thanh điều hướng của trang bài luyện tập. & \\ \hline
+    & 16. Gọi \texttt{GET /ielts/advanced/reading/history?partId=\{partId\}}; hiển thị danh sách các phiên làm bài trước đó gồm ngày giờ, tiêu đề bài và điểm (\texttt{totalScore} / \texttt{totalQuestions}). \\ \hline
+    17. Nhấn ``Details'' trên một phiên làm bài. & \\ \hline
+    & 18. Gọi \texttt{GET /ielts/advanced/reading/history/\{sessionId\}}; hiển thị lại giao diện Score Report với toàn bộ câu trả lời, đáp án và điểm của phiên đã chọn. Kết thúc use-case. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 2.1. Người học không có gói Premium hoặc Pro: \texttt{SubscriptionGuard} từ chối truy cập (HTTP~403); hiển thị màn hình \texttt{FeatureLock} yêu cầu nâng cấp gói đăng ký; use-case kết thúc. \\ \hline
+    & 11.1. Người học nhấn ``Submit Answers'' khi còn câu chưa điền: hệ thống vẫn thực hiện nộp bài; các câu bỏ trống được tính là sai trong phép tính điểm. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 % TODO: Bổ sung sơ đồ activity UC07
