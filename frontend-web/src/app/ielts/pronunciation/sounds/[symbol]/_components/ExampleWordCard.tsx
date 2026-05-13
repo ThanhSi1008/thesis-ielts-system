@@ -50,10 +50,10 @@ export default function ExampleWordCard({
     audio.play().catch(() => setIsPlaying(false));
   };
 
-  const handleResult = (ieltsIntensiveResult: PronunciationResult) => {
-    onScoreReceived(ieltsIntensiveResult.score);
+  const handleResult = (result: PronunciationResult) => {
+    onScoreReceived(result.score);
     // Auto-close recorder on mastery
-    if (ieltsIntensiveResult.score >= 80) {
+    if (result.score >= 80) {
       setTimeout(() => setIsRecording(false), 4000);
     }
   };

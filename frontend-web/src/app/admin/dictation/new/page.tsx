@@ -14,8 +14,8 @@ export default function NewDictationLessonPage() {
   } = useAdminDictationForm();
 
   const handleSubmit = async () => {
-    const ieltsIntensiveResult = await submitCreate();
-    if (ieltsIntensiveResult) {
+    const result = await submitCreate();
+    if (result) {
       router.push("/admin/dictation");
     }
   };

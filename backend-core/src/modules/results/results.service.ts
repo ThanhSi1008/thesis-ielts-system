@@ -6,12 +6,12 @@ export class ResultsService {
   constructor(private prisma: PrismaService) {}
 
   async findByUser(userId: string) {
-    return this.prisma.result.findMany({
+    return this.prisma.ieltsIntensiveResult.findMany({
       where: { userId },
       include: {
-        session: {
+        ieltsIntensiveSession: {
           include: {
-            exam: true,
+            ieltsIntensiveExam: true,
           },
         },
       },
@@ -22,12 +22,12 @@ export class ResultsService {
   }
 
   async findBySession(sessionId: string) {
-    return this.prisma.result.findUnique({
+    return this.prisma.ieltsIntensiveResult.findUnique({
       where: { sessionId },
       include: {
-        session: {
+        ieltsIntensiveSession: {
           include: {
-            exam: true,
+            ieltsIntensiveExam: true,
           },
         },
       },
@@ -35,7 +35,7 @@ export class ResultsService {
   }
 
   async findOne(id: string) {
-    return this.prisma.result.findUnique({
+    return this.prisma.ieltsIntensiveResult.findUnique({
       where: { id },
     });
   }

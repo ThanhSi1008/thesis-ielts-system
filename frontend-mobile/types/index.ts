@@ -374,3 +374,67 @@ export interface AchievementItem {
   earnedAt?: string;
   progress?: number;
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  name: string;
+  avatar?: string;
+  value: number;
+}
+
+// ==================== COMMUNITY / POSTS ====================
+
+export type PostType = 'GENERAL' | 'STUDY_TIP' | 'SCORE_ACHIEVEMENT';
+
+export interface PostAuthor {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+  subscription?: { tier: string } | null;
+}
+
+export interface Comment {
+  id: string;
+  postId: string;
+  authorId: string;
+  body: string;
+  parentId: string | null;
+  createdAt: string;
+  author: PostAuthor;
+  replies?: Comment[];
+}
+
+export interface Post {
+  id: string;
+  authorId: string;
+  type: PostType;
+  title: string | null;
+  body: string;
+  imageUrls: string[];
+  tags: string[];
+  metadata: Record<string, any> | null;
+  likeCount: number;
+  commentCount: number;
+  bookmarkCount: number;
+  isLiked: boolean;
+  isBookmarked: boolean;
+  createdAt: string;
+  updatedAt: string;
+  author: PostAuthor;
+  comments?: Comment[];
+}
+
+export interface PostListResponse {
+  items: Post[];
+  nextCursor: string | null;
+}
+
+export interface PostListParams {
+  cursor?: string;
+  type?: PostType;
+  tag?: string;
+  authorId?: string;
+  limit?: number;
+}

@@ -28,7 +28,7 @@ export default function PracticeTestTakePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [ieltsIntensiveExam, setExam] = useState<ExamDetail | null>(null);
+  const [exam, setExam] = useState<ExamDetail | null>(null);
   const [sessionInfo, setSessionInfo] = useState<any>(null);
 
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -82,12 +82,12 @@ export default function PracticeTestTakePage() {
 
   // Global countdown (used only by Listening/Reading boards; Writing/Speaking own their timer via secondsLeft prop)
   useEffect(() => {
-    if (loading || !!error || !ieltsIntensiveExam || submitting || submitResult) return;
+    if (loading || !!error || !exam || submitting || submitResult) return;
     const intervalId = setInterval(() => {
       setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(intervalId);
-  }, [loading, error, ieltsIntensiveExam, submitting, submitResult]);
+  }, [loading, error, exam, submitting, submitResult]);
 
   useEffect(() => {
     if (submitResult) {
@@ -101,9 +101,9 @@ export default function PracticeTestTakePage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const ieltsIntensiveResult = await examsApi.submitSession(data.sessionId, data.answers, data.timeTaken);
-      setSubmitResult(ieltsIntensiveResult);
-      return ieltsIntensiveResult;
+      const result = await examsApi.submitSession(data.sessionId, data.answers, data.timeTaken);
+      setSubmitResult(result);
+      return result;
     } catch (err: any) {
       setSubmitError(err.message || "Failed to submit answers");
       setSubmitting(false);
@@ -116,7 +116,7 @@ export default function PracticeTestTakePage() {
 
   // Handle skill-specific initial durations for per-part practice
   useEffect(() => {
-    if (ieltsIntensiveExam && partIndex !== undefined) {
+    if (exam && partIndex !== undefined) {
       if (customTime) {
         const dur = parseInt(customTime) * 60;
         setSecondsLeft(dur);
@@ -124,11 +124,11 @@ export default function PracticeTestTakePage() {
         return;
       }
       let dur = 0;
-      if (ieltsIntensiveExam.type === "READING") {
+      if (exam.type === "READING") {
         dur = 20 * 60;
-      } else if (ieltsIntensiveExam.type === "WRITING") {
+      } else if (exam.type === "WRITING") {
         dur = partIndex === 0 ? 20 * 60 : 40 * 60;
-      } else if (ieltsIntensiveExam.type === "SPEAKING") {
+      } else if (exam.type === "SPEAKING") {
         dur = partIndex === 1 ? 4 * 60 : 5 * 60;
       }
 
@@ -136,15 +136,15 @@ export default function PracticeTestTakePage() {
         setSecondsLeft(dur);
         setInitialSeconds(dur);
       }
-    } else if (ieltsIntensiveExam && partIndex === undefined) {
+    } else if (exam && partIndex === undefined) {
       if (customTime) {
         setInitialSeconds(parseInt(customTime) * 60);
         setSecondsLeft(parseInt(customTime) * 60);
       } else {
-        setInitialSeconds(ieltsIntensiveExam.duration * 60);
+        setInitialSeconds(exam.duration * 60);
       }
     }
-  }, [ieltsIntensiveExam, partIndex, customTime]);
+  }, [exam, partIndex, customTime]);
 
   if (loading) {
     return (
@@ -156,7 +156,7 @@ export default function PracticeTestTakePage() {
     );
   }
 
-  if (error || !ieltsIntensiveExam) {
+  if (error || !exam) {
     return (
       <div className="min-h-screen bg-[#faf9f8] flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-[#e2e1df] p-8 text-center">
@@ -172,26 +172,26 @@ export default function PracticeTestTakePage() {
 
   return (
     <>
-      {ieltsIntensiveExam.type === "WRITING" ? (
+      {exam.type === "WRITING" ? (
         <PracticeWritingBoard
-          ieltsIntensiveExam={ieltsIntensiveExam}
+          exam={exam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
           initialSeconds={initialSeconds}
           formatTime={formatTime}
           partIndex={partIndex}
         />
-      ) : ieltsIntensiveExam.type === "SPEAKING" ? (
+      ) : exam.type === "SPEAKING" ? (
         <PracticeSpeakingBoard
-          ieltsIntensiveExam={ieltsIntensiveExam}
+          exam={exam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
           initialSeconds={initialSeconds}
           partIndex={partIndex}
         />
-      ) : ieltsIntensiveExam.type === "READING" ? (
+      ) : exam.type === "READING" ? (
         <PracticeReadingBoard
-          ieltsIntensiveExam={ieltsIntensiveExam}
+          exam={exam}
           sessionInfo={sessionInfo}
           answers={answers}
           setAnswers={setAnswers}
@@ -206,7 +206,7 @@ export default function PracticeTestTakePage() {
         />
       ) : (
         <PracticeListeningBoard
-          ieltsIntensiveExam={ieltsIntensiveExam}
+          exam={exam}
           sessionInfo={sessionInfo}
           answers={answers}
           setAnswers={setAnswers}
@@ -219,7 +219,7 @@ export default function PracticeTestTakePage() {
           submitAndTrack={submitAndTrack}
           partIndex={partIndex}
           onDurationDetected={(duration) => {
-            if (secondsLeft === ieltsIntensiveExam.duration * 60) {
+            if (secondsLeft === exam.duration * 60) {
               setSecondsLeft(duration);
               setInitialSeconds(duration);
             }

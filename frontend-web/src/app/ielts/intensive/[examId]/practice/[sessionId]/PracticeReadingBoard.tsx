@@ -6,10 +6,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import { type ExamDetail } from "@/types";
 import { type AnswersState, AnswerField, getPartTitle, questionNumbersFromItems } from "@/components/AnswerField";
-import { extractAllItemsFromPart } from "@/lib/ieltsIntensiveExam-parser";
+import { extractAllItemsFromPart } from "@/lib/exam-parser";
 
 interface PracticeReadingBoardProps {
-  ieltsIntensiveExam: ExamDetail;
+  exam: ExamDetail;
   sessionInfo: any;
   submitAndTrack: (data: any) => Promise<any>;
   submitting: boolean;
@@ -24,7 +24,7 @@ interface PracticeReadingBoardProps {
 }
 
 export default function PracticeReadingBoard({
-  ieltsIntensiveExam,
+  exam,
   sessionInfo,
   submitAndTrack,
   submitting,
@@ -58,7 +58,7 @@ export default function PracticeReadingBoard({
   const handleSaveAndExit = async () => {
     setSaving(true);
     try {
-      const timeTaken = (initialSeconds || ieltsIntensiveExam.duration * 60) - secondsLeft;
+      const timeTaken = (initialSeconds || exam.duration * 60) - secondsLeft;
       const answersWithMeta = {
         ...answers,
         _meta: {
@@ -79,8 +79,8 @@ export default function PracticeReadingBoard({
   };
 
   const parts = useMemo(() => {
-    return (ieltsIntensiveExam?.questions?.parts as any[]) || [];
-  }, [ieltsIntensiveExam]);
+    return (exam?.questions?.parts as any[]) || [];
+  }, [exam]);
 
   const activePart = parts[activePartIdx] || null;
   const items = useMemo(() => (activePart ? extractAllItemsFromPart(activePart) : []), [activePart]);
@@ -136,14 +136,14 @@ export default function PracticeReadingBoard({
   }, [isResizing]);
 
   const handleFinalSubmit = () => {
-    const timeTaken = (initialSeconds || ieltsIntensiveExam.duration * 60) - secondsLeft;
+    const timeTaken = (initialSeconds || exam.duration * 60) - secondsLeft;
     submitAndTrack({
       sessionId: sessionInfo.id,
-      examId: ieltsIntensiveExam.id,
+      examId: exam.id,
       examType: "READING",
       answers,
       timeTaken,
-      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/result/${sessionInfo.id}`,
+      resultUrl: `/ielts/intensive/${exam.id}/result/${sessionInfo.id}`,
     });
   };
 

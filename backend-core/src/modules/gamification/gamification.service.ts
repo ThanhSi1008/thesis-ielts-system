@@ -206,10 +206,10 @@ export class GamificationService {
 
         // IELTS Intensive
         case "II_FIRST_EXAM":
-          shouldGrant = (await this.prisma.examSession.count({ where: { userId, status: { in: ["COMPLETED", "GRADED"] } } })) >= 1;
+          shouldGrant = (await this.prisma.ieltsIntensiveSession.count({ where: { userId, status: { in: ["COMPLETED", "GRADED"] } } })) >= 1;
           break;
         case "II_VETERAN":
-          shouldGrant = (await this.prisma.examSession.count({ where: { userId, status: { in: ["COMPLETED", "GRADED"] } } })) >= 10;
+          shouldGrant = (await this.prisma.ieltsIntensiveSession.count({ where: { userId, status: { in: ["COMPLETED", "GRADED"] } } })) >= 10;
           break;
 
         // Shadowing
