@@ -1,0 +1,114 @@
+@startuml system_architecture
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title TOEIC Master AI - System Architecture
+
+actor "Student / User" as user
+actor "Admin / Instructor" as admin
+
+package "Client Layer" {
+  component "Frontend Web\n(Next.js 14)" as web {
+    [IELTS Exam Interface]
+    [Shadowing & Dictation Interface]
+    [Vocab Lab (Web)]
+  }
+  
+  component "Frontend Mobile\n(React Native / Expo)" as mobile {
+    [Vocabulary Learning Interface]
+    [Grammar Lessons Interface]
+    [Pronunciation Interface]
+  }
+}
+
+package "Backend Core (NestJS / Node.js)" as backend_core {
+  portin "Port 3000 (REST API)" as port3000
+
+  component "Auth Module" as auth
+  component "Exams & Results Module" as exams
+  component "Learning Module\n(Vocab & Grammar)" as learning
+  component "Shadowing Module" as shadowing
+  component "Pronunciation Module" as pronunciation
+  component "Vocab Lab Module\n(SM-2 Algorithm)" as vocab_lab
+  component "Notes Module" as notes
+  
+  port3000 -down-> auth
+  port3000 -down-> exams
+  port3000 -down-> learning
+  port3000 -down-> shadowing
+  port3000 -down-> pronunciation
+  port3000 -down-> vocab_lab
+  port3000 -down-> notes
+}
+
+package "Message Broker" {
+  queue "RabbitMQ" as rabbitmq {
+    [exam-grading-queue]
+    [pronunciation-check-queue]
+  }
+}
+
+package "Backend AI (FastAPI / Python)" as backend_ai {
+  component "Grading Consumer" as grading_consumer
+  component "Pronunciation Consumer" as pronunciation_consumer
+  
+  component "Whisper STT Model\n(Local Inference)" as whisper
+  component "Gemini API Client" as gemini_client
+  
+  grading_consumer --> gemini_client : Evaluate Writing/Speaking
+  pronunciation_consumer --> whisper : Transcribe Audio
+}
+
+package "Data Layer" {
+  database "PostgreSQL\n(Relational Data)" as postgres
+  database "Redis\n(Cache)" as redis
+  storage "MinIO\n(Object Storage)" as minio
+}
+
+cloud "External Services" {
+  [Google Gemini API] as ext_gemini
+  [YouTube] as ext_youtube
+}
+
+' Connections from Clients
+user --> web : HTTPS
+user --> mobile : HTTPS
+admin --> web : HTTPS (Admin Panel)
+
+web --> port3000 : Axios Requests
+mobile --> port3000 : Axios Requests
+
+web -right-> ext_youtube : Embed Videos
+
+' Backend Core to Data Layer
+auth --> postgres
+exams --> postgres
+learning --> postgres
+shadowing --> postgres
+pronunciation --> postgres
+vocab_lab --> postgres
+notes --> postgres
+
+auth --> redis : Sessions / Tokens
+exams --> minio : Read Audio/Images
+pronunciation --> minio : Upload User Audio
+exams --> minio : Upload User Audio
+
+' Backend Core to Message Broker
+exams --> [exam-grading-queue] : Publish Task
+pronunciation --> [pronunciation-check-queue] : Publish Task
+
+' Message Broker to Backend AI
+[exam-grading-queue] --> grading_consumer : Consume
+[pronunciation-check-queue] --> pronunciation_consumer : Consume
+
+' Backend AI to Data Layer
+grading_consumer --> postgres : Update Exam Results
+pronunciation_consumer --> postgres : Update Pronunciation Score
+pronunciation_consumer --> minio : Download User Audio
+
+' AI to External
+gemini_client -up-> ext_gemini : gRPC / REST
+
+@enduml

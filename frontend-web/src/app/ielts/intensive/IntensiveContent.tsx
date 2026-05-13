@@ -391,7 +391,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
           </select>
         </div>
 
-        {/* IeltsIntensiveResult summary */}
+        {/* Result summary */}
         {hasActiveFilter && !loading && (
           <p className="text-xs text-gray-400 dark:text-slate-500 mb-4">
             Showing <span className="font-semibold text-gray-600 dark:text-slate-300">{totalResults}</span> test{totalResults !== 1 ? "s" : ""}
@@ -432,7 +432,7 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
             {hasActiveFilter
               ? "No tests match your search or filters. Try adjusting them."
               : <>
-                No published Cambridge exams found for {skill}. Make sure ieltsIntensiveExam titles follow:
+                No published Cambridge exams found for {skill}. Make sure exam titles follow:
                 <div className="mt-2 font-mono text-xs text-amber-900/80 dark:text-amber-400/80">
                   Cambridge IELTS 17 - {skill.charAt(0) + skill.slice(1).toLowerCase()} Test 1
                 </div>
@@ -610,9 +610,9 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
             </div>
           </div>
 
-          {/* IeltsIntensiveExam Selector */}
+          {/* Exam Selector */}
           <div className="mb-8">
-            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">2. Select IeltsIntensiveExam Source</div>
+            <div className="font-bold text-gray-900 dark:text-white mb-3 text-sm">2. Select Exam Source</div>
             {loading && <div className="h-12 bg-gray-100 dark:bg-slate-800 animate-pulse rounded-xl shadow-inner w-full" />}
             {!loading && (
               <div className="relative border-2 border-gray-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm hover:border-gray-200 dark:hover:border-slate-700 transition overflow-hidden">

@@ -8,26 +8,26 @@ import WritingTaskBoard from "@/components/WritingTaskBoard";
 import { useGrading } from "@/contexts/GradingContext";
 
 interface TakeWritingBoardProps {
-  ieltsIntensiveExam: ExamDetail;
+  exam: ExamDetail;
   sessionInfo: any;
   secondsLeft: number;
   formatTime: (sec: number) => string;
 }
 
 export default function TakeWritingBoard({
-  ieltsIntensiveExam,
+  exam,
   sessionInfo,
   secondsLeft,
   formatTime,
 }: TakeWritingBoardProps) {
   const router = useRouter();
   const sessionId = sessionInfo?.id as string;
-  const examId = ieltsIntensiveExam.id as string;
+  const examId = exam.id as string;
 
   const [submitting, setSubmitting] = useState(false);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
   const writingAnswersRef = useRef<{ task1: string; task2: string }>({ task1: "", task2: "" });
-  const writingTasks = (ieltsIntensiveExam.questions?.tasks as any[]) || [];
+  const writingTasks = (exam.questions?.tasks as any[]) || [];
 
   const { submitAndTrack, jobs } = useGrading();
   const activeJob = jobs.find((j) => j.sessionId === sessionId);
@@ -42,7 +42,7 @@ export default function TakeWritingBoard({
       examId,
       examType: "WRITING",
       answers: { task1, task2 },
-      timeTaken: ieltsIntensiveExam.duration * 60 - secondsLeft,
+      timeTaken: exam.duration * 60 - secondsLeft,
       resultUrl: `/ielts/intensive/${examId}/result/${sessionId}`,
     });
   };
@@ -95,7 +95,7 @@ export default function TakeWritingBoard({
         <WritingTaskBoard
           key="writing-board"
           tasks={writingTasks}
-          examTitle={ieltsIntensiveExam.title}
+          examTitle={exam.title}
           secondsLeft={secondsLeft}
           formatTime={formatTime}
           submitting={submitting || isAiProcessing}

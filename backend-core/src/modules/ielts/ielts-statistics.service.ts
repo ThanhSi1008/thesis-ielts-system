@@ -15,13 +15,13 @@ export class IeltsStatisticsService {
       where: { userId },
     });
 
-    const recentMocks = await this.prisma.examSession.findMany({
+    const recentMocks = await this.prisma.ieltsIntensiveSession.findMany({
       where: {
         userId,
         status: "COMPLETED",
-        result: { isNot: null },
+        ieltsIntensiveResult: { isNot: null },
       },
-      include: { result: true },
+      include: { ieltsIntensiveResult: true },
       orderBy: { createdAt: "desc" },
       take: 5,
     });
@@ -29,7 +29,7 @@ export class IeltsStatisticsService {
     let estimatedBand = null;
     if (recentMocks.length > 0) {
       const bands = recentMocks.map((mock: any) => {
-        const result = mock.result;
+        const result = mock.ieltsIntensiveResult;
         return result?.totalScore || 0;
       }).filter((band: number) => band > 0);
       if (bands.length > 0) {
@@ -73,7 +73,7 @@ export class IeltsStatisticsService {
     // Placeholder
     const recentActivity = [];
 
-    // 1.5 Exam Countdown & Readiness Score
+    // 1.5 IeltsIntensiveExam Countdown & Readiness Score
     const examDate = profile?.examDate;
     const daysToExam = examDate ? dayjs(examDate).diff(dayjs(), "day") : null;
     const readinessScore = estimatedBand && targetBand ? Math.min(100, Math.round((estimatedBand / targetBand) * 100)) : null;

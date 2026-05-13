@@ -104,7 +104,7 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
         </div>
 
         <p className="text-gray-600 dark:text-slate-400 leading-relaxed max-w-[90%] text-[14px] font-medium">
-          This section is designed to build your fundamental English skills for the IELTS ieltsIntensiveExam.
+          This section is designed to build your fundamental English skills for the IELTS exam.
           You will work through structured daily lessons and exercises covering Listening and Reading
           to establish a strong baseline before moving on to advanced strategies. Complete the tasks in sequential order to unlock the next steps.
         </p>

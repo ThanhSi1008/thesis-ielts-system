@@ -26,8 +26,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  examSessions             ExamSession[]
-  results                  Result[]
+  examSessions             IeltsIntensiveSession[]
+  results                  IeltsIntensiveResult[]
   progress                 LearningProgress[]
   pronunciationAttempts    FoundationPronunciationAttempt[]
   pronunciationProgress    FoundationPronunciationProgress[]
@@ -72,32 +72,34 @@ enum UserRole {
 }
 
 // Exam model - stores exam definitions
-model Exam {
-  id          String     @id @default(uuid())
+model IeltsIntensiveExam {
+  id          String                 @id @default(uuid())
   title       String
   description String?
   imageUrl    String?
   duration    Int // Duration in minutes
-  type        ExamType
+  type        IeltsIntensiveExamType
   difficulty  Difficulty
-  isPublished Boolean    @default(false)
+  isPublished Boolean                @default(false)
   questions   Json // Stores questions in JSON format
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
 
   // Relations
-  sessions ExamSession[]
+  sessions IeltsIntensiveSession[]
 
   @@map("exams")
 }
 
-enum ExamType {
+enum IeltsIntensiveExamType {
   FULL_TEST
   READING
   LISTENING
   SPEAKING
   WRITING
   PRACTICE
+
+  @@map("ExamType")
 }
 
 enum Difficulty {
@@ -107,28 +109,28 @@ enum Difficulty {
 }
 
 // ExamSession model - tracks individual exam attempts
-model ExamSession {
-  id           String        @id @default(uuid())
+model IeltsIntensiveSession {
+  id           String                      @id @default(uuid())
   userId       String
   examId       String
-  status       SessionStatus @default(IN_PROGRESS)
+  status       IeltsIntensiveSessionStatus @default(IN_PROGRESS)
   answers      Json // Stores user answers
   timeTaken    Int? // Exact time spent in seconds
   practicePart Int?
-  startedAt    DateTime      @default(now())
+  startedAt    DateTime                    @default(now())
   submittedAt  DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
 
   // Relations
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exam   Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
-  result Result?
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ieltsIntensiveExam   IeltsIntensiveExam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  ieltsIntensiveResult IeltsIntensiveResult?
 
   @@map("exam_sessions")
 }
 
-enum SessionStatus {
+enum IeltsIntensiveSessionStatus {
   IN_PROGRESS
   SUBMITTED
   GRADING
@@ -136,10 +138,12 @@ enum SessionStatus {
   COMPLETED
   ABANDONED
   GRADING_FAILED
+
+  @@map("SessionStatus")
 }
 
 // Result model - stores exam scores and feedback
-model Result {
+model IeltsIntensiveResult {
   id             String   @id @default(uuid())
   userId         String
   sessionId      String   @unique
@@ -154,8 +158,8 @@ model Result {
   updatedAt      DateTime @updatedAt
 
   // Relations
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ieltsIntensiveSession IeltsIntensiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@map("results")
 }
@@ -348,8 +352,6 @@ model FoundationVocabItem {
 
   @@map("vocabulary_words")
 }
-
-
 
 // FoundationVocabWord Question (story comprehension)
 model FoundationVocabQuestion {

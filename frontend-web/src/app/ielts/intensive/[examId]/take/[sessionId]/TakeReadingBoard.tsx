@@ -5,11 +5,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { type ExamDetail } from "@/types";
 import { type AnswersState, AnswerField, getPartTitle, questionNumbersFromItems } from "@/components/AnswerField";
-import { extractAllItemsFromPart } from "@/lib/ieltsIntensiveExam-parser";
+import { extractAllItemsFromPart } from "@/lib/exam-parser";
 import { getIeltsReadingBand } from "@/lib/bands";
 
 interface TakeReadingBoardProps {
-  ieltsIntensiveExam: ExamDetail;
+  exam: ExamDetail;
   sessionInfo: any;
   submitAndTrack: (data: any) => Promise<any>;
   submitting: boolean;
@@ -22,7 +22,7 @@ interface TakeReadingBoardProps {
 }
 
 export default function TakeReadingBoard({
-  ieltsIntensiveExam,
+  exam,
   sessionInfo,
   submitAndTrack,
   submitting,
@@ -43,8 +43,8 @@ export default function TakeReadingBoard({
   const [isResizing, setIsResizing] = useState(false);
 
   const parts = useMemo(() => {
-    return (ieltsIntensiveExam?.questions?.parts as any[]) || [];
-  }, [ieltsIntensiveExam]);
+    return (exam?.questions?.parts as any[]) || [];
+  }, [exam]);
 
   const activePart = parts[activePartIdx] || null;
   const items = useMemo(() => (activePart ? extractAllItemsFromPart(activePart) : []), [activePart]);
@@ -100,14 +100,14 @@ export default function TakeReadingBoard({
   }, [isResizing]);
 
   const handleFinalSubmit = () => {
-    const timeTaken = (ieltsIntensiveExam.duration * 60) - secondsLeft;
+    const timeTaken = (exam.duration * 60) - secondsLeft;
     submitAndTrack({
       sessionId: sessionInfo.id,
-      examId: ieltsIntensiveExam.id,
+      examId: exam.id,
       examType: "READING",
       answers,
       timeTaken,
-      resultUrl: `/ielts/intensive/${ieltsIntensiveExam.id}/result/${sessionInfo.id}`,
+      resultUrl: `/ielts/intensive/${exam.id}/result/${sessionInfo.id}`,
     });
   };
 
