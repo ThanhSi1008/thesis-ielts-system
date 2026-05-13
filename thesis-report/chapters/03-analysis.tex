@@ -189,9 +189,9 @@ Trong phần này, chúng em trình bày đặc tả chi tiết cho các use cas
         & 2a. Kiểm tra tất cả các trường đã điền và mật khẩu xác nhận khớp nhau. \\ \hline
         & 3a. Gửi \texttt{POST /auth/register}; máy chủ kiểm tra định dạng email và email chưa tồn tại trong cơ sở dữ liệu. \\ \hline
         & 4a. Mã hóa mật khẩu bằng bcrypt (10 rounds), tạo tài khoản với vai trò STUDENT và khởi tạo Deck từ vựng mặc định. \\ \hline
-        & 5a. Hiển thị thông báo ``Đăng ký thành công! Vui lòng đăng nhập'' và chuyển đến màn hình Đăng nhập. Kết thúc use-case. \\ \hline
+        & 5a. Đăng ký thành công và chuyển đến trang Home. Kết thúc use-case. \\ \hline
         1b. Nhấn ``Continue with Google'' và chọn tài khoản Google. & \\ \hline
-        & 2b. Xác thực Google ID Token qua \texttt{POST /auth/google}; tạo hoặc liên kết tài khoản từ thông tin Google (email, họ tên, ảnh đại diện), khởi tạo Deck mặc định. \\ \hline
+        & 2b. Xác thực Google ID Token qua \texttt{POST /auth/google}; tạo hoặc liên kết tài khoản từ thông tin Google (email, họ tên, ảnh đại diện), tạo tài khoản với vai trò STUDENT và khởi tạo Deck mặc định. \\ \hline
         & 3b. Cấp JWT access token và chuyển vào ứng dụng. Kết thúc use-case. \\ \hline
         \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
         & 2a.1. Một hoặc nhiều trường bỏ trống hoặc mật khẩu không khớp: thông báo lỗi tương ứng, không gửi yêu cầu lên máy chủ. Quay lại bước 1a. \\ \hline
