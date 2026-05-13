@@ -658,37 +658,205 @@ Sau khi người học hoàn thành câu hỏi cuối của Part~3, \texttt{Grad
 % ============================================================
 \subsection{Luyện viết với Dictation (UC09)}
 \subsubsection{Mô tả use case}
-% TODO: Bổ sung bảng đặc tả use case UC09
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+    \caption{Đặc tả chức năng Luyện viết với Dictation (UC09)} \label{tab:uc09_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC09} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tiến trình hoàn thành bài học được lưu vào cơ sở dữ liệu qua \texttt{POST /shadowing/progress} với danh sách các câu đã hoàn thành (\texttt{completedSentences}); trạng thái bài học được cập nhật trong danh sách thư viện; chuỗi học liên tiếp được ghi nhận.} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1. Nhấn vào mục ``Shadowing \& Dictation'' trên thanh điều hướng dưới cùng. & \\ \hline
+    & 2. Hiển thị màn hình Shadowing \& Dictation với chế độ mặc định là \textbf{Shadowing}; tải đồng thời danh sách bài học tĩnh (\texttt{SHADOWING\_LESSONS}) và dữ liệu tiến trình của người học từ \texttt{GET /shadowing/progress}; hiển thị danh sách bài học kèm phần trăm tiến trình Shadowing. \\ \hline
+    2. Nhấn vào nút ``Dictation'' trên thanh chuyển chế độ. & \\ \hline
+    & 3. Chuyển trạng thái \texttt{mode} sang \texttt{'dictation'}; tính lại phần trăm tiến trình theo dữ liệu Dictation của từng bài; hiển thị danh sách bài học kèm thanh tìm kiếm và bộ lọc trạng thái (\textit{All / In Progress / Not Started / Completed}). \\ \hline
+    3. (Tùy chọn) Nhập từ khóa vào thanh tìm kiếm hoặc chọn bộ lọc trạng thái. & \\ \hline
+    & 4. Lọc danh sách theo tiêu chí: từ khóa khớp tiêu đề bài học và trạng thái tương ứng với phần trăm tiến trình (0\%: Not Started; 1--99\%: In Progress; 100\%: Completed); cập nhật số lượng bài hiển thị. \\ \hline
+    4. Nhấn nút ``START'' trên một bài học bất kỳ. & \\ \hline
+    & 5. Điều hướng đến \texttt{/shadowing/\{lessonId\}/dictation}; tải dữ liệu bài học (từ bộ dữ liệu tĩnh hoặc \texttt{GET /shadowing/videos/\{lessonId\}} nếu là video do người dùng thêm); hiển thị màn hình luyện viết gồm phần phát video ở trên và transcript được đục lỗ ở phía dưới; phát tự động đoạn video/audio của câu đầu tiên (\texttt{playSentence()}) và dừng lại khi hết câu; mức độ khó mặc định là \textbf{Intermediate} (50\% từ bị ẩn). \\ \hline
+    5. (Tùy chọn) Chọn mức độ khó trong bộ chọn \textit{Difficulty}. & \\ \hline
+    & 6. Áp dụng tỉ lệ đục lỗ tương ứng --- Beginner: hiển thị 70\% từ; Intermediate: 50\%; Advanced: 30\%; Expert: toàn bộ từ bị ẩn (0\% hiển thị); tái tạo lại tập hợp từ bị ẩn (\texttt{revealedWords}), ưu tiên giữ lại các từ ngắn hơn để lộ trước. \\ \hline
+    6. Nghe câu phát ra và điền nội dung vào các ô từ bị đục lỗ trong transcript. & \\ \hline
+    7. (Tùy chọn) Nhấn vào một ô từ bị đục lỗ để xem gợi ý. & \\ \hline
+    & 8. Hiển thị gợi ý ngay trong ô từ đó: nhấn lần~1 → hiện chữ cái đầu; lần~2 → hiện thêm chữ cái cuối; lần~3 → hiện toàn bộ từ. \\ \hline
+    8. (Tùy chọn) Nhấn nút điều chỉnh tốc độ phát. & \\ \hline
+    & 9. Chuyển đổi tốc độ theo vòng lặp: $0.25\times \to 0.5\times \to 0.75\times \to 1.0\times \to 2.0\times$; áp dụng ngay cho lần phát tiếp theo. \\ \hline
+    9. (Tùy chọn) Nhấn nút phát để nghe lại câu hiện tại. & \\ \hline
+    & 10. Seek video đến đầu câu hiện tại (\texttt{audioStart}) và phát lại; thanh tiến trình cập nhật mỗi 100~ms qua bộ đếm \texttt{setInterval}; tự động dừng khi đến \texttt{audioEnd}. \\ \hline
+    10. Nhấn nút ``Check Answer''. & \\ \hline
+    & 11. So sánh từng ô từ bị đục lỗ đã điền với đáp án qua \texttt{normalizeWord()} (loại bỏ dấu câu, không phân biệt hoa thường); ô đúng chuyển sang nền xanh lá, ô sai chuyển sang nền đỏ. Nếu toàn bộ ô đúng hiển thị nút ``Next Sentence''. \\ \hline
+    11. Nhấn nút ``Next Sentence''. & \\ \hline
+    & 12. Đánh dấu câu hiện tại vào tập \texttt{completed}; cập nhật thanh tiến trình tổng thể; chuyển sang câu tiếp theo; phát tự động đoạn video/audio của câu mới (\texttt{playSentence()}); reset trạng thái nhập liệu và bộ từ đục lỗ theo mức độ khó hiện tại. Lặp lại từ bước~5. \\ \hline
+    12. Sau khi hoàn thành câu cuối cùng, nhấn nút ``Finish ✓''. & \\ \hline
+    & 13. Gọi \texttt{POST /shadowing/progress} với \texttt{\{lessonId, type: 'dictation', completedSentences: [...]\}}; lưu tiến trình; hiển thị hộp thoại ``Well done! 🎉 You completed all \textit{N} sentences.'' với hai nút: \textbf{Practice Again} (làm lại từ đầu) và \textbf{Back} (trở về màn hình trước). Kết thúc use-case. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 5.1. Bài học không có nguồn video/audio: hiển thị placeholder ``No media available''; người học vẫn thực hiện được dictation dựa trên transcript đục lỗ. \\ \hline
+    & 11.1. Người học nhấn ``Check Answer'' khi có ô từ điền sai: hệ thống hiển thị ô đúng màu xanh, ô sai màu đỏ và chỉ hiển thị nút ``Try Again''; người học chỉnh sửa và nhấn ``Check Answer'' lại; lặp đến khi toàn bộ ô đúng 100\% mới hiển thị nút ``Next Sentence''. \\ \hline
+    & 13.1. Lỗi mạng khi lưu tiến trình: hệ thống hiển thị lỗi; người học có thể thử lại hoặc thoát mà không mất kết quả cục bộ. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 % TODO: Bổ sung sơ đồ activity UC09
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
-% TODO: Bổ sung mô tả kỹ thuật chi tiết UC09
+
+Màn hình Shadowing \& Dictation (\texttt{app/shadowing/index.tsx}) được dùng chung cho cả hai chế độ, phân biệt qua biến trạng thái \texttt{mode: 'shadowing' | 'dictation'} khởi tạo mặc định là \texttt{'shadowing'}. Khi người học chuyển sang \texttt{'dictation'}, hệ thống tính lại phần trăm tiến trình của từng bài từ dữ liệu đã tải (\texttt{progress[lessonId].dictation}), là mảng chỉ số các câu đã hoàn thành, chia cho tổng số câu của bài đó. Nhấn ``START'' điều hướng đến \texttt{/shadowing/\{lessonId\}/dictation} --- Expo Router ánh xạ đến file động \texttt{app/shadowing/[lessonId]/[mode].tsx}.
+
+\begin{sloppypar}
+Màn hình luyện viết (\texttt{[mode].tsx}) tải bài học theo thứ tự ưu tiên: trước tiên tra cứu \texttt{SHADOWING\_LESSONS} (mảng tĩnh đóng gói trong bundle); nếu không tìm thấy, gọi \texttt{GET /shadowing/videos/\{lessonId\}} để lấy video do người dùng thêm vào. Câu lệnh tải được kết hợp trong \texttt{useEffect([lessonId])} và chỉ chạy một lần khi màn hình khởi tạo.
+\end{sloppypar}
+
+Cơ chế phát đồng bộ câu (\texttt{playSentence()}) hoạt động theo hai nhánh: nếu bài học có \texttt{youtubeVideoId}, hệ thống gọi \texttt{playerRef.current.seekTo(sentence.audioStart, true)} rồi sau 150~ms bật cờ \texttt{playing = true} (do \texttt{react-native-youtube-iframe} cần một khoảng trễ nhỏ để seek ổn định trước khi phát); nếu bài học có \texttt{audioUrl}, hệ thống gọi \texttt{audioPlayer.seekTo()} và \texttt{audioPlayer.play()} từ hook \texttt{useAudioPlayer}. Song song đó, bộ đếm \texttt{setInterval} (100~ms) cập nhật \texttt{currentTime} dựa trên đồng hồ JS (\texttt{Date.now() - playStartTimeRef.current}) cộng với \texttt{audioStart} của câu, thay vì phụ thuộc vào \texttt{getCurrentTime()} bất đồng bộ của YouTube --- khi \texttt{currentTime} vượt \texttt{audioEnd}, interval bị xóa và cờ \texttt{playing} được tắt, mô phỏng chính xác hành vi ``phát một câu rồi dừng''.
+
+\begin{sloppypar}
+Hệ thống đục lỗ transcript hoạt động theo bốn cấp độ khó được ánh xạ sang tỉ lệ từ hiển thị: Beginner (70\%), Intermediate (50\%), Advanced (30\%) và Expert (0\%). Khi \texttt{difficulty} hoặc \texttt{currentIdx} thay đổi, \texttt{useEffect} tái tạo \texttt{revealedWords} (kiểu \texttt{Set<number>}): trước tiên loại dấu câu ra khỏi danh sách từ cần ẩn, sau đó sắp xếp các từ còn lại theo chiều dài tăng dần rồi giữ lại đúng số lượng tương ứng với tỉ lệ hiển thị --- chiến lược này ưu tiên lộ các từ ngắn (giới từ, mạo từ) để giảm tải nhận thức cho người học ở cấp độ thấp.
+\end{sloppypar}
+
+\begin{sloppypar}
+Kiểm tra đáp án diễn ra theo thời gian thực qua \texttt{useEffect([userWords, currentSentenceWords])}: mỗi khi \texttt{dictationInput} thay đổi, mảng \texttt{userWords} được cập nhật và so sánh lần lượt từng phần tử với \texttt{currentSentenceWords} qua \texttt{normalizeWord()} (chuyển về chữ thường, loại dấu câu và khoảng trắng thừa). Khi độ dài hai mảng bằng nhau và toàn bộ từ khớp chính xác, hệ thống đặt \texttt{sentenceCorrect = true}, tự động gọi \texttt{markCompleted(currentIdx)} và hiển thị banner xác nhận. Người học có thể nhấn ``Next →'' (hoặc ``Finish ✓'' ở câu cuối) để tiến hành lưu tiến trình.
+\end{sloppypar}
+
+Khi người học nhấn ``Finish ✓'', \texttt{handleFinish()} gọi \texttt{shadowingApi.upsertProgress(\{lessonId, type: 'dictation', completedSentences: [...new Set([...completed, currentIdx])]\})} --- toán tử \texttt{Set} hợp nhất loại bỏ chỉ số trùng lặp trước khi gửi. Phía backend, endpoint \texttt{POST /shadowing/progress} thực hiện \texttt{upsert} theo cặp khóa \texttt{(userId, lessonId)} để đảm bảo mỗi người học chỉ có một bản ghi duy nhất cho mỗi bài; trường \texttt{completedSentences} được ghi đè bằng mảng mới nhất.
 
 % ============================================================
 % UC10 – ROADMAP
 % ============================================================
 \subsection{Xây dựng lộ trình học tập (UC10)}
 \subsubsection{Mô tả use case}
-% TODO: Bổ sung bảng đặc tả use case UC10
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+    \caption{Đặc tả chức năng Xây dựng lộ trình học tập (UC10)} \label{tab:uc10_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC10} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và chưa hoàn thành quá trình khởi tạo hồ sơ IELTS (trường \texttt{onboardingCompleted = false} trong bảng \texttt{IeltsProfile}).} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bản ghi \texttt{IeltsProfile} được tạo mới hoặc cập nhật với mục tiêu band điểm, cam kết học hàng ngày, ngày thi dự kiến và cờ \texttt{onboardingCompleted = true}; nếu người học làm bài kiểm tra chẩn đoán và đạt điểm $\geq$ 90\% ở kỹ năng nào, toàn bộ bài học kỹ năng đó trong bảng \texttt{IeltsBasicProgress} được đánh dấu hoàn thành; người học được điều hướng đến lộ trình học tập cá nhân hóa tại \texttt{/ielts/roadmap}.} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1. Nhấn vào mục ``IELTS'' trên thanh điều hướng chính. & \\ \hline
+    & 2. Tải trang lộ trình IELTS cơ bản; gọi \texttt{GET /ielts/roadmap}; phát hiện \texttt{requiresOnboarding = true} (do \texttt{IeltsProfile} chưa tồn tại hoặc \texttt{onboardingCompleted = false}); tự động điều hướng đến \texttt{/ielts/basic/onboarding}; hiển thị giao diện bước 1 với tiêu đề ``Let's personalize your IELTS roadmap.'' gồm ba mục nhập: \textit{Target IELTS Band Score} (tùy chọn từ 5.0 đến 8.5), \textit{Daily Study Commitment} (15/30/60/120 phút mỗi ngày) và \textit{Target Exam Date} (không bắt buộc). \\ \hline
+    2. Chọn band điểm mục tiêu, chọn mức cam kết học hàng ngày; (tùy chọn) chọn ngày thi dự kiến; nhấn ``Continue''. & \\ \hline
+    & 3. Lưu tạm thời ba thông số vào trạng thái cục bộ (\texttt{targetBand}, \texttt{dailyCommitment}, \texttt{examDate}); chuyển sang bước 2; hiển thị giao diện với câu hỏi ``Already know some English?'' và hai lựa chọn: \textbf{Take Short Placement Test} (nút chính) và \textbf{Skip and start from absolute basics} (liên kết phụ). \\ \hline
+    3. Nhấn ``Take Short Placement Test''. & \\ \hline
+    & 4. Chuyển sang bước 3; gọi \texttt{GET /ielts/placement-exercises} để tải cặp bài tập chẩn đoán; hiển thị giao diện bài kiểm tra với thanh tiến trình bốn giai đoạn: \textit{Listening → Reading → Writing → Finish}; chuyển sang giai đoạn Listening. \\ \hline
+    & 5. Hiển thị giai đoạn Listening: phát đoạn audio kèm trình phát âm thanh có điều khiển; trình bày 4 câu hỏi dạng trắc nghiệm bên dưới. \\ \hline
+    4. Nghe audio, chọn đáp án cho 4 câu hỏi; nhấn ``Submit \& Next''. & \\ \hline
+    & 6. Tính điểm Listening: đếm số câu đúng chia tổng số câu, quy về phần trăm (\texttt{calcScore()}); cập nhật thanh tiến trình; chuyển sang giai đoạn Reading; hiển thị giao diện hai cột --- bên trái là đoạn văn (passage), bên phải là 2 câu hỏi đọc hiểu. \\ \hline
+    5. Đọc passage bên trái, chọn đáp án cho 2 câu hỏi bên phải; nhấn ``Submit \& Next''. & \\ \hline
+    & 7. Tính điểm Reading theo cùng công thức; cập nhật thanh tiến trình; chuyển sang giai đoạn Writing; hiển thị giao diện \textit{Writing Vocabulary Check} với một đoạn văn chứa các ô chỗ trống và danh sách từ chọn tương ứng cho từng ô. \\ \hline
+    6. Chọn từ thích hợp điền vào từng ô chỗ trống trong đoạn văn; nhấn ``Submit \& Next''. & \\ \hline
+    & 8. Tính điểm Writing: so sánh từng đáp án đã chọn với đáp án đúng trong \texttt{writingClozeData}; tính điểm tổng thể \texttt{overall = (listening + reading + writing) / 3}; chuyển sang giai đoạn Finish; hiển thị trang ``Diagnostic Complete!'' gồm kết quả từng kỹ năng theo thang chất lượng (Excellent / Good / Needs Work / Beginner) và thông báo lộ trình đã được cá nhân hóa dựa trên kết quả. \\ \hline
+    7. Nhấn ``Continue to My Roadmap''. & \\ \hline
+    & 9. Gọi \texttt{POST /ielts/onboarding} với payload \texttt{\{targetBand, dailyCommitmentMins, examDate, takePlacement: true, placementScore, placementListening, placementReading, placementWriting\}}; thực hiện \texttt{upsert} bản ghi \texttt{IeltsProfile} với \texttt{onboardingCompleted = true}; với mỗi kỹ năng đạt điểm $\geq$ 90\%, gọi \texttt{processSkillCompletion()} để đánh dấu toàn bộ bài học kỹ năng đó là đã hoàn thành trong \texttt{IeltsBasicProgress}; điều hướng người học đến \texttt{/ielts/roadmap}. Kết thúc use-case. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 3.1. Người học nhấn ``Skip and start from absolute basics'' (tại bước 2): hệ thống gọi ngay \texttt{POST /ielts/onboarding} với \texttt{\{takePlacement: false, placementScore: 0\}}; tạo \texttt{IeltsProfile} với \texttt{onboardingCompleted = true} nhưng không đánh dấu bài học nào hoàn thành; toàn bộ lộ trình giữ nguyên từ bài đầu tiên; điều hướng đến \texttt{/ielts/roadmap}. \\ \hline
+    & 9.1. Lỗi mạng khi gọi \texttt{POST /ielts/onboarding}: hệ thống hiển thị thông báo lỗi ``Failed to save profile. Please try again.''; đặt lại cờ \texttt{isSubmitting = false} để người học có thể thử lại mà không mất dữ liệu đã nhập. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 % TODO: Bổ sung sơ đồ activity UC10
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
-% TODO: Bổ sung mô tả kỹ thuật chi tiết UC10
+
+Trang onboarding (\texttt{app/ielts/basic/onboarding/page.tsx}) quản lý luồng ba bước qua biến trạng thái \texttt{step} (kiểu số nguyên 1--3). Bước 1 thu thập mục tiêu: người học chọn \texttt{targetBand} trong dải 5.0--8.5, \texttt{dailyCommitment} theo bốn tùy chọn thời gian cố định (mặc định 30 phút) và \texttt{examDate} không bắt buộc. Nhấn ``Continue'' đơn giản chuyển \texttt{step = 2} mà không gọi API, các thông số được giữ trong state cục bộ.
+
+Luồng phát hiện onboarding diễn ra trước khi trang này hiển thị: các component \texttt{RoadmapContent} và \texttt{RoadmapSidebar} trong trang lộ trình IELTS cơ bản gọi \texttt{GET /ielts/roadmap} khi mount; phía backend, \texttt{IeltsRoadmapService.generateRoadmap()} kiểm tra bản ghi \texttt{IeltsProfile} của người dùng --- nếu chưa tồn tại hoặc \texttt{onboardingCompleted = false}, hàm trả về \texttt{\{steps: [], requiresOnboarding: true\}}; phía client nhận kết quả này và gọi \texttt{router.push("/ielts/basic/onboarding")} để điều hướng.
+
+\begin{sloppypar}
+Component \texttt{DiagnosticQuiz} (\texttt{DiagnosticQuiz.tsx}) quản lý bài kiểm tra chẩn đoán qua biến \texttt{stage: "listening" | "reading" | "writing" | "finish"}. Khi mount, component gọi \texttt{axios.get(`\${API\_BASE\_URL}/ielts/placement-exercises`)} để tải cặp bài tập \texttt{\{listening: ListeningExercise, reading: ReadingExercise\}}; giai đoạn Writing dùng dữ liệu tĩnh \texttt{writingClozeData} đóng gói sẵn trong bundle, không cần gọi API riêng. Hàm \texttt{handleNext(skill, score, total)} tính phần trăm \texttt{(score / total) * 100} và cập nhật \texttt{scores} state; khi giai đoạn Writing kết thúc, \texttt{overall = Math.round((listening + reading + writing) / 3)} được tính trước khi chuyển sang stage ``finish''.
+\end{sloppypar}
+
+Giai đoạn Listening tái sử dụng component \texttt{ListeningQuestionsPanel} và \texttt{AudioPlayer} từ module luyện tập IELTS cơ bản, cùng hàm tiện ích \texttt{calcScore()} và \texttt{getTrackerItems()} từ \texttt{SharedScoreUtils}. Giai đoạn Reading bố cục hai cột 50/50: \texttt{ReadingPassagePanel} bên trái và \texttt{ReadingQuestionsPanel} bên phải. Giai đoạn Writing dùng dạng bài cloze: đoạn văn được kết xuất từ mảng \texttt{writingClozeData.paragraph} --- phần tử kiểu \texttt{"text"} in ra trực tiếp, phần tử kiểu \texttt{"blank"} kết xuất thẻ \texttt{<select>} với danh sách lựa chọn.
+
+\begin{sloppypar}
+Phía backend, \texttt{processOnboarding()} trong \texttt{IeltsRoadmapService} thực hiện \texttt{prisma.ieltsProfile.upsert(\{where: \{userId\}, update: \{...\}, create: \{...\}\})} để đảm bảo mỗi người dùng chỉ có một bản ghi duy nhất, tránh lỗi unique constraint khi gọi lại nhiều lần. Nếu \texttt{takePlacement = true}, hệ thống duyệt qua ba kỹ năng (Listening, Reading, Writing): với kỹ năng có điểm $\geq$ 90\%, hàm \texttt{processSkillCompletion()} truy vấn toàn bộ bài học của kỹ năng đó (\texttt{IeltsBasicLesson}) rồi với mỗi bài, thực hiện \texttt{upsert} bản ghi \texttt{IeltsBasicProgress} với \texttt{isCompleted = true}; đối với kỹ năng Listening, các exercise tương ứng (\texttt{IeltsBasicListeningExercise}) cũng được đánh dấu hoàn thành. Cơ chế này đảm bảo người học có trình độ sẵn có không phải lặp lại bài học cơ bản, lộ trình sẽ bắt đầu từ bước phù hợp với năng lực thực tế.
+\end{sloppypar}
+
+Sau khi API trả về thành công, client điều hướng bằng \texttt{window.location.href = "/ielts/roadmap"} thay vì \texttt{router.push()} để buộc trình duyệt tải lại toàn bộ trang --- cần thiết vì layout IELTS đọc trạng thái \texttt{onboardingCompleted} khi khởi tạo và phải nhận dữ liệu mới nhất từ server sau khi hồ sơ được tạo xong.
 
 % ============================================================
 % UC11 – POST (Community)
 % ============================================================
 \subsection{Đăng bài trong Community (UC11)}
 \subsubsection{Mô tả use case}
-% TODO: Bổ sung bảng đặc tả use case UC11
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+    \caption{Đặc tả chức năng Đăng bài trong Community (UC11)} \label{tab:uc11_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC11} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài đăng mới được lưu vào cơ sở dữ liệu qua \texttt{POST /posts}; bài xuất hiện ngay đầu feed mà không cần tải lại trang; người học nhận +5 XP và huy hiệu \texttt{CM\_FIRST\_POST} nếu đây là bài đăng đầu tiên.} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1. Nhấn vào mục ``Community'' trên thanh điều hướng. & \\ \hline
+    & 2. Tải trang Community; gọi \texttt{GET /posts?limit=20} để lấy danh sách bài đăng gần nhất; hiển thị giao diện feed mặc định gồm: ba bộ lọc dạng tag tròn (\textit{All Posts}, \textit{Study Tips}, \textit{Achievements}), ô gợi nhắc ``What's happening?'' kèm thanh công cụ icon và nút ``Post'' ở dưới. \\ \hline
+    2. Nhấn vào ô gợi nhắc ``What's happening?'' hoặc nút ``Post'' trên thanh công cụ. & \\ \hline
+    & 3. Hiển thị modal \textbf{Create Post} bao gồm: phần chọn loại bài gồm ba tag tròn (\textit{GENERAL}, \textit{STUDY TIP}, \textit{SCORE ACHIEVEMENT}) với \textit{GENERAL} được chọn mặc định; ô nhập \textit{Title (optional)}; ô văn bản lớn \textit{What's on your mind?}; mục \textit{Topics \& Tags} với 9 tag chọn được (\textit{Listening, Reading, Writing, Speaking, FoundationVocabWord, Grammar, Pronunciation, TOEIC, IELTS}); thanh footer gồm nút ``Add Image'' bên trái, nút ``Cancel'' và ``Post'' bên phải. \\ \hline
+    3. Chọn loại bài đăng (type); (tùy chọn) nhập tiêu đề; nhập nội dung bài đăng; (tùy chọn) nhấn các tag chủ đề phù hợp. & \\ \hline
+    & 4. Cập nhật giao diện theo lựa chọn: tag loại được tô màu chính khi được chọn; tag chủ đề chuyển sang viền và nền màu chính khi được kích hoạt; nút ``Post'' chỉ được kích hoạt khi ô nội dung không rỗng. \\ \hline
+    4. Nhấn nút ``Add Image''; chọn một hoặc nhiều file ảnh từ thiết bị. & \\ \hline
+    & 5. Gọi \texttt{POST /posts/images/upload} (multipart/form-data, field \texttt{file}) cho từng ảnh được chọn (tối đa $4 - \text{số ảnh hiện có}$ ảnh, xử lý song song); hiển thị spinner trên nút ``Add Image'' trong khi upload; sau khi thành công, hiển thị lưới preview ảnh dạng 2 cột bên dưới ô nội dung, mỗi ảnh có nút xóa (X) ở góc trên phải. \\ \hline
+    5. Nhấn nút ``Post''. & \\ \hline
+    & 6. Đặt cờ \texttt{isSubmitting = true}, hiển thị spinner trên nút; gọi \texttt{POST /posts} với payload \texttt{\{type, title, body, tags, imageUrls\}}; phía backend tạo bản ghi \texttt{Post} trong cơ sở dữ liệu, kích hoạt bất đồng bộ sự kiện gamification (+5 XP, achievement \texttt{CM\_FIRST\_POST}); nhận lại đối tượng bài mới kèm thông tin tác giả; reset toàn bộ form về trạng thái ban đầu; đóng modal; inject bài mới vào đầu feed qua prop \texttt{newPost} mà không cần gọi lại API danh sách. Kết thúc use-case. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 3.1. Người học nhấn ``Cancel'': modal đóng lại ngay lập tức, toàn bộ nội dung đã nhập bị hủy bỏ; feed không thay đổi. \\ \hline
+    & 5.1. Đã có đủ 4 ảnh: nút ``Add Image'' bị vô hiệu hóa (\texttt{disabled}), người học không thể chọn thêm. \\ \hline
+    & 5.2. Lỗi mạng khi upload ảnh: hệ thống hiển thị cảnh báo ``Failed to upload image. Please try again.''; đặt lại \texttt{isUploading = false}; các ảnh upload thành công trước đó vẫn được giữ nguyên. \\ \hline
+    & 6.1. Lỗi mạng khi tạo bài đăng: hệ thống hiển thị cảnh báo ``Failed to create post. Please try again.''; đặt lại \texttt{isSubmitting = false}; nội dung form và ảnh đã chọn không bị mất, người học có thể thử lại. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 % TODO: Bổ sung sơ đồ activity UC11
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
-% TODO: Bổ sung mô tả kỹ thuật chi tiết UC11
+
+Trang Community (\texttt{app/community/page.tsx}) sử dụng query parameter \texttt{tab} để điều hướng giữa các chế độ hiển thị feed: \texttt{tab=all} (mặc định) ánh xạ sang \texttt{filterType = 'ALL'}, \texttt{tab=study-tips} sang \texttt{'STUDY\_TIP'} và \texttt{tab=achievements} sang \texttt{'SCORE\_ACHIEVEMENT'}. Ô gợi nhắc đăng bài (``What's happening?'') chỉ hiển thị khi người dùng đã xác thực (\texttt{isAuthenticated = true}) và tab hiện tại không phải \texttt{leaderboard}; toàn bộ vùng này được bọc trong \texttt{onClick={() => setIsModalOpen(true)}} để mở modal khi nhấn vào bất kỳ điểm nào.
+
+\begin{sloppypar}
+Component \texttt{CreatePostModal} là modal độc lập quản lý toàn bộ trạng thái form cục bộ: \texttt{type} (kiểu \texttt{PostType}, mặc định \texttt{'GENERAL'}), \texttt{title}, \texttt{body}, \texttt{tags} (mảng chuỗi), \texttt{imageUrls} (mảng URL đã upload), \texttt{isUploading} và \texttt{isSubmitting}. Modal chỉ được kết xuất khi \texttt{isOpen = true}; khi \texttt{isOpen = false}, component trả về \texttt{null} ngay từ đầu hàm render để không chiếm tài nguyên DOM.
+\end{sloppypar}
+
+Hàm \texttt{handleImageUpload()} nhận sự kiện \texttt{onChange} từ thẻ \texttt{<input type="file" multiple>} ẩn bên trong nhãn ``Add Image''; số ảnh được chọn bị giới hạn bằng cách lấy \texttt{Array.from(e.target.files).slice(0, 4 - imageUrls.length)} trước khi upload. Các ảnh được upload song song qua \texttt{Promise.all()}, mỗi ảnh gọi \texttt{postsApi.uploadImage(file)} → \texttt{POST /posts/images/upload} với header \texttt{Content-Type: multipart/form-data}. Phía backend, endpoint này dùng decorator \texttt{@UseInterceptors(FileInterceptor("file"))} để parse file, sau đó gọi \texttt{storageService.uploadFile(file, "post\_images")} để lưu vào MinIO (môi trường dev) hoặc S3 (môi trường production) và trả về \texttt{\{url\}}.
+
+\begin{sloppypar}
+Hàm \texttt{handleSubmit()} kiểm tra \texttt{body.trim()} trước khi gửi; nếu rỗng, hàm thoát sớm (nút ``Post'' cũng bị \texttt{disabled} ở tầng UI). Payload gửi đến \texttt{POST /posts} bao gồm \texttt{type}, \texttt{title: title.trim() || undefined} (bỏ qua trường nếu rỗng), \texttt{body}, \texttt{tags} và \texttt{imageUrls}. Phía backend, \texttt{PostsService.createPost()} tạo bản ghi \texttt{Post} qua \texttt{prisma.post.create()} với \texttt{include: \{author: \{select: AUTHOR\_SELECT\}\}} để trả về thông tin tác giả trong cùng một query. Sau khi tạo thành công, hàm gọi bất đồng bộ \texttt{gamificationService.onEvent(userId, \{xp: 5, reason: "COMMUNITY\_POST", achievementKeys: ["CM\_FIRST\_POST"]\})} với \texttt{.catch(() => \{\})} để đảm bảo lỗi gamification không ảnh hưởng đến response trả về client.
+\end{sloppypar}
+
+Sau khi \texttt{postsApi.createPost()} trả về thành công, component gọi \texttt{onPostCreated(post)} để truyền bài mới lên component cha; tại đây, state \texttt{newPost} của trang Community được cập nhật. \texttt{PostFeed} nhận prop \texttt{newPost} và inject bài đó vào đầu danh sách đang hiển thị mà không cần gọi lại \texttt{GET /posts}, tránh độ trễ và giữ nguyên vị trí cuộn của người dùng. Nếu tab hiện tại không phải \texttt{all}, \texttt{study-tips} hay \texttt{achievements}, trang tự động điều hướng về \texttt{/community} để bài mới hiển thị trong feed chính.
 
