@@ -564,13 +564,94 @@ Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được m�
 % ============================================================
 \subsection{Thi thử Speaking (Mock Test) (UC08)}
 \subsubsection{Mô tả use case}
-% TODO: Bổ sung bảng đặc tả use case UC08
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+    \caption{Đặc tả chức năng Thi thử Speaking (Mock Test) (UC08)} \label{tab:uc08_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC08} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bản ghi \texttt{IeltsIntensiveSession} được cập nhật sang trạng thái \texttt{COMPLETED}; kết quả chứa band điểm Speaking ước tính (thang 0.0--9.0) và nhận xét từ AI theo bốn tiêu chí: \textit{Fluency \& Coherence}, \textit{Lexical Resource}, \textit{Grammatical Range \& Accuracy} và \textit{Pronunciation}; chuỗi học liên tiếp được cập nhật.} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1. Nhấn vào mục ``IELTS Intensive'' trên thanh điều hướng bên trái của phân hệ IELTS, chọn sub-menu ``Mock Tests''. & \\ \hline
+    & 2. Gọi \texttt{GET /exams/intensive/catalog?skill=LISTENING}; hiển thị giao diện Mock Test với bốn tab kỹ năng (Listening, Reading, Writing, Speaking); mặc định đứng ở tab \textbf{Listening}. \\ \hline
+    3. Nhấn vào tab ``Speaking''. & \\ \hline
+    & 4. Gọi \texttt{GET /exams/intensive/catalog?skill=SPEAKING}; hiển thị danh sách bộ đề Speaking được nhóm theo đầu sách Cambridge IELTS, mỗi thẻ bài kèm số lượng người tham gia, thời gian và band điểm cao nhất đã đạt (nếu đã từng làm). \\ \hline
+    5. Nhấn vào một bộ đề Speaking trong danh sách. & \\ \hline
+    & 6. Điều hướng đến \texttt{/ielts/intensive/:examId}; gọi \texttt{GET /exams/:examId}; hiển thị trang giới thiệu bài thi gồm hai phần: \textbf{Exam Details} (thời gian, kỹ năng, cấu trúc: 3 Parts và tổng số câu hỏi) và \textbf{Your Examiner} (ảnh đại diện, tên, vai trò của giám khảo AI kèm bảng thông tin từng Part: thời gian và dạng bài theo chuẩn IELTS). \\ \hline
+    7. Nhấn nút ``Start Test''. & \\ \hline
+    & 8. Điều hướng đến \texttt{/ielts/intensive/:examId/start?type=SPEAKING}; hiển thị trang \textbf{Device Test} gồm 3 bước tuần tự --- mỗi bước chỉ được mở khóa khi bước trước hoàn thành: Bước~1 --- Headphone check, Bước~2 --- Microphone check, Bước~3 --- Waiting room. \\ \hline
+    9. (Bước 1 --- Headphone check) Nhấn nút phát trên thanh âm thanh để nghe đoạn audio kiểm tra tai nghe. & \\ \hline
+    & 10. Phát đoạn audio kiểm tra; thanh tiến trình cập nhật theo thời gian thực; khi audio kết thúc, đánh dấu \texttt{hasCompletedStep1 = true} và mở khóa Bước~2. \\ \hline
+    11. (Bước 2 --- Microphone check) Nhấn ``REC'', đọc to câu hướng dẫn; nhấn ``STOP'' khi xong; nhấn ``PLAY'' để nghe lại bản ghi âm. & \\ \hline
+    & 12. Yêu cầu quyền truy cập microphone qua \texttt{getUserMedia(\{audio:~true\})}; khởi tạo \texttt{MediaRecorder} và bắt đầu ghi âm (tự động dừng sau tối đa 10~giây); lưu blob âm thanh; phát lại khi người học nhấn ``PLAY''; khi phát lại kết thúc, đánh dấu \texttt{hasCompletedStep2 = true} và mở khóa Bước~3. \\ \hline
+    13. (Bước 3 --- Waiting room) Nhấn nút ``I'M READY''. & \\ \hline
+    & 14. Gọi \texttt{POST /exams/sessions} với \texttt{examId}; tạo bản ghi \texttt{IeltsIntensiveSession} trạng thái \texttt{IN\_PROGRESS}; điều hướng đến \texttt{/ielts/intensive/:examId/take/:sessionId}; gọi song song \texttt{GET /exams/:examId} và \texttt{GET /exams/sessions/:sessionId}; khởi tạo đồng hồ đếm ngược (\texttt{exam.duration}~×~60~giây); tự động kích hoạt luồng phát câu hỏi đầu tiên của Part~1. \\ \hline
+    \multicolumn{2}{|l|}{\textit{--- Speaking Part 1: Introduction \& Interview (lặp lại cho từng câu hỏi) ---}} \\ \hline
+    & 15. Hiển thị màn hình Speaking Part~1 với vùng video trung tâm; hiển thị caption ``Listen to the question'' trong 2~giây, sau đó tự động phát video giám khảo (\texttt{step = PLAYING}). \\ \hline
+    & 16. Khi video kết thúc: hiển thị caption ``Time to think'' trong 2~giây; chuyển sang \texttt{THINKING} với bộ đếm 2~giây; khi hết bộ đếm, tự động kích hoạt ghi âm (\texttt{step = RECORDING}). \\ \hline
+    17. Nói câu trả lời vào microphone; tùy chọn nhấn nút stop (hình vuông) để kết thúc ghi âm sớm. & \\ \hline
+    & 18. Ghi âm câu trả lời (tối đa 60~giây, tự động dừng khi hết thời gian); lưu blob âm thanh vào \texttt{answers["\{partIdx\}-\{qnIdx\}"]}; chuyển sang \texttt{step = RECORDED}; hiển thị biểu tượng hoàn thành. \\ \hline
+    19. Nhấn ``Next''. & \\ \hline
+    & 20. Nếu còn câu hỏi tiếp theo trong Part~1: chuyển sang câu kế tiếp, quay lại bước~15. Nếu đã trả lời hết Part~1: chuyển sang giao diện Speaking Part~2. \\ \hline
+    \multicolumn{2}{|l|}{\textit{--- Speaking Part 2: Individual Long Turn ---}} \\ \hline
+    & 21. Hiển thị giao diện hai cột: cột trái gồm khung video giám khảo và bảng điều khiển ghi âm; cột phải gồm \textbf{Cue Card} (chủ đề và gợi ý nói) và ô ghi chú (\textbf{Note}) cho phép nhập văn bản tự do. Tự động kích hoạt luồng phát câu hỏi. \\ \hline
+    & 22. Hiển thị caption ``Listen to the question'' (2~giây); phát video giám khảo. Khi video kết thúc: hiển thị caption ``Time to think'' (2~giây); chuyển sang \texttt{THINKING} với bộ đếm 60~giây để người học đọc Cue Card và ghi chú. \\ \hline
+    23. Đọc Cue Card, ghi chú vào ô Note trong suốt 60~giây thời gian suy nghĩ. & \\ \hline
+    & 24. Sau khi hết 60~giây: nếu câu hỏi có trường \texttt{video2}, phát video giám khảo thứ hai (\texttt{step = PLAYING\_2}); khi video2 kết thúc, tự động kích hoạt ghi âm. Nếu không có \texttt{video2}, kích hoạt ghi âm trực tiếp. \\ \hline
+    25. Nói câu trả lời theo hướng dẫn trong Cue Card; tùy chọn nhấn stop để kết thúc sớm. & \\ \hline
+    & 26. Ghi âm câu trả lời (tối đa 120~giây, tự động dừng khi hết thời gian); lưu blob âm thanh; chuyển sang \texttt{step = RECORDED}. \\ \hline
+    27. Nhấn ``Next'' để chuyển sang Part~3. & \\ \hline
+    \multicolumn{2}{|l|}{\textit{--- Speaking Part 3: Two-way Discussion (lặp lại cho từng câu hỏi) ---}} \\ \hline
+    & 28. Hiển thị màn hình Speaking Part~3; tự động kích hoạt luồng phát câu hỏi theo cùng cơ chế Part~1: caption 2~giây $\to$ phát video $\to$ suy nghĩ 2~giây $\to$ ghi âm tối đa 60~giây. \\ \hline
+    29. Nói câu trả lời; tùy chọn nhấn stop; nhấn ``Next'' để chuyển câu. & \\ \hline
+    & 30. Nếu còn câu hỏi: chuyển sang câu kế tiếp, quay lại bước~28. Nếu đã trả lời hết tất cả câu hỏi của Part~3: kích hoạt luồng nộp bài. \\ \hline
+    \multicolumn{2}{|l|}{\textit{--- Nộp bài và chấm điểm AI ---}} \\ \hline
+    31. Nhấn ``Next'' tại câu hỏi cuối của Part~3. & \\ \hline
+    & 32. Chuyển trạng thái sang \texttt{SUBMITTING}; hiển thị màn hình chờ AI chấm điểm toàn màn hình; tải từng blob âm thanh lên máy chủ qua \texttt{POST /exams/audio/upload} và nhận lại URL công khai; gọi \texttt{POST /exams/sessions/:sessionId/submit} với \texttt{\{answers: \{key: url\}, timeTaken\}}. \\ \hline
+    & 33. Backend lưu câu trả lời vào bảng \texttt{IeltsIntensiveSession}; đẩy job vào hàng đợi RabbitMQ \texttt{exam-grading-queue} với \texttt{examType = SPEAKING}. Chuyển trạng thái sang \texttt{GRADING}; bắt đầu polling \texttt{GET /exams/sessions/:sessionId/result} mỗi 5~giây; khi AI hoàn thành chấm điểm và trả về kết quả, điều hướng đến \texttt{/ielts/intensive/:examId/result/:sessionId}. Kết thúc use-case. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 12.1. Người học từ chối cấp quyền microphone (\texttt{getUserMedia} bị từ chối): hệ thống hiển thị cảnh báo ``Microphone access is required to complete the test''; nút ``I'M READY'' không khả dụng; người học không thể tiến hành bài thi. \\ \hline
+    & 30.1. Đồng hồ đếm ngược toàn bài (\texttt{secondsLeft}) về 0 trước khi người học hoàn thành tất cả câu hỏi: bản ghi âm đang thực hiện tự động dừng; hệ thống kích hoạt luồng nộp bài với toàn bộ bản ghi âm đã có; câu hỏi chưa được ghi âm được tính là bỏ trống. \\ \hline
+    & 32.1. Lỗi mạng khi tải file âm thanh hoặc khi gọi submit: trạng thái chuyển sang \texttt{ERROR}; overlay hiển thị thông báo lỗi; người học có thể chọn quay lại danh sách đề và thực hiện lại bài thi. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 % TODO: Bổ sung sơ đồ activity UC08
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
-% TODO: Bổ sung mô tả kỹ thuật chi tiết UC08
+
+\begin{sloppypar}
+Phân hệ Speaking Mock Test được triển khai theo mô hình luồng tuần tự nghiêm ngặt, bao gồm ba giai đoạn chính: kiểm tra thiết bị (Device Test), tiến hành thi (Take Board), và nộp bài chấm điểm AI.
+\end{sloppypar}
+
+Trong giai đoạn Device Test, ba bước được liên kết bằng hai cờ trạng thái phía client: \texttt{hasCompletedStep1} và \texttt{hasCompletedStep2}. Mỗi bước chỉ được kích hoạt khi bước trước hoàn thành --- kỹ thuật ẩn bằng CSS (\texttt{opacity-30 pointer-events-none}) đảm bảo người học không bỏ qua quy trình kiểm tra. Đoạn audio kiểm tra tai nghe được tải từ Cloudinary và phát qua \texttt{HTMLAudioElement}; bộ đếm \texttt{setInterval} cập nhật thanh tiến trình mỗi 50~ms. Bước kiểm tra microphone sử dụng \texttt{getUserMedia(\{audio: true\})} và \texttt{MediaRecorder} với tự động dừng sau tối đa 10~giây; điều kiện hoàn thành bước là sự kiện \texttt{onended} của audio phát lại, không phải sau khi ghi xong --- bắt buộc người học phải xác nhận microphone hoạt động bằng cách nghe lại bản ghi.
+
+\begin{sloppypar}
+Luồng thi Speaking được điều khiển bởi máy trạng thái (\textit{state machine}) với tám trạng thái: \texttt{IDLE}, \texttt{LISTEN\_CAPTION}, \texttt{PLAYING}, \texttt{THINK\_CAPTION}, \texttt{THINKING}, \texttt{PLAYING\_2}, \texttt{RECORDING} và \texttt{RECORDED}. Chuyển trạng thái được quản lý qua các \texttt{useEffect} phản ứng với sự kiện \texttt{onEnded} của thẻ \texttt{<video>} và các bộ đếm \texttt{setTimeout}. Mỗi phần có thông số thời gian khác nhau: Part~1 và Part~3 áp dụng bộ đếm suy nghĩ 2~giây và thời gian ghi âm tối đa 60~giây; Part~2 áp dụng 60~giây suy nghĩ và 120~giây ghi âm (\texttt{const thinkDuration = part\_number === 2 ? 60 : 2}, \texttt{const maxDuration = part\_number === 2 ? 120 : 60}).
+\end{sloppypar}
+
+Điểm đặc thù của Part~2 là giao diện hai cột: cột phải hiển thị trường \texttt{cue\_card} (nội dung chủ đề và gợi ý nói) cùng ô \texttt{<textarea>} cho phép ghi chú trong 60~giây suy nghĩ. Nếu câu hỏi Part~2 có trường \texttt{video2}, sau khi hết thời gian suy nghĩ hệ thống chuyển sang \texttt{PLAYING\_2} để phát video giám khảo thứ hai; ghi âm chỉ bắt đầu khi video2 kết thúc. Điều này mô phỏng quy trình IELTS Speaking thực tế, trong đó giám khảo đọc lại chủ đề trước khi thí sinh bắt đầu nói.
+
+\begin{sloppypar}
+Dữ liệu bản ghi âm được lưu phía client dưới dạng \texttt{Record<string,~\{blob:~Blob;~url:~string\}>} với khóa \texttt{"\{partIdx\}-\{qnIdx\}"} --- ví dụ, \texttt{"0-2"} tương ứng câu hỏi thứ ba của Part~1. Blob được tạo từ sự kiện \texttt{MediaRecorder.ondataavailable} và gán \texttt{ObjectURL} ngay tại client.
+\end{sloppypar}
+
+\begin{sloppypar}
+Sau khi người học hoàn thành câu hỏi cuối của Part~3, \texttt{GradingContext.submitAndTrack()} nhận toàn bộ mảng \texttt{answers} và thực thi pipeline bất đồng bộ ba bước không block giao diện: (1)~tải từng blob lên máy chủ qua \texttt{POST /exams/audio/upload} (multipart/form-data), nhận về URL công khai; (2)~gọi \texttt{POST /exams/sessions/:sessionId/submit} với \texttt{\{answers: \{key: url\}, timeTaken\}}, backend cập nhật \texttt{IeltsIntensiveSession} và đẩy job vào hàng đợi RabbitMQ \texttt{exam-grading-queue} kèm \texttt{examType = SPEAKING}; (3)~bắt đầu polling \texttt{GET /exams/sessions/:sessionId/result} mỗi 5~giây. Phía \texttt{backend-ai}, \texttt{GradingConsumer} nhận job, gọi \texttt{grade\_speaking()} sử dụng Gemini AI để đánh giá bốn tiêu chí và trả band điểm kèm nhận xét. Toàn bộ pipeline chạy nền, cho phép người học thoát khỏi trang mà không mất kết quả --- hệ thống sẽ gửi thông báo khi AI hoàn thành chấm điểm.
+\end{sloppypar}
 
 % ============================================================
 % UC09 – PRACTICE WRITING WITH DICTATION
