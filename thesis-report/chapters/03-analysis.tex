@@ -63,7 +63,7 @@ Hệ thống ghi nhận và hiển thị lịch sử làm bài, bao gồm ngày 
 Hệ thống cung cấp chức năng thống kê và phân tích kết quả học tập, thể hiện số lượng đề đã hoàn thành, tỷ lệ chính xác, thời gian làm bài trung bình, điểm số cao nhất, được phân tích theo mốc thời gian và theo từng kỹ năng, giúp người học đánh giá sự tiến bộ và xác định điểm mạnh, điểm cần cải thiện. 
 
 \paragraph{5. Đặt mục tiêu học tập và xem thông báo nhắc nhở }
-Hệ thống cho phép tạo lịch học tập, to-do list theo ngày, tháng, năm
+Hệ thống cho phép người học tạo và quản lý lịch học tập theo ngày, tuần và tháng, hỗ trợ thiết lập to-do list mục tiêu và gửi thông báo nhắc nhở tự động theo lịch đã đặt.
 
 % =================================================================
 % 2. NGHIỆP VỤ NGƯỜI QUẢN LÝ
@@ -83,19 +83,17 @@ Trong phân hệ quản lý học viên, người quản trị nắm quyền ki�
 Hệ thống cung cấp cho người quản lý các biểu đồ và số liệu thống kê tổng quan về tình hình hoạt động của hệ thống, bao gồm: số lượng người dùng mới, tần suất truy cập hàng ngày (DAU), tỷ lệ hoàn thành bài học, và phổ điểm trung bình của các bài thi thử. Các báo cáo này hỗ trợ người quản lý trong việc đánh giá hiệu quả của nội dung học tập và đưa ra các quyết định điều chỉnh phù hợp để nâng cao chất lượng đào tạo.
 
 \section{Use-case tổng quát}
-\begin{figure}[H] % [H] để ép ảnh nằm ngay tại đây, không bị trôi đi chỗ khác
+Hình~\ref{fig:usecase-overview} thể hiện sơ đồ use-case tổng quát của hệ thống, phân theo hai nhóm tác nhân chính là Người học và Người quản lý.
+\begin{figure}[H]
     \centering
-    % Thay 'ten-file-anh' bằng tên file thực tế của bạn (ví dụ: so-do-lop.png)
-    % width=0.8\linewidth nghĩa là ảnh rộng bằng 80% chiều ngang trang giấy
-    \includegraphics[width=0.8\linewidth]{use-case.png} 
-    
-    \caption{Sơ đồ use-case} % Ví dụ: Sơ đồ Use-case tổng quát
-    \label{fig:ten-goi-nho-0} % Dùng để trích dẫn (VD: Hình \ref{fig:ten-goi-nho})
+    \includegraphics[width=0.8\linewidth]{use-case.png}
+    \caption{Sơ đồ use-case tổng quát của hệ thống luyện thi IELTS}
+    \label{fig:usecase-overview}
 \end{figure}
 
 \section{Danh sách tác nhân và mô tả}
 
-Hệ thống có hai tác nhân chính tương tác trực tiếp:
+Hệ thống có hai tác nhân chính tương tác trực tiếp, được mô tả trong bảng~\ref{tab:actors}:
 
 \begin{table}[H]
     \centering
@@ -114,6 +112,7 @@ Hệ thống có hai tác nhân chính tương tác trực tiếp:
 
 
 \section{Danh sách các tình huống hoạt động chính}
+Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống kèm mô tả ngắn gọn về chức năng và tác nhân liên quan.
 
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{1.5cm}|p{4.5cm}|p{9.0cm}|}
@@ -167,9 +166,10 @@ Hệ thống có hai tác nhân chính tương tác trực tiếp:
 
 \section{Đặc tả các yêu cầu chức năng}
 
-Trong phần này, chúng em trình bày đặc tả chi tiết cho các use case quan trọng nhất. Mỗi use case bao gồm bảng mô tả luồng sự kiện (chính và thay thế), sơ đồ activity và mô tả kỹ thuật chi tiết.
+Phần này trình bày đặc tả chi tiết cho các use case quan trọng nhất. Mỗi use case bao gồm bảng mô tả luồng sự kiện (chính và thay thế), sơ đồ activity, sơ đồ tuần tự và mô tả kỹ thuật chi tiết.
 
 \subsection{Đăng ký tài khoản (UC01)}
+Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc01} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc01} và hình~\ref{fig:sequence-uc01-gg} thể hiện sơ đồ tuần tự cho hai luồng đăng ký bằng email và Google OAuth.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
     \caption{Đặc tả chức năng Đăng ký tài khoản (UC01)}
@@ -235,6 +235,7 @@ Hệ thống cung cấp hai phương thức đăng ký độc lập: đăng ký 
 \end{sloppypar}
 
 \subsection{Đăng nhập (UC02)}
+Bảng~\ref{tab:uc02_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc02} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc02} và hình~\ref{fig:sequence-uc02-gg} thể hiện sơ đồ tuần tự cho hai luồng đăng nhập bằng email và Google OAuth.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
     \caption{Đặc tả chức năng Đăng nhập (UC02)}
@@ -298,6 +299,7 @@ JWT access token được ký bằng khóa bí mật và có hiệu lực 7 ngà
 % UC03 – ADD CARD TYPE
 % ============================================================
 \subsection{Tạo loại thẻ học (UC03)}
+Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc03} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc03} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
     \caption{Đặc tả chức năng Tạo loại thẻ học (UC03)}
@@ -361,6 +363,7 @@ Khi người học nhấn ``Save'', toàn bộ cấu hình --- bao gồm danh s�
 % UC04 – LOOK UP AND ADD WORDS WITH AI
 % ============================================================
 \subsection{Tra cứu và thêm từ vựng bằng AI (UC04)}
+Bảng~\ref{tab:uc04_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc04} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc04} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -440,6 +443,7 @@ Khi người học chọn ``Ask AI'', hệ thống mở cửa sổ trợ lý Lex
 % UC05 – STUDY IELTS FOUNDATION VOCABULARY
 % ============================================================
 \subsection{Học từ vựng nền tảng IELTS (UC05)}
+Bảng~\ref{tab:uc05_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc05} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc05} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -515,6 +519,7 @@ Trong phần đọc hiểu, hệ thống áp dụng so sánh không phân biệt
 % UC06 – STUDY IELTS BASIC LISTENING LESSONS
 % ============================================================
 \subsection{Học bài Listening IELTS cơ bản (UC06)}
+Bảng~\ref{tab:uc06_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc06} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc06-lessons} và hình~\ref{fig:sequence-uc06-exercises} thể hiện sơ đồ tuần tự cho luồng học lý thuyết và luồng luyện bài tập nghe.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -607,6 +612,7 @@ Sau khi đạt điểm tuyệt đối, bảng Transcript bên phải được m�
 % UC07 – PRACTICE IELTS ADVANCED READING
 % ============================================================
 \subsection{Luyện Reading IELTS nâng cao (UC07)}
+Bảng~\ref{tab:uc07_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc07} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc07} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -689,6 +695,7 @@ Logic chấm điểm được thực hiện phía máy chủ sau khi người h�
 % UC08 – DO SPEAKING MOCK TEST
 % ============================================================
 \subsection{Thi thử Speaking (Mock Test) (UC08)}
+Bảng~\ref{tab:uc08_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc08} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc08} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -794,6 +801,7 @@ Dữ liệu bản ghi âm được lưu phía client theo từng khóa định d
 % UC09 – PRACTICE WRITING WITH DICTATION
 % ============================================================
 \subsection{Luyện viết với Dictation (UC09)}
+Bảng~\ref{tab:uc09_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc09} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -882,6 +890,7 @@ Kiểm tra đáp án được kích hoạt mỗi khi người học chỉnh sử
 % UC10 – ROADMAP
 % ============================================================
 \subsection{Xây dựng lộ trình học tập (UC10)}
+Bảng~\ref{tab:uc10_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc10} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -963,6 +972,7 @@ Sau khi API trả về thành công, giao diện tải lại toàn bộ trang th
 % UC11 – POST (Community)
 % ============================================================
 \subsection{Đăng bài trong Community (UC11)}
+Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}

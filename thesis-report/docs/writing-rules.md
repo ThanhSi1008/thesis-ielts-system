@@ -84,7 +84,7 @@
 
 | Loại | Vị trí caption |
 |---|---|
-| **Bảng biểu** | **Phía trên** bảng |
+| **Bảng biểu** | **Phía dưới** bảng |
 | **Hình vẽ / Đồ thị** | **Phía dưới** hình |
 
 ### 3.3 Trích dẫn nguồn
