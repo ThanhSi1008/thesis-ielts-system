@@ -20,7 +20,7 @@ Quy trình học tập được chia thành ba giai đoạn chính: Xây dựng 
 
 Mỗi cuốn sách bao gồm 600 từ vựng, được chia thành 30 unit. Trong mỗi unit có 2 bài tập, mỗi bài gồm 20 câu hỏi nhằm luyện tập và củng cố từ vựng. Ở cuối mỗi unit, người học sẽ đọc một đoạn văn chứa 20 từ vựng đã học và trả lời 5 câu hỏi liên quan để kiểm tra khả năng hiểu và vận dụng trong ngữ cảnh. Ngoài ra, người học có thể lưu từ vựng vào mục ôn tập, với đầy đủ thông tin đã được hệ thống cung cấp sẵn như từ, nghĩa, ví dụ minh họa và hình ảnh. 
 
-Đối với mục ôn tập từ vựng bằng flashcard, ứng dụng áp dụng phương pháp Active Recall (nhớ chủ động). Người học có thể tạo và lựa chọn thư mục riêng cho các thẻ, đồng thời phân loại thẻ theo nhu cầu học tập. Cụ thể, loại thẻ “Basic” gồm mặt trước và mặt sau truyền thống, trong khi loại “Cloze” cho phép ẩn một hoặc nhiều từ ở mặt trước và hỗ trợ chèn hình ảnh, âm thanh để tăng hiệu quả ghi nhớ. 
+Đối với mục ôn tập từ vựng bằng flashcard, ứng dụng áp dụng phương pháp Active Recall (nhớ chủ động). Người học có thể tạo và lựa chọn thư mục riêng cho các thẻ, đồng thời phân loại thẻ theo nhu cầu học tập. Mỗi loại thẻ do người học tự định nghĩa gồm các trường dữ liệu (kiểu văn bản hoặc phương tiện đa phương tiện) và mẫu hiển thị hai mặt; hệ thống cung cấp sẵn loại thẻ ``Basic'' mặc định với mặt trước và mặt sau truyền thống. 
 
 Bên cạnh đó, hệ thống còn tích hợp phương pháp Spaced Repetition (lặp lại ngắt quãng) nhằm tối ưu hóa khả năng ghi nhớ dài hạn. Trong quá trình ôn tập, sau khi trả lời mỗi thẻ, người học sẽ đánh giá mức độ ghi nhớ của mình thông qua bốn lựa chọn: “Again”, “Hard”, “Good”, “Easy”; từ đó, hệ thống sẽ tự động điều chỉnh thời điểm xuất hiện lại của thẻ cho các lần ôn tập tiếp theo: 
 
@@ -62,25 +62,19 @@ Người học có thể lựa chọn luyện tập theo từng kỹ năng riên
 Hệ thống ghi nhận và hiển thị lịch sử làm bài, bao gồm ngày thực hiện, kết quả, thời gian hoàn thành, đồng thời cho phép xem chi tiết từng bài thi đã thực hiện nhằm hỗ trợ người học theo dõi quá trình học tập. 
 Hệ thống cung cấp chức năng thống kê và phân tích kết quả học tập, thể hiện số lượng đề đã hoàn thành, tỷ lệ chính xác, thời gian làm bài trung bình, điểm số cao nhất, được phân tích theo mốc thời gian và theo từng kỹ năng, giúp người học đánh giá sự tiến bộ và xác định điểm mạnh, điểm cần cải thiện. 
 
-\paragraph{5. Đặt mục tiêu học tập và xem thông báo nhắc nhở }
-Hệ thống cho phép người học tạo và quản lý lịch học tập theo ngày, tuần và tháng, hỗ trợ thiết lập to-do list mục tiêu và gửi thông báo nhắc nhở tự động theo lịch đã đặt.
+\paragraph{5. Xem thông báo}
+Hệ thống gửi thông báo tự động đến người học khi có các sự kiện liên quan: kết quả chấm điểm bài thi trả về, hoàn thành bài học Dictation, đạt chuỗi học liên tiếp (streak) và các thông báo hệ thống. Người học xem danh sách thông báo theo thứ tự mới nhất, đánh dấu đã đọc từng mục hoặc tất cả, và nhấn vào thông báo để điều hướng đến trang liên quan.
 
 % =================================================================
 % 2. NGHIỆP VỤ NGƯỜI QUẢN LÝ
 % =================================================================
 \subsection{Nghiệp vụ dành cho Người quản lý}
 
-\subsubsection{Quản lý nội dung học tập}
-Người quản lý truy cập vào hệ thống quản trị nội dung (CMS) với quyền hạn cao nhất để thực hiện các thao tác biên tập và cấu hình học liệu cho từng kỹ năng IELTS. Đối với phân hệ Từ vựng, người quản lý tạo mới các đầu sách từ vựng và xây dựng cấu trúc phân cấp theo từng Unit; mỗi thẻ từ vựng (Flashcard) được nhập liệu chi tiết bao gồm từ gốc, phiên âm IPA, định nghĩa, câu ví dụ song ngữ, đồng thời tải lên tệp âm thanh phát âm chuẩn và hình ảnh minh họa để phục vụ thuật toán Spaced Repetition. Trong phân hệ Ngữ pháp, người quản lý soạn thảo nội dung lý thuyết định dạng Rich Text cho từng chủ điểm và thiết lập ngân hàng câu hỏi trắc nghiệm/điền từ kèm đáp án để hệ thống tự động chấm điểm. Đối với kỹ năng Listening, người quản lý tải lên các file audio chất lượng cao và nhập văn bản Transcript chuẩn xác tuyệt đối đến từng từ — đây là dữ liệu gốc để hệ thống so khớp và phát hiện lỗi của người học khi Dictation. Đối với kỹ năng Reading, người quản lý soạn thảo đoạn văn học thuật, phân loại theo độ khó và cấu hình các dạng câu hỏi kèm đáp án và giải thích. Đối với kỹ năng Writing, người quản lý tạo đề bài Task 1 (tải lên ảnh biểu đồ/bản đồ) và Task 2 (soạn luận điểm) kèm band điểm tham chiếu và bài mẫu. Đối với kỹ năng Speaking, người quản lý tải lên audio mẫu Shadowing và thiết lập chủ đề cho AI Conversation theo cấu trúc IELTS Speaking Part 1/2/3. Sau khi hoàn tất biên soạn, người quản lý kích hoạt trạng thái ``Xuất bản'' để nội dung chính thức hiển thị cho người học. 
+\subsubsection{Quản lý nội dung Shadowing và Dictation}
+Người quản lý truy cập vào giao diện quản trị để tạo, chỉnh sửa và xóa bài học cho hai phân hệ Shadowing và Dictation. Đối với Shadowing, người quản lý nhập tiêu đề bài học, ID video YouTube, thư mục phân loại, chủ đề, thời lượng và danh sách câu transcript kèm mốc thời gian tương ứng; sau khi hoàn tất có thể xuất bản ngay để bài hiển thị cho người học. Đối với Dictation, người quản lý nhập ID video YouTube hoặc tải lên tệp audio, đồng thời nhập transcript chuẩn xác đến từng từ làm ground-truth cho hệ thống so khớp đáp án khi người học luyện nghe--chép. Người quản lý cũng có thể chỉnh sửa hoặc xóa các bài học đã tạo; thay đổi có hiệu lực ngay lập tức với người học.
 
-\subsubsection{Quản lý đề thi}
-Trong phân hệ quản lý đề thi, người quản trị chịu trách nhiệm xây dựng ngân hàng câu hỏi và cấu trúc đề thi Mock Test bám sát chuẩn IELTS Academic. Đề Mock Test được tổ chức thành 4 phần riêng biệt tương ứng với 4 kỹ năng. Đối với phần Listening, người quản lý tải lên audio đoạn hội thoại/độc thoại theo 4 section chuẩn IELTS (Section 1: hội thoại trong bối cảnh xã hội, Section 2: độc thoại phi học thuật, Section 3: thảo luận học thuật, Section 4: bài giảng) kèm câu hỏi dạng điền vào chỗ trống, trắc nghiệm và kế hoạch/sơ đồ. Đối với phần Reading, người quản lý nhập 3 đoạn văn học thuật dài (khoảng 750–900 từ mỗi đoạn) với đa dạng dạng câu hỏi. Đối với phần Writing, người quản lý cấu hình đề Task 1 và Task 2 kèm tiêu chí chấm điểm và bài mẫu tham khảo. Đối với phần Speaking, người quản lý thiết lập câu hỏi theo cấu trúc Part 1/2/3. Sau khi hoàn tất, người quản lý thiết lập bảng quy đổi điểm thô sang band IELTS cho phần Listening và Reading, kích hoạt trạng thái ``Xuất bản'' để bộ đề Mock Test chính thức hiển thị cho người học. 
-
-\subsubsection{Quản lý học viên}
-Trong phân hệ quản lý học viên, người quản trị nắm quyền kiểm soát toàn diện đối với cơ sở dữ liệu người dùng nhằm đảm bảo môi trường học tập văn minh và ổn định. Quy trình bắt đầu từ việc truy cập vào danh sách tổng hợp, nơi hệ thống hiển thị đầy đủ hồ sơ của tất cả tài khoản đã đăng ký kèm theo các bộ lọc thông minh cho phép tra cứu nhanh theo tên, email hoặc thời gian tham gia. Khi truy cập vào chi tiết từng hồ sơ, người quản lý có thể theo dõi sát sao toàn bộ hành trình của người học, bao gồm các chỉ số về tiến độ hoàn thành lộ trình từ vựng, lịch sử điểm số các bài thi thử IELTS và tần suất luyện tập các kỹ năng, từ đó có cái nhìn tổng quan về mức độ chuyên cần và năng lực thực tế của từng cá nhân. Đặc biệt, người quản lý nắm giữ các công cụ can thiệp trực tiếp vào trạng thái tài khoản để xử lý các vấn đề phát sinh: đối với những trường hợp vi phạm quy định cộng đồng, có hành vi gian lận hoặc spam, người quản lý có quyền thực hiện vô hiệu hóa (Block) tài khoản tạm thời hoặc vĩnh viễn để ngăn chặn quyền truy cập; ngược lại, hệ thống cũng cho phép mở khóa (Unblock) hoặc hỗ trợ kích hoạt lại tài khoản trong các trường hợp cần thiết, đảm bảo công tác quản lý người dùng diễn ra chặt chẽ và linh hoạt.
-
-\subsubsection{Thống kê báo cáo}
-Hệ thống cung cấp cho người quản lý các biểu đồ và số liệu thống kê tổng quan về tình hình hoạt động của hệ thống, bao gồm: số lượng người dùng mới, tần suất truy cập hàng ngày (DAU), tỷ lệ hoàn thành bài học, và phổ điểm trung bình của các bài thi thử. Các báo cáo này hỗ trợ người quản lý trong việc đánh giá hiệu quả của nội dung học tập và đưa ra các quyết định điều chỉnh phù hợp để nâng cao chất lượng đào tạo.
+\subsubsection{Quản lý gói đăng ký thành viên}
+Người quản lý xem tổng quan các gói đăng ký thành viên (FREE/PREMIUM/PRO) hiện có trên hệ thống, bao gồm số lượng người dùng đang sử dụng từng gói và tổng doanh thu. Danh sách chi tiết cho phép lọc theo gói để theo dõi trạng thái đăng ký của từng học viên. Khi cần thiết, người quản lý có thể cấp gói thành viên thủ công cho một học viên cụ thể với thời hạn tùy chỉnh.
 
 \section{Use-case tổng quát}
 Hình~\ref{fig:usecase-overview} thể hiện sơ đồ use-case tổng quát của hệ thống, phân theo hai nhóm tác nhân chính là Người học và Người quản lý.
@@ -104,7 +98,7 @@ Hệ thống có hai tác nhân chính tương tác trực tiếp, được mô 
         Người học (Learner) &
         Là đối tượng sử dụng chính của hệ thống, bao gồm bất kỳ ai có nhu cầu luyện thi IELTS. Người học có thể đăng ký, đăng nhập và truy cập toàn bộ nền tảng thông qua năm phân hệ chính. Trong phân hệ IELTS, người học học từ vựng, ngữ pháp và phát âm ở giai đoạn Foundation; luyện lý thuyết dạng câu hỏi ở IELTS Basic; luyện đề từng phần Listening, Reading, Writing, Speaking ở IELTS Advanced; thi thử toàn phần và xem lại lịch sử thi ở IELTS Intensive; đồng thời lên lộ trình học theo band mục tiêu, theo dõi thống kê tiến độ và ước tính band điểm bằng Calculator. Trong phân hệ Shadowing \& Dictation, người học luyện nói đuổi theo video YouTube và nghe chép chính tả, có thể xem lại tiến độ cá nhân. Trong phân hệ Community, người học đăng bài học tập, xem hoạt động cá nhân và theo dõi bảng xếp hạng XP hàng tuần. Qua Vocab Lab, người học tạo và ôn tập bộ thẻ Flashcard với thuật toán FSRS, duyệt kho thẻ, theo dõi thống kê SRS và tương tác với Community Marketplace để chia sẻ hoặc nhập bộ từ vựng từ cộng đồng. Ngoài ra, người học có thể đăng ký các gói thành viên (FREE/PREMIUM/PRO) thông qua cổng thanh toán VNPay. \\ \hline
         Người quản lý (Admin) &
-        Là người có vai trò giám sát và quản lý toàn bộ hệ thống, truy cập qua giao diện Admin riêng biệt. Người quản lý có quyền tạo và chỉnh sửa nội dung học tập cho các phân hệ Shadowing và Dictation, xem danh sách học viên, và quản lý các gói đăng ký thành viên. \\ \hline
+        Là người có vai trò quản lý nội dung và vận hành hệ thống, truy cập qua giao diện Admin riêng biệt. Người quản lý có quyền tạo, chỉnh sửa và xóa bài học Shadowing và Dictation; xem danh sách và theo dõi trạng thái đăng ký thành viên (FREE/PREMIUM/PRO) của học viên; và cấp gói thành viên thủ công khi cần thiết. \\ \hline
     \end{tabularx}
     \caption{Danh sách tác nhân và mô tả}
     \label{tab:actors}
@@ -126,7 +120,7 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     \hline \multicolumn{3}{r}{\textit{(tiếp trang sau)}} \\
     \endfoot
     \endlastfoot
-    UC01 & Đăng ký tài khoản & Người học tạo tài khoản mới bằng email và mật khẩu; hệ thống mã hóa mật khẩu (bcrypt), lưu thông tin vào cơ sở dữ liệu và cấp JWT access token cùng refresh token ngay sau khi đăng ký thành công. \\ \hline
+    UC01 & Đăng ký tài khoản & Người học tạo tài khoản mới bằng email và mật khẩu; hệ thống mã hóa mật khẩu (bcrypt), lưu thông tin vào cơ sở dữ liệu và cấp JWT access token ngay sau khi đăng ký thành công. \\ \hline
     UC02 & Đăng nhập & Người học đăng nhập bằng email/mật khẩu hoặc Google OAuth; hệ thống xác thực thông tin và cấp JWT. Session được duy trì thông qua cơ chế refresh token tự động. \\ \hline
     UC03 & Học từ vựng nền tảng IELTS & Người học chọn đầu sách và unit trong phân hệ từ vựng, học từ qua Flashcard lật 3D và đánh giá SRS (Again/Hard/Good/Easy) để lưu từ vào Vocab Lab; hoàn thành bài đọc hiểu cuối unit đạt điểm tuyệt đối để đánh dấu unit hoàn thành và nhận 15~XP. \\ \hline
     UC04 & Học ngữ pháp nền tảng IELTS & Người học truy cập bài học ngữ pháp theo cấp độ, đọc lý thuyết rồi làm bài tập trắc nghiệm hoặc điền vào chỗ trống; hệ thống tự động chấm điểm, cộng 15~XP khi hoàn thành đơn vị bài học đạt điểm tuyệt đối và lưu tiến độ để theo dõi. \\ \hline
@@ -137,7 +131,7 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     UC09 & Học bài Speaking IELTS cơ bản & Người học luyện Speaking cơ bản theo từng Part, nghe câu hỏi và ghi âm câu trả lời; hệ thống lưu bản ghi âm, cộng 15~XP và đánh dấu hoàn thành sau khi nộp bài. \\ \hline
     UC10 & Luyện Listening IELTS nâng cao & Người học (yêu cầu gói Premium hoặc Pro) chọn Part Listening nâng cao (Part~1--4), nghe audio và trả lời các dạng câu hỏi chuẩn IELTS; hệ thống chấm điểm, cộng 20~XP mỗi lần nộp (thêm 10~XP nếu $\geq 80\%$) và lưu kết quả chi tiết. \\ \hline
     UC11 & Luyện Reading IELTS nâng cao & Người học (yêu cầu gói Premium hoặc Pro) chọn bài luyện Reading theo Part, đọc đoạn văn học thuật trên giao diện hai cột và trả lời các dạng câu hỏi chuẩn IELTS; hệ thống chấm điểm, lưu phiên luyện tập và hiển thị Score Report với tính năng Locate, Explain và Note; nhận 20~XP (thêm 10~XP nếu tỷ lệ đúng $\geq 80\%$). \\ \hline
-    UC12 & Luyện Writing IELTS nâng cao & Người học chọn đề Writing nâng cao (Task~1 hoặc Task~2), viết bài luận và nộp; hệ thống lưu bài với timestamp để theo dõi quá trình luyện tập qua thời gian. \\ \hline
+    UC12 & Luyện Writing IELTS nâng cao & Người học chọn đề Writing nâng cao (Task~1 hoặc Task~2), viết bài luận và nộp; hệ thống gửi bài đến Gemini AI để chấm theo 4 tiêu chí IELTS Writing và trả về band điểm kèm nhận xét chi tiết. \\ \hline
     UC13 & Luyện Speaking IELTS nâng cao & Người học luyện tập Speaking theo từng Part (1/2/3), ghi âm câu trả lời và nhận đánh giá tự động từ AI về phát âm, ngữ pháp, từ vựng và độ mạch lạc. \\ \hline
     UC14 & Thi thử Listening (Mock Test) & Người học thi thử phần Listening đầy đủ theo chuẩn IELTS (4 section, 40 câu, 30 phút nghe + 10 phút chép đáp án); nhận band điểm ước tính sau khi nộp bài. \\ \hline
     UC15 & Thi thử Reading (Mock Test) & Người học thi thử phần Reading đầy đủ (3 passage, 40 câu, 60 phút); nhận band điểm ước tính sau khi nộp bài. \\ \hline
@@ -148,25 +142,27 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     UC20 & Xem thống kê IELTS tổng quan & Người học xem dashboard thống kê tổng quan: band điểm ước tính từng kỹ năng, mục tiêu học hàng ngày, heatmap hoạt động, đếm ngược ngày thi. \\ \hline
     UC21 & Xem thống kê IELTS theo cấp độ & Người học xem thống kê chi tiết phân theo cấp độ: Foundation, Basic, Advanced và Intensive; mỗi tab cung cấp biểu đồ và chỉ số riêng cho cấp độ tương ứng. \\ \hline
     UC22 & Tính toán điểm và yêu cầu & Người học sử dụng công cụ Calculator để ước tính band điểm IELTS dựa trên số câu đúng từng phần, hoặc tính số câu cần đúng để đạt band mục tiêu. \\ \hline
-    UC23 & Luyện đọc với Shadowing & Người học luyện kỹ năng nói đuổi (Shadowing): chọn bài video theo thư mục/chủ đề, nghe và nói lại từng câu; hệ thống đánh dấu tiến độ từng câu theo phiên luyện và cập nhật chuỗi học liên tiếp. \\ \hline
+    UC23 & Luyện nói với Shadowing & Người học luyện kỹ năng nói đuổi (Shadowing): chọn bài video theo thư mục/chủ đề, nghe và nói lại từng câu; hệ thống đánh dấu tiến độ từng câu theo phiên luyện và cập nhật chuỗi học liên tiếp. \\ \hline
     UC24 & Luyện viết với Dictation & Người học chọn bài Dictation, nghe audio theo câu và điền từ bị đục lỗ vào transcript theo bốn cấp độ khó (Beginner/Intermediate/Advanced/Expert) với gợi ý tiệm tiến; kiểm tra đáp án từng câu và lưu tiến trình hoàn thành vào cơ sở dữ liệu; chuỗi học liên tiếp được ghi nhận. \\ \hline
-    UC25 & Tạo bài học Shadowing của tôi & Người học paste URL YouTube để tạo bài Shadowing cá nhân; hệ thống AI tự động trích xuất giọng nói, phân tách thành câu và lưu bài với trạng thái READY để sử dụng trong giao diện Shadowing. \\ \hline
-    UC26 & Tạo bài học Dictation của tôi & Người học paste URL YouTube để tạo bài Dictation cá nhân; hệ thống AI tự động trích xuất và phân tách nội dung giọng nói thành câu, lưu bài với trạng thái READY để luyện nghe--chép. \\ \hline
+    UC25 & Tạo bài Shadowing cá nhân & Người học nhập URL YouTube để tạo bài Shadowing cá nhân; hệ thống AI tự động trích xuất giọng nói, phân tách thành câu và lưu bài với trạng thái READY để sử dụng trong giao diện Shadowing. \\ \hline
+    UC26 & Tạo bài Dictation cá nhân & Người học nhập URL YouTube để tạo bài Dictation cá nhân; hệ thống AI tự động trích xuất và phân tách nội dung giọng nói thành câu, lưu bài với trạng thái READY để luyện nghe--chép. \\ \hline
     UC27 & Tạo loại thẻ học & Người học tạo loại thẻ học (Card Type) mới trong Vocab Lab: đặt tên, định nghĩa các trường dữ liệu (Fields) với kiểu Text hoặc Media, cấu hình mẫu hiển thị hai mặt (Templates) và xem trước thẻ (Preview) trước khi lưu để sử dụng khi tạo Flashcard. \\ \hline
     UC28 & Tra cứu và thêm từ vựng bằng AI & Người học bôi đen từ hoặc cụm từ trong nội dung bài học để Lexon AI sinh giải thích theo cấu trúc loại thẻ đã chọn; sau khi xem lại và chỉnh sửa nội dung, người học thêm Flashcard trực tiếp vào Vocab Lab mà không rời khỏi trang học. \\ \hline
     UC29 & Quản lý bộ từ vựng (Vocab Lab) & Người học tạo bộ thẻ từ vựng (Deck) cá nhân, thêm và chỉnh sửa Flashcard với định dạng tùy chỉnh (trường dữ liệu, kiểu thẻ), gắn tag và tải lên ảnh/âm thanh. \\ \hline
     UC30 & Nhập bộ từ vựng từ cộng đồng & Người học tìm kiếm và import bộ từ vựng đã được người khác chia sẻ công khai trong Community Marketplace của Vocab Lab về thư viện cá nhân. \\ \hline
     UC31 & Xuất và chia sẻ bộ từ vựng & Người học xuất bản bộ từ vựng của mình lên Community Marketplace để chia sẻ với cộng đồng; có thể cấu hình tags, mô tả và trạng thái công khai. \\ \hline
     UC32 & Xem thống kê từ vựng & Người học xem báo cáo thống kê Vocab Lab: số thẻ theo trạng thái SRS (New/Learning/Review/Relearning), biểu đồ lịch ôn tập và lịch sử điểm đánh giá. \\ \hline
-    UC33 & Xem thông báo & Người học mở danh sách thông báo (hoàn thành Dictation, bài thi được chấm điểm, đạt streak, thông báo hệ thống) theo thứ tự mới nhất; có thể đánh dấu đã đọc từng mục hoặc tất cả và nhấn vào thông báo để điều hướng đến trang liên quan. \\ \hline
-    UC34 & Xem và tạo bài đăng cộng đồng & Người học xem feed bài đăng của cộng đồng (Study Tips, Achievements, General), tạo bài đăng mới kèm hình ảnh, tương tác bằng Like, Bookmark, Comment và Reply. \\ \hline
+    UC33 & Xem thông báo & Người học mở danh sách thông báo (kết quả chấm điểm bài thi, hoàn thành Dictation, đạt streak, thông báo hệ thống) theo thứ tự mới nhất; có thể đánh dấu đã đọc từng mục hoặc tất cả và nhấn vào thông báo để điều hướng đến trang liên quan. \\ \hline
+    UC34 & Xem và tương tác bài đăng cộng đồng & Người học xem feed bài đăng của cộng đồng (Study Tips, Achievements, General) và tương tác bằng Like, Bookmark, Comment và Reply. \\ \hline
     UC35 & Đăng bài trong Community & Người học tạo bài đăng (loại General/Study Tip/Score Achievement) kèm tiêu đề, nội dung, tag chủ đề và tối đa 4 ảnh đính kèm; bài xuất hiện ngay đầu feed sau khi đăng thành công; người học nhận +5~XP và huy hiệu bài đăng đầu tiên (nếu là lần đăng đầu tiên). \\ \hline
     UC36 & Xem bảng xếp hạng & Người học xem Leaderboard XP hàng tuần trong module Community, theo dõi thứ hạng cá nhân so với toàn bộ người dùng trên hệ thống kèm huy hiệu Gamification. \\ \hline
     UC37 & Đăng ký gói thành viên & Người học xem thông tin các gói đăng ký (FREE/PREMIUM/PRO), thực hiện thanh toán qua VNPay, kích hoạt gói thành viên và theo dõi trạng thái subscription. \\ \hline
     UC38 & Tạo bài học Shadowing & Người quản lý tạo bài học Shadowing mới: nhập tiêu đề, ID video YouTube, thư mục, chủ đề, thời lượng và danh sách câu transcript kèm timestamp; xuất bản để người học sử dụng. \\ \hline
-    UC39 & Tạo bài học Dictation & Người quản lý tạo bài luyện Dictation mới: tải lên file audio, nhập transcript chuẩn xác đến từng từ làm ground-truth để hệ thống so khớp; xuất bản cho người học. \\ \hline
-    UC40 & Chỉnh sửa và xóa bài học mở rộng & Người quản lý chỉnh sửa nội dung hoặc xóa các bài học Shadowing và Dictation đã tạo qua giao diện Admin; thay đổi có hiệu lực ngay lập tức với người học. \\ \hline
-    UC41 & Quản lý gói đăng ký thành viên & Người quản lý xem danh sách các gói Subscription hiện có, theo dõi danh sách người dùng đang đăng ký từng gói và quản lý trạng thái subscription của học viên. \\ \hline
+    UC39 & Tạo bài học Dictation & Người quản lý tạo bài luyện Dictation mới: nhập ID video YouTube hoặc tải lên tệp audio, nhập transcript chuẩn xác đến từng từ làm ground-truth để hệ thống so khớp; xuất bản cho người học. \\ \hline
+    UC40 & Chỉnh sửa và xóa bài học & Người quản lý chỉnh sửa nội dung hoặc xóa các bài học Shadowing và Dictation đã tạo qua giao diện Admin; thay đổi có hiệu lực ngay lập tức với người học. \\ \hline
+    UC41 & Quản lý gói đăng ký thành viên & Người quản lý xem tổng quan các gói Subscription, theo dõi danh sách người dùng đang đăng ký từng gói, xem doanh thu và cấp gói thành viên thủ công cho học viên cụ thể. \\ \hline
+    UC42 & Theo dõi tiến độ học viên & Người học liên kết tài khoản với giáo viên hoặc học viên qua ID người dùng; ở chế độ giáo viên, xem tổng quan tiến độ IELTS của từng học viên đã liên kết (lịch sử bài thi, band điểm, hoạt động học tập); ở chế độ học viên, xem danh sách giáo viên đang theo dõi mình và hủy liên kết khi cần. \\ \hline
+    UC43 & Chat với trợ lý AI & Người học mở giao diện chat trên ứng dụng di động để trò chuyện tự do với trợ lý Lexon AI về các chủ đề học tiếng Anh và IELTS; lịch sử hội thoại được duy trì trong suốt phiên làm việc. \\ \hline
     \caption{Danh sách các use case}
     \label{tab:uc_list}
 \end{longtable}
@@ -305,18 +301,18 @@ JWT access token được ký bằng khóa bí mật và có hiệu lực 7 ngà
 % ============================================================
 % UC03 – ADD CARD TYPE
 % ============================================================
-\subsection{Tạo loại thẻ học (UC03)}
+\subsection{Tạo loại thẻ học (UC27)}
 Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc03} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc03} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
-    \caption{Đặc tả chức năng Tạo loại thẻ học (UC03)}
+    \caption{Đặc tả chức năng Tạo loại thẻ học (UC27)}
     \label{tab:uc03_spec}
     \centering
     \renewcommand{\arraystretch}{1.3}
     \begin{tabularx}{\linewidth}{|X|X|}
         \hline
         \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC03} \\ \hline
+        \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC27} \\ \hline
         \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
         \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở màn hình Vocab Lab.} \\ \hline
         \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Loại thẻ mới được tạo và lưu trong hệ thống; người học có thể sử dụng loại thẻ này để tạo flashcard.} \\ \hline
@@ -369,15 +365,15 @@ Khi người học nhấn ``Save'', toàn bộ cấu hình --- bao gồm danh s�
 % ============================================================
 % UC04 – LOOK UP AND ADD WORDS WITH AI
 % ============================================================
-\subsection{Tra cứu và thêm từ vựng bằng AI (UC04)}
+\subsection{Tra cứu và thêm từ vựng bằng AI (UC28)}
 Bảng~\ref{tab:uc04_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc04} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc04} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Tra cứu và thêm từ vựng bằng AI (UC04)} \label{tab:uc04_spec} \\
+    \caption{Đặc tả chức năng Tra cứu và thêm từ vựng bằng AI (UC28)} \label{tab:uc04_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC04} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC28} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công vào hệ thống web và đang xem nội dung bài học có văn bản. Vocab Lab của người học có ít nhất một loại thẻ (Card Type) đã được định nghĩa.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Một Flashcard mới với nội dung do Lexon AI sinh ra được lưu vào Vocab Lab của người học, gắn với deck đã chọn.} \\ \hline
@@ -449,15 +445,15 @@ Khi người học chọn ``Ask AI'', hệ thống mở cửa sổ trợ lý Lex
 % ============================================================
 % UC05 – STUDY IELTS FOUNDATION VOCABULARY
 % ============================================================
-\subsection{Học từ vựng nền tảng IELTS (UC05)}
+\subsection{Học từ vựng nền tảng IELTS (UC03)}
 Bảng~\ref{tab:uc05_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc05} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc05} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Học từ vựng nền tảng IELTS (UC05)} \label{tab:uc05_spec} \\
+    \caption{Đặc tả chức năng Học từ vựng nền tảng IELTS (UC03)} \label{tab:uc05_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC05} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC03} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở trang \texttt{ielts/vocabulary}.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Unit được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 15~XP từ hệ thống gamification; các từ đã được đánh giá SRS được lưu vào Vocab Lab của người học.} \\ \hline
@@ -618,15 +614,15 @@ Sau khi đạt điểm tuyệt đối, bảng Transcript bên phải được m�
 % ============================================================
 % UC07 – PRACTICE IELTS ADVANCED READING
 % ============================================================
-\subsection{Luyện Reading IELTS nâng cao (UC07)}
+\subsection{Luyện Reading IELTS nâng cao (UC11)}
 Bảng~\ref{tab:uc07_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc07} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc07} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Luyện Reading IELTS nâng cao (UC07)} \label{tab:uc07_spec} \\
+    \caption{Đặc tả chức năng Luyện Reading IELTS nâng cao (UC11)} \label{tab:uc07_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC07} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC11} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và có gói đăng ký Premium hoặc Pro đang hoạt động.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên luyện tập Reading được lưu vào cơ sở dữ liệu với điểm số, câu trả lời và dữ liệu phân tích theo loại câu hỏi; người học nhận 20~XP; nếu tỷ lệ đúng $\geq 80\%$ nhận thêm 10~XP; chuỗi học liên tiếp được cập nhật.} \\ \hline
@@ -701,15 +697,15 @@ Logic chấm điểm được thực hiện phía máy chủ sau khi người h�
 % ============================================================
 % UC08 – DO SPEAKING MOCK TEST
 % ============================================================
-\subsection{Thi thử Speaking (Mock Test) (UC08)}
+\subsection{Thi thử Speaking (Mock Test) (UC17)}
 Bảng~\ref{tab:uc08_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc08} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc08} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Thi thử Speaking (Mock Test) (UC08)} \label{tab:uc08_spec} \\
+    \caption{Đặc tả chức năng Thi thử Speaking (Mock Test) (UC17)} \label{tab:uc08_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC08} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC17} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên thi Speaking được cập nhật sang trạng thái hoàn thành; kết quả chứa band điểm Speaking ước tính (thang 0.0--9.0) và nhận xét từ AI theo bốn tiêu chí: \textit{Fluency \& Coherence}, \textit{Lexical Resource}, \textit{Grammatical Range \& Accuracy} và \textit{Pronunciation}; chuỗi học liên tiếp được cập nhật.} \\ \hline
@@ -812,10 +808,10 @@ Hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:se
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Luyện viết với Dictation (UC09)} \label{tab:uc09_spec} \\
+    \caption{Đặc tả chức năng Luyện viết với Dictation (UC24)} \label{tab:uc09_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC09} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC24} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tiến trình hoàn thành bài học được lưu vào cơ sở dữ liệu với danh sách các câu đã hoàn thành; trạng thái bài học được cập nhật trong danh sách thư viện; chuỗi học liên tiếp được ghi nhận.} \\ \hline
@@ -901,10 +897,10 @@ Hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:se
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Xây dựng lộ trình học tập (UC10)} \label{tab:uc10_spec} \\
+    \caption{Đặc tả chức năng Xây dựng lộ trình học tập (UC19)} \label{tab:uc10_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC10} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC19} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và chưa hoàn thành quá trình khởi tạo hồ sơ IELTS.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hồ sơ IELTS được tạo mới hoặc cập nhật với mục tiêu band điểm, cam kết học hàng ngày và ngày thi dự kiến; nếu người học làm bài kiểm tra chẩn đoán và đạt điểm $\geq$ 90\% ở kỹ năng nào, toàn bộ bài học kỹ năng đó được đánh dấu hoàn thành trong cơ sở dữ liệu; người học được điều hướng đến lộ trình học tập cá nhân hóa.} \\ \hline
@@ -983,10 +979,10 @@ Hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:se
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Đăng bài trong Community (UC11)} \label{tab:uc11_spec} \\
+    \caption{Đặc tả chức năng Đăng bài trong Community (UC35)} \label{tab:uc11_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC11} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC35} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài đăng mới được lưu vào cơ sở dữ liệu; bài xuất hiện ngay đầu feed mà không cần tải lại trang; người học nhận +5 XP và huy hiệu bài đăng đầu tiên nếu đây là lần đăng đầu tiên.} \\ \hline
