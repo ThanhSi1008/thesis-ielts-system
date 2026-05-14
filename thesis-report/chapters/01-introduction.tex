@@ -32,7 +32,7 @@ Khoá luận đặt ra các mục tiêu cụ thể sau:
     \item Xây dựng hệ thống học và luyện thi IELTS đa nền tảng (Web và Mobile), hỗ trợ đầy đủ bốn kỹ năng: Listening (nghe), Reading (đọc), Writing (viết) và Speaking (nói).
     \item Tích hợp chấm điểm tự động bằng AI cho kỹ năng Writing (Task 1 và Task 2) và Speaking, sử dụng Gemini API và faster-whisper, cung cấp phản hồi chi tiết theo từng tiêu chí IELTS.
     \item Triển khai bài kiểm tra đầu vào (Placement Test) để xác định trình độ ban đầu theo thang CEFR và đề xuất lộ trình học tập phù hợp.
-    \item Xây dựng hệ thống học và ôn từ vựng theo lộ trình, áp dụng thuật toán Spaced Repetition (lặp lại ngắt quãng) nhằm tối ưu hóa khả năng ghi nhớ dài hạn.
+    \item Xây dựng hệ thống học và ôn từ vựng theo lộ trình, áp dụng thuật toán FSRS (Free Spaced Repetition Scheduler) nhằm tối ưu hóa khả năng ghi nhớ dài hạn.
     \item Cung cấp tính năng thi thử IELTS toàn phần (Mock Test) với đồng hồ đếm ngược và quy đổi band điểm chuẩn IELTS.
     \item Xây dựng hệ thống quản trị nội dung (Admin) cho phép quản lý học liệu, người dùng và xem báo cáo thống kê.
 \end{itemize}
@@ -76,7 +76,7 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
 \begin{itemize}
     \item Đăng ký tài khoản bằng email, xác thực danh tính qua mã OTP; đăng nhập bảo mật với cơ chế chống brute-force.
     \item Thực hiện bài kiểm tra đầu vào để xác định trình độ theo thang CEFR (A2–C1); hệ thống tự động đề xuất lộ trình học phù hợp.
-    \item Học từ vựng theo lộ trình được đề xuất; ôn tập bằng Flashcard với thuật toán Spaced Repetition (SM-2) phân loại thẻ theo mức độ ghi nhớ (Again/Hard/Good/Easy).
+    \item Học từ vựng theo lộ trình được đề xuất; ôn tập bằng Flashcard với thuật toán Spaced Repetition (FSRS — Free Spaced Repetition Scheduler) phân loại thẻ theo mức độ ghi nhớ (Again/Hard/Good/Easy).
     \item Học ngữ pháp theo đơn vị bài học (Elementary, Intermediate, Advanced) từ nguồn English Grammar in Use.
     \item Luyện Listening theo hình thức Dictation: nghe audio, nhập transcript, nhận phản hồi chi tiết theo loại lỗi.
     \item Luyện Reading với các đoạn văn chuẩn IELTS Academic: trả lời câu hỏi các dạng True/False/Not Given, Matching, Short Answer.
@@ -100,9 +100,9 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
     \item \textbf{Nền tảng hỗ trợ:} Hệ thống web hoạt động trên các trình duyệt hiện đại (Chrome, Firefox, Safari — phiên bản mới nhất); ứng dụng mobile hỗ trợ iOS 14+ và Android 10+.
     \item \textbf{Kết nối Internet:} Bắt buộc để sử dụng các tính năng AI (Writing scoring, Speaking evaluation) và đồng bộ dữ liệu Mock Test.
     \item \textbf{Giới hạn API:} Gemini API chịu ràng buộc về quota theo gói dịch vụ; hệ thống xử lý lỗi gracefully khi vượt quota. faster-whisper chạy locally nên không có quota API.
-    \item \textbf{Bảo mật tài khoản:} Tài khoản bị tạm khóa 15 phút sau 5 lần nhập sai mật khẩu liên tiếp.
+    \item \textbf{Bảo mật tài khoản:} Áp dụng rate limiting (ThrottlerModule) để giới hạn số lượng request, ngăn chặn tấn công brute-force; mật khẩu được mã hóa bằng bcrypt với 10 vòng salt.
     \item \textbf{Quy tắc xuất bản nội dung:} Chỉ nội dung có trạng thái ``Xuất bản'' mới hiển thị cho người học; nội dung ``Nháp'' chỉ Admin mới xem và chỉnh sửa được.
-    \item \textbf{Lưu trữ dữ liệu:} Toàn bộ dữ liệu người dùng lưu trên PostgreSQL 16 (GCP VM); file audio lưu trên Google Cloud Storage (GCS); tuân thủ các quy định bảo mật thông tin cá nhân.
+    \item \textbf{Lưu trữ dữ liệu:} Toàn bộ dữ liệu người dùng lưu trên PostgreSQL 16; file media (audio, ảnh) lưu trên Cloudinary; tuân thủ các quy định bảo mật thông tin cá nhân.
 \end{itemize}
 
 \section{Mô tả yêu cầu phi chức năng}
