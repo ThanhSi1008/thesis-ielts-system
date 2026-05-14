@@ -1,0 +1,577 @@
+//// --- CORE DOMAIN (Platform Features) ---
+
+// ====== SHARED ======
+
+Table users {
+  id String [pk]
+  email String [unique, not null]
+  password String
+  googleId String [unique]
+  avatar String
+  firstName String
+  lastName String
+  role UserRole [not null, default: 'STUDENT']
+  isActive Boolean [not null, default: true]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  examSessions exam_sessions [not null]
+  results results [not null]
+
+  pronunciationProgress pronunciation_progress [not null]
+  vocabularyProgress vocabulary_progress [not null]
+  grammarProgress grammar_progress [not null]
+  decks decks [not null]
+  sharedDecks shared_decks [not null]
+  questionNotes question_notes [not null]
+  shadowingVideos shadowing_videos [not null]
+  shadowingFolders shadowing_folders [not null]
+  shadowingProgress shadowing_progress [not null]
+  dictationVideos dictation_videos [not null]
+  dictationFolders dictation_folders [not null]
+  dictationProgress dictation_progress [not null]
+  ieltsBasicProgress ielts_basic_progress [not null]
+  ieltsWritingAnswers ielts_writing_user_answers [not null]
+  practiceSessions ielts_practice_sessions [not null]
+  practiceReadingSessions ielts_practice_reading_sessions [not null]
+  advancedWritingSessions ielts_advanced_writing_sessions [not null]
+  advancedSpeakingSessions ielts_advanced_speaking_sessions [not null]
+  userAchievements user_achievements [not null]
+  xpLogs xp_logs [not null]
+  ieltsProfile ielts_profiles
+  teacherLinks student_teacher_links [not null]
+  studentLinks student_teacher_links [not null]
+  notifications notifications [not null]
+  posts posts [not null]
+  comments comments [not null]
+  postLikes post_likes [not null]
+  bookmarks post_bookmarks [not null]
+  subscription subscriptions
+}
+
+// ====== FLASHCARD SYSTEM ======
+
+Table decks {
+  id String [pk]
+  userId String [not null]
+  name String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  flashcards flashcards [not null]
+}
+
+Table flashcards {
+  id String [pk]
+  deckId String [not null]
+  front String [not null]
+  back String [not null]
+  tags String[] [not null]
+  due DateTime [default: `now()`, not null]
+  stability Float [not null, default: 0]
+  difficulty Float [not null, default: 0]
+  elapsedDays Int [not null, default: 0]
+  scheduledDays Int [not null, default: 0]
+  reps Int [not null, default: 0]
+  lapses Int [not null, default: 0]
+  lastReview DateTime
+  nextReviewDate DateTime [default: `now()`, not null]
+  cardState CardState [not null, default: 'NEW']
+  cardTypeId String
+  fieldValues Json [not null, default: '{}']
+  fieldStyles Json
+  cardStyle Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  deck decks [not null]
+  cardType card_types
+  reviews flashcard_reviews [not null]
+}
+
+Table flashcard_reviews {
+  id String [pk]
+  flashcardId String [not null]
+  rating Int [not null]
+  reviewedAt DateTime [default: `now()`, not null]
+  scheduledDays Int [not null, default: 0]
+  elapsedDays Int [not null, default: 0]
+  state CardState
+  flashcard flashcards [not null]
+}
+
+Table card_types {
+  id String [pk]
+  userId String
+  name String [not null]
+  description String
+  isBuiltIn Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  fields card_type_fields [not null]
+  templates card_templates [not null]
+  flashcards flashcards [not null]
+}
+
+Table card_type_fields {
+  id String [pk]
+  cardTypeId String [not null]
+  name String [not null]
+  order Int [not null]
+  description String
+  fieldType String [not null, default: 'text']
+  createdAt DateTime [default: `now()`, not null]
+  cardType card_types [not null]
+}
+
+Table card_templates {
+  id String [pk]
+  cardTypeId String [not null]
+  name String [not null]
+  frontFields String[] [not null]
+  backFields String[] [not null]
+  fieldStyles Json [not null, default: '{}']
+  cardStyle Json [not null, default: '{}']
+  createdAt DateTime [default: `now()`, not null]
+  cardType card_types [not null]
+}
+
+Table shared_decks {
+  id String [pk]
+  publisherId String [not null]
+  name String [not null]
+  description String
+  tags String[] [not null]
+  lexonPayload Json [not null]
+  importCount Int [not null, default: 0]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  publisher users [not null]
+}
+
+// ====== EXAM NOTES ======
+
+Table question_notes {
+  id String [pk]
+  userId String [not null]
+  examId String [not null]
+  questionNumber Int [not null]
+  noteText String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+
+  indexes {
+    (userId, examId, questionNumber) [unique]
+  }
+}
+
+// ====== SHADOWING ======
+
+Table shadowing_videos {
+  id String [pk]
+  userId String
+  title String [not null]
+  youtubeVideoId String
+  audioUrl String
+  imageUrl String
+  tags String[] [not null]
+  folder String [not null, default: 'All Videos']
+  category String [not null, default: 'Other']
+  duration String [not null]
+  sentences Json [not null]
+  status String [not null, default: 'READY']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users
+}
+
+Table shadowing_folders {
+  id String [pk]
+  userId String [not null]
+  name String [not null]
+  order Int [not null, default: 0]
+  user users [not null]
+
+  indexes {
+    (userId, name) [unique]
+  }
+}
+
+Table shadowing_progress {
+  id String [pk]
+  userId String [not null]
+  lessonId String [not null]
+  completedSentences Int[] [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+
+  indexes {
+    (userId, lessonId) [unique]
+  }
+}
+
+// ====== DICTATION ======
+
+Table dictation_videos {
+  id String [pk]
+  userId String
+  title String [not null]
+  youtubeVideoId String
+  audioUrl String
+  imageUrl String
+  tags String[] [not null]
+  folder String [not null, default: 'All Videos']
+  category String [not null, default: 'Other']
+  duration String [not null]
+  sentences Json [not null]
+  status String [not null, default: 'READY']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users
+}
+
+Table dictation_folders {
+  id String [pk]
+  userId String [not null]
+  name String [not null]
+  order Int [not null, default: 0]
+  user users [not null]
+
+  indexes {
+    (userId, name) [unique]
+  }
+}
+
+Table dictation_progress {
+  id String [pk]
+  userId String [not null]
+  lessonId String [not null]
+  completedSentences Int[] [not null]
+  difficulty String [not null, default: 'Intermediate']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+
+  indexes {
+    (userId, lessonId) [unique]
+  }
+}
+
+// ====== USER MANAGEMENT ======
+
+Table student_teacher_links {
+  id String [pk]
+  studentId String [not null]
+  teacherId String [not null]
+  status String [not null, default: 'LINKED']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  student users [not null]
+  teacher users [not null]
+
+  indexes {
+    (studentId, teacherId) [unique]
+  }
+}
+
+Table notifications {
+  id String [pk]
+  userId String [not null]
+  user users [not null]
+  type NotificationType [not null]
+  title String [not null]
+  body String [not null]
+  icon String
+  thumbnail String
+  link String
+  isRead Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+// ====== GAMIFICATION ======
+
+Table achievements {
+  id String [pk]
+  key String [unique, not null]
+  name String [not null]
+  description String [not null]
+  icon String [not null]
+  category String [not null]
+  tier Int [not null, default: 1]
+  xpReward Int [not null, default: 0]
+  order Int [not null, default: 0]
+  createdAt DateTime [default: `now()`, not null]
+  userAchievements user_achievements [not null]
+}
+
+Table user_achievements {
+  id String [pk]
+  userId String [not null]
+  achievementId String [not null]
+  earnedAt DateTime [default: `now()`, not null]
+  user users [not null]
+  achievement achievements [not null]
+
+  indexes {
+    (userId, achievementId) [unique]
+  }
+}
+
+Table xp_logs {
+  id String [pk]
+  userId String [not null]
+  amount Int [not null]
+  reason String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  user users [not null]
+}
+
+// ====== COMMUNITY ======
+
+Table posts {
+  id String [pk]
+  authorId String [not null]
+  type PostType [not null, default: 'GENERAL']
+  title String
+  body String [not null]
+  imageUrls String[] [not null]
+  tags String[] [not null]
+  metadata Json
+  likeCount Int [not null, default: 0]
+  commentCount Int [not null, default: 0]
+  bookmarkCount Int [not null, default: 0]
+  isPinned Boolean [not null, default: false]
+  isHidden Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  author users [not null]
+  comments comments [not null]
+  likes post_likes [not null]
+  bookmarks post_bookmarks [not null]
+}
+
+Table comments {
+  id String [pk]
+  postId String [not null]
+  authorId String [not null]
+  parentId String
+  body String [not null]
+  isHidden Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  post posts [not null]
+  author users [not null]
+  parent comments
+  replies comments [not null]
+}
+
+Table post_likes {
+  id String [pk]
+  postId String [not null]
+  userId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  post posts [not null]
+  user users [not null]
+
+  indexes {
+    (postId, userId) [unique]
+  }
+}
+
+Table post_bookmarks {
+  id String [pk]
+  postId String [not null]
+  userId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  post posts [not null]
+  user users [not null]
+
+  indexes {
+    (postId, userId) [unique]
+  }
+}
+
+// ====== BILLING ======
+
+Table subscriptions {
+  id String [pk]
+  userId String [unique, not null]
+  tier SubscriptionTier [not null, default: 'FREE']
+  status SubscriptionStatus [not null, default: 'ACTIVE']
+  provider PaymentProvider
+  providerSubId String
+  currentPeriodStart DateTime
+  currentPeriodEnd DateTime
+  canceledAt DateTime
+  trialEndsAt DateTime
+  trialUsed Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  payments payments [not null]
+  usageRecords usage_records [not null]
+}
+
+Table payments {
+  id String [pk]
+  subscriptionId String [not null]
+  amount Int [not null]
+  currency String [not null, default: 'USD']
+  provider PaymentProvider [not null]
+  providerPayId String
+  status String [not null]
+  metadata Json
+  createdAt DateTime [default: `now()`, not null]
+  subscription subscriptions [not null]
+}
+
+Table usage_records {
+  id String [pk]
+  subscriptionId String [not null]
+  feature String [not null]
+  count Int [not null, default: 0]
+  periodStart DateTime [not null]
+  periodEnd DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  subscription subscriptions [not null]
+
+  indexes {
+    (subscriptionId, feature, periodStart) [unique]
+  }
+}
+
+Table pricing_plans {
+  id String [pk]
+  tier SubscriptionTier [not null]
+  name String [not null]
+  description String
+  priceAmount Int [not null]
+  currency String [not null, default: 'USD']
+  interval String [not null]
+  intervalCount Int [not null, default: 1]
+  features Json [not null]
+  isActive Boolean [not null, default: true]
+  order Int [not null, default: 0]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+// ====== ENUMS ======
+
+Enum UserRole {
+  STUDENT
+  ADMIN
+  INSTRUCTOR
+}
+
+Enum CardState {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
+}
+
+Enum SubscriptionTier {
+  FREE
+  PREMIUM
+  PRO
+}
+
+Enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+Enum PaymentProvider {
+  MOCK
+  VNPAY
+  STRIPE
+  MANUAL
+}
+
+Enum NotificationType {
+  STREAK_MILESTONE
+  LESSON_COMPLETED
+  REVIEW_DUE
+  DECK_MASTERED
+  EXAM_GRADED
+  NEW_EXAM_AVAILABLE
+  DICTATION_COMPLETE
+  NEW_LESSON
+  SYSTEM_ANNOUNCEMENT
+  ACHIEVEMENT
+}
+
+Enum PostType {
+  STUDY_TIP
+  SCORE_ACHIEVEMENT
+  GENERAL
+}
+
+// ====== RELATIONSHIPS ======
+
+Ref: decks.userId > users.id [delete: Cascade]
+
+Ref: flashcards.deckId > decks.id [delete: Cascade]
+
+Ref: flashcards.cardTypeId > card_types.id
+
+Ref: flashcard_reviews.flashcardId > flashcards.id [delete: Cascade]
+
+Ref: card_type_fields.cardTypeId > card_types.id [delete: Cascade]
+
+Ref: card_templates.cardTypeId > card_types.id [delete: Cascade]
+
+Ref: shared_decks.publisherId > users.id [delete: Cascade]
+
+Ref: question_notes.userId > users.id [delete: Cascade]
+
+Ref: shadowing_videos.userId > users.id [delete: Cascade]
+
+Ref: shadowing_folders.userId > users.id [delete: Cascade]
+
+Ref: shadowing_progress.userId > users.id [delete: Cascade]
+
+Ref: dictation_videos.userId > users.id [delete: Cascade]
+
+Ref: dictation_folders.userId > users.id [delete: Cascade]
+
+Ref: dictation_progress.userId > users.id [delete: Cascade]
+
+Ref: student_teacher_links.studentId > users.id [delete: Cascade]
+
+Ref: student_teacher_links.teacherId > users.id [delete: Cascade]
+
+Ref: notifications.userId > users.id [delete: Cascade]
+
+Ref: user_achievements.userId > users.id [delete: Cascade]
+
+Ref: user_achievements.achievementId > achievements.id [delete: Cascade]
+
+Ref: xp_logs.userId > users.id [delete: Cascade]
+
+Ref: posts.authorId > users.id [delete: Cascade]
+
+Ref: comments.postId > posts.id [delete: Cascade]
+
+Ref: comments.authorId > users.id [delete: Cascade]
+
+Ref: comments.parentId - comments.id [delete: Cascade]
+
+Ref: post_likes.postId > posts.id [delete: Cascade]
+
+Ref: post_likes.userId > users.id [delete: Cascade]
+
+Ref: post_bookmarks.postId > posts.id [delete: Cascade]
+
+Ref: post_bookmarks.userId > users.id [delete: Cascade]
+
+Ref: subscriptions.userId - users.id [delete: Cascade]
+
+Ref: payments.subscriptionId > subscriptions.id [delete: Cascade]
+
+Ref: usage_records.subscriptionId > subscriptions.id [delete: Cascade]

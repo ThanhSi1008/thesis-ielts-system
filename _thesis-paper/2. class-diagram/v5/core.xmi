@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.1"
+  xmlns:xmi="http://schema.omg.org/spec/XMI/2.1"
+  xmlns:uml="http://schema.omg.org/spec/UML/2.1">
+  <uml:Model xmi:type="uml:Model" xmi:id="_model_core" name="CoreDomain">
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_String" name="String"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Int" name="Int"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Float" name="Float"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Boolean" name="Boolean"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_DateTime" name="DateTime"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Json" name="Json"/>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_UserRole" name="UserRole">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_UserRole_STUDENT" name="STUDENT"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_UserRole_ADMIN" name="ADMIN"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_UserRole_INSTRUCTOR" name="INSTRUCTOR"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_CardState" name="CardState">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_CardState_NEW" name="NEW"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_CardState_LEARNING" name="LEARNING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_CardState_REVIEW" name="REVIEW"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_CardState_RELEARNING" name="RELEARNING"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_SubscriptionTier" name="SubscriptionTier">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionTier_FREE" name="FREE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionTier_PREMIUM" name="PREMIUM"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionTier_PRO" name="PRO"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_SubscriptionStatus" name="SubscriptionStatus">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionStatus_ACTIVE" name="ACTIVE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionStatus_TRIALING" name="TRIALING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionStatus_PAST_DUE" name="PAST_DUE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionStatus_CANCELED" name="CANCELED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_SubscriptionStatus_EXPIRED" name="EXPIRED"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_PaymentProvider" name="PaymentProvider">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PaymentProvider_MOCK" name="MOCK"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PaymentProvider_VNPAY" name="VNPAY"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PaymentProvider_STRIPE" name="STRIPE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PaymentProvider_MANUAL" name="MANUAL"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_NotificationType" name="NotificationType">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_STREAK_MILESTONE" name="STREAK_MILESTONE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_LESSON_COMPLETED" name="LESSON_COMPLETED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_REVIEW_DUE" name="REVIEW_DUE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_DECK_MASTERED" name="DECK_MASTERED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_EXAM_GRADED" name="EXAM_GRADED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_NEW_EXAM_AVAILABLE" name="NEW_EXAM_AVAILABLE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_DICTATION_COMPLETE" name="DICTATION_COMPLETE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_NEW_LESSON" name="NEW_LESSON"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_SYSTEM_ANNOUNCEMENT" name="SYSTEM_ANNOUNCEMENT"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_NotificationType_ACHIEVEMENT" name="ACHIEVEMENT"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_PostType" name="PostType">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PostType_STUDY_TIP" name="STUDY_TIP"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PostType_SCORE_ACHIEVEMENT" name="SCORE_ACHIEVEMENT"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PostType_GENERAL" name="GENERAL"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_User" name="User">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_email" name="email" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_password" name="password" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_password" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_password" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_googleId" name="googleId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_googleId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_googleId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_avatar" name="avatar" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_avatar" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_avatar" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_firstName" name="firstName" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_firstName" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_firstName" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_lastName" name="lastName" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_lastName" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_lastName" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_isActive" name="isActive" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Deck" name="Deck">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Deck_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Deck_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Deck_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Deck_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Deck_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Flashcard" name="Flashcard">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_deckId" name="deckId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_front" name="front" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_back" name="back" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_tags" name="tags" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_due" name="due" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_stability" name="stability" visibility="private" type="_dt_Float"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_difficulty" name="difficulty" visibility="private" type="_dt_Float"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_elapsedDays" name="elapsedDays" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_scheduledDays" name="scheduledDays" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_reps" name="reps" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_lapses" name="lapses" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_lastReview" name="lastReview" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Flashcard_lastReview" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Flashcard_lastReview" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_nextReviewDate" name="nextReviewDate" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_cardTypeId" name="cardTypeId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Flashcard_cardTypeId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Flashcard_cardTypeId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_fieldValues" name="fieldValues" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_fieldStyles" name="fieldStyles" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Flashcard_fieldStyles" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Flashcard_fieldStyles" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_cardStyle" name="cardStyle" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Flashcard_cardStyle" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Flashcard_cardStyle" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Flashcard_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FlashcardReview" name="FlashcardReview">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FlashcardReview_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FlashcardReview_flashcardId" name="flashcardId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FlashcardReview_rating" name="rating" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FlashcardReview_reviewedAt" name="reviewedAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FlashcardReview_scheduledDays" name="scheduledDays" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FlashcardReview_elapsedDays" name="elapsedDays" visibility="private" type="_dt_Int"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_CardType" name="CardType">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardType_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardType_userId" name="userId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_CardType_userId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_CardType_userId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardType_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardType_description" name="description" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_CardType_description" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_CardType_description" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardType_isBuiltIn" name="isBuiltIn" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardType_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardType_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_CardTypeField" name="CardTypeField">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTypeField_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTypeField_cardTypeId" name="cardTypeId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTypeField_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTypeField_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTypeField_description" name="description" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_CardTypeField_description" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_CardTypeField_description" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTypeField_fieldType" name="fieldType" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTypeField_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_CardTemplate" name="CardTemplate">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_cardTypeId" name="cardTypeId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_frontFields" name="frontFields" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_backFields" name="backFields" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_fieldStyles" name="fieldStyles" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_cardStyle" name="cardStyle" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_CardTemplate_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_SharedDeck" name="SharedDeck">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_publisherId" name="publisherId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_description" name="description" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_SharedDeck_description" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_SharedDeck_description" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_tags" name="tags" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_lexonPayload" name="lexonPayload" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_importCount" name="importCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_SharedDeck_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_QuestionNote" name="QuestionNote">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_QuestionNote_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_QuestionNote_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_QuestionNote_examId" name="examId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_QuestionNote_questionNumber" name="questionNumber" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_QuestionNote_noteText" name="noteText" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_QuestionNote_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_QuestionNote_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_ShadowingVideo" name="ShadowingVideo">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_userId" name="userId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_ShadowingVideo_userId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_ShadowingVideo_userId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_youtubeVideoId" name="youtubeVideoId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_ShadowingVideo_youtubeVideoId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_ShadowingVideo_youtubeVideoId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_audioUrl" name="audioUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_ShadowingVideo_audioUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_ShadowingVideo_audioUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_imageUrl" name="imageUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_ShadowingVideo_imageUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_ShadowingVideo_imageUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_tags" name="tags" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_folder" name="folder" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_category" name="category" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_duration" name="duration" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_sentences" name="sentences" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_status" name="status" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingVideo_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_ShadowingFolder" name="ShadowingFolder">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingFolder_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingFolder_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingFolder_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingFolder_order" name="order" visibility="private" type="_dt_Int"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_ShadowingProgress" name="ShadowingProgress">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingProgress_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingProgress_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingProgress_lessonId" name="lessonId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingProgress_completedSentences" name="completedSentences" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingProgress_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_ShadowingProgress_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_DictationVideo" name="DictationVideo">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_userId" name="userId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_DictationVideo_userId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_DictationVideo_userId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_youtubeVideoId" name="youtubeVideoId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_DictationVideo_youtubeVideoId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_DictationVideo_youtubeVideoId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_audioUrl" name="audioUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_DictationVideo_audioUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_DictationVideo_audioUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_imageUrl" name="imageUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_DictationVideo_imageUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_DictationVideo_imageUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_tags" name="tags" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_folder" name="folder" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_category" name="category" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_duration" name="duration" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_sentences" name="sentences" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_status" name="status" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationVideo_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_DictationFolder" name="DictationFolder">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationFolder_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationFolder_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationFolder_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationFolder_order" name="order" visibility="private" type="_dt_Int"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_DictationProgress" name="DictationProgress">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationProgress_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationProgress_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationProgress_lessonId" name="lessonId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationProgress_completedSentences" name="completedSentences" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationProgress_difficulty" name="difficulty" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationProgress_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_DictationProgress_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_StudentTeacherLink" name="StudentTeacherLink">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_StudentTeacherLink_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_StudentTeacherLink_studentId" name="studentId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_StudentTeacherLink_teacherId" name="teacherId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_StudentTeacherLink_status" name="status" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_StudentTeacherLink_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_StudentTeacherLink_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Notification" name="Notification">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_body" name="body" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_icon" name="icon" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Notification_icon" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Notification_icon" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_thumbnail" name="thumbnail" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Notification_thumbnail" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Notification_thumbnail" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_link" name="link" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Notification_link" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Notification_link" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_isRead" name="isRead" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Notification_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Achievement" name="Achievement">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_key" name="key" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_description" name="description" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_icon" name="icon" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_category" name="category" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_tier" name="tier" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_xpReward" name="xpReward" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Achievement_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_UserAchievement" name="UserAchievement">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UserAchievement_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UserAchievement_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UserAchievement_achievementId" name="achievementId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UserAchievement_earnedAt" name="earnedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_XpLog" name="XpLog">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_XpLog_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_XpLog_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_XpLog_amount" name="amount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_XpLog_reason" name="reason" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_XpLog_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Post" name="Post">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_authorId" name="authorId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_title" name="title" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Post_title" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Post_title" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_body" name="body" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_imageUrls" name="imageUrls" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_tags" name="tags" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_metadata" name="metadata" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Post_metadata" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Post_metadata" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_likeCount" name="likeCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_commentCount" name="commentCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_bookmarkCount" name="bookmarkCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_isPinned" name="isPinned" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_isHidden" name="isHidden" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Post_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Comment" name="Comment">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_postId" name="postId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_authorId" name="authorId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_parentId" name="parentId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Comment_parentId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Comment_parentId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_body" name="body" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_isHidden" name="isHidden" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Comment_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_PostLike" name="PostLike">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostLike_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostLike_postId" name="postId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostLike_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostLike_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_PostBookmark" name="PostBookmark">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostBookmark_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostBookmark_postId" name="postId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostBookmark_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PostBookmark_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Subscription" name="Subscription">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_providerSubId" name="providerSubId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Subscription_providerSubId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Subscription_providerSubId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_currentPeriodStart" name="currentPeriodStart" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Subscription_currentPeriodStart" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Subscription_currentPeriodStart" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_currentPeriodEnd" name="currentPeriodEnd" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Subscription_currentPeriodEnd" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Subscription_currentPeriodEnd" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_canceledAt" name="canceledAt" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Subscription_canceledAt" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Subscription_canceledAt" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_trialEndsAt" name="trialEndsAt" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Subscription_trialEndsAt" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Subscription_trialEndsAt" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_trialUsed" name="trialUsed" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Subscription_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_Payment" name="Payment">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_subscriptionId" name="subscriptionId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_amount" name="amount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_currency" name="currency" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_providerPayId" name="providerPayId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Payment_providerPayId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Payment_providerPayId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_status" name="status" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_metadata" name="metadata" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_Payment_metadata" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_Payment_metadata" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_Payment_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_UsageRecord" name="UsageRecord">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_subscriptionId" name="subscriptionId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_feature" name="feature" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_count" name="count" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_periodStart" name="periodStart" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_periodEnd" name="periodEnd" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_UsageRecord_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_PricingPlan" name="PricingPlan">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_description" name="description" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_PricingPlan_description" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_PricingPlan_description" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_priceAmount" name="priceAmount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_currency" name="currency" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_interval" name="interval" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_intervalCount" name="intervalCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_features" name="features" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_isActive" name="isActive" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_PricingPlan_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_1" name="">
+      <client xmi:idref="_class_User"/>
+      <supplier xmi:idref="_enum_UserRole"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_2" name="">
+      <memberEnd xmi:idref="_assoc_core_2_src"/>
+      <memberEnd xmi:idref="_assoc_core_2_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_2_src" name="" type="_class_User" association="_assoc_core_2">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_2_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_2_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_2_tgt" name="" type="_class_Deck" association="_assoc_core_2">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_2_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_2_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_3" name="">
+      <memberEnd xmi:idref="_assoc_core_3_src"/>
+      <memberEnd xmi:idref="_assoc_core_3_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_3_src" name="" type="_class_User" association="_assoc_core_3">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_3_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_3_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_3_tgt" name="" type="_class_SharedDeck" association="_assoc_core_3">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_3_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_3_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_4" name="">
+      <memberEnd xmi:idref="_assoc_core_4_src"/>
+      <memberEnd xmi:idref="_assoc_core_4_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_4_src" name="" type="_class_User" association="_assoc_core_4">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_4_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_4_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_4_tgt" name="" type="_class_QuestionNote" association="_assoc_core_4">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_4_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_4_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_5" name="">
+      <memberEnd xmi:idref="_assoc_core_5_src"/>
+      <memberEnd xmi:idref="_assoc_core_5_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_5_src" name="" type="_class_User" association="_assoc_core_5">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_5_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_5_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_5_tgt" name="" type="_class_ShadowingVideo" association="_assoc_core_5">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_5_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_5_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_6" name="">
+      <memberEnd xmi:idref="_assoc_core_6_src"/>
+      <memberEnd xmi:idref="_assoc_core_6_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_6_src" name="" type="_class_User" association="_assoc_core_6">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_6_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_6_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_6_tgt" name="" type="_class_ShadowingFolder" association="_assoc_core_6">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_6_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_6_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_7" name="">
+      <memberEnd xmi:idref="_assoc_core_7_src"/>
+      <memberEnd xmi:idref="_assoc_core_7_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_7_src" name="" type="_class_User" association="_assoc_core_7">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_7_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_7_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_7_tgt" name="" type="_class_ShadowingProgress" association="_assoc_core_7">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_7_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_7_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_8" name="">
+      <memberEnd xmi:idref="_assoc_core_8_src"/>
+      <memberEnd xmi:idref="_assoc_core_8_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_8_src" name="" type="_class_User" association="_assoc_core_8">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_8_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_8_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_8_tgt" name="" type="_class_DictationVideo" association="_assoc_core_8">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_8_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_8_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_9" name="">
+      <memberEnd xmi:idref="_assoc_core_9_src"/>
+      <memberEnd xmi:idref="_assoc_core_9_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_9_src" name="" type="_class_User" association="_assoc_core_9">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_9_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_9_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_9_tgt" name="" type="_class_DictationFolder" association="_assoc_core_9">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_9_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_9_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_10" name="">
+      <memberEnd xmi:idref="_assoc_core_10_src"/>
+      <memberEnd xmi:idref="_assoc_core_10_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_10_src" name="" type="_class_User" association="_assoc_core_10">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_10_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_10_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_10_tgt" name="" type="_class_DictationProgress" association="_assoc_core_10">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_10_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_10_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_11" name="">
+      <memberEnd xmi:idref="_assoc_core_11_src"/>
+      <memberEnd xmi:idref="_assoc_core_11_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_11_src" name="" type="_class_User" association="_assoc_core_11">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_11_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_11_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_11_tgt" name="" type="_class_UserAchievement" association="_assoc_core_11">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_11_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_11_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_12" name="">
+      <memberEnd xmi:idref="_assoc_core_12_src"/>
+      <memberEnd xmi:idref="_assoc_core_12_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_12_src" name="" type="_class_User" association="_assoc_core_12">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_12_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_12_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_12_tgt" name="" type="_class_XpLog" association="_assoc_core_12">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_12_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_12_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_13" name="">
+      <memberEnd xmi:idref="_assoc_core_13_src"/>
+      <memberEnd xmi:idref="_assoc_core_13_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_13_src" name="" type="_class_User" association="_assoc_core_13">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_13_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_13_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_13_tgt" name="" type="_class_StudentTeacherLink" association="_assoc_core_13">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_13_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_13_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_14" name="">
+      <memberEnd xmi:idref="_assoc_core_14_src"/>
+      <memberEnd xmi:idref="_assoc_core_14_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_14_src" name="" type="_class_User" association="_assoc_core_14">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_14_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_14_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_14_tgt" name="" type="_class_Notification" association="_assoc_core_14">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_14_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_14_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_15" name="">
+      <memberEnd xmi:idref="_assoc_core_15_src"/>
+      <memberEnd xmi:idref="_assoc_core_15_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_15_src" name="" type="_class_User" association="_assoc_core_15">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_15_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_15_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_15_tgt" name="" type="_class_Post" association="_assoc_core_15">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_15_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_15_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_16" name="">
+      <memberEnd xmi:idref="_assoc_core_16_src"/>
+      <memberEnd xmi:idref="_assoc_core_16_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_16_src" name="" type="_class_User" association="_assoc_core_16">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_16_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_16_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_16_tgt" name="" type="_class_Comment" association="_assoc_core_16">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_16_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_16_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_17" name="">
+      <memberEnd xmi:idref="_assoc_core_17_src"/>
+      <memberEnd xmi:idref="_assoc_core_17_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_17_src" name="" type="_class_User" association="_assoc_core_17">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_17_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_17_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_17_tgt" name="" type="_class_PostLike" association="_assoc_core_17">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_17_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_17_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_18" name="">
+      <memberEnd xmi:idref="_assoc_core_18_src"/>
+      <memberEnd xmi:idref="_assoc_core_18_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_18_src" name="" type="_class_User" association="_assoc_core_18">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_18_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_18_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_18_tgt" name="" type="_class_PostBookmark" association="_assoc_core_18">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_18_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_18_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_19" name="">
+      <memberEnd xmi:idref="_assoc_core_19_src"/>
+      <memberEnd xmi:idref="_assoc_core_19_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_19_src" name="" type="_class_User" association="_assoc_core_19">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_19_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_19_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_19_tgt" name="" type="_class_Subscription" association="_assoc_core_19">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_19_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_19_tgt_uv" value="1"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_20" name="">
+      <memberEnd xmi:idref="_assoc_core_20_src"/>
+      <memberEnd xmi:idref="_assoc_core_20_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_20_src" name="" type="_class_Deck" association="_assoc_core_20" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_20_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_20_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_20_tgt" name="" type="_class_Flashcard" association="_assoc_core_20">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_20_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_20_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_21" name="">
+      <client xmi:idref="_class_Flashcard"/>
+      <supplier xmi:idref="_enum_CardState"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_22" name="">
+      <memberEnd xmi:idref="_assoc_core_22_src"/>
+      <memberEnd xmi:idref="_assoc_core_22_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_22_src" name="" type="_class_Flashcard" association="_assoc_core_22">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_22_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_22_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_22_tgt" name="" type="_class_CardType" association="_assoc_core_22">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_22_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_22_tgt_uv" value="1"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_23" name="">
+      <memberEnd xmi:idref="_assoc_core_23_src"/>
+      <memberEnd xmi:idref="_assoc_core_23_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_23_src" name="" type="_class_Flashcard" association="_assoc_core_23" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_23_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_23_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_23_tgt" name="" type="_class_FlashcardReview" association="_assoc_core_23">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_23_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_23_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_24" name="">
+      <client xmi:idref="_class_FlashcardReview"/>
+      <supplier xmi:idref="_enum_CardState"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_25" name="">
+      <memberEnd xmi:idref="_assoc_core_25_src"/>
+      <memberEnd xmi:idref="_assoc_core_25_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_25_src" name="" type="_class_CardType" association="_assoc_core_25" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_25_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_25_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_25_tgt" name="" type="_class_CardTypeField" association="_assoc_core_25">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_25_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_25_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_26" name="">
+      <memberEnd xmi:idref="_assoc_core_26_src"/>
+      <memberEnd xmi:idref="_assoc_core_26_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_26_src" name="" type="_class_CardType" association="_assoc_core_26" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_26_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_26_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_26_tgt" name="" type="_class_CardTemplate" association="_assoc_core_26">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_26_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_26_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_27" name="">
+      <client xmi:idref="_class_Notification"/>
+      <supplier xmi:idref="_enum_NotificationType"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_28" name="">
+      <memberEnd xmi:idref="_assoc_core_28_src"/>
+      <memberEnd xmi:idref="_assoc_core_28_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_28_src" name="" type="_class_Achievement" association="_assoc_core_28">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_28_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_28_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_28_tgt" name="" type="_class_UserAchievement" association="_assoc_core_28">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_28_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_28_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_29" name="">
+      <client xmi:idref="_class_Post"/>
+      <supplier xmi:idref="_enum_PostType"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_30" name="">
+      <memberEnd xmi:idref="_assoc_core_30_src"/>
+      <memberEnd xmi:idref="_assoc_core_30_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_30_src" name="" type="_class_Post" association="_assoc_core_30" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_30_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_30_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_30_tgt" name="" type="_class_Comment" association="_assoc_core_30">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_30_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_30_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_31" name="">
+      <memberEnd xmi:idref="_assoc_core_31_src"/>
+      <memberEnd xmi:idref="_assoc_core_31_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_31_src" name="" type="_class_Post" association="_assoc_core_31" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_31_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_31_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_31_tgt" name="" type="_class_PostLike" association="_assoc_core_31">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_31_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_31_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_32" name="">
+      <memberEnd xmi:idref="_assoc_core_32_src"/>
+      <memberEnd xmi:idref="_assoc_core_32_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_32_src" name="" type="_class_Post" association="_assoc_core_32" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_32_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_32_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_32_tgt" name="" type="_class_PostBookmark" association="_assoc_core_32">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_32_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_32_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_33" name="">
+      <memberEnd xmi:idref="_assoc_core_33_src"/>
+      <memberEnd xmi:idref="_assoc_core_33_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_33_src" name="" type="_class_Comment" association="_assoc_core_33">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_33_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_33_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_33_tgt" name="" type="_class_Comment" association="_assoc_core_33">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_33_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_33_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_34" name="">
+      <client xmi:idref="_class_Subscription"/>
+      <supplier xmi:idref="_enum_SubscriptionTier"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_35" name="">
+      <client xmi:idref="_class_Subscription"/>
+      <supplier xmi:idref="_enum_SubscriptionStatus"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_36" name="">
+      <client xmi:idref="_class_Subscription"/>
+      <supplier xmi:idref="_enum_PaymentProvider"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_37" name="">
+      <memberEnd xmi:idref="_assoc_core_37_src"/>
+      <memberEnd xmi:idref="_assoc_core_37_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_37_src" name="" type="_class_Subscription" association="_assoc_core_37" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_37_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_37_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_37_tgt" name="" type="_class_Payment" association="_assoc_core_37">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_37_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_37_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_core_38" name="">
+      <memberEnd xmi:idref="_assoc_core_38_src"/>
+      <memberEnd xmi:idref="_assoc_core_38_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_38_src" name="" type="_class_Subscription" association="_assoc_core_38" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_38_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_38_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_core_38_tgt" name="" type="_class_UsageRecord" association="_assoc_core_38">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_core_38_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_core_38_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_39" name="">
+      <client xmi:idref="_class_Payment"/>
+      <supplier xmi:idref="_enum_PaymentProvider"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_core_40" name="">
+      <client xmi:idref="_class_PricingPlan"/>
+      <supplier xmi:idref="_enum_SubscriptionTier"/>
+    </packagedElement>
+  </uml:Model>
+</xmi:XMI>
