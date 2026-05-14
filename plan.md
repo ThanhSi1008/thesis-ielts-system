@@ -1,16 +1,8 @@
-viết use-case:
+sửa lại chương 3
 
-1. SIGN UP
-2. SIGN IN
-3. ADD CARD TYPE
-4. LOOK UP AND ADD WORDS WITH AI
-5. STUDY IELTS FOUNDATION VOCABULARY
-6. STUDY IELTS BASIC LISTENING LESSONS
-7. PRACTICE IELTS ADVANCED READING
-8. DO SPEAKING MOCK TEST
-9. PRATICE WRITING WITH DICTATION
-10. ROADMAP
-11. POST (đăng bài trong phần community)
+sửa lại chương 1
+
+vẽ lại architecture diagram
 
 người dùng:
 

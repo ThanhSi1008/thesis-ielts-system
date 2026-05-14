@@ -187,35 +187,51 @@ Trong phần này, chúng em trình bày đặc tả chi tiết cho các use cas
         \textbf{Actor} & \textbf{Hệ thống} \\ \hline
         1a. Nhập Họ và tên, Email, Mật khẩu (tối thiểu 6 ký tự) và Xác nhận mật khẩu vào form, sau đó nhấn ``Create Account''. & \\ \hline
         & 2a. Kiểm tra tất cả các trường đã điền và mật khẩu xác nhận khớp nhau. \\ \hline
-        & 3a. Gửi \texttt{POST /auth/register}; máy chủ kiểm tra định dạng email và email chưa tồn tại trong cơ sở dữ liệu. \\ \hline
-        & 4a. Mã hóa mật khẩu bằng bcrypt (10 rounds), tạo tài khoản với vai trò STUDENT và khởi tạo Deck từ vựng mặc định. \\ \hline
+        & 3a. Kiểm tra định dạng email và xác nhận email chưa tồn tại trong cơ sở dữ liệu. \\ \hline
+        & 4a. Mã hóa mật khẩu, tạo tài khoản với vai trò người học và khởi tạo bộ thẻ từ vựng mặc định. \\ \hline
         & 5a. Đăng ký thành công và chuyển đến trang Home. Kết thúc use-case. \\ \hline
         1b. Nhấn ``Continue with Google'' và chọn tài khoản Google. & \\ \hline
-        & 2b. Xác thực Google ID Token qua \texttt{POST /auth/google}; tạo hoặc liên kết tài khoản từ thông tin Google (email, họ tên, ảnh đại diện), tạo tài khoản với vai trò STUDENT và khởi tạo Deck mặc định. \\ \hline
+        & 2b. Xác thực thông tin Google OAuth; tạo hoặc liên kết tài khoản từ thông tin Google (email, họ tên, ảnh đại diện), tạo tài khoản với vai trò người học và khởi tạo bộ thẻ mặc định. \\ \hline
         & 3b. Cấp JWT access token và chuyển đến trang Home. Kết thúc use-case. \\ \hline
         \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
         & 2a.1. Một hoặc nhiều trường bỏ trống hoặc mật khẩu không khớp: thông báo lỗi tương ứng, không gửi yêu cầu lên máy chủ. Quay lại bước 1a. \\ \hline
-        & 3a.1. Email đã tồn tại trong hệ thống: máy chủ trả về lỗi ``Email đã tồn tại''. Quay lại bước 1a. \\ \hline
-        & 1b.1. Người học hủy hoặc xác thực Google thất bại: thông báo lỗi, không tạo tài khoản. \\ \hline
+        & 3a.1. Email đã tồn tại trong hệ thống: máy chủ trả về thông báo ``Email đã tồn tại''. Quay lại bước 1a. \\ \hline
+        1b.1. Hủy đăng ký hoặc xác thực Google thất bại. & \\ \hline
+        & 1b.2. Hiển thị thông báo lỗi, không tạo tài khoản. \\ \hline
     \end{tabularx}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\linewidth]{activity-uc01.png}
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc01.png}
     \caption{Sơ đồ activity UC01 -- Đăng ký tài khoản}
     \label{fig:activity-uc01}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc01.png}
+    \caption{Sơ đồ tuần tự UC01 -- Đăng ký bằng email}
+    \label{fig:sequence-uc01}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc01-gg.png}
+    \caption{Sơ đồ tuần tự UC01 -- Đăng ký bằng Google OAuth}
+    \label{fig:sequence-uc01-gg}
 \end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
 Hệ thống cung cấp hai phương thức đăng ký độc lập: đăng ký bằng email/mật khẩu và đăng ký qua Google OAuth.
 
-Đối với luồng email, điểm cốt lõi là cơ chế bảo mật mật khẩu. Sau khi client gửi \texttt{POST /auth/register} với payload gồm \texttt{email}, \texttt{password}, \texttt{firstName} và \texttt{lastName}, NestJS \texttt{AuthService} gọi \texttt{bcrypt.hash(password, 10)} để băm mật khẩu với 10 vòng salt -- đây là mức cân bằng giữa độ bảo mật và hiệu năng xử lý. Tiếp theo, Prisma ORM tạo bản ghi trong bảng \texttt{users} của PostgreSQL với \texttt{role = STUDENT} và tự động khởi tạo một \texttt{Deck} mặc định phục vụ Vocab Lab. Nếu email đã tồn tại, Prisma ném lỗi \texttt{P2002} (unique constraint violation) và hệ thống trả về \texttt{400 Bad Request}. Endpoint đăng ký không phát hành JWT; người dùng phải đăng nhập riêng để nhận token.
+Đối với luồng email, điểm cốt lõi là cơ chế bảo mật mật khẩu. Sau khi người học gửi thông tin đăng ký, máy chủ kiểm tra tính hợp lệ của email và xác nhận email chưa tồn tại trong cơ sở dữ liệu. Nếu hợp lệ, mật khẩu được mã hóa bằng thuật toán băm một chiều với độ khó được hiệu chỉnh để cân bằng giữa bảo mật và hiệu năng xử lý. Tiếp theo, hệ thống tạo tài khoản mới với vai trò người học và tự động khởi tạo một bộ thẻ từ vựng mặc định phục vụ Vocab Lab. Nếu email đã tồn tại, hệ thống trả về thông báo lỗi tương ứng. Sau khi đăng ký thành công qua luồng email, người dùng cần đăng nhập riêng để nhận token truy cập.
 
 \begin{sloppypar}
-Đối với luồng Google OAuth, client sử dụng thư viện \texttt{expo-auth-session} để lấy Google ID Token từ phía Google, sau đó gửi token này qua \texttt{POST /auth/google}. \texttt{AuthService} xác thực token bằng \texttt{google-auth-library}, hỗ trợ đồng thời ba Client ID (Web, iOS, Android) để tương thích đa nền tảng. Sau khi xác thực thành công, hệ thống thực hiện chiến lược ``find or create'': tìm người dùng theo \texttt{googleId} hoặc \texttt{email}; nếu chưa tồn tại thì tạo tài khoản mới không có trường \texttt{password} và khởi tạo Default Deck. Khác với luồng email, endpoint này trả về JWT access token ngay lập tức, cho phép người dùng vào ứng dụng mà không cần thêm bước đăng nhập.
+Đối với luồng Google OAuth, người học xác thực thông qua tài khoản Google trên thiết bị. Máy chủ xác minh thông tin xác thực từ Google, hỗ trợ đồng thời nhiều loại ứng dụng (web, iOS, Android) để tương thích đa nền tảng. Sau khi xác thực thành công, hệ thống áp dụng chiến lược tìm kiếm hoặc tạo mới tài khoản dựa trên thông tin định danh Google: nếu tài khoản chưa tồn tại thì tạo tài khoản mới và khởi tạo bộ thẻ mặc định. Khác với luồng email, luồng Google trả về JWT access token ngay lập tức, cho phép người dùng vào ứng dụng mà không cần thêm bước đăng nhập.
 \end{sloppypar}
 
 \subsection{Đăng nhập (UC02)}
@@ -235,31 +251,47 @@ Hệ thống cung cấp hai phương thức đăng ký độc lập: đăng ký 
         \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
         \textbf{Actor} & \textbf{Hệ thống} \\ \hline
         1a. Nhập địa chỉ email và mật khẩu, sau đó nhấn ``Sign in''. & \\ \hline
-        & 2a. Truy vấn cơ sở dữ liệu bằng email, gọi \texttt{bcrypt.compare()} để so sánh mật khẩu nhập vào với hash đã lưu. \\ \hline
-        & 3a. Tạo JWT access token (hiệu lực 7 ngày) và chuyển hướng người học đến màn hình Dashboard. Kết thúc use-case. \\ \hline
+        & 2a. Truy vấn cơ sở dữ liệu bằng email và xác minh mật khẩu nhập vào khớp với thông tin đã lưu. \\ \hline
+        & 3a. Cấp JWT access token và chuyển hướng người học đến màn hình Dashboard. Kết thúc use-case. \\ \hline
         1b. Nhấn ``Đăng nhập với Google'' và chọn tài khoản Google. & \\ \hline
-        & 2b. Xác thực Google ID Token qua \texttt{POST /auth/google}; tìm hoặc tạo tài khoản tương ứng trong cơ sở dữ liệu theo chiến lược ``find or create''. \\ \hline
+        & 2b. Xác thực thông tin Google OAuth; tìm hoặc tạo tài khoản tương ứng trong cơ sở dữ liệu. \\ \hline
         & 3b. Cấp JWT access token và chuyển hướng người học đến màn hình Dashboard. Kết thúc use-case. \\ \hline
         \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
         & 2a.1. Email không tồn tại hoặc mật khẩu sai: hiển thị thông báo ``Email hoặc mật khẩu không đúng'' và dừng luồng. Quay lại bước 1a. \\ \hline
-        & 1b.1. Người học hủy hoặc xác thực Google thất bại: thông báo lỗi, không cấp JWT. \\ \hline
+        1b.1. Hủy đăng nhập hoặc xác thực Google thất bại. & \\ \hline
+        & 1b.2. Hiển thị thông báo lỗi, không cấp JWT. \\ \hline
     \end{tabularx}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\linewidth]{activity-uc02.png}
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc02.png}
     \caption{Sơ đồ activity UC02 -- Đăng nhập}
     \label{fig:activity-uc02}
 \end{figure}
 
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc02.png}
+    \caption{Sơ đồ tuần tự UC02 -- Đăng nhập bằng email}
+    \label{fig:sequence-uc02}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc02-gg.png}
+    \caption{Sơ đồ tuần tự UC02 -- Đăng nhập bằng Google OAuth}
+    \label{fig:sequence-uc02-gg}
+\end{figure}
+
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Điểm kỹ thuật cốt lõi trong UC02 là quá trình xác thực mật khẩu. Hàm \texttt{bcrypt.compare()} sử dụng constant-time comparison -- thời gian thực thi không phụ thuộc vào vị trí ký tự sai, giúp ngăn timing attack. NestJS Auth Service sử dụng \texttt{LocalStrategy} của Passport.js để xử lý luồng email/password: strategy gọi \texttt{validateUser()} để truy vấn DB và so sánh hash, kết quả user object được đính kèm vào \texttt{req.user} trước khi controller tạo JWT.
+Điểm kỹ thuật cốt lõi trong UC02 là quá trình xác thực mật khẩu. Hệ thống sử dụng cơ chế so sánh theo thời gian hằng định, tức là thời gian thực thi không phụ thuộc vào vị trí ký tự sai, giúp ngăn chặn các cuộc tấn công phân tích thời gian. Luồng xác thực email/mật khẩu được xử lý qua một chiến lược xác thực riêng: hệ thống truy vấn cơ sở dữ liệu theo email, so sánh mật khẩu với giá trị đã mã hóa và đính kèm thông tin người dùng vào yêu cầu trước khi cấp token.
 
 \begin{sloppypar}
-JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route yêu cầu xác thực đều sử dụng \texttt{JwtAuthGuard} để giải mã token và xác nhận tính hợp lệ. Ngoài email/password, hệ thống hỗ trợ đăng nhập Google OAuth qua endpoint \texttt{POST /auth/google}: client gửi Google ID Token, Auth Service xác thực token bằng \texttt{google-auth-library}, sau đó tạo hoặc tra cứu tài khoản tương ứng trong DB và cấp JWT theo cùng quy trình.
+JWT access token được ký bằng khóa bí mật và có hiệu lực 7 ngày. Mọi endpoint yêu cầu xác thực đều được bảo vệ bởi cơ chế kiểm tra JWT để giải mã token và xác nhận tính hợp lệ. Ngoài luồng email/mật khẩu, hệ thống hỗ trợ đăng nhập Google OAuth: người học gửi thông tin xác thực Google, máy chủ xác minh tính hợp lệ từ phía Google, sau đó tìm kiếm hoặc tạo tài khoản tương ứng trong cơ sở dữ liệu và cấp JWT theo cùng quy trình.
 \end{sloppypar}
 
 % ============================================================
@@ -284,14 +316,14 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
         1. Nhấn ``Add'', sau đó nhấn vào selector ``Type'' ở form thêm thẻ. & \\ \hline
         & 2. Hiển thị màn hình ``Choose Card Type'' với danh sách loại thẻ hiện có. \\ \hline
         3. Nhấn biểu tượng cài đặt. & \\ \hline
-        & 4. Hiển thị màn hình ``Manage Card Types'' cùng danh sách các loại thẻ (tải qua \texttt{GET /vocab-lab/card-types}). \\ \hline
+        & 4. Tải danh sách các loại thẻ của người học từ cơ sở dữ liệu và hiển thị màn hình ``Manage Card Types''. \\ \hline
         5. Nhấn nút dấu cộng (+). & \\ \hline
         & 6. Hiển thị form nhập tên inline với ô văn bản (placeholder: ``Card type name\ldots''). \\ \hline
         7. Nhập tên loại thẻ rồi nhấn nút "create". & \\ \hline
-        & 8. Gọi \texttt{POST /vocab-lab/card-types}; tạo loại thẻ mới và tự động mở màn hình ``Edit Card Type'' với ba tab: \textbf{Fields}, \textbf{Templates}, \textbf{Preview}. \\ \hline
+        & 8. Tạo loại thẻ mới trong cơ sở dữ liệu và tự động mở màn hình ``Edit Card Type'' với ba tab: \textbf{Fields}, \textbf{Templates}, \textbf{Preview}. \\ \hline
         9. Cấu hình loại thẻ qua ba tab: (a) tab \textit{Fields} --- thêm, sửa, xóa trường với tên, kiểu (\textit{Text} hoặc \textit{Media}) và mô tả; (b) tab \textit{Templates} --- chọn trường hiển thị mặt trước/mặt sau; định dạng từng trường (in đậm, nghiêng, gạch chân, cỡ chữ, căn lề, màu chữ); thiết lập kiểu thẻ tổng thể (màu nền, màu chữ); (c) tab \textit{Preview} --- xem trước thẻ trực tiếp. & \\ \hline
         10. Nhấn ``Save''. & \\ \hline
-        & 11. Lưu toàn bộ cấu hình (trường, mẫu hiển thị, kiểu dáng) qua \texttt{PATCH /vocab-lab/card-types/\{id\}/templates/\{tid\}}; đóng màn hình và quay về danh sách loại thẻ. \\ \hline
+        & 11. Lưu toàn bộ cấu hình (trường, mẫu hiển thị, kiểu dáng) vào cơ sở dữ liệu; đóng màn hình và quay về danh sách loại thẻ. \\ \hline
         \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
         & 7.1. Tên loại thẻ rỗng: hệ thống không cho phép xác nhận. Quay lại bước 7. \\ \hline
         10.1. Nhấn ``Cancel'' thay vì ``Save''. & \\ \hline
@@ -300,10 +332,30 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
 \end{table}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC03
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc03.png}
+    \caption{Sơ đồ activity UC03 -- Tạo loại thẻ học}
+    \label{fig:activity-uc03}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc03.png}
+    \caption{Sơ đồ tuần tự UC03 -- Tạo loại thẻ học}
+    \label{fig:sequence-uc03}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
-% TODO: Bổ sung mô tả kỹ thuật chi tiết UC03
+
+Chức năng tạo loại thẻ học (Card Type) là nền tảng của toàn bộ hệ thống Vocab Lab, cho phép người học tùy chỉnh cấu trúc flashcard theo nhu cầu học tập cá nhân. Luồng tạo loại thẻ được thiết kế theo hai giai đoạn tách biệt: khởi tạo tên và cấu hình chi tiết.
+
+Ở giai đoạn khởi tạo, người học nhập tên loại thẻ qua form inline. Hệ thống kiểm tra tên không được rỗng trước khi cho phép xác nhận, sau đó tạo bản ghi loại thẻ mới trong cơ sở dữ liệu và lập tức chuyển sang giao diện chỉnh sửa chi tiết. Thiết kế này đảm bảo loại thẻ tồn tại trong cơ sở dữ liệu ngay từ đầu, giúp tránh mất dữ liệu nếu người học rời khỏi màn hình giữa chừng.
+
+Giao diện chỉnh sửa chi tiết được tổ chức thành ba tab có chức năng độc lập nhưng liên kết chặt chẽ. Tab \textit{Fields} cho phép định nghĩa cấu trúc dữ liệu của thẻ: mỗi trường có tên, kiểu dữ liệu (văn bản hoặc tệp phương tiện) và mô tả ngắn. Tab \textit{Templates} ánh xạ các trường vừa định nghĩa lên bố cục hiển thị: người học chọn trường nào xuất hiện ở mặt trước, trường nào ở mặt sau, đồng thời cấu hình định dạng trình bày (font, màu sắc, căn lề) cho từng trường. Tab \textit{Preview} kết xuất thẻ theo đúng cấu hình hiện tại, cho phép người học xem trước kết quả mà không cần lưu.
+
+Khi người học nhấn ``Save'', toàn bộ cấu hình --- bao gồm danh sách trường, mẫu hiển thị hai mặt và thiết lập kiểu dáng tổng thể --- được cập nhật vào cơ sở dữ liệu trong một thao tác duy nhất. Thiết kế lưu toàn bộ một lần thay vì lưu từng phần giúp đảm bảo tính nhất quán: loại thẻ không bao giờ ở trạng thái nửa chừng với cấu hình mâu thuẫn giữa các tab.
 
 % ============================================================
 % UC04 – LOOK UP AND ADD WORDS WITH AI
@@ -332,35 +384,57 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
     \hline
     \endlastfoot
     1. Bôi đen từ hoặc cụm từ muốn tra cứu trong nội dung bài học. & \\ \hline
-    & 2. \texttt{FloatingSelectionManager} phát hiện sự kiện \texttt{mouseup}, trích xuất từ được chọn cùng câu ngữ cảnh xung quanh (~80 ký tự), sau đó hiển thị menu ngữ cảnh nổi phía trên vùng chọn với hai tùy chọn: ``Add to Vocab'' và ``Ask AI''. \\ \hline
+    & 2. Hệ thống phát hiện vùng văn bản được chọn, trích xuất từ cùng câu ngữ cảnh xung quanh, sau đó hiển thị menu ngữ cảnh nổi phía trên vùng chọn với hai tùy chọn: ``Add to Vocab'' và ``Ask AI''. \\ \hline
     3. Nhấn ``Ask AI''. & \\ \hline
-    & 4. Ứng dụng phát sự kiện \texttt{open-ai-chat-fab} kèm từ và câu ngữ cảnh; mở cửa sổ Lexon AI và gọi \texttt{GET /vocab-lab/card-types} để tải danh sách loại thẻ của người học. \\ \hline
+    & 4. Mở cửa sổ Lexon AI kèm từ và câu ngữ cảnh; tải danh sách loại thẻ của người học từ cơ sở dữ liệu. \\ \hline
     & 5. Lexon AI hiển thị tin nhắn giới thiệu từ đã chọn kèm câu hỏi ``Please choose a format below to explain it:'' và các nút gợi ý ``Explain as [tên-loại-thẻ]'' tương ứng với từng loại thẻ. \\ \hline
     6. Nhấn nút ``Explain as [tên-loại-thẻ]''. & \\ \hline
-    & 7. Ứng dụng gửi \texttt{POST /chat} với prompt có cấu trúc: tên loại thẻ, từ cần giải thích, câu ngữ cảnh và mô tả từng trường (\textit{field}) của loại thẻ; NestJS \texttt{ChatController} chuyển tiếp sang \texttt{backend-ai}; Gemini API phân tích và trả về giải thích chi tiết theo đúng từng trường. Hệ thống lưu ID loại thẻ vừa chọn vào \texttt{localStorage} làm \textit{preferred type} cho lần sau. \\ \hline
+    & 7. Hệ thống gửi yêu cầu đến AI với thông tin: tên loại thẻ, từ cần giải thích, câu ngữ cảnh và mô tả từng trường của loại thẻ; AI phân tích và trả về giải thích chi tiết theo đúng từng trường. Hệ thống ghi nhớ loại thẻ vừa chọn làm lựa chọn ưu tiên cho lần sau. \\ \hline
     & 8. Lexon AI hiển thị nội dung giải thích kèm hai nhóm nút gợi ý: ``Add to Vocab Lab'' và ``Explain as [tên-loại-thẻ-khác]'' cho các loại thẻ còn lại. \\ \hline
     9. Nhấn ``Add to Vocab Lab''. & \\ \hline
-    & 10. Ứng dụng gửi \texttt{POST /chat} lần hai với prompt yêu cầu AI sinh dữ liệu JSON thuần (không kèm markdown), trong đó key là tên field và value là nội dung tương ứng; Lexon AI hiển thị thông báo ``Generating card data...''. \\ \hline
-    & 11. Sau khi nhận và phân tích JSON từ AI, hệ thống phát sự kiện \texttt{open-vocab-fab} để mở form Quick Add Card, tiếp theo phát \texttt{vocab-lab-prefill} với payload gồm từ, loại thẻ và giá trị từng trường; form tự động điền sẵn nội dung theo đúng cấu trúc loại thẻ đã chọn. \\ \hline
+    & 10. Hệ thống gửi yêu cầu thứ hai đến AI để sinh dữ liệu thẻ theo cấu trúc JSON với các trường tương ứng với loại thẻ đã chọn; Lexon AI hiển thị thông báo ``Generating card data...''. \\ \hline
+    & 11. Sau khi nhận dữ liệu từ AI, hệ thống mở form thêm thẻ nhanh và tự động điền sẵn nội dung theo đúng cấu trúc loại thẻ đã chọn. \\ \hline
     12. Xem lại, chỉnh sửa nội dung nếu cần, chọn deck đích và nhấn ``Add Card''. & \\ \hline
-    & 13. Gọi \texttt{POST /vocab-lab/cards} với payload gồm \texttt{deckId}, \texttt{cardTypeId}, \texttt{fieldValues} và \texttt{tags}; lưu flashcard vào cơ sở dữ liệu; hiển thị thông báo ``Card added successfully!'' và làm mới form. Kết thúc use-case. \\ \hline
+    & 13. Lưu flashcard vào cơ sở dữ liệu gắn với deck đã chọn; hiển thị thông báo ``Card added successfully!'' và làm mới form. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 4.1. \texttt{GET /vocab-lab/card-types} trả về danh sách rỗng: Lexon AI hiển thị tin nhắn chung về từ đã chọn để người học tự đặt câu hỏi tự do; không hiển thị nút gợi ý, thẻ không được tạo. Kết thúc use-case. \\ \hline
-    & 5.1. Hệ thống tìm thấy \textit{preferred type} đã lưu trong \texttt{localStorage} từ lần tra cứu trước: bỏ qua bước 5 và 6, tự động thêm tin nhắn người dùng và gọi AI giải thích ngay theo loại thẻ ưa thích đó. Tiếp tục từ bước 7. \\ \hline
+    & 4.1. Người học chưa tạo loại thẻ nào: Lexon AI hiển thị tin nhắn chung về từ đã chọn để người học tự đặt câu hỏi tự do; không hiển thị nút gợi ý, thẻ không được tạo. Kết thúc use-case. \\ \hline
+    & 5.1. Hệ thống phát hiện loại thẻ ưu tiên đã được ghi nhớ từ lần tra cứu trước: bỏ qua bước 5 và 6, tự động gọi AI giải thích ngay theo loại thẻ ưa thích đó. Tiếp tục từ bước 7. \\ \hline
     & 7.1. Lỗi kết nối hoặc phản hồi AI không hợp lệ ở bước giải thích: Lexon AI hiển thị thông báo ``Sorry, I failed to generate the explanation. Please try again.'' Quay lại bước 6. \\ \hline
     9.1. Nhấn ``Explain as [tên-loại-thẻ-khác]'' thay vì ``Add to Vocab Lab''. & \\ \hline
     & 9.2. Hệ thống gọi lại bước 7 với loại thẻ mới; Lexon AI giải thích theo cấu trúc loại thẻ vừa chọn và hiển thị lại bộ nút gợi ý tương ứng. \\ \hline
-    & 10.1. AI trả về chuỗi không parse được thành JSON hợp lệ hoặc lỗi kết nối ở bước sinh dữ liệu: Lexon AI hiển thị thông báo ``Sorry, I failed to generate the card fields. Please try again.'' Quay lại bước 9. \\ \hline
-    12.1. Nhấn ``X'' để đóng form Quick Add Card. & \\ \hline
+    & 10.1. AI trả về dữ liệu không hợp lệ hoặc lỗi kết nối ở bước sinh dữ liệu thẻ: Lexon AI hiển thị thông báo ``Sorry, I failed to generate the card fields. Please try again.'' Quay lại bước 9. \\ \hline
+    12.1. Nhấn ``X'' để đóng form thêm thẻ nhanh. & \\ \hline
     & 12.2.1. Form đóng lại; flashcard không được lưu. Kết thúc use-case. \\ \hline
     & 12.2.2. Chưa chọn deck hoặc chưa có deck nào: hệ thống hiển thị thông báo ``Please select or create a deck first.''; người học cần tạo hoặc chọn deck rồi thực hiện lại. Quay lại bước 12. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC04
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc04.png}
+    \caption{Sơ đồ activity UC04 -- Tra cứu và thêm từ vựng bằng AI}
+    \label{fig:activity-uc04}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc04.png}
+    \caption{Sơ đồ tuần tự UC04 -- Tra cứu và thêm từ vựng bằng AI}
+    \label{fig:sequence-uc04}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
-% TODO: Bổ sung mô tả kỹ thuật chi tiết UC04
+
+Tính năng tra cứu và thêm từ vựng bằng AI (Lexon AI) được thiết kế theo mô hình ba giai đoạn: phát hiện vùng chọn, sinh giải thích và điền sẵn thẻ.
+
+Ở giai đoạn phát hiện vùng chọn, hệ thống lắng nghe sự kiện chọn văn bản trên toàn bộ trang nội dung bài học. Khi phát hiện vùng chọn không rỗng, hệ thống trích xuất từ được chọn cùng câu ngữ cảnh xung quanh (khoảng 80 ký tự) và hiển thị menu ngữ cảnh nổi ngay phía trên vùng chọn. Hai tùy chọn được cung cấp: ``Add to Vocab'' (thêm trực tiếp) và ``Ask AI'' (tra cứu bằng AI).
+
+\begin{sloppypar}
+Khi người học chọn ``Ask AI'', hệ thống mở cửa sổ trợ lý Lexon AI và đồng thời tải danh sách loại thẻ của người học từ cơ sở dữ liệu. Nếu người học đã dùng một loại thẻ cụ thể trong lần tra cứu trước, hệ thống ghi nhớ lựa chọn đó và tự động áp dụng cho lần này mà không cần hỏi lại. Khi người học xác nhận loại thẻ muốn dùng, hệ thống xây dựng yêu cầu gửi đến AI với đầy đủ ngữ cảnh: từ cần giải thích, câu ngữ cảnh xung quanh và mô tả cấu trúc từng trường của loại thẻ được chọn. Thiết kế prompt engineering chi tiết này giúp AI trả về giải thích đúng định dạng cấu trúc loại thẻ, thay vì phản hồi tự do khó xử lý.
+\end{sloppypar}
+
+Ở giai đoạn điền sẵn thẻ, sau khi người học xác nhận muốn thêm vào Vocab Lab, hệ thống gửi yêu cầu thứ hai đến AI để sinh dữ liệu theo định dạng có cấu trúc (JSON). Dữ liệu nhận được được dùng để điền sẵn vào form thêm thẻ nhanh, giúp người học xem lại và chỉnh sửa trước khi lưu chính thức. Thiết kế tách biệt bước giải thích và bước sinh dữ liệu thẻ cho phép người học đọc hiểu nội dung trước khi quyết định lưu, đồng thời xử lý độc lập lỗi ở từng bước mà không ảnh hưởng đến nhau.
 
 % ============================================================
 % UC05 – STUDY IELTS FOUNDATION VOCABULARY
@@ -375,7 +449,7 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC05} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở trang \texttt{ielts/vocabulary}.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Unit được đánh dấu hoàn thành (\texttt{isCompleted = true}, \texttt{completedAt} được ghi nhận); người học nhận 15~XP từ hệ thống gamification; các từ đã được đánh giá SRS được lưu vào Vocab Lab của người học.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Unit được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 15~XP từ hệ thống gamification; các từ đã được đánh giá SRS được lưu vào Vocab Lab của người học.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -389,40 +463,53 @@ JWT access token được ký bằng secret key và có TTL 7 ngày. Mọi route
     \hline
     \endlastfoot
     1. Chọn một trong sáu đầu sách từ vựng trong danh sách, nhấn ``Start Learning''. & \\ \hline
-    & 2. Gọi \texttt{GET /foundationVocabWord/books/:id} và \texttt{GET /foundationVocabWord/progress/:bookId}; hiển thị màn hình danh sách unit, mỗi unit kèm thanh tiến độ \texttt{wordsLearned / totalWords} và trạng thái đọc hiểu. \\ \hline
+    & 2. Tải thông tin sách và tiến độ học của người học từ cơ sở dữ liệu; hiển thị màn hình danh sách unit, mỗi unit kèm thanh tiến độ số từ đã học trên tổng số từ và trạng thái đọc hiểu. \\ \hline
     3. Chọn một unit bất kỳ trong danh sách. & \\ \hline
-    & 4. Gọi \texttt{GET /foundationVocabWord/units/:id} (dữ liệu được cache Redis 1~giờ); hiển thị tab Lesson với Flashcard đầu tiên --- mặt trước gồm từ vựng, phiên âm IPA và hình ảnh minh họa. \\ \hline
+    & 4. Tải dữ liệu unit (được cache để tối ưu hiệu năng); hiển thị tab Lesson với Flashcard đầu tiên --- mặt trước gồm từ vựng, phiên âm IPA và hình ảnh minh họa. \\ \hline
     5. Nhấn vào thẻ Flashcard. & \\ \hline
     & 6. Thực hiện hoạt ảnh lật 3D; mặt sau thẻ hiển thị nghĩa của từ, câu ví dụ minh họa, bốn nút đánh giá SRS (``Again'', ``Hard'', ``Good'', ``Easy'') và nút ``Already know --- skip''. \\ \hline
-    7a. Chọn một trong bốn mức đánh giá SRS: ``Again'' (1), ``Hard'' (2), ``Good'' (3) hoặc ``Easy'' (4). & \\ \hline
-    & 8a. Thêm từ vào Vocab Lab qua \texttt{vocabLabApi.createFlashcardFromVocab-ularyWithReview(\{bookName, word, rating\})}; tạo Flashcard trong Deck mặc định với trạng thái SRS khởi tạo tương ứng với mức rating. Hiển thị thông báo ``Added to Vocab Lab''; số thẻ trong Vocab Lab tăng thêm 1. \\ \hline
-    & 9a. Gửi \texttt{POST /foundationVocabWord/progress/words} với \texttt{\{unitId,\newline wordsLearned\}} để cập nhật tiến độ; chuyển sang Flashcard tiếp theo. \\ \hline
+    7a. Chọn một trong bốn mức đánh giá SRS: ``Again'' (chưa nhớ), ``Hard'' (nhớ khó), ``Good'' (nhớ đúng) hoặc ``Easy'' (nhớ rất tốt). & \\ \hline
+    & 8a. Tạo Flashcard trong bộ thẻ mặc định của Vocab Lab với trạng thái SRS tương ứng với mức đánh giá; hiển thị thông báo ``Added to Vocab Lab''; cập nhật tiến độ học. Chuyển sang Flashcard tiếp theo. \\ \hline
     7b. Nhấn ``Already know --- skip''. & \\ \hline
-    & 8b. Chuyển sang Flashcard tiếp theo mà không thêm từ vào Vocab Lab; gọi \texttt{POST /foundationVocabWord/progress/words} cập nhật \texttt{wordsLearned}. \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{Lặp lại bước 5--9 cho đến khi tất cả các từ trong unit được xem qua (\texttt{wordsLearned} $\geq$ \texttt{totalWords}).} \\ \hline
-    & 10. Tự động mở khóa tab ``Reading Comprehension''; hiển thị đoạn văn đọc hiểu với các từ đã học được in đậm kèm tooltip, và bộ câu hỏi kiểm tra bên phải (dạng \texttt{fill\_blank} hoặc \texttt{multiple\_choice}). \\ \hline
+    & 8b. Chuyển sang Flashcard tiếp theo mà không thêm từ vào Vocab Lab; cập nhật tiến độ học. \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{Lặp lại bước 5--8 cho đến khi tất cả các từ trong unit được xem qua.} \\ \hline
+    & 10. Tự động mở khóa tab ``Reading Comprehension''; hiển thị đoạn văn đọc hiểu với các từ đã học được in đậm kèm tooltip, và bộ câu hỏi kiểm tra bên phải (dạng điền từ hoặc trắc nghiệm). \\ \hline
     11. Đọc đoạn văn, điền câu trả lời cho từng câu hỏi, nhấn ``Submit Answers''. & \\ \hline
-    & 12. Gọi \texttt{POST /foundationVocabWord/progress/questions} với \texttt{\{unitId, answers: [\{questionId, answer\}]\}}; đối chiếu từng đáp án và trả về \texttt{\{score, correctCount, totalQuestions, results[]\}}. \\ \hline
-    & 13a. Nếu \texttt{correctCount < totalQuestions}: hiển thị kết quả, tô màu đỏ câu sai và màu xanh câu đúng; hiển thị nút ``Try Again''. Quay lại bước 11. \\ \hline
-    & 13b. Nếu \texttt{correctCount = totalQuestions}: cập nhật \texttt{isCompleted = true} và \texttt{completedAt}; kích hoạt sự kiện gamification 15~XP; hiển thị thông báo hoàn thành và nút ``Continue Learning'' để quay về danh sách unit. Kết thúc use-case. \\ \hline
+    & 12. Đối chiếu từng đáp án với đáp án chuẩn và trả về kết quả gồm số câu đúng, tổng số câu và trạng thái từng câu. \\ \hline
+    & 13a. Nếu chưa đạt điểm tuyệt đối: hiển thị kết quả, tô màu đỏ câu sai và màu xanh câu đúng; hiển thị nút ``Try Again''. Quay lại bước 11. \\ \hline
+    & 13b. Nếu toàn bộ câu trả lời đúng: đánh dấu unit hoàn thành và lưu vào cơ sở dữ liệu; kích hoạt sự kiện gamification 15~XP; hiển thị thông báo hoàn thành và nút ``Continue Learning'' để quay về danh sách unit. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 7a.1. Người học chọn ``Again'' (rating~=~1): từ được chèn lại vào cuối hàng đợi phía client, \texttt{totalWords} tăng thêm 1; Flashcard sẽ xuất hiện lại trong phiên học hiện tại. Quay lại bước 5. \\ \hline
-    & 10.1. Unit đã có \texttt{isCompleted = true} từ phiên trước: tab ``Reading Comprehension'' được mở sẵn ngay khi vào unit; người học xem lại đoạn văn và kết quả mà không cần làm lại bài. \\ \hline
-    & 12.1. Kết nối mạng gián đoạn khi gọi \texttt{POST /foundationVocabWord/\newline progress/questions}: hiển thị thông báo lỗi, giữ nguyên câu trả lời để người học thử lại. Quay lại bước 11. \\ \hline
+    7a.1. Chọn mức đánh giá ``Again'' (chưa nhớ từ). & \\ \hline
+    & 7a.2. Chèn từ trở lại cuối hàng đợi, tổng số từ cần xem tăng thêm 1; Flashcard sẽ xuất hiện lại trong phiên học hiện tại. Quay lại bước 5. \\ \hline
+    & 10.1. Unit đã được hoàn thành từ phiên trước: tab ``Reading Comprehension'' được mở sẵn ngay khi vào unit; người học xem lại đoạn văn và kết quả mà không cần làm lại bài. \\ \hline
+    & 12.1. Kết nối mạng gián đoạn khi nộp đáp án: hiển thị thông báo lỗi, giữ nguyên câu trả lời để người học thử lại. Quay lại bước 11. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC05
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc05.png}
+    \caption{Sơ đồ activity UC05 -- Học từ vựng nền tảng IELTS}
+    \label{fig:activity-uc05}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc05.png}
+    \caption{Sơ đồ tuần tự UC05 -- Học từ vựng nền tảng IELTS}
+    \label{fig:sequence-uc05}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Hệ thống Foundation Vocabulary được thiết kế theo mô hình phân tầng dữ liệu: nội dung tĩnh (danh mục sách, unit, từ vựng và câu hỏi) được lấy qua \texttt{GET /foundationVocabWord/units/:id} và cache Redis với TTL~1~giờ, trong khi tiến độ cá nhân được ghi vào bảng \texttt{FoundationVocabProgress} qua thao tác \texttt{upsert} của Prisma, với ràng buộc \texttt{UNIQUE (userId, unitId)} đảm bảo mỗi cặp người học -- unit chỉ có một bản ghi duy nhất.
+Hệ thống Foundation Vocabulary được thiết kế theo mô hình phân tầng dữ liệu: nội dung tĩnh (danh mục sách, unit, từ vựng và câu hỏi) được cache phía máy chủ để giảm tải truy vấn lặp lại, trong khi tiến độ cá nhân được ghi nhận vào cơ sở dữ liệu với ràng buộc duy nhất theo cặp người học -- unit, đảm bảo mỗi cặp chỉ có một bản ghi.
 
-Khi người học đánh giá một từ bằng SRS, hệ thống thực hiện hai thao tác đồng thời ở phía client: (1)~gọi \texttt{vocabLabApi.createFlashcardFromVocabularyWithReview()} để tạo Flashcard trong Deck mặc định của Vocab Lab kèm trạng thái SRS tương ứng với rating được chọn; (2)~gọi \texttt{POST /foundationVocabWord/progress/words} để cập nhật \texttt{wordsLearned}. Khi người học chọn ``Already know --- skip'', thao tác~(1) bị bỏ qua --- từ không được thêm vào Vocab Lab nhưng vẫn được tính vào tiến độ học.
+Khi người học đánh giá một từ bằng SRS, hệ thống thực hiện hai thao tác đồng thời: tạo Flashcard trong bộ thẻ mặc định của Vocab Lab với trạng thái SRS tương ứng với mức đánh giá được chọn, và cập nhật tiến độ học. Khi người học chọn ``Already know --- skip'', từ không được thêm vào Vocab Lab nhưng vẫn được tính vào tiến độ học.
 
-Điểm kỹ thuật đặc biệt với lựa chọn ``Again'' (rating~=~1): từ bị chèn lại vào cuối mảng \texttt{words} phía client và biến \texttt{totalWords} tăng thêm~1 mà không cần round-trip lên máy chủ, đảm bảo từ xuất hiện lại trong phiên học hiện tại. Điều kiện mở khóa tab đọc hiểu được kiểm tra hoàn toàn phía client: khi \texttt{wordsLearned} $\geq$ \texttt{totalWords}, tab ``Reading Comprehension'' tự động chuyển sang trạng thái active.
+Điểm kỹ thuật đặc biệt với lựa chọn ``Again'': từ được chèn lại vào cuối hàng đợi phía client mà không cần truy vấn lên máy chủ, đảm bảo từ xuất hiện lại trong phiên học hiện tại. Điều kiện mở khóa tab đọc hiểu được kiểm tra hoàn toàn phía client: khi số từ đã xem đạt đến tổng số từ của unit, tab ``Reading Comprehension'' tự động chuyển sang trạng thái hoạt động.
 
-Trong phần đọc hiểu, endpoint \texttt{POST /foundationVocabWord/progress/questions} nhận mảng \texttt{answers} và thực hiện so sánh không phân biệt hoa thường (\texttt{.trim().toLowerCase()}) cho dạng \texttt{fill\_blank}; dạng \texttt{multiple\_choice} so sánh chính xác giá trị lựa chọn. Hệ thống yêu cầu \texttt{correctCount = totalQuestions} (đúng 100\%) để đánh dấu unit hoàn thành. Sau khi đạt điều kiện, \texttt{VocabularyService} cập nhật \texttt{isCompleted = true} và \texttt{completedAt}, đồng thời gọi \texttt{gamificationService.onEvent()} để trao 15~XP và kiểm tra điều kiện mở khóa các thành tích \texttt{FV\_FIRST\_WORDS} và \texttt{FV\_BOOKWORM}.
+Trong phần đọc hiểu, hệ thống áp dụng so sánh không phân biệt hoa thường cho dạng điền từ và so sánh chính xác giá trị cho dạng trắc nghiệm. Hệ thống yêu cầu người học trả lời đúng toàn bộ câu hỏi (100\%) để đánh dấu unit hoàn thành. Sau khi đạt điều kiện, hệ thống cập nhật trạng thái hoàn thành vào cơ sở dữ liệu, trao 15~XP và kiểm tra điều kiện mở khóa các thành tích học tập tương ứng.
 
 % ============================================================
 % UC06 – STUDY IELTS BASIC LISTENING LESSONS
@@ -437,7 +524,7 @@ Trong phần đọc hiểu, endpoint \texttt{POST /foundationVocabWord/progress/
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC06} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài học lý thuyết hoặc bài tập luyện nghe được đánh dấu hoàn thành (\texttt{isCompleted = true}, \texttt{completedAt} được ghi nhận); người học nhận 10~XP khi hoàn thành bài học hoặc 15~XP khi hoàn thành bài tập với điểm tuyệt đối; kết quả được lưu vào bảng \texttt{IeltsBasicProgress}.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài học lý thuyết hoặc bài tập luyện nghe được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 10~XP khi hoàn thành bài học hoặc 15~XP khi hoàn thành bài tập với điểm tuyệt đối; chuỗi học liên tiếp được cập nhật.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -451,52 +538,70 @@ Trong phần đọc hiểu, endpoint \texttt{POST /foundationVocabWord/progress/
     \hline
     \endlastfoot
     1. Nhấn vào mục ``IELTS Basic'' trên thanh điều hướng bên trái (sidebar) của phân hệ IELTS. & \\ \hline
-    & 2. Gọi \texttt{GET /ielts/library/stats}; hiển thị trang thư viện kỹ năng gồm 4 thẻ: \textit{Listening}, \textit{Reading}, \textit{Writing}, \textit{Speaking}. Mỗi thẻ kỹ năng hiển thị hai phần: \textbf{Lessons} (bài học lý thuyết) và \textbf{Exercises} (bài tập luyện tập) kèm tiến độ hoàn thành tương ứng. \\ \hline
+    & 2. Tải thống kê tiến độ kỹ năng; hiển thị trang thư viện kỹ năng gồm 4 thẻ: \textit{Listening}, \textit{Reading}, \textit{Writing}, \textit{Speaking}. Mỗi thẻ kỹ năng hiển thị hai phần: \textbf{Lessons} (bài học lý thuyết) và \textbf{Exercises} (bài tập luyện tập) kèm tiến độ hoàn thành tương ứng. \\ \hline
     3a. Nhấn vào phần ``Lessons'' của thẻ kỹ năng Listening. & \\ \hline
-    & 4a. Gọi \texttt{GET /ielts/skills/Listening/lessons}; hiển thị danh sách các bài học lý thuyết theo thứ tự chương, mỗi bài kèm tiêu đề và trạng thái hoàn thành. \\ \hline
+    & 4a. Tải danh sách bài học lý thuyết của kỹ năng Listening; hiển thị theo thứ tự chương, mỗi bài kèm tiêu đề và trạng thái hoàn thành. \\ \hline
     5a. Chọn một bài học từ danh sách. & \\ \hline
-    & 6a. Gọi \texttt{GET /ielts/lessons/\{lessonId\}}; hiển thị trang bài học với các khối nội dung lý thuyết (strategy, tips, traps, overview, section) được render từ Markdown và thanh mục lục điều hướng bên cạnh. Cuối trang là quiz trắc nghiệm tối đa 4 câu. \\ \hline
+    & 6a. Tải nội dung bài học; hiển thị trang bài học với các khối nội dung lý thuyết (strategy, tips, traps, overview, section) được render từ Markdown và thanh mục lục điều hướng bên cạnh. Cuối trang là quiz trắc nghiệm tối đa 4 câu. \\ \hline
     7a. Đọc nội dung lý thuyết, trả lời các câu hỏi quiz và nhấn ``Submit''. & \\ \hline
-    & 8a. Chấm điểm quiz phía client; gọi \texttt{POST /ielts/progress/mark-completed} với \texttt{\{lessonId\}}; tạo hoặc cập nhật bản ghi \texttt{IeltsBasicProgress} qua thao tác \texttt{upsert} của Prisma, đánh dấu \texttt{isCompleted = true}; kích hoạt sự kiện gamification (10~XP, achievement key \texttt{IB\_LESSON\_5}); gọi \texttt{StreakService.recordActivity()} và cập nhật thanh tiến độ. Kết thúc nhánh A. \\ \hline
+    & 8a. Chấm điểm quiz phía client; ghi nhận bài học hoàn thành vào cơ sở dữ liệu; kích hoạt sự kiện gamification (10~XP) và cập nhật chuỗi học liên tiếp; cập nhật thanh tiến độ. Kết thúc nhánh A. \\ \hline
     3b. Nhấn vào phần ``Exercises'' của thẻ kỹ năng Listening. & \\ \hline
-    & 4b. Gọi \texttt{GET /ielts/skills/Listening/exercises}; hiển thị danh sách các bài tập luyện nghe kèm tiêu đề, loại dạng bài và trạng thái hoàn thành. \\ \hline
+    & 4b. Tải danh sách bài tập luyện nghe; hiển thị kèm tiêu đề, loại dạng bài và trạng thái hoàn thành. \\ \hline
     5b. Chọn một bài tập từ danh sách. & \\ \hline
-    & 6b. Gọi \texttt{GET /ielts/listening-exercises/\{exerciseId\}}; hiển thị giao diện bài tập gồm: trình phát âm thanh tùy chỉnh (hỗ trợ seek theo thời gian), khu vực câu hỏi được render theo dạng bài và thanh theo dõi tiến độ câu hỏi ở phía dưới màn hình. \\ \hline
+    & 6b. Tải dữ liệu bài tập; hiển thị giao diện bài tập gồm: trình phát âm thanh tùy chỉnh (hỗ trợ seek theo thời gian), khu vực câu hỏi được render theo dạng bài và thanh theo dõi tiến độ câu hỏi ở phía dưới màn hình. \\ \hline
     7b. Nghe audio, điền câu trả lời vào từng câu hỏi theo dạng bài tương ứng. & \\ \hline
-    & 8b. Cập nhật trạng thái đã điền của từng câu hỏi trên thanh theo dõi theo thời gian thực (xử lý hoàn toàn phía client). \\ \hline
+    & 8b. Cập nhật trạng thái đã điền của từng câu hỏi trên thanh theo dõi theo thời gian thực, xử lý hoàn toàn phía client. \\ \hline
     9b. Nhấn ``Submit Answers'' sau khi hoàn thành tất cả câu hỏi. & \\ \hline
-    & 10b. Tính điểm qua \texttt{SharedScoreUtils.calculateScore()}: so sánh không phân biệt hoa thường cho dạng điền từ, so sánh chính xác giá trị cho trắc nghiệm, hỗ trợ mảng \texttt{acceptable\_answers} cho Short Answer. Hiển thị kết quả số câu đúng trên tổng số câu. \\ \hline
-    & 11b. Nếu tất cả câu trả lời đúng (điểm tuyệt đối): gọi \texttt{POST /ielts/progress/mark-completed} với \texttt{\{listeningExerciseId\}}; đánh dấu \texttt{isCompleted = true}; kích hoạt sự kiện gamification (15~XP, achievement key \texttt{IB\_LISTENING\_3}); gọi \texttt{StreakService.recordActivity()}; mở khóa bảng Transcript bên phải với nội dung đồng bộ theo câu hỏi; hiển thị nút ``Next Step''. Kết thúc use-case. \\ \hline
+    & 10b. Tính điểm: so sánh không phân biệt hoa thường cho dạng điền từ, so sánh chính xác giá trị cho trắc nghiệm, hỗ trợ nhiều đáp án chấp nhận được cho Short Answer. Hiển thị kết quả số câu đúng trên tổng số câu. \\ \hline
+    & 11b. Nếu tất cả câu trả lời đúng (điểm tuyệt đối): ghi nhận bài tập hoàn thành vào cơ sở dữ liệu; kích hoạt sự kiện gamification (15~XP) và cập nhật chuỗi học liên tiếp; mở khóa bảng Transcript bên phải với nội dung đồng bộ theo câu hỏi; hiển thị nút ``Next Step''. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 10b.1. Điểm số chưa đạt tuyệt đối: hiển thị số câu đúng và nút ``Retry''; không gọi API đánh dấu hoàn thành; bảng Transcript không được mở khóa. Quay lại bước 7b. \\ \hline
-    & 8a.1. Bài học đã có \texttt{isCompleted = true} từ lần học trước: giao diện hiển thị trạng thái đã hoàn thành; người học xem lại lý thuyết mà không cần làm lại quiz. \\ \hline
-    & 6b.1. Câu hỏi trong bài tập có trường \texttt{timestamp\_seconds}: nút ``Listen from here'' xuất hiện cạnh câu hỏi tương ứng; nhấn nút này sẽ seek trình phát đến đúng mốc thời gian trong audio mà không phát lại từ đầu. \\ \hline
+    & 10b.1. Điểm số chưa đạt tuyệt đối: hiển thị số câu đúng và nút ``Retry''; không ghi nhận hoàn thành; bảng Transcript không được mở khóa. Quay lại bước 7b. \\ \hline
+    & 8a.1. Bài học đã được hoàn thành từ lần học trước: giao diện hiển thị trạng thái đã hoàn thành; người học xem lại lý thuyết mà không cần làm lại quiz. \\ \hline
+    & 6b.1. Câu hỏi trong bài tập được gắn mốc thời gian audio: nút ``Listen from here'' xuất hiện cạnh câu hỏi tương ứng; nhấn nút này sẽ seek trình phát đến đúng mốc thời gian trong audio mà không phát lại từ đầu. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC06
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc06.png}
+    \caption{Sơ đồ activity UC06 -- Học bài Listening IELTS cơ bản}
+    \label{fig:activity-uc06}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc06-lessons.png}
+    \caption{Sơ đồ tuần tự UC06 -- Học bài lý thuyết}
+    \label{fig:sequence-uc06-lessons}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc06-exercises.png}
+    \caption{Sơ đồ tuần tự UC06 -- Luyện bài tập nghe}
+    \label{fig:sequence-uc06-exercises}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
 \begin{sloppypar}
-Phân hệ IELTS Basic Listening tổ chức nội dung theo hai tầng tách biệt: bài học lý thuyết (\texttt{IeltsBasicLesson}) và bài tập luyện nghe (\texttt{IeltsBasicListeningExercise}), cả hai đều liên kết với kỹ năng Listening thông qua bảng \texttt{IeltsBasicSkill}. Tiến độ của mỗi người học được ghi nhận riêng lẻ vào bảng \texttt{IeltsBasicProgress} với ràng buộc \texttt{UNIQUE (userId, lessonId)} và \texttt{UNIQUE (userId, listeningExerciseId)}, đảm bảo mỗi cặp người học -- mục học chỉ có đúng một bản ghi duy nhất; thao tác ghi sử dụng \texttt{upsert} của Prisma để tránh xung đột khi người học hoàn thành lại.
+Phân hệ IELTS Basic Listening tổ chức nội dung theo hai tầng tách biệt: bài học lý thuyết và bài tập luyện nghe, cả hai đều liên kết với kỹ năng Listening. Tiến độ của mỗi người học được ghi nhận riêng lẻ với ràng buộc duy nhất theo cặp người học -- mục học, đảm bảo mỗi cặp chỉ có đúng một bản ghi; thao tác ghi sử dụng cơ chế tạo mới hoặc cập nhật để tránh xung đột khi người học hoàn thành lại.
 \end{sloppypar}
 
-Nội dung bài học được lưu trong trường \texttt{content} dạng mảng JSON các khối, trong đó mỗi khối gồm \texttt{type} (nhận một trong các giá trị: \texttt{overview}, \texttt{strategy}, \texttt{tips}, \texttt{traps}, \texttt{section}) và \texttt{content} là chuỗi Markdown. Frontend render từng khối bằng component tương ứng và tự động xây dựng thanh mục lục điều hướng động dựa trên danh sách khối. Quiz cuối bài (tối đa 4 câu trắc nghiệm, lưu trong trường \texttt{quiz}) được chấm điểm hoàn toàn phía client trước khi gửi yêu cầu đánh dấu hoàn thành.
+Nội dung bài học được lưu dưới dạng cấu trúc JSON gồm mảng các khối, trong đó mỗi khối xác định loại nội dung (tổng quan, chiến lược làm bài, mẹo, bẫy thường gặp, phần nội dung) và chuỗi Markdown tương ứng. Giao diện tự động xây dựng thanh mục lục điều hướng dựa trên danh sách khối. Quiz cuối bài được chấm điểm hoàn toàn phía client trước khi ghi nhận hoàn thành lên máy chủ.
 
 \begin{sloppypar}
-Cấu trúc câu hỏi của bài tập Listening được lưu trong trường \texttt{content} (JSON) của \texttt{IeltsBasicListeningExercise} dưới dạng mảng các nhóm câu hỏi, mỗi nhóm xác định \texttt{type} (loại dạng bài) và mảng câu hỏi tương ứng. Hệ thống hỗ trợ chín dạng bài chuẩn IELTS Listening: \textit{Form/Note Completion}, \textit{Table Completion}, \textit{Flow Chart Completion}, \textit{Short Answer}, \textit{Matching}, \textit{Map/Plan Labelling}, \textit{Diagram Labelling}, \textit{Multiple Choice (Single)} và \textit{Multiple Choice (Multiple)}. Mỗi dạng bài được render bởi component riêng biệt (\texttt{FormCompletionGroup}, \texttt{MatchingGroup}, \texttt{TableCompletionGroup}...) giúp tách biệt logic hiển thị và dễ mở rộng.
+Cấu trúc câu hỏi của bài tập Listening được lưu dưới dạng mảng các nhóm câu hỏi, mỗi nhóm xác định loại dạng bài và danh sách câu hỏi tương ứng. Hệ thống hỗ trợ chín dạng bài chuẩn IELTS Listening: \textit{Form/Note Completion}, \textit{Table Completion}, \textit{Flow Chart Completion}, \textit{Short Answer}, \textit{Matching}, \textit{Map/Plan Labelling}, \textit{Diagram Labelling}, \textit{Multiple Choice (Single)} và \textit{Multiple Choice (Multiple)}. Mỗi dạng bài được render bởi component riêng biệt, giúp tách biệt logic hiển thị và dễ mở rộng.
 \end{sloppypar}
 
-Điểm kỹ thuật đặc biệt là tính năng seek theo thời gian: trường \texttt{timestamp\_seconds} trên từng câu hỏi cho phép trình phát âm thanh tùy chỉnh hiển thị nút ``Listen from here''; khi nhấn, trình phát seek đến đúng mốc thời gian đó trong audio thay vì phát lại từ đầu, giúp người học tập trung vào đoạn nghe liên quan đến câu hỏi cụ thể.
-
-\begin{sloppypar}
-Logic chấm điểm được thực hiện hoàn toàn phía client qua \texttt{SharedScoreUtils.calculateScore()}: so sánh không phân biệt hoa thường và loại bỏ khoảng trắng thừa cho dạng điền từ; so sánh mảng lựa chọn cho \textit{Multiple Choice Multiple}; hỗ trợ mảng \texttt{acceptable\_answers} cho Short Answer có nhiều đáp án hợp lệ. Chỉ khi đạt điểm tuyệt đối (toàn bộ câu hỏi đúng), hệ thống mới gọi \texttt{POST /ielts/progress/mark-completed} để ghi nhận hoàn thành và trao 15~XP --- thiết kế này đảm bảo người học thực sự nắm vững nội dung trước khi được tính là hoàn thành, phù hợp với yêu cầu luyện thi nghiêm túc.
-\end{sloppypar}
+Điểm kỹ thuật đặc biệt là tính năng seek theo thời gian: mỗi câu hỏi có thể được gắn mốc thời gian audio, cho phép trình phát âm thanh tùy chỉnh hiển thị nút ``Listen from here''; khi nhấn, trình phát seek đến đúng mốc thời gian đó trong audio thay vì phát lại từ đầu, giúp người học tập trung vào đoạn nghe liên quan đến câu hỏi cụ thể.
 
 \begin{sloppypar}
-Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được mở khóa: nội dung transcript (lưu dạng JSON gồm mảng câu thoại theo lượt) được hiển thị đồng bộ với số câu hỏi tương ứng, cho phép người học đối chiếu câu trả lời với vị trí thông tin trong bài nghe. Tính năng ``Locate'' trên từng câu hỏi cuộn tự động vùng transcript đến dòng liên quan. Cả hai loại hoàn thành (bài học 10~XP, bài tập 15~XP) đều gọi \texttt{GamificationService.onEvent()} và \texttt{StreakService.recordActivity()} để cập nhật chuỗi học liên tiếp của người học.
+Logic chấm điểm được thực hiện hoàn toàn phía client: so sánh không phân biệt hoa thường và loại bỏ khoảng trắng thừa cho dạng điền từ; so sánh mảng lựa chọn cho dạng trắc nghiệm nhiều đáp án; hỗ trợ danh sách đáp án chấp nhận được cho Short Answer có nhiều phương án đúng. Chỉ khi đạt điểm tuyệt đối (toàn bộ câu hỏi đúng), hệ thống mới ghi nhận hoàn thành và trao 15~XP --- thiết kế này đảm bảo người học thực sự nắm vững nội dung trước khi được tính là hoàn thành, phù hợp với yêu cầu luyện thi nghiêm túc.
 \end{sloppypar}
+
+Sau khi đạt điểm tuyệt đối, bảng Transcript bên phải được mở khóa: nội dung transcript được hiển thị đồng bộ với số câu hỏi tương ứng, cho phép người học đối chiếu câu trả lời với vị trí thông tin trong bài nghe. Cả hai loại hoàn thành đều kích hoạt cơ chế cập nhật chuỗi học liên tiếp và kiểm tra điều kiện mở khóa thành tích học tập.
 
 % ============================================================
 % UC07 – PRACTICE IELTS ADVANCED READING
@@ -511,7 +616,7 @@ Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được m�
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC07} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và có gói đăng ký Premium hoặc Pro đang hoạt động.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bản ghi \texttt{IeltsAdvancedReadingSession} được tạo với điểm số, câu trả lời và dữ liệu phân tích theo loại câu hỏi (\texttt{scoreData}); người học nhận 20~XP (achievement key \texttt{IA\_READER\_5}); nếu tỷ lệ đúng $\geq 80\%$ nhận thêm 10~XP (achievement key \texttt{IA\_HIGH\_ACHIEVER}); chuỗi học liên tiếp được cập nhật.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên luyện tập Reading được lưu vào cơ sở dữ liệu với điểm số, câu trả lời và dữ liệu phân tích theo loại câu hỏi; người học nhận 20~XP; nếu tỷ lệ đúng $\geq 80\%$ nhận thêm 10~XP; chuỗi học liên tiếp được cập nhật.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -525,39 +630,60 @@ Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được m�
     \hline
     \endlastfoot
     1. Nhấn vào mục ``IELTS Advanced'' trên thanh điều hướng bên trái (sidebar) của phân hệ IELTS. & \\ \hline
-    & 2. Kiểm tra gói đăng ký qua \texttt{SubscriptionGuard} (\texttt{@RequiresTier("PREMIUM")}); hiển thị giao diện IELTS Advanced với 4 tab kỹ năng: Listening, Reading, Writing, Speaking; mặc định đứng ở tab \textbf{Listening}. \\ \hline
+    & 2. Kiểm tra gói đăng ký của người học; hiển thị giao diện IELTS Advanced với 4 tab kỹ năng: Listening, Reading, Writing, Speaking; mặc định đứng ở tab \textbf{Listening}. \\ \hline
     3. Nhấn tab ``Reading''. & \\ \hline
-    & 4. Cập nhật query param \texttt{?skill=Reading}; gọi \texttt{GET /ielts/advanced/reading}; hiển thị danh sách bài luyện tập kèm bộ chọn Part (Part~1, Part~2, Part~3 --- Reading không có Part~4); mặc định chọn Part~1; mỗi thẻ bài kèm tiêu đề, nhãn loại câu hỏi (\texttt{questionTypes}) và điểm cao nhất đã đạt (nếu đã từng làm). \\ \hline
+    & 4. Tải danh sách bài luyện tập Reading; hiển thị kèm bộ chọn Part (Part~1, Part~2, Part~3); mặc định chọn Part~1; mỗi thẻ bài kèm tiêu đề, loại câu hỏi và điểm cao nhất đã đạt (nếu đã từng làm). \\ \hline
     5. Nhấn vào một Part (ví dụ: Part~2) trong bộ chọn. & \\ \hline
     & 6. Lọc và hiển thị danh sách các bài luyện tập thuộc Part đã chọn. \\ \hline
     7. Nhấn nút ``Practice Now'' trên một bài luyện tập. & \\ \hline
-    & 8. Điều hướng đến \texttt{/ielts/advanced/reading/\{partId\}}; gọi \texttt{GET /ielts/advanced/reading/\{partId\}}; hiển thị giao diện luyện tập chia hai cột: bên trái là \texttt{ReadingPassagePanel} (đoạn văn với đánh dấu vị trí câu hỏi), bên phải là \texttt{ReadingQuestionsPanel} (các nhóm câu hỏi được render theo dạng bài bởi component riêng biệt). \\ \hline
+    & 8. Tải nội dung bài luyện tập; hiển thị giao diện chia hai cột: bên trái là đoạn văn với đánh dấu vị trí câu hỏi, bên phải là các nhóm câu hỏi được render theo dạng bài. \\ \hline
     9. Đọc đoạn văn và điền câu trả lời vào từng câu hỏi. & \\ \hline
     10. Nhấn nút ``Submit Answers'' sau khi hoàn thành. & \\ \hline
-    & 11. Gọi \texttt{POST /ielts/advanced/reading/\{partId\}/submit}; chấm điểm từng câu (so sánh không phân biệt hoa thường, hỗ trợ mảng \texttt{acceptable\_answers} cho Short Answer); tổng hợp \texttt{scoreData} theo từng loại câu hỏi; tạo bản ghi \texttt{IeltsAdvancedReadingSession}; kích hoạt sự kiện gamification (20~XP, achievement key \texttt{IA\_READER\_5}; nếu $\geq 80\%$: thêm 10~XP, achievement key \texttt{IA\_HIGH\_ACHIEVER}); gọi \texttt{StreakService.recordActivity()}; điều hướng đến trang Score Report. \\ \hline
-    & 12. Hiển thị trang ``Score Report'' gồm: bảng điểm tổng (\texttt{totalScore} / \texttt{totalQuestions}) và bảng chi tiết theo loại câu hỏi (Total / Attempted / Correct / Marks); phía dưới chia hai cột: bên trái là \texttt{ReadingPassagePanel}, bên phải là ``Question Review'' (\texttt{ReadingQuestionsPanel} với \texttt{showAnswers=true}); mỗi câu hỏi kèm nút \textbf{Locate}, \textbf{Explain} và \textbf{Note}. \\ \hline
+    & 11. Chấm điểm từng câu (so sánh không phân biệt hoa thường, hỗ trợ nhiều đáp án chấp nhận được cho Short Answer); tổng hợp kết quả theo từng loại câu hỏi; lưu phiên luyện tập vào cơ sở dữ liệu; kích hoạt sự kiện gamification (20~XP, thêm 10~XP nếu tỷ lệ đúng $\geq 80\%$); cập nhật chuỗi học liên tiếp; điều hướng đến trang Score Report. \\ \hline
+    & 12. Hiển thị trang ``Score Report'' gồm: bảng điểm tổng và bảng chi tiết theo loại câu hỏi; phía dưới chia hai cột: bên trái là đoạn văn, bên phải là phần xem lại câu trả lời có hiển thị đáp án; mỗi câu hỏi kèm nút \textbf{Locate}, \textbf{Explain} và \textbf{Note}. \\ \hline
     \multicolumn{2}{|l|}{\textit{Tương tác trên trang Score Report (tùy chọn)}} \\ \hline
     13a. Nhấn nút ``Locate'' trên một câu hỏi. & \\ \hline
-    & 14a. Scroll \texttt{ReadingPassagePanel} đến đúng vị trí đánh dấu tương ứng (dựa trên \texttt{passageWithLocations}); highlight vị trí khoảng 3~giây rồi tắt. \\ \hline
+    & 14a. Cuộn đoạn văn đến đúng vị trí đánh dấu tương ứng; làm nổi bật vị trí trong khoảng 3~giây rồi tắt. \\ \hline
     13b. Nhấn nút ``Explain'' trên một câu hỏi. & \\ \hline
-    & 14b. Mở rộng khung giải thích phía dưới câu hỏi; hiển thị từ khóa (\texttt{keyword}), lý giải đáp án (\texttt{rationale}) và phân tích đáp án nhiễu (\texttt{distractor\_analysis}) từ trường \texttt{explanation} của câu hỏi. \\ \hline
+    & 14b. Mở rộng khung giải thích phía dưới câu hỏi; hiển thị từ khóa, lý giải đáp án và phân tích đáp án nhiễu. \\ \hline
     13c. Nhấn nút ``Note'' trên một câu hỏi để ghi chú cá nhân. & \\ \hline
     & 14c. Hiển thị ô nhập văn bản ghi chú cho câu hỏi tương ứng; người học nhập và lưu nội dung ghi chú. \\ \hline
     \multicolumn{2}{|l|}{\textit{Nhánh B --- Xem lại lịch sử làm bài}} \\ \hline
     15. Nhấn tab ``My Answers'' trên thanh điều hướng của trang bài luyện tập. & \\ \hline
-    & 16. Gọi \texttt{GET /ielts/advanced/reading/history?partId=\{partId\}}; hiển thị danh sách các phiên làm bài trước đó gồm ngày giờ, tiêu đề bài và điểm (\texttt{totalScore} / \texttt{totalQuestions}). \\ \hline
+    & 16. Tải lịch sử các phiên làm bài trước đó; hiển thị danh sách gồm ngày giờ, tiêu đề bài và điểm số. \\ \hline
     17. Nhấn ``Details'' trên một phiên làm bài. & \\ \hline
-    & 18. Gọi \texttt{GET /ielts/advanced/reading/history/\{sessionId\}}; hiển thị lại giao diện Score Report với toàn bộ câu trả lời, đáp án và điểm của phiên đã chọn. Kết thúc use-case. \\ \hline
+    & 18. Tải dữ liệu phiên đã chọn; hiển thị lại giao diện Score Report với toàn bộ câu trả lời, đáp án và điểm của phiên đó. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 2.1. Người học không có gói Premium hoặc Pro: \texttt{SubscriptionGuard} từ chối truy cập (HTTP~403); hiển thị màn hình \texttt{FeatureLock} yêu cầu nâng cấp gói đăng ký; use-case kết thúc. \\ \hline
-    & 11.1. Người học nhấn ``Submit Answers'' khi còn câu chưa điền: hệ thống vẫn thực hiện nộp bài; các câu bỏ trống được tính là sai trong phép tính điểm. \\ \hline
+    & 2.1. Người học không có gói Premium hoặc Pro: hệ thống từ chối truy cập và hiển thị màn hình yêu cầu nâng cấp gói đăng ký; use-case kết thúc. \\ \hline
+    11.1. Nhấn ``Submit Answers'' khi vẫn còn câu bỏ trống. & \\ \hline
+    & 11.2. Nộp bài và chấm điểm; các câu bỏ trống tính là sai. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC07
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc07.png}
+    \caption{Sơ đồ activity UC07 -- Luyện Reading IELTS nâng cao}
+    \label{fig:activity-uc07}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc07.png}
+    \caption{Sơ đồ tuần tự UC07 -- Luyện Reading IELTS nâng cao}
+    \label{fig:sequence-uc07}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
-% TODO: Bổ sung mô tả kỹ thuật chi tiết UC07
+
+Phân hệ IELTS Advanced Reading được thiết kế theo mô hình giao diện hai cột bất đối xứng, trong đó đoạn văn và bộ câu hỏi được hiển thị đồng thời trên cùng một màn hình. Thiết kế này phản ánh đúng cách người học thực sự làm bài Reading trong kỳ thi IELTS, khi cần đọc đoạn văn và trả lời câu hỏi song song mà không phải cuộn lên xuống giữa hai vùng nội dung.
+
+Kiểm soát truy cập được thực hiện ở tầng máy chủ trước khi trả về bất kỳ nội dung nào: hệ thống xác minh gói đăng ký hiện tại của người học; nếu không đủ điều kiện (không có gói Premium hoặc Pro đang hoạt động), máy chủ từ chối yêu cầu với mã lỗi phù hợp và giao diện hiển thị màn hình yêu cầu nâng cấp. Cơ chế này đảm bảo người dùng không thể tiếp cận nội dung trả phí ngay cả khi can thiệp trực tiếp vào giao diện.
+
+Cấu trúc dữ liệu của bài luyện Reading hỗ trợ đầy đủ các dạng câu hỏi chuẩn IELTS Academic: True/False/Not Given, Matching Headings, Matching Information, Short Answer và Multiple Choice. Mỗi câu hỏi dạng điền từ có thể định nghĩa danh sách đáp án chấp nhận được để xử lý các biến thể chính tả hợp lệ. Phần đoạn văn lưu trữ thông tin vị trí tương ứng của từng câu hỏi trong văn bản, cho phép tính năng ``Locate'' cuộn chính xác đến đoạn chứa đáp án và làm nổi bật tạm thời.
+
+Logic chấm điểm được thực hiện phía máy chủ sau khi người học nộp bài: hệ thống so sánh từng câu trả lời với đáp án chuẩn (không phân biệt hoa thường cho dạng điền từ), tổng hợp kết quả theo từng loại câu hỏi để tạo báo cáo phân tích chi tiết. Kết quả này cùng toàn bộ câu trả lời được lưu vào phiên luyện tập trong cơ sở dữ liệu, cho phép người học xem lại bất kỳ phiên nào trong lịch sử. Sau khi lưu thành công, hệ thống kích hoạt cơ chế gamification và cập nhật chuỗi học liên tiếp trước khi chuyển hướng đến trang báo cáo điểm.
 
 % ============================================================
 % UC08 – DO SPEAKING MOCK TEST
@@ -572,7 +698,7 @@ Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được m�
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC08} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bản ghi \texttt{IeltsIntensiveSession} được cập nhật sang trạng thái \texttt{COMPLETED}; kết quả chứa band điểm Speaking ước tính (thang 0.0--9.0) và nhận xét từ AI theo bốn tiêu chí: \textit{Fluency \& Coherence}, \textit{Lexical Resource}, \textit{Grammatical Range \& Accuracy} và \textit{Pronunciation}; chuỗi học liên tiếp được cập nhật.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên thi Speaking được cập nhật sang trạng thái hoàn thành; kết quả chứa band điểm Speaking ước tính (thang 0.0--9.0) và nhận xét từ AI theo bốn tiêu chí: \textit{Fluency \& Coherence}, \textit{Lexical Resource}, \textit{Grammatical Range \& Accuracy} và \textit{Pronunciation}; chuỗi học liên tiếp được cập nhật.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -586,33 +712,33 @@ Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được m�
     \hline
     \endlastfoot
     1. Nhấn vào mục ``IELTS Intensive'' trên thanh điều hướng bên trái của phân hệ IELTS, chọn sub-menu ``Mock Tests''. & \\ \hline
-    & 2. Gọi \texttt{GET /exams/intensive/catalog?skill=LISTENING}; hiển thị giao diện Mock Test với bốn tab kỹ năng (Listening, Reading, Writing, Speaking); mặc định đứng ở tab \textbf{Listening}. \\ \hline
+    & 2. Tải danh mục đề thi; hiển thị giao diện Mock Test với bốn tab kỹ năng (Listening, Reading, Writing, Speaking); mặc định đứng ở tab \textbf{Listening}. \\ \hline
     3. Nhấn vào tab ``Speaking''. & \\ \hline
-    & 4. Gọi \texttt{GET /exams/intensive/catalog?skill=SPEAKING}; hiển thị danh sách bộ đề Speaking được nhóm theo đầu sách Cambridge IELTS, mỗi thẻ bài kèm số lượng người tham gia, thời gian và band điểm cao nhất đã đạt (nếu đã từng làm). \\ \hline
+    & 4. Tải danh sách bộ đề Speaking; hiển thị được nhóm theo đầu sách Cambridge IELTS, mỗi thẻ bài kèm số lượng người tham gia, thời gian và band điểm cao nhất đã đạt (nếu đã từng làm). \\ \hline
     5. Nhấn vào một bộ đề Speaking trong danh sách. & \\ \hline
-    & 6. Điều hướng đến \texttt{/ielts/intensive/:examId}; gọi \texttt{GET /exams/:examId}; hiển thị trang giới thiệu bài thi gồm hai phần: \textbf{Exam Details} (thời gian, kỹ năng, cấu trúc: 3 Parts và tổng số câu hỏi) và \textbf{Your Examiner} (ảnh đại diện, tên, vai trò của giám khảo AI kèm bảng thông tin từng Part: thời gian và dạng bài theo chuẩn IELTS). \\ \hline
+    & 6. Tải thông tin bài thi; hiển thị trang giới thiệu gồm hai phần: \textbf{Exam Details} (thời gian, kỹ năng, cấu trúc 3 Parts và tổng số câu hỏi) và \textbf{Your Examiner} (thông tin giám khảo AI kèm bảng thông tin từng Part theo chuẩn IELTS). \\ \hline
     7. Nhấn nút ``Start Test''. & \\ \hline
-    & 8. Điều hướng đến \texttt{/ielts/intensive/:examId/start?type=SPEAKING}; hiển thị trang \textbf{Device Test} gồm 3 bước tuần tự --- mỗi bước chỉ được mở khóa khi bước trước hoàn thành: Bước~1 --- Headphone check, Bước~2 --- Microphone check, Bước~3 --- Waiting room. \\ \hline
+    & 8. Hiển thị trang \textbf{Device Test} gồm 3 bước tuần tự --- mỗi bước chỉ được mở khóa khi bước trước hoàn thành: Bước~1 --- Headphone check, Bước~2 --- Microphone check, Bước~3 --- Waiting room. \\ \hline
     9. (Bước 1 --- Headphone check) Nhấn nút phát trên thanh âm thanh để nghe đoạn audio kiểm tra tai nghe. & \\ \hline
-    & 10. Phát đoạn audio kiểm tra; thanh tiến trình cập nhật theo thời gian thực; khi audio kết thúc, đánh dấu \texttt{hasCompletedStep1 = true} và mở khóa Bước~2. \\ \hline
+    & 10. Phát đoạn audio kiểm tra; thanh tiến trình cập nhật theo thời gian thực; khi audio kết thúc, đánh dấu bước 1 hoàn thành và mở khóa Bước~2. \\ \hline
     11. (Bước 2 --- Microphone check) Nhấn ``REC'', đọc to câu hướng dẫn; nhấn ``STOP'' khi xong; nhấn ``PLAY'' để nghe lại bản ghi âm. & \\ \hline
-    & 12. Yêu cầu quyền truy cập microphone qua \texttt{getUserMedia(\{audio:~true\})}; khởi tạo \texttt{MediaRecorder} và bắt đầu ghi âm (tự động dừng sau tối đa 10~giây); lưu blob âm thanh; phát lại khi người học nhấn ``PLAY''; khi phát lại kết thúc, đánh dấu \texttt{hasCompletedStep2 = true} và mở khóa Bước~3. \\ \hline
+    & 12. Yêu cầu quyền truy cập microphone; khởi tạo bộ ghi âm và bắt đầu ghi (tự động dừng sau tối đa 10~giây); lưu dữ liệu âm thanh; phát lại khi người học nhấn ``PLAY''; khi phát lại kết thúc, đánh dấu bước 2 hoàn thành và mở khóa Bước~3. \\ \hline
     13. (Bước 3 --- Waiting room) Nhấn nút ``I'M READY''. & \\ \hline
-    & 14. Gọi \texttt{POST /exams/sessions} với \texttt{examId}; tạo bản ghi \texttt{IeltsIntensiveSession} trạng thái \texttt{IN\_PROGRESS}; điều hướng đến \texttt{/ielts/intensive/:examId/take/:sessionId}; gọi song song \texttt{GET /exams/:examId} và \texttt{GET /exams/sessions/:sessionId}; khởi tạo đồng hồ đếm ngược (\texttt{exam.duration}~×~60~giây); tự động kích hoạt luồng phát câu hỏi đầu tiên của Part~1. \\ \hline
+    & 14. Tạo phiên thi mới trong cơ sở dữ liệu với trạng thái đang diễn ra; tải dữ liệu đề thi và phiên; khởi tạo đồng hồ đếm ngược theo thời gian thi; tự động kích hoạt luồng phát câu hỏi đầu tiên của Part~1. \\ \hline
     \multicolumn{2}{|l|}{\textit{--- Speaking Part 1: Introduction \& Interview (lặp lại cho từng câu hỏi) ---}} \\ \hline
-    & 15. Hiển thị màn hình Speaking Part~1 với vùng video trung tâm; hiển thị caption ``Listen to the question'' trong 2~giây, sau đó tự động phát video giám khảo (\texttt{step = PLAYING}). \\ \hline
-    & 16. Khi video kết thúc: hiển thị caption ``Time to think'' trong 2~giây; chuyển sang \texttt{THINKING} với bộ đếm 2~giây; khi hết bộ đếm, tự động kích hoạt ghi âm (\texttt{step = RECORDING}). \\ \hline
-    17. Nói câu trả lời vào microphone; tùy chọn nhấn nút stop (hình vuông) để kết thúc ghi âm sớm. & \\ \hline
-    & 18. Ghi âm câu trả lời (tối đa 60~giây, tự động dừng khi hết thời gian); lưu blob âm thanh vào \texttt{answers["\{partIdx\}-\{qnIdx\}"]}; chuyển sang \texttt{step = RECORDED}; hiển thị biểu tượng hoàn thành. \\ \hline
+    & 15. Hiển thị màn hình Speaking Part~1 với vùng video trung tâm; hiển thị thông báo ``Listen to the question'' trong 2~giây, sau đó tự động phát video câu hỏi của giám khảo. \\ \hline
+    & 16. Khi video kết thúc: hiển thị thông báo ``Time to think'' trong 2~giây; kích hoạt bộ đếm thời gian suy nghĩ 2~giây; khi hết bộ đếm, tự động bắt đầu ghi âm câu trả lời. \\ \hline
+    17. Nói câu trả lời vào microphone; tùy chọn nhấn nút stop để kết thúc ghi âm sớm. & \\ \hline
+    & 18. Ghi âm câu trả lời (tối đa 60~giây, tự động dừng khi hết thời gian); lưu bản ghi âm theo định danh câu hỏi; hiển thị biểu tượng hoàn thành. \\ \hline
     19. Nhấn ``Next''. & \\ \hline
     & 20. Nếu còn câu hỏi tiếp theo trong Part~1: chuyển sang câu kế tiếp, quay lại bước~15. Nếu đã trả lời hết Part~1: chuyển sang giao diện Speaking Part~2. \\ \hline
     \multicolumn{2}{|l|}{\textit{--- Speaking Part 2: Individual Long Turn ---}} \\ \hline
     & 21. Hiển thị giao diện hai cột: cột trái gồm khung video giám khảo và bảng điều khiển ghi âm; cột phải gồm \textbf{Cue Card} (chủ đề và gợi ý nói) và ô ghi chú (\textbf{Note}) cho phép nhập văn bản tự do. Tự động kích hoạt luồng phát câu hỏi. \\ \hline
-    & 22. Hiển thị caption ``Listen to the question'' (2~giây); phát video giám khảo. Khi video kết thúc: hiển thị caption ``Time to think'' (2~giây); chuyển sang \texttt{THINKING} với bộ đếm 60~giây để người học đọc Cue Card và ghi chú. \\ \hline
+    & 22. Hiển thị thông báo ``Listen to the question'' (2~giây); phát video giám khảo. Khi video kết thúc: hiển thị thông báo ``Time to think'' (2~giây); kích hoạt bộ đếm thời gian suy nghĩ 60~giây để người học đọc Cue Card và ghi chú. \\ \hline
     23. Đọc Cue Card, ghi chú vào ô Note trong suốt 60~giây thời gian suy nghĩ. & \\ \hline
-    & 24. Sau khi hết 60~giây: nếu câu hỏi có trường \texttt{video2}, phát video giám khảo thứ hai (\texttt{step = PLAYING\_2}); khi video2 kết thúc, tự động kích hoạt ghi âm. Nếu không có \texttt{video2}, kích hoạt ghi âm trực tiếp. \\ \hline
+    & 24. Sau khi hết 60~giây suy nghĩ: nếu câu hỏi Part~2 có video hướng dẫn bổ sung, phát video đó trước khi bắt đầu ghi âm; nếu không, kích hoạt ghi âm trực tiếp. \\ \hline
     25. Nói câu trả lời theo hướng dẫn trong Cue Card; tùy chọn nhấn stop để kết thúc sớm. & \\ \hline
-    & 26. Ghi âm câu trả lời (tối đa 120~giây, tự động dừng khi hết thời gian); lưu blob âm thanh; chuyển sang \texttt{step = RECORDED}. \\ \hline
+    & 26. Ghi âm câu trả lời (tối đa 120~giây, tự động dừng khi hết thời gian); lưu bản ghi âm; hiển thị biểu tượng hoàn thành. \\ \hline
     27. Nhấn ``Next'' để chuyển sang Part~3. & \\ \hline
     \multicolumn{2}{|l|}{\textit{--- Speaking Part 3: Two-way Discussion (lặp lại cho từng câu hỏi) ---}} \\ \hline
     & 28. Hiển thị màn hình Speaking Part~3; tự động kích hoạt luồng phát câu hỏi theo cùng cơ chế Part~1: caption 2~giây $\to$ phát video $\to$ suy nghĩ 2~giây $\to$ ghi âm tối đa 60~giây. \\ \hline
@@ -620,37 +746,48 @@ Sau khi đạt điểm tuyệt đối, khung Transcript bên phải được m�
     & 30. Nếu còn câu hỏi: chuyển sang câu kế tiếp, quay lại bước~28. Nếu đã trả lời hết tất cả câu hỏi của Part~3: kích hoạt luồng nộp bài. \\ \hline
     \multicolumn{2}{|l|}{\textit{--- Nộp bài và chấm điểm AI ---}} \\ \hline
     31. Nhấn ``Next'' tại câu hỏi cuối của Part~3. & \\ \hline
-    & 32. Chuyển trạng thái sang \texttt{SUBMITTING}; hiển thị màn hình chờ AI chấm điểm toàn màn hình; tải từng blob âm thanh lên máy chủ qua \texttt{POST /exams/audio/upload} và nhận lại URL công khai; gọi \texttt{POST /exams/sessions/:sessionId/submit} với \texttt{\{answers: \{key: url\}, timeTaken\}}. \\ \hline
-    & 33. Backend lưu câu trả lời vào bảng \texttt{IeltsIntensiveSession}; đẩy job vào hàng đợi RabbitMQ \texttt{exam-grading-queue} với \texttt{examType = SPEAKING}. Chuyển trạng thái sang \texttt{GRADING}; bắt đầu polling \texttt{GET /exams/sessions/:sessionId/result} mỗi 5~giây; khi AI hoàn thành chấm điểm và trả về kết quả, điều hướng đến \texttt{/ielts/intensive/:examId/result/:sessionId}. Kết thúc use-case. \\ \hline
+    & 32. Chuyển sang trạng thái đang nộp bài; hiển thị màn hình chờ AI chấm điểm; tải từng bản ghi âm lên máy chủ và nhận lại đường dẫn công khai; gửi kết quả lên máy chủ kèm danh sách đường dẫn âm thanh và thời gian làm bài. \\ \hline
+    & 33. Máy chủ lưu câu trả lời vào phiên thi; đẩy công việc chấm điểm vào hàng đợi xử lý bất đồng bộ. Hệ thống chuyển sang trạng thái đang chấm điểm; định kỳ kiểm tra kết quả chấm điểm; khi AI hoàn thành và trả về kết quả, điều hướng đến trang kết quả. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 12.1. Người học từ chối cấp quyền microphone (\texttt{getUserMedia} bị từ chối): hệ thống hiển thị cảnh báo ``Microphone access is required to complete the test''; nút ``I'M READY'' không khả dụng; người học không thể tiến hành bài thi. \\ \hline
-    & 30.1. Đồng hồ đếm ngược toàn bài (\texttt{secondsLeft}) về 0 trước khi người học hoàn thành tất cả câu hỏi: bản ghi âm đang thực hiện tự động dừng; hệ thống kích hoạt luồng nộp bài với toàn bộ bản ghi âm đã có; câu hỏi chưa được ghi âm được tính là bỏ trống. \\ \hline
-    & 32.1. Lỗi mạng khi tải file âm thanh hoặc khi gọi submit: trạng thái chuyển sang \texttt{ERROR}; overlay hiển thị thông báo lỗi; người học có thể chọn quay lại danh sách đề và thực hiện lại bài thi. \\ \hline
+    12.1. Từ chối cấp quyền truy cập microphone. & \\ \hline
+    & 12.2. Hiển thị cảnh báo yêu cầu cấp quyền microphone; nút ``I'M READY'' không khả dụng; người học không thể tiến hành bài thi. \\ \hline
+    & 30.1. Đồng hồ đếm ngược toàn bài về 0 trước khi người học hoàn thành tất cả câu hỏi: bản ghi âm đang thực hiện tự động dừng; hệ thống kích hoạt luồng nộp bài với toàn bộ bản ghi âm đã có; câu hỏi chưa được ghi âm được tính là bỏ trống. \\ \hline
+    & 32.1. Lỗi mạng khi tải file âm thanh hoặc khi nộp bài: hệ thống chuyển sang trạng thái lỗi và hiển thị thông báo tương ứng; người học có thể quay lại danh sách đề và thực hiện lại bài thi. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC08
+\clearpage
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.85\linewidth, height=0.92\textheight, keepaspectratio]{activity-diagram/activity-uc08.png}
+    \caption{Sơ đồ activity UC08 -- Thi thử Speaking (Mock Test)}
+    \label{fig:activity-uc08}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc08.png}
+    \caption{Sơ đồ tuần tự UC08 -- Thi thử Speaking (Mock Test)}
+    \label{fig:sequence-uc08}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
 \begin{sloppypar}
-Phân hệ Speaking Mock Test được triển khai theo mô hình luồng tuần tự nghiêm ngặt, bao gồm ba giai đoạn chính: kiểm tra thiết bị (Device Test), tiến hành thi (Take Board), và nộp bài chấm điểm AI.
+Phân hệ Speaking Mock Test được triển khai theo mô hình luồng tuần tự nghiêm ngặt, bao gồm ba giai đoạn chính: kiểm tra thiết bị (Device Test), tiến hành thi và nộp bài chấm điểm AI.
 \end{sloppypar}
 
-Trong giai đoạn Device Test, ba bước được liên kết bằng hai cờ trạng thái phía client: \texttt{hasCompletedStep1} và \texttt{hasCompletedStep2}. Mỗi bước chỉ được kích hoạt khi bước trước hoàn thành --- kỹ thuật ẩn bằng CSS (\texttt{opacity-30 pointer-events-none}) đảm bảo người học không bỏ qua quy trình kiểm tra. Đoạn audio kiểm tra tai nghe được tải từ Cloudinary và phát qua \texttt{HTMLAudioElement}; bộ đếm \texttt{setInterval} cập nhật thanh tiến trình mỗi 50~ms. Bước kiểm tra microphone sử dụng \texttt{getUserMedia(\{audio: true\})} và \texttt{MediaRecorder} với tự động dừng sau tối đa 10~giây; điều kiện hoàn thành bước là sự kiện \texttt{onended} của audio phát lại, không phải sau khi ghi xong --- bắt buộc người học phải xác nhận microphone hoạt động bằng cách nghe lại bản ghi.
+Trong giai đoạn kiểm tra thiết bị, ba bước được liên kết bằng hai cờ trạng thái phía client. Mỗi bước chỉ được kích hoạt khi bước trước hoàn thành --- giao diện ẩn và vô hiệu hóa bước chưa đến lượt để đảm bảo người học không bỏ qua quy trình kiểm tra. Điều kiện hoàn thành bước kiểm tra microphone là người học phải nghe lại bản ghi âm đến cuối, không phải chỉ sau khi ghi xong --- cơ chế này bắt buộc người học xác nhận microphone thực sự hoạt động trước khi bắt đầu thi.
 
 \begin{sloppypar}
-Luồng thi Speaking được điều khiển bởi máy trạng thái (\textit{state machine}) với tám trạng thái: \texttt{IDLE}, \texttt{LISTEN\_CAPTION}, \texttt{PLAYING}, \texttt{THINK\_CAPTION}, \texttt{THINKING}, \texttt{PLAYING\_2}, \texttt{RECORDING} và \texttt{RECORDED}. Chuyển trạng thái được quản lý qua các \texttt{useEffect} phản ứng với sự kiện \texttt{onEnded} của thẻ \texttt{<video>} và các bộ đếm \texttt{setTimeout}. Mỗi phần có thông số thời gian khác nhau: Part~1 và Part~3 áp dụng bộ đếm suy nghĩ 2~giây và thời gian ghi âm tối đa 60~giây; Part~2 áp dụng 60~giây suy nghĩ và 120~giây ghi âm (\texttt{const thinkDuration = part\_number === 2 ? 60 : 2}, \texttt{const maxDuration = part\_number === 2 ? 120 : 60}).
+Luồng thi Speaking được điều khiển bởi máy trạng thái tám trạng thái: chờ, hiển thị caption, phát video câu hỏi, hiển thị caption suy nghĩ, đang suy nghĩ, phát video thứ hai (chỉ Part~2), đang ghi âm và đã ghi xong. Chuyển trạng thái được kích hoạt bởi sự kiện kết thúc video và các bộ đếm thời gian. Mỗi phần có thông số thời gian khác nhau: Part~1 và Part~3 áp dụng bộ đếm suy nghĩ 2~giây và thời gian ghi âm tối đa 60~giây; Part~2 áp dụng 60~giây suy nghĩ và 120~giây ghi âm.
 \end{sloppypar}
 
-Điểm đặc thù của Part~2 là giao diện hai cột: cột phải hiển thị trường \texttt{cue\_card} (nội dung chủ đề và gợi ý nói) cùng ô \texttt{<textarea>} cho phép ghi chú trong 60~giây suy nghĩ. Nếu câu hỏi Part~2 có trường \texttt{video2}, sau khi hết thời gian suy nghĩ hệ thống chuyển sang \texttt{PLAYING\_2} để phát video giám khảo thứ hai; ghi âm chỉ bắt đầu khi video2 kết thúc. Điều này mô phỏng quy trình IELTS Speaking thực tế, trong đó giám khảo đọc lại chủ đề trước khi thí sinh bắt đầu nói.
+Điểm đặc thù của Part~2 là giao diện hai cột: cột phải hiển thị nội dung chủ đề và gợi ý nói (Cue Card) cùng ô ghi chú để người học chuẩn bị trong 60~giây suy nghĩ. Nếu câu hỏi Part~2 có video giám khảo thứ hai, sau khi hết thời gian suy nghĩ hệ thống phát video đó trước khi bắt đầu ghi âm. Thiết kế này mô phỏng đúng quy trình IELTS Speaking thực tế, trong đó giám khảo đọc lại chủ đề trước khi thí sinh bắt đầu nói.
 
 \begin{sloppypar}
-Dữ liệu bản ghi âm được lưu phía client dưới dạng \texttt{Record<string,~\{blob:~Blob;~url:~string\}>} với khóa \texttt{"\{partIdx\}-\{qnIdx\}"} --- ví dụ, \texttt{"0-2"} tương ứng câu hỏi thứ ba của Part~1. Blob được tạo từ sự kiện \texttt{MediaRecorder.ondataavailable} và gán \texttt{ObjectURL} ngay tại client.
-\end{sloppypar}
-
-\begin{sloppypar}
-Sau khi người học hoàn thành câu hỏi cuối của Part~3, \texttt{GradingContext.submitAndTrack()} nhận toàn bộ mảng \texttt{answers} và thực thi pipeline bất đồng bộ ba bước không block giao diện: (1)~tải từng blob lên máy chủ qua \texttt{POST /exams/audio/upload} (multipart/form-data), nhận về URL công khai; (2)~gọi \texttt{POST /exams/sessions/:sessionId/submit} với \texttt{\{answers: \{key: url\}, timeTaken\}}, backend cập nhật \texttt{IeltsIntensiveSession} và đẩy job vào hàng đợi RabbitMQ \texttt{exam-grading-queue} kèm \texttt{examType = SPEAKING}; (3)~bắt đầu polling \texttt{GET /exams/sessions/:sessionId/result} mỗi 5~giây. Phía \texttt{backend-ai}, \texttt{GradingConsumer} nhận job, gọi \texttt{grade\_speaking()} sử dụng Gemini AI để đánh giá bốn tiêu chí và trả band điểm kèm nhận xét. Toàn bộ pipeline chạy nền, cho phép người học thoát khỏi trang mà không mất kết quả --- hệ thống sẽ gửi thông báo khi AI hoàn thành chấm điểm.
+Dữ liệu bản ghi âm được lưu phía client theo từng khóa định danh cặp (phần thi -- câu hỏi), cho phép theo dõi trạng thái ghi âm riêng từng câu. Sau khi người học hoàn thành câu hỏi cuối của Part~3, hệ thống thực thi pipeline bất đồng bộ ba bước không chặn giao diện: tải từng bản ghi âm lên máy chủ dưới dạng tệp đính kèm và nhận lại đường dẫn công khai; nộp kết quả kèm danh sách đường dẫn âm thanh và thời gian làm bài; đẩy công việc chấm điểm vào hàng đợi bất đồng bộ. Phía dịch vụ AI, bộ tiêu thụ hàng đợi nhận công việc và sử dụng Gemini AI để đánh giá bốn tiêu chí Speaking, trả về band điểm kèm nhận xét. Hệ thống định kỳ kiểm tra kết quả chấm điểm và chuyển hướng người học đến trang kết quả khi AI hoàn thành, toàn bộ pipeline chạy nền để người học có thể rời trang mà không mất dữ liệu.
 \end{sloppypar}
 
 % ============================================================
@@ -666,7 +803,7 @@ Sau khi người học hoàn thành câu hỏi cuối của Part~3, \texttt{Grad
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC09} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tiến trình hoàn thành bài học được lưu vào cơ sở dữ liệu qua \texttt{POST /shadowing/progress} với danh sách các câu đã hoàn thành (\texttt{completedSentences}); trạng thái bài học được cập nhật trong danh sách thư viện; chuỗi học liên tiếp được ghi nhận.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tiến trình hoàn thành bài học được lưu vào cơ sở dữ liệu với danh sách các câu đã hoàn thành; trạng thái bài học được cập nhật trong danh sách thư viện; chuỗi học liên tiếp được ghi nhận.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -680,56 +817,66 @@ Sau khi người học hoàn thành câu hỏi cuối của Part~3, \texttt{Grad
     \hline
     \endlastfoot
     1. Nhấn vào mục ``Shadowing \& Dictation'' trên thanh điều hướng dưới cùng. & \\ \hline
-    & 2. Hiển thị màn hình Shadowing \& Dictation với chế độ mặc định là \textbf{Shadowing}; tải đồng thời danh sách bài học tĩnh (\texttt{SHADOWING\_LESSONS}) và dữ liệu tiến trình của người học từ \texttt{GET /shadowing/progress}; hiển thị danh sách bài học kèm phần trăm tiến trình Shadowing. \\ \hline
+    & 2. Hiển thị màn hình Shadowing \& Dictation với chế độ mặc định là \textbf{Shadowing}; tải danh sách bài học và dữ liệu tiến trình của người học; hiển thị danh sách bài học kèm phần trăm tiến trình Shadowing. \\ \hline
     2. Nhấn vào nút ``Dictation'' trên thanh chuyển chế độ. & \\ \hline
-    & 3. Chuyển trạng thái \texttt{mode} sang \texttt{'dictation'}; tính lại phần trăm tiến trình theo dữ liệu Dictation của từng bài; hiển thị danh sách bài học kèm thanh tìm kiếm và bộ lọc trạng thái (\textit{All / In Progress / Not Started / Completed}). \\ \hline
+    & 3. Chuyển sang chế độ Dictation; tính lại phần trăm tiến trình theo dữ liệu Dictation của từng bài; hiển thị danh sách bài học kèm thanh tìm kiếm và bộ lọc trạng thái (\textit{All / In Progress / Not Started / Completed}). \\ \hline
     3. (Tùy chọn) Nhập từ khóa vào thanh tìm kiếm hoặc chọn bộ lọc trạng thái. & \\ \hline
     & 4. Lọc danh sách theo tiêu chí: từ khóa khớp tiêu đề bài học và trạng thái tương ứng với phần trăm tiến trình (0\%: Not Started; 1--99\%: In Progress; 100\%: Completed); cập nhật số lượng bài hiển thị. \\ \hline
     4. Nhấn nút ``START'' trên một bài học bất kỳ. & \\ \hline
-    & 5. Điều hướng đến \texttt{/shadowing/\{lessonId\}/dictation}; tải dữ liệu bài học (từ bộ dữ liệu tĩnh hoặc \texttt{GET /shadowing/videos/\{lessonId\}} nếu là video do người dùng thêm); hiển thị màn hình luyện viết gồm phần phát video ở trên và transcript được đục lỗ ở phía dưới; phát tự động đoạn video/audio của câu đầu tiên (\texttt{playSentence()}) và dừng lại khi hết câu; mức độ khó mặc định là \textbf{Intermediate} (50\% từ bị ẩn). \\ \hline
+    & 5. Tải dữ liệu bài học (từ bộ dữ liệu tĩnh đóng gói sẵn hoặc từ máy chủ nếu là video do người dùng thêm); hiển thị màn hình luyện viết gồm phần phát video ở trên và transcript được đục lỗ ở phía dưới; tự động phát đoạn video/audio của câu đầu tiên rồi dừng lại khi hết câu; mức độ khó mặc định là \textbf{Intermediate} (50\% từ bị ẩn). \\ \hline
     5. (Tùy chọn) Chọn mức độ khó trong bộ chọn \textit{Difficulty}. & \\ \hline
-    & 6. Áp dụng tỉ lệ đục lỗ tương ứng --- Beginner: hiển thị 70\% từ; Intermediate: 50\%; Advanced: 30\%; Expert: toàn bộ từ bị ẩn (0\% hiển thị); tái tạo lại tập hợp từ bị ẩn (\texttt{revealedWords}), ưu tiên giữ lại các từ ngắn hơn để lộ trước. \\ \hline
+    & 6. Áp dụng tỉ lệ đục lỗ tương ứng --- Beginner: hiển thị 70\% từ; Intermediate: 50\%; Advanced: 30\%; Expert: toàn bộ từ bị ẩn; tái tạo tập hợp từ bị ẩn, ưu tiên giữ lại các từ ngắn hơn để lộ trước. \\ \hline
     6. Nghe câu phát ra và điền nội dung vào các ô từ bị đục lỗ trong transcript. & \\ \hline
     7. (Tùy chọn) Nhấn vào một ô từ bị đục lỗ để xem gợi ý. & \\ \hline
     & 8. Hiển thị gợi ý ngay trong ô từ đó: nhấn lần~1 → hiện chữ cái đầu; lần~2 → hiện thêm chữ cái cuối; lần~3 → hiện toàn bộ từ. \\ \hline
     8. (Tùy chọn) Nhấn nút điều chỉnh tốc độ phát. & \\ \hline
     & 9. Chuyển đổi tốc độ theo vòng lặp: $0.25\times \to 0.5\times \to 0.75\times \to 1.0\times \to 2.0\times$; áp dụng ngay cho lần phát tiếp theo. \\ \hline
     9. (Tùy chọn) Nhấn nút phát để nghe lại câu hiện tại. & \\ \hline
-    & 10. Seek video đến đầu câu hiện tại (\texttt{audioStart}) và phát lại; thanh tiến trình cập nhật mỗi 100~ms qua bộ đếm \texttt{setInterval}; tự động dừng khi đến \texttt{audioEnd}. \\ \hline
+    & 10. Seek video đến đầu câu hiện tại và phát lại; thanh tiến trình cập nhật liên tục; tự động dừng khi hết đoạn câu. \\ \hline
     10. Nhấn nút ``Check Answer''. & \\ \hline
-    & 11. So sánh từng ô từ bị đục lỗ đã điền với đáp án qua \texttt{normalizeWord()} (loại bỏ dấu câu, không phân biệt hoa thường); ô đúng chuyển sang nền xanh lá, ô sai chuyển sang nền đỏ. Nếu toàn bộ ô đúng hiển thị nút ``Next Sentence''. \\ \hline
+    & 11. So sánh từng ô từ đã điền với đáp án (loại bỏ dấu câu, không phân biệt hoa thường); ô đúng chuyển sang nền xanh lá, ô sai chuyển sang nền đỏ. Nếu toàn bộ ô đúng, hiển thị nút ``Next Sentence''. \\ \hline
     11. Nhấn nút ``Next Sentence''. & \\ \hline
-    & 12. Đánh dấu câu hiện tại vào tập \texttt{completed}; cập nhật thanh tiến trình tổng thể; chuyển sang câu tiếp theo; phát tự động đoạn video/audio của câu mới (\texttt{playSentence()}); reset trạng thái nhập liệu và bộ từ đục lỗ theo mức độ khó hiện tại. Lặp lại từ bước~5. \\ \hline
+    & 12. Đánh dấu câu hiện tại hoàn thành; cập nhật thanh tiến trình tổng thể; chuyển sang câu tiếp theo; tự động phát đoạn video/audio của câu mới; reset trạng thái nhập liệu và tập từ đục lỗ theo mức độ khó hiện tại. Lặp lại từ bước~5. \\ \hline
     12. Sau khi hoàn thành câu cuối cùng, nhấn nút ``Finish ✓''. & \\ \hline
-    & 13. Gọi \texttt{POST /shadowing/progress} với \texttt{\{lessonId, type: 'dictation', completedSentences: [...]\}}; lưu tiến trình; hiển thị hộp thoại ``Well done! 🎉 You completed all \textit{N} sentences.'' với hai nút: \textbf{Practice Again} (làm lại từ đầu) và \textbf{Back} (trở về màn hình trước). Kết thúc use-case. \\ \hline
+    & 13. Lưu tiến trình vào cơ sở dữ liệu với danh sách các câu đã hoàn thành; hiển thị hộp thoại chúc mừng với hai nút: \textbf{Practice Again} (làm lại từ đầu) và \textbf{Back} (trở về màn hình trước). Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 5.1. Bài học không có nguồn video/audio: hiển thị placeholder ``No media available''; người học vẫn thực hiện được dictation dựa trên transcript đục lỗ. \\ \hline
-    & 11.1. Người học nhấn ``Check Answer'' khi có ô từ điền sai: hệ thống hiển thị ô đúng màu xanh, ô sai màu đỏ và chỉ hiển thị nút ``Try Again''; người học chỉnh sửa và nhấn ``Check Answer'' lại; lặp đến khi toàn bộ ô đúng 100\% mới hiển thị nút ``Next Sentence''. \\ \hline
-    & 13.1. Lỗi mạng khi lưu tiến trình: hệ thống hiển thị lỗi; người học có thể thử lại hoặc thoát mà không mất kết quả cục bộ. \\ \hline
+    & 5.1. Bài học không có nguồn video/audio: hiển thị thông báo ``No media available''; người học vẫn thực hiện được dictation dựa trên transcript đục lỗ. \\ \hline
+    11.1. Nhấn ``Check Answer'' khi vẫn còn ô từ điền sai. & \\ \hline
+    & 11.2. Hiển thị ô đúng màu xanh, ô sai màu đỏ; chỉ hiển thị nút ``Try Again'' thay vì ``Next Sentence''. Quay lại bước 6. \\ \hline
+    & 13.1. Lỗi mạng khi lưu tiến trình: hệ thống hiển thị lỗi; người học có thể thử lại hoặc thoát mà không mất kết quả đã thực hiện. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC09
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc09.png}
+    \caption{Sơ đồ activity UC09 -- Luyện viết với Dictation}
+    \label{fig:activity-uc09}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc09.png}
+    \caption{Sơ đồ tuần tự UC09 -- Luyện viết với Dictation}
+    \label{fig:sequence-uc09}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Màn hình Shadowing \& Dictation (\texttt{app/shadowing/index.tsx}) được dùng chung cho cả hai chế độ, phân biệt qua biến trạng thái \texttt{mode: 'shadowing' | 'dictation'} khởi tạo mặc định là \texttt{'shadowing'}. Khi người học chuyển sang \texttt{'dictation'}, hệ thống tính lại phần trăm tiến trình của từng bài từ dữ liệu đã tải (\texttt{progress[lessonId].dictation}), là mảng chỉ số các câu đã hoàn thành, chia cho tổng số câu của bài đó. Nhấn ``START'' điều hướng đến \texttt{/shadowing/\{lessonId\}/dictation} --- Expo Router ánh xạ đến file động \texttt{app/shadowing/[lessonId]/[mode].tsx}.
+Màn hình Shadowing \& Dictation được dùng chung cho cả hai chế độ, phân biệt qua biến trạng thái chế độ khởi tạo mặc định là Shadowing. Khi người học chuyển sang Dictation, hệ thống tính lại phần trăm tiến trình của từng bài dựa trên mảng chỉ số các câu đã hoàn thành chia cho tổng số câu của bài đó.
 
 \begin{sloppypar}
-Màn hình luyện viết (\texttt{[mode].tsx}) tải bài học theo thứ tự ưu tiên: trước tiên tra cứu \texttt{SHADOWING\_LESSONS} (mảng tĩnh đóng gói trong bundle); nếu không tìm thấy, gọi \texttt{GET /shadowing/videos/\{lessonId\}} để lấy video do người dùng thêm vào. Câu lệnh tải được kết hợp trong \texttt{useEffect([lessonId])} và chỉ chạy một lần khi màn hình khởi tạo.
+Màn hình luyện viết tải bài học theo thứ tự ưu tiên: trước tiên tra cứu danh sách bài học tĩnh đóng gói trong bundle; nếu không tìm thấy, tải từ máy chủ để lấy video do người dùng thêm vào. Việc ưu tiên dữ liệu tĩnh giúp giảm tải mạng và tăng tốc độ khởi tạo màn hình cho phần lớn bài học.
 \end{sloppypar}
 
-Cơ chế phát đồng bộ câu (\texttt{playSentence()}) hoạt động theo hai nhánh: nếu bài học có \texttt{youtubeVideoId}, hệ thống gọi \texttt{playerRef.current.seekTo(sentence.audioStart, true)} rồi sau 150~ms bật cờ \texttt{playing = true} (do \texttt{react-native-youtube-iframe} cần một khoảng trễ nhỏ để seek ổn định trước khi phát); nếu bài học có \texttt{audioUrl}, hệ thống gọi \texttt{audioPlayer.seekTo()} và \texttt{audioPlayer.play()} từ hook \texttt{useAudioPlayer}. Song song đó, bộ đếm \texttt{setInterval} (100~ms) cập nhật \texttt{currentTime} dựa trên đồng hồ JS (\texttt{Date.now() - playStartTimeRef.current}) cộng với \texttt{audioStart} của câu, thay vì phụ thuộc vào \texttt{getCurrentTime()} bất đồng bộ của YouTube --- khi \texttt{currentTime} vượt \texttt{audioEnd}, interval bị xóa và cờ \texttt{playing} được tắt, mô phỏng chính xác hành vi ``phát một câu rồi dừng''.
+Cơ chế phát đồng bộ câu hoạt động theo hai nhánh tùy loại nguồn phương tiện: với video YouTube, hệ thống seek đến mốc thời gian bắt đầu câu và sau một khoảng trễ nhỏ bắt đầu phát (để đảm bảo thao tác seek ổn định trước khi phát); với tệp audio thông thường, hệ thống seek và phát ngay. Bộ đếm thời gian theo dõi vị trí phát dựa trên đồng hồ phía client thay vì truy vấn trình phát bất đồng bộ, giúp dừng chính xác khi đến mốc kết thúc câu và mô phỏng đúng hành vi ``phát một câu rồi dừng''.
 
 \begin{sloppypar}
-Hệ thống đục lỗ transcript hoạt động theo bốn cấp độ khó được ánh xạ sang tỉ lệ từ hiển thị: Beginner (70\%), Intermediate (50\%), Advanced (30\%) và Expert (0\%). Khi \texttt{difficulty} hoặc \texttt{currentIdx} thay đổi, \texttt{useEffect} tái tạo \texttt{revealedWords} (kiểu \texttt{Set<number>}): trước tiên loại dấu câu ra khỏi danh sách từ cần ẩn, sau đó sắp xếp các từ còn lại theo chiều dài tăng dần rồi giữ lại đúng số lượng tương ứng với tỉ lệ hiển thị --- chiến lược này ưu tiên lộ các từ ngắn (giới từ, mạo từ) để giảm tải nhận thức cho người học ở cấp độ thấp.
+Hệ thống đục lỗ transcript hoạt động theo bốn cấp độ khó ánh xạ sang tỉ lệ từ hiển thị: Beginner (70\%), Intermediate (50\%), Advanced (30\%) và Expert (0\%). Khi cấp độ khó hoặc câu hiện tại thay đổi, hệ thống tái tạo tập hợp từ được lộ: trước tiên loại dấu câu ra khỏi danh sách từ cần ẩn, sau đó sắp xếp các từ còn lại theo chiều dài tăng dần rồi giữ lại đúng số lượng tương ứng với tỉ lệ hiển thị. Chiến lược này ưu tiên lộ các từ ngắn (giới từ, mạo từ) để giảm tải nhận thức cho người học ở cấp độ thấp.
 \end{sloppypar}
 
-\begin{sloppypar}
-Kiểm tra đáp án diễn ra theo thời gian thực qua \texttt{useEffect([userWords, currentSentenceWords])}: mỗi khi \texttt{dictationInput} thay đổi, mảng \texttt{userWords} được cập nhật và so sánh lần lượt từng phần tử với \texttt{currentSentenceWords} qua \texttt{normalizeWord()} (chuyển về chữ thường, loại dấu câu và khoảng trắng thừa). Khi độ dài hai mảng bằng nhau và toàn bộ từ khớp chính xác, hệ thống đặt \texttt{sentenceCorrect = true}, tự động gọi \texttt{markCompleted(currentIdx)} và hiển thị banner xác nhận. Người học có thể nhấn ``Next →'' (hoặc ``Finish ✓'' ở câu cuối) để tiến hành lưu tiến trình.
-\end{sloppypar}
-
-Khi người học nhấn ``Finish ✓'', \texttt{handleFinish()} gọi \texttt{shadowingApi.upsertProgress(\{lessonId, type: 'dictation', completedSentences: [...new Set([...completed, currentIdx])]\})} --- toán tử \texttt{Set} hợp nhất loại bỏ chỉ số trùng lặp trước khi gửi. Phía backend, endpoint \texttt{POST /shadowing/progress} thực hiện \texttt{upsert} theo cặp khóa \texttt{(userId, lessonId)} để đảm bảo mỗi người học chỉ có một bản ghi duy nhất cho mỗi bài; trường \texttt{completedSentences} được ghi đè bằng mảng mới nhất.
+Kiểm tra đáp án được kích hoạt mỗi khi người học chỉnh sửa nội dung nhập: hệ thống so sánh từng từ đã điền với đáp án chuẩn qua chuẩn hóa văn bản (chuyển về chữ thường, loại dấu câu và khoảng trắng thừa). Khi toàn bộ từ khớp chính xác, hệ thống tự động đánh dấu câu hoàn thành và hiển thị xác nhận. Khi người học hoàn thành bài, hệ thống loại bỏ trùng lặp trong danh sách chỉ số câu đã hoàn thành rồi gửi lên máy chủ. Phía máy chủ, bản ghi tiến trình được tạo mới hoặc cập nhật theo cặp định danh người học -- bài học để đảm bảo mỗi người học chỉ có một bản ghi duy nhất cho mỗi bài.
 
 % ============================================================
 % UC10 – ROADMAP
@@ -743,8 +890,8 @@ Khi người học nhấn ``Finish ✓'', \texttt{handleFinish()} gọi \texttt{
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC10} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và chưa hoàn thành quá trình khởi tạo hồ sơ IELTS (trường \texttt{onboardingCompleted = false} trong bảng \texttt{IeltsProfile}).} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bản ghi \texttt{IeltsProfile} được tạo mới hoặc cập nhật với mục tiêu band điểm, cam kết học hàng ngày, ngày thi dự kiến và cờ \texttt{onboardingCompleted = true}; nếu người học làm bài kiểm tra chẩn đoán và đạt điểm $\geq$ 90\% ở kỹ năng nào, toàn bộ bài học kỹ năng đó trong bảng \texttt{IeltsBasicProgress} được đánh dấu hoàn thành; người học được điều hướng đến lộ trình học tập cá nhân hóa tại \texttt{/ielts/roadmap}.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và chưa hoàn thành quá trình khởi tạo hồ sơ IELTS.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hồ sơ IELTS được tạo mới hoặc cập nhật với mục tiêu band điểm, cam kết học hàng ngày và ngày thi dự kiến; nếu người học làm bài kiểm tra chẩn đoán và đạt điểm $\geq$ 90\% ở kỹ năng nào, toàn bộ bài học kỹ năng đó được đánh dấu hoàn thành trong cơ sở dữ liệu; người học được điều hướng đến lộ trình học tập cá nhân hóa.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -758,45 +905,59 @@ Khi người học nhấn ``Finish ✓'', \texttt{handleFinish()} gọi \texttt{
     \hline
     \endlastfoot
     1. Nhấn vào mục ``IELTS'' trên thanh điều hướng chính. & \\ \hline
-    & 2. Tải trang lộ trình IELTS cơ bản; gọi \texttt{GET /ielts/roadmap}; phát hiện \texttt{requiresOnboarding = true} (do \texttt{IeltsProfile} chưa tồn tại hoặc \texttt{onboardingCompleted = false}); tự động điều hướng đến \texttt{/ielts/basic/onboarding}; hiển thị giao diện bước 1 với tiêu đề ``Let's personalize your IELTS roadmap.'' gồm ba mục nhập: \textit{Target IELTS Band Score} (tùy chọn từ 5.0 đến 8.5), \textit{Daily Study Commitment} (15/30/60/120 phút mỗi ngày) và \textit{Target Exam Date} (không bắt buộc). \\ \hline
+    & 2. Tải trang lộ trình IELTS; phát hiện người học chưa hoàn thành quá trình khởi tạo hồ sơ; tự động điều hướng đến trang onboarding; hiển thị giao diện bước 1 với tiêu đề ``Let's personalize your IELTS roadmap.'' gồm ba mục nhập: \textit{Target IELTS Band Score} (tùy chọn từ 5.0 đến 8.5), \textit{Daily Study Commitment} (15/30/60/120 phút mỗi ngày) và \textit{Target Exam Date} (không bắt buộc). \\ \hline
     2. Chọn band điểm mục tiêu, chọn mức cam kết học hàng ngày; (tùy chọn) chọn ngày thi dự kiến; nhấn ``Continue''. & \\ \hline
-    & 3. Lưu tạm thời ba thông số vào trạng thái cục bộ (\texttt{targetBand}, \texttt{dailyCommitment}, \texttt{examDate}); chuyển sang bước 2; hiển thị giao diện với câu hỏi ``Already know some English?'' và hai lựa chọn: \textbf{Take Short Placement Test} (nút chính) và \textbf{Skip and start from absolute basics} (liên kết phụ). \\ \hline
+    & 3. Lưu tạm thời ba thông số vào trạng thái cục bộ; chuyển sang bước 2; hiển thị giao diện với câu hỏi ``Already know some English?'' và hai lựa chọn: \textbf{Take Short Placement Test} (nút chính) và \textbf{Skip and start from absolute basics} (liên kết phụ). \\ \hline
     3. Nhấn ``Take Short Placement Test''. & \\ \hline
-    & 4. Chuyển sang bước 3; gọi \texttt{GET /ielts/placement-exercises} để tải cặp bài tập chẩn đoán; hiển thị giao diện bài kiểm tra với thanh tiến trình bốn giai đoạn: \textit{Listening → Reading → Writing → Finish}; chuyển sang giai đoạn Listening. \\ \hline
+    & 4. Chuyển sang bước 3; tải cặp bài tập chẩn đoán từ máy chủ; hiển thị giao diện bài kiểm tra với thanh tiến trình bốn giai đoạn: \textit{Listening → Reading → Writing → Finish}; chuyển sang giai đoạn Listening. \\ \hline
     & 5. Hiển thị giai đoạn Listening: phát đoạn audio kèm trình phát âm thanh có điều khiển; trình bày 4 câu hỏi dạng trắc nghiệm bên dưới. \\ \hline
     4. Nghe audio, chọn đáp án cho 4 câu hỏi; nhấn ``Submit \& Next''. & \\ \hline
-    & 6. Tính điểm Listening: đếm số câu đúng chia tổng số câu, quy về phần trăm (\texttt{calcScore()}); cập nhật thanh tiến trình; chuyển sang giai đoạn Reading; hiển thị giao diện hai cột --- bên trái là đoạn văn (passage), bên phải là 2 câu hỏi đọc hiểu. \\ \hline
+    & 6. Tính điểm Listening theo tỉ lệ phần trăm; cập nhật thanh tiến trình; chuyển sang giai đoạn Reading; hiển thị giao diện hai cột --- bên trái là đoạn văn, bên phải là 2 câu hỏi đọc hiểu. \\ \hline
     5. Đọc passage bên trái, chọn đáp án cho 2 câu hỏi bên phải; nhấn ``Submit \& Next''. & \\ \hline
-    & 7. Tính điểm Reading theo cùng công thức; cập nhật thanh tiến trình; chuyển sang giai đoạn Writing; hiển thị giao diện \textit{Writing Vocabulary Check} với một đoạn văn chứa các ô chỗ trống và danh sách từ chọn tương ứng cho từng ô. \\ \hline
+    & 7. Tính điểm Reading theo cùng công thức; cập nhật thanh tiến trình; chuyển sang giai đoạn Writing; hiển thị giao diện kiểm tra từ vựng dạng điền từ với đoạn văn chứa các ô chỗ trống và danh sách từ chọn. \\ \hline
     6. Chọn từ thích hợp điền vào từng ô chỗ trống trong đoạn văn; nhấn ``Submit \& Next''. & \\ \hline
-    & 8. Tính điểm Writing: so sánh từng đáp án đã chọn với đáp án đúng trong \texttt{writingClozeData}; tính điểm tổng thể \texttt{overall = (listening + reading + writing) / 3}; chuyển sang giai đoạn Finish; hiển thị trang ``Diagnostic Complete!'' gồm kết quả từng kỹ năng theo thang chất lượng (Excellent / Good / Needs Work / Beginner) và thông báo lộ trình đã được cá nhân hóa dựa trên kết quả. \\ \hline
+    & 8. Tính điểm Writing; tính điểm tổng thể trung bình ba kỹ năng; chuyển sang giai đoạn Finish; hiển thị trang ``Diagnostic Complete!'' gồm kết quả từng kỹ năng theo thang chất lượng (Excellent / Good / Needs Work / Beginner) và thông báo lộ trình đã được cá nhân hóa. \\ \hline
     7. Nhấn ``Continue to My Roadmap''. & \\ \hline
-    & 9. Gọi \texttt{POST /ielts/onboarding} với payload \texttt{\{targetBand, dailyCommitmentMins, examDate, takePlacement: true, placementScore, placementListening, placementReading, placementWriting\}}; thực hiện \texttt{upsert} bản ghi \texttt{IeltsProfile} với \texttt{onboardingCompleted = true}; với mỗi kỹ năng đạt điểm $\geq$ 90\%, gọi \texttt{processSkillCompletion()} để đánh dấu toàn bộ bài học kỹ năng đó là đã hoàn thành trong \texttt{IeltsBasicProgress}; điều hướng người học đến \texttt{/ielts/roadmap}. Kết thúc use-case. \\ \hline
+    & 9. Gửi thông tin onboarding lên máy chủ bao gồm mục tiêu band điểm, cam kết học, ngày thi và kết quả chẩn đoán; tạo hoặc cập nhật hồ sơ IELTS; với mỗi kỹ năng đạt điểm $\geq$ 90\%, đánh dấu toàn bộ bài học kỹ năng đó là đã hoàn thành; điều hướng người học đến trang lộ trình. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 3.1. Người học nhấn ``Skip and start from absolute basics'' (tại bước 2): hệ thống gọi ngay \texttt{POST /ielts/onboarding} với \texttt{\{takePlacement: false, placementScore: 0\}}; tạo \texttt{IeltsProfile} với \texttt{onboardingCompleted = true} nhưng không đánh dấu bài học nào hoàn thành; toàn bộ lộ trình giữ nguyên từ bài đầu tiên; điều hướng đến \texttt{/ielts/roadmap}. \\ \hline
-    & 9.1. Lỗi mạng khi gọi \texttt{POST /ielts/onboarding}: hệ thống hiển thị thông báo lỗi ``Failed to save profile. Please try again.''; đặt lại cờ \texttt{isSubmitting = false} để người học có thể thử lại mà không mất dữ liệu đã nhập. \\ \hline
+    3.1. Nhấn ``Skip and start from absolute basics'' (tại bước 2). & \\ \hline
+    & 3.2. Tạo hồ sơ IELTS ngay lập tức với điểm chẩn đoán bằng 0, không đánh dấu bài học nào hoàn thành; toàn bộ lộ trình bắt đầu từ bài đầu tiên; điều hướng đến trang lộ trình. \\ \hline
+    & 9.1. Lỗi mạng khi lưu hồ sơ: hệ thống hiển thị thông báo lỗi và cho phép người học thử lại mà không mất dữ liệu đã nhập. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC10
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc10.png}
+    \caption{Sơ đồ activity UC10 -- Xây dựng lộ trình học tập}
+    \label{fig:activity-uc10}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc10.png}
+    \caption{Sơ đồ tuần tự UC10 -- Xây dựng lộ trình học tập}
+    \label{fig:sequence-uc10}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Trang onboarding (\texttt{app/ielts/basic/onboarding/page.tsx}) quản lý luồng ba bước qua biến trạng thái \texttt{step} (kiểu số nguyên 1--3). Bước 1 thu thập mục tiêu: người học chọn \texttt{targetBand} trong dải 5.0--8.5, \texttt{dailyCommitment} theo bốn tùy chọn thời gian cố định (mặc định 30 phút) và \texttt{examDate} không bắt buộc. Nhấn ``Continue'' đơn giản chuyển \texttt{step = 2} mà không gọi API, các thông số được giữ trong state cục bộ.
+Trang onboarding quản lý luồng ba bước qua biến trạng thái số nguyên. Bước 1 thu thập mục tiêu học tập: người học chọn band điểm trong dải 5.0--8.5, mức cam kết học hàng ngày theo bốn tùy chọn thời gian cố định và ngày thi dự kiến không bắt buộc. Nhấn ``Continue'' chuyển sang bước tiếp theo mà không gọi API, các thông số được giữ trong trạng thái cục bộ.
 
-Luồng phát hiện onboarding diễn ra trước khi trang này hiển thị: các component \texttt{RoadmapContent} và \texttt{RoadmapSidebar} trong trang lộ trình IELTS cơ bản gọi \texttt{GET /ielts/roadmap} khi mount; phía backend, \texttt{IeltsRoadmapService.generateRoadmap()} kiểm tra bản ghi \texttt{IeltsProfile} của người dùng --- nếu chưa tồn tại hoặc \texttt{onboardingCompleted = false}, hàm trả về \texttt{\{steps: [], requiresOnboarding: true\}}; phía client nhận kết quả này và gọi \texttt{router.push("/ielts/basic/onboarding")} để điều hướng.
-
-\begin{sloppypar}
-Component \texttt{DiagnosticQuiz} (\texttt{DiagnosticQuiz.tsx}) quản lý bài kiểm tra chẩn đoán qua biến \texttt{stage: "listening" | "reading" | "writing" | "finish"}. Khi mount, component gọi \texttt{axios.get(`\${API\_BASE\_URL}/ielts/placement-exercises`)} để tải cặp bài tập \texttt{\{listening: ListeningExercise, reading: ReadingExercise\}}; giai đoạn Writing dùng dữ liệu tĩnh \texttt{writingClozeData} đóng gói sẵn trong bundle, không cần gọi API riêng. Hàm \texttt{handleNext(skill, score, total)} tính phần trăm \texttt{(score / total) * 100} và cập nhật \texttt{scores} state; khi giai đoạn Writing kết thúc, \texttt{overall = Math.round((listening + reading + writing) / 3)} được tính trước khi chuyển sang stage ``finish''.
-\end{sloppypar}
-
-Giai đoạn Listening tái sử dụng component \texttt{ListeningQuestionsPanel} và \texttt{AudioPlayer} từ module luyện tập IELTS cơ bản, cùng hàm tiện ích \texttt{calcScore()} và \texttt{getTrackerItems()} từ \texttt{SharedScoreUtils}. Giai đoạn Reading bố cục hai cột 50/50: \texttt{ReadingPassagePanel} bên trái và \texttt{ReadingQuestionsPanel} bên phải. Giai đoạn Writing dùng dạng bài cloze: đoạn văn được kết xuất từ mảng \texttt{writingClozeData.paragraph} --- phần tử kiểu \texttt{"text"} in ra trực tiếp, phần tử kiểu \texttt{"blank"} kết xuất thẻ \texttt{<select>} với danh sách lựa chọn.
+Luồng phát hiện trạng thái onboarding diễn ra trước khi trang lộ trình IELTS hiển thị: hệ thống kiểm tra hồ sơ IELTS của người dùng; nếu chưa tồn tại hoặc chưa hoàn thành onboarding, máy chủ trả về tín hiệu yêu cầu onboarding và phía client tự động điều hướng đến trang khởi tạo hồ sơ.
 
 \begin{sloppypar}
-Phía backend, \texttt{processOnboarding()} trong \texttt{IeltsRoadmapService} thực hiện \texttt{prisma.ieltsProfile.upsert(\{where: \{userId\}, update: \{...\}, create: \{...\}\})} để đảm bảo mỗi người dùng chỉ có một bản ghi duy nhất, tránh lỗi unique constraint khi gọi lại nhiều lần. Nếu \texttt{takePlacement = true}, hệ thống duyệt qua ba kỹ năng (Listening, Reading, Writing): với kỹ năng có điểm $\geq$ 90\%, hàm \texttt{processSkillCompletion()} truy vấn toàn bộ bài học của kỹ năng đó (\texttt{IeltsBasicLesson}) rồi với mỗi bài, thực hiện \texttt{upsert} bản ghi \texttt{IeltsBasicProgress} với \texttt{isCompleted = true}; đối với kỹ năng Listening, các exercise tương ứng (\texttt{IeltsBasicListeningExercise}) cũng được đánh dấu hoàn thành. Cơ chế này đảm bảo người học có trình độ sẵn có không phải lặp lại bài học cơ bản, lộ trình sẽ bắt đầu từ bước phù hợp với năng lực thực tế.
+Bài kiểm tra chẩn đoán được quản lý qua biến trạng thái giai đoạn với bốn bước tuần tự: Listening, Reading, Writing và Finish. Khi khởi tạo, hệ thống tải bài tập Listening và Reading từ máy chủ; giai đoạn Writing sử dụng dữ liệu bài tập tĩnh đóng gói sẵn trong bundle, không cần gọi API riêng. Sau mỗi giai đoạn, điểm số được tính theo tỉ lệ phần trăm và lưu vào trạng thái cục bộ; điểm tổng thể được tính trung bình ba kỹ năng khi hoàn thành giai đoạn Writing.
 \end{sloppypar}
 
-Sau khi API trả về thành công, client điều hướng bằng \texttt{window.location.href = "/ielts/roadmap"} thay vì \texttt{router.push()} để buộc trình duyệt tải lại toàn bộ trang --- cần thiết vì layout IELTS đọc trạng thái \texttt{onboardingCompleted} khi khởi tạo và phải nhận dữ liệu mới nhất từ server sau khi hồ sơ được tạo xong.
+Giai đoạn Listening tái sử dụng các thành phần giao diện từ module luyện tập IELTS cơ bản. Giai đoạn Reading bố cục hai cột: đoạn văn bên trái và câu hỏi đọc hiểu bên phải. Giai đoạn Writing dùng dạng bài điền từ: đoạn văn xen kẽ giữa nội dung in sẵn và ô lựa chọn từ, kết xuất liền mạch theo cấu trúc dữ liệu định nghĩa sẵn.
+
+\begin{sloppypar}
+Phía máy chủ, quá trình xử lý onboarding sử dụng cơ chế tạo mới hoặc cập nhật để đảm bảo mỗi người dùng chỉ có một hồ sơ IELTS duy nhất, tránh xung đột khi gọi lại nhiều lần. Nếu người học làm bài kiểm tra chẩn đoán, hệ thống duyệt qua ba kỹ năng: với kỹ năng đạt điểm $\geq$ 90\%, toàn bộ bài học và bài tập của kỹ năng đó được đánh dấu hoàn thành trong cơ sở dữ liệu. Cơ chế này đảm bảo người học có trình độ sẵn có không phải lặp lại bài học cơ bản, lộ trình sẽ bắt đầu từ bước phù hợp với năng lực thực tế.
+\end{sloppypar}
+
+Sau khi API trả về thành công, giao diện tải lại toàn bộ trang thay vì điều hướng thông thường, vì layout IELTS cần đọc trạng thái hồ sơ mới nhất từ máy chủ để hiển thị đúng nội dung lộ trình sau khi tạo hồ sơ xong.
 
 % ============================================================
 % UC11 – POST (Community)
@@ -811,7 +972,7 @@ Sau khi API trả về thành công, client điều hướng bằng \texttt{wind
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC11} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài đăng mới được lưu vào cơ sở dữ liệu qua \texttt{POST /posts}; bài xuất hiện ngay đầu feed mà không cần tải lại trang; người học nhận +5 XP và huy hiệu \texttt{CM\_FIRST\_POST} nếu đây là bài đăng đầu tiên.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài đăng mới được lưu vào cơ sở dữ liệu; bài xuất hiện ngay đầu feed mà không cần tải lại trang; người học nhận +5 XP và huy hiệu bài đăng đầu tiên nếu đây là lần đăng đầu tiên.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -825,38 +986,52 @@ Sau khi API trả về thành công, client điều hướng bằng \texttt{wind
     \hline
     \endlastfoot
     1. Nhấn vào mục ``Community'' trên thanh điều hướng. & \\ \hline
-    & 2. Tải trang Community; gọi \texttt{GET /posts?limit=20} để lấy danh sách bài đăng gần nhất; hiển thị giao diện feed mặc định gồm: ba bộ lọc dạng tag tròn (\textit{All Posts}, \textit{Study Tips}, \textit{Achievements}), ô gợi nhắc ``What's happening?'' kèm thanh công cụ icon và nút ``Post'' ở dưới. \\ \hline
+    & 2. Tải danh sách bài đăng gần nhất; hiển thị giao diện feed mặc định gồm: ba bộ lọc dạng tag tròn (\textit{All Posts}, \textit{Study Tips}, \textit{Achievements}), ô gợi nhắc ``What's happening?'' kèm thanh công cụ icon và nút ``Post'' ở dưới. \\ \hline
     2. Nhấn vào ô gợi nhắc ``What's happening?'' hoặc nút ``Post'' trên thanh công cụ. & \\ \hline
-    & 3. Hiển thị modal \textbf{Create Post} bao gồm: phần chọn loại bài gồm ba tag tròn (\textit{GENERAL}, \textit{STUDY TIP}, \textit{SCORE ACHIEVEMENT}) với \textit{GENERAL} được chọn mặc định; ô nhập \textit{Title (optional)}; ô văn bản lớn \textit{What's on your mind?}; mục \textit{Topics \& Tags} với 9 tag chọn được (\textit{Listening, Reading, Writing, Speaking, FoundationVocabWord, Grammar, Pronunciation, TOEIC, IELTS}); thanh footer gồm nút ``Add Image'' bên trái, nút ``Cancel'' và ``Post'' bên phải. \\ \hline
-    3. Chọn loại bài đăng (type); (tùy chọn) nhập tiêu đề; nhập nội dung bài đăng; (tùy chọn) nhấn các tag chủ đề phù hợp. & \\ \hline
-    & 4. Cập nhật giao diện theo lựa chọn: tag loại được tô màu chính khi được chọn; tag chủ đề chuyển sang viền và nền màu chính khi được kích hoạt; nút ``Post'' chỉ được kích hoạt khi ô nội dung không rỗng. \\ \hline
+    & 3. Hiển thị hộp thoại \textbf{Create Post} bao gồm: phần chọn loại bài gồm ba tùy chọn (\textit{GENERAL}, \textit{STUDY TIP}, \textit{SCORE ACHIEVEMENT}) với \textit{GENERAL} được chọn mặc định; ô nhập tiêu đề (tùy chọn); ô văn bản nội dung; mục chọn chủ đề với 9 tag; nút thêm ảnh, nút hủy và nút đăng bài. \\ \hline
+    3. Chọn loại bài đăng; (tùy chọn) nhập tiêu đề; nhập nội dung bài đăng; (tùy chọn) nhấn các tag chủ đề phù hợp. & \\ \hline
+    & 4. Cập nhật giao diện theo lựa chọn: tag loại được tô màu khi được chọn; tag chủ đề chuyển màu khi được kích hoạt; nút ``Post'' chỉ được kích hoạt khi ô nội dung không rỗng. \\ \hline
     4. Nhấn nút ``Add Image''; chọn một hoặc nhiều file ảnh từ thiết bị. & \\ \hline
-    & 5. Gọi \texttt{POST /posts/images/upload} (multipart/form-data, field \texttt{file}) cho từng ảnh được chọn (tối đa $4 - \text{số ảnh hiện có}$ ảnh, xử lý song song); hiển thị spinner trên nút ``Add Image'' trong khi upload; sau khi thành công, hiển thị lưới preview ảnh dạng 2 cột bên dưới ô nội dung, mỗi ảnh có nút xóa (X) ở góc trên phải. \\ \hline
+    & 5. Tải lên từng ảnh được chọn (tối đa $4 - \text{số ảnh hiện có}$ ảnh, xử lý song song) dưới dạng tệp đính kèm; hiển thị trạng thái đang tải trong khi upload; sau khi thành công, hiển thị lưới xem trước ảnh bên dưới ô nội dung, mỗi ảnh có nút xóa ở góc trên phải. \\ \hline
     5. Nhấn nút ``Post''. & \\ \hline
-    & 6. Đặt cờ \texttt{isSubmitting = true}, hiển thị spinner trên nút; gọi \texttt{POST /posts} với payload \texttt{\{type, title, body, tags, imageUrls\}}; phía backend tạo bản ghi \texttt{Post} trong cơ sở dữ liệu, kích hoạt bất đồng bộ sự kiện gamification (+5 XP, achievement \texttt{CM\_FIRST\_POST}); nhận lại đối tượng bài mới kèm thông tin tác giả; reset toàn bộ form về trạng thái ban đầu; đóng modal; inject bài mới vào đầu feed qua prop \texttt{newPost} mà không cần gọi lại API danh sách. Kết thúc use-case. \\ \hline
+    & 6. Hiển thị trạng thái đang xử lý; gửi bài đăng lên máy chủ với thông tin loại bài, tiêu đề, nội dung, danh sách chủ đề và đường dẫn ảnh; máy chủ lưu bài vào cơ sở dữ liệu và kích hoạt bất đồng bộ sự kiện gamification (+5 XP); nhận lại bài mới kèm thông tin tác giả; xóa trắng form; đóng hộp thoại; chèn bài mới vào đầu feed ngay lập tức mà không cần tải lại danh sách. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-    & 3.1. Người học nhấn ``Cancel'': modal đóng lại ngay lập tức, toàn bộ nội dung đã nhập bị hủy bỏ; feed không thay đổi. \\ \hline
-    & 5.1. Đã có đủ 4 ảnh: nút ``Add Image'' bị vô hiệu hóa (\texttt{disabled}), người học không thể chọn thêm. \\ \hline
-    & 5.2. Lỗi mạng khi upload ảnh: hệ thống hiển thị cảnh báo ``Failed to upload image. Please try again.''; đặt lại \texttt{isUploading = false}; các ảnh upload thành công trước đó vẫn được giữ nguyên. \\ \hline
-    & 6.1. Lỗi mạng khi tạo bài đăng: hệ thống hiển thị cảnh báo ``Failed to create post. Please try again.''; đặt lại \texttt{isSubmitting = false}; nội dung form và ảnh đã chọn không bị mất, người học có thể thử lại. \\ \hline
+    3.1. Nhấn ``Cancel'' để hủy bài đăng. & \\ \hline
+    & 3.2. Đóng hộp thoại, hủy toàn bộ nội dung đã nhập; feed không thay đổi. \\ \hline
+    & 5.1. Đã có đủ 4 ảnh: nút ``Add Image'' bị vô hiệu hóa, người học không thể chọn thêm. \\ \hline
+    & 5.2. Lỗi mạng khi tải ảnh lên: hệ thống hiển thị cảnh báo lỗi; các ảnh đã tải thành công trước đó vẫn được giữ nguyên. \\ \hline
+    & 6.1. Lỗi mạng khi tạo bài đăng: hệ thống hiển thị cảnh báo lỗi; nội dung form và ảnh đã chọn không bị mất, người học có thể thử lại. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
-% TODO: Bổ sung sơ đồ activity UC11
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc11.png}
+    \caption{Sơ đồ activity UC11 -- Đăng bài trong Community}
+    \label{fig:activity-uc11}
+\end{figure}
+
+\subsubsection{Sơ đồ tuần tự}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc11.png}
+    \caption{Sơ đồ tuần tự UC11 -- Đăng bài trong Community}
+    \label{fig:sequence-uc11}
+\end{figure}
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Trang Community (\texttt{app/community/page.tsx}) sử dụng query parameter \texttt{tab} để điều hướng giữa các chế độ hiển thị feed: \texttt{tab=all} (mặc định) ánh xạ sang \texttt{filterType = 'ALL'}, \texttt{tab=study-tips} sang \texttt{'STUDY\_TIP'} và \texttt{tab=achievements} sang \texttt{'SCORE\_ACHIEVEMENT'}. Ô gợi nhắc đăng bài (``What's happening?'') chỉ hiển thị khi người dùng đã xác thực (\texttt{isAuthenticated = true}) và tab hiện tại không phải \texttt{leaderboard}; toàn bộ vùng này được bọc trong \texttt{onClick={() => setIsModalOpen(true)}} để mở modal khi nhấn vào bất kỳ điểm nào.
+Trang Community sử dụng tham số điều hướng để phân biệt các chế độ hiển thị feed: All Posts, Study Tips và Achievements. Ô gợi nhắc đăng bài chỉ hiển thị khi người dùng đã xác thực và tab hiện tại là một trong ba chế độ feed chính, không hiển thị ở tab bảng xếp hạng.
 
 \begin{sloppypar}
-Component \texttt{CreatePostModal} là modal độc lập quản lý toàn bộ trạng thái form cục bộ: \texttt{type} (kiểu \texttt{PostType}, mặc định \texttt{'GENERAL'}), \texttt{title}, \texttt{body}, \texttt{tags} (mảng chuỗi), \texttt{imageUrls} (mảng URL đã upload), \texttt{isUploading} và \texttt{isSubmitting}. Modal chỉ được kết xuất khi \texttt{isOpen = true}; khi \texttt{isOpen = false}, component trả về \texttt{null} ngay từ đầu hàm render để không chiếm tài nguyên DOM.
+Hộp thoại tạo bài đăng là thành phần độc lập quản lý toàn bộ trạng thái form cục bộ: loại bài, tiêu đề, nội dung, danh sách chủ đề, danh sách đường dẫn ảnh đã tải lên và các cờ trạng thái đang tải ảnh/đang gửi bài. Hộp thoại chỉ được kết xuất khi mở, khi đóng sẽ giải phóng hoàn toàn khỏi cây DOM để không chiếm tài nguyên.
 \end{sloppypar}
 
-Hàm \texttt{handleImageUpload()} nhận sự kiện \texttt{onChange} từ thẻ \texttt{<input type="file" multiple>} ẩn bên trong nhãn ``Add Image''; số ảnh được chọn bị giới hạn bằng cách lấy \texttt{Array.from(e.target.files).slice(0, 4 - imageUrls.length)} trước khi upload. Các ảnh được upload song song qua \texttt{Promise.all()}, mỗi ảnh gọi \texttt{postsApi.uploadImage(file)} → \texttt{POST /posts/images/upload} với header \texttt{Content-Type: multipart/form-data}. Phía backend, endpoint này dùng decorator \texttt{@UseInterceptors(FileInterceptor("file"))} để parse file, sau đó gọi \texttt{storageService.uploadFile(file, "post\_images")} để lưu vào MinIO (môi trường dev) hoặc S3 (môi trường production) và trả về \texttt{\{url\}}.
+Khi người học chọn ảnh, số lượng ảnh được giới hạn theo số lượng ảnh còn có thể thêm (tối đa 4 ảnh tổng cộng). Các ảnh được tải lên song song, mỗi ảnh gửi dưới dạng tệp đính kèm đa phần đến máy chủ. Phía máy chủ, tệp được lưu vào kho lưu trữ đối tượng (MinIO trong môi trường phát triển, S3 trong môi trường sản xuất) và trả về đường dẫn công khai.
 
 \begin{sloppypar}
-Hàm \texttt{handleSubmit()} kiểm tra \texttt{body.trim()} trước khi gửi; nếu rỗng, hàm thoát sớm (nút ``Post'' cũng bị \texttt{disabled} ở tầng UI). Payload gửi đến \texttt{POST /posts} bao gồm \texttt{type}, \texttt{title: title.trim() || undefined} (bỏ qua trường nếu rỗng), \texttt{body}, \texttt{tags} và \texttt{imageUrls}. Phía backend, \texttt{PostsService.createPost()} tạo bản ghi \texttt{Post} qua \texttt{prisma.post.create()} với \texttt{include: \{author: \{select: AUTHOR\_SELECT\}\}} để trả về thông tin tác giả trong cùng một query. Sau khi tạo thành công, hàm gọi bất đồng bộ \texttt{gamificationService.onEvent(userId, \{xp: 5, reason: "COMMUNITY\_POST", achievementKeys: ["CM\_FIRST\_POST"]\})} với \texttt{.catch(() => \{\})} để đảm bảo lỗi gamification không ảnh hưởng đến response trả về client.
+Trước khi gửi bài, hệ thống kiểm tra nội dung bài đăng không được rỗng ở cả hai tầng: tầng giao diện vô hiệu hóa nút ``Post'' khi ô nội dung rỗng, tầng logic kiểm tra lại trước khi thực hiện yêu cầu. Phía máy chủ, bài đăng được lưu vào cơ sở dữ liệu kèm thông tin tác giả trong cùng một thao tác truy vấn. Sau khi lưu thành công, cơ chế gamification được kích hoạt bất đồng bộ để đảm bảo lỗi trong quá trình xử lý điểm thưởng không ảnh hưởng đến phản hồi trả về cho người dùng.
 \end{sloppypar}
 
-Sau khi \texttt{postsApi.createPost()} trả về thành công, component gọi \texttt{onPostCreated(post)} để truyền bài mới lên component cha; tại đây, state \texttt{newPost} của trang Community được cập nhật. \texttt{PostFeed} nhận prop \texttt{newPost} và inject bài đó vào đầu danh sách đang hiển thị mà không cần gọi lại \texttt{GET /posts}, tránh độ trễ và giữ nguyên vị trí cuộn của người dùng. Nếu tab hiện tại không phải \texttt{all}, \texttt{study-tips} hay \texttt{achievements}, trang tự động điều hướng về \texttt{/community} để bài mới hiển thị trong feed chính.
+Sau khi tạo bài thành công, giao diện chèn bài mới vào đầu danh sách feed hiện tại mà không cần gọi lại API danh sách, tránh độ trễ và giữ nguyên vị trí cuộn của người dùng. Nếu tab hiện tại không phải một trong ba chế độ feed chính, trang tự động điều hướng về feed mặc định để bài mới hiển thị đúng vị trí.
 
