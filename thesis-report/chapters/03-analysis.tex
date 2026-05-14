@@ -128,39 +128,39 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     \endlastfoot
     UC01 & Đăng ký tài khoản & Người học tạo tài khoản mới bằng email và mật khẩu; hệ thống mã hóa mật khẩu (bcrypt), lưu thông tin vào cơ sở dữ liệu và cấp JWT access token cùng refresh token ngay sau khi đăng ký thành công. \\ \hline
     UC02 & Đăng nhập & Người học đăng nhập bằng email/mật khẩu hoặc Google OAuth; hệ thống xác thực thông tin và cấp JWT. Session được duy trì thông qua cơ chế refresh token tự động. \\ \hline
-    UC03 & Tạo loại thẻ học & Người học tạo loại thẻ học (Card Type) mới trong Vocab Lab: đặt tên, định nghĩa các trường dữ liệu (Fields) với kiểu Text hoặc Media, cấu hình mẫu hiển thị hai mặt (Templates) và xem trước thẻ (Preview) trước khi lưu để sử dụng khi tạo Flashcard. \\ \hline
-    UC04 & Tra cứu và thêm từ vựng bằng AI & Người học bôi đen từ hoặc cụm từ trong nội dung bài học để Lexon AI sinh giải thích theo cấu trúc loại thẻ đã chọn; sau khi xem lại và chỉnh sửa nội dung, người học thêm Flashcard trực tiếp vào Vocab Lab mà không rời khỏi trang học. \\ \hline
-    UC05 & Học từ vựng nền tảng IELTS & Người học chọn đầu sách và unit trong phân hệ từ vựng, học từ qua Flashcard lật 3D và đánh giá SRS (Again/Hard/Good/Easy) để lưu từ vào Vocab Lab; hoàn thành bài đọc hiểu cuối unit đạt điểm tuyệt đối để đánh dấu unit hoàn thành và nhận 15~XP. \\ \hline
+    UC03 & Học từ vựng nền tảng IELTS & Người học chọn đầu sách và unit trong phân hệ từ vựng, học từ qua Flashcard lật 3D và đánh giá SRS (Again/Hard/Good/Easy) để lưu từ vào Vocab Lab; hoàn thành bài đọc hiểu cuối unit đạt điểm tuyệt đối để đánh dấu unit hoàn thành và nhận 15~XP. \\ \hline
+    UC04 & Học ngữ pháp nền tảng IELTS & Người học truy cập bài học ngữ pháp theo cấp độ, đọc lý thuyết rồi làm bài tập trắc nghiệm hoặc điền vào chỗ trống; hệ thống tự động chấm điểm, cộng 15~XP khi hoàn thành đơn vị bài học đạt điểm tuyệt đối và lưu tiến độ để theo dõi. \\ \hline
+    UC05 & Học phát âm nền tảng IELTS & Người học xem bảng IPA, chọn từng âm để luyện phát âm qua các từ ví dụ và nhận 5~XP mỗi lần hoàn thành; khi đạt độ chính xác $\geq 80$ điểm trên một âm, hệ thống đánh dấu ``MASTERED'' và cộng thêm 10~XP. \\ \hline
     UC06 & Học bài Listening IELTS cơ bản & Người học học lý thuyết dạng câu hỏi Listening kèm quiz trắc nghiệm (nhận 10~XP), hoặc luyện bài tập nghe chuẩn IELTS với tính năng seek theo thời gian (nhận 15~XP khi đạt điểm tuyệt đối); tiến độ và chuỗi học liên tiếp được cập nhật sau mỗi lần hoàn thành. \\ \hline
-    UC07 & Luyện Reading IELTS nâng cao & Người học (yêu cầu gói Premium hoặc Pro) chọn bài luyện Reading theo Part, đọc đoạn văn học thuật trên giao diện hai cột và trả lời các dạng câu hỏi chuẩn IELTS; hệ thống chấm điểm, lưu phiên luyện tập và hiển thị Score Report với tính năng Locate, Explain và Note; nhận 20~XP (thêm 10~XP nếu tỷ lệ đúng $\geq 80\%$). \\ \hline
-    UC08 & Thi thử Speaking (Mock Test) & Người học kiểm tra thiết bị (tai nghe và microphone), tiến hành thi thử Speaking toàn phần 3 Parts với video giám khảo AI và đồng hồ đếm ngược chuẩn IELTS; ghi âm câu trả lời từng câu; nộp bài để AI chấm điểm bất đồng bộ và trả về band điểm kèm nhận xét theo bốn tiêu chí IELTS Speaking. \\ \hline
-    UC09 & Luyện viết với Dictation & Người học chọn bài Dictation, nghe audio theo câu và điền từ bị đục lỗ vào transcript theo bốn cấp độ khó (Beginner/Intermediate/Advanced/Expert) với gợi ý tiệm tiến; kiểm tra đáp án từng câu và lưu tiến trình hoàn thành vào cơ sở dữ liệu; chuỗi học liên tiếp được ghi nhận. \\ \hline
-    UC10 & Xây dựng lộ trình học tập & Người học thiết lập hồ sơ IELTS bằng cách chọn band điểm mục tiêu, mức cam kết học hàng ngày và ngày thi dự kiến; tùy chọn làm bài kiểm tra chẩn đoán ba kỹ năng; hệ thống sinh lộ trình học cá nhân hóa và tự động đánh dấu hoàn thành các kỹ năng đạt điểm $\geq 90\%$. \\ \hline
-    UC11 & Đăng bài trong Community & Người học tạo bài đăng (loại General/Study Tip/Score Achievement) kèm tiêu đề, nội dung, tag chủ đề và tối đa 4 ảnh đính kèm; bài xuất hiện ngay đầu feed sau khi đăng thành công; người học nhận +5~XP và huy hiệu bài đăng đầu tiên (nếu là lần đăng đầu tiên). \\ \hline
-    UC12 & Học ngữ pháp nền tảng IELTS & Người học truy cập bài học ngữ pháp theo cấp độ, đọc lý thuyết rồi làm bài tập trắc nghiệm hoặc điền vào chỗ trống; hệ thống tự động chấm điểm, cộng 15~XP khi hoàn thành đơn vị bài học đạt điểm tuyệt đối và lưu tiến độ để theo dõi. \\ \hline
-    UC13 & Học phát âm nền tảng IELTS & Người học xem bảng IPA, chọn từng âm để luyện phát âm qua các từ ví dụ và nhận 5~XP mỗi lần hoàn thành; khi đạt độ chính xác $\geq 80$ điểm trên một âm, hệ thống đánh dấu ``MASTERED'' và cộng thêm 10~XP. \\ \hline
-    UC14 & Học bài Reading IELTS cơ bản & Người học đọc đoạn văn và trả lời các câu hỏi (trắc nghiệm, nối cặp, điền từ) trong bài Reading cơ bản; hệ thống tự động chấm điểm, cộng 15~XP và lưu trạng thái hoàn thành sau khi nộp. \\ \hline
-    UC15 & Học bài Writing IELTS cơ bản & Người học làm bài Writing cơ bản dạng điền vào chỗ trống (cloze); hệ thống so khớp từ điền với đáp án mẫu, tính điểm, cộng 15~XP và lưu lại bài làm để xem lại sau. \\ \hline
-    UC16 & Học bài Speaking IELTS cơ bản & Người học luyện Speaking cơ bản theo từng Part, nghe câu hỏi và ghi âm câu trả lời; hệ thống lưu bản ghi âm, cộng 15~XP và đánh dấu hoàn thành sau khi nộp bài. \\ \hline
-    UC17 & Luyện Listening IELTS nâng cao & Người học (yêu cầu gói Premium hoặc Pro) chọn Part Listening nâng cao (Part~1--4), nghe audio và trả lời các dạng câu hỏi chuẩn IELTS; hệ thống chấm điểm, cộng 20~XP mỗi lần nộp (thêm 10~XP nếu $\geq 80\%$) và lưu kết quả chi tiết. \\ \hline
-    UC18 & Luyện Writing IELTS nâng cao & Người học chọn đề Writing nâng cao (Task~1 hoặc Task~2), viết bài luận và nộp; hệ thống lưu bài với timestamp để theo dõi quá trình luyện tập qua thời gian. \\ \hline
-    UC19 & Luyện Speaking IELTS nâng cao & Người học luyện tập Speaking theo từng Part (1/2/3), ghi âm câu trả lời và nhận đánh giá tự động từ AI về phát âm, ngữ pháp, từ vựng và độ mạch lạc. \\ \hline
-    UC20 & Thi thử Listening (Mock Test) & Người học thi thử phần Listening đầy đủ theo chuẩn IELTS (4 section, 40 câu, 30 phút nghe + 10 phút chép đáp án); nhận band điểm ước tính sau khi nộp bài. \\ \hline
-    UC21 & Thi thử Reading (Mock Test) & Người học thi thử phần Reading đầy đủ (3 passage, 40 câu, 60 phút); nhận band điểm ước tính sau khi nộp bài. \\ \hline
-    UC22 & Thi thử Writing (Mock Test) & Người học thi thử phần Writing đầy đủ (Task~1 + Task~2, 60 phút); bài được chấm tự động bởi AI và trả về band điểm kèm nhận xét theo từng tiêu chí. \\ \hline
-    UC23 & Xem lịch sử bài thi & Người học mở trang Lịch sử để xem danh sách tất cả các phiên thi đã thực hiện, lọc theo kỹ năng (Listening/Reading/Writing/Speaking), xem chi tiết band điểm từng bài và xóa kết quả cũ nếu cần. \\ \hline
-    UC24 & Xem thống kê IELTS tổng quan & Người học xem dashboard thống kê tổng quan: band điểm ước tính từng kỹ năng, mục tiêu học hàng ngày, heatmap hoạt động, đếm ngược ngày thi. \\ \hline
-    UC25 & Xem thống kê IELTS theo cấp độ & Người học xem thống kê chi tiết phân theo cấp độ: Foundation, Basic, Advanced và Intensive; mỗi tab cung cấp biểu đồ và chỉ số riêng cho cấp độ tương ứng. \\ \hline
-    UC26 & Tính toán điểm và yêu cầu & Người học sử dụng công cụ Calculator để ước tính band điểm IELTS dựa trên số câu đúng từng phần, hoặc tính số câu cần đúng để đạt band mục tiêu. \\ \hline
-    UC27 & Luyện đọc với Shadowing & Người học luyện kỹ năng nói đuổi (Shadowing): chọn bài video theo thư mục/chủ đề, nghe và nói lại từng câu; hệ thống đánh dấu tiến độ từng câu theo phiên luyện và cập nhật chuỗi học liên tiếp. \\ \hline
-    UC28 & Tạo bài học Shadowing của tôi & Người học paste URL YouTube để tạo bài Shadowing cá nhân; hệ thống AI tự động trích xuất giọng nói, phân tách thành câu và lưu bài với trạng thái READY để sử dụng trong giao diện Shadowing. \\ \hline
-    UC29 & Tạo bài học Dictation của tôi & Người học paste URL YouTube để tạo bài Dictation cá nhân; hệ thống AI tự động trích xuất và phân tách nội dung giọng nói thành câu, lưu bài với trạng thái READY để luyện nghe--chép. \\ \hline
-    UC30 & Quản lý bộ từ vựng (Vocab Lab) & Người học tạo bộ thẻ từ vựng (Deck) cá nhân, thêm và chỉnh sửa Flashcard với định dạng tùy chỉnh (trường dữ liệu, kiểu thẻ), gắn tag và tải lên ảnh/âm thanh. \\ \hline
-    UC31 & Nhập bộ từ vựng từ cộng đồng & Người học tìm kiếm và import bộ từ vựng đã được người khác chia sẻ công khai trong Community Marketplace của Vocab Lab về thư viện cá nhân. \\ \hline
-    UC32 & Xuất và chia sẻ bộ từ vựng & Người học xuất bản bộ từ vựng của mình lên Community Marketplace để chia sẻ với cộng đồng; có thể cấu hình tags, mô tả và trạng thái công khai. \\ \hline
-    UC33 & Xem thống kê từ vựng & Người học xem báo cáo thống kê Vocab Lab: số thẻ theo trạng thái SRS (New/Learning/Review/Mature), biểu đồ lịch ôn tập và lịch sử điểm đánh giá. \\ \hline
-    UC34 & Xem thông báo & Người học mở danh sách thông báo (hoàn thành Dictation, bài thi được chấm điểm, đạt streak, thông báo hệ thống) theo thứ tự mới nhất; có thể đánh dấu đã đọc từng mục hoặc tất cả và nhấn vào thông báo để điều hướng đến trang liên quan. \\ \hline
-    UC35 & Xem và tạo bài đăng cộng đồng & Người học xem feed bài đăng của cộng đồng (Study Tips, Achievements, General), tạo bài đăng mới kèm hình ảnh, tương tác bằng Like, Bookmark, Comment và Reply. \\ \hline
+    UC07 & Học bài Reading IELTS cơ bản & Người học đọc đoạn văn và trả lời các câu hỏi (trắc nghiệm, nối cặp, điền từ) trong bài Reading cơ bản; hệ thống tự động chấm điểm, cộng 15~XP và lưu trạng thái hoàn thành sau khi nộp. \\ \hline
+    UC08 & Học bài Writing IELTS cơ bản & Người học làm bài Writing cơ bản dạng điền vào chỗ trống (cloze); hệ thống so khớp từ điền với đáp án mẫu, tính điểm, cộng 15~XP và lưu lại bài làm để xem lại sau. \\ \hline
+    UC09 & Học bài Speaking IELTS cơ bản & Người học luyện Speaking cơ bản theo từng Part, nghe câu hỏi và ghi âm câu trả lời; hệ thống lưu bản ghi âm, cộng 15~XP và đánh dấu hoàn thành sau khi nộp bài. \\ \hline
+    UC10 & Luyện Listening IELTS nâng cao & Người học (yêu cầu gói Premium hoặc Pro) chọn Part Listening nâng cao (Part~1--4), nghe audio và trả lời các dạng câu hỏi chuẩn IELTS; hệ thống chấm điểm, cộng 20~XP mỗi lần nộp (thêm 10~XP nếu $\geq 80\%$) và lưu kết quả chi tiết. \\ \hline
+    UC11 & Luyện Reading IELTS nâng cao & Người học (yêu cầu gói Premium hoặc Pro) chọn bài luyện Reading theo Part, đọc đoạn văn học thuật trên giao diện hai cột và trả lời các dạng câu hỏi chuẩn IELTS; hệ thống chấm điểm, lưu phiên luyện tập và hiển thị Score Report với tính năng Locate, Explain và Note; nhận 20~XP (thêm 10~XP nếu tỷ lệ đúng $\geq 80\%$). \\ \hline
+    UC12 & Luyện Writing IELTS nâng cao & Người học chọn đề Writing nâng cao (Task~1 hoặc Task~2), viết bài luận và nộp; hệ thống lưu bài với timestamp để theo dõi quá trình luyện tập qua thời gian. \\ \hline
+    UC13 & Luyện Speaking IELTS nâng cao & Người học luyện tập Speaking theo từng Part (1/2/3), ghi âm câu trả lời và nhận đánh giá tự động từ AI về phát âm, ngữ pháp, từ vựng và độ mạch lạc. \\ \hline
+    UC14 & Thi thử Listening (Mock Test) & Người học thi thử phần Listening đầy đủ theo chuẩn IELTS (4 section, 40 câu, 30 phút nghe + 10 phút chép đáp án); nhận band điểm ước tính sau khi nộp bài. \\ \hline
+    UC15 & Thi thử Reading (Mock Test) & Người học thi thử phần Reading đầy đủ (3 passage, 40 câu, 60 phút); nhận band điểm ước tính sau khi nộp bài. \\ \hline
+    UC16 & Thi thử Writing (Mock Test) & Người học thi thử phần Writing đầy đủ (Task~1 + Task~2, 60 phút); bài được chấm tự động bởi AI và trả về band điểm kèm nhận xét theo từng tiêu chí. \\ \hline
+    UC17 & Thi thử Speaking (Mock Test) & Người học kiểm tra thiết bị (tai nghe và microphone), tiến hành thi thử Speaking toàn phần 3 Parts với video giám khảo AI và đồng hồ đếm ngược chuẩn IELTS; ghi âm câu trả lời từng câu; nộp bài để AI chấm điểm bất đồng bộ và trả về band điểm kèm nhận xét theo bốn tiêu chí IELTS Speaking. \\ \hline
+    UC18 & Xem lịch sử bài thi & Người học mở trang Lịch sử để xem danh sách tất cả các phiên thi đã thực hiện, lọc theo kỹ năng (Listening/Reading/Writing/Speaking), xem chi tiết band điểm từng bài và xóa kết quả cũ nếu cần. \\ \hline
+    UC19 & Xây dựng lộ trình học tập & Người học thiết lập hồ sơ IELTS bằng cách chọn band điểm mục tiêu, mức cam kết học hàng ngày và ngày thi dự kiến; tùy chọn làm bài kiểm tra chẩn đoán ba kỹ năng; hệ thống sinh lộ trình học cá nhân hóa và tự động đánh dấu hoàn thành các kỹ năng đạt điểm $\geq 90\%$. \\ \hline
+    UC20 & Xem thống kê IELTS tổng quan & Người học xem dashboard thống kê tổng quan: band điểm ước tính từng kỹ năng, mục tiêu học hàng ngày, heatmap hoạt động, đếm ngược ngày thi. \\ \hline
+    UC21 & Xem thống kê IELTS theo cấp độ & Người học xem thống kê chi tiết phân theo cấp độ: Foundation, Basic, Advanced và Intensive; mỗi tab cung cấp biểu đồ và chỉ số riêng cho cấp độ tương ứng. \\ \hline
+    UC22 & Tính toán điểm và yêu cầu & Người học sử dụng công cụ Calculator để ước tính band điểm IELTS dựa trên số câu đúng từng phần, hoặc tính số câu cần đúng để đạt band mục tiêu. \\ \hline
+    UC23 & Luyện đọc với Shadowing & Người học luyện kỹ năng nói đuổi (Shadowing): chọn bài video theo thư mục/chủ đề, nghe và nói lại từng câu; hệ thống đánh dấu tiến độ từng câu theo phiên luyện và cập nhật chuỗi học liên tiếp. \\ \hline
+    UC24 & Luyện viết với Dictation & Người học chọn bài Dictation, nghe audio theo câu và điền từ bị đục lỗ vào transcript theo bốn cấp độ khó (Beginner/Intermediate/Advanced/Expert) với gợi ý tiệm tiến; kiểm tra đáp án từng câu và lưu tiến trình hoàn thành vào cơ sở dữ liệu; chuỗi học liên tiếp được ghi nhận. \\ \hline
+    UC25 & Tạo bài học Shadowing của tôi & Người học paste URL YouTube để tạo bài Shadowing cá nhân; hệ thống AI tự động trích xuất giọng nói, phân tách thành câu và lưu bài với trạng thái READY để sử dụng trong giao diện Shadowing. \\ \hline
+    UC26 & Tạo bài học Dictation của tôi & Người học paste URL YouTube để tạo bài Dictation cá nhân; hệ thống AI tự động trích xuất và phân tách nội dung giọng nói thành câu, lưu bài với trạng thái READY để luyện nghe--chép. \\ \hline
+    UC27 & Tạo loại thẻ học & Người học tạo loại thẻ học (Card Type) mới trong Vocab Lab: đặt tên, định nghĩa các trường dữ liệu (Fields) với kiểu Text hoặc Media, cấu hình mẫu hiển thị hai mặt (Templates) và xem trước thẻ (Preview) trước khi lưu để sử dụng khi tạo Flashcard. \\ \hline
+    UC28 & Tra cứu và thêm từ vựng bằng AI & Người học bôi đen từ hoặc cụm từ trong nội dung bài học để Lexon AI sinh giải thích theo cấu trúc loại thẻ đã chọn; sau khi xem lại và chỉnh sửa nội dung, người học thêm Flashcard trực tiếp vào Vocab Lab mà không rời khỏi trang học. \\ \hline
+    UC29 & Quản lý bộ từ vựng (Vocab Lab) & Người học tạo bộ thẻ từ vựng (Deck) cá nhân, thêm và chỉnh sửa Flashcard với định dạng tùy chỉnh (trường dữ liệu, kiểu thẻ), gắn tag và tải lên ảnh/âm thanh. \\ \hline
+    UC30 & Nhập bộ từ vựng từ cộng đồng & Người học tìm kiếm và import bộ từ vựng đã được người khác chia sẻ công khai trong Community Marketplace của Vocab Lab về thư viện cá nhân. \\ \hline
+    UC31 & Xuất và chia sẻ bộ từ vựng & Người học xuất bản bộ từ vựng của mình lên Community Marketplace để chia sẻ với cộng đồng; có thể cấu hình tags, mô tả và trạng thái công khai. \\ \hline
+    UC32 & Xem thống kê từ vựng & Người học xem báo cáo thống kê Vocab Lab: số thẻ theo trạng thái SRS (New/Learning/Review/Relearning), biểu đồ lịch ôn tập và lịch sử điểm đánh giá. \\ \hline
+    UC33 & Xem thông báo & Người học mở danh sách thông báo (hoàn thành Dictation, bài thi được chấm điểm, đạt streak, thông báo hệ thống) theo thứ tự mới nhất; có thể đánh dấu đã đọc từng mục hoặc tất cả và nhấn vào thông báo để điều hướng đến trang liên quan. \\ \hline
+    UC34 & Xem và tạo bài đăng cộng đồng & Người học xem feed bài đăng của cộng đồng (Study Tips, Achievements, General), tạo bài đăng mới kèm hình ảnh, tương tác bằng Like, Bookmark, Comment và Reply. \\ \hline
+    UC35 & Đăng bài trong Community & Người học tạo bài đăng (loại General/Study Tip/Score Achievement) kèm tiêu đề, nội dung, tag chủ đề và tối đa 4 ảnh đính kèm; bài xuất hiện ngay đầu feed sau khi đăng thành công; người học nhận +5~XP và huy hiệu bài đăng đầu tiên (nếu là lần đăng đầu tiên). \\ \hline
     UC36 & Xem bảng xếp hạng & Người học xem Leaderboard XP hàng tuần trong module Community, theo dõi thứ hạng cá nhân so với toàn bộ người dùng trên hệ thống kèm huy hiệu Gamification. \\ \hline
     UC37 & Đăng ký gói thành viên & Người học xem thông tin các gói đăng ký (FREE/PREMIUM/PRO), thực hiện thanh toán qua VNPay, kích hoạt gói thành viên và theo dõi trạng thái subscription. \\ \hline
     UC38 & Tạo bài học Shadowing & Người quản lý tạo bài học Shadowing mới: nhập tiêu đề, ID video YouTube, thư mục, chủ đề, thời lượng và danh sách câu transcript kèm timestamp; xuất bản để người học sử dụng. \\ \hline
@@ -344,7 +344,7 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc03.png}
-    \caption{Sơ đồ activity UC03 -- Tạo loại thẻ học}
+    \caption{Sơ đồ activity UC27 -- Tạo loại thẻ học}
     \label{fig:activity-uc03}
 \end{figure}
 
@@ -352,7 +352,7 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc03.png}
-    \caption{Sơ đồ tuần tự UC03 -- Tạo loại thẻ học}
+    \caption{Sơ đồ tuần tự UC27 -- Tạo loại thẻ học}
     \label{fig:sequence-uc03}
 \end{figure}
 
@@ -422,7 +422,7 @@ Bảng~\ref{tab:uc04_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc04.png}
-    \caption{Sơ đồ activity UC04 -- Tra cứu và thêm từ vựng bằng AI}
+    \caption{Sơ đồ activity UC28 -- Tra cứu và thêm từ vựng bằng AI}
     \label{fig:activity-uc04}
 \end{figure}
 
@@ -430,7 +430,7 @@ Bảng~\ref{tab:uc04_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc04.png}
-    \caption{Sơ đồ tuần tự UC04 -- Tra cứu và thêm từ vựng bằng AI}
+    \caption{Sơ đồ tuần tự UC28 -- Tra cứu và thêm từ vựng bằng AI}
     \label{fig:sequence-uc04}
 \end{figure}
 
@@ -500,7 +500,7 @@ Bảng~\ref{tab:uc05_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc05.png}
-    \caption{Sơ đồ activity UC05 -- Học từ vựng nền tảng IELTS}
+    \caption{Sơ đồ activity UC03 -- Học từ vựng nền tảng IELTS}
     \label{fig:activity-uc05}
 \end{figure}
 
@@ -508,7 +508,7 @@ Bảng~\ref{tab:uc05_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc05.png}
-    \caption{Sơ đồ tuần tự UC05 -- Học từ vựng nền tảng IELTS}
+    \caption{Sơ đồ tuần tự UC03 -- Học từ vựng nền tảng IELTS}
     \label{fig:sequence-uc05}
 \end{figure}
 
@@ -676,7 +676,7 @@ Bảng~\ref{tab:uc07_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc07.png}
-    \caption{Sơ đồ activity UC07 -- Luyện Reading IELTS nâng cao}
+    \caption{Sơ đồ activity UC11 -- Luyện Reading IELTS nâng cao}
     \label{fig:activity-uc07}
 \end{figure}
 
@@ -684,7 +684,7 @@ Bảng~\ref{tab:uc07_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc07.png}
-    \caption{Sơ đồ tuần tự UC07 -- Luyện Reading IELTS nâng cao}
+    \caption{Sơ đồ tuần tự UC11 -- Luyện Reading IELTS nâng cao}
     \label{fig:sequence-uc07}
 \end{figure}
 
@@ -774,7 +774,7 @@ Bảng~\ref{tab:uc08_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[p]
     \centering
     \includegraphics[width=0.85\linewidth, height=0.92\textheight, keepaspectratio]{activity-diagram/activity-uc08.png}
-    \caption{Sơ đồ activity UC08 -- Thi thử Speaking (Mock Test)}
+    \caption{Sơ đồ activity UC17 -- Thi thử Speaking (Mock Test)}
     \label{fig:activity-uc08}
 \end{figure}
 
@@ -782,7 +782,7 @@ Bảng~\ref{tab:uc08_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc08.png}
-    \caption{Sơ đồ tuần tự UC08 -- Thi thử Speaking (Mock Test)}
+    \caption{Sơ đồ tuần tự UC17 -- Thi thử Speaking (Mock Test)}
     \label{fig:sequence-uc08}
 \end{figure}
 
@@ -807,8 +807,8 @@ Dữ liệu bản ghi âm được lưu phía client theo từng khóa định d
 % ============================================================
 % UC09 – PRACTICE WRITING WITH DICTATION
 % ============================================================
-\subsection{Luyện viết với Dictation (UC09)}
-Bảng~\ref{tab:uc09_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc09} thể hiện sơ đồ tuần tự.
+\subsection{Luyện viết với Dictation (UC24)}
+Hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc09} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -865,7 +865,7 @@ Bảng~\ref{tab:uc09_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc09.png}
-    \caption{Sơ đồ activity UC09 -- Luyện viết với Dictation}
+    \caption{Sơ đồ activity UC24 -- Luyện viết với Dictation}
     \label{fig:activity-uc09}
 \end{figure}
 
@@ -873,7 +873,7 @@ Bảng~\ref{tab:uc09_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc09.png}
-    \caption{Sơ đồ tuần tự UC09 -- Luyện viết với Dictation}
+    \caption{Sơ đồ tuần tự UC24 -- Luyện viết với Dictation}
     \label{fig:sequence-uc09}
 \end{figure}
 
@@ -896,8 +896,8 @@ Kiểm tra đáp án được kích hoạt mỗi khi người học chỉnh sử
 % ============================================================
 % UC10 – ROADMAP
 % ============================================================
-\subsection{Xây dựng lộ trình học tập (UC10)}
-Bảng~\ref{tab:uc10_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc10} thể hiện sơ đồ tuần tự.
+\subsection{Xây dựng lộ trình học tập (UC19)}
+Hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc10} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -945,7 +945,7 @@ Bảng~\ref{tab:uc10_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc10.png}
-    \caption{Sơ đồ activity UC10 -- Xây dựng lộ trình học tập}
+    \caption{Sơ đồ activity UC19 -- Xây dựng lộ trình học tập}
     \label{fig:activity-uc10}
 \end{figure}
 
@@ -953,7 +953,7 @@ Bảng~\ref{tab:uc10_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc10.png}
-    \caption{Sơ đồ tuần tự UC10 -- Xây dựng lộ trình học tập}
+    \caption{Sơ đồ tuần tự UC19 -- Xây dựng lộ trình học tập}
     \label{fig:sequence-uc10}
 \end{figure}
 
@@ -978,8 +978,8 @@ Sau khi API trả về thành công, giao diện tải lại toàn bộ trang th
 % ============================================================
 % UC11 – POST (Community)
 % ============================================================
-\subsection{Đăng bài trong Community (UC11)}
-Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
+\subsection{Đăng bài trong Community (UC35)}
+Hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -1024,7 +1024,7 @@ Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{activity-diagram/activity-uc11.png}
-    \caption{Sơ đồ activity UC11 -- Đăng bài trong Community}
+    \caption{Sơ đồ activity UC35 -- Đăng bài trong Community}
     \label{fig:activity-uc11}
 \end{figure}
 
@@ -1032,7 +1032,7 @@ Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{sequence-diagram/sequence-uc11.png}
-    \caption{Sơ đồ tuần tự UC11 -- Đăng bài trong Community}
+    \caption{Sơ đồ tuần tự UC35 -- Đăng bài trong Community}
     \label{fig:sequence-uc11}
 \end{figure}
 
