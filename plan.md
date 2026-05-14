@@ -2,48 +2,58 @@ sửa lại chương 3
 
 sửa lại chương 1
 
-vẽ lại architecture diagram
+## vẽ lại architecture diagram
 
 người dùng:
 
-- đăng ký
-- đăng nhập
-- học từ vựng
-- học ngữ pháp
-- học phát âm
-- học lý thuyết dạng câu hỏi
-- thực hành dạng câu hỏi
-- luyện đề từng phần nghe
-- luyện đề từng phần nói
-- luyện đề từng phần đọc
-- luyện đề từng phần viết
-- làm bài thi nghe
-- làm bài thi nói
-- làm bài thi đọc
-- làm bài thi viết
-- lên lộ trình học
-- chat với AI
-- xem thống kê ietls chuyên sâu
-- xem thống kê ietls nâng cao
-- xem thống kê ietls cơ bản
-- xem thống kê ietls nền tảng
-- xem thống kê ietls tổng quan
+- Học từ vựng nền tảng IELTS
+- học ngữ pháp nền tảng IELTS
+- học phát âm nền tảng IELTS
+
+- Học bài Listening IELTS cơ bản
+- Học bài Reading IELTS cơ bản
+- Học bài Writing IELTS cơ bản
+- Học bài Speaking IELTS cơ bản
+
+- Luyện Listening IELTS nâng cao
+- Luyện Reading IELTS nâng cao
+- Luyện Writing IELTS nâng cao
+- Luyện Speaking IELTS nâng cao
+
+- Thi thử Listening (Mock Test)
+- Thi thử Reading (Mock Test)
+- Thi thử Writing (Mock Test)
+- Thi thử Speaking (Mock Test)
+
+- Xem lịch sử bài thi
+
+- Xây dựng lộ trình học tập
+
+- xem thống kê ietls
+
 - tính toán điểm và yêu cầu
-- học mở rộng nói đuổi
-- học mở rộng nghe chép chính tả
-- tạo bài học mở rộng
-- thêm bộ từ vựng
+
+- Luyện đọc với Shadowing
+- Luyện viết với Dictation
+- Tạo bài học Shadowing của tôi
+- Tạo bài học Dictation của tôi
+
+- Tạo loại thẻ học
 - nhập bộ từ vựng
 - xem từ vựng
 - chỉnh sửa từ vựng
 - xuất bộ từ vựng
 - xem bộ từ vựng của cộng đồng
 - xem thống kê từ vựng
+
 - xem thông báo
+
 - xem bài đăng
-- tạo bài đăng
+- Đăng bài trong Community
 - xem bảng xếp hạng
 - đăng ký thành viên
+
+====
 
 người quản lý:
 
