@@ -438,10 +438,162 @@ npm audit fix --force # fix toàn bộ (có thể gây breaking change)
 
 ### 7.3 File đã thay đổi trong session này
 
+#### Lượt 1 — khảo sát + cài đặt package
+
 | File | Hành động | Mục đích |
 |---|---|---|
 | `backend-core/package.json` | Thêm 2 devDependencies | `supertest`, `@types/supertest` |
 | `package-lock.json` (root) | Tự động cập nhật | Lockfile workspace npm |
-| `backend-core/test/jest-e2e.json` | Tạo mới | Cấu hình cho `npm run test:e2e` |
-| `backend-core/test/setup-e2e.ts` | Tạo mới | Bootstrap reflect-metadata + setTimeout |
+| `backend-core/test/setup-e2e.ts` | Tạo mới | Bootstrap test (sau lượt 2 đã update) |
 | `docs/testing/01-baseline-survey.md` | Tạo mới | Báo cáo này |
+
+#### Lượt 2 — hoàn thiện scaffolding test (theo yêu cầu chi tiết của user)
+
+| File | Hành động | Mục đích |
+|---|---|---|
+| `backend-core/jest.config.ts` | **Tạo mới** | Cấu hình Jest unit test (theo spec user) + path alias `@modules/@common/@config` |
+| `backend-core/jest-e2e.json` | **Tạo mới** ở root (thay cho `test/jest-e2e.json` đã xoá) | Cấu hình Jest e2e — match `*.e2e-spec.ts` |
+| `backend-core/test/jest-e2e.json` | **Xoá** | Đã chuyển ra root để khớp script `--config jest-e2e.json` |
+| `backend-core/test/setup-e2e.ts` | **Cập nhật** | Thêm `dotenv.config({ path: '.env.test', override: true })` |
+| `backend-core/.env.test` | **Tạo mới** | Biến môi trường test — Supabase `?schema=test`, JWT test secret, mock provider |
+| `backend-core/test/helpers/test-setup.ts` | **Tạo mới** (370+ dòng) | Bootstrap NestJS testing module, reset DB, JWT test user, mock factory cho 7 external service |
+| `backend-core/package.json` | **Cập nhật** | Bỏ inline `"jest"` block (đã thay bằng `jest.config.ts`); thêm `test:unit`; cập nhật `test:e2e` |
+| `.gitignore` (root) | **Cập nhật** | Thêm `.env.test` (bảo vệ credential khi user điền giá trị thật) |
+
+#### Cấu hình Jest mới (`jest.config.ts`)
+
+```typescript
+import type { Config } from 'jest';
+
+const config: Config = {
+  testEnvironment: 'node',
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: 'src',
+  testRegex: '.*\\.spec\\.ts$',
+  transform: { '^.+\\.(t|j)s$': 'ts-jest' },
+  collectCoverageFrom: ['**/*.(t|j)s'],
+  coverageDirectory: '../coverage',
+  moduleNameMapper: {
+    '^@modules/(.*)$': '<rootDir>/modules/$1',
+    '^@common/(.*)$':  '<rootDir>/common/$1',
+    '^@config/(.*)$':  '<rootDir>/config/$1',
+  },
+};
+export default config;
+```
+
+> **Lưu ý:** spec gốc không liệt kê `moduleNameMapper`, nhưng `tsconfig.json` đang dùng path alias `@modules/*`, `@common/*`, `@config/*`. Không có mapping này, mọi test import qua alias sẽ thất bại. Đã thêm để đảm bảo cấu hình chạy được.
+
+#### Scripts mới trong `package.json`
+
+```json
+{
+  "test:cov":   "jest --coverage",
+  "test:unit":  "jest --coverage",
+  "test:e2e":   "NODE_ENV=test jest --config jest-e2e.json"
+}
+```
+
+> **Cross-platform:** Cú pháp `NODE_ENV=test <cmd>` hoạt động trên macOS/Linux. Nếu nhóm phát triển dùng Windows, cân nhắc thêm `cross-env` (`npm i -D cross-env`) và đổi thành `"cross-env NODE_ENV=test jest --config jest-e2e.json"`.
+
+#### File `.env.test`
+
+- DATABASE_URL dùng `?schema=test` (tham số PgBouncer + pooler của Supabase). Schema `test` **phải tồn tại trên Supabase** trước khi chạy migration vào schema này:
+  ```sql
+  CREATE SCHEMA IF NOT EXISTS test;
+  ```
+- Sau đó chạy migration một lần để dựng bảng trên schema test:
+  ```bash
+  DATABASE_URL="<URL trong .env.test với ?schema=test>" \
+    npx prisma migrate deploy --schema prisma/schema.prisma
+  ```
+- `OTEL_SDK_DISABLED=true` để tránh OpenTelemetry instrumentation gây nhiễu log test.
+- `PAYMENT_PROVIDER=mock` để VNPay không bị gọi thật trong test.
+- `.env.test` **đã được thêm vào `.gitignore` root** — không commit credential thật.
+
+#### Helper `test/helpers/test-setup.ts` — API tóm tắt
+
+| API | Vai trò |
+|---|---|
+| `createTestingApp(options?)` | Bootstrap `INestApplication` với `ValidationPipe`, prefix `/api/v1`, mock mặc định cho `AiClientService` + `StorageService`. Trả về `{ app, moduleRef, prisma, jwt }`. |
+| `shutdownTestingApp(ctx)` | Đóng app + `prisma.$disconnect()` trong `afterAll`. |
+| `resetDatabase(prisma)` | `TRUNCATE … RESTART IDENTITY CASCADE` mọi bảng trong `current_schema()` (tôn trọng `?schema=test`). Bỏ qua `_prisma_migrations`. |
+| `createTestUser(prisma, jwt, opts?)` | Tạo user trực tiếp qua Prisma + ký JWT khớp payload thật `{ email, sub, role }`. Trả về `{ id, email, password, token, authHeader: 'Bearer …', role, … }`. |
+| `createAdminUser` / `createInstructorUser` | Wrapper với role tương ứng. |
+| `createMockAiClientService` | Stub `publishGradingTask`, `publishTranscriptionTask` — không kết nối RabbitMQ. |
+| `createMockStorageService` | Stub `uploadFile`/`deleteFile` Cloudinary. |
+| `createMockGeminiService` | Stub `generateContent`, `gradeWriting`, `gradeSpeaking`. |
+| `createMockEmailService` | Stub `sendOtp`, `verifyOtp`, `sendWelcome`, `sendNotification`. |
+| `createMockSttService` | Stub Whisper-style transcription. |
+| `createMockTtsService` | Stub TTS trả về `Buffer`. |
+| `createMockGoogleOAuthClient` | Stub `verifyIdToken` cho Google OAuth login. |
+| `defaultMocks` | Object gom tất cả factory cho tiện truy cập. |
+
+#### Mẫu sử dụng
+
+```typescript
+// example: tests/auth.e2e-spec.ts (file ví dụ — chưa tạo)
+import * as request from 'supertest';
+import {
+  createTestingApp,
+  shutdownTestingApp,
+  resetDatabase,
+  createTestUser,
+  createMockEmailService,
+  createMockGoogleOAuthClient,
+  TestContext,
+  TestUser,
+} from '../test/helpers/test-setup';
+
+describe('AuthController (e2e)', () => {
+  let ctx: TestContext;
+  let user: TestUser;
+
+  beforeAll(async () => {
+    ctx = await createTestingApp({
+      overrides: [
+        // { provide: EmailService, useValue: createMockEmailService() },
+        // { provide: OAuth2Client, useValue: createMockGoogleOAuthClient() },
+      ],
+    });
+  });
+
+  beforeEach(async () => {
+    await resetDatabase(ctx.prisma);
+    user = await createTestUser(ctx.prisma, ctx.jwt);
+  });
+
+  afterAll(() => shutdownTestingApp(ctx));
+
+  it('POST /api/v1/auth/login — trả 200 + access_token khi email/password đúng', async () => {
+    const res = await request(ctx.app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email: user.email, password: user.password })
+      .expect(200);
+    expect(res.body.access_token).toBeDefined();
+  });
+
+  it('GET /api/v1/users/me — yêu cầu Authorization header', async () => {
+    await request(ctx.app.getHttpServer())
+      .get('/api/v1/users/me')
+      .set('Authorization', user.authHeader)
+      .expect(200);
+  });
+});
+```
+
+#### Kiểm tra sanity đã thực hiện
+
+- [x] `npx jest --showConfig` — `jest.config.ts` load thành công, các giá trị đúng spec.
+- [x] `npx jest --listTests` — không lỗi cú pháp, trả về `[]` (chưa có spec, đúng kỳ vọng).
+- [x] `NODE_ENV=test npx jest --config jest-e2e.json --listTests` — load `jest-e2e.json` thành công, trả `[]`.
+- [x] `npx tsc --noEmit … test/helpers/test-setup.ts` — **TypeScript: No errors found**.
+- [x] `git check-ignore -v backend-core/.env.test` — match `.gitignore:32:.env.test`, đã ignored.
+- [x] `node -e "JSON.parse(...)"` trên `package.json` — JSON hợp lệ.
+
+#### Việc còn lại trước khi viết spec đầu tiên
+
+1. **Điền credential thật vào `backend-core/.env.test`** — `<PROJECT_REF>`, `<PASSWORD>`, `<REGION>` của Supabase.
+2. Trên Supabase, chạy `CREATE SCHEMA IF NOT EXISTS test;` (một lần).
+3. Chạy `npx prisma migrate deploy` với `DATABASE_URL` từ `.env.test` để dựng bảng trên schema `test`.
+4. Viết spec đầu tiên — đề xuất bắt đầu với `auth.service.spec.ts` (unit) hoặc `auth.e2e-spec.ts` (e2e).
