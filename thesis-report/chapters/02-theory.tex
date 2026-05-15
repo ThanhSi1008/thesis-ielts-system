@@ -65,7 +65,7 @@ Các lợi ích khi chọn React Native cho ứng dụng mobile IELTS:
 \begin{itemize}
     \item \textbf{Chia sẻ logic với Next.js:} Vì cùng nền tảng React và TypeScript, các hook và utility function có thể tái sử dụng, giảm thời gian phát triển.
     \item \textbf{Native UI components:} React Native render component native thực sự (không phải WebView), đảm bảo trải nghiệm mượt mà tương đương app native trên cả iOS và Android.
-    \item \textbf{Hỗ trợ đa phương tiện:} Thư viện expo-av hỗ trợ phát audio cho Listening; expo-audio hỗ trợ ghi âm cho Speaking --- cả hai đều là tính năng cốt lõi của hệ thống IELTS.
+    \item \textbf{Hỗ trợ đa phương tiện:} Hệ sinh thái Expo cung cấp các package chuyên biệt cho nhu cầu đa phương tiện của hệ thống IELTS: expo-audio dùng cho cả ghi âm (Speaking, Pronunciation) lẫn phát audio bài luyện; expo-video phát video giám khảo AI và clip YouTube nhúng phục vụ Shadowing/Dictation; expo-speech-recognition thực hiện nhận dạng giọng nói ngay trên thiết bị (on-device) cho các tác vụ tương tác nhanh.
     \item \textbf{Cross-platform hiệu quả:} Một codebase duy nhất cho cả iOS và Android giúp giảm đáng kể thời gian phát triển và bảo trì so với phát triển hai app native riêng biệt.
 \end{itemize}
 
@@ -105,7 +105,7 @@ Gemini là dòng mô hình ngôn ngữ lớn đa phương thức (multimodal LLM
     \item \textbf{Đánh giá Speaking:} Sau khi faster-whisper chuyển đổi giọng nói thành transcript, Gemini phân tích để đánh giá theo bốn tiêu chí chấm điểm IELTS Speaking: Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy và Pronunciation.
 \end{itemize}
 
-Gemini được lựa chọn so với các mô hình khác (GPT-4, Claude) vì: cung cấp API với quota phù hợp cho giai đoạn phát triển; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai; và hỗ trợ đầu vào dài cho phép gửi toàn bộ bài viết IELTS trong một lần gọi API mà không bị giới hạn độ dài. Trong hệ thống, trợ lý AI sử dụng Gemini API được đặt tên là Lexon AI, đóng vai trò trợ lý tra cứu từ vựng và hội thoại học tập tích hợp vào giao diện người dùng.
+Gemini 2.5 Flash được lựa chọn so với các mô hình thương mại lớn hiện tại (GPT-4o, Claude Sonnet 4.6) vì: chi phí mỗi triệu token thấp hơn đáng kể trong nhóm flash/haiku/mini, phù hợp khối lượng chấm điểm Writing/Speaking lặp lại nhiều lần trên ngân sách khóa luận; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai và có endpoint trong khu vực asia-southeast1, giảm độ trễ cho người dùng tại Việt Nam; và hỗ trợ context window dài cho phép gửi toàn bộ đề bài, bài viết và rubric trong một lần gọi API mà không bị cắt ngữ cảnh. Cần lưu ý rằng việc chấm điểm bằng mô hình ngôn ngữ lớn có thể không ổn định giữa các lần gọi (consistency limitation), do đó kết quả từ Gemini được trình bày dưới dạng band ước tính kèm cảnh báo trên giao diện. Trong hệ thống, trợ lý AI sử dụng Gemini API được đặt tên là \textbf{Lexon AI}, đóng vai trò trợ lý tra cứu từ vựng và hội thoại học tập tích hợp vào giao diện người dùng.
 
 \subsection{faster-whisper}
 
@@ -114,7 +114,7 @@ Whisper là mô hình nhận dạng giọng nói (speech-to-text) mã nguồn m�
 Trong hệ thống IELTS, model base của Whisper được pre-download vào Docker image của FastAPI AI Worker khi build, giúp loại bỏ cold-start. faster-whisper được sử dụng cho hai mục đích chính:
 
 \begin{itemize}
-    \item \textbf{Chấm điểm phát âm (Pronunciation):} File audio WAV của người học được chuyển thành transcript; transcript này được so sánh với văn bản chuẩn bằng thuật toán Levenshtein distance sau khi chuyển đổi sang IPA qua thư viện eng-to-ipa, cho ra điểm phát âm từng từ.
+    \item \textbf{Chấm điểm phát âm (Pronunciation):} File audio WAV của người học được chuyển thành transcript kèm xác suất tin cậy (word probability) theo từng từ. Hệ thống áp dụng \textit{weighted phoneme edit distance} thay vì Levenshtein thô: từ và transcript đều được chuyển sang ký hiệu IPA qua thư viện eng-to-ipa, sau đó so khớp với chi phí thay thế khác nhau theo lớp âm vị (vowels, plosives, fricatives, nasals, approximants, affricates) --- thay thế trong cùng lớp tốn chi phí thấp hơn so với thay thế khác lớp, và đổi nguyên âm thành phụ âm bị phạt nặng nhất. Điểm phát âm cuối cùng được tổng hợp từ ba thành phần theo công thức $\text{overall} = 0{,}4 \cdot \text{phoneme} + 0{,}4 \cdot \text{confidence} + 0{,}2 \cdot \text{text}$, trong đó \textit{phoneme} là điểm khoảng cách IPA có trọng số, \textit{confidence} là độ tin cậy trung bình của Whisper, và \textit{text} là điểm Levenshtein trên văn bản gốc (giữ lại làm thành phần phụ để bù khi việc chuyển sang IPA thất bại).
     \item \textbf{Transcription cho Dictation:} Audio bài nghe được transcribe để so sánh với câu trả lời điền từ của người học.
 \end{itemize}
 
@@ -126,7 +126,7 @@ Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Wr
 
 \begin{itemize}
     \item \textbf{Tách biệt concerns:} API phản hồi người học ngay lập tức (trạng thái SUBMITTED) mà không phải đợi AI inference có thể mất 5--15 giây.
-    \item \textbf{Độ bền tin nhắn:} Dead Letter Queue với TTL 5 phút xử lý các task thất bại, tránh mất dữ liệu khi AI Worker gặp lỗi tạm thời.
+    \item \textbf{Độ bền tin nhắn:} Queue chính exam-grading-queue được khai báo durable với message TTL 5 phút; tin nhắn hết hạn (khi worker chậm hoặc gặp lỗi tạm thời) được dead-letter sang exam-grading-dlq để vận hành viên có thể inspect, tránh mất hoàn toàn dữ liệu chấm điểm.
     \item \textbf{Kiểm soát tải:} Prefetch count giới hạn số task AI Worker xử lý đồng thời, tránh quá tải memory khi có nhiều người nộp bài cùng lúc.
 \end{itemize}
 
@@ -165,7 +165,7 @@ PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở
 
 Trong dự án này, PostgreSQL 16 được triển khai trên nền tảng \textbf{Supabase}~\cite{supabase-docs} --- dịch vụ cơ sở dữ liệu quản lý đám mây xây dựng trên PostgreSQL mã nguồn mở, cung cấp connection pooling tự động qua PgBouncer. Prisma ORM kết nối với Supabase theo hai chế độ: pooler port 6543 với tham số pgbouncer=true cho query thông thường (tối ưu số lượng kết nối đồng thời), và direct port 5432 cho Prisma Migrate (yêu cầu kết nối trực tiếp khi thay đổi schema).
 
-Schema cơ sở dữ liệu bao gồm hơn 55 model được định nghĩa trong file schema.prisma và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation/Basic/Advanced/Intensive), Vocabulary \& Grammar, Shadowing \& Dictation, Vocab Lab (FSRS), Community, Gamification và Subscriptions.
+Schema cơ sở dữ liệu bao gồm 66 model được định nghĩa trong file schema.prisma và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation/Basic/Advanced/Intensive), Vocabulary \& Grammar, Shadowing \& Dictation, Vocab Lab (FSRS), Community, Gamification và Subscriptions.
 
 \section{Xác thực và bảo mật}
 

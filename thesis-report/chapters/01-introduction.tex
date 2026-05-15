@@ -17,7 +17,7 @@ Kỳ thi IELTS (International English Language Testing System) được phát tr
 Tại Việt Nam, IELTS là chứng chỉ tiếng Anh được sử dụng phổ biến nhất cho mục đích du học và xin việc tại các công ty đa quốc gia. Tuy nhiên, các nền tảng hỗ trợ luyện thi IELTS hiện có vẫn còn những khoảng trống nhất định:
 
 \begin{itemize}
-    \item \textbf{ELSA Speak} chuyên biệt về phát âm (pronunciation) và giao tiếp ngắn, không hỗ trợ kỹ năng Reading và Writing — hai kỹ năng chiếm 50\% band điểm IELTS tổng thể.
+    \item \textbf{ELSA Speak} chuyên biệt về phát âm (pronunciation) và giao tiếp ngắn, không hỗ trợ kỹ năng Reading và Writing --- hai trong bốn kỹ năng cấu thành band Overall của kỳ thi IELTS.
     \item \textbf{Cambly} là nền tảng kết nối gia sư người bản ngữ trực tuyến (human tutoring marketplace), không cung cấp chấm điểm tự động hay lộ trình học có cấu trúc; chi phí cao và phụ thuộc lịch của gia sư.
     \item Các nền tảng luyện thi đa kỹ năng hiện có (British Council, Magoosh IELTS) cung cấp nội dung bài tập phong phú nhưng thiếu tính năng \textit{automated AI scoring} chi tiết cho Writing Task 1/2 và Speaking theo đúng bốn tiêu chí đánh giá chính thức của IELTS.
     \item Chưa có nền tảng nào tích hợp đồng thời: kiểm tra đầu vào, lộ trình cá nhân hóa, luyện tập bốn kỹ năng và AI scoring trong một sản phẩm thống nhất trên cả web lẫn ứng dụng di động.
@@ -27,15 +27,15 @@ Trước thực tế đó, hệ thống học và luyện thi IELTS được xâ
 
 \section{Mục tiêu đề tài}
 
-Khoá luận đặt ra các mục tiêu cụ thể sau:
+Khoá luận đặt ra các mục tiêu cụ thể, mỗi mục tiêu đi kèm tiêu chí thành công đo lường được:
 
 \begin{itemize}
-    \item Xây dựng hệ thống học và luyện thi IELTS đa nền tảng (Web và Mobile), hỗ trợ đầy đủ bốn kỹ năng: Listening (nghe), Reading (đọc), Writing (viết) và Speaking (nói).
-    \item Tích hợp đánh giá kỹ năng Writing (Task 1 và Task 2) và Speaking thông qua mô hình Gemini 2.5 Flash kết hợp nhận dạng giọng nói faster-whisper, cung cấp điểm ước tính và phản hồi chi tiết theo bốn tiêu chí IELTS chính thức; kết quả đóng vai trò tham khảo bổ trợ, không thay thế đánh giá từ giám khảo chính thức.
-    \item Triển khai bài kiểm tra đầu vào (Placement Test) để xác định band điểm IELTS hiện tại theo từng kỹ năng và đề xuất lộ trình học tập phù hợp với mục tiêu band điểm của người học.
-    \item Xây dựng hệ thống học và ôn từ vựng theo lộ trình, áp dụng thuật toán Free Spaced Repetition Scheduler (FSRS) \cite{ye2022fsrs} nhằm tối ưu hóa khả năng ghi nhớ dài hạn.
-    \item Cung cấp tính năng thi thử IELTS theo từng kỹ năng riêng biệt (Mock Test) với đồng hồ đếm ngược chuẩn IELTS và quy đổi band điểm theo thang đánh giá chính thức.
-    \item Xây dựng hệ thống quản trị nội dung (Admin) cho phép quản lý học liệu, người dùng và xem báo cáo thống kê.
+    \item \textbf{Mục tiêu 1 --- Nền tảng đa nền tảng cho bốn kỹ năng:} Xây dựng hệ thống học và luyện thi IELTS đa nền tảng (Web và Mobile), hỗ trợ đầy đủ bốn kỹ năng Listening, Reading, Writing và Speaking. \textit{Tiêu chí thành công:} người học hoàn thành được tối thiểu một bài luyện ở mỗi kỹ năng trên cả Web (Next.js) và Mobile (React Native Expo) bằng cùng một tài khoản; mỗi kỹ năng có ít nhất ba dạng bài thuộc cấu trúc chính thức của IELTS.
+    \item \textbf{Mục tiêu 2 --- Đánh giá Writing và Speaking bằng AI:} Tích hợp Gemini 2.5 Flash kết hợp nhận dạng giọng nói faster-whisper cho Speaking, cung cấp điểm ước tính và phản hồi chi tiết theo bốn tiêu chí IELTS chính thức; trợ lý AI tích hợp Gemini API trong hệ thống được đặt tên là \textbf{Lexon AI}. Kết quả đóng vai trò tham khảo bổ trợ, không thay thế đánh giá từ giám khảo chính thức. \textit{Tiêu chí thành công:} hệ thống trả kết quả chấm điểm với độ trễ P95 không vượt quá 30 giây tính từ lúc nộp bài; đầu ra có đủ bốn tiêu chí kèm nhận xét bằng văn bản; pipeline bất đồng bộ qua RabbitMQ hoạt động ổn định cả khi worker tạm thời gặp lỗi (cơ chế dead-letter và retry).
+    \item \textbf{Mục tiêu 3 --- Kiểm tra đầu vào và lộ trình cá nhân hóa:} Triển khai bài kiểm tra đầu vào (Placement Test) để xác định band điểm IELTS hiện tại theo từng kỹ năng và đề xuất lộ trình học tập phù hợp với mục tiêu band điểm của người học. \textit{Tiêu chí thành công:} sau khi hoàn tất Placement Test, hệ thống sinh lộ trình học có thứ tự bài học rõ ràng cho từng kỹ năng; với kỹ năng đạt điểm $\geq 90\%$, toàn bộ bài học của kỹ năng đó được tự động đánh dấu hoàn thành.
+    \item \textbf{Mục tiêu 4 --- Ôn từ vựng với FSRS:} Xây dựng hệ thống học và ôn từ vựng theo lộ trình, áp dụng thuật toán Free Spaced Repetition Scheduler (FSRS) \cite{ye2022fsrs} nhằm tối ưu hóa khả năng ghi nhớ dài hạn. \textit{Tiêu chí thành công:} mỗi flashcard được lập lịch ôn dựa trên ba tham số Stability/Difficulty/Due date của FSRS; hệ thống cập nhật trạng thái đúng theo bốn mức đánh giá Again/Hard/Good/Easy.
+    \item \textbf{Mục tiêu 5 --- Thi thử IELTS (Mock Test):} Cung cấp tính năng thi thử IELTS theo từng kỹ năng riêng biệt với đồng hồ đếm ngược chuẩn IELTS và quy đổi band điểm theo thang đánh giá chính thức. \textit{Tiêu chí thành công:} đồng hồ đếm ngược trùng khớp thời lượng chính thức (Listening 30+10 phút, Reading 60 phút, Writing 60 phút, Speaking khoảng 14 phút); kết quả Mock Test được lưu vào lịch sử cho phép xem lại sau.
+    \item \textbf{Mục tiêu 6 --- Quản trị nội dung:} Xây dựng hệ thống quản trị nội dung (Admin) cho phép quản lý học liệu, người dùng và xem báo cáo thống kê. \textit{Tiêu chí thành công:} quản trị viên có thể tạo, chỉnh sửa, xóa và xuất bản học liệu Shadowing/Dictation; quản lý đăng ký thành viên và cấp gói thủ công cho học viên cụ thể.
 \end{itemize}
 
 \section{Phạm vi đề tài}
@@ -46,23 +46,14 @@ Khoá luận đặt ra các mục tiêu cụ thể sau:
     \item Người quản lý (Admin) chịu trách nhiệm quản lý nội dung học tập và theo dõi người dùng.
 \end{itemize}
 
-\textbf{Phạm vi chức năng bao gồm:}
+\textbf{Phạm vi chức năng (theo nhóm miền):} Hệ thống bao phủ sáu nhóm miền chính, chi tiết các năng lực theo từng tác nhân được trình bày ở mục~1.4.
 \begin{itemize}
-    \item Đăng ký (email/mật khẩu và Google OAuth), đăng nhập, quản lý tài khoản và hồ sơ cá nhân.
-    \item Kiểm tra đầu vào (Placement Test) để xác định band điểm IELTS theo từng kỹ năng.
-    \item Luyện từ vựng theo lộ trình; ôn tập bằng Flashcard với thuật toán FSRS; tạo loại thẻ tùy chỉnh (Card Type), tra cứu từ bằng Lexon AI và chia sẻ bộ thẻ qua Community Marketplace.
-    \item Luyện ngữ pháp theo đơn vị bài học.
-    \item Luyện phát âm 43 âm vị IPA; thu âm và nhận đánh giá tự động từ AI về độ chính xác âm vị.
-    \item Luyện kỹ năng Listening theo hình thức Dictation (điền từ bị đục lỗ, bốn cấp độ khó) và luyện đề Listening chuẩn IELTS với các dạng bài Form/Note Completion, Table Completion, Short Answer, Matching và Multiple Choice.
-    \item Luyện kỹ năng Reading với các dạng bài đọc hiểu chuẩn IELTS Academic.
-    \item Luyện kỹ năng Writing (Task 1 và Task 2) với chấm điểm tự động từ AI.
-    \item Luyện kỹ năng Speaking theo hình thức thi thử ba Part IELTS (Introduction \& Interview, Individual Long Turn, Two-way Discussion) với video giám khảo AI, Shadowing và hội thoại AI.
-    \item Thi thử IELTS theo từng kỹ năng riêng biệt (Mock Test) với đồng hồ đếm ngược chuẩn IELTS.
-    \item Theo dõi tiến độ và xem lịch sử kết quả học tập.
-    \item Đăng ký gói thành viên (FREE/PREMIUM/PRO) qua cổng VNPay ở chế độ mô phỏng (sandbox) phục vụ kiểm thử; gói trả phí mở khóa tính năng nâng cao và Mock Test.
-    \item Gamification: nhận điểm kinh nghiệm (XP), theo dõi chuỗi học liên tiếp (streak), mở khóa huy hiệu thành tích và xem bảng xếp hạng hàng tuần.
-    \item Phân hệ Community: đăng bài, tương tác (Like/Comment/Bookmark) và chia sẻ bộ thẻ từ vựng qua Marketplace.
-    \item Giao diện Admin để quản lý nội dung, người dùng và thống kê.
+    \item \textbf{Tài khoản và hồ sơ:} đăng ký (email/mật khẩu và Google OAuth), đăng nhập, quản lý hồ sơ cá nhân và theo dõi tiến độ tổng quan.
+    \item \textbf{Học và luyện kỹ năng:} bốn kỹ năng IELTS (Listening, Reading, Writing, Speaking) cùng các module nền tảng (Vocabulary, Grammar, Pronunciation 43 âm vị IPA, Shadowing, Dictation) và Vocab Lab với FSRS \& Lexon AI (trợ lý tra cứu từ vựng sử dụng Gemini API).
+    \item \textbf{Đánh giá và thi thử:} Placement Test xác định band điểm đầu vào, lộ trình học cá nhân hóa, Mock Test theo từng kỹ năng với đồng hồ chuẩn IELTS.
+    \item \textbf{Cộng đồng và Gamification:} đăng bài, tương tác (Like/Comment/Bookmark), Community Marketplace chia sẻ bộ thẻ, điểm XP, chuỗi học liên tiếp, huy hiệu và bảng xếp hạng hàng tuần.
+    \item \textbf{Đăng ký gói thành viên:} gói FREE/PREMIUM/PRO qua cổng VNPay ở chế độ mô phỏng (sandbox); gói trả phí mở khóa tính năng nâng cao và Mock Test.
+    \item \textbf{Quản trị nội dung (Admin):} quản lý học liệu Shadowing/Dictation, người dùng và xem báo cáo thống kê.
 \end{itemize}
 
 \textbf{Phạm vi ngoài đề tài (không bao gồm):}
@@ -113,18 +104,23 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
     \item \textbf{Quy tắc xuất bản nội dung:} Chỉ nội dung có trạng thái ``Xuất bản'' mới hiển thị cho người học; nội dung ``Nháp'' chỉ Admin mới xem và chỉnh sửa được.
     \item \textbf{Lưu trữ dữ liệu:} Toàn bộ dữ liệu người dùng lưu trên PostgreSQL 16; file media (audio, ảnh) lưu trên Cloudinary; tuân thủ các quy định bảo mật thông tin cá nhân.
     \item \textbf{Bảo vệ dữ liệu cá nhân:} Hệ thống tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân; dữ liệu audio Speaking được lưu trữ tối thiểu hóa và xóa sau khi chấm điểm hoặc theo yêu cầu người dùng. File media lưu trên Cloudinary theo phân vùng riêng, không chia sẻ giữa các tài khoản.
+    \item \textbf{Truyền dữ liệu xuyên biên giới:} Audio Speaking và bản viết Writing được gửi đến Gemini API (Google) phục vụ chấm điểm, đồng nghĩa với việc dữ liệu rời khỏi lãnh thổ Việt Nam tới máy chủ của Google. Hệ thống công khai điều này trong điều khoản sử dụng, chỉ truyền nội dung cần thiết cho việc chấm điểm (không kèm thông tin định danh người học), và xóa bản ghi audio sau khi nhận kết quả chấm điểm để giảm thiểu rủi ro.
 \end{itemize}
 
 \section{Mô tả yêu cầu phi chức năng}
 
 \begin{itemize}
-    \item \textbf{Hiệu năng:} Thời gian phản hồi API không vượt quá 1 giây (P95) cho các thao tác tạo, đọc, cập nhật và xóa (CRUD) thông thường; không vượt quá 30 giây cho tác vụ AI (Writing và Speaking scoring). Hệ thống hướng đến hỗ trợ tối thiểu 500 người dùng đăng ký hoạt động, trong đó không quá 50 phiên thi thử đồng thời trong giai đoạn vận hành ban đầu.
+    \item \textbf{Hiệu năng:} Thời gian phản hồi API không vượt quá 1 giây (P95) cho các thao tác tạo, đọc, cập nhật và xóa (CRUD) thông thường --- ngưỡng phù hợp khuyến nghị chung cho REST API tương tác người dùng (trên ngưỡng này, người dùng bắt đầu cảm nhận độ trễ); không vượt quá 30 giây cho tác vụ AI (Writing và Speaking scoring) --- xuất phát từ thời gian inference điển hình của Gemini 2.5 Flash (5--15 giây) cộng buffer cho hàng đợi và callback. Hệ thống hướng đến hỗ trợ tối thiểu 500 người dùng đăng ký hoạt động, trong đó không quá 50 phiên thi thử đồng thời trong giai đoạn vận hành ban đầu. Con số 500/50 này được ước lượng từ cấu hình VM thực tế (n2-standard-4 với 4 vCPU và 16 GB RAM): NestJS process trung bình chiếm khoảng 300 MB RAM, cho phép vận hành đồng thời hàng chục phiên mà vẫn dành RAM cho FastAPI AI Worker (cap 10 GB) và nginx; trong khi mức 500 người dùng phù hợp quy mô khảo sát thí điểm cho khóa luận trước khi mở rộng thương mại.
     \item \textbf{Bảo mật:} Xác thực người dùng bằng JSON Web Token (JWT) với thời hạn hết hạn được cấu hình; mật khẩu được băm bằng bcrypt (cost factor = 10) theo chuẩn one-way hashing; áp dụng rate limiting để ngăn chặn tấn công brute-force \cite{jwt-rfc}.
     \item \textbf{Khả năng mở rộng:} Kiến trúc \textit{Modular Monolith} được lựa chọn để cân bằng giữa việc phân tách rõ ràng theo miền chức năng và độ phức tạp triển khai phù hợp với quy mô đề tài --- thay vì kiến trúc microservices sẽ tăng chi phí hạ tầng và vận hành đáng kể. FastAPI AI Worker tách biệt qua RabbitMQ cho phép mở rộng độc lập năng lực AI inference khi nhu cầu chấm điểm tăng cao. Cơ chế xác thực \textit{stateless} bằng JWT cho phép thêm nhiều instance backend mà không cần session store dùng chung.
-    \item \textbf{Khả dụng:} Hệ thống đảm bảo uptime tối thiểu 99\% trong điều kiện vận hành bình thường (tương đương dưới 7 giờ gián đoạn/tháng). Áp dụng graceful degradation: khi AI service gặp lỗi hoặc vượt quota, hệ thống trả về thông báo lỗi rõ ràng thay vì crash.
+    \item \textbf{Khả dụng:} Hệ thống đảm bảo uptime tối thiểu 99\% trong điều kiện vận hành bình thường (tương đương khoảng 7,3 giờ gián đoạn/tháng). Mức 99\% được lựa chọn phù hợp với mô hình triển khai đơn vùng (single-region GCP, không có HA database trong giai đoạn đầu); lộ trình nâng lên 99,5\% khi hệ thống mở rộng quy mô. Áp dụng graceful degradation: khi AI service gặp lỗi hoặc vượt quota, hệ thống trả về thông báo lỗi rõ ràng thay vì crash.
     \item \textbf{Khả năng bảo trì:} Code được tổ chức theo kiến trúc module rõ ràng; Backend Core và Frontend sử dụng TypeScript đảm bảo type safety; AI Worker sử dụng Python; tuân thủ nguyên tắc SOLID trong thiết kế service.
     \item \textbf{Khả năng sử dụng:} Giao diện thân thiện, trực quan; thời gian làm quen các tính năng cơ bản không quá 5 phút.
     \item \textbf{Khả năng tiếp cận (Accessibility):} Giao diện hướng đến tuân thủ các nguyên tắc cơ bản của WCAG 2.1 mức A, hỗ trợ độ tương phản màu phù hợp và nhãn mô tả (aria-label) cho các thành phần tương tác trên web.
     \item \textbf{Giới hạn của AI:} Điểm ước tính từ AI mang tính tham khảo bổ trợ. Các mô hình ngôn ngữ lớn có thể phản hồi chưa nhất quán với giọng vùng miền đặc trưng; người học nên kết hợp với đánh giá từ giáo viên hoặc tham gia thi thử chính thức để xác nhận trình độ thực tế.
 \end{itemize}
+
+\section{Bố cục báo cáo}
+
+Phần còn lại của báo cáo được tổ chức như sau. \textbf{Chương~2} trình bày cơ sở lý thuyết về các ngôn ngữ lập trình, framework, công nghệ và thư viện được sử dụng (TypeScript, Python, NestJS, Next.js, React Native, FastAPI, Prisma, Gemini API, faster-whisper, RabbitMQ, Redis, FSRS), kèm cơ sở dữ liệu PostgreSQL, cơ chế xác thực JWT/bcrypt/Google OAuth, kiến trúc Event-driven Modular Monolith và hạ tầng triển khai trên Google Cloud Platform. \textbf{Chương~3} phân tích yêu cầu thông qua quy trình nghiệp vụ chi tiết của hai nhóm tác nhân (Người học và Người quản lý), sơ đồ use-case tổng quát, danh sách 43 use-case của hệ thống, và đặc tả luồng sự kiện cho các use-case quan trọng kèm sơ đồ activity và sequence. \textbf{Chương~4} mô tả thiết kế và hiện thực: sơ đồ lớp, thiết kế cơ sở dữ liệu, kiến trúc tổng thể, cùng các điểm hiện thực kỹ thuật đáng chú ý. \textbf{Chương~5} kết luận, tổng hợp kết quả đạt được, hạn chế hiện tại và hướng phát triển trong tương lai.
 

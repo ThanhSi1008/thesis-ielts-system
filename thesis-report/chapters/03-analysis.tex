@@ -22,12 +22,19 @@ Mỗi cuốn sách bao gồm 600 từ vựng, được chia thành 30 unit. Tron
 
 Đối với mục ôn tập từ vựng bằng flashcard, ứng dụng áp dụng phương pháp Active Recall (nhớ chủ động). Người học có thể tạo và lựa chọn thư mục riêng cho các thẻ, đồng thời phân loại thẻ theo nhu cầu học tập. Mỗi loại thẻ do người học tự định nghĩa gồm các trường dữ liệu (kiểu văn bản hoặc phương tiện đa phương tiện) và mẫu hiển thị hai mặt; hệ thống cung cấp sẵn loại thẻ ``Basic'' mặc định với mặt trước và mặt sau truyền thống. 
 
-Bên cạnh đó, hệ thống còn tích hợp phương pháp Spaced Repetition (lặp lại ngắt quãng) nhằm tối ưu hóa khả năng ghi nhớ dài hạn. Trong quá trình ôn tập, sau khi trả lời mỗi thẻ, người học sẽ đánh giá mức độ ghi nhớ của mình thông qua bốn lựa chọn: “Again”, “Hard”, “Good”, “Easy”; từ đó, hệ thống sẽ tự động điều chỉnh thời điểm xuất hiện lại của thẻ cho các lần ôn tập tiếp theo: 
+Bên cạnh đó, hệ thống còn tích hợp phương pháp Spaced Repetition (lặp lại ngắt quãng) nhằm tối ưu hóa khả năng ghi nhớ dài hạn. Cốt lõi của FSRS là công thức tính khoảng cách ôn tập tiếp theo dựa trên độ bền trí nhớ (Stability) và tỉ lệ nhớ mục tiêu, được trình bày tại công thức~(\ref{eq:fsrs-interval}):
+\begin{equation}
+    I' = S \times \dfrac{\ln(R_{target})}{\ln(0{,}9)}
+    \label{eq:fsrs-interval}
+\end{equation}
+Trong đó: $I'$ là khoảng cách ôn tập tiếp theo (đơn vị: ngày); $S$ là Stability hiện tại của thẻ (độ bền trí nhớ); $R_{target}$ là tỉ lệ nhớ mục tiêu (hệ thống dùng giá trị mặc định 0{,}9 tương ứng 90\%); mẫu số $\ln(0{,}9)$ phản ánh đường cong quên tự nhiên theo lý thuyết của Ebbinghaus.
+
+Trong quá trình ôn tập, sau khi trả lời mỗi thẻ, người học sẽ đánh giá mức độ ghi nhớ của mình thông qua bốn lựa chọn: ``Again'', ``Hard'', ``Good'', ``Easy''; từ đó, hệ thống sẽ tự động điều chỉnh thời điểm xuất hiện lại của thẻ cho các lần ôn tập tiếp theo:
 
 \begin{itemize}
     \item \textbf{Again:} hệ thống đánh giá người học đã quên hoàn toàn; thẻ được đặt lại về trạng thái học mới (New/Relearning), độ ổn định (Stability) giảm mạnh và thẻ xuất hiện lại rất sớm trong phiên ôn.
     \item \textbf{Hard:} người học nhớ nhưng còn gặp khó khăn; FSRS tính khoảng cách lặp lại ngắn hơn khoảng cách tối ưu, đồng thời điều chỉnh giảm Difficulty và Stability của thẻ.
-    \item \textbf{Good:} người học nhớ đúng ở mức kỳ vọng; FSRS tính khoảng cách tiếp theo theo công thức $I' = S \times \ln(R_{target}) / \ln(0.9)$ với tỉ lệ nhớ mục tiêu 90\%, Stability tăng bình thường.
+    \item \textbf{Good:} người học nhớ đúng ở mức kỳ vọng; FSRS áp dụng công thức~(\ref{eq:fsrs-interval}) để tính khoảng cách tiếp theo, Stability tăng bình thường.
     \item \textbf{Easy:} người học nhớ rất chắc, vượt kỳ vọng; FSRS áp dụng hệ số tăng tốc (easy bonus), Stability tăng nhanh hơn, Difficulty giảm nhẹ giúp thẻ xuất hiện thưa hơn về lâu dài.
 \end{itemize}
 
@@ -169,7 +176,7 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
 
 \section{Đặc tả các yêu cầu chức năng}
 
-Phần này trình bày đặc tả chi tiết cho các use case quan trọng nhất. Mỗi use case bao gồm bảng mô tả luồng sự kiện (chính và thay thế), sơ đồ activity, sơ đồ tuần tự và mô tả kỹ thuật chi tiết.
+Phần này trình bày đặc tả chi tiết cho 11 use case được lựa chọn từ tổng cộng 43 use case của hệ thống. Tiêu chí lựa chọn tập trung vào các use case có (i) mức độ phức tạp kỹ thuật cao --- ví dụ máy trạng thái dài như UC17 (Thi thử Speaking) hoặc pipeline AI bất đồng bộ như UC12 (Luyện Writing nâng cao); (ii) tính đặc trưng nghiệp vụ rõ nét --- ví dụ tra cứu từ vựng bằng AI (UC28), tạo loại thẻ tùy chỉnh (UC27), xây dựng lộ trình học cá nhân hóa (UC19); hoặc (iii) tần suất sử dụng cao trong vòng đời tài khoản --- ví dụ đăng ký (UC01), đăng nhập (UC02), học từ vựng (UC03). Mỗi use case bao gồm bảng mô tả luồng sự kiện (chính và thay thế), sơ đồ activity, sơ đồ tuần tự và mô tả kỹ thuật chi tiết.
 
 \subsection{Đăng ký tài khoản (UC01)}
 Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc01} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc01} và hình~\ref{fig:sequence-uc01-gg} thể hiện sơ đồ tuần tự cho hai luồng đăng ký bằng email và Google OAuth.
@@ -302,7 +309,7 @@ JWT access token được ký bằng khóa bí mật và có hiệu lực 7 ngà
 % UC03 – ADD CARD TYPE
 % ============================================================
 \subsection{Tạo loại thẻ học (UC27)}
-Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc03} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc03} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc27_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc03} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc03} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
     \centering
@@ -333,7 +340,7 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
         & 10.2. Hệ thống hủy toàn bộ thay đổi chưa lưu và đóng màn hình. \\ \hline
     \end{tabularx}
     \caption{Đặc tả chức năng Tạo loại thẻ học (UC27)}
-    \label{tab:uc03_spec}
+    \label{tab:uc27_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -366,11 +373,11 @@ Khi người học nhấn ``Save'', toàn bộ cấu hình --- bao gồm danh s�
 % UC04 – LOOK UP AND ADD WORDS WITH AI
 % ============================================================
 \subsection{Tra cứu và thêm từ vựng bằng AI (UC28)}
-Bảng~\ref{tab:uc04_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc04} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc04} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc28_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc04} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc04} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Tra cứu và thêm từ vựng bằng AI (UC28)} \label{tab:uc04_spec} \\
+    \caption{Đặc tả chức năng Tra cứu và thêm từ vựng bằng AI (UC28)} \label{tab:uc28_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC28} \\ \hline
@@ -446,11 +453,11 @@ Khi người học chọn ``Ask AI'', hệ thống mở cửa sổ trợ lý Lex
 % UC05 – STUDY IELTS FOUNDATION VOCABULARY
 % ============================================================
 \subsection{Học từ vựng nền tảng IELTS (UC03)}
-Bảng~\ref{tab:uc05_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc05} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc05} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc05} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc05} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Học từ vựng nền tảng IELTS (UC03)} \label{tab:uc05_spec} \\
+    \caption{Đặc tả chức năng Học từ vựng nền tảng IELTS (UC03)} \label{tab:uc03_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC03} \\ \hline
@@ -615,11 +622,11 @@ Sau khi đạt điểm tuyệt đối, bảng Transcript bên phải được m�
 % UC07 – PRACTICE IELTS ADVANCED READING
 % ============================================================
 \subsection{Luyện Reading IELTS nâng cao (UC11)}
-Bảng~\ref{tab:uc07_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc07} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc07} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc07} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc07} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Luyện Reading IELTS nâng cao (UC11)} \label{tab:uc07_spec} \\
+    \caption{Đặc tả chức năng Luyện Reading IELTS nâng cao (UC11)} \label{tab:uc11_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC11} \\ \hline
@@ -698,11 +705,11 @@ Logic chấm điểm được thực hiện phía máy chủ sau khi người h�
 % UC08 – DO SPEAKING MOCK TEST
 % ============================================================
 \subsection{Thi thử Speaking (Mock Test) (UC17)}
-Bảng~\ref{tab:uc08_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc08} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc08} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc17_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc08} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc08} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Thi thử Speaking (Mock Test) (UC17)} \label{tab:uc08_spec} \\
+    \caption{Đặc tả chức năng Thi thử Speaking (Mock Test) (UC17)} \label{tab:uc17_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC17} \\ \hline
@@ -804,11 +811,11 @@ Dữ liệu bản ghi âm được lưu phía client theo từng khóa định d
 % UC09 – PRACTICE WRITING WITH DICTATION
 % ============================================================
 \subsection{Luyện viết với Dictation (UC24)}
-Bảng~\ref{tab:uc09_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc09} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc24_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc09} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Luyện viết với Dictation (UC24)} \label{tab:uc09_spec} \\
+    \caption{Đặc tả chức năng Luyện viết với Dictation (UC24)} \label{tab:uc24_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC24} \\ \hline
@@ -893,11 +900,11 @@ Kiểm tra đáp án được kích hoạt mỗi khi người học chỉnh sử
 % UC10 – ROADMAP
 % ============================================================
 \subsection{Xây dựng lộ trình học tập (UC19)}
-Bảng~\ref{tab:uc10_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc10} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc19_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc10} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Xây dựng lộ trình học tập (UC19)} \label{tab:uc10_spec} \\
+    \caption{Đặc tả chức năng Xây dựng lộ trình học tập (UC19)} \label{tab:uc19_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC19} \\ \hline
@@ -975,11 +982,11 @@ Sau khi API trả về thành công, giao diện tải lại toàn bộ trang th
 % UC11 – POST (Community)
 % ============================================================
 \subsection{Đăng bài trong Community (UC35)}
-Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc35_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
-    \caption{Đặc tả chức năng Đăng bài trong Community (UC35)} \label{tab:uc11_spec} \\
+    \caption{Đặc tả chức năng Đăng bài trong Community (UC35)} \label{tab:uc35_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC35} \\ \hline
