@@ -3,26 +3,27 @@
 \thispagestyle{mainstyle} 
 Trong bối cảnh toàn cầu hóa ngày càng sâu rộng, tiếng Anh đã khẳng định vị thế là ngôn ngữ giao tiếp quốc tế quan trọng nhất, đóng vai trò then chốt trong học thuật, thương mại và phát triển sự nghiệp. Tại Việt Nam, nhu cầu đạt chứng chỉ tiếng Anh quốc tế — đặc biệt là IELTS (International English Language Testing System) — ngày càng gia tăng, khi hàng trăm nghìn thí sinh đăng ký thi mỗi năm với mục tiêu du học, định cư hoặc nâng cao năng lực cạnh tranh trong môi trường làm việc toàn cầu \cite{ielts-global-stats}. Bên cạnh đó, sự bùng nổ của thị trường e-learning toàn cầu — ước đạt hơn 400 tỷ USD vào năm 2026 theo Statista \cite{statista-elearning} — cho thấy tiềm năng to lớn của các nền tảng học trực tuyến, đặc biệt trong lĩnh vực luyện thi ngôn ngữ.
 
-Tuy nhiên, các nền tảng luyện thi IELTS phổ biến hiện nay phần lớn vẫn tồn tại những hạn chế đáng kể: hoặc chỉ tập trung vào một kỹ năng đơn lẻ, hoặc thiếu phản hồi cá nhân hóa dựa trên AI, hoặc chưa tích hợp đồng bộ cả bốn kỹ năng Listening, Reading, Writing và Speaking trong một nền tảng thống nhất trên cả web lẫn ứng dụng di động. Điều này khiến người học gặp khó khăn trong việc tự đánh giá năng lực toàn diện và xây dựng lộ trình ôn luyện phù hợp với từng mục tiêu band điểm cụ thể.
+Tuy nhiên, các nền tảng hỗ trợ luyện thi IELTS hiện có vẫn tồn tại những khoảng trống nhất định: một số chuyên biệt vào kỹ năng đơn lẻ, thiếu tính năng chấm điểm tự động (AI scoring) chi tiết cho Writing và Speaking theo đúng tiêu chí IELTS, hoặc chưa có lộ trình học tập cá nhân hóa theo band điểm mục tiêu trong một sản phẩm thống nhất đa nền tảng. Điều này khiến người học gặp khó khăn trong việc tự đánh giá năng lực toàn diện và xây dựng lộ trình ôn luyện phù hợp với từng mục tiêu band điểm cụ thể.
 
-Xuất phát từ thực tế đó, nhóm chúng em đã nghiên cứu và xây dựng \textbf{Hệ thống học và luyện thi IELTS tích hợp đánh giá kỹ năng dựa trên trí tuệ nhân tạo} — một nền tảng đa nền tảng (Web và Mobile) cung cấp đầy đủ công cụ luyện tập cho cả bốn kỹ năng, tính năng thi thử IELTS toàn phần và hệ thống chấm điểm tự động dựa trên Gemini API và faster-whisper. Hệ thống được xây dựng trên kiến trúc hướng sự kiện (Event-driven) với NestJS Modular Monolith làm backend cốt lõi, FastAPI AI Worker xử lý inference qua RabbitMQ, Next.js cho web portal và React Native Expo cho ứng dụng di động, hướng đến mục tiêu mang lại trải nghiệm học tập cá nhân hóa, hiệu quả và tiện lợi cho người học IELTS tại Việt Nam.
+Xuất phát từ thực tế đó, khóa luận này trình bày quá trình nghiên cứu và xây dựng \textbf{Hệ thống học và luyện thi IELTS tích hợp đánh giá kỹ năng dựa trên trí tuệ nhân tạo} — một nền tảng đa nền tảng (Web và Mobile) cung cấp đầy đủ công cụ luyện tập cho cả bốn kỹ năng cùng tính năng thi thử IELTS toàn phần và đánh giá kỹ năng hỗ trợ bởi AI.
+Về kiến trúc, hệ thống áp dụng mô hình \textit{Event-driven Modular Monolith} với NestJS làm backend cốt lõi, FastAPI AI Worker xử lý inference qua RabbitMQ, Next.js cho web portal và React Native Expo cho ứng dụng di động — hướng đến mục tiêu mang lại trải nghiệm học tập cá nhân hóa, hiệu quả và tiện lợi cho người học IELTS tại Việt Nam.
 
 \chapter{GIỚI THIỆU}
 
 \section{Tổng quan}
 
-Kỳ thi IELTS (International English Language Testing System) được phát triển và quản lý chung bởi British Council, IDP: IELTS Australia và Cambridge Assessment English, là một trong những chứng chỉ tiếng Anh được công nhận rộng rãi nhất thế giới với hơn 11.000 tổ chức tại hơn 140 quốc gia chấp nhận kết quả \cite{ielts-global-stats}. Số lượng thí sinh thi IELTS toàn cầu đã vượt 3,5 triệu lượt mỗi năm và liên tục tăng trưởng, phản ánh tầm quan trọng ngày càng lớn của chứng chỉ này trong các lĩnh vực du học, di trú và phát triển nghề nghiệp quốc tế.
+Kỳ thi IELTS (International English Language Testing System) được phát triển và quản lý chung bởi British Council, IDP: IELTS Australia và Cambridge Assessment English, là một trong những chứng chỉ tiếng Anh được công nhận rộng rãi nhất thế giới với hơn 11.000 tổ chức tại hơn 140 quốc gia chấp nhận kết quả (tính đến năm 2023) \cite{ielts-global-stats}. Số lượng thí sinh thi IELTS toàn cầu đã vượt 3,5 triệu lượt mỗi năm và liên tục tăng trưởng, phản ánh tầm quan trọng ngày càng lớn của chứng chỉ này trong các lĩnh vực du học, di trú và phát triển nghề nghiệp quốc tế.
 
-Tại Việt Nam, IELTS là chứng chỉ tiếng Anh được sử dụng phổ biến nhất cho mục đích du học và xin việc tại các công ty đa quốc gia. Tuy nhiên, các nền tảng luyện thi IELTS phổ biến hiện nay như ELSA Speak, Cambly hay British Council Online vẫn còn nhiều hạn chế:
+Tại Việt Nam, IELTS là chứng chỉ tiếng Anh được sử dụng phổ biến nhất cho mục đích du học và xin việc tại các công ty đa quốc gia. Tuy nhiên, các nền tảng hỗ trợ luyện thi IELTS hiện có vẫn còn những khoảng trống nhất định:
 
 \begin{itemize}
-    \item Phần lớn chỉ tập trung vào một hoặc hai kỹ năng (chủ yếu là Speaking hoặc Listening), chưa cung cấp trải nghiệm toàn diện cho cả 4 kỹ năng trong một nền tảng thống nhất.
-    \item Thiếu tính năng chấm điểm tự động (AI scoring) cho Writing Task 1/2 và Speaking — hai kỹ năng quan trọng và khó đánh giá nhất của IELTS.
-    \item Chưa có cơ chế kiểm tra đầu vào và đề xuất lộ trình học tập cá nhân hóa theo band điểm mục tiêu.
-    \item Chưa hỗ trợ đồng thời trên cả nền tảng web và ứng dụng di động với trải nghiệm liền mạch và nhất quán.
+    \item \textbf{ELSA Speak} chuyên biệt về phát âm (pronunciation) và giao tiếp ngắn, không hỗ trợ kỹ năng Reading và Writing — hai kỹ năng chiếm 50\% band điểm IELTS tổng thể.
+    \item \textbf{Cambly} là nền tảng kết nối gia sư người bản ngữ trực tuyến (human tutoring marketplace), không cung cấp chấm điểm tự động hay lộ trình học có cấu trúc; chi phí cao và phụ thuộc lịch của gia sư.
+    \item Các nền tảng luyện thi đa kỹ năng hiện có (British Council, Magoosh IELTS) cung cấp nội dung bài tập phong phú nhưng thiếu tính năng \textit{automated AI scoring} chi tiết cho Writing Task 1/2 và Speaking theo đúng bốn tiêu chí đánh giá chính thức của IELTS.
+    \item Chưa có nền tảng nào tích hợp đồng thời: kiểm tra đầu vào, lộ trình cá nhân hóa, luyện tập bốn kỹ năng và AI scoring trong một sản phẩm thống nhất trên cả web lẫn ứng dụng di động.
 \end{itemize}
 
-Trước thực tế đó, hệ thống học và luyện thi IELTS mà chúng em xây dựng hướng đến giải quyết toàn diện các hạn chế trên thông qua việc tích hợp trí tuệ nhân tạo vào quá trình học tập và đánh giá kỹ năng ngôn ngữ.
+Trước thực tế đó, hệ thống học và luyện thi IELTS được xây dựng trong khuôn khổ khóa luận này hướng đến giải quyết toàn diện các hạn chế trên thông qua việc tích hợp trí tuệ nhân tạo vào quá trình học tập và đánh giá kỹ năng ngôn ngữ.
 
 \section{Mục tiêu đề tài}
 
@@ -30,9 +31,9 @@ Khoá luận đặt ra các mục tiêu cụ thể sau:
 
 \begin{itemize}
     \item Xây dựng hệ thống học và luyện thi IELTS đa nền tảng (Web và Mobile), hỗ trợ đầy đủ bốn kỹ năng: Listening (nghe), Reading (đọc), Writing (viết) và Speaking (nói).
-    \item Tích hợp chấm điểm tự động bằng AI cho kỹ năng Writing (Task 1 và Task 2) và Speaking, sử dụng Gemini API và faster-whisper, cung cấp phản hồi chi tiết theo từng tiêu chí IELTS.
-    \item Triển khai bài kiểm tra đầu vào (Placement Test) để xác định trình độ ban đầu theo thang CEFR và đề xuất lộ trình học tập phù hợp.
-    \item Xây dựng hệ thống học và ôn từ vựng theo lộ trình, áp dụng thuật toán FSRS (Free Spaced Repetition Scheduler) nhằm tối ưu hóa khả năng ghi nhớ dài hạn.
+    \item Tích hợp đánh giá kỹ năng Writing (Task 1 và Task 2) và Speaking thông qua mô hình Gemini 2.5 Flash kết hợp nhận dạng giọng nói faster-whisper, cung cấp điểm ước tính và phản hồi chi tiết theo bốn tiêu chí IELTS chính thức; kết quả đóng vai trò tham khảo bổ trợ, không thay thế đánh giá từ giám khảo chính thức.
+    \item Triển khai bài kiểm tra đầu vào (Placement Test) để xác định band điểm IELTS hiện tại theo từng kỹ năng và đề xuất lộ trình học tập phù hợp với mục tiêu band điểm của người học.
+    \item Xây dựng hệ thống học và ôn từ vựng theo lộ trình, áp dụng thuật toán Free Spaced Repetition Scheduler (FSRS) \cite{ye2022fsrs} nhằm tối ưu hóa khả năng ghi nhớ dài hạn.
     \item Cung cấp tính năng thi thử IELTS toàn phần (Mock Test) với đồng hồ đếm ngược và quy đổi band điểm chuẩn IELTS.
     \item Xây dựng hệ thống quản trị nội dung (Admin) cho phép quản lý học liệu, người dùng và xem báo cáo thống kê.
 \end{itemize}
@@ -48,13 +49,13 @@ Khoá luận đặt ra các mục tiêu cụ thể sau:
 \textbf{Phạm vi chức năng bao gồm:}
 \begin{itemize}
     \item Đăng ký, đăng nhập, quản lý tài khoản và hồ sơ cá nhân.
-    \item Kiểm tra đầu vào (Placement Test) phân loại trình độ theo thang CEFR.
+    \item Kiểm tra đầu vào (Placement Test) để xác định band điểm IELTS theo từng kỹ năng.
     \item Luyện từ vựng theo lộ trình và ôn tập bằng Flashcard với thuật toán Spaced Repetition.
     \item Luyện ngữ pháp theo đơn vị bài học.
     \item Luyện kỹ năng Listening theo hình thức Dictation (nghe và chép chính tả).
     \item Luyện kỹ năng Reading với các dạng bài đọc hiểu chuẩn IELTS Academic.
     \item Luyện kỹ năng Writing (Task 1 và Task 2) với chấm điểm tự động từ AI.
-    \item Luyện kỹ năng Speaking theo hình thức Shadowing và hội thoại AI.
+    \item Luyện kỹ năng Speaking theo hình thức Shadowing (kỹ thuật lặp lại theo audio hỗ trợ luyện phát âm và fluency) và hội thoại AI.
     \item Thi thử IELTS toàn phần (Mock Test) và theo từng kỹ năng.
     \item Theo dõi tiến độ và xem lịch sử kết quả học tập.
     \item Giao diện Admin để quản lý nội dung, người dùng và thống kê.
@@ -74,14 +75,14 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
 
 \textbf{Đối với Người học:}
 \begin{itemize}
-    \item Đăng ký tài khoản bằng email, xác thực danh tính qua mã OTP; đăng nhập bảo mật với cơ chế chống brute-force.
-    \item Thực hiện bài kiểm tra đầu vào để xác định trình độ theo thang CEFR (A2–C1); hệ thống tự động đề xuất lộ trình học phù hợp.
-    \item Học từ vựng theo lộ trình được đề xuất; ôn tập bằng Flashcard với thuật toán Spaced Repetition (FSRS — Free Spaced Repetition Scheduler) phân loại thẻ theo mức độ ghi nhớ (Again/Hard/Good/Easy).
+    \item Đăng ký tài khoản bằng email, xác thực danh tính qua mã xác thực một lần (OTP); đăng nhập bảo mật với cơ chế chống brute-force.
+    \item Thực hiện bài kiểm tra đầu vào để xác định band điểm IELTS hiện tại theo bốn kỹ năng; hệ thống tự động đề xuất lộ trình học phù hợp.
+    \item Học từ vựng theo lộ trình được đề xuất; ôn tập bằng Flashcard với thuật toán FSRS tối ưu hóa lịch ôn tập theo mức độ ghi nhớ của từng người học.
     \item Học ngữ pháp theo đơn vị bài học (Elementary, Intermediate, Advanced) từ nguồn English Grammar in Use.
     \item Luyện Listening theo hình thức Dictation: nghe audio, nhập transcript, nhận phản hồi chi tiết theo loại lỗi.
     \item Luyện Reading với các đoạn văn chuẩn IELTS Academic: trả lời câu hỏi các dạng True/False/Not Given, Matching, Short Answer.
-    \item Luyện Writing Task 1 và Task 2; nhận điểm tự động từ AI theo 4 tiêu chí IELTS và gợi ý cải thiện cụ thể.
-    \item Luyện Speaking theo hình thức Shadowing và AI Conversation; nhận đánh giá phát âm và fluency.
+    \item Luyện Writing Task 1 và Task 2; nhận điểm ước tính từ Gemini 2.5 Flash theo 4 tiêu chí IELTS (Task Achievement, Coherence \& Cohesion, Lexical Resource, Grammatical Range \& Accuracy) và gợi ý cải thiện cụ thể.
+    \item Luyện Speaking theo hình thức Shadowing và hội thoại AI; nhận điểm ước tính theo 4 tiêu chí IELTS Speaking (Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy, Pronunciation).
     \item Thi thử IELTS: chọn Full Mock Test hoặc luyện theo từng skill; nhận kết quả kèm band điểm ước tính.
     \item Theo dõi tiến độ học tập qua biểu đồ thống kê; xem lịch sử bài làm và đặt mục tiêu học tập cá nhân.
 \end{itemize}
@@ -100,19 +101,22 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
     \item \textbf{Nền tảng hỗ trợ:} Hệ thống web hoạt động trên các trình duyệt hiện đại (Chrome, Firefox, Safari — phiên bản mới nhất); ứng dụng mobile hỗ trợ iOS 14+ và Android 10+.
     \item \textbf{Kết nối Internet:} Bắt buộc để sử dụng các tính năng AI (Writing scoring, Speaking evaluation) và đồng bộ dữ liệu Mock Test.
     \item \textbf{Giới hạn API:} Gemini API chịu ràng buộc về quota theo gói dịch vụ; hệ thống xử lý lỗi gracefully khi vượt quota. faster-whisper chạy locally nên không có quota API.
-    \item \textbf{Bảo mật tài khoản:} Áp dụng rate limiting (ThrottlerModule) để giới hạn số lượng request, ngăn chặn tấn công brute-force; mật khẩu được mã hóa bằng bcrypt với 10 vòng salt.
+    \item \textbf{Bảo mật tài khoản:} Áp dụng cơ chế giới hạn tốc độ truy cập (rate limiting) để ngăn chặn tấn công brute-force; mật khẩu người dùng được băm một chiều bằng bcrypt với cost factor 10, đảm bảo không thể phục hồi ngược.
     \item \textbf{Quy tắc xuất bản nội dung:} Chỉ nội dung có trạng thái ``Xuất bản'' mới hiển thị cho người học; nội dung ``Nháp'' chỉ Admin mới xem và chỉnh sửa được.
     \item \textbf{Lưu trữ dữ liệu:} Toàn bộ dữ liệu người dùng lưu trên PostgreSQL 16; file media (audio, ảnh) lưu trên Cloudinary; tuân thủ các quy định bảo mật thông tin cá nhân.
+    \item \textbf{Bảo vệ dữ liệu cá nhân:} Hệ thống tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân; dữ liệu audio Speaking được lưu trữ tối thiểu hóa và xóa sau khi chấm điểm hoặc theo yêu cầu người dùng. File media lưu trên Cloudinary theo phân vùng riêng, không chia sẻ giữa các tài khoản.
 \end{itemize}
 
 \section{Mô tả yêu cầu phi chức năng}
 
 \begin{itemize}
-    \item \textbf{Hiệu năng:} Thời gian phản hồi của API không vượt quá 3 giây cho các thao tác CRUD thông thường. Thời gian xử lý AI scoring (Writing và Speaking) không vượt quá 30 giây. Hệ thống hỗ trợ tối thiểu 500 người dùng đồng thời trong giai đoạn vận hành ban đầu.
-    \item \textbf{Bảo mật:} Xác thực người dùng bằng JSON Web Token (JWT) với thời hạn hết hạn được cấu hình; mật khẩu được mã hóa bằng bcrypt (salt rounds $\geq$ 10); áp dụng rate limiting để ngăn chặn tấn công brute-force \cite{jwt-rfc}.
-    \item \textbf{Khả năng mở rộng:} Kiến trúc Event-driven Modular Monolith kết hợp AI Worker độc lập cho phép scale AI inference riêng biệt khi nhu cầu chấm điểm tăng cao. Sử dụng stateless JWT authentication hỗ trợ horizontal scaling dễ dàng.
-    \item \textbf{Khả dụng:} Hệ thống đảm bảo uptime tối thiểu 90\% trong điều kiện vận hành bình thường. Áp dụng graceful degradation — khi AI service gặp lỗi, hệ thống thông báo người dùng thay vì crash toàn bộ.
+    \item \textbf{Hiệu năng:} Thời gian phản hồi API không vượt quá 1 giây (P95) cho các thao tác tạo, đọc, cập nhật và xóa (CRUD) thông thường; không vượt quá 30 giây cho tác vụ AI (Writing và Speaking scoring). Hệ thống hướng đến hỗ trợ tối thiểu 500 người dùng đăng ký hoạt động, trong đó không quá 50 phiên thi thử đồng thời trong giai đoạn vận hành ban đầu.
+    \item \textbf{Bảo mật:} Xác thực người dùng bằng JSON Web Token (JWT) với thời hạn hết hạn được cấu hình; mật khẩu được băm bằng bcrypt (cost factor = 10) theo chuẩn one-way hashing; áp dụng rate limiting để ngăn chặn tấn công brute-force \cite{jwt-rfc}.
+    \item \textbf{Khả năng mở rộng:} Kiến trúc \textit{Modular Monolith} được lựa chọn để cân bằng giữa việc phân tách rõ ràng theo miền chức năng và độ phức tạp triển khai phù hợp với quy mô đề tài --- thay vì kiến trúc microservices sẽ tăng chi phí hạ tầng và vận hành đáng kể. FastAPI AI Worker tách biệt qua RabbitMQ cho phép mở rộng độc lập năng lực AI inference khi nhu cầu chấm điểm tăng cao. Cơ chế xác thực \textit{stateless} bằng JWT cho phép thêm nhiều instance backend mà không cần session store dùng chung.
+    \item \textbf{Khả dụng:} Hệ thống đảm bảo uptime tối thiểu 99\% trong điều kiện vận hành bình thường (tương đương dưới 7 giờ gián đoạn/tháng). Áp dụng graceful degradation: khi AI service gặp lỗi hoặc vượt quota, hệ thống trả về thông báo lỗi rõ ràng thay vì crash.
     \item \textbf{Khả năng bảo trì:} Code được tổ chức theo kiến trúc module rõ ràng; toàn bộ hệ thống sử dụng TypeScript đảm bảo type safety; tuân thủ nguyên tắc SOLID trong thiết kế service.
     \item \textbf{Khả năng sử dụng:} Giao diện thân thiện, trực quan; thời gian làm quen các tính năng cơ bản không quá 5 phút.
+    \item \textbf{Khả năng tiếp cận (Accessibility):} Giao diện hướng đến tuân thủ các nguyên tắc cơ bản của WCAG 2.1 mức A, hỗ trợ độ tương phản màu phù hợp và nhãn mô tả (aria-label) cho các thành phần tương tác trên web.
+    \item \textbf{Giới hạn của AI:} Điểm ước tính từ AI mang tính tham khảo bổ trợ. Các mô hình ngôn ngữ lớn có thể phản hồi chưa nhất quán với giọng vùng miền đặc trưng; người học nên kết hợp với đánh giá từ giáo viên hoặc tham gia thi thử chính thức để xác nhận trình độ thực tế.
 \end{itemize}
 

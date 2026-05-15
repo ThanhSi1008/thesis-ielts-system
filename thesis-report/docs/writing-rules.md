@@ -253,7 +253,7 @@ Phụ lục chứa các tài liệu bổ trợ, minh họa, **không nằm trong
 |---|---|
 | **Quy trình nghiệp vụ** | Văn xuôi liền mạch, mô tả hành trình người dùng từ đầu đến cuối. Dùng danh sách gạch đầu dòng khi cần liệt kê các bước con. |
 | **Bảng đặc tả use-case** | Ngắn, súc tích — mỗi ô chứa một hành động đơn. Actor: mô tả thao tác người dùng. Hệ thống: mô tả phản hồi/xử lý. Không giải thích kỹ thuật trong bảng. |
-| **Mô tả kỹ thuật chi tiết** | Giải thích cơ chế kỹ thuật thực tế (thuật toán, endpoint, thư viện). Dùng \texttt{...} cho tên hàm/endpoint. Tập trung vào **lý do kỹ thuật** (tại sao chọn cách này), không chỉ mô tả việc đang làm. |
+| **Mô tả kỹ thuật chi tiết** | Giải thích cơ chế kỹ thuật thực tế (thuật toán, endpoint, thư viện). Tên hàm, endpoint, thư viện viết dạng plain text, không dùng \texttt{}. Tập trung vào **lý do kỹ thuật** (tại sao chọn cách này), không chỉ mô tả việc đang làm. |
 | **Sơ đồ/Hình vẽ** | Caption hình phải mô tả nội dung hình đủ để đọc độc lập, không dùng "Hình trên" hay "Hình dưới". |
 
 ### 7.3 Quy tắc bảng đặc tả use-case (LaTeX)

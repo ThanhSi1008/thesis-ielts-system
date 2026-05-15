@@ -2,50 +2,43 @@
 
 A full-stack AI-powered IELTS preparation platform. Built as a thesis project, evolved from an initial TOEIC structure into a comprehensive English mastery system covering all four IELTS skills.
 
-**Live domains:** Frontend → ielts-master.io.vn · Backend API → dedangdown.io.vn
+**Live domains:** Frontend -- ielts-master.io.vn | Backend API -- dedangdown.io.vn
 
 ---
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                         Client Layer                          │
-│   ┌─────────────────────┐       ┌─────────────────────┐      │
-│   │  Mobile (Expo 54)   │       │  Web (Next.js 14)   │      │
-│   │  React Native 0.81  │       │  TypeScript/Tailwind │      │
-│   └─────────────────────┘       └─────────────────────┘      │
-└──────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌──────────────────────────────────────────────────────────────┐
-│                     Application Layer                         │
-│  ┌─────────────────────┐   ┌──────────┐   ┌──────────────┐  │
-│  │  Core Backend       │──▶│ RabbitMQ │──▶│  AI Service  │  │
-│  │  NestJS 10          │   │          │   │  FastAPI 0.109│  │
-│  │  18 modules         │   └──────────┘   │  Whisper     │  │
-│  │  Prisma 5 / Postgres│                  │  Gemini      │  │
-│  │  Redis (ioredis)    │                  └──────────────┘  │
-│  └─────────────────────┘                                     │
-└──────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌──────────────────────────────────────────────────────────────┐
-│                         Data Layer                            │
-│  ┌──────────────┐  ┌────────────┐  ┌──────────────────────┐ │
-│  │  PostgreSQL  │  │   Redis    │  │   MinIO / GCS (S3)   │ │
-│  │  (55+ models)│  │  (cache)   │  │  audio & media assets │ │
-│  └──────────────┘  └────────────┘  └──────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
-```
+![System Architecture](architecture-diagram.png)
 
-**Deployment (GCP, region: asia-southeast1):**
-- Frontend Web → Google Cloud Run (managed, auto-scaled) — `ielts-master.io.vn`
-- Backend → GCP VM (Docker Compose): nginx + backend-core + backend-ai — `dedangdown.io.vn`
-  - nginx terminates SSL (Let's Encrypt), routes `/api/v1/` → backend-core:3000, `/ai/` → backend-ai:8000
-  - PostgreSQL, Redis, RabbitMQ run directly on the VM (outside Docker Compose)
-  - Object storage in production: Google Cloud Storage (GCS)
-- CI/CD via GitHub Actions on push to `main`/`deploy`: path-filtered builds → images pushed to GCR → SSH deploy to VM
+### Deployment (GCP, region: asia-southeast1)
+
+| Component | Platform | Domain |
+|---|---|---|
+| Frontend Web | Google Cloud Run (auto-scaled) | `ielts-master.io.vn` |
+| Backend Core + Backend AI | GCP VM `n2-standard-4` (4 vCPU, 16GB RAM) | `dedangdown.io.vn` |
+| Database | Supabase (managed PostgreSQL, PgBouncer) | -- |
+| Cache | Upstash (managed Redis, TLS) | -- |
+| Message Broker | CloudAMQP (managed RabbitMQ, AMQPS) | -- |
+
+**VM containers (Docker Compose at `/opt/app/`):**
+
+| Container | Image | Resource Limits |
+|---|---|---|
+| `nginx` | nginx:alpine | -- |
+| `backend-core` | gcr.io/.../backend-core:latest | -- |
+| `backend-ai` | gcr.io/.../backend-ai:latest | 10GB RAM, 3 CPUs |
+| `alloy` | grafana/alloy:latest | -- |
+
+**Nginx routing:**
+- `/api/v1/*` --> `backend-core:3000`
+- `/ai/*` --> `backend-ai:8000`
+- SSL termination via Let's Encrypt + Certbot (TLSv1.2 + TLSv1.3)
+
+**CI/CD pipeline:**
+- GitHub Actions on push to `main`/`deploy` with `dorny/paths-filter` for targeted builds
+- Docker images pushed to Google Container Registry (GCR)
+- Frontend deployed via `gcloud run deploy`
+- Backend deployed via SSH (ed25519) to VM: `docker compose pull && docker compose up -d`
 
 ---
 
@@ -57,38 +50,39 @@ A full-stack AI-powered IELTS preparation platform. Built as a thesis project, e
 |---|---|
 | **Foundation** | Vocabulary books (4000 Essential Words dataset), grammar lessons (Cambridge Grammar in Use units), IPA pronunciation sounds library with practice attempts |
 | **Basic** | Skill-specific lessons across Listening, Reading, Writing, Speaking with exercises and per-user progress tracking |
-| **Advanced** | Full-length practice sessions — timed reading parts, audio-based listening, writing prompts, speaking rounds — each with session state |
+| **Advanced** | Full-length practice sessions -- timed reading parts, audio-based listening, writing prompts, speaking rounds -- each with session state |
 | **Intensive** | Mock exam engine with "Save & Pause" session persistence, AI auto-grading for writing and speaking, score history |
 
-### AI & Machine Learning
+### AI and Machine Learning
 
-- **Speech-to-Text** — Faster-Whisper (base model, CPU/CUDA) for pronunciation assessment and dictation transcription
-- **Writing Grading** — Google Gemini with IELTS rubric: Task Achievement, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy
-- **Speaking Grading** — Gemini-powered evaluation aligned with IELTS speaking band descriptors (467 lines of scoring logic)
-- **Pronunciation Assessment** — IPA conversion via `eng-to-ipa` + Levenshtein distance scoring against reference transcription
-- **AI Chat Tutor** — Persistent assistant available across all screens for translation and explanation
-- **Async processing** — Grading submitted to RabbitMQ queue; AI service consumes and posts results back via callback
+- **Speech-to-Text** -- Faster-Whisper (base model, CPU int8) for pronunciation assessment and dictation transcription
+- **Writing Grading** -- Google Gemini with IELTS rubric: Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy
+- **Speaking Grading** -- Gemini-powered evaluation aligned with IELTS speaking band descriptors
+- **Pronunciation Assessment** -- IPA conversion via `eng-to-ipa` + Levenshtein distance scoring against reference transcription
+- **AI Chat Tutor** -- Persistent assistant available across all screens for translation and explanation
+- **Async processing** -- Grading submitted to RabbitMQ queue; AI service consumes and posts results back via HTTP callback
 
-### Vocabulary & Grammar
+### Vocabulary and Grammar
 
-- **Vocab Lab** — Anki-style flashcard decks using FSRS (Free Spaced Repetition Scheduler) algorithm, custom card templates (front/back), community deck sharing
-- **Vocabulary Module** — 4000 Essential English Words with comprehension exercises and matching questions
-- **Grammar Module** — Unit-based lessons with exercises and progress tracking
-- **Quick-Add FAB** — Global Floating Action Button to add words to Vocab Lab from any screen
+- **Vocab Lab** -- Anki-style flashcard decks using FSRS (Free Spaced Repetition Scheduler) algorithm, custom card templates (front/back), community deck sharing
+- **Vocabulary Module** -- 4000 Essential English Words with comprehension exercises and matching questions
+- **Grammar Module** -- Unit-based lessons with exercises and progress tracking
+- **Quick-Add FAB** -- Global Floating Action Button to add words to Vocab Lab from any screen
 
-### Engagement & Social
+### Engagement and Social
 
-- **Gamification** — XP logs, achievement badges, daily study streaks
-- **Community** — Posts (study tips, score achievements, general discussion), threaded comments, likes, bookmarks
-- **Notifications** — WebSocket-based real-time notifications (streak milestones, exam graded, review due, new lesson, achievements)
-- **Teacher–Student** — Instructor linking for classroom management
+- **Gamification** -- XP logs, achievement badges, daily study streaks
+- **Community** -- Posts (study tips, score achievements, general discussion), threaded comments, likes, bookmarks
+- **Notifications** -- In-app notifications (streak milestones, exam graded, review due, new lesson, achievements)
+- **Teacher-Student** -- Instructor linking for classroom management
 
-### Shadowing & Dictation
+### Shadowing and Dictation
 
 - Video-based shadowing practice with folder organisation and progress tracking
+- YouTube video import via `yt-dlp` with automatic transcription
 - Audio dictation with transcription comparison and scoring
 
-### Subscription & Payments
+### Subscription and Payments
 
 - Three-tier plans: Free, Premium, Pro with feature-level usage limits
 - **VNPay** integration with HMAC-SHA512 signature verification (production)
@@ -99,35 +93,38 @@ A full-stack AI-powered IELTS preparation platform. Built as a thesis project, e
 
 ## Technology Stack
 
-### Backend Core — NestJS 10 (TypeScript)
+### Backend Core -- NestJS 10 (TypeScript)
 
 | Layer | Technology |
 |---|---|
 | Framework | NestJS 10 |
 | ORM | Prisma 5 |
-| Database | PostgreSQL 16 |
-| Cache | Redis 7 (ioredis) |
-| Message Broker | RabbitMQ 3 (amqplib) |
-| Storage | AWS S3 SDK — MinIO (local dev) / GCS (production) |
+| Database | PostgreSQL (Supabase, PgBouncer :6543 + Direct :5432) |
+| Cache | Redis (Upstash, TLS) via ioredis |
+| Message Broker | RabbitMQ (CloudAMQP, AMQPS) via amqplib |
+| Image Storage | Cloudinary |
 | Auth | JWT + Passport + Google OAuth (google-auth-library) |
-| Real-time | WebSockets (@nestjs/websockets) |
 | Scheduling | @nestjs/schedule |
+| Rate Limiting | @nestjs/throttler |
 | Spaced Repetition | ts-fsrs |
-| Media | music-metadata, youtube-transcript, cheerio, yt-dlp |
+| YouTube | youtube-transcript |
+| Metrics | @willsoto/nestjs-prometheus (prom-client) |
+| Tracing | OpenTelemetry SDK (OTLP exporter) |
 
-### AI Service — FastAPI (Python)
+### AI Service -- FastAPI (Python 3.11)
 
 | Component | Technology |
 |---|---|
 | Framework | FastAPI 0.109 + Uvicorn |
-| Speech-to-Text | faster-whisper ≥ 1.0.1 |
+| Speech-to-Text | faster-whisper (CTranslate2, int8) + ffmpeg |
 | LLM Grading | Google Gemini (google-genai) |
 | Queue Consumer | Pika (RabbitMQ) |
 | ORM | SQLAlchemy 2 + psycopg2 |
-| Storage | boto3 (MinIO local) + google-cloud-storage (GCS production) |
+| Object Storage | boto3 (MinIO local) / Google Cloud Storage (production) |
 | Pronunciation | eng-to-ipa + python-Levenshtein |
+| YouTube | yt-dlp |
 
-### Frontend Web — Next.js 14
+### Frontend Web -- Next.js 14
 
 | Layer | Technology |
 |---|---|
@@ -140,17 +137,36 @@ A full-stack AI-powered IELTS preparation platform. Built as a thesis project, e
 | Forms | React Hook Form 7 + Zod |
 | Auth | @react-oauth/google |
 
-### Frontend Mobile — React Native Expo 54
+### Frontend Mobile -- React Native Expo 54
 
 | Layer | Technology |
 |---|---|
 | Framework | Expo 54 / Expo Router 6 |
-| Runtime | React Native 0.81.5, React 19 |
+| Runtime | React Native 0.81, React 19 |
 | Language | TypeScript 5 |
 | Audio/Video | expo-av |
 | Speech | expo-speech-recognition |
 | Animation | react-native-reanimated 4 |
 | Storage | AsyncStorage |
+
+---
+
+## Monitoring and Observability
+
+The system uses a full observability stack powered by **Grafana Alloy** as the central telemetry collector running on the VM.
+
+| Signal | Pipeline | Destination |
+|---|---|---|
+| **Metrics** | Alloy `prometheus.scrape` from backend-core and backend-ai `/metrics` endpoints | Grafana Cloud (Prometheus via `remote_write`) |
+| **Logs** | Alloy `loki.source.docker` collecting from all Docker containers | Grafana Cloud (Loki) |
+| **Traces** | OpenTelemetry SDK in NestJS and FastAPI, exported via OTLP | Grafana Cloud (Tempo) |
+
+```
+backend-core --metrics--> Alloy --remote_write--> Grafana Cloud (Prometheus)
+backend-ai   --metrics--> Alloy --remote_write--> Grafana Cloud (Prometheus)
+Docker containers --logs-> Alloy --loki.write---> Grafana Cloud (Loki)
+NestJS/FastAPI --traces--> Alloy --OTLP---------> Grafana Cloud (Tempo)
+```
 
 ---
 
@@ -170,12 +186,12 @@ docker-compose up -d
 
 | Service | Port | UI |
 |---|---|---|
-| PostgreSQL 16 | 5433 | PgAdmin → localhost:5050 |
-| Redis 7 | 6379 | — |
-| RabbitMQ 3 | 5672 | Management → localhost:15672 |
-| MinIO (local S3) | 9000 | Console → localhost:9001 |
+| PostgreSQL 16 | 5433 | PgAdmin --> localhost:5050 |
+| Redis 7 | 6379 | -- |
+| RabbitMQ 3 | 5672 | Management --> localhost:15672 |
+| MinIO (local S3) | 9000 | Console --> localhost:9001 |
 
-> Production uses GCS instead of MinIO. MinIO is only used in local development.
+> Production uses managed services (Supabase, Upstash, CloudAMQP) instead of local Docker containers. MinIO is replaced by Google Cloud Storage and Cloudinary.
 
 ### 2. Backend Core (NestJS)
 
@@ -238,7 +254,7 @@ thesis-toeic-system/
 │   ├── prisma/schema.prisma       # 55+ models across 8 domains
 │   └── src/modules/
 │       ├── auth/                  # JWT, Google OAuth, Passport strategies
-│       ├── users/                 # User CRUD, profile, teacher–student links
+│       ├── users/                 # User CRUD, profile, teacher-student links
 │       ├── exams/                 # Mock exam engine, session persistence
 │       ├── results/               # Score storage, AI grading callbacks
 │       ├── ielts/                 # Foundation / Basic / Advanced content + sessions
@@ -251,7 +267,7 @@ thesis-toeic-system/
 │       ├── learning/              # Generic learning materials and progress
 │       ├── notes/                 # Per-question user notes
 │       ├── gamification/          # XP, achievements, streaks
-│       ├── notifications/         # WebSocket notification service
+│       ├── notifications/         # Notification service
 │       ├── posts/                 # Community posts, comments, likes, bookmarks
 │       ├── subscriptions/         # Plans, VNPay, mock provider, cron expiry
 │       └── ai-client/             # RabbitMQ publisher to AI service
@@ -288,7 +304,7 @@ thesis-toeic-system/
 │       ├── shadowing/             # Shadowing sub-routes
 │       └── login/ & register/     # Auth screens
 │
-├── docs/deployment/               # Deployment checklist and notes
+├── docs/deployment/               # Deployment configs, migration plan, checklist
 ├── docker-compose.yml             # Local dev: Postgres, Redis, RabbitMQ, MinIO, PgAdmin
 └── package.json                   # Monorepo scripts (concurrently)
 ```
@@ -303,11 +319,11 @@ Use exact route prefixes (`@router.post("")`) rather than trailing slashes to av
 
 ### IELTS Intensive Session Persistence
 
-The exam engine enforces "Protect Session" semantics. Navigating away from an active test must trigger programmatic session saving via the API — otherwise the session is silently dropped.
+The exam engine enforces "Protect Session" semantics. Navigating away from an active test must trigger programmatic session saving via the API -- otherwise the session is silently dropped.
 
 ### AI Grading Queue Flow
 
-Writing and speaking submissions are published to RabbitMQ by the `ai-client` module and consumed asynchronously by the FastAPI worker. Results are posted back to the NestJS callback endpoint. Session status transitions: `IN_PROGRESS → SUBMITTED → GRADING → GRADED`.
+Writing and speaking submissions are published to RabbitMQ by the `ai-client` module and consumed asynchronously by the FastAPI worker. Results are posted back to the NestJS callback endpoint via HTTP. Session status transitions: `IN_PROGRESS -> SUBMITTED -> GRADING -> GRADED`.
 
 ---
 
