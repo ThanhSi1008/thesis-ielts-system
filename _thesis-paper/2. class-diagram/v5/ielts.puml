@@ -245,17 +245,15 @@ class FoundationPronunciationProgress {
   - updatedAt: DateTime
 }
 
-class IeltsBasicSkill {
-  - id: String
-  - name: String
-  - order: Int
-  - createdAt: DateTime
-  - updatedAt: DateTime
+enum IeltsBasicSkillType {
+  + LISTENING
+  + READING
+  + WRITING
+  + SPEAKING
 }
 
 class IeltsBasicLesson {
   - id: String
-  - skillId: String
   - chapter: String [0..1]
   - title: String
   - content: Json
@@ -267,7 +265,6 @@ class IeltsBasicLesson {
 
 class IeltsBasicListeningExercise {
   - id: String
-  - skillId: String
   - lessonId: String [0..1]
   - topic: String
   - instructions: String [0..1]
@@ -281,7 +278,6 @@ class IeltsBasicListeningExercise {
 
 class IeltsBasicReadingExercise {
   - id: String
-  - skillId: String
   - lessonId: String [0..1]
   - topic: String
   - instructions: String [0..1]
@@ -308,7 +304,6 @@ class IeltsBasicProgress {
 
 class IeltsBasicWritingExercise {
   - id: String
-  - skillId: String
   - lessonId: String [0..1]
   - topic: String
   - instructions: String [0..1]
@@ -334,7 +329,6 @@ class IeltsBasicWritingAnswer {
 
 class IeltsBasicSpeakingExercise {
   - id: String
-  - skillId: String
   - lessonId: String [0..1]
   - topic: String
   - partType: Int
@@ -522,12 +516,7 @@ FoundationGrammarUnit "1" -- "0..*" FoundationGrammarProgress
 FoundationPronunciationSound "1" *-- "0..*" FoundationSoundExample
 FoundationPronunciationSound "1" -- "0..*" FoundationPronunciationProgress
 
-' IELTS Basic Skills Relationships (Skill owns its content = composition)
-IeltsBasicSkill "1" *-- "0..*" IeltsBasicLesson
-IeltsBasicSkill "1" *-- "0..*" IeltsBasicListeningExercise
-IeltsBasicSkill "1" *-- "0..*" IeltsBasicReadingExercise
-IeltsBasicSkill "1" *-- "0..*" IeltsBasicWritingExercise
-IeltsBasicSkill "1" *-- "0..*" IeltsBasicSpeakingExercise
+' IELTS Basic Skills Relationships
 
 IeltsBasicLesson "0..1" -- "0..*" IeltsBasicListeningExercise
 IeltsBasicLesson "0..1" -- "0..*" IeltsBasicReadingExercise

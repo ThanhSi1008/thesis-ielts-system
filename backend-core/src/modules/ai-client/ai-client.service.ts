@@ -9,7 +9,7 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
   private queueName: string;
   private transcriptionQueueName: string;
 
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) { }
 
   async onModuleInit() {
     const rabbitmqUrl = this.configService.get<string>("RABBITMQ_URL");
@@ -25,7 +25,7 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
     try {
       this.connection = await amqp.connect(rabbitmqUrl);
       this.channel = await this.connection.createChannel();
-      await this.channel.assertQueue(this.queueName, { 
+      await this.channel.assertQueue(this.queueName, {
         durable: true,
         arguments: {
           'x-message-ttl': 300000,

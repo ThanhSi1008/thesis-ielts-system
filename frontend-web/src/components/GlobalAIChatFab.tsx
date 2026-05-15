@@ -163,11 +163,11 @@ export function GlobalAIChatFab() {
     // Fetch streak
     api.get<{ currentStreak: number }>("/ielts/streak")
       .then(r => setStreak(r.data.currentStreak ?? 0))
-      .catch(() => {});
+      .catch(() => { });
     // Fetch vocab due
     vocabLabApi.getDecks()
       .then(decks => setVocabDue(decks.reduce((s, d) => s + d.newCount + d.learningCount + d.dueCount, 0)))
-      .catch(() => {});
+      .catch(() => { });
   }, [user]);
 
   const userContext = useMemo(() => ({
