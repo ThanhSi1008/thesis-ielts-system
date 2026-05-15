@@ -290,7 +290,39 @@ Bảng đặc tả use-case **phải** tuân theo cấu trúc sau (căn theo bà
 
 ---
 
-## 8. Checklist trước khi hoàn thiện
+## 8. Cấu trúc nội dung các chương
+
+Để đảm bảo tính đồng nhất, mỗi chương trong báo cáo cần tuân thủ cấu trúc nội dung cơ bản sau đây (tham khảo chi tiết trong thư mục `sample-report/`):
+
+### [Chương 1: Giới thiệu](sample-report/02-chuong-1-gioi-thieu.md)
+- **Tổng quan:** Giới thiệu bối cảnh, lý do chọn đề tài.
+- **Mục tiêu & Phạm vi:** Xác định rõ những gì hệ thống sẽ giải quyết và giới hạn của đề tài.
+- **Mô tả yêu cầu:** Liệt kê sơ bộ các yêu cầu chức năng, phi chức năng cơ bản, cùng các ràng buộc (business rules).
+
+### [Chương 2: Cơ sở lý thuyết](sample-report/03-chuong-2-co-so-ly-thuyet.md)
+- **Công nghệ & Công cụ:** Giới thiệu ngắn gọn các ngôn ngữ lập trình (như JavaScript, TypeScript), framework (như ReactJS, Next.js, React Native, Express.js) và các nền tảng (MongoDB, Supabase, GCP, WebSocket, WebRTC, v.v.).
+- **Kiến trúc phần mềm:** Giải thích mô hình kiến trúc áp dụng (Client-Server, RESTful API, Real-time Communication).
+- **Lưu ý:** Chỉ phân tích những lý thuyết **thực sự áp dụng** vào đồ án, tránh sao chép lý thuyết nền tảng chung chung một cách dư thừa.
+
+### [Chương 3: Phân tích](sample-report/04-chuong-3-phan-tich.md)
+- **Quy trình nghiệp vụ:** Sơ đồ và lời dẫn mô tả luồng quy trình thực tế.
+- **Use-case tổng quát & Tác nhân:** Sơ đồ Use-case tổng thể của toàn hệ thống và bảng định nghĩa các đối tượng (actor).
+- **Đặc tả Use-case:** Bảng đặc tả chi tiết cho từng chức năng quan trọng (theo đúng format ở mục 7.3) kèm sơ đồ hoạt động (Activity diagram) và sơ đồ tuần tự (Sequence diagram).
+
+### [Chương 4: Thiết kế và Hiện thực](sample-report/05-chuong-4-thiet-ke-hien-thuc.md)
+- **Thiết kế hệ thống:** Bao gồm sơ đồ lớp (Class diagram), Sơ đồ cơ sở dữ liệu (ERD cho SQL và Schema cho NoSQL), sơ đồ kiến trúc hệ thống tổng thể.
+- **Thiết kế UI/UX:** Sơ đồ luồng chuyển trang (Navigation flow) cho nền tảng Web và Mobile.
+- **Hiện thực giao diện:** Các ảnh chụp màn hình (screenshot) ứng dụng thực tế, kèm mô tả ngắn gọn về chức năng hiển thị trên màn hình đó.
+- **Kiểm thử:** Danh sách các kịch bản kiểm thử (test-cases) tiêu biểu và bảng báo cáo tổng hợp kết quả kiểm thử.
+
+### [Chương 5: Kết luận](sample-report/06-chuong-5-ket-luan.md)
+- **Kết quả đạt được:** Tóm tắt những thành quả nổi bật về mặt kiến trúc, công nghệ và tính năng đã giải quyết được.
+- **Hạn chế:** Nhìn nhận khách quan những giới hạn, điểm chưa hoàn hảo của ứng dụng.
+- **Hướng phát triển:** Đề xuất kế hoạch nâng cấp, bổ sung tính năng trong tương lai.
+
+---
+
+## 9. Checklist trước khi hoàn thiện
 
 Trước khi xuất file báo cáo cuối, AI Agent cần xác nhận toàn bộ các mục sau:
 
