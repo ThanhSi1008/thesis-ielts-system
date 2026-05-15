@@ -238,7 +238,7 @@ Phụ lục chứa các tài liệu bổ trợ, minh họa, **không nằm trong
 
 ## 7. Văn phong và hành văn
 
-> **Tài liệu tham chiếu:** Mọi đoạn văn viết mới phải căn chỉnh văn phong theo file mẫu `thesis-report/docs/Sample-report.md`.
+> **Tài liệu tham chiếu:** Mọi đoạn văn viết mới phải căn chỉnh văn phong theo các file mẫu được chia theo chương trong thư mục `thesis-report/docs/sample-report/` (ví dụ: `04-chuong-3-phan-tich.md`, `05-chuong-4-thiet-ke-hien-thuc.md`...).
 
 ### 7.1 Phong cách chung
 
