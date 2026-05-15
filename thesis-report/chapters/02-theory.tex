@@ -1,5 +1,48 @@
 \chapter{CƠ SỞ LÝ THUYẾT}
 
+\section{Lý thuyết học ngôn ngữ và đánh giá kỹ năng tự động}
+
+Hệ thống IELTS Master được xây dựng trên nền tảng lý thuyết từ bốn lĩnh vực học thuật: học ngôn ngữ hỗ trợ máy tính (CALL), đánh giá bài viết tự động (AES), đánh giá phát âm tự động (APS), và lặp lại ngắt quãng (SRS). Mục này trình bày các lý thuyết nền tảng và mối liên hệ với các tính năng cụ thể của hệ thống.
+
+\subsection{Học ngôn ngữ hỗ trợ máy tính (CALL)}
+
+Học ngôn ngữ hỗ trợ máy tính (Computer-Assisted Language Learning --- CALL) là lĩnh vực nghiên cứu ứng dụng công nghệ thông tin để hỗ trợ quá trình dạy và học ngôn ngữ. Chapelle và Jamieson~\cite{chapelle2010technology} xác định ba nguyên tắc thiết kế CALL hiệu quả: (1) cung cấp đầu vào ngôn ngữ phong phú và đa dạng theo trình độ người học (\textit{input}); (2) tạo cơ hội luyện tập tương tác có nghĩa (\textit{interaction}); và (3) đưa ra phản hồi tức thì và cụ thể (\textit{feedback}). Ebadi và Rahimi~\cite{ebadi2018scaffolding} bổ sung rằng phản hồi được cá nhân hóa và lặp lại giúp người học nội hóa kiến thức ngôn ngữ hiệu quả hơn so với học thụ động, bằng chứng là cơ chế scaffolding trong môi trường CALL.
+
+Hệ thống IELTS Master được thiết kế theo cả ba nguyên tắc CALL: nội dung học phân cấp từ Foundation đến Advanced cung cấp input theo từng trình độ; các bài tập Speaking, Pronunciation và Dictation tạo interaction trong tình huống giao tiếp thực tế; cơ chế chấm điểm AI tự động (Gemini 2.5 Flash và faster-whisper) cung cấp feedback chi tiết và tức thì sau mỗi lần luyện tập.
+
+\subsection{Đánh giá bài viết tự động (AES)}
+
+Đánh giá bài viết tự động (Automated Essay Scoring --- AES) nghiên cứu các phương pháp máy tính hóa việc chấm điểm bài viết tự luận. Lịch sử AES bắt đầu từ công trình tiên phong của Page~\cite{page1966imminence} năm 1966 với hệ thống Project Essay Grade (PEG), sử dụng các đặc trưng bề mặt như độ dài câu và tần suất từ để dự đoán điểm. Hệ thống e-rater của ETS do Burstein và cộng sự phát triển~\cite{burstein2003criterion} nâng cao độ chính xác bằng cách kết hợp phân tích ngôn ngữ học (tính mạch lạc văn bản, độ phong phú từ vựng, độ chính xác ngữ pháp), nhưng vẫn bị giới hạn bởi đặc trưng được thiết kế thủ công (hand-crafted features).
+
+Sự ra đời của các mô hình ngôn ngữ lớn (LLM) đã mở ra hướng mới cho AES. Mizumoto và Eguchi~\cite{mizumoto2023exploring} chứng minh rằng ChatGPT đạt tương quan cao với điểm chấm của giám khảo người bản ngữ trên bài viết IELTS Task~2 khi được cung cấp rubric đánh giá chi tiết thông qua prompt engineering. Ưu điểm của phương pháp LLM là khả năng đánh giá chất lượng nội dung và lập luận --- yếu tố mà các hệ thống truyền thống dựa trên đặc trưng thống kê không nắm bắt được.
+
+Trong hệ thống IELTS Master, AES được triển khai thông qua Gemini 2.5 Flash với prompt engineering chi tiết về bốn tiêu chí IELTS Writing (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy). Do tính biến thiên của LLM giữa các lần gọi (consistency limitation), kết quả được trình bày dưới dạng band điểm ước tính kèm cảnh báo để người dùng hiểu đúng bản chất của phản hồi.
+
+\subsection{Đánh giá phát âm tự động (APS)}
+
+Đánh giá phát âm tự động (Automated Pronunciation Scoring --- APS) áp dụng xử lý tín hiệu âm thanh và mô hình ngữ âm học để tính điểm phát âm người học ngoại ngữ. Thuật toán nền tảng là Goodness of Pronunciation (GOP) do Witt và Young giới thiệu~\cite{witt2000phone}, đo lường xác suất log của âm vị nhận dạng được so với mô hình ngữ âm chuẩn --- GOP càng cao thì phát âm càng gần chuẩn. Eskenazi~\cite{eskenazi2009overview} tổng kết rằng APS hiệu quả cần xét đồng thời độ chính xác âm vị (\textit{phonemic accuracy}), nhịp điệu (\textit{prosody}) và ngữ điệu (\textit{intonation}); với mục tiêu luyện tập cá nhân thì phản hồi về từng âm vị có giá trị thực hành cao nhất.
+
+Hệ thống IELTS Master triển khai APS theo phương pháp \textit{weighted phoneme edit distance}: âm thanh ghi âm được chuyển thành văn bản kèm xác suất tin cậy từng từ qua faster-whisper; cả từ chuẩn lẫn từ nhận dạng được chuyển sang ký hiệu phiên âm quốc tế (IPA); khoảng cách chỉnh sửa được tính với chi phí thay thế phân biệt theo lớp âm vị --- thay thế trong cùng lớp (ví dụ: hai phụ âm tắc /plosive/) tốn chi phí thấp hơn thay thế khác lớp, phù hợp với lý thuyết khoảng cách ngữ âm~\cite{witt2000phone}. Điểm phát âm tổng hợp được tính theo:
+\begin{equation}
+  \text{overall} = 0{,}4 \cdot \text{phoneme} + 0{,}4 \cdot \text{confidence} + 0{,}2 \cdot \text{text}
+  \label{eq:aps-score}
+\end{equation}
+trong đó \textit{phoneme} là điểm khoảng cách IPA có trọng số, \textit{confidence} là xác suất tin cậy trung bình của faster-whisper, và \textit{text} là điểm Levenshtein văn bản giữ lại làm thành phần bù khi chuyển đổi IPA thất bại.
+
+\subsection{Lặp lại ngắt quãng và đường cong quên lãng}
+
+Lặp lại ngắt quãng (Spaced Repetition System --- SRS) dựa trên lý thuyết đường cong quên lãng của Ebbinghaus~\cite{ebbinghaus1885gedachtnis}: ký ức suy giảm theo hàm mũ theo thời gian nếu không được ôn tập, nhưng mỗi lần ôn tập phục hồi ký ức và kéo dài khoảng cách đến lần quên tiếp theo. Cepeda và cộng sự~\cite{cepeda2006distributed} phân tích tổng hợp 254 nghiên cứu xác nhận rằng phân bố thời gian ôn tập (distributed practice) hiệu quả hơn đáng kể so với học dồn (massed practice) trong củng cố ký ức dài hạn. Karpicke và Roediger~\cite{karpicke2008critical} bổ sung rằng hành động chủ động nhớ lại (retrieval practice / testing effect) hiệu quả hơn đọc lại thụ động trong củng cố ký ức dài hạn --- đây là lý thuyết nền tảng cho thiết kế flashcard trong Vocab Lab.
+
+Thuật toán SM-2 của Woźniak~\cite{wozniak1990spaced} cải tiến lịch ôn tập bằng cách điều chỉnh khoảng cách theo lịch sử trả lời. FSRS (Free Spaced Repetition Scheduler) của Ye~\cite{ye2022fsrs} đại diện cho thế hệ mới nhất, sử dụng mô hình DSR (Difficulty, Stability, Retrievability) và tối ưu hóa dựa trên dữ liệu thực để dự đoán chính xác hơn thời điểm một từ sắp bị quên, từ đó lên lịch ôn tập tối ưu cá nhân hóa cho từng người học. Hệ thống IELTS Master tích hợp thư viện ts-fsrs v5.3.2 cho module Vocab Lab, áp dụng cơ chế FSRS với thang đánh giá bốn mức (Again/Hard/Good/Easy) để khai thác đồng thời retrieval practice và phân bố thời gian tối ưu.
+
+\subsection{Tiêu chí đánh giá IELTS}
+
+IELTS (International English Language Testing System) đánh giá năng lực tiếng Anh qua bốn kỹ năng với thang điểm band 0--9~\cite{ielts-global-stats}. Điểm tổng là trung bình số học của Listening, Reading, Writing và Speaking.
+
+Kỹ năng Writing Task~2 được chấm theo bốn tiêu chí với trọng số ngang nhau: (1)~Task Achievement (TA) --- mức độ đáp ứng yêu cầu đề bài và phát triển lập luận; (2)~Coherence and Cohesion (CC) --- tổ chức ý tưởng và sử dụng phương tiện liên kết; (3)~Lexical Resource (LR) --- phạm vi và độ chính xác từ vựng; (4)~Grammatical Range and Accuracy (GRA) --- đa dạng cấu trúc ngữ pháp và độ chính xác.
+
+Kỹ năng Speaking cũng chấm theo bốn tiêu chí: (1)~Fluency and Coherence (FC); (2)~Lexical Resource (LR); (3)~Grammatical Range and Accuracy (GRA); (4)~Pronunciation (P). Hệ thống IELTS Master cung cấp rubric chi tiết của tất cả tiêu chí trên trong prompt gửi đến Gemini API, đảm bảo phản hồi chấm điểm nhất quán với tiêu chí đánh giá chính thức --- ứng dụng trực tiếp phương pháp AES dựa trên LLM với ngữ cảnh rubric đầy đủ mà Mizumoto và Eguchi~\cite{mizumoto2023exploring} đã chứng minh hiệu quả.
+
 \section{Ngôn ngữ lập trình}
 
 \subsection{TypeScript}
