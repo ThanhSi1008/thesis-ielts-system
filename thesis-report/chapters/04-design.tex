@@ -6,9 +6,9 @@ Chương này trình bày quá trình thiết kế và hiện thực hệ thốn
 
 Sơ đồ lớp của hệ thống IELTS Learning System được chia thành hai nhóm module nhằm tăng tính rõ ràng và dễ bảo trì: nhóm \textbf{User \& Auth} quản lý tài khoản, xác thực và hồ sơ người học; nhóm \textbf{Learning} quản lý bài tập 4 kỹ năng, từ vựng, đề thi và tiến độ học tập~\cite{fowler2002patterns}.
 
-Trong nhóm User \& Auth, lớp \texttt{User} giữ vai trò trung tâm với các thuộc tính: \texttt{id}, \texttt{email}, \texttt{passwordHash}, \texttt{role} (learner/admin), \texttt{failedAttempts}, \texttt{lockUntil} và \texttt{createdAt}. Lớp \texttt{OtpToken} liên kết 1-nhiều với \texttt{User} thông qua \texttt{userId}, lưu mã OTP 6 chữ số và thời gian hết hạn. Lớp \texttt{RefreshToken} lưu refresh token theo từng phiên đăng nhập, cho phép vô hiệu hoá đơn lẻ khi người dùng đăng xuất trên một thiết bị cụ thể mà không ảnh hưởng các phiên khác.
+Trong nhóm User \& Auth, lớp User giữ vai trò trung tâm với các thuộc tính: id, email, passwordHash, role (learner/admin), failedAttempts, lockUntil và createdAt. Lớp OtpToken liên kết 1-nhiều với User thông qua userId, lưu mã OTP 6 chữ số và thời gian hết hạn. Lớp RefreshToken lưu refresh token theo từng phiên đăng nhập, cho phép vô hiệu hoá đơn lẻ khi người dùng đăng xuất trên một thiết bị cụ thể mà không ảnh hưởng các phiên khác.
 
-Trong nhóm Learning, lớp \texttt{Skill} phân loại 4 kỹ năng (Listening, Reading, Writing, Speaking). Lớp \texttt{Exercise} liên kết với \texttt{Skill} và chứa nội dung bài tập (audio URL, passage, writing prompt). Lớp \texttt{UserExerciseResult} ghi nhận kết quả mỗi lần làm bài của từng người học theo thời gian. Lớp \texttt{VocabularyItem} và \texttt{UserVocabularyCard} hiện thực thuật toán Spaced Repetition với các trường \texttt{easeFactor} và \texttt{nextReview}. Lớp \texttt{ExamSession} và \texttt{ExamSectionDraft} quản lý phiên thi Mock Test với cơ chế auto-save và khôi phục.
+Trong nhóm Learning, lớp Skill phân loại 4 kỹ năng (Listening, Reading, Writing, Speaking). Lớp Exercise liên kết với Skill và chứa nội dung bài tập (audio URL, passage, writing prompt). Lớp UserExerciseResult ghi nhận kết quả mỗi lần làm bài của từng người học theo thời gian. Lớp VocabularyItem và UserVocabularyCard hiện thực thuật toán Spaced Repetition với các trường easeFactor và nextReview. Lớp ExamSession và ExamSectionDraft quản lý phiên thi Mock Test với cơ chế auto-save và khôi phục.
 
 \begin{figure}[H]
     \centering
@@ -26,9 +26,9 @@ Trong nhóm Learning, lớp \texttt{Skill} phân loại 4 kỹ năng (Listening,
 
 \section{Sơ đồ cơ sở dữ liệu}
 
-Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua \texttt{DATABASE\_URL} connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file \texttt{schema.prisma} và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Để đảm bảo tính rõ ràng, sơ đồ ERD (Entity-Relationship Diagram) được tách thành hai nhóm tương ứng với hai nhóm sơ đồ lớp ở mục 4.1: nhóm \textbf{Core \& Auth} (xác thực, hồ sơ, gói cước) và nhóm \textbf{Learning} (bài tập, đề thi, từ vựng, tiến độ).
+Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua DATABASE\_URL connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file schema.prisma và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Để đảm bảo tính rõ ràng, sơ đồ ERD (Entity-Relationship Diagram) được tách thành hai nhóm tương ứng với hai nhóm sơ đồ lớp ở mục 4.1: nhóm \textbf{Core \& Auth} (xác thực, hồ sơ, gói cước) và nhóm \textbf{Learning} (bài tập, đề thi, từ vựng, tiến độ).
 
-Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng nhập: \texttt{users}, \texttt{otp\_tokens}, \texttt{refresh\_tokens}; cùng các bảng phụ trợ cho hồ sơ học viên, gói cước (\texttt{subscriptions}, \texttt{pricing\_plans}), thanh toán (\texttt{payments}) và thông báo (\texttt{notifications}). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
+Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng nhập: users, otp\_tokens, refresh\_tokens; cùng các bảng phụ trợ cho hồ sơ học viên, gói cước (subscriptions, pricing\_plans), thanh toán (payments) và thông báo (notifications). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
 
 \begin{figure}[H]
     \centering
@@ -37,7 +37,7 @@ Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng
     \label{fig:erd-core}
 \end{figure}
 
-Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức theo bốn giai đoạn của lộ trình IELTS. Cụ thể: nhóm bài tập kỹ năng gồm \texttt{skills}, \texttt{exercises}, \texttt{exercise\_options}, \texttt{user\_exercise\_results}; nhóm từ vựng gồm \texttt{vocabulary\_items} và \texttt{user\_vocabulary\_cards} (lưu trạng thái Spaced Repetition); nhóm thi thử Intensive gồm \texttt{exam\_papers}, \texttt{exam\_sessions}, \texttt{exam\_section\_drafts} và \texttt{mock\_test\_results}; cùng các bảng phục vụ Dictation, Shadowing và lộ trình học. Khoá ngoại được thiết lập đầy đủ với \texttt{ON DELETE CASCADE} ở các bảng con nhằm đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha. Sơ đồ ERD nhóm Learning được trình bày trong hình~\ref{fig:erd-learning}.
+Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức theo bốn giai đoạn của lộ trình IELTS. Cụ thể: nhóm bài tập kỹ năng gồm skills, exercises, exercise\_options, user\_exercise\_results; nhóm từ vựng gồm vocabulary\_items và user\_vocabulary\_cards (lưu trạng thái Spaced Repetition); nhóm thi thử Intensive gồm exam\_papers, exam\_sessions, exam\_section\_drafts và mock\_test\_results; cùng các bảng phục vụ Dictation, Shadowing và lộ trình học. Khoá ngoại được thiết lập đầy đủ với ON DELETE CASCADE ở các bảng con nhằm đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha. Sơ đồ ERD nhóm Learning được trình bày trong hình~\ref{fig:erd-learning}.
 
 \begin{figure}[H]
     \centering
@@ -50,7 +50,7 @@ Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức 
 
 Hệ thống IELTS Learning System được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm hai thành phần chính: (1) \textbf{NestJS Modular Monolith} -- một ứng dụng NestJS 10 duy nhất chứa toàn bộ business logic được tổ chức thành 18 module nghiệp vụ (auth, exams, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, gamification, community, subscriptions, notifications...) giao tiếp nội bộ qua Dependency Injection; (2) \textbf{FastAPI AI Worker} -- microservice Python độc lập xử lý toàn bộ AI inference, kết nối với NestJS qua RabbitMQ message queue.
 
-Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào \texttt{exam-grading-queue} trên RabbitMQ; FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL 16 (trực tiếp trên GCP VM) và Google Cloud Storage (GCS) lưu trữ file audio và hình ảnh bài tập. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
+Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào exam-grading-queue trên RabbitMQ; FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL 16 (trực tiếp trên GCP VM) và Google Cloud Storage (GCS) lưu trữ file audio và hình ảnh bài tập. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
 
 \begin{figure}[H]
     \centering
