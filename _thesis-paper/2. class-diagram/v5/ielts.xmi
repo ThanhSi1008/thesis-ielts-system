@@ -1,0 +1,1253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.1"
+  xmlns:xmi="http://schema.omg.org/spec/XMI/2.1"
+  xmlns:uml="http://schema.omg.org/spec/UML/2.1">
+  <uml:Model xmi:type="uml:Model" xmi:id="_model" name="IeltsDomain">
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_String" name="String"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Int" name="Int"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Float" name="Float"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Boolean" name="Boolean"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_DateTime" name="DateTime"/>
+    <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_dt_Json" name="Json"/>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_UserRole" name="UserRole">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_UserRole_STUDENT" name="STUDENT"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_UserRole_ADMIN" name="ADMIN"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_UserRole_INSTRUCTOR" name="INSTRUCTOR"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_IeltsIntensiveExamType" name="IeltsIntensiveExamType">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveExamType_FULL_TEST" name="FULL_TEST"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveExamType_READING" name="READING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveExamType_LISTENING" name="LISTENING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveExamType_SPEAKING" name="SPEAKING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveExamType_WRITING" name="WRITING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveExamType_PRACTICE" name="PRACTICE"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_Difficulty" name="Difficulty">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_Difficulty_BEGINNER" name="BEGINNER"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_Difficulty_INTERMEDIATE" name="INTERMEDIATE"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_Difficulty_ADVANCED" name="ADVANCED"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_IeltsIntensiveSessionStatus" name="IeltsIntensiveSessionStatus">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveSessionStatus_IN_PROGRESS" name="IN_PROGRESS"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveSessionStatus_SUBMITTED" name="SUBMITTED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveSessionStatus_GRADING" name="GRADING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveSessionStatus_GRADED" name="GRADED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveSessionStatus_COMPLETED" name="COMPLETED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveSessionStatus_ABANDONED" name="ABANDONED"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_IeltsIntensiveSessionStatus_GRADING_FAILED" name="GRADING_FAILED"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Enumeration" xmi:id="_enum_PronunciationMastery" name="PronunciationMastery">
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PronunciationMastery_NEW" name="NEW"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PronunciationMastery_PRACTICING" name="PRACTICING"/>
+      <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_PronunciationMastery_MASTERED" name="MASTERED"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_User" name="User">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_email" name="email" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_password" name="password" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_password" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_password" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_googleId" name="googleId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_googleId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_googleId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_avatar" name="avatar" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_avatar" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_avatar" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_firstName" name="firstName" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_firstName" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_firstName" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_lastName" name="lastName" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_User_lastName" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_User_lastName" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_isActive" name="isActive" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_User_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsIntensiveExam" name="IeltsIntensiveExam">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_description" name="description" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveExam_description" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveExam_description" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_imageUrl" name="imageUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveExam_imageUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveExam_imageUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_duration" name="duration" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_isPublished" name="isPublished" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_questions" name="questions" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveExam_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsIntensiveSession" name="IeltsIntensiveSession">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_examId" name="examId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_answers" name="answers" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_timeTaken" name="timeTaken" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveSession_timeTaken" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveSession_timeTaken" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_practicePart" name="practicePart" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveSession_practicePart" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveSession_practicePart" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_startedAt" name="startedAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_submittedAt" name="submittedAt" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveSession_submittedAt" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveSession_submittedAt" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveSession_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsIntensiveResult" name="IeltsIntensiveResult">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_sessionId" name="sessionId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_totalScore" name="totalScore" visibility="private" type="_dt_Float"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_readingScore" name="readingScore" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveResult_readingScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveResult_readingScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_listeningScore" name="listeningScore" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveResult_listeningScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveResult_listeningScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_speakingScore" name="speakingScore" visibility="private" type="_dt_Float">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveResult_speakingScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveResult_speakingScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_writingScore" name="writingScore" visibility="private" type="_dt_Float">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveResult_writingScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveResult_writingScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_feedback" name="feedback" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsIntensiveResult_feedback" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsIntensiveResult_feedback" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_gradedAt" name="gradedAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsIntensiveResult_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationVocabBook" name="FoundationVocabBook">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabBook_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabBook_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabBook_imageUrl" name="imageUrl" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabBook_wordCount" name="wordCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabBook_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabBook_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabBook_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationVocabUnit" name="FoundationVocabUnit">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_bookId" name="bookId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_storyTitle" name="storyTitle" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabUnit_storyTitle" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabUnit_storyTitle" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_storyContent" name="storyContent" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabUnit_storyContent" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabUnit_storyContent" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_storyImageUrl" name="storyImageUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabUnit_storyImageUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabUnit_storyImageUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabUnit_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationVocabItem" name="FoundationVocabItem">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_unitId" name="unitId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_word" name="word" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_meaning" name="meaning" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_ipa" name="ipa" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabItem_ipa" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabItem_ipa" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_partOfSpeech" name="partOfSpeech" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabItem_partOfSpeech" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabItem_partOfSpeech" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_example" name="example" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabItem_example" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabItem_example" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_imageUrl" name="imageUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabItem_imageUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabItem_imageUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_audioUrl" name="audioUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabItem_audioUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabItem_audioUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabItem_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationVocabExercise" name="FoundationVocabExercise">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabExercise_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabExercise_unitId" name="unitId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabExercise_question" name="question" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabExercise_answer" name="answer" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabExercise_options" name="options" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabExercise_order" name="order" visibility="private" type="_dt_Int"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationVocabQuestion" name="FoundationVocabQuestion">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabQuestion_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabQuestion_unitId" name="unitId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabQuestion_question" name="question" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabQuestion_type" name="type" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabQuestion_options" name="options" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabQuestion_options" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabQuestion_options" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabQuestion_answer" name="answer" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabQuestion_order" name="order" visibility="private" type="_dt_Int"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationVocabProgress" name="FoundationVocabProgress">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_unitId" name="unitId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_wordsLearned" name="wordsLearned" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_totalWords" name="totalWords" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_questionScore" name="questionScore" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabProgress_questionScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabProgress_questionScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_isCompleted" name="isCompleted" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_completedAt" name="completedAt" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationVocabProgress_completedAt" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationVocabProgress_completedAt" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationVocabProgress_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationGrammarBook" name="FoundationGrammarBook">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_slug" name="slug" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_author" name="author" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_level" name="level" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_imageUrl" name="imageUrl" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_color" name="color" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_unitCount" name="unitCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarBook_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationGrammarUnit" name="FoundationGrammarUnit">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarUnit_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarUnit_bookId" name="bookId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarUnit_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarUnit_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarUnit_theoryContent" name="theoryContent" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationGrammarUnit_theoryContent" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationGrammarUnit_theoryContent" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarUnit_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarUnit_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationGrammarExercise" name="FoundationGrammarExercise">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_unitId" name="unitId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_section" name="section" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_question" name="question" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_type" name="type" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_options" name="options" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationGrammarExercise_options" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationGrammarExercise_options" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_answer" name="answer" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarExercise_order" name="order" visibility="private" type="_dt_Int"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationGrammarProgress" name="FoundationGrammarProgress">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_unitId" name="unitId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_theoryCompleted" name="theoryCompleted" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_exerciseScore" name="exerciseScore" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationGrammarProgress_exerciseScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationGrammarProgress_exerciseScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_exerciseTotal" name="exerciseTotal" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationGrammarProgress_exerciseTotal" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationGrammarProgress_exerciseTotal" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_completedAt" name="completedAt" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationGrammarProgress_completedAt" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationGrammarProgress_completedAt" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationGrammarProgress_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationPronunciationSound" name="FoundationPronunciationSound">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_symbol" name="symbol" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_type" name="type" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_word" name="word" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_name" name="name" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationSound_name" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationSound_name" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_description" name="description" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationSound_description" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationSound_description" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_tip" name="tip" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationSound_tip" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationSound_tip" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_imageUrl" name="imageUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationSound_imageUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationSound_imageUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_audioUrl" name="audioUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationSound_audioUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationSound_audioUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_videoUrl" name="videoUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationSound_videoUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationSound_videoUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_voiced" name="voiced" visibility="private" type="_dt_Boolean">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationSound_voiced" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationSound_voiced" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationSound_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationSoundExample" name="FoundationSoundExample">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationSoundExample_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationSoundExample_soundId" name="soundId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationSoundExample_word" name="word" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationSoundExample_ipa" name="ipa" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationSoundExample_ipa" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationSoundExample_ipa" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationSoundExample_audioUrl" name="audioUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationSoundExample_audioUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationSoundExample_audioUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationSoundExample_order" name="order" visibility="private" type="_dt_Int"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_FoundationPronunciationProgress" name="FoundationPronunciationProgress">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_soundId" name="soundId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_practiceCount" name="practiceCount" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_bestScore" name="bestScore" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationProgress_bestScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationProgress_bestScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_lastPracticedAt" name="lastPracticedAt" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_FoundationPronunciationProgress_lastPracticedAt" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_FoundationPronunciationProgress_lastPracticedAt" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_FoundationPronunciationProgress_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicSkill" name="IeltsBasicSkill">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSkill_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSkill_name" name="name" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSkill_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSkill_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSkill_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicLesson" name="IeltsBasicLesson">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_skillId" name="skillId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_chapter" name="chapter" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicLesson_chapter" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicLesson_chapter" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_content" name="content" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_quiz" name="quiz" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicLesson_quiz" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicLesson_quiz" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicLesson_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicListeningExercise" name="IeltsBasicListeningExercise">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_skillId" name="skillId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_lessonId" name="lessonId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicListeningExercise_lessonId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicListeningExercise_lessonId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_topic" name="topic" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_instructions" name="instructions" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicListeningExercise_instructions" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicListeningExercise_instructions" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_audioUrl" name="audioUrl" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_transcript" name="transcript" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_content" name="content" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicListeningExercise_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicReadingExercise" name="IeltsBasicReadingExercise">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_skillId" name="skillId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_lessonId" name="lessonId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicReadingExercise_lessonId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicReadingExercise_lessonId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_topic" name="topic" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_instructions" name="instructions" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicReadingExercise_instructions" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicReadingExercise_instructions" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_passage" name="passage" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_passageWithLocations" name="passageWithLocations" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicReadingExercise_passageWithLocations" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicReadingExercise_passageWithLocations" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_content" name="content" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicReadingExercise_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicProgress" name="IeltsBasicProgress">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_lessonId" name="lessonId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicProgress_lessonId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicProgress_lessonId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_listeningExerciseId" name="listeningExerciseId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicProgress_listeningExerciseId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicProgress_listeningExerciseId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_readingExerciseId" name="readingExerciseId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicProgress_readingExerciseId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicProgress_readingExerciseId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_writingExerciseId" name="writingExerciseId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicProgress_writingExerciseId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicProgress_writingExerciseId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_speakingExerciseId" name="speakingExerciseId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicProgress_speakingExerciseId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicProgress_speakingExerciseId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_isCompleted" name="isCompleted" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicProgress_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicWritingExercise" name="IeltsBasicWritingExercise">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_skillId" name="skillId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_lessonId" name="lessonId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicWritingExercise_lessonId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicWritingExercise_lessonId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_topic" name="topic" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_instructions" name="instructions" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicWritingExercise_instructions" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicWritingExercise_instructions" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_prompt" name="prompt" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_diagramUrl" name="diagramUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicWritingExercise_diagramUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicWritingExercise_diagramUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_modelAnswer" name="modelAnswer" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_taskType" name="taskType" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingExercise_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicWritingAnswer" name="IeltsBasicWritingAnswer">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_writingExerciseId" name="writingExerciseId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_answers" name="answers" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_score" name="score" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicWritingAnswer_score" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicWritingAnswer_score" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_totalBlanks" name="totalBlanks" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicWritingAnswer_totalBlanks" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicWritingAnswer_totalBlanks" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicWritingAnswer_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsBasicSpeakingExercise" name="IeltsBasicSpeakingExercise">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_skillId" name="skillId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_lessonId" name="lessonId" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicSpeakingExercise_lessonId" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicSpeakingExercise_lessonId" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_topic" name="topic" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_partType" name="partType" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_questionType" name="questionType" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_instructions" name="instructions" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicSpeakingExercise_instructions" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicSpeakingExercise_instructions" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_prompt" name="prompt" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_content" name="content" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicSpeakingExercise_content" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicSpeakingExercise_content" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_modelAnswer" name="modelAnswer" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsBasicSpeakingExercise_modelAnswer" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsBasicSpeakingExercise_modelAnswer" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_order" name="order" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsBasicSpeakingExercise_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedListeningPart" name="IeltsAdvancedListeningPart">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_partNumber" name="partNumber" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_audioUrl" name="audioUrl" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_transcript" name="transcript" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_content" name="content" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_questionTypes" name="questionTypes" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningPart_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedListeningSession" name="IeltsAdvancedListeningSession">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_partId" name="partId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_answers" name="answers" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_scoreData" name="scoreData" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_totalScore" name="totalScore" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_totalQuestions" name="totalQuestions" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedListeningSession_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedReadingPart" name="IeltsAdvancedReadingPart">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_partNumber" name="partNumber" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_passage" name="passage" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_passageWithLocations" name="passageWithLocations" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedReadingPart_passageWithLocations" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedReadingPart_passageWithLocations" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_content" name="content" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_questionTypes" name="questionTypes" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingPart_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedReadingSession" name="IeltsAdvancedReadingSession">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_partId" name="partId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_answers" name="answers" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_scoreData" name="scoreData" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_totalScore" name="totalScore" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_totalQuestions" name="totalQuestions" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedReadingSession_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedWritingPrompt" name="IeltsAdvancedWritingPrompt">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_taskType" name="taskType" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_subType" name="subType" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_source" name="source" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_category" name="category" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_bookNumber" name="bookNumber" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingPrompt_bookNumber" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingPrompt_bookNumber" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_testNumber" name="testNumber" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingPrompt_testNumber" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingPrompt_testNumber" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_prompt" name="prompt" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_imageUrl" name="imageUrl" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingPrompt_imageUrl" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingPrompt_imageUrl" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_minimumWords" name="minimumWords" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_suggestedTime" name="suggestedTime" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_difficulty" name="difficulty" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_engnovateSlug" name="engnovateSlug" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingPrompt_engnovateSlug" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingPrompt_engnovateSlug" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_isPublished" name="isPublished" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingPrompt_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedWritingSession" name="IeltsAdvancedWritingSession">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_promptId" name="promptId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_essay" name="essay" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingSession_essay" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingSession_essay" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_draftEssay" name="draftEssay" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingSession_draftEssay" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingSession_draftEssay" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_timeTaken" name="timeTaken" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingSession_timeTaken" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingSession_timeTaken" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_status" name="status" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_feedback" name="feedback" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingSession_feedback" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingSession_feedback" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_bandScore" name="bandScore" visibility="private" type="_dt_Float">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedWritingSession_bandScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedWritingSession_bandScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedWritingSession_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedSpeakingPart" name="IeltsAdvancedSpeakingPart">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_partNumber" name="partNumber" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_partType" name="partType" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_topic" name="topic" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_source" name="source" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_category" name="category" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_bookNumber" name="bookNumber" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingPart_bookNumber" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingPart_bookNumber" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_testNumber" name="testNumber" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingPart_testNumber" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingPart_testNumber" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_title" name="title" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_questions" name="questions" visibility="private" type="_dt_Json"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_engnovateSlug" name="engnovateSlug" visibility="private" type="_dt_String">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingPart_engnovateSlug" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingPart_engnovateSlug" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_isPublished" name="isPublished" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingPart_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsAdvancedSpeakingSession" name="IeltsAdvancedSpeakingSession">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_partId" name="partId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_audioUrls" name="audioUrls" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingSession_audioUrls" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingSession_audioUrls" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_transcription" name="transcription" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingSession_transcription" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingSession_transcription" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_timeTaken" name="timeTaken" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingSession_timeTaken" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingSession_timeTaken" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_status" name="status" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_feedback" name="feedback" visibility="private" type="_dt_Json">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingSession_feedback" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingSession_feedback" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_bandScore" name="bandScore" visibility="private" type="_dt_Float">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsAdvancedSpeakingSession_bandScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsAdvancedSpeakingSession_bandScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsAdvancedSpeakingSession_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_class_IeltsProfile" name="IeltsProfile">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_id" name="id" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_userId" name="userId" visibility="private" type="_dt_String"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_targetBand" name="targetBand" visibility="private" type="_dt_Float">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_targetBand" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_targetBand" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_dailyCommitmentMins" name="dailyCommitmentMins" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_dailyCommitmentMins" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_dailyCommitmentMins" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_examDate" name="examDate" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_examDate" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_examDate" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_placementScore" name="placementScore" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_placementScore" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_placementScore" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_placementListening" name="placementListening" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_placementListening" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_placementListening" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_placementReading" name="placementReading" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_placementReading" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_placementReading" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_placementWriting" name="placementWriting" visibility="private" type="_dt_Int">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_placementWriting" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_placementWriting" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_onboardingCompleted" name="onboardingCompleted" visibility="private" type="_dt_Boolean"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_currentStreak" name="currentStreak" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_longestStreak" name="longestStreak" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_lastActiveDate" name="lastActiveDate" visibility="private" type="_dt_DateTime">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lv_IeltsProfile_lastActiveDate" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_uv_IeltsProfile_lastActiveDate" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_totalXp" name="totalXp" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_level" name="level" visibility="private" type="_dt_Int"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_createdAt" name="createdAt" visibility="private" type="_dt_DateTime"/>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_attr_IeltsProfile_updatedAt" name="updatedAt" visibility="private" type="_dt_DateTime"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_1" name="">
+      <client xmi:idref="_class_User"/>
+      <supplier xmi:idref="_enum_UserRole"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_2" name="">
+      <client xmi:idref="_class_IeltsIntensiveExam"/>
+      <supplier xmi:idref="_enum_IeltsIntensiveExamType"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_3" name="">
+      <client xmi:idref="_class_IeltsIntensiveExam"/>
+      <supplier xmi:idref="_enum_Difficulty"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_4" name="">
+      <client xmi:idref="_class_IeltsIntensiveSession"/>
+      <supplier xmi:idref="_enum_IeltsIntensiveSessionStatus"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Dependency" xmi:id="_dep_5" name="">
+      <client xmi:idref="_class_FoundationPronunciationProgress"/>
+      <supplier xmi:idref="_enum_PronunciationMastery"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_6" name="">
+      <memberEnd xmi:idref="_assoc_6_src"/>
+      <memberEnd xmi:idref="_assoc_6_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_6_src" name="" type="_class_User" association="_assoc_6">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_6_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_6_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_6_tgt" name="" type="_class_IeltsIntensiveSession" association="_assoc_6">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_6_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_6_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_7" name="">
+      <memberEnd xmi:idref="_assoc_7_src"/>
+      <memberEnd xmi:idref="_assoc_7_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_7_src" name="" type="_class_User" association="_assoc_7">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_7_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_7_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_7_tgt" name="" type="_class_IeltsIntensiveResult" association="_assoc_7">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_7_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_7_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_8" name="">
+      <memberEnd xmi:idref="_assoc_8_src"/>
+      <memberEnd xmi:idref="_assoc_8_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_8_src" name="" type="_class_User" association="_assoc_8">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_8_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_8_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_8_tgt" name="" type="_class_FoundationPronunciationProgress" association="_assoc_8">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_8_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_8_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_9" name="">
+      <memberEnd xmi:idref="_assoc_9_src"/>
+      <memberEnd xmi:idref="_assoc_9_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_9_src" name="" type="_class_User" association="_assoc_9">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_9_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_9_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_9_tgt" name="" type="_class_FoundationVocabProgress" association="_assoc_9">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_9_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_9_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_10" name="">
+      <memberEnd xmi:idref="_assoc_10_src"/>
+      <memberEnd xmi:idref="_assoc_10_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_10_src" name="" type="_class_User" association="_assoc_10">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_10_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_10_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_10_tgt" name="" type="_class_FoundationGrammarProgress" association="_assoc_10">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_10_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_10_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_11" name="">
+      <memberEnd xmi:idref="_assoc_11_src"/>
+      <memberEnd xmi:idref="_assoc_11_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_11_src" name="" type="_class_User" association="_assoc_11">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_11_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_11_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_11_tgt" name="" type="_class_IeltsBasicProgress" association="_assoc_11">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_11_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_11_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_12" name="">
+      <memberEnd xmi:idref="_assoc_12_src"/>
+      <memberEnd xmi:idref="_assoc_12_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_12_src" name="" type="_class_User" association="_assoc_12">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_12_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_12_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_12_tgt" name="" type="_class_IeltsBasicWritingAnswer" association="_assoc_12">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_12_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_12_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_13" name="">
+      <memberEnd xmi:idref="_assoc_13_src"/>
+      <memberEnd xmi:idref="_assoc_13_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_13_src" name="" type="_class_User" association="_assoc_13">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_13_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_13_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_13_tgt" name="" type="_class_IeltsAdvancedListeningSession" association="_assoc_13">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_13_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_13_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_14" name="">
+      <memberEnd xmi:idref="_assoc_14_src"/>
+      <memberEnd xmi:idref="_assoc_14_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_14_src" name="" type="_class_User" association="_assoc_14">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_14_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_14_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_14_tgt" name="" type="_class_IeltsAdvancedReadingSession" association="_assoc_14">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_14_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_14_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_15" name="">
+      <memberEnd xmi:idref="_assoc_15_src"/>
+      <memberEnd xmi:idref="_assoc_15_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_15_src" name="" type="_class_User" association="_assoc_15">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_15_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_15_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_15_tgt" name="" type="_class_IeltsAdvancedWritingSession" association="_assoc_15">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_15_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_15_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_16" name="">
+      <memberEnd xmi:idref="_assoc_16_src"/>
+      <memberEnd xmi:idref="_assoc_16_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_16_src" name="" type="_class_User" association="_assoc_16">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_16_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_16_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_16_tgt" name="" type="_class_IeltsAdvancedSpeakingSession" association="_assoc_16">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_16_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_16_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_17" name="">
+      <memberEnd xmi:idref="_assoc_17_src"/>
+      <memberEnd xmi:idref="_assoc_17_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_17_src" name="" type="_class_User" association="_assoc_17">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_17_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_17_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_17_tgt" name="" type="_class_IeltsProfile" association="_assoc_17">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_17_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_17_tgt_uv" value="1"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_18" name="">
+      <memberEnd xmi:idref="_assoc_18_src"/>
+      <memberEnd xmi:idref="_assoc_18_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_18_src" name="" type="_class_IeltsIntensiveExam" association="_assoc_18" aggregation="shared">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_18_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_18_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_18_tgt" name="" type="_class_IeltsIntensiveSession" association="_assoc_18">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_18_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_18_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_19" name="">
+      <memberEnd xmi:idref="_assoc_19_src"/>
+      <memberEnd xmi:idref="_assoc_19_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_19_src" name="" type="_class_IeltsIntensiveSession" association="_assoc_19">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_19_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_19_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_19_tgt" name="" type="_class_IeltsIntensiveResult" association="_assoc_19">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_19_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_19_tgt_uv" value="1"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_20" name="">
+      <memberEnd xmi:idref="_assoc_20_src"/>
+      <memberEnd xmi:idref="_assoc_20_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_20_src" name="" type="_class_FoundationVocabBook" association="_assoc_20" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_20_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_20_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_20_tgt" name="" type="_class_FoundationVocabUnit" association="_assoc_20">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_20_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_20_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_21" name="">
+      <memberEnd xmi:idref="_assoc_21_src"/>
+      <memberEnd xmi:idref="_assoc_21_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_21_src" name="" type="_class_FoundationVocabUnit" association="_assoc_21" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_21_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_21_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_21_tgt" name="" type="_class_FoundationVocabItem" association="_assoc_21">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_21_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_21_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_22" name="">
+      <memberEnd xmi:idref="_assoc_22_src"/>
+      <memberEnd xmi:idref="_assoc_22_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_22_src" name="" type="_class_FoundationVocabUnit" association="_assoc_22" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_22_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_22_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_22_tgt" name="" type="_class_FoundationVocabExercise" association="_assoc_22">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_22_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_22_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_23" name="">
+      <memberEnd xmi:idref="_assoc_23_src"/>
+      <memberEnd xmi:idref="_assoc_23_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_23_src" name="" type="_class_FoundationVocabUnit" association="_assoc_23" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_23_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_23_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_23_tgt" name="" type="_class_FoundationVocabQuestion" association="_assoc_23">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_23_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_23_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_24" name="">
+      <memberEnd xmi:idref="_assoc_24_src"/>
+      <memberEnd xmi:idref="_assoc_24_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_24_src" name="" type="_class_FoundationVocabUnit" association="_assoc_24">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_24_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_24_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_24_tgt" name="" type="_class_FoundationVocabProgress" association="_assoc_24">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_24_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_24_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_25" name="">
+      <memberEnd xmi:idref="_assoc_25_src"/>
+      <memberEnd xmi:idref="_assoc_25_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_25_src" name="" type="_class_FoundationGrammarBook" association="_assoc_25" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_25_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_25_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_25_tgt" name="" type="_class_FoundationGrammarUnit" association="_assoc_25">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_25_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_25_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_26" name="">
+      <memberEnd xmi:idref="_assoc_26_src"/>
+      <memberEnd xmi:idref="_assoc_26_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_26_src" name="" type="_class_FoundationGrammarUnit" association="_assoc_26" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_26_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_26_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_26_tgt" name="" type="_class_FoundationGrammarExercise" association="_assoc_26">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_26_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_26_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_27" name="">
+      <memberEnd xmi:idref="_assoc_27_src"/>
+      <memberEnd xmi:idref="_assoc_27_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_27_src" name="" type="_class_FoundationGrammarUnit" association="_assoc_27">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_27_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_27_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_27_tgt" name="" type="_class_FoundationGrammarProgress" association="_assoc_27">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_27_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_27_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_28" name="">
+      <memberEnd xmi:idref="_assoc_28_src"/>
+      <memberEnd xmi:idref="_assoc_28_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_28_src" name="" type="_class_FoundationPronunciationSound" association="_assoc_28" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_28_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_28_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_28_tgt" name="" type="_class_FoundationSoundExample" association="_assoc_28">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_28_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_28_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_29" name="">
+      <memberEnd xmi:idref="_assoc_29_src"/>
+      <memberEnd xmi:idref="_assoc_29_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_29_src" name="" type="_class_FoundationPronunciationSound" association="_assoc_29">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_29_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_29_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_29_tgt" name="" type="_class_FoundationPronunciationProgress" association="_assoc_29">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_29_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_29_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_30" name="">
+      <memberEnd xmi:idref="_assoc_30_src"/>
+      <memberEnd xmi:idref="_assoc_30_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_30_src" name="" type="_class_IeltsBasicSkill" association="_assoc_30" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_30_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_30_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_30_tgt" name="" type="_class_IeltsBasicLesson" association="_assoc_30">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_30_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_30_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_31" name="">
+      <memberEnd xmi:idref="_assoc_31_src"/>
+      <memberEnd xmi:idref="_assoc_31_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_31_src" name="" type="_class_IeltsBasicSkill" association="_assoc_31" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_31_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_31_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_31_tgt" name="" type="_class_IeltsBasicListeningExercise" association="_assoc_31">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_31_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_31_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_32" name="">
+      <memberEnd xmi:idref="_assoc_32_src"/>
+      <memberEnd xmi:idref="_assoc_32_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_32_src" name="" type="_class_IeltsBasicSkill" association="_assoc_32" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_32_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_32_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_32_tgt" name="" type="_class_IeltsBasicReadingExercise" association="_assoc_32">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_32_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_32_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_33" name="">
+      <memberEnd xmi:idref="_assoc_33_src"/>
+      <memberEnd xmi:idref="_assoc_33_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_33_src" name="" type="_class_IeltsBasicSkill" association="_assoc_33" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_33_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_33_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_33_tgt" name="" type="_class_IeltsBasicWritingExercise" association="_assoc_33">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_33_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_33_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_34" name="">
+      <memberEnd xmi:idref="_assoc_34_src"/>
+      <memberEnd xmi:idref="_assoc_34_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_34_src" name="" type="_class_IeltsBasicSkill" association="_assoc_34" aggregation="composite">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_34_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_34_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_34_tgt" name="" type="_class_IeltsBasicSpeakingExercise" association="_assoc_34">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_34_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_34_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_35" name="">
+      <memberEnd xmi:idref="_assoc_35_src"/>
+      <memberEnd xmi:idref="_assoc_35_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_35_src" name="" type="_class_IeltsBasicLesson" association="_assoc_35">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_35_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_35_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_35_tgt" name="" type="_class_IeltsBasicListeningExercise" association="_assoc_35">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_35_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_35_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_36" name="">
+      <memberEnd xmi:idref="_assoc_36_src"/>
+      <memberEnd xmi:idref="_assoc_36_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_36_src" name="" type="_class_IeltsBasicLesson" association="_assoc_36">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_36_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_36_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_36_tgt" name="" type="_class_IeltsBasicReadingExercise" association="_assoc_36">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_36_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_36_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_37" name="">
+      <memberEnd xmi:idref="_assoc_37_src"/>
+      <memberEnd xmi:idref="_assoc_37_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_37_src" name="" type="_class_IeltsBasicLesson" association="_assoc_37">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_37_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_37_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_37_tgt" name="" type="_class_IeltsBasicWritingExercise" association="_assoc_37">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_37_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_37_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_38" name="">
+      <memberEnd xmi:idref="_assoc_38_src"/>
+      <memberEnd xmi:idref="_assoc_38_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_38_src" name="" type="_class_IeltsBasicLesson" association="_assoc_38">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_38_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_38_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_38_tgt" name="" type="_class_IeltsBasicSpeakingExercise" association="_assoc_38">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_38_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_38_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_39" name="">
+      <memberEnd xmi:idref="_assoc_39_src"/>
+      <memberEnd xmi:idref="_assoc_39_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_39_src" name="" type="_class_IeltsBasicLesson" association="_assoc_39">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_39_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_39_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_39_tgt" name="" type="_class_IeltsBasicProgress" association="_assoc_39">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_39_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_39_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_40" name="">
+      <memberEnd xmi:idref="_assoc_40_src"/>
+      <memberEnd xmi:idref="_assoc_40_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_40_src" name="" type="_class_IeltsBasicListeningExercise" association="_assoc_40">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_40_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_40_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_40_tgt" name="" type="_class_IeltsBasicProgress" association="_assoc_40">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_40_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_40_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_41" name="">
+      <memberEnd xmi:idref="_assoc_41_src"/>
+      <memberEnd xmi:idref="_assoc_41_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_41_src" name="" type="_class_IeltsBasicReadingExercise" association="_assoc_41">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_41_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_41_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_41_tgt" name="" type="_class_IeltsBasicProgress" association="_assoc_41">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_41_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_41_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_42" name="">
+      <memberEnd xmi:idref="_assoc_42_src"/>
+      <memberEnd xmi:idref="_assoc_42_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_42_src" name="" type="_class_IeltsBasicWritingExercise" association="_assoc_42">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_42_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_42_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_42_tgt" name="" type="_class_IeltsBasicProgress" association="_assoc_42">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_42_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_42_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_43" name="">
+      <memberEnd xmi:idref="_assoc_43_src"/>
+      <memberEnd xmi:idref="_assoc_43_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_43_src" name="" type="_class_IeltsBasicSpeakingExercise" association="_assoc_43">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_43_src_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_43_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_43_tgt" name="" type="_class_IeltsBasicProgress" association="_assoc_43">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_43_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_43_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_44" name="">
+      <memberEnd xmi:idref="_assoc_44_src"/>
+      <memberEnd xmi:idref="_assoc_44_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_44_src" name="" type="_class_IeltsBasicWritingExercise" association="_assoc_44" aggregation="shared">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_44_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_44_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_44_tgt" name="" type="_class_IeltsBasicWritingAnswer" association="_assoc_44">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_44_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_44_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_45" name="">
+      <memberEnd xmi:idref="_assoc_45_src"/>
+      <memberEnd xmi:idref="_assoc_45_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_45_src" name="" type="_class_IeltsAdvancedListeningPart" association="_assoc_45" aggregation="shared">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_45_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_45_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_45_tgt" name="" type="_class_IeltsAdvancedListeningSession" association="_assoc_45">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_45_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_45_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_46" name="">
+      <memberEnd xmi:idref="_assoc_46_src"/>
+      <memberEnd xmi:idref="_assoc_46_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_46_src" name="" type="_class_IeltsAdvancedReadingPart" association="_assoc_46" aggregation="shared">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_46_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_46_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_46_tgt" name="" type="_class_IeltsAdvancedReadingSession" association="_assoc_46">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_46_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_46_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_47" name="">
+      <memberEnd xmi:idref="_assoc_47_src"/>
+      <memberEnd xmi:idref="_assoc_47_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_47_src" name="" type="_class_IeltsAdvancedWritingPrompt" association="_assoc_47" aggregation="shared">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_47_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_47_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_47_tgt" name="" type="_class_IeltsAdvancedWritingSession" association="_assoc_47">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_47_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_47_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_assoc_48" name="">
+      <memberEnd xmi:idref="_assoc_48_src"/>
+      <memberEnd xmi:idref="_assoc_48_tgt"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_48_src" name="" type="_class_IeltsAdvancedSpeakingPart" association="_assoc_48" aggregation="shared">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_48_src_lv" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_48_src_uv" value="1"/>
+      </ownedEnd>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_assoc_48_tgt" name="" type="_class_IeltsAdvancedSpeakingSession" association="_assoc_48">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_assoc_48_tgt_lv" value="0"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_assoc_48_tgt_uv" value="*"/>
+      </ownedEnd>
+    </packagedElement>
+  </uml:Model>
+</xmi:XMI>

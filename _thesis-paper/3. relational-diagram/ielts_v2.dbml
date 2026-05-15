@@ -1,0 +1,633 @@
+  // ============================================================
+  // IELTS DOMAIN — Relational Schema (DBML for dbdiagram.io)
+  // Source: ielts.puml (v5) × schema.prisma
+  // ============================================================
+
+  // ── ENUMS ────────────────────────────────────────────────────
+
+  Enum UserRole {
+    STUDENT
+    ADMIN
+    INSTRUCTOR
+  }
+
+  Enum IeltsIntensiveExamType {
+    FULL_TEST
+    READING
+    LISTENING
+    SPEAKING
+    WRITING
+    PRACTICE
+  }
+
+  Enum Difficulty {
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+  }
+
+  Enum IeltsIntensiveSessionStatus {
+    IN_PROGRESS
+    SUBMITTED
+    GRADING
+    GRADED
+    COMPLETED
+    ABANDONED
+    GRADING_FAILED
+  }
+
+  Enum PronunciationMastery {
+    NEW
+    PRACTICING
+    MASTERED
+  }
+
+  Enum IeltsBasicSkillType {
+    LISTENING
+    READING
+    WRITING
+    SPEAKING
+  }
+
+  // ── IDENTITY (shared reference) ─────────────────────────────
+
+  Table users {
+    id        varchar   [pk]
+    email     varchar   [unique, not null]
+    password  varchar   [null]
+    googleId  varchar   [unique, null]
+    avatar    varchar   [null]
+    firstName varchar   [null]
+    lastName  varchar   [null]
+    role      UserRole  [not null, default: 'STUDENT']
+    isActive  boolean   [not null, default: true]
+    createdAt timestamp [not null, default: `now()`]
+    updatedAt timestamp [not null]
+  }
+
+  Table ielts_profiles {
+    id                  varchar   [pk]
+    userId              varchar   [unique, not null]
+    targetBand          float     [null]
+    dailyCommitmentMins int       [null, default: 30]
+    examDate            timestamp [null]
+    placementScore      int       [null]
+    placementListening  int       [null]
+    placementReading    int       [null]
+    placementWriting    int       [null]
+    onboardingCompleted boolean   [not null, default: false]
+    currentStreak       int       [not null, default: 0]
+    longestStreak       int       [not null, default: 0]
+    lastActiveDate      timestamp [null]
+    totalXp             int       [not null, default: 0]
+    level               int       [not null, default: 0]
+    createdAt           timestamp [not null, default: `now()`]
+    updatedAt           timestamp [not null]
+  }
+
+  // ── FOUNDATION VOCABULARY ───────────────────────────────────
+
+  Table foundation_vocab_books {
+    id        varchar   [pk]
+    name      varchar   [not null]
+    imageUrl  varchar   [not null]
+    wordCount int       [not null]
+    order     int       [not null, default: 0]
+    createdAt timestamp [not null, default: `now()`]
+    updatedAt timestamp [not null]
+  }
+
+  Table foundation_vocab_units {
+    id            varchar   [pk]
+    bookId        varchar   [not null]
+    title         varchar   [not null]
+    order         int       [not null]
+    storyTitle    varchar   [null]
+    storyContent  text      [null]
+    storyImageUrl varchar   [null]
+    createdAt     timestamp [not null, default: `now()`]
+    updatedAt     timestamp [not null]
+  }
+
+  Table foundation_vocab_items {
+    id           varchar   [pk]
+    unitId       varchar   [not null]
+    word         varchar   [not null]
+    meaning      varchar   [not null]
+    ipa          varchar   [null]
+    partOfSpeech varchar   [null]
+    example      varchar   [null]
+    imageUrl     varchar   [null]
+    audioUrl     varchar   [null]
+    order        int       [not null, default: 0]
+    createdAt    timestamp [not null, default: `now()`]
+    updatedAt    timestamp [not null]
+  }
+
+  Table foundation_vocab_questions {
+    id       varchar [pk]
+    unitId   varchar [not null]
+    question varchar [not null]
+    type     varchar [not null]
+    options  json    [null]
+    answer   varchar [not null]
+    order    int     [not null, default: 0]
+  }
+
+  Table foundation_vocab_progress {
+    id            varchar   [pk]
+    userId        varchar   [not null]
+    unitId        varchar   [not null]
+    wordsLearned  int       [not null, default: 0]
+    totalWords    int       [not null, default: 20]
+    questionScore int       [null]
+    isCompleted   boolean   [not null, default: false]
+    completedAt   timestamp [null]
+    createdAt     timestamp [not null, default: `now()`]
+    updatedAt     timestamp [not null]
+
+    indexes {
+      (userId, unitId) [unique]
+    }
+  }
+
+  // ── FOUNDATION GRAMMAR ──────────────────────────────────────
+
+  Table foundation_grammar_books {
+    id        varchar   [pk]
+    slug      varchar   [unique, not null]
+    name      varchar   [not null]
+    author    varchar   [not null]
+    level     varchar   [not null]
+    imageUrl  varchar   [not null]
+    color     varchar   [not null]
+    unitCount int       [not null]
+    createdAt timestamp [not null, default: `now()`]
+    updatedAt timestamp [not null]
+  }
+
+  Table foundation_grammar_units {
+    id            varchar   [pk]
+    bookId        varchar   [not null]
+    title         varchar   [not null]
+    order         int       [not null]
+    theoryContent text      [null]
+    createdAt     timestamp [not null, default: `now()`]
+    updatedAt     timestamp [not null]
+  }
+
+  Table foundation_grammar_exercises {
+    id       varchar [pk]
+    unitId   varchar [not null]
+    section  varchar [not null]
+    question text    [not null]
+    type     varchar [not null]
+    options  json    [null]
+    answer   text    [not null]
+    order    int     [not null, default: 0]
+  }
+
+  Table foundation_grammar_progress {
+    id              varchar   [pk]
+    userId          varchar   [not null]
+    unitId          varchar   [not null]
+    theoryCompleted boolean   [not null, default: false]
+    exerciseScore   int       [null]
+    exerciseTotal   int       [null]
+    completedAt     timestamp [null]
+    createdAt       timestamp [not null, default: `now()`]
+    updatedAt       timestamp [not null]
+
+    indexes {
+      (userId, unitId) [unique]
+    }
+  }
+
+  // ── FOUNDATION PRONUNCIATION ────────────────────────────────
+
+  Table foundation_pronunciation_sounds {
+    id          varchar   [pk]
+    symbol      varchar   [unique, not null]
+    type        varchar   [not null]
+    word        varchar   [not null]
+    name        varchar   [null]
+    description text      [null]
+    tip         text      [null]
+    imageUrl    varchar   [null]
+    audioUrl    varchar   [null]
+    videoUrl    varchar   [null]
+    voiced      boolean   [null]
+    order       int       [not null, default: 0]
+    createdAt   timestamp [not null, default: `now()`]
+    updatedAt   timestamp [not null]
+  }
+
+  Table foundation_sound_examples {
+    id       varchar [pk]
+    soundId  varchar [not null]
+    word     varchar [not null]
+    ipa      varchar [null]
+    audioUrl varchar [null]
+    order    int     [not null, default: 0]
+  }
+
+  Table foundation_pronunciation_progress {
+    id              varchar              [pk]
+    userId          varchar              [not null]
+    soundId         varchar              [not null]
+    status          PronunciationMastery [not null, default: 'NEW']
+    practiceCount   int                  [not null, default: 0]
+    bestScore       int                  [null]
+    lastPracticedAt timestamp            [null]
+    createdAt       timestamp            [not null, default: `now()`]
+    updatedAt       timestamp            [not null]
+
+    indexes {
+      (userId, soundId) [unique]
+    }
+  }
+
+  // ── IELTS BASIC LEARNING ────────────────────────────────────
+
+  Table ielts_basic_lessons {
+    id        varchar   [pk]
+    skillType IeltsBasicSkillType [not null]
+    chapter   varchar   [null]
+    title     varchar   [not null]
+    content   json      [not null]
+    quiz      json      [null]
+    order     int       [not null]
+    createdAt timestamp [not null, default: `now()`]
+    updatedAt timestamp [not null]
+  }
+
+  Table ielts_basic_listening_exercises {
+    id           varchar   [pk]
+    lessonId     varchar   [null]
+    topic        varchar   [not null]
+    instructions varchar   [null]
+    audioUrl     varchar   [not null]
+    transcript   json      [not null]
+    content      json      [not null]
+    order        int       [not null]
+    createdAt    timestamp [not null, default: `now()`]
+    updatedAt    timestamp [not null]
+  }
+
+  Table ielts_basic_reading_exercises {
+    id                   varchar   [pk]
+    lessonId             varchar   [null]
+    topic                varchar   [not null]
+    instructions         varchar   [null]
+    passage              varchar   [not null]
+    passageWithLocations json      [null]
+    content              json      [not null]
+    order                int       [not null]
+    createdAt            timestamp [not null, default: `now()`]
+    updatedAt            timestamp [not null]
+  }
+
+  Table ielts_basic_writing_exercises {
+    id           varchar   [pk]
+    lessonId     varchar   [null]
+    topic        varchar   [not null]
+    instructions varchar   [null]
+    prompt       text      [not null]
+    diagramUrl   varchar   [null]
+    modelAnswer  json      [not null]
+    order        int       [not null]
+    taskType     int       [not null, default: 1]
+    createdAt    timestamp [not null, default: `now()`]
+    updatedAt    timestamp [not null]
+  }
+
+  Table ielts_basic_speaking_exercises {
+    id           varchar   [pk]
+    lessonId     varchar   [null]
+    topic        varchar   [not null]
+    partType     int       [not null]
+    questionType varchar   [not null, default: 'cloze']
+    instructions varchar   [null]
+    prompt       text      [not null]
+    content      json      [null]
+    modelAnswer  json      [null]
+    order        int       [not null]
+    createdAt    timestamp [not null, default: `now()`]
+    updatedAt    timestamp [not null]
+  }
+
+  Table ielts_basic_progress {
+    id                  varchar   [pk]
+    userId              varchar   [not null]
+    lessonId            varchar   [null]
+    listeningExerciseId varchar   [null]
+    readingExerciseId   varchar   [null]
+    writingExerciseId   varchar   [null]
+    speakingExerciseId  varchar   [null]
+    isCompleted         boolean   [not null, default: false]
+    createdAt           timestamp [not null, default: `now()`]
+    updatedAt           timestamp [not null]
+
+    indexes {
+      (userId, lessonId, listeningExerciseId, readingExerciseId, writingExerciseId, speakingExerciseId) [unique, name: 'user_item_unique']
+    }
+  }
+
+  Table ielts_basic_writing_answers {
+    id                varchar   [pk]
+    userId            varchar   [not null]
+    writingExerciseId varchar   [not null]
+    answers           json      [not null, default: '{}']
+    score             int       [null]
+    totalBlanks       int       [null]
+    createdAt         timestamp [not null, default: `now()`]
+    updatedAt         timestamp [not null]
+
+    indexes {
+      (userId, writingExerciseId) [unique]
+    }
+  }
+
+  // ── IELTS INTENSIVE ─────────────────────────────────────────
+
+  Table ielts_intensive_exams {
+    id          varchar                [pk]
+    title       varchar                [not null]
+    description varchar                [null]
+    imageUrl    varchar                [null]
+    duration    int                    [not null]
+    type        IeltsIntensiveExamType [not null]
+    difficulty  Difficulty             [not null]
+    isPublished boolean                [not null, default: false]
+    questions   json                   [not null]
+    createdAt   timestamp              [not null, default: `now()`]
+    updatedAt   timestamp              [not null]
+  }
+
+  Table ielts_intensive_sessions {
+    id           varchar                     [pk]
+    userId       varchar                     [not null]
+    examId       varchar                     [not null]
+    status       IeltsIntensiveSessionStatus [not null, default: 'IN_PROGRESS']
+    answers      json                        [not null]
+    timeTaken    int                         [null]
+    practicePart int                         [null]
+    startedAt    timestamp                   [not null, default: `now()`]
+    submittedAt  timestamp                   [null]
+    createdAt    timestamp                   [not null, default: `now()`]
+    updatedAt    timestamp                   [not null]
+  }
+
+  Table ielts_intensive_results {
+    id             varchar   [pk]
+    userId         varchar   [not null]
+    sessionId      varchar   [unique, not null]
+    totalScore     float     [not null]
+    readingScore   int       [null]
+    listeningScore int       [null]
+    speakingScore  float     [null]
+    writingScore   float     [null]
+    feedback       json      [null]
+    gradedAt       timestamp [not null, default: `now()`]
+    createdAt      timestamp [not null, default: `now()`]
+    updatedAt      timestamp [not null]
+  }
+
+  // ── IELTS ADVANCED ──────────────────────────────────────────
+
+  Table ielts_advanced_listening_parts {
+    id            varchar     [pk]
+    title         varchar     [not null]
+    partNumber    int         [not null]
+    audioUrl      varchar     [not null]
+    transcript    json        [not null]
+    content       json        [not null]
+    questionTypes "varchar[]" [not null]
+    createdAt     timestamp   [not null, default: `now()`]
+    updatedAt     timestamp   [not null]
+  }
+
+  Table ielts_advanced_listening_sessions {
+    id             varchar   [pk]
+    userId         varchar   [not null]
+    partId         varchar   [not null]
+    answers        json      [not null]
+    scoreData      json      [not null]
+    totalScore     int       [not null]
+    totalQuestions int       [not null]
+    createdAt      timestamp [not null, default: `now()`]
+  }
+
+  Table ielts_advanced_reading_parts {
+    id                   varchar     [pk]
+    title                varchar     [not null]
+    partNumber           int         [not null]
+    passage              text        [not null]
+    passageWithLocations json        [null]
+    content              json        [not null]
+    questionTypes        "varchar[]" [not null]
+    createdAt            timestamp   [not null, default: `now()`]
+    updatedAt            timestamp   [not null]
+  }
+
+  Table ielts_advanced_reading_sessions {
+    id             varchar   [pk]
+    userId         varchar   [not null]
+    partId         varchar   [not null]
+    answers        json      [not null]
+    scoreData      json      [not null]
+    totalScore     int       [not null]
+    totalQuestions int       [not null]
+    createdAt      timestamp [not null, default: `now()`]
+  }
+
+  Table ielts_advanced_writing_prompts {
+    id            varchar   [pk]
+    taskType      varchar   [not null]
+    subType       varchar   [not null]
+    source        varchar   [not null, default: 'engnovate']
+    category      varchar   [not null, default: 'cambridge-academic']
+    bookNumber    int       [null]
+    testNumber    int       [null]
+    title         varchar   [not null]
+    prompt        text      [not null]
+    imageUrl      varchar   [null]
+    minimumWords  int       [not null, default: 150]
+    suggestedTime int       [not null, default: 20]
+    difficulty    varchar   [not null, default: 'medium']
+    engnovateSlug varchar   [unique, null]
+    isPublished   boolean   [not null, default: true]
+    createdAt     timestamp [not null, default: `now()`]
+    updatedAt     timestamp [not null]
+  }
+
+  Table ielts_advanced_writing_sessions {
+    id         varchar   [pk]
+    userId     varchar   [not null]
+    promptId   varchar   [not null]
+    essay      text      [null]
+    draftEssay text      [null]
+    timeTaken  int       [null]
+    status     varchar   [not null, default: 'IN_PROGRESS']
+    feedback   json      [null]
+    bandScore  float     [null]
+    createdAt  timestamp [not null, default: `now()`]
+    updatedAt  timestamp [not null]
+
+    indexes {
+      userId
+      promptId
+    }
+  }
+
+  Table ielts_advanced_speaking_parts {
+    id            varchar   [pk]
+    partNumber    int       [not null]
+    partType      varchar   [not null]
+    topic         varchar   [not null]
+    source        varchar   [not null, default: 'engnovate']
+    category      varchar   [not null, default: 'cambridge-academic']
+    bookNumber    int       [null]
+    testNumber    int       [null]
+    title         varchar   [not null]
+    questions     json      [not null]
+    engnovateSlug varchar   [null]
+    isPublished   boolean   [not null, default: true]
+    createdAt     timestamp [not null, default: `now()`]
+    updatedAt     timestamp [not null]
+
+    indexes {
+      (engnovateSlug, partNumber) [unique]
+    }
+  }
+
+  Table ielts_advanced_speaking_sessions {
+    id            varchar   [pk]
+    userId        varchar   [not null]
+    partId        varchar   [not null]
+    audioUrls     json      [null]
+    transcription json      [null]
+    timeTaken     int       [null]
+    status        varchar   [not null, default: 'IN_PROGRESS']
+    feedback      json      [null]
+    bandScore     float     [null]
+    createdAt     timestamp [not null, default: `now()`]
+    updatedAt     timestamp [not null]
+
+    indexes {
+      userId
+      partId
+    }
+  }
+
+  // ============================================================
+  // REFERENCES
+  // ============================================================
+
+  // ── Identity ──
+  Ref: ielts_profiles.userId > users.id [delete: cascade]
+
+  // ── Foundation Vocabulary ──
+  Ref: foundation_vocab_units.bookId > foundation_vocab_books.id [delete: cascade]
+  Ref: foundation_vocab_items.unitId > foundation_vocab_units.id [delete: cascade]
+  Ref: foundation_vocab_questions.unitId > foundation_vocab_units.id [delete: cascade]
+  Ref: foundation_vocab_progress.userId > users.id [delete: cascade]
+  Ref: foundation_vocab_progress.unitId > foundation_vocab_units.id [delete: cascade]
+
+  // ── Foundation Grammar ──
+  Ref: foundation_grammar_units.bookId > foundation_grammar_books.id [delete: cascade]
+  Ref: foundation_grammar_exercises.unitId > foundation_grammar_units.id [delete: cascade]
+  Ref: foundation_grammar_progress.userId > users.id [delete: cascade]
+  Ref: foundation_grammar_progress.unitId > foundation_grammar_units.id [delete: cascade]
+
+  // ── Foundation Pronunciation ──
+  Ref: foundation_sound_examples.soundId > foundation_pronunciation_sounds.id [delete: cascade]
+  Ref: foundation_pronunciation_progress.userId > users.id [delete: cascade]
+  Ref: foundation_pronunciation_progress.soundId > foundation_pronunciation_sounds.id [delete: cascade]
+
+  // ── IELTS Basic ──
+  Ref: ielts_basic_listening_exercises.lessonId > ielts_basic_lessons.id [delete: cascade]
+  Ref: ielts_basic_reading_exercises.lessonId > ielts_basic_lessons.id [delete: cascade]
+  Ref: ielts_basic_writing_exercises.lessonId > ielts_basic_lessons.id [delete: cascade]
+  Ref: ielts_basic_speaking_exercises.lessonId > ielts_basic_lessons.id [delete: cascade]
+  Ref: ielts_basic_progress.userId > users.id [delete: cascade]
+  Ref: ielts_basic_progress.lessonId > ielts_basic_lessons.id [delete: cascade]
+  Ref: ielts_basic_progress.listeningExerciseId > ielts_basic_listening_exercises.id [delete: cascade]
+  Ref: ielts_basic_progress.readingExerciseId > ielts_basic_reading_exercises.id [delete: cascade]
+  Ref: ielts_basic_progress.writingExerciseId > ielts_basic_writing_exercises.id [delete: cascade]
+  Ref: ielts_basic_progress.speakingExerciseId > ielts_basic_speaking_exercises.id [delete: cascade]
+  Ref: ielts_basic_writing_answers.userId > users.id [delete: cascade]
+  Ref: ielts_basic_writing_answers.writingExerciseId > ielts_basic_writing_exercises.id [delete: cascade]
+
+  // ── IELTS Intensive ──
+  Ref: ielts_intensive_sessions.userId > users.id [delete: cascade]
+  Ref: ielts_intensive_sessions.examId > ielts_intensive_exams.id [delete: cascade]
+  Ref: ielts_intensive_results.userId > users.id [delete: cascade]
+  Ref: ielts_intensive_results.sessionId - ielts_intensive_sessions.id [delete: cascade]
+
+  // ── IELTS Advanced ──
+  Ref: ielts_advanced_listening_sessions.partId > ielts_advanced_listening_parts.id [delete: cascade]
+  Ref: ielts_advanced_listening_sessions.userId > users.id [delete: cascade]
+  Ref: ielts_advanced_reading_sessions.partId > ielts_advanced_reading_parts.id [delete: cascade]
+  Ref: ielts_advanced_reading_sessions.userId > users.id [delete: cascade]
+  Ref: ielts_advanced_writing_sessions.userId > users.id [delete: cascade]
+  Ref: ielts_advanced_writing_sessions.promptId > ielts_advanced_writing_prompts.id [delete: cascade]
+  Ref: ielts_advanced_speaking_sessions.userId > users.id [delete: cascade]
+  Ref: ielts_advanced_speaking_sessions.partId > ielts_advanced_speaking_parts.id [delete: cascade]
+
+  // ============================================================
+  // TABLE GROUPS
+  // ============================================================
+
+  TableGroup Identity {
+    users
+    ielts_profiles
+  }
+
+  TableGroup FoundationVocabulary {
+    foundation_vocab_books
+    foundation_vocab_units
+    foundation_vocab_items
+    foundation_vocab_questions
+    foundation_vocab_progress
+  }
+
+  TableGroup FoundationGrammar {
+    foundation_grammar_books
+    foundation_grammar_units
+    foundation_grammar_exercises
+    foundation_grammar_progress
+  }
+
+  TableGroup FoundationPronunciation {
+    foundation_pronunciation_sounds
+    foundation_sound_examples
+    foundation_pronunciation_progress
+  }
+
+  TableGroup IeltsBasic {
+    ielts_basic_lessons
+    ielts_basic_listening_exercises
+    ielts_basic_reading_exercises
+    ielts_basic_writing_exercises
+    ielts_basic_speaking_exercises
+    ielts_basic_progress
+    ielts_basic_writing_answers
+  }
+
+  TableGroup IeltsIntensive {
+    ielts_intensive_exams
+    ielts_intensive_sessions
+    ielts_intensive_results
+  }
+
+  TableGroup IeltsAdvanced {
+    ielts_advanced_listening_parts
+    ielts_advanced_listening_sessions
+    ielts_advanced_reading_parts
+    ielts_advanced_reading_sessions
+    ielts_advanced_writing_prompts
+    ielts_advanced_writing_sessions
+    ielts_advanced_speaking_parts
+    ielts_advanced_speaking_sessions
+  }

@@ -5,6 +5,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// generator dbml {
+//   provider   = "prisma-dbml-generator"
+//   output     = "../../_thesis_paper/relational_diagram"
+//   outputName = "schema.dbml"
+// }
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -164,7 +170,19 @@ model IeltsIntensiveResult {
   @@map("results")
 }
 
-// LearningMaterial model - stores learning content
+// ============================================================
+// ⚠️  DEPRECATED / LEGACY MODELS — NOT USED IN CURRENT SYSTEM
+// ============================================================
+// These models were part of the initial prototype and have been
+// superseded by the newer Foundation* models:
+//   - LearningMaterial/LearningProgress → replaced by per-module progress models
+//   - FoundationVocabLesson/FoundationVocabWord → replaced by FoundationVocabBook/Unit/Item
+//   - Grammar → replaced by FoundationGrammarBook/Unit/Exercise
+//   - FoundationPronunciationAttempt → replaced by FoundationPronunciationSound/Progress
+// Tables still exist in the database but are no longer read/written by the application.
+// ============================================================
+
+// @deprecated — replaced by per-module progress tracking
 model LearningMaterial {
   id          String       @id @default(uuid())
   title       String
@@ -183,6 +201,7 @@ model LearningMaterial {
   @@map("learning_materials")
 }
 
+// @deprecated
 enum MaterialType {
   LESSON
   VOCABULARY
@@ -192,7 +211,7 @@ enum MaterialType {
   AUDIO
 }
 
-// LearningProgress model - tracks user progress
+// @deprecated — replaced by per-module progress tracking
 model LearningProgress {
   id         String   @id @default(uuid())
   userId     String
@@ -211,7 +230,7 @@ model LearningProgress {
   @@map("learning_progress")
 }
 
-// FoundationVocabLesson model - represents a learning lesson/unit
+// @deprecated — replaced by FoundationVocabBook → FoundationVocabUnit → FoundationVocabItem
 model FoundationVocabLesson {
   id          String     @id @default(uuid())
   title       String
@@ -229,7 +248,7 @@ model FoundationVocabLesson {
   @@map("lessons")
 }
 
-// FoundationVocabWord model - individual vocabulary items within a lesson
+// @deprecated — replaced by FoundationVocabItem
 model FoundationVocabWord {
   id           String   @id @default(uuid())
   lessonId     String
@@ -249,7 +268,7 @@ model FoundationVocabWord {
   @@map("vocabularies")
 }
 
-// Grammar model - grammar rules/explanations within a lesson
+// @deprecated — replaced by FoundationGrammarBook → FoundationGrammarUnit → FoundationGrammarExercise
 model Grammar {
   id        String   @id @default(uuid())
   lessonId  String
@@ -265,7 +284,7 @@ model Grammar {
   @@map("grammars")
 }
 
-// FoundationPronunciationAttempt model - tracks user pronunciation practice attempts
+// @deprecated — replaced by FoundationPronunciationSound/Progress system
 model FoundationPronunciationAttempt {
   id              String              @id @default(uuid())
   userId          String
@@ -286,12 +305,17 @@ model FoundationPronunciationAttempt {
   @@map("pronunciation_attempts")
 }
 
+// @deprecated
 enum PronunciationStatus {
   PENDING
   PROCESSING
   COMPLETED
   FAILED
 }
+
+// ============================================================
+// END OF DEPRECATED MODELS
+// ============================================================
 
 // ============================================================
 // LEARNING CONTENT MODELS (FoundationVocabWord, Grammar, Pronunciation)
