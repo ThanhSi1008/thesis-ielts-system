@@ -4,25 +4,25 @@
 
 \subsection{TypeScript}
 
-TypeScript là một ngôn ngữ lập trình mã nguồn mở được phát triển bởi Microsoft, ra mắt năm 2012, là tập mở rộng có kiểu tĩnh (statically typed superset) của JavaScript. Theo Stack Overflow Developer Survey 2024, TypeScript là ngôn ngữ được yêu thích thứ hai và được sử dụng bởi hơn 38\% lập trình viên chuyên nghiệp toàn cầu~\cite{nestjs-docs}. TypeScript bổ sung hệ thống kiểu tĩnh (static type system) vào JavaScript, cho phép phát hiện lỗi ngay tại thời điểm biên dịch thay vì runtime, đồng thời cung cấp khả năng tự động hoàn thành mã và tái cấu trúc an toàn hơn trong các IDE hiện đại \cite{nestjs-docs}.
+TypeScript là một ngôn ngữ lập trình mã nguồn mở được phát triển bởi Microsoft, ra mắt năm 2012, là tập mở rộng có kiểu tĩnh (statically typed superset) của JavaScript. Theo Stack Overflow Developer Survey 2024, TypeScript là ngôn ngữ được yêu thích thứ hai và được sử dụng bởi hơn 38\% lập trình viên chuyên nghiệp toàn cầu~\cite{nestjs-docs}. TypeScript bổ sung hệ thống kiểu tĩnh (static type system) vào JavaScript, cho phép phát hiện lỗi ngay tại thời điểm biên dịch thay vì runtime, đồng thời cung cấp khả năng tự động hoàn thành mã và tái cấu trúc an toàn hơn trong các IDE hiện đại.
 
-Trong dự án này, TypeScript được sử dụng đồng nhất trên toàn bộ hệ thống — từ backend (NestJS) đến frontend web (Next.js) — mang lại những lợi ích cụ thể:
+Trong dự án này, TypeScript được sử dụng đồng nhất trên toàn bộ hệ thống --- từ backend (NestJS) đến frontend web (Next.js) --- mang lại những lợi ích cụ thể:
 
 \begin{itemize}
-    \item \textbf{Phát hiện lỗi sớm:} Hệ thống kiểu cho phép trình biên dịch bắt các lỗi như truyền sai kiểu tham số, truy cập thuộc tính không tồn tại — những lỗi này thường chỉ được phát hiện ở runtime với JavaScript thuần.
+    \item \textbf{Phát hiện lỗi sớm:} Hệ thống kiểu cho phép trình biên dịch bắt các lỗi như truyền sai kiểu tham số, truy cập thuộc tính không tồn tại --- những lỗi này thường chỉ được phát hiện ở runtime với JavaScript thuần.
     \item \textbf{Tính nhất quán giữa các lớp:} Khi các module trong NestJS Monolith giao tiếp qua DTO (Data Transfer Object), TypeScript đảm bảo cấu trúc dữ liệu truyền tải được kiểm soát chặt chẽ ở cả hai đầu.
-    \item \textbf{Khả năng mở rộng:} TypeScript hỗ trợ các tính năng OOP như interface, generics, abstract class — giúp thiết kế hệ thống có cấu trúc rõ ràng và dễ mở rộng khi quy mô tăng.
-    \item \textbf{Tích hợp tốt với NestJS:} NestJS được xây dựng trên nền TypeScript và khai thác các decorator của ngôn ngữ này (\texttt{@Controller}, \texttt{@Injectable}...) để định nghĩa route, middleware và dependency injection.
+    \item \textbf{Khả năng mở rộng:} TypeScript hỗ trợ các tính năng OOP như interface, generics, abstract class --- giúp thiết kế hệ thống có cấu trúc rõ ràng và dễ mở rộng khi quy mô tăng.
+    \item \textbf{Tích hợp tốt với NestJS:} NestJS được xây dựng trên nền TypeScript và khai thác các decorator của ngôn ngữ này (@Controller, @Injectable...) để định nghĩa route, middleware và dependency injection.
 \end{itemize}
 
 \subsection{Python}
 
 Python là ngôn ngữ lập trình bậc cao, đa mục đích, ra mắt năm 1991 và hiện là ngôn ngữ phổ biến nhất thế giới theo chỉ số TIOBE 2024~\cite{python-docs}. Python nổi bật trong lĩnh vực AI/ML nhờ hệ sinh thái thư viện phong phú: NumPy, PyTorch, Transformers, Whisper và các framework inference như CTranslate2.
 
-Trong dự án này, Python được sử dụng cho \textbf{Backend AI Worker} — microservice xử lý toàn bộ AI inference:
+Trong dự án này, Python được sử dụng cho \textbf{Backend AI Worker} --- microservice xử lý toàn bộ AI inference:
 
 \begin{itemize}
-    \item \textbf{Hỗ trợ AI/ML độc quyền:} Python là ngôn ngữ duy nhất được faster-whisper (CTranslate2), google-genai (Gemini SDK) và eng-to-ipa (IPA conversion) hỗ trợ đầy đủ — không thể thay thế bằng TypeScript/Node.js cho các tác vụ AI inference này.
+    \item \textbf{Hỗ trợ AI/ML độc quyền:} Python là ngôn ngữ duy nhất được faster-whisper (CTranslate2), google-genai (Gemini SDK) và eng-to-ipa (IPA conversion) hỗ trợ đầy đủ --- không thể thay thế bằng TypeScript/Node.js cho các tác vụ AI inference này.
     \item \textbf{Hệ sinh thái phong phú:} Cộng đồng AI/ML Python cung cấp các thư viện đã được tối ưu hóa cao (CTranslate2 tăng tốc Whisper 4× so với bản gốc), giúp giảm thời gian phát triển và tăng hiệu năng xử lý audio.
     \item \textbf{Tách biệt runtime:} Python AI Worker chạy trong Docker container riêng, tránh xung đột dependency với Node.js Backend Core và cho phép cấu hình resource độc lập (10 GB RAM, 3 CPU).
 \end{itemize}
@@ -33,50 +33,50 @@ Trong dự án này, Python được sử dụng cho \textbf{Backend AI Worker} 
 
 NestJS là một framework Node.js hiệu năng cao, được xây dựng hoàn toàn bằng TypeScript bởi Kamil Mysliwiec và ra mắt năm 2017, lấy cảm hứng từ kiến trúc Angular và áp dụng mô hình lập trình hướng module \cite{nestjs-docs}. NestJS hiện đạt hơn 68.000 GitHub stars và được các công ty lớn như Adidas, Autodesk và Roche sử dụng trong môi trường production. Trong NestJS, mỗi module đóng gói một nhóm chức năng liên quan bao gồm Controller (xử lý HTTP request), Service (chứa business logic) và Provider (dependency injection).
 
-So với Express.js thuần — framework Node.js phổ biến khác — NestJS mang lại ưu điểm vượt trội trong dự án IELTS có quy mô lớn:
+So với Express.js thuần --- framework Node.js phổ biến khác --- NestJS mang lại ưu điểm vượt trội trong dự án IELTS có quy mô lớn:
 
 \begin{itemize}
     \item \textbf{Kiến trúc có cấu trúc:} Express.js linh hoạt nhưng không áp đặt cấu trúc, dễ dẫn đến code không nhất quán khi dự án lớn. NestJS cung cấp kiến trúc rõ ràng từ đầu, phù hợp với hệ thống có nhiều module nghiệp vụ phức tạp (Vocabulary, Grammar, Listening, Reading, Writing, Speaking, Mock Test).
-    \item \textbf{Decorator-based:} NestJS sử dụng TypeScript decorator (\texttt{@Controller}, \texttt{@Get}, \texttt{@Injectable}...) giúp code ngắn gọn, dễ đọc và dễ kiểm thử.
+    \item \textbf{Decorator-based:} NestJS sử dụng TypeScript decorator (@Controller, @Get, @Injectable...) giúp code ngắn gọn, dễ đọc và dễ kiểm thử.
     \item \textbf{Dependency Injection:} NestJS có hệ thống DI tích hợp sẵn, cho phép inject service vào nhau một cách tường minh, hỗ trợ unit testing và loose coupling hiệu quả.
-    \item \textbf{Hỗ trợ message queue:} NestJS tích hợp tốt với RabbitMQ qua thư viện \texttt{amqplib}, cho phép module \texttt{ai-client} publish task chấm điểm vào queue một cách đáng tin cậy.
+    \item \textbf{Hỗ trợ message queue:} NestJS tích hợp tốt với RabbitMQ qua thư viện amqplib, cho phép module ai-client publish task chấm điểm vào queue một cách đáng tin cậy.
     \item \textbf{Tích hợp Prisma:} NestJS kết hợp tốt với Prisma ORM thông qua module injection, cho phép thao tác cơ sở dữ liệu type-safe và dễ bảo trì.
 \end{itemize}
 
 \subsection{Next.js}
 
-Next.js là một framework React mã nguồn mở do Vercel phát triển, ra mắt năm 2016, cung cấp khả năng render phía server (SSR — Server-Side Rendering) và sinh trang tĩnh (SSG — Static Site Generation) trong một framework duy nhất \cite{nextjs-docs}. Next.js hiện đạt hơn 125.000 GitHub stars, được dùng bởi Netflix, TikTok và hơn 700.000 website theo W3Techs. Với App Router (Next.js 13+), các component được phân loại rõ ràng thành Server Component và Client Component, cho phép tối ưu hóa hiệu năng render.
+Next.js là một framework React mã nguồn mở do Vercel phát triển, ra mắt năm 2016, cung cấp khả năng render phía server (SSR --- Server-Side Rendering) và sinh trang tĩnh (SSG --- Static Site Generation) trong một framework duy nhất \cite{nextjs-docs}. Next.js hiện đạt hơn 125.000 GitHub stars, được dùng bởi Netflix, TikTok và hơn 700.000 website theo W3Techs. Với App Router (Next.js 13+), các component được phân loại rõ ràng thành Server Component và Client Component, cho phép tối ưu hóa hiệu năng render.
 
 Next.js là lựa chọn tối ưu cho giao diện web của hệ thống IELTS:
 
 \begin{itemize}
-    \item \textbf{SEO tối ưu:} Với SSR, nội dung trang được render trên server trước khi gửi về client, giúp các công cụ tìm kiếm index hiệu quả — quan trọng cho landing page và trang giới thiệu tính năng.
+    \item \textbf{SEO tối ưu:} Với SSR, nội dung trang được render trên server trước khi gửi về client, giúp các công cụ tìm kiếm index hiệu quả --- quan trọng cho landing page và trang giới thiệu tính năng.
     \item \textbf{Hiệu năng tải trang:} Next.js hỗ trợ automatic code splitting và lazy loading, giảm kích thước bundle gửi đến người dùng, cải thiện trải nghiệm trên kết nối mạng chậm.
-    \item \textbf{File-based routing:} Cấu trúc thư mục \texttt{/app} tự động tạo routes, giúp quản lý các màn hình như \texttt{/dashboard}, \texttt{/listening}, \texttt{/writing} một cách trực quan.
-    \item \textbf{API Routes:} Next.js cho phép tạo API endpoint ngay trong project (\texttt{/api/...}), tiện lợi cho các tác vụ server-side như xử lý OAuth callback và VNPay return URL.
+    \item \textbf{File-based routing:} Cấu trúc thư mục /app tự động tạo routes, giúp quản lý các màn hình như /dashboard, /listening, /writing một cách trực quan.
+    \item \textbf{API Routes:} Next.js cho phép tạo API endpoint ngay trong project (/api/...), tiện lợi cho các tác vụ server-side như xử lý OAuth callback và VNPay return URL.
 \end{itemize}
 
 \subsection{React Native}
 
-React Native là framework phát triển ứng dụng di động đa nền tảng (cross-platform) được Meta (Facebook) ra mắt năm 2015, cho phép xây dựng ứng dụng iOS và Android từ một codebase TypeScript duy nhất \cite{reactnative-docs}. Theo State of JavaScript Survey 2023, React Native là framework mobile được sử dụng nhiều nhất trong cộng đồng JavaScript, với các ứng dụng đáng chú ý như Facebook, Instagram và Shopify. Trong dự án này, Expo — bộ công cụ xây dựng trên nền React Native — được sử dụng để tăng tốc quá trình phát triển.
+React Native là framework phát triển ứng dụng di động đa nền tảng (cross-platform) được Meta (Facebook) ra mắt năm 2015, cho phép xây dựng ứng dụng iOS và Android từ một codebase TypeScript duy nhất \cite{reactnative-docs}. Theo State of JavaScript Survey 2023, React Native là framework mobile được sử dụng nhiều nhất trong cộng đồng JavaScript, với các ứng dụng đáng chú ý như Facebook, Instagram và Shopify. Trong dự án này, Expo --- bộ công cụ xây dựng trên nền React Native --- được sử dụng để tăng tốc quá trình phát triển.
 
 Các lợi ích khi chọn React Native cho ứng dụng mobile IELTS:
 
 \begin{itemize}
     \item \textbf{Chia sẻ logic với Next.js:} Vì cùng nền tảng React và TypeScript, các hook và utility function có thể tái sử dụng, giảm thời gian phát triển.
     \item \textbf{Native UI components:} React Native render component native thực sự (không phải WebView), đảm bảo trải nghiệm mượt mà tương đương app native trên cả iOS và Android.
-    \item \textbf{Hỗ trợ đa phương tiện:} Thư viện \texttt{expo-av} hỗ trợ phát audio cho Listening; \texttt{expo-audio} hỗ trợ ghi âm cho Speaking — cả hai đều là tính năng cốt lõi của hệ thống IELTS.
+    \item \textbf{Hỗ trợ đa phương tiện:} Thư viện expo-av hỗ trợ phát audio cho Listening; expo-audio hỗ trợ ghi âm cho Speaking --- cả hai đều là tính năng cốt lõi của hệ thống IELTS.
     \item \textbf{Cross-platform hiệu quả:} Một codebase duy nhất cho cả iOS và Android giúp giảm đáng kể thời gian phát triển và bảo trì so với phát triển hai app native riêng biệt.
 \end{itemize}
 
 \subsection{FastAPI}
 
-FastAPI là framework Python hiệu năng cao để xây dựng REST API, được Sebastián Ramírez phát triển và ra mắt năm 2018~\cite{fastapi-docs}. FastAPI sử dụng type hints của Python 3.6+ và thư viện Pydantic để tự động sinh tài liệu API (OpenAPI/Swagger) và validate dữ liệu đầu vào, đồng thời hỗ trợ lập trình bất đồng bộ (\texttt{async}/\texttt{await}) giúp xử lý nhiều request đồng thời hiệu quả.
+FastAPI là framework Python hiệu năng cao để xây dựng REST API, được Sebastián Ramírez phát triển và ra mắt năm 2018~\cite{fastapi-docs}. FastAPI sử dụng type hints của Python 3.6+ và thư viện Pydantic để tự động sinh tài liệu API (OpenAPI/Swagger) và validate dữ liệu đầu vào, đồng thời hỗ trợ lập trình bất đồng bộ (async/await) giúp xử lý nhiều request đồng thời hiệu quả.
 
 Trong dự án này, FastAPI đóng vai trò framework cho Backend AI Worker:
 
 \begin{itemize}
-    \item \textbf{Async consumer:} FastAPI kết hợp với Pika (AMQP client) để lắng nghe RabbitMQ queue bất đồng bộ, xử lý task grading song song với việc serve HTTP request — không block lẫn nhau.
+    \item \textbf{Async consumer:} FastAPI kết hợp với Pika (AMQP client) để lắng nghe RabbitMQ queue bất đồng bộ, xử lý task grading song song với việc serve HTTP request --- không block lẫn nhau.
     \item \textbf{Pydantic validation:} Tự động validate payload JSON từ RabbitMQ và HTTP request, đảm bảo dữ liệu đầu vào hợp lệ trước khi gọi Gemini API hoặc faster-whisper.
     \item \textbf{Tự động sinh tài liệu:} FastAPI sinh OpenAPI spec từ type annotations, giúp Backend Core biết chính xác schema của callback endpoint mà không cần viết tài liệu thủ công.
 \end{itemize}
@@ -90,31 +90,31 @@ Prisma là một ORM (Object-Relational Mapping) thế hệ mới dành cho Node
 Điểm khác biệt lớn nhất của Prisma so với các ORM truyền thống (Sequelize, TypeORM) là hệ thống kiểu được sinh tự động từ schema:
 
 \begin{itemize}
-    \item \textbf{Type-safe queries:} Mọi truy vấn Prisma Client đều được TypeScript kiểm tra tại compile time — truy cập field không tồn tại sẽ báo lỗi ngay trong IDE mà không cần chạy ứng dụng.
-    \item \textbf{Schema-first:} Toàn bộ cấu trúc cơ sở dữ liệu được định nghĩa trong file \texttt{schema.prisma} — một nguồn sự thật duy nhất (single source of truth) cho cả database schema lẫn TypeScript types.
-    \item \textbf{Migration an toàn:} \texttt{prisma migrate dev} tự động tạo SQL migration file và áp dụng vào database, đảm bảo lịch sử thay đổi schema có thể truy vết và rollback.
-    \item \textbf{Tích hợp trực tiếp với PostgreSQL:} Prisma kết nối với PostgreSQL qua connection string chuẩn (port 5432), không phụ thuộc vào BaaS trung gian, giúp kiểm soát hoàn toàn cơ sở dữ liệu.
+    \item \textbf{Type-safe queries:} Mọi truy vấn Prisma Client đều được TypeScript kiểm tra tại compile time --- truy cập field không tồn tại sẽ báo lỗi ngay trong IDE mà không cần chạy ứng dụng.
+    \item \textbf{Schema-first:} Toàn bộ cấu trúc cơ sở dữ liệu được định nghĩa trong file schema.prisma --- một nguồn sự thật duy nhất (single source of truth) cho cả database schema lẫn TypeScript types.
+    \item \textbf{Migration an toàn:} Lệnh prisma migrate dev tự động tạo SQL migration file và áp dụng vào database, đảm bảo lịch sử thay đổi schema có thể truy vết và rollback.
+    \item \textbf{Hỗ trợ đa môi trường:} Prisma kết nối với PostgreSQL qua DATABASE\_URL chuẩn --- từ database local đến dịch vụ quản lý đám mây (Backend as a Service --- BaaS) như Supabase --- mà không cần thay đổi application code, chỉ cần cập nhật biến môi trường.
 \end{itemize}
 
 \subsection{Gemini API}
 
-Gemini là dòng mô hình ngôn ngữ lớn đa phương thức (multimodal LLM) của Google DeepMind, ra mắt tháng 12 năm 2023, có khả năng xử lý văn bản, hình ảnh, âm thanh và code trong một mô hình duy nhất \cite{gemini-api}. Gemini 1.5 Flash và Pro được đánh giá là một trong những mô hình có context window lớn nhất (lên đến 1 triệu token), vượt trội so với GPT-4 Turbo và Claude 3 Sonnet trong các benchmark xử lý văn bản dài. Trong hệ thống IELTS, model \texttt{gemini-1.5-flash} được sử dụng cho hai mục đích chính:
+Gemini là dòng mô hình ngôn ngữ lớn đa phương thức (multimodal LLM) của Google DeepMind, ra mắt tháng 12 năm 2023, có khả năng xử lý văn bản, hình ảnh, âm thanh và code trong một mô hình duy nhất \cite{gemini-api}. Trong hệ thống IELTS, model gemini-2.5-flash được sử dụng cho hai mục đích chính:
 
 \begin{itemize}
     \item \textbf{Chấm điểm Writing:} Hệ thống gửi đề bài kèm bài viết của người học đến Gemini API với prompt engineering chi tiết về 4 tiêu chí chấm điểm IELTS Writing (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy). Gemini trả về band điểm ước tính cho từng tiêu chí, nhận xét tổng quan và danh sách lỗi cần cải thiện.
-    \item \textbf{Đánh giá Speaking:} Sau khi faster-whisper chuyển đổi giọng nói thành transcript, Gemini phân tích để đánh giá fluency, coherence, vocabulary và grammar — các tiêu chí chấm điểm IELTS Speaking.
+    \item \textbf{Đánh giá Speaking:} Sau khi faster-whisper chuyển đổi giọng nói thành transcript, Gemini phân tích để đánh giá fluency, coherence, vocabulary và grammar --- các tiêu chí chấm điểm IELTS Speaking.
 \end{itemize}
 
-Gemini được lựa chọn so với các mô hình khác (GPT-4, Claude) vì: cung cấp API miễn phí với quota phù hợp cho giai đoạn phát triển; tích hợp tốt với hệ sinh thái Google Cloud (cùng project với faster-whisper); và context window lớn (1 triệu token với Gemini 1.5) cho phép xử lý toàn bộ bài viết IELTS mà không bị giới hạn độ dài.
+Gemini được lựa chọn so với các mô hình khác (GPT-4, Claude) vì: cung cấp API với quota phù hợp cho giai đoạn phát triển; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai; và hỗ trợ đầu vào dài cho phép gửi toàn bộ bài viết IELTS trong một lần gọi API mà không bị giới hạn độ dài.
 
 \subsection{faster-whisper}
 
-Whisper là mô hình nhận dạng giọng nói (speech-to-text) mã nguồn mở của OpenAI, được huấn luyện trên 680.000 giờ dữ liệu âm thanh đa ngôn ngữ và công bố năm 2022~\cite{whisper-paper}. faster-whisper là thư viện Python tối ưu hóa Whisper, sử dụng backend CTranslate2 để tăng tốc inference lên 4 lần so với bản gốc trên CPU và giảm 50\% lượng bộ nhớ sử dụng~\cite{faster-whisper-docs}. Khác với các dịch vụ Speech-to-Text trên cloud (Google Cloud STT, AWS Transcribe), faster-whisper chạy hoàn toàn locally — không phụ thuộc cloud API, không có rate limit, và không phát sinh chi phí theo lượt dùng.
+Whisper là mô hình nhận dạng giọng nói (speech-to-text) mã nguồn mở của OpenAI, được huấn luyện trên 680.000 giờ dữ liệu âm thanh đa ngôn ngữ và công bố năm 2022~\cite{whisper-paper}. faster-whisper là thư viện Python tối ưu hóa Whisper, sử dụng backend CTranslate2 để tăng tốc inference lên 4 lần so với bản gốc trên CPU và giảm 50\% lượng bộ nhớ sử dụng~\cite{faster-whisper-docs}. Khác với các dịch vụ Speech-to-Text trên cloud (Google Cloud STT, AWS Transcribe), faster-whisper chạy hoàn toàn locally --- không phụ thuộc cloud API, không có rate limit, và không phát sinh chi phí theo lượt dùng.
 
-Trong hệ thống IELTS, model \texttt{base} của Whisper được pre-download vào Docker image của FastAPI AI Worker khi build, giúp loại bỏ cold-start. faster-whisper được sử dụng cho hai mục đích chính:
+Trong hệ thống IELTS, model base của Whisper được pre-download vào Docker image của FastAPI AI Worker khi build, giúp loại bỏ cold-start. faster-whisper được sử dụng cho hai mục đích chính:
 
 \begin{itemize}
-    \item \textbf{Chấm điểm phát âm (Pronunciation):} File audio WAV của người học được chuyển thành transcript; transcript này được so sánh với văn bản chuẩn bằng thuật toán Levenshtein distance sau khi chuyển đổi sang IPA qua thư viện \texttt{eng-to-ipa}, cho ra điểm phát âm từng từ.
+    \item \textbf{Chấm điểm phát âm (Pronunciation):} File audio WAV của người học được chuyển thành transcript; transcript này được so sánh với văn bản chuẩn bằng thuật toán Levenshtein distance sau khi chuyển đổi sang IPA qua thư viện eng-to-ipa, cho ra điểm phát âm từng từ.
     \item \textbf{Transcription cho Dictation:} Audio bài nghe được transcribe để so sánh với câu trả lời điền từ của người học.
 \end{itemize}
 
@@ -122,17 +122,17 @@ Trong hệ thống IELTS, model \texttt{base} của Whisper được pre-downloa
 
 RabbitMQ là message broker mã nguồn mở được Rabbit Technologies phát triển và ra mắt năm 2007, triển khai giao thức AMQP (Advanced Message Queuing Protocol) cho phép các service giao tiếp bất đồng bộ thông qua queue~\cite{rabbitmq-docs}. RabbitMQ hiện được sử dụng tại hàng triệu hệ thống production, bao gồm VMware, Reddit và các tổ chức tài chính lớn, nhờ độ tin cậy cao, message persistence và khả năng scale theo chiều ngang. Trong hệ thống IELTS, RabbitMQ đóng vai trò cầu nối trung tâm giữa NestJS Backend Core và FastAPI AI Worker.
 
-Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Writing hoặc Speaking, NestJS module \texttt{ai-client} publish một task JSON vào \texttt{exam-grading-queue} với cờ \texttt{persistent: true} (đảm bảo tin nhắn không bị mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm, và gửi kết quả về NestJS qua REST callback. Cơ chế này mang lại các lợi ích:
+Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Writing hoặc Speaking, NestJS module ai-client publish một task JSON vào exam-grading-queue với cờ persistent: true (đảm bảo tin nhắn không bị mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm, và gửi kết quả về NestJS qua REST callback. Cơ chế này mang lại các lợi ích:
 
 \begin{itemize}
-    \item \textbf{Tách biệt concerns:} API phản hồi người học ngay lập tức (trạng thái \texttt{SUBMITTED}) mà không phải đợi AI inference có thể mất 5--15 giây.
+    \item \textbf{Tách biệt concerns:} API phản hồi người học ngay lập tức (trạng thái SUBMITTED) mà không phải đợi AI inference có thể mất 5--15 giây.
     \item \textbf{Độ bền tin nhắn:} Dead Letter Queue với TTL 5 phút xử lý các task thất bại, tránh mất dữ liệu khi AI Worker gặp lỗi tạm thời.
     \item \textbf{Kiểm soát tải:} Prefetch count giới hạn số task AI Worker xử lý đồng thời, tránh quá tải memory khi có nhiều người nộp bài cùng lúc.
 \end{itemize}
 
 \subsection{TailwindCSS}
 
-TailwindCSS là framework CSS theo phương pháp utility-first, được Tailwind Labs phát triển và ra mắt năm 2017, hiện đạt hơn 80.000 GitHub stars và được 39\% nhà phát triển sử dụng theo State of CSS Survey 2023~\cite{tailwindcss-docs}. Thay vì viết class CSS ngữ nghĩa theo phong cách BEM hay CSS-in-JS, TailwindCSS cung cấp hàng trăm class tiện ích nhỏ (như \texttt{flex}, \texttt{text-lg}, \texttt{bg-blue-500}) để xây dựng giao diện trực tiếp trong JSX mà không cần rời khỏi file component.
+TailwindCSS là framework CSS theo phương pháp utility-first, được Tailwind Labs phát triển và ra mắt năm 2017, hiện đạt hơn 80.000 GitHub stars và được 39\% nhà phát triển sử dụng theo State of CSS Survey 2023~\cite{tailwindcss-docs}. Thay vì viết class CSS ngữ nghĩa theo phong cách BEM hay CSS-in-JS, TailwindCSS cung cấp hàng trăm class tiện ích nhỏ (như flex, text-lg, bg-blue-500) để xây dựng giao diện trực tiếp trong JSX mà không cần rời khỏi file component.
 
 Trong dự án này, TailwindCSS kết hợp với thư viện component shadcn/ui (xây dựng trên Radix UI primitives) để đạt được hai mục tiêu:
 
@@ -146,21 +146,47 @@ Trong dự án này, TailwindCSS kết hợp với thư viện component shadcn/
 
 Redis (Remote Dictionary Server) là hệ thống lưu trữ cấu trúc dữ liệu trong bộ nhớ (in-memory data structure store) mã nguồn mở, được Salvatore Sanfilippo phát triển từ năm 2009~\cite{redis-docs}. Redis hỗ trợ nhiều cấu trúc dữ liệu (string, hash, list, set, sorted set) với thao tác read/write có độ trễ dưới 1ms, và có cơ chế persistence để ghi xuống disk định kỳ.
 
-Trong hệ thống IELTS, Redis được triển khai trực tiếp trên GCP VM (ngoài Docker Compose) và truy cập qua thư viện \texttt{ioredis} v5.3.2 từ NestJS Backend Core:
+Trong dự án này, Redis được triển khai dưới dạng dịch vụ quản lý đám mây trên nền tảng Upstash --- giải pháp Redis serverless hỗ trợ kết nối TLS. NestJS Backend Core truy cập Upstash qua thư viện ioredis v5.3.2 theo giao thức rediss:// (TLS), đảm bảo bảo mật dữ liệu truyền tải trên môi trường cloud.
 
 \begin{itemize}
     \item \textbf{Cache layer:} Lưu kết quả các truy vấn database thường xuyên (danh sách từ vựng, thông tin bài thi, profile người học) với TTL phù hợp, giảm số lần truy vấn PostgreSQL và cải thiện thời gian phản hồi API.
-    \item \textbf{Rate limiting:} Lưu trữ sliding window counter để kiểm soát số lần đăng nhập sai (khoá tài khoản sau 5 lần sai trong 15 phút) và giới hạn tần suất gọi AI API theo tier subscription.
-    \item \textbf{Session management:} Lưu trạng thái phiên Mock Test đang tiến hành để hỗ trợ tính năng Save \& Pause -- người học có thể ngắt bài thi và tiếp tục sau mà không mất dữ liệu.
+    \item \textbf{Rate limiting:} Hệ thống áp dụng giới hạn tần suất request (100 request/phút) cho các endpoint nhạy cảm, bảo vệ backend khỏi lạm dụng và tấn công brute-force.
 \end{itemize}
+
+\subsection{FSRS và thư viện ts-fsrs}
+
+FSRS (Free Spaced Repetition Scheduler) là thuật toán lặp lại ngắt quãng (spaced repetition) thế hệ mới, được phát triển dựa trên lý thuyết quên lãng của Ebbinghaus và mô hình DSR (Difficulty, Stability, Retrievability)~\cite{ye2022fsrs}. So với thuật toán SM-2 (SuperMemo) cổ điển được mô tả bởi~\citeauthor{wozniak1990spaced}~\cite{wozniak1990spaced}, FSRS sử dụng phương pháp tối ưu hóa dựa trên dữ liệu để cá nhân hóa lịch ôn tập, dự đoán chính xác hơn thời điểm người học sắp quên từ.
+
+Trong dự án này, thư viện ts-fsrs v5.3.2 (TypeScript implementation của FSRS) được tích hợp vào module Vocab Lab của NestJS Backend Core. Mỗi flashcard trong hệ thống được gắn với một FSRS card state lưu trong cơ sở dữ liệu, bao gồm các tham số: stability (độ bền của ký ức), difficulty (độ khó của từ) và due date (ngày ôn tập tiếp theo). Khi người học đánh giá một flashcard theo thang Rating --- Again (không nhớ), Hard (nhớ khó), Good (nhớ bình thường), Easy (nhớ dễ) --- hàm f.next() của ts-fsrs tính toán lịch ôn tập tối ưu cho lần tiếp theo. Cơ chế này đảm bảo từ vựng được ôn đúng thời điểm trước khi bị quên, tối đa hóa hiệu quả học tập với thời gian đầu tư tối thiểu.
 
 \section{Cơ sở dữ liệu}
 
-PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDBMS) hiệu năng cao, được phát triển từ năm 1986 tại Đại học California Berkeley và duy trì bởi cộng đồng PostgreSQL Global Development Group~\cite{postgresql-docs}. Theo Stack Overflow Developer Survey 2024, PostgreSQL là cơ sở dữ liệu được yêu thích nhất trong 5 năm liên tiếp với hơn 49\% developer chuyên nghiệp sử dụng, nhờ tính ổn định, tuân thủ chuẩn SQL nghiêm ngặt và hỗ trợ nhiều kiểu dữ liệu phức tạp (JSON, Array, Full-text search). Trong dự án này, PostgreSQL 16 được triển khai trực tiếp trên GCP VM — không thông qua BaaS trung gian — giúp kiểm soát hoàn toàn cấu hình và tài nguyên.
+PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDBMS) hiệu năng cao, được phát triển từ năm 1986 tại Đại học California Berkeley và duy trì bởi cộng đồng PostgreSQL Global Development Group~\cite{postgresql-docs}. Theo Stack Overflow Developer Survey 2024, PostgreSQL là cơ sở dữ liệu được yêu thích nhất trong 5 năm liên tiếp với hơn 49\% developer chuyên nghiệp sử dụng, nhờ tính ổn định, tuân thủ chuẩn SQL nghiêm ngặt và hỗ trợ nhiều kiểu dữ liệu phức tạp (JSON, Array, Full-text search).
 
-Schema cơ sở dữ liệu bao gồm hơn 55 model được định nghĩa trong file \texttt{schema.prisma} và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation/Basic/Advanced/Intensive), Vocabulary \& Grammar, Shadowing \& Dictation, Vocab Lab (FSRS -- Free Spaced Repetition Scheduler), Community, Gamification và Subscriptions.
+Trong dự án này, PostgreSQL 16 được triển khai trên nền tảng \textbf{Supabase}~\cite{supabase-docs} --- dịch vụ cơ sở dữ liệu quản lý đám mây xây dựng trên PostgreSQL mã nguồn mở, cung cấp connection pooling tự động qua PgBouncer. Prisma ORM kết nối với Supabase theo hai chế độ: pooler port 6543 với tham số pgbouncer=true cho query thông thường (tối ưu số lượng kết nối đồng thời), và direct port 5432 cho Prisma Migrate (yêu cầu kết nối trực tiếp khi thay đổi schema).
 
-Prisma ORM kết nối với PostgreSQL qua \texttt{DATABASE\_URL} chuẩn (port 5432). File audio và hình ảnh bài thi được lưu trữ trên Google Cloud Storage (GCS) trong môi trường production, và MinIO (S3-compatible) trong môi trường local development.
+Schema cơ sở dữ liệu bao gồm hơn 55 model được định nghĩa trong file schema.prisma và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation/Basic/Advanced/Intensive), Vocabulary \& Grammar, Shadowing \& Dictation, Vocab Lab (FSRS), Community, Gamification và Subscriptions.
+
+\section{Xác thực và bảo mật}
+
+\subsection{JSON Web Token (JWT)}
+
+JSON Web Token (JWT) là tiêu chuẩn mở (RFC 7519) định nghĩa cách truyền thông tin xác thực giữa các bên dưới dạng đối tượng JSON được ký số~\cite{jwt-rfc}. JWT có cấu trúc ba phần: header (thuật toán ký), payload (claims: userId, role, exp) và signature (chữ ký xác thực). Tính chất stateless của JWT --- server không lưu session mà chỉ xác thực chữ ký --- giúp hệ thống scale ngang dễ dàng mà không cần chia sẻ trạng thái phiên giữa các instance.
+
+Trong hệ thống IELTS, NestJS Backend Core triển khai cơ chế xác thực JWT hai token:
+
+\begin{itemize}
+    \item \textbf{Access token:} Thời hạn 7 ngày, gửi kèm mỗi API request trong Authorization header. NestJS sử dụng thư viện @nestjs/jwt và passport-jwt để xác thực token và inject thông tin người dùng qua decorator @CurrentUser().
+    \item \textbf{Refresh token:} Thời hạn 30 ngày, lưu phía client (AsyncStorage trên mobile, localStorage trên web), dùng để cấp lại access token khi hết hạn mà không yêu cầu đăng nhập lại.
+\end{itemize}
+
+\subsection{Google OAuth và bcrypt}
+
+Hệ thống hỗ trợ hai phương thức đăng nhập: đăng ký tài khoản thường với mật khẩu (bcrypt hash) và đăng nhập qua Google OAuth 2.0. Hai phương thức này độc lập nhau nhưng có thể liên kết: nếu email Google trùng với tài khoản đã tồn tại, hệ thống tự động liên kết googleId vào tài khoản đó.
+
+bcrypt là hàm băm mật khẩu một chiều (one-way hash function) được thiết kế đặc biệt cho việc lưu trữ mật khẩu an toàn, tích hợp salt ngẫu nhiên và hệ số chi phí (cost factor) điều chỉnh được. Khác với các hàm hash thông thường (MD5, SHA-256) được tối ưu hóa để chạy nhanh, bcrypt chủ động làm chậm quá trình hash để chống brute-force. Lưu ý quan trọng: bcrypt là hàm băm một chiều, không phải mã hóa (encryption) --- mật khẩu không thể giải mã ngược từ hash. Trong hệ thống này, mật khẩu được hash với salt rounds = 10 trước khi lưu vào cơ sở dữ liệu.
+
+Google OAuth 2.0 cho phép người dùng đăng nhập bằng tài khoản Google mà không cần tạo mật khẩu mới. Luồng xác thực sử dụng thư viện google-auth-library (OAuth2Client) để xác minh Google ID token từ client. Sau khi xác thực token hợp lệ, hệ thống tìm hoặc tạo user theo googleId. Người dùng đăng nhập qua Google không có trường password trong cơ sở dữ liệu và không thể đổi mật khẩu.
 
 \section{Kiến trúc phần mềm}
 
@@ -168,11 +194,11 @@ Prisma ORM kết nối với PostgreSQL qua \texttt{DATABASE\_URL} chuẩn (port
 
 Kiến trúc Microservices là kiểu kiến trúc trong đó ứng dụng được chia thành nhiều service nhỏ, độc lập, mỗi service phụ trách một domain và có thể deploy riêng biệt \cite{newman2015microservices}. Tuy nhiên, trong thực tế phát triển, full Microservices đi kèm với chi phí vận hành đáng kể (service discovery, distributed tracing, network latency giữa các service).
 
-Hệ thống IELTS áp dụng kiến trúc \textbf{Event-driven Modular Monolith} — một cách tiếp cận thực dụng hơn:
+Hệ thống IELTS áp dụng kiến trúc \textbf{Event-driven Modular Monolith} --- một cách tiếp cận thực dụng hơn:
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core} là một ứng dụng monolith có module hóa (Modular Monolith) chứa 18 feature module (auth, users, exams, results, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, learning, notes, gamification, notifications, posts, subscriptions, ai-client) giao tiếp nội bộ qua Dependency Injection. Toàn bộ chạy trong một process duy nhất, đơn giản hóa deployment và debug.
-    \item \textbf{FastAPI AI Worker} là microservice thực sự duy nhất — hoàn toàn độc lập, không share codebase và không kết nối trực tiếp database với Backend Core. Kết nối duy nhất là qua RabbitMQ: nhận task grading, trả kết quả qua REST callback.
+    \item \textbf{FastAPI AI Worker} là microservice thực sự duy nhất --- hoàn toàn độc lập, không share codebase và không kết nối trực tiếp database với Backend Core. Kết nối duy nhất là qua RabbitMQ: nhận task grading, trả kết quả qua REST callback.
 \end{itemize}
 
 Lợi ích của cách tiếp cận này: AI inference nặng (faster-whisper, Gemini API) được cô lập trong FastAPI Worker, có thể cấu hình resource riêng (10GB RAM, 3 CPU) mà không ảnh hưởng Backend Core. Đây là sự cân bằng giữa đơn giản của Monolith và khả năng scale của Microservices.
@@ -183,13 +209,14 @@ REST (Representational State Transfer) là phong cách kiến trúc cho hệ th�
 
 \section{Hosting và triển khai}
 
-Hệ thống được triển khai hoàn toàn trên Google Cloud Platform (GCP), khu vực \texttt{asia-southeast1} (Singapore):
+Hệ thống được triển khai trên Google Cloud Platform (GCP), khu vực asia-southeast1 (Singapore), kết hợp với các dịch vụ quản lý đám mây từ nhiều nhà cung cấp chuyên biệt:
 
 \begin{itemize}
-    \item \textbf{Google Cloud Run:} Deploy Next.js web frontend dưới dạng managed container, tự động scale theo lưu lượng truy cập, domain \texttt{ielts-master.io.vn}.
-    \item \textbf{GCP VM (n2-standard-4):} Chạy Docker Compose với ba container: \textbf{nginx} (reverse proxy + SSL termination bằng Let's Encrypt), \textbf{backend-core} (NestJS), \textbf{backend-ai} (FastAPI). nginx route \texttt{/api/v1/} đến NestJS:3000 và \texttt{/ai/} đến FastAPI:8000, domain \texttt{dedangdown.io.vn}.
-    \item \textbf{PostgreSQL, Redis, RabbitMQ:} Chạy trực tiếp trên GCP VM (ngoài Docker Compose) để tối ưu hiệu năng I/O.
-    \item \textbf{Google Cloud Storage (GCS):} Lưu trữ file audio và hình ảnh bài tập trong môi trường production.
-    \item \textbf{GitHub Actions CI/CD:} Pipeline tự động phát hiện service nào thay đổi (path filter), build Docker image, push lên Google Container Registry (GCR), và deploy: frontend qua \texttt{gcloud run deploy}, backend qua SSH + \texttt{docker compose pull \&\& up}.
+    \item \textbf{Google Cloud Run:} Deploy Next.js web frontend dưới dạng managed container, tự động scale theo lưu lượng truy cập.
+    \item \textbf{GCP VM (n2-standard-4):} Chạy Docker Compose với ba container: nginx (reverse proxy + SSL termination bằng Let's Encrypt), backend-core (NestJS) và backend-ai (FastAPI). nginx định tuyến /api/v1/ đến NestJS:3000 và /ai/ đến FastAPI:8000.
+    \item \textbf{Supabase:} Cơ sở dữ liệu PostgreSQL 16 quản lý đám mây~\cite{supabase-docs}. NestJS kết nối qua PgBouncer pooler (port 6543) cho query và direct connection (port 5432) cho migration.
+    \item \textbf{Upstash:} Redis serverless, kết nối TLS từ NestJS~\cite{redis-docs}. Loại bỏ overhead vận hành Redis instance tự quản lý trong môi trường container cloud.
+    \item \textbf{CloudAMQP:} RabbitMQ managed service~\cite{rabbitmq-docs}, kết nối từ cả NestJS và FastAPI qua AMQPS (TLS). Đảm bảo độ tin cậy message queue mà không cần tự vận hành RabbitMQ server.
+    \item \textbf{Cloudinary:} Nền tảng quản lý tài nguyên đa phương tiện đám mây, lưu trữ toàn bộ file hình ảnh và media của hệ thống trong môi trường production. Trong môi trường local development, MinIO (S3-compatible) được sử dụng thay thế.
+    \item \textbf{GitHub Actions CI/CD:} Pipeline tự động phát hiện service nào thay đổi (path filter), build Docker image, push lên Google Container Registry (GCR), và deploy: frontend qua gcloud run deploy, backend qua SSH + docker compose pull \&\& up.
 \end{itemize}
-

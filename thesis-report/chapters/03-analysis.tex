@@ -121,7 +121,7 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     \endfoot
     \endlastfoot
     UC01 & Đăng ký tài khoản & Người học tạo tài khoản mới bằng email và mật khẩu; hệ thống mã hóa mật khẩu (bcrypt), lưu thông tin vào cơ sở dữ liệu và cấp JWT access token ngay sau khi đăng ký thành công. \\ \hline
-    UC02 & Đăng nhập & Người học đăng nhập bằng email/mật khẩu hoặc Google OAuth; hệ thống xác thực thông tin và cấp JWT. Session được duy trì thông qua cơ chế refresh token tự động. \\ \hline
+    UC02 & Đăng nhập & Người học đăng nhập bằng email/mật khẩu hoặc Google OAuth; hệ thống xác thực thông tin và cấp JWT access token có hiệu lực 7 ngày. Khi token hết hạn, người học cần đăng nhập lại để nhận token mới. \\ \hline
     UC03 & Học từ vựng nền tảng IELTS & Người học chọn đầu sách và unit trong phân hệ từ vựng, học từ qua Flashcard lật 3D và đánh giá SRS (Again/Hard/Good/Easy) để lưu từ vào Vocab Lab; hoàn thành bài đọc hiểu cuối unit đạt điểm tuyệt đối để đánh dấu unit hoàn thành và nhận 15~XP. \\ \hline
     UC04 & Học ngữ pháp nền tảng IELTS & Người học truy cập bài học ngữ pháp theo cấp độ, đọc lý thuyết rồi làm bài tập trắc nghiệm hoặc điền vào chỗ trống; hệ thống tự động chấm điểm, cộng 15~XP khi hoàn thành đơn vị bài học đạt điểm tuyệt đối và lưu tiến độ để theo dõi. \\ \hline
     UC05 & Học phát âm nền tảng IELTS & Người học xem bảng IPA, chọn từng âm để luyện phát âm qua các từ ví dụ và nhận 5~XP mỗi lần hoàn thành; khi đạt độ chính xác $\geq 80$ điểm trên một âm, hệ thống đánh dấu ``MASTERED'' và cộng thêm 10~XP. \\ \hline
@@ -156,7 +156,7 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     UC34 & Xem và tương tác bài đăng cộng đồng & Người học xem feed bài đăng của cộng đồng (Study Tips, Achievements, General) và tương tác bằng Like, Bookmark, Comment và Reply. \\ \hline
     UC35 & Đăng bài trong Community & Người học tạo bài đăng (loại General/Study Tip/Score Achievement) kèm tiêu đề, nội dung, tag chủ đề và tối đa 4 ảnh đính kèm; bài xuất hiện ngay đầu feed sau khi đăng thành công; người học nhận +5~XP và huy hiệu bài đăng đầu tiên (nếu là lần đăng đầu tiên). \\ \hline
     UC36 & Xem bảng xếp hạng & Người học xem Leaderboard XP hàng tuần trong module Community, theo dõi thứ hạng cá nhân so với toàn bộ người dùng trên hệ thống kèm huy hiệu Gamification. \\ \hline
-    UC37 & Đăng ký gói thành viên & Người học xem thông tin các gói đăng ký (FREE/PREMIUM/PRO), thực hiện thanh toán qua VNPay, kích hoạt gói thành viên và theo dõi trạng thái subscription. \\ \hline
+    UC37 & Đăng ký gói thành viên & Người học xem thông tin các gói đăng ký (FREE/PREMIUM/PRO), thực hiện thanh toán qua cổng VNPay; hệ thống tích hợp VNPay ở chế độ mô phỏng (sandbox) phục vụ mục đích kiểm thử, chưa xử lý giao dịch thực tế; kích hoạt gói thành viên và theo dõi trạng thái subscription. \\ \hline
     UC38 & Tạo bài học Shadowing & Người quản lý tạo bài học Shadowing mới: nhập tiêu đề, ID video YouTube, thư mục, chủ đề, thời lượng và danh sách câu transcript kèm timestamp; xuất bản để người học sử dụng. \\ \hline
     UC39 & Tạo bài học Dictation & Người quản lý tạo bài luyện Dictation mới: nhập ID video YouTube hoặc tải lên tệp audio, nhập transcript chuẩn xác đến từng từ làm ground-truth để hệ thống so khớp; xuất bản cho người học. \\ \hline
     UC40 & Chỉnh sửa và xóa bài học & Người quản lý chỉnh sửa nội dung hoặc xóa các bài học Shadowing và Dictation đã tạo qua giao diện Admin; thay đổi có hiệu lực ngay lập tức với người học. \\ \hline
@@ -175,8 +175,6 @@ Phần này trình bày đặc tả chi tiết cho các use case quan trọng nh
 Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc01} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc01} và hình~\ref{fig:sequence-uc01-gg} thể hiện sơ đồ tuần tự cho hai luồng đăng ký bằng email và Google OAuth.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
-    \caption{Đặc tả chức năng Đăng ký tài khoản (UC01)}
-    \label{tab:uc01_spec}
     \centering
     \renewcommand{\arraystretch}{1.3}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -185,14 +183,14 @@ Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
         \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC01} \\ \hline
         \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
         \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người dùng chưa có tài khoản và đang ở màn hình Đăng ký.} \\ \hline
-        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tài khoản được tạo thành công; hệ thống chuyển đến màn hình Đăng nhập (luồng Email) hoặc cấp JWT và vào ứng dụng ngay (luồng Google).} \\ \hline
+        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tài khoản được tạo thành công; hệ thống tự động đăng nhập, cấp JWT access token và chuyển người học đến trang Home (áp dụng cho cả hai luồng Email và Google).} \\ \hline
         \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
         \textbf{Actor} & \textbf{Hệ thống} \\ \hline
         1a. Nhập Họ và tên, Email, Mật khẩu (tối thiểu 6 ký tự) và Xác nhận mật khẩu vào form, sau đó nhấn ``Create Account''. & \\ \hline
         & 2a. Kiểm tra tất cả các trường đã điền và mật khẩu xác nhận khớp nhau. \\ \hline
         & 3a. Kiểm tra định dạng email và xác nhận email chưa tồn tại trong cơ sở dữ liệu. \\ \hline
         & 4a. Mã hóa mật khẩu, tạo tài khoản với vai trò người học và khởi tạo bộ thẻ từ vựng mặc định. \\ \hline
-        & 5a. Đăng ký thành công và chuyển đến trang Home. Kết thúc use-case. \\ \hline
+        & 5a. Đăng ký thành công; hệ thống tự động đăng nhập, cấp JWT access token và chuyển người học đến trang Home. Kết thúc use-case. \\ \hline
         1b. Nhấn ``Continue with Google'' và chọn tài khoản Google. & \\ \hline
         & 2b. Xác thực thông tin Google OAuth; tạo hoặc liên kết tài khoản từ thông tin Google (email, họ tên, ảnh đại diện), tạo tài khoản với vai trò người học và khởi tạo bộ thẻ mặc định. \\ \hline
         & 3b. Cấp JWT access token và chuyển đến trang Home. Kết thúc use-case. \\ \hline
@@ -202,6 +200,8 @@ Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
         1b.1. Hủy đăng ký hoặc xác thực Google thất bại. & \\ \hline
         & 1b.2. Hiển thị thông báo lỗi, không tạo tài khoản. \\ \hline
     \end{tabularx}
+    \caption{Đặc tả chức năng Đăng ký tài khoản (UC01)}
+    \label{tab:uc01_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -231,7 +231,7 @@ Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 Hệ thống cung cấp hai phương thức đăng ký độc lập: đăng ký bằng email/mật khẩu và đăng ký qua Google OAuth.
 
-Đối với luồng email, điểm cốt lõi là cơ chế bảo mật mật khẩu. Sau khi người học gửi thông tin đăng ký, máy chủ kiểm tra tính hợp lệ của email và xác nhận email chưa tồn tại trong cơ sở dữ liệu. Nếu hợp lệ, mật khẩu được mã hóa bằng thuật toán băm một chiều với độ khó được hiệu chỉnh để cân bằng giữa bảo mật và hiệu năng xử lý. Tiếp theo, hệ thống tạo tài khoản mới với vai trò người học và tự động khởi tạo một bộ thẻ từ vựng mặc định phục vụ Vocab Lab. Nếu email đã tồn tại, hệ thống trả về thông báo lỗi tương ứng. Sau khi đăng ký thành công qua luồng email, người dùng cần đăng nhập riêng để nhận token truy cập.
+Đối với luồng email, điểm cốt lõi là cơ chế bảo mật mật khẩu. Sau khi người học gửi thông tin đăng ký, máy chủ kiểm tra tính hợp lệ của email và xác nhận email chưa tồn tại trong cơ sở dữ liệu. Nếu hợp lệ, mật khẩu được mã hóa bằng thuật toán băm một chiều với độ khó được hiệu chỉnh để cân bằng giữa bảo mật và hiệu năng xử lý. Tiếp theo, hệ thống tạo tài khoản mới với vai trò người học và tự động khởi tạo một bộ thẻ từ vựng mặc định phục vụ Vocab Lab. Nếu email đã tồn tại, hệ thống trả về thông báo lỗi tương ứng. Sau khi đăng ký thành công qua luồng email, hệ thống tự động đăng nhập và cấp JWT access token, chuyển người học đến trang Home mà không cần thực hiện thêm bước đăng nhập riêng.
 
 \begin{sloppypar}
 Đối với luồng Google OAuth, người học xác thực thông qua tài khoản Google trên thiết bị. Máy chủ xác minh thông tin xác thực từ Google, hỗ trợ đồng thời nhiều loại ứng dụng (web, iOS, Android) để tương thích đa nền tảng. Sau khi xác thực thành công, hệ thống áp dụng chiến lược tìm kiếm hoặc tạo mới tài khoản dựa trên thông tin định danh Google: nếu tài khoản chưa tồn tại thì tạo tài khoản mới và khởi tạo bộ thẻ mặc định. Khác với luồng email, luồng Google trả về JWT access token ngay lập tức, cho phép người dùng vào ứng dụng mà không cần thêm bước đăng nhập.
@@ -241,8 +241,6 @@ Hệ thống cung cấp hai phương thức đăng ký độc lập: đăng ký 
 Bảng~\ref{tab:uc02_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc02} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc02} và hình~\ref{fig:sequence-uc02-gg} thể hiện sơ đồ tuần tự cho hai luồng đăng nhập bằng email và Google OAuth.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
-    \caption{Đặc tả chức năng Đăng nhập (UC02)}
-    \label{tab:uc02_spec}
     \centering
     \renewcommand{\arraystretch}{1.3}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -265,6 +263,8 @@ Bảng~\ref{tab:uc02_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
         1b.1. Hủy đăng nhập hoặc xác thực Google thất bại. & \\ \hline
         & 1b.2. Hiển thị thông báo lỗi, không cấp JWT. \\ \hline
     \end{tabularx}
+    \caption{Đặc tả chức năng Đăng nhập (UC02)}
+    \label{tab:uc02_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -295,7 +295,7 @@ Bảng~\ref{tab:uc02_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 Điểm kỹ thuật cốt lõi trong UC02 là quá trình xác thực mật khẩu. Hệ thống sử dụng cơ chế so sánh theo thời gian hằng định, tức là thời gian thực thi không phụ thuộc vào vị trí ký tự sai, giúp ngăn chặn các cuộc tấn công phân tích thời gian. Luồng xác thực email/mật khẩu được xử lý qua một chiến lược xác thực riêng: hệ thống truy vấn cơ sở dữ liệu theo email, so sánh mật khẩu với giá trị đã mã hóa và đính kèm thông tin người dùng vào yêu cầu trước khi cấp token.
 
 \begin{sloppypar}
-JWT access token được ký bằng khóa bí mật và có hiệu lực 7 ngày. Mọi endpoint yêu cầu xác thực đều được bảo vệ bởi cơ chế kiểm tra JWT để giải mã token và xác nhận tính hợp lệ. Ngoài luồng email/mật khẩu, hệ thống hỗ trợ đăng nhập Google OAuth: người học gửi thông tin xác thực Google, máy chủ xác minh tính hợp lệ từ phía Google, sau đó tìm kiếm hoặc tạo tài khoản tương ứng trong cơ sở dữ liệu và cấp JWT theo cùng quy trình.
+JWT access token được ký bằng khóa bí mật và có hiệu lực 7 ngày; khi token hết hạn, người học cần đăng nhập lại để nhận token mới. Mọi endpoint yêu cầu xác thực đều được bảo vệ bởi cơ chế kiểm tra JWT để giải mã token và xác nhận tính hợp lệ. Ngoài luồng email/mật khẩu, hệ thống hỗ trợ đăng nhập Google OAuth: người học gửi thông tin xác thực Google, máy chủ xác minh tính hợp lệ từ phía Google, sau đó tìm kiếm hoặc tạo tài khoản tương ứng trong cơ sở dữ liệu và cấp JWT theo cùng quy trình.
 \end{sloppypar}
 
 % ============================================================
@@ -305,8 +305,6 @@ JWT access token được ký bằng khóa bí mật và có hiệu lực 7 ngà
 Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc03} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc03} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \begin{table}[H]
-    \caption{Đặc tả chức năng Tạo loại thẻ học (UC27)}
-    \label{tab:uc03_spec}
     \centering
     \renewcommand{\arraystretch}{1.3}
     \begin{tabularx}{\linewidth}{|X|X|}
@@ -334,6 +332,8 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
         10.1. Nhấn ``Cancel'' thay vì ``Save''. & \\ \hline
         & 10.2. Hệ thống hủy toàn bộ thay đổi chưa lưu và đóng màn hình. \\ \hline
     \end{tabularx}
+    \caption{Đặc tả chức năng Tạo loại thẻ học (UC27)}
+    \label{tab:uc03_spec}
 \end{table}
 
 \subsubsection{Sơ đồ activity}
@@ -455,7 +455,7 @@ Bảng~\ref{tab:uc05_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC03} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở trang \texttt{ielts/vocabulary}.} \\ \hline
+    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở trang ielts/vocabulary.} \\ \hline
     \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Unit được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 15~XP từ hệ thống gamification; các từ đã được đánh giá SRS được lưu vào Vocab Lab của người học.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
@@ -804,7 +804,7 @@ Dữ liệu bản ghi âm được lưu phía client theo từng khóa định d
 % UC09 – PRACTICE WRITING WITH DICTATION
 % ============================================================
 \subsection{Luyện viết với Dictation (UC24)}
-Hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc09} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc09_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc09} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc09} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -893,7 +893,7 @@ Kiểm tra đáp án được kích hoạt mỗi khi người học chỉnh sử
 % UC10 – ROADMAP
 % ============================================================
 \subsection{Xây dựng lộ trình học tập (UC19)}
-Hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc10} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc10_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc10} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc10} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -975,7 +975,7 @@ Sau khi API trả về thành công, giao diện tải lại toàn bộ trang th
 % UC11 – POST (Community)
 % ============================================================
 \subsection{Đăng bài trong Community (UC35)}
-Hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
+Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
 \begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
@@ -1040,7 +1040,7 @@ Trang Community sử dụng tham số điều hướng để phân biệt các c
 Hộp thoại tạo bài đăng là thành phần độc lập quản lý toàn bộ trạng thái form cục bộ: loại bài, tiêu đề, nội dung, danh sách chủ đề, danh sách đường dẫn ảnh đã tải lên và các cờ trạng thái đang tải ảnh/đang gửi bài. Hộp thoại chỉ được kết xuất khi mở, khi đóng sẽ giải phóng hoàn toàn khỏi cây DOM để không chiếm tài nguyên.
 \end{sloppypar}
 
-Khi người học chọn ảnh, số lượng ảnh được giới hạn theo số lượng ảnh còn có thể thêm (tối đa 4 ảnh tổng cộng). Các ảnh được tải lên song song, mỗi ảnh gửi dưới dạng tệp đính kèm đa phần đến máy chủ. Phía máy chủ, tệp được lưu vào kho lưu trữ đối tượng (MinIO trong môi trường phát triển, S3 trong môi trường sản xuất) và trả về đường dẫn công khai.
+Khi người học chọn ảnh, số lượng ảnh được giới hạn theo số lượng ảnh còn có thể thêm (tối đa 4 ảnh tổng cộng). Các ảnh được tải lên song song, mỗi ảnh gửi dưới dạng tệp đính kèm đa phần đến máy chủ. Phía máy chủ, tệp được tải lên dịch vụ lưu trữ Cloudinary và hệ thống nhận lại đường dẫn công khai dạng HTTPS để lưu vào cơ sở dữ liệu.
 
 \begin{sloppypar}
 Trước khi gửi bài, hệ thống kiểm tra nội dung bài đăng không được rỗng ở cả hai tầng: tầng giao diện vô hiệu hóa nút ``Post'' khi ô nội dung rỗng, tầng logic kiểm tra lại trước khi thực hiện yêu cầu. Phía máy chủ, bài đăng được lưu vào cơ sở dữ liệu kèm thông tin tác giả trong cùng một thao tác truy vấn. Sau khi lưu thành công, cơ chế gamification được kích hoạt bất đồng bộ để đảm bảo lỗi trong quá trình xử lý điểm thưởng không ảnh hưởng đến phản hồi trả về cho người dùng.
