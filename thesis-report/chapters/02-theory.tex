@@ -102,10 +102,10 @@ Gemini là dòng mô hình ngôn ngữ lớn đa phương thức (multimodal LLM
 
 \begin{itemize}
     \item \textbf{Chấm điểm Writing:} Hệ thống gửi đề bài kèm bài viết của người học đến Gemini API với prompt engineering chi tiết về 4 tiêu chí chấm điểm IELTS Writing (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy). Gemini trả về band điểm ước tính cho từng tiêu chí, nhận xét tổng quan và danh sách lỗi cần cải thiện.
-    \item \textbf{Đánh giá Speaking:} Sau khi faster-whisper chuyển đổi giọng nói thành transcript, Gemini phân tích để đánh giá fluency, coherence, vocabulary và grammar --- các tiêu chí chấm điểm IELTS Speaking.
+    \item \textbf{Đánh giá Speaking:} Sau khi faster-whisper chuyển đổi giọng nói thành transcript, Gemini phân tích để đánh giá theo bốn tiêu chí chấm điểm IELTS Speaking: Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy và Pronunciation.
 \end{itemize}
 
-Gemini được lựa chọn so với các mô hình khác (GPT-4, Claude) vì: cung cấp API với quota phù hợp cho giai đoạn phát triển; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai; và hỗ trợ đầu vào dài cho phép gửi toàn bộ bài viết IELTS trong một lần gọi API mà không bị giới hạn độ dài.
+Gemini được lựa chọn so với các mô hình khác (GPT-4, Claude) vì: cung cấp API với quota phù hợp cho giai đoạn phát triển; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai; và hỗ trợ đầu vào dài cho phép gửi toàn bộ bài viết IELTS trong một lần gọi API mà không bị giới hạn độ dài. Trong hệ thống, trợ lý AI sử dụng Gemini API được đặt tên là Lexon AI, đóng vai trò trợ lý tra cứu từ vựng và hội thoại học tập tích hợp vào giao diện người dùng.
 
 \subsection{faster-whisper}
 
@@ -173,11 +173,10 @@ Schema cơ sở dữ liệu bao gồm hơn 55 model được định nghĩa tron
 
 JSON Web Token (JWT) là tiêu chuẩn mở (RFC 7519) định nghĩa cách truyền thông tin xác thực giữa các bên dưới dạng đối tượng JSON được ký số~\cite{jwt-rfc}. JWT có cấu trúc ba phần: header (thuật toán ký), payload (claims: userId, role, exp) và signature (chữ ký xác thực). Tính chất stateless của JWT --- server không lưu session mà chỉ xác thực chữ ký --- giúp hệ thống scale ngang dễ dàng mà không cần chia sẻ trạng thái phiên giữa các instance.
 
-Trong hệ thống IELTS, NestJS Backend Core triển khai cơ chế xác thực JWT hai token:
+Trong hệ thống IELTS, NestJS Backend Core triển khai cơ chế xác thực JWT:
 
 \begin{itemize}
-    \item \textbf{Access token:} Thời hạn 7 ngày, gửi kèm mỗi API request trong Authorization header. NestJS sử dụng thư viện @nestjs/jwt và passport-jwt để xác thực token và inject thông tin người dùng qua decorator @CurrentUser().
-    \item \textbf{Refresh token:} Thời hạn 30 ngày, lưu phía client (AsyncStorage trên mobile, localStorage trên web), dùng để cấp lại access token khi hết hạn mà không yêu cầu đăng nhập lại.
+    \item \textbf{Access token:} Thời hạn 7 ngày, gửi kèm mỗi API request trong Authorization header. NestJS sử dụng thư viện @nestjs/jwt và passport-jwt để xác thực token và inject thông tin người dùng qua decorator @CurrentUser(). Khi token hết hạn, người học đăng nhập lại để nhận token mới.
 \end{itemize}
 
 \subsection{Google OAuth và bcrypt}

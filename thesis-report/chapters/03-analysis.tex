@@ -1,7 +1,7 @@
 \chapter{PHÂN TÍCH}
 
 \section{Quy trình nghiệp vụ}
-Hệ thống được phân chia thành hai nhóm tác nhân chính: Người học (Learner) và Người quản lý (Manager). Dưới đây là mô tả chi tiết quy trình nghiệp vụ của từng phân hệ.
+Hệ thống được phân chia thành hai nhóm tác nhân chính: Người học (Learner) và Người quản lý (Admin). Dưới đây là mô tả chi tiết quy trình nghiệp vụ của từng phân hệ.
 
 % =================================================================
 % 1. NGHIỆP VỤ NGƯỜI HỌC
@@ -37,7 +37,7 @@ Mỗi ngày mục ôn từ vựng sẽ hiển thị hai loại thẻ: thẻ mớ
 
 Mỗi cuốn sách gồm khoảng 105 đến 145 unit, trong đó mỗi unit tập trung vào một chủ điểm ngữ pháp riêng biệt. Cấu trúc của mỗi unit bao gồm phần trình bày lý thuyết nhằm giải thích quy tắc và cách sử dụng, cùng với phần bài tập thực hành để củng cố kiến thức. Dựa trên câu trả lời của người học, hệ thống sẽ đánh giá và chấm điểm mức độ nắm vững ngữ pháp tương ứng với từng unit.
     
-    \item[Phát âm (Pronunciation):] Tiếng Anh bao gồm 43 âm vị (theo bảng phiên âm quốc tế IPA). Ứng dụng cung cấp bản ghi âm phát âm chuẩn, hình ảnh mô phỏng khẩu hình miệng, hướng dẫn cách đặt lưỡi và vị trí môi, kèm theo mô tả chi tiết cho từng âm. Đồng thời cho phép người học thu âm giọng nói của mình. Các bản thu âm này sẽ được hệ thống AI phân tích và đánh giá, dựa trên các tiêu chí như độ chính xác của âm, vị trí lưỡi - môi và mức độ gần với phát âm chuẩn, từ đó hỗ trợ người học điều chỉnh và cải thiện phát âm một cách hiệu quả.
+    \item[Phát âm (Pronunciation):] Tiếng Anh bao gồm 43 âm vị (theo bảng phiên âm quốc tế IPA). Ứng dụng cung cấp bản ghi âm phát âm chuẩn, hình ảnh mô phỏng khẩu hình miệng và mô tả chi tiết cho từng âm. Người học thu âm giọng nói của mình; hệ thống chuyển âm thanh thành transcript bằng faster-whisper, chuyển sang ký hiệu IPA và so khớp với phát âm chuẩn bằng thuật toán Levenshtein để tính điểm độ chính xác từng từ, từ đó hỗ trợ người học điều chỉnh phát âm một cách có hệ thống.
 \end{description}
 
 \paragraph{2. Phát triển kỹ năng}
@@ -96,7 +96,7 @@ Hệ thống có hai tác nhân chính tương tác trực tiếp, được mô 
         \hline
         \textbf{Tác nhân} & \textbf{Mô tả} \\ \hline
         Người học (Learner) &
-        Là đối tượng sử dụng chính của hệ thống, bao gồm bất kỳ ai có nhu cầu luyện thi IELTS. Người học có thể đăng ký, đăng nhập và truy cập toàn bộ nền tảng thông qua năm phân hệ chính. Trong phân hệ IELTS, người học học từ vựng, ngữ pháp và phát âm ở giai đoạn Foundation; luyện lý thuyết dạng câu hỏi ở IELTS Basic; luyện đề từng phần Listening, Reading, Writing, Speaking ở IELTS Advanced; thi thử toàn phần và xem lại lịch sử thi ở IELTS Intensive; đồng thời lên lộ trình học theo band mục tiêu, theo dõi thống kê tiến độ và ước tính band điểm bằng Calculator. Trong phân hệ Shadowing \& Dictation, người học luyện nói đuổi theo video YouTube và nghe chép chính tả, có thể xem lại tiến độ cá nhân. Trong phân hệ Community, người học đăng bài học tập, xem hoạt động cá nhân và theo dõi bảng xếp hạng XP hàng tuần. Qua Vocab Lab, người học tạo và ôn tập bộ thẻ Flashcard với thuật toán FSRS, duyệt kho thẻ, theo dõi thống kê SRS và tương tác với Community Marketplace để chia sẻ hoặc nhập bộ từ vựng từ cộng đồng. Ngoài ra, người học có thể đăng ký các gói thành viên (FREE/PREMIUM/PRO) thông qua cổng thanh toán VNPay. \\ \hline
+        Là đối tượng sử dụng chính của hệ thống, bao gồm bất kỳ ai có nhu cầu luyện thi IELTS. Người học có thể đăng ký, đăng nhập và truy cập toàn bộ nền tảng thông qua năm phân hệ chính. Trong phân hệ IELTS, người học học từ vựng, ngữ pháp và phát âm ở giai đoạn Foundation; luyện lý thuyết dạng câu hỏi ở IELTS Basic; luyện đề từng phần Listening, Reading, Writing, Speaking ở IELTS Advanced; thi thử toàn phần và xem lại lịch sử thi ở IELTS Intensive; đồng thời lên lộ trình học theo band mục tiêu, theo dõi thống kê tiến độ và ước tính band điểm bằng Calculator. Trong phân hệ Shadowing \& Dictation, người học luyện nói đuổi theo video YouTube và nghe chép chính tả, có thể xem lại tiến độ cá nhân. Trong phân hệ Community, người học đăng bài học tập, xem hoạt động cá nhân và theo dõi bảng xếp hạng XP hàng tuần. Qua Vocab Lab, người học tạo và ôn tập bộ thẻ Flashcard với thuật toán FSRS, duyệt kho thẻ, theo dõi thống kê SRS và tương tác với Community Marketplace để chia sẻ hoặc nhập bộ từ vựng từ cộng đồng. Ngoài ra, người học có thể đăng ký các gói thành viên (FREE/PREMIUM/PRO) thông qua cổng thanh toán VNPay. Người học cũng có thể kích hoạt chế độ giáo viên để theo dõi tiến độ học viên đã liên kết; đây là vai trò mở rộng của Người học, không phải tác nhân độc lập. \\ \hline
         Người quản lý (Admin) &
         Là người có vai trò quản lý nội dung và vận hành hệ thống, truy cập qua giao diện Admin riêng biệt. Người quản lý có quyền tạo, chỉnh sửa và xóa bài học Shadowing và Dictation; xem danh sách và theo dõi trạng thái đăng ký thành viên (FREE/PREMIUM/PRO) của học viên; và cấp gói thành viên thủ công khi cần thiết. \\ \hline
     \end{tabularx}
@@ -151,7 +151,7 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     UC29 & Quản lý bộ từ vựng (Vocab Lab) & Người học tạo bộ thẻ từ vựng (Deck) cá nhân, thêm và chỉnh sửa Flashcard với định dạng tùy chỉnh (trường dữ liệu, kiểu thẻ), gắn tag và tải lên ảnh/âm thanh. \\ \hline
     UC30 & Nhập bộ từ vựng từ cộng đồng & Người học tìm kiếm và import bộ từ vựng đã được người khác chia sẻ công khai trong Community Marketplace của Vocab Lab về thư viện cá nhân. \\ \hline
     UC31 & Xuất và chia sẻ bộ từ vựng & Người học xuất bản bộ từ vựng của mình lên Community Marketplace để chia sẻ với cộng đồng; có thể cấu hình tags, mô tả và trạng thái công khai. \\ \hline
-    UC32 & Xem thống kê từ vựng & Người học xem báo cáo thống kê Vocab Lab: số thẻ theo trạng thái SRS (New/Learning/Review/Relearning), biểu đồ lịch ôn tập và lịch sử điểm đánh giá. \\ \hline
+    UC32 & Xem thống kê từ vựng & Người học xem báo cáo thống kê Vocab Lab: số thẻ theo trạng thái Spaced Repetition System (SRS) (New/Learning/Review/Relearning), biểu đồ lịch ôn tập và lịch sử điểm đánh giá. \\ \hline
     UC33 & Xem thông báo & Người học mở danh sách thông báo (kết quả chấm điểm bài thi, hoàn thành Dictation, đạt streak, thông báo hệ thống) theo thứ tự mới nhất; có thể đánh dấu đã đọc từng mục hoặc tất cả và nhấn vào thông báo để điều hướng đến trang liên quan. \\ \hline
     UC34 & Xem và tương tác bài đăng cộng đồng & Người học xem feed bài đăng của cộng đồng (Study Tips, Achievements, General) và tương tác bằng Like, Bookmark, Comment và Reply. \\ \hline
     UC35 & Đăng bài trong Community & Người học tạo bài đăng (loại General/Study Tip/Score Achievement) kèm tiêu đề, nội dung, tag chủ đề và tối đa 4 ảnh đính kèm; bài xuất hiện ngay đầu feed sau khi đăng thành công; người học nhận +5~XP và huy hiệu bài đăng đầu tiên (nếu là lần đăng đầu tiên). \\ \hline
