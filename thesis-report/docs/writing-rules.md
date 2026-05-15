@@ -25,7 +25,9 @@
   top=2.5cm, bottom=2.5cm, left=3.5cm, right=2.5cm
 ]{geometry}
 \setmainfont{Times New Roman}
-\fontsize{13pt}{1.3}  % hoặc dùng \onehalfspacing gần nhất
+\usepackage{setspace}
+\setstretch{1.3}                        % Dãn dòng 1.3
+\fontsize{13pt}{16.9pt}\selectfont      % 13pt × 1.3 = 16.9pt baseline skip
 ```
 
 ---
@@ -84,7 +86,7 @@
 
 | Loại | Vị trí caption |
 |---|---|
-| **Bảng biểu** | **Phía trên** bảng |
+| **Bảng biểu** | **Phía dưới** bảng |
 | **Hình vẽ / Đồ thị** | **Phía dưới** hình |
 
 ### 3.3 Trích dẫn nguồn
@@ -234,27 +236,27 @@ Phụ lục chứa các tài liệu bổ trợ, minh họa, **không nằm trong
 
 ---
 
-## 8. Văn phong và hành văn
+## 7. Văn phong và hành văn
 
 > **Tài liệu tham chiếu:** Mọi đoạn văn viết mới phải căn chỉnh văn phong theo file mẫu `thesis-report/docs/Sample-report.md`.
 
-### 8.1 Phong cách chung
+### 7.1 Phong cách chung
 
 - **Ngôn ngữ:** Tiếng Việt học thuật, trang trọng. Thuật ngữ kỹ thuật tiếng Anh (JWT, bcrypt, API, endpoint, payload…) giữ nguyên không dịch, viết nghiêng hoặc in thẳng tùy ngữ cảnh.
 - **Giọng văn:** Mô tả khách quan, ưu tiên chủ thể là "hệ thống", "máy chủ", "người học" thay vì "chúng em" hay "tác giả". Tránh lối viết bình luận cá nhân trong phần đặc tả kỹ thuật.
 - **Câu văn:** Ngắn gọn, mỗi câu một ý. Tránh câu ghép quá dài bằng cách tách thành nhiều câu hoặc dùng danh sách khi liệt kê từ 3 ý trở lên.
 - **Từ nối:** Dùng "Tiếp theo", "Sau khi", "Tại đây", "Kết quả là", "Cụ thể" để dẫn dắt tự nhiên giữa các bước kỹ thuật.
 
-### 8.2 Phong cách từng loại phần
+### 7.2 Phong cách từng loại phần
 
 | Phần | Yêu cầu phong cách |
 |---|---|
 | **Quy trình nghiệp vụ** | Văn xuôi liền mạch, mô tả hành trình người dùng từ đầu đến cuối. Dùng danh sách gạch đầu dòng khi cần liệt kê các bước con. |
 | **Bảng đặc tả use-case** | Ngắn, súc tích — mỗi ô chứa một hành động đơn. Actor: mô tả thao tác người dùng. Hệ thống: mô tả phản hồi/xử lý. Không giải thích kỹ thuật trong bảng. |
-| **Mô tả kỹ thuật chi tiết** | Giải thích cơ chế kỹ thuật thực tế (thuật toán, endpoint, thư viện). Dùng \texttt{...} cho tên hàm/endpoint. Tập trung vào **lý do kỹ thuật** (tại sao chọn cách này), không chỉ mô tả việc đang làm. |
+| **Mô tả kỹ thuật chi tiết** | Giải thích cơ chế kỹ thuật thực tế (thuật toán, endpoint, thư viện). Tên hàm, endpoint, thư viện viết dạng plain text, không dùng \texttt{}. Tập trung vào **lý do kỹ thuật** (tại sao chọn cách này), không chỉ mô tả việc đang làm. |
 | **Sơ đồ/Hình vẽ** | Caption hình phải mô tả nội dung hình đủ để đọc độc lập, không dùng "Hình trên" hay "Hình dưới". |
 
-### 8.3 Quy tắc bảng đặc tả use-case (LaTeX)
+### 7.3 Quy tắc bảng đặc tả use-case (LaTeX)
 
 Bảng đặc tả use-case **phải** tuân theo cấu trúc sau (căn theo bài mẫu):
 
@@ -288,7 +290,7 @@ Bảng đặc tả use-case **phải** tuân theo cấu trúc sau (căn theo bà
 
 ---
 
-## 7. Checklist trước khi hoàn thiện
+## 8. Checklist trước khi hoàn thiện
 
 Trước khi xuất file báo cáo cuối, AI Agent cần xác nhận toàn bộ các mục sau:
 
@@ -300,7 +302,7 @@ Trước khi xuất file báo cáo cuối, AI Agent cần xác nhận toàn bộ
 - [ ] Không có tiểu mục đơn độc (luôn có ít nhất 2 tiểu mục cùng cấp)
 
 ### Bảng và Hình
-- [ ] Caption bảng nằm **trên** bảng, caption hình nằm **dưới** hình
+- [ ] Caption bảng và hình đều nằm **phía dưới**
 - [ ] Đánh số dạng `[Chương].[Thứ tự]` (Hình 2.3, Bảng 4.1)
 - [ ] Mọi bảng/hình đều được đề cập trong văn bản bằng số hiệu cụ thể
 - [ ] Không có cụm từ "bảng dưới đây" hay "hình sau"
