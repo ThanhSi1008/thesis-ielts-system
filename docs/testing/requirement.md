@@ -1,62 +1,10 @@
 @testing-sample.md @writing-rules.md @04-chuong-3-phan-tich.md
 
-# Testing
-
-thêm "pretest": "prisma generate" vào package.json, tạo thêm test case mới luên qua đến các chức năng chính của từng nhóm và viết lại báo cáo sau đó thêm Cấu hình Jest reporter để Tạo script sinh bảng markdown tự động
-
-## Viết test case
-
-- Bổ sung script pretest
-- Viết e2e test
-
-## Tạo báo cáo test (Bảng 4.2)
-
-- Cài đặt jest-html-reporter hoặc jest-junit
-- Cấu hình để export ra file report sau khi chạy test
-
-> Thêm vào jest.config.ts:
-> reporters: [
-> 'default',
-> ['jest-html-reporter', {
->
-> > outputPath: './test-reports/report.html',
-> > pageTitle: 'IELTS System Test Report'
-> > }]
-> > ]
-
-- Tạo file scripts/generate-test-table.ts
-- Script này đọc kết quả từ Jest JSON output và sinh ra bảng markdown theo đúng format của Bảng 4.2 trong mẫu (có cột: Nhóm, Loại ID, Dữ liệu đầu vào, Kết quả mong đợi, Trạng thái, Người TH, Ngày)
-
-Map mỗi test case name → ID (TC01_01, TC01_02...) tự động
-Pass/Fail → Trạng thái
-Ngày chạy test → Ngày
-
-## CI/CD Integration:
-
-- Tạo file .github/workflows/test.yml
-- Trigger: push to main/develop, pull request
-
-Jobs:
-
-1. Setup: checkout, node setup, install deps
-2. Migrate test DB: npx prisma migrate deploy (với .env.test)
-3. Run unit tests: npm run test:unit
-4. Run e2e tests: npm run test:e2e
-5. Upload test report artifact
-6. Comment kết quả lên PR (dùng github-actions-test-reporter)
-
-- Tạo file prisma/seed-test.ts
-- Tạo dữ liệu mẫu cho môi trường test:
-
 # Phase 1 — Báo cáo vs Code
 
-Dùng fact-check mode.
-
-Với mỗi chương trong báo cáo có mô tả chức năng/kỹ thuật, hãy:
+Trong chapter 4 @04-design.tex báo cáo có mô tả chức năng/kỹ thuật, hãy:
 
 1. Trích xuất các CLAIM kỹ thuật
-   Ví dụ: "Hệ thống sử dụng JWT để xác thực",
-   "AI chấm điểm Writing dựa trên 4 tiêu chí IELTS"
 
 2. Đối chiếu từng claim với code thực tế và phân loại:
    - MATCH : code implement đúng như mô tả
@@ -71,8 +19,6 @@ Báo cáo: [attach file]
 Schema Prisma: [paste nội dung schema.prisma]
 Controllers: [paste hoặc @src/]
 Test cases: [paste testing-sample.md]
-
-Báo cáo kết quả xong, dừng lại và hỏi tôi trước khi sang Phase 2.
 
 # Phase 2 — Đồng bộ giữa các Chapter
 

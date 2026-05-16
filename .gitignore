@@ -19,6 +19,8 @@ coverage/
 *.cover
 .hypothesis/
 .pytest_cache/
+junit.xml
+**/junit.xml
 
 # Production builds
 dist/

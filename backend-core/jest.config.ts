@@ -25,6 +25,17 @@ const config: Config = {
         author: 'Auto (Jest)',
       },
     ],
+    [
+      'jest-junit',
+      {
+        outputDirectory: '<rootDir>/..',
+        outputName: 'junit.xml',
+        suiteName: 'backend-core unit tests',
+        classNameTemplate: '{filepath}',
+        titleTemplate: '{title}',
+        ancestorSeparator: ' › ',
+      },
+    ],
   ],
 };
 
