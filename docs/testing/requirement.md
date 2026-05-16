@@ -39,24 +39,19 @@ deadline. Hiện tại CI đã chạy được, đủ dùng cho thesis defense.
 
 # Phase 1 — Báo cáo vs Code
 
-@writing-rules.md
+@thesis-report/docs/writing-rules.md
 Trong chapter 4 @thesis-report/chapters/04-design.tex báo cáo có mô tả chức năng/kỹ thuật, hãy:
 
 1. Trích xuất các CLAIM kỹ thuật
 
 2. Đối chiếu từng claim với code thực tế và phân loại:
-   - MATCH : code implement đúng như mô tả
    - MISMATCH : code khác với mô tả (ghi rõ khác ở điểm nào)
    - MISSING_IN_CODE : báo cáo mô tả nhưng code chưa có
-   - MISSING_IN_REPORT : code đã làm nhưng báo cáo không đề cập
 
 3. Output dạng bảng:
    | Claim | Vị trí trong báo cáo | File code | Trạng thái | Ghi chú |
 
-Báo cáo: [attach file]
-Schema Prisma: [paste nội dung schema.prisma]
-Controllers: [paste hoặc @src/]
-Test cases: [paste testing-sample.md]
+Báo cáo: [/Users/xis108/Desktop/thesis-toeic-system/docs/chapter-04/chaper-04-report.md]
 
 # Phase 2 — Đồng bộ giữa các Chapter
 
