@@ -1,0 +1,174 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [main, deploy]
+  pull_request:
+    branches: [main, deploy]
+  workflow_dispatch:
+
+# Tránh chạy nhiều job trùng nhau khi push liên tiếp lên cùng nhánh.
+concurrency:
+  group: backend-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write          # cho dorny/test-reporter tạo check run
+  pull-requests: write   # cho sticky-pull-request-comment
+
+jobs:
+  test:
+    name: Unit + E2E (Postgres service)
+    runs-on: ubuntu-latest
+
+    # ─── Service containers (ephemeral, isolated per run) ─────
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # ─── Env: ghi đè giá trị trong .env.test bằng service container ───
+    # Lưu ý: `.env.test` (local dev) chứa credential Supabase test schema.
+    # Trong CI, ta dùng Postgres service container để cô lập và không
+    # đụng tới Supabase. setup-e2e.ts vẫn cố load .env.test nhưng file
+    # đó được .gitignore nên không tồn tại trong CI — biến môi trường
+    # bên dưới sẽ giữ nguyên trong process.env.
+    env:
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db?schema=public
+      DIRECT_URL: postgresql://test_user:test_password@localhost:5432/test_db?schema=public
+      JWT_SECRET: ci-test-jwt-secret-do-not-use-in-prod
+      JWT_EXPIRATION: 1h
+      JWT_REFRESH_SECRET: ci-test-refresh-secret
+      JWT_REFRESH_EXPIRATION: 2h
+      REDIS_URL: redis://localhost:6379
+      REDIS_TTL: '60'
+      RABBITMQ_URL: amqp://guest:guest@localhost:5672
+      RABBITMQ_QUEUE_GRADING: exam-grading-queue-test
+      RABBITMQ_QUEUE_TRANSCRIPTION: dictation-transcription-queue-test
+      GOOGLE_CLIENT_ID: ci-test-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-test-google-client-secret
+      GOOGLE_IOS_CLIENT_ID: ci-test-ios-client-id
+      GOOGLE_ANDROID_CLIENT_ID: ci-test-android-client-id
+      CLOUDINARY_CLOUD_NAME: ci-test-cloud
+      CLOUDINARY_API_KEY: ci-test-key
+      CLOUDINARY_API_SECRET: ci-test-secret
+      NODE_ENV: test
+      API_PREFIX: api/v1
+      CORS_ORIGIN: http://localhost:3001
+      PAYMENT_PROVIDER: mock
+      VNPAY_TMN_CODE: CI_TMN
+      VNPAY_HASH_SECRET: CI_HASH
+      VNPAY_URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+      VNPAY_RETURN_URL: http://localhost:3001/payment/vnpay-return
+      VNPAY_IPN_URL: http://localhost:3000/api/v1/subscriptions/webhook/vnpay
+      BACKEND_AI_URL: http://localhost:8000
+      BACKEND_CORE_URL: http://localhost:3000
+      OTEL_SDK_DISABLED: 'true'
+
+    steps:
+      # ─── 1. Setup ─────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      # ─── 2. Database setup ────────────────────────────
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U test_user && break
+            sleep 2
+          done
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: backend-core
+
+      - name: Apply migrations to test DB
+        run: npx prisma migrate deploy
+        working-directory: backend-core
+
+      - name: Seed test fixtures
+        run: npm run prisma:seed:test
+        working-directory: backend-core
+
+      # ─── 3. Unit tests ────────────────────────────────
+      - name: Run unit tests (with coverage)
+        run: npm run test:unit
+        working-directory: backend-core
+
+      # ─── 4. E2E tests ─────────────────────────────────
+      - name: Run e2e tests
+        run: npm run test:e2e -- --passWithNoTests
+        working-directory: backend-core
+        continue-on-error: true
+
+      # ─── 5. Artifacts ─────────────────────────────────
+      - name: Upload markdown test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-markdown
+          path: docs/testing/test-results.md
+          if-no-files-found: warn
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend-core/coverage/
+          if-no-files-found: warn
+
+      - name: Upload JUnit XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-xml
+          path: backend-core/junit.xml
+          if-no-files-found: warn
+
+      # ─── 6. PR feedback ───────────────────────────────
+      - name: Publish test report (dorny/test-reporter)
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: dorny/test-reporter@v1
+        with:
+          name: Backend Jest Tests
+          path: backend-core/junit.xml
+          reporter: jest-junit
+          fail-on-error: false
+
+      - name: Comment markdown summary on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: backend-tests
+          path: docs/testing/test-results.md

@@ -6,46 +6,55 @@ Chương này trình bày quá trình thiết kế và hiện thực hệ thốn
 
 Sơ đồ lớp của hệ thống IELTS Learning System được chia thành hai nhóm module nhằm tăng tính rõ ràng và dễ bảo trì: nhóm \textbf{User \& Auth} quản lý tài khoản, xác thực và hồ sơ người học; nhóm \textbf{Learning} quản lý bài tập 4 kỹ năng, từ vựng, đề thi và tiến độ học tập~\cite{fowler2002patterns}.
 
-Trong nhóm User \& Auth, lớp \texttt{User} giữ vai trò trung tâm với các thuộc tính: \texttt{id}, \texttt{email}, \texttt{passwordHash}, \texttt{role} (learner/admin), \texttt{failedAttempts}, \texttt{lockUntil} và \texttt{createdAt}. Lớp \texttt{OtpToken} liên kết 1-nhiều với \texttt{User} thông qua \texttt{userId}, lưu mã OTP 6 chữ số và thời gian hết hạn. Lớp \texttt{RefreshToken} lưu refresh token theo từng phiên đăng nhập, cho phép vô hiệu hoá đơn lẻ khi người dùng đăng xuất trên một thiết bị cụ thể mà không ảnh hưởng các phiên khác.
+Trong nhóm User \& Auth, lớp User giữ vai trò trung tâm với các thuộc tính: id, email, passwordHash, role (learner/admin), failedAttempts, lockUntil và createdAt. Lớp OtpToken liên kết 1-nhiều với User thông qua userId, lưu mã OTP 6 chữ số và thời gian hết hạn. Lớp RefreshToken lưu refresh token theo từng phiên đăng nhập, cho phép vô hiệu hoá đơn lẻ khi người dùng đăng xuất trên một thiết bị cụ thể mà không ảnh hưởng các phiên khác.
 
-Trong nhóm Learning, lớp \texttt{Skill} phân loại 4 kỹ năng (Listening, Reading, Writing, Speaking). Lớp \texttt{Exercise} liên kết với \texttt{Skill} và chứa nội dung bài tập (audio URL, passage, writing prompt). Lớp \texttt{UserExerciseResult} ghi nhận kết quả mỗi lần làm bài của từng người học theo thời gian. Lớp \texttt{VocabularyItem} và \texttt{UserVocabularyCard} hiện thực thuật toán Spaced Repetition với các trường \texttt{easeFactor} và \texttt{nextReview}. Lớp \texttt{ExamSession} và \texttt{ExamSectionDraft} quản lý phiên thi Mock Test với cơ chế auto-save và khôi phục.
+Trong nhóm Learning, lớp Skill phân loại 4 kỹ năng (Listening, Reading, Writing, Speaking). Lớp Exercise liên kết với Skill và chứa nội dung bài tập (audio URL, passage, writing prompt). Lớp UserExerciseResult ghi nhận kết quả mỗi lần làm bài của từng người học theo thời gian. Lớp VocabularyItem và UserVocabularyCard hiện thực thuật toán Spaced Repetition với các trường easeFactor và nextReview. Lớp ExamSession và ExamSectionDraft quản lý phiên thi Mock Test với cơ chế auto-save và khôi phục.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{class-diagram-user.png}
+    \includegraphics[width=0.95\linewidth]{4.1. Class Diagram/2-class-core.png}
     \caption{Sơ đồ lớp nhóm User \& Auth}
     \label{fig:class-user}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{class-diagram-learning.png}
+    \includegraphics[width=0.95\linewidth]{4.1. Class Diagram/1-class-ielts.png}
     \caption{Sơ đồ lớp nhóm Learning}
     \label{fig:class-learning}
 \end{figure}
 
 \section{Sơ đồ cơ sở dữ liệu}
 
-Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua \texttt{DATABASE\_URL} connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file \texttt{schema.prisma} và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Sơ đồ ERD (Entity-Relationship Diagram) bên dưới thể hiện các bảng chính cùng quan hệ giữa chúng.
+Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua DATABASE\_URL connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file schema.prisma và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Để đảm bảo tính rõ ràng, sơ đồ ERD (Entity-Relationship Diagram) được tách thành hai nhóm tương ứng với hai nhóm sơ đồ lớp ở mục 4.1: nhóm \textbf{Core \& Auth} (xác thực, hồ sơ, gói cước) và nhóm \textbf{Learning} (bài tập, đề thi, từ vựng, tiến độ).
 
-Các bảng cốt lõi được tổ chức theo nhóm: nhóm xác thực gồm \texttt{users}, \texttt{otp\_tokens}, \texttt{refresh\_tokens}; nhóm bài tập gồm \texttt{skills}, \texttt{exercises}, \texttt{exercise\_options}, \texttt{user\_exercise\_results}; nhóm từ vựng gồm \texttt{vocabulary\_items}, \texttt{user\_vocabulary\_cards}; nhóm thi thử gồm \texttt{exam\_papers}, \texttt{exam\_sessions}, \texttt{exam\_section\_drafts}, \texttt{mock\_test\_results}. Khóa ngoại được thiết lập đầy đủ với \texttt{ON DELETE CASCADE} ở các bảng con để đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha.
+Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng nhập: users, otp\_tokens, refresh\_tokens; cùng các bảng phụ trợ cho hồ sơ học viên, gói cước (subscriptions, pricing\_plans), thanh toán (payments) và thông báo (notifications). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{erd-sql.png}
-    \caption{Sơ đồ cơ sở dữ liệu quan hệ (ERD -- PostgreSQL)}
-    \label{fig:erd-sql}
+    \includegraphics[width=\linewidth]{4.2. ERD/2-erd-core.png}
+    \caption{Sơ đồ ERD nhóm Core \& Auth (PostgreSQL)}
+    \label{fig:erd-core}
+\end{figure}
+
+Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức theo bốn giai đoạn của lộ trình IELTS. Cụ thể: nhóm bài tập kỹ năng gồm skills, exercises, exercise\_options, user\_exercise\_results; nhóm từ vựng gồm vocabulary\_items và user\_vocabulary\_cards (lưu trạng thái Spaced Repetition); nhóm thi thử Intensive gồm exam\_papers, exam\_sessions, exam\_section\_drafts và mock\_test\_results; cùng các bảng phục vụ Dictation, Shadowing và lộ trình học. Khoá ngoại được thiết lập đầy đủ với ON DELETE CASCADE ở các bảng con nhằm đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha. Sơ đồ ERD nhóm Learning được trình bày trong hình~\ref{fig:erd-learning}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.2. ERD/1-erd-ielts.png}
+    \caption{Sơ đồ ERD nhóm Learning (PostgreSQL)}
+    \label{fig:erd-learning}
 \end{figure}
 
 \section{Sơ đồ kiến trúc phần mềm}
 
 Hệ thống IELTS Learning System được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm hai thành phần chính: (1) \textbf{NestJS Modular Monolith} -- một ứng dụng NestJS 10 duy nhất chứa toàn bộ business logic được tổ chức thành 18 module nghiệp vụ (auth, exams, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, gamification, community, subscriptions, notifications...) giao tiếp nội bộ qua Dependency Injection; (2) \textbf{FastAPI AI Worker} -- microservice Python độc lập xử lý toàn bộ AI inference, kết nối với NestJS qua RabbitMQ message queue.
 
-Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào \texttt{exam-grading-queue} trên RabbitMQ; FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL 16 (trực tiếp trên GCP VM) và Google Cloud Storage (GCS) lưu trữ file audio và hình ảnh bài tập. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
+Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào exam-grading-queue trên RabbitMQ; FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL 16 (trực tiếp trên GCP VM) và Google Cloud Storage (GCS) lưu trữ file audio và hình ảnh bài tập. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{architecture.png}
+    \includegraphics[width=\linewidth]{4.3. Architecture Diagram/architecture-diagram.png}
     \caption{Sơ đồ kiến trúc phần mềm hệ thống IELTS Learning System}
     \label{fig:architecture}
 \end{figure}
@@ -58,7 +67,7 @@ Trên nền tảng Web (Next.js), người dùng bắt đầu từ \textbf{Landi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{flow-web.png}
+    \includegraphics[width=\linewidth]{4.4. Flow Chart/1-flowchart-web.png}
     \caption{Sơ đồ luồng màn hình website (Next.js)}
     \label{fig:flow-web}
 \end{figure}
@@ -69,130 +78,156 @@ Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụ
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{flow-mobile.png}
+    \includegraphics[width=0.7\linewidth]{4.4. Flow Chart/2-flowchart-mobile.png}
     \caption{Sơ đồ luồng màn hình mobile (React Native)}
     \label{fig:flow-mobile}
 \end{figure}
 
 \section{Giao diện chương trình}
 
-Phần này trình bày các giao diện chính của hệ thống trên cả hai nền tảng Web và Mobile, thể hiện kết quả hiện thực thực tế của các use case đã phân tích ở Chương 3.
+Phần này trình bày 13 giao diện chính của hệ thống IELTS Learning System trên nền tảng Web, thể hiện kết quả hiện thực thực tế của các use case đã phân tích ở Chương~3. Các giao diện được sắp xếp theo hành trình người dùng: bắt đầu từ trang đích (Landing Page), vào Dashboard trung tâm, qua công cụ Roadmap cá nhân hoá, lần lượt đến các phân hệ học tập theo bốn giai đoạn (Foundation, Basic, Intensive), và kết thúc bằng các tiện ích bổ trợ (Dictation, Vocab Lab, Community, công cụ tra từ AI toàn cục).
 
 \subsection{Giao diện trang chủ (Landing Page)}
 
-Trang chủ giới thiệu tổng quan hệ thống với banner nêu bật tính năng AI scoring, thanh điều hướng nhanh đến 4 kỹ năng và nút kêu gọi hành động (CTA) dẫn đến trang đăng ký. Giao diện sử dụng TailwindCSS với bảng màu xanh dương -- trắng nhất quán, đảm bảo tính chuyên nghiệp và dễ đọc.
+Trang chủ (Landing Page) đóng vai trò là điểm tiếp xúc đầu tiên giữa người dùng và hệ thống. Mục đích chính của trang là truyền tải thông điệp cốt lõi \textit{``Master English, Ace IELTS, Smarter with AI''} thông qua một nền tảng học tập thông minh giúp xây dựng từ vựng, cải thiện kỹ năng nói và luyện thi IELTS với lộ trình cá nhân hoá. Giao diện được thiết kế trực quan, hiện đại, kết hợp hình ảnh minh hoạ sinh động và các hiệu ứng hoạt hình nhẹ nhằm điều hướng sự chú ý của người dùng vào nút Call-To-Action ``START LEARNING''. Khi nhấn nút này, người dùng được đưa trực tiếp đến phân hệ chính của hệ thống để bắt đầu trải nghiệm học tập ngay lập tức. Giao diện trang chủ được trình bày trong hình~\ref{fig:ui-landing}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{ui-landing.png}
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/01-homepage.png}
     \caption{Giao diện trang chủ (Landing Page)}
     \label{fig:ui-landing}
 \end{figure}
 
 \subsection{Giao diện Dashboard người học}
 
-Dashboard hiển thị tóm tắt tiến độ học tập theo tuần, bao gồm: biểu đồ điểm từng kỹ năng, chuỗi ngày học liên tiếp (streak), số từ vựng cần ôn hôm nay theo Spaced Repetition và danh sách bài luyện gần đây. Bố cục dạng lưới 2 cột: cột trái là biểu đồ thống kê, cột phải là lịch học và thông báo từ hệ thống.
+Trang IELTS Dashboard đóng vai trò là trung tâm điều khiển (hub) chính, nơi người học theo dõi và quản lý toàn bộ quá trình luyện thi IELTS của mình. Mục đích cốt lõi của trang là cung cấp một Lộ trình học tập (Learning Roadmap) được cấu trúc rõ ràng qua bốn giai đoạn tiến triển: \textbf{Foundation} (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), \textbf{Basic} (nắm bắt kiến thức cơ bản của bốn kỹ năng), \textbf{Advanced} (luyện tập chuyên sâu từng dạng câu hỏi với hỗ trợ AI), và \textbf{Intensive} (thi thử sát với thực tế). Bên cạnh thanh tiến độ và số liệu tổng quan (Quick Stats), Dashboard còn là điểm truy cập cho các công cụ bổ trợ (Tools \& Features) quan trọng như: tạo lộ trình học cá nhân hoá bằng AI, công cụ tính điểm Band Score, kết nối theo dõi tiến độ giữa học viên và giáo viên, cùng với hệ thống thống kê chi tiết giúp đánh giá tổng quan năng lực và nhận diện những kỹ năng cần cải thiện. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{ui-dashboard.png}
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/02-ielts-dashboard.png}
     \caption{Giao diện Dashboard người học}
     \label{fig:ui-dashboard}
 \end{figure}
 
-\subsection{Giao diện Luyện Listening}
+\subsection{Giao diện Lộ trình học IELTS (Roadmap)}
 
-Giao diện Listening gồm audio player tùy chỉnh (hỗ trợ điều chỉnh tốc độ 0.75x -- 1.5x và cuộn lại 10 giây), phía dưới là khu vực câu hỏi đa dạng (Multiple Choice, Short Answer, Matching, Labelling). Sau khi nộp bài, giao diện chuyển sang trang kết quả: câu đúng hiển thị màu xanh lá, câu sai màu đỏ kèm đáp án đúng và phân tích loại lỗi (Wrong Word / Missing Word / Extra Word) cho dạng Short Answer.
+Trang IELTS Roadmap là công cụ hỗ trợ xây dựng chiến lược học tập cá nhân hoá do AI thiết kế. Thông qua việc thu thập thông tin về trình độ hiện tại, mục tiêu Band Score và quỹ thời gian rảnh của người học, hệ thống tự động vạch ra một lộ trình ôn luyện chi tiết theo từng mốc thời gian. Trang không chỉ giúp người dùng định hướng rõ ràng các bước cần thực hiện, mà còn có khả năng tự cập nhật và tinh chỉnh kế hoạch dựa trên tốc độ và kết quả học tập thực tế trên hệ thống. Giao diện Roadmap được trình bày trong hình~\ref{fig:ui-roadmap}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{ui-listening.png}
-    \caption{Giao diện luyện Listening}
-    \label{fig:ui-listening}
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/09-ielts-roadmap.png}
+    \caption{Giao diện Lộ trình học IELTS cá nhân hoá (Roadmap)}
+    \label{fig:ui-roadmap}
 \end{figure}
 
-\subsection{Giao diện Luyện Reading}
+\subsection{Giao diện thư viện Từ vựng (Foundation Vocabulary)}
 
-Giao diện Reading sử dụng layout 2 cột: cột trái (60\% chiều rộng) hiển thị đoạn văn với hỗ trợ highlight từ khoá khi di chuột; cột phải (40\%) hiển thị các câu hỏi. Hai cột có thanh cuộn độc lập, giúp người học vừa đọc vừa trả lời mà không cần cuộn trang nhiều lần -- đây là điểm cải tiến đáng kể so với giao diện luyện Reading thông thường.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{ui-reading.png}
-    \caption{Giao diện luyện Reading}
-    \label{fig:ui-reading}
-\end{figure}
-
-\subsection{Giao diện Luyện Writing và phản hồi AI}
-
-Giao diện Writing gồm 2 tab: tab \textbf{Đề bài} hiển thị topic, task type và yêu cầu số từ; tab \textbf{Bài làm} là textarea với bộ đếm từ real-time ở góc phải. Sau khi nộp bài, màn hình phản hồi AI hiển thị điểm từng tiêu chí (TA, CC, LR, GRA), Overall band nổi bật ở đầu trang và nhận xét chi tiết dạng văn xuôi với các điểm mạnh được highlight xanh và điểm cần cải thiện highlight vàng.
+Trang Vocabulary thuộc giai đoạn Foundation, đóng vai trò là thư viện sách từ vựng hỗ trợ người học xây dựng vốn từ cơ bản. Mục đích chính của trang là hiển thị danh sách các ``cuốn sách'' từ vựng theo chủ đề (Foundation Vocab Book), gồm hình ảnh minh hoạ, tên chủ đề và tổng số từ vựng trong mỗi sách. Người dùng có thể duyệt qua các chủ đề và bấm nút ``START LEARNING'' để chuyển trực tiếp vào màn hình học chi tiết của từng chủ đề, tạo bước đệm vững chắc trước khi bước vào luyện thi IELTS chuyên sâu. Giao diện thư viện Vocabulary được trình bày trong hình~\ref{fig:ui-vocabulary}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{ui-writing.png}
-    \caption{Giao diện luyện Writing -- Đề bài và khu vực soạn thảo}
-    \label{fig:ui-writing}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{ui-writing-feedback.png}
-    \caption{Giao diện phản hồi AI cho bài Writing}
-    \label{fig:ui-writing-feedback}
-\end{figure}
-
-\subsection{Giao diện Luyện Speaking}
-
-Giao diện Speaking hiển thị chủ đề hội thoại và câu hỏi hiện tại của AI. Người học nhấn giữ nút microphone để ghi âm; thanh sóng âm (waveform) hiển thị trực quan xác nhận đang thu âm thành công. Sau mỗi lượt, transcript của người học xuất hiện và câu hỏi tiếp theo của AI được phát qua loa tự động. Cuối phiên, trang kết quả hiển thị band ước tính theo 4 tiêu chí và transcript toàn bộ cuộc hội thoại để người học tự phân tích.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{ui-speaking.png}
-    \caption{Giao diện luyện Speaking -- AI Conversation}
-    \label{fig:ui-speaking}
-\end{figure}
-
-\subsection{Giao diện Mock Test}
-
-Giao diện Mock Test hiển thị toàn màn hình với: tiêu đề section hiện tại (Listening / Reading / Writing / Speaking), đồng hồ đếm ngược ở góc trên phải (chuyển màu đỏ khi còn dưới 5 phút), và thanh điều hướng câu hỏi dạng lưới số ở cột bên phải (xanh lá = đã trả lời, trắng = chưa trả lời). Khi hết giờ mỗi section, hệ thống tự động submit và chuyển sang section tiếp theo mà không yêu cầu thao tác từ người học.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{ui-mocktest.png}
-    \caption{Giao diện Mock Test -- Giao diện làm bài}
-    \label{fig:ui-mocktest}
-\end{figure}
-
-\subsection{Giao diện kết quả và tiến độ}
-
-Trang kết quả Mock Test hiển thị Overall band nổi bật ở trung tâm, tiếp theo là biểu đồ radar (spider chart) thể hiện 4 kỹ năng và bên dưới là phân tích chi tiết từng kỹ năng (số câu đúng/sai với Listening/Reading; nhận xét AI với Writing/Speaking). Trang tiến độ học tập dài hạn hiển thị biểu đồ cột theo tuần và lịch học dạng heatmap tương tự GitHub contribution graph.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{ui-result.png}
-    \caption{Giao diện kết quả Mock Test và báo cáo tiến độ}
-    \label{fig:ui-result}
-\end{figure}
-
-\subsection{Giao diện Từ vựng và Flashcard}
-
-Giao diện từ vựng gồm hai chế độ: chế độ \textbf{Học mới} dùng flashcard lật với nút nhớ / quên để cập nhật ease factor; chế độ \textbf{Ôn luyện} dùng quiz trắc nghiệm 4 đáp án. Danh sách từ vựng hiển thị dạng bảng với các cột: từ, phiên âm, nghĩa, ngày ôn tiếp theo và trạng thái (New / Learning / Review / Mature). Trên Mobile, flashcard hỗ trợ gesture vuốt phải (nhớ) và vuốt trái (quên) để thao tác nhanh hơn.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{ui-vocabulary.png}
-    \caption{Giao diện từ vựng và flashcard (Spaced Repetition)}
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/03-vocabulary.png}
+    \caption{Giao diện thư viện Từ vựng giai đoạn Foundation}
     \label{fig:ui-vocabulary}
 \end{figure}
 
-\subsection{Giao diện Admin}
+\subsection{Giao diện luyện Listening cơ bản (Basic Listening)}
 
-Giao diện Admin sử dụng sidebar navigation với các mục: \textbf{Tổng quan} (thống kê số người dùng, lượt làm bài theo ngày, phân phối band điểm); \textbf{Quản lý nội dung} (thêm/sửa/xóa bài tập theo từng kỹ năng, bao gồm upload audio cho Listening); \textbf{Quản lý đề thi} (tạo và phân bổ đề Mock Test, thiết lập thời gian từng section); \textbf{Quản lý học viên} (xem danh sách người dùng, xem tiến độ từng học viên, khoá tài khoản); \textbf{Thống kê} (báo cáo biểu đồ tăng trưởng người dùng và điểm trung bình theo thời gian).
+Trang IELTS Basic Listening Exercise là giao diện làm bài tập thực hành kỹ năng Nghe ở giai đoạn cơ bản. Trải nghiệm người dùng tập trung vào việc nghe audio và tương tác trả lời câu hỏi theo các định dạng bài thi quen thuộc như điền từ và trắc nghiệm. Sau khi nộp bài, hệ thống tự động chấm điểm và cung cấp phản hồi (đáp án đúng, transcript) ngay lập tức để người học rút kinh nghiệm và củng cố kỹ năng nghe cho từng dạng bài cụ thể. Giao diện luyện Listening cơ bản được trình bày trong hình~\ref{fig:ui-listening-basic}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{ui-admin.png}
-    \caption{Giao diện Admin -- Trang tổng quan và quản lý}
-    \label{fig:ui-admin}
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/04-ielts-basic-listening-exercise.png}
+    \caption{Giao diện luyện Listening giai đoạn Basic}
+    \label{fig:ui-listening-basic}
+\end{figure}
+
+\subsection{Giao diện thi thử Reading (Intensive Reading)}
+
+Trang IELTS Intensive Reading Test cung cấp môi trường thi thử giả lập sát với bài thi Reading thực tế. Giao diện được chia đôi: một bên là các đoạn văn bản học thuật (Passages), bên còn lại là danh sách câu hỏi cần trả lời. Điểm nhấn của trang là tính năng mô phỏng áp lực thời gian thông qua đồng hồ đếm ngược và khả năng tương tác trực tiếp với văn bản (highlight, ghi chú), giúp người dùng làm quen với nhịp độ và không khí của một bài thi IELTS Reading thực sự. Giao diện thi thử Reading được trình bày trong hình~\ref{fig:ui-reading-intensive}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/05-ielts-intensive-reading-test-taken.png}
+    \caption{Giao diện thi thử Reading (Intensive Reading Test)}
+    \label{fig:ui-reading-intensive}
+\end{figure}
+
+\subsection{Giao diện trang đáp án Listening (Intensive Listening Answer)}
+
+Trang IELTS Intensive Listening Answer Page là giao diện hiển thị kết quả chi tiết sau khi người học hoàn thành bài thi thử Listening. Mục đích chính là cung cấp báo cáo điểm số (tổng điểm và Band Score dự kiến), đồng thời liệt kê chi tiết từng câu hỏi để người dùng đối chiếu đáp án đã chọn với đáp án đúng. Trang tích hợp sẵn Audio Transcript có bôi đậm đoạn chứa câu trả lời, giúp người học dễ dàng phân tích lỗi sai và cải thiện kỹ năng nghe hiểu. Giao diện trang đáp án Listening được trình bày trong hình~\ref{fig:ui-listening-answer}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/06-ielts-intensive-listening-answer-page.png}
+    \caption{Giao diện trang đáp án Listening sau bài thi thử}
+    \label{fig:ui-listening-answer}
+\end{figure}
+
+\subsection{Giao diện thi thử Speaking (Intensive Speaking)}
+
+Trang IELTS Intensive Speaking Test mô phỏng phòng thi Speaking thực tế với sự hỗ trợ của AI. Người học tương tác với một ``giám khảo AI'', lắng nghe các câu hỏi thuộc Part 1, Part 2, Part 3 và sử dụng microphone để thu âm câu trả lời trong thời gian quy định. Giao diện được thiết kế tối giản giúp người dùng tập trung vào việc nói; các chỉ báo thu âm rõ ràng đảm bảo quá trình thi diễn ra mượt mà trước khi hệ thống gửi file âm thanh đi chấm điểm bằng Whisper và Gemini. Giao diện thi thử Speaking được trình bày trong hình~\ref{fig:ui-speaking}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/07-ielts-intensive-speaking-test-taken.png}
+    \caption{Giao diện thi thử Speaking với giám khảo AI}
+    \label{fig:ui-speaking}
+\end{figure}
+
+\subsection{Giao diện kết quả Writing với phản hồi AI (Intensive Writing Answer)}
+
+Trang IELTS Intensive Writing Answer Page có chức năng hiển thị kết quả đánh giá bài thi Viết của người học sau khi được chấm điểm bởi hệ thống AI. Giao diện cung cấp cái nhìn toàn diện về bài làm, gồm: Band Score dự kiến, nhận xét tổng quan và phân tích chi tiết theo bốn tiêu chí chấm thi của IELTS (Task Achievement, Coherence \& Cohesion, Lexical Resource, Grammatical Range \& Accuracy). Đặc biệt, trang hiển thị các đoạn văn bản được AI chỉnh sửa hoặc gợi ý cải thiện, giúp người dùng nhận ra lỗi sai về ngữ pháp, từ vựng và tối ưu hoá cách diễn đạt của mình. Giao diện kết quả Writing được trình bày trong hình~\ref{fig:ui-writing-answer}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/08-ielts-intensive-writing-answer-page.png}
+    \caption{Giao diện kết quả Writing với phản hồi chi tiết của AI}
+    \label{fig:ui-writing-answer}
+\end{figure}
+
+\subsection{Giao diện luyện nghe chép chính tả (Dictation)}
+
+Trang Dictation Lessons (luyện nghe chép chính tả) là một phân hệ luyện tập chuyên biệt giúp nâng cao sự nhạy bén của kỹ năng Nghe. Tại đây, người dùng có thể nghe các đoạn audio ngắn và thực hành gõ lại toàn bộ nội dung. Giao diện chú trọng công cụ đối chiếu độ chính xác giữa bài làm của người dùng với transcript gốc, đánh dấu cụ thể từng từ đúng/sai để người học định vị lỗi nghe nhầm. Giao diện luyện Dictation được trình bày trong hình~\ref{fig:ui-dictation}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/10-dictation-lessons.png}
+    \caption{Giao diện luyện nghe chép chính tả (Dictation)}
+    \label{fig:ui-dictation}
+\end{figure}
+
+\subsection{Giao diện sổ tay từ vựng cá nhân (Vocab Lab)}
+
+Trang Vocab Lab đóng vai trò như một ``phòng thí nghiệm'' hay cuốn sổ tay từ vựng kỹ thuật số cá nhân của người học. Mục đích chính là lưu trữ, quản lý và ôn tập những từ vựng mà học viên đã lưu lại trong suốt quá trình học trên hệ thống. Trang cung cấp các tính năng như: tạo danh sách từ vựng tuỳ chỉnh, ôn tập qua flashcard và áp dụng thuật toán Lặp lại ngắt quãng (Spaced Repetition) để giúp người học ghi nhớ từ vựng một cách khoa học và lâu dài. Giao diện Vocab Lab được trình bày trong hình~\ref{fig:ui-vocablab}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/11-vocab-lab.png}
+    \caption{Giao diện sổ tay từ vựng cá nhân (Vocab Lab)}
+    \label{fig:ui-vocablab}
+\end{figure}
+
+\subsection{Giao diện Cộng đồng (Community)}
+
+Trang Community là không gian kết nối xã hội dành cho người dùng trên toàn hệ thống. Tại đây, người học có thể chia sẻ kinh nghiệm ôn thi, thảo luận về các bài tập khó, đăng tải các bài nói/viết của mình để xin nhận xét, và tương tác với các thành viên khác hoặc giáo viên. Tính năng này giúp tạo ra một môi trường học tập mang tính cộng đồng, tăng cường động lực và sự gắn kết của người dùng với hệ thống. Giao diện Cộng đồng được trình bày trong hình~\ref{fig:ui-community}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/12-community.png}
+    \caption{Giao diện Cộng đồng (Community)}
+    \label{fig:ui-community}
+\end{figure}
+
+\subsection{Tính năng tra từ và lưu vào Vocab Lab bằng AI}
+
+Tính năng Add to Vocab Lab with AI là một công cụ tiện ích toàn cục xuất hiện xuyên suốt hệ thống dưới dạng nút nổi hoặc pop-up khi người dùng bôi đen văn bản. Chức năng chính là cho phép người học tra cứu từ vựng ngay lập tức tại bất kỳ trang nào. AI sẽ tự động phân tích nghĩa, cách phát âm, đưa ra ví dụ ngữ cảnh, và cung cấp một nút bấm để người dùng lưu trực tiếp từ vựng đó vào Vocab Lab cá nhân của mình chỉ với một thao tác, tối ưu hoá quá trình thu thập từ vựng một cách tiện lợi nhất. Giao diện tính năng được trình bày trong hình~\ref{fig:ui-add-vocablab-ai}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{4.5. Program Interface/images/13-add-to-vocab-lab-with-ai.png}
+    \caption{Pop-up tra từ và lưu vào Vocab Lab bằng AI}
+    \label{fig:ui-add-vocablab-ai}
 \end{figure}
 
 \section{Kiểm thử hệ thống}
