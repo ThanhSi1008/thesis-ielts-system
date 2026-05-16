@@ -124,7 +124,7 @@ OTEL_SDK_DISABLED: 'true'
 | `npm ci` | Cài deps workspace | Chạy ở root vì là npm workspaces |
 | `pg_isready` loop | Đợi Postgres sẵn sàng | Tránh race với migrate |
 | `prisma generate` | Sinh `@prisma/client` | `pretest` hook cũng đảm bảo, nhưng chạy tường minh để debug rõ ràng |
-| `prisma migrate deploy` | Apply migration | KHÔNG dùng `migrate dev` (không tương tác trong CI) |
+| `prisma db push --skip-generate --accept-data-loss` | Sync schema vào DB rỗng | Dùng `db push` thay vì `migrate deploy` vì lịch sử migration có 3 file `CREATE TABLE ielts_skills` trùng (đã resolve thủ công trên Supabase production nhưng fail trên DB rỗng của CI). `db push` đọc thẳng `schema.prisma`, idempotent, không quan tâm migration history |
 | `prisma:seed:test` | Đổ fixture | Idempotent — chạy lại OK |
 | `test:unit` | Unit test + coverage | Reporter ghi markdown + junit.xml |
 | `test:e2e --passWithNoTests` | E2E placeholder | Hiện chưa có `*.e2e-spec.ts`, dùng `continue-on-error: true` |

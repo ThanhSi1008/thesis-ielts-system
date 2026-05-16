@@ -234,11 +234,11 @@ Tính năng Add to Vocab Lab with AI là một công cụ tiện ích toàn cụ
 
 \subsection{Danh sách các test case}
 
-Chúng em thực hiện kiểm thử hộp đen (Black-box Testing) cho các chức năng chính của hệ thống. Mỗi test case bao gồm mã định danh, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong đợi. Tổng cộng 22 tình huống kiểm thử được xây dựng cho 7 nhóm chức năng cốt lõi.
+Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp với thư viện Supertest cho tầng backend NestJS. Mỗi test case bao gồm mã định danh, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong đợi. Toàn bộ 60 test case được tổ chức thành 7 file spec, đặt cạnh module tương ứng trong thư mục \texttt{src/modules/}, phủ 7 nhóm chức năng cốt lõi: Đăng ký, Đăng nhập, Đăng bài cộng đồng, Thông báo, Cập nhật thông tin cá nhân, Luyện phát âm và Thống kê IELTS. Danh sách đầy đủ được trình bày trong bảng~\ref{tab:testcase_list}.
 
 \renewcommand{\arraystretch}{1.2}
-\begin{longtable}{|p{1.3cm}|p{2.8cm}|p{2.8cm}|p{4.0cm}|p{3.0cm}|}
-    \caption{Danh sách các test case}
+\begin{longtable}{|p{1.5cm}|p{2.4cm}|p{2.6cm}|p{4.0cm}|p{2.8cm}|}
+    \caption{Danh sách test case backend (60 case)}
     \label{tab:testcase_list} \\
     \hline
     \textbf{Mã TC} & \textbf{Chức năng} & \textbf{Tiền điều kiện} & \textbf{Tình huống} & \textbf{Kết quả mong đợi} \\ \hline
@@ -252,58 +252,81 @@ Chúng em thực hiện kiểm thử hộp đen (Black-box Testing) cho các ch�
     \hline
     \endlastfoot
 
-    TC01-01 & Đăng ký tài khoản & Email chưa tồn tại trong hệ thống & Nhập email hợp lệ, mật khẩu $\geq$8 ký tự & Gửi OTP về email, thông báo kiểm tra hộp thư \\ \hline
+    TC01\_01 & Đăng ký tài khoản & Mock PrismaService & firstName rỗng & 400 -- @IsNotEmpty chặn tại ValidationPipe \\ \hline
+    TC01\_02 & Đăng ký tài khoản & -- & Email sai định dạng (``not-an-email'') & 400 -- thông báo ``Invalid email format'' \\ \hline
+    TC01\_03 & Đăng ký tài khoản & -- & Password 3 ký tự (``p12'') & 400 -- ``Password must be at least 6 characters'' \\ \hline
+    TC01\_04 & Đăng ký tài khoản & Prisma throw P2002 & Email đã tồn tại & 400 -- ``Email already exists'' \\ \hline
+    TC01\_05 & Đăng ký tài khoản & -- & Payload hợp lệ đầy đủ field & 201 -- trả SafeUser, không có password trong response \\ \hline
+    TC01\_06 & Đăng ký tài khoản & -- & Password ``MySecret123'' & Password lưu DB là bcrypt hash, không phải plaintext \\ \hline
+    TC01\_07 & Đăng ký tài khoản & -- & Tạo user thành công & prisma.deck.create gọi với data \{userId, name:``Default''\} \\ \hline
+    TC01\_08 & Đăng ký tài khoản & -- & (a) Không truyền role; (b) role=``ADMIN'' & (a) Mặc định ``STUDENT''; (b) Forward đúng ``ADMIN'' \\ \hline
 
-    TC01-02 & Đăng ký tài khoản & Email đã đăng ký trước đó & Nhập email đã tồn tại & Thông báo ``Email đã được sử dụng'', không gửi OTP \\ \hline
+    TC02\_01 & Đăng nhập & User có sẵn (mock) & Email đúng, password sai & 401 -- ``Invalid credentials'' \\ \hline
+    TC02\_02 & Đăng nhập & -- & Email không tồn tại, password đúng & 401 \\ \hline
+    TC02\_03 & Đăng nhập & -- & Email và password đều sai & 401 \\ \hline
+    TC02\_04 & Đăng nhập & -- & Payload chỉ có email, thiếu password & 401 -- passport-local từ chối \\ \hline
+    TC02\_05 & Đăng nhập & User có sẵn & Email và password đúng & 201 -- \{access\_token, user\}; JWT payload chứa \{sub, email, role, iat, exp\} \\ \hline
 
-    TC01-03 & Đăng ký tài khoản & OTP đã được gửi thành công & Nhập đúng OTP trong vòng 5 phút & Kích hoạt tài khoản, redirect đến Placement Test \\ \hline
+    TC03\_01 & Đăng bài cộng đồng & Đã đăng nhập (mock JWT) & body rỗng & 400 -- @MinLength(1) \\ \hline
+    TC03\_02 & Đăng bài cộng đồng & -- & body 10001 ký tự & 400 -- @MaxLength(10000) \\ \hline
+    TC03\_03 & Đăng bài cộng đồng & -- & type=``INVALID\_TYPE'' & 400 -- @IsEnum(PostType) \\ \hline
+    TC03\_04 & Đăng bài cộng đồng & Không có JWT & POST /posts với body hợp lệ & 401 -- JwtAuthGuard chặn \\ \hline
+    TC03\_05 & Đăng bài cộng đồng & Mock Gamification & body=``Hello World'' & 201, trả author info; gamification.onEvent gọi với xp=5, reason=``COMMUNITY\_POST'' \\ \hline
+    TC03\_06 & Đăng bài cộng đồng & -- & body kèm tags=[``ielts'',``writing''] và imageUrls & Prisma nhận đúng tags và imageUrls trong data \\ \hline
+    TC03\_07 & Đăng bài cộng đồng & Mock Prisma trả mảng & GET /posts không query & 200, findMany với where=\{isHidden:false\}, orderBy createdAt desc \\ \hline
+    TC03\_08 & Đăng bài cộng đồng & Post tồn tại, chưa like & POST /posts/:id/like & 201, \{liked:true\}; \$transaction được gọi increment likeCount \\ \hline
+    TC03\_09 & Đăng bài cộng đồng & Post đã được like trước & POST /posts/:id/like lần 2 & 201, \{liked:false\} (unlike) \\ \hline
+    TC03\_10 & Đăng bài cộng đồng & Post không tồn tại & POST /posts/post-ghost/like & 404 -- ``Post not found'' \\ \hline
+    TC03\_11 & Đăng bài cộng đồng & -- & GET /posts?limit=10 & 400 -- DTO @IsInt thiếu @Type(()=$>$Number) (ghi nhận bug nhỏ của ListPostsDto) \\ \hline
 
-    TC01-04 & Đăng ký tài khoản & OTP đã được gửi & Nhập OTP sai 3 lần liên tiếp & Huỷ OTP, yêu cầu gửi lại mã mới \\ \hline
+    TC05\_01 & Thông báo người dùng & Không có JWT & GET /notifications & 401 \\ \hline
+    TC05\_02 & Thông báo người dùng & Không có JWT & GET /notifications/unread-count & 401 \\ \hline
+    TC05\_03 & Thông báo người dùng & Không có JWT & DELETE /notifications/:id & 401, không gọi deleteMany \\ \hline
+    TC05\_04 & Thông báo người dùng & Đã đăng nhập & GET /notifications?page=1\&limit=20 & 200, findMany với where=\{userId\}, orderBy createdAt desc \\ \hline
+    TC05\_05 & Thông báo người dùng & -- & GET /notifications?page=2\&limit=20 & skip=20, take=20 truyền đúng vào Prisma \\ \hline
+    TC05\_06 & Thông báo người dùng & -- & PATCH /notifications/:id/read & updateMany với compound where=\{id, userId\} (ownership scope) \\ \hline
+    TC05\_07 & Thông báo người dùng & Notification của user khác & PATCH /notifications/foreign-notif/read & 200, count=0 -- không lộ thông tin user khác \\ \hline
+    TC05\_08 & Thông báo người dùng & -- & PATCH /notifications/read-all & updateMany với where=\{userId, isRead:false\} \\ \hline
+    TC05\_09 & Thông báo người dùng & -- & DELETE /notifications/:id & deleteMany với compound where=\{id, userId\} \\ \hline
 
-    TC01-05 & Đăng ký tài khoản & -- & Nhập mật khẩu ít hơn 8 ký tự & Thông báo lỗi validation ngay tại trường nhập \\ \hline
+    TC06\_01 & Cập nhật thông tin cá nhân & Không có JWT & PATCH /users/me & 401 -- JwtAuthGuard từ chối \\ \hline
+    TC06\_02 & Cập nhật thông tin cá nhân & Đã đăng nhập & email=``not-an-email'' & 400 -- ``Invalid email format'' \\ \hline
+    TC06\_03 & Cập nhật thông tin cá nhân & -- & role=``SUPERHERO'' & 400 -- @IsEnum(UserRole) \\ \hline
+    TC06\_04 & Cập nhật thông tin cá nhân & -- & isActive=``maybe'' (string) & 400 -- @IsBoolean \\ \hline
+    TC06\_05 & Cập nhật thông tin cá nhân & -- & firstName=12345 (số) & 400 -- @IsString \\ \hline
+    TC06\_06 & Cập nhật thông tin cá nhân & -- & Payload kèm field lạ phone=``0901234567'' & 400 -- ``property phone should not exist'' (forbidNonWhitelisted) \\ \hline
+    TC06\_07 & Cập nhật thông tin cá nhân & -- & firstName=``NewName'' & 200, prisma.user.update với where=\{id\}, data.firstName=``NewName'' \\ \hline
+    TC06\_08 & Cập nhật thông tin cá nhân & -- & email=``new-email@example.com'' chưa dùng & 200, lưu email mới \\ \hline
+    TC06\_09 & Cập nhật thông tin cá nhân & Prisma throw P2002 & email đã được user khác dùng & 400 -- ``Email already in use by another account'' \\ \hline
+    TC06\_10 & Cập nhật thông tin cá nhân & -- & role=``TEACHER'' & 200, role lưu đúng ``TEACHER'' \\ \hline
+    TC06\_11 & Cập nhật thông tin cá nhân & -- & isActive=false & 200, lưu boolean đúng \\ \hline
+    TC06\_12 & Cập nhật thông tin cá nhân & -- & Body \{\} (rỗng) & 200, Prisma nhận data toàn undefined (no-op) \\ \hline
 
-    TC02-01 & Đăng nhập & Tài khoản đã kích hoạt & Email và mật khẩu đúng & Đăng nhập thành công, redirect đến Dashboard \\ \hline
+    TC10\_01 & Luyện phát âm & Endpoint public & GET /pronunciation/sounds & 200, service.getAllSounds() được gọi, không cần JWT \\ \hline
+    TC10\_02 & Luyện phát âm & Service trả null & GET /pronunciation/sounds/:symbol (ký hiệu không tồn tại) & 404 -- ``Pronunciation sound not found'' \\ \hline
+    TC10\_03 & Luyện phát âm & Service trả object & GET /pronunciation/sounds/i: hợp lệ & 200, trả object sound đúng \\ \hline
+    TC10\_04 & Luyện phát âm & Không có JWT & POST /pronunciation/progress & 401, không gọi updateProgress \\ \hline
+    TC10\_05 & Luyện phát âm & Đã đăng nhập & POST /progress với \{soundId, score:85\} & 201, service.updateProgress(userId, soundId, 85) được gọi \\ \hline
+    TC10\_06 & Luyện phát âm & User role=STUDENT & POST /pronunciation/sounds & 403 -- RolesGuard từ chối (yêu cầu ADMIN) \\ \hline
+    TC10\_07 & Luyện phát âm & User role=ADMIN & POST /sounds với \{symbol, type, word\} đầy đủ & 201, service.createSound được gọi \\ \hline
+    TC10\_08 & Luyện phát âm & User role=ADMIN & POST /sounds thiếu field ``word'' & 400 -- DTO @IsString non-optional \\ \hline
 
-    TC02-02 & Đăng nhập & Tài khoản bình thường & Nhập mật khẩu sai 5 lần liên tiếp & Khoá tài khoản 15 phút, thông báo thời gian còn lại \\ \hline
-
-    TC02-03 & Đăng nhập & Tài khoản đang bị khoá & Nhập đúng mật khẩu & Thông báo tài khoản bị khoá kèm thời gian mở khoá \\ \hline
-
-    TC02-04 & Đăng nhập & Đang đăng nhập & Access token hết hạn (15 phút) & Silent refresh tự động, người dùng không bị gián đoạn \\ \hline
-
-    TC02-05 & Đăng nhập & Đang đăng nhập & Refresh token hết hạn (7 ngày không dùng) & Tự động đăng xuất, redirect về trang đăng nhập \\ \hline
-
-    TC03-01 & Luyện Listening & Đã đăng nhập, chọn bài Listening & Nghe và điền đáp án đúng hoàn toàn & 100\% điểm, hiển thị tất cả câu màu xanh lá \\ \hline
-
-    TC03-02 & Luyện Listening & Đã đăng nhập, chọn bài Listening & Điền đáp án sai 1 ký tự (typo), từ $\geq$5 ký tự & Hệ thống chấp nhận đúng (Levenshtein $\leq$1) \\ \hline
-
-    TC03-03 & Luyện Listening & Đã đăng nhập, chọn bài Listening & Điền đáp án hoàn toàn sai & 0 điểm câu đó, hiển thị đáp án đúng màu đỏ \\ \hline
-
-    TC04-01 & Luyện Writing & Đã đăng nhập, chọn Task 2 & Viết bài $\geq$250 từ, nhấn nộp bài & Gemini trả về JSON điểm 4 tiêu chí và Overall band trong $\leq$10 giây \\ \hline
-
-    TC04-02 & Luyện Writing & Đã đăng nhập, chọn Task 2 & Nhấn nộp bài khi bài viết $<$50 từ & Thông báo yêu cầu số từ tối thiểu, không gọi API \\ \hline
-
-    TC05-01 & Luyện Speaking & Đã đăng nhập, microphone cấp quyền & Ghi âm câu trả lời Part 1 & Transcript hiển thị, AI đặt câu hỏi tiếp theo qua audio \\ \hline
-
-    TC05-02 & Luyện Speaking & Đã đăng nhập, microphone cấp quyền & Ghi âm nhưng không có giọng nói & Thông báo ``Không phát hiện giọng nói'', yêu cầu thử lại \\ \hline
-
-    TC06-01 & Mock Test & Đã đăng nhập, chọn đề Mock Test & Làm bài đến hết giờ Listening & Tự động submit section, chuyển sang Reading \\ \hline
-
-    TC06-02 & Mock Test & Đang làm Mock Test & Reload trang giữa chừng & Khôi phục bài thi từ auto-save cuối, đồng hồ tiếp tục đúng \\ \hline
-
-    TC06-03 & Mock Test & Đã hoàn thành tất cả 4 section & Nhấn nộp bài & Hiển thị báo cáo kết quả đầy đủ với Overall band và chi tiết từng kỹ năng \\ \hline
-
-    TC07-01 & Admin -- Quản lý nội dung & Đã đăng nhập Admin & Tạo bài tập Listening mới với audio URL hợp lệ & Lưu thành công, bài tập xuất hiện trong danh sách \\ \hline
-
-    TC07-02 & Admin -- Quản lý nội dung & Đã đăng nhập Admin & Tạo bài tập không có tiêu đề & Thông báo lỗi validation, không lưu \\ \hline
+    TC11\_01 & Thống kê IELTS & Không có JWT & GET /ielts-statistics/overview & 401 \\ \hline
+    TC11\_02 & Thống kê IELTS & Không có JWT & GET /ielts-statistics/foundation & 401 \\ \hline
+    TC11\_03 & Thống kê IELTS & Đã đăng nhập & GET /ielts-statistics/overview & 200, service.getOverviewStats(userId) được gọi \\ \hline
+    TC11\_04 & Thống kê IELTS & -- & GET /ielts-statistics/foundation & 200, service.getFoundationStats(userId) được gọi \\ \hline
+    TC11\_05 & Thống kê IELTS & -- & GET /ielts-statistics/basic & 200, service.getBasicStats(userId) được gọi \\ \hline
+    TC11\_06 & Thống kê IELTS & -- & GET /ielts-statistics/advanced & 200, service.getAdvancedStats(userId) được gọi \\ \hline
+    TC11\_07 & Thống kê IELTS & -- & GET /ielts-statistics/intensive & 200, service.getIntensiveStats(userId) được gọi \\ \hline
 
 \end{longtable}
 
 \subsection{Bảng báo cáo kết quả kiểm thử}
 
-Sau khi hoàn thiện hệ thống, chúng em tiến hành thực thi toàn bộ 22 test case. Kết quả kiểm thử được ghi nhận trong bảng~\ref{tab:testcase_result}. Tất cả các test case đều đạt kết quả \textbf{Pass}, xác nhận hệ thống hoạt động đúng theo yêu cầu đã đặc tả.
+Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi tự động qua lệnh \texttt{npm test} của workspace \texttt{backend-core}. Mỗi lần chạy, custom Jest reporter sinh bảng kết quả markdown ra file \texttt{docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử được trình bày trong bảng~\ref{tab:testcase_result}. Tất cả 60 test case đều đạt kết quả \textbf{Pass} trong $\leq$5 giây, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
 
 \renewcommand{\arraystretch}{1.2}
-\begin{longtable}{|p{1.3cm}|p{3.5cm}|p{3.5cm}|p{2.5cm}|p{1.5cm}|p{1.5cm}|}
+\begin{longtable}{|p{1.5cm}|p{3.3cm}|p{3.3cm}|p{2.5cm}|p{1.5cm}|p{1.5cm}|}
     \caption{Bảng báo cáo kết quả kiểm thử}
     \label{tab:testcase_result} \\
     \hline
@@ -318,28 +341,72 @@ Sau khi hoàn thiện hệ thống, chúng em tiến hành thực thi toàn bộ
     \hline
     \endlastfoot
 
-    TC01-01 & Gửi OTP về email & OTP nhận được trong 30 giây & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
-    TC01-02 & Thông báo email đã tồn tại & Hiển thị thông báo đúng & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
-    TC01-03 & Kích hoạt tài khoản & Tài khoản active, redirect Placement Test & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
-    TC01-04 & Huỷ OTP sau 3 lần sai & OTP bị vô hiệu, cần gửi lại & Lai Thanh Sĩ & Pass & 01/05/2026 \\ \hline
-    TC01-05 & Lỗi validation mật khẩu & Thông báo lỗi hiện đúng vị trí & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
-    TC02-01 & Đăng nhập thành công & Redirect đến Dashboard & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
-    TC02-02 & Khoá tài khoản 15 phút & Tài khoản bị khoá đúng thời hạn & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
-    TC02-03 & Thông báo tài khoản bị khoá & Hiển thị thời gian còn lại chính xác & Phạm Đức Tài & Pass & 01/05/2026 \\ \hline
-    TC02-04 & Silent refresh thành công & Người dùng không bị gián đoạn & Lai Thanh Sĩ & Pass & 02/05/2026 \\ \hline
-    TC02-05 & Tự động đăng xuất & Redirect về trang đăng nhập & Lai Thanh Sĩ & Pass & 02/05/2026 \\ \hline
-    TC03-01 & 100\% điểm Listening & Tất cả câu hiển thị xanh & Phạm Đức Tài & Pass & 02/05/2026 \\ \hline
-    TC03-02 & Chấp nhận typo 1 ký tự & Câu tính đúng & Phạm Đức Tài & Pass & 02/05/2026 \\ \hline
-    TC03-03 & Hiển thị đáp án đúng & Đáp án đúng hiển thị màu đỏ & Lai Thanh Sĩ & Pass & 02/05/2026 \\ \hline
-    TC04-01 & AI trả về điểm 4 tiêu chí & Nhận kết quả JSON trong $\leq$8 giây & Lai Thanh Sĩ & Pass & 03/05/2026 \\ \hline
-    TC04-02 & Chặn nộp bài thiếu từ & Thông báo lỗi, không gọi API & Phạm Đức Tài & Pass & 03/05/2026 \\ \hline
-    TC05-01 & Transcript và câu hỏi AI & Transcript đúng, audio AI phát sau 3 giây & Lai Thanh Sĩ & Pass & 03/05/2026 \\ \hline
-    TC05-02 & Thông báo không có giọng nói & Thông báo xuất hiện sau 5 giây im lặng & Phạm Đức Tài & Pass & 03/05/2026 \\ \hline
-    TC06-01 & Tự động chuyển section & Section Reading bắt đầu tự động & Phạm Đức Tài & Pass & 04/05/2026 \\ \hline
-    TC06-02 & Khôi phục bài thi & Bài thi khôi phục đúng câu và thời gian & Lai Thanh Sĩ & Pass & 04/05/2026 \\ \hline
-    TC06-03 & Báo cáo kết quả đầy đủ & Overall band và chi tiết 4 kỹ năng hiển thị & Lai Thanh Sĩ & Pass & 04/05/2026 \\ \hline
-    TC07-01 & Lưu bài tập thành công & Bài tập mới trong danh sách & Phạm Đức Tài & Pass & 05/05/2026 \\ \hline
-    TC07-02 & Thông báo lỗi validation & Không lưu, thông báo hiển thị đúng & Phạm Đức Tài & Pass & 05/05/2026 \\ \hline
+    TC01\_01 & 400 do @IsNotEmpty & 400 sau 19 ms, prisma.user.create không được gọi & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01\_02 & 400 ``Invalid email format'' & Message hiển thị đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01\_03 & 400 ``Password must be at least 6...'' & Hiển thị đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01\_04 & 400 ``Email already exists'' & Bắt P2002 và trả 400, deck.create không gọi & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01\_05 & 201, SafeUser (không có password) & Response thiếu trường password & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01\_06 & Password lưu dạng bcrypt hash & bcrypt.compare(plaintext, hashed) trả true & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01\_07 & deck.create gọi với data \{userId, name:``Default''\} & Args đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01\_08 & role mặc định STUDENT / forward giá trị & Đúng cả 2 trường hợp & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+
+    TC02\_01 & 401 Invalid credentials & 401 sau 55 ms & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC02\_02 & 401 & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC02\_03 & 401 & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC02\_04 & 401 (passport-local) & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC02\_05 & 201, JWT đúng \{sub, email, role\} & JWT decode đủ 5 field (sub, email, role, iat, exp) & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+
+    TC03\_01 & 400 body rỗng & 400 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_02 & 400 body quá dài & 400 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_03 & 400 type sai enum & 400 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_04 & 401 không JWT & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_05 & 201 + gamification gọi xp=5 & Args đúng (xp=5, reason=COMMUNITY\_POST) & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_06 & tags + imageUrls forward đúng & Prisma nhận chính xác & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_07 & 200 với where isHidden=false, orderBy desc & Args đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_08 & \{liked:true\}, increment likeCount & \$transaction được gọi & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_09 & \{liked:false\} (unlike) & Trả đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_10 & 404 ``Post not found'' & 404 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03\_11 & 400 do DTO bug & 400 trả về (ghi nhận để fix ListPostsDto sau) & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+
+    TC05\_01 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_02 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_03 & 401, không gọi deleteMany & Đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_04 & 200, where userId, orderBy desc & Args đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_05 & skip=20, take=20 & Đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_06 & updateMany compound where=\{id, userId\} & Đúng args & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_07 & 200, count=0 (không lộ data) & Đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_08 & where=\{userId, isRead:false\} & Đúng args & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05\_09 & deleteMany compound where & Đúng args & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+
+    TC06\_01 & 401 & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_02 & 400 Invalid email & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_03 & 400 IsEnum & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_04 & 400 IsBoolean & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_05 & 400 IsString & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_06 & 400 ``should not exist'' & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_07 & 200, update đúng args & where=\{id\}, data.firstName đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_08 & 200, lưu email mới & Đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_09 & 400 ``Email already in use'' & Bắt P2002 đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_10 & 200, role=TEACHER lưu đúng & Đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_11 & 200, isActive=false lưu đúng & Đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06\_12 & 200, no-op (data toàn undefined) & Prisma nhận đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+
+    TC10\_01 & 200, getAllSounds gọi & Đúng (không cần JWT) & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10\_02 & 404 not found & 404 trả về & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10\_03 & 200, trả object đúng & Đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10\_04 & 401, không gọi updateProgress & Đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10\_05 & 201, updateProgress(userId, soundId, 85) & Args đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10\_06 & 403 RolesGuard & 403 trả về & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10\_07 & 201, createSound gọi & Đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10\_08 & 400 thiếu ``word'' & 400 trả về, service không gọi & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+
+    TC11\_01 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC11\_02 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC11\_03 & 200, getOverviewStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC11\_04 & 200, getFoundationStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC11\_05 & 200, getBasicStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC11\_06 & 200, getAdvancedStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC11\_07 & 200, getIntensiveStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
 
 \end{longtable}
 

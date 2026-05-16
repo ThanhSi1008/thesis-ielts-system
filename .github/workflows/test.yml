@@ -112,8 +112,15 @@ jobs:
         run: npx prisma generate
         working-directory: backend-core
 
-      - name: Apply migrations to test DB
-        run: npx prisma migrate deploy
+      # Dùng `db push` thay vì `migrate deploy` cho CI testing:
+      # - Test DB là Postgres ephemeral, không cần lịch sử migration.
+      # - Lịch sử migration hiện có 3 file chứa `CREATE TABLE ielts_skills`
+      #   trùng nhau (đã được resolve thủ công trên production Supabase
+      #   nhưng sẽ fail trên DB rỗng). Issue này được track riêng.
+      # - `db push` đọc thẳng schema.prisma → sync schema idempotent.
+      # Tham khảo: https://www.prisma.io/docs/orm/prisma-migrate/workflows/prototyping-your-schema
+      - name: Push schema to test DB
+        run: npx prisma db push --skip-generate --accept-data-loss
         working-directory: backend-core
 
       - name: Seed test fixtures
