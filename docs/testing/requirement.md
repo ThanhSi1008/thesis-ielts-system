@@ -1,8 +1,8 @@
-@testing-sample.md
-@writing-rules.md
-@04-chuong-3-phan-tich.md
+@testing-sample.md @writing-rules.md @04-chuong-3-phan-tich.md
 
 # Testing
+
+thêm "pretest": "prisma generate" vào package.json, tạo thêm test case mới luên qua đến các chức năng chính của từng nhóm và viết lại báo cáo sau đó thêm Cấu hình Jest reporter để Tạo script sinh bảng markdown tự động
 
 ## Viết test case
 

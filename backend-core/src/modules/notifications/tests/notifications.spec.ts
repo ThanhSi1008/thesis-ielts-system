@@ -87,18 +87,20 @@ describe('NotificationsController (TC05 — Thông báo)', () => {
       expect(res.status).toBe(401);
     });
 
-    it('TC05_02: query "page" không phải số → 400 (ParseIntPipe)', async () => {
+    it('TC05_02: GET /unread-count không có JWT → 401', async () => {
+      guardShouldPass = false;
       const res = await request(app.getHttpServer())
-        .get('/api/v1/notifications')
-        .query({ page: 'abc', limit: 10 });
-      expect(res.status).toBe(400);
+        .get('/api/v1/notifications/unread-count');
+      expect(res.status).toBe(401);
     });
 
-    it('TC05_03: query "limit" không phải số → 400 (ParseIntPipe)', async () => {
+    it('TC05_03: DELETE /:id không có JWT → 401', async () => {
+      guardShouldPass = false;
       const res = await request(app.getHttpServer())
-        .get('/api/v1/notifications')
-        .query({ page: 1, limit: 'xyz' });
-      expect(res.status).toBe(400);
+        .delete('/api/v1/notifications/notif-x')
+        .send();
+      expect(res.status).toBe(401);
+      expect(prismaMock.notification.deleteMany).not.toHaveBeenCalled();
     });
   });
 

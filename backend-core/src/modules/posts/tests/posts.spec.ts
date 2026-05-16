@@ -218,7 +218,7 @@ describe('PostsController (TC03 — Bài viết)', () => {
   });
 
   describe('[Valid] GET /api/v1/posts', () => {
-    it('TC03_07: list posts → trả mảng kèm thông tin author + interaction flags', async () => {
+    it('TC03_07: list posts (không query) → 200, gọi prisma.post.findMany với where.isHidden=false', async () => {
       const items = [
         {
           id: 'p1',
@@ -237,13 +237,24 @@ describe('PostsController (TC03 — Bài viết)', () => {
       ];
       prismaMock.post.findMany.mockResolvedValue(items);
 
+      const res = await request(app.getHttpServer()).get('/api/v1/posts');
+
+      expect(res.status).toBe(200);
+      expect(prismaMock.post.findMany).toHaveBeenCalledTimes(1);
+      const callArg = prismaMock.post.findMany.mock.calls[0][0];
+      expect(callArg.where).toMatchObject({ isHidden: false });
+      expect(callArg.orderBy).toEqual({ createdAt: 'desc' });
+    });
+
+    it('TC03_11: list posts với query limit dạng string số → 400 (DTO @IsInt không có @Type → strict)', async () => {
+      // Code hiện tại: ListPostsDto dùng @IsInt() mà KHÔNG kèm @Type(() => Number).
+      // Vì transform: true của ValidationPipe không tự coerce primitive query
+      // nếu thiếu @Type, query "?limit=10" vẫn là string và bị @IsInt từ chối.
       const res = await request(app.getHttpServer())
         .get('/api/v1/posts')
         .query({ limit: 10 });
 
-      expect(res.status).toBe(200);
-      expect(Array.isArray(res.body.items)).toBe(true);
-      expect(prismaMock.post.findMany).toHaveBeenCalled();
+      expect(res.status).toBe(400);
     });
   });
 

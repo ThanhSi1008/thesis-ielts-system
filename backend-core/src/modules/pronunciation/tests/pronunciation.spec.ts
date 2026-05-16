@@ -187,18 +187,33 @@ describe('PronunciationController (TC10 — Luyện phát âm)', () => {
       expect(serviceMock.createSound).not.toHaveBeenCalled();
     });
 
-    it('TC10_07: user role = ADMIN → 201, service.createSound được gọi', async () => {
+    it('TC10_07: user role = ADMIN + payload đủ field (symbol, type, word) → 201, service.createSound được gọi', async () => {
       userRole = 'ADMIN';
-      const created = { id: 's-new', symbol: '/θ/', type: 'consonant' };
+      const created = { id: 's-new', symbol: '/θ/', type: 'consonant', word: 'think' };
       serviceMock.createSound.mockResolvedValue(created);
 
       const res = await request(app.getHttpServer())
         .post('/api/v1/pronunciation/sounds')
-        .send({ symbol: '/θ/', type: 'consonant', description: 'voiceless th' });
+        .send({
+          symbol: '/θ/',
+          type: 'consonant',
+          word: 'think',
+          description: 'voiceless th',
+        });
 
       expect(res.status).toBe(201);
       expect(res.body.id).toBe('s-new');
       expect(serviceMock.createSound).toHaveBeenCalled();
+    });
+
+    it('TC10_08: ADMIN nhưng thiếu field "word" → 400 (DTO IsString)', async () => {
+      userRole = 'ADMIN';
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/pronunciation/sounds')
+        .send({ symbol: '/θ/', type: 'consonant' });
+
+      expect(res.status).toBe(400);
+      expect(serviceMock.createSound).not.toHaveBeenCalled();
     });
   });
 });

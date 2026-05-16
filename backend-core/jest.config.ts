@@ -15,6 +15,17 @@ const config: Config = {
     '^@common/(.*)$': '<rootDir>/common/$1',
     '^@config/(.*)$': '<rootDir>/config/$1',
   },
+  reporters: [
+    'default',
+    [
+      '<rootDir>/../test/reporters/markdown-reporter.js',
+      {
+        outputPath: '../../docs/testing/test-results.md',
+        title: 'Báo cáo kết quả kiểm thử backend-core (auto-generated)',
+        author: 'Auto (Jest)',
+      },
+    ],
+  ],
 };
 
 export default config;
