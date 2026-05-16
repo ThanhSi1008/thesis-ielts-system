@@ -1,8 +1,9 @@
-@testing-sample.md @writing-rules.md @04-chuong-3-phan-tich.md
+@testing-sample.md @thesis-report/docs/writing-rules.md @04-chuong-3-phan-tich.md
 
 # Phase 1 — Báo cáo vs Code
 
-Trong chapter 4 @04-design.tex báo cáo có mô tả chức năng/kỹ thuật, hãy:
+@writing-rules.md
+Trong chapter 4 @thesis-report/chapters/04-design.tex báo cáo có mô tả chức năng/kỹ thuật, hãy:
 
 1. Trích xuất các CLAIM kỹ thuật
 
