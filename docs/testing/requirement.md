@@ -1,5 +1,42 @@
 @testing-sample.md @thesis-report/docs/writing-rules.md @04-chuong-3-phan-tich.md
 
+# Issue
+
+Push lại branch → workflow sẽ:
+
+1. prisma generate ✓
+2. prisma db push — đọc schema.prisma, sync trực tiếp vào Postgres rỗng
+   (skip migration history)
+3. prisma:seed:test ✓
+4. npm run test:unit → 60/60 PASS ✓
+
+Vấn đề gốc (cần fix riêng, không khẩn cấp)
+
+Ba migration trùng CREATE TABLE ielts_skills:
+
+- 20260411091937_add_ielts_tables/
+- 20260414160016_add_ielts_writing_exercise/ ← gây error
+- 20260426102528_initial_clean_state/
+
+File 20260426102528_initial_clean_state cho thấy ai đó từng prisma
+migrate reset rồi dựng "clean baseline" nhưng KHÔNG xoá migration cũ.
+Trên production Supabase, các migration này được mark applied thủ công
+qua prisma migrate resolve nên CREATE TABLE không thực thi lại.
+
+Khuyến nghị cleanup khi rảnh (không gấp):
+
+1. Backup production Supabase
+2. Sinh squash migration mới: npx prisma migrate diff --from-empty
+   --to-schema-datamodel prisma/schema.prisma --script >
+   prisma/migrations/<timestamp>\_squashed/migration.sql
+3. Xoá toàn bộ migration cũ
+4. Trên production: prisma migrate resolve --applied
+   <squashed_migration_name>
+5. Trên dev: prisma migrate reset (mất data dev, OK)
+
+Việc cleanup này có rủi ro nếu sai bước → nên làm khi không cận
+deadline. Hiện tại CI đã chạy được, đủ dùng cho thesis defense.
+
 # Phase 1 — Báo cáo vs Code
 
 @writing-rules.md
