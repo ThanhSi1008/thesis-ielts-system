@@ -1,15 +1,15 @@
 % !TEX root = ../main.tex
 \chapter{THIẾT KẾ VÀ HIỆN THỰC}
 
-Chương này trình bày quá trình thiết kế và hiện thực hệ thống, bao gồm: sơ đồ lớp, sơ đồ cơ sở dữ liệu, kiến trúc phần mềm, luồng màn hình, giao diện người dùng và kết quả kiểm thử. Các sơ đồ và thiết kế được xây dựng trực tiếp từ kết quả phân tích ở Chương 3, phản ánh cách hệ thống được hiện thực bằng NestJS~\cite{nestjs-docs}, Next.js~\cite{nextjs-docs} và React Native~\cite{reactnative-docs}.
+Dựa trên kết quả phân tích ở Chương~3, chương này trình bày cách hệ thống được hiện thực cụ thể: từ thiết kế cơ sở dữ liệu, kiến trúc phần mềm đến giao diện người dùng và kết quả kiểm thử. Toàn bộ hệ thống được xây dựng trên nền tảng NestJS~\cite{nestjs-docs}, Next.js~\cite{nextjs-docs} và React Native~\cite{reactnative-docs}.
 
 \section{Sơ đồ lớp}
 
-Sơ đồ lớp của hệ thống IELTS Learning System được chia thành hai nhóm module nhằm tăng tính rõ ràng và dễ bảo trì: nhóm \textbf{User \& Auth} quản lý tài khoản, xác thực và hồ sơ người học; nhóm \textbf{Learning} quản lý bài tập 4 kỹ năng, từ vựng, đề thi và tiến độ học tập~\cite{fowler2002patterns}.
+Để tăng tính rõ ràng, sơ đồ lớp được tách thành hai nhóm: nhóm \textbf{Core \& Auth} và nhóm \textbf{Learning}~\cite{fowler2002patterns}.
 
-Trong nhóm User \& Auth, lớp User giữ vai trò trung tâm với các thuộc tính: id, email, passwordHash, role (learner/admin), failedAttempts, lockUntil và createdAt. Lớp OtpToken liên kết 1-nhiều với User thông qua userId, lưu mã OTP 6 chữ số và thời gian hết hạn. Lớp RefreshToken lưu refresh token theo từng phiên đăng nhập, cho phép vô hiệu hoá đơn lẻ khi người dùng đăng xuất trên một thiết bị cụ thể mà không ảnh hưởng các phiên khác.
+Nhóm User \& Auth tập trung vào quản lý tài khoản và xác thực. Lớp User là trung tâm, lưu các thông tin cơ bản như email, mật khẩu (mã hoá bằng bcrypt), họ tên, avatar và vai trò (STUDENT / INSTRUCTOR / ADMIN). Người dùng đăng nhập bằng Google OAuth sẽ không có trường mật khẩu. Danh tính được xác thực qua JWT. Lớp Subscription liên kết 1-1 với User để quản lý gói cước hiện tại (FREE / PREMIUM / PRO) và ngày hết hạn.
 
-Trong nhóm Learning, lớp Skill phân loại 4 kỹ năng (Listening, Reading, Writing, Speaking). Lớp Exercise liên kết với Skill và chứa nội dung bài tập (audio URL, passage, writing prompt). Lớp UserExerciseResult ghi nhận kết quả mỗi lần làm bài của từng người học theo thời gian. Lớp VocabularyItem và UserVocabularyCard hiện thực thuật toán Spaced Repetition với các trường easeFactor và nextReview. Lớp ExamSession và ExamSectionDraft quản lý phiên thi Mock Test với cơ chế auto-save và khôi phục.
+Nhóm Learning chứa toàn bộ nội dung học tập, tổ chức theo từng giai đoạn trong lộ trình~\cite{fowler2002patterns}. Ở giai đoạn Basic, bốn kỹ năng được tách thành bốn lớp exercise riêng biệt (Listening, Reading, Writing, Speaking) kèm bảng tiến độ. Giai đoạn Advanced bổ sung thêm lớp Session để lưu lại từng lần luyện tập cùng điểm số phản hồi từ AI. Giai đoạn Intensive dùng lớp IeltsIntensiveSession để quản lý phiên thi thử với vòng đời trạng thái từ khi bắt đầu cho đến khi có kết quả chấm điểm. Ngoài ra, phân hệ Vocab Lab dùng lớp Flashcard với thuật toán nhắc lại FSRS (qua thư viện ts-fsrs) để giúp người học ghi nhớ từ vựng theo lịch tối ưu.
 
 \begin{figure}[H]
     \centering
@@ -27,9 +27,9 @@ Trong nhóm Learning, lớp Skill phân loại 4 kỹ năng (Listening, Reading,
 
 \section{Sơ đồ cơ sở dữ liệu}
 
-Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua DATABASE\_URL connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file schema.prisma và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Để đảm bảo tính rõ ràng, sơ đồ ERD (Entity-Relationship Diagram) được tách thành hai nhóm tương ứng với hai nhóm sơ đồ lớp ở mục 4.1: nhóm \textbf{Core \& Auth} (xác thực, hồ sơ, gói cước) và nhóm \textbf{Learning} (bài tập, đề thi, từ vựng, tiến độ).
+Hệ thống dùng PostgreSQL~\cite{postgresql-docs} thông qua Prisma ORM~\cite{prisma-docs}. Cơ sở dữ liệu được lưu trữ trên \textbf{Supabase} — một dịch vụ PostgreSQL được quản lý sẵn, kết nối qua PgBouncer (port 6543) trong môi trường chạy thực và kết nối trực tiếp (port 5432) khi chạy migration. Toàn bộ schema được định nghĩa tập trung trong file schema.prisma với 66 model. Tương tự sơ đồ lớp, ERD cũng được tách thành hai nhóm để dễ đọc: nhóm \textbf{Core \& Auth} và nhóm \textbf{Learning}.
 
-Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng nhập: users, otp\_tokens, refresh\_tokens; cùng các bảng phụ trợ cho hồ sơ học viên, gói cước (subscriptions, pricing\_plans), thanh toán (payments) và thông báo (notifications). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
+Nhóm Core \& Auth quản lý người dùng và các nghiệp vụ liên quan. Bảng users lưu thông tin tài khoản, trạng thái hoạt động và định danh Google OAuth. Bên cạnh đó là các bảng subscriptions, pricing\_plans (gói cước), payments (thanh toán), notifications (thông báo) và student\_teacher\_links (liên kết học viên -- giáo viên). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
 
 \begin{figure}[H]
     \centering
@@ -38,7 +38,7 @@ Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng
     \label{fig:erd-core}
 \end{figure}
 
-Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức theo bốn giai đoạn của lộ trình IELTS. Cụ thể: nhóm bài tập kỹ năng gồm skills, exercises, exercise\_options, user\_exercise\_results; nhóm từ vựng gồm vocabulary\_items và user\_vocabulary\_cards (lưu trạng thái Spaced Repetition); nhóm thi thử Intensive gồm exam\_papers, exam\_sessions, exam\_section\_drafts và mock\_test\_results; cùng các bảng phục vụ Dictation, Shadowing và lộ trình học. Khoá ngoại được thiết lập đầy đủ với ON DELETE CASCADE ở các bảng con nhằm đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha. Sơ đồ ERD nhóm Learning được trình bày trong hình~\ref{fig:erd-learning}.
+Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức theo bốn giai đoạn của lộ trình IELTS. Giai đoạn Foundation bao gồm các bảng từ vựng nền (vocabulary\_books, vocabulary\_units, vocabulary\_words, vocabulary\_progress), ngữ pháp (grammar\_books, grammar\_units, grammar\_exercises) và phát âm nền (pronunciation\_sounds, pronunciation\_attempts, pronunciation\_progress). Giai đoạn Basic và Advanced lần lượt có các bảng ielts\_basic\_listening\_exercises, ielts\_basic\_reading\_exercises, ielts\_basic\_writing\_exercises, ielts\_basic\_speaking\_exercises, ielts\_basic\_progress và ielts\_advanced\_listening\_parts, ielts\_advanced\_reading\_parts, ielts\_advanced\_writing\_prompts, ielts\_advanced\_speaking\_parts kèm các bảng session tương ứng. Giai đoạn Intensive gồm exams (bài thi), exam\_sessions (phiên thi với vòng đời trạng thái) và results (kết quả chấm điểm AI). Phân hệ Vocab Lab dùng bảng decks, flashcards và flashcard\_reviews lưu trạng thái FSRS; các bảng shadowing\_videos, dictation\_videos và bảng lộ trình học bổ sung thêm. Khoá ngoại được thiết lập đầy đủ với ON DELETE CASCADE ở các bảng con nhằm đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha. Sơ đồ ERD nhóm Learning được trình bày trong hình~\ref{fig:erd-learning}.
 
 \begin{figure}[H]
     \centering
@@ -51,7 +51,7 @@ Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức 
 
 Hệ thống IELTS Learning System được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm hai thành phần chính: (1) \textbf{NestJS Modular Monolith} -- một ứng dụng NestJS 10 duy nhất chứa toàn bộ business logic được tổ chức thành 18 module nghiệp vụ (auth, exams, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, gamification, community, subscriptions, notifications...) giao tiếp nội bộ qua Dependency Injection; (2) \textbf{FastAPI AI Worker} -- microservice Python độc lập xử lý toàn bộ AI inference, kết nối với NestJS qua RabbitMQ message queue.
 
-Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào exam-grading-queue trên RabbitMQ; FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL 16 (trực tiếp trên GCP VM) và Google Cloud Storage (GCS) lưu trữ file audio và hình ảnh bài tập. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
+Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào exam-grading-queue trên RabbitMQ (CloudAMQP managed); FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL trên \textbf{Supabase} (kết nối qua PgBouncer), Redis trên \textbf{Upstash} (cache và session), \textbf{Google Cloud Storage} (GCS) lưu file audio và \textbf{Cloudinary} lưu ảnh do người dùng tải lên. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
 
 \begin{figure}[H]
     \centering
@@ -64,7 +64,7 @@ Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (po
 
 \subsection{Sơ đồ luồng màn hình website}
 
-Trên nền tảng Web (Next.js), người dùng bắt đầu từ \textbf{Landing Page}, tiếp tục đến màn hình \textbf{Đăng nhập / Đăng ký}, sau đó vào \textbf{Dashboard} chính. Từ Dashboard, người học có thể chuyển sang 4 nhánh chính: \textbf{Luyện kỹ năng} (Listening / Reading / Writing / Speaking), \textbf{Từ vựng} (học mới và ôn luyện flashcard), \textbf{Mock Test} (chọn đề và làm bài toàn phần), và \textbf{Kết quả} (xem báo cáo tiến độ). Người quản lý (Admin) có nhánh riêng dẫn vào \textbf{Admin Dashboard} với các chức năng quản lý nội dung, đề thi và học viên.
+Trên nền tảng Web (Next.js), người dùng bắt đầu từ \textbf{Landing Page}, tiếp tục đến màn hình \textbf{Đăng nhập / Đăng ký}, sau đó vào \textbf{Dashboard} chính. Từ Dashboard, người học có thể chuyển sang các nhánh học tập theo lộ trình: \textbf{Foundation} (từ vựng nền, ngữ pháp, phát âm cơ bản), \textbf{Basic} (luyện kỹ năng Listening / Reading / Writing / Speaking cơ bản), \textbf{Advanced} (luyện chuyên sâu với phản hồi AI), \textbf{Intensive} (thi thử toàn phần); cùng các tiện ích bổ trợ như \textbf{Vocab Lab} (sổ tay từ vựng cá nhân), \textbf{Dictation / Shadowing} (luyện nghe), \textbf{Community} (cộng đồng), \textbf{Roadmap} (lộ trình cá nhân hoá) và \textbf{Thống kê} (theo dõi tiến độ). Người quản lý (Admin) có nhánh riêng dẫn vào \textbf{Admin Dashboard} với các chức năng quản lý nội dung, đề thi và học viên.
 
 \begin{figure}[H]
     \centering
@@ -75,7 +75,7 @@ Trên nền tảng Web (Next.js), người dùng bắt đầu từ \textbf{Landi
 
 \subsection{Sơ đồ luồng màn hình mobile}
 
-Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụng Tab Navigation ở tầng dưới cùng với 4 tab chính: \textbf{Trang chủ}, \textbf{Luyện tập}, \textbf{Từ vựng} và \textbf{Hồ sơ}. Các màn hình con được quản lý bằng Stack Navigator. Luồng Mock Test trên mobile được thiết kế dạng fullscreen để tránh xao nhãng, với thanh điều hướng section cố định phía trên và nút đếm câu đã trả lời phía dưới.
+Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụng Tab Navigation ở tầng dưới cùng với 5 tab hiển thị: \textbf{Home} (Trang chủ), \textbf{Explore} (Khám phá), \textbf{IELTS} (trung tâm học tập), \textbf{Community} (Cộng đồng) và \textbf{Profile} (Hồ sơ). Các màn hình chuyên biệt như Vocab Lab, Shadowing, Pronunciation, Vocabulary, Grammar và More được truy cập qua điều hướng nội bộ từ tab IELTS và Home, không hiển thị trực tiếp trên thanh tab. Các màn hình con được quản lý bằng Stack Navigator tích hợp trong Expo Router.
 
 \begin{figure}[H]
     \centering
@@ -325,7 +325,7 @@ Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Tes
 
 \subsection{Bảng báo cáo kết quả kiểm thử}
 
-Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi tự động qua lệnh \texttt{npm test} của workspace \texttt{backend-core}. Mỗi lần chạy, custom Jest reporter sinh bảng kết quả markdown ra file \texttt{docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 60 test case đều đạt kết quả \textbf{Pass} trong $\leq$5 giây, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
+Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi tự động qua lệnh \texttt{npm run test:report} của workspace \texttt{backend-core}. Lệnh này kích hoạt custom Jest reporter sinh bảng kết quả markdown ra file \texttt{backend-core/docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 60 test case đều đạt kết quả \textbf{Pass}, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
 
 \renewcommand{\arraystretch}{1.2}
 % 8 cột p{}, divisor=130: (0.8+0.9+1.3+2.6+3.0+0.9+1.9+1.6)×10
