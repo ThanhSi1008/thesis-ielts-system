@@ -1,0 +1,72 @@
+{
+  // ─── LaTeX Workshop: Formatter ────────────────────────────────────────────
+  // Đặt "none" để tắt format-on-save cho .tex
+  // (tránh thông báo "Please set your LaTeX formatter")
+  "latex-workshop.formatting.latex": "none",
+  "[latex]": {
+    "editor.formatOnSave": false
+  },
+
+  // ─── LaTeX Workshop: Root file ────────────────────────────────────────────
+  // Luôn dùng magic comment "% !TEX root" để xác định file gốc
+  // Không hỏi lại mỗi lần build
+  "latex-workshop.latex.rootFile.doNotPrompt": true,
+  "latex-workshop.latex.rootFile.useSubFile": false,
+
+  // ─── LaTeX Workshop: Auto Build ───────────────────────────────────────────
+  // "onSave" = chỉ build khi save, không build realtime
+  "latex-workshop.latex.autoBuild.run": "onSave",
+
+  // ─── LaTeX Workshop: Tools ───────────────────────────────────────────────
+  "latex-workshop.latex.tools": [
+    {
+      "name": "xelatex",
+      "command": "xelatex",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "%DOC%"
+      ],
+      "env": {}
+    },
+    {
+      "name": "biber",
+      "command": "biber",
+      "args": ["%DOCFILE%"],
+      "env": {}
+    }
+  ],
+
+  // ─── LaTeX Workshop: Recipes ──────────────────────────────────────────────
+  // Recipe đầy đủ: xelatex → biber → xelatex → xelatex
+  // Đảm bảo citation/reference luôn được resolve đúng
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "XeLaTeX + Biber (Full)",
+      "tools": ["xelatex", "biber", "xelatex", "xelatex"]
+    },
+    {
+      "name": "XeLaTeX (Fast)",
+      "tools": ["xelatex"]
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "XeLaTeX + Biber (Full)",
+
+  // ─── LaTeX Workshop: Output ──────────────────────────────────────────────
+  // Output (.pdf, .aux, .log...) cùng thư mục với main.tex
+  "latex-workshop.latex.outDir": "%DIR%",
+
+  // ─── LaTeX Workshop: Clean ───────────────────────────────────────────────
+  // Không tự clean và retry khi lỗi (tránh xóa .bbl)
+  "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": false,
+
+  // Danh sách file phụ được dọn khi chạy "Clean up auxiliary files"
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.aux", "*.bbl", "*.blg", "*.idx", "*.ind",
+    "*.lof", "*.lot", "*.out", "*.toc", "*.acn",
+    "*.acr", "*.alg", "*.glg", "*.glo", "*.gls",
+    "*.ist", "*.fls", "*.log", "*.fdb_latexmk",
+    "*.synctex.gz", "*.bcf", "*.run.xml"
+  ]
+}

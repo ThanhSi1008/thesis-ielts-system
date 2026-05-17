@@ -43,6 +43,8 @@ build/
 *.swo
 *~
 .DS_Store
+# thesis-report/.vscode/settings.json được track bằng: git add --force
+# (git negation không hoạt động với folder bị ignore hoàn toàn)
 
 # Logs
 logs/
