@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 \chapter{THIẾT KẾ VÀ HIỆN THỰC}
 
 Chương này trình bày quá trình thiết kế và hiện thực hệ thống, bao gồm: sơ đồ lớp, sơ đồ cơ sở dữ liệu, kiến trúc phần mềm, luồng màn hình, giao diện người dùng và kết quả kiểm thử. Các sơ đồ và thiết kế được xây dựng trực tiếp từ kết quả phân tích ở Chương 3, phản ánh cách hệ thống được hiện thực bằng NestJS~\cite{nestjs-docs}, Next.js~\cite{nextjs-docs} và React Native~\cite{reactnative-docs}.
@@ -236,8 +237,9 @@ Tính năng Add to Vocab Lab with AI là một công cụ tiện ích toàn cụ
 
 Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp với thư viện Supertest cho tầng backend. Toàn bộ 60 trường hợp kiểm thử được tổ chức thành 7 file spec, phủ 7 nhóm chức năng cốt lõi: Đăng ký, Đăng nhập, Đăng bài cộng đồng, Thông báo, Cập nhật thông tin cá nhân, Luyện phát âm và Thống kê IELTS. Mỗi test case bao gồm mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Danh sách đầy đủ được trình bày trong bảng~\ref{tab:testcase_list}.
 
-\renewcommand{\arraystretch}{1.2}
-\begin{longtable}{|p{1.0cm}|p{0.4cm}|p{2.0cm}|p{2.8cm}|p{3.5cm}|p{3.7cm}|}
+% 6 cột p{}, divisor=134: (1.0+0.4+2.0+2.8+3.5+3.7)×10
+\setlength{\tbu}{\dimexpr(\linewidth - 12\tabcolsep - 7\arrayrulewidth)/134\relax}
+\begin{longtable}{|p{10\tbu}|p{4\tbu}|p{20\tbu}|p{28\tbu}|p{35\tbu}|p{37\tbu}|}
     \caption{Danh sách test case}
     \label{tab:testcase_list} \\
     \hline
@@ -326,7 +328,9 @@ Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Tes
 Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi tự động qua lệnh \texttt{npm test} của workspace \texttt{backend-core}. Mỗi lần chạy, custom Jest reporter sinh bảng kết quả markdown ra file \texttt{docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 60 test case đều đạt kết quả \textbf{Pass} trong $\leq$5 giây, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
 
 \renewcommand{\arraystretch}{1.2}
-\begin{longtable}{|p{0.8cm}|p{0.9cm}|p{1.3cm}|p{2.6cm}|p{3.0cm}|p{0.9cm}|p{1.9cm}|p{1.6cm}|}
+% 8 cột p{}, divisor=130: (0.8+0.9+1.3+2.6+3.0+0.9+1.9+1.6)×10
+\setlength{\tbu}{\dimexpr(\linewidth - 16\tabcolsep - 9\arrayrulewidth)/130\relax}
+\begin{longtable}{|p{8\tbu}|p{9\tbu}|p{13\tbu}|p{26\tbu}|p{30\tbu}|p{9\tbu}|p{19\tbu}|p{16\tbu}|}
     \caption{Bảng báo cáo kết quả kiểm thử}
     \label{tab:testcase_result} \\
     \hline

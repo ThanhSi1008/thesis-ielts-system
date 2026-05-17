@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 \chapter{PHÂN TÍCH}
 
 \section{Quy trình nghiệp vụ}
@@ -116,7 +117,9 @@ Hệ thống có hai tác nhân chính tương tác trực tiếp, được mô 
 Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống kèm mô tả ngắn gọn về chức năng và tác nhân liên quan.
 
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{1.5cm}|p{4.5cm}|p{9.0cm}|}
+% 3 cột p{}, divisor=150: (1.5+4.5+9.0)×10
+\setlength{\tbu}{\dimexpr(\linewidth - 6\tabcolsep - 4\arrayrulewidth)/150\relax}
+\begin{longtable}{|p{15\tbu}|p{45\tbu}|p{90\tbu}|}
     \hline
     \textbf{ID} & \textbf{Tên use-case} & \textbf{Mô tả} \\ \hline
     \endfirsthead
@@ -150,7 +153,7 @@ Bảng~\ref{tab:uc_list} liệt kê toàn bộ các use case của hệ thống 
     UC21 & Xem thống kê IELTS theo cấp độ & Người học xem thống kê chi tiết phân theo cấp độ: Foundation, Basic, Advanced và Intensive; mỗi tab cung cấp biểu đồ và chỉ số riêng cho cấp độ tương ứng. \\ \hline
     UC22 & Tính toán điểm và yêu cầu & Người học sử dụng công cụ Calculator để ước tính band điểm IELTS dựa trên số câu đúng từng phần, hoặc tính số câu cần đúng để đạt band mục tiêu. \\ \hline
     UC23 & Luyện nói với Shadowing & Người học luyện kỹ năng nói đuổi (Shadowing): chọn bài video theo thư mục/chủ đề, nghe và nói lại từng câu; hệ thống đánh dấu tiến độ từng câu theo phiên luyện và cập nhật chuỗi học liên tiếp. \\ \hline
-    UC24 & Luyện viết với Dictation & Người học chọn bài Dictation, nghe audio theo câu và điền từ bị đục lỗ vào transcript theo bốn cấp độ khó (Beginner/Intermediate/Advanced/Expert) với gợi ý tiệm tiến; kiểm tra đáp án từng câu và lưu tiến trình hoàn thành vào cơ sở dữ liệu; chuỗi học liên tiếp được ghi nhận. \\ \hline
+    UC24 & Luyện viết với Dictation & Người học chọn bài Dictation, nghe audio theo câu và điền từ bị đục lỗ vào transcript theo bốn cấp độ khó (Beginner\slash Intermediate\slash Advanced\slash Expert) với gợi ý tiệm tiến; kiểm tra đáp án từng câu và lưu tiến trình hoàn thành vào cơ sở dữ liệu; chuỗi học liên tiếp được ghi nhận. \\ \hline
     UC25 & Tạo bài Shadowing cá nhân & Người học nhập URL YouTube để tạo bài Shadowing cá nhân; hệ thống AI tự động trích xuất giọng nói, phân tách thành câu và lưu bài với trạng thái READY để sử dụng trong giao diện Shadowing. \\ \hline
     UC26 & Tạo bài Dictation cá nhân & Người học nhập URL YouTube để tạo bài Dictation cá nhân; hệ thống AI tự động trích xuất và phân tách nội dung giọng nói thành câu, lưu bài với trạng thái READY để luyện nghe--chép. \\ \hline
     UC27 & Tạo loại thẻ học & Người học tạo loại thẻ học (Card Type) mới trong Vocab Lab: đặt tên, định nghĩa các trường dữ liệu (Fields) với kiểu Text hoặc Media, cấu hình mẫu hiển thị hai mặt (Templates) và xem trước thẻ (Preview) trước khi lưu để sử dụng khi tạo Flashcard. \\ \hline

@@ -1,11 +1,12 @@
 % !TEX program = xelatex
+% !TEX root = main.tex
 
 \documentclass[a4paper,13pt]{extreport}
 
 % ===================================================
 % 1. KHAI BÁO GÓI (PREAMBLE)
 % ===================================================
-% Nạp English trước, Vietnamese sau (để mặc định là Việt)
+% Nạp English trước, Vietnamese sau (để mặc định là Việt).
 \usepackage[english, vietnamese]{babel}
 \usepackage{fontspec}
 \usepackage{microtype}
@@ -127,8 +128,12 @@
 \defbibheading{centeredheading}{%
     \chapter*{TÀI LIỆU THAM KHẢO}
     \addcontentsline{toc}{chapter}{TÀI LIỆU THAM KHẢO}
-    \thispagestyle{frontmatter} % Ép hiện Header/Footer ngay trang đầu
+    \thispagestyle{frontmatter} % Ép hiện Header/Footer ngay trang đầu.
 }
+
+% Đơn vị cột tỷ lệ động cho longtable (tái dùng toàn thesis)
+% Dùng: \setlength{\tbu}{\dimexpr(\linewidth - N*2\tabcolsep - (N+1)\arrayrulewidth)/TOTAL\relax}
+\newlength{\tbu}
 
 % Định nghĩa dòng kẻ chấm
 \newcommand{\dotline}{

@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 \chapter{CƠ SỞ LÝ THUYẾT}
 
 \section{Lý thuyết học ngôn ngữ và đánh giá kỹ năng tự động}
@@ -65,7 +66,7 @@ Python là ngôn ngữ lập trình bậc cao, đa mục đích, ra mắt năm 1
 Trong dự án này, Python được sử dụng cho \textbf{Backend AI Worker} --- microservice xử lý toàn bộ AI inference:
 
 \begin{itemize}
-    \item \textbf{Hỗ trợ AI/ML độc quyền:} Python là ngôn ngữ duy nhất được faster-whisper (CTranslate2), google-genai (Gemini SDK) và eng-to-ipa (IPA conversion) hỗ trợ đầy đủ --- không thể thay thế bằng TypeScript/Node.js cho các tác vụ AI inference này.
+    \item \textbf{Hỗ trợ AI/ML độc quyền:} Python là ngôn ngữ duy nhất được faster-whisper (CTranslate2), google-genai (Gemini SDK) và eng-to-ipa (IPA conversion) hỗ trợ đầy đủ --- không thể thay thế bằng TypeScript\slash Node.js cho các tác vụ AI inference này.
     \item \textbf{Hệ sinh thái phong phú:} Cộng đồng AI/ML Python cung cấp các thư viện đã được tối ưu hóa cao (CTranslate2 tăng tốc Whisper 4× so với bản gốc), giúp giảm thời gian phát triển và tăng hiệu năng xử lý audio.
     \item \textbf{Tách biệt runtime:} Python AI Worker chạy trong Docker container riêng, tránh xung đột dependency với Node.js Backend Core và cho phép cấu hình resource độc lập (10 GB RAM, 3 CPU).
 \end{itemize}
@@ -208,7 +209,7 @@ PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở
 
 Trong dự án này, PostgreSQL 16 được triển khai trên nền tảng \textbf{Supabase}~\cite{supabase-docs} --- dịch vụ cơ sở dữ liệu quản lý đám mây xây dựng trên PostgreSQL mã nguồn mở, cung cấp connection pooling tự động qua PgBouncer. Prisma ORM kết nối với Supabase theo hai chế độ: pooler port 6543 với tham số pgbouncer=true cho query thông thường (tối ưu số lượng kết nối đồng thời), và direct port 5432 cho Prisma Migrate (yêu cầu kết nối trực tiếp khi thay đổi schema).
 
-Schema cơ sở dữ liệu bao gồm 66 model được định nghĩa trong file schema.prisma và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation/Basic/Advanced/Intensive), Vocabulary \& Grammar, Shadowing \& Dictation, Vocab Lab (FSRS), Community, Gamification và Subscriptions.
+Schema cơ sở dữ liệu bao gồm 66 model được định nghĩa trong file schema.prisma và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation\slash Basic\slash Advanced\slash Intensive), Vocabulary \& Grammar, Shadowing \& Dictation, Vocab Lab (FSRS), Community, Gamification và Subscriptions.
 
 \section{Xác thực và bảo mật}
 
