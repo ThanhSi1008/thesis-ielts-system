@@ -34,53 +34,6 @@ Khuyến nghị cleanup khi rảnh (không gấp):
    <squashed_migration_name>
 5. Trên dev: prisma migrate reset (mất data dev, OK)
 
-Việc cleanup này có rủi ro nếu sai bước → nên làm khi không cận
-deadline. Hiện tại CI đã chạy được, đủ dùng cho thesis defense.
-
-# Phase 1 — Báo cáo vs Code
-
-@thesis-report/docs/writing-rules.md
-Trong chapter 4 @thesis-report/chapters/04-design.tex báo cáo có mô tả chức năng/kỹ thuật, hãy:
-
-1. Trích xuất các CLAIM kỹ thuật
-
-2. Đối chiếu từng claim với code thực tế và phân loại:
-   - MISMATCH : code khác với mô tả (ghi rõ khác ở điểm nào)
-   - MISSING_IN_CODE : báo cáo mô tả nhưng code chưa có
-
-3. Output dạng bảng:
-   | Claim | Vị trí trong báo cáo | File code | Trạng thái | Ghi chú |
-
-Báo cáo: [/Users/xis108/Desktop/thesis-toeic-system/docs/chapter-04/chaper-04-report.md]
-
-# Phase 2 — Đồng bộ giữa các Chapter
-
-Dùng review mode.
-
-Kiểm tra 4 loại mâu thuẫn nội bộ sau trong báo cáo:
-
-A. Số liệu/con số không nhất quán
-
-- Số lượng chức năng được đề cập ở chương này vs chương khác
-- Số lượng bảng DB, API endpoint, màn hình UI
-
-B. Tên gọi không thống nhất
-
-- Cùng một khái niệm nhưng gọi khác tên ở các chương
-- Ví dụ: "người dùng" vs "user" vs "học viên"
-
-C. Mô tả logic mâu thuẫn
-
-- Luồng xử lý mô tả ở chương 2 khác với chương 4
-- Diagram/hình vẽ không khớp với mô tả text
-
-D. Tổng kết/kết luận không phản ánh đúng nội dung các chương
-
-Output: liệt kê từng mâu thuẫn với vị trí cụ thể
-Format: "Chương X (trang Y) ↔ Chương A (trang B): [mô tả mâu thuẫn]"
-
-Báo cáo kết quả xong, dừng lại và hỏi tôi trước khi sang Phase 3.
-
 # Phase 3 — Gợi ý sửa
 
 Dựa trên kết quả Phase 1 và Phase 2, với mỗi vấn đề phát hiện hãy đề xuất:
