@@ -131,6 +131,10 @@
     \thispagestyle{frontmatter} % Ép hiện Header/Footer ngay trang đầu.
 }
 
+% Padding trái và phải của mỗi ô bằng nhau (mặc định LaTeX là 6pt nhưng khai báo tường minh
+% để tránh package khác override; công thức \tbu dưới dùng \tabcolsep nên tự cập nhật theo)
+\setlength{\tabcolsep}{6pt}
+
 % Đơn vị cột tỷ lệ động cho longtable (tái dùng toàn thesis)
 % Dùng: \setlength{\tbu}{\dimexpr(\linewidth - N*2\tabcolsep - (N+1)\arrayrulewidth)/TOTAL\relax}
 \newlength{\tbu}
