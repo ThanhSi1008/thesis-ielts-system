@@ -203,6 +203,19 @@ FSRS (Free Spaced Repetition Scheduler) là thuật toán lặp lại ngắt qu�
 
 Trong dự án này, thư viện ts-fsrs v5.3.2 (TypeScript implementation của FSRS) được tích hợp vào module Vocab Lab của NestJS Backend Core. Mỗi flashcard trong hệ thống được gắn với một FSRS card state lưu trong cơ sở dữ liệu, bao gồm các tham số: stability (độ bền của ký ức), difficulty (độ khó của từ) và due date (ngày ôn tập tiếp theo). Khi người học đánh giá một flashcard theo thang Rating --- Again (không nhớ), Hard (nhớ khó), Good (nhớ bình thường), Easy (nhớ dễ) --- hàm f.next() của ts-fsrs tính toán lịch ôn tập tối ưu cho lần tiếp theo. Cơ chế này đảm bảo từ vựng được ôn đúng thời điểm trước khi bị quên, tối đa hóa hiệu quả học tập với thời gian đầu tư tối thiểu.
 
+\subsection{Khả năng quan sát (Observability) và OpenTelemetry}
+
+Khả năng quan sát (Observability) là năng lực thấu hiểu trạng thái nội bộ của một hệ thống phức tạp thông qua các dữ liệu đầu ra (telemetry data). Trong các hệ thống phân tán, khả năng quan sát thường dựa trên ba trụ cột chính (Three Pillars of Observability): số liệu thống kê (metrics), nhật ký (logs), và dấu vết (traces)~\cite{opentelemetry-docs}.
+
+OpenTelemetry (OTel) là một dự án mã nguồn mở thuộc CNCF (Cloud Native Computing Foundation), cung cấp bộ tiêu chuẩn, API và SDK để tạo, thu thập, định dạng và xuất dữ liệu telemetry một cách độc lập với nhà cung cấp (vendor-neutral)~\cite{opentelemetry-docs}.
+
+Trong hệ thống IELTS Master, OpenTelemetry được triển khai xuyên suốt để giám sát hiệu năng và lỗi:
+\begin{itemize}
+    \item \textbf{Backend Core (NestJS):} Sử dụng \texttt{@opentelemetry/sdk-node} và \texttt{prom-client} để thu thập metrics (như thời gian phản hồi API, tải CPU/Memory) và traces (dấu vết luồng gọi hàm giữa các module).
+    \item \textbf{Backend AI Worker (FastAPI):} Sử dụng \texttt{opentelemetry-sdk} và \texttt{opentelemetry-instrumentation-fastapi} cho Python để theo dõi thời gian thực thi của các tác vụ nặng như gọi Gemini API hay chạy \texttt{faster-whisper}.
+    \item \textbf{Định tuyến dữ liệu:} Dữ liệu telemetry từ cả hai dịch vụ được xuất (export) về Grafana Alloy, sau đó lưu trữ tại Prometheus (metrics), Loki (logs) và Tempo (traces), giúp quản trị viên có cái nhìn toàn cảnh về sức khỏe hệ thống và dễ dàng truy vết khi xảy ra lỗi.
+\end{itemize}
+
 \section{Cơ sở dữ liệu}
 
 PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDBMS) hiệu năng cao, được phát triển từ năm 1986 tại Đại học California Berkeley và duy trì bởi cộng đồng PostgreSQL Global Development Group~\cite{postgresql-docs}. Theo Stack Overflow Developer Survey 2024, PostgreSQL là cơ sở dữ liệu được yêu thích nhất trong 5 năm liên tiếp với hơn 49\% developer chuyên nghiệp sử dụng, nhờ tính ổn định, tuân thủ chuẩn SQL nghiêm ngặt và hỗ trợ nhiều kiểu dữ liệu phức tạp (JSON, Array, Full-text search).
@@ -230,6 +243,18 @@ Hệ thống hỗ trợ hai phương thức đăng nhập: đăng ký tài kho�
 bcrypt là hàm băm mật khẩu một chiều (one-way hash function) được thiết kế đặc biệt cho việc lưu trữ mật khẩu an toàn, tích hợp salt ngẫu nhiên và hệ số chi phí (cost factor) điều chỉnh được. Khác với các hàm hash thông thường (MD5, SHA-256) được tối ưu hóa để chạy nhanh, bcrypt chủ động làm chậm quá trình hash để chống brute-force. Lưu ý quan trọng: bcrypt là hàm băm một chiều, không phải mã hóa (encryption) --- mật khẩu không thể giải mã ngược từ hash. Trong hệ thống này, mật khẩu được hash với salt rounds = 10 trước khi lưu vào cơ sở dữ liệu.
 
 Google OAuth 2.0 cho phép người dùng đăng nhập bằng tài khoản Google mà không cần tạo mật khẩu mới. Luồng xác thực sử dụng thư viện google-auth-library (OAuth2Client) để xác minh Google ID token từ client. Sau khi xác thực token hợp lệ, hệ thống tìm hoặc tạo user theo googleId. Người dùng đăng nhập qua Google không có trường password trong cơ sở dữ liệu và không thể đổi mật khẩu.
+
+\subsection{Cổng thanh toán VNPay và bảo mật HMAC-SHA512}
+
+VNPay là một trong những cổng thanh toán điện tử phổ biến nhất tại Việt Nam, cho phép tích hợp thanh toán qua thẻ ngân hàng, ví điện tử và mã QR. Để đảm bảo tính toàn vẹn dữ liệu (data integrity) và chống giả mạo (tampering) trong quá trình giao tiếp giữa hệ thống phần mềm và cổng thanh toán, VNPay yêu cầu sử dụng chữ ký điện tử áp dụng thuật toán HMAC-SHA512.
+
+HMAC (Hash-based Message Authentication Code) là một cơ chế xác thực thông điệp kết hợp giữa một hàm băm mật mã học (ở đây là SHA-512) và một khóa bí mật (secret key) chia sẻ chung~\cite{rfc2104}. Khi người dùng thực hiện giao dịch, hệ thống sẽ gom tất cả các tham số cấu hình thanh toán (mã đơn hàng, số tiền, ngày giờ tạo theo chuẩn GMT+7...), sắp xếp theo thứ tự từ điển, và tạo chuỗi truy vấn (query string). Chuỗi này sau đó được băm cùng với khóa \texttt{vnp\_HashSecret} để tạo ra chữ ký \texttt{vnp\_SecureHash}.
+
+Trong hệ thống IELTS Master, luồng thanh toán gói cước (Subscriptions) triển khai thuật toán này như sau:
+\begin{itemize}
+    \item \textbf{Tạo URL thanh toán:} NestJS Backend băm các tham số thanh toán bằng thuật toán HMAC-SHA512 và gắn chữ ký \texttt{vnp\_SecureHash} vào cuối URL trước khi chuyển hướng người dùng sang trang thanh toán VNPay.
+    \item \textbf{Xác thực Webhook/Return URL:} Khi VNPay trả kết quả giao dịch về hệ thống (qua URL callback), hệ thống lấy chuỗi truy vấn (loại trừ trường \texttt{vnp\_SecureHash} được gửi kèm) băm lại bằng khóa bí mật. Nếu chữ ký tạo ra khớp với chữ ký VNPay gửi về, giao dịch được xác nhận là hợp lệ và an toàn; từ đó hệ thống tiến hành cấp quyền truy cập các tính năng Premium/Pro cho người học.
+\end{itemize}
 
 \section{Kiến trúc phần mềm}
 
