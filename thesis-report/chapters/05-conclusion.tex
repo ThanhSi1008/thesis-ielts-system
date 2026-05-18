@@ -38,7 +38,7 @@ Hệ thống đã hiện thực đầy đủ các chức năng cốt lõi của 
 Mặc dù đã đạt được nhiều kết quả tích cực, hệ thống vẫn còn một số hạn chế cần được thừa nhận một cách khách quan:
 
 \begin{itemize}
-    \item \textbf{Độ trễ của AI scoring:} Việc gọi Gemini API~\cite{gemini-api} để chấm bài Writing và Speaking mất trung bình 3--8 giây tuỳ theo độ dài bài làm. Đây là hạn chế phụ thuộc vào tốc độ phản hồi của dịch vụ bên thứ ba và hiện chưa có cơ chế cache kết quả cho các bài làm tương tự.
+    \item \textbf{Độ trễ của AI scoring:} Việc gọi Gemini API~\cite{gemini-api} để chấm bài Writing và Speaking mất trung bình 5--10 giây tuỳ theo độ dài bài làm. Đây là hạn chế phụ thuộc vào tốc độ phản hồi của dịch vụ bên thứ ba và hiện chưa có cơ chế cache kết quả cho các bài làm tương tự.
 
     \item \textbf{Chưa kiểm thử hiệu năng quy mô lớn:} Hệ thống mới được kiểm thử với số lượng người dùng giới hạn trong môi trường phát triển. Chưa có load testing để xác định ngưỡng chịu tải thực tế khi có nhiều phiên Mock Test đồng thời, đặc biệt với các tác vụ gọi AI API song song.
 
