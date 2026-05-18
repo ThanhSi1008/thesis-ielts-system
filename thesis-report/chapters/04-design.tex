@@ -61,10 +61,10 @@ Ngoài ra, phân hệ Vocab Lab dùng các bảng decks, flashcards và flashcar
 Hệ thống được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm các thành phần chính như sau:
 
 \begin{itemize}
-    \item \textbf{NestJS Backend Core:} Toàn bộ nghiệp vụ được tổ chức thành 18 module trong một ứng dụng NestJS 10 duy nhất. Các module giao tiếp nội bộ qua Dependency Injection, giúp dễ bảo trì mà không cần phân tán thành nhiều service riêng lẻ.
+    \item \textbf{NestJS Backend Core:} Toàn bộ nghiệp vụ được tổ chức thành 17 module trong một ứng dụng NestJS 10 duy nhất. Các module giao tiếp nội bộ qua Dependency Injection, giúp dễ bảo trì mà không cần phân tán thành nhiều service riêng lẻ.
     \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), ghi kết quả trực tiếp vào PostgreSQL qua psycopg2 bằng câu truy vấn SQL thô, gọi Gemini API để chấm điểm, rồi gửi kết quả ngược lại NestJS qua HTTP callback.
-    \item \textbf{Tầng dữ liệu:} PostgreSQL trên Supabase (kết nối qua PgBouncer), Redis trên Upstash (cache và phiên làm việc), Google Cloud Storage lưu trữ an toàn các file audio ghi âm của người dùng, và Cloudinary đóng vai trò Image CDN chuyên biệt để lưu ảnh.
-    \item \textbf{Client:} Ứng dụng web Next.js và ứng dụng mobile React Native, đều kết nối với Backend Core qua HTTPS thông qua nginx~\cite{nestjs-docs}.
+    \item \textbf{Tầng dữ liệu:} PostgreSQL trên Supabase (kết nối qua PgBouncer), Redis trên Upstash (cache và phiên làm việc), Cloudinary lưu trữ ảnh và file audio ghi âm của người dùng, và Google Cloud Storage phục vụ lưu trữ media tĩnh cho AI Worker khi chấm điểm.
+    \item \textbf{Client:} Ứng dụng web Next.js và ứng dụng mobile React Native, đều kết nối với Backend Core qua HTTPS thông qua nginx.
 \end{itemize}
 
 \begin{figure}[H]
@@ -115,7 +115,7 @@ Trang chủ là màn hình đầu tiên người dùng nhìn thấy khi truy c�
 
 \subsection{Giao diện Dashboard người học}
 
-Trang IELTS Dashboard đóng vai trò là trung tâm điều khiển (hub) chính, nơi học viên theo dõi và quản lý toàn bộ quá trình luyện thi IELTS của mình. Mục đích cốt lõi của trang là cung cấp một Lộ trình học tập (Learning Roadmap) được cấu trúc rõ ràng qua 4 giai đoạn tiến triển: Foundation (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), Basic (nắm bắt kiến thức cơ bản của 4 kỹ năng), Advanced (luyện tập chuyên sâu từng dạng câu hỏi với AI), và Intensive (thi thử sát với thực tế). Ngoài việc hiển thị thanh tiến độ và số liệu tổng quan (Quick Stats), Dashboard còn đóng vai trò là điểm truy cập cho các công cụ bổ trợ (Tools \& Features) quan trọng như tạo lộ trình học cá nhân hóa bằng AI, Công cụ tính điểm Band Score, Kết nối theo dõi tiến độ giữa Học viên và Giáo viên, cùng với hệ thống Thống kê chi tiết giúp đánh giá tổng quan năng lực và nhận diện những kỹ năng cần cải thiện. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
+Trang IELTS Dashboard đóng vai trò là trung tâm điều khiển (hub) chính, nơi học viên theo dõi và quản lý toàn bộ quá trình luyện thi IELTS của mình. Mục đích cốt lõi của trang là cung cấp một Lộ trình học tập (Learning Roadmap) được cấu trúc rõ ràng qua 4 giai đoạn tiến triển: Foundation (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), Basic (nắm bắt kiến thức cơ bản của 4 kỹ năng), Advanced (luyện tập chuyên sâu từng dạng câu hỏi với AI), và Intensive (thi thử sát với thực tế). Ngoài việc hiển thị thanh tiến độ và số liệu tổng quan (Quick Stats), Dashboard còn đóng vai trò là điểm truy cập cho các công cụ bổ trợ (Tools \& Features) quan trọng như tạo lộ trình học cá nhân hóa, Công cụ tính điểm Band Score, Kết nối theo dõi tiến độ giữa Học viên và Giáo viên, cùng với hệ thống Thống kê chi tiết giúp đánh giá tổng quan năng lực và nhận diện những kỹ năng cần cải thiện. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
 
 \begin{figure}[H]
     \centering
@@ -126,7 +126,7 @@ Trang IELTS Dashboard đóng vai trò là trung tâm điều khiển (hub) chín
 
 \subsection{Giao diện Lộ trình học IELTS (Roadmap)}
 
-Trang IELTS Roadmap là công cụ hỗ trợ xây dựng chiến lược học tập cá nhân hóa do AI thiết kế. Thông qua việc thu thập thông tin về trình độ hiện tại, mục tiêu Band Score và thời gian rảnh rỗi của người học, hệ thống sẽ tự động vạch ra một lộ trình ôn luyện chi tiết theo từng mốc thời gian. Trang này không chỉ giúp người dùng định hướng rõ ràng các bước cần thực hiện, mà còn có khả năng tự động cập nhật và tinh chỉnh kế hoạch dựa trên tốc độ và kết quả học tập thực tế của họ trên hệ thống. Giao diện Roadmap được trình bày trong hình~\ref{fig:ui-roadmap}.
+Trang IELTS Roadmap là công cụ hỗ trợ xây dựng lộ trình học tập cá nhân hóa. Dựa trên kết quả Placement Test, mục tiêu Band Score và lịch học của người dùng, hệ thống tự động tạo lộ trình ôn luyện chi tiết, ưu tiên các kỹ năng còn yếu và bỏ qua những kỹ năng đã đạt ngưỡng thành thạo. Người học theo dõi tiến độ hoàn thành từng bước trực tiếp trên trang này; trạng thái từng bước được cập nhật tự động khi bài tập tương ứng được hoàn thành. Giao diện Roadmap được trình bày trong hình~\ref{fig:ui-roadmap}.
 
 \begin{figure}[H]
     \centering
@@ -192,7 +192,7 @@ Trang IELTS Intensive Speaking Test Taken mô phỏng lại một phòng thi Spe
 
 \subsection{Giao diện kết quả Writing với phản hồi AI (Intensive Writing Answer)}
 
-Trang IELTS Intensive Writing Answer Page có chức năng hiển thị kết quả đánh giá bài thi Viết của học viên sau khi được chấm điểm bởi hệ thống AI. Giao diện cung cấp cái nhìn toàn diện về bài làm, bao gồm Band Score dự kiến, nhận xét tổng quan và phân tích chi tiết theo 4 tiêu chí chấm thi của IELTS (Task Achievement, Coherence, Lexical Resource, Grammatical Range). Đặc biệt, trang này sẽ hiển thị các đoạn văn bản được AI chỉnh sửa hoặc gợi ý cải thiện, giúp người dùng nhận ra lỗi sai ngữ pháp, từ vựng và tối ưu hóa cách diễn đạt của mình. Giao diện kết quả Writing được trình bày trong hình~\ref{fig:ui-writing-answer}.
+Trang IELTS Intensive Writing Answer Page có chức năng hiển thị kết quả đánh giá bài thi Viết của học viên sau khi được chấm điểm bởi hệ thống AI. Giao diện cung cấp cái nhìn toàn diện về bài làm, bao gồm Band Score dự kiến, nhận xét tổng quan và phân tích chi tiết theo 4 tiêu chí chấm thi của IELTS (Task Achievement, Coherence, Lexical Resource, Grammatical Range). Đặc biệt, trang này liệt kê các lỗi ngôn ngữ cụ thể được phát hiện (kèm câu gốc, phiên bản đã sửa và giải thích ngắn), giúp người dùng nhận ra điểm yếu về ngữ pháp và từ vựng để cải thiện bài viết. Giao diện kết quả Writing được trình bày trong hình~\ref{fig:ui-writing-answer}.
 
 \begin{figure}[H]
     \centering
@@ -225,7 +225,7 @@ Trang Vocab Lab đóng vai trò như một ``phòng thí nghiệm'' hoặc cuố
 
 \subsection{Giao diện Cộng đồng (Community)}
 
-Trang Community (Cộng đồng) là không gian kết nối xã hội dành cho người dùng trên toàn hệ thống. Tại đây, học viên có thể chia sẻ kinh nghiệm ôn thi, thảo luận về các bài tập khó, đăng tải các bài nói/viết của mình để xin nhận xét, và tương tác với các thành viên khác hoặc giáo viên. Tính năng này giúp tạo ra một môi trường học tập mang tính cộng đồng, tăng cường động lực và sự gắn kết của người dùng với hệ thống. Giao diện Cộng đồng được trình bày trong hình~\ref{fig:ui-community}.
+Trang Community (Cộng đồng) là không gian kết nối xã hội dành cho người dùng trên toàn hệ thống. Tại đây, học viên có thể chia sẻ mẹo học tập, thảo luận về kinh nghiệm ôn thi, đăng bài chia sẻ thành tích band điểm, và tương tác với các thành viên khác. Tính năng này giúp tạo ra một môi trường học tập mang tính cộng đồng, tăng cường động lực và sự gắn kết của người dùng với hệ thống. Giao diện Cộng đồng được trình bày trong hình~\ref{fig:ui-community}.
 
 \begin{figure}[H]
     \centering
@@ -236,7 +236,7 @@ Trang Community (Cộng đồng) là không gian kết nối xã hội dành cho
 
 \subsection{Tính năng tra từ và lưu vào Vocab Lab bằng AI}
 
-Tính năng Add to Vocab Lab with AI là một công cụ tiện ích xuất hiện dưới dạng pop-up khi bôi đen văn bản trên các màn hình học hỗ trợ (Foundation Vocabulary, IELTS Basic, Dictation). Chức năng chính là cho phép người học tra cứu từ vựng và lưu thẻ ngay trong lúc học mà không cần chuyển trang. AI sẽ tự động phân tích nghĩa, cách phát âm, đưa ra ví dụ ngữ cảnh, và cung cấp một nút bấm để người dùng lưu trực tiếp từ vựng đó vào ``Vocab Lab'' cá nhân của mình chỉ với một thao tác, tối ưu hóa quá trình thu thập từ vựng một cách tiện lợi nhất. Giao diện tính năng được trình bày trong hình~\ref{fig:ui-add-vocablab-ai}.
+Tính năng Add to Vocab Lab with AI là một panel nổi xuất hiện khi người học bôi đen từ hoặc cụm từ trên các màn hình học hỗ trợ (Foundation Vocabulary, IELTS Basic, Dictation). Panel cung cấp hai tùy chọn: \textit{``Add to Vocab''} điền sẵn từ và ngữ cảnh vào form tạo thẻ trong tab Add của Vocab Lab để người học bổ sung nội dung còn lại và lưu; \textit{``Ask AI''} mở Chat AI để trợ lý tự động sinh đầy đủ nội dung cho thẻ theo Card Type đang dùng. Người học có thể xem lại và chỉnh sửa trước khi lưu mà không cần rời khỏi trang đang học. Giao diện tính năng được trình bày trong hình~\ref{fig:ui-add-vocablab-ai}.
 
 \begin{figure}[H]
     \centering
@@ -249,7 +249,7 @@ Tính năng Add to Vocab Lab with AI là một công cụ tiện ích xuất hi�
 
 \subsection{Danh sách các test case}
 
-Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp với thư viện Supertest cho tầng backend. Toàn bộ 60 trường hợp kiểm thử được tổ chức thành 7 file spec, phủ 7 nhóm chức năng cốt lõi: Đăng ký, Đăng nhập, Đăng bài cộng đồng, Thông báo, Cập nhật thông tin cá nhân, Luyện phát âm và Thống kê IELTS. Mỗi test case bao gồm mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Danh sách đầy đủ được trình bày trong bảng~\ref{tab:testcase_list}.
+Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp với thư viện Supertest cho tầng backend. Toàn bộ 61 trường hợp kiểm thử được tổ chức thành 7 file spec, phủ 7 nhóm chức năng cốt lõi: Đăng ký, Đăng nhập, Đăng bài cộng đồng, Thông báo, Cập nhật thông tin cá nhân, Luyện phát âm và Thống kê IELTS. Mỗi test case bao gồm mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Danh sách đầy đủ được trình bày trong bảng~\ref{tab:testcase_list}.
 
 % 6 cột p{}, divisor=134: (1.0+0.4+2.0+2.8+3.5+3.7)×10; -4pt buffer cho rounding
 \setlength{\tbu}{\dimexpr(\linewidth - 12\tabcolsep - 7\arrayrulewidth - 4pt)/134\relax}
@@ -275,7 +275,8 @@ Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Tes
     TC01 & 5 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập đầy đủ thông tin hợp lệ & Tạo tài khoản thành công, trả thông tin tài khoản (không hiển thị mật khẩu) \\ \hline
     TC01 & 6 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập mật khẩu hợp lệ và nộp đăng ký & Mật khẩu được lưu ở dạng mã hoá, không lưu nguyên văn \\ \hline
     TC01 & 7 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký thành công với thông tin hợp lệ & Hệ thống tự động tạo bộ thẻ từ vựng ``Default'' cho tài khoản mới \\ \hline
-    TC01 & 8 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký không chọn vai trò / chọn vai trò Quản trị viên & Tài khoản được gán vai trò Học viên mặc định / lưu đúng vai trò được chọn \\ \hline
+    TC01 & 8 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký không chọn vai trò / chọn vai trò hợp lệ (Học viên hoặc Giáo viên) & Gán vai trò Học viên mặc định / lưu đúng vai trò được chọn \\ \hline
+    TC01 & 9 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký với vai trò Quản trị viên & Từ chối yêu cầu, thông báo vai trò không hợp lệ \\ \hline
 
     TC02 & 1 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email đúng, mật khẩu sai & Thông báo thông tin đăng nhập không chính xác \\ \hline
     TC02 & 2 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email không tồn tại, mật khẩu đúng & Thông báo thông tin đăng nhập không chính xác \\ \hline
@@ -339,7 +340,7 @@ Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Tes
 
 \subsection{Bảng báo cáo kết quả kiểm thử}
 
-Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi tự động qua lệnh \texttt{npm run test:report} của workspace \texttt{backend-core}. Lệnh này kích hoạt custom Jest reporter sinh bảng kết quả markdown ra file \texttt{backend-core/docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 60 test case đều đạt kết quả \textbf{Pass}, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
+Sau khi hoàn thiện hệ thống, toàn bộ 61 test case được thực thi tự động qua lệnh \texttt{npm run test:report} của workspace \texttt{backend-core}. Lệnh này kích hoạt custom Jest reporter sinh bảng kết quả markdown ra file \texttt{backend-core/docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 61 test case đều đạt kết quả \textbf{Pass}, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
 
 \renewcommand{\arraystretch}{1.2}
 % 7 cột p{}, divisor=130: (0.9+1.3+2.6+2.4+0.9+1.9+3.0)×10; -4pt buffer cho rounding
@@ -366,7 +367,8 @@ Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi 
     Valid & TC01\_05 & Thông tin đăng ký đầy đủ và hợp lệ & Đăng ký thành công, trả thông tin tài khoản & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Valid & TC01\_06 & password: \texttt{MySecret123} & Mật khẩu lưu ở dạng mã hoá & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Valid & TC01\_07 & Đăng ký thành công & Tự động tạo bộ thẻ ``Default'' & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC01\_08 & Không có / có vai trò trong yêu cầu & Mặc định Học viên / lưu đúng vai trò & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC01\_08 & Không có / vai trò hợp lệ trong yêu cầu & Mặc định Học viên / lưu đúng vai trò & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC01\_09 & role: \texttt{ADMIN} & Từ chối, thông báo vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
 
     Invalid & TC02\_01 & Email đúng + mật khẩu sai & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Invalid & TC02\_02 & Email không tồn tại + mật khẩu đúng & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline

@@ -4,6 +4,7 @@ import {
   IsString,
   MinLength,
   IsOptional,
+  IsIn,
 } from "class-validator";
 
 export class RegisterDto {
@@ -24,8 +25,8 @@ export class RegisterDto {
   lastName: string;
 
   @IsOptional()
-  @IsString()
-  role?: "STUDENT" | "TEACHER" | "ADMIN";
+  @IsIn(["STUDENT", "TEACHER"], { message: "Role must be STUDENT or TEACHER" })
+  role?: "STUDENT" | "TEACHER";
 }
 
 export class LoginDto {
