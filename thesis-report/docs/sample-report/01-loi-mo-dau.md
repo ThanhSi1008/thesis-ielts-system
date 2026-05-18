@@ -1,5 +1,0 @@
-# LỜI MỞ ĐẦU
-
-Trong bối cảnh Cách mạng công nghiệp 4.0, ứng dụng công nghệ số kết hợp mạng xã hội trong giáo dục ngoại ngữ đã trở thành xu hướng tất yếu giúp người học tiếp cận kiến thức linh hoạt. Mặc dù các nền tảng phổ biến (Facebook, Youtube, …) đã chứng minh hiệu quả trong việc duy trì động lực và tăng cường tương tác, đặc biệt trong giai đoạn dịch COVID-19, nhưng chúng vẫn bộc lộ hạn chế về tính xao nhãng và thiếu định hướng học thuật chuyên sâu. Nhận thấy sự thiếu hụt các giải pháp chuyên biệt tại Việt Nam, đề tài **“Xây dựng nền tảng mạng xã hội hỗ trợ** **học tập tiếng Anh và giao tiếp đa phương tiện”** được thực hiện nhằm khắc phục các bất cập trên. Nghiên cứu không chỉ đóng góp về mặt khoa học thông qua việc làm phong phú lý thuyết giáo dục dựa trên công nghệ và mô hình học tập lai (Blended Learning), mà còn mang lại ý nghĩa thực tiễn sâu sắc: cung cấp một công cụ miễn phí, tối ưu hóa tương tác thầy - trò, xóa bỏ rào cản địa lý và đáp ứng nhu cầu nhân lực chất lượng cao trong thời kỳ hội nhập.
-
-_Khóa luận tốt nghiệp ngành Kỹ thuật phần mềm_ _Social Learning_
