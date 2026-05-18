@@ -9,7 +9,7 @@ Hệ thống IELTS Master được xây dựng trên nền tảng lý thuyết t
 
 Học ngôn ngữ hỗ trợ máy tính (Computer-Assisted Language Learning --- CALL) là lĩnh vực nghiên cứu ứng dụng công nghệ thông tin để hỗ trợ quá trình dạy và học ngôn ngữ~\cite{nguyen2020tienganh}. Chapelle và Jamieson~\cite{chapelle2010technology} xác định ba nguyên tắc thiết kế CALL hiệu quả: (1) cung cấp đầu vào ngôn ngữ phong phú và đa dạng theo trình độ người học (\textit{input}); (2) tạo cơ hội luyện tập tương tác có nghĩa (\textit{interaction}); và (3) đưa ra phản hồi tức thì và cụ thể (\textit{feedback}). Ebadi và Rahimi~\cite{ebadi2018scaffolding} bổ sung rằng phản hồi được cá nhân hóa và lặp lại giúp người học nội hóa kiến thức ngôn ngữ hiệu quả hơn so với học thụ động, bằng chứng là cơ chế scaffolding trong môi trường CALL.
 
-Hệ thống IELTS Master được thiết kế theo cả ba nguyên tắc CALL: nội dung học phân cấp từ Foundation đến Advanced cung cấp input theo từng trình độ; các bài tập Speaking, Pronunciation và Dictation tạo interaction trong tình huống giao tiếp thực tế; cơ chế chấm điểm AI tự động (Gemini 2.5 Flash và faster-whisper) cung cấp feedback chi tiết và tức thì sau mỗi lần luyện tập.
+Hệ thống IELTS Master được thiết kế theo cả ba nguyên tắc CALL: nội dung học phân cấp từ Foundation đến Advanced cung cấp input theo từng trình độ; các bài tập Speaking, Pronunciation và nghe chép chính tả (Dictation) tạo interaction trong tình huống giao tiếp thực tế; cơ chế chấm điểm AI tự động (Gemini 2.5 Flash và faster-whisper) cung cấp feedback chi tiết và tức thì sau mỗi lần luyện tập.
 
 \subsection{Đánh giá bài viết tự động (AES)}
 
@@ -109,7 +109,7 @@ Các lợi ích khi chọn React Native cho ứng dụng mobile IELTS:
 \begin{itemize}
     \item \textbf{Chia sẻ logic với Next.js:} Vì cùng nền tảng React và TypeScript, các hook và utility function có thể tái sử dụng, giảm thời gian phát triển.
     \item \textbf{Native UI components:} React Native render component native thực sự (không phải WebView), đảm bảo trải nghiệm mượt mà tương đương app native trên cả iOS và Android.
-    \item \textbf{Hỗ trợ đa phương tiện:} Hệ sinh thái Expo cung cấp các package chuyên biệt cho nhu cầu đa phương tiện của hệ thống IELTS: expo-audio dùng cho cả ghi âm (Speaking, Pronunciation) lẫn phát audio bài luyện; expo-video phát video giám khảo AI và clip YouTube nhúng phục vụ Shadowing/Dictation; expo-speech-recognition thực hiện nhận dạng giọng nói ngay trên thiết bị (on-device) cho các tác vụ tương tác nhanh.
+    \item \textbf{Hỗ trợ đa phương tiện:} Hệ sinh thái Expo cung cấp các package chuyên biệt cho nhu cầu đa phương tiện của hệ thống IELTS: expo-audio dùng cho cả ghi âm (Speaking, Pronunciation) lẫn phát audio bài luyện; expo-video phát video giám khảo AI và clip YouTube nhúng phục vụ nghe và nói đuổi (Shadowing) và nghe chép chính tả (Dictation); expo-speech-recognition thực hiện nhận dạng giọng nói ngay trên thiết bị (on-device) cho các tác vụ tương tác nhanh.
     \item \textbf{Cross-platform hiệu quả:} Một codebase duy nhất cho cả iOS và Android giúp giảm đáng kể thời gian phát triển và bảo trì so với phát triển hai app native riêng biệt.
 \end{itemize}
 
@@ -159,7 +159,7 @@ Trong hệ thống IELTS, model base của Whisper được pre-download vào Do
 
 \begin{itemize}
     \item \textbf{Chấm điểm phát âm (Pronunciation):} File audio WAV của người học được chuyển thành transcript kèm xác suất tin cậy (word probability) theo từng từ. Hệ thống áp dụng \textit{weighted phoneme edit distance} thay vì Levenshtein thô: từ và transcript đều được chuyển sang ký hiệu IPA qua thư viện eng-to-ipa, sau đó so khớp với chi phí thay thế khác nhau theo lớp âm vị (vowels, plosives, fricatives, nasals, approximants, affricates) --- thay thế trong cùng lớp tốn chi phí thấp hơn so với thay thế khác lớp, và đổi nguyên âm thành phụ âm bị phạt nặng nhất. Điểm phát âm cuối cùng được tổng hợp từ ba thành phần theo công thức $\text{overall} = 0{,}4 \cdot \text{phoneme} + 0{,}4 \cdot \text{confidence} + 0{,}2 \cdot \text{text}$, trong đó \textit{phoneme} là điểm khoảng cách IPA có trọng số, \textit{confidence} là độ tin cậy trung bình của Whisper, và \textit{text} là điểm Levenshtein trên văn bản gốc (giữ lại làm thành phần phụ để bù khi việc chuyển sang IPA thất bại).
-    \item \textbf{Transcription cho Dictation:} Audio bài nghe được transcribe để so sánh với câu trả lời điền từ của người học.
+    \item \textbf{Transcription cho Dictation (nghe chép chính tả):} Audio bài nghe được transcribe để so sánh với câu trả lời điền từ của người học.
 \end{itemize}
 
 \subsection{RabbitMQ}
@@ -209,7 +209,7 @@ PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở
 
 Trong dự án này, PostgreSQL 16 được triển khai trên nền tảng \textbf{Supabase}~\cite{supabase-docs} --- dịch vụ cơ sở dữ liệu quản lý đám mây xây dựng trên PostgreSQL mã nguồn mở, cung cấp connection pooling tự động qua PgBouncer. Prisma ORM kết nối với Supabase theo hai chế độ: pooler port 6543 với tham số pgbouncer=true cho query thông thường (tối ưu số lượng kết nối đồng thời), và direct port 5432 cho Prisma Migrate (yêu cầu kết nối trực tiếp khi thay đổi schema).
 
-Schema cơ sở dữ liệu bao gồm 66 model được định nghĩa trong file schema.prisma và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation\slash Basic\slash Advanced\slash Intensive), Vocabulary \& Grammar, Shadowing \& Dictation, Vocab Lab (FSRS), Community, Gamification và Subscriptions.
+Schema cơ sở dữ liệu bao gồm 66 model được định nghĩa trong file schema.prisma và quản lý bằng Prisma Migrate. Các domain chính gồm: User Management, IELTS Learning (Foundation\slash Basic\slash Advanced\slash Intensive), Vocabulary \& Grammar, nghe và nói đuổi (Shadowing) \& nghe chép chính tả (Dictation), Vocab Lab (FSRS), Community, Gamification và Subscriptions.
 
 \section{Xác thực và bảo mật}
 
