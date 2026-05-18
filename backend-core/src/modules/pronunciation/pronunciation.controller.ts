@@ -140,12 +140,13 @@ export class PronunciationController {
       targetWord,
     });
 
-    await this.aiClientService["channel"].assertQueue("pronunciation-check-queue", { durable: true });
-    this.aiClientService["channel"].sendToQueue(
-      "pronunciation-check-queue",
-      Buffer.from(JSON.stringify({ attemptId: attempt.id, audioUrl, targetWord, userId: body.userId, vocabularyId: body.vocabularyId })),
-      { persistent: true },
-    );
+    await this.aiClientService.publishPronunciationTask({
+      attemptId: attempt.id,
+      audioUrl,
+      targetWord,
+      userId: body.userId,
+      vocabularyId: body.vocabularyId,
+    });
 
     return { attemptId: attempt.id, status: "PENDING", message: "Pronunciation check queued for processing" };
   }

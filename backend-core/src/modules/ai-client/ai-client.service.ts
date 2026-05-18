@@ -8,6 +8,7 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
   private channel: any; // amqp.Channel
   private queueName: string;
   private transcriptionQueueName: string;
+  private pronunciationQueueName = "pronunciation-check-queue";
 
   constructor(private configService: ConfigService) { }
 
@@ -36,6 +37,9 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
       await this.channel.assertQueue(this.transcriptionQueueName, {
         durable: true,
       });
+      await this.channel.assertQueue(this.pronunciationQueueName, {
+        durable: true,
+      });
       console.log("✅ RabbitMQ connected successfully");
     } catch (error) {
       console.error("❌ RabbitMQ connection error:", error);
@@ -62,5 +66,21 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
       persistent: true,
     });
     console.log(`📤 Published transcription task for video: ${task.videoId}`);
+  }
+
+  async publishPronunciationTask(task: {
+    attemptId: string;
+    audioUrl: string;
+    targetWord: string;
+    userId: string;
+    vocabularyId?: string;
+  }): Promise<void> {
+    if (!this.channel) throw new Error("RabbitMQ channel not initialized");
+    this.channel.sendToQueue(
+      this.pronunciationQueueName,
+      Buffer.from(JSON.stringify(task)),
+      { persistent: true },
+    );
+    console.log(`📤 Published pronunciation task for attempt: ${task.attemptId}`);
   }
 }
