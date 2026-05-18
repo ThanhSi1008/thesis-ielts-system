@@ -407,7 +407,7 @@ Sau khi xác thực thành công qua email (sử dụng Passport.js local strate
 \end{sloppypar}
 
 % ============================================================
-% UC03 – ADD CARD TYPE
+% UC27 – ADD CARD TYPE
 % ============================================================
 \subsection{Tạo loại thẻ học (UC27)}
 Bảng~\ref{tab:uc27_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc27} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc27} thể hiện sơ đồ tuần tự.
@@ -469,7 +469,7 @@ Chức năng tạo loại thẻ học (Card Type) được xem là nền tảng 
 Kết quả là, khi người học nhấn lưu cấu hình template, hệ thống thực hiện một lời gọi cập nhật tập trung lên bản ghi \texttt{CardTemplate} tương ứng, ghi đè đồng thời các trường ánh xạ mặt trước/sau và toàn bộ thông tin định dạng. Thiết kế này tách biệt rõ ràng giữa định nghĩa cấu trúc trường (\texttt{CardTypeField}) và quy tắc hiển thị (\texttt{CardTemplate}), đảm bảo tính toàn vẹn và dễ mở rộng của dữ liệu loại thẻ.
 
 % ============================================================
-% UC04 – LOOK UP AND ADD WORDS WITH AI
+% UC28 – LOOK UP AND ADD WORDS WITH AI
 % ============================================================
 \subsection{Tra cứu và thêm từ vựng bằng AI (UC28)}
 Bảng~\ref{tab:uc28_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc28} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc28} thể hiện sơ đồ tuần tự.
@@ -547,7 +547,7 @@ Cụ thể, hệ thống liên tục lắng nghe các sự kiện bôi đen văn
 \end{sloppypar}
 
 % ============================================================
-% UC05 – STUDY IELTS FOUNDATION VOCABULARY
+% UC03 – STUDY IELTS FOUNDATION VOCABULARY
 % ============================================================
 \subsection{Học từ vựng nền tảng IELTS (UC03)}
 Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc03} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc03} thể hiện sơ đồ tuần tự.
@@ -586,14 +586,14 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
     \multicolumn{2}{|p{0.88\linewidth}|}{Lặp lại bước 5--8 cho đến khi tất cả các từ trong unit được xem qua.} \\ \hline
     & 10. Tự động mở khóa tab ``Reading Comprehension''; hiển thị đoạn văn đọc hiểu với các từ đã học được in đậm kèm tooltip, và bộ câu hỏi kiểm tra bên phải (dạng điền từ hoặc trắc nghiệm). \\ \hline
     11. Đọc đoạn văn, điền câu trả lời cho từng câu hỏi, nhấn ``Submit Answers''. & \\ \hline
-    & 12. Đối chiếu từng đáp án với đáp án chuẩn và trả về kết quả gồm số câu đúng, tổng số câu và trạng thái từng câu. \\ \hline
-    & 13a. Nếu chưa đạt điểm tuyệt đối: hiển thị kết quả, tô màu đỏ câu sai và màu xanh câu đúng; hiển thị nút ``Try Again''. Quay lại bước 11. \\ \hline
-    & 13b. Nếu toàn bộ câu trả lời đúng: đánh dấu unit hoàn thành và lưu vào cơ sở dữ liệu; kích hoạt sự kiện gamification 15~XP; hiển thị thông báo hoàn thành và nút ``Continue Learning'' để quay về danh sách unit. Kết thúc use-case. \\ \hline
+    & 12. Đối chiếu từng đáp án với đáp án chuẩn và trả về kết quả gồm số câu đúng, tổng số câu và trạng thái từng câu; đánh dấu unit hoàn thành và lưu vào cơ sở dữ liệu (vô điều kiện, bất kể điểm số); kích hoạt sự kiện gamification 15~XP. \\ \hline
+    & 13. Hiển thị kết quả: tô màu xanh câu đúng, màu đỏ câu sai. Nếu toàn bộ câu đúng, hiển thị nút ``Continue Learning'' để quay về danh sách unit. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
     7a.1. Chọn mức đánh giá ``Again'' (chưa nhớ từ). & \\ \hline
     & 7a.2. Chèn từ trở lại cuối hàng đợi, tổng số từ cần xem tăng thêm 1; Flashcard sẽ xuất hiện lại trong phiên học hiện tại. Quay lại bước 5. \\ \hline
     & 10.1. Unit đã được hoàn thành từ phiên trước: tab ``Reading Comprehension'' được mở sẵn ngay khi vào unit; người học xem lại đoạn văn và kết quả mà không cần làm lại bài. \\ \hline
     & 12.1. Kết nối mạng gián đoạn khi nộp đáp án: hiển thị thông báo lỗi, giữ nguyên câu trả lời để người học thử lại. Quay lại bước 11. \\ \hline
+    & 13.1. Điểm số chưa đạt tuyệt đối: unit đã được đánh dấu hoàn thành (bước 12); hiển thị nút ``Try Again'' để người học xem lại đáp án hoặc thử lại từ bước 11, nhưng không làm thay đổi trạng thái hoàn thành đã ghi nhận. \\ \hline
 \end{longtable}
 
 \subsubsection{Sơ đồ activity}
@@ -616,12 +616,12 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 Hệ thống Foundation Vocabulary được thiết kế theo mô hình phân tầng dữ liệu: nội dung tĩnh (bao gồm danh mục sách, unit, từ vựng và câu hỏi) được cache chặt chẽ ở phía máy chủ nhằm giảm thiểu tải truy vấn, trong khi tiến độ cá nhân của người học được ghi nhận vào cơ sở dữ liệu với ràng buộc duy nhất (unique constraint) theo cặp người học và bài học. Thiết kế này đảm bảo tính toàn vẹn, mỗi cặp chỉ tồn tại đúng một bản ghi tiến độ duy nhất.
 
-Cốt lõi kỹ thuật của tính năng này nằm ở việc ứng dụng thuật toán lặp lại ngắt quãng FSRS (Free Spaced Repetition Scheduler). Thay vì chỉ cho người học xem lại từ vựng theo cảm tính, hệ thống yêu cầu họ tự đánh giá mức độ ghi nhớ qua 4 cấp độ: ``Again'', ``Hard'', ``Good'', ``Easy''. Dựa trên phản hồi này, thuật toán FSRS lập tức tính toán lại bốn chỉ số quan trọng: Điểm thông thạo (Mastery Score), Độ ổn định (Stability), Độ khó (Difficulty) và Ngày ôn tập tiếp theo (Due Date). Ngay khi người học chọn một mức đánh giá, hệ thống sẽ tự động tạo một thẻ trong bộ thẻ mặc định của Vocab Lab chứa các chỉ số SRS vừa tính toán, đồng thời cập nhật tiến độ của phiên học. Riêng đối với lựa chọn ``Already know --- skip'', từ vựng được bỏ qua và tính vào tiến độ nhưng không được đẩy vào hệ thống SRS, giúp người học tiết kiệm thời gian với những từ đã biết rõ.
+Cốt lõi kỹ thuật của tính năng này nằm ở việc ứng dụng thuật toán lặp lại ngắt quãng FSRS (Free Spaced Repetition Scheduler). Thay vì chỉ cho người học xem lại từ vựng theo cảm tính, hệ thống yêu cầu họ tự đánh giá mức độ ghi nhớ qua 4 cấp độ: ``Again'', ``Hard'', ``Good'', ``Easy''. Dựa trên phản hồi này, thuật toán FSRS lập tức tính toán lại bốn chỉ số quan trọng: Trạng thái thẻ (State), Độ ổn định (Stability), Độ khó (Difficulty) và Ngày ôn tập tiếp theo (Due Date). Ngay khi người học chọn một mức đánh giá, hệ thống sẽ tự động tạo một thẻ trong bộ thẻ mặc định của Vocab Lab chứa các chỉ số SRS vừa tính toán, đồng thời cập nhật tiến độ của phiên học. Riêng đối với lựa chọn ``Already know --- skip'', từ vựng được bỏ qua và tính vào tiến độ nhưng không được đẩy vào hệ thống SRS, giúp người học tiết kiệm thời gian với những từ đã biết rõ.
 
 Một quyết định kỹ thuật khác liên quan đến trải nghiệm là xử lý lựa chọn ``Again'' hoàn toàn ở phía trình duyệt. Khi người học quên một từ, từ đó sẽ được chèn lại vào cuối hàng đợi mảng dữ liệu mà không cần gửi bất kỳ yêu cầu nào lên máy chủ. Điều này đảm bảo từ vựng đó bắt buộc phải xuất hiện lại trong cùng một phiên học. Cuối cùng, luồng kiểm tra bài tập Reading Comprehension áp dụng thuật toán chấm điểm tự động phía máy chủ: đáp án của người học được so sánh không phân biệt chữ hoa/thường với từng đáp án chuẩn, sau đó máy chủ tính tỷ lệ phần trăm đúng và vô điều kiện đánh dấu unit hoàn thành, đồng thời kích hoạt sự kiện gamification 15~XP.
 
 % ============================================================
-% UC06 – STUDY IELTS BASIC LISTENING LESSONS
+% UC06 – STUDY IELTS BASIC LESSONS AND EXERCISES
 % ============================================================
 \subsection{Học bài Listening IELTS cơ bản (UC06)}
 Bảng~\ref{tab:uc06_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc06} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc06-lessons} và hình~\ref{fig:sequence-uc06-exercises} thể hiện sơ đồ tuần tự cho luồng học lý thuyết và luồng luyện bài tập nghe.
@@ -654,7 +654,7 @@ Bảng~\ref{tab:uc06_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
     5a. Chọn một bài học từ danh sách. & \\ \hline
     & 6a. Tải nội dung bài học; hiển thị trang bài học với các khối nội dung lý thuyết (strategy, tips, traps, overview, section) được render từ Markdown và thanh mục lục điều hướng bên cạnh. Cuối trang là quiz trắc nghiệm tối đa 4 câu. \\ \hline
     7a. Đọc nội dung lý thuyết, trả lời các câu hỏi quiz và nhấn ``Submit''. & \\ \hline
-    & 8a. Chấm điểm quiz phía client; ghi nhận bài học hoàn thành vào cơ sở dữ liệu; kích hoạt sự kiện gamification (10~XP) và cập nhật chuỗi học liên tiếp; cập nhật thanh tiến độ. Kết thúc nhánh A. \\ \hline
+    & 8a. Chấm điểm quiz phía client; hiển thị số câu đúng, tô màu xanh câu đúng và màu đỏ câu sai. Nếu toàn bộ câu trả lời đúng: ghi nhận bài học hoàn thành vào cơ sở dữ liệu; kích hoạt sự kiện gamification (10~XP) và cập nhật chuỗi học liên tiếp; cập nhật thanh tiến độ; hiển thị nút ``Next Step''. Kết thúc nhánh A. \\ \hline
     3b. Nhấn vào phần ``Exercises'' của thẻ kỹ năng Listening. & \\ \hline
     & 4b. Tải danh sách bài tập luyện nghe; hiển thị kèm tiêu đề, loại dạng bài và trạng thái hoàn thành. \\ \hline
     5b. Chọn một bài tập từ danh sách. & \\ \hline
@@ -666,7 +666,8 @@ Bảng~\ref{tab:uc06_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
     & 11b. Nếu tất cả câu trả lời đúng (điểm tuyệt đối): ghi nhận bài tập hoàn thành vào cơ sở dữ liệu; kích hoạt sự kiện gamification (15~XP) và cập nhật chuỗi học liên tiếp; mở khóa bảng Transcript bên phải với nội dung đồng bộ theo câu hỏi; hiển thị nút ``Next Step''. Kết thúc use-case. \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
     & 10b.1. Điểm số chưa đạt tuyệt đối: hiển thị số câu đúng và nút ``Retry''; không ghi nhận hoàn thành; bảng Transcript không được mở khóa. Quay lại bước 7b. \\ \hline
-    & 8a.1. Bài học đã được hoàn thành từ lần học trước: giao diện hiển thị trạng thái đã hoàn thành; người học xem lại lý thuyết mà không cần làm lại quiz. \\ \hline
+    & 8a.1. Điểm quiz chưa đạt tuyệt đối: hiển thị số câu đúng kèm nút ``Retry''; bài học chưa được đánh dấu hoàn thành. Quay lại bước 7a. \\ \hline
+    & 8a.2. Bài học đã được hoàn thành từ lần học trước: giao diện hiển thị trạng thái đã hoàn thành; người học xem lại lý thuyết mà không cần làm lại quiz. \\ \hline
     & 6b.1. Câu hỏi trong bài tập được gắn mốc thời gian audio: nút ``Listen from here'' xuất hiện cạnh câu hỏi tương ứng; nhấn nút này sẽ seek trình phát đến đúng mốc thời gian trong audio mà không phát lại từ đầu. \\ \hline
 \end{longtable}
 
@@ -709,7 +710,7 @@ Logic chấm điểm được thiết kế chạy độc lập hoàn toàn phía
 \end{sloppypar}
 
 % ============================================================
-% UC07 – PRACTICE IELTS ADVANCED READING
+% UC11 – PRACTICE IELTS ADVANCED READING
 % ============================================================
 \subsection{Luyện Reading IELTS nâng cao (UC11)}
 Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
@@ -796,7 +797,7 @@ Logic chấm điểm được giao phó hoàn toàn cho máy chủ sau khi ngư�
 \end{sloppypar}
 
 % ============================================================
-% UC08 – DO SPEAKING MOCK TEST
+% UC17 – DO SPEAKING MOCK TEST
 % ============================================================
 \subsection{Thi thử Speaking (Mock Test) (UC17)}
 Bảng~\ref{tab:uc17_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc17} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc17} thể hiện sơ đồ tuần tự.
@@ -896,11 +897,11 @@ Khi chính thức vào bài thi, luồng điều khiển được tiếp quản 
 \end{sloppypar}
 
 \begin{sloppypar}
-Để tối ưu hóa luồng dữ liệu âm thanh dung lượng lớn, ứng dụng áp dụng kỹ thuật tải lên nền tảng đám mây song song. Các đoạn ghi âm được giữ tạm thời trên bộ nhớ cục bộ. Khi bài thi kết thúc, hệ thống tiến hành đẩy các file này lên bộ lưu trữ đám mây (Cloudinary) dưới dạng luồng dữ liệu thô (Multipart Form) và nhận lại các liên kết định tuyến. Cuối cùng, tập hợp liên kết này được nộp về máy chủ. Máy chủ sau đó phân bổ yêu cầu sang Message Broker (như RabbitMQ) để đưa vào hàng đợi xử lý nền. Một bộ xử lý độc lập sẽ tiến hành bóc băng âm thanh (S2T) và đưa vào Gemini AI để đánh giá theo 4 tiêu chí Speaking chuẩn. Nhờ kiến trúc bất đồng bộ phân mảnh, giao diện người dùng không bị đóng băng, cho phép học viên thoải mái thực hiện các chức năng khác và nhận thông báo khi có điểm.
+Để xử lý dữ liệu âm thanh dung lượng lớn, ứng dụng lưu tạm các Blob ghi âm trong bộ nhớ React state. Khi bài thi kết thúc, hệ thống lần lượt tải từng file lên NestJS backend qua endpoint \texttt{/exams/audio/upload} (Multipart Form); backend nhận file và lưu lên Cloudinary thông qua SDK, trả về đường dẫn công khai. Sau khi toàn bộ file được tải xong theo thứ tự, tập hợp liên kết được gửi về backend để lưu vào phiên thi. NestJS backend sau đó đẩy tác vụ chấm điểm vào hàng đợi RabbitMQ (\texttt{exam-grading-queue}). FastAPI AI Worker nhận tác vụ, thực hiện chuyển đổi giọng nói thành văn bản (STT) và gọi Gemini AI để đánh giá theo 4 tiêu chí Speaking chuẩn. Nhờ kiến trúc bất đồng bộ này, giao diện người dùng không bị chặn chờ và người học nhận thông báo khi có kết quả.
 \end{sloppypar}
 
 % ============================================================
-% UC09 – PRACTICE WRITING WITH DICTATION
+% UC24 – PRACTICE DICTATION
 % ============================================================
 \subsection{Luyện nghe chép chính tả (Dictation) (UC24)}
 Bảng~\ref{tab:uc24_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc24} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc24} thể hiện sơ đồ tuần tự.
@@ -991,7 +992,7 @@ Hệ thống đục lỗ transcript hoạt động theo bốn cấp độ khó �
 Kiểm tra đáp án được kích hoạt mỗi khi người học chỉnh sửa nội dung nhập: hệ thống so sánh từng từ đã điền với đáp án chuẩn qua chuẩn hóa văn bản (chuyển về chữ thường, loại dấu câu và khoảng trắng thừa). Khi toàn bộ từ khớp chính xác, hệ thống tự động đánh dấu câu hoàn thành và hiển thị xác nhận. Khi người học hoàn thành bài, hệ thống loại bỏ trùng lặp trong danh sách chỉ số câu đã hoàn thành rồi gửi lên máy chủ. Phía máy chủ, bản ghi tiến trình được tạo mới hoặc cập nhật theo cặp định danh người học -- bài học để đảm bảo mỗi người học chỉ có một bản ghi duy nhất cho mỗi bài.
 
 % ============================================================
-% UC10 – ROADMAP
+% UC19 – ROADMAP / ONBOARDING
 % ============================================================
 \subsection{Xây dựng lộ trình học tập (UC19)}
 Bảng~\ref{tab:uc19_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc19} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc19} thể hiện sơ đồ tuần tự.
@@ -1056,7 +1057,7 @@ Bảng~\ref{tab:uc19_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Tính năng Xây dựng lộ trình học tập (Onboarding \& Roadmap) là điểm chạm đầu tiên quyết định tính cá nhân hóa của hệ thống. Luồng kỹ thuật này bắt đầu bằng việc kiểm tra trạng thái Onboarding ở cấp độ tiền xử lý (Global Middleware) trước khi nội dung điều hướng có thể hiển thị nội dung học thuật. Nếu máy chủ phát hiện người dùng chưa khai báo hồ sơ cá nhân trong cơ sở dữ liệu, mọi yêu cầu giao diện lập tức bị chuyển hướng bắt buộc về trang khởi tạo lộ trình.
+Tính năng Xây dựng lộ trình học tập (Onboarding \& Roadmap) là điểm chạm đầu tiên quyết định tính cá nhân hóa của hệ thống. Luồng kỹ thuật này bắt đầu bằng một lời gọi API đến endpoint \texttt{/ielts/roadmap}: NestJS backend kiểm tra sự tồn tại của hồ sơ \texttt{IeltsProfile} trong cơ sở dữ liệu và trả về cờ \texttt{requiresOnboarding: true} nếu người học chưa khởi tạo. Giao diện React nhận cờ này và thực hiện điều hướng về trang khởi tạo lộ trình ở phía client.
 
 Tại giao diện thiết lập, hệ thống tổ chức một luồng thao tác ba bước (wizard flow) thu thập mục tiêu định lượng: dải điểm mục tiêu, thời gian cam kết mỗi ngày, và ngày thi dự kiến. Thay vì gửi rải rác từng trường dữ liệu này lên máy chủ ở mỗi bước gây lãng phí tài nguyên, hệ thống đóng gói toàn bộ trạng thái vào bộ nhớ cục bộ và chỉ thực hiện duy nhất một truy vấn tích lũy khi người học xác nhận hoàn tất bước cuối cùng.
 
@@ -1071,7 +1072,7 @@ Tại giao diện thiết lập, hệ thống tổ chức một luồng thao tá
 Sau khi API trả về thành công, giao diện tải lại toàn bộ trang thay vì điều hướng thông thường, vì layout IELTS cần đọc trạng thái hồ sơ mới nhất từ máy chủ để hiển thị đúng nội dung lộ trình sau khi tạo hồ sơ xong.
 
 % ============================================================
-% UC11 – POST (Community)
+% UC35 – POST (Community)
 % ============================================================
 \subsection{Đăng bài trong Community (UC35)}
 Bảng~\ref{tab:uc35_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc35} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc35} thể hiện sơ đồ tuần tự.
@@ -1139,13 +1140,13 @@ Trang Community sử dụng tham số điều hướng để phân biệt các c
 Hộp thoại tạo bài đăng là thành phần độc lập quản lý toàn bộ trạng thái form cục bộ: loại bài, tiêu đề, nội dung, danh sách chủ đề, danh sách đường dẫn ảnh đã tải lên và các cờ trạng thái đang tải ảnh/đang gửi bài. Hộp thoại chỉ được kết xuất khi mở, khi đóng sẽ giải phóng hoàn toàn khỏi cây DOM để không chiếm tài nguyên.
 \end{sloppypar}
 
-Chức năng đăng bài trong Community đòi hỏi khả năng tiếp nhận và xử lý mượt mà các tệp phương tiện kích thước lớn. Do đó, điểm kỹ thuật quan trọng nhất ở đây là chiến lược chia tách luồng tải lên nội dung. Khi người học đính kèm hình ảnh (giới hạn thiết kế tối đa 4 tệp cùng lúc), hệ thống không lưu trữ tệp tin này trực tiếp vào cơ sở dữ liệu nội bộ nhằm giảm tải cho bộ xử lý. Thay vào đó, dữ liệu nhị phân sẽ được phân luồng tải lên hoàn toàn bất đồng bộ thông qua phương thức Multipart Request tới dịch vụ máy chủ tĩnh chuyên dụng (như Cloudinary).
+Chức năng đăng bài trong Community đòi hỏi khả năng tiếp nhận và xử lý mượt mà các tệp phương tiện kích thước lớn. Do đó, điểm kỹ thuật quan trọng nhất ở đây là chiến lược chia tách luồng tải lên nội dung. Khi người học đính kèm hình ảnh (giới hạn thiết kế tối đa 4 tệp cùng lúc), hệ thống không lưu trữ tệp tin này trực tiếp vào cơ sở dữ liệu nội bộ nhằm giảm tải cho bộ xử lý. Thay vào đó, dữ liệu nhị phân sẽ được tải lên bất đồng bộ thông qua phương thức Multipart Request tới Cloudinary (thông qua NestJS backend).
 
 \begin{sloppypar}
-Chỉ khi Cloudinary xử lý tối ưu kích thước ảnh thành công và trả về mạng lưới các chuỗi tham chiếu tĩnh (URL HTTPS), hệ thống mới nối luồng xử lý và khởi chạy lệnh xuất bản bài đăng chính. Tại bước này, kỹ thuật bảo vệ toàn vẹn được thiếp lập ở cả hai đầu: trình duyệt sẽ vô hiệu hóa (disable) trạng thái gửi thông tin nếu phát hiện người dùng nhập dữ liệu rỗng, và ở chốt chặn cuối cùng, máy chủ đảm nhận kiểm tra độ dài văn bản trước khi thực thi lệnh chèn dữ liệu vào PostgreSQL. Đồng thời, do mô hình cộng thưởng hệ thống Gamification thường gây độ trễ, việc ghi điểm tương tác của bài viết được đẩy ra một hàng đợi thực thi ngầm (Background Task). Điều này cô lập hoàn toàn khối mã lưu dữ liệu nội dung, đảm bảo không ảnh hưởng đến phản hồi trực tiếp khi đăng bài.
+Chỉ khi backend xử lý ảnh thành công và trả về danh sách đường dẫn (URL HTTPS), hệ thống mới khởi chạy lệnh xuất bản bài đăng chính. Tại bước này, kỹ thuật bảo vệ toàn vẹn được thiết lập ở cả hai đầu: trình duyệt sẽ vô hiệu hóa (disable) trạng thái gửi thông tin nếu phát hiện người dùng nhập dữ liệu rỗng, và ở chốt chặn cuối cùng, máy chủ đảm nhận kiểm tra độ dài văn bản trước khi thực thi lệnh chèn dữ liệu vào PostgreSQL. Đồng thời, để tránh trễ phản hồi, lệnh gọi cộng thưởng Gamification được thực thi theo phong cách fire-and-forget (không \texttt{await}), đảm bảo không ảnh hưởng đến thời gian phản hồi của API đăng bài.
 \end{sloppypar}
 
 \begin{sloppypar}
-Cuối cùng, sau khi nhận kết quả thành công ở phía máy chủ, nền tảng Frontend lập tức ứng dụng kỹ thuật Cập nhật giao diện tự động ưu tiên (Optimistic UI Rendering). Bài viết mới được nhồi nội tuyến thẳng vào đỉnh cấu trúc danh sách feed hiện có mà hoàn toàn không kích hoạt lệnh gọi lại toàn bộ danh sách. Cơ chế này bảo toàn tuyệt đối tọa độ hiển thị trang của màn hình, giải quyết triệt để vấn đề độ trễ giao diện và mang lại trải nghiệm tương tác tự nhiên tối đa cho người sử dụng nền tảng.
+Cuối cùng, sau khi nhận phản hồi thành công từ máy chủ, giao diện chèn bài đăng mới lên đầu danh sách feed hiện có mà không tải lại toàn bộ danh sách. Cơ chế này giữ nguyên vị trí cuộn (scroll position) của màn hình và mang lại trải nghiệm tương tác tức thì cho người dùng.
 \end{sloppypar}
 
