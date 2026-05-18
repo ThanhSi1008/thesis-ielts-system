@@ -34,7 +34,6 @@ model User {
   // Relations
   examSessions             IeltsIntensiveSession[]
   results                  IeltsIntensiveResult[]
-  progress                 LearningProgress[]
   pronunciationAttempts    FoundationPronunciationAttempt[]
   pronunciationProgress    FoundationPronunciationProgress[]
   vocabularyProgress       FoundationVocabProgress[]
@@ -172,119 +171,6 @@ model IeltsIntensiveResult {
 
 // ============================================================
 // ⚠️  DEPRECATED / LEGACY MODELS — NOT USED IN CURRENT SYSTEM
-// ============================================================
-// These models were part of the initial prototype and have been
-// superseded by the newer Foundation* models:
-//   - LearningMaterial/LearningProgress → replaced by per-module progress models
-//   - FoundationVocabLesson/FoundationVocabWord → replaced by FoundationVocabBook/Unit/Item
-//   - Grammar → replaced by FoundationGrammarBook/Unit/Exercise
-//   - FoundationPronunciationAttempt → replaced by FoundationPronunciationSound/Progress
-// Tables still exist in the database but are no longer read/written by the application.
-// ============================================================
-
-// @deprecated — replaced by per-module progress tracking
-model LearningMaterial {
-  id          String       @id @default(uuid())
-  title       String
-  description String?
-  content     Json // Stores content in structured format
-  type        MaterialType
-  difficulty  Difficulty
-  tags        String[]
-  isPublished Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  // Relations
-  progress LearningProgress[]
-
-  @@map("learning_materials")
-}
-
-// @deprecated
-enum MaterialType {
-  LESSON
-  VOCABULARY
-  GRAMMAR
-  PRACTICE
-  VIDEO
-  AUDIO
-}
-
-// @deprecated — replaced by per-module progress tracking
-model LearningProgress {
-  id         String   @id @default(uuid())
-  userId     String
-  materialId String
-  progress   Int      @default(0) // Progress percentage (0-100)
-  completed  Boolean  @default(false)
-  lastAccess DateTime @default(now())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  material LearningMaterial @relation(fields: [materialId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, materialId])
-  @@map("learning_progress")
-}
-
-// @deprecated — replaced by FoundationVocabBook → FoundationVocabUnit → FoundationVocabItem
-model FoundationVocabLesson {
-  id          String     @id @default(uuid())
-  title       String
-  description String?
-  difficulty  Difficulty
-  order       Int // For sequencing lessons
-  isPublished Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  // Relations
-  vocabularies FoundationVocabWord[]
-  grammars     Grammar[]
-
-  @@map("lessons")
-}
-
-// @deprecated — replaced by FoundationVocabItem
-model FoundationVocabWord {
-  id           String   @id @default(uuid())
-  lessonId     String
-  word         String
-  meaning      String
-  ipa          String? // IPA phonetic transcription (e.g., "/həˈloʊ/")
-  audioUrl     String? // URL to pronunciation audio file in MinIO/GCS
-  example      String?
-  partOfSpeech String? // e.g., "noun", "verb", "adjective"
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relations
-  lesson                FoundationVocabLesson            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  pronunciationAttempts FoundationPronunciationAttempt[]
-
-  @@map("vocabularies")
-}
-
-// @deprecated — replaced by FoundationGrammarBook → FoundationGrammarUnit → FoundationGrammarExercise
-model Grammar {
-  id        String   @id @default(uuid())
-  lessonId  String
-  title     String // Grammar topic title (e.g., "Present Perfect Tense")
-  rule      String   @db.Text // Explanation of the grammar rule
-  example   String // Example sentences demonstrating the rule
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  lesson FoundationVocabLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@map("grammars")
-}
-
-// @deprecated — replaced by FoundationPronunciationSound/Progress system
 model FoundationPronunciationAttempt {
   id              String              @id @default(uuid())
   userId          String
@@ -299,8 +185,7 @@ model FoundationPronunciationAttempt {
   updatedAt       DateTime            @updatedAt
 
   // Relations
-  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vocabulary FoundationVocabWord? @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("pronunciation_attempts")
 }
