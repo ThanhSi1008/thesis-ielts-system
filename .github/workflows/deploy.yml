@@ -1,7 +1,10 @@
 name: Deploy
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Backend Tests"]
+    types:
+      - completed
     branches:
       - main
       - develop
@@ -21,6 +24,7 @@ jobs:
   # Detect which services changed
   # ─────────────────────────────────────────────
   changes:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
