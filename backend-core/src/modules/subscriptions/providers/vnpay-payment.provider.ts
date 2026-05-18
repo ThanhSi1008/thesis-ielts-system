@@ -242,29 +242,22 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   }
 
   /**
-   * Simple RFC 3986 encoding
-   */
-  private encodeRFC3986(str: string): string {
-    return encodeURIComponent(str);
-  }
-
-  /**
    * Official VNPay parameter sorting function.
+   * Uses encodeURIComponent (space → %20) matching VNPay's Node.js official sample.
+   * Do NOT replace %20 with + — VNPay signs with %20 and rejects + as wrong signature.
    */
   private sortObject(obj: Record<string, string>): Record<string, string> {
     const sorted: Record<string, string> = {};
-    const str = [];
+    const str: string[] = [];
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        str.push(this.encodeRFC3986(key));
+        str.push(encodeURIComponent(key));
       }
     }
     str.sort();
     for (let i = 0; i < str.length; i++) {
-      const key = str[i];
-      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
-        sorted[key] = this.encodeRFC3986(String(obj[key])).replace(/%20/g, "+");
-      }
+      const encodedKey = str[i];
+      sorted[encodedKey] = encodeURIComponent(obj[encodedKey]);
     }
     return sorted;
   }
