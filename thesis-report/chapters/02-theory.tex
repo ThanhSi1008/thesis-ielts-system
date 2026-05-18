@@ -48,7 +48,7 @@ Kỹ năng Speaking cũng chấm theo bốn tiêu chí: (1)~Fluency and Coherenc
 
 \subsection{TypeScript}
 
-TypeScript là một ngôn ngữ lập trình mã nguồn mở được phát triển bởi Microsoft, ra mắt năm 2012, là tập mở rộng có kiểu tĩnh (statically typed superset) của JavaScript. Theo Stack Overflow Developer Survey 2024, TypeScript là ngôn ngữ được yêu thích thứ hai và được sử dụng bởi hơn 38\% lập trình viên chuyên nghiệp toàn cầu~\cite{nestjs-docs}. TypeScript bổ sung hệ thống kiểu tĩnh (static type system) vào JavaScript, cho phép phát hiện lỗi ngay tại thời điểm biên dịch thay vì runtime, đồng thời cung cấp khả năng tự động hoàn thành mã và tái cấu trúc an toàn hơn trong các IDE hiện đại.
+TypeScript là một ngôn ngữ lập trình mã nguồn mở được phát triển bởi Microsoft, ra mắt năm 2012, là tập mở rộng có kiểu tĩnh (statically typed superset) của JavaScript. Theo Stack Overflow Developer Survey 2024, TypeScript là ngôn ngữ được yêu thích thứ hai và được sử dụng bởi hơn 38\% lập trình viên chuyên nghiệp toàn cầu~\cite{stackoverflow-survey-2024}. TypeScript bổ sung hệ thống kiểu tĩnh (static type system) vào JavaScript, cho phép phát hiện lỗi ngay tại thời điểm biên dịch thay vì runtime, đồng thời cung cấp khả năng tự động hoàn thành mã và tái cấu trúc an toàn hơn trong các IDE hiện đại.
 
 Trong dự án này, TypeScript được sử dụng đồng nhất trên toàn bộ hệ thống --- từ backend (NestJS) đến frontend web (Next.js) --- mang lại những lợi ích cụ thể:
 
@@ -166,7 +166,7 @@ Trong hệ thống IELTS, model base của Whisper được pre-download vào Do
 
 RabbitMQ là message broker mã nguồn mở được Rabbit Technologies phát triển và ra mắt năm 2007, triển khai giao thức AMQP (Advanced Message Queuing Protocol) cho phép các service giao tiếp bất đồng bộ thông qua queue~\cite{rabbitmq-docs}. RabbitMQ hiện được sử dụng tại hàng triệu hệ thống production, bao gồm VMware, Reddit và các tổ chức tài chính lớn, nhờ độ tin cậy cao, message persistence và khả năng scale theo chiều ngang. Trong hệ thống IELTS, RabbitMQ đóng vai trò cầu nối trung tâm giữa NestJS Backend Core và FastAPI AI Worker.
 
-Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Writing hoặc Speaking, NestJS module ai-client publish một task JSON vào exam-grading-queue với cờ persistent: true (đảm bảo tin nhắn không bị mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm, và gửi kết quả về NestJS qua REST callback. Cơ chế này mang lại các lợi ích:
+Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Writing hoặc Speaking, NestJS module ai-client publish một task JSON vào exam-grading-queue với cờ persistent: true (đảm bảo tin nhắn không bị mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm, và ghi kết quả đánh giá trực tiếp vào PostgreSQL qua thư viện \texttt{psycopg2}. Cơ chế này mang lại các lợi ích:
 
 \begin{itemize}
     \item \textbf{Tách biệt concerns:} API phản hồi người học ngay lập tức (trạng thái SUBMITTED) mà không phải đợi AI inference có thể mất 5--10 giây.
@@ -218,7 +218,7 @@ Trong hệ thống IELTS Master, OpenTelemetry được triển khai xuyên su�
 
 \section{Cơ sở dữ liệu}
 
-PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDBMS) hiệu năng cao, được phát triển từ năm 1986 tại Đại học California Berkeley và duy trì bởi cộng đồng PostgreSQL Global Development Group~\cite{postgresql-docs}. Theo Stack Overflow Developer Survey 2024, PostgreSQL là cơ sở dữ liệu được yêu thích nhất trong 5 năm liên tiếp với hơn 49\% developer chuyên nghiệp sử dụng, nhờ tính ổn định, tuân thủ chuẩn SQL nghiêm ngặt và hỗ trợ nhiều kiểu dữ liệu phức tạp (JSON, Array, Full-text search).
+PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở (RDBMS) hiệu năng cao, được phát triển từ năm 1986 tại Đại học California Berkeley và duy trì bởi cộng đồng PostgreSQL Global Development Group~\cite{postgresql-docs}. Theo Stack Overflow Developer Survey 2024, PostgreSQL là cơ sở dữ liệu được yêu thích nhất trong 5 năm liên tiếp với hơn 49\% developer chuyên nghiệp sử dụng~\cite{stackoverflow-survey-2024}, nhờ tính ổn định, tuân thủ chuẩn SQL nghiêm ngặt và hỗ trợ nhiều kiểu dữ liệu phức tạp (JSON, Array, Full-text search).
 
 Trong dự án này, PostgreSQL 16 được triển khai trên nền tảng \textbf{Supabase}~\cite{supabase-docs} --- dịch vụ cơ sở dữ liệu quản lý đám mây xây dựng trên PostgreSQL mã nguồn mở, cung cấp connection pooling tự động qua PgBouncer. Prisma ORM kết nối với Supabase theo hai chế độ: pooler port 6543 với tham số pgbouncer=true cho query thông thường (tối ưu số lượng kết nối đồng thời), và direct port 5432 cho Prisma Migrate (yêu cầu kết nối trực tiếp khi thay đổi schema).
 
@@ -265,8 +265,8 @@ Kiến trúc Microservices là kiểu kiến trúc trong đó ứng dụng đư�
 Hệ thống IELTS áp dụng kiến trúc \textbf{Event-driven Modular Monolith} --- một cách tiếp cận thực dụng hơn:
 
 \begin{itemize}
-    \item \textbf{NestJS Backend Core} là một ứng dụng monolith có module hóa (Modular Monolith) chứa 18 feature module (auth, users, exams, results, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, learning, notes, gamification, notifications, posts, subscriptions, ai-client) giao tiếp nội bộ qua Dependency Injection. Toàn bộ chạy trong một process duy nhất, đơn giản hóa deployment và debug.
-    \item \textbf{FastAPI AI Worker} là microservice thực sự duy nhất --- hoàn toàn độc lập, không share codebase và không kết nối trực tiếp database với Backend Core. Kết nối duy nhất là qua RabbitMQ: nhận task grading, trả kết quả qua REST callback.
+    \item \textbf{NestJS Backend Core} là một ứng dụng monolith có module hóa (Modular Monolith) chứa 17 feature module (auth, users, exams, results, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, learning, notes, gamification, notifications, posts, subscriptions) giao tiếp nội bộ qua Dependency Injection. Toàn bộ chạy trong một process duy nhất, đơn giản hóa deployment và debug.
+    \item \textbf{FastAPI AI Worker} là microservice độc lập xử lý các tác vụ nặng (inference) để tránh block luồng chính. Microservice này nhận task grading từ RabbitMQ, gọi các dịch vụ AI và ghi kết quả đánh giá trực tiếp vào cơ sở dữ liệu chung qua PostgreSQL (\texttt{psycopg2}).
 \end{itemize}
 
 Lợi ích của cách tiếp cận này: AI inference nặng (faster-whisper, Gemini API) được cô lập trong FastAPI Worker, có thể cấu hình resource riêng (10GB RAM, 3 CPU) mà không ảnh hưởng Backend Core. Đây là sự cân bằng giữa đơn giản của Monolith và khả năng scale của Microservices.
@@ -285,6 +285,6 @@ Hệ thống được triển khai trên Google Cloud Platform (GCP), khu vực 
     \item \textbf{Supabase:} Cơ sở dữ liệu PostgreSQL 16 quản lý đám mây~\cite{supabase-docs}. NestJS kết nối qua PgBouncer pooler (port 6543) cho query và direct connection (port 5432) cho migration.
     \item \textbf{Upstash:} Redis serverless, kết nối TLS từ NestJS~\cite{redis-docs}. Loại bỏ overhead vận hành Redis instance tự quản lý trong môi trường container cloud.
     \item \textbf{CloudAMQP:} RabbitMQ managed service~\cite{rabbitmq-docs}, kết nối từ cả NestJS và FastAPI qua AMQPS (TLS). Đảm bảo độ tin cậy message queue mà không cần tự vận hành RabbitMQ server.
-    \item \textbf{Google Cloud Storage (GCS) \& Cloudinary:} GCS được sử dụng qua API như object storage chính để lưu trữ an toàn và lâu dài các file audio ghi âm của người dùng. Song song đó, Cloudinary đóng vai trò Image CDN chuyên biệt, quản lý toàn bộ hình ảnh với khả năng tự động tối ưu hóa và biến đổi (transformation) theo kích thước màn hình thiết bị.
+    \item \textbf{Google Cloud Storage (GCS) \& Cloudinary:} Cloudinary được sử dụng để lưu trữ và tối ưu hoá ảnh cũng như file audio ghi âm của người dùng. Google Cloud Storage (GCS) chỉ đóng vai trò lưu trữ các file audio được hệ thống sinh ra tự động qua Google Cloud Text-to-Speech (GoogleTTS).
     \item \textbf{GitHub Actions CI/CD:} Pipeline tự động phát hiện service nào thay đổi (path filter), build Docker image, push lên Google Container Registry (GCR), và deploy: frontend qua gcloud run deploy, backend qua SSH + docker compose pull \&\& up.
 \end{itemize}
