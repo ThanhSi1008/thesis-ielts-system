@@ -7,7 +7,7 @@
 
 Qua quá trình nghiên cứu, thiết kế và hiện thực, chúng em đã xây dựng thành công hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
 
-Về kiến trúc, hệ thống được tổ chức theo mô hình Event-driven Modular Monolith: NestJS Backend Core chứa 18 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions...) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection để đảm bảo tính nhất quán và dễ bảo trì. FastAPI AI Worker là microservice độc lập duy nhất, kết nối qua RabbitMQ để xử lý AI inference bất đồng bộ mà không làm chậm API response. Cách tổ chức này cân bằng giữa sự đơn giản của monolith với khả năng mở rộng độc lập cho thành phần tính toán nặng (AI grading).
+Về kiến trúc, hệ thống được tổ chức theo mô hình Event-driven Modular Monolith: NestJS Backend Core chứa 17 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions...) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection để đảm bảo tính nhất quán và dễ bảo trì. FastAPI AI Worker là microservice độc lập duy nhất, kết nối qua RabbitMQ để xử lý AI inference bất đồng bộ mà không làm chậm API response. Cách tổ chức này cân bằng giữa sự đơn giản của monolith với khả năng mở rộng độc lập cho thành phần tính toán nặng (AI grading).
 
 Về đa nền tảng, hệ thống cung cấp đồng thời giao diện Web (Next.js với Server-Side Rendering) và ứng dụng Mobile (React Native), sử dụng chung một backend API. Việc áp dụng Next.js giúp tối ưu SEO và tốc độ tải trang thông qua SSR và Static Site Generation, trong khi React Native cho phép triển khai trên cả iOS và Android từ một codebase TypeScript duy nhất, tiết kiệm đáng kể chi phí phát triển so với native riêng biệt~\cite{reactnative-docs}.
 
@@ -20,9 +20,9 @@ Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo v�
 Hệ thống đã hiện thực đầy đủ các chức năng cốt lõi của một nền tảng luyện thi IELTS toàn diện, đáp ứng nhu cầu của người học từ band 4.0 đến 7.5+ theo chuẩn mực IELTS quốc tế~\cite{ielts-global-stats}:
 
 \begin{itemize}
-    \item \textbf{Luyện tập 4 kỹ năng IELTS:} Listening với audio player tùy chỉnh và chấm điểm ngữ nghĩa dựa trên khoảng cách Levenshtein (chấp nhận typo 1 ký tự cho từ $\geq$5 ký tự); Reading với layout 2 cột đồng bộ cuộn độc lập; Writing Task 1 và Task 2 với AI scoring tức thì; Speaking với AI Conversation -- hội thoại mô phỏng giám khảo IELTS thực tế theo 3 phần thi.
+    \item \textbf{Luyện tập 4 kỹ năng IELTS:} Listening với audio player tùy chỉnh và chấm điểm linh hoạt (tự động loại bỏ khoảng trắng thừa và không phân biệt chữ hoa/thường); Reading với layout 2 cột đồng bộ cuộn độc lập; Writing Task 1 và Task 2 với tính năng auto-save mỗi 30 giây và AI scoring tự động, nhanh chóng; Speaking với AI Conversation -- hội thoại mô phỏng giám khảo IELTS thực tế theo 3 phần thi.
 
-    \item \textbf{Mock Test toàn phần:} Mô phỏng đầy đủ bài thi IELTS với đồng hồ đếm ngược đồng bộ server (chống gian lận thời gian khi reload), auto-save câu trả lời mỗi 30 giây, khả năng khôi phục bài thi khi mất kết nối, và quy đổi band điểm theo bảng tra cứu IELTS chính thức với Overall band làm tròn đến bội số 0.5 gần nhất.
+    \item \textbf{Mock Test toàn phần:} Mô phỏng đầy đủ bài thi IELTS với đồng hồ đếm ngược chuẩn sát thời gian thi thực tế, và quy đổi band điểm theo bảng tra cứu IELTS chính thức với Overall band làm tròn đến bội số 0.5 gần nhất.
 
     \item \textbf{Hệ thống Vocab Lab thông minh:} Thuật toán FSRS (Free Spaced Repetition Scheduler) -- thế hệ kế tiếp của SM-2 -- tự động lên lịch ôn luyện dựa trên mô hình bộ nhớ xác suất với retention target 90\% và max interval 365 ngày, kết hợp chế độ flashcard lật và community deck sharing để đa dạng hoá phương pháp ôn luyện~\cite{ye2022fsrs}.
 
