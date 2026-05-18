@@ -1,6 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
 import * as crypto from "crypto";
-import * as qs from "qs";
 import { v4 as uuidv4 } from "uuid";
 import {
   PaymentProviderInterface,
@@ -167,9 +166,6 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   // PRIVATE: VNPay URL Building & Hash Verification
   // ═══════════════════════════════════════════════════════
 
-  /**
-   * Build the VNPay payment redirect URL with HMAC-SHA512 signature.
-   */
   private buildPaymentUrl(params: {
     txnRef: string;
     amount: number;
@@ -179,17 +175,13 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   }): string {
     const now = new Date();
     const createDate = this.formatDate(now);
-    // VNPAY Expire Date (15 minutes from now)
     const expireDate = this.formatDate(new Date(now.getTime() + 15 * 60 * 1000));
 
-    // Convert to VND if currency is USD (assuming amount is in cents)
     let amountInVnd = params.amount;
     if (params.currency === "USD") {
-      const usdAmount = params.amount / 100; // e.g., 999 cents -> $9.99
-      amountInVnd = Math.round(usdAmount * 25400); // Approximate exchange rate
+      const usdAmount = params.amount / 100;
+      amountInVnd = Math.round(usdAmount * 25400);
     }
-
-    // VNPay expects amount × 100 (smallest monetary unit)
     const vnpAmount = amountInVnd * 100;
 
     const vnpParams: Record<string, string> = {
@@ -208,69 +200,52 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
       vnp_ExpireDate: expireDate,
     };
 
-    // Use VNPay's official sort object method
-    const sortedParams = this.sortObject(vnpParams);
-    const signData = qs.stringify(sortedParams, { encode: false });
+    // Sign trên raw values (không encode) — đúng với VNPay spec
+    const signData = this.buildSignData(vnpParams);
+    const secureHash = crypto
+      .createHmac("sha512", this.hashSecret)
+      .update(Buffer.from(signData, "utf-8"))
+      .digest("hex");
 
-    // Create HMAC-SHA512 hash
-    const hmac = crypto.createHmac("sha512", this.hashSecret);
-    const secureHash = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-
-    return `${this.vnpayUrl}?${signData}&vnp_SecureHash=${secureHash}`;
+    // URLSearchParams tự encode đúng chuẩn khi build URL
+    const urlParams = new URLSearchParams(vnpParams);
+    urlParams.append("vnp_SecureHash", secureHash);
+    return `${this.vnpayUrl}?${urlParams.toString()}`;
   }
 
-  /**
-   * Verify the secure hash from VNPay return URL or IPN callback.
-   */
   private verifyReturnHash(params: Record<string, string>): boolean {
     const receivedHash = params["vnp_SecureHash"];
     if (!receivedHash) return false;
 
-    // Remove hash-related fields before re-computing
     const verifyParams = { ...params };
     delete verifyParams["vnp_SecureHash"];
     delete verifyParams["vnp_SecureHashType"];
 
-    const sortedParams = this.sortObject(verifyParams);
-    const signData = qs.stringify(sortedParams, { encode: false });
-
-    // Compute expected hash
-    const hmac = crypto.createHmac("sha512", this.hashSecret);
-    const expectedHash = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+    // Params từ VNPay callback đã được framework URL-decode sẵn → sign raw
+    const signData = this.buildSignData(verifyParams);
+    const expectedHash = crypto
+      .createHmac("sha512", this.hashSecret)
+      .update(Buffer.from(signData, "utf-8"))
+      .digest("hex");
 
     return receivedHash.toLowerCase() === expectedHash.toLowerCase();
   }
 
   /**
-   * Official VNPay parameter sorting function.
-   * Uses encodeURIComponent (space → %20) matching VNPay's Node.js official sample.
-   * Do NOT replace %20 with + — VNPay signs with %20 and rejects + as wrong signature.
+   * Sort keys alphabetically, join as raw key=value pairs (không encode).
+   * VNPay ký trên chuỗi raw — encode chỉ dùng khi build URL, không dùng khi ký.
    */
-  private sortObject(obj: Record<string, string>): Record<string, string> {
-    const sorted: Record<string, string> = {};
-    const str: string[] = [];
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        str.push(encodeURIComponent(key));
-      }
-    }
-    str.sort();
-    for (let i = 0; i < str.length; i++) {
-      const encodedKey = str[i];
-      sorted[encodedKey] = encodeURIComponent(obj[encodedKey]);
-    }
-    return sorted;
+  private buildSignData(params: Record<string, string>): string {
+    return Object.keys(params)
+      .sort()
+      .map((key) => `${key}=${params[key]}`)
+      .join("&");
   }
 
-  /**
-   * Format date as yyyyMMddHHmmss (VNPay format in GMT+7).
-   */
   private formatDate(date: Date): string {
     const pad = (n: number) => String(n).padStart(2, "0");
-    // Convert date to GMT+7 (VNPay strictly requires GMT+7 timezone)
     const offset = 7 * 60 * 60 * 1000;
     const gmt7Date = new Date(date.getTime() + offset);
-
     return (
       `${gmt7Date.getUTCFullYear()}${pad(gmt7Date.getUTCMonth() + 1)}${pad(gmt7Date.getUTCDate())}` +
       `${pad(gmt7Date.getUTCHours())}${pad(gmt7Date.getUTCMinutes())}${pad(gmt7Date.getUTCSeconds())}`
