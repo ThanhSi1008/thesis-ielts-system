@@ -271,13 +271,17 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   }
 
   /**
-   * Format date as yyyyMMddHHmmss (VNPay format).
+   * Format date as yyyyMMddHHmmss (VNPay format in GMT+7).
    */
   private formatDate(date: Date): string {
     const pad = (n: number) => String(n).padStart(2, "0");
+    // Convert date to GMT+7 (VNPay strictly requires GMT+7 timezone)
+    const offset = 7 * 60 * 60 * 1000;
+    const gmt7Date = new Date(date.getTime() + offset);
+
     return (
-      `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
-      `${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
+      `${gmt7Date.getUTCFullYear()}${pad(gmt7Date.getUTCMonth() + 1)}${pad(gmt7Date.getUTCDate())}` +
+      `${pad(gmt7Date.getUTCHours())}${pad(gmt7Date.getUTCMinutes())}${pad(gmt7Date.getUTCSeconds())}`
     );
   }
 }
