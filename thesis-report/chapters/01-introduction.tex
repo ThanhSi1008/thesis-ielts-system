@@ -36,7 +36,7 @@ Khoá luận đặt ra các mục tiêu cụ thể, mỗi mục tiêu đi kèm t
     \item \textbf{Mục tiêu 3 --- Kiểm tra đầu vào và lộ trình cá nhân hóa:} Triển khai bài kiểm tra đầu vào (Placement Test) để xác định band điểm IELTS hiện tại theo từng kỹ năng và đề xuất lộ trình học tập phù hợp với mục tiêu band điểm của người học. \textit{Tiêu chí thành công:} sau khi hoàn tất Placement Test, hệ thống sinh lộ trình học có thứ tự bài học rõ ràng cho từng kỹ năng; với kỹ năng đạt điểm $\geq 90\%$, toàn bộ bài học của kỹ năng đó được tự động đánh dấu hoàn thành.
     \item \textbf{Mục tiêu 4 --- Ôn từ vựng với FSRS:} Xây dựng hệ thống học và ôn từ vựng theo lộ trình, áp dụng thuật toán Free Spaced Repetition Scheduler (FSRS) \cite{ye2022fsrs} nhằm tối ưu hóa khả năng ghi nhớ dài hạn. \textit{Tiêu chí thành công:} mỗi flashcard được lập lịch ôn dựa trên ba tham số Stability/Difficulty/Due date của FSRS; hệ thống cập nhật trạng thái đúng theo bốn mức đánh giá Again/Hard/Good/Easy.
     \item \textbf{Mục tiêu 5 --- Thi thử IELTS (Mock Test):} Cung cấp tính năng thi thử IELTS theo từng kỹ năng riêng biệt với đồng hồ đếm ngược chuẩn IELTS và quy đổi band điểm theo thang đánh giá chính thức. \textit{Tiêu chí thành công:} đồng hồ đếm ngược trùng khớp thời lượng chính thức (Listening 30+10 phút, Reading 60 phút, Writing 60 phút, Speaking khoảng 14 phút); kết quả Mock Test được lưu vào lịch sử cho phép xem lại sau.
-    \item \textbf{Mục tiêu 6 --- Quản trị nội dung:} Xây dựng hệ thống quản trị nội dung (Admin) cho phép quản lý học liệu, người dùng và xem báo cáo thống kê. \textit{Tiêu chí thành công:} quản trị viên có thể tạo, chỉnh sửa, xóa và xuất bản học liệu Shadowing/Dictation; quản lý đăng ký thành viên và cấp gói thủ công cho học viên cụ thể.
+    \item \textbf{Mục tiêu 6 --- Quản trị nội dung:} Xây dựng hệ thống quản trị nội dung (Admin) cho phép quản lý học liệu, người dùng và xem báo cáo thống kê. \textit{Tiêu chí thành công:} quản trị viên có thể tạo, chỉnh sửa, xóa và xuất bản học liệu nghe và nói đuổi (Shadowing) và nghe chép chính tả (Dictation); quản lý đăng ký thành viên và cấp gói thủ công cho học viên cụ thể.
 \end{itemize}
 
 \section{Phạm vi đề tài}
@@ -50,11 +50,11 @@ Khoá luận đặt ra các mục tiêu cụ thể, mỗi mục tiêu đi kèm t
 \textbf{Phạm vi chức năng (theo nhóm miền):} Hệ thống bao phủ sáu nhóm miền chính, chi tiết các năng lực theo từng tác nhân được trình bày ở mục~1.4.
 \begin{itemize}
     \item \textbf{Tài khoản và hồ sơ:} đăng ký (email/mật khẩu và Google OAuth), đăng nhập, quản lý hồ sơ cá nhân và theo dõi tiến độ tổng quan.
-    \item \textbf{Học và luyện kỹ năng:} bốn kỹ năng IELTS (Listening, Reading, Writing, Speaking) cùng các module nền tảng (Vocabulary, Grammar, Pronunciation 43 âm vị IPA, Shadowing, Dictation) và Vocab Lab với FSRS \& Lexon AI (trợ lý tra cứu từ vựng sử dụng Gemini API).
+    \item \textbf{Học và luyện kỹ năng:} bốn kỹ năng IELTS (Listening, Reading, Writing, Speaking) cùng các module nền tảng (Vocabulary, Grammar, Pronunciation 43 âm vị IPA, nghe và nói đuổi (Shadowing), nghe chép chính tả (Dictation)) và Vocab Lab với FSRS \& Lexon AI (trợ lý tra cứu từ vựng sử dụng Gemini API).
     \item \textbf{Đánh giá và thi thử:} Placement Test xác định band điểm đầu vào, lộ trình học cá nhân hóa, Mock Test theo từng kỹ năng với đồng hồ chuẩn IELTS.
     \item \textbf{Cộng đồng và Gamification:} đăng bài, tương tác (Like\slash Comment\slash Bookmark), Community Marketplace chia sẻ bộ thẻ, điểm XP, chuỗi học liên tiếp, huy hiệu và bảng xếp hạng hàng tuần.
     \item \textbf{Đăng ký gói thành viên:} gói FREE/PREMIUM/PRO qua cổng VNPay ở chế độ mô phỏng (sandbox); gói trả phí mở khóa tính năng nâng cao và Mock Test.
-    \item \textbf{Quản trị nội dung (Admin):} quản lý học liệu Shadowing/Dictation, người dùng và xem báo cáo thống kê.
+    \item \textbf{Quản trị nội dung (Admin):} quản lý học liệu nghe và nói đuổi (Shadowing) và nghe chép chính tả (Dictation), người dùng và xem báo cáo thống kê.
 \end{itemize}
 
 \textbf{Phạm vi ngoài đề tài (không bao gồm):}
@@ -76,10 +76,10 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
     \item Học từ vựng theo lộ trình; ôn tập bằng Flashcard với thuật toán FSRS; tạo Card Type tùy chỉnh; tra cứu từ bằng Lexon AI; nhập/xuất bộ thẻ qua Community Marketplace.
     \item Học ngữ pháp theo đơn vị bài học (Elementary, Intermediate, Advanced) từ nguồn English Grammar in Use.
     \item Luyện phát âm 43 âm vị IPA; thu âm và nhận phản hồi tự động từ AI về độ chính xác âm vị.
-    \item Luyện Listening theo hình thức Dictation (điền từ bị đục lỗ theo bốn cấp độ khó Beginner\slash Intermediate\slash Advanced\slash Expert với gợi ý tiệm tiến) và luyện đề Listening chuẩn IELTS các dạng Form/Note Completion, Table Completion, Short Answer, Matching và Multiple Choice.
+    \item Luyện Listening theo hình thức nghe chép chính tả (Dictation) bằng cách điền từ bị đục lỗ theo bốn cấp độ khó Beginner\slash Intermediate\slash Advanced\slash Expert với gợi ý tiệm tiến và luyện đề Listening chuẩn IELTS các dạng Form/Note Completion, Table Completion, Short Answer, Matching và Multiple Choice.
     \item Luyện Reading với các đoạn văn học thuật chuẩn IELTS Academic: trả lời câu hỏi các dạng True/False/Not Given, Matching Headings, Matching Information, Short Answer và Multiple Choice.
     \item Luyện Writing Task 1 và Task 2; nhận điểm ước tính từ Gemini 2.5 Flash theo 4 tiêu chí IELTS (Task Achievement, Coherence \& Cohesion, Lexical Resource, Grammatical Range \& Accuracy) và gợi ý cải thiện cụ thể.
-    \item Luyện Speaking theo hình thức thi thử ba Part IELTS (Introduction \& Interview, Individual Long Turn, Two-way Discussion) với video giám khảo AI, Shadowing và hội thoại AI; nhận điểm ước tính theo 4 tiêu chí IELTS Speaking (Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy, Pronunciation).
+    \item Luyện Speaking theo hình thức thi thử ba Part IELTS (Introduction \& Interview, Individual Long Turn, Two-way Discussion) với video giám khảo AI, nghe và nói đuổi (Shadowing) và hội thoại AI; nhận điểm ước tính theo 4 tiêu chí IELTS Speaking (Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy, Pronunciation).
     \item Thi thử IELTS theo từng kỹ năng riêng biệt (Mock Test Listening/Reading/Writing/Speaking) với đồng hồ đếm ngược chuẩn IELTS; nhận band điểm ước tính từng kỹ năng.
     \item Đăng ký gói thành viên FREE, PREMIUM hoặc PRO qua cổng VNPay sandbox; gói trả phí mở khóa tính năng luyện tập nâng cao và Mock Test.
     \item Nhận điểm kinh nghiệm (XP) sau mỗi hoạt động học tập; theo dõi chuỗi học liên tiếp (streak); mở khóa huy hiệu thành tích; xem bảng xếp hạng XP hàng tuần.
@@ -89,7 +89,7 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
 
 \textbf{Đối với Người quản lý (Admin):}
 \begin{itemize}
-    \item Quản lý nội dung học tập Shadowing và Dictation: tạo, chỉnh sửa, xóa và xuất bản bài học kèm transcript.
+    \item Quản lý nội dung học tập nghe và nói đuổi (Shadowing) và nghe chép chính tả (Dictation): tạo, chỉnh sửa, xóa và xuất bản bài học kèm transcript.
     \item Quản lý đăng ký thành viên: xem danh sách và trạng thái gói (FREE/PREMIUM/PRO) của học viên; cấp gói thành viên thủ công khi cần.
 \end{itemize}
 
