@@ -62,7 +62,7 @@ Hệ thống được xây dựng theo kiến trúc \textbf{Event-driven Modular
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core:} Toàn bộ nghiệp vụ được tổ chức thành 18 module trong một ứng dụng NestJS 10 duy nhất. Các module giao tiếp nội bộ qua Dependency Injection, giúp dễ bảo trì mà không cần phân tán thành nhiều service riêng lẻ.
-    \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), kết nối trực tiếp với PostgreSQL qua SQLAlchemy để truy xuất dữ liệu, gọi Gemini API để chấm điểm, rồi gửi kết quả ngược lại NestJS qua HTTP callback.
+    \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), ghi kết quả trực tiếp vào PostgreSQL qua psycopg2 bằng câu truy vấn SQL thô, gọi Gemini API để chấm điểm, rồi gửi kết quả ngược lại NestJS qua HTTP callback.
     \item \textbf{Tầng dữ liệu:} PostgreSQL trên Supabase (kết nối qua PgBouncer), Redis trên Upstash (cache và phiên làm việc), Google Cloud Storage lưu trữ an toàn các file audio ghi âm của người dùng, và Cloudinary đóng vai trò Image CDN chuyên biệt để lưu ảnh.
     \item \textbf{Client:} Ứng dụng web Next.js và ứng dụng mobile React Native, đều kết nối với Backend Core qua HTTPS thông qua nginx~\cite{nestjs-docs}.
 \end{itemize}
@@ -236,7 +236,7 @@ Trang Community (Cộng đồng) là không gian kết nối xã hội dành cho
 
 \subsection{Tính năng tra từ và lưu vào Vocab Lab bằng AI}
 
-Tính năng Add to Vocab Lab with AI là một công cụ tiện ích toàn cục xuất hiện xuyên suốt hệ thống dưới dạng nút nổi hoặc pop-up khi bôi đen văn bản. Chức năng chính là cho phép người học tra cứu từ vựng ngay lập tức tại bất kỳ trang nào. AI sẽ tự động phân tích nghĩa, cách phát âm, đưa ra ví dụ ngữ cảnh, và cung cấp một nút bấm để người dùng lưu trực tiếp từ vựng đó vào ``Vocab Lab'' cá nhân của mình chỉ với một thao tác, tối ưu hóa quá trình thu thập từ vựng một cách tiện lợi nhất. Giao diện tính năng được trình bày trong hình~\ref{fig:ui-add-vocablab-ai}.
+Tính năng Add to Vocab Lab with AI là một công cụ tiện ích xuất hiện dưới dạng pop-up khi bôi đen văn bản trên các màn hình học hỗ trợ (Foundation Vocabulary, IELTS Basic, Dictation). Chức năng chính là cho phép người học tra cứu từ vựng và lưu thẻ ngay trong lúc học mà không cần chuyển trang. AI sẽ tự động phân tích nghĩa, cách phát âm, đưa ra ví dụ ngữ cảnh, và cung cấp một nút bấm để người dùng lưu trực tiếp từ vựng đó vào ``Vocab Lab'' cá nhân của mình chỉ với một thao tác, tối ưu hóa quá trình thu thập từ vựng một cách tiện lợi nhất. Giao diện tính năng được trình bày trong hình~\ref{fig:ui-add-vocablab-ai}.
 
 \begin{figure}[H]
     \centering
