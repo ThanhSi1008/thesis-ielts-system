@@ -62,8 +62,8 @@ Hệ thống được xây dựng theo kiến trúc \textbf{Event-driven Modular
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core:} Toàn bộ nghiệp vụ được tổ chức thành 18 module trong một ứng dụng NestJS 10 duy nhất. Các module giao tiếp nội bộ qua Dependency Injection, giúp dễ bảo trì mà không cần phân tán thành nhiều service riêng lẻ.
-    \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), gọi Gemini API để chấm điểm, rồi gửi kết quả ngược lại NestJS qua HTTP callback.
-    \item \textbf{Tầng dữ liệu:} PostgreSQL trên Supabase (kết nối qua PgBouncer), Redis trên Upstash (cache và phiên làm việc), Google Cloud Storage lưu file audio và Cloudinary lưu ảnh do người dùng tải lên.
+    \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), kết nối trực tiếp với PostgreSQL qua SQLAlchemy để truy xuất dữ liệu, gọi Gemini API để chấm điểm, rồi gửi kết quả ngược lại NestJS qua HTTP callback.
+    \item \textbf{Tầng dữ liệu:} PostgreSQL trên Supabase (kết nối qua PgBouncer), Redis trên Upstash (cache và phiên làm việc), Google Cloud Storage lưu trữ an toàn các file audio ghi âm của người dùng, và Cloudinary đóng vai trò Image CDN chuyên biệt để lưu ảnh.
     \item \textbf{Client:} Ứng dụng web Next.js và ứng dụng mobile React Native, đều kết nối với Backend Core qua HTTPS thông qua nginx~\cite{nestjs-docs}.
 \end{itemize}
 
