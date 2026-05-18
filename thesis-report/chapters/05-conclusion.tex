@@ -13,7 +13,7 @@ Về đa nền tảng, hệ thống cung cấp đồng thời giao diện Web (N
 
 Về tích hợp trí tuệ nhân tạo, hệ thống tích hợp thành công Gemini API~\cite{gemini-api} (model gemini-2.5-flash) để chấm điểm tự động bài Writing theo 4 tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và chấm điểm Speaking theo 4 tiêu chí tương ứng. faster-whisper~\cite{whisper-paper} (bản tối ưu hóa của OpenAI Whisper, sử dụng CTranslate2 backend) được triển khai cục bộ trong Docker container để chuyển đổi giọng nói thành văn bản phục vụ chấm phát âm và dictation, hoàn toàn tự chủ về xử lý và không chịu ràng buộc quota từ dịch vụ bên thứ ba. Luồng grading bất đồng bộ qua RabbitMQ đảm bảo API phản hồi ngay lập tức dù inference mất vài giây.
 
-Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo vệ: mật khẩu được băm bằng bcrypt với 10 vòng tăng cường (\texttt{saltRounds = 10}), xác thực bằng JWT access token có hiệu lực 7 ngày, và giới hạn tốc độ truy cập (rate limiting) toàn cục 100 request/60 giây để ngăn chặn brute-force. Prisma ORM~\cite{prisma-docs} ngăn chặn SQL injection qua parameterized queries và cung cấp type-safe database access nhất quán trên toàn backend.
+Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo vệ: mật khẩu được băm bằng bcrypt với 10 vòng tăng cường (saltRounds = 10), xác thực bằng JWT access token có hiệu lực 7 ngày, và giới hạn tốc độ truy cập (rate limiting) toàn cục 100 request/60 giây để ngăn chặn brute-force. Prisma ORM~\cite{prisma-docs} ngăn chặn SQL injection qua parameterized queries và cung cấp type-safe database access nhất quán trên toàn backend.
 
 \subsection{Về mặt chức năng nghiệp vụ}
 

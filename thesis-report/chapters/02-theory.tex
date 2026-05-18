@@ -109,7 +109,7 @@ Các lợi ích khi chọn React Native cho ứng dụng mobile IELTS:
 \begin{itemize}
     \item \textbf{Chia sẻ logic với Next.js:} Vì cùng nền tảng React và TypeScript, các hook và utility function có thể tái sử dụng, giảm thời gian phát triển.
     \item \textbf{Native UI components:} React Native render component native thực sự (không phải WebView), đảm bảo trải nghiệm mượt mà tương đương app native trên cả iOS và Android.
-    \item \textbf{Hỗ trợ đa phương tiện:} Hệ sinh thái Expo cung cấp các package chuyên biệt cho nhu cầu đa phương tiện của hệ thống IELTS: expo-audio dùng cho cả ghi âm (Speaking, Pronunciation) lẫn phát audio bài luyện; expo-video phát video giám khảo AI và clip YouTube nhúng phục vụ nghe và nói đuổi (Shadowing) và nghe chép chính tả (Dictation) (kết hợp với thư viện \texttt{yt-dlp} ở backend để trích xuất luồng media trực tiếp); expo-speech-recognition thực hiện nhận dạng giọng nói ngay trên thiết bị (on-device) cho các tác vụ tương tác nhanh.
+    \item \textbf{Hỗ trợ đa phương tiện:} Hệ sinh thái Expo cung cấp các package chuyên biệt cho nhu cầu đa phương tiện của hệ thống IELTS: expo-audio dùng cho cả ghi âm (Speaking, Pronunciation) lẫn phát audio bài luyện; expo-video phát video giám khảo AI và clip YouTube nhúng phục vụ nghe và nói đuổi (Shadowing) và nghe chép chính tả (Dictation) (kết hợp với thư viện yt-dlp ở backend để trích xuất luồng media trực tiếp); expo-speech-recognition thực hiện nhận dạng giọng nói ngay trên thiết bị (on-device) cho các tác vụ tương tác nhanh.
     \item \textbf{Cross-platform hiệu quả:} Một codebase duy nhất cho cả iOS và Android giúp giảm đáng kể thời gian phát triển và bảo trì so với phát triển hai app native riêng biệt.
 \end{itemize}
 
@@ -155,7 +155,7 @@ Gemini 2.5 Flash được lựa chọn so với các mô hình thương mại l�
 
 Whisper là mô hình nhận dạng giọng nói (speech-to-text) mã nguồn mở của OpenAI, được huấn luyện trên 680.000 giờ dữ liệu âm thanh đa ngôn ngữ và công bố năm 2022~\cite{whisper-paper}. faster-whisper là thư viện Python tối ưu hóa Whisper, sử dụng backend CTranslate2 để tăng tốc inference lên 4 lần so với bản gốc trên CPU và giảm 50\% lượng bộ nhớ sử dụng~\cite{faster-whisper-docs}. Khác với các dịch vụ Speech-to-Text trên cloud (Google Cloud STT, AWS Transcribe), faster-whisper chạy hoàn toàn locally --- không phụ thuộc cloud API, không có rate limit, và không phát sinh chi phí theo lượt dùng.
 
-Trong hệ thống IELTS, model base của Whisper được pre-download vào Docker image của FastAPI AI Worker khi build, kết hợp với \texttt{ffmpeg} (được cài đặt dưới dạng system package) để giải mã mọi định dạng audio đầu vào, giúp loại bỏ cold-start. faster-whisper được sử dụng cho hai mục đích chính:
+Trong hệ thống IELTS, model base của Whisper được pre-download vào Docker image của FastAPI AI Worker khi build, kết hợp với ffmpeg (được cài đặt dưới dạng system package) để giải mã mọi định dạng audio đầu vào, giúp loại bỏ cold-start. faster-whisper được sử dụng cho hai mục đích chính:
 
 \begin{itemize}
     \item \textbf{Chấm điểm phát âm (Pronunciation):} File audio WAV của người học được chuyển thành transcript kèm xác suất tin cậy (word probability) theo từng từ. Hệ thống áp dụng \textit{weighted phoneme edit distance} thay vì Levenshtein thô: từ và transcript đều được chuyển sang ký hiệu IPA qua thư viện eng-to-ipa, sau đó so khớp với chi phí thay thế khác nhau theo lớp âm vị (vowels, plosives, fricatives, nasals, approximants, affricates) --- thay thế trong cùng lớp tốn chi phí thấp hơn so với thay thế khác lớp, và đổi nguyên âm thành phụ âm bị phạt nặng nhất. Điểm phát âm cuối cùng được tổng hợp từ ba thành phần theo công thức $\text{overall} = 0{,}4 \cdot \text{phoneme} + 0{,}4 \cdot \text{confidence} + 0{,}2 \cdot \text{text}$, trong đó \textit{phoneme} là điểm khoảng cách IPA có trọng số, \textit{confidence} là độ tin cậy trung bình của Whisper, và \textit{text} là điểm Levenshtein trên văn bản gốc (giữ lại làm thành phần phụ để bù khi việc chuyển sang IPA thất bại).
@@ -166,7 +166,7 @@ Trong hệ thống IELTS, model base của Whisper được pre-download vào Do
 
 RabbitMQ là message broker mã nguồn mở được Rabbit Technologies phát triển và ra mắt năm 2007, triển khai giao thức AMQP (Advanced Message Queuing Protocol) cho phép các service giao tiếp bất đồng bộ thông qua queue~\cite{rabbitmq-docs}. RabbitMQ hiện được sử dụng tại hàng triệu hệ thống production, bao gồm VMware, Reddit và các tổ chức tài chính lớn, nhờ độ tin cậy cao, message persistence và khả năng scale theo chiều ngang. Trong hệ thống IELTS, RabbitMQ đóng vai trò cầu nối trung tâm giữa NestJS Backend Core và FastAPI AI Worker.
 
-Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Writing hoặc Speaking, NestJS module ai-client publish một task JSON vào exam-grading-queue với cờ persistent: true (đảm bảo tin nhắn không bị mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm, và ghi kết quả đánh giá trực tiếp vào PostgreSQL qua thư viện \texttt{psycopg2}. Cơ chế này mang lại các lợi ích:
+Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Writing hoặc Speaking, NestJS module ai-client publish một task JSON vào exam-grading-queue với cờ persistent: true (đảm bảo tin nhắn không bị mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm, và ghi kết quả đánh giá trực tiếp vào PostgreSQL qua thư viện psycopg2. Cơ chế này mang lại các lợi ích:
 
 \begin{itemize}
     \item \textbf{Tách biệt concerns:} API phản hồi người học ngay lập tức (trạng thái SUBMITTED) mà không phải đợi AI inference có thể mất 5--10 giây.
@@ -211,8 +211,8 @@ OpenTelemetry (OTel) là một dự án mã nguồn mở thuộc CNCF (Cloud Nat
 
 Trong hệ thống IELTS Master, OpenTelemetry được triển khai xuyên suốt để giám sát hiệu năng và lỗi:
 \begin{itemize}
-    \item \textbf{Backend Core (NestJS):} Sử dụng \texttt{@opentelemetry/sdk-node} và \texttt{prom-client} để thu thập metrics (như thời gian phản hồi API, tải CPU/Memory) và traces (dấu vết luồng gọi hàm giữa các module).
-    \item \textbf{Backend AI Worker (FastAPI):} Sử dụng \texttt{opentelemetry-sdk} và \texttt{opentelemetry-instrumentation-fastapi} cho Python để theo dõi thời gian thực thi của các tác vụ nặng như gọi Gemini API hay chạy \texttt{faster-whisper}.
+    \item \textbf{Backend Core (NestJS):} Sử dụng @opentelemetry/sdk-node và prom-client để thu thập metrics (như thời gian phản hồi API, tải CPU/Memory) và traces (dấu vết luồng gọi hàm giữa các module).
+    \item \textbf{Backend AI Worker (FastAPI):} Sử dụng opentelemetry-sdk và opentelemetry-instrumentation-fastapi cho Python để theo dõi thời gian thực thi của các tác vụ nặng như gọi Gemini API hay chạy faster-whisper.
     \item \textbf{Định tuyến dữ liệu:} Dữ liệu telemetry từ cả hai dịch vụ được xuất (export) về Grafana Alloy, sau đó lưu trữ tại Prometheus (metrics), Loki (logs) và Tempo (traces), giúp quản trị viên có cái nhìn toàn cảnh về sức khỏe hệ thống và dễ dàng truy vết khi xảy ra lỗi.
 \end{itemize}
 
@@ -248,12 +248,12 @@ Google OAuth 2.0 cho phép người dùng đăng nhập bằng tài khoản Goog
 
 VNPay là một trong những cổng thanh toán điện tử phổ biến nhất tại Việt Nam, cho phép tích hợp thanh toán qua thẻ ngân hàng, ví điện tử và mã QR. Để đảm bảo tính toàn vẹn dữ liệu (data integrity) và chống giả mạo (tampering) trong quá trình giao tiếp giữa hệ thống phần mềm và cổng thanh toán, VNPay yêu cầu sử dụng chữ ký điện tử áp dụng thuật toán HMAC-SHA512.
 
-HMAC (Hash-based Message Authentication Code) là một cơ chế xác thực thông điệp kết hợp giữa một hàm băm mật mã học (ở đây là SHA-512) và một khóa bí mật (secret key) chia sẻ chung~\cite{rfc2104}. Khi người dùng thực hiện giao dịch, hệ thống sẽ gom tất cả các tham số cấu hình thanh toán (mã đơn hàng, số tiền, ngày giờ tạo theo chuẩn GMT+7...), sắp xếp theo thứ tự từ điển, và tạo chuỗi truy vấn (query string). Chuỗi này sau đó được băm cùng với khóa \texttt{vnp\_HashSecret} để tạo ra chữ ký \texttt{vnp\_SecureHash}.
+HMAC (Hash-based Message Authentication Code) là một cơ chế xác thực thông điệp kết hợp giữa một hàm băm mật mã học (ở đây là SHA-512) và một khóa bí mật (secret key) chia sẻ chung~\cite{rfc2104}. Khi người dùng thực hiện giao dịch, hệ thống sẽ gom tất cả các tham số cấu hình thanh toán (mã đơn hàng, số tiền, ngày giờ tạo theo chuẩn GMT+7...), sắp xếp theo thứ tự từ điển, và tạo chuỗi truy vấn (query string). Chuỗi này sau đó được băm cùng với khóa vnp\_HashSecret để tạo ra chữ ký vnp\_SecureHash.
 
 Trong hệ thống IELTS Master, luồng thanh toán gói cước (Subscriptions) triển khai thuật toán này như sau:
 \begin{itemize}
-    \item \textbf{Tạo URL thanh toán:} NestJS Backend băm các tham số thanh toán bằng thuật toán HMAC-SHA512 và gắn chữ ký \texttt{vnp\_SecureHash} vào cuối URL trước khi chuyển hướng người dùng sang trang thanh toán VNPay.
-    \item \textbf{Xác thực Webhook/Return URL:} Khi VNPay trả kết quả giao dịch về hệ thống (qua URL callback), hệ thống lấy chuỗi truy vấn (loại trừ trường \texttt{vnp\_SecureHash} được gửi kèm) băm lại bằng khóa bí mật. Nếu chữ ký tạo ra khớp với chữ ký VNPay gửi về, giao dịch được xác nhận là hợp lệ và an toàn; từ đó hệ thống tiến hành cấp quyền truy cập các tính năng Premium/Pro cho người học.
+    \item \textbf{Tạo URL thanh toán:} NestJS Backend băm các tham số thanh toán bằng thuật toán HMAC-SHA512 và gắn chữ ký vnp\_SecureHash vào cuối URL trước khi chuyển hướng người dùng sang trang thanh toán VNPay.
+    \item \textbf{Xác thực Webhook/Return URL:} Khi VNPay trả kết quả giao dịch về hệ thống (qua URL callback), hệ thống lấy chuỗi truy vấn (loại trừ trường vnp\_SecureHash được gửi kèm) băm lại bằng khóa bí mật. Nếu chữ ký tạo ra khớp với chữ ký VNPay gửi về, giao dịch được xác nhận là hợp lệ và an toàn; từ đó hệ thống tiến hành cấp quyền truy cập các tính năng Premium/Pro cho người học.
 \end{itemize}
 
 \section{Kiến trúc phần mềm}
@@ -266,7 +266,7 @@ Hệ thống IELTS áp dụng kiến trúc \textbf{Event-driven Modular Monolith
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core} là một ứng dụng monolith có module hóa (Modular Monolith) chứa 17 feature module (auth, users, exams, results, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, learning, notes, gamification, notifications, posts, subscriptions) giao tiếp nội bộ qua Dependency Injection. Toàn bộ chạy trong một process duy nhất, đơn giản hóa deployment và debug.
-    \item \textbf{FastAPI AI Worker} là microservice độc lập xử lý các tác vụ nặng (inference) để tránh block luồng chính. Microservice này nhận task grading từ RabbitMQ, gọi các dịch vụ AI và ghi kết quả đánh giá trực tiếp vào cơ sở dữ liệu chung qua PostgreSQL (\texttt{psycopg2}).
+    \item \textbf{FastAPI AI Worker} là microservice độc lập xử lý các tác vụ nặng (inference) để tránh block luồng chính. Microservice này nhận task grading từ RabbitMQ, gọi các dịch vụ AI và ghi kết quả đánh giá trực tiếp vào cơ sở dữ liệu chung qua PostgreSQL (psycopg2).
 \end{itemize}
 
 Lợi ích của cách tiếp cận này: AI inference nặng (faster-whisper, Gemini API) được cô lập trong FastAPI Worker, có thể cấu hình resource riêng (10GB RAM, 3 CPU) mà không ảnh hưởng Backend Core. Đây là sự cân bằng giữa đơn giản của Monolith và khả năng scale của Microservices.

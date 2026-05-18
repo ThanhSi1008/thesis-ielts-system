@@ -62,7 +62,7 @@ Hệ thống được xây dựng theo kiến trúc \textbf{Event-driven Modular
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core:} Toàn bộ nghiệp vụ được tổ chức thành 17 module trong một ứng dụng NestJS 10 duy nhất. Các module giao tiếp nội bộ qua Dependency Injection, giúp dễ bảo trì mà không cần phân tán thành nhiều service riêng lẻ.
-    \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), gọi Gemini API để chấm điểm, rồi ghi kết quả trực tiếp vào PostgreSQL qua \texttt{psycopg2} bằng câu truy vấn SQL thô.
+    \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), gọi Gemini API để chấm điểm, rồi ghi kết quả trực tiếp vào PostgreSQL qua psycopg2 bằng câu truy vấn SQL thô.
     \item \textbf{Tầng dữ liệu:} PostgreSQL trên Supabase (kết nối qua PgBouncer), Redis trên Upstash (cache và phiên làm việc), Cloudinary lưu trữ ảnh và file audio ghi âm của người dùng, và Google Cloud Storage phục vụ lưu trữ media tĩnh cho AI Worker khi chấm điểm.
     \item \textbf{Client:} Ứng dụng web Next.js và ứng dụng mobile React Native, đều kết nối với Backend Core qua HTTPS thông qua nginx.
 \end{itemize}
@@ -340,7 +340,7 @@ Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Tes
 
 \subsection{Bảng báo cáo kết quả kiểm thử}
 
-Sau khi hoàn thiện hệ thống, toàn bộ 61 test case được thực thi tự động qua lệnh \texttt{npm run test:report} của workspace \texttt{backend-core}. Lệnh này kích hoạt custom Jest reporter sinh bảng kết quả markdown ra file \texttt{backend-core/docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 61 test case đều đạt kết quả \textbf{Pass}, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
+Sau khi hoàn thiện hệ thống, toàn bộ 61 test case được thực thi tự động qua lệnh npm run test:report của workspace backend-core. Lệnh này kích hoạt custom Jest reporter sinh bảng kết quả markdown ra file backend-core/docs/testing/test-results.md để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 61 test case đều đạt kết quả \textbf{Pass}, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
 
 \renewcommand{\arraystretch}{1.2}
 % 7 cột p{}, divisor=130: (0.9+1.3+2.6+2.4+0.9+1.9+3.0)×10; -4pt buffer cho rounding
@@ -361,14 +361,14 @@ Sau khi hoàn thiện hệ thống, toàn bộ 61 test case được thực thi 
     \endlastfoot
 
     Invalid & TC01\_01 & firstName: rỗng & Họ tên không được bỏ trống & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC01\_02 & email: \texttt{not-an-email} & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC01\_03 & password: \texttt{p12} & Mật khẩu phải có ít nhất 6 ký tự & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC01\_02 & email: not-an-email & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC01\_03 & password: p12 & Mật khẩu phải có ít nhất 6 ký tự & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Invalid & TC01\_04 & email đã tồn tại & Email đã được sử dụng & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Valid & TC01\_05 & Thông tin đăng ký đầy đủ và hợp lệ & Đăng ký thành công, trả thông tin tài khoản & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC01\_06 & password: \texttt{MySecret123} & Mật khẩu lưu ở dạng mã hoá & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC01\_06 & password: MySecret123 & Mật khẩu lưu ở dạng mã hoá & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Valid & TC01\_07 & Đăng ký thành công & Tự động tạo bộ thẻ ``Default'' & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Valid & TC01\_08 & Không có / vai trò hợp lệ trong yêu cầu & Mặc định Học viên / lưu đúng vai trò & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC01\_09 & role: \texttt{ADMIN} & Từ chối, thông báo vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC01\_09 & role: ADMIN & Từ chối, thông báo vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
 
     Invalid & TC02\_01 & Email đúng + mật khẩu sai & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Invalid & TC02\_02 & Email không tồn tại + mật khẩu đúng & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
@@ -378,7 +378,7 @@ Sau khi hoàn thiện hệ thống, toàn bộ 61 test case được thực thi 
 
     Invalid & TC03\_01 & Nội dung: rỗng & Cần nhập nội dung & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
     Invalid & TC03\_02 & Nội dung 10001 ký tự & Nội dung vượt giới hạn cho phép & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC03\_03 & Loại bài viết: \texttt{INVALID\_TYPE} & Loại bài viết không hợp lệ & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC03\_03 & Loại bài viết: INVALID\_TYPE & Loại bài viết không hợp lệ & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
     Invalid & TC03\_04 & Nội dung hợp lệ, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
     Valid & TC03\_05 & Nội dung: ``Hello World'' & Đăng bài thành công, cộng điểm kinh nghiệm & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
     Valid & TC03\_06 & Danh sách thẻ và hình ảnh đính kèm & Bài lưu đầy đủ thẻ và hình ảnh & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
@@ -399,26 +399,26 @@ Sau khi hoàn thiện hệ thống, toàn bộ 61 test case được thực thi 
     Valid & TC05\_09 & Xoá một thông báo của mình & Thông báo bị xoá khỏi danh sách & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
 
     Invalid & TC06\_01 & Cập nhật khi chưa đăng nhập & Yêu cầu đăng nhập & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_02 & email: \texttt{not-an-email} & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_03 & role: \texttt{SUPERHERO} & Vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_04 & isActive: \texttt{maybe} & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_05 & firstName: \texttt{12345} (kiểu số) & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_06 & Gửi trường không hỗ trợ: \texttt{phone} & Trường dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_07 & firstName: \texttt{NewName} & Cập nhật thành công & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_02 & email: not-an-email & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_03 & role: SUPERHERO & Vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_04 & isActive: maybe & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_05 & firstName: 12345 (kiểu số) & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_06 & Gửi trường không hỗ trợ: phone & Trường dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_07 & firstName: NewName & Cập nhật thành công & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Valid & TC06\_08 & email mới chưa được sử dụng & Cập nhật thành công & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Invalid & TC06\_09 & email đã có tài khoản khác dùng & Email đã được sử dụng & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_10 & role: \texttt{TEACHER} & Cập nhật thành công, lưu vai trò mới & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_11 & isActive: \texttt{false} & Tài khoản chuyển sang ngừng hoạt động & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_10 & role: TEACHER & Cập nhật thành công, lưu vai trò mới & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_11 & isActive: false & Tài khoản chuyển sang ngừng hoạt động & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
     Valid & TC06\_12 & Dữ liệu cập nhật rỗng & Không thay đổi gì, giữ trạng thái hiện tại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
 
     Valid & TC10\_01 & Xem danh sách âm vị (không cần đăng nhập) & Danh sách âm vị hiển thị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Invalid & TC10\_02 & Tra cứu ký hiệu: \texttt{zzz} & Không tìm thấy âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Valid & TC10\_03 & Tra cứu ký hiệu: \texttt{i:} & Hiển thị thông tin âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Invalid & TC10\_02 & Tra cứu ký hiệu: zzz & Không tìm thấy âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Valid & TC10\_03 & Tra cứu ký hiệu: i: & Hiển thị thông tin âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
     Invalid & TC10\_04 & Gửi điểm phát âm khi chưa đăng nhập & Yêu cầu đăng nhập & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
     Valid & TC10\_05 & soundId hợp lệ, điểm: 85 & Ghi nhận tiến độ luyện phát âm & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
     Invalid & TC10\_06 & Học viên tạo âm vị mới & Từ chối, yêu cầu Quản trị viên & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
     Valid & TC10\_07 & Quản trị viên + thông tin đầy đủ & Tạo âm vị thành công & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Invalid & TC10\_08 & Quản trị viên + thiếu trường \texttt{word} & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Invalid & TC10\_08 & Quản trị viên + thiếu trường word & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
 
     Invalid & TC11\_01 & Xem thống kê tổng quan, chưa đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
     Invalid & TC11\_02 & Xem thống kê Foundation, chưa đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
