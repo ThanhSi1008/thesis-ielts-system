@@ -130,7 +130,7 @@ export const learningApi = {
       formData.append('targetWord', options.targetWord);
     }
 
-    const { data } = await api.post('/learning/pronunciation/check', formData, {
+    const { data } = await api.post('/pronunciation/check', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -138,7 +138,7 @@ export const learningApi = {
     return data;
   },
   getUserPronunciationAttempts: async (userId: string) => {
-    const { data } = await api.get(`/learning/pronunciation/attempts/${userId}`);
+    const { data } = await api.get(`/pronunciation/attempts/${userId}`);
     return data;
   },
 };

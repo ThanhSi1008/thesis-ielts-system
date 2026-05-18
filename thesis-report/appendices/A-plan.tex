@@ -1,10 +1,13 @@
+% !TEX root = ../main.tex
 \chapter{Kế hoạch thực hiện}
 \label{app:kehoach}
 
 Bảng~\ref{tab:kehoach} trình bày kế hoạch thực hiện đồ án được chia thành 15 tuần, từ tuần 1 đến tuần 15, theo đúng quy định của nhà trường. Các tuần được phân bổ hợp lý giữa các giai đoạn: nghiên cứu và phân tích yêu cầu, thiết kế hệ thống, lập trình hiện thực, kiểm thử và hoàn thiện báo cáo.
 
-\renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|c|p{4.0cm}|p{5.5cm}|p{3.5cm}|}
+% 3 cột p{} + 1 cột c{}, divisor=130: (4.0+5.5+3.5)×10; 5 rules dọc
+% cột c{} (Tuần) chiếm ~1cm, đã tính vào margin
+\setlength{\tbu}{\dimexpr(\linewidth - 8\tabcolsep - 5\arrayrulewidth)/130\relax}
+\begin{longtable}{|c|p{40\tbu}|p{55\tbu}|p{35\tbu}|}
     \caption{Kế hoạch thực hiện đồ án}
     \label{tab:kehoach} \\
     \hline

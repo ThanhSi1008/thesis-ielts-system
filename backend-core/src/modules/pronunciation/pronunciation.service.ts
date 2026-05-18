@@ -248,4 +248,52 @@ export class PronunciationService {
 
     return progress;
   }
+
+  async createPronunciationAttempt(data: {
+    userId: string;
+    vocabularyId?: string;
+    audioUrl: string;
+    targetWord: string;
+  }) {
+    const attempt = await this.prisma.foundationPronunciationAttempt.create({
+      data: {
+        userId: data.userId,
+        vocabularyId: data.vocabularyId,
+        audioUrl: data.audioUrl,
+        targetWord: data.targetWord,
+        status: "PENDING",
+      },
+    });
+    this.logger.log(`✅ Pronunciation attempt created: ${attempt.id}`);
+    return attempt;
+  }
+
+  async updatePronunciationAttempt(
+    attemptId: string,
+    data: {
+      transcribedText?: string;
+      score?: number;
+      feedback?: any;
+      status?: string;
+    },
+  ) {
+    const attempt = await this.prisma.foundationPronunciationAttempt.update({
+      where: { id: attemptId },
+      data: {
+        transcribedText: data.transcribedText,
+        score: data.score,
+        feedback: data.feedback,
+        status: data.status as any,
+      },
+    });
+    this.logger.log(`✅ Pronunciation attempt updated: ${attemptId}`);
+    return attempt;
+  }
+
+  async findUserPronunciationAttempts(userId: string) {
+    return this.prisma.foundationPronunciationAttempt.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
 }

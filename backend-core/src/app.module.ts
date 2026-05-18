@@ -11,7 +11,6 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
 import { ExamsModule } from "./modules/exams/exams.module";
 import { ResultsModule } from "./modules/results/results.module";
-import { LearningModule } from "./modules/learning/learning.module";
 import { AiClientModule } from "./modules/ai-client/ai-client.module";
 import { IeltsModule } from "./modules/ielts/ielts.module";
 
@@ -61,7 +60,6 @@ import { CacheModule } from "./common/cache/cache.module";
     UsersModule,
     ExamsModule,
     ResultsModule,
-    LearningModule,
     AiClientModule,
     IeltsModule,
 

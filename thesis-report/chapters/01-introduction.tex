@@ -1,7 +1,8 @@
+% !TEX root = ../main.tex
 \chapter*{LỜI MỞ ĐẦU}
 \addcontentsline{toc}{chapter}{LỜI MỞ ĐẦU}
 \thispagestyle{mainstyle} 
-Trong bối cảnh toàn cầu hóa ngày càng sâu rộng, tiếng Anh đã khẳng định vị thế là ngôn ngữ giao tiếp quốc tế quan trọng nhất, đóng vai trò then chốt trong học thuật, thương mại và phát triển sự nghiệp. Tại Việt Nam, nhu cầu đạt chứng chỉ tiếng Anh quốc tế — đặc biệt là IELTS (International English Language Testing System) — ngày càng gia tăng, khi hàng trăm nghìn thí sinh đăng ký thi mỗi năm với mục tiêu du học, định cư hoặc nâng cao năng lực cạnh tranh trong môi trường làm việc toàn cầu \cite{ielts-global-stats}. Bên cạnh đó, sự bùng nổ của thị trường e-learning toàn cầu — ước đạt hơn 400 tỷ USD vào năm 2026 theo Statista \cite{statista-elearning} — cho thấy tiềm năng to lớn của các nền tảng học trực tuyến, đặc biệt trong lĩnh vực luyện thi ngôn ngữ.
+Trong bối cảnh toàn cầu hóa ngày càng sâu rộng, tiếng Anh đã khẳng định vị thế là ngôn ngữ giao tiếp quốc tế quan trọng nhất, đóng vai trò then chốt trong học thuật, thương mại và phát triển sự nghiệp. Tại Việt Nam, nhu cầu đạt chứng chỉ tiếng Anh quốc tế — đặc biệt là IELTS (International English Language Testing System) — ngày càng gia tăng, khi hàng trăm nghìn thí sinh đăng ký thi mỗi năm với mục tiêu du học, định cư hoặc nâng cao năng lực cạnh tranh trong môi trường làm việc toàn cầu \cite{ielts-global-stats}. Bên cạnh đó, sự bùng nổ của thị trường e-learning toàn cầu — ước đạt hơn 400 tỷ USD vào năm 2026 theo Statista \cite{statista-elearning} — cho thấy tiềm năng to lớn của các nền tảng học trực tuyến, đặc biệt trong lĩnh vực luyện thi ngôn ngữ~\cite{nguyen2023ai-edu}.
 
 Tuy nhiên, các nền tảng hỗ trợ luyện thi IELTS hiện có vẫn tồn tại những khoảng trống nhất định: một số chuyên biệt vào kỹ năng đơn lẻ, thiếu tính năng chấm điểm tự động (AI scoring) chi tiết cho Writing và Speaking theo đúng tiêu chí IELTS, hoặc chưa có lộ trình học tập cá nhân hóa theo band điểm mục tiêu trong một sản phẩm thống nhất đa nền tảng. Điều này khiến người học gặp khó khăn trong việc tự đánh giá năng lực toàn diện và xây dựng lộ trình ôn luyện phù hợp với từng mục tiêu band điểm cụ thể.
 
@@ -51,7 +52,7 @@ Khoá luận đặt ra các mục tiêu cụ thể, mỗi mục tiêu đi kèm t
     \item \textbf{Tài khoản và hồ sơ:} đăng ký (email/mật khẩu và Google OAuth), đăng nhập, quản lý hồ sơ cá nhân và theo dõi tiến độ tổng quan.
     \item \textbf{Học và luyện kỹ năng:} bốn kỹ năng IELTS (Listening, Reading, Writing, Speaking) cùng các module nền tảng (Vocabulary, Grammar, Pronunciation 43 âm vị IPA, Shadowing, Dictation) và Vocab Lab với FSRS \& Lexon AI (trợ lý tra cứu từ vựng sử dụng Gemini API).
     \item \textbf{Đánh giá và thi thử:} Placement Test xác định band điểm đầu vào, lộ trình học cá nhân hóa, Mock Test theo từng kỹ năng với đồng hồ chuẩn IELTS.
-    \item \textbf{Cộng đồng và Gamification:} đăng bài, tương tác (Like/Comment/Bookmark), Community Marketplace chia sẻ bộ thẻ, điểm XP, chuỗi học liên tiếp, huy hiệu và bảng xếp hạng hàng tuần.
+    \item \textbf{Cộng đồng và Gamification:} đăng bài, tương tác (Like\slash Comment\slash Bookmark), Community Marketplace chia sẻ bộ thẻ, điểm XP, chuỗi học liên tiếp, huy hiệu và bảng xếp hạng hàng tuần.
     \item \textbf{Đăng ký gói thành viên:} gói FREE/PREMIUM/PRO qua cổng VNPay ở chế độ mô phỏng (sandbox); gói trả phí mở khóa tính năng nâng cao và Mock Test.
     \item \textbf{Quản trị nội dung (Admin):} quản lý học liệu Shadowing/Dictation, người dùng và xem báo cáo thống kê.
 \end{itemize}
@@ -71,27 +72,25 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
 \textbf{Đối với Người học:}
 \begin{itemize}
     \item Đăng ký tài khoản bằng email hoặc Google OAuth; đăng nhập bảo mật với cơ chế chống brute-force và giới hạn tốc độ truy cập.
-    \item Thực hiện bài kiểm tra đầu vào để xác định band điểm IELTS hiện tại theo bốn kỹ năng; hệ thống tự động đề xuất lộ trình học phù hợp.
+    \item Thực hiện bài kiểm tra đầu vào để xác định band điểm IELTS hiện tại theo ba kỹ năng (Listening, Reading và Writing); hệ thống tự động đề xuất lộ trình học phù hợp.
     \item Học từ vựng theo lộ trình; ôn tập bằng Flashcard với thuật toán FSRS; tạo Card Type tùy chỉnh; tra cứu từ bằng Lexon AI; nhập/xuất bộ thẻ qua Community Marketplace.
     \item Học ngữ pháp theo đơn vị bài học (Elementary, Intermediate, Advanced) từ nguồn English Grammar in Use.
     \item Luyện phát âm 43 âm vị IPA; thu âm và nhận phản hồi tự động từ AI về độ chính xác âm vị.
-    \item Luyện Listening theo hình thức Dictation (điền từ bị đục lỗ theo bốn cấp độ khó Beginner/Intermediate/Advanced/Expert với gợi ý tiệm tiến) và luyện đề Listening chuẩn IELTS các dạng Form/Note Completion, Table Completion, Short Answer, Matching và Multiple Choice.
+    \item Luyện Listening theo hình thức Dictation (điền từ bị đục lỗ theo bốn cấp độ khó Beginner\slash Intermediate\slash Advanced\slash Expert với gợi ý tiệm tiến) và luyện đề Listening chuẩn IELTS các dạng Form/Note Completion, Table Completion, Short Answer, Matching và Multiple Choice.
     \item Luyện Reading với các đoạn văn học thuật chuẩn IELTS Academic: trả lời câu hỏi các dạng True/False/Not Given, Matching Headings, Matching Information, Short Answer và Multiple Choice.
     \item Luyện Writing Task 1 và Task 2; nhận điểm ước tính từ Gemini 2.5 Flash theo 4 tiêu chí IELTS (Task Achievement, Coherence \& Cohesion, Lexical Resource, Grammatical Range \& Accuracy) và gợi ý cải thiện cụ thể.
     \item Luyện Speaking theo hình thức thi thử ba Part IELTS (Introduction \& Interview, Individual Long Turn, Two-way Discussion) với video giám khảo AI, Shadowing và hội thoại AI; nhận điểm ước tính theo 4 tiêu chí IELTS Speaking (Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy, Pronunciation).
     \item Thi thử IELTS theo từng kỹ năng riêng biệt (Mock Test Listening/Reading/Writing/Speaking) với đồng hồ đếm ngược chuẩn IELTS; nhận band điểm ước tính từng kỹ năng.
     \item Đăng ký gói thành viên FREE, PREMIUM hoặc PRO qua cổng VNPay sandbox; gói trả phí mở khóa tính năng luyện tập nâng cao và Mock Test.
     \item Nhận điểm kinh nghiệm (XP) sau mỗi hoạt động học tập; theo dõi chuỗi học liên tiếp (streak); mở khóa huy hiệu thành tích; xem bảng xếp hạng XP hàng tuần.
-    \item Tham gia cộng đồng (Community): đăng bài (Study Tip/Achievement/General), tương tác (Like/Comment/Bookmark) và chia sẻ bộ thẻ từ vựng qua Marketplace.
+    \item Tham gia cộng đồng (Community): đăng bài (Study Tip\slash Achievement\slash General), tương tác (Like\slash Comment\slash Bookmark) và chia sẻ bộ thẻ từ vựng qua Marketplace.
     \item Theo dõi tiến độ học tập qua biểu đồ thống kê; xem lịch sử bài làm và đặt mục tiêu học tập cá nhân.
 \end{itemize}
 
 \textbf{Đối với Người quản lý (Admin):}
 \begin{itemize}
-    \item Quản lý nội dung học tập: tạo, chỉnh sửa và xuất bản từ vựng, bài ngữ pháp, audio Listening, đoạn văn Reading, đề Writing và đề Speaking.
-    \item Quản lý ngân hàng câu hỏi và cấu trúc đề thi Mock Test.
-    \item Quản lý tài khoản học viên: xem hồ sơ, theo dõi tiến độ, khóa/mở khóa tài khoản.
-    \item Xem thống kê và báo cáo hoạt động hệ thống.
+    \item Quản lý nội dung học tập Shadowing và Dictation: tạo, chỉnh sửa, xóa và xuất bản bài học kèm transcript.
+    \item Quản lý đăng ký thành viên: xem danh sách và trạng thái gói (FREE/PREMIUM/PRO) của học viên; cấp gói thành viên thủ công khi cần.
 \end{itemize}
 
 \section{Các ràng buộc và quy tắc quản lý}
@@ -114,7 +113,7 @@ Hệ thống có hai nhóm tác nhân chính: Người học (Learner) và Ngư�
     \item \textbf{Bảo mật:} Xác thực người dùng bằng JSON Web Token (JWT) với thời hạn hết hạn được cấu hình; mật khẩu được băm bằng bcrypt (cost factor = 10) theo chuẩn one-way hashing; áp dụng rate limiting để ngăn chặn tấn công brute-force \cite{jwt-rfc}.
     \item \textbf{Khả năng mở rộng:} Kiến trúc \textit{Modular Monolith} được lựa chọn để cân bằng giữa việc phân tách rõ ràng theo miền chức năng và độ phức tạp triển khai phù hợp với quy mô đề tài --- thay vì kiến trúc microservices sẽ tăng chi phí hạ tầng và vận hành đáng kể. FastAPI AI Worker tách biệt qua RabbitMQ cho phép mở rộng độc lập năng lực AI inference khi nhu cầu chấm điểm tăng cao. Cơ chế xác thực \textit{stateless} bằng JWT cho phép thêm nhiều instance backend mà không cần session store dùng chung.
     \item \textbf{Khả dụng:} Hệ thống đảm bảo uptime tối thiểu 99\% trong điều kiện vận hành bình thường (tương đương khoảng 7,3 giờ gián đoạn/tháng). Mức 99\% được lựa chọn phù hợp với mô hình triển khai đơn vùng (single-region GCP, không có HA database trong giai đoạn đầu); lộ trình nâng lên 99,5\% khi hệ thống mở rộng quy mô. Áp dụng graceful degradation: khi AI service gặp lỗi hoặc vượt quota, hệ thống trả về thông báo lỗi rõ ràng thay vì crash.
-    \item \textbf{Khả năng bảo trì:} Code được tổ chức theo kiến trúc module rõ ràng; Backend Core và Frontend sử dụng TypeScript đảm bảo type safety; AI Worker sử dụng Python; tuân thủ nguyên tắc SOLID trong thiết kế service.
+    \item \textbf{Khả năng bảo trì:} Code được tổ chức theo kiến trúc module rõ ràng; Backend Core và Frontend sử dụng TypeScript đảm bảo type safety; AI Worker sử dụng Python; tuân thủ nguyên tắc SOLID trong thiết kế service~\cite{martin2017clean}.
     \item \textbf{Khả năng sử dụng:} Giao diện thân thiện, trực quan; thời gian làm quen các tính năng cơ bản không quá 5 phút.
     \item \textbf{Khả năng tiếp cận (Accessibility):} Giao diện hướng đến tuân thủ các nguyên tắc cơ bản của WCAG 2.1 mức A, hỗ trợ độ tương phản màu phù hợp và nhãn mô tả (aria-label) cho các thành phần tương tác trên web.
     \item \textbf{Giới hạn của AI:} Điểm ước tính từ AI mang tính tham khảo bổ trợ. Các mô hình ngôn ngữ lớn có thể phản hồi chưa nhất quán với giọng vùng miền đặc trưng; người học nên kết hợp với đánh giá từ giáo viên hoặc tham gia thi thử chính thức để xác nhận trình độ thực tế.

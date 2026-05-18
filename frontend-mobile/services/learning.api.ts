@@ -58,12 +58,12 @@ export const learningApi = {
       formData.append('targetWord', options.targetWord);
     }
 
-    return apiClient.postForm<PronunciationCheckResponse>('/learning/pronunciation/check', formData);
+    return apiClient.postForm<PronunciationCheckResponse>('/pronunciation/check', formData);
   },
 
   /** Poll pronunciation attempts to check if AI processing completed */
   getUserPronunciationAttempts: async (userId: string): Promise<any[]> => {
-    return apiClient.get<any[]>(`/learning/pronunciation/attempts/${userId}`);
+    return apiClient.get<any[]>(`/pronunciation/attempts/${userId}`);
   },
 };
 

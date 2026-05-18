@@ -42,13 +42,13 @@ async function upsertCambridgeExam(params: {
   questions: any;
   isPublished: boolean;
 }) {
-  const existing = await prisma.exam.findFirst({
+  const existing = await prisma.ieltsIntensiveExam.findFirst({
     where: { title: params.title, type: params.type as any },
     select: { id: true },
   });
 
   if (existing) {
-    await prisma.exam.update({
+    await prisma.ieltsIntensiveExam.update({
       where: { id: existing.id },
       data: {
         difficulty: params.difficulty as any,
@@ -62,7 +62,7 @@ async function upsertCambridgeExam(params: {
     return;
   }
 
-  await prisma.exam.create({
+  await prisma.ieltsIntensiveExam.create({
     data: {
       title: params.title,
       description: null,

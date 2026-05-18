@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsUrl,
   IsBoolean,
+  IsUUID,
   Min,
 } from "class-validator";
 
@@ -105,4 +106,17 @@ export class WordProgressDto {
   bestScore: number | null;
   attemptCount: number;
   status: 'NEW' | 'PRACTICING' | 'MASTERED';
+}
+
+export class CheckPronunciationDto {
+  @IsUUID()
+  @IsOptional()
+  vocabularyId?: string;
+
+  @IsString()
+  @IsOptional()
+  targetWord?: string;
+
+  @IsUUID()
+  userId: string;
 }

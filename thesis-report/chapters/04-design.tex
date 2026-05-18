@@ -1,34 +1,35 @@
+% !TEX root = ../main.tex
 \chapter{THIẾT KẾ VÀ HIỆN THỰC}
 
-Chương này trình bày quá trình thiết kế và hiện thực hệ thống, bao gồm: sơ đồ lớp, sơ đồ cơ sở dữ liệu, kiến trúc phần mềm, luồng màn hình, giao diện người dùng và kết quả kiểm thử. Các sơ đồ và thiết kế được xây dựng trực tiếp từ kết quả phân tích ở Chương 3, phản ánh cách hệ thống được hiện thực bằng NestJS~\cite{nestjs-docs}, Next.js~\cite{nextjs-docs} và React Native~\cite{reactnative-docs}.
+Dựa trên kết quả phân tích ở Chương~3, chương này trình bày cách hệ thống được hiện thực cụ thể: từ thiết kế cơ sở dữ liệu, kiến trúc phần mềm đến giao diện người dùng và kết quả kiểm thử. Toàn bộ hệ thống được xây dựng trên nền tảng NestJS~\cite{nestjs-docs}, Next.js~\cite{nextjs-docs} và React Native~\cite{reactnative-docs}.
 
 \section{Sơ đồ lớp}
 
-Sơ đồ lớp của hệ thống IELTS Learning System được chia thành hai nhóm module nhằm tăng tính rõ ràng và dễ bảo trì: nhóm \textbf{User \& Auth} quản lý tài khoản, xác thực và hồ sơ người học; nhóm \textbf{Learning} quản lý bài tập 4 kỹ năng, từ vựng, đề thi và tiến độ học tập~\cite{fowler2002patterns}.
+Để tăng tính rõ ràng, sơ đồ lớp được tách thành hai nhóm: nhóm \textbf{Core \& Auth} phụ trách tài khoản và vận hành nền tảng; nhóm \textbf{IELTS} phụ trách toàn bộ nội dung và tiến độ học tập~\cite{fowler2002patterns}.
 
-Trong nhóm User \& Auth, lớp User giữ vai trò trung tâm với các thuộc tính: id, email, passwordHash, role (learner/admin), failedAttempts, lockUntil và createdAt. Lớp OtpToken liên kết 1-nhiều với User thông qua userId, lưu mã OTP 6 chữ số và thời gian hết hạn. Lớp RefreshToken lưu refresh token theo từng phiên đăng nhập, cho phép vô hiệu hoá đơn lẻ khi người dùng đăng xuất trên một thiết bị cụ thể mà không ảnh hưởng các phiên khác.
+Nhóm Core \& Auth tập trung vào quản lý tài khoản và xác thực. Lớp User là trung tâm, lưu các thông tin cơ bản như email, mật khẩu (mã hoá bằng bcrypt), họ tên, avatar và vai trò (STUDENT / INSTRUCTOR / ADMIN). Người dùng đăng nhập bằng Google OAuth sẽ không có trường mật khẩu. Danh tính được xác thực qua JWT. Lớp Subscription liên kết 1-1 với User để quản lý gói cước hiện tại (FREE / PREMIUM / PRO) và ngày hết hạn.
 
-Trong nhóm Learning, lớp Skill phân loại 4 kỹ năng (Listening, Reading, Writing, Speaking). Lớp Exercise liên kết với Skill và chứa nội dung bài tập (audio URL, passage, writing prompt). Lớp UserExerciseResult ghi nhận kết quả mỗi lần làm bài của từng người học theo thời gian. Lớp VocabularyItem và UserVocabularyCard hiện thực thuật toán Spaced Repetition với các trường easeFactor và nextReview. Lớp ExamSession và ExamSectionDraft quản lý phiên thi Mock Test với cơ chế auto-save và khôi phục.
+Nhóm IELTS chứa toàn bộ nội dung học tập, tổ chức theo từng giai đoạn trong lộ trình~\cite{fowler2002patterns}. Ở giai đoạn Basic, bốn kỹ năng được tách thành bốn lớp exercise riêng biệt (Listening, Reading, Writing, Speaking) kèm bảng tiến độ. Giai đoạn Advanced bổ sung thêm lớp Session để lưu lại từng lần luyện tập cùng điểm số phản hồi từ AI. Giai đoạn Intensive dùng lớp IeltsIntensiveSession để quản lý phiên thi thử với vòng đời trạng thái từ khi bắt đầu cho đến khi có kết quả chấm điểm. Ngoài ra, phân hệ Vocab Lab dùng lớp Flashcard với thuật toán nhắc lại FSRS (qua thư viện ts-fsrs) để giúp người học ghi nhớ từ vựng theo lịch tối ưu.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{4.1. Class Diagram/2-class-core.png}
-    \caption{Sơ đồ lớp nhóm User \& Auth}
+    \includegraphics[width=\linewidth]{4.1. Class Diagram/2-class-core.png}
+    \caption{Sơ đồ lớp nhóm Core \& Auth}
     \label{fig:class-user}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\linewidth]{4.1. Class Diagram/1-class-ielts.png}
-    \caption{Sơ đồ lớp nhóm Learning}
+    \includegraphics[width=\linewidth]{4.1. Class Diagram/1-class-ielts.png}
+    \caption{Sơ đồ lớp nhóm IELTS}
     \label{fig:class-learning}
 \end{figure}
 
 \section{Sơ đồ cơ sở dữ liệu}
 
-Hệ thống sử dụng PostgreSQL~\cite{postgresql-docs} và Prisma ORM~\cite{prisma-docs}. PostgreSQL 16 được triển khai trực tiếp trên GCP VM, kết nối qua DATABASE\_URL connection string chuẩn (port 5432). Toàn bộ schema được định nghĩa trong file schema.prisma và ánh xạ sang các bảng quan hệ trong PostgreSQL thông qua Prisma Migrate. Để đảm bảo tính rõ ràng, sơ đồ ERD (Entity-Relationship Diagram) được tách thành hai nhóm tương ứng với hai nhóm sơ đồ lớp ở mục 4.1: nhóm \textbf{Core \& Auth} (xác thực, hồ sơ, gói cước) và nhóm \textbf{Learning} (bài tập, đề thi, từ vựng, tiến độ).
+Hệ thống dùng PostgreSQL~\cite{postgresql-docs} thông qua Prisma ORM~\cite{prisma-docs}. Cơ sở dữ liệu được lưu trữ trên \textbf{Supabase} — một dịch vụ PostgreSQL được quản lý sẵn, kết nối qua PgBouncer (port 6543) trong môi trường chạy thực và kết nối trực tiếp (port 5432) khi chạy migration. Toàn bộ schema được định nghĩa tập trung trong file schema.prisma với 66 model. Tương tự sơ đồ lớp, ERD cũng được tách thành hai nhóm để dễ đọc: nhóm \textbf{Core \& Auth} và nhóm \textbf{IELTS}.
 
-Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng nhập: users, otp\_tokens, refresh\_tokens; cùng các bảng phụ trợ cho hồ sơ học viên, gói cước (subscriptions, pricing\_plans), thanh toán (payments) và thông báo (notifications). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
+Nhóm Core \& Auth quản lý người dùng và các nghiệp vụ liên quan. Bảng users lưu thông tin tài khoản, trạng thái hoạt động và định danh Google OAuth. Bên cạnh đó là các bảng subscriptions, pricing\_plans (gói cước), payments (thanh toán), notifications (thông báo) và student\_teacher\_links (liên kết học viên -- giáo viên). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
 
 \begin{figure}[H]
     \centering
@@ -37,25 +38,39 @@ Nhóm Core \& Auth gồm các bảng quản lý người dùng và phiên đăng
     \label{fig:erd-core}
 \end{figure}
 
-Nhóm Learning chứa toàn bộ dữ liệu học thuật được tổ chức theo bốn giai đoạn của lộ trình IELTS. Cụ thể: nhóm bài tập kỹ năng gồm skills, exercises, exercise\_options, user\_exercise\_results; nhóm từ vựng gồm vocabulary\_items và user\_vocabulary\_cards (lưu trạng thái Spaced Repetition); nhóm thi thử Intensive gồm exam\_papers, exam\_sessions, exam\_section\_drafts và mock\_test\_results; cùng các bảng phục vụ Dictation, Shadowing và lộ trình học. Khoá ngoại được thiết lập đầy đủ với ON DELETE CASCADE ở các bảng con nhằm đảm bảo tính toàn vẹn dữ liệu khi xoá bản ghi cha. Sơ đồ ERD nhóm Learning được trình bày trong hình~\ref{fig:erd-learning}.
+Nhóm IELTS chứa toàn bộ dữ liệu học thuật, được tổ chức theo bốn giai đoạn của lộ trình. Mỗi giai đoạn có nhóm bảng riêng:
+
+\begin{itemize}
+    \item \textbf{Foundation:} Bộ ba nhóm bảng từ vựng nền, ngữ pháp và phát âm. Mỗi nhóm có cấu trúc phân cấp từ cuốn sách, chương, đơn vị bài tập cho đến bảng ghi nhận tiến độ của từng người học.
+    \item \textbf{Basic:} Bốn bảng bài tập tương ứng với bốn kỹ năng Listening, Reading, Writing, Speaking, cùng bảng tiến độ để theo dõi kết quả.
+    \item \textbf{Advanced:} Mỗi kỹ năng có thêm bảng Session lưu lại từng lần luyện tập kèm điểm phản hồi từ AI.
+    \item \textbf{Intensive:} Ba bảng chính là exams (đề thi), exam\_sessions (phiên thi với vòng đời trạng thái) và results (kết quả chấm điểm AI sau khi xử lý).
+\end{itemize}
+
+Ngoài ra, phân hệ Vocab Lab dùng các bảng decks, flashcards và flashcard\_reviews để lưu trạng thái FSRS của từng thẻ. Các bảng Dictation, Shadowing và lộ trình học cũng được bổ sung để phục vụ các tính năng còn lại. Khoá ngoại được thiết lập với ON DELETE CASCADE ở toàn bộ bảng con nhằm giữ tính toàn vẹn dữ liệu khi xoá bản ghi cha. Sơ đồ ERD nhóm IELTS được trình bày trong hình~\ref{fig:erd-learning}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{4.2. ERD/1-erd-ielts.png}
-    \caption{Sơ đồ ERD nhóm Learning (PostgreSQL)}
+    \caption{Sơ đồ ERD nhóm IELTS (PostgreSQL)}
     \label{fig:erd-learning}
 \end{figure}
 
 \section{Sơ đồ kiến trúc phần mềm}
 
-Hệ thống IELTS Learning System được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm hai thành phần chính: (1) \textbf{NestJS Modular Monolith} -- một ứng dụng NestJS 10 duy nhất chứa toàn bộ business logic được tổ chức thành 18 module nghiệp vụ (auth, exams, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, gamification, community, subscriptions, notifications...) giao tiếp nội bộ qua Dependency Injection; (2) \textbf{FastAPI AI Worker} -- microservice Python độc lập xử lý toàn bộ AI inference, kết nối với NestJS qua RabbitMQ message queue.
+Hệ thống được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm các thành phần chính như sau:
 
-Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (port 3000) thông qua nginx reverse proxy. Khi người học nộp bài Writing hoặc Speaking, NestJS đẩy task vào exam-grading-queue trên RabbitMQ; FastAPI Worker consume, gọi Gemini API để chấm điểm, rồi callback kết quả về NestJS qua REST. Tầng dữ liệu gồm PostgreSQL 16 (trực tiếp trên GCP VM) và Google Cloud Storage (GCS) lưu trữ file audio và hình ảnh bài tập. Client gồm Next.js (Web) và React Native (Mobile) kết nối với Backend Core qua HTTPS~\cite{nestjs-docs}.
+\begin{itemize}
+    \item \textbf{NestJS Backend Core:} Toàn bộ nghiệp vụ được tổ chức thành 18 module trong một ứng dụng NestJS 10 duy nhất. Các module giao tiếp nội bộ qua Dependency Injection, giúp dễ bảo trì mà không cần phân tán thành nhiều service riêng lẻ.
+    \item \textbf{FastAPI AI Worker:} Một microservice Python độc lập, chịu trách nhiệm cho toàn bộ tác vụ AI. Worker này nhận công việc từ NestJS qua hàng đợi RabbitMQ (CloudAMQP), gọi Gemini API để chấm điểm, rồi gửi kết quả ngược lại NestJS qua HTTP callback.
+    \item \textbf{Tầng dữ liệu:} PostgreSQL trên Supabase (kết nối qua PgBouncer), Redis trên Upstash (cache và phiên làm việc), Google Cloud Storage lưu file audio và Cloudinary lưu ảnh do người dùng tải lên.
+    \item \textbf{Client:} Ứng dụng web Next.js và ứng dụng mobile React Native, đều kết nối với Backend Core qua HTTPS thông qua nginx~\cite{nestjs-docs}.
+\end{itemize}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{4.3. Architecture Diagram/architecture-diagram.png}
-    \caption{Sơ đồ kiến trúc phần mềm hệ thống IELTS Learning System}
+    \caption{Sơ đồ kiến trúc phần mềm hệ thống IELTS Master}
     \label{fig:architecture}
 \end{figure}
 
@@ -63,7 +78,7 @@ Toàn bộ yêu cầu từ client đều đến \textbf{NestJS Backend Core} (po
 
 \subsection{Sơ đồ luồng màn hình website}
 
-Trên nền tảng Web (Next.js), người dùng bắt đầu từ \textbf{Landing Page}, tiếp tục đến màn hình \textbf{Đăng nhập / Đăng ký}, sau đó vào \textbf{Dashboard} chính. Từ Dashboard, người học có thể chuyển sang 4 nhánh chính: \textbf{Luyện kỹ năng} (Listening / Reading / Writing / Speaking), \textbf{Từ vựng} (học mới và ôn luyện flashcard), \textbf{Mock Test} (chọn đề và làm bài toàn phần), và \textbf{Kết quả} (xem báo cáo tiến độ). Người quản lý (Admin) có nhánh riêng dẫn vào \textbf{Admin Dashboard} với các chức năng quản lý nội dung, đề thi và học viên.
+Trên nền tảng Web, người dùng bắt đầu từ trang chủ Landing Page, đăng nhập hoặc đăng ký tài khoản, rồi vào Dashboard chính. Tại đây, người học theo lộ trình từ Foundation (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), qua Basic (làm quen bốn kỹ năng cơ bản), Advanced (luyện chuyên sâu với phản hồi từ AI), đến Intensive (thi thử sát thực tế). Ngoài ra còn có các công cụ bổ trợ như Vocab Lab (sổ tay từ vựng cá nhân), Dictation, Shadowing, Community, Roadmap và trang Thống kê để theo dõi tiến độ. Người quản lý có nhánh riêng vào Admin Dashboard với các chức năng quản lý nội dung, đề thi và tài khoản học viên.
 
 \begin{figure}[H]
     \centering
@@ -74,22 +89,22 @@ Trên nền tảng Web (Next.js), người dùng bắt đầu từ \textbf{Landi
 
 \subsection{Sơ đồ luồng màn hình mobile}
 
-Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụng Tab Navigation ở tầng dưới cùng với 4 tab chính: \textbf{Trang chủ}, \textbf{Luyện tập}, \textbf{Từ vựng} và \textbf{Hồ sơ}. Các màn hình con được quản lý bằng Stack Navigator. Luồng Mock Test trên mobile được thiết kế dạng fullscreen để tránh xao nhãng, với thanh điều hướng section cố định phía trên và nút đếm câu đã trả lời phía dưới.
+Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụng Tab Navigation ở tầng dưới cùng với 5 tab hiển thị: \textbf{Home} (Trang chủ), \textbf{Explore} (Khám phá), \textbf{IELTS} (trung tâm học tập), \textbf{Community} (Cộng đồng) và \textbf{Profile} (Hồ sơ). Các màn hình chuyên biệt như Vocab Lab, Shadowing, Pronunciation, Vocabulary, Grammar và More được truy cập qua điều hướng nội bộ từ tab IELTS và Home, không hiển thị trực tiếp trên thanh tab. Các màn hình con được quản lý bằng Stack Navigator tích hợp trong Expo Router.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{4.4. Flow Chart/2-flowchart-mobile.png}
+    \includegraphics[width=\linewidth]{4.4. Flow Chart/2-flowchart-mobile.png}
     \caption{Sơ đồ luồng màn hình mobile (React Native)}
     \label{fig:flow-mobile}
 \end{figure}
 
 \section{Giao diện chương trình}
 
-Phần này trình bày 13 giao diện chính của hệ thống IELTS Learning System trên nền tảng Web, thể hiện kết quả hiện thực thực tế của các use case đã phân tích ở Chương~3. Các giao diện được sắp xếp theo hành trình người dùng: bắt đầu từ trang đích (Landing Page), vào Dashboard trung tâm, qua công cụ Roadmap cá nhân hoá, lần lượt đến các phân hệ học tập theo bốn giai đoạn (Foundation, Basic, Intensive), và kết thúc bằng các tiện ích bổ trợ (Dictation, Vocab Lab, Community, công cụ tra từ AI toàn cục).
+Phần này trình bày 13 giao diện tiêu biểu của hệ thống trên nền tảng Web, sắp xếp theo hành trình người dùng từ khi lần đầu truy cập cho đến khi sử dụng các tính năng học tập chuyên sâu.
 
 \subsection{Giao diện trang chủ (Landing Page)}
 
-Trang chủ (Landing Page) đóng vai trò là điểm tiếp xúc đầu tiên giữa người dùng và hệ thống. Mục đích chính của trang là truyền tải thông điệp cốt lõi \textit{``Master English, Ace IELTS, Smarter with AI''} thông qua một nền tảng học tập thông minh giúp xây dựng từ vựng, cải thiện kỹ năng nói và luyện thi IELTS với lộ trình cá nhân hoá. Giao diện được thiết kế trực quan, hiện đại, kết hợp hình ảnh minh hoạ sinh động và các hiệu ứng hoạt hình nhẹ nhằm điều hướng sự chú ý của người dùng vào nút Call-To-Action ``START LEARNING''. Khi nhấn nút này, người dùng được đưa trực tiếp đến phân hệ chính của hệ thống để bắt đầu trải nghiệm học tập ngay lập tức. Giao diện trang chủ được trình bày trong hình~\ref{fig:ui-landing}.
+Trang chủ là màn hình đầu tiên người dùng nhìn thấy khi truy cập hệ thống. Giao diện truyền tải thông điệp \textit{``Master English, Ace IELTS, Smarter with AI''} qua bố cục hiện đại với hình ảnh minh hoạ sinh động và hiệu ứng hoạt hình nhẹ. Nút ``START LEARNING'' đặt nổi bật ở trung tâm để khuyến khích người dùng bắt đầu ngay. Khi nhấn vào đó, hệ thống đưa người dùng thẳng vào phân hệ học tập chính. Giao diện trang chủ được trình bày trong hình~\ref{fig:ui-landing}.
 
 \begin{figure}[H]
     \centering
@@ -100,7 +115,7 @@ Trang chủ (Landing Page) đóng vai trò là điểm tiếp xúc đầu tiên 
 
 \subsection{Giao diện Dashboard người học}
 
-Trang IELTS Dashboard đóng vai trò là trung tâm điều khiển (hub) chính, nơi người học theo dõi và quản lý toàn bộ quá trình luyện thi IELTS của mình. Mục đích cốt lõi của trang là cung cấp một Lộ trình học tập (Learning Roadmap) được cấu trúc rõ ràng qua bốn giai đoạn tiến triển: \textbf{Foundation} (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), \textbf{Basic} (nắm bắt kiến thức cơ bản của bốn kỹ năng), \textbf{Advanced} (luyện tập chuyên sâu từng dạng câu hỏi với hỗ trợ AI), và \textbf{Intensive} (thi thử sát với thực tế). Bên cạnh thanh tiến độ và số liệu tổng quan (Quick Stats), Dashboard còn là điểm truy cập cho các công cụ bổ trợ (Tools \& Features) quan trọng như: tạo lộ trình học cá nhân hoá bằng AI, công cụ tính điểm Band Score, kết nối theo dõi tiến độ giữa học viên và giáo viên, cùng với hệ thống thống kê chi tiết giúp đánh giá tổng quan năng lực và nhận diện những kỹ năng cần cải thiện. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
+Dashboard là trung tâm điều khiển chính của người học. Tại đây, lộ trình học được chia rõ thành bốn giai đoạn tiến triển: Foundation (xây nền từ vựng, ngữ pháp, phát âm), Basic (làm quen bốn kỹ năng cơ bản), Advanced (luyện chuyên sâu với hỗ trợ AI) và Intensive (thi thử sát thực tế). Thanh tiến độ và Quick Stats giúp người học nắm được vị trí hiện tại của mình trong từng giai đoạn. Ngoài ra, Dashboard còn là nơi truy cập nhanh vào các công cụ bổ trợ như tạo Roadmap cá nhân hoá bằng AI, tính điểm Band Score và hệ thống thống kê chi tiết theo từng kỹ năng. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
 
 \begin{figure}[H]
     \centering
@@ -111,7 +126,7 @@ Trang IELTS Dashboard đóng vai trò là trung tâm điều khiển (hub) chín
 
 \subsection{Giao diện Lộ trình học IELTS (Roadmap)}
 
-Trang IELTS Roadmap là công cụ hỗ trợ xây dựng chiến lược học tập cá nhân hoá do AI thiết kế. Thông qua việc thu thập thông tin về trình độ hiện tại, mục tiêu Band Score và quỹ thời gian rảnh của người học, hệ thống tự động vạch ra một lộ trình ôn luyện chi tiết theo từng mốc thời gian. Trang không chỉ giúp người dùng định hướng rõ ràng các bước cần thực hiện, mà còn có khả năng tự cập nhật và tinh chỉnh kế hoạch dựa trên tốc độ và kết quả học tập thực tế trên hệ thống. Giao diện Roadmap được trình bày trong hình~\ref{fig:ui-roadmap}.
+Trang Roadmap là công cụ để người học tạo kế hoạch ôn thi cá nhân hoá. Người dùng nhập trình độ hiện tại, mục tiêu Band Score và số giờ học mỗi tuần; AI sẽ tự động tính toán và vạch ra lộ trình chi tiết theo từng tuần. Khi người học hoàn thành hoặc bỏ lỡ một phần, kế hoạch cũng được điều chỉnh lại để phù hợp với thực tế. Giao diện Roadmap được trình bày trong hình~\ref{fig:ui-roadmap}.
 
 \begin{figure}[H]
     \centering
@@ -122,7 +137,7 @@ Trang IELTS Roadmap là công cụ hỗ trợ xây dựng chiến lược học 
 
 \subsection{Giao diện thư viện Từ vựng (Foundation Vocabulary)}
 
-Trang Vocabulary thuộc giai đoạn Foundation, đóng vai trò là thư viện sách từ vựng hỗ trợ người học xây dựng vốn từ cơ bản. Mục đích chính của trang là hiển thị danh sách các ``cuốn sách'' từ vựng theo chủ đề (Foundation Vocab Book), gồm hình ảnh minh hoạ, tên chủ đề và tổng số từ vựng trong mỗi sách. Người dùng có thể duyệt qua các chủ đề và bấm nút ``START LEARNING'' để chuyển trực tiếp vào màn hình học chi tiết của từng chủ đề, tạo bước đệm vững chắc trước khi bước vào luyện thi IELTS chuyên sâu. Giao diện thư viện Vocabulary được trình bày trong hình~\ref{fig:ui-vocabulary}.
+Ở giai đoạn Foundation, trang Vocabulary hiển thị danh sách các ``cuốn sách'' từ vựng theo chủ đề. Mỗi sách có hình ảnh minh hoạ, tên chủ đề và số từ vựng bên trong. Người học chọn chủ đề phù hợp rồi nhấn ``START LEARNING'' để vào màn hình học chi tiết, từng bước xây dựng vốn từ nền trước khi luyện thi IELTS chuyên sâu. Giao diện thư viện Vocabulary được trình bày trong hình~\ref{fig:ui-vocabulary}.
 
 \begin{figure}[H]
     \centering
@@ -133,7 +148,7 @@ Trang Vocabulary thuộc giai đoạn Foundation, đóng vai trò là thư việ
 
 \subsection{Giao diện luyện Listening cơ bản (Basic Listening)}
 
-Trang IELTS Basic Listening Exercise là giao diện làm bài tập thực hành kỹ năng Nghe ở giai đoạn cơ bản. Trải nghiệm người dùng tập trung vào việc nghe audio và tương tác trả lời câu hỏi theo các định dạng bài thi quen thuộc như điền từ và trắc nghiệm. Sau khi nộp bài, hệ thống tự động chấm điểm và cung cấp phản hồi (đáp án đúng, transcript) ngay lập tức để người học rút kinh nghiệm và củng cố kỹ năng nghe cho từng dạng bài cụ thể. Giao diện luyện Listening cơ bản được trình bày trong hình~\ref{fig:ui-listening-basic}.
+Trang Basic Listening là giao diện luyện nghe ở giai đoạn cơ bản. Người học nghe file audio rồi trả lời câu hỏi theo các dạng quen thuộc như điền từ và trắc nghiệm. Sau khi nộp bài, hệ thống tự chấm và trả về đáp án đúng kèm transcript ngay lập tức, giúp người học nhận ra lỗi sai và cải thiện từng dạng nghe cụ thể. Giao diện luyện Listening cơ bản được trình bày trong hình~\ref{fig:ui-listening-basic}.
 
 \begin{figure}[H]
     \centering
@@ -144,7 +159,7 @@ Trang IELTS Basic Listening Exercise là giao diện làm bài tập thực hàn
 
 \subsection{Giao diện thi thử Reading (Intensive Reading)}
 
-Trang IELTS Intensive Reading Test cung cấp môi trường thi thử giả lập sát với bài thi Reading thực tế. Giao diện được chia đôi: một bên là các đoạn văn bản học thuật (Passages), bên còn lại là danh sách câu hỏi cần trả lời. Điểm nhấn của trang là tính năng mô phỏng áp lực thời gian thông qua đồng hồ đếm ngược và khả năng tương tác trực tiếp với văn bản (highlight, ghi chú), giúp người dùng làm quen với nhịp độ và không khí của một bài thi IELTS Reading thực sự. Giao diện thi thử Reading được trình bày trong hình~\ref{fig:ui-reading-intensive}.
+Trang Intensive Reading mô phỏng môi trường thi Reading thực tế. Giao diện chia đôi màn hình: bên trái là đoạn văn học thuật, bên phải là danh sách câu hỏi. Đồng hồ đếm ngược tạo áp lực thời gian như trong phòng thi thật; người dùng cũng có thể highlight và ghi chú trực tiếp trên văn bản trong khi làm bài. Giao diện thi thử Reading được trình bày trong hình~\ref{fig:ui-reading-intensive}.
 
 \begin{figure}[H]
     \centering
@@ -155,7 +170,7 @@ Trang IELTS Intensive Reading Test cung cấp môi trường thi thử giả l�
 
 \subsection{Giao diện trang đáp án Listening (Intensive Listening Answer)}
 
-Trang IELTS Intensive Listening Answer Page là giao diện hiển thị kết quả chi tiết sau khi người học hoàn thành bài thi thử Listening. Mục đích chính là cung cấp báo cáo điểm số (tổng điểm và Band Score dự kiến), đồng thời liệt kê chi tiết từng câu hỏi để người dùng đối chiếu đáp án đã chọn với đáp án đúng. Trang tích hợp sẵn Audio Transcript có bôi đậm đoạn chứa câu trả lời, giúp người học dễ dàng phân tích lỗi sai và cải thiện kỹ năng nghe hiểu. Giao diện trang đáp án Listening được trình bày trong hình~\ref{fig:ui-listening-answer}.
+Sau khi hoàn thành bài thi thử Listening, hệ thống hiển thị trang đáp án với báo cáo điểm số và Band Score dự kiến. Người học xem lại từng câu, đối chiếu đáp án mình chọn với đáp án đúng. Transcript audio được tích hợp ngay bên dưới, trong đó đoạn chứa câu trả lời được bôi đậm để người học xác định chính xác vị trí mình nghe nhầm. Giao diện trang đáp án Listening được trình bày trong hình~\ref{fig:ui-listening-answer}.
 
 \begin{figure}[H]
     \centering
@@ -166,7 +181,7 @@ Trang IELTS Intensive Listening Answer Page là giao diện hiển thị kết q
 
 \subsection{Giao diện thi thử Speaking (Intensive Speaking)}
 
-Trang IELTS Intensive Speaking Test mô phỏng phòng thi Speaking thực tế với sự hỗ trợ của AI. Người học tương tác với một ``giám khảo AI'', lắng nghe các câu hỏi thuộc Part 1, Part 2, Part 3 và sử dụng microphone để thu âm câu trả lời trong thời gian quy định. Giao diện được thiết kế tối giản giúp người dùng tập trung vào việc nói; các chỉ báo thu âm rõ ràng đảm bảo quá trình thi diễn ra mượt mà trước khi hệ thống gửi file âm thanh đi chấm điểm bằng Whisper và Gemini. Giao diện thi thử Speaking được trình bày trong hình~\ref{fig:ui-speaking}.
+Trang Intensive Speaking mô phỏng phòng thi Speaking thực tế. Người học nghe câu hỏi từ ``giám khảo AI'' theo từng Part (1, 2, 3) rồi nhấn mic để ghi âm câu trả lời trong thời gian quy định. Giao diện được giữ tối giản để người dùng tập trung vào việc nói, không bị phân tâm. Sau khi hoàn thành, file audio được gửi đến backend để Whisper chuyển thành văn bản và Gemini chấm điểm theo thang IELTS. Giao diện thi thử Speaking được trình bày trong hình~\ref{fig:ui-speaking}.
 
 \begin{figure}[H]
     \centering
@@ -177,7 +192,7 @@ Trang IELTS Intensive Speaking Test mô phỏng phòng thi Speaking thực tế 
 
 \subsection{Giao diện kết quả Writing với phản hồi AI (Intensive Writing Answer)}
 
-Trang IELTS Intensive Writing Answer Page có chức năng hiển thị kết quả đánh giá bài thi Viết của người học sau khi được chấm điểm bởi hệ thống AI. Giao diện cung cấp cái nhìn toàn diện về bài làm, gồm: Band Score dự kiến, nhận xét tổng quan và phân tích chi tiết theo bốn tiêu chí chấm thi của IELTS (Task Achievement, Coherence \& Cohesion, Lexical Resource, Grammatical Range \& Accuracy). Đặc biệt, trang hiển thị các đoạn văn bản được AI chỉnh sửa hoặc gợi ý cải thiện, giúp người dùng nhận ra lỗi sai về ngữ pháp, từ vựng và tối ưu hoá cách diễn đạt của mình. Giao diện kết quả Writing được trình bày trong hình~\ref{fig:ui-writing-answer}.
+Trang kết quả Writing hiển thị báo cáo đánh giá bài viết sau khi AI chấm xong. Người học xem Band Score dự kiến cùng nhận xét chi tiết theo bốn tiêu chí chuẩn IELTS: Task Achievement, Coherence \& Cohesion, Lexical Resource và Grammatical Range \& Accuracy. Bên cạnh đó, AI còn đưa ra các đoạn văn được chỉnh sửa hoặc gợi ý cách diễn đạt tốt hơn, giúp người học nhận ra lỗi ngữ pháp và từ vựng cụ thể trong bài của mình. Giao diện kết quả Writing được trình bày trong hình~\ref{fig:ui-writing-answer}.
 
 \begin{figure}[H]
     \centering
@@ -188,7 +203,7 @@ Trang IELTS Intensive Writing Answer Page có chức năng hiển thị kết qu
 
 \subsection{Giao diện luyện nghe chép chính tả (Dictation)}
 
-Trang Dictation Lessons (luyện nghe chép chính tả) là một phân hệ luyện tập chuyên biệt giúp nâng cao sự nhạy bén của kỹ năng Nghe. Tại đây, người dùng có thể nghe các đoạn audio ngắn và thực hành gõ lại toàn bộ nội dung. Giao diện chú trọng công cụ đối chiếu độ chính xác giữa bài làm của người dùng với transcript gốc, đánh dấu cụ thể từng từ đúng/sai để người học định vị lỗi nghe nhầm. Giao diện luyện Dictation được trình bày trong hình~\ref{fig:ui-dictation}.
+Ở trang Dictation, người dùng nghe một đoạn audio ngắn rồi gõ lại toàn bộ nội dung vừa nghe được. Sau khi nộp bài, hệ thống tự động so sánh bài làm với transcript gốc và đánh dấu từng từ đúng hoặc sai trực tiếp trên màn hình, giúp người học nhận ra ngay những từ mình đang nghe nhầm. Giao diện luyện Dictation được trình bày trong hình~\ref{fig:ui-dictation}.
 
 \begin{figure}[H]
     \centering
@@ -199,7 +214,7 @@ Trang Dictation Lessons (luyện nghe chép chính tả) là một phân hệ lu
 
 \subsection{Giao diện sổ tay từ vựng cá nhân (Vocab Lab)}
 
-Trang Vocab Lab đóng vai trò như một ``phòng thí nghiệm'' hay cuốn sổ tay từ vựng kỹ thuật số cá nhân của người học. Mục đích chính là lưu trữ, quản lý và ôn tập những từ vựng mà học viên đã lưu lại trong suốt quá trình học trên hệ thống. Trang cung cấp các tính năng như: tạo danh sách từ vựng tuỳ chỉnh, ôn tập qua flashcard và áp dụng thuật toán Lặp lại ngắt quãng (Spaced Repetition) để giúp người học ghi nhớ từ vựng một cách khoa học và lâu dài. Giao diện Vocab Lab được trình bày trong hình~\ref{fig:ui-vocablab}.
+Vocab Lab là sổ tay từ vựng cá nhân của mỗi người học. Tại đây, người dùng tổ chức từ vựng thành các bộ thẻ (deck), ôn tập qua flashcard và được lên lịch nhắc lại tự động theo thuật toán FSRS (thư viện ts-fsrs) để ghi nhớ lâu hơn. Giao diện Vocab Lab được trình bày trong hình~\ref{fig:ui-vocablab}.
 
 \begin{figure}[H]
     \centering
@@ -210,7 +225,7 @@ Trang Vocab Lab đóng vai trò như một ``phòng thí nghiệm'' hay cuốn s
 
 \subsection{Giao diện Cộng đồng (Community)}
 
-Trang Community là không gian kết nối xã hội dành cho người dùng trên toàn hệ thống. Tại đây, người học có thể chia sẻ kinh nghiệm ôn thi, thảo luận về các bài tập khó, đăng tải các bài nói/viết của mình để xin nhận xét, và tương tác với các thành viên khác hoặc giáo viên. Tính năng này giúp tạo ra một môi trường học tập mang tính cộng đồng, tăng cường động lực và sự gắn kết của người dùng với hệ thống. Giao diện Cộng đồng được trình bày trong hình~\ref{fig:ui-community}.
+Trang Community là nơi người học kết nối và hỗ trợ lẫn nhau. Người dùng đăng bài chia sẻ kinh nghiệm, thảo luận về bài tập khó hoặc gửi bài nói/viết để xin nhận xét từ cộng đồng. Bài đăng có thể kèm thẻ chủ đề và hình ảnh; người khác có thể thích hoặc bình luận. Giao diện Cộng đồng được trình bày trong hình~\ref{fig:ui-community}.
 
 \begin{figure}[H]
     \centering
@@ -221,7 +236,7 @@ Trang Community là không gian kết nối xã hội dành cho người dùng t
 
 \subsection{Tính năng tra từ và lưu vào Vocab Lab bằng AI}
 
-Tính năng Add to Vocab Lab with AI là một công cụ tiện ích toàn cục xuất hiện xuyên suốt hệ thống dưới dạng nút nổi hoặc pop-up khi người dùng bôi đen văn bản. Chức năng chính là cho phép người học tra cứu từ vựng ngay lập tức tại bất kỳ trang nào. AI sẽ tự động phân tích nghĩa, cách phát âm, đưa ra ví dụ ngữ cảnh, và cung cấp một nút bấm để người dùng lưu trực tiếp từ vựng đó vào Vocab Lab cá nhân của mình chỉ với một thao tác, tối ưu hoá quá trình thu thập từ vựng một cách tiện lợi nhất. Giao diện tính năng được trình bày trong hình~\ref{fig:ui-add-vocablab-ai}.
+Xuyên suốt hệ thống, người dùng có thể bôi đen bất kỳ từ hoặc cụm từ nào để mở pop-up tra từ tức thì. AI tự động phân tích nghĩa, phát âm và đưa ra ví dụ ngữ cảnh. Nếu muốn lưu lại, người dùng nhấn một nút để thêm từ đó vào Vocab Lab cá nhân ngay lập tức mà không cần rời khỏi trang hiện tại. Giao diện tính năng được trình bày trong hình~\ref{fig:ui-add-vocablab-ai}.
 
 \begin{figure}[H]
     \centering
@@ -234,179 +249,182 @@ Tính năng Add to Vocab Lab with AI là một công cụ tiện ích toàn cụ
 
 \subsection{Danh sách các test case}
 
-Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp với thư viện Supertest cho tầng backend NestJS. Mỗi test case bao gồm mã định danh, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong đợi. Toàn bộ 60 test case được tổ chức thành 7 file spec, đặt cạnh module tương ứng trong thư mục \texttt{src/modules/}, phủ 7 nhóm chức năng cốt lõi: Đăng ký, Đăng nhập, Đăng bài cộng đồng, Thông báo, Cập nhật thông tin cá nhân, Luyện phát âm và Thống kê IELTS. Danh sách đầy đủ được trình bày trong bảng~\ref{tab:testcase_list}.
+Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp với thư viện Supertest cho tầng backend. Toàn bộ 60 trường hợp kiểm thử được tổ chức thành 7 file spec, phủ 7 nhóm chức năng cốt lõi: Đăng ký, Đăng nhập, Đăng bài cộng đồng, Thông báo, Cập nhật thông tin cá nhân, Luyện phát âm và Thống kê IELTS. Mỗi test case bao gồm mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Danh sách đầy đủ được trình bày trong bảng~\ref{tab:testcase_list}.
 
-\renewcommand{\arraystretch}{1.2}
-\begin{longtable}{|p{1.5cm}|p{2.4cm}|p{2.6cm}|p{4.0cm}|p{2.8cm}|}
-    \caption{Danh sách test case backend (60 case)}
+% 6 cột p{}, divisor=134: (1.0+0.4+2.0+2.8+3.5+3.7)×10; -4pt buffer cho rounding
+\setlength{\tbu}{\dimexpr(\linewidth - 12\tabcolsep - 7\arrayrulewidth - 4pt)/134\relax}
+\begin{longtable}{|p{10\tbu}|p{4\tbu}|p{20\tbu}|p{28\tbu}|p{35\tbu}|p{37\tbu}|}
+    \caption{Danh sách test case}
     \label{tab:testcase_list} \\
     \hline
-    \textbf{Mã TC} & \textbf{Chức năng} & \textbf{Tiền điều kiện} & \textbf{Tình huống} & \textbf{Kết quả mong đợi} \\ \hline
-    \endfirsthead
-    \multicolumn{5}{r}{\textit{(tiếp trang trước)}} \\
-    \hline
-    \textbf{Mã TC} & \textbf{Chức năng} & \textbf{Tiền điều kiện} & \textbf{Tình huống} & \textbf{Kết quả mong đợi} \\ \hline
-    \endhead
-    \hline \multicolumn{5}{r}{\textit{(tiếp trang sau)}} \\
-    \endfoot
-    \hline
-    \endlastfoot
-
-    TC01\_01 & Đăng ký tài khoản & Mock PrismaService & firstName rỗng & 400 -- @IsNotEmpty chặn tại ValidationPipe \\ \hline
-    TC01\_02 & Đăng ký tài khoản & -- & Email sai định dạng (``not-an-email'') & 400 -- thông báo ``Invalid email format'' \\ \hline
-    TC01\_03 & Đăng ký tài khoản & -- & Password 3 ký tự (``p12'') & 400 -- ``Password must be at least 6 characters'' \\ \hline
-    TC01\_04 & Đăng ký tài khoản & Prisma throw P2002 & Email đã tồn tại & 400 -- ``Email already exists'' \\ \hline
-    TC01\_05 & Đăng ký tài khoản & -- & Payload hợp lệ đầy đủ field & 201 -- trả SafeUser, không có password trong response \\ \hline
-    TC01\_06 & Đăng ký tài khoản & -- & Password ``MySecret123'' & Password lưu DB là bcrypt hash, không phải plaintext \\ \hline
-    TC01\_07 & Đăng ký tài khoản & -- & Tạo user thành công & prisma.deck.create gọi với data \{userId, name:``Default''\} \\ \hline
-    TC01\_08 & Đăng ký tài khoản & -- & (a) Không truyền role; (b) role=``ADMIN'' & (a) Mặc định ``STUDENT''; (b) Forward đúng ``ADMIN'' \\ \hline
-
-    TC02\_01 & Đăng nhập & User có sẵn (mock) & Email đúng, password sai & 401 -- ``Invalid credentials'' \\ \hline
-    TC02\_02 & Đăng nhập & -- & Email không tồn tại, password đúng & 401 \\ \hline
-    TC02\_03 & Đăng nhập & -- & Email và password đều sai & 401 \\ \hline
-    TC02\_04 & Đăng nhập & -- & Payload chỉ có email, thiếu password & 401 -- passport-local từ chối \\ \hline
-    TC02\_05 & Đăng nhập & User có sẵn & Email và password đúng & 201 -- \{access\_token, user\}; JWT payload chứa \{sub, email, role, iat, exp\} \\ \hline
-
-    TC03\_01 & Đăng bài cộng đồng & Đã đăng nhập (mock JWT) & body rỗng & 400 -- @MinLength(1) \\ \hline
-    TC03\_02 & Đăng bài cộng đồng & -- & body 10001 ký tự & 400 -- @MaxLength(10000) \\ \hline
-    TC03\_03 & Đăng bài cộng đồng & -- & type=``INVALID\_TYPE'' & 400 -- @IsEnum(PostType) \\ \hline
-    TC03\_04 & Đăng bài cộng đồng & Không có JWT & POST /posts với body hợp lệ & 401 -- JwtAuthGuard chặn \\ \hline
-    TC03\_05 & Đăng bài cộng đồng & Mock Gamification & body=``Hello World'' & 201, trả author info; gamification.onEvent gọi với xp=5, reason=``COMMUNITY\_POST'' \\ \hline
-    TC03\_06 & Đăng bài cộng đồng & -- & body kèm tags=[``ielts'',``writing''] và imageUrls & Prisma nhận đúng tags và imageUrls trong data \\ \hline
-    TC03\_07 & Đăng bài cộng đồng & Mock Prisma trả mảng & GET /posts không query & 200, findMany với where=\{isHidden:false\}, orderBy createdAt desc \\ \hline
-    TC03\_08 & Đăng bài cộng đồng & Post tồn tại, chưa like & POST /posts/:id/like & 201, \{liked:true\}; \$transaction được gọi increment likeCount \\ \hline
-    TC03\_09 & Đăng bài cộng đồng & Post đã được like trước & POST /posts/:id/like lần 2 & 201, \{liked:false\} (unlike) \\ \hline
-    TC03\_10 & Đăng bài cộng đồng & Post không tồn tại & POST /posts/post-ghost/like & 404 -- ``Post not found'' \\ \hline
-    TC03\_11 & Đăng bài cộng đồng & -- & GET /posts?limit=10 & 400 -- DTO @IsInt thiếu @Type(()=$>$Number) (ghi nhận bug nhỏ của ListPostsDto) \\ \hline
-
-    TC05\_01 & Thông báo người dùng & Không có JWT & GET /notifications & 401 \\ \hline
-    TC05\_02 & Thông báo người dùng & Không có JWT & GET /notifications/unread-count & 401 \\ \hline
-    TC05\_03 & Thông báo người dùng & Không có JWT & DELETE /notifications/:id & 401, không gọi deleteMany \\ \hline
-    TC05\_04 & Thông báo người dùng & Đã đăng nhập & GET /notifications?page=1\&limit=20 & 200, findMany với where=\{userId\}, orderBy createdAt desc \\ \hline
-    TC05\_05 & Thông báo người dùng & -- & GET /notifications?page=2\&limit=20 & skip=20, take=20 truyền đúng vào Prisma \\ \hline
-    TC05\_06 & Thông báo người dùng & -- & PATCH /notifications/:id/read & updateMany với compound where=\{id, userId\} (ownership scope) \\ \hline
-    TC05\_07 & Thông báo người dùng & Notification của user khác & PATCH /notifications/foreign-notif/read & 200, count=0 -- không lộ thông tin user khác \\ \hline
-    TC05\_08 & Thông báo người dùng & -- & PATCH /notifications/read-all & updateMany với where=\{userId, isRead:false\} \\ \hline
-    TC05\_09 & Thông báo người dùng & -- & DELETE /notifications/:id & deleteMany với compound where=\{id, userId\} \\ \hline
-
-    TC06\_01 & Cập nhật thông tin cá nhân & Không có JWT & PATCH /users/me & 401 -- JwtAuthGuard từ chối \\ \hline
-    TC06\_02 & Cập nhật thông tin cá nhân & Đã đăng nhập & email=``not-an-email'' & 400 -- ``Invalid email format'' \\ \hline
-    TC06\_03 & Cập nhật thông tin cá nhân & -- & role=``SUPERHERO'' & 400 -- @IsEnum(UserRole) \\ \hline
-    TC06\_04 & Cập nhật thông tin cá nhân & -- & isActive=``maybe'' (string) & 400 -- @IsBoolean \\ \hline
-    TC06\_05 & Cập nhật thông tin cá nhân & -- & firstName=12345 (số) & 400 -- @IsString \\ \hline
-    TC06\_06 & Cập nhật thông tin cá nhân & -- & Payload kèm field lạ phone=``0901234567'' & 400 -- ``property phone should not exist'' (forbidNonWhitelisted) \\ \hline
-    TC06\_07 & Cập nhật thông tin cá nhân & -- & firstName=``NewName'' & 200, prisma.user.update với where=\{id\}, data.firstName=``NewName'' \\ \hline
-    TC06\_08 & Cập nhật thông tin cá nhân & -- & email=``new-email@example.com'' chưa dùng & 200, lưu email mới \\ \hline
-    TC06\_09 & Cập nhật thông tin cá nhân & Prisma throw P2002 & email đã được user khác dùng & 400 -- ``Email already in use by another account'' \\ \hline
-    TC06\_10 & Cập nhật thông tin cá nhân & -- & role=``TEACHER'' & 200, role lưu đúng ``TEACHER'' \\ \hline
-    TC06\_11 & Cập nhật thông tin cá nhân & -- & isActive=false & 200, lưu boolean đúng \\ \hline
-    TC06\_12 & Cập nhật thông tin cá nhân & -- & Body \{\} (rỗng) & 200, Prisma nhận data toàn undefined (no-op) \\ \hline
-
-    TC10\_01 & Luyện phát âm & Endpoint public & GET /pronunciation/sounds & 200, service.getAllSounds() được gọi, không cần JWT \\ \hline
-    TC10\_02 & Luyện phát âm & Service trả null & GET /pronunciation/sounds/:symbol (ký hiệu không tồn tại) & 404 -- ``Pronunciation sound not found'' \\ \hline
-    TC10\_03 & Luyện phát âm & Service trả object & GET /pronunciation/sounds/i: hợp lệ & 200, trả object sound đúng \\ \hline
-    TC10\_04 & Luyện phát âm & Không có JWT & POST /pronunciation/progress & 401, không gọi updateProgress \\ \hline
-    TC10\_05 & Luyện phát âm & Đã đăng nhập & POST /progress với \{soundId, score:85\} & 201, service.updateProgress(userId, soundId, 85) được gọi \\ \hline
-    TC10\_06 & Luyện phát âm & User role=STUDENT & POST /pronunciation/sounds & 403 -- RolesGuard từ chối (yêu cầu ADMIN) \\ \hline
-    TC10\_07 & Luyện phát âm & User role=ADMIN & POST /sounds với \{symbol, type, word\} đầy đủ & 201, service.createSound được gọi \\ \hline
-    TC10\_08 & Luyện phát âm & User role=ADMIN & POST /sounds thiếu field ``word'' & 400 -- DTO @IsString non-optional \\ \hline
-
-    TC11\_01 & Thống kê IELTS & Không có JWT & GET /ielts-statistics/overview & 401 \\ \hline
-    TC11\_02 & Thống kê IELTS & Không có JWT & GET /ielts-statistics/foundation & 401 \\ \hline
-    TC11\_03 & Thống kê IELTS & Đã đăng nhập & GET /ielts-statistics/overview & 200, service.getOverviewStats(userId) được gọi \\ \hline
-    TC11\_04 & Thống kê IELTS & -- & GET /ielts-statistics/foundation & 200, service.getFoundationStats(userId) được gọi \\ \hline
-    TC11\_05 & Thống kê IELTS & -- & GET /ielts-statistics/basic & 200, service.getBasicStats(userId) được gọi \\ \hline
-    TC11\_06 & Thống kê IELTS & -- & GET /ielts-statistics/advanced & 200, service.getAdvancedStats(userId) được gọi \\ \hline
-    TC11\_07 & Thống kê IELTS & -- & GET /ielts-statistics/intensive & 200, service.getIntensiveStats(userId) được gọi \\ \hline
-
-\end{longtable}
-
-\subsection{Bảng báo cáo kết quả kiểm thử}
-
-Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi tự động qua lệnh \texttt{npm test} của workspace \texttt{backend-core}. Mỗi lần chạy, custom Jest reporter sinh bảng kết quả markdown ra file \texttt{docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử được trình bày trong bảng~\ref{tab:testcase_result}. Tất cả 60 test case đều đạt kết quả \textbf{Pass} trong $\leq$5 giây, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
-
-\renewcommand{\arraystretch}{1.2}
-\begin{longtable}{|p{1.5cm}|p{3.3cm}|p{3.3cm}|p{2.5cm}|p{1.5cm}|p{1.5cm}|}
-    \caption{Bảng báo cáo kết quả kiểm thử}
-    \label{tab:testcase_result} \\
-    \hline
-    \textbf{Mã TC} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} & \textbf{Người thực hiện} & \textbf{Pass/Fail} & \textbf{Ngày} \\ \hline
+    \textbf{ID} & \textbf{TH} & \textbf{Chức năng} & \textbf{Tiền điều kiện} & \textbf{Tình huống test} & \textbf{Kết quả mong muốn} \\ \hline
     \endfirsthead
     \multicolumn{6}{r}{\textit{(tiếp trang trước)}} \\
     \hline
-    \textbf{Mã TC} & \textbf{Kết quả mong đợi} & \textbf{Kết quả thực tế} & \textbf{Người thực hiện} & \textbf{Pass/Fail} & \textbf{Ngày} \\ \hline
+    \textbf{ID} & \textbf{TH} & \textbf{Chức năng} & \textbf{Tiền điều kiện} & \textbf{Tình huống test} & \textbf{Kết quả mong muốn} \\ \hline
     \endhead
     \hline \multicolumn{6}{r}{\textit{(tiếp trang sau)}} \\
     \endfoot
     \hline
     \endlastfoot
 
-    TC01\_01 & 400 do @IsNotEmpty & 400 sau 19 ms, prisma.user.create không được gọi & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC01\_02 & 400 ``Invalid email format'' & Message hiển thị đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC01\_03 & 400 ``Password must be at least 6...'' & Hiển thị đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC01\_04 & 400 ``Email already exists'' & Bắt P2002 và trả 400, deck.create không gọi & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC01\_05 & 201, SafeUser (không có password) & Response thiếu trường password & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC01\_06 & Password lưu dạng bcrypt hash & bcrypt.compare(plaintext, hashed) trả true & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC01\_07 & deck.create gọi với data \{userId, name:``Default''\} & Args đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC01\_08 & role mặc định STUDENT / forward giá trị & Đúng cả 2 trường hợp & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC01 & 1 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Để trống họ tên người dùng & Thông báo họ tên không được bỏ trống \\ \hline
+    TC01 & 2 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập email sai định dạng & Thông báo email không hợp lệ \\ \hline
+    TC01 & 3 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập mật khẩu ít hơn 6 ký tự & Thông báo mật khẩu phải có ít nhất 6 ký tự \\ \hline
+    TC01 & 4 & Đăng ký & Email đã đăng ký trước đó & Nhập email đã tồn tại trong hệ thống & Thông báo email đã được sử dụng \\ \hline
+    TC01 & 5 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập đầy đủ thông tin hợp lệ & Tạo tài khoản thành công, trả thông tin tài khoản (không hiển thị mật khẩu) \\ \hline
+    TC01 & 6 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập mật khẩu hợp lệ và nộp đăng ký & Mật khẩu được lưu ở dạng mã hoá, không lưu nguyên văn \\ \hline
+    TC01 & 7 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký thành công với thông tin hợp lệ & Hệ thống tự động tạo bộ thẻ từ vựng ``Default'' cho tài khoản mới \\ \hline
+    TC01 & 8 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký không chọn vai trò / chọn vai trò Quản trị viên & Tài khoản được gán vai trò Học viên mặc định / lưu đúng vai trò được chọn \\ \hline
 
-    TC02\_01 & 401 Invalid credentials & 401 sau 55 ms & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC02\_02 & 401 & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC02\_03 & 401 & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC02\_04 & 401 (passport-local) & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC02\_05 & 201, JWT đúng \{sub, email, role\} & JWT decode đủ 5 field (sub, email, role, iat, exp) & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC02 & 1 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email đúng, mật khẩu sai & Thông báo thông tin đăng nhập không chính xác \\ \hline
+    TC02 & 2 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email không tồn tại, mật khẩu đúng & Thông báo thông tin đăng nhập không chính xác \\ \hline
+    TC02 & 3 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email và mật khẩu đều sai & Thông báo thông tin đăng nhập không chính xác \\ \hline
+    TC02 & 4 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Chỉ nhập email, để trống mật khẩu & Thông báo thông tin đăng nhập không chính xác \\ \hline
+    TC02 & 5 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email và mật khẩu đúng & Đăng nhập thành công, hệ thống cấp mã truy cập kèm thông tin tài khoản \\ \hline
 
-    TC03\_01 & 400 body rỗng & 400 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_02 & 400 body quá dài & 400 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_03 & 400 type sai enum & 400 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_04 & 401 không JWT & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_05 & 201 + gamification gọi xp=5 & Args đúng (xp=5, reason=COMMUNITY\_POST) & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_06 & tags + imageUrls forward đúng & Prisma nhận chính xác & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_07 & 200 với where isHidden=false, orderBy desc & Args đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_08 & \{liked:true\}, increment likeCount & \$transaction được gọi & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_09 & \{liked:false\} (unlike) & Trả đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_10 & 404 ``Post not found'' & 404 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC03\_11 & 400 do DTO bug & 400 trả về (ghi nhận để fix ListPostsDto sau) & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC03 & 1 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài với nội dung để trống & Thông báo cần nhập nội dung \\ \hline
+    TC03 & 2 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài với nội dung vượt 10000 ký tự & Thông báo nội dung vượt giới hạn cho phép \\ \hline
+    TC03 & 3 & Đăng bài & Đã đăng nhập, ở Newsfeed & Chọn loại bài viết không thuộc danh mục cho phép & Thông báo loại bài viết không hợp lệ \\ \hline
+    TC03 & 4 & Đăng bài & Chưa đăng nhập & Cố gắng đăng bài với nội dung hợp lệ & Yêu cầu đăng nhập, không cho phép đăng bài \\ \hline
+    TC03 & 5 & Đăng bài & Đã đăng nhập, ở Newsfeed & Nhập nội dung hợp lệ và nộp bài & Đăng bài thành công, hệ thống cộng điểm kinh nghiệm cho người đăng \\ \hline
+    TC03 & 6 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài kèm danh sách thẻ và hình ảnh & Bài đăng được lưu đầy đủ thẻ và hình ảnh đã đính kèm \\ \hline
+    TC03 & 7 & Xem bài & Đã đăng nhập, ở Newsfeed & Mở danh sách bài viết & Hiển thị bài viết theo thứ tự mới nhất, ẩn các bài đã bị gỡ \\ \hline
+    TC03 & 8 & Tương tác & Đã đăng nhập, bài chưa được thích & Nhấn Thích lên bài viết & Bài được đánh dấu đã thích, số lượt thích tăng thêm 1 \\ \hline
+    TC03 & 9 & Tương tác & Đã đăng nhập, bài đã thích trước đó & Nhấn Thích lần thứ hai lên cùng bài viết & Bỏ thích, số lượt thích giảm đi 1 \\ \hline
+    TC03 & 10 & Tương tác & Đã đăng nhập & Nhấn Thích lên bài viết đã bị xoá & Thông báo không tìm thấy bài viết \\ \hline
+    TC03 & 11 & Xem bài & Đã đăng nhập & Truyền tham số phân trang sai định dạng & Hệ thống từ chối yêu cầu phân trang \\ \hline
 
-    TC05\_01 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_02 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_03 & 401, không gọi deleteMany & Đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_04 & 200, where userId, orderBy desc & Args đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_05 & skip=20, take=20 & Đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_06 & updateMany compound where=\{id, userId\} & Đúng args & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_07 & 200, count=0 (không lộ data) & Đúng & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_08 & where=\{userId, isRead:false\} & Đúng args & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC05\_09 & deleteMany compound where & Đúng args & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC05 & 1 & Thông báo & Chưa đăng nhập & Truy cập danh sách thông báo & Yêu cầu đăng nhập \\ \hline
+    TC05 & 2 & Thông báo & Chưa đăng nhập & Truy cập số lượng thông báo chưa đọc & Yêu cầu đăng nhập \\ \hline
+    TC05 & 3 & Thông báo & Chưa đăng nhập & Xoá một thông báo & Yêu cầu đăng nhập, không thực hiện xoá \\ \hline
+    TC05 & 4 & Thông báo & Đã đăng nhập & Mở danh sách thông báo trang đầu & Hiển thị 20 thông báo mới nhất của tài khoản, sắp xếp giảm dần \\ \hline
+    TC05 & 5 & Thông báo & Đã đăng nhập & Mở danh sách thông báo trang thứ hai & Hiển thị 20 thông báo tiếp theo, đúng quy tắc phân trang \\ \hline
+    TC05 & 6 & Thông báo & Đã đăng nhập & Đánh dấu một thông báo của mình là đã đọc & Thông báo được cập nhật trạng thái đã đọc \\ \hline
+    TC05 & 7 & Thông báo & Đã đăng nhập & Cố gắng đánh dấu thông báo của người dùng khác & Hệ thống bỏ qua, không cập nhật và không lộ thông tin \\ \hline
+    TC05 & 8 & Thông báo & Đã đăng nhập & Nhấn Đánh dấu tất cả là đã đọc & Toàn bộ thông báo chưa đọc của tài khoản chuyển sang đã đọc \\ \hline
+    TC05 & 9 & Thông báo & Đã đăng nhập & Xoá một thông báo của chính mình & Thông báo bị xoá khỏi danh sách \\ \hline
 
-    TC06\_01 & 401 & 401 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_02 & 400 Invalid email & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_03 & 400 IsEnum & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_04 & 400 IsBoolean & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_05 & 400 IsString & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_06 & 400 ``should not exist'' & 400 trả về & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_07 & 200, update đúng args & where=\{id\}, data.firstName đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_08 & 200, lưu email mới & Đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_09 & 400 ``Email already in use'' & Bắt P2002 đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_10 & 200, role=TEACHER lưu đúng & Đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_11 & 200, isActive=false lưu đúng & Đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
-    TC06\_12 & 200, no-op (data toàn undefined) & Prisma nhận đúng & Lai Thanh Sĩ & Pass & 15/05/2026 \\ \hline
+    TC06 & 1 & Cập nhật thông tin & Chưa đăng nhập & Cập nhật thông tin cá nhân & Yêu cầu đăng nhập \\ \hline
+    TC06 & 2 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập email mới sai định dạng & Thông báo email không hợp lệ \\ \hline
+    TC06 & 3 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Chọn vai trò ngoài ba vai trò được hỗ trợ & Thông báo vai trò không hợp lệ \\ \hline
+    TC06 & 4 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập trạng thái hoạt động không phải đúng/sai & Thông báo dữ liệu không hợp lệ \\ \hline
+    TC06 & 5 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập họ tên dưới dạng số & Thông báo dữ liệu không hợp lệ \\ \hline
+    TC06 & 6 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi kèm trường dữ liệu không được hỗ trợ & Thông báo trường dữ liệu không hợp lệ \\ \hline
+    TC06 & 7 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật họ tên hợp lệ & Cập nhật thành công, thông tin mới được lưu lại \\ \hline
+    TC06 & 8 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email mới chưa được sử dụng & Cập nhật thành công, email mới được lưu \\ \hline
+    TC06 & 9 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email đã có tài khoản khác sử dụng & Thông báo email đã được sử dụng \\ \hline
+    TC06 & 10 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật vai trò sang Giáo viên & Cập nhật thành công, vai trò mới được lưu \\ \hline
+    TC06 & 11 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Tắt trạng thái hoạt động của tài khoản & Cập nhật thành công, tài khoản chuyển sang ngừng hoạt động \\ \hline
+    TC06 & 12 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi yêu cầu cập nhật với dữ liệu rỗng & Hệ thống không thay đổi thông tin, giữ nguyên trạng thái hiện tại \\ \hline
 
-    TC10\_01 & 200, getAllSounds gọi & Đúng (không cần JWT) & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
-    TC10\_02 & 404 not found & 404 trả về & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
-    TC10\_03 & 200, trả object đúng & Đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
-    TC10\_04 & 401, không gọi updateProgress & Đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
-    TC10\_05 & 201, updateProgress(userId, soundId, 85) & Args đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
-    TC10\_06 & 403 RolesGuard & 403 trả về & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
-    TC10\_07 & 201, createSound gọi & Đúng & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
-    TC10\_08 & 400 thiếu ``word'' & 400 trả về, service không gọi & Lai Thanh Sĩ & Pass & 16/05/2026 \\ \hline
+    TC10 & 1 & Luyện phát âm & Không yêu cầu đăng nhập & Mở danh sách âm vị công khai & Hiển thị danh sách âm vị, người chưa đăng nhập vẫn xem được \\ \hline
+    TC10 & 2 & Luyện phát âm & Không yêu cầu đăng nhập & Tra cứu một âm vị không tồn tại & Thông báo không tìm thấy âm vị \\ \hline
+    TC10 & 3 & Luyện phát âm & Không yêu cầu đăng nhập & Tra cứu một âm vị có trong cơ sở dữ liệu & Hiển thị đầy đủ thông tin âm vị \\ \hline
+    TC10 & 4 & Luyện phát âm & Chưa đăng nhập & Gửi kết quả luyện phát âm lên hệ thống & Yêu cầu đăng nhập, không ghi nhận kết quả \\ \hline
+    TC10 & 5 & Luyện phát âm & Đã đăng nhập, hoàn thành một bài luyện & Gửi điểm phát âm hợp lệ lên hệ thống & Hệ thống ghi nhận tiến độ luyện phát âm cho tài khoản \\ \hline
+    TC10 & 6 & Quản lý âm vị & Đã đăng nhập với vai trò Học viên & Tạo mới một âm vị & Từ chối truy cập, yêu cầu vai trò Quản trị viên \\ \hline
+    TC10 & 7 & Quản lý âm vị & Đã đăng nhập với vai trò Quản trị viên & Tạo âm vị mới với đầy đủ thông tin bắt buộc & Tạo âm vị thành công \\ \hline
+    TC10 & 8 & Quản lý âm vị & Đã đăng nhập với vai trò Quản trị viên & Tạo âm vị nhưng thiếu thông tin bắt buộc & Thông báo dữ liệu không hợp lệ \\ \hline
 
-    TC11\_01 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC11\_02 & 401 & 401 trả về & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC11\_03 & 200, getOverviewStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC11\_04 & 200, getFoundationStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC11\_05 & 200, getBasicStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC11\_06 & 200, getAdvancedStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
-    TC11\_07 & 200, getIntensiveStats(userId) & Đúng userId & Phạm Đức Tài & Pass & 16/05/2026 \\ \hline
+    TC11 & 1 & Thống kê & Chưa đăng nhập & Xem thống kê tổng quan & Yêu cầu đăng nhập \\ \hline
+    TC11 & 2 & Thống kê & Chưa đăng nhập & Xem thống kê giai đoạn Foundation & Yêu cầu đăng nhập \\ \hline
+    TC11 & 3 & Thống kê & Đã đăng nhập & Xem thống kê tổng quan tiến độ học & Hiển thị thống kê tổng quan của tài khoản \\ \hline
+    TC11 & 4 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Foundation & Hiển thị thống kê giai đoạn Foundation của tài khoản \\ \hline
+    TC11 & 5 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Basic & Hiển thị thống kê giai đoạn Basic của tài khoản \\ \hline
+    TC11 & 6 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Advanced & Hiển thị thống kê giai đoạn Advanced của tài khoản \\ \hline
+    TC11 & 7 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Intensive & Hiển thị thống kê giai đoạn Intensive của tài khoản \\ \hline
+
+\end{longtable}
+
+\subsection{Bảng báo cáo kết quả kiểm thử}
+
+Sau khi hoàn thiện hệ thống, toàn bộ 60 test case được thực thi tự động qua lệnh \texttt{npm run test:report} của workspace \texttt{backend-core}. Lệnh này kích hoạt custom Jest reporter sinh bảng kết quả markdown ra file \texttt{backend-core/docs/testing/test-results.md} để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 60 test case đều đạt kết quả \textbf{Pass}, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
+
+\renewcommand{\arraystretch}{1.2}
+% 7 cột p{}, divisor=130: (0.9+1.3+2.6+2.4+0.9+1.9+3.0)×10; -4pt buffer cho rounding
+\setlength{\tbu}{\dimexpr(\linewidth - 14\tabcolsep - 8\arrayrulewidth - 4pt)/130\relax}
+\begin{longtable}{|p{11\tbu}|p{14\tbu}|p{27\tbu}|p{27\tbu}|p{9\tbu}|p{22\tbu}|p{20\tbu}|}
+    \caption{Bảng báo cáo kết quả kiểm thử}
+    \label{tab:testcase_result} \\
+    \hline
+    \textbf{Loại} & \textbf{ID} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Trạng thái} & \textbf{Người TH} & \textbf{Ngày} \\ \hline
+    \endfirsthead
+    \multicolumn{7}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Loại} & \textbf{ID} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Trạng thái} & \textbf{Người TH} & \textbf{Ngày} \\ \hline
+    \endhead
+    \hline \multicolumn{7}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+
+    Invalid & TC01\_01 & firstName: rỗng & Họ tên không được bỏ trống & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC01\_02 & email: \texttt{not-an-email} & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC01\_03 & password: \texttt{p12} & Mật khẩu phải có ít nhất 6 ký tự & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC01\_04 & email đã tồn tại & Email đã được sử dụng & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC01\_05 & Thông tin đăng ký đầy đủ và hợp lệ & Đăng ký thành công, trả thông tin tài khoản & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC01\_06 & password: \texttt{MySecret123} & Mật khẩu lưu ở dạng mã hoá & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC01\_07 & Đăng ký thành công & Tự động tạo bộ thẻ ``Default'' & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC01\_08 & Không có / có vai trò trong yêu cầu & Mặc định Học viên / lưu đúng vai trò & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+
+    Invalid & TC02\_01 & Email đúng + mật khẩu sai & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC02\_02 & Email không tồn tại + mật khẩu đúng & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC02\_03 & Email và mật khẩu đều sai & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC02\_04 & Chỉ có email, thiếu mật khẩu & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC02\_05 & Email và mật khẩu đều đúng & Đăng nhập thành công, cấp mã truy cập & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+
+    Invalid & TC03\_01 & Nội dung: rỗng & Cần nhập nội dung & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC03\_02 & Nội dung 10001 ký tự & Nội dung vượt giới hạn cho phép & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC03\_03 & Loại bài viết: \texttt{INVALID\_TYPE} & Loại bài viết không hợp lệ & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC03\_04 & Nội dung hợp lệ, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC03\_05 & Nội dung: ``Hello World'' & Đăng bài thành công, cộng điểm kinh nghiệm & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC03\_06 & Danh sách thẻ và hình ảnh đính kèm & Bài lưu đầy đủ thẻ và hình ảnh & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC03\_07 & Yêu cầu danh sách bài viết & Hiển thị bài mới nhất, ẩn bài đã gỡ & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC03\_08 & Bài chưa được thích & Thích thành công, tăng số lượt thích & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC03\_09 & Bài đã được thích trước đó & Bỏ thích, giảm số lượt thích & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC03\_10 & Mã bài viết không tồn tại & Không tìm thấy bài viết & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC03\_11 & Tham số phân trang sai định dạng & Từ chối yêu cầu phân trang & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+
+    Invalid & TC05\_01 & Xem danh sách, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC05\_02 & Xem số chưa đọc, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC05\_03 & Xoá thông báo, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC05\_04 & Trang 1, mỗi trang 20 dòng & Hiển thị 20 thông báo mới nhất & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC05\_05 & Trang 2, mỗi trang 20 dòng & Hiển thị 20 thông báo tiếp theo & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC05\_06 & Đánh dấu đã đọc thông báo của mình & Cập nhật trạng thái đã đọc & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC05\_07 & Đánh dấu thông báo của người dùng khác & Không cập nhật, không lộ thông tin & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC05\_08 & Đánh dấu tất cả là đã đọc & Toàn bộ thông báo chuyển sang đã đọc & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC05\_09 & Xoá một thông báo của mình & Thông báo bị xoá khỏi danh sách & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+
+    Invalid & TC06\_01 & Cập nhật khi chưa đăng nhập & Yêu cầu đăng nhập & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_02 & email: \texttt{not-an-email} & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_03 & role: \texttt{SUPERHERO} & Vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_04 & isActive: \texttt{maybe} & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_05 & firstName: \texttt{12345} (kiểu số) & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_06 & Gửi trường không hỗ trợ: \texttt{phone} & Trường dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_07 & firstName: \texttt{NewName} & Cập nhật thành công & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_08 & email mới chưa được sử dụng & Cập nhật thành công & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Invalid & TC06\_09 & email đã có tài khoản khác dùng & Email đã được sử dụng & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_10 & role: \texttt{TEACHER} & Cập nhật thành công, lưu vai trò mới & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_11 & isActive: \texttt{false} & Tài khoản chuyển sang ngừng hoạt động & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+    Valid & TC06\_12 & Dữ liệu cập nhật rỗng & Không thay đổi gì, giữ trạng thái hiện tại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
+
+    Valid & TC10\_01 & Xem danh sách âm vị (không cần đăng nhập) & Danh sách âm vị hiển thị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Invalid & TC10\_02 & Tra cứu ký hiệu: \texttt{zzz} & Không tìm thấy âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Valid & TC10\_03 & Tra cứu ký hiệu: \texttt{i:} & Hiển thị thông tin âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Invalid & TC10\_04 & Gửi điểm phát âm khi chưa đăng nhập & Yêu cầu đăng nhập & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Valid & TC10\_05 & soundId hợp lệ, điểm: 85 & Ghi nhận tiến độ luyện phát âm & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Invalid & TC10\_06 & Học viên tạo âm vị mới & Từ chối, yêu cầu Quản trị viên & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Valid & TC10\_07 & Quản trị viên + thông tin đầy đủ & Tạo âm vị thành công & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+    Invalid & TC10\_08 & Quản trị viên + thiếu trường \texttt{word} & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
+
+    Invalid & TC11\_01 & Xem thống kê tổng quan, chưa đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Invalid & TC11\_02 & Xem thống kê Foundation, chưa đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC11\_03 & Xem thống kê tổng quan (đã đăng nhập) & Hiển thị thống kê tổng quan của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC11\_04 & Xem thống kê Foundation & Hiển thị thống kê Foundation của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC11\_05 & Xem thống kê Basic & Hiển thị thống kê Basic của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC11\_06 & Xem thống kê Advanced & Hiển thị thống kê Advanced của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
+    Valid & TC11\_07 & Xem thống kê Intensive & Hiển thị thống kê Intensive của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
 
 \end{longtable}
 

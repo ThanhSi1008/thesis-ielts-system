@@ -1,18 +1,19 @@
+% !TEX root = ../main.tex
 \chapter{KẾT LUẬN}
 
 \section{Kết quả đạt được}
 
 \subsection{Về mặt công nghệ và kiến trúc hệ thống}
 
-Qua quá trình nghiên cứu, thiết kế và hiện thực, chúng em đã xây dựng thành công hệ thống IELTS Learning System với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
+Qua quá trình nghiên cứu, thiết kế và hiện thực, chúng em đã xây dựng thành công hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
 
 Về kiến trúc, hệ thống được tổ chức theo mô hình Event-driven Modular Monolith: NestJS Backend Core chứa 18 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions...) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection để đảm bảo tính nhất quán và dễ bảo trì. FastAPI AI Worker là microservice độc lập duy nhất, kết nối qua RabbitMQ để xử lý AI inference bất đồng bộ mà không làm chậm API response. Cách tổ chức này cân bằng giữa sự đơn giản của monolith với khả năng mở rộng độc lập cho thành phần tính toán nặng (AI grading).
 
 Về đa nền tảng, hệ thống cung cấp đồng thời giao diện Web (Next.js với Server-Side Rendering) và ứng dụng Mobile (React Native), sử dụng chung một backend API. Việc áp dụng Next.js giúp tối ưu SEO và tốc độ tải trang thông qua SSR và Static Site Generation, trong khi React Native cho phép triển khai trên cả iOS và Android từ một codebase TypeScript duy nhất, tiết kiệm đáng kể chi phí phát triển so với native riêng biệt~\cite{reactnative-docs}.
 
-Về tích hợp trí tuệ nhân tạo, hệ thống tích hợp thành công Gemini API~\cite{gemini-api} (model gemini-2.0-flash) để chấm điểm tự động bài Writing theo 4 tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và chấm điểm Speaking theo 4 tiêu chí tương ứng. faster-whisper~\cite{whisper-paper} -- bản tối ưu hóa của OpenAI Whisper sử dụng CTranslate2 backend -- được triển khai locally trong Docker container để chuyển đổi giọng nói thành văn bản phục vụ chấm phát âm và dictation, không phụ thuộc cloud API và không có rate limit. Luồng grading bất đồng bộ qua RabbitMQ đảm bảo API phản hồi ngay lập tức dù inference mất vài giây.
+Về tích hợp trí tuệ nhân tạo, hệ thống tích hợp thành công Gemini API~\cite{gemini-api} (model gemini-2.5-flash) để chấm điểm tự động bài Writing theo 4 tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và chấm điểm Speaking theo 4 tiêu chí tương ứng. faster-whisper~\cite{whisper-paper} -- bản tối ưu hóa của OpenAI Whisper sử dụng CTranslate2 backend -- được triển khai locally trong Docker container để chuyển đổi giọng nói thành văn bản phục vụ chấm phát âm và dictation, không phụ thuộc cloud API và không có rate limit. Luồng grading bất đồng bộ qua RabbitMQ đảm bảo API phản hồi ngay lập tức dù inference mất vài giây.
 
-Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo vệ: mật khẩu được băm bằng bcrypt với salt rounds=12, xác thực hai token JWT (access token 15 phút kèm refresh token 7 ngày qua HttpOnly cookie), và bảo vệ brute-force bằng cơ chế sliding window (khoá tài khoản sau 5 lần sai trong 15 phút). Prisma ORM~\cite{prisma-docs} ngăn chặn SQL injection qua parameterized queries và cung cấp type-safe database access nhất quán trên toàn backend.
+Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo vệ: mật khẩu được băm bằng bcrypt với salt rounds=10, xác thực bằng JWT access token có hiệu lực 7 ngày, và giới hạn tốc độ truy cập (rate limiting) toàn cục 100 request/60 giây để ngăn chặn brute-force. Prisma ORM~\cite{prisma-docs} ngăn chặn SQL injection qua parameterized queries và cung cấp type-safe database access nhất quán trên toàn backend.
 
 \subsection{Về mặt chức năng nghiệp vụ}
 
@@ -23,11 +24,11 @@ Hệ thống đã hiện thực đầy đủ các chức năng cốt lõi của 
 
     \item \textbf{Mock Test toàn phần:} Mô phỏng đầy đủ bài thi IELTS với đồng hồ đếm ngược đồng bộ server (chống gian lận thời gian khi reload), auto-save câu trả lời mỗi 30 giây, khả năng khôi phục bài thi khi mất kết nối, và quy đổi band điểm theo bảng tra cứu IELTS chính thức với Overall band làm tròn đến bội số 0.5 gần nhất.
 
-    \item \textbf{Hệ thống Vocab Lab thông minh:} Thuật toán FSRS (Free Spaced Repetition Scheduler) -- thế hệ kế tiếp của SM-2 -- tự động lên lịch ôn luyện dựa trên mô hình bộ nhớ xác suất với retention target 90\% và max interval 365 ngày, kết hợp chế độ flashcard lật và community deck sharing để đa dạng hoá phương pháp ôn luyện~\cite{wozniak1990spaced}.
+    \item \textbf{Hệ thống Vocab Lab thông minh:} Thuật toán FSRS (Free Spaced Repetition Scheduler) -- thế hệ kế tiếp của SM-2 -- tự động lên lịch ôn luyện dựa trên mô hình bộ nhớ xác suất với retention target 90\% và max interval 365 ngày, kết hợp chế độ flashcard lật và community deck sharing để đa dạng hoá phương pháp ôn luyện~\cite{ye2022fsrs}.
 
-    \item \textbf{Placement Test và lộ trình học tập:} Bài kiểm tra đầu vào tự động đánh giá trình độ ban đầu theo 4 kỹ năng và gợi ý lộ trình học tập phù hợp, giúp người học mới tiếp cận hệ thống một cách có định hướng.
+    \item \textbf{Placement Test và lộ trình học tập:} Bài kiểm tra đầu vào tự động đánh giá trình độ ban đầu theo ba kỹ năng (Listening, Reading và Writing) và gợi ý lộ trình học tập phù hợp, giúp người học mới tiếp cận hệ thống một cách có định hướng.
 
-    \item \textbf{Admin Dashboard toàn diện:} Hệ thống quản lý nội dung cho phép admin tạo, sửa, xóa bài tập theo từng kỹ năng; quản lý đề Mock Test; theo dõi tiến độ từng học viên qua biểu đồ thống kê; và xem báo cáo phân phối band điểm toàn hệ thống.
+    \item \textbf{Admin Dashboard:} Giao diện quản trị cho phép admin tạo, chỉnh sửa, xóa và xuất bản bài học Shadowing và Dictation; đồng thời xem danh sách và trạng thái đăng ký thành viên của học viên, cấp gói thành viên thủ công khi cần.
 
     \item \textbf{Tính năng cộng đồng học tập:} Mô-đun Community cho phép người học đăng bài theo ba loại (mẹo học tập, chia sẻ thành tích band điểm, thảo luận chung), bình luận có phân cấp (threaded comments), yêu thích và lưu bài; kết hợp với tính năng chia sẻ và khám phá flashcard deck cộng đồng trong Vocab Lab, tạo môi trường tương tác đa chiều giữa người học.
 \end{itemize}

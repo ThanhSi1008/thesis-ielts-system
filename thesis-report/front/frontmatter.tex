@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 % --- LỜI CẢM ƠN ---
 \newpage
 \pagestyle{frontmatter}
@@ -101,7 +102,11 @@ Chúng em xin chân thành cảm ơn!
 \addcontentsline{toc}{chapter}{DANH MỤC CÁC TỪ VIẾT TẮT}
 \thispagestyle{frontmatter}
 
-\begin{longtable}{|c|l|p{10cm}|}
+% Cột p{} "Nghĩa đầy đủ" chiếm phần còn lại sau STT + Từ viết tắt
+% Cột p{} "Nghĩa đầy đủ" chiếm phần còn lại sau STT + Từ viết tắt
+% Chia tỷ lệ các cột để tổng bằng 100\tbu (100% chiều rộng)
+\setlength{\tbu}{\dimexpr(\linewidth - 6\tabcolsep - 4\arrayrulewidth)/100\relax}
+\begin{longtable}{|>{\centering\arraybackslash}p{10\tbu}|p{20\tbu}|p{70\tbu}|}
     \hline
     \textbf{STT} & \textbf{Từ viết tắt} & \textbf{Nghĩa đầy đủ} \\
     \hline
