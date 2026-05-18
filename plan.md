@@ -81,13 +81,14 @@ Theo `Navbar.tsx` + các sidebar (`IeltsSidebar.tsx`, `CommunitySidebar.tsx`, `P
 
 #### 3.2.1. Foundation — Xây dựng nền tảng
 
-Gồm 3 module con (xác minh tại `/ielts/vocabulary`, `/ielts/grammar`, `/ielts/pronunciation`):
+Gồm 3 module con (xác minh tại `/ielts/vocabulary`, `/ielts/grammar`, `/ielts/pronunciation` + `prisma/data/{vocabulary,grammar,pronunciation}.ts`):
 
-- **Vocabulary** (6 cuốn × 30 unit × 20 từ ≈ 600 từ/cuốn): học theo unit, mỗi unit có 2 bài tập (20 câu) + 1 bài đọc hiểu cuối unit (5 câu hỏi). Hỗ trợ chọn từ trong bài để **lưu vào Vocab Lab bằng Lexon AI** (tính năng floating selection — xác minh tại `FloatingSelectionManager` trong `[unitSlug]/page.tsx`).
-- **Grammar** (3 cuốn "English Grammar in Use": Elementary / Intermediate / Advanced): mỗi unit gồm phần lý thuyết + bài tập trắc nghiệm/điền từ; chấm điểm và lưu tiến độ.
-- **Pronunciation** (43 âm IPA): luyện từng âm qua từ ví dụ, AI chấm phát âm dựa trên Whisper transcription + IPA phoneme matching + Levenshtein.
+- **Vocabulary** — loạt **"4000 Essential English Words"** gồm **6 cuốn (Book 1–6)**, mỗi cuốn **600 từ** chia thành **30 unit × 20 từ**. Trong mỗi unit có 2 bài tập (mỗi bài 20 câu) + 1 bài đọc hiểu cuối unit (5 câu hỏi). Hỗ trợ chọn từ trong bài để **lưu vào Vocab Lab bằng Lexon AI** (floating selection — xác minh tại `FloatingSelectionManager` trong `[unitSlug]/page.tsx`). Người dùng FREE chỉ truy cập 2 cuốn đầu (`VOCABULARY_BOOKS: 2` trong `feature-limits.ts`).
+- **Grammar** — **3 cuốn** thuộc loạt *Grammar in Use*: *Essential Grammar in Use* (Elementary, **115 unit**, Raymond Murphy), *English Grammar in Use* (Intermediate, **145 unit**, Raymond Murphy), *Advanced Grammar in Use* (Advanced, **105 unit**, Martin Hewings). Mỗi unit gồm lý thuyết + bài tập trắc nghiệm/điền từ; chấm điểm và lưu tiến độ. FREE chỉ mở khóa cuốn Elementary (`GRAMMAR_LEVELS: ["Elementary"]`).
+- **Pronunciation** — **44 âm IPA** (verify: `grep "    symbol:" prisma/data/pronunciation.ts` đếm 44), phân loại monophthong / diphthong / consonant. Mỗi âm có audio chuẩn, ví dụ từ chứa âm, mô tả khẩu hình và tip. Người học thu âm → backend-ai dùng faster-whisper transcribe → chuyển IPA → so khớp Levenshtein → trả điểm. FREE giới hạn 5 lượt/ngày (`PRONUNCIATION_ATTEMPT: 5`).
 
-> **Lưu ý loại bỏ:** Đoạn FSRS / Active Recall / công thức `\ref{eq:fsrs-interval}` đang nằm trong "Vocabulary" của bản cũ thực ra **thuộc về Vocab Lab**, không phải Foundation Vocabulary. Phải tách ra mục Vocab Lab.
+> **Lưu ý loại bỏ:** Đoạn FSRS / Active Recall / công thức `\ref{eq:fsrs-interval}` đang nằm trong "Vocabulary" của bản cũ thực ra **thuộc về Vocab Lab → Study**, không phải Foundation Vocabulary. Phải tách ra mục Vocab Lab. Foundation Vocabulary chỉ là học bài có sẵn theo unit; FSRS chỉ áp dụng trong phiên ôn Flashcard của Vocab Lab.
+> **Lưu ý chỉnh số:** Bản cũ đang ghi "43 âm vị" — sửa thành **44** cho khớp với dữ liệu seed và chuẩn IPA tiếng Anh (24 phụ âm + 20 nguyên âm).
 
 #### 3.2.2. IELTS Basic
 
@@ -97,25 +98,27 @@ Gồm **4 skill** (Listening, Reading, Writing, Speaking), mỗi skill có 2 ph�
 - **Lessons**: bài học lý thuyết về từng dạng câu hỏi IELTS (kèm quiz củng cố).
 - **Exercises**: bài tập thực hành chuẩn IELTS (cấp độ cơ bản).
 
+Người dùng FREE giới hạn 3 lessons + 2 exercises mỗi skill (`IELTS_BASIC_LESSONS_PER_SKILL: 3`, `IELTS_BASIC_EXERCISES_PER_SKILL: 2`); PREMIUM/PRO không giới hạn.
+
 #### 3.2.3. IELTS Advanced
 
-(Xác minh tại `/ielts/advanced` — yêu cầu Premium, `FeatureLock requiredTier="PREMIUM"`)
+(Xác minh tại `/ielts/advanced` — `FeatureLock requiredTier="PREMIUM"`, tương ứng `IELTS_ADVANCED_ACCESS: false` ở tier FREE)
 
 Luyện theo **từng Part** mô phỏng đề IELTS thật:
 - Listening: Part 1–4 (theo `setParts` trong `AdvancedContent.tsx`)
-- Reading: Part 1–3
+- Reading: Part 1–3 (Part 4 bị ẩn bằng `if (skill === "Reading" && partNum === 4) return null;`)
 - Writing: từng prompt (Task 1 + Task 2)
-- Speaking: Part 1, 2, 3 (có cả mục Community/My Answers để xem bài chia sẻ + bài của mình)
+- Speaking: Part 1, 2, 3 (có cả tab Community/My Answers để xem bài chia sẻ + bài của mình)
 
-Sau khi nộp: Listening/Reading chấm tự động; Writing/Speaking gửi RabbitMQ → FastAPI → Gemini chấm theo 4 tiêu chí IELTS.
+Sau khi nộp: Listening/Reading chấm tự động; Writing/Speaking gửi RabbitMQ (queue `exam-grading-queue`) → FastAPI → Gemini chấm theo 4 tiêu chí IELTS → HTTP callback. PREMIUM giới hạn 10 lượt chấm AI Writing/Speaking mỗi tháng (`AI_WRITING_GRADING: 10`, `AI_SPEAKING_GRADING: 10`); PRO không giới hạn.
 
 #### 3.2.4. IELTS Intensive
 
 (Xác minh tại `/ielts/intensive` + `/ielts/history`)
 
 Hai sub-section (theo `IeltsSidebar` children):
-- **Mock Tests**: thi thử toàn phần theo 4 skill, mô phỏng kỳ thi IELTS thực tế (thời gian chuẩn). Sau khi nộp, trạng thái session chuyển `IN_PROGRESS → SUBMITTED → GRADING → GRADED` (theo `IeltsIntensiveSession` enum).
-- **Test History**: liệt kê toàn bộ phiên thi/luyện đã thực hiện, lọc theo skill, xem chi tiết band điểm, xóa kết quả.
+- **Mock Tests**: thi thử toàn phần theo 4 skill, mô phỏng kỳ thi IELTS thực tế (thời gian chuẩn). Sau khi nộp, trạng thái session chuyển `IN_PROGRESS → SUBMITTED → GRADING → GRADED` (hoặc `GRADING_FAILED`), theo enum trong `IeltsIntensiveSession`.
+- **Test History**: liệt kê toàn bộ phiên thi/luyện đã thực hiện, lọc theo skill, xem chi tiết band điểm, xóa kết quả. FREE chỉ lưu tối đa **3 đề gần nhất** (`EXAM_HISTORY_LIMIT: 3`); PREMIUM/PRO không giới hạn.
 
 #### 3.2.5. Roadmap
 
@@ -170,9 +173,9 @@ Chọn bài Dictation từ thư viện chuẩn. Trong bài luyện: phát audio 
 
 #### 3.3.3. My Shadowing / My Dictation (yêu cầu Premium)
 
-(Xác minh tại `/shadowing-dictation/shadowing/my-videos` + `/dictation/my-videos`, đều bọc `FeatureLock requiredTier="PREMIUM"`)
+(Xác minh tại `/shadowing-dictation/shadowing/my-videos` + `/dictation/my-videos`, đều bọc `FeatureLock requiredTier="PREMIUM"`, tương ứng `YOUTUBE_IMPORT: false` ở FREE)
 
-Người học nhập **URL YouTube** → backend-ai (faster-whisper) tự động transcribe + phân tách câu, lưu video ở trạng thái `PROCESSING` → polling mỗi 5s đến khi chuyển `READY` → người học sử dụng giống thư viện chuẩn. Có thể xóa video đã upload.
+Người học nhập **URL YouTube** → backend-core publish RabbitMQ queue `dictation-transcription-queue` → backend-ai (faster-whisper) transcribe + phân tách câu → lưu video ở trạng thái `PROCESSING` → frontend polling mỗi 5s đến khi chuyển `READY` → người học sử dụng giống thư viện chuẩn. Có thể xóa video đã upload. FREE bị chặn hoàn toàn tính năng này; FREE cũng chỉ truy cập tối đa 5 bài trong thư viện chuẩn (`SHADOWING_SYSTEM_LESSONS: 5`, `DICTATION_SYSTEM_LESSONS: 5`).
 
 ---
 
@@ -244,13 +247,31 @@ Hai tab: **Explore** (duyệt deck public theo category: English/IELTS/TOEFL/TOE
 
 ### 3.6. Phân hệ Pricing và Subscription (VIẾT MỚI)
 
-(Xác minh tại `/pricing/page.tsx` + `SubscriptionContext`)
+(Xác minh tại `/pricing/page.tsx` + `SubscriptionContext` + `prisma/seed-plans.ts` + `feature-limits.ts`)
 
-3 tier: **FREE / PREMIUM / PRO** (theo `TIER_LEVEL`). Hai chu kỳ billing: **monthly / yearly**.
+3 tier: **FREE / PREMIUM / PRO** (theo `TIER_LEVEL`). Hai chu kỳ billing: **monthly / yearly** (annual giảm 33%). Giá thực: Premium $9.99/tháng hoặc $79.99/năm; Pro $19.99/tháng hoặc $159.99/năm (theo `seed-plans.ts`).
 
-- FREE: tự động cấp, giới hạn (5 pronunciation/ngày, max 3 deck, 5 shadowing/dictation, lưu 3 đề cũ).
-- PREMIUM: mở khóa IELTS Advanced, My Shadowing/Dictation YouTube import; **7-day free trial** (chỉ 1 lần/user, kiểm tra `trialUsed`).
-- PRO: tier cao nhất.
+**Giới hạn cụ thể theo tier** (`feature-limits.ts`):
+
+| Tính năng | FREE | PREMIUM | PRO |
+|---|---|---|---|
+| Foundation Vocabulary | 2 cuốn đầu | Tất cả 6 cuốn | Tất cả 6 cuốn |
+| Foundation Grammar | Chỉ Elementary | Cả 3 cấp | Cả 3 cấp |
+| Pronunciation/ngày | 5 lượt | Unlimited | Unlimited |
+| IELTS Basic lesson/skill | 3 | Unlimited | Unlimited |
+| IELTS Basic exercise/skill | 2 | Unlimited | Unlimited |
+| IELTS Advanced | ❌ | ✅ | ✅ |
+| AI Writing chấm/tháng | 0 | 10 | Unlimited |
+| AI Speaking chấm/tháng | 0 | 10 | Unlimited |
+| Lịch sử bài thi | 3 đề | Unlimited | Unlimited |
+| Shadowing/Dictation thư viện | 5 bài/loại | Unlimited | Unlimited |
+| YouTube import | ❌ | ✅ | ✅ |
+| Vocab Lab deck tối đa | 3 | Unlimited | Unlimited |
+| Card/deck tối đa | 50 | Unlimited | Unlimited |
+| Lexon AI sinh thẻ/tháng | 0 | 50 | Unlimited |
+| Marketplace import/publish | ❌ | ✅ | ✅ |
+
+PREMIUM được tặng **7-day free trial** (chỉ 1 lần/user, kiểm tra `trialUsed`). PRO bổ sung priority AI queue, progress reports PDF, teacher dashboard.
 
 Thanh toán qua **VNPay** ở chế độ sandbox (HMAC-SHA512 + IPN webhook); người dùng quay lại `/payment/vnpay-return`. Cron daily 2:00 AM (`subscriptions.cron.ts`) gửi nhắc 7/3/1 ngày trước khi hết hạn, downgrade sau 3-day grace, kết thúc trial.
 
@@ -332,5 +353,13 @@ Không cần thay đổi.
 
 - **Không thêm** mục "Chat AI" vào nghiệp vụ web vì web hiện chưa có route `/chat` (verify: không tồn tại `frontend-web/src/app/chat*`). UC43 chỉ áp dụng cho mobile.
 - **Không thêm** mục "Notes" làm phân hệ độc lập — notes thực tế chỉ là tính năng phụ trợ trong từng bài luyện (`QuestionNote` model), không có entry trong sidebar nào.
+- **Không thêm** mục "Dashboard" làm phân hệ — `/ielts/dashboard` chỉ là trang landing tổng hợp link tới Foundation/Basic/Advanced/Intensive và Tools (không phải nghiệp vụ riêng).
 - File `flow-chart-web.md` ghi "ielts basic ... mỗi skill có 2 phần bao gồm: lessons và exercises" → đã xác minh đúng tại `[skill]/lessons/page.tsx` + `[skill]/exercises/page.tsx`.
 - File `flow-chart-web.md` ghi "ielts advanced ... mỗi skill sẽ có thể luyện theo từng part" → đã xác minh đúng tại `advanced/{listening|reading|writing|speaking}/[partId]/page.tsx`.
+- **Top-level routes `/vocabulary`, `/grammar`, `/pronunciation`** (không thuộc `/ielts/...`) cũng tồn tại nhưng **không xuất hiện trong Navbar chính** — chỉ là legacy/direct URL truy cập cùng nội dung như sub-page Foundation của IELTS. Không cần mô tả riêng trong nghiệp vụ.
+- **Các con số đã xác minh trực tiếp từ source/seed data** (tránh tự bịa):
+  - Vocabulary: 6 × 600 từ (`prisma/data/vocabulary.ts`, 6 lần `wordCount: 600`)
+  - Grammar: 3 cuốn — Elementary 115 unit, Intermediate 145 unit, Advanced 105 unit (`prisma/data/grammar.ts`)
+  - Pronunciation: 44 âm IPA (`prisma/data/pronunciation.ts`, đếm `symbol:` ở các object)
+  - Subscription giá: Premium $9.99/mo $79.99/yr, Pro $19.99/mo $159.99/yr (`prisma/seed-plans.ts`)
+  - Toàn bộ feature limits FREE/PREMIUM/PRO trong `backend-core/src/modules/subscriptions/constants/feature-limits.ts`
