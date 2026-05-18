@@ -65,7 +65,7 @@ describe('PronunciationController (TC10 — Luyện phát âm)', () => {
   };
 
   const storageMock = { uploadFile: jest.fn(), deleteFile: jest.fn() };
-  const aiClientMock = { channel: { assertQueue: jest.fn(), sendToQueue: jest.fn() } };
+  const aiClientMock = { publishPronunciationTask: jest.fn() };
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({

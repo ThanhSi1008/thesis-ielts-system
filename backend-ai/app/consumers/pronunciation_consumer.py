@@ -6,6 +6,7 @@ Listens to pronunciation-check-queue and processes pronunciation analysis reques
 import logging
 import json
 import threading
+import time
 import pika
 import psycopg2
 import os
@@ -213,19 +214,25 @@ class PronunciationConsumer:
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
     def start_consuming(self):
-        """Start consuming messages"""
-        try:
-            self.connect()
-            self.channel.basic_consume(
-                queue='pronunciation-check-queue',
-                on_message_callback=self.callback
-            )
-            
-            logger.info("🎧 Started consuming pronunciation tasks...")
-            self.channel.start_consuming()
-            
-        except Exception as e:
-            logger.error(f"❌ Consumer error: {e}")
+        """Start consuming messages — reconnects automatically on connection drop."""
+        retry_delay = 5
+        max_delay = 60
+        while self.is_running:
+            try:
+                self.connect()
+                self.channel.basic_consume(
+                    queue='pronunciation-check-queue',
+                    on_message_callback=self.callback
+                )
+                logger.info("🎧 Started consuming pronunciation tasks...")
+                retry_delay = 5  # reset on successful connect
+                self.channel.start_consuming()
+            except Exception as e:
+                if not self.is_running:
+                    break
+                logger.error(f"❌ Consumer error: {e} — reconnecting in {retry_delay}s")
+                time.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, max_delay)
 
     def start(self):
         """Start consumer in a separate thread"""
