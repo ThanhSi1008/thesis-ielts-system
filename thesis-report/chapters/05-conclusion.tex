@@ -5,7 +5,7 @@
 
 \subsection{Về mặt công nghệ và kiến trúc hệ thống}
 
-Qua quá trình nghiên cứu, thiết kế và hiện thực, chúng em đã xây dựng thành công hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
+Qua quá trình nghiên cứu, thiết kế và hiện thực, đề tài đã xây dựng thành công hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
 
 Về kiến trúc, hệ thống được tổ chức theo mô hình Event-driven Modular Monolith: NestJS Backend Core chứa 17 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions...) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection để đảm bảo tính nhất quán và dễ bảo trì. FastAPI AI Worker là microservice độc lập duy nhất, kết nối qua RabbitMQ để xử lý AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách tổ chức này cân bằng giữa sự đơn giản của monolith với khả năng mở rộng độc lập cho thành phần tính toán chuyên sâu (AI grading).
 
@@ -53,7 +53,7 @@ Mặc dù đã đạt được nhiều kết quả tích cực, hệ thống v�
 
 \section{Hướng phát triển}
 
-Dựa trên nền tảng đã xây dựng và những hạn chế đã nhận diện, chúng em đề xuất các hướng phát triển tiếp theo trong các giai đoạn sau:
+Dựa trên nền tảng đã xây dựng và những hạn chế đã nhận diện, các hướng phát triển tiếp theo được đề xuất trong các giai đoạn sau:
 
 \begin{itemize}
     \item \textbf{Fine-tune mô hình AI chuyên biệt:} Xây dựng tập dữ liệu bài mẫu IELTS đã được giám khảo chấm điểm thực tế để fine-tune mô hình ngôn ngữ, nhằm tăng độ chính xác AI scoring và đưa chênh lệch band điểm so với giám khảo con người xuống mức $\leq$0.5~\cite{le2023nlp}.
