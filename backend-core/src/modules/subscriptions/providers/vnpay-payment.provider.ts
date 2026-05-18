@@ -40,19 +40,19 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
 
   // ─── Config from ENV ───────────────────────────────────
   private get tmnCode(): string {
-    return process.env.VNPAY_TMN_CODE ?? "";
+    return (process.env.VNPAY_TMN_CODE ?? "").trim();
   }
 
   private get hashSecret(): string {
-    return process.env.VNPAY_HASH_SECRET ?? "";
+    return (process.env.VNPAY_HASH_SECRET ?? "").trim();
   }
 
   private get vnpayUrl(): string {
-    return process.env.VNPAY_URL ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    return (process.env.VNPAY_URL ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html").trim();
   }
 
   private get returnUrl(): string {
-    return process.env.VNPAY_RETURN_URL ?? "http://localhost:3001/payment/vnpay-return";
+    return (process.env.VNPAY_RETURN_URL ?? "http://localhost:3001/payment/vnpay-return").trim();
   }
 
   // ─── createCheckout ────────────────────────────────────
@@ -82,7 +82,7 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
       txnRef: sessionId,
       amount: params.amount,
       currency: params.currency,
-      orderInfo: `Thanh toan goi ${params.planName}`, // Removed () to avoid cross-language URL encoding mismatches
+      orderInfo: `Thanh_toan_goi_${params.planId}`, // URL-safe, no spaces
       ipAddr: "127.0.0.1", // In production, pass the real user IP
     });
 
@@ -179,6 +179,8 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   }): string {
     const now = new Date();
     const createDate = this.formatDate(now);
+    // VNPAY Expire Date (15 minutes from now)
+    const expireDate = this.formatDate(new Date(now.getTime() + 15 * 60 * 1000));
 
     // Convert to VND if currency is USD (assuming amount is in cents)
     let amountInVnd = params.amount;
@@ -203,6 +205,7 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
       vnp_ReturnUrl: this.returnUrl,
       vnp_IpAddr: params.ipAddr,
       vnp_CreateDate: createDate,
+      vnp_ExpireDate: expireDate,
     };
 
     // Use VNPay's official sort object method
@@ -239,14 +242,10 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   }
 
   /**
-   * Strict RFC 3986 URI Encoding (matches Java/C# backends like VNPay)
-   * encodeURIComponent doesn't encode ! * ' ( )
+   * Simple RFC 3986 encoding
    */
   private encodeRFC3986(str: string): string {
-    return encodeURIComponent(str).replace(
-      /[!'()*]/g,
-      (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`
-    );
+    return encodeURIComponent(str);
   }
 
   /**
@@ -271,13 +270,17 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   }
 
   /**
-   * Format date as yyyyMMddHHmmss (VNPay format).
+   * Format date as yyyyMMddHHmmss (VNPay format in GMT+7).
    */
   private formatDate(date: Date): string {
     const pad = (n: number) => String(n).padStart(2, "0");
+    // Convert date to GMT+7 (VNPay strictly requires GMT+7 timezone)
+    const offset = 7 * 60 * 60 * 1000;
+    const gmt7Date = new Date(date.getTime() + offset);
+
     return (
-      `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
-      `${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
+      `${gmt7Date.getUTCFullYear()}${pad(gmt7Date.getUTCMonth() + 1)}${pad(gmt7Date.getUTCDate())}` +
+      `${pad(gmt7Date.getUTCHours())}${pad(gmt7Date.getUTCMinutes())}${pad(gmt7Date.getUTCSeconds())}`
     );
   }
 }
