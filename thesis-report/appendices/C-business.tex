@@ -66,3 +66,23 @@ Thanh toán qua VNPay (thị trường Việt Nam). Lộ trình bổ sung MoMo v
     \item \textbf{Giai đoạn 3 (2028+):} Mở rộng sang thị trường Đông Nam Á (Thái Lan, Indonesia), tích hợp Stripe, fine-tune AI model chuyên biệt IELTS, đạt break-even.
 \end{itemize}
 
+\section*{C.5. Cơ cấu tổ chức và Nhân sự}
+
+Dự án được thiết kế và vận hành theo mô hình tinh gọn (Lean Startup) trong giai đoạn đầu ra mắt:
+\begin{itemize}
+    \item \textbf{Nhà sáng lập / Kỹ sư toàn trình (Full-stack \& AI Engineer):} Đảm nhiệm toàn bộ vòng đời phát triển phần mềm bao gồm: thiết kế kiến trúc hệ thống, lập trình Backend (NestJS, FastAPI), xây dựng mô hình AI chấm điểm (Whisper, Gemini), phát triển Frontend (Next.js), Mobile App (React Native) và triển khai hạ tầng đám mây (CI/CD, Docker).
+    \item \textbf{Cố vấn chuyên môn:} Giảng viên hướng dẫn đóng vai trò định hướng học thuật, rà soát quy trình công nghệ và nghiệm thu các chuẩn đầu ra kỹ thuật.
+    \item \textbf{Đối tác nội dung (Dự kiến bổ sung):} Các giáo viên IELTS hoặc trung tâm ngoại ngữ để kiểm định chất lượng bộ đề Mock Test và tối ưu hóa bộ tiêu chí (prompt) cho AI.
+\end{itemize}
+
+\section*{C.6. Dự toán ngân sách và Chi phí vận hành}
+
+Hệ thống tận dụng tối đa các dịch vụ đám mây có quản lý (Managed Services) và kiến trúc tự động mở rộng (Auto-scaling) để tối ưu hóa chi phí. Ước tính chi phí duy trì hệ thống hàng tháng cho quy mô 1.000 người dùng hoạt động:
+\begin{itemize}
+    \item \textbf{Hạ tầng máy chủ cốt lõi:} Google Cloud VM (n2-standard-4, 16GB RAM) chạy Backend/Worker và Google Cloud Run cho Web App, chi phí ước tính $\sim$3.800.000 VNĐ/tháng.
+    \item \textbf{Cơ sở dữ liệu \& Broker:} Tận dụng các gói Free-tier hoặc Pay-as-you-go từ Supabase (PostgreSQL), Upstash (Redis) và CloudAMQP (RabbitMQ), dự phòng $\sim$500.000 VNĐ/tháng.
+    \item \textbf{Chi phí API Trí tuệ nhân tạo:} Mô hình Google Gemini 2.5 Flash có chi phí cực thấp ($\sim$0.075 USD/1 triệu token), ước tính tốn $\sim$200.000 VNĐ/tháng cho tác vụ chấm điểm Writing/Speaking.
+    \item \textbf{Tổng chi phí vận hành hàng tháng:} $\sim$4.500.000 VNĐ.
+\end{itemize}
+
+\textbf{Điểm hòa vốn (Break-even):} Với chiến lược định giá bản địa hóa là 99.000 VNĐ/tháng (gói Premium) và 199.000 VNĐ/tháng (gói Pro), dự án chỉ cần chuyển đổi thành công khoảng \textbf{45--50 người dùng trả phí} mỗi tháng là đã có thể bù đắp hoàn toàn chi phí bảo trì hạ tầng, tạo tiền đề vững chắc để sinh lời và tái đầu tư.
