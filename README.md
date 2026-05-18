@@ -12,29 +12,31 @@ A full-stack AI-powered IELTS preparation platform. Built as a thesis project, e
 
 ### Deployment (GCP, region: asia-southeast1)
 
-| Component | Platform | Domain |
-|---|---|---|
-| Frontend Web | Google Cloud Run (auto-scaled) | `ielts-master.io.vn` |
-| Backend Core + Backend AI | GCP VM `n2-standard-4` (4 vCPU, 16GB RAM) | `dedangdown.io.vn` |
-| Database | Supabase (managed PostgreSQL, PgBouncer) | -- |
-| Cache | Upstash (managed Redis, TLS) | -- |
-| Message Broker | CloudAMQP (managed RabbitMQ, AMQPS) | -- |
+| Component                 | Platform                                  | Domain               |
+| ------------------------- | ----------------------------------------- | -------------------- |
+| Frontend Web              | Google Cloud Run (auto-scaled)            | `ielts-master.io.vn` |
+| Backend Core + Backend AI | GCP VM `n2-standard-4` (4 vCPU, 16GB RAM) | `dedangdown.io.vn`   |
+| Database                  | Supabase (managed PostgreSQL, PgBouncer)  | --                   |
+| Cache                     | Upstash (managed Redis, TLS)              | --                   |
+| Message Broker            | CloudAMQP (managed RabbitMQ, AMQPS)       | --                   |
 
 **VM containers (Docker Compose at `/opt/app/`):**
 
-| Container | Image | Resource Limits |
-|---|---|---|
-| `nginx` | nginx:alpine | -- |
-| `backend-core` | gcr.io/.../backend-core:latest | -- |
-| `backend-ai` | gcr.io/.../backend-ai:latest | 10GB RAM, 3 CPUs |
-| `alloy` | grafana/alloy:latest | -- |
+| Container      | Image                          | Resource Limits  |
+| -------------- | ------------------------------ | ---------------- |
+| `nginx`        | nginx:alpine                   | --               |
+| `backend-core` | gcr.io/.../backend-core:latest | --               |
+| `backend-ai`   | gcr.io/.../backend-ai:latest   | 10GB RAM, 3 CPUs |
+| `alloy`        | grafana/alloy:latest           | --               |
 
 **Nginx routing:**
+
 - `/api/v1/*` --> `backend-core:3000`
 - `/ai/*` --> `backend-ai:8000`
 - SSL termination via Let's Encrypt + Certbot (TLSv1.2 + TLSv1.3)
 
 **CI/CD pipeline:**
+
 - GitHub Actions on push to `main`/`deploy` with `dorny/paths-filter` for targeted builds
 - Docker images pushed to Google Container Registry (GCR)
 - Frontend deployed via `gcloud run deploy`
@@ -46,12 +48,12 @@ A full-stack AI-powered IELTS preparation platform. Built as a thesis project, e
 
 ### IELTS Learning Tiers
 
-| Tier | What's implemented |
-|---|---|
+| Tier           | What's implemented                                                                                                                                         |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Foundation** | Vocabulary books (4000 Essential Words dataset), grammar lessons (Cambridge Grammar in Use units), IPA pronunciation sounds library with practice attempts |
-| **Basic** | Skill-specific lessons across Listening, Reading, Writing, Speaking with exercises and per-user progress tracking |
-| **Advanced** | Full-length practice sessions -- timed reading parts, audio-based listening, writing prompts, speaking rounds -- each with session state |
-| **Intensive** | Mock exam engine with "Save & Pause" session persistence, AI auto-grading for writing and speaking, score history |
+| **Basic**      | Skill-specific lessons across Listening, Reading, Writing, Speaking with exercises and per-user progress tracking                                          |
+| **Advanced**   | Full-length practice sessions -- timed reading parts, audio-based listening, writing prompts, speaking rounds -- each with session state                   |
+| **Intensive**  | Mock exam engine with "Save & Pause" session persistence, AI auto-grading for writing and speaking, score history                                          |
 
 ### AI and Machine Learning
 
@@ -95,59 +97,59 @@ A full-stack AI-powered IELTS preparation platform. Built as a thesis project, e
 
 ### Backend Core -- NestJS 10 (TypeScript)
 
-| Layer | Technology |
-|---|---|
-| Framework | NestJS 10 |
-| ORM | Prisma 5 |
-| Database | PostgreSQL (Supabase, PgBouncer :6543 + Direct :5432) |
-| Cache | Redis (Upstash, TLS) via ioredis |
-| Message Broker | RabbitMQ (CloudAMQP, AMQPS) via amqplib |
-| Image Storage | Cloudinary |
-| Auth | JWT + Passport + Google OAuth (google-auth-library) |
-| Scheduling | @nestjs/schedule |
-| Rate Limiting | @nestjs/throttler |
-| Spaced Repetition | ts-fsrs |
-| YouTube | youtube-transcript |
-| Metrics | @willsoto/nestjs-prometheus (prom-client) |
-| Tracing | OpenTelemetry SDK (OTLP exporter) |
+| Layer             | Technology                                            |
+| ----------------- | ----------------------------------------------------- |
+| Framework         | NestJS 10                                             |
+| ORM               | Prisma 5                                              |
+| Database          | PostgreSQL (Supabase, PgBouncer :6543 + Direct :5432) |
+| Cache             | Redis (Upstash, TLS) via ioredis                      |
+| Message Broker    | RabbitMQ (CloudAMQP, AMQPS) via amqplib               |
+| Image Storage     | Cloudinary                                            |
+| Auth              | JWT + Passport + Google OAuth (google-auth-library)   |
+| Scheduling        | @nestjs/schedule                                      |
+| Rate Limiting     | @nestjs/throttler                                     |
+| Spaced Repetition | ts-fsrs                                               |
+| YouTube           | youtube-transcript                                    |
+| Metrics           | @willsoto/nestjs-prometheus (prom-client)             |
+| Tracing           | OpenTelemetry SDK (OTLP exporter)                     |
 
 ### AI Service -- FastAPI (Python 3.11)
 
-| Component | Technology |
-|---|---|
-| Framework | FastAPI 0.109 + Uvicorn |
-| Speech-to-Text | faster-whisper (CTranslate2, int8) + ffmpeg |
-| LLM Grading | Google Gemini (google-genai) |
-| Queue Consumer | Pika (RabbitMQ) |
-| ORM | SQLAlchemy 2 + psycopg2 |
+| Component      | Technology                                              |
+| -------------- | ------------------------------------------------------- |
+| Framework      | FastAPI 0.109 + Uvicorn                                 |
+| Speech-to-Text | faster-whisper (CTranslate2, int8) + ffmpeg             |
+| LLM Grading    | Google Gemini (google-genai)                            |
+| Queue Consumer | Pika (RabbitMQ)                                         |
+| ORM            | psycopg2                                                |
 | Object Storage | boto3 (MinIO local) / Google Cloud Storage (production) |
-| Pronunciation | eng-to-ipa + python-Levenshtein |
-| YouTube | yt-dlp |
+| Pronunciation  | eng-to-ipa + python-Levenshtein                         |
+| YouTube        | yt-dlp                                                  |
 
 ### Frontend Web -- Next.js 14
 
-| Layer | Technology |
-|---|---|
+| Layer     | Technology              |
+| --------- | ----------------------- |
 | Framework | Next.js 14 (App Router) |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS 3 |
-| UI | Radix UI primitives |
-| Animation | Framer Motion 12 |
-| State | Zustand 4 |
-| Forms | React Hook Form 7 + Zod |
-| Auth | @react-oauth/google |
+| Language  | TypeScript 5            |
+| Styling   | Tailwind CSS 3          |
+| UI        | Radix UI primitives     |
+| Animation | Framer Motion 12        |
+| State     | Zustand 4               |
+| Forms     | React Hook Form 7 + Zod |
+| Auth      | @react-oauth/google     |
 
 ### Frontend Mobile -- React Native Expo 54
 
-| Layer | Technology |
-|---|---|
-| Framework | Expo 54 / Expo Router 6 |
-| Runtime | React Native 0.81, React 19 |
-| Language | TypeScript 5 |
-| Audio/Video | expo-av |
-| Speech | expo-speech-recognition |
-| Animation | react-native-reanimated 4 |
-| Storage | AsyncStorage |
+| Layer       | Technology                  |
+| ----------- | --------------------------- |
+| Framework   | Expo 54 / Expo Router 6     |
+| Runtime     | React Native 0.81, React 19 |
+| Language    | TypeScript 5                |
+| Audio/Video | expo-av                     |
+| Speech      | expo-speech-recognition     |
+| Animation   | react-native-reanimated 4   |
+| Storage     | AsyncStorage                |
 
 ---
 
@@ -155,11 +157,11 @@ A full-stack AI-powered IELTS preparation platform. Built as a thesis project, e
 
 The system uses a full observability stack powered by **Grafana Alloy** as the central telemetry collector running on the VM.
 
-| Signal | Pipeline | Destination |
-|---|---|---|
+| Signal      | Pipeline                                                                        | Destination                                   |
+| ----------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
 | **Metrics** | Alloy `prometheus.scrape` from backend-core and backend-ai `/metrics` endpoints | Grafana Cloud (Prometheus via `remote_write`) |
-| **Logs** | Alloy `loki.source.docker` collecting from all Docker containers | Grafana Cloud (Loki) |
-| **Traces** | OpenTelemetry SDK in NestJS and FastAPI, exported via OTLP | Grafana Cloud (Tempo) |
+| **Logs**    | Alloy `loki.source.docker` collecting from all Docker containers                | Grafana Cloud (Loki)                          |
+| **Traces**  | OpenTelemetry SDK in NestJS and FastAPI, exported via OTLP                      | Grafana Cloud (Tempo)                         |
 
 ```
 backend-core --metrics--> Alloy --remote_write--> Grafana Cloud (Prometheus)
@@ -184,12 +186,12 @@ NestJS/FastAPI --traces--> Alloy --OTLP---------> Grafana Cloud (Tempo)
 docker-compose up -d
 ```
 
-| Service | Port | UI |
-|---|---|---|
-| PostgreSQL 16 | 5433 | PgAdmin --> localhost:5050 |
-| Redis 7 | 6379 | -- |
-| RabbitMQ 3 | 5672 | Management --> localhost:15672 |
-| MinIO (local S3) | 9000 | Console --> localhost:9001 |
+| Service          | Port | UI                             |
+| ---------------- | ---- | ------------------------------ |
+| PostgreSQL 16    | 5433 | PgAdmin --> localhost:5050     |
+| Redis 7          | 6379 | --                             |
+| RabbitMQ 3       | 5672 | Management --> localhost:15672 |
+| MinIO (local S3) | 9000 | Console --> localhost:9001     |
 
 > Production uses managed services (Supabase, Upstash, CloudAMQP) instead of local Docker containers. MinIO is replaced by Google Cloud Storage and Cloudinary.
 
