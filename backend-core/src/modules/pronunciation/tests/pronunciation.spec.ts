@@ -26,6 +26,9 @@ import * as request from 'supertest';
 import { PronunciationController } from '../pronunciation.controller';
 import { PronunciationService } from '../pronunciation.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { UsageQuotaGuard } from '../../subscriptions/guards/usage-quota.guard';
+import { StorageService } from '../../../common/storage/storage.service';
+import { AiClientService } from '../../ai-client/ai-client.service';
 
 describe('PronunciationController (TC10 — Luyện phát âm)', () => {
   let app: INestApplication;
@@ -56,15 +59,27 @@ describe('PronunciationController (TC10 — Luyện phát âm)', () => {
     createSound: jest.fn(),
     updateSound: jest.fn(),
     deleteSound: jest.fn(),
+    createPronunciationAttempt: jest.fn(),
+    updatePronunciationAttempt: jest.fn(),
+    findUserPronunciationAttempts: jest.fn(),
   };
+
+  const storageMock = { uploadFile: jest.fn(), deleteFile: jest.fn() };
+  const aiClientMock = { channel: { assertQueue: jest.fn(), sendToQueue: jest.fn() } };
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [PronunciationController],
-      providers: [{ provide: PronunciationService, useValue: serviceMock }],
+      providers: [
+        { provide: PronunciationService, useValue: serviceMock },
+        { provide: StorageService, useValue: storageMock },
+        { provide: AiClientService, useValue: aiClientMock },
+      ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue(fakeJwtGuard)
+      .overrideGuard(UsageQuotaGuard)
+      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleRef.createNestApplication();
