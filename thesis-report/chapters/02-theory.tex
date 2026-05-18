@@ -9,7 +9,7 @@ Hệ thống IELTS Master được xây dựng trên nền tảng lý thuyết t
 
 Học ngôn ngữ hỗ trợ máy tính (Computer-Assisted Language Learning --- CALL) là lĩnh vực nghiên cứu ứng dụng công nghệ thông tin để hỗ trợ quá trình dạy và học ngôn ngữ~\cite{nguyen2020tienganh}. Chapelle và Jamieson~\cite{chapelle2010technology} xác định ba nguyên tắc thiết kế CALL hiệu quả: (1) cung cấp đầu vào ngôn ngữ phong phú và đa dạng theo trình độ người học (\textit{input}); (2) tạo cơ hội luyện tập tương tác có nghĩa (\textit{interaction}); và (3) đưa ra phản hồi tức thì và cụ thể (\textit{feedback}). Ebadi và Rahimi~\cite{ebadi2018scaffolding} bổ sung rằng phản hồi được cá nhân hóa và lặp lại giúp người học nội hóa kiến thức ngôn ngữ hiệu quả hơn so với học thụ động, bằng chứng là cơ chế scaffolding trong môi trường CALL.
 
-Hệ thống IELTS Master được thiết kế theo cả ba nguyên tắc CALL: nội dung học phân cấp từ Foundation đến Advanced cung cấp input theo từng trình độ; các bài tập Speaking, Pronunciation và nghe chép chính tả (Dictation) tạo interaction trong tình huống giao tiếp thực tế; cơ chế chấm điểm AI tự động (Gemini 2.5 Flash và faster-whisper) cung cấp feedback chi tiết và tức thì sau mỗi lần luyện tập.
+Hệ thống IELTS Master được thiết kế theo cả ba nguyên tắc CALL: nội dung học phân cấp từ Foundation đến Advanced cung cấp input theo từng trình độ; các bài tập Speaking, Pronunciation và nghe chép chính tả (Dictation) tạo interaction trong tình huống giao tiếp thực tế; cơ chế chấm điểm AI tự động (Gemini 2.5 Flash và faster-whisper) cung cấp feedback chi tiết và nhanh chóng sau mỗi lần luyện tập.
 
 \subsection{Đánh giá bài viết tự động (AES)}
 
@@ -66,7 +66,7 @@ Python là ngôn ngữ lập trình bậc cao, đa mục đích, ra mắt năm 1
 Trong dự án này, Python được sử dụng cho \textbf{Backend AI Worker} --- microservice xử lý toàn bộ AI inference:
 
 \begin{itemize}
-    \item \textbf{Hỗ trợ AI/ML độc quyền:} Python là ngôn ngữ duy nhất được faster-whisper (CTranslate2), google-genai (Gemini SDK) và eng-to-ipa (IPA conversion) hỗ trợ đầy đủ --- không thể thay thế bằng TypeScript\slash Node.js cho các tác vụ AI inference này.
+    \item \textbf{Hỗ trợ AI/ML độc quyền:} Python là ngôn ngữ duy nhất được faster-whisper (CTranslate2) và eng-to-ipa (IPA conversion) hỗ trợ đầy đủ --- không thể thay thế bằng TypeScript\slash Node.js cho các tác vụ AI inference này.
     \item \textbf{Hệ sinh thái phong phú:} Cộng đồng AI/ML Python cung cấp các thư viện đã được tối ưu hóa cao (CTranslate2 tăng tốc Whisper 4× so với bản gốc), giúp giảm thời gian phát triển và tăng hiệu năng xử lý audio.
     \item \textbf{Tách biệt runtime:} Python AI Worker chạy trong Docker container riêng, tránh xung đột dependency với Node.js Backend Core và cho phép cấu hình resource độc lập (10 GB RAM, 3 CPU).
 \end{itemize}
@@ -169,7 +169,7 @@ RabbitMQ là message broker mã nguồn mở được Rabbit Technologies phát 
 Luồng xử lý AI grading diễn ra như sau: khi người học nộp bài Writing hoặc Speaking, NestJS module ai-client publish một task JSON vào exam-grading-queue với cờ persistent: true (đảm bảo tin nhắn không bị mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm, và gửi kết quả về NestJS qua REST callback. Cơ chế này mang lại các lợi ích:
 
 \begin{itemize}
-    \item \textbf{Tách biệt concerns:} API phản hồi người học ngay lập tức (trạng thái SUBMITTED) mà không phải đợi AI inference có thể mất 5--15 giây.
+    \item \textbf{Tách biệt concerns:} API phản hồi người học ngay lập tức (trạng thái SUBMITTED) mà không phải đợi AI inference có thể mất 5--10 giây.
     \item \textbf{Độ bền tin nhắn:} Queue chính exam-grading-queue được khai báo durable với message TTL 5 phút; tin nhắn hết hạn (khi worker chậm hoặc gặp lỗi tạm thời) được dead-letter sang exam-grading-dlq để vận hành viên có thể inspect, tránh mất hoàn toàn dữ liệu chấm điểm.
     \item \textbf{Kiểm soát tải:} Prefetch count giới hạn số task AI Worker xử lý đồng thời, tránh quá tải memory khi có nhiều người nộp bài cùng lúc.
 \end{itemize}
