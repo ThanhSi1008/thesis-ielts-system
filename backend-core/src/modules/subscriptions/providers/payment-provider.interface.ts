@@ -3,11 +3,6 @@
  * Implementations: MockPaymentProvider (thesis), VnpayPaymentProvider (sandbox)
  */
 export interface PaymentProviderInterface {
-  /**
-   * Create a checkout session for a subscription plan.
-   * Mock: returns status "completed" (auto-succeed).
-   * VNPay: returns status "pending" with a redirectUrl.
-   */
   createCheckout(params: {
     userId: string;
     planId: string;
@@ -15,24 +10,14 @@ export interface PaymentProviderInterface {
     amount: number;
     currency: string;
     interval: string;
+    ipAddr?: string;
   }): Promise<CheckoutResult>;
 
-  /**
-   * Verify a payment was successful.
-   * Mock: always succeeds.
-   * VNPay: validates vnp_SecureHash and vnp_ResponseCode from return params.
-   *
-   * @param sessionId - The checkout session ID (vnp_TxnRef for VNPay)
-   * @param providerParams - Optional provider-specific query params (VNPay return URL params)
-   */
   verifyPayment(
     sessionId: string,
     providerParams?: Record<string, string>,
   ): Promise<PaymentVerification>;
 
-  /**
-   * Cancel an active subscription.
-   */
   cancelSubscription(providerSubId: string): Promise<{ success: boolean }>;
 
   /**
@@ -47,6 +32,12 @@ export interface PaymentProviderInterface {
     planName: string;
     providerSubId: string;
   } | null>;
+
+  /**
+   * Verify only the secure hash from VNPay return/IPN params.
+   * Used by the IPN handler to return proper RspCode before doing DB work.
+   */
+  verifyHash?(params: Record<string, string>): boolean;
 }
 
 export interface CheckoutResult {
