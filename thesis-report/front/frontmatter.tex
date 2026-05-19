@@ -102,11 +102,9 @@ Chúng em xin chân thành cảm ơn!
 \addcontentsline{toc}{chapter}{DANH MỤC CÁC TỪ VIẾT TẮT}
 \thispagestyle{frontmatter}
 
-% Cột p{} "Nghĩa đầy đủ" chiếm phần còn lại sau STT + Từ viết tắt
-% Cột p{} "Nghĩa đầy đủ" chiếm phần còn lại sau STT + Từ viết tắt
-% Chia tỷ lệ các cột để tổng bằng 100\tbu (100% chiều rộng)
+% Chia tỷ lệ các cột: STT(8) + Từ viết tắt(18) + Nghĩa đầy đủ(74) = 100\tbu
 \setlength{\tbu}{\dimexpr(\linewidth - 6\tabcolsep - 4\arrayrulewidth)/100\relax}
-\begin{longtable}{|>{\centering\arraybackslash}p{10\tbu}|p{20\tbu}|p{70\tbu}|}
+\begin{longtable}{|>{\centering\arraybackslash}p{8\tbu}|p{18\tbu}|p{74\tbu}|}
     \hline
     \textbf{STT} & \textbf{Từ viết tắt} & \textbf{Nghĩa đầy đủ} \\
     \hline
@@ -115,62 +113,98 @@ Chúng em xin chân thành cảm ơn!
     \textbf{STT} & \textbf{Từ viết tắt} & \textbf{Nghĩa đầy đủ} \\
     \hline
     \endhead
-    1 & AI      & Artificial Intelligence \\
+    1  & AES   & Automated Essay Scoring (Chấm điểm bài viết tự động) \\
     \hline
-    2 & API     & Application Programming Interface \\
+    2  & AI    & Artificial Intelligence (Trí tuệ nhân tạo) \\
     \hline
-    3 & BaaS    & Backend as a Service \\
+    3  & AMQP  & Advanced Message Queuing Protocol \\
     \hline
-    4 & CEFR    & Common European Framework of Reference for Languages \\
+    4  & AMQPS & Advanced Message Queuing Protocol Secure (AMQP qua TLS) \\
     \hline
-    5 & CNTT    & Công nghệ thông tin \\
+    5  & API   & Application Programming Interface \\
     \hline
-    6 & CMS     & Content Management System \\
+    6  & APS   & Automated Pronunciation Scoring (Chấm điểm phát âm tự động) \\
     \hline
-    7 & DTO     & Data Transfer Object \\
+    7  & BaaS  & Backend as a Service \\
     \hline
-    8 & ERD     & Entity–Relationship Diagram \\
+    8  & CALL  & Computer-Assisted Language Learning (Học ngôn ngữ hỗ trợ máy tính) \\
     \hline
-    9 & FSRS    & Free Spaced Repetition Scheduler \\
+    9  & CDN   & Content Delivery Network (Mạng phân phối nội dung) \\
     \hline
-    10 & GCP     & Google Cloud Platform \\
+    10 & CEFR  & Common European Framework of Reference for Languages \\
     \hline
-    11 & GVHD   & Giảng viên hướng dẫn \\
+    11 & CI/CD & Continuous Integration / Continuous Deployment (Tích hợp và triển khai liên tục) \\
     \hline
-    12 & GVPB   & Giảng viên phản biện \\
+    12 & CNTT  & Công nghệ thông tin \\
     \hline
-    13 & HTTP    & HyperText Transfer Protocol \\
+    13 & DI    & Dependency Injection (Tiêm phụ thuộc) \\
     \hline
-    14 & IELTS   & International English Language Testing System \\
+    14 & DLQ   & Dead Letter Queue (Hàng đợi thư chết) \\
     \hline
-    15 & IPA     & International Phonetic Alphabet \\
+    15 & DTO   & Data Transfer Object \\
     \hline
-    16 & JWT     & JSON Web Token \\
+    16 & ERD   & Entity--Relationship Diagram (Sơ đồ thực thể -- quan hệ) \\
     \hline
-    17 & NLP     & Natural Language Processing \\
+    17 & FSRS  & Free Spaced Repetition Scheduler \\
     \hline
-    18 & ORM     & Object-Relational Mapping \\
+    18 & GCP   & Google Cloud Platform \\
     \hline
-    19 & OTP     & One-Time Password \\
+    19 & GCS   & Google Cloud Storage \\
     \hline
-    20 & REST    & Representational State Transfer \\
+    20 & GVHD  & Giảng viên hướng dẫn \\
     \hline
-    21 & SDK     & Software Development Kit \\
+    21 & GVPB  & Giảng viên phản biện \\
     \hline
-    22 & SQL     & Structured Query Language \\
+    22 & HMAC  & Hash-based Message Authentication Code \\
     \hline
-    23 & SSG     & Static Site Generation \\
+    23 & HTTP  & HyperText Transfer Protocol \\
     \hline
-    24 & SSR     & Server-Side Rendering \\
+    24 & HTTPS & HyperText Transfer Protocol Secure \\
     \hline
-    25 & STT     & Speech-to-Text \\
+    25 & IELTS & International English Language Testing System \\
     \hline
-    26 & TTS     & Text-to-Speech \\
+    26 & IPA   & International Phonetic Alphabet (Bảng phiên âm quốc tế) \\
     \hline
-    27 & UC      & Use Case \\
+    27 & JSON  & JavaScript Object Notation \\
     \hline
-    28 & UI      & User Interface \\
+    28 & JWT   & JSON Web Token \\
     \hline
-    29 & UX      & User Experience \\
+    29 & LLM   & Large Language Model (Mô hình ngôn ngữ lớn) \\
+    \hline
+    30 & MAU   & Monthly Active Users (Người dùng hoạt động hàng tháng) \\
+    \hline
+    31 & NLP   & Natural Language Processing (Xử lý ngôn ngữ tự nhiên) \\
+    \hline
+    32 & ORM   & Object-Relational Mapping \\
+    \hline
+    33 & OTLP  & OpenTelemetry Protocol \\
+    \hline
+    34 & REST  & Representational State Transfer \\
+    \hline
+    35 & SDK   & Software Development Kit \\
+    \hline
+    36 & SQL   & Structured Query Language \\
+    \hline
+    37 & SRS   & Spaced Repetition System (Hệ thống lặp lại ngắt quãng) \\
+    \hline
+    38 & SSG   & Static Site Generation \\
+    \hline
+    39 & SSR   & Server-Side Rendering \\
+    \hline
+    40 & STT   & Speech-to-Text (Nhận dạng giọng nói thành văn bản) \\
+    \hline
+    41 & TLS   & Transport Layer Security \\
+    \hline
+    42 & TTL   & Time to Live \\
+    \hline
+    43 & UC    & Use Case (Ca sử dụng) \\
+    \hline
+    44 & UI    & User Interface (Giao diện người dùng) \\
+    \hline
+    45 & UX    & User Experience (Trải nghiệm người dùng) \\
+    \hline
+    46 & XP    & Experience Points (Điểm kinh nghiệm) \\
+    \hline
+    47 & ZPD   & Zone of Proximal Development (Vùng phát triển gần) \\
     \hline
 \end{longtable}

@@ -5,26 +5,26 @@
 
 \subsection{Về mặt công nghệ và kiến trúc hệ thống}
 
-Qua quá trình nghiên cứu, thiết kế và hiện thực, chúng em đã xây dựng thành công hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
+Qua quá trình nghiên cứu, thiết kế và hiện thực, đề tài đã xây dựng thành công hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
 
-Về kiến trúc, hệ thống được tổ chức theo mô hình Event-driven Modular Monolith: NestJS Backend Core chứa 18 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions...) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection để đảm bảo tính nhất quán và dễ bảo trì. FastAPI AI Worker là microservice độc lập duy nhất, kết nối qua RabbitMQ để xử lý AI inference bất đồng bộ mà không làm chậm API response. Cách tổ chức này cân bằng giữa sự đơn giản của monolith với khả năng mở rộng độc lập cho thành phần tính toán nặng (AI grading).
+Về kiến trúc, hệ thống được tổ chức theo mô hình Event-driven Modular Monolith: NestJS Backend Core chứa 17 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions...) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection để đảm bảo tính nhất quán và dễ bảo trì. FastAPI AI Worker là microservice độc lập duy nhất, kết nối qua RabbitMQ để xử lý AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách tổ chức này cân bằng giữa sự đơn giản của monolith với khả năng mở rộng độc lập cho thành phần tính toán chuyên sâu (AI grading).
 
 Về đa nền tảng, hệ thống cung cấp đồng thời giao diện Web (Next.js với Server-Side Rendering) và ứng dụng Mobile (React Native), sử dụng chung một backend API. Việc áp dụng Next.js giúp tối ưu SEO và tốc độ tải trang thông qua SSR và Static Site Generation, trong khi React Native cho phép triển khai trên cả iOS và Android từ một codebase TypeScript duy nhất, tiết kiệm đáng kể chi phí phát triển so với native riêng biệt~\cite{reactnative-docs}.
 
-Về tích hợp trí tuệ nhân tạo, hệ thống tích hợp thành công Gemini API~\cite{gemini-api} (model gemini-2.5-flash) để chấm điểm tự động bài Writing theo 4 tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và chấm điểm Speaking theo 4 tiêu chí tương ứng. faster-whisper~\cite{whisper-paper} -- bản tối ưu hóa của OpenAI Whisper sử dụng CTranslate2 backend -- được triển khai locally trong Docker container để chuyển đổi giọng nói thành văn bản phục vụ chấm phát âm và dictation, không phụ thuộc cloud API và không có rate limit. Luồng grading bất đồng bộ qua RabbitMQ đảm bảo API phản hồi ngay lập tức dù inference mất vài giây.
+Về tích hợp trí tuệ nhân tạo, hệ thống tích hợp thành công Gemini API~\cite{gemini-api} (model gemini-2.5-flash) để chấm điểm tự động bài Writing theo 4 tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và chấm điểm Speaking theo 4 tiêu chí tương ứng. faster-whisper~\cite{whisper-paper} (bản tối ưu hóa của OpenAI Whisper, sử dụng CTranslate2 backend) được triển khai cục bộ trong Docker container để chuyển đổi giọng nói thành văn bản phục vụ chấm phát âm và dictation, hoàn toàn tự chủ về xử lý và không chịu ràng buộc quota từ dịch vụ bên thứ ba. Luồng grading bất đồng bộ qua RabbitMQ đảm bảo API phản hồi ngay lập tức dù inference mất vài giây.
 
-Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo vệ: mật khẩu được băm bằng bcrypt với salt rounds=10, xác thực bằng JWT access token có hiệu lực 7 ngày, và giới hạn tốc độ truy cập (rate limiting) toàn cục 100 request/60 giây để ngăn chặn brute-force. Prisma ORM~\cite{prisma-docs} ngăn chặn SQL injection qua parameterized queries và cung cấp type-safe database access nhất quán trên toàn backend.
+Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo vệ: mật khẩu được băm bằng bcrypt với 10 vòng tăng cường (saltRounds = 10), xác thực bằng JWT access token có hiệu lực 7 ngày, và giới hạn tốc độ truy cập (rate limiting) toàn cục 100 request/60 giây để ngăn chặn brute-force. Prisma ORM~\cite{prisma-docs} ngăn chặn SQL injection qua parameterized queries và cung cấp type-safe database access nhất quán trên toàn backend.
 
 \subsection{Về mặt chức năng nghiệp vụ}
 
 Hệ thống đã hiện thực đầy đủ các chức năng cốt lõi của một nền tảng luyện thi IELTS toàn diện, đáp ứng nhu cầu của người học từ band 4.0 đến 7.5+ theo chuẩn mực IELTS quốc tế~\cite{ielts-global-stats}:
 
 \begin{itemize}
-    \item \textbf{Luyện tập 4 kỹ năng IELTS:} Listening với audio player tùy chỉnh và chấm điểm ngữ nghĩa dựa trên khoảng cách Levenshtein (chấp nhận typo 1 ký tự cho từ $\geq$5 ký tự); Reading với layout 2 cột đồng bộ cuộn độc lập; Writing Task 1 và Task 2 với AI scoring tức thì; Speaking với AI Conversation -- hội thoại mô phỏng giám khảo IELTS thực tế theo 3 phần thi.
+    \item \textbf{Luyện tập 4 kỹ năng IELTS:} Listening với audio player tùy chỉnh và chấm điểm linh hoạt (tự động loại bỏ khoảng trắng thừa và không phân biệt chữ hoa/thường); Reading với layout 2 cột đồng bộ cuộn độc lập; Writing Task 1 và Task 2 với tính năng auto-save mỗi 30 giây và AI scoring tự động bất đồng bộ; Speaking với mô phỏng phòng thi thực tế --- người học lắng nghe câu hỏi theo 3 phần thi chuẩn IELTS, thu âm câu trả lời và nhận điểm từ AI theo 4 tiêu chí Speaking chính thức.
 
-    \item \textbf{Mock Test toàn phần:} Mô phỏng đầy đủ bài thi IELTS với đồng hồ đếm ngược đồng bộ server (chống gian lận thời gian khi reload), auto-save câu trả lời mỗi 30 giây, khả năng khôi phục bài thi khi mất kết nối, và quy đổi band điểm theo bảng tra cứu IELTS chính thức với Overall band làm tròn đến bội số 0.5 gần nhất.
+    \item \textbf{Mock Test toàn phần:} Mô phỏng đầy đủ bài thi IELTS với đồng hồ đếm ngược chuẩn sát thời gian thi thực tế, và quy đổi band điểm theo bảng tra cứu IELTS chính thức với Overall band làm tròn đến bội số 0.5 gần nhất.
 
-    \item \textbf{Hệ thống Vocab Lab thông minh:} Thuật toán FSRS (Free Spaced Repetition Scheduler) -- thế hệ kế tiếp của SM-2 -- tự động lên lịch ôn luyện dựa trên mô hình bộ nhớ xác suất với retention target 90\% và max interval 365 ngày, kết hợp chế độ flashcard lật và community deck sharing để đa dạng hoá phương pháp ôn luyện~\cite{ye2022fsrs}.
+    \item \textbf{Hệ thống Vocab Lab thông minh:} Thuật toán FSRS (Free Spaced Repetition Scheduler, thế hệ kế tiếp của SM-2) tự động lên lịch ôn luyện dựa trên mô hình bộ nhớ xác suất với retention target 90\% và max interval 365 ngày, kết hợp chế độ flashcard lật và community deck sharing để đa dạng hoá phương pháp ôn luyện~\cite{ye2022fsrs}.
 
     \item \textbf{Placement Test và lộ trình học tập:} Bài kiểm tra đầu vào tự động đánh giá trình độ ban đầu theo ba kỹ năng (Listening, Reading và Writing) và gợi ý lộ trình học tập phù hợp, giúp người học mới tiếp cận hệ thống một cách có định hướng.
 
@@ -38,7 +38,7 @@ Hệ thống đã hiện thực đầy đủ các chức năng cốt lõi của 
 Mặc dù đã đạt được nhiều kết quả tích cực, hệ thống vẫn còn một số hạn chế cần được thừa nhận một cách khách quan:
 
 \begin{itemize}
-    \item \textbf{Độ trễ của AI scoring:} Việc gọi Gemini API~\cite{gemini-api} để chấm bài Writing và Speaking mất trung bình 3--8 giây tuỳ theo độ dài bài làm. Đây là hạn chế phụ thuộc vào tốc độ phản hồi của dịch vụ bên thứ ba và hiện chưa có cơ chế cache kết quả cho các bài làm tương tự.
+    \item \textbf{Độ trễ của AI scoring:} Việc gọi Gemini API~\cite{gemini-api} để chấm bài Writing và Speaking mất trung bình 5--10 giây tuỳ theo độ dài bài làm. Đây là hạn chế phụ thuộc vào tốc độ phản hồi của dịch vụ bên thứ ba và hiện chưa có cơ chế cache kết quả cho các bài làm tương tự.
 
     \item \textbf{Chưa kiểm thử hiệu năng quy mô lớn:} Hệ thống mới được kiểm thử với số lượng người dùng giới hạn trong môi trường phát triển. Chưa có load testing để xác định ngưỡng chịu tải thực tế khi có nhiều phiên Mock Test đồng thời, đặc biệt với các tác vụ gọi AI API song song.
 
@@ -46,14 +46,14 @@ Mặc dù đã đạt được nhiều kết quả tích cực, hệ thống v�
 
     \item \textbf{Tính năng cộng đồng còn hạn chế:} Mặc dù hệ thống đã có mô-đun cộng đồng cơ bản (đăng bài, bình luận, yêu thích, lưu bài và chia sẻ flashcard deck), chưa có tính năng nâng cao như peer review (người học chấm bài Writing/Speaking lẫn nhau theo rubric IELTS) hay học nhóm theo thời gian thực -- đây là yếu tố quan trọng để phát huy lý thuyết vùng phát triển gần (ZPD) trong học tập ngôn ngữ~\cite{vygotsky1978mind}.
 
-    \item \textbf{Chưa hỗ trợ chế độ offline:} Ứng dụng Mobile yêu cầu kết nối Internet liên tục; toàn bộ nội dung bài tập và file audio được tải trực tiếp từ Google Cloud Storage (GCS) CDN mà chưa có cơ chế cache cục bộ.
+    \item \textbf{Chưa hỗ trợ chế độ offline:} Ứng dụng Mobile yêu cầu kết nối Internet liên tục; nội dung bài tập được phục vụ qua REST API (từ cơ sở dữ liệu PostgreSQL) và file audio được tải từ Cloudinary, chưa có cơ chế cache cục bộ cho thiết bị.
 
     \item \textbf{Nền tảng iOS chưa được kiểm thử đầy đủ:} Do chi phí Apple Developer Program, ứng dụng React Native hiện tập trung kiểm thử trên Android; chưa được phân phối chính thức trên App Store.
 \end{itemize}
 
 \section{Hướng phát triển}
 
-Dựa trên nền tảng đã xây dựng và những hạn chế đã nhận diện, chúng em đề xuất các hướng phát triển tiếp theo trong các giai đoạn sau:
+Dựa trên nền tảng đã xây dựng và những hạn chế đã nhận diện, các hướng phát triển tiếp theo được đề xuất trong các giai đoạn sau:
 
 \begin{itemize}
     \item \textbf{Fine-tune mô hình AI chuyên biệt:} Xây dựng tập dữ liệu bài mẫu IELTS đã được giám khảo chấm điểm thực tế để fine-tune mô hình ngôn ngữ, nhằm tăng độ chính xác AI scoring và đưa chênh lệch band điểm so với giám khảo con người xuống mức $\leq$0.5~\cite{le2023nlp}.
