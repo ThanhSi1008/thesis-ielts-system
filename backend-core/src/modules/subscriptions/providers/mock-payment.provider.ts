@@ -90,7 +90,7 @@ export class MockPaymentProvider implements PaymentProviderInterface {
     return { success: true };
   }
 
-  getSessionData(sessionId: string) {
+  async getSessionData(sessionId: string) {
     const session = this.pendingSessions.get(sessionId);
     if (!session) return null;
     return {

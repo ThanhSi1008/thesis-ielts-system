@@ -39,14 +39,14 @@ export interface PaymentProviderInterface {
    * Get stored session data for a pending checkout.
    * Returns null if session not found or already processed.
    */
-  getSessionData?(sessionId: string): {
+  getSessionData?(sessionId: string): Promise<{
     userId: string;
     planId: string;
     amount: number;
     currency: string;
     planName: string;
     providerSubId: string;
-  } | null;
+  } | null>;
 }
 
 export interface CheckoutResult {

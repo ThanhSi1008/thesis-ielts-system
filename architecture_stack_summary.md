@@ -71,7 +71,7 @@ Routing:
 | Model | Thư viện | Chạy ở đâu | Mục đích |
 |---|---|---|---|
 | **Whisper** (base) | faster-whisper, CTranslate2 | Local trên VM (CPU, int8) | Speech-to-Text |
-| **Gemini** (2.0-flash) | google-genai | Google Cloud API | Writing + Speaking grading |
+| **Gemini** (2.5-flash) | google-genai | Google Cloud API | Writing + Speaking grading |
 | **IPA Engine** | eng-to-ipa + Levenshtein | Local trên VM | Pronunciation assessment |
 | **ffmpeg** | system package | Local trên VM | Audio decoding (runtime dependency của Whisper) |
 

@@ -3,7 +3,6 @@ import { IsOptional, IsString, IsBoolean, IsEnum, IsEmail } from "class-validato
 export enum UserRole {
   STUDENT = "STUDENT",
   TEACHER = "TEACHER",
-  ADMIN = "ADMIN",
 }
 
 export class UpdateUserDto {

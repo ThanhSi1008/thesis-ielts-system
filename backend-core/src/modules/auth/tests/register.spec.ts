@@ -273,7 +273,7 @@ describe('POST /api/v1/auth/register (TC01 — Đăng ký)', () => {
       });
     });
 
-    it('TC01_08: không truyền role → mặc định "STUDENT"; truyền role → tôn trọng giá trị', async () => {
+    it('TC01_08: không truyền role → mặc định "STUDENT"; truyền role hợp lệ (TEACHER) → tôn trọng giá trị', async () => {
       const captured: any[] = [];
       prismaMock.user.create.mockImplementation(async ({ data }: any) => {
         captured.push(data);
@@ -286,7 +286,7 @@ describe('POST /api/v1/auth/register (TC01 — Đăng ký)', () => {
         };
       });
 
-      // (a) không truyền role
+      // (a) không truyền role → mặc định STUDENT
       await request(app.getHttpServer())
         .post('/api/v1/auth/register')
         .send({
@@ -297,8 +297,21 @@ describe('POST /api/v1/auth/register (TC01 — Đăng ký)', () => {
         });
       expect(captured[0].role).toBe('STUDENT');
 
-      // (b) truyền role ADMIN
+      // (b) truyền role TEACHER → lưu đúng vai trò
       await request(app.getHttpServer())
+        .post('/api/v1/auth/register')
+        .send({
+          email: 'role-teacher@example.com',
+          password: 'Password1',
+          firstName: 'A',
+          lastName: 'B',
+          role: 'TEACHER',
+        });
+      expect(captured[1].role).toBe('TEACHER');
+    });
+
+    it('TC01_09: truyền role ADMIN → 400 (vai trò không được phép tự gán)', async () => {
+      const res = await request(app.getHttpServer())
         .post('/api/v1/auth/register')
         .send({
           email: 'role-admin@example.com',
@@ -307,7 +320,9 @@ describe('POST /api/v1/auth/register (TC01 — Đăng ký)', () => {
           lastName: 'B',
           role: 'ADMIN',
         });
-      expect(captured[1].role).toBe('ADMIN');
+
+      expect(res.status).toBe(400);
+      expect(prismaMock.user.create).not.toHaveBeenCalled();
     });
   });
 });
