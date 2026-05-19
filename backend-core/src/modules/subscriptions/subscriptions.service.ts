@@ -320,6 +320,9 @@ export class SubscriptionsService {
     providerSubId: string,
     sessionId: string,
     providerName: "MOCK" | "VNPAY" | "STRIPE" | "MANUAL" = "MOCK",
+    // Pre-verified payment ID from the gateway. When provided, skip redundant verifyPayment call.
+    // For mock provider this is omitted — verifyPayment generates the mock pay ID on first call.
+    preVerifiedPayId?: string,
   ) {
     const now = new Date();
     const periodEnd = new Date(now);
@@ -352,17 +355,23 @@ export class SubscriptionsService {
       },
     });
 
-    // Verify and record payment
-    const verification = await this.paymentProvider.verifyPayment(sessionId);
+    // Use pre-verified payId (real providers) or generate one via verifyPayment (mock).
+    // This avoids a second Redis lookup that would fail because verifyPayment already
+    // deleted the session on the first call in verifyCheckout.
+    let payId = preVerifiedPayId;
+    if (!payId) {
+      const verification = await this.paymentProvider.verifyPayment(sessionId);
+      if (verification.success) payId = verification.providerPayId;
+    }
 
-    if (verification.success) {
+    if (payId) {
       await this.prisma.payment.create({
         data: {
           subscriptionId: sub.id,
-          amount: verification.amount,
-          currency: verification.currency,
+          amount: plan.priceAmount,
+          currency: plan.currency,
           provider: providerName,
-          providerPayId: verification.providerPayId,
+          providerPayId: payId,
           status: "succeeded",
           metadata: { planName: plan.name },
         },
@@ -563,6 +572,21 @@ export class SubscriptionsService {
     const verification = await this.paymentProvider.verifyPayment(sessionId, vnpParams);
 
     if (!verification.success) {
+      // Race condition: IPN may have fired first, deleting the Redis session and activating the
+      // subscription before the user's browser reached the Return URL. Check the DB using the
+      // gateway transaction number so the frontend doesn't show a false "Payment Failed".
+      if (vnpParams) {
+        const txnNo = vnpParams["vnp_TransactionNo"];
+        if (txnNo) {
+          const existing = await this.prisma.payment.findFirst({
+            where: { providerPayId: String(txnNo), status: "succeeded" },
+          });
+          if (existing) {
+            this.logger.log(`[VNPay] Return URL: already activated by IPN, txnNo=${txnNo}`);
+            return { message: "Subscription activated successfully!" };
+          }
+        }
+      }
       throw new BadRequestException("Payment verification failed. Please try again.");
     }
 
@@ -596,7 +620,7 @@ export class SubscriptionsService {
     }
 
     const providerName = this.resolveProviderName();
-    return this.activateSubscription(userId, plan, providerSubId, sessionId, providerName);
+    return this.activateSubscription(userId, plan, providerSubId, sessionId, providerName, verification.providerPayId);
   }
 
   /**
@@ -633,9 +657,14 @@ export class SubscriptionsService {
     // 3. Kiểm tra session còn trong Redis
     const session = await this.paymentProvider.getSessionData?.(txnRef);
     if (!session) {
-      const existing = await this.prisma.payment.findFirst({ where: { providerPayId: txnRef } });
+      // Session already deleted — Return URL may have activated this payment first.
+      // providerPayId in the Payment table is vnp_TransactionNo, NOT txnRef.
+      const vnpTransactionNo = vnpParams["vnp_TransactionNo"];
+      const existing = vnpTransactionNo
+        ? await this.prisma.payment.findFirst({ where: { providerPayId: String(vnpTransactionNo) } })
+        : null;
       if (existing) {
-        this.logger.log(`[IPN] Already processed: txnRef=${txnRef}`);
+        this.logger.log(`[IPN] Already processed: txnRef=${txnRef}, txnNo=${vnpTransactionNo}`);
         return { RspCode: "02", Message: "Order already confirmed" };
       }
       this.logger.warn(`[IPN] Order not found in Redis: txnRef=${txnRef}`);

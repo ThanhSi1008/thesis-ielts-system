@@ -44,10 +44,12 @@ import { CacheModule } from "./common/cache/cache.module";
       ttl: 60000,
       limit: 100,
     }]),
-    // Configuration module - loads environment variables
+    // Configuration module - loads environment variables.
+    // In containers (NODE_ENV=production) skip .env.local — env vars come from docker-compose.
+    // Locally, .env.local takes priority so developers don't touch the shared .env.
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env",
+      envFilePath: process.env.NODE_ENV === "production" ? [".env"] : [".env.local", ".env"],
     }),
 
     // Common modules
