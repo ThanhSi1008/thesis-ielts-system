@@ -5,16 +5,16 @@ Dựa trên kết quả phân tích ở Chương~3, chương này trình bày c�
 
 \section{Sơ đồ lớp}
 
-Để tăng tính rõ ràng, sơ đồ lớp được tách thành hai nhóm: nhóm \textbf{Core \& Auth} phụ trách tài khoản và vận hành nền tảng; nhóm \textbf{IELTS} phụ trách toàn bộ nội dung và tiến độ học tập~\cite{fowler2002patterns}.
+Để tăng tính rõ ràng, sơ đồ lớp được tách thành hai nhóm: nhóm \textbf{Core} phụ trách tài khoản và vận hành nền tảng; nhóm \textbf{IELTS} phụ trách toàn bộ nội dung và tiến độ học tập~\cite{fowler2002patterns}.
 
-Nhóm Core \& Auth tập trung vào quản lý tài khoản và xác thực. Lớp User là trung tâm, lưu các thông tin cơ bản như email, mật khẩu (mã hoá bằng bcrypt), họ tên, avatar và vai trò (STUDENT / INSTRUCTOR / ADMIN). Người dùng đăng nhập bằng Google OAuth sẽ không có trường mật khẩu. Danh tính được xác thực qua JWT. Lớp Subscription liên kết 1-1 với User để quản lý gói cước hiện tại (FREE / PREMIUM / PRO) và ngày hết hạn.
+Nhóm Core tập trung vào quản lý tài khoản và xác thực. Lớp User là trung tâm, lưu các thông tin cơ bản như email, mật khẩu (mã hoá bằng bcrypt), họ tên, avatar và vai trò (STUDENT / INSTRUCTOR / ADMIN). Người dùng đăng nhập bằng Google OAuth sẽ không có trường mật khẩu. Danh tính được xác thực qua JWT. Lớp Subscription liên kết 1-1 với User để quản lý gói cước hiện tại (FREE / PREMIUM / PRO) và ngày hết hạn.
 
 Nhóm IELTS chứa toàn bộ nội dung học tập, tổ chức theo từng giai đoạn trong lộ trình~\cite{fowler2002patterns}. Ở giai đoạn Basic, bốn kỹ năng được tách thành bốn lớp exercise riêng biệt (Listening, Reading, Writing, Speaking) kèm bảng tiến độ. Giai đoạn Advanced bổ sung thêm lớp Session để lưu lại từng lần luyện tập cùng điểm số phản hồi từ AI. Giai đoạn Intensive dùng lớp IeltsIntensiveSession để quản lý phiên thi thử với vòng đời trạng thái từ khi bắt đầu cho đến khi có kết quả chấm điểm. Ngoài ra, phân hệ Vocab Lab dùng lớp Flashcard với thuật toán nhắc lại FSRS (qua thư viện ts-fsrs) để giúp người học ghi nhớ từ vựng theo lịch tối ưu.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{4.1. Class Diagram/2-class-core.png}
-    \caption{Sơ đồ lớp nhóm Core \& Auth}
+    \caption{Sơ đồ lớp nhóm Core}
     \label{fig:class-user}
 \end{figure}
 
@@ -27,14 +27,14 @@ Nhóm IELTS chứa toàn bộ nội dung học tập, tổ chức theo từng gi
 
 \section{Sơ đồ cơ sở dữ liệu}
 
-Hệ thống dùng PostgreSQL~\cite{postgresql-docs} thông qua Prisma ORM~\cite{prisma-docs}. Cơ sở dữ liệu được lưu trữ trên \textbf{Supabase} — một dịch vụ PostgreSQL được quản lý sẵn, kết nối qua PgBouncer (port 6543) trong môi trường chạy thực và kết nối trực tiếp (port 5432) khi chạy migration. Toàn bộ schema được định nghĩa tập trung trong file schema.prisma với 66 model. Tương tự sơ đồ lớp, ERD cũng được tách thành hai nhóm để dễ đọc: nhóm \textbf{Core \& Auth} và nhóm \textbf{IELTS}.
+Hệ thống dùng PostgreSQL~\cite{postgresql-docs} thông qua Prisma ORM~\cite{prisma-docs}. Cơ sở dữ liệu được lưu trữ trên \textbf{Supabase} — một dịch vụ PostgreSQL được quản lý sẵn, kết nối qua PgBouncer (port 6543) trong môi trường chạy thực và kết nối trực tiếp (port 5432) khi chạy migration. Toàn bộ schema được định nghĩa tập trung trong file schema.prisma với 66 model. Tương tự sơ đồ lớp, ERD cũng được tách thành hai nhóm để dễ đọc: nhóm \textbf{Core} và nhóm \textbf{IELTS}.
 
-Nhóm Core \& Auth quản lý người dùng và các nghiệp vụ liên quan. Bảng users lưu thông tin tài khoản, trạng thái hoạt động và định danh Google OAuth. Bên cạnh đó là các bảng subscriptions, pricing\_plans (gói cước), payments (thanh toán), notifications (thông báo) và student\_teacher\_links (liên kết học viên -- giáo viên). Sơ đồ ERD nhóm Core \& Auth được trình bày trong hình~\ref{fig:erd-core}.
+Nhóm Core quản lý người dùng và các nghiệp vụ liên quan. Bảng users lưu thông tin tài khoản, trạng thái hoạt động và định danh Google OAuth. Bên cạnh đó là các bảng subscriptions, pricing\_plans (gói cước), payments (thanh toán), notifications (thông báo) và student\_teacher\_links (liên kết học viên -- giáo viên). Sơ đồ ERD nhóm Core được trình bày trong hình~\ref{fig:erd-core}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{4.2. ERD/2-erd-core.png}
-    \caption{Sơ đồ ERD nhóm Core \& Auth (PostgreSQL)}
+    \caption{Sơ đồ ERD nhóm Core (PostgreSQL)}
     \label{fig:erd-core}
 \end{figure}
 
