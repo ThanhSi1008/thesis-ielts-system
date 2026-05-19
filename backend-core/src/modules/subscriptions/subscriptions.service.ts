@@ -555,8 +555,8 @@ export class SubscriptionsService {
    * Called by the frontend return page or by the IPN webhook.
    */
   async verifyCheckout(sessionId: string, vnpParams?: Record<string, string>) {
-    // Get session data BEFORE verifying, because verifyPayment might delete the session from memory
-    const sessionData = this.paymentProvider.getSessionData?.(sessionId);
+    // Get session data BEFORE verifying (verifyPayment deletes the session on success)
+    const sessionData = await this.paymentProvider.getSessionData?.(sessionId);
 
     // Verify payment with provider
     const verification = await this.paymentProvider.verifyPayment(sessionId, vnpParams);
