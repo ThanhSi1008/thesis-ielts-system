@@ -170,7 +170,8 @@ model IeltsIntensiveResult {
 }
 
 // ============================================================
-// ⚠️  DEPRECATED / LEGACY MODELS — NOT USED IN CURRENT SYSTEM
+// PRONUNCIATION ATTEMPT (used by AI grading flow)
+// POST /pronunciation/check → creates attempt → AI worker updates result
 model FoundationPronunciationAttempt {
   id              String              @id @default(uuid())
   userId          String
@@ -190,17 +191,12 @@ model FoundationPronunciationAttempt {
   @@map("pronunciation_attempts")
 }
 
-// @deprecated
 enum PronunciationStatus {
   PENDING
   PROCESSING
   COMPLETED
   FAILED
 }
-
-// ============================================================
-// END OF DEPRECATED MODELS
-// ============================================================
 
 // ============================================================
 // LEARNING CONTENT MODELS (FoundationVocabWord, Grammar, Pronunciation)
