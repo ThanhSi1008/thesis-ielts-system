@@ -45,9 +45,10 @@ import { CacheModule } from "./common/cache/cache.module";
       limit: 100,
     }]),
     // Configuration module - loads environment variables
+    // .env.local overrides .env (useful for local dev without touching production .env)
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env",
+      envFilePath: [".env.local", ".env"],
     }),
 
     // Common modules
