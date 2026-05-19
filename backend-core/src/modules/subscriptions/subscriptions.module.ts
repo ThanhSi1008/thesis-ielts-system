@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { SubscriptionsController } from "./subscriptions.controller";
 import { SubscriptionsService } from "./subscriptions.service";
 import { SubscriptionGuard } from "./guards/subscription.guard";
@@ -7,34 +8,27 @@ import { MockPaymentProvider } from "./providers/mock-payment.provider";
 import { VnpayPaymentProvider } from "./providers/vnpay-payment.provider";
 import { SubscriptionsCronService } from "./subscriptions.cron";
 import { NotificationsModule } from "../notifications/notifications.module";
-
-/**
- * Resolve payment provider class based on PAYMENT_PROVIDER env var.
- * Default: MockPaymentProvider (safe for dev/thesis demo).
- */
-function resolvePaymentProvider() {
-  const provider = process.env.PAYMENT_PROVIDER?.toLowerCase();
-
-  switch (provider) {
-    case "vnpay":
-      return VnpayPaymentProvider;
-    default:
-      return MockPaymentProvider;
-  }
-}
+import { RedisModule } from "../../common/redis/redis.module";
+import { RedisService } from "../../common/redis/redis.service";
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [NotificationsModule, ConfigModule, RedisModule],
   controllers: [SubscriptionsController],
   providers: [
     SubscriptionsService,
     SubscriptionsCronService,
     SubscriptionGuard,
     UsageQuotaGuard,
-    // Payment provider — selected via PAYMENT_PROVIDER env var
     {
       provide: "PAYMENT_PROVIDER",
-      useClass: resolvePaymentProvider(),
+      useFactory: (config: ConfigService, redis: RedisService) => {
+        const provider = config.get<string>("PAYMENT_PROVIDER")?.toLowerCase();
+        if (provider === "vnpay") {
+          return new VnpayPaymentProvider(redis);
+        }
+        return new MockPaymentProvider();
+      },
+      inject: [ConfigService, RedisService],
     },
   ],
   exports: [SubscriptionsService, SubscriptionGuard, UsageQuotaGuard],
