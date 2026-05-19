@@ -54,7 +54,14 @@ export class SubscriptionsController {
   @Post("checkout")
   @UseGuards(JwtAuthGuard)
   async checkout(@Request() req: any, @Body() dto: CheckoutDto) {
-    return this.subscriptionsService.checkout(req.user.id, dto.planId);
+    // Lấy IP thực của client — Nginx chạy sau proxy nên dùng x-forwarded-for
+    // Mirrors VNPay demo: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    const ipAddr: string =
+      (req.headers["x-forwarded-for"] as string)?.split(",")[0].trim() ||
+      req.socket?.remoteAddress ||
+      req.ip ||
+      "127.0.0.1";
+    return this.subscriptionsService.checkout(req.user.id, dto.planId, ipAddr);
   }
 
   /**
