@@ -278,7 +278,7 @@ export class SubscriptionsService {
    * Create a checkout session for a pricing plan.
    * In mock mode, this auto-completes the payment immediately.
    */
-  async checkout(userId: string, planId: string) {
+  async checkout(userId: string, planId: string, ipAddr?: string) {
     const plan = await this.prisma.pricingPlan.findUnique({
       where: { id: planId },
     });
@@ -294,6 +294,7 @@ export class SubscriptionsService {
       amount: plan.priceAmount,
       currency: plan.currency,
       interval: plan.interval,
+      ipAddr,
     });
 
     // For mock provider, payment auto-completes
@@ -600,30 +601,61 @@ export class SubscriptionsService {
 
   /**
    * Handle VNPay IPN (Instant Payment Notification) callback.
-   * VNPay sends this server-to-server as a backup verification.
-   * Returns { RspCode, Message } as VNPay expects.
+   * Returns { RspCode, Message } theo đúng spec VNPay:
+   *   "00" | "02" → kết thúc (không retry)
+   *   "97"        → hash sai (retry)
+   *   "01"        → order not found (retry)
+   *   "04"        → amount không khớp (retry)
+   *   "99"        → lỗi khác (retry)
    */
   async handleVnpayIpn(vnpParams: Record<string, string>): Promise<{ RspCode: string; Message: string }> {
     const txnRef = vnpParams["vnp_TxnRef"];
-    const responseCode = vnpParams["vnp_ResponseCode"];
-
     if (!txnRef) {
       return { RspCode: "99", Message: "Missing txnRef" };
     }
 
-    // Only process successful payments
-    if (responseCode !== "00") {
-      this.logger.warn(`[IPN] Payment not successful: txnRef=${txnRef}, code=${responseCode}`);
-      return { RspCode: "00", Message: "Confirmed" };
+    // 1. Kiểm tra hash trước — trả 97 để VNPay retry nếu sai
+    if (typeof this.paymentProvider.verifyHash === "function") {
+      if (!this.paymentProvider.verifyHash(vnpParams)) {
+        this.logger.error(`[IPN] Checksum FAILED: txnRef=${txnRef}`);
+        return { RspCode: "97", Message: "Fail checksum" };
+      }
     }
 
+    // 2. Chỉ xử lý giao dịch thành công
+    const responseCode = vnpParams["vnp_ResponseCode"];
+    const transactionStatus = vnpParams["vnp_TransactionStatus"];
+    if (responseCode !== "00" || transactionStatus !== "00") {
+      this.logger.warn(`[IPN] Non-success: txnRef=${txnRef}, responseCode=${responseCode}, transactionStatus=${transactionStatus}`);
+      return { RspCode: "00", Message: "Confirmed non-success transaction" };
+    }
+
+    // 3. Kiểm tra session còn trong Redis
+    const session = await this.paymentProvider.getSessionData?.(txnRef);
+    if (!session) {
+      const existing = await this.prisma.payment.findFirst({ where: { providerPayId: txnRef } });
+      if (existing) {
+        this.logger.log(`[IPN] Already processed: txnRef=${txnRef}`);
+        return { RspCode: "02", Message: "Order already confirmed" };
+      }
+      this.logger.warn(`[IPN] Order not found in Redis: txnRef=${txnRef}`);
+      return { RspCode: "01", Message: "Order not found" };
+    }
+
+    // 4. Kiểm tra số tiền — vnp_Amount = amount VND × 100
+    const vnpAmount = parseInt(vnpParams["vnp_Amount"] ?? "0", 10);
+    if (vnpAmount !== session.amount * 100) {
+      this.logger.error(`[IPN] Amount mismatch: txnRef=${txnRef}, expected=${session.amount * 100}, got=${vnpAmount}`);
+      return { RspCode: "04", Message: "Invalid amount" };
+    }
+
+    // 5. Kích hoạt subscription
     try {
       await this.verifyCheckout(txnRef, vnpParams);
       return { RspCode: "00", Message: "Confirm Success" };
     } catch (err) {
-      this.logger.error(`[IPN] Failed to process: txnRef=${txnRef}, error=${err}`);
-      // Still return 00 to prevent VNPay from retrying endlessly
-      return { RspCode: "00", Message: "Confirmed (already processed or error)" };
+      this.logger.error(`[IPN] Failed to activate: txnRef=${txnRef}, error=${err}`);
+      return { RspCode: "99", Message: "Internal error" };
     }
   }
 }

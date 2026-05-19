@@ -20,20 +20,12 @@ const SESSION_KEY_PREFIX = "vnpay:session:";
 type VnpaySessionData = {
   userId: string;
   planId: string;
-  amount: number;
+  amount: number;   // VND, e.g. 99000 (NOT × 100)
   currency: string;
   planName: string;
   providerSubId: string;
 };
 
-/**
- * VNPay payment provider for sandbox/production.
- * Implements redirect-based checkout: user is sent to VNPay's payment page,
- * then redirected back to the app with query parameters for verification.
- *
- * Sessions are stored in Redis (TTL 30 min) so they survive server restarts
- * and IPN callbacks arrive after a deployment.
- */
 @Injectable()
 export class VnpayPaymentProvider implements PaymentProviderInterface {
   private readonly logger = new Logger(VnpayPaymentProvider.name);
@@ -44,15 +36,12 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   private get tmnCode(): string {
     return (process.env.VNPAY_TMN_CODE ?? "").trim();
   }
-
   private get hashSecret(): string {
     return (process.env.VNPAY_HASH_SECRET ?? "").trim();
   }
-
   private get vnpayUrl(): string {
     return (process.env.VNPAY_URL ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html").trim();
   }
-
   private get returnUrl(): string {
     return (process.env.VNPAY_RETURN_URL ?? "http://localhost:3001/payment/vnpay-return").trim();
   }
@@ -62,26 +51,24 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
     userId: string;
     planId: string;
     planName: string;
-    amount: number; // In VND (e.g., 99000)
+    amount: number;
     currency: string;
     interval: string;
+    ipAddr?: string;
   }): Promise<CheckoutResult> {
     const sessionId = uuidv4().replace(/-/g, "").slice(0, 20); // VNPay TxnRef max ~20 chars
     const providerSubId = `vnp_sub_${uuidv4()}`;
 
-    const sessionData: VnpaySessionData = {
-      userId: params.userId,
-      planId: params.planId,
-      amount: params.amount,
-      currency: params.currency,
-      planName: params.planName,
-      providerSubId,
-    };
-
-    // Persist session in Redis — survives restarts and IPN delays
     await this.redis.setJson<VnpaySessionData>(
       `${SESSION_KEY_PREFIX}${sessionId}`,
-      sessionData,
+      {
+        userId: params.userId,
+        planId: params.planId,
+        amount: params.amount,
+        currency: params.currency,
+        planName: params.planName,
+        providerSubId,
+      },
       SESSION_TTL_SECONDS,
     );
 
@@ -89,8 +76,8 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
       txnRef: sessionId,
       amount: params.amount,
       currency: params.currency,
-      orderInfo: `Thanh_toan_goi_${params.planId}`, // URL-safe, no spaces
-      ipAddr: "127.0.0.1",
+      orderInfo: `Thanh toan goi ${params.planName}`,
+      ipAddr: params.ipAddr ?? "127.0.0.1",
     });
 
     this.logger.log(
@@ -110,21 +97,21 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
     );
 
     if (!session) {
-      this.logger.warn(`[VNPay] Session not found for txnRef: ${sessionId}`);
+      this.logger.warn(`[VNPay] Session not found: txnRef=${sessionId}`);
       return { success: false, providerPayId: "", amount: 0, currency: "VND" };
     }
 
     if (vnpParams) {
-      const isValid = this.verifyReturnHash(vnpParams);
-      if (!isValid) {
-        this.logger.error(`[VNPay] Hash verification FAILED for txnRef: ${sessionId}`);
+      if (!this.verifyHash(vnpParams)) {
+        this.logger.error(`[VNPay] Hash FAILED: txnRef=${sessionId}`);
         return { success: false, providerPayId: "", amount: 0, currency: "VND" };
       }
 
       const responseCode = vnpParams["vnp_ResponseCode"];
-      if (responseCode !== "00") {
+      const transactionStatus = vnpParams["vnp_TransactionStatus"];
+      if (responseCode !== "00" || transactionStatus !== "00") {
         this.logger.warn(
-          `[VNPay] Payment failed with code: ${responseCode} for txnRef: ${sessionId}`,
+          `[VNPay] Not successful: txnRef=${sessionId}, responseCode=${responseCode}, transactionStatus=${transactionStatus}`,
         );
         await this.redis.del(`${SESSION_KEY_PREFIX}${sessionId}`);
         return { success: false, providerPayId: "", amount: 0, currency: "VND" };
@@ -132,13 +119,11 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
     }
 
     const providerPayId = vnpParams?.["vnp_TransactionNo"] ?? `vnp_pay_${uuidv4()}`;
-
     this.logger.log(
-      `[VNPay] Payment verified: txnRef=${sessionId}, transactionNo=${providerPayId}, amount=${session.amount} VND`,
+      `[VNPay] Verified: txnRef=${sessionId}, transactionNo=${providerPayId}, amount=${session.amount} VND`,
     );
 
     await this.redis.del(`${SESSION_KEY_PREFIX}${sessionId}`);
-
     return {
       success: true,
       providerPayId: String(providerPayId),
@@ -149,17 +134,37 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
 
   // ─── cancelSubscription ────────────────────────────────
   async cancelSubscription(providerSubId: string): Promise<{ success: boolean }> {
-    this.logger.log(`[VNPay] Subscription canceled locally: ${providerSubId}`);
+    this.logger.log(`[VNPay] Canceled locally: ${providerSubId}`);
     return { success: true };
   }
 
-  // ─── getSessionData (helper for subscriptions.service) ─
+  // ─── getSessionData ────────────────────────────────────
   async getSessionData(sessionId: string): Promise<VnpaySessionData | null> {
     return this.redis.getJson<VnpaySessionData>(`${SESSION_KEY_PREFIX}${sessionId}`);
   }
 
+  // ─── verifyHash (public — dùng ở IPN handler để trả RspCode sớm) ─
+  verifyHash(params: Record<string, string>): boolean {
+    const receivedHash = params["vnp_SecureHash"];
+    if (!receivedHash) return false;
+
+    const verifyParams = { ...params };
+    delete verifyParams["vnp_SecureHash"];
+    delete verifyParams["vnp_SecureHashType"];
+
+    // NestJS @Query() đã URL-decode params → re-apply sortObject để encode lại
+    // Mirrors VNPay demo: vnp_Params = sortObject(req.query) → qs.stringify({encode:false})
+    const signData = this.buildSignData(verifyParams);
+    const expectedHash = crypto
+      .createHmac("sha512", this.hashSecret)
+      .update(Buffer.from(signData, "utf-8"))
+      .digest("hex");
+
+    return receivedHash.toLowerCase() === expectedHash.toLowerCase();
+  }
+
   // ═══════════════════════════════════════════════════════
-  // PRIVATE: VNPay URL Building & Hash Verification
+  // PRIVATE
   // ═══════════════════════════════════════════════════════
 
   private buildPaymentUrl(params: {
@@ -169,16 +174,16 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
     orderInfo: string;
     ipAddr: string;
   }): string {
+    // Set timezone để formatDate dùng giờ VN
+    process.env.TZ = "Asia/Ho_Chi_Minh";
     const now = new Date();
     const createDate = this.formatDate(now);
     const expireDate = this.formatDate(new Date(now.getTime() + 15 * 60 * 1000));
 
     let amountInVnd = params.amount;
     if (params.currency === "USD") {
-      const usdAmount = params.amount / 100;
-      amountInVnd = Math.round(usdAmount * 25400);
+      amountInVnd = Math.round((params.amount / 100) * 25400);
     }
-    const vnpAmount = amountInVnd * 100;
 
     const vnpParams: Record<string, string> = {
       vnp_Version: VNPAY_VERSION,
@@ -189,63 +194,71 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
       vnp_TxnRef: params.txnRef,
       vnp_OrderInfo: params.orderInfo,
       vnp_OrderType: VNPAY_ORDER_TYPE,
-      vnp_Amount: String(vnpAmount),
+      vnp_Amount: String(amountInVnd * 100),
       vnp_ReturnUrl: this.returnUrl,
       vnp_IpAddr: params.ipAddr,
       vnp_CreateDate: createDate,
       vnp_ExpireDate: expireDate,
     };
 
-    // Sign trên raw values (không encode) — đúng với VNPay v2.1.0 spec
-    const signData = this.buildSignData(vnpParams);
+    // Mirrors VNPay NodeJS demo (routes/order.js):
+    //   vnp_Params = sortObject(vnp_Params)
+    //   signData   = qs.stringify(vnp_Params, { encode: false })
+    //   signed     = hmac('sha512', secretKey).update(signData).digest('hex')
+    //   vnp_Params['vnp_SecureHash'] = signed
+    //   vnpUrl += '?' + qs.stringify(vnp_Params, { encode: false })
+    const sorted = this.sortObject(vnpParams);
+    const signData = this.entriesToString(sorted);
     const secureHash = crypto
       .createHmac("sha512", this.hashSecret)
       .update(Buffer.from(signData, "utf-8"))
       .digest("hex");
 
-    // vnp_SecureHashType bắt buộc phải có trong URL (KHÔNG ký vào hash)
-    const urlParams = new URLSearchParams(vnpParams);
-    urlParams.append("vnp_SecureHashType", "SHA512");
-    urlParams.append("vnp_SecureHash", secureHash);
-    return `${this.vnpayUrl}?${urlParams.toString()}`;
-  }
-
-  private verifyReturnHash(params: Record<string, string>): boolean {
-    const receivedHash = params["vnp_SecureHash"];
-    if (!receivedHash) return false;
-
-    const verifyParams = { ...params };
-    delete verifyParams["vnp_SecureHash"];
-    delete verifyParams["vnp_SecureHashType"];
-
-    // Params từ VNPay callback đã được framework URL-decode → sign raw
-    const signData = this.buildSignData(verifyParams);
-    const expectedHash = crypto
-      .createHmac("sha512", this.hashSecret)
-      .update(Buffer.from(signData, "utf-8"))
-      .digest("hex");
-
-    return receivedHash.toLowerCase() === expectedHash.toLowerCase();
+    sorted["vnp_SecureHash"] = secureHash;
+    return `${this.vnpayUrl}?${this.entriesToString(sorted)}`;
   }
 
   /**
-   * Sort keys alphabetically, join as raw key=value pairs (không encode).
-   * VNPay ký trên chuỗi raw — encode chỉ áp dụng khi build URL, không khi ký.
+   * Mirrors VNPay demo sortObject():
+   *   for key in obj: str.push(encodeURIComponent(key))
+   *   str.sort()
+   *   sorted[str[i]] = encodeURIComponent(obj[str[i]]).replace(/%20/g, '+')
+   *
+   * Keys:   sorted by their encodeURIComponent form (same as raw for vnp_* names)
+   * Values: encodeURIComponent, space→'+'
    */
-  private buildSignData(params: Record<string, string>): string {
-    return Object.keys(params)
-      .sort()
-      .map((key) => `${key}=${params[key]}`)
+  private sortObject(obj: Record<string, string>): Record<string, string> {
+    const sorted: Record<string, string> = {};
+    const encodedKeys = Object.keys(obj)
+      .map((k) => encodeURIComponent(k))
+      .sort();
+    for (const encKey of encodedKeys) {
+      const rawKey = decodeURIComponent(encKey);
+      sorted[encKey] = encodeURIComponent(obj[rawKey]).replace(/%20/g, "+");
+    }
+    return sorted;
+  }
+
+  /**
+   * Mirrors: qs.stringify(sortedObj, { encode: false })
+   * Values already encoded by sortObject — stringify as-is.
+   */
+  private entriesToString(obj: Record<string, string>): string {
+    return Object.entries(obj)
+      .map(([k, v]) => `${k}=${v}`)
       .join("&");
+  }
+
+  /** Sort + encode params, then stringify. Used for both sign creation and verification. */
+  private buildSignData(params: Record<string, string>): string {
+    return this.entriesToString(this.sortObject(params));
   }
 
   private formatDate(date: Date): string {
     const pad = (n: number) => String(n).padStart(2, "0");
-    const offset = 7 * 60 * 60 * 1000; // GMT+7
-    const gmt7Date = new Date(date.getTime() + offset);
     return (
-      `${gmt7Date.getUTCFullYear()}${pad(gmt7Date.getUTCMonth() + 1)}${pad(gmt7Date.getUTCDate())}` +
-      `${pad(gmt7Date.getUTCHours())}${pad(gmt7Date.getUTCMinutes())}${pad(gmt7Date.getUTCSeconds())}`
+      `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
+      `${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
     );
   }
 }
