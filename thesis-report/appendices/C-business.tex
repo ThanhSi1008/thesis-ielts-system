@@ -118,15 +118,15 @@ Hệ thống tận dụng tối đa các dịch vụ đám mây có quản lý (
     \item \textbf{Tổng chi phí vận hành hàng tháng:} $\sim$4.900.000 VNĐ.
 \end{itemize}
 
-\textbf{Điểm hòa vốn (Break-even):} Với tổng chi phí khoảng 4.900.000 VNĐ/tháng, số lượng người dùng trả phí cần thiết phụ thuộc vào tỷ lệ chuyển đổi giữa các gói:
+\textbf{Điểm hòa vốn (Break-even):} Giá gốc được lưu trong cơ sở dữ liệu bằng USD (xem Bảng~\ref{tab:freemium}). Khi thanh toán qua VNPay, hệ thống quy đổi tự động với tỷ giá cố định 1\,USD = 25.400\,VNĐ, cụ thể: gói Premium hàng tháng $\approx$254.000 VNĐ, gói Pro hàng tháng $\approx$508.000 VNĐ. Với tổng chi phí vận hành khoảng 4.900.000 VNĐ/tháng, số lượng người dùng trả phí cần thiết phụ thuộc vào tỷ lệ chuyển đổi giữa các gói:
 
 \begin{itemize}
-    \item \textit{Kịch bản A --- toàn bộ Premium (99.000 VNĐ/tháng):} cần $\sim$50 subscribers.
-    \item \textit{Kịch bản B --- tỷ lệ 3 Premium : 1 Pro (doanh thu trung bình $\approx$124.000 VNĐ/subscriber):} cần $\sim$40 subscribers.
-    \item \textit{Kịch bản C --- toàn bộ Pro (199.000 VNĐ/tháng):} cần $\sim$25 subscribers.
+    \item \textit{Kịch bản A --- toàn bộ Premium ($\approx$254.000 VNĐ/tháng):} cần $\sim$20 subscribers.
+    \item \textit{Kịch bản B --- tỷ lệ 3 Premium : 1 Pro (doanh thu trung bình $\approx$317.000 VNĐ/subscriber):} cần $\sim$16 subscribers.
+    \item \textit{Kịch bản C --- toàn bộ Pro ($\approx$508.000 VNĐ/tháng):} cần $\sim$10 subscribers.
 \end{itemize}
 
-Lưu ý rằng chi phí API (Gemini) và CDN (Cloudinary) sẽ tăng tuyến tính theo lượng người dùng thực tế; mô hình break-even trên chỉ áp dụng cho quy mô 1.000 MAU ban đầu và cần điều chỉnh khi mở rộng.
+Lưu ý rằng chi phí API (Gemini) và CDN (Cloudinary) sẽ tăng tuyến tính theo lượng người dùng thực tế; mô hình break-even trên chỉ áp dụng cho quy mô 1.000 MAU ban đầu và cần điều chỉnh khi mở rộng. Tỷ giá quy đổi USD/VND hiện được đặt cố định trong mã nguồn (module VNPay Payment Provider); khi ra mắt chính thức cần cập nhật theo tỷ giá thị trường hoặc tích hợp API tỷ giá tự động.
 
 \section*{C.7. Phân tích rủi ro}
 
@@ -140,4 +140,27 @@ Lưu ý rằng chi phí API (Gemini) và CDN (Cloudinary) sẽ tăng tuyến tí
     \item \textbf{Rủi ro phụ thuộc bên thứ ba --- Gemini API:} Thay đổi chính sách giá hoặc quota của Google DeepMind có thể ảnh hưởng trực tiếp đến chi phí vận hành và tính khả dụng của tính năng grading cốt lõi. \textit{Biện pháp giảm thiểu:} thiết kế abstraction layer cho AI provider để có thể chuyển sang mô hình thay thế (GPT-4o, Claude) khi cần.
 
     \item \textbf{Rủi ro pháp lý --- Bản quyền nội dung:} Đề thi và bài đọc IELTS có bản quyền thuộc British Council, IDP Education và Cambridge Assessment English. Hệ thống hiện sử dụng nội dung tự soạn thảo, không tái bản đề thi gốc, nhưng cần đảm bảo tuân thủ khi mở rộng nội dung. \textit{Biện pháp giảm thiểu:} hợp tác với đối tác nội dung có giấy phép hoặc sử dụng đề thi tự biên soạn theo chuẩn IELTS.
+\end{itemize}
+
+\section*{C.8. Quản lý chất lượng}
+
+Chất lượng sản phẩm được kiểm soát qua ba cơ chế chính:
+
+\begin{itemize}
+    \item \textbf{Kiểm soát mã nguồn:} Toàn bộ mã nguồn được quản lý trên GitHub với quy trình Code Review. Chuẩn mã hóa được duy trì bằng ESLint và Prettier, đảm bảo tính nhất quán trên toàn bộ codebase gồm backend (NestJS), frontend web (Next.js) và mobile (React Native).
+
+    \item \textbf{Kiểm thử tự động:} Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp Supertest cho tầng backend. Tổng cộng 61 test case được tổ chức thành 7 nhóm chức năng cốt lõi, tất cả đạt kết quả Pass. Chi tiết danh sách test case và kết quả kiểm thử được trình bày trong Chương~4, mục Kiểm thử hệ thống.
+
+    \item \textbf{Tiêu chí nghiệm thu:} Hệ thống phải hoàn thành 100\% tính năng cốt lõi theo danh sách use case đã đặc tả (xem Chương~3), hoạt động ổn định trên cả nền tảng Web và Mobile (Android), và đảm bảo tính chính xác của module AI grading trong phạm vi chênh lệch chấp nhận được ($\pm$0.5 band).
+\end{itemize}
+
+\section*{C.9. Kết thúc dự án}
+
+Dự án được thực hiện trong 15 tuần theo kế hoạch chi tiết tại Phụ lục~\ref{app:kehoach}. Sản phẩm bàn giao bao gồm:
+
+\begin{itemize}
+    \item \textbf{Mã nguồn hệ thống:} Toàn bộ mã nguồn backend (NestJS, FastAPI), frontend web (Next.js) và mobile (React Native) trên kho GitHub.
+    \item \textbf{Hệ thống đã triển khai:} Nền tảng web và API đã được deploy trên Google Cloud (Cloud Run + VM), cơ sở dữ liệu trên Supabase, hoạt động ổn định và sẵn sàng truy cập.
+    \item \textbf{Tài liệu kỹ thuật:} Báo cáo đồ án đầy đủ theo quy định nhà trường, bao gồm đặc tả yêu cầu, thiết kế hệ thống, kết quả kiểm thử và kế hoạch khởi nghiệp.
+    \item \textbf{Tài liệu hướng dẫn:} Hướng dẫn cài đặt, cấu hình và sử dụng hệ thống cho người dùng cuối và nhà phát triển.
 \end{itemize}

@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import * as crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import { RedisService } from "../../../common/redis/redis.service";
+import { ExchangeRateService } from "../services/exchange-rate.service";
 import {
   PaymentProviderInterface,
   CheckoutResult,
@@ -30,7 +31,10 @@ type VnpaySessionData = {
 export class VnpayPaymentProvider implements PaymentProviderInterface {
   private readonly logger = new Logger(VnpayPaymentProvider.name);
 
-  constructor(private readonly redis: RedisService) {}
+  constructor(
+    private readonly redis: RedisService,
+    private readonly exchangeRate: ExchangeRateService,
+  ) {}
 
   // ─── Config from ENV ───────────────────────────────────
   private get tmnCode(): string {
@@ -72,7 +76,7 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
       SESSION_TTL_SECONDS,
     );
 
-    const redirectUrl = this.buildPaymentUrl({
+    const redirectUrl = await this.buildPaymentUrl({
       txnRef: sessionId,
       amount: params.amount,
       currency: params.currency,
@@ -167,13 +171,13 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
   // PRIVATE
   // ═══════════════════════════════════════════════════════
 
-  private buildPaymentUrl(params: {
+  private async buildPaymentUrl(params: {
     txnRef: string;
     amount: number;
     currency: string;
     orderInfo: string;
     ipAddr: string;
-  }): string {
+  }): Promise<string> {
     // Set timezone để formatDate dùng giờ VN
     process.env.TZ = "Asia/Ho_Chi_Minh";
     const now = new Date();
@@ -182,7 +186,8 @@ export class VnpayPaymentProvider implements PaymentProviderInterface {
 
     let amountInVnd = params.amount;
     if (params.currency === "USD") {
-      amountInVnd = Math.round((params.amount / 100) * 25400);
+      const rate = await this.exchangeRate.getUsdToVndRate();
+      amountInVnd = Math.round((params.amount / 100) * rate);
     }
 
     const vnpParams: Record<string, string> = {
