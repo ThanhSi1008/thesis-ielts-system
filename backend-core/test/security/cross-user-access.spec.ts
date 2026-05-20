@@ -188,6 +188,7 @@ describe('TC_SEC — Cross-user Data Access Security', () => {
 
   describe('Nhóm 2 — Notes Ownership', () => {
     let app: INestApplication;
+    let currentUser: Record<string, any>;
 
     const noteA = {
       id: NOTE_ID,
@@ -199,9 +200,17 @@ describe('TC_SEC — Cross-user Data Access Security', () => {
 
     const prismaMock: any = {
       questionNote: {
-        findMany: jest.fn().mockResolvedValue([noteA]),
+        findMany: jest.fn(),
         delete: jest.fn().mockResolvedValue(noteA),
         upsert: jest.fn().mockResolvedValue(noteA),
+      },
+    };
+
+    /** Guard thay thế: inject currentUser vào req.user (không parse JWT thật). */
+    const fakeJwtGuard = {
+      canActivate: (ctx: ExecutionContext) => {
+        ctx.switchToHttp().getRequest().user = currentUser;
+        return true;
       },
     };
 
@@ -212,7 +221,10 @@ describe('TC_SEC — Cross-user Data Access Security', () => {
           NotesService,
           { provide: PrismaService, useValue: prismaMock },
         ],
-      }).compile();
+      })
+        .overrideGuard(JwtAuthGuard)
+        .useValue(fakeJwtGuard)
+        .compile();
 
       app = moduleRef.createNestApplication();
       app.setGlobalPrefix('api/v1');
@@ -224,30 +236,25 @@ describe('TC_SEC — Cross-user Data Access Security', () => {
 
     afterAll(async () => { await app.close(); });
 
-    beforeEach(() => { jest.clearAllMocks(); });
+    beforeEach(() => {
+      jest.clearAllMocks();
+      // Re-apply ownership-aware mock sau khi clearAllMocks xóa implementation.
+      prismaMock.questionNote.findMany.mockImplementation(({ where }: any) =>
+        Promise.resolve(where?.userId === userA.id ? [noteA] : []),
+      );
+      currentUser = { ...userA };
+    });
 
-    it('TC_SEC_04: DELETE /api/v1/notes/:id với token userB → 404 [SECURITY GAP — hiện trả 200]', async () => {
-      /**
-       * SECURITY GAP: NotesController không có @UseGuards(JwtAuthGuard) và
-       * NotesService.deleteNote(id) không kiểm tra ownership — bất kỳ request
-       * nào (kể cả unauthenticated) đều có thể xóa note của người khác.
-       *
-       * Fix cần làm:
-       *   1. Thêm @UseGuards(JwtAuthGuard) trên NotesController.
-       *   2. Trong deleteNote, nhận thêm userId: tìm note theo { id, userId },
-       *      throw NotFoundException nếu không tìm thấy, sau đó mới delete.
-       *
-       * Test này dự kiến FAIL cho đến khi fix được merge.
-       * Sau khi fix: xóa comment "[SECURITY GAP ...]" khỏi tên test.
-       */
-      prismaMock.questionNote.delete.mockResolvedValue(noteA);
+    it('TC_SEC_04: DELETE /api/v1/notes/:id với token userB → 404', async () => {
+      currentUser = { ...userB };
 
       const res = await request(app.getHttpServer())
         .delete(`/api/v1/notes/${NOTE_ID}`)
         .set('Authorization', 'Bearer fake-token-b');
 
-      // Desired: 404 (non-owner không được biết resource tồn tại).
+      // Non-owner không được biết resource tồn tại → 404.
       expect(res.status).toBe(404);
+      expect(prismaMock.questionNote.delete).not.toHaveBeenCalled();
     });
 
     it('TC_SEC_05: PATCH /api/v1/notes/:id với token userB → 404', async () => {

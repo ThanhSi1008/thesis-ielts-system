@@ -6,9 +6,12 @@ import {
   Param,
   Put,
   Query,
+  UseGuards,
+  Request,
 } from "@nestjs/common";
 import { NotesService } from "./notes.service";
 import { IsString, IsNotEmpty, IsNumber } from "class-validator";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 
 class UpsertNoteDto {
   @IsString()
@@ -27,6 +30,7 @@ class UpsertNoteDto {
 }
 
 @Controller("notes")
+@UseGuards(JwtAuthGuard)
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
@@ -49,7 +53,7 @@ export class NotesController {
   }
 
   @Delete(":id")
-  deleteNote(@Param("id") id: string) {
-    return this.notesService.deleteNote(id);
+  deleteNote(@Request() req: any, @Param("id") id: string) {
+    return this.notesService.deleteNote(id, req.user.id);
   }
 }
