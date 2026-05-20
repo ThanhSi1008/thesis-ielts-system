@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Req, UseGuards } from "@nestjs/common";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { ResultsService } from "./results.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -14,8 +14,8 @@ export class ResultsController {
   }
 
   @Get("session/:sessionId")
-  findBySession(@Param("sessionId") sessionId: string) {
-    return this.resultsService.findBySession(sessionId);
+  findBySession(@Param("sessionId") sessionId: string, @Req() req: any) {
+    return this.resultsService.findBySession(sessionId, req.user.id);
   }
 
   @Get(":id")
