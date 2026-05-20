@@ -45,7 +45,7 @@ export class PostsController {
 
   @Delete(":id")
   async deletePost(@Request() req: any, @Param("id") id: string) {
-    return this.postsService.deletePost(req.user.id, id);
+    return this.postsService.deletePost(req.user, id);
   }
 
   // ==================== INTERACTIONS ====================

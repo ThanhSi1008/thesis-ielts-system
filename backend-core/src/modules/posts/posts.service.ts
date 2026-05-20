@@ -157,14 +157,15 @@ export class PostsService {
     };
   }
 
-  async deletePost(userId: string, postId: string) {
+  async deletePost(user: { id: string; role: string }, postId: string) {
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
       select: { authorId: true },
     });
 
     if (!post) throw new NotFoundException("Post not found");
-    if (post.authorId !== userId) throw new ForbiddenException("Not your post");
+    if (post.authorId !== user.id && user.role !== "ADMIN")
+      throw new ForbiddenException("Not your post");
 
     await this.prisma.post.delete({ where: { id: postId } });
     return { success: true };
