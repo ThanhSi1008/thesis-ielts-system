@@ -6,6 +6,7 @@ import { UsageQuotaGuard } from "./guards/usage-quota.guard";
 import { MockPaymentProvider } from "./providers/mock-payment.provider";
 import { VnpayPaymentProvider } from "./providers/vnpay-payment.provider";
 import { SubscriptionsCronService } from "./subscriptions.cron";
+import { ExchangeRateService } from "./services/exchange-rate.service";
 import { NotificationsModule } from "../notifications/notifications.module";
 
 /**
@@ -29,6 +30,7 @@ function resolvePaymentProvider() {
   providers: [
     SubscriptionsService,
     SubscriptionsCronService,
+    ExchangeRateService,
     SubscriptionGuard,
     UsageQuotaGuard,
     // Payment provider — selected via PAYMENT_PROVIDER env var
@@ -37,6 +39,6 @@ function resolvePaymentProvider() {
       useClass: resolvePaymentProvider(),
     },
   ],
-  exports: [SubscriptionsService, SubscriptionGuard, UsageQuotaGuard],
+  exports: [SubscriptionsService, SubscriptionGuard, UsageQuotaGuard, ExchangeRateService],
 })
 export class SubscriptionsModule {}
