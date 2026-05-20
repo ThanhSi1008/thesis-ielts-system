@@ -16,6 +16,40 @@ const config: Config = {
     '^@common/(.*)$': '<rootDir>/common/$1',
     '^@config/(.*)$': '<rootDir>/config/$1',
   },
+
+  // ─── Coverage gates ────────────────────────────────────────────────────
+  // Per-file thresholds cho các service cốt lõi. Jest sẽ fail nếu coverage
+  // thấp hơn ngưỡng sau khi chạy `npm run test:coverage`.
+  //
+  // Path key phải là glob tương đối với rootDir (src/).
+  // Tài liệu: https://jestjs.io/docs/configuration#coveragethreshold-object
+  // ──────────────────────────────────────────────────────────────────────
+  coverageThreshold: {
+    // Global fallback — toàn project phải đạt tối thiểu đây
+    global: {
+      lines: 50,
+      branches: 40,
+    },
+
+    // Auth service — xác thực & phân quyền, priority cao
+    './modules/auth/auth.service.ts': {
+      lines: 70,
+      branches: 60,
+    },
+
+    // Subscriptions service — billing logic
+    './modules/subscriptions/subscriptions.service.ts': {
+      lines: 70,
+      branches: 60,
+    },
+
+    // Gamification service — điểm thưởng / badge
+    './modules/gamification/gamification.service.ts': {
+      lines: 60,
+      branches: 50,
+    },
+  },
+
   reporters: [
     'default',
     [
