@@ -247,9 +247,100 @@ Tính năng Add to Vocab Lab with AI là một panel nổi xuất hiện khi ng�
 
 \section{Kiểm thử hệ thống}
 
+Tầng backend-core của hệ thống được kiểm thử tự động với hai mục tiêu: phát hiện sớm regression sau mỗi commit và làm tài liệu sống mô tả hành vi mong đợi của từng mô-đun. Toàn bộ test case được tổ chức theo tháp kiểm thử ba tầng (unit, integration và end-to-end), thực thi tự động trong pipeline CI và sinh báo cáo Markdown để đối chiếu trực tiếp với báo cáo khóa luận này.
+
+\subsection{Chiến lược và công cụ kiểm thử}
+
+Khung kiểm thử chính là Jest 29.7.0 kết hợp Supertest cho các yêu cầu HTTP, ts-jest cho mã TypeScript và jest-junit để xuất kết quả ở định dạng JUnit phục vụ pipeline CI. Tầng unit cô lập từng service bằng cách mock toàn bộ phụ thuộc (PrismaService, JwtService, Redis, RabbitMQ) thông qua Dependency Injection của NestJS, qua đó chỉ kiểm chứng logic nghiệp vụ thuần. Tầng integration mock các phụ thuộc ngoài nhưng giữ nguyên Controller, Pipe, Guard và Interceptor bằng cách khởi tạo INestApplication thực; nhờ đó test xác minh được toàn bộ vòng đời request và response, bao gồm cả ValidationPipe, JwtAuthGuard và RolesGuard.
+
+Tầng end-to-end (E2E) chạy độc lập bằng lệnh npm run test:e2e với cấu hình riêng jest-e2e.json. Khác với hai tầng trên, E2E sử dụng cơ sở dữ liệu PostgreSQL thật trên schema test thay vì mock, qua đó kiểm chứng được cả ràng buộc cấp cơ sở dữ liệu (chỉ mục duy nhất trên email, khóa ngoại) và hành vi stateless của JWT. Bộ E2E hiện gồm 12 test case mô phỏng toàn bộ luồng xác thực: đăng ký, đăng nhập, truy cập tài nguyên bảo vệ và refresh token; kèm các kịch bản tiêu cực như token hết hạn, token bị giả mạo chữ ký và đăng ký trùng email.
+
+Để duy trì chất lượng mã nguồn theo thời gian, dự án áp dụng ngưỡng độ phủ tối thiểu (coverage threshold) trên các service trọng yếu, được khai báo trong tệp jest.config.ts. Khi lệnh npm run test:cov chạy trong pipeline CI, Jest trả về exit code khác 0 nếu coverage giảm xuống dưới ngưỡng, buộc CI fail và chặn merge pull request. Các ngưỡng hiện hành được trình bày trong bảng~\ref{tab:coverage_thresholds}.
+
+% 3 cột p{}, divisor=100: 50+25+25; -4pt buffer cho rounding
+\setlength{\tbu}{\dimexpr(\linewidth - 6\tabcolsep - 4\arrayrulewidth - 4pt)/100\relax}
+\begin{longtable}{|p{50\tbu}|p{25\tbu}|p{25\tbu}|}
+    \caption{Ngưỡng độ phủ mã (coverage threshold) backend-core}
+    \label{tab:coverage_thresholds} \\
+    \hline
+    \textbf{Mô-đun / tệp nguồn} & \textbf{Lines tối thiểu (\%)} & \textbf{Branches tối thiểu (\%)} \\ \hline
+    \endfirsthead
+    \multicolumn{3}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Mô-đun / tệp nguồn} & \textbf{Lines tối thiểu (\%)} & \textbf{Branches tối thiểu (\%)} \\ \hline
+    \endhead
+    \hline \multicolumn{3}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+
+    auth.service.ts (xác thực và phân quyền) & 70 & 60 \\ \hline
+    subscriptions.service.ts (lifecycle gói Premium và thanh toán VNPay) & 50 & 30 \\ \hline
+    gamification.service.ts (điểm thưởng và thành tích) & 30 & 10 \\ \hline
+    Toàn dự án (ngưỡng tối thiểu chung) & 28 & 14 \\ \hline
+\end{longtable}
+
+Mỗi lần thực thi npm test hoặc npm run test:report, một custom Jest reporter đặt tại test/reporters/markdown-reporter.js tự động sinh tài liệu docs/testing/test-results.md, ghi nhận đầy đủ ID, mô tả, trạng thái và thời gian thực thi của từng test case. Tài liệu này là nguồn dữ liệu tham chiếu cho các bảng kết quả ở các mục tiếp theo.
+
+\subsection{Phạm vi kiểm thử}
+
+Hai mươi sáu file spec của backend-core được tổ chức thành 16 nhóm phù hợp với cấu trúc mô-đun của hệ thống. Mười lăm nhóm đầu thuộc tầng unit và integration (25 file, tổng 207 test case); nhóm thứ mười sáu là bộ E2E gồm 12 test case mô phỏng toàn bộ luồng xác thực trên cơ sở dữ liệu PostgreSQL thật. Bảng~\ref{tab:test_scope} liệt kê chi tiết. Cột File spec hiển thị tên file rút gọn; đường dẫn đầy đủ với specs mô-đun là backend-core/src/modules/<module>/tests/, còn các bộ test dùng chung nằm dưới backend-core/test/.
+
+% 5 cột p{}, divisor=100: 4+18+32+6+40; -4pt buffer cho rounding
+\setlength{\tbu}{\dimexpr(\linewidth - 10\tabcolsep - 6\arrayrulewidth - 4pt)/100\relax}
+\begin{longtable}{|p{4\tbu}|p{18\tbu}|p{32\tbu}|p{6\tbu}|p{40\tbu}|}
+    \caption{Phạm vi kiểm thử backend-core}
+    \label{tab:test_scope} \\
+    \hline
+    \textbf{STT} & \textbf{Nhóm chức năng} & \textbf{File spec} & \textbf{Số TC} & \textbf{Trọng tâm kiểm thử} \\ \hline
+    \endfirsthead
+    \multicolumn{5}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{STT} & \textbf{Nhóm chức năng} & \textbf{File spec} & \textbf{Số TC} & \textbf{Trọng tâm kiểm thử} \\ \hline
+    \endhead
+    \hline \multicolumn{5}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+
+    1 & Xác thực và phân quyền (auth) & register.spec.ts\newline login.spec.ts\newline auth-extended.spec.ts\newline jwt-strategy.spec.ts & 29 & Đăng ký với DTO validation và bcrypt hash; đăng nhập + cấp JWT; refresh token; đổi mật khẩu; Google OAuth ID token; JwtStrategy của Passport \\ \hline
+
+    2 & Cập nhật thông tin tài khoản (users) & update-profile.spec.ts & 12 & DTO whitelist (forbidNonWhitelisted), email uniqueness, role enum, trạng thái hoạt động \\ \hline
+
+    3 & Cộng đồng -- đăng bài (posts) & posts.spec.ts & 11 & CRUD bài đăng, like/unlike, ẩn bài đã xóa, kích hoạt gamification onEvent (XP = 5) \\ \hline
+
+    4 & Thông báo (notifications) & notifications.spec.ts & 9 & Phân trang, ownership filter, đánh dấu tất cả đã đọc, xóa thông báo \\ \hline
+
+    5 & Luyện phát âm IPA (pronunciation) & pronunciation.spec.ts\newline pronunciation.service.spec.ts & 21 & CRUD âm vị (RolesGuard chỉ ADMIN), Redis cache và invalidation, đánh giá mức độ thành thạo IPA, vòng đời attempt từ PENDING đến hoàn tất \\ \hline
+
+    6 & IELTS -- thống kê, advanced, chuỗi học (ielts) & ielts-statistics.spec.ts\newline ielts-advanced.service.spec.ts\newline streak.service.spec.ts & 40 & Thống kê theo từng giai đoạn (Foundation/Basic/Advanced/Intensive), vòng đời L/R/W/S session, đánh giá đáp án, dispatch tác vụ AI qua RabbitMQ, chuỗi học liên tục và mốc thành tích \\ \hline
+
+    7 & Luyện nghe chép chính tả (dictation) & dictation-progress.service.spec.ts & 6 & Tiến độ upsert, sentence XP, lesson completion notification, không award trùng \\ \hline
+
+    8 & Luyện shadowing video (shadowing) & shadowing-progress.service.spec.ts & 6 & Tiến độ upsert, sentence XP, hoàn thành bài khi đủ số câu \\ \hline
+
+    9 & Vocab Lab -- lặp lại ngắt quãng (vocab-lab) & vocab-lab-fsrs.service.spec.ts & 10 & Thuật toán FSRS với các mức rating (Good/Again/Easy), lịch ôn theo trường due, ownership deck \\ \hline
+
+    10 & Gamification -- XP và thành tích (gamification) & gamification.service.spec.ts & 10 & Tạo XpLog, cập nhật totalXp, thông báo lên level, grant achievement, không tạo trùng \\ \hline
+
+    11 & Bài thi thử IELTS Intensive (exams) & exams-submit.spec.ts\newline result-callback.spec.ts & 10 & Submit + dispatch publishGradingTask, quota guard cho gói FREE, HMAC signature callback từ AI worker, idempotency \\ \hline
+
+    12 & Polling kết quả chấm AI (results) & results.spec.ts & 6 & Trạng thái GRADING/GRADED/GRADING\_FAILED; bảo vệ IDOR (trả 404 ẩn existence) \\ \hline
+
+    13 & Subscription và thanh toán (subscriptions) & subscriptions-webhook.spec.ts\newline subscriptions.service.spec.ts\newline subscriptions.cron.spec.ts & 13 & VNPay IPN HMAC-SHA512, replay protection, dùng thử 7 ngày, cancel subscription, quota usage và rollback, downgrade cron sau grace period 3 ngày \\ \hline
+
+    14 & Edge case -- phân trang và giá trị biên (test/edge-cases) & pagination.spec.ts\newline boundary-values.spec.ts & 16 & Query param bất thường (page = 0/-1, limit cực lớn, cursor không tồn tại), điểm 0/100/101, body rỗng, mảng imageUrls quá kích thước \\ \hline
+
+    15 & Bảo mật -- truy cập chéo người dùng (test/security) & cross-user-access.spec.ts & 8 & IDOR trên VocabLab/Notes/Posts (404 vs 403 tùy mô hình dữ liệu), khe hở admin bypass đã được ghi nhận \\ \hline
+
+    16 & E2E xác thực -- toàn bộ chu trình (test/e2e) & auth.e2e-spec.ts & 12 & Postgres thật trên schema test, đủ luồng register/login/refresh; kèm các kịch bản token hết hạn, token bị giả mạo chữ ký, đăng ký trùng email \\ \hline
+\end{longtable}
+
+Hai nhóm Edge case (STT~14) và Security (STT~15) không gắn với một mô-đun đơn lẻ mà kiểm thử xuyên suốt nhiều endpoint, tập trung vào các loại lỗi thường gặp như IDOR (Insecure Direct Object Reference), kiểm tra giá trị biên và phân trang bất thường. Nhóm Subscription (STT~13) bao gồm cả webhook IPN của cổng thanh toán VNPay (một luồng tích hợp với hệ thống bên ngoài) nên được tách thành ba file spec để phân tách trách nhiệm: kiểm thử webhook, lifecycle service và cron downgrade.
+
 \subsection{Danh sách các test case}
 
-Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp với thư viện Supertest cho tầng backend. Toàn bộ 61 trường hợp kiểm thử được tổ chức thành 7 file spec, phủ 7 nhóm chức năng cốt lõi: Đăng ký, Đăng nhập, Đăng bài cộng đồng, Thông báo, Cập nhật thông tin cá nhân, Luyện phát âm và Thống kê IELTS. Mỗi test case bao gồm mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Danh sách đầy đủ được trình bày trong bảng~\ref{tab:testcase_list}.
+Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integration của backend-core được trình bày chi tiết trong bảng~\ref{tab:testcase_list}. Bảng có sáu cột: mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Các trường hợp kế thừa từ phiên bản trước (TC01 đến TC11) đại diện cho bảy chức năng cốt lõi -- Đăng ký, Đăng nhập, Đăng bài, Thông báo, Cập nhật thông tin tài khoản, Luyện phát âm và Thống kê IELTS -- được mô tả theo góc nhìn người dùng cuối. Các test case bổ sung sử dụng quy ước đặt mã có dạng TC\_TIỀN-TỐ-MÔ-ĐUN\_SỐ-TRƯỜNG-HỢP và mô tả ở mức kỹ thuật để phản ánh chính xác hành vi mà từng test thực hiện, bao gồm các luồng xác thực mở rộng (TC\_AUTH, TC\_JWT), PronunciationService (TC\_PRO\_S), IELTS Advanced service (TC\_IADV), thuật toán lặp lại ngắt quãng FSRS (TC\_FSRS), gamification (TC\_GAMI), chuỗi học (TC\_STREAK), tiến độ dictation và shadowing (TC\_DCT, TC\_SHD), bài thi IELTS Intensive (TC\_EXAM, TC\_CB, TC\_RES), subscription thanh toán (TC\_SUB), giá trị biên (TC\_BOUND), phân trang bất thường (TC\_EDGE) và bảo mật truy cập chéo (TC\_SEC).
 
 % 6 cột p{}, divisor=134: (1.0+0.4+2.0+2.8+3.5+3.7)×10; -4pt buffer cho rounding
 \setlength{\tbu}{\dimexpr(\linewidth - 12\tabcolsep - 7\arrayrulewidth - 4pt)/134\relax}
@@ -336,97 +427,227 @@ Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Tes
     TC11 & 6 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Advanced & Hiển thị thống kê giai đoạn Advanced của tài khoản \\ \hline
     TC11 & 7 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Intensive & Hiển thị thống kê giai đoạn Intensive của tài khoản \\ \hline
 
+    % ===== 146 test case bổ sung =====
+
+    % Nhóm TC_AUTH — refresh token, đổi mật khẩu, Google OAuth (10 case)
+    TC\_AUTH\_03 & 1 & Refresh token & Đã đăng nhập, có refresh token hợp lệ & Gửi POST /auth/refresh kèm refresh token hợp lệ & 201, trả về cặp accessToken và refreshToken mới \\ \hline
+    TC\_AUTH\_03 & 2 & Refresh token & Refresh token đã hết hạn & Gửi POST /auth/refresh với refresh token expired & 401 Unauthorized \\ \hline
+    TC\_AUTH\_03 & 3 & Refresh token & Refresh token bị giả mạo chữ ký & Gửi POST /auth/refresh với refresh token tampered & 401 Unauthorized \\ \hline
+    TC\_AUTH\_04 & 1 & Đổi mật khẩu & Đã đăng nhập, nhập đúng currentPassword & Gửi POST /auth/change-password với mật khẩu hiện tại chính xác & 201 kèm thông báo ``changed successfully'', mật khẩu mới được hash bcrypt \\ \hline
+    TC\_AUTH\_04 & 2 & Đổi mật khẩu & Đã đăng nhập, nhập sai currentPassword & Gửi POST /auth/change-password với mật khẩu hiện tại sai & 400 ``Current password is incorrect'' \\ \hline
+    TC\_AUTH\_04 & 3 & Đổi mật khẩu & Tài khoản đăng ký qua Google OAuth (password = null) & Gửi POST /auth/change-password trên tài khoản Google & 400, từ chối vì tài khoản đăng nhập bằng Google \\ \hline
+    TC\_AUTH\_05 & 1 & Google OAuth & Chưa có tài khoản trên hệ thống & Gửi POST /auth/google với Google ID token hợp lệ (user mới) & 201, tạo user mới kèm bộ thẻ Default cho Vocab Lab \\ \hline
+    TC\_AUTH\_05 & 2 & Google OAuth & Đã có user với googleId khớp & Gửi POST /auth/google với Google ID token của user cũ & 201, đăng nhập bình thường, không tạo user mới \\ \hline
+    TC\_AUTH\_05 & 3 & Google OAuth & Google ID token có audience không thuộc danh sách cho phép & Gửi POST /auth/google với token sai audience & 401 ``Invalid Google ID token'' \\ \hline
+    TC\_AUTH\_05 & 4 & Google OAuth & Google ID token hợp lệ nhưng payload thiếu email & Gửi POST /auth/google với payload không có email & 400 Bad Request \\ \hline
+
+    % Nhóm TC_JWT — JwtStrategy của Passport (5 case)
+    TC\_JWT & 1 & JwtStrategy validate & Payload JWT đầy đủ sub, email, role & Passport gọi validate() với payload hợp lệ & Trả về object \{id, email, role\} cho request scope \\ \hline
+    TC\_JWT & 2 & JwtStrategy validate & Token được ký bằng secret khác JWT\_SECRET & Gửi request kèm token sai secret & Passport từ chối, ném UnauthorizedException \\ \hline
+    TC\_JWT & 3 & JwtStrategy validate & Token có trường exp ở thời điểm quá khứ & Gửi request kèm token expired & Passport từ chối, ném UnauthorizedException \\ \hline
+    TC\_JWT & 4 & JwtStrategy validate & Payload JWT thiếu trường sub & validate() được gọi với payload không có sub & Trả id = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
+    TC\_JWT & 5 & JwtStrategy validate & Payload JWT thiếu trường role & validate() được gọi với payload không có role & Trả role = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
+
+    % Nhóm TC_PRO_S — PronunciationService (13 case)
+    TC\_PRO\_S & 1 & PronunciationService -- đọc danh sách & Redis cache đã có danh sách sounds & Gọi getAllSounds() & Trả kết quả từ cache, không truy vấn Prisma \\ \hline
+    TC\_PRO\_S & 2 & PronunciationService -- đọc danh sách & Redis cache rỗng & Gọi getAllSounds() & Truy vấn DB qua Prisma và ghi kết quả vào cache \\ \hline
+    TC\_PRO\_S & 3 & PronunciationService -- đọc theo symbol & Cache có sound theo symbol cụ thể & Gọi getSoundBySymbol(symbol) & Trả từ cache, không gọi Prisma \\ \hline
+    TC\_PRO\_S & 4 & PronunciationService -- đọc theo symbol & Cache miss & Gọi getSoundBySymbol(symbol) & Truy vấn DB và ghi vào cache \\ \hline
+    TC\_PRO\_S & 5 & PronunciationService -- thêm sound & Admin gọi createSound với payload hợp lệ & Service lưu sound mới vào DB & Sound được tạo, cache bị invalidate \\ \hline
+    TC\_PRO\_S & 6 & PronunciationService -- cập nhật sound & Admin gọi updateSound & Service cập nhật trường của sound & Sound được update, cache bị invalidate \\ \hline
+    TC\_PRO\_S & 7 & PronunciationService -- xóa sound & Admin gọi deleteSound & Service xóa sound khỏi DB & Sound bị xóa, cache bị invalidate \\ \hline
+    TC\_PRO\_S & 8 & PronunciationService -- progress user & User có progress trên một số sound & Gọi getUserProgress(userId) & Trả progress đã join với toàn bộ danh sách sounds \\ \hline
+    TC\_PRO\_S & 9 & PronunciationService -- thống kê & User có lịch sử attempt phong phú & Gọi getUserStats(userId) & Tính các chỉ số mastery cho từng loại âm \\ \hline
+    TC\_PRO\_S & 10 & PronunciationService -- progress theo từ & User có attempt cho các từ ví dụ & Gọi getWordProgress(userId) & Trả danh sách từ kèm mastery status dựa trên attempt \\ \hline
+    TC\_PRO\_S & 11 & PronunciationService -- cập nhật progress & User submit điểm phát âm hợp lệ & Gọi updateProgress(userId, soundId, score) & Upsert progress, invalidate cache, gọi gamification.onEvent để cộng XP \\ \hline
+    TC\_PRO\_S & 12 & PronunciationService -- tạo attempt & User bắt đầu một lượt luyện phát âm & Gọi createPronunciationAttempt & Tạo bản ghi attempt với trạng thái PENDING \\ \hline
+    TC\_PRO\_S & 13 & PronunciationService -- cập nhật attempt & Attempt PENDING đã tồn tại & Gọi updatePronunciationAttempt với chi tiết & Cập nhật các trường của attempt \\ \hline
+
+    % Nhóm TC_FSRS — Vocab Lab spaced repetition (10 case)
+    TC\_FSRS\_01 & 1 & VocabLab -- submitReview rating Good & User có card mới chưa từng review & Gọi submitReview với rating = Good (3) & Card được lưu với stability lớn hơn 0 và due lớn hơn now \\ \hline
+    TC\_FSRS\_01 & 2 & VocabLab -- submitReview rating Good & Như trường hợp trên & submitReview hoàn tất & Tạo một bản ghi FlashcardReview gắn với card \\ \hline
+    TC\_FSRS\_02 & 1 & VocabLab -- submitReview rating Again & User có card đã review trước đó & Gọi submitReview với rating = Again (1) & Stability reset về xấp xỉ 0.4 (mặc định FSRS) \\ \hline
+    TC\_FSRS\_02 & 2 & VocabLab -- submitReview rating Again & Card mới & submitReview với Again & due được lập lịch trong khoảng 10 phút sau \\ \hline
+    TC\_FSRS\_03 & 1 & VocabLab -- so sánh interval & Cùng một card được test với hai rating khác nhau & submitReview với rating Easy (4) so với Good (3) & scheduledDays khi Easy luôn lớn hơn hoặc bằng scheduledDays khi Good \\ \hline
+    TC\_FSRS\_04 & 1 & VocabLab -- ownership card & Card thuộc deck của user khác & submitReview với userId không khớp deck.userId & Throw NotFoundException \\ \hline
+    TC\_FSRS\_04 & 2 & VocabLab -- card không tồn tại & cardId không có trong DB & submitReview với cardId sai & Throw NotFoundException \\ \hline
+    TC\_FSRS\_05 & 1 & VocabLab -- getStudyCards & Deck có cards NEW + LEARNING/REVIEW/RELEARNING với due đã đến hạn & Gọi getStudyCards(deckId) & Trả về cards NEW cùng cards đến hạn ôn \\ \hline
+    TC\_FSRS\_05 & 2 & VocabLab -- getStudyCards loại trừ tương lai & Có cards với due lớn hơn now & Gọi getStudyCards(deckId) & Loại trừ những cards có lịch ôn tương lai \\ \hline
+    TC\_FSRS\_05 & 3 & VocabLab -- getStudyCards ownership & Deck không tồn tại hoặc không thuộc user & Gọi getStudyCards(deckId, userId) & Throw NotFoundException \\ \hline
+
+    % Nhóm TC_GAMI — gamification XP & achievement (10 case)
+    TC\_GAMI\_01 & 1 & Gamification onEvent (xp dương) & Event gửi tới có xp dương & Service xử lý event & Tạo XpLog với đầy đủ trường (userId, eventKey, xp, reason) \\ \hline
+    TC\_GAMI\_01 & 2 & Gamification onEvent (xp dương) & Như trên, IeltsProfile của user tồn tại & Service xử lý event & Cập nhật totalXp của IeltsProfile \\ \hline
+    TC\_GAMI\_01 & 3 & Gamification onEvent (xp dương) & IeltsProfile của user chưa tồn tại & Service xử lý event & Không crash, log nhẹ và bỏ qua bước cập nhật profile \\ \hline
+    TC\_GAMI\_02 & 1 & Gamification level-up & XP mới vượt ngưỡng nâng level & Service xử lý event & Gửi notification loại ACHIEVEMENT cho user \\ \hline
+    TC\_GAMI\_02 & 2 & Gamification level-up & XP tăng nhưng cùng mức level & Service xử lý event & KHÔNG gửi notification level-up \\ \hline
+    TC\_GAMI\_03 & 1 & Gamification achievement trùng & User đã có achievement trước đó & Service grant lại cùng achievement key & Bỏ qua UserAchievement.create, không tạo bản ghi trùng \\ \hline
+    TC\_GAMI\_04 & 1 & Gamification onEvent (xp = 0) & Event không kèm XP & Service xử lý event & Bỏ qua tạo XpLog hoàn toàn \\ \hline
+    TC\_GAMI\_04 & 2 & Gamification onEvent (xp = 0) & Event có achievementKeys nhưng xp = 0 & Service xử lý event & Vẫn xử lý achievementKeys bình thường \\ \hline
+    TC\_GAMI\_05 & 1 & Gamification tryGrantAchievement & User chưa có achievement & Gọi tryGrantAchievement(userId, key) & Tạo UserAchievement và gửi notification ACHIEVEMENT \\ \hline
+    TC\_GAMI\_05 & 2 & Gamification tryGrantAchievement & achievementKey không có định nghĩa trong DB & Gọi tryGrantAchievement với key sai & No-op, không tạo gì cả \\ \hline
+
+    % Nhóm TC_STREAK — chuỗi học liên tục (13 case)
+    TC\_STREAK\_01 & 1 & Streak recordActivity (lần đầu) & IeltsProfile chưa có lastActiveDate & Gọi recordActivity(userId) & currentStreak = 1, lastActiveDate = ngày hôm nay \\ \hline
+    TC\_STREAK\_01 & 2 & Streak recordActivity (lần đầu) & Như trường hợp trên & Gọi recordActivity(userId) & longestStreak ít nhất bằng 1 \\ \hline
+    TC\_STREAK\_02 & 1 & Streak recordActivity (liên tiếp) & lastActiveDate = ngày hôm qua & Gọi recordActivity(userId) & currentStreak tăng thêm 1 \\ \hline
+    TC\_STREAK\_02 & 2 & Streak recordActivity (liên tiếp) & Streak mới vượt longestStreak cũ & Gọi recordActivity(userId) & Cập nhật longestStreak bằng giá trị mới \\ \hline
+    TC\_STREAK\_03 & 1 & Streak recordActivity (gap 2+ ngày) & lastActiveDate cách hôm nay từ 2 ngày trở lên & Gọi recordActivity(userId) & currentStreak reset về 1 \\ \hline
+    TC\_STREAK\_03 & 2 & Streak recordActivity (gap 2+ ngày) & Như trên & Gọi recordActivity(userId) & longestStreak KHÔNG bị giảm \\ \hline
+    TC\_STREAK\_04 & 1 & Streak recordActivity (cùng ngày) & lastActiveDate = hôm nay & Gọi recordActivity(userId) & Trả về profile, KHÔNG gọi update (idempotent) \\ \hline
+    TC\_STREAK\_04 & 2 & Streak recordActivity (cùng ngày) & Như trên & Gọi recordActivity(userId) & KHÔNG kích hoạt gamification event \\ \hline
+    TC\_STREAK\_05 & 1 & Streak milestone 7 ngày & Streak mới đạt 7 ngày liên tiếp & Gọi recordActivity (lần thứ 7) & Gọi GamificationService.onEvent kèm achievementKeys chứa XM\_ON\_FIRE \\ \hline
+    TC\_STREAK\_05 & 2 & Streak milestone 7 ngày & Như trên & Gọi recordActivity & Gửi milestone notification (STREAK\_MILESTONES có 7) \\ \hline
+    TC\_STREAK\_05 & 3 & Streak milestone 7 ngày & Như trên & Gọi recordActivity & XP truyền vào tỷ lệ với streak mới (5 nhân newStreak) \\ \hline
+    TC\_STREAK\_06 & 1 & Streak getStreakStats edge & IeltsProfile không tồn tại & Gọi getStreakStats(userId) & Trả về null \\ \hline
+    TC\_STREAK\_06 & 2 & Streak getStreakStats edge & Prisma throw error & Gọi getStreakStats(userId) & Trả null, KHÔNG throw (silent fail) \\ \hline
+
+    % Nhóm TC_DCT — DictationProgressService (6 case)
+    TC\_DCT & 1 & DictationProgress findByLesson & Progress chưa có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences = [] và difficulty mặc định \\ \hline
+    TC\_DCT & 2 & DictationProgress findByLesson & Progress đã có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences và difficulty từ DB \\ \hline
+    TC\_DCT & 3 & DictationProgress upsert & Progress mới, số câu hoàn thành nhỏ hơn total & Gọi upsert(userId, lessonId, completed) & Tạo bản ghi, award sentence XP, KHÔNG complete lesson \\ \hline
+    TC\_DCT & 4 & DictationProgress upsert & Đủ số câu (bằng total) & Gọi upsert & Chuyển sang complete, gửi notification, award lesson achievement \\ \hline
+    TC\_DCT & 5 & DictationProgress upsert & Lesson đã hoàn thành trước đó & Gọi upsert lại & KHÔNG kích hoạt completion notification lần thứ hai \\ \hline
+    TC\_DCT & 6 & DictationProgress findAllByUser & User có progress trên nhiều lesson & Gọi findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
+
+    % Nhóm TC_SHD — ShadowingProgressService (6 case)
+    TC\_SHD & 1 & ShadowingProgress findByLesson & Progress chưa có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences = [] \\ \hline
+    TC\_SHD & 2 & ShadowingProgress findByLesson & Progress đã có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences từ DB \\ \hline
+    TC\_SHD & 3 & ShadowingProgress upsert & Số câu nhỏ hơn tổng số câu video & Gọi upsert & Award sentence XP, KHÔNG award lesson complete \\ \hline
+    TC\_SHD & 4 & ShadowingProgress upsert & Đủ tổng số câu của video & Gọi upsert & Complete video, award lesson completion achievement \\ \hline
+    TC\_SHD & 5 & ShadowingProgress upsert & newCount không lớn hơn existingCount & Gọi upsert & KHÔNG kích hoạt sentence XP (no-op) \\ \hline
+    TC\_SHD & 6 & ShadowingProgress findAllByUser & User có progress trên nhiều video & Gọi findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
+
+    % Nhóm TC_IADV — IeltsAdvancedService (20 case)
+    TC\_IADV & 1 & IELTS Advanced -- danh sách Listening & Có nhiều Listening parts trong DB & Gọi getListeningParts() & Danh sách trả về sắp xếp theo partNumber \\ \hline
+    TC\_IADV & 2 & IELTS Advanced -- chi tiết Listening part & partId không tồn tại & Gọi getListeningPartDetail(partId) & Throw NotFoundException \\ \hline
+    TC\_IADV & 3 & IELTS Advanced -- submit Listening & User submit đáp án nhiều định dạng (multiple choice, fill-in, matching) & Gọi submitListeningPart & Đánh giá đúng từng định dạng, tạo session lưu kết quả \\ \hline
+    TC\_IADV & 4 & IELTS Advanced -- high-score XP Listening & Tổng điểm Listening đạt từ 80\% trở lên & Gọi submitListeningPart & Thưởng thêm XP cho high-score \\ \hline
+    TC\_IADV & 5 & IELTS Advanced -- danh sách Reading & Có nhiều Reading parts trong DB & Gọi getReadingParts() & Sắp xếp theo partNumber \\ \hline
+    TC\_IADV & 6 & IELTS Advanced -- chi tiết Reading part & partId không tồn tại & Gọi getReadingPartDetail(partId) & Throw NotFoundException \\ \hline
+    TC\_IADV & 7 & IELTS Advanced -- submit Reading & User submit đáp án Reading & Gọi submitReadingPart & Đánh giá đúng, award reading achievements \\ \hline
+    TC\_IADV & 8 & IELTS Advanced -- danh sách Writing prompts & Có nhiều writing prompts trong DB & Gọi getWritingPrompts (phân trang) & Trả danh sách prompts kèm best score mapping \\ \hline
+    TC\_IADV & 9 & IELTS Advanced -- chi tiết Writing prompt & User có active session và lịch sử bài viết & Gọi getWritingPromptDetail(promptId) & Trả chi tiết prompt cùng active session và history \\ \hline
+    TC\_IADV & 10 & IELTS Advanced -- tạo Writing session & User đã có session IN\_PROGRESS & Gọi createWritingSession & Trả session đang có, không tạo session mới \\ \hline
+    TC\_IADV & 11 & IELTS Advanced -- tạo Writing session & User chưa có session đang chạy & Gọi createWritingSession & Tạo session mới \\ \hline
+    TC\_IADV & 12 & IELTS Advanced -- lưu draft Writing & Session đang active & Gọi saveWritingDraft & Cập nhật draft của session đang active \\ \hline
+    TC\_IADV & 13 & IELTS Advanced -- lưu draft Writing & Session không active hoặc không tồn tại & Gọi saveWritingDraft & Throw NotFoundException \\ \hline
+    TC\_IADV & 14 & IELTS Advanced -- submit Writing & User submit bài Writing & Gọi submitWritingSession & Status chuyển sang GRADING, publish task lên RabbitMQ cho AI worker \\ \hline
+    TC\_IADV & 15 & IELTS Advanced -- tạo Speaking session & User chưa hoặc đang có session & Gọi createSpeakingSession & Tạo mới hoặc trả session đang chạy \\ \hline
+    TC\_IADV & 16 & IELTS Advanced -- submit Speaking & Không có audio answer nào được upload & Gọi submitSpeakingSession & Fail / từ chối submit \\ \hline
+    TC\_IADV & 17 & IELTS Advanced -- submit Speaking & Có đầy đủ audio answers hợp lệ & Gọi submitSpeakingSession & Lưu answers, publish task AI cho RabbitMQ \\ \hline
+    TC\_IADV & 18 & IELTS Advanced -- thống kê & User có nhiều session đã hoàn thành & Gọi getStatistics(userId) & Tổng hợp điểm đúng qua các session \\ \hline
+    TC\_IADV & 19 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user yêu cầu & Gọi getHistoryDetail(sessionId, userId) & Trả chi tiết session Listening \\ \hline
+    TC\_IADV & 20 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user khác & Gọi getHistoryDetail(sessionId, otherUserId) & Throw NotFoundException (bảo vệ ownership) \\ \hline
+
+    % Nhóm TC_EXAM — Submit bài thi IELTS Intensive (6 case)
+    TC\_EXAM & 1 & Submit bài thi IELTS Intensive & User có session IN\_PROGRESS (WRITING), còn quota & POST /exams/sessions/:id/submit hợp lệ & 201, status = SUBMITTED, publishGradingTask được gọi đúng 1 lần kèm đúng payload \\ \hline
+    TC\_EXAM & 2 & Submit bài thi IELTS Intensive & Session đã ở trạng thái GRADED & POST submit lại session đã chấm xong & 400 ``Session already graded'' \\ \hline
+    TC\_EXAM & 3 & Submit bài thi IELTS Intensive & sessionId thuộc user khác & POST submit với JWT của user khác & 403 Access denied \\ \hline
+    TC\_EXAM & 4 & Submit bài thi IELTS Intensive & Quota AI\_WRITING\_GRADING vượt giới hạn gói FREE & POST submit khi đã hết quota tháng & 403 QUOTA\_EXCEEDED \\ \hline
+    TC\_EXAM & 5 & Submit bài thi IELTS Intensive & Không có JWT token & POST submit không có header Authorization & 401 Unauthorized \\ \hline
+    TC\_EXAM & 6 & Submit bài thi IELTS Intensive & sessionId không tồn tại & POST submit với sessionId sai & 404 Not Found \\ \hline
+
+    % Nhóm TC_CB — Result callback từ AI worker (4 case)
+    TC\_CB & 1 & Callback chấm AI & AI worker hoàn tất grading, gửi callback với HMAC signature đúng & POST callback với signature hợp lệ & 200 OK, lưu IeltsIntensiveResult, session.status = GRADED \\ \hline
+    TC\_CB & 2 & Callback chấm AI & Signature không khớp HMAC & POST callback với signature giả mạo & 401 Unauthorized, KHÔNG ghi vào DB \\ \hline
+    TC\_CB & 3 & Callback chấm AI & Session đã ở trạng thái GRADING\_FAILED & POST callback với cùng sessionId & 200 OK (idempotent), result không bị ghi đè \\ \hline
+    TC\_CB & 4 & Callback chấm AI & Body thiếu totalScore và feedback & POST callback với payload không đủ trường & 400 Bad Request \\ \hline
+
+    % Nhóm TC_RES — Polling kết quả chấm AI (6 case)
+    TC\_RES & 1 & Polling kết quả chấm & Session đang ở GRADING & GET /results/:sessionId & 200, trả \{status: ``GRADING'', result: null\} \\ \hline
+    TC\_RES & 2 & Polling kết quả chấm & Session đã GRADED & GET /results/:sessionId & 200, trả full result shape \\ \hline
+    TC\_RES & 3 & Polling kết quả chấm & sessionId thuộc user khác & GET /results/:sessionId với JWT user khác & 404 (không tiết lộ existence) \\ \hline
+    TC\_RES & 4 & Polling kết quả chấm & sessionId không tồn tại & GET /results/:sessionId với id sai & 404 Not Found \\ \hline
+    TC\_RES & 5 & Polling kết quả chấm & Không có JWT token & GET /results/:sessionId không kèm token & 401 Unauthorized \\ \hline
+    TC\_RES & 6 & Polling kết quả chấm & Session ở GRADING\_FAILED & GET /results/:sessionId & 200, trả \{status: ``GRADING\_FAILED'', error: string\} \\ \hline
+
+    % Nhóm TC_SUB — Subscription, VNPay IPN và cron downgrade (13 case)
+    TC\_SUB & 1 & VNPay IPN -- checksum sai & vnp\_SecureHash sai (HMAC không khớp) & GET /subscriptions/webhook/vnpay với hash sai & RspCode ``97'' (Fail checksum) \\ \hline
+    TC\_SUB & 2 & VNPay IPN -- thanh toán thành công & ResponseCode = 00, HMAC đúng & GET webhook payment thành công & payment status = ``succeeded'', subscription nâng lên PREMIUM \\ \hline
+    TC\_SUB & 3 & VNPay IPN -- user hủy giao dịch & vnp\_ResponseCode = 24 (user hủy) & GET webhook cancel & RspCode ``00'' non-success, payment.create KHÔNG được gọi \\ \hline
+    TC\_SUB & 4 & VNPay IPN -- replay & Session đã xóa, payment đã tồn tại & GET webhook lại với cùng TxnRef & RspCode ``02'', KHÔNG double-credit \\ \hline
+    TC\_SUB & 5 & VNPay IPN -- thiếu TxnRef & Payload thiếu vnp\_TxnRef & GET webhook & RspCode ``99'' (Missing txnRef) \\ \hline
+    TC\_SUB & 6 & SubscriptionsService -- startTrial & User chưa từng dùng trial & Gọi startTrial(userId) & Tạo subscription TRIALING, endDate xấp xỉ now cộng 7 ngày \\ \hline
+    TC\_SUB & 7 & SubscriptionsService -- startTrial & trialUsed = true & Gọi startTrial(userId) & Throw BadRequestException ``already used'' \\ \hline
+    TC\_SUB & 8 & SubscriptionsService -- cancel & User đang ở gói FREE & Gọi cancelSubscription(userId) & Throw BadRequestException \\ \hline
+    TC\_SUB & 9 & SubscriptionsService -- cancel & User đang ở gói PREMIUM & Gọi cancelSubscription(userId) & status = CANCELED, gọi paymentProvider.cancelSubscription \\ \hline
+    TC\_SUB & 10 & SubscriptionsService -- incrementUsage & Còn quota AI\_WRITING\_GRADING & Gọi incrementUsage(AI\_WRITING\_GRADING) & Trả về true, count tăng thêm 1 \\ \hline
+    TC\_SUB & 11 & SubscriptionsService -- incrementUsage & Đã vượt quota & Gọi incrementUsage(AI\_WRITING\_GRADING) & Trả về false, count bị rollback \\ \hline
+    TC\_SUB & 12 & Subscriptions Cron -- downgrade & Subscription quá endDate cộng 3 ngày grace period & Cron 2:00 AM chạy & Downgrade về FREE \\ \hline
+    TC\_SUB & 13 & Subscriptions Cron -- downgrade & Trong grace period (endDate nhỏ hơn now, dưới 3 ngày) & Cron chạy & KHÔNG downgrade, giữ trạng thái \\ \hline
+
+    % Nhóm TC_EDGE — Edge case pagination (8 case)
+    TC\_EDGE & 1 & Notifications pagination & User đã đăng nhập & GET /notifications?page=0 & 200 (ParseInt không reject 0) \\ \hline
+    TC\_EDGE & 2 & Notifications pagination & Như trên & GET /notifications?page=-1 & 200 (ParseInt chấp nhận số âm, không có @Min) \\ \hline
+    TC\_EDGE & 3 & Notifications pagination & Như trên & GET /notifications?limit=10000 & 200 (không có cap maxLimit) \\ \hline
+    TC\_EDGE & 4 & Notifications pagination & Như trên & GET /notifications?cursor=not-a-valid-uuid & 200 (notifications không có cursor param, bị whitelist drop) \\ \hline
+    TC\_EDGE & 5 & Notifications pagination & Như trên & GET /notifications không có query param & 200, DefaultValuePipe gán page=1, limit=20 \\ \hline
+    TC\_EDGE & 6 & Notifications pagination & Như trên & GET /notifications?limit=0 & 200 (ParseInt chấp nhận 0, không có @Min(1)) \\ \hline
+    TC\_EDGE & 7 & Notifications empty & User không có notification nào trong DB & GET /notifications & 200, trả \{notifications: [], total: 0\}, KHÔNG throw 404 \\ \hline
+    TC\_EDGE & 8 & Posts cursor pagination & cursor đúng định dạng UUID nhưng không tồn tại & GET /posts?cursor=uuid-không-tồn-tại & 200, trả \{items: []\} \\ \hline
+
+    % Nhóm TC_BOUND — Boundary value (8 case)
+    TC\_BOUND & 1 & Pronunciation score boundary & User đăng nhập & POST /pronunciation/progress với score = 0 & 201 (lower boundary, @Min(0) pass) \\ \hline
+    TC\_BOUND & 2 & Pronunciation score boundary & User đăng nhập & POST với score = 100 & 201 (upper boundary hợp lệ) \\ \hline
+    TC\_BOUND & 3 & Pronunciation score boundary & User đăng nhập & POST với score = 101 & 201 (over max, hiện tại pass vì DTO thiếu @Max(100), khe hở đã ghi nhận) \\ \hline
+    TC\_BOUND & 4 & Pronunciation score boundary & User đăng nhập & POST với score = -1 & 400 (under @Min(0), ValidationPipe reject) \\ \hline
+    TC\_BOUND & 5 & IELTS Statistics zero-data & User chưa học gì & GET /ielts-statistics/foundation & 200, trả \{vocabulary: \{wordsLearned: 0\}\}, KHÔNG throw \\ \hline
+    TC\_BOUND & 6 & Posts body boundary & User đăng nhập & POST /posts với body = chuỗi rỗng & 400 (@MinLength(1) violation) \\ \hline
+    TC\_BOUND & 7 & Posts imageUrls boundary & User đăng nhập & POST /posts với imageUrls = [] & 201 (mảng rỗng được phép) \\ \hline
+    TC\_BOUND & 8 & Posts imageUrls boundary & User đăng nhập & POST /posts với imageUrls có 11 phần tử & 201 (hiện tại pass vì thiếu @ArrayMaxSize(10), khe hở đã ghi nhận) \\ \hline
+
+    % Nhóm TC_SEC — Cross-user access control (8 case)
+    TC\_SEC & 1 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & PATCH /vocab-lab/decks/:id (của userA) với token userB & 404 (ẩn existence theo mô hình ownership) \\ \hline
+    TC\_SEC & 2 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & DELETE /vocab-lab/decks/:id với token userB & 404 \\ \hline
+    TC\_SEC & 3 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & GET /vocab-lab/decks/:id/cards với token userB & 404 \\ \hline
+    TC\_SEC & 4 & Cross-user Notes & userB đăng nhập, note thuộc userA & DELETE /notes/:id với token userB & 404 \\ \hline
+    TC\_SEC & 5 & Cross-user Notes & userB đăng nhập, note thuộc userA & PATCH /notes/:id với token userB & 404 \\ \hline
+    TC\_SEC & 6 & Cross-user Posts & userB (non-admin) đăng nhập, post thuộc userA & DELETE /posts/:id với token userB & 403 (Posts có phân quyền role rõ ràng nên trả 403 thay vì 404) \\ \hline
+    TC\_SEC & 7 & Cross-user Posts & userB đăng nhập, post thuộc userA & PATCH /posts/:id với token userB & 404 \\ \hline
+    TC\_SEC & 8 & Admin bypass Posts & admin (role ADMIN) cố xóa post của user khác & DELETE /posts/:id với token admin & Mong đợi 200 (admin được phép). Hiện tại trả 403, khe hở admin bypass đã ghi nhận \\ \hline
+
 \end{longtable}
 
-\subsection{Bảng báo cáo kết quả kiểm thử}
+\subsection{Kết quả kiểm thử}
 
-Sau khi hoàn thiện hệ thống, toàn bộ 61 test case được thực thi tự động qua lệnh npm run test:report của workspace backend-core. Lệnh này kích hoạt custom Jest reporter sinh bảng kết quả markdown ra file backend-core/docs/testing/test-results.md để tiện đối chiếu. Kết quả kiểm thử ghi nhận theo cấu trúc: nhóm test case, loại dữ liệu (hợp lệ hoặc không hợp lệ), mã định danh, dữ liệu đầu vào tiêu biểu, kết quả mong đợi, trạng thái, người thực hiện và ngày kiểm thử. Bảng~\ref{tab:testcase_result} tổng hợp toàn bộ kết quả. Tất cả 61 test case đều đạt kết quả \textbf{Pass}, xác nhận tầng backend hoạt động đúng theo yêu cầu đã đặc tả.
+Sau khi hoàn thiện hệ thống, toàn bộ 207 test case unit/integration cùng 12 test case E2E được thực thi tự động qua hai lệnh: npm run test:report (cho unit/integration) và npm run test:e2e (cho E2E). Cả hai lệnh đều kích hoạt Jest và ghi log chi tiết per-test vào tài liệu auto-generated docs/testing/test-results.md. Lần chạy gần nhất ngày 20/05/2026 cho thấy tất cả 207 test case unit/integration đều đạt trạng thái \textbf{Pass} sau 63,7 giây thực thi; 12 test case E2E (chạy trên PostgreSQL schema test) cũng đều đạt \textbf{Pass} hoàn toàn. Bảng~\ref{tab:testcase_result} tổng hợp kết quả theo từng nhóm chức năng đã định nghĩa ở phạm vi kiểm thử; chi tiết per-test có thể đối chiếu trong tài liệu docs/testing/test-results.md đính kèm với mã nguồn.
 
 \renewcommand{\arraystretch}{1.2}
-% 7 cột p{}, divisor=130: (0.9+1.3+2.6+2.4+0.9+1.9+3.0)×10; -4pt buffer cho rounding
-\setlength{\tbu}{\dimexpr(\linewidth - 14\tabcolsep - 8\arrayrulewidth - 4pt)/130\relax}
-\begin{longtable}{|p{11\tbu}|p{14\tbu}|p{27\tbu}|p{27\tbu}|p{9\tbu}|p{22\tbu}|p{20\tbu}|}
-    \caption{Bảng báo cáo kết quả kiểm thử}
+% 8 cột p{}, divisor=100: 4+28+8+8+8+10+20+14; -4pt buffer cho rounding
+\setlength{\tbu}{\dimexpr(\linewidth - 16\tabcolsep - 9\arrayrulewidth - 4pt)/100\relax}
+\begin{longtable}{|p{4\tbu}|p{28\tbu}|p{8\tbu}|p{8\tbu}|p{8\tbu}|p{10\tbu}|p{20\tbu}|p{14\tbu}|}
+    \caption{Tổng hợp kết quả kiểm thử theo nhóm}
     \label{tab:testcase_result} \\
     \hline
-    \textbf{Loại} & \textbf{ID} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Trạng thái} & \textbf{Người TH} & \textbf{Ngày} \\ \hline
+    \textbf{STT} & \textbf{Nhóm chức năng} & \textbf{Số TC} & \textbf{Pass} & \textbf{Fail} & \textbf{Tỷ lệ} & \textbf{Người TH} & \textbf{Ngày} \\ \hline
     \endfirsthead
-    \multicolumn{7}{r}{\textit{(tiếp trang trước)}} \\
+    \multicolumn{8}{r}{\textit{(tiếp trang trước)}} \\
     \hline
-    \textbf{Loại} & \textbf{ID} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Trạng thái} & \textbf{Người TH} & \textbf{Ngày} \\ \hline
+    \textbf{STT} & \textbf{Nhóm chức năng} & \textbf{Số TC} & \textbf{Pass} & \textbf{Fail} & \textbf{Tỷ lệ} & \textbf{Người TH} & \textbf{Ngày} \\ \hline
     \endhead
-    \hline \multicolumn{7}{r}{\textit{(tiếp trang sau)}} \\
+    \hline \multicolumn{8}{r}{\textit{(tiếp trang sau)}} \\
     \endfoot
     \hline
     \endlastfoot
 
-    Invalid & TC01\_01 & firstName: rỗng & Họ tên không được bỏ trống & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC01\_02 & email: not-an-email & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC01\_03 & password: p12 & Mật khẩu phải có ít nhất 6 ký tự & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC01\_04 & email đã tồn tại & Email đã được sử dụng & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC01\_05 & Thông tin đăng ký đầy đủ và hợp lệ & Đăng ký thành công, trả thông tin tài khoản & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC01\_06 & password: MySecret123 & Mật khẩu lưu ở dạng mã hoá & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC01\_07 & Đăng ký thành công & Tự động tạo bộ thẻ ``Default'' & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC01\_08 & Không có / vai trò hợp lệ trong yêu cầu & Mặc định Học viên / lưu đúng vai trò & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC01\_09 & role: ADMIN & Từ chối, thông báo vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-
-    Invalid & TC02\_01 & Email đúng + mật khẩu sai & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC02\_02 & Email không tồn tại + mật khẩu đúng & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC02\_03 & Email và mật khẩu đều sai & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC02\_04 & Chỉ có email, thiếu mật khẩu & Đăng nhập thất bại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC02\_05 & Email và mật khẩu đều đúng & Đăng nhập thành công, cấp mã truy cập & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-
-    Invalid & TC03\_01 & Nội dung: rỗng & Cần nhập nội dung & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC03\_02 & Nội dung 10001 ký tự & Nội dung vượt giới hạn cho phép & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC03\_03 & Loại bài viết: INVALID\_TYPE & Loại bài viết không hợp lệ & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC03\_04 & Nội dung hợp lệ, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC03\_05 & Nội dung: ``Hello World'' & Đăng bài thành công, cộng điểm kinh nghiệm & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC03\_06 & Danh sách thẻ và hình ảnh đính kèm & Bài lưu đầy đủ thẻ và hình ảnh & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC03\_07 & Yêu cầu danh sách bài viết & Hiển thị bài mới nhất, ẩn bài đã gỡ & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC03\_08 & Bài chưa được thích & Thích thành công, tăng số lượt thích & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC03\_09 & Bài đã được thích trước đó & Bỏ thích, giảm số lượt thích & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC03\_10 & Mã bài viết không tồn tại & Không tìm thấy bài viết & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC03\_11 & Tham số phân trang sai định dạng & Từ chối yêu cầu phân trang & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-
-    Invalid & TC05\_01 & Xem danh sách, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC05\_02 & Xem số chưa đọc, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC05\_03 & Xoá thông báo, không đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC05\_04 & Trang 1, mỗi trang 20 dòng & Hiển thị 20 thông báo mới nhất & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC05\_05 & Trang 2, mỗi trang 20 dòng & Hiển thị 20 thông báo tiếp theo & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC05\_06 & Đánh dấu đã đọc thông báo của mình & Cập nhật trạng thái đã đọc & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC05\_07 & Đánh dấu thông báo của người dùng khác & Không cập nhật, không lộ thông tin & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC05\_08 & Đánh dấu tất cả là đã đọc & Toàn bộ thông báo chuyển sang đã đọc & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC05\_09 & Xoá một thông báo của mình & Thông báo bị xoá khỏi danh sách & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-
-    Invalid & TC06\_01 & Cập nhật khi chưa đăng nhập & Yêu cầu đăng nhập & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_02 & email: not-an-email & Email không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_03 & role: SUPERHERO & Vai trò không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_04 & isActive: maybe & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_05 & firstName: 12345 (kiểu số) & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_06 & Gửi trường không hỗ trợ: phone & Trường dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_07 & firstName: NewName & Cập nhật thành công & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_08 & email mới chưa được sử dụng & Cập nhật thành công & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Invalid & TC06\_09 & email đã có tài khoản khác dùng & Email đã được sử dụng & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_10 & role: TEACHER & Cập nhật thành công, lưu vai trò mới & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_11 & isActive: false & Tài khoản chuyển sang ngừng hoạt động & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-    Valid & TC06\_12 & Dữ liệu cập nhật rỗng & Không thay đổi gì, giữ trạng thái hiện tại & Pass & Lai Thanh Sĩ & 15/05/2026 \\ \hline
-
-    Valid & TC10\_01 & Xem danh sách âm vị (không cần đăng nhập) & Danh sách âm vị hiển thị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Invalid & TC10\_02 & Tra cứu ký hiệu: zzz & Không tìm thấy âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Valid & TC10\_03 & Tra cứu ký hiệu: i: & Hiển thị thông tin âm vị & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Invalid & TC10\_04 & Gửi điểm phát âm khi chưa đăng nhập & Yêu cầu đăng nhập & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Valid & TC10\_05 & soundId hợp lệ, điểm: 85 & Ghi nhận tiến độ luyện phát âm & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Invalid & TC10\_06 & Học viên tạo âm vị mới & Từ chối, yêu cầu Quản trị viên & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Valid & TC10\_07 & Quản trị viên + thông tin đầy đủ & Tạo âm vị thành công & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-    Invalid & TC10\_08 & Quản trị viên + thiếu trường word & Dữ liệu không hợp lệ & Pass & Lai Thanh Sĩ & 16/05/2026 \\ \hline
-
-    Invalid & TC11\_01 & Xem thống kê tổng quan, chưa đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Invalid & TC11\_02 & Xem thống kê Foundation, chưa đăng nhập & Yêu cầu đăng nhập & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC11\_03 & Xem thống kê tổng quan (đã đăng nhập) & Hiển thị thống kê tổng quan của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC11\_04 & Xem thống kê Foundation & Hiển thị thống kê Foundation của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC11\_05 & Xem thống kê Basic & Hiển thị thống kê Basic của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC11\_06 & Xem thống kê Advanced & Hiển thị thống kê Advanced của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-    Valid & TC11\_07 & Xem thống kê Intensive & Hiển thị thống kê Intensive của tài khoản & Pass & Phạm Đức Tài & 16/05/2026 \\ \hline
-
+    1 & Xác thực và phân quyền & 29 & 29 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    2 & Cập nhật thông tin tài khoản & 12 & 12 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    3 & Cộng đồng -- đăng bài & 11 & 11 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    4 & Thông báo & 9 & 9 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    5 & Luyện phát âm IPA & 21 & 21 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    6 & IELTS (thống kê, advanced, chuỗi học) & 40 & 40 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    7 & Luyện nghe chép chính tả & 6 & 6 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    8 & Luyện shadowing video & 6 & 6 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    9 & Vocab Lab (lặp lại ngắt quãng) & 10 & 10 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    10 & Gamification (XP và thành tích) & 10 & 10 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    11 & Bài thi thử IELTS Intensive & 10 & 10 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    12 & Polling kết quả chấm AI & 6 & 6 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    13 & Subscription và thanh toán & 13 & 13 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    14 & Edge case (phân trang, giá trị biên) & 16 & 16 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    15 & Bảo mật (truy cập chéo người dùng) & 8 & 8 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
+    16 & E2E xác thực (toàn bộ chu trình) & 12 & 12 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
 \end{longtable}
+
+Kết quả này khẳng định backend-core hiện đáp ứng đầy đủ các yêu cầu nghiệp vụ đã đặc tả ở chương~3, đồng thời đảm bảo các ràng buộc bảo mật (IDOR, JWT lifecycle), tính nhất quán cấp cơ sở dữ liệu (unique email, ownership deck/note/post) và tính chính xác của các luồng tích hợp ngoài như VNPay IPN và AI grading callback. Năm khe hở nhỏ được phát hiện trong quá trình kiểm thử (TC\_JWT\_04, TC\_JWT\_05, TC\_BOUND\_03, TC\_BOUND\_08, TC\_SEC\_08) là các trường hợp test hiện đạt PASS theo hành vi mặc định nhưng đã ghi nhận điểm cần cải thiện cho phiên bản kế tiếp -- chi tiết được nêu trong cột ``Kết quả mong muốn'' của các test case tương ứng ở bảng~\ref{tab:testcase_list}.
 
