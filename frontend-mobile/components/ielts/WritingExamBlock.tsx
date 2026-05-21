@@ -13,6 +13,7 @@ import {
   Animated,
 } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 interface WritingTask {
@@ -38,6 +39,7 @@ function countWords(text: string) {
 const DEFAULT_MIN_WORDS = [150, 250];
 
 function WritingExamBlock({ tasks, answers, onChange }: Props) {
+  const { colors, isDark } = useTheme();
   const [activeTask, setActiveTask] = useState(1);
   const [promptHeight, setPromptHeight] = useState(250);
   const promptHeightRef = React.useRef(250);
@@ -72,11 +74,11 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* Task tabs */}
-      <View style={styles.tabs}>
+      <View style={[styles.tabs, { borderColor: colors.border }]}>
         {[1, 2].map((n) => {
           const val = n === 1 ? answers.task1 : answers.task2;
           const targetWords =
@@ -85,12 +87,21 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
           return (
             <TouchableOpacity
               key={n}
-              style={[styles.tab, activeTask === n && styles.tabActive]}
+              style={[
+                styles.tab,
+                activeTask === n && [styles.tabActive, { borderBottomColor: colors.primary }],
+              ]}
               onPress={() => setActiveTask(n)}
               activeOpacity={0.8}
             >
-              {done && <Text style={styles.tabCheck}>✓ </Text>}
-              <Text style={[styles.tabLabel, activeTask === n && styles.tabLabelActive]}>
+              {done && <Text style={[styles.tabCheck, { color: colors.success }]}>✓ </Text>}
+              <Text
+                style={[
+                  styles.tabLabel,
+                  { color: colors.textSecondary },
+                  activeTask === n && [styles.tabLabelActive, { color: colors.primary }],
+                ]}
+              >
                 Task {n}
               </Text>
             </TouchableOpacity>
@@ -101,14 +112,30 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
       {/* Prompt */}
       {current && (
         <ScrollView
-          style={[styles.promptScroll, { height: promptHeight, flex: undefined }]}
+          style={[
+            styles.promptScroll,
+            { height: promptHeight, flex: undefined, backgroundColor: colors.card },
+          ]}
           nestedScrollEnabled
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.promptBox}>
+          <View style={[styles.promptBox, { backgroundColor: colors.surface }]}>
             {/* Instruction Banner */}
-            <View style={styles.instructionBanner}>
-              <Text style={styles.instructionText}>
+            <View
+              style={[
+                styles.instructionBanner,
+                {
+                  backgroundColor: isDark ? colors.infoBg : '#EEF2FF',
+                  borderLeftColor: colors.primary,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.instructionText,
+                  { color: isDark ? colors.text : '#1E3A8A' },
+                ]}
+              >
                 You should spend about{' '}
                 <Text style={{ fontWeight: '700' }}>
                   {current.time_advice || (activeTask === 1 ? '20' : '40')}
@@ -119,20 +146,22 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
             </View>
 
             {current.instruction && (
-              <Text style={styles.instructionPrompt}>{current.instruction}</Text>
+              <Text style={[styles.instructionPrompt, { color: colors.text }]}>
+                {current.instruction}
+              </Text>
             )}
 
-            <Text style={styles.taskType}>
+            <Text style={[styles.taskType, { color: colors.primary }]}>
               {current.task_type || `Task ${current.task_number}`}
             </Text>
-            <Text style={styles.promptText}>{current.prompt}</Text>
+            <Text style={[styles.promptText, { color: colors.text }]}>{current.prompt}</Text>
 
             {/* Task 1 Image */}
             {current.image_url && (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={styles.imageScroll}
+                style={[styles.imageScroll, { backgroundColor: colors.card }]}
               >
                 <Image
                   source={{ uri: current.image_url }}
@@ -147,49 +176,73 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
 
       {/* Resizable Divider */}
       {current && (
-        <View style={styles.dividerContainer} {...panResponder.panHandlers}>
-          <View style={styles.dividerBar}>
-            <Ionicons name="reorder-two" size={20} color={COLORS.textMuted} />
+        <View
+          style={[
+            styles.dividerContainer,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+          {...panResponder.panHandlers}
+        >
+          <View style={[styles.dividerBar, { backgroundColor: isDark ? colors.border : '#cbd5e1' }]}>
+            <Ionicons name="reorder-two" size={20} color={colors.textMuted} />
           </View>
         </View>
       )}
 
       {/* Essay input */}
-      <View style={styles.inputWrapper}>
+      <View style={[styles.inputWrapper, { backgroundColor: colors.background }]}>
         <TextInput
-          style={styles.essayInput}
+          style={[
+            styles.essayInput,
+            {
+              color: colors.text,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+            },
+          ]}
           multiline
           autoCorrect={false}
           spellCheck={false}
           value={currentValue}
           onChangeText={handleChange}
           placeholder={`Write your Task ${activeTask} response here…`}
-          placeholderTextColor={COLORS.textMuted}
+          placeholderTextColor={colors.textMuted}
           textAlignVertical="top"
         />
         {/* Word count progress */}
         <View style={styles.wordCountRow}>
-          <Text style={[styles.wordCount, meetsMin ? styles.wordCountOk : styles.wordCountWarn]}>
+          <Text
+            style={[
+              styles.wordCount,
+              meetsMin ? { color: colors.success } : { color: colors.warning },
+            ]}
+          >
             {wordCount} words
           </Text>
-          <Text style={styles.wordCountTarget}>min {minWords}</Text>
+          <Text style={[styles.wordCountTarget, { color: colors.textMuted }]}>
+            min {minWords}
+          </Text>
         </View>
-        <View style={styles.progressTrack}>
+        <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
           <View
             style={[
               styles.progressFill,
               {
                 width: `${Math.min((wordCount / minWords) * 100, 100)}%` as any,
                 backgroundColor: meetsMin
-                  ? '#16a34a'
+                  ? colors.success
                   : wordCount > minWords * 0.7
-                    ? '#D97706'
-                    : COLORS.primary,
+                    ? colors.warning
+                    : colors.primary,
               },
             ]}
           />
         </View>
-        {meetsMin && <Text style={styles.wordCountDone}>✓ Minimum word count met</Text>}
+        {meetsMin && (
+          <Text style={[styles.wordCountDone, { color: colors.success }]}>
+            ✓ Minimum word count met
+          </Text>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
