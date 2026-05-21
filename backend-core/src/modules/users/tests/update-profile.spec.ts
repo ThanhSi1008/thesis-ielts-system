@@ -27,6 +27,7 @@ import { UsersController } from '../users.controller';
 import { UsersService } from '../users.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PrismaService } from '../../../common/prisma/prisma.service';
+import { StorageService } from '../../../common/storage/storage.service';
 
 describe('PATCH /api/v1/users/me (TC06 — Cập nhật thông tin cá nhân)', () => {
   let app: INestApplication;
@@ -61,6 +62,13 @@ describe('PATCH /api/v1/users/me (TC06 — Cập nhật thông tin cá nhân)', 
       providers: [
         UsersService,
         { provide: PrismaService, useValue: prismaMock },
+        {
+          provide: StorageService,
+          useValue: {
+            uploadFile: jest.fn(),
+            deleteFile: jest.fn(),
+          },
+        },
       ],
     })
       .overrideGuard(JwtAuthGuard)
