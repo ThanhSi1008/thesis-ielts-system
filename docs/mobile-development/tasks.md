@@ -60,13 +60,14 @@
 - [x] **P05-27** · Smoke test 10 screen UI không đổi (compare screenshot) · *est. 40min*
 
 ### 0.5.4 Barrel exports & module organization (2h)
-- [ ] **P05-28** · Tạo `components/ielts/index.ts` re-export tất cả ielts components · *est. 15min*
-- [ ] **P05-29** · Tạo `components/vocab-lab/index.ts` re-export · *est. 15min*
-- [ ] **P05-30** · Tạo `components/ui/index.ts` re-export (đã có `ui.tsx`, cần wrap) · *est. 15min*
-- [ ] **P05-31** · Mở rộng `components/index.ts` re-export tất cả module · *est. 15min*
-- [ ] **P05-32** · Refactor `services/index.ts`: thêm features, ielts, learning, notes, posts, auth · *est. 30min*
-- [ ] **P05-33** · Mở rộng `hooks/index.ts`: thêm useGradingPoll · *est. 10min*
-- [ ] **P05-34** · Replace imports trong top 10 file có import dài → dùng barrel · *est. 20min*
+- [x] **P05-28** · Tạo `components/ielts/index.ts` re-export tất cả ielts components · *est. 15min*
+- [x] **P05-29** · Tạo `components/vocab-lab/index.ts` re-export · *est. 15min*
+- [x] **P05-30** · Tạo `components/ui/index.ts` re-export (đã có `ui.tsx`, cần wrap) · *est. 15min*
+- [x] **P05-31** · Mở rộng `components/index.ts` re-export tất cả module · *est. 15min*
+- [x] **P05-32** · Refactor `services/index.ts`: thêm features, ielts, learning, notes, posts, auth · *est. 30min*
+- [x] **P05-33** · Mở rộng `hooks/index.ts`: thêm useGradingPoll · *est. 10min*
+- [x] **P05-34** · Replace imports trong top 10 file có import dài → dùng barrel · *est. 20min*
+
 
 ### 0.5.5 Typed routes (3h)
 - [ ] **P05-35** · Tạo `constants/routes.ts` với ROUTES object cho ~40 route hiện có + 10 route Phase sau · *est. 1h*

@@ -20,7 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import {COLORS, FONTS} from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
-import { postsApi, gamificationApi } from '@/services/posts.api';
+import { postsApi, gamificationApi } from '@/services';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Post, PostType, Comment, LeaderboardEntry } from '@/types';
 

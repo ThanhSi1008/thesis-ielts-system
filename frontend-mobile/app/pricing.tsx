@@ -15,7 +15,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { subscriptionsApi, PricingPlan } from '@/services/features.api';
+import { subscriptionsApi } from '@/services';
+import type { PricingPlan } from '@/services/features.api'; // keep import type from features.api or import it differently if needed, wait PricingPlan is in features.api
 import { useAuth } from '@/contexts/AuthContext';
 import { COLORS, FONTS } from '@/constants';
 

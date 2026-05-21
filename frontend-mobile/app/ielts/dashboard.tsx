@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
-import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services/ielts.api';
+import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { SectionHeader } from '@/components/ui';
 
 export default function DashboardScreen() {

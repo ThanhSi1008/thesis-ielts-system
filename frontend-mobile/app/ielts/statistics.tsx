@@ -14,7 +14,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-native-svg';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
-import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services/ielts.api';
+import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
 
 const { width: SCREEN_W } = Dimensions.get('window');

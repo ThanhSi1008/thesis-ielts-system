@@ -19,7 +19,7 @@ import {COLORS, SPACING, FONT_SIZES, RADIUS, STORAGE_KEYS, FONTS} from '@/consta
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
-import { vocabLabApi, gamificationApi, subscriptionsApi } from '@/services/features.api';
+import { vocabLabApi, gamificationApi, subscriptionsApi } from '@/services';
 import { apiClient } from '@/services/api-client';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GamificationProfile, AchievementItem } from '@/types';

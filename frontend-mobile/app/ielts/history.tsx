@@ -17,7 +17,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
-import { ieltsExamsApi } from '@/services/ielts.api';
+import { ieltsExamsApi } from '@/services';
 import { Badge, ScoreBadge, EmptyState } from '@/components/ui';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
