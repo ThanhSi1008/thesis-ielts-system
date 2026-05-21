@@ -85,11 +85,11 @@
 - [x] **P05-43** · Refactor `app/(tabs)/profile.tsx` thành shell <200 lines + import 3 tab · *est. 15min*
 
 **Community (2h)**:
-- [ ] **P05-44** · Tạo `components/community/Avatar.tsx` (reusable) · *est. 15min*
-- [ ] **P05-45** · Tạo `components/community/PostCard.tsx` · *est. 45min*
-- [ ] **P05-46** · Tạo `components/community/CreatePostModal.tsx` · *est. 45min*
-- [ ] **P05-47** · Tạo `components/community/CommentSheet.tsx` · *est. 30min*
-- [ ] **P05-48** · Refactor `app/(tabs)/community.tsx` thành shell <250 lines · *est. 15min*
+- [x] **P05-44** · Tạo `components/community/Avatar.tsx` (reusable) · *est. 15min*
+- [x] **P05-45** · Tạo `components/community/PostCard.tsx` · *est. 45min*
+- [x] **P05-46** · Tạo `components/community/CreatePostModal.tsx` · *est. 45min*
+- [x] **P05-47** · Tạo `components/community/CommentSheet.tsx` · *est. 30min*
+- [x] **P05-48** · Refactor `app/(tabs)/community.tsx` thành shell <250 lines · *est. 15min*
 
 **Shadowing helper hook (1h)**:
 - [ ] **P05-49** · Tạo `hooks/useShadowingMode.ts` — extract state machine logic (Phase 7 sẽ refactor toàn bộ) · *est. 45min*

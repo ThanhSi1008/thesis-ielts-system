@@ -5,6 +5,7 @@
 export * from './ielts';
 export * from './vocab-lab';
 export * from './profile';
+export * from './community';
 export * from './ui';
 export * from './voice/Waveform';
 export * from './voice/RecordButton';
