@@ -104,13 +104,13 @@
 
 ### 0.5.8 Refactor `learning.api.ts` mobile đồng bộ web (4h)
 - [x] **P05-56** · ~~Verify endpoint backend~~ · ✅ **DONE 2026-05-21** (R-04 audit): backend đầy đủ. Lưu ý URL `/pronunciation/progress/stats` (KHÔNG phải `/pronunciation/stats` như giả định ban đầu). Bonus endpoint `/pronunciation/sounds/:soundId/word-progress` chưa dùng ở web — mobile sẽ tận dụng (P05-71b dưới).
-- [ ] **P05-57** · Mở rộng `services/learning.api.ts` thêm `vocabularyApi.getProgress/updateWordProgress/submitQuestions` · *est. 0.5h*
-- [ ] **P05-58** · Thêm `grammarApi.getBooks/getBook/getUnit/getUnitByOrder/getProgress/updateProgress` · *est. 0.5h*
-- [ ] **P05-59** · Thêm `pronunciationApi.getAllSounds/getSound/getProgress/getStats/getSoundDetail` · *est. 0.5h*
-- [ ] **P05-60** · Bổ sung types `VocabularyBookProgress, WordProgress, GrammarUnitProgress, PronunciationData, SoundProgress, PronunciationStats, SubmitQuestionsResponse` vào `types/index.ts` · *est. 0.5h*
-- [ ] **P05-61** · Move `vocabularyApi` từ `ielts.api.ts` → `learning.api.ts`, đánh dấu `@deprecated` alias cũ · *est. 0.5h*
-- [ ] **P05-62** · Move `grammarApi` từ `features.api.ts` → `learning.api.ts`, đánh dấu `@deprecated` alias cũ · *est. 0.25h*
-- [ ] **P05-63** · Update 5-7 file import dùng path mới qua `@/services` barrel · *est. 0.25h*
+- [x] **P05-57** · Mở rộng `services/learning.api.ts` thêm `vocabularyApi.getProgress/updateWordProgress/submitQuestions` · *est. 0.5h*
+- [x] **P05-58** · Thêm `grammarApi.getBooks/getBook/getUnit/getUnitByOrder/getProgress/updateProgress` · *est. 0.5h*
+- [x] **P05-59** · Thêm `pronunciationApi.getAllSounds/getSound/getProgress/getStats/getSoundDetail` · *est. 0.5h*
+- [x] **P05-60** · Bổ sung types `VocabularyBookProgress, WordProgress, GrammarUnitProgress, PronunciationData, SoundProgress, PronunciationStats, SubmitQuestionsResponse` vào `types/index.ts` · *est. 0.5h*
+- [x] **P05-61** · Move `vocabularyApi` từ `ielts.api.ts` → `learning.api.ts`, đánh dấu `@deprecated` alias cũ · *est. 0.5h*
+- [x] **P05-62** · Move `grammarApi` từ `features.api.ts` → `learning.api.ts`, đánh dấu `@deprecated` alias cũ · *est. 0.25h*
+- [x] **P05-63** · Update 5-7 file import dùng path mới qua `@/services` barrel · *est. 0.25h*
 
 ### 0.5.9 Foundation Pronunciation API migrate (6h)
 - [ ] **P05-64** · Xóa `const IPA_DATA` hard-coded trong `app/(tabs)/pronunciation/index.tsx` · *est. 0.5h*
