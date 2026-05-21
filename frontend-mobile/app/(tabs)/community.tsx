@@ -22,6 +22,8 @@ const TABS = [
   { id: 'all', icon: 'albums-outline', label: 'All Posts' },
   { id: 'tips', icon: 'bulb-outline', label: 'Study Tips' },
   { id: 'achievements', icon: 'trophy-outline', label: 'Achievements' },
+  { id: 'my_posts', icon: 'person-outline', label: 'My Posts' },
+  { id: 'saved', icon: 'bookmark-outline', label: 'Saved' },
   { id: 'leaderboard', icon: 'bar-chart-outline', label: 'Leaderboard' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
@@ -56,7 +58,15 @@ export default function CommunityScreen() {
     async (cursor?: string) => {
       const type = TAB_TYPE_MAP[activeTab];
       try {
-        const res = await postsApi.listPosts({ type, cursor });
+        let res;
+        if (activeTab === 'saved') {
+          res = await postsApi.getBookmarks({ cursor });
+        } else if (activeTab === 'my_posts') {
+          res = await postsApi.listPosts({ authorId: user?.id, cursor });
+        } else {
+          res = await postsApi.listPosts({ type, cursor });
+        }
+
         if (cursor) {
           setPosts((prev) => [...prev, ...res.items]);
         } else {
@@ -67,7 +77,7 @@ export default function CommunityScreen() {
         Alert.alert('Error', 'Failed to load posts');
       }
     },
-    [activeTab],
+    [activeTab, user?.id],
   );
 
   useEffect(() => {

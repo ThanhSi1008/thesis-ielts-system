@@ -598,6 +598,7 @@ export interface PostListParams {
   tag?: string;
   authorId?: string;
   limit?: number;
+  bookmarkedOnly?: boolean;
 }
 
 // ==================== SUBSCRIPTION ====================

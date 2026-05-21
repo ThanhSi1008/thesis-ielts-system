@@ -9,6 +9,7 @@ import {
   Max,
   MaxLength,
   MinLength,
+  IsBoolean,
 } from "class-validator";
 
 // ==================== POST TYPE ENUM ====================
@@ -73,6 +74,10 @@ export class ListPostsDto {
   @IsString()
   @IsOptional()
   authorId?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  bookmarkedOnly?: boolean;
 }
 
 // ==================== COMMENT DTOs ====================

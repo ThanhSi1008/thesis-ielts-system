@@ -66,6 +66,13 @@ export class PostsService {
     if (query.type) where.type = query.type;
     if (query.tag) where.tags = { has: query.tag };
     if (query.authorId) where.authorId = query.authorId;
+    if (query.bookmarkedOnly) {
+      where.bookmarks = {
+        some: {
+          userId,
+        },
+      };
+    }
 
     // Cursor-based pagination: fetch posts with createdAt < cursor post's createdAt
     let cursorCondition: any = undefined;
