@@ -49,15 +49,15 @@
 - [x] **P05-16** · Mở rộng `constants/index.ts` COLORS: thêm `skill.{listening,reading,writing,speaking}`, `gray.50-900`, `successScale/warningScale/errorScale` · *est. 1h*
 - [x] **P05-17** · Refactor `app/pricing.tsx`: xóa inline THEME, thay = COLORS.* · *est. 30min*
 - [x] **P05-18** · Refactor `app/shadowing/index.tsx`: xóa inline THEME · *est. 30min*
-- [ ] **P05-19** · Refactor `app/(tabs)/vocabulary.tsx`: xóa inline THEME · *est. 15min*
-- [ ] **P05-20** · Refactor `app/vocabulary/[bookId].tsx`: xóa inline THEME · *est. 20min*
-- [ ] **P05-21** · Refactor `app/vocabulary/[bookId]/[unitId].tsx`: xóa inline THEME · *est. 30min*
-- [ ] **P05-22** · Refactor `app/ielts/calculator.tsx`: xóa inline THEME · *est. 15min*
-- [ ] **P05-23** · Replace `fontFamily: 'Farro-X'` → `FONTS.X` trong 15 file (find/replace cẩn thận) · *est. 1h*
-- [ ] **P05-24** · Skill color migration (find/replace `#E11D48`/`#2563EB`/`#D97706`/`#7C3AED` trong IELTS files) → `COLORS.skill.*` · *est. 1h*
-- [ ] **P05-25** · `grep -rn "const THEME" app/ components/` → confirm 0 · *est. 10min*
-- [ ] **P05-26** · `grep -rn "fontFamily: 'Farro" app/ components/` → confirm 0 · *est. 10min*
-- [ ] **P05-27** · Smoke test 10 screen UI không đổi (compare screenshot) · *est. 40min*
+- [x] **P05-19** · Refactor `app/(tabs)/vocabulary.tsx`: xóa inline THEME · *est. 15min*
+- [x] **P05-20** · Refactor `app/vocabulary/[bookId].tsx`: xóa inline THEME · *est. 20min*
+- [x] **P05-21** · Refactor `app/vocabulary/[bookId]/[unitId].tsx`: xóa inline THEME · *est. 30min*
+- [x] **P05-22** · Refactor `app/ielts/calculator.tsx`: xóa inline THEME · *est. 15min*
+- [x] **P05-23** · Replace `fontFamily: 'Farro-X'` → `FONTS.X` trong 15 file (find/replace cẩn thận) · *est. 1h*
+- [x] **P05-24** · Skill color migration (find/replace `#E11D48`/`#2563EB`/`#D97706`/`#7C3AED` trong IELTS files) → `COLORS.skill.*` · *est. 1h*
+- [x] **P05-25** · `grep -rn "const THEME" app/ components/` → confirm 0 · *est. 10min*
+- [x] **P05-26** · `grep -rn "fontFamily: 'Farro" app/ components/` → confirm 0 · *est. 10min*
+- [x] **P05-27** · Smoke test 10 screen UI không đổi (compare screenshot) · *est. 40min*
 
 ### 0.5.4 Barrel exports & module organization (2h)
 - [ ] **P05-28** · Tạo `components/ielts/index.ts` re-export tất cả ielts components · *est. 15min*
