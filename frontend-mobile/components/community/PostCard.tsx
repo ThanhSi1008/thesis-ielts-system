@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import ImageViewer from 'react-native-image-zoom-viewer';
 import { COLORS, FONTS } from '@/constants';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Post, PostType } from '@/types';
@@ -40,6 +41,9 @@ export function PostCard({
   onDelete: (id: string) => void;
   onOpenComments: (id: string) => void;
 }) {
+  const [viewerVisible, setViewerVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
   const authorName =
     [post.author.firstName, post.author.lastName].filter(Boolean).join(' ') || 'Anonymous';
   const isOwner = post.authorId === currentUserId;
@@ -72,15 +76,48 @@ export function PostCard({
       <Text style={styles.postBody}>{post.body}</Text>
 
       {post.imageUrls?.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
-          {post.imageUrls.map((url, i) => (
-            <Image
-              key={i}
-              source={{ uri: url }}
-              style={{ width: 200, height: 140, borderRadius: 12, marginRight: 8 }}
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
+            {post.imageUrls.map((url, i) => (
+              <TouchableOpacity
+                key={i}
+                activeOpacity={0.8}
+                onPress={() => {
+                  setSelectedImageIndex(i);
+                  setViewerVisible(true);
+                }}
+              >
+                <Image
+                  source={{ uri: url }}
+                  style={{ width: 200, height: 140, borderRadius: 12, marginRight: 8 }}
+                />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <Modal
+            visible={viewerVisible}
+            transparent={true}
+            onRequestClose={() => setViewerVisible(false)}
+            animationType="fade"
+          >
+            <ImageViewer
+              imageUrls={post.imageUrls.map((url) => ({ url }))}
+              index={selectedImageIndex}
+              onCancel={() => setViewerVisible(false)}
+              enableSwipeDown={true}
+              renderHeader={() => (
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setViewerVisible(false)}
+                  hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                >
+                  <Ionicons name="close" size={28} color="#fff" />
+                </TouchableOpacity>
+              )}
             />
-          ))}
-        </ScrollView>
+          </Modal>
+        </>
       )}
 
       {post.tags?.length > 0 && (
@@ -217,5 +254,14 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.bold,
     fontSize: 10,
     letterSpacing: 0.5,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 99,
+    padding: 8,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20,
   },
 });
