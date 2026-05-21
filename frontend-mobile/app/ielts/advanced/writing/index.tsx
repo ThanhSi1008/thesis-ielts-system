@@ -21,6 +21,7 @@ import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { AdvancedWritingPromptCard } from '@/components/ielts';
 import { EmptyState, FeatureLock, UsageIndicator } from '@/components/ui/index';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -36,6 +37,7 @@ const TABS = [
 export default function AdvancedWritingIndexScreen() {
   const router = useRouter();
   const { isPremium, usage } = useSubscription();
+  const { colors, isDark } = useTheme();
   const [prompts, setPrompts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -108,19 +110,149 @@ export default function AdvancedWritingIndexScreen() {
     router.push(ROUTES.ieltsAdvancedWriting(promptId));
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      marginTop: SPACING.sm,
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+    },
+    header: {
+      backgroundColor: isDark ? colors.card : COLORS.skill.writing,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
+    },
+    backBtn: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.lg,
+      fontFamily: FONTS.bold,
+    },
+    headerBtn: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    tabBar: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 3,
+      borderBottomColor: 'transparent',
+    },
+    activeTab: {
+      borderBottomColor: COLORS.skill.writing,
+    },
+    tabLabel: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.md,
+      color: colors.textSecondary,
+    },
+    activeTabLabel: {
+      fontFamily: FONTS.bold,
+      color: COLORS.skill.writing,
+    },
+    searchRow: {
+      backgroundColor: colors.card,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.sm,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    searchBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      backgroundColor: colors.background,
+      borderRadius: RADIUS.md,
+      paddingHorizontal: SPACING.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      height: 38,
+    },
+    searchInput: {
+      flex: 1,
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      padding: 0,
+    },
+    filterContainer: {
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    filterContent: {
+      flexDirection: 'row',
+      gap: SPACING.sm,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.sm,
+    },
+    filterChip: {
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    activeFilterChip: {
+      backgroundColor: COLORS.skill.writing + (isDark ? '25' : '12'),
+      borderColor: COLORS.skill.writing,
+    },
+    filterChipText: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+    },
+    activeFilterChipText: {
+      fontFamily: FONTS.bold,
+      color: COLORS.skill.writing,
+    },
+    listContent: {
+      padding: SPACING.md,
+      paddingBottom: 60,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color="#fff" />
+          <Ionicons name="chevron-back" size={22} color={isDark ? colors.text : "#fff"} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Advanced Writing</Text>
         <TouchableOpacity
           style={styles.headerBtn}
           onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
         >
-          <Ionicons name="time-outline" size={22} color="#fff" />
+          <Ionicons name="time-outline" size={22} color={isDark ? colors.text : "#fff"} />
         </TouchableOpacity>
       </View>
 
@@ -226,7 +358,7 @@ export default function AdvancedWritingIndexScreen() {
           keyExtractor={(item) => item.id}
           ListHeaderComponent={
             usage?.AI_WRITING_GRADING && usage.AI_WRITING_GRADING.limit !== Infinity ? (
-              <View style={{ backgroundColor: '#fff', padding: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.md }}>
+              <View style={{ backgroundColor: colors.card, padding: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: colors.border, marginBottom: SPACING.md }}>
                 <UsageIndicator
                   label="Monthly AI Writing Evaluations"
                   used={usage.AI_WRITING_GRADING.used}
@@ -268,131 +400,3 @@ export default function AdvancedWritingIndexScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: SPACING.sm,
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-  },
-  header: {
-    backgroundColor: COLORS.skill.writing,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: FONT_SIZES.lg,
-    fontFamily: FONTS.bold,
-  },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabBar: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: COLORS.skill.writing,
-  },
-  tabLabel: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textSecondary,
-  },
-  activeTabLabel: {
-    fontFamily: FONTS.bold,
-    color: COLORS.skill.writing,
-  },
-  searchRow: {
-    backgroundColor: '#fff',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    height: 38,
-  },
-  searchInput: {
-    flex: 1,
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    padding: 0,
-  },
-  filterContainer: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  filterContent: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-  },
-  filterChip: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
-  },
-  activeFilterChip: {
-    backgroundColor: COLORS.skill.writing + '12',
-    borderColor: COLORS.skill.writing,
-  },
-  filterChipText: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-  },
-  activeFilterChipText: {
-    fontFamily: FONTS.bold,
-    color: COLORS.skill.writing,
-  },
-  listContent: {
-    padding: SPACING.md,
-    paddingBottom: 60,
-  },
-});
