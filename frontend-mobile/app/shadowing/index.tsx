@@ -14,20 +14,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { shadowingApi } from '@/services/features.api';
 import { LinearGradient } from 'expo-linear-gradient';
+import { COLORS, FONTS } from '@/constants';
 
-const THEME = {
-  P: '#FFC600',
-  FG1: '#212529',
-  FG2: '#64748b',
-  FG3: '#9ca3af',
-  BDR: '#e5e7eb',
-  SRF: '#f8f9fa',
-  WH: '#ffffff',
-  BLU: '#2196F3',
-  RED: '#F44336',
-  GRN: '#4CAF50',
-  ORG: '#FF9800',
-};
 
 const STATUS_FILTERS = [
   { id: 'all', label: 'All' },
@@ -121,23 +109,23 @@ export default function ShadowingScreen() {
             <Text style={styles.headerTitle}>Shadowing & Dictation</Text>
           </View>
           <TouchableOpacity style={styles.searchBtn} onPress={() => setShowSearch(!showSearch)}>
-            <Ionicons name="search" size={18} color={THEME.FG1} />
+            <Ionicons name="search" size={18} color={COLORS.text} />
           </TouchableOpacity>
         </View>
 
         {showSearch && (
           <View style={styles.searchWrap}>
-            <Ionicons name="search" size={16} color={THEME.FG3} style={{ marginRight: 8 }} />
+            <Ionicons name="search" size={16} color={COLORS.gray[400]} style={{ marginRight: 8 }} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search lessons..."
               value={search}
               onChangeText={setSearch}
-              placeholderTextColor={THEME.FG3}
+              placeholderTextColor={COLORS.gray[400]}
             />
             {search.length > 0 && (
               <TouchableOpacity onPress={() => setSearch('')}>
-                <Ionicons name="close-circle" size={16} color={THEME.FG3} />
+                <Ionicons name="close-circle" size={16} color={COLORS.gray[400]} />
               </TouchableOpacity>
             )}
           </View>
@@ -152,7 +140,7 @@ export default function ShadowingScreen() {
             <Ionicons
               name="volume-high"
               size={14}
-              color={mode === 'shadowing' ? THEME.BLU : THEME.FG3}
+              color={mode === 'shadowing' ? COLORS.info : COLORS.gray[400]}
             />
             <Text style={[styles.modeBtnText, mode === 'shadowing' && styles.modeBtnTextActive]}>
               Shadowing
@@ -165,7 +153,7 @@ export default function ShadowingScreen() {
             <Ionicons
               name="pencil"
               size={14}
-              color={mode === 'dictation' ? THEME.ORG : THEME.FG3}
+              color={mode === 'dictation' ? COLORS.warning : COLORS.gray[400]}
             />
             <Text style={[styles.modeBtnText, mode === 'dictation' && styles.modeBtnTextActive]}>
               Dictation
@@ -222,7 +210,7 @@ export default function ShadowingScreen() {
         </Text>
 
         {loading ? (
-          <ActivityIndicator size="large" color={THEME.P} style={{ marginTop: 20 }} />
+          <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -241,7 +229,7 @@ export default function ShadowingScreen() {
               const p = progress[lesson.id]?.[mode] || 0;
               const isComp = p === 100;
               const isIP = p > 0 && p < 100;
-              const accent = mode === 'shadowing' ? THEME.BLU : THEME.ORG;
+              const accent = mode === 'shadowing' ? COLORS.info : COLORS.warning;
               const cat = lesson.tags?.[0] || 'English';
 
               return (
@@ -251,7 +239,7 @@ export default function ShadowingScreen() {
                     <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
                       <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
                       {isComp ? (
-                        <Ionicons name="checkmark-circle" size={24} color={THEME.GRN} />
+                        <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
                       ) : (
                         <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
                       )}
@@ -270,7 +258,7 @@ export default function ShadowingScreen() {
                     </Text>
                     <View style={styles.metaRow}>
                       <View style={styles.durWrap}>
-                        <Ionicons name="time-outline" size={11} color={THEME.FG3} />
+                        <Ionicons name="time-outline" size={11} color={COLORS.gray[400]} />
                         <Text style={styles.durText}>{lesson.duration || '5 min'}</Text>
                       </View>
                       <View style={styles.catWrap}>
@@ -292,7 +280,7 @@ export default function ShadowingScreen() {
                         {p === 0 && <Text style={styles.statusText}>Not started</Text>}
                         {isComp && (
                           <View style={styles.compWrap}>
-                            <Ionicons name="checkmark" size={11} color={THEME.GRN} />
+                            <Ionicons name="checkmark" size={11} color={COLORS.success} />
                             <Text style={styles.compText}>Completed</Text>
                           </View>
                         )}
@@ -327,11 +315,11 @@ export default function ShadowingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.SRF },
+  container: { flex: 1, backgroundColor: COLORS.surface },
   header: {
     backgroundColor: 'rgba(248,249,250,0.97)',
     borderBottomWidth: 1,
-    borderBottomColor: THEME.BDR,
+    borderBottomColor: COLORS.border,
     zIndex: 20,
   },
   headerRow: {
@@ -343,16 +331,16 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   eyebrow: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
   },
   headerTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 21,
-    color: THEME.FG1,
+    color: COLORS.text,
     letterSpacing: -0.25,
     lineHeight: 26,
   },
@@ -360,9 +348,9 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -374,16 +362,16 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     marginHorizontal: 16,
     marginBottom: 8,
     paddingHorizontal: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     height: 38,
   },
-  searchInput: { flex: 1, fontFamily: 'Farro-Regular', fontSize: 13, color: THEME.FG1 },
+  searchInput: { flex: 1, fontFamily: FONTS.regular, fontSize: 13, color: COLORS.text },
 
   modeToggle: {
     flexDirection: 'row',
@@ -403,15 +391,15 @@ const styles = StyleSheet.create({
     borderRadius: 9,
   },
   modeBtnActive: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
-  modeBtnText: { fontFamily: 'Farro-Bold', fontSize: 12, color: THEME.FG3 },
-  modeBtnTextActive: { color: THEME.FG1 },
+  modeBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
+  modeBtnTextActive: { color: COLORS.text },
 
   subTabs: {
     flexDirection: 'row',
@@ -428,9 +416,9 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
     marginBottom: -2,
   },
-  subTabActive: { borderBottomColor: THEME.P },
-  subTabText: { fontFamily: 'Farro-Bold', fontSize: 12, color: THEME.FG3 },
-  subTabTextActive: { color: THEME.FG1 },
+  subTabActive: { borderBottomColor: COLORS.primary },
+  subTabText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
+  subTabTextActive: { color: COLORS.text },
 
   statusFilters: { paddingHorizontal: 16, paddingVertical: 9, gap: 6 },
   chip: {
@@ -438,26 +426,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: THEME.BDR,
-    backgroundColor: THEME.WH,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.background,
   },
   chipActive: {
-    backgroundColor: THEME.P,
-    borderColor: THEME.P,
-    shadowColor: THEME.P,
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 8,
     elevation: 2,
   },
-  chipText: { fontFamily: 'Farro-Bold', fontSize: 11, color: THEME.FG2 },
-  chipTextActive: { color: THEME.FG1 },
+  chipText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.textSecondary },
+  chipTextActive: { color: COLORS.text },
 
   listWrap: { flex: 1, paddingHorizontal: 16 },
   countText: {
-    fontFamily: 'Farro-Medium',
+    fontFamily: FONTS.medium,
     fontSize: 11,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     paddingVertical: 7,
     fontWeight: '600',
   },
@@ -489,26 +477,26 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 999,
   },
-  thumbProgFill: { height: '100%', backgroundColor: THEME.P, borderRadius: 999 },
+  thumbProgFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 999 },
 
   metaWrap: { flex: 1, justifyContent: 'center' },
   lessonTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 13,
-    color: THEME.FG1,
+    color: COLORS.text,
     lineHeight: 17,
     marginBottom: 3,
   },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   durWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  durText: { fontFamily: 'Farro-Regular', fontSize: 11, color: THEME.FG3 },
+  durText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
   catWrap: {
     backgroundColor: '#f3f4f6',
     paddingVertical: 1,
     paddingHorizontal: 6,
     borderRadius: 4,
   },
-  catText: { fontFamily: 'Farro-Bold', fontSize: 10, color: THEME.FG2 },
+  catText: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.textSecondary },
 
   progBarRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
   progBarBg: {
@@ -518,8 +506,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     overflow: 'hidden',
   },
-  progBarFill: { height: '100%', backgroundColor: THEME.P, borderRadius: 999 },
-  progBarText: { fontFamily: 'Farro-Bold', fontSize: 10, color: THEME.FG2 },
+  progBarFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 999 },
+  progBarText: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.textSecondary },
 
   actionRow: {
     flexDirection: 'row',
@@ -527,21 +515,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 4,
   },
-  statusText: { fontFamily: 'Farro-Regular', fontSize: 11, color: THEME.FG3 },
+  statusText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
   compWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  compText: { fontFamily: 'Farro-Bold', fontSize: 11, color: THEME.GRN },
+  compText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.success },
 
   actionBtn: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999 },
   actionBtnStart: {
-    backgroundColor: THEME.P,
-    shadowColor: THEME.P,
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 8,
     elevation: 2,
   },
   actionBtnComp: { backgroundColor: '#f3f4f6' },
-  actionBtnText: { fontFamily: 'Farro-Bold', fontSize: 11, letterSpacing: 0.4 },
-  actionBtnTextStart: { color: THEME.FG1 },
-  actionBtnTextComp: { color: THEME.FG2 },
+  actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.4 },
+  actionBtnTextStart: { color: COLORS.text },
+  actionBtnTextComp: { color: COLORS.textSecondary },
 });

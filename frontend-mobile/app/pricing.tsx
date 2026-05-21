@@ -17,21 +17,13 @@ import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { subscriptionsApi, PricingPlan } from '@/services/features.api';
 import { useAuth } from '@/contexts/AuthContext';
+import { COLORS, FONTS } from '@/constants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH * 0.82;
 const CARD_MARGIN = 6;
 const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN * 2;
 
-const THEME = {
-  P: '#FFC600',
-  FG1: '#111111',
-  FG2: '#64748b',
-  FG3: '#9ca3af',
-  BDR: '#e5e7eb',
-  SRF: '#f9fafb',
-  WH: '#ffffff',
-};
 
 const TIER_LEVEL: Record<string, number> = { FREE: 0, PREMIUM: 1, PRO: 2 };
 
@@ -429,7 +421,7 @@ export default function PricingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.WH },
+  container: { flex: 1, backgroundColor: COLORS.background },
   headerSafe: {
     backgroundColor: 'rgba(255,255,255,0.96)',
     borderBottomWidth: 1,
@@ -452,7 +444,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontFamily: 'Farro-Bold', fontSize: 16, color: '#111', letterSpacing: -0.1 },
+  headerTitle: { fontFamily: FONTS.bold, fontSize: 16, color: '#111', letterSpacing: -0.1 },
 
   content: { flex: 1 },
   hero: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 6, alignItems: 'center' },
@@ -468,7 +460,7 @@ const styles = StyleSheet.create({
   },
   badgeSparkleText: { color: '#b45309', fontSize: 12, fontWeight: '700' },
   heroTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 22,
     color: '#111',
     letterSpacing: -0.25,
@@ -477,7 +469,7 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   heroDesc: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 13,
     color: '#64748b',
     textAlign: 'center',
@@ -514,7 +506,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  billBtnText: { fontFamily: 'Farro-Bold', fontSize: 13, color: '#6b7280' },
+  billBtnText: { fontFamily: FONTS.bold, fontSize: 13, color: '#6b7280' },
   billBtnTextActive: { color: '#212529' },
   saveBadge: {
     backgroundColor: '#22c55e',
@@ -569,7 +561,7 @@ const styles = StyleSheet.create({
   popularBadgeText: { color: '#212529', fontSize: 11, fontWeight: '800', letterSpacing: 0.4 },
 
   planName: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 20,
     color: '#111',
     letterSpacing: -0.25,
@@ -606,7 +598,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   ctaBtnNormal: { backgroundColor: '#1f2937' },
-  ctaBtnText: { fontFamily: 'Farro-Bold', fontSize: 14 },
+  ctaBtnText: { fontFamily: FONTS.bold, fontSize: 14 },
   ctaBtnTextCurrent: { color: '#9ca3af' },
   ctaBtnTextPopular: { color: '#212529' },
   ctaBtnTextNormal: { color: '#fff' },
@@ -643,7 +635,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12.5,
     color: '#92400e',
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     lineHeight: 18,
   },
 
@@ -659,7 +651,7 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 16,
   },
-  compareBtnText: { fontFamily: 'Farro-Bold', fontSize: 14, color: '#111' },
+  compareBtnText: { fontFamily: FONTS.bold, fontSize: 14, color: '#111' },
 
   cmpTable: {
     marginHorizontal: 16,
@@ -681,7 +673,7 @@ const styles = StyleSheet.create({
   },
   cmpHeadLeft: {
     flex: 1,
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 11,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
@@ -690,7 +682,7 @@ const styles = StyleSheet.create({
   cvalText: {
     width: 52,
     textAlign: 'center',
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 11,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
@@ -705,7 +697,7 @@ const styles = StyleSheet.create({
   },
   cmpRowLabel: {
     flex: 1,
-    fontFamily: 'Farro-Medium',
+    fontFamily: FONTS.medium,
     fontSize: 12,
     color: '#374151',
     paddingRight: 8,
@@ -716,7 +708,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 8,
     paddingBottom: 28,
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 11.5,
     color: '#9ca3af',
   },
