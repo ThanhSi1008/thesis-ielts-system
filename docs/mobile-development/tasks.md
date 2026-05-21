@@ -300,27 +300,27 @@
 ## Phase 6 — Question type renderers (24h)
 
 ### 6.1 Audit (1h)
-- [ ] **P6-01** · So sánh web/reading-renders + listening-renders vs mobile components/ielts/ · *est. 1h*
+- [x] **P6-01** · So sánh web/reading-renders + listening-renders vs mobile components/ielts/ · *est. 1h*
 
 ### 6.2 Reading renderers (10h)
-- [ ] **P6-02** · `TrueFalseNotGivenGroup.tsx` · *est. 1h*
-- [ ] **P6-03** · `ShortAnswerGroup.tsx` (reading) · *est. 1h*
-- [ ] **P6-04** · `NoteCompletionGroup.tsx` (input inline) · *est. 2h*
-- [ ] **P6-05** · `SummaryCompletionGroup.tsx` · *est. 2h*
-- [ ] **P6-06** · `MatchingHeadingsGroup.tsx` · *est. 2h*
-- [ ] **P6-07** · `MatchingFeaturesGroup.tsx` · *est. 1h*
-- [ ] **P6-08** · `MatchingSentenceEndingsGroup.tsx` · *est. 1h*
+- [x] **P6-02** · `TrueFalseNotGivenGroup.tsx` · *est. 1h*
+- [x] **P6-03** · `ShortAnswerGroup.tsx` (reading) · *est. 1h*
+- [x] **P6-04** · `NoteCompletionGroup.tsx` (input inline) · *est. 2h*
+- [x] **P6-05** · `SummaryCompletionGroup.tsx` · *est. 2h*
+- [x] **P6-06** · `MatchingHeadingsGroup.tsx` · *est. 2h*
+- [x] **P6-07** · `MatchingFeaturesGroup.tsx` · *est. 1h*
+- [x] **P6-08** · `MatchingSentenceEndingsGroup.tsx` · *est. 1h*
 
 ### 6.3 Listening renderers (10h)
-- [ ] **P6-09** · `FlowChartCompletionGroup.tsx` · *est. 2h*
-- [ ] **P6-10** · `DiagramCompletionGroup.tsx` (overlay input on image) · *est. 2h*
-- [ ] **P6-11** · `TableCompletionGroup.tsx` · *est. 2h*
-- [ ] **P6-12** · `MapLabellingGroup.tsx` (image hotspot label) · *est. 2.5h*
-- [ ] **P6-13** · `DiagramLabellingGroup.tsx` · *est. 1.5h*
+- [x] **P6-09** · `FlowChartCompletionGroup.tsx` · *est. 2h*
+- [x] **P6-10** · `DiagramCompletionGroup.tsx` (overlay input on image) · *est. 2h*
+- [x] **P6-11** · `TableCompletionGroup.tsx` · *est. 2h*
+- [x] **P6-12** · `MapLabellingGroup.tsx` (image hotspot label) · *est. 2.5h*
+- [x] **P6-13** · `DiagramLabellingGroup.tsx` · *est. 1.5h*
 
 ### 6.4 Integration & test (3h)
-- [ ] **P6-14** · Mount tất cả vào `ContentGroupView.tsx` (switch by type) · *est. 1h*
-- [ ] **P6-15** · Test 10 lesson + 10 exercise sample đảm bảo render đúng · *est. 2h*
+- [x] **P6-14** · Mount tất cả vào `ContentGroupView.tsx` (switch by type) · *est. 1h*
+- [x] **P6-15** · Test 10 lesson + 10 exercise sample đảm bảo render đúng · *est. 2h*
 
 **Tổng phase 6**: 24h
 
