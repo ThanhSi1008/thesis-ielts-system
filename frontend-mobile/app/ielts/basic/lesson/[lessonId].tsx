@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeInRight, Layout } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import Markdown from 'react-native-markdown-display';
+import { TextWithLookup } from '@/components/global/TextWithLookup';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
 import { API_BASE_URL } from '@/constants';
@@ -351,6 +352,18 @@ const qStyles = StyleSheet.create({
   nextText: { fontSize: FONT_SIZES.sm, fontWeight: '800', color: COLORS.text },
 });
 
+const markdownRules = {
+  text: (node: any, children: any, parent: any, styles: any) => {
+    return (
+      <TextWithLookup
+        key={node.key}
+        content={node.content}
+        style={styles.text}
+      />
+    );
+  }
+};
+
 /* ─── Main screen ─── */
 export default function LessonViewerScreen() {
   const router = useRouter();
@@ -478,7 +491,7 @@ export default function LessonViewerScreen() {
                   <View
                     style={[isSection && { paddingLeft: 0 }, !isSection && { paddingLeft: 26 }]}
                   >
-                    <Markdown style={markdownStyles}>{block.content}</Markdown>
+                    <Markdown style={markdownStyles} rules={markdownRules}>{block.content}</Markdown>
                   </View>
                 ) : null}
               </Animated.View>
