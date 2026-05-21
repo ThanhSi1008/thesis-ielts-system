@@ -20,6 +20,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/c
 import { API_BASE_URL } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { Stack } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
 
 /* ─── Types ─── */
 interface LessonBlock {
@@ -368,6 +369,7 @@ const markdownRules = {
 export default function LessonViewerScreen() {
   const router = useRouter();
   const { lessonId, skill } = useLocalSearchParams<{ lessonId: string; skill: string }>();
+  const { colors } = useTheme();
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
@@ -447,14 +449,14 @@ export default function LessonViewerScreen() {
   }
 
   return (
-    <View style={styles.safe}>
+    <View style={[styles.safe, { backgroundColor: colors.background }]}>
       <Stack.Screen
         options={{
           headerShown: true,
           title: lesson.title,
           headerBackTitle: lesson.skill?.name ?? skill ?? 'Back',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#fff' },
+          headerStyle: { backgroundColor: colors.background },
         }}
       />
 
@@ -514,7 +516,7 @@ export default function LessonViewerScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
+  safe: { flex: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
   loadingText: { color: COLORS.textSecondary, fontSize: FONT_SIZES.sm },
   header: {

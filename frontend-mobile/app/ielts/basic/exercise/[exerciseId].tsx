@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, API_BASE_URL, FONTS, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api-client';
+import { useTheme } from '@/contexts/ThemeContext';
 import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import Markdown from 'react-native-markdown-display';
 import { ContentGroupView } from '@/components/ielts/exercise/ContentGroupView';
@@ -332,6 +333,7 @@ function WritingSection({
 export default function ExerciseViewerScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { colors } = useTheme();
   const { exerciseId, lessonId, skill } = useLocalSearchParams<{
     exerciseId: string;
     lessonId?: string;
@@ -468,14 +470,14 @@ export default function ExerciseViewerScreen() {
   const isWriting = skillLc === 'writing';
 
   return (
-    <View style={styles.safe}>
+    <View style={[styles.safe, { backgroundColor: colors.background }]}>
       <Stack.Screen
         options={{
           headerShown: true,
           title: exercise.topic ?? 'Exercise',
           headerBackTitle: skillUpper ?? 'Back',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#fff' },
+          headerStyle: { backgroundColor: colors.background },
           headerRight: () => {
             if (isWriting) return null;
             if (!submitted)
@@ -571,7 +573,7 @@ export default function ExerciseViewerScreen() {
         )}
       </ScrollView>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         {!submitted ? (
           <TouchableOpacity
             style={[styles.submitBtn, !isWriting && answeredCount === 0 && { opacity: 0.5 }]}
@@ -640,7 +642,7 @@ export default function ExerciseViewerScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+  safe: { flex: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
   loadingText: { color: COLORS.textSecondary, fontSize: FONT_SIZES.sm },
   header: {
@@ -685,9 +687,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: SPACING.lg,
-    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderColor: COLORS.border,
     boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.08)',
   },
   submitBtn: {
