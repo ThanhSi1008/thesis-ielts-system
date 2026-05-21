@@ -18,9 +18,111 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, Button } from '@/components/ui';
+import { useTheme } from '@/contexts/ThemeContext';
+
+const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+    header: {
+      backgroundColor: colors.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+    },
+    headerTitle: {
+      flex: 1,
+      color: '#fff',
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '700',
+      marginHorizontal: SPACING.md,
+    },
+    addCardBtn: {
+      width: 36,
+      height: 36,
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      borderRadius: RADIUS.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    statsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      padding: SPACING.lg,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    statItem: { flex: 1, alignItems: 'center' },
+    statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
+    statVal: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: colors.text },
+    statLabel: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 2 },
+    cardRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      marginBottom: SPACING.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: SPACING.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.03,
+      shadowRadius: 4,
+      elevation: 1,
+    },
+    cardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
+    cardTexts: { flex: 1 },
+    cardFront: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text, marginBottom: 2 },
+    cardBack: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
+    stateBadge: { paddingHorizontal: SPACING.sm, paddingVertical: 3, borderRadius: RADIUS.full },
+    stateLabel: { fontSize: 10, fontWeight: '700' },
+    deleteBtn: { padding: SPACING.sm },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    modal: {
+      backgroundColor: colors.card,
+      borderTopLeftRadius: RADIUS.xl * 2,
+      borderTopRightRadius: RADIUS.xl * 2,
+      padding: SPACING.xl,
+    },
+    modalTitle: {
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '800',
+      color: colors.text,
+      marginBottom: SPACING.lg,
+    },
+    modalFieldLabel: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '700',
+      color: colors.textSecondary,
+      marginBottom: SPACING.xs,
+    },
+    modalInput: {
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      fontSize: FONT_SIZES.md,
+      color: colors.text,
+      marginBottom: SPACING.md,
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
+    modalActions: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      gap: SPACING.md,
+      marginTop: SPACING.sm,
+    },
+  });
 
 export default function DeckDetailScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { deckId } = useLocalSearchParams<{ deckId: string }>();
   const [deck, setDeck] = useState<any>(null);
   const [cards, setCards] = useState<any[]>([]);
@@ -86,7 +188,7 @@ export default function DeckDetailScreen() {
   const STATE_COLORS: Record<string, string> = {
     New: COLORS.info,
     Learning: COLORS.warning,
-    Review: COLORS.primary,
+    Review: colors.primary,
     Relearning: COLORS.error,
     Mastered: COLORS.success,
   };
@@ -94,7 +196,7 @@ export default function DeckDetailScreen() {
   if (loading)
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
 
@@ -168,7 +270,7 @@ export default function DeckDetailScreen() {
             const frontText = card.front || fv['Front'] || Object.values(fv)[0] || '—';
             const backText = card.back || fv['Back'] || Object.values(fv)[1] || '—';
             const state = card.state || 'New';
-            const stateColor = STATE_COLORS[state] ?? COLORS.primary;
+            const stateColor = STATE_COLORS[state] ?? colors.primary;
 
             return (
               <View
@@ -178,7 +280,7 @@ export default function DeckDetailScreen() {
                   card.cardType?.templates?.[0]?.cardStyle
                     ? {
                         backgroundColor:
-                          card.cardType.templates[0].cardStyle.backgroundColor || '#fff',
+                          card.cardType.templates[0].cardStyle.backgroundColor || colors.card,
                       }
                     : null,
                 ]}
@@ -219,7 +321,7 @@ export default function DeckDetailScreen() {
                   <Ionicons
                     name="trash-outline"
                     size={18}
-                    color={card.cardType?.templates?.[0]?.cardStyle?.color || COLORS.textMuted}
+                    color={card.cardType?.templates?.[0]?.cardStyle?.color || colors.textMuted}
                   />
                 </TouchableOpacity>
               </View>
@@ -239,7 +341,7 @@ export default function DeckDetailScreen() {
               value={front}
               onChangeText={setFront}
               placeholder="Front side of card…"
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
               multiline
             />
             <Text style={styles.modalFieldLabel}>Back</Text>
@@ -248,7 +350,7 @@ export default function DeckDetailScreen() {
               value={back}
               onChangeText={setBack}
               placeholder="Back side of card…"
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
               multiline
             />
             <View style={styles.modalActions}>
@@ -274,101 +376,3 @@ export default function DeckDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  header: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-  },
-  headerTitle: {
-    flex: 1,
-    color: '#fff',
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '700',
-    marginHorizontal: SPACING.md,
-  },
-  addCardBtn: {
-    width: 36,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: SPACING.lg,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  statItem: { flex: 1, alignItems: 'center' },
-  statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: COLORS.border },
-  statVal: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text },
-  statLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  cardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
-  cardTexts: { flex: 1 },
-  cardFront: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: 2 },
-  cardBack: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
-  stateBadge: { paddingHorizontal: SPACING.sm, paddingVertical: 3, borderRadius: RADIUS.full },
-  stateLabel: { fontSize: 10, fontWeight: '700' },
-  deleteBtn: { padding: SPACING.sm },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  modal: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: RADIUS.xl * 2,
-    borderTopRightRadius: RADIUS.xl * 2,
-    padding: SPACING.xl,
-  },
-  modalTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: SPACING.lg,
-  },
-  modalFieldLabel: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.xs,
-  },
-  modalInput: {
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-    marginBottom: SPACING.md,
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: SPACING.md,
-    marginTop: SPACING.sm,
-  },
-});

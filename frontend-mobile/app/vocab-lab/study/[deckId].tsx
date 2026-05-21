@@ -16,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { vocabLabApi } from '@/services/features.api';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { FlashcardViewer } from '@/components/vocab-lab/FlashcardViewer';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface StudyCard {
@@ -86,6 +87,8 @@ function FlipCard({
   const frontRotate = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRotate = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
 
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const tpl = card.cardType?.templates?.[0];
   const cardStyle = tpl?.cardStyle || {};
 
@@ -196,6 +199,8 @@ function AllDoneScreen({
   onStudyAgain: () => void;
   onGoBack: () => void;
 }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const scaleAnim = useRef(new Animated.Value(0.85)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -222,7 +227,7 @@ function AllDoneScreen({
         <Text style={styles.allDoneEmoji}>🎉</Text>
         <Text style={styles.allDoneTitle}>Session Complete!</Text>
         <Text style={styles.allDoneSubtitle}>
-          You reviewed <Text style={{ fontWeight: '800', color: COLORS.primary }}>{reviewed}</Text>{' '}
+          You reviewed <Text style={{ fontWeight: '800', color: colors.primary }}>{reviewed}</Text>{' '}
           {reviewed === 1 ? 'card' : 'cards'}
           {timeSpentSeconds > 0 ? ` in ${formatDuration(timeSpentSeconds)}` : ''}.
         </Text>
@@ -277,8 +282,8 @@ function AllDoneScreen({
 
         <View style={styles.allDoneActions}>
           <Pressable style={[styles.allDoneBtn, styles.allDoneBtnOutline]} onPress={onStudyAgain}>
-            <Ionicons name="refresh" size={16} color={COLORS.primary} />
-            <Text style={[styles.allDoneBtnText, { color: COLORS.primary }]}>Study Again</Text>
+            <Ionicons name="refresh" size={16} color={colors.primary} />
+            <Text style={[styles.allDoneBtnText, { color: colors.primary }]}>Study Again</Text>
           </Pressable>
           <Pressable style={[styles.allDoneBtn, styles.allDoneBtnPrimary]} onPress={onGoBack}>
             <Ionicons name="checkmark" size={16} color="#fff" />
@@ -294,6 +299,8 @@ function AllDoneScreen({
 export default function StudyScreen() {
   const { deckId } = useLocalSearchParams<{ deckId: string }>();
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
 
   const [cards, setCards] = useState<StudyCard[]>([]);
   const [index, setIndex] = useState(0);
@@ -393,7 +400,7 @@ export default function StudyScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Loading cards…</Text>
         </View>
       </SafeAreaView>
@@ -407,7 +414,7 @@ export default function StudyScreen() {
         <View style={styles.loadingContainer}>
           <Ionicons name="alert-circle-outline" size={48} color={COLORS.error} />
           <Text style={styles.errorText}>{error}</Text>
-          <Pressable style={styles.retryBtn} onPress={fetchCards}>
+          <Pressable style={[styles.retryBtn, { backgroundColor: colors.primary }]} onPress={fetchCards}>
             <Text style={styles.retryBtnText}>Try Again</Text>
           </Pressable>
         </View>
@@ -421,7 +428,7 @@ export default function StudyScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.headerClose}>
-            <Ionicons name="close" size={24} color={COLORS.text} />
+            <Ionicons name="close" size={24} color={colors.text} />
           </Pressable>
           <Text style={styles.headerTitle}>Study Session</Text>
           <View style={{ width: 40 }} />
@@ -468,7 +475,7 @@ export default function StudyScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.headerClose}>
-            <Ionicons name="close" size={24} color={COLORS.text} />
+            <Ionicons name="close" size={24} color={colors.text} />
           </Pressable>
           <Text style={styles.headerTitle}>Study Session</Text>
           <View style={{ width: 40 }} />
@@ -492,7 +499,7 @@ export default function StudyScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.headerClose}>
-          <Ionicons name="close" size={24} color={COLORS.text} />
+          <Ionicons name="close" size={24} color={colors.text} />
         </Pressable>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Study Session</Text>
@@ -528,7 +535,7 @@ export default function StudyScreen() {
         {!showBack ? (
           /* Show Answer button */
           <Pressable style={styles.showAnswerBtn} onPress={handleFlip}>
-            <Ionicons name="eye-outline" size={18} color={COLORS.text} />
+            <Ionicons name="eye-outline" size={18} color={colors.text} />
             <Text style={styles.showAnswerText}>Show Answer</Text>
           </Pressable>
         ) : (
@@ -565,270 +572,271 @@ export default function StudyScreen() {
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
 
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  headerClose: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  headerCenter: { flex: 1, alignItems: 'center' },
-  headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
-  headerSubtitle: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 1 },
+    // Header
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    headerClose: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
+    headerCenter: { flex: 1, alignItems: 'center' },
+    headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
+    headerSubtitle: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 1 },
 
-  // Progress
-  progressTrack: { height: 4, backgroundColor: COLORS.border },
-  progressFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 2 },
+    // Progress
+    progressTrack: { height: 4, backgroundColor: colors.border },
+    progressFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 2 },
 
-  // Card
-  cardArea: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.xl,
-  },
-  cardFace: {
-    position: 'absolute',
-    width: '100%',
-    height: CARD_H,
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl * 1.5,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: SPACING.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  cardFaceBack: {
-    backgroundColor: '#FAFAFA',
-    borderColor: COLORS.primary + '40',
-  },
-  cardSideLabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.textMuted,
-    letterSpacing: 1.5,
-    marginBottom: SPACING.md,
-    textTransform: 'uppercase',
-  },
-  cardText: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '700',
-    color: COLORS.text,
-    textAlign: 'center',
-    lineHeight: 30,
-  },
-  tapHint: {
-    position: 'absolute',
-    bottom: SPACING.lg,
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textMuted,
-    fontStyle: 'italic',
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: SPACING.xs,
-    marginTop: SPACING.md,
-  },
-  tagChip: {
-    backgroundColor: COLORS.border,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 3,
-    borderRadius: RADIUS.full,
-  },
-  tagText: { fontSize: 10, color: COLORS.textSecondary, fontWeight: '600' },
+    // Card
+    cardArea: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.xl,
+    },
+    cardFace: {
+      position: 'absolute',
+      width: '100%',
+      height: CARD_H,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl * 1.5,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: SPACING.xl,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    cardFaceBack: {
+      backgroundColor: colors.surface,
+      borderColor: colors.primary + '40',
+    },
+    cardSideLabel: {
+      fontSize: 10,
+      fontWeight: '800',
+      color: colors.textMuted,
+      letterSpacing: 1.5,
+      marginBottom: SPACING.md,
+      textTransform: 'uppercase',
+    },
+    cardText: {
+      fontSize: FONT_SIZES.xl,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+      lineHeight: 30,
+    },
+    tapHint: {
+      position: 'absolute',
+      bottom: SPACING.lg,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textMuted,
+      fontStyle: 'italic',
+    },
+    tagsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: SPACING.xs,
+      marginTop: SPACING.md,
+    },
+    tagChip: {
+      backgroundColor: colors.border,
+      paddingHorizontal: SPACING.sm,
+      paddingVertical: 3,
+      borderRadius: RADIUS.full,
+    },
+    tagText: { fontSize: 10, color: colors.textSecondary, fontWeight: '600' },
 
-  // Action area
-  actionArea: {
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: SPACING.xl,
-    paddingTop: SPACING.md,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderColor: COLORS.border,
-  },
+    // Action area
+    actionArea: {
+      paddingHorizontal: SPACING.lg,
+      paddingBottom: SPACING.xl,
+      paddingTop: SPACING.md,
+      backgroundColor: colors.card,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+    },
 
-  // Show Answer
-  showAnswerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.sm,
-    backgroundColor: COLORS.background,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.xl,
-    paddingVertical: SPACING.md,
-  },
-  showAnswerText: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
+    // Show Answer
+    showAnswerBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: SPACING.sm,
+      backgroundColor: colors.background,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: RADIUS.xl,
+      paddingVertical: SPACING.md,
+    },
+    showAnswerText: {
+      fontSize: FONT_SIZES.md,
+      fontWeight: '700',
+      color: colors.text,
+    },
 
-  // Rating buttons
-  ratingsGrid: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-  },
-  ratingBtn: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
-    minHeight: 60,
-  },
-  ratingBtnDisabled: { opacity: 0.5 },
-  ratingLabel: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '800',
-    marginBottom: 2,
-  },
-  ratingInterval: {
-    fontSize: 10,
-    fontWeight: '600',
-    opacity: 0.8,
-  },
+    // Rating buttons
+    ratingsGrid: {
+      flexDirection: 'row',
+      gap: SPACING.sm,
+    },
+    ratingBtn: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1.5,
+      minHeight: 60,
+    },
+    ratingBtnDisabled: { opacity: 0.5 },
+    ratingLabel: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '800',
+      marginBottom: 2,
+    },
+    ratingInterval: {
+      fontSize: 10,
+      fontWeight: '600',
+      opacity: 0.8,
+    },
 
-  // Loading / Error
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: SPACING.md },
-  loadingText: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
-  errorText: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.error,
-    textAlign: 'center',
-    paddingHorizontal: SPACING.xl,
-  },
-  retryBtn: {
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.lg,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-  },
-  retryBtnText: { color: '#fff', fontWeight: '700', fontSize: FONT_SIZES.md },
+    // Loading / Error
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: SPACING.md },
+    loadingText: { fontSize: FONT_SIZES.md, color: colors.textSecondary },
+    errorText: {
+      fontSize: FONT_SIZES.md,
+      color: COLORS.error,
+      textAlign: 'center',
+      paddingHorizontal: SPACING.xl,
+    },
+    retryBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: RADIUS.lg,
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: SPACING.md,
+    },
+    retryBtnText: { color: '#fff', fontWeight: '700', fontSize: FONT_SIZES.md },
 
-  // All done
-  allDoneContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SPACING.xl,
-  },
-  allDoneCard: {
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl * 2,
-    padding: SPACING.xl * 1.5,
-    alignItems: 'center',
-    width: '100%',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-    elevation: 6,
-  },
-  allDoneEmoji: { fontSize: 56, marginBottom: SPACING.md },
-  allDoneTitle: {
-    fontSize: FONT_SIZES.xxl,
-    fontWeight: '900',
-    color: COLORS.text,
-    marginBottom: SPACING.sm,
-  },
-  allDoneSubtitle: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: SPACING.xl,
-  },
-  allDoneActions: { flexDirection: 'row', gap: SPACING.md, width: '100%' },
-  allDoneBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.xs,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.xl,
-  },
-  allDoneBtnOutline: {
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-    backgroundColor: '#fff',
-  },
-  allDoneBtnPrimary: {
-    backgroundColor: COLORS.primary,
-  },
-  allDoneBtnText: { fontWeight: '700', fontSize: FONT_SIZES.md },
+    // All done
+    allDoneContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: SPACING.xl,
+    },
+    allDoneCard: {
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl * 2,
+      padding: SPACING.xl * 1.5,
+      alignItems: 'center',
+      width: '100%',
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.08,
+      shadowRadius: 24,
+      elevation: 6,
+    },
+    allDoneEmoji: { fontSize: 56, marginBottom: SPACING.md },
+    allDoneTitle: {
+      fontSize: FONT_SIZES.xxl,
+      fontWeight: '900',
+      color: colors.text,
+      marginBottom: SPACING.sm,
+    },
+    allDoneSubtitle: {
+      fontSize: FONT_SIZES.md,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+      marginBottom: SPACING.xl,
+    },
+    allDoneActions: { flexDirection: 'row', gap: SPACING.md, width: '100%' },
+    allDoneBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: SPACING.xs,
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.xl,
+    },
+    allDoneBtnOutline: {
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+      backgroundColor: colors.card,
+    },
+    allDoneBtnPrimary: {
+      backgroundColor: colors.primary,
+    },
+    allDoneBtnText: { fontWeight: '700', fontSize: FONT_SIZES.md },
 
-  // Summary stats row
-  summaryRow: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.background,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.sm,
-    width: '100%',
-    marginBottom: SPACING.lg,
-  },
-  summaryItem: { flex: 1, alignItems: 'center' },
-  summaryVal: { fontSize: FONT_SIZES.lg, fontWeight: '900', color: COLORS.text },
-  summaryLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
-  summaryDivider: { width: 1, backgroundColor: COLORS.border, marginVertical: 4 },
+    // Summary stats row
+    summaryRow: {
+      flexDirection: 'row',
+      backgroundColor: colors.background,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: SPACING.md,
+      paddingHorizontal: SPACING.sm,
+      width: '100%',
+      marginBottom: SPACING.lg,
+    },
+    summaryItem: { flex: 1, alignItems: 'center' },
+    summaryVal: { fontSize: FONT_SIZES.lg, fontWeight: '900', color: colors.text },
+    summaryLabel: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 2 },
+    summaryDivider: { width: 1, backgroundColor: colors.border, marginVertical: 4 },
 
-  // Rating breakdown
-  breakdownCard: {
-    width: '100%',
-    backgroundColor: COLORS.background,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-  breakdownTitle: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '800',
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: SPACING.sm,
-  },
-  breakdownRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-    marginBottom: SPACING.xs,
-  },
-  breakdownLabel: { width: 48, fontSize: FONT_SIZES.xs, fontWeight: '700' },
-  breakdownBarBg: {
-    flex: 1,
-    height: 8,
-    backgroundColor: COLORS.border,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  breakdownBarFill: { height: '100%', borderRadius: 4 },
-  breakdownCount: { width: 24, textAlign: 'right', fontSize: FONT_SIZES.sm, fontWeight: '800' },
-});
+    // Rating breakdown
+    breakdownCard: {
+      width: '100%',
+      backgroundColor: colors.background,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: SPACING.md,
+      marginBottom: SPACING.lg,
+    },
+    breakdownTitle: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '800',
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      marginBottom: SPACING.sm,
+    },
+    breakdownRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.xs,
+      marginBottom: SPACING.xs,
+    },
+    breakdownLabel: { width: 48, fontSize: FONT_SIZES.xs, fontWeight: '700' },
+    breakdownBarBg: {
+      flex: 1,
+      height: 8,
+      backgroundColor: colors.border,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    breakdownBarFill: { height: '100%', borderRadius: 4 },
+    breakdownCount: { width: 24, textAlign: 'right', fontSize: FONT_SIZES.sm, fontWeight: '800' },
+  });
