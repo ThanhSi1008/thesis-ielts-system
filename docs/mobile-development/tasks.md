@@ -387,9 +387,9 @@
 ## Phase 10 — Dictionary Popup + Quick Vocab FAB (10h)
 
 ### 10.1 Dictionary Popup (6h)
-- [ ] **P10-01** · Tạo `components/global/DictionaryPopup.tsx` (bottom sheet 3 tab VI/EN/AI) · *est. 3h*
-- [ ] **P10-02** · `<TextWithLookup>` wrapper component cho phép long-press word · *est. 2h*
-- [ ] **P10-03** · Tích hợp vào LessonDetail, ExerciseDetail, ReadingExamBlock, PassageReview · *est. 1h*
+- [x] **P10-01** · Tạo `components/global/DictionaryPopup.tsx` (bottom sheet 3 tab VI/EN/AI) · *est. 3h*
+- [x] **P10-02** · `<TextWithLookup>` wrapper component cho phép long-press word · *est. 2h*
+- [x] **P10-03** · Tích hợp vào LessonDetail, ExerciseDetail, ReadingExamBlock, PassageReview · *est. 1h*
 
 ### 10.2 Quick Vocab FAB (4h)
 - [ ] **P10-04** · Tạo `components/global/GlobalVocabFab.tsx` draggable · *est. 2.5h*
