@@ -12,7 +12,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING } from '@/constants';
+import {COLORS, SPACING, FONTS} from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -105,7 +105,7 @@ function SharedDeckCard({ deck, onImported }: { deck: SharedDeck; onImported?: (
       {/* Meta + Publisher */}
       <View style={s.metaRow}>
         <Text style={s.metaText}>
-          <Text style={{ fontFamily: 'Farro-Bold' }}>{deck.cardCount}</Text> cards
+          <Text style={{ fontFamily: FONTS.bold }}>{deck.cardCount}</Text> cards
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

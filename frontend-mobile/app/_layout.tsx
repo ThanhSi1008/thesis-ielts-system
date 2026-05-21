@@ -1,3 +1,4 @@
+import { FONTS } from '@/constants';
 import { Stack } from 'expo-router';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -23,12 +24,12 @@ interface TextInputWithDefaultProps extends TextInput {
 
 (Text as unknown as TextWithDefaultProps).defaultProps =
   (Text as unknown as TextWithDefaultProps).defaultProps || {};
-(Text as unknown as TextWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
+(Text as unknown as TextWithDefaultProps).defaultProps!.style = { fontFamily: FONTS.bold };
 
 (TextInput as unknown as TextInputWithDefaultProps).defaultProps =
   (TextInput as unknown as TextInputWithDefaultProps).defaultProps || {};
 (TextInput as unknown as TextInputWithDefaultProps).defaultProps!.style = {
-  fontFamily: 'Farro-Bold',
+  fontFamily: FONTS.bold,
 };
 
 export default function RootLayout() {

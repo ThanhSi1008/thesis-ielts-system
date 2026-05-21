@@ -18,7 +18,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/constants';
+import {COLORS, FONTS} from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { postsApi, gamificationApi } from '@/services/posts.api';
 import { timeAgo } from '@/utils/timeAgo';
@@ -59,7 +59,7 @@ function Avatar({
         justifyContent: 'center',
       }}
     >
-      <Text style={{ fontFamily: 'Farro-Bold', fontSize: size * 0.38, color: bg }}>{initial}</Text>
+      <Text style={{ fontFamily: FONTS.bold, fontSize: size * 0.38, color: bg }}>{initial}</Text>
     </View>
   );
 }
@@ -347,10 +347,10 @@ function CreatePostModal({
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
               <Avatar name={authorName} avatar={user?.avatar} size={44} />
               <View>
-                <Text style={{ fontFamily: 'Farro-Bold', fontSize: 15, color: '#212529' }}>
+                <Text style={{ fontFamily: FONTS.bold, fontSize: 15, color: '#212529' }}>
                   {authorName}
                 </Text>
-                <Text style={{ fontFamily: 'Farro-Medium', fontSize: 12, color: '#9ca3af' }}>
+                <Text style={{ fontFamily: FONTS.medium, fontSize: 12, color: '#9ca3af' }}>
                   Public post
                 </Text>
               </View>
@@ -381,7 +381,7 @@ function CreatePostModal({
             {/* ── Title ── */}
             <Text style={s.sectionLabel}>
               Title{' '}
-              <Text style={{ color: '#9ca3af', fontFamily: 'Farro-Regular' }}>(optional)</Text>
+              <Text style={{ color: '#9ca3af', fontFamily: FONTS.regular }}>(optional)</Text>
             </Text>
             <TextInput
               value={title}
@@ -477,7 +477,7 @@ function CreatePostModal({
             <View style={{ flex: 1 }} />
             <Text
               style={{
-                fontFamily: 'Farro-Medium',
+                fontFamily: FONTS.medium,
                 fontSize: 12,
                 color: body.length > 1000 ? '#ef4444' : '#9ca3af',
               }}
@@ -531,7 +531,7 @@ function LeaderboardView({ currentUserId }: { currentUserId?: string }) {
           >
             <Text
               style={{
-                fontFamily: 'Farro-Bold',
+                fontFamily: FONTS.bold,
                 fontSize: 13,
                 color: type === t ? '#212529' : '#64748b',
               }}
@@ -546,7 +546,7 @@ function LeaderboardView({ currentUserId }: { currentUserId?: string }) {
         <ActivityIndicator color={COLORS.primary} />
       ) : entries.length === 0 ? (
         <Text
-          style={{ textAlign: 'center', color: '#9ca3af', fontFamily: 'Farro-Medium', padding: 20 }}
+          style={{ textAlign: 'center', color: '#9ca3af', fontFamily: FONTS.medium, padding: 20 }}
         >
           No data yet
         </Text>
@@ -679,7 +679,7 @@ function CommentSection({
       ) : comments.length === 0 ? (
         <Text
           style={{
-            fontFamily: 'Farro-Regular',
+            fontFamily: FONTS.regular,
             fontSize: 13,
             color: '#9ca3af',
             textAlign: 'center',
@@ -693,7 +693,7 @@ function CommentSection({
       )}
       {replyTo && (
         <View style={s.replyBanner}>
-          <Text style={{ fontFamily: 'Farro-Medium', fontSize: 13, color: COLORS.primary }}>
+          <Text style={{ fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primary }}>
             Replying to {replyTo.name}
           </Text>
           <TouchableOpacity onPress={() => setReplyTo(null)}>
@@ -926,7 +926,7 @@ export default function CommunityScreen() {
           {posts.length === 0 ? (
             <View style={{ alignItems: 'center', padding: 40 }}>
               <Ionicons name="albums-outline" size={48} color="#d1d5db" />
-              <Text style={{ fontFamily: 'Farro-Medium', color: '#9ca3af', marginTop: 12 }}>
+              <Text style={{ fontFamily: FONTS.medium, color: '#9ca3af', marginTop: 12 }}>
                 No posts yet. Be the first!
               </Text>
             </View>
@@ -983,8 +983,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
-  headerSub: { fontFamily: 'Farro-Bold', fontSize: 10, color: '#9ca3af', letterSpacing: 1 },
-  headerTitle: { fontFamily: 'Farro-Bold', fontSize: 24, color: '#212529' },
+  headerSub: { fontFamily: FONTS.bold, fontSize: 10, color: '#9ca3af', letterSpacing: 1 },
+  headerTitle: { fontFamily: FONTS.bold, fontSize: 24, color: '#212529' },
   iconBtn: {
     width: 38,
     height: 38,
@@ -1008,7 +1008,7 @@ const s = StyleSheet.create({
     borderColor: '#f0f0f0',
   },
   tabBtnActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  tabText: { fontFamily: 'Farro-Bold', fontSize: 13, color: '#64748b' },
+  tabText: { fontFamily: FONTS.bold, fontSize: 13, color: '#64748b' },
   tabTextActive: { color: '#212529' },
   createBox: {
     flexDirection: 'row',
@@ -1020,7 +1020,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#f0f0f0',
   },
-  createPlaceholder: { flex: 1, fontFamily: 'Farro-Medium', fontSize: 14, color: '#9ca3af' },
+  createPlaceholder: { flex: 1, fontFamily: FONTS.medium, fontSize: 14, color: '#9ca3af' },
   card: {
     backgroundColor: '#fff',
     borderRadius: 18,
@@ -1029,18 +1029,18 @@ const s = StyleSheet.create({
     borderColor: '#f0f0f0',
   },
   cardHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
-  authorName: { fontFamily: 'Farro-Bold', fontSize: 15, color: '#212529' },
-  timeText: { fontFamily: 'Farro-Medium', fontSize: 12, color: '#9ca3af', marginTop: 2 },
-  postTitle: { fontFamily: 'Farro-Bold', fontSize: 16, color: '#212529', marginBottom: 6 },
+  authorName: { fontFamily: FONTS.bold, fontSize: 15, color: '#212529' },
+  timeText: { fontFamily: FONTS.medium, fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  postTitle: { fontFamily: FONTS.bold, fontSize: 16, color: '#212529', marginBottom: 6 },
   postBody: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     color: '#374151',
     lineHeight: 22,
     marginBottom: 10,
   },
   tag: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
-  tagText: { fontFamily: 'Farro-Medium', fontSize: 12, color: '#64748b' },
+  tagText: { fontFamily: FONTS.medium, fontSize: 12, color: '#64748b' },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1058,7 +1058,7 @@ const s = StyleSheet.create({
     borderRadius: 20,
     marginRight: 4,
   },
-  actionText: { fontFamily: 'Farro-Bold', fontSize: 15, color: '#9ca3af' },
+  actionText: { fontFamily: FONTS.bold, fontSize: 15, color: '#9ca3af' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1067,7 +1067,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 12,
   },
-  pillText: { fontFamily: 'Farro-Bold', fontSize: 10, letterSpacing: 0.5 },
+  pillText: { fontFamily: FONTS.bold, fontSize: 10, letterSpacing: 0.5 },
   rankRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1081,12 +1081,12 @@ const s = StyleSheet.create({
   rankNum: {
     width: 28,
     textAlign: 'center',
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 14,
     color: '#9ca3af',
   },
-  rankName: { fontFamily: 'Farro-Bold', fontSize: 14, color: '#212529' },
-  rankScore: { fontFamily: 'Farro-Bold', fontSize: 15, color: '#212529' },
+  rankName: { fontFamily: FONTS.bold, fontSize: 14, color: '#212529' },
+  rankScore: { fontFamily: FONTS.bold, fontSize: 15, color: '#212529' },
   // Modal
   modalHeader: {
     flexDirection: 'row',
@@ -1097,22 +1097,22 @@ const s = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
     backgroundColor: '#fff',
   },
-  modalCancel: { fontFamily: 'Farro-Medium', fontSize: 15, color: '#64748b' },
-  modalTitle: { fontFamily: 'Farro-Bold', fontSize: 17, color: '#212529' },
+  modalCancel: { fontFamily: FONTS.medium, fontSize: 15, color: '#64748b' },
+  modalTitle: { fontFamily: FONTS.bold, fontSize: 17, color: '#212529' },
   postBtn: {
     backgroundColor: COLORS.primary,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
   },
-  postBtnText: { fontFamily: 'Farro-Bold', fontSize: 12, color: '#212529' },
+  postBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: '#212529' },
   bodyInput: {
     backgroundColor: '#fff',
     borderRadius: 14,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     padding: 14,
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     color: '#212529',
     minHeight: 120,
@@ -1126,7 +1126,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  typeChipText: { fontFamily: 'Farro-Bold', fontSize: 12, color: '#64748b' },
+  typeChipText: { fontFamily: FONTS.bold, fontSize: 12, color: '#64748b' },
   tagChip: {
     paddingVertical: 5,
     paddingHorizontal: 12,
@@ -1134,9 +1134,9 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  tagChipText: { fontFamily: 'Farro-Medium', fontSize: 12, color: '#64748b' },
+  tagChipText: { fontFamily: FONTS.medium, fontSize: 12, color: '#64748b' },
   // Modal extra
-  sectionLabel: { fontFamily: 'Farro-Bold', fontSize: 13, color: '#374151', marginBottom: 8 },
+  sectionLabel: { fontFamily: FONTS.bold, fontSize: 13, color: '#374151', marginBottom: 8 },
   fieldInput: {
     backgroundColor: '#f9fafb',
     borderRadius: 12,
@@ -1144,7 +1144,7 @@ const s = StyleSheet.create({
     borderColor: '#e5e7eb',
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     color: '#212529',
   },
@@ -1169,7 +1169,7 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
   },
   toolbarBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  toolbarBtnText: { fontFamily: 'Farro-Bold', fontSize: 14, color: COLORS.primary },
+  toolbarBtnText: { fontFamily: FONTS.bold, fontSize: 14, color: COLORS.primary },
   // Comment Section
   commentSection: {
     backgroundColor: '#fff',
@@ -1193,9 +1193,9 @@ const s = StyleSheet.create({
     alignSelf: 'flex-start',
     maxWidth: '100%',
   },
-  commentAuthor: { fontFamily: 'Farro-Bold', fontSize: 15, color: '#212529', marginBottom: 4 },
-  commentBody: { fontFamily: 'Farro-Regular', fontSize: 15, color: '#374151', lineHeight: 22 },
-  commentTime: { fontFamily: 'Farro-Medium', fontSize: 13, color: '#9ca3af' },
+  commentAuthor: { fontFamily: FONTS.bold, fontSize: 15, color: '#212529', marginBottom: 4 },
+  commentBody: { fontFamily: FONTS.regular, fontSize: 15, color: '#374151', lineHeight: 22 },
+  commentTime: { fontFamily: FONTS.medium, fontSize: 13, color: '#9ca3af' },
   commentInputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
   commentInput: {
     flex: 1,
@@ -1203,7 +1203,7 @@ const s = StyleSheet.create({
     borderRadius: 28,
     paddingHorizontal: 18,
     paddingVertical: 13,
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     color: '#212529',
     minHeight: 48,

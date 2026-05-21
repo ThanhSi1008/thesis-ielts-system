@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { FONTS } from '@/constants';
 import {
   View,
   Text,
@@ -200,27 +201,27 @@ export default function ChatAIScreen() {
 
 const markdownStyles = {
   body: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     lineHeight: 22,
     color: '#334155',
   },
   heading1: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 18,
     marginTop: 8,
     marginBottom: 4,
     color: '#0f172a',
   },
   heading2: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 16,
     marginTop: 6,
     marginBottom: 4,
     color: '#1e293b',
   },
   strong: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
   },
   em: {
     fontStyle: 'italic',
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 18,
     color: '#0f172a',
   },
@@ -356,7 +357,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   messageText: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     lineHeight: 22,
   },
@@ -385,7 +386,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     color: '#0f172a',
   },

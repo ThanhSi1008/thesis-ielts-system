@@ -2,7 +2,7 @@ import { Tabs, Link } from 'expo-router';
 import React from 'react';
 import { Platform, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/constants';
+import {COLORS, FONTS} from '@/constants';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 
 export default function TabLayout() {
@@ -23,7 +23,7 @@ export default function TabLayout() {
             boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.05)',
           },
           tabBarLabelStyle: {
-            fontFamily: 'Farro-Medium',
+            fontFamily: FONTS.medium,
             fontSize: 10,
             marginTop: 2,
           },

@@ -15,7 +15,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { COLORS, SPACING, FONT_SIZES, RADIUS, STORAGE_KEYS } from '@/constants';
+import {COLORS, SPACING, FONT_SIZES, RADIUS, STORAGE_KEYS, FONTS} from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -313,7 +313,7 @@ export default function ProfileScreen() {
                       borderRadius: 8,
                     }}
                   >
-                    <Text style={{ fontFamily: 'Farro-Bold', fontSize: 10, color: '#fff' }}>
+                    <Text style={{ fontFamily: FONTS.bold, fontSize: 10, color: '#fff' }}>
                       ACTIVE
                     </Text>
                   </View>
@@ -577,7 +577,7 @@ function dynamicStyles(isDark: boolean) {
       backgroundColor: isDark ? '#0F172A' : '#FFF',
     },
     pageTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 28,
       color: isDark ? '#F8FAFC' : '#0F172A',
     },
@@ -598,13 +598,13 @@ function dynamicStyles(isDark: boolean) {
       borderBottomColor: COLORS.primary,
     },
     tabText: {
-      fontFamily: 'Farro-Medium',
+      fontFamily: FONTS.medium,
       fontSize: 15,
       color: '#64748B',
     },
     activeTabText: {
       color: COLORS.primary,
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
     },
     section: {
       padding: 16,
@@ -638,7 +638,7 @@ function dynamicStyles(isDark: boolean) {
       gap: 8,
     },
     name: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 22,
       color: isDark ? '#F8FAFC' : '#0F172A',
     },
@@ -657,12 +657,12 @@ function dynamicStyles(isDark: boolean) {
       backgroundColor: '#8B5CF6',
     },
     badgeText: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 10,
       color: '#FFF',
     },
     email: {
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 14,
       color: isDark ? '#94A3B8' : '#64748B',
       marginTop: 2,
@@ -678,7 +678,7 @@ function dynamicStyles(isDark: boolean) {
       gap: 4,
     },
     streakBadgeText: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 13,
       color: isDark ? '#f87171' : '#EF4444',
     },
@@ -696,7 +696,7 @@ function dynamicStyles(isDark: boolean) {
       elevation: 1,
     },
     cardTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 16,
       color: isDark ? '#F8FAFC' : '#0F172A',
       marginBottom: 16,
@@ -705,7 +705,7 @@ function dynamicStyles(isDark: boolean) {
       marginBottom: 16,
     },
     label: {
-      fontFamily: 'Farro-Medium',
+      fontFamily: FONTS.medium,
       fontSize: 13,
       color: isDark ? '#94A3B8' : '#475569',
       marginBottom: 6,
@@ -717,7 +717,7 @@ function dynamicStyles(isDark: boolean) {
       borderRadius: 12,
       paddingHorizontal: 16,
       paddingVertical: 12,
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 15,
       color: isDark ? '#F8FAFC' : '#0F172A',
     },
@@ -733,7 +733,7 @@ function dynamicStyles(isDark: boolean) {
       marginTop: 8,
     },
     saveBtnText: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 15,
       color: '#FFF',
     },
@@ -748,12 +748,12 @@ function dynamicStyles(isDark: boolean) {
       borderColor: isDark ? '#334155' : '#E2E8F0',
     },
     subTier: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 15,
       color: isDark ? '#F8FAFC' : '#0F172A',
     },
     subDesc: {
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 12,
       color: isDark ? '#94A3B8' : '#64748B',
       marginTop: 2,
@@ -765,7 +765,7 @@ function dynamicStyles(isDark: boolean) {
       borderRadius: 8,
     },
     upgradeBtnText: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 13,
       color: '#D97706',
     },
@@ -778,12 +778,12 @@ function dynamicStyles(isDark: boolean) {
       marginBottom: 16,
     },
     levelTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 20,
       color: '#FFF',
     },
     levelSubtitle: {
-      fontFamily: 'Farro-Medium',
+      fontFamily: FONTS.medium,
       fontSize: 13,
       color: '#94A3B8',
       marginTop: 2,
@@ -812,12 +812,12 @@ function dynamicStyles(isDark: boolean) {
       justifyContent: 'space-between',
     },
     progressText: {
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 12,
       color: '#94A3B8',
     },
     sectionTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 18,
       color: isDark ? '#F8FAFC' : '#0F172A',
       marginTop: 8,
@@ -844,12 +844,12 @@ function dynamicStyles(isDark: boolean) {
       marginBottom: 8,
     },
     statValue: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 20,
       color: isDark ? '#F8FAFC' : '#0F172A',
     },
     statLabel: {
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 12,
       color: isDark ? '#94A3B8' : '#64748B',
       marginTop: 4,
@@ -885,12 +885,12 @@ function dynamicStyles(isDark: boolean) {
       flex: 1,
     },
     achTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 15,
       color: isDark ? '#F8FAFC' : '#0F172A',
     },
     achDesc: {
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 13,
       color: isDark ? '#94A3B8' : '#64748B',
       marginTop: 2,
@@ -908,7 +908,7 @@ function dynamicStyles(isDark: boolean) {
       borderRadius: 2,
     },
     achXp: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 13,
       color: '#38BDF8',
       marginLeft: 8,
@@ -929,7 +929,7 @@ function dynamicStyles(isDark: boolean) {
       gap: 12,
     },
     settingText: {
-      fontFamily: 'Farro-Medium',
+      fontFamily: FONTS.medium,
       fontSize: 15,
       color: isDark ? '#F8FAFC' : '#1E293B',
     },
@@ -942,7 +942,7 @@ function dynamicStyles(isDark: boolean) {
       marginTop: 8,
     },
     outlineBtnText: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 15,
       color: COLORS.primary,
     },
@@ -951,7 +951,7 @@ function dynamicStyles(isDark: boolean) {
       borderWidth: 1,
     },
     dangerTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 14,
       color: '#EF4444',
       marginBottom: 16,
@@ -965,7 +965,7 @@ function dynamicStyles(isDark: boolean) {
       gap: 8,
     },
     dangerBtnText: {
-      fontFamily: 'Farro-Medium',
+      fontFamily: FONTS.medium,
       fontSize: 15,
       color: '#EF4444',
     },
@@ -976,7 +976,7 @@ function dynamicStyles(isDark: boolean) {
     },
     versionText: {
       textAlign: 'center',
-      fontFamily: 'Farro-Medium',
+      fontFamily: FONTS.medium,
       color: '#94A3B8',
       fontSize: 12,
       marginTop: 8,
@@ -1004,7 +1004,7 @@ function dynamicStyles(isDark: boolean) {
       gap: 8,
     },
     fullLogoutBtnText: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 16,
       color: '#EF4444',
     },
@@ -1018,14 +1018,14 @@ function dynamicStyles(isDark: boolean) {
       backgroundColor: isDark ? '#020617' : '#F8F9FA',
     },
     guestTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 24,
       color: isDark ? '#F8FAFC' : '#0F172A',
       marginTop: 16,
       marginBottom: 8,
     },
     guestDesc: {
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 15,
       color: isDark ? '#94A3B8' : '#64748B',
       textAlign: 'center',
@@ -1041,7 +1041,7 @@ function dynamicStyles(isDark: boolean) {
       alignItems: 'center',
     },
     primaryBtnText: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 16,
       color: '#FFF',
     },
@@ -1054,12 +1054,12 @@ function dynamicStyles(isDark: boolean) {
       justifyContent: 'center',
     },
     googleTitle: {
-      fontFamily: 'Farro-Bold',
+      fontFamily: FONTS.bold,
       fontSize: 15,
       color: isDark ? '#F8FAFC' : '#0F172A',
     },
     googleDesc: {
-      fontFamily: 'Farro-Regular',
+      fontFamily: FONTS.regular,
       fontSize: 13,
       color: isDark ? '#94A3B8' : '#64748B',
     },

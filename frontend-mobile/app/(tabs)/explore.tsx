@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
-import { COLORS, RADIUS, SPACING } from '@/constants';
+import {COLORS, RADIUS, SPACING, FONTS} from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -151,14 +151,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F1F5F9',
   },
   headerTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 28,
     color: '#0F172A',
     marginBottom: 6,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 15,
     color: '#64748B',
     lineHeight: 22,
@@ -192,19 +192,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   bannerBadgeText: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     color: '#E2E8F0',
     letterSpacing: 1,
   },
   bannerTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 22,
     color: '#FFF',
     marginBottom: 8,
   },
   bannerDesc: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 14,
     color: '#94A3B8',
     marginBottom: 20,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   bannerBtnText: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 14,
     color: '#0F172A',
   },
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-10deg' }],
   },
   sectionTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 18,
     color: '#0F172A',
     marginBottom: 16,
@@ -270,13 +270,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 16,
     color: '#1E293B',
     marginBottom: 4,
   },
   cardDesc: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 13,
     color: '#64748B',
     lineHeight: 18,

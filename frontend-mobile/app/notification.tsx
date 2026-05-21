@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { FONTS } from '@/constants';
 import {
   View,
   Text,
@@ -368,13 +369,13 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 10,
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     color: '#9ca3af',
   },
   headerTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 22,
     color: '#111',
     letterSpacing: -0.25,
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,198,0,0.3)',
   },
-  markAllText: { fontFamily: 'Farro-Bold', fontSize: 12, color: '#FFC600' },
+  markAllText: { fontFamily: FONTS.bold, fontSize: 12, color: '#FFC600' },
 
   unreadBanner: {
     flexDirection: 'row',
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,198,0,0.15)',
   },
-  unreadBannerText: { fontFamily: 'Farro-Bold', fontSize: 11, color: '#92400e' },
+  unreadBannerText: { fontFamily: FONTS.bold, fontSize: 11, color: '#92400e' },
 
   item: {
     backgroundColor: '#fff',
@@ -441,11 +442,11 @@ const styles = StyleSheet.create({
   },
   itemContent: { flex: 1, minWidth: 0 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 },
-  itemTitle: { fontFamily: 'Farro-Medium', fontSize: 13.5, color: '#374151', flex: 1 },
-  itemTitleUnread: { fontFamily: 'Farro-Bold', color: '#111' },
+  itemTitle: { fontFamily: FONTS.medium, fontSize: 13.5, color: '#374151', flex: 1 },
+  itemTitleUnread: { fontFamily: FONTS.bold, color: '#111' },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFC600', flexShrink: 0 },
-  itemBody: { fontFamily: 'Farro-Regular', fontSize: 12.5, color: '#6b7280', lineHeight: 18 },
-  itemTime: { fontFamily: 'Farro-Regular', fontSize: 11, color: '#9ca3af', marginTop: 5 },
+  itemBody: { fontFamily: FONTS.regular, fontSize: 12.5, color: '#6b7280', lineHeight: 18 },
+  itemTime: { fontFamily: FONTS.regular, fontSize: 11, color: '#9ca3af', marginTop: 5 },
 
   deleteBtn: {
     width: 28,
@@ -474,14 +475,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emptyTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 18,
     color: '#111',
     marginBottom: 8,
     textAlign: 'center',
   },
   emptySubtitle: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 13,
     color: '#9ca3af',
     textAlign: 'center',

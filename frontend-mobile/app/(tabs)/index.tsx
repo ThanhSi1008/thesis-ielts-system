@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { COLORS, FONT_SIZES, RADIUS, SPACING } from '@/constants';
+import {COLORS, FONT_SIZES, RADIUS, SPACING, FONTS} from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   title: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 42,
     color: '#FFF',
     lineHeight: 48,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   subtitle: {
-    fontFamily: 'Farro-Light',
+    fontFamily: FONTS.light,
     fontSize: 18,
     color: '#D1D5DB', // gray-300
     lineHeight: 28,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   btnPrimaryText: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 16,
     color: '#000',
     letterSpacing: 1,
