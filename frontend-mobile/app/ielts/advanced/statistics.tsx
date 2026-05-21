@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-native-svg';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 import { ieltsAdvancedApi } from '@/services';
 import { EmptyState } from '@/components/ui';
 
@@ -162,10 +163,11 @@ function BandChart({
   points: { band: number; label: string }[];
   color: string;
 }) {
+  const { colors } = useTheme();
   if (points.length < 2) {
     return (
       <View style={chartStyles.empty}>
-        <Text style={chartStyles.emptyText}>Not enough sessions completed yet (min. 2)</Text>
+        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>Not enough sessions completed yet (min. 2)</Text>
       </View>
     );
   }
@@ -193,7 +195,7 @@ function BandChart({
             y1={toY(b)}
             x2={CHART_W - 8}
             y2={toY(b)}
-            stroke={COLORS.border}
+            stroke={colors.border}
             strokeWidth={1}
             strokeDasharray="4,4"
           />
@@ -206,7 +208,7 @@ function BandChart({
             x={padX - 8}
             y={toY(b) + 3}
             fontSize={8}
-            fill={COLORS.textSecondary}
+            fill={colors.textSecondary}
             textAnchor="end"
             fontFamily={FONTS.medium}
           >
@@ -228,7 +230,7 @@ function BandChart({
         {points.map((p, i) => (
           <React.Fragment key={i}>
             <Circle cx={toX(i)} cy={toY(p.band)} r={4.5} fill={color} />
-            <Circle cx={toX(i)} cy={toY(p.band)} r={2} fill="#fff" />
+            <Circle cx={toX(i)} cy={toY(p.band)} r={2} fill={colors.card} />
             <SvgText
               x={toX(i)}
               y={toY(p.band) - 8}
@@ -263,6 +265,7 @@ function BarChart({
   color: string;
   maxScale?: number;
 }) {
+  const { colors } = useTheme();
   const BAR_H = 140;
   const PAD_T = 16;
   const PAD_B = 24;
@@ -277,7 +280,7 @@ function BarChart({
   if (data.length === 0) {
     return (
       <View style={chartStyles.empty}>
-        <Text style={chartStyles.emptyText}>No data available for criteria analysis</Text>
+        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>No data available for criteria analysis</Text>
       </View>
     );
   }
@@ -296,7 +299,7 @@ function BarChart({
                 y1={y}
                 x2={CHART_W - PAD_R}
                 y2={y}
-                stroke={COLORS.border}
+                stroke={colors.border}
                 strokeWidth={1}
                 strokeDasharray="3,3"
               />
@@ -304,7 +307,7 @@ function BarChart({
                 x={PAD_L - 8}
                 y={y + 3}
                 fontSize={8}
-                fill={COLORS.textSecondary}
+                fill={colors.textSecondary}
                 textAnchor="end"
                 fontFamily={FONTS.medium}
               >
@@ -362,7 +365,7 @@ function BarChart({
                 y={BAR_H - 6}
                 fontSize={9}
                 textAnchor="middle"
-                fill={COLORS.text}
+                fill={colors.text}
                 fontFamily={FONTS.semibold}
               >
                 {item.label}
@@ -396,10 +399,12 @@ function DonutChart({
   totalCorrect: number;
   totalAttempted: number;
 }) {
+  const { colors } = useTheme();
+
   if (slices.length === 0 || totalAttempted === 0) {
     return (
       <View style={chartStyles.empty}>
-        <Text style={chartStyles.emptyText}>No question-type breakdown available</Text>
+        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>No question-type breakdown available</Text>
       </View>
     );
   }
@@ -423,7 +428,7 @@ function DonutChart({
               cx={center}
               cy={center}
               r={R}
-              stroke={COLORS.border}
+              stroke={colors.border}
               strokeWidth={strokeW}
               fill="transparent"
             />
@@ -453,8 +458,8 @@ function DonutChart({
         
         {/* Core display */}
         <View style={donutStyles.centerLabel}>
-          <Text style={donutStyles.overallPctText}>{overallPct}%</Text>
-          <Text style={donutStyles.overallSubText}>Accuracy</Text>
+          <Text style={[donutStyles.overallPctText, { color: colors.text }]}>{overallPct}%</Text>
+          <Text style={[donutStyles.overallSubText, { color: colors.textSecondary }]}>Accuracy</Text>
         </View>
       </View>
 
@@ -464,10 +469,10 @@ function DonutChart({
           <View key={slice.type} style={donutStyles.legendRow}>
             <View style={[donutStyles.colorIndicator, { backgroundColor: slice.color }]} />
             <View style={donutStyles.legendTextContainer}>
-              <Text style={donutStyles.legendLabel} numberOfLines={1}>
+              <Text style={[donutStyles.legendLabel, { color: colors.text }]} numberOfLines={1}>
                 {slice.label}
               </Text>
-              <Text style={donutStyles.legendStats}>
+              <Text style={[donutStyles.legendStats, { color: colors.textSecondary }]}>
                 {slice.correct}/{slice.total} ({slice.pct}%)
               </Text>
             </View>
@@ -482,6 +487,7 @@ function DonutChart({
 
 export default function StatisticsScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const [activeSkill, setActiveSkill] = useState<SkillKey>('listening');
   
   // States
@@ -761,7 +767,7 @@ export default function StatisticsScreen() {
   }, [activeHistory, activeSkill, criteriaData]);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: activeColor }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
@@ -772,7 +778,7 @@ export default function StatisticsScreen() {
       </View>
 
       {/* Skills Tab List */}
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -783,6 +789,7 @@ export default function StatisticsScreen() {
               key={s.key}
               style={[
                 styles.tabChip,
+                { backgroundColor: colors.card, borderColor: colors.border },
                 activeSkill === s.key && {
                   backgroundColor: s.color,
                   borderColor: s.color,
@@ -793,12 +800,13 @@ export default function StatisticsScreen() {
               <Ionicons
                 name={s.icon}
                 size={14}
-                color={activeSkill === s.key ? '#fff' : COLORS.textSecondary}
+                color={activeSkill === s.key ? '#fff' : colors.textSecondary}
                 style={{ marginRight: 6 }}
               />
               <Text
                 style={[
                   styles.tabChipText,
+                  { color: colors.textSecondary },
                   activeSkill === s.key && { color: '#fff' },
                 ]}
               >
@@ -847,56 +855,56 @@ export default function StatisticsScreen() {
         >
           {/* Summary Overview Card */}
           {summaryMetrics && (
-            <View style={styles.summaryCard}>
-              <View style={styles.summaryRow}>
+            <View style={[styles.summaryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={[styles.summaryRow, { borderColor: colors.border }]}>
                 <View style={styles.summaryLeft}>
-                  <Text style={styles.summaryTitle}>Overall Performance</Text>
-                  <Text style={styles.summarySub}>{summaryMetrics.highlightText}</Text>
+                  <Text style={[styles.summaryTitle, { color: colors.text }]}>Overall Performance</Text>
+                  <Text style={[styles.summarySub, { color: colors.textSecondary }]}>{summaryMetrics.highlightText}</Text>
                 </View>
-                <View style={[styles.summaryBadge, { backgroundColor: activeColor + '10' }]}>
+                <View style={[styles.summaryBadge, { backgroundColor: activeColor + (isDark ? '25' : '10') }]}>
                   <Text style={[styles.summaryBadgeScore, { color: activeColor }]}>
                     {summaryMetrics.avgBand.toFixed(1)}
                   </Text>
-                  <Text style={styles.summaryBadgeLabel}>Avg. Band</Text>
+                  <Text style={[styles.summaryBadgeLabel, { color: colors.textSecondary }]}>Avg. Band</Text>
                 </View>
               </View>
 
               <View style={styles.metricsRow}>
                 <View style={styles.metricItem}>
-                  <Text style={styles.metricVal}>{summaryMetrics.customMetric1.value}</Text>
-                  <Text style={styles.metricLabel}>{summaryMetrics.customMetric1.label}</Text>
+                  <Text style={[styles.metricVal, { color: colors.text }]}>{summaryMetrics.customMetric1.value}</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{summaryMetrics.customMetric1.label}</Text>
                 </View>
-                <View style={[styles.metricItem, styles.metricMid]}>
-                  <Text style={styles.metricVal}>{activeHistory.length}</Text>
-                  <Text style={styles.metricLabel}>Sessions</Text>
+                <View style={[styles.metricItem, styles.metricMid, { borderColor: colors.border }]}>
+                  <Text style={[styles.metricVal, { color: colors.text }]}>{activeHistory.length}</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Sessions</Text>
                 </View>
                 <View style={styles.metricItem}>
-                  <Text style={styles.metricVal}>{summaryMetrics.customMetric2.value}</Text>
-                  <Text style={styles.metricLabel}>{summaryMetrics.customMetric2.label}</Text>
+                  <Text style={[styles.metricVal, { color: colors.text }]}>{summaryMetrics.customMetric2.value}</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{summaryMetrics.customMetric2.label}</Text>
                 </View>
               </View>
             </View>
           )}
 
           {/* Line Chart: Band score trend */}
-          <View style={styles.chartSection}>
+          <View style={[styles.chartSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.chartHeader}>
-              <Text style={styles.sectionTitle}>Band Score Trend</Text>
-              <Text style={styles.sectionSub}>Progress over last 10 sessions</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Band Score Trend</Text>
+              <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>Progress over last 10 sessions</Text>
             </View>
             <BandChart points={skillTrendData} color={activeColor} />
           </View>
 
           {/* Bar Chart: Part Accuracy (L/R) vs Criteria averages (W/S) */}
-          <View style={styles.chartSection}>
+          <View style={[styles.chartSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.chartHeader}>
-              <Text style={styles.sectionTitle}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
                 {activeSkill === 'listening' || activeSkill === 'reading' 
                   ? 'Part Accuracy Breakdown' 
                   : 'Rubric Criteria Averages'
                 }
               </Text>
-              <Text style={styles.sectionSub}>
+              <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
                 {activeSkill === 'listening' || activeSkill === 'reading'
                   ? 'Average percentage correct per part'
                   : 'Average band score across core assessment parameters'
@@ -912,10 +920,10 @@ export default function StatisticsScreen() {
 
           {/* Donut Chart: Question type breakdown (L/R only) */}
           {(activeSkill === 'listening' || activeSkill === 'reading') && donutData.slices.length > 0 && (
-            <View style={styles.chartSection}>
+            <View style={[styles.chartSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={styles.chartHeader}>
-                <Text style={styles.sectionTitle}>Question Type Breakdown</Text>
-                <Text style={styles.sectionSub}>Attempt ratio and correctness per question category</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>Question Type Breakdown</Text>
+                <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>Attempt ratio and correctness per question category</Text>
               </View>
               <DonutChart 
                 slices={donutData.slices}
