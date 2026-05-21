@@ -63,8 +63,8 @@ export const DARK_TOKENS: ThemeTokens = {
   card: '#1E293B', // Slate 800
   text: '#F8FAFC', // Slate 50
   textSecondary: '#94A3B8', // Slate 400
-  textMuted: '#64748B', // Slate 500
-  textDisabled: '#475569', // Slate 600
+  textMuted: '#94A3B8', // Slate 400 — bumped from Slate 500 for WCAG AA on dark bg
+  textDisabled: '#64748B', // Slate 500
   onPrimary: '#0F172A', // Slate 900 (strong contrast on brand yellow)
   border: '#334155', // Slate 700
   borderFocus: '#FFC600',

@@ -286,8 +286,8 @@ function AllDoneScreen({
             <Text style={[styles.allDoneBtnText, { color: colors.primary }]}>Study Again</Text>
           </Pressable>
           <Pressable style={[styles.allDoneBtn, styles.allDoneBtnPrimary]} onPress={onGoBack}>
-            <Ionicons name="checkmark" size={16} color="#fff" />
-            <Text style={[styles.allDoneBtnText, { color: '#fff' }]}>Finish</Text>
+            <Ionicons name="checkmark" size={16} color={colors.onPrimary} />
+            <Text style={[styles.allDoneBtnText, { color: colors.onPrimary }]}>Finish</Text>
           </Pressable>
         </View>
       </Animated.View>
@@ -460,7 +460,7 @@ export default function StudyScreen() {
               ]}
               onPress={() => router.back()}
             >
-              <Text style={[styles.allDoneBtnText, { color: '#fff' }]}>Go Back</Text>
+              <Text style={[styles.allDoneBtnText, { color: colors.onPrimary }]}>Go Back</Text>
             </Pressable>
           </View>
         </View>
@@ -731,7 +731,7 @@ const createStyles = (colors: any) =>
       paddingHorizontal: SPACING.xl,
       paddingVertical: SPACING.md,
     },
-    retryBtnText: { color: '#fff', fontWeight: '700', fontSize: FONT_SIZES.md },
+    retryBtnText: { color: colors.onPrimary, fontWeight: '700', fontSize: FONT_SIZES.md },
 
     // All done
     allDoneContainer: {

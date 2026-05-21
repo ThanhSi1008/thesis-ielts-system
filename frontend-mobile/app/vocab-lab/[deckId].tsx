@@ -34,7 +34,7 @@ const createStyles = (colors: any) =>
     },
     headerTitle: {
       flex: 1,
-      color: '#fff',
+      color: colors.onPrimary,
       fontSize: FONT_SIZES.lg,
       fontWeight: '700',
       marginHorizontal: SPACING.md,
@@ -207,13 +207,13 @@ export default function DeckDetailScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Ionicons name="chevron-back" size={24} color={colors.onPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
           {deck?.name ?? 'Deck'}
         </Text>
         <TouchableOpacity style={styles.addCardBtn} onPress={() => setAddModal(true)}>
-          <Ionicons name="add" size={22} color="#fff" />
+          <Ionicons name="add" size={22} color={colors.onPrimary} />
         </TouchableOpacity>
       </View>
 
