@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
-import { Chip, EmptyState, SectionHeader, Badge } from '@/components/ui';
+import { Chip, EmptyState } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const SKILLS = [
@@ -93,7 +93,7 @@ function AccordionGroup({
   activeSkill,
   onTestPress,
 }: AccordionGroupProps) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const rotateAnim = useRef(new Animated.Value(isCollapsed ? 1 : 0)).current;
 
   useEffect(() => {
@@ -152,14 +152,14 @@ function AccordionGroup({
     groupTitle: {
       fontSize: FONT_SIZES.sm,
       fontFamily: FONTS.bold,
-      color: COLORS.text,
+      color: colors.text,
       marginBottom: 6,
       lineHeight: 18,
     },
     stats: { flexDirection: 'row', gap: SPACING.sm, marginBottom: 6 },
     statPill: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-    statText: { fontSize: 10, color: COLORS.textSecondary },
-    progressTrack: { height: 4, backgroundColor: colors.border, borderRadius: 2, overflow: 'hidden' },
+    statText: { fontSize: 10, color: colors.textSecondary },
+    progressTrack: { height: 4, backgroundColor: isDark ? colors.background : colors.border, borderRadius: 2, overflow: 'hidden' },
     progressFill: { height: '100%', borderRadius: 2 },
     testRow: {
       flexDirection: 'row',
@@ -179,13 +179,13 @@ function AccordionGroup({
       justifyContent: 'center',
     },
     testNum: { fontSize: FONT_SIZES.md, fontWeight: '800' },
-    testTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
-    testMeta: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 1 },
+    testTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: colors.text },
+    testMeta: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 1 },
     testRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
     myScore: { alignItems: 'flex-end' },
-    myScoreLabel: { fontSize: 10, color: COLORS.textSecondary, fontWeight: '600' },
-    myScoreValue: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.success },
-    notAttempted: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, fontStyle: 'italic' },
+    myScoreLabel: { fontSize: 10, color: colors.textSecondary, fontWeight: '600' },
+    myScoreValue: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: colors.success },
+    notAttempted: { fontSize: FONT_SIZES.xs, color: colors.textMuted, fontStyle: 'italic' },
     bandPill: {
       alignItems: 'center',
       justifyContent: 'center',
@@ -225,7 +225,7 @@ function AccordionGroup({
               <Text style={acc.statText}>{completedCount} completed</Text>
             </View>
             <View style={acc.statPill}>
-              <Ionicons name="documents-outline" size={11} color={COLORS.textMuted} />
+              <Ionicons name="documents-outline" size={11} color={colors.textMuted} />
               <Text style={acc.statText}>
                 {totalTests} test{totalTests !== 1 ? 's' : ''}
               </Text>
@@ -247,7 +247,7 @@ function AccordionGroup({
 
         {/* Chevron */}
         <Animated.View style={{ transform: [{ rotate: chevronRotate }] }}>
-          <Ionicons name="chevron-up" size={20} color={COLORS.textMuted} />
+          <Ionicons name="chevron-up" size={20} color={colors.textMuted} />
         </Animated.View>
       </TouchableOpacity>
 
@@ -295,7 +295,7 @@ function AccordionGroup({
                 ) : (
                   <Text style={acc.notAttempted}>Not tried</Text>
                 )}
-                <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
+                <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
             </TouchableOpacity>
           ))}
@@ -307,7 +307,7 @@ function AccordionGroup({
 
 export default function IntensiveScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const params = useLocalSearchParams<{ skill?: string }>();
   const [activeSkill, setActiveSkill] = useState(params.skill || 'LISTENING');
   const [catalog, setCatalog] = useState<any>(null);
@@ -381,77 +381,32 @@ export default function IntensiveScreen() {
       paddingVertical: SPACING.xxxl,
     },
     header: {
-      backgroundColor: COLORS.primary,
+      backgroundColor: isDark ? colors.card : colors.primary,
       paddingHorizontal: SPACING.lg,
       paddingVertical: SPACING.md,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
     },
     backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-    headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
+    headerTitle: { color: isDark ? colors.text : '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
     customBtn: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
-      backgroundColor: 'rgba(255,255,255,0.2)',
+      backgroundColor: isDark ? colors.background : 'rgba(255,255,255,0.2)',
       borderRadius: RADIUS.full,
       paddingHorizontal: SPACING.md,
       paddingVertical: 6,
       borderWidth: 1,
-      borderColor: 'rgba(255,255,255,0.3)',
+      borderColor: isDark ? colors.border : 'rgba(255,255,255,0.3)',
     },
-    customBtnText: { color: '#fff', fontSize: 12, fontFamily: FONTS.bold },
+    customBtnText: { color: isDark ? colors.text : '#fff', fontSize: 12, fontFamily: FONTS.bold },
     tabs: { borderBottomWidth: 1, borderColor: colors.border, maxHeight: 56 },
-    loadingText: { marginTop: SPACING.md, color: COLORS.textSecondary, fontSize: FONT_SIZES.sm },
-    groupCard: {
-      backgroundColor: colors.card,
-      borderRadius: RADIUS.xl,
-      marginTop: SPACING.lg,
-      borderWidth: 1,
-      borderColor: colors.border,
-      overflow: 'hidden',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.04,
-      shadowRadius: 8,
-      elevation: 2,
-    },
-    groupHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: SPACING.lg,
-      borderBottomWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: COLORS.surface,
-    },
-    groupTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
-    groupMeta: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
-    testRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: SPACING.lg,
-      paddingVertical: SPACING.md,
-      borderBottomWidth: 1,
-      borderColor: colors.border,
-    },
-    testLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
-    testNumBadge: {
-      width: 36,
-      height: 36,
-      borderRadius: RADIUS.md,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    testNum: { fontSize: FONT_SIZES.md, fontWeight: '800' },
-    testTitle: { fontSize: FONT_SIZES.md, fontWeight: '600', color: COLORS.text },
-    testMeta: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 1 },
-    testRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-    myScore: { alignItems: 'flex-end' },
-    myScoreLabel: { fontSize: 10, color: COLORS.textSecondary, fontWeight: '600' },
-    myScoreValue: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.success },
-    notAttempted: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, fontStyle: 'italic' },
+    loadingText: { marginTop: SPACING.md, color: colors.textSecondary, fontSize: FONT_SIZES.sm },
+    
     // Search + filter
     searchRow: {
       flexDirection: 'row',
@@ -477,7 +432,7 @@ export default function IntensiveScreen() {
       shadowRadius: 4,
       elevation: 1,
     },
-    searchInput: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, height: 40 },
+    searchInput: { flex: 1, fontSize: FONT_SIZES.sm, color: colors.text, height: 40 },
     clearBtn: {
       paddingHorizontal: SPACING.md,
       paddingVertical: SPACING.xs,
@@ -486,7 +441,7 @@ export default function IntensiveScreen() {
       borderColor: colors.border,
       backgroundColor: colors.card,
     },
-    clearBtnText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold, color: COLORS.textSecondary },
+    clearBtnText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold, color: colors.textSecondary },
     filterRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -503,8 +458,8 @@ export default function IntensiveScreen() {
       borderColor: colors.border,
       backgroundColor: colors.card,
     },
-    filterChipText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary },
-    resultCount: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginLeft: 'auto' as any },
+    filterChipText: { fontSize: FONT_SIZES.xs, color: colors.textSecondary },
+    resultCount: { fontSize: FONT_SIZES.xs, color: colors.textMuted, marginLeft: 'auto' as any },
   });
 
   return (
@@ -512,7 +467,7 @@ export default function IntensiveScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Ionicons name="chevron-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Mock Tests</Text>
         <TouchableOpacity
@@ -520,7 +475,7 @@ export default function IntensiveScreen() {
           onPress={() => router.push(ROUTES.ieltsIntensiveCustom)}
           activeOpacity={0.8}
         >
-          <Ionicons name="construct-outline" size={15} color="#fff" />
+          <Ionicons name="construct-outline" size={15} color={isDark ? colors.text : '#fff'} />
           <Text style={styles.customBtnText}>Custom</Text>
         </TouchableOpacity>
       </View>
@@ -544,7 +499,7 @@ export default function IntensiveScreen() {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Loading {skillInfo.label} tests…</Text>
         </View>
       ) : (
@@ -555,13 +510,13 @@ export default function IntensiveScreen() {
               <Ionicons
                 name="search-outline"
                 size={16}
-                color={COLORS.textMuted}
+                color={colors.textMuted}
                 style={{ marginRight: 6 }}
               />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search tests…"
-                placeholderTextColor={COLORS.textMuted}
+                placeholderTextColor={colors.textMuted}
                 value={search}
                 onChangeText={setSearch}
                 returnKeyType="search"
@@ -592,7 +547,7 @@ export default function IntensiveScreen() {
               };
               const active = statusFilter === f;
               const color =
-                f === 'taken' ? '#16a34a' : f === 'not-taken' ? COLORS.textMuted : skillInfo.color;
+                f === 'taken' ? '#16a34a' : f === 'not-taken' ? colors.textMuted : skillInfo.color;
               return (
                 <TouchableOpacity
                   key={f}
