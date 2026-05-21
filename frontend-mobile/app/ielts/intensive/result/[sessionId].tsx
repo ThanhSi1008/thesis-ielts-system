@@ -189,6 +189,7 @@ function AnswerSheet({
 }) {
   const { colors, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const as = createAsStyles(colors);
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
   let correct = 0,
     wrong = 0,
@@ -200,14 +201,14 @@ function AnswerSheet({
   );
 
   return (
-    <View style={[as.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <Text style={[as.title, { color: colors.text }]}>Answer Sheet</Text>
+    <View style={as.container}>
+      <Text style={as.title}>Answer Sheet</Text>
       <View style={as.columnsContainer}>
         {parts.map((partNums, idx) => {
           if (partNums.length === 0) return null;
           return (
             <View key={idx} style={as.column}>
-              <Text style={[as.colTitle, { color: colors.textSecondary }]}>Part {idx + 1}</Text>
+              <Text style={as.colTitle}>Part {idx + 1}</Text>
               <View style={as.colGrid}>
                 {partNums.map((n) => {
                   const key = String(n);
@@ -230,7 +231,7 @@ function AnswerSheet({
                   const border = isCorrect
                     ? (isDark ? '#22c55e' : '#16a34a')
                     : isWrong
-                    ? (isDark ? '#ef4444' : COLORS.error)
+                    ? (isDark ? '#ef4444' : colors.error)
                     : colors.border;
                   const color = isCorrect
                     ? (isDark ? '#4ade80' : '#15803D')
@@ -252,36 +253,36 @@ function AnswerSheet({
       <View style={as.legend}>
         <View style={as.legendItem}>
           <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7', borderColor: isDark ? '#22c55e' : '#16a34a' }]} />
-          <Text style={[as.legendText, { color: colors.textSecondary }]}>{correct} Correct</Text>
+          <Text style={as.legendText}>{correct} Correct</Text>
         </View>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2', borderColor: isDark ? '#ef4444' : COLORS.error }]} />
-          <Text style={[as.legendText, { color: colors.textSecondary }]}>{wrong} Wrong</Text>
+          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2', borderColor: isDark ? '#ef4444' : colors.error }]} />
+          <Text style={as.legendText}>{wrong} Wrong</Text>
         </View>
         <View style={as.legendItem}>
           <View
             style={[as.legendDot, { backgroundColor: colors.surface, borderColor: colors.border }]}
           />
-          <Text style={[as.legendText, { color: colors.textSecondary }]}>{blank} Blank</Text>
+          <Text style={as.legendText}>{blank} Blank</Text>
         </View>
       </View>
     </View>
   );
 }
 
-const as = StyleSheet.create({
+const createAsStyles = (colors: any) => StyleSheet.create({
   container: {
     margin: SPACING.lg,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   title: {
     fontSize: FONT_SIZES.md,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SPACING.md,
   },
   columnsContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: SPACING.sm },
@@ -289,7 +290,7 @@ const as = StyleSheet.create({
   colTitle: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SPACING.sm,
     textTransform: 'uppercase',
   },
@@ -306,7 +307,7 @@ const as = StyleSheet.create({
   legend: { flexDirection: 'row', gap: SPACING.lg, marginTop: SPACING.md },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 12, height: 12, borderRadius: 3, borderWidth: 1.5 },
-  legendText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontWeight: '600' },
+  legendText: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, fontWeight: '600' },
 });
 
 // ─── Question Review Row ──────────────────────────────────────────────────────
@@ -331,6 +332,7 @@ function QuestionReviewRow({
 }) {
   const { colors, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const qr = createQrStyles(colors, isDark);
   const user = normalizeAns(userAns);
   const correct = normalizeAns(correctAns);
   const hasAns = !!user;
@@ -339,52 +341,46 @@ function QuestionReviewRow({
   const isBlank = !hasAns;
 
   return (
-    <View style={[qr.row, { borderColor: colors.border + '60' }]}>
-      <View style={[qr.numBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Text style={[qr.numText, { color: colors.textSecondary }]}>{questionNumber}</Text>
+    <View style={qr.row}>
+      <View style={qr.numBadge}>
+        <Text style={qr.numText}>{questionNumber}</Text>
       </View>
       <View style={qr.right}>
         {isCorrect_ && (
-          <View style={[qr.correctPill, isDark && { backgroundColor: 'rgba(34, 205, 94, 0.15)', borderColor: '#22c55e' }]}>
+          <View style={qr.correctPill}>
             <Ionicons name="checkmark" size={12} color={isDark ? '#4ade80' : '#15803D'} />
-            <Text style={[qr.correctText, { color: isDark ? '#4ade80' : '#15803D' }]}>{user}</Text>
+            <Text style={qr.correctText}>{user}</Text>
           </View>
         )}
         {isWrong && (
           <View style={qr.wrongRow}>
-            <View style={[qr.wrongPill, isDark && { backgroundColor: 'rgba(239, 68, 68, 0.15)', borderColor: '#ef4444' }]}>
-              <Text style={[qr.wrongText, { color: isDark ? '#f87171' : '#B91C1C' }]}>{user || '—'}</Text>
+            <View style={qr.wrongPill}>
+              <Text style={qr.wrongText}>{user || '—'}</Text>
             </View>
             <Ionicons name="arrow-forward" size={12} color={colors.textMuted} />
-            <View style={[qr.answerPill, isDark && { backgroundColor: 'rgba(34, 205, 94, 0.15)', borderColor: '#22c55e' }]}>
-              <Text style={[qr.answerText, { color: isDark ? '#4ade80' : '#15803D' }]}>{correct}</Text>
+            <View style={qr.answerPill}>
+              <Text style={qr.answerText}>{correct}</Text>
             </View>
           </View>
         )}
         {isBlank && (
           <View style={qr.wrongRow}>
-            <Text style={[qr.blankText, { color: colors.textMuted }]}>—</Text>
+            <Text style={qr.blankText}>—</Text>
             <Ionicons name="arrow-forward" size={12} color={colors.textMuted} />
-            <View style={[qr.answerPill, isDark && { backgroundColor: 'rgba(34, 205, 94, 0.15)', borderColor: '#22c55e' }]}>
-              <Text style={[qr.answerText, { color: isDark ? '#4ade80' : '#15803D' }]}>{correct}</Text>
+            <View style={qr.answerPill}>
+              <Text style={qr.answerText}>{correct}</Text>
             </View>
           </View>
         )}
 
         {timestamp !== undefined && onSeek && (
           <TouchableOpacity
-            style={[
-              qr.listenBtn,
-              {
-                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EFF6FF',
-                borderColor: isDark ? colors.border : '#BFDBFE',
-              },
-            ]}
+            style={qr.listenBtn}
             onPress={() => onSeek(timestamp)}
             activeOpacity={0.7}
           >
             <Ionicons name="volume-medium" size={13} color={colors.primary} />
-            <Text style={[qr.listenText, { color: colors.primary }]}>Listen</Text>
+            <Text style={qr.listenText}>Listen</Text>
           </TouchableOpacity>
         )}
 
@@ -399,41 +395,41 @@ function QuestionReviewRow({
   );
 }
 
-const qr = StyleSheet.create({
+const createQrStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: SPACING.sm,
     borderBottomWidth: 1,
-    borderColor: COLORS.border + '60',
+    borderColor: colors.border + '60',
     gap: SPACING.md,
   },
   numBadge: {
     width: 28,
     height: 28,
     borderRadius: 6,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
-  numText: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
+  numText: { fontSize: 11, fontWeight: '700', color: colors.textSecondary },
   right: { flex: 1 },
   correctPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
     borderRadius: RADIUS.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: '#86EFAC',
+    borderColor: isDark ? '#22c55e' : '#86EFAC',
   },
-  correctText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#15803D' },
+  correctText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: isDark ? '#4ade80' : '#15803D' },
   listenBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -442,37 +438,37 @@ const qr = StyleSheet.create({
     marginTop: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EFF6FF',
     borderRadius: RADIUS.sm,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: isDark ? colors.border : '#BFDBFE',
   },
-  listenText: { fontSize: 11, fontWeight: '700', color: COLORS.primary },
+  listenText: { fontSize: 11, fontWeight: '700', color: colors.primary },
   wrongRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   wrongPill: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2',
     borderRadius: RADIUS.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: isDark ? '#ef4444' : '#FECACA',
   },
   wrongText: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
-    color: '#B91C1C',
+    color: isDark ? '#f87171' : '#B91C1C',
     textDecorationLine: 'line-through',
   },
   answerPill: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
     borderRadius: RADIUS.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderWidth: 1,
-    borderColor: '#86EFAC',
+    borderColor: isDark ? '#22c55e' : '#86EFAC',
   },
-  answerText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#15803D' },
-  blankText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted, fontWeight: '600' },
+  answerText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: isDark ? '#4ade80' : '#15803D' },
+  blankText: { fontSize: FONT_SIZES.sm, color: colors.textMuted, fontWeight: '600' },
 });
 
 // ─── Question Review Section (collapsible) ────────────────────────────────────
@@ -496,6 +492,7 @@ function QuestionReviewSection({
   onSeek?: (ts: number) => void;
 }) {
   const { colors } = useTheme();
+  const rev = createRevStyles(colors);
   const [open, setOpen] = useState(false);
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
@@ -505,9 +502,9 @@ function QuestionReviewSection({
   };
 
   return (
-    <View style={[rev.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
+    <View style={rev.container}>
       <TouchableOpacity style={rev.header} onPress={toggle} activeOpacity={0.8}>
-        <Text style={[rev.headerTitle, { color: colors.text }]}>Question Review</Text>
+        <Text style={rev.headerTitle}>Question Review</Text>
         <Ionicons
           name={open ? 'chevron-up' : 'chevron-down'}
           size={18}
@@ -535,13 +532,13 @@ function QuestionReviewSection({
   );
 }
 
-const rev = StyleSheet.create({
+const createRevStyles = (colors: any) => StyleSheet.create({
   container: {
     margin: SPACING.lg,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     overflow: 'hidden',
   },
   header: {
@@ -550,7 +547,7 @@ const rev = StyleSheet.create({
     justifyContent: 'space-between',
     padding: SPACING.lg,
   },
-  headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
+  headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
   body: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md },
 });
 
@@ -558,6 +555,7 @@ const rev = StyleSheet.create({
 export default function ResultScreen() {
   const { colors, resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const styles = createStyles(colors, isDark);
   const router = useRouter();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const [session, setSession] = useState<any>(null);
@@ -660,16 +658,16 @@ export default function ResultScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading result…</Text>
+        <Text style={styles.loadingText}>Loading result…</Text>
       </View>
     );
   }
 
   if (!session) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <View style={styles.center}>
         <Text style={{ color: colors.error }}>Session not found.</Text>
       </View>
     );
@@ -720,58 +718,58 @@ export default function ResultScreen() {
       : null;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Breadcrumb Navigation */}
         <View style={styles.breadcrumb}>
-          <Text style={[styles.bcText, { color: colors.textSecondary }]}>IELTS</Text>
+          <Text style={styles.bcText}>IELTS</Text>
           <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
-          <Text style={[styles.bcText, { color: colors.textSecondary }]}>Intensive</Text>
+          <Text style={styles.bcText}>Intensive</Text>
           <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
-          <Text style={[styles.bcText, styles.bcActive, { color: colors.primary }]}>Result</Text>
+          <Text style={[styles.bcText, styles.bcActive]}>Result</Text>
         </View>
 
         <View style={[styles.hero, { backgroundColor: bandColor + (isDark ? '24' : '18') }]}>
-          <View style={[styles.bandCircle, { borderColor: bandColor, backgroundColor: colors.card }]}>
+          <View style={[styles.bandCircle, { borderColor: bandColor }]}>
             <Text style={[styles.bandScore, { color: bandColor }]}>{bandStr}</Text>
             <Text style={[styles.bandLabel, { color: bandColor }]}>Band</Text>
           </View>
-          <Text style={[styles.resultTitle, { color: colors.text }]}>
+          <Text style={styles.resultTitle}>
             {isPending ? '⏳ Grading in Progress' : '✅ Test Complete'}
           </Text>
-          <Text style={[styles.description, { color: colors.textSecondary }]}>
+          <Text style={styles.description}>
             {isPending
               ? 'Your writing/speaking is being graded by AI. Check back soon.'
               : description}
           </Text>
-          <Text style={[styles.examTitle, { color: colors.textMuted }]} numberOfLines={2}>
+          <Text style={styles.examTitle} numberOfLines={2}>
             {session.exam?.title}
           </Text>
         </View>
 
         {!isPending && (
-          <View style={[styles.statsRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.statsRow}>
             <View style={styles.statCard}>
-              <Text style={[styles.statValue, { color: colors.text }]}>{rawScore}</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Raw Score</Text>
+              <Text style={styles.statValue}>{rawScore}</Text>
+              <Text style={styles.statLabel}>Raw Score</Text>
             </View>
-            <View style={[styles.statCard, styles.statMid, { borderColor: colors.border }]}>
-              <Text style={[styles.statValue, { color: colors.text }]}>{totalQuestions}</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total Qs</Text>
+            <View style={[styles.statCard, styles.statMid]}>
+              <Text style={styles.statValue}>{totalQuestions}</Text>
+              <Text style={styles.statLabel}>Total Qs</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={[styles.statValue, { color: colors.text }]}>
+              <Text style={styles.statValue}>
                 {mm}:{ss}
               </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Time Taken</Text>
+              <Text style={styles.statLabel}>Time Taken</Text>
             </View>
           </View>
         )}
 
         {!isPending && (
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Score Breakdown</Text>
-            <View style={[styles.barBg, { backgroundColor: colors.border }]}>
+            <Text style={styles.sectionTitle}>Score Breakdown</Text>
+            <View style={styles.barBg}>
               <View
                 style={[
                   styles.barFill,
@@ -782,14 +780,14 @@ export default function ResultScreen() {
                 ]}
               />
             </View>
-            <Text style={[styles.barLabel, { color: colors.textSecondary }]}>
+            <Text style={styles.barLabel}>
               {rawScore} / {totalQuestions} ({Math.round((rawScore / totalQuestions) * 100)}%)
             </Text>
           </View>
         )}
 
         {!isPending && audioUrl ? (
-          <View style={[styles.audioBannerContainer, isDark ? { backgroundColor: colors.card, borderColor: colors.border } : { borderColor: '#C7D2FE', backgroundColor: '#EEF2FF' }]}>
+          <View style={styles.audioBannerContainer}>
             <View style={styles.audioBanner}>
               <TouchableOpacity
                 onPress={() => (player.playing ? player.pause() : player.play())}
@@ -797,7 +795,7 @@ export default function ResultScreen() {
               >
                 <Ionicons name={player.playing ? 'pause' : 'play'} size={20} color="#fff" />
               </TouchableOpacity>
-              <Text style={[styles.audioBannerText, { color: isDark ? colors.text : colors.primary }]}>
+              <Text style={styles.audioBannerText}>
                 {player.playing ? 'Playing exam audio' : 'Audio paused'}
               </Text>
             </View>
@@ -805,8 +803,8 @@ export default function ResultScreen() {
               <TouchableOpacity onPress={() => setVolume(Math.max(0, volume - 0.2))}>
                 <Ionicons name="volume-low" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
-              <View style={[styles.volumeTrack, { backgroundColor: isDark ? colors.border : '#E0E7FF' }]}>
-                <View style={[styles.volumeFill, { width: `${volume * 100}%`, backgroundColor: colors.primary }]} />
+              <View style={styles.volumeTrack}>
+                <View style={[styles.volumeFill, { width: `${volume * 100}%` }]} />
               </View>
               <TouchableOpacity onPress={() => setVolume(Math.min(1, volume + 0.2))}>
                 <Ionicons name="volume-high" size={20} color={colors.textSecondary} />
@@ -857,7 +855,7 @@ export default function ResultScreen() {
 
         <View style={styles.actions}>
           <TouchableOpacity
-            style={[styles.actionBtn, styles.retakeBtn, { backgroundColor: colors.primary }, retaking && { opacity: 0.7 }]}
+            style={[styles.actionBtn, styles.retakeBtn, retaking && { opacity: 0.7 }]}
             onPress={handleRetake}
             disabled={retaking}
             activeOpacity={0.85}
@@ -871,15 +869,7 @@ export default function ResultScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.actionBtn,
-              styles.shareBtn,
-              {
-                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : colors.primary + '12',
-                borderColor: colors.primary,
-              },
-              sharing && { opacity: 0.7 }
-            ]}
+            style={[styles.actionBtn, styles.shareBtn, sharing && { opacity: 0.7 }]}
             onPress={() =>
               handleShare(
                 bandStr,
@@ -899,7 +889,7 @@ export default function ResultScreen() {
             ) : (
               <Ionicons name="share-social-outline" size={18} color={colors.primary} />
             )}
-            <Text style={[styles.shareBtnText, { color: colors.primary }]}>{sharing ? 'Sharing…' : 'Share Result'}</Text>
+            <Text style={styles.shareBtnText}>{sharing ? 'Sharing…' : 'Share Result'}</Text>
           </TouchableOpacity>
 
           <Button
@@ -921,10 +911,10 @@ export default function ResultScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  loadingText: { marginTop: SPACING.md, color: COLORS.textSecondary },
+const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+  loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
   breadcrumb: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -932,8 +922,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.md,
   },
-  bcText: { fontSize: 13, color: COLORS.textSecondary, fontWeight: '500' },
-  bcActive: { color: COLORS.primary, fontWeight: '700' },
+  bcText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
+  bcActive: { color: colors.primary, fontWeight: '700' },
   hero: { alignItems: 'center', padding: SPACING.xxxl, paddingTop: SPACING.lg },
   bandCircle: {
     width: 120,
@@ -943,7 +933,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.lg,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -960,13 +950,13 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   description: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -974,8 +964,8 @@ const styles = StyleSheet.create({
     marginHorizontal: SPACING.lg,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
+    borderColor: isDark ? colors.border : '#C7D2FE',
+    backgroundColor: isDark ? colors.card : '#EEF2FF',
     overflow: 'hidden',
   },
   audioBanner: {
@@ -988,11 +978,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  audioBannerText: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '600' },
+  audioBannerText: { fontSize: FONT_SIZES.sm, color: isDark ? colors.text : colors.primary, fontWeight: '600' },
   volumeControl: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1003,21 +993,21 @@ const styles = StyleSheet.create({
   volumeTrack: {
     flex: 1,
     height: 6,
-    backgroundColor: '#E0E7FF',
+    backgroundColor: isDark ? colors.border : '#E0E7FF',
     borderRadius: 3,
     overflow: 'hidden',
   },
-  volumeFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 3 },
-  examTitle: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted, textAlign: 'center' },
+  volumeFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 3 },
+  examTitle: { fontSize: FONT_SIZES.sm, color: colors.textMuted, textAlign: 'center' },
   statsRow: {
     flexDirection: 'row',
     marginHorizontal: SPACING.lg,
     marginTop: SPACING.md,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -1025,22 +1015,22 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statCard: { flex: 1, alignItems: 'center' },
-  statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: COLORS.border },
-  statValue: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: COLORS.text },
-  statLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
+  statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
+  statValue: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: colors.text },
+  statLabel: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 2 },
   section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.xl },
   sectionTitle: {
     fontSize: FONT_SIZES.md,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SPACING.md,
   },
-  barBg: { height: 12, backgroundColor: COLORS.border, borderRadius: 6, overflow: 'hidden' },
+  barBg: { height: 12, backgroundColor: colors.border, borderRadius: 6, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 6 },
   barLabel: {
     marginTop: SPACING.sm,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'right',
   },
   actions: { padding: SPACING.xl, marginTop: SPACING.lg, gap: SPACING.sm },
@@ -1053,13 +1043,13 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.xl,
     paddingVertical: 14,
   },
-  retakeBtn: { backgroundColor: COLORS.primary },
+  retakeBtn: { backgroundColor: colors.primary },
   retakeBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
   // Share button
   shareBtn: {
-    backgroundColor: COLORS.primary + '12',
+    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : colors.primary + '12',
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
-  shareBtnText: { color: COLORS.primary, fontSize: FONT_SIZES.md, fontWeight: '700' },
+  shareBtnText: { color: colors.primary, fontSize: FONT_SIZES.md, fontWeight: '700' },
 });
