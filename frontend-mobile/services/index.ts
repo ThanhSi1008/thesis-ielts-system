@@ -11,6 +11,7 @@ export {
   shadowingApi,
   ieltsBasicApi,
   subscriptionsApi,
+  notificationsApi,
 } from './features.api';
 
 // Expose individual apis from ielts.api

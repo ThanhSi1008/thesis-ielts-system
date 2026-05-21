@@ -462,19 +462,19 @@
 ## Phase 14 — Notification badge polling (8h)
 
 ### 14.1 Context (4h)
-- [ ] **P14-01** · Implement `contexts/NotificationContext.tsx` · *est. 2h*
-- [ ] **P14-02** · Polling 60s `/notifications/unread-count` · *est. 0.5h*
-- [ ] **P14-03** · Fetch full list on demand (when open notification screen) · *est. 0.5h*
-- [ ] **P14-04** · `markAsRead`, `markAllAsRead`, `delete` actions · *est. 1h*
+- [x] **P14-01** · Implement `contexts/NotificationContext.tsx` · *est. 2h*
+- [x] **P14-02** · Polling 60s `/notifications/unread-count` · *est. 0.5h*
+- [x] **P14-03** · Fetch full list on demand (when open notification screen) · *est. 0.5h*
+- [x] **P14-04** · `markAsRead`, `markAllAsRead`, `delete` actions · *est. 1h*
 
 ### 14.2 Badge UI (2h)
-- [ ] **P14-05** · Tab bar Profile badge khi unreadCount > 0 · *est. 1h*
-- [ ] **P14-06** · Home screen dot dynamic theo unreadCount · *est. 0.5h*
-- [ ] **P14-07** · Notification icon ở các header sub-screen · *est. 0.5h*
+- [x] **P14-05** · Tab bar Profile badge khi unreadCount > 0 · *est. 1h*
+- [x] **P14-06** · Home screen dot dynamic theo unreadCount · *est. 0.5h*
+- [x] **P14-07** · Notification icon ở các header sub-screen · *est. 0.5h*
 
 ### 14.3 In-app banner (2h)
-- [ ] **P14-08** · Khi polling phát hiện notif mới → toast custom với tap → notification detail · *est. 1.5h*
-- [ ] **P14-09** · Cooldown để không spam khi user idle · *est. 0.5h*
+- [x] **P14-08** · Khi polling phát hiện notif mới → toast custom với tap → notification detail · *est. 1.5h*
+- [x] **P14-09** · Cooldown để không spam khi user idle · *est. 0.5h*
 
 **Tổng phase 14**: 8h
 

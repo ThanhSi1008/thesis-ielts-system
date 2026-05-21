@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { GradingProvider } from '@/contexts/GradingContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import { Toaster, UpgradeModal } from '@/components/ui/index';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { DictionaryPopup, GlobalVocabFab, GlobalAddCardFab } from '@/components';
@@ -55,9 +56,10 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <SubscriptionProvider>
-          <GradingProvider>
-            <Stack screenOptions={{ headerShown: false }}>
+        <NotificationProvider>
+          <SubscriptionProvider>
+            <GradingProvider>
+              <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="notification" options={{ presentation: 'modal' }} />
@@ -154,6 +156,7 @@ export default function RootLayout() {
             <DictionaryPopup />
           </GradingProvider>
         </SubscriptionProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

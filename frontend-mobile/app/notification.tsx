@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotification } from '@/contexts/NotificationContext';
 import { apiClient } from '@/services/api-client';
 import { useRouter } from 'expo-router';
 
@@ -36,23 +37,6 @@ interface Notification {
   isRead: boolean;
   createdAt: string;
 }
-
-interface NotifResponse {
-  notifications: Notification[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-// ── API calls ──────────────────────────────────────────────────────────────────
-const notifApi = {
-  getAll: (page = 1, limit = 20) =>
-    apiClient.get<NotifResponse>(`/notifications?page=${page}&limit=${limit}`),
-  getUnreadCount: () => apiClient.get<{ count: number }>('/notifications/unread-count'),
-  markAsRead: (id: string) => apiClient.patch<void>(`/notifications/${id}/read`),
-  markAllAsRead: () => apiClient.patch<void>('/notifications/read-all'),
-  delete: (id: string) => apiClient.delete<void>(`/notifications/${id}`),
-};
 
 // ── Icon & colour per type ─────────────────────────────────────────────────────
 const TYPE_META: Record<string, { icon: string; color: string; bg: string }> = {
@@ -143,9 +127,16 @@ function NotificationItem({
 // ── Main Screen ────────────────────────────────────────────────────────────────
 export default function NotificationScreen() {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    fetchNotifications: contextFetchNotifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotification();
+
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -155,84 +146,51 @@ export default function NotificationScreen() {
 
   const LIMIT = 20;
 
-  const fetchNotifications = useCallback(
+  const loadData = useCallback(
     async (p = 1, append = false) => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+      if (!user) return;
       try {
-        const res = await notifApi.getAll(p, LIMIT);
-        const newItems = res.notifications ?? [];
-        setNotifications((prev) => (append ? [...prev, ...newItems] : newItems));
-        setHasMore(newItems.length === LIMIT);
+        const items = await contextFetchNotifications(p, append);
+        setHasMore(items.length === LIMIT);
         setPage(p);
       } catch {
         /* silent */
       } finally {
-        setLoading(false);
         setRefreshing(false);
         setLoadingMore(false);
       }
     },
-    [user],
+    [user, contextFetchNotifications],
   );
 
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user) return;
-    try {
-      const res = await notifApi.getUnreadCount();
-      setUnreadCount(res.count ?? 0);
-    } catch {
-      /* silent */
-    }
-  }, [user]);
-
   useEffect(() => {
-    fetchNotifications(1);
-    fetchUnreadCount();
-  }, [fetchNotifications, fetchUnreadCount]);
+    loadData(1, false);
+  }, [loadData]);
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    fetchNotifications(1);
-    fetchUnreadCount();
+    await loadData(1, false);
   };
 
   const onLoadMore = () => {
-    if (loadingMore || !hasMore) return;
+    if (loadingMore || !hasMore || loading) return;
     setLoadingMore(true);
-    fetchNotifications(page + 1, true);
+    loadData(page + 1, true);
   };
 
   const handleRead = async (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
-    setUnreadCount((c) => Math.max(0, c - 1));
-    try {
-      await notifApi.markAsRead(id);
-    } catch {
-      /* silent */
-    }
+    await markAsRead(id);
   };
 
   const handleDelete = async (id: string) => {
-    const target = notifications.find((n) => n.id === id);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    if (target && !target.isRead) setUnreadCount((c) => Math.max(0, c - 1));
-    try {
-      await notifApi.delete(id);
-    } catch {
-      /* silent */
-    }
+    await deleteNotification(id);
   };
 
   const handleMarkAllRead = async () => {
     if (unreadCount === 0) return;
     setMarkingAll(true);
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    setUnreadCount(0);
     try {
-      await notifApi.markAllAsRead();
+      await markAllAsRead();
     } catch {
       /* silent */
     } finally {

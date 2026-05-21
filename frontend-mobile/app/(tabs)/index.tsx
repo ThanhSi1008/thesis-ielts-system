@@ -13,9 +13,11 @@ import { Link } from 'expo-router';
 import {COLORS, FONT_SIZES, RADIUS, SPACING, FONTS} from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNotification } from '@/contexts/NotificationContext';
 
 export default function HomeTab() {
   const { width } = useWindowDimensions();
+  const { unreadCount } = useNotification();
 
   // Animations
   const floatAnim1 = useRef(new Animated.Value(0)).current;
@@ -61,7 +63,7 @@ export default function HomeTab() {
             <Pressable style={styles.notifButton}>
               <Ionicons name="notifications-outline" size={24} color="#FFF" />
               {/* Notification Badge */}
-              <View style={styles.notifBadge} />
+              {unreadCount > 0 && <View style={styles.notifBadge} />}
             </Pressable>
           </Link>
         </View>

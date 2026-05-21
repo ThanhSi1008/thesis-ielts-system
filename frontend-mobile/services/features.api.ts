@@ -207,3 +207,15 @@ export const gamificationApi = {
   getProfile: () => apiClient.get<GamificationProfile>('/gamification/profile'),
   getAchievements: () => apiClient.get<AchievementItem[]>('/gamification/achievements'),
 };
+
+// ==================== NOTIFICATIONS ====================
+export const notificationsApi = {
+  getNotifications: (page: number = 1, limit: number = 20) =>
+    apiClient.get<any>(`/notifications?page=${page}&limit=${limit}`),
+  getUnreadCount: () => apiClient.get<{ count: number }>('/notifications/unread-count'),
+  markAllAsRead: () => apiClient.patch<void>('/notifications/read-all', {}),
+  markAsRead: (id: string) => apiClient.patch<void>(`/notifications/${id}/read`, {}),
+  deleteNotification: (id: string) => apiClient.delete<void>(`/notifications/${id}`),
+  createTestNotification: () => apiClient.post<any>('/notifications/test', {}),
+};
+

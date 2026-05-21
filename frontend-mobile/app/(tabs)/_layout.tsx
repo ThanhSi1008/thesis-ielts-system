@@ -4,8 +4,10 @@ import { Platform, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {COLORS, FONTS} from '@/constants';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
+import { useNotification } from '@/contexts/NotificationContext';
 
 export default function TabLayout() {
+  const { unreadCount } = useNotification();
   return (
     <View style={styles.container}>
       <Tabs
@@ -62,6 +64,7 @@ export default function TabLayout() {
           options={{
             title: 'Profile',
             tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
+            tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
           }}
         />
 
