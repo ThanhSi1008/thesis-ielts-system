@@ -17,8 +17,8 @@ import { EmptyState } from '@/components/ui';
 import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
 
 const TABS = [
-  { key: 'listening', label: '🎧 Listening', color: '#E11D48' },
-  { key: 'reading', label: '📖 Reading', color: '#2563EB' },
+  { key: 'listening', label: '🎧 Listening', color: COLORS.skill.listening },
+  { key: 'reading', label: '📖 Reading', color: COLORS.skill.reading },
 ];
 
 export default function AdvancedScreen() {

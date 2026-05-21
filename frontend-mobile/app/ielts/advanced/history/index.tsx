@@ -26,10 +26,10 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SKILLS = [
-  { key: 'LISTENING', label: 'Listening', icon: 'headset-outline' as const, color: '#E11D48' },
-  { key: 'READING', label: 'Reading', icon: 'book-outline' as const, color: '#2563EB' },
-  { key: 'WRITING', label: 'Writing', icon: 'create-outline' as const, color: '#D97706' },
-  { key: 'SPEAKING', label: 'Speaking', icon: 'mic-outline' as const, color: '#7C3AED' },
+  { key: 'LISTENING', label: 'Listening', icon: 'headset-outline' as const, color: COLORS.skill.listening },
+  { key: 'READING', label: 'Reading', icon: 'book-outline' as const, color: COLORS.skill.reading },
+  { key: 'WRITING', label: 'Writing', icon: 'create-outline' as const, color: COLORS.skill.writing },
+  { key: 'SPEAKING', label: 'Speaking', icon: 'mic-outline' as const, color: COLORS.skill.speaking },
 ];
 
 const PART_LABEL: Record<string, Record<number, string>> = {

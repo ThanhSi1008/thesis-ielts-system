@@ -92,10 +92,10 @@ function MiniChart({ points, color }: { points: number[]; color: string }) {
 }
 
 const SKILL_COLORS: Record<string, string> = {
-  LISTENING: '#E11D48',
-  READING: '#2563EB',
-  WRITING: '#D97706',
-  SPEAKING: '#7C3AED',
+  LISTENING: COLORS.skill.listening,
+  READING: COLORS.skill.reading,
+  WRITING: COLORS.skill.writing,
+  SPEAKING: COLORS.skill.speaking,
 };
 
 export default function StudentDetailScreen() {

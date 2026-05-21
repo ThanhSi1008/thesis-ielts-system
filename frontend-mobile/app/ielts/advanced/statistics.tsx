@@ -15,10 +15,10 @@ import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
 
 const SKILLS = [
-  { key: 'listening', label: 'Listening', color: '#E11D48' },
-  { key: 'reading', label: 'Reading', color: '#2563EB' },
-  { key: 'writing', label: 'Writing', color: '#7C3AED' },
-  { key: 'speaking', label: 'Speaking', color: '#059669' },
+  { key: 'listening', label: 'Listening', color: COLORS.skill.listening },
+  { key: 'reading', label: 'Reading', color: COLORS.skill.reading },
+  { key: 'writing', label: 'Writing', color: COLORS.skill.writing },
+  { key: 'speaking', label: 'Speaking', color: COLORS.skill.speaking },
 ] as const;
 
 type SkillKey = (typeof SKILLS)[number]['key'];

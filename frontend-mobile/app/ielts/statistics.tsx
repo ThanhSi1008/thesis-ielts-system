@@ -120,10 +120,10 @@ const chartStyles = StyleSheet.create({
 });
 
 const SKILLS = [
-  { key: 'LISTENING', label: 'Listening', color: '#E11D48' },
-  { key: 'READING', label: 'Reading', color: '#2563EB' },
-  { key: 'WRITING', label: 'Writing', color: '#D97706' },
-  { key: 'SPEAKING', label: 'Speaking', color: '#7C3AED' },
+  { key: 'LISTENING', label: 'Listening', color: COLORS.skill.listening },
+  { key: 'READING', label: 'Reading', color: COLORS.skill.reading },
+  { key: 'WRITING', label: 'Writing', color: COLORS.skill.writing },
+  { key: 'SPEAKING', label: 'Speaking', color: COLORS.skill.speaking },
 ];
 
 export default function StatisticsScreen() {
@@ -289,12 +289,12 @@ export default function StatisticsScreen() {
         <View style={styles.section}>
           <SectionHeader title="Advanced Practice" subtitle="Listening & Reading parts" />
           <View style={styles.advRow}>
-            <View style={[styles.advCard, { borderColor: '#E11D48' }]}>
+            <View style={[styles.advCard, { borderColor: COLORS.skill.listening }]}>
               <Text style={styles.advIcon}>🎧</Text>
               <Text style={styles.advCount}>{advListening.length}</Text>
               <Text style={styles.advLabel}>Listening</Text>
             </View>
-            <View style={[styles.advCard, { borderColor: '#2563EB' }]}>
+            <View style={[styles.advCard, { borderColor: COLORS.skill.reading }]}>
               <Text style={styles.advIcon}>📖</Text>
               <Text style={styles.advCount}>{advReading.length}</Text>
               <Text style={styles.advLabel}>Reading</Text>
@@ -348,10 +348,10 @@ export default function StatisticsScreen() {
 // ─── Submission Volume Bar Chart ──────────────────────────────────────────────
 const VOL_SKILLS = [
   { key: 'ALL', label: 'All', color: COLORS.primary },
-  { key: 'LISTENING', label: 'L', color: '#E11D48' },
-  { key: 'READING', label: 'R', color: '#2563EB' },
-  { key: 'WRITING', label: 'W', color: '#D97706' },
-  { key: 'SPEAKING', label: 'S', color: '#7C3AED' },
+  { key: 'LISTENING', label: 'L', color: COLORS.skill.listening },
+  { key: 'READING', label: 'R', color: COLORS.skill.reading },
+  { key: 'WRITING', label: 'W', color: COLORS.skill.writing },
+  { key: 'SPEAKING', label: 'S', color: COLORS.skill.speaking },
 ];
 
 function getMonthlyVolume(history: any[], skill: string) {

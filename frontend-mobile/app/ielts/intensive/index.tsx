@@ -19,10 +19,10 @@ import { ieltsExamsApi } from '@/services/ielts.api';
 import { Chip, EmptyState, SectionHeader, Badge } from '@/components/ui';
 
 const SKILLS = [
-  { key: 'LISTENING', label: 'Listening', icon: '🎧', color: '#E11D48' },
-  { key: 'READING', label: 'Reading', icon: '📖', color: '#2563EB' },
-  { key: 'WRITING', label: 'Writing', icon: '✍️', color: '#D97706' },
-  { key: 'SPEAKING', label: 'Speaking', icon: '🎤', color: '#7C3AED' },
+  { key: 'LISTENING', label: 'Listening', icon: '🎧', color: COLORS.skill.listening },
+  { key: 'READING', label: 'Reading', icon: '📖', color: COLORS.skill.reading },
+  { key: 'WRITING', label: 'Writing', icon: '✍️', color: COLORS.skill.writing },
+  { key: 'SPEAKING', label: 'Speaking', icon: '🎤', color: COLORS.skill.speaking },
 ];
 
 type StatusFilter = 'all' | 'taken' | 'not-taken';

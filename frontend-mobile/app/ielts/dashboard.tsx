@@ -123,12 +123,12 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <SectionHeader title="Advanced Practice" subtitle="Listening & Reading parts" />
           <View style={styles.advRow}>
-            <View style={[styles.advCard, { borderColor: '#E11D48' }]}>
+            <View style={[styles.advCard, { borderColor: COLORS.skill.listening }]}>
               <Text style={styles.advIcon}>🎧</Text>
               <Text style={styles.advCount}>{advListening.length}</Text>
               <Text style={styles.advLabel}>Listening</Text>
             </View>
-            <View style={[styles.advCard, { borderColor: '#2563EB' }]}>
+            <View style={[styles.advCard, { borderColor: COLORS.skill.reading }]}>
               <Text style={styles.advIcon}>📖</Text>
               <Text style={styles.advCount}>{advReading.length}</Text>
               <Text style={styles.advLabel}>Reading</Text>

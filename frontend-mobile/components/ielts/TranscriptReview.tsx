@@ -16,7 +16,7 @@ interface Props {
 export default function TranscriptReview({
   transcript,
   locatedQuestion,
-  accentColor = '#E11D48',
+  accentColor = COLORS.skill.listening,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
   // Map from question number → y-offset of that segment

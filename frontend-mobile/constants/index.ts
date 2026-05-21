@@ -54,10 +54,10 @@ export const COLORS = {
 
   // Skills colors
   skill: {
-    listening: '#7C3AED',
+    listening: '#E11D48',
     reading: '#2563EB',
     writing: '#D97706',
-    speaking: '#E11D48',
+    speaking: '#7C3AED',
   },
 
   // Gray scale

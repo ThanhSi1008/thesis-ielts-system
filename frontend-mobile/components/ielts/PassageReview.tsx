@@ -19,7 +19,7 @@ export default function PassageReview({
   passage,
   passageWithLocations,
   locatedQuestion,
-  accentColor = '#2563EB',
+  accentColor = COLORS.skill.reading,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
   const yOffsets = useRef<Record<number, number>>({}); // paragraphIndex → y
