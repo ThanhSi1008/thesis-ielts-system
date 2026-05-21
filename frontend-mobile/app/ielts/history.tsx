@@ -17,7 +17,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
-import { ieltsExamsApi } from '@/services';
+import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { Badge, ScoreBadge, EmptyState } from '@/components/ui';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -190,6 +190,7 @@ function HistoryCard({
   const ss = item.timeTaken ? String(item.timeTaken % 60).padStart(2, '0') : null;
 
   const onLongPress = () => {
+    if (item.isAdvanced) return;
     Animated.sequence([
       Animated.timing(scaleAnim, { toValue: 0.97, duration: 80, useNativeDriver: true }),
       Animated.timing(scaleAnim, { toValue: 1, duration: 80, useNativeDriver: true }),
@@ -220,6 +221,8 @@ function HistoryCard({
                 <ActivityIndicator size="small" color={COLORS.error} />
               ) : mode === 'mock' ? (
                 <ScoreBadge band={band} />
+              ) : item.isAdvanced ? (
+                <ScoreBadge band={item.rawScore ?? 0} />
               ) : (
                 <ScoreBar score={item.rawScore ?? 0} />
               )}
@@ -239,7 +242,7 @@ function HistoryCard({
                 ⏱ {mm}:{ss}
               </Text>
             )}
-            <Text style={hc.hint}>Hold to delete</Text>
+            {!item.isAdvanced && <Text style={hc.hint}>Hold to delete</Text>}
           </View>
         </View>
       </TouchableOpacity>
@@ -291,8 +294,22 @@ export default function HistoryScreen() {
 
   const fetchHistory = async () => {
     try {
-      const data = await ieltsExamsApi.getHistory();
-      setHistory(Array.isArray(data) ? data : []);
+      const [mockHistory, writingHistory] = await Promise.all([
+        ieltsExamsApi.getHistory(),
+        ieltsAdvancedApi.getWritingHistory(),
+      ]);
+      const normalizedMock = Array.isArray(mockHistory) ? mockHistory : [];
+      const normalizedWriting = (Array.isArray(writingHistory) ? writingHistory : []).map((s: any) => ({
+        id: s.id,
+        skill: 'WRITING',
+        dateTaken: s.createdAt,
+        examTitle: s.prompt?.title ?? 'Writing Practice',
+        practicePart: s.prompt?.taskType === 'TASK1' ? 1 : 2,
+        rawScore: s.bandScore ?? null,
+        totalQuestions: null,
+        isAdvanced: true,
+      }));
+      setHistory([...normalizedMock, ...normalizedWriting]);
     } catch (e) {
       console.error(e);
     } finally {
@@ -363,6 +380,10 @@ export default function HistoryScreen() {
     (item: any) => {
       const id = item.id ?? item.sessionId;
       if (!id) return;
+      if (item.isAdvanced && item.skill === 'WRITING') {
+        router.push(`/ielts/advanced/writing/result/${id}` as any);
+        return;
+      }
       if (item.practicePart) {
         // Practice → advanced result
         const skillPath = item.skill?.toLowerCase() ?? 'listening';

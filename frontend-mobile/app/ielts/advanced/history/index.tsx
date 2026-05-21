@@ -242,9 +242,10 @@ export default function AdvancedHistoryScreen() {
 
   const load = useCallback(async () => {
     try {
-      const [listening, reading] = await Promise.all([
+      const [listening, reading, writing] = await Promise.all([
         ieltsAdvancedApi.getListeningHistory(),
         ieltsAdvancedApi.getReadingHistory(),
+        ieltsAdvancedApi.getWritingHistory(),
       ]);
       const normalizeListening = (Array.isArray(listening) ? listening : []).map((s: any) => ({
         id: s.id,
@@ -266,7 +267,16 @@ export default function AdvancedHistoryScreen() {
         rawScore: s.totalScore ?? null,
         totalQuestions: s.totalQuestions ?? null,
       }));
-      const merged = [...normalizeListening, ...normalizeReading].sort(
+      const normalizeWriting = (Array.isArray(writing) ? writing : []).map((s: any) => ({
+        id: s.id,
+        skill: 'WRITING',
+        dateTaken: s.createdAt,
+        examTitle: s.prompt?.title ?? 'Writing Practice',
+        practicePart: s.prompt?.taskType === 'TASK1' ? 1 : 2,
+        rawScore: s.bandScore ?? null,
+        totalQuestions: null,
+      }));
+      const merged = [...normalizeListening, ...normalizeReading, ...normalizeWriting].sort(
         (a, b) => new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime(),
       );
       setAllHistory(merged);
@@ -294,7 +304,12 @@ export default function AdvancedHistoryScreen() {
   const handleCardPress = useCallback(
     (item: any) => {
       const id = item.id;
-      if (!id || !item.partId) return;
+      if (!id) return;
+      if (item.skill === 'WRITING') {
+        router.push(`/ielts/advanced/writing/result/${id}` as any);
+        return;
+      }
+      if (!item.partId) return;
       const skillPath = (item.skill ?? 'LISTENING').toLowerCase();
       router.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.partId, id));
     },

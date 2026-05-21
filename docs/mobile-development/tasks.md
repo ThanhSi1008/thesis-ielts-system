@@ -158,29 +158,29 @@
 - [x] **P1-06** · Refactor `app/ielts/advanced/index.tsx`: thêm 2 tab Writing + Speaking vào TABS array (hiện chỉ L/R) · *est. 0.5h*
 
 ### 1.3 Detail screen — Editor + Session lifecycle (10h, +2h cho R-05)
-- [ ] **P1-07** · Tạo `app/ielts/advanced/writing/[promptId].tsx`: layout 2 phần (prompt + editor) với PanResponder resize · *est. 2h*
-- [ ] **P1-08** · Render prompt markdown + image (Task 1) bằng `react-native-markdown-display` · *est. 1.5h*
-- [ ] **P1-09** · TextInput editor: multiline, autoGrow, font monospace, word count realtime · *est. 2h*
-- [ ] **P1-10** · Timer integration: 20 min Task 1 / 40 min Task 2 (config từ backend), `useTimer` hook · *est. 1h*
-- [ ] **P1-11** · **R-05**: Mount handler — tự động `createWritingSession(promptId)` nếu chưa có sessionId param, hoặc resume nếu có · *est. 1h*
-- [ ] **P1-11b** · **R-05**: Tạo `hooks/useWritingAutosave.ts` — debounce 5s, gọi `saveWritingDraft(sessionId, draft)`, expose `lastSavedAt` · *est. 1h*
-- [ ] **P1-11c** · **R-05**: Indicator UI "Saved at HH:MM:SS" hiện trong editor toolbar · *est. 0.5h*
-- [ ] **P1-12** · Submit button với confirm modal (cảnh báo nếu < min words) · *est. 1h*
+- [x] **P1-07** · Tạo `app/ielts/advanced/writing/[promptId].tsx`: layout 2 phần (prompt + editor) với PanResponder resize · *est. 2h*
+- [x] **P1-08** · Render prompt markdown + image (Task 1) bằng `react-native-markdown-display` · *est. 1.5h*
+- [x] **P1-09** · TextInput editor: multiline, autoGrow, font monospace, word count realtime · *est. 2h*
+- [x] **P1-10** · Timer integration: 20 min Task 1 / 40 min Task 2 (config từ backend), `useTimer` hook · *est. 1h*
+- [x] **P1-11** · **R-05**: Mount handler — tự động `createWritingSession(promptId)` nếu chưa có sessionId param, hoặc resume nếu có · *est. 1h*
+- [x] **P1-11b** · **R-05**: Tạo `hooks/useWritingAutosave.ts` — debounce 5s, gọi `saveWritingDraft(sessionId, draft)`, expose `lastSavedAt` · *est. 1h*
+- [x] **P1-11c** · **R-05**: Indicator UI "Saved at HH:MM:SS" hiện trong editor toolbar · *est. 0.5h*
+- [x] **P1-12** · Submit button với confirm modal (cảnh báo nếu < min words) · *est. 1h*
 
 ### 1.4 Submission + Polling (4h)
-- [ ] **P1-13** · Submit handler: `submitWritingSession(sessionId, payload)` → router.replace(`result/[sessionId]`) · *est. 1h*
-- [ ] **P1-14** · `app/ielts/advanced/writing/result/[sessionId].tsx`: skeleton + poll status mỗi 5s qua `useGradingPoll` · *est. 1.5h*
-- [ ] **P1-15** · Render WritingRubricView (đã có) với 4 tiêu chí band + feedback + corrected version · *est. 1.5h*
+- [x] **P1-13** · Submit handler: `submitWritingSession(sessionId, payload)` → router.replace(`result/[sessionId]`) · *est. 1h*
+- [x] **P1-14** · `app/ielts/advanced/writing/result/[sessionId].tsx`: skeleton + poll status mỗi 5s qua `useGradingPoll` · *est. 1.5h*
+- [x] **P1-15** · Render WritingRubricView (đã có) với 4 tiêu chí band + feedback + corrected version · *est. 1.5h*
 
 ### 1.5 History (3h)
-- [ ] **P1-16** · Verify `app/ielts/history.tsx` đã hiển thị Writing? Nếu chưa, thêm tab Writing với data từ `getWritingHistory` · *est. 2h*
-- [ ] **P1-17** · Card item history Writing: click → result/[sessionId] · *est. 1h*
+- [x] **P1-16** · Verify `app/ielts/history.tsx` đã hiển thị Writing? Nếu chưa, thêm tab Writing với data từ `getWritingHistory` · *est. 2h*
+- [x] **P1-17** · Card item history Writing: click → result/[sessionId] · *est. 1h*
 
 ### 1.6 QA (2h)
-- [ ] **P1-18** · Test E2E: submit Task 1 → grading → DONE → view rubric · *est. 0.5h*
-- [ ] **P1-19** · Test error: no-network, slow grading > 90s timeout, GRADING_FAILED · *est. 0.5h*
-- [ ] **P1-20** · **R-05**: Test autosave — type → wait 5s → kill app → reopen → resume session với draft đã save · *est. 0.5h*
-- [ ] **P1-21** · Test FeatureLock — user FREE truy cập → blur + Upgrade CTA · *est. 0.5h*
+- [x] **P1-18** · Test E2E: submit Task 1 → grading → DONE → view rubric · *est. 0.5h*
+- [x] **P1-19** · Test error: no-network, slow grading > 90s timeout, GRADING_FAILED · *est. 0.5h*
+- [x] **P1-20** · **R-05**: Test autosave — type → wait 5s → kill app → reopen → resume session với draft đã save · *est. 0.5h*
+- [x] **P1-21** · Test FeatureLock — user FREE truy cập → blur + Upgrade CTA · *est. 0.5h*
 
 **Tổng phase 1**: 26h *(R-05: +2h cho autosave + session lifecycle)*
 

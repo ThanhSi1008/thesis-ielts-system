@@ -197,7 +197,7 @@ export default function AdvancedWritingPracticeScreen() {
             {prompt.imageUrl && (
               <Image
                 source={{ uri: prompt.imageUrl }}
-                style={styles.promptImage}
+                style={styles.promptImage as any}
                 resizeMode="contain"
               />
             )}
@@ -446,7 +446,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
-    cursor: 'row-resize',
   },
   resizerGrabLine: {
     width: 40,
