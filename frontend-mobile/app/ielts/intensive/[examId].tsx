@@ -578,6 +578,8 @@ function renderGroup(
   setAnswer: (k: string, v: string) => void,
   groupIdx = 0,
   partIdx = 0,
+  colors?: any,
+  isDark?: boolean,
 ) {
   const type = group.question_type ?? group.type ?? 'fill';
   // Key: p{partIdx}-g{groupIdx}-{type} — always unique across parts & groups
@@ -659,11 +661,11 @@ function renderGroup(
 
     // Render as flex-wrap row so badges sit inline with text
     return (
-      <View style={qStyles.passageContextWrap}>
-        <Text style={qStyles.passageContextText}>
+      <View style={[qStyles.passageContextWrap, colors && { backgroundColor: isDark ? colors.surface : '#F8F9FA', borderColor: colors.border, borderLeftColor: colors.primary + '80' }]}>
+        <Text style={[qStyles.passageContextText, colors && { color: colors.text }]}>
           {segments.map((seg, i) =>
             seg.type === 'badge' ? (
-              <Text key={`${cKey}-seg${i}`} style={qStyles.blankBadge}>
+              <Text key={`${cKey}-seg${i}`} style={[qStyles.blankBadge, colors && { backgroundColor: colors.primary }]}>
                 {' '}
                 {seg.content}{' '}
               </Text>
@@ -688,7 +690,11 @@ function renderGroup(
 
     return (
       <View key={sKey} style={qStyles.sectionBlock}>
-        {section.heading && <Text style={qStyles.sectionHeading}>{section.heading}</Text>}
+        {section.heading && (
+          <Text style={[qStyles.sectionHeading, colors && { color: colors.primary, borderBottomColor: colors.border + '60' }]}>
+            {section.heading}
+          </Text>
+        )}
 
         {/* Passage context — display only with blank number badges */}
         {rawText.length > 0 && renderPassageContext(rawText, sKey)}
@@ -721,16 +727,16 @@ function renderGroup(
 
             // Free-text variant: labeled TextInput row
             return (
-              <View key={qKey} style={qStyles.summaryAnswerRow}>
-                <View style={qStyles.summaryQBadge}>
-                  <Text style={qStyles.summaryQBadgeText}>{qNum}</Text>
+              <View key={qKey} style={[qStyles.summaryAnswerRow, colors && { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <View style={[qStyles.summaryQBadge, colors && { backgroundColor: colors.primary + '18' }]}>
+                  <Text style={[qStyles.summaryQBadgeText, colors && { color: colors.primary }]}>{qNum}</Text>
                 </View>
                 <TextInput
-                  style={qStyles.summaryAnswerInput}
+                  style={[qStyles.summaryAnswerInput, colors && { color: colors.text, borderBottomColor: colors.border }]}
                   value={currentVal}
                   onChangeText={(v) => setAnswer(qKey, v)}
                   placeholder="Type answer..."
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={colors ? colors.textMuted : '#94A3B8'}
                   returnKeyType="done"
                 />
               </View>
@@ -743,7 +749,20 @@ function renderGroup(
 
   return (
     <View key={baseKey}>
-      {group.instructions && <Text style={styles.instructions}>{group.instructions}</Text>}
+      {group.instructions && (
+        <Text
+          style={[
+            styles.instructions,
+            colors && {
+              backgroundColor: isDark ? colors.surface : '#FFF9C4',
+              color: colors.textSecondary,
+              borderLeftColor: isDark ? colors.border : COLORS.warning,
+            },
+          ]}
+        >
+          {group.instructions}
+        </Text>
+      )}
 
       {hasSections
         ? // Detect if each section is a Summary Completion (has text + points with Q numbers)
@@ -761,8 +780,12 @@ function renderGroup(
             // Note/Form Completion — render each point as fill or MCQ
             return (
               <View key={sKey} style={qStyles.sectionBlock}>
-                {section.heading && <Text style={qStyles.sectionHeading}>{section.heading}</Text>}
-                {section.text && <Text style={qStyles.sectionText}>{section.text}</Text>}
+                {section.heading && (
+                  <Text style={[qStyles.sectionHeading, colors && { color: colors.primary, borderBottomColor: colors.border + '60' }]}>
+                    {section.heading}
+                  </Text>
+                )}
+                {section.text && <Text style={[qStyles.sectionText, colors && { color: colors.text }]}>{section.text}</Text>}
                 {sectionPoints
                   .filter((q: any) => q.question_number != null)
                   .map((q: any, qi: number) => {
@@ -922,6 +945,7 @@ function QuestionNavigatorDrawer({
   answers: Record<string, string>;
   onSelect: (n: number) => void;
 }) {
+  const { colors, isDark } = useTheme();
   const slideAnim = useRef(new Animated.Value(DRAWER_HEIGHT)).current;
 
   useEffect(() => {
@@ -945,20 +969,20 @@ function QuestionNavigatorDrawer({
         </TouchableWithoutFeedback>
       )}
       {/* Sheet */}
-      <Animated.View style={[nav.sheet, { transform: [{ translateY: slideAnim }] }]}>
+      <Animated.View style={[nav.sheet, { backgroundColor: colors.card }, { transform: [{ translateY: slideAnim }] }]}>
         {/* Handle */}
-        <View style={nav.handle} />
+        <View style={[nav.handle, { backgroundColor: isDark ? colors.border : '#D1D5DB' }]} />
         {/* Header */}
         <View style={nav.sheetHeader}>
-          <Text style={nav.sheetTitle}>Question Navigator</Text>
+          <Text style={[nav.sheetTitle, { color: colors.text }]}>Question Navigator</Text>
           <View style={nav.legend}>
             <View style={nav.legendRow}>
-              <View style={[nav.dot, { backgroundColor: COLORS.primary }]} />
-              <Text style={nav.legendText}>{answeredCount} Answered</Text>
+              <View style={[nav.dot, { backgroundColor: colors.primary }]} />
+              <Text style={[nav.legendText, { color: colors.textSecondary }]}>{answeredCount} Answered</Text>
             </View>
             <View style={nav.legendRow}>
-              <View style={[nav.dot, { backgroundColor: '#E5E7EB' }]} />
-              <Text style={nav.legendText}>{totalQuestions - answeredCount} Unanswered</Text>
+              <View style={[nav.dot, { backgroundColor: isDark ? colors.border : '#E5E7EB' }]} />
+              <Text style={[nav.legendText, { color: colors.textSecondary }]}>{totalQuestions - answeredCount} Unanswered</Text>
             </View>
           </View>
         </View>
@@ -969,14 +993,29 @@ function QuestionNavigatorDrawer({
             return (
               <TouchableOpacity
                 key={n}
-                style={[nav.cell, answered && nav.cellAnswered]}
+                style={[
+                  nav.cell,
+                  {
+                    backgroundColor: isDark ? colors.surface : '#F3F4F6',
+                    borderColor: isDark ? colors.border : '#E5E7EB',
+                  },
+                  answered && [nav.cellAnswered, { backgroundColor: colors.primary + '18', borderColor: colors.primary }],
+                ]}
                 onPress={() => {
                   onClose();
                   setTimeout(() => onSelect(n), 150);
                 }}
                 activeOpacity={0.75}
               >
-                <Text style={[nav.cellText, answered && nav.cellTextAnswered]}>{n}</Text>
+                <Text
+                  style={[
+                    nav.cellText,
+                    { color: colors.textSecondary },
+                    answered && [nav.cellTextAnswered, { color: colors.primary }],
+                  ]}
+                >
+                  {n}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -1224,19 +1263,19 @@ export default function ExamPlayerScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Loading exam…</Text>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading exam…</Text>
       </View>
     );
   }
 
   if (!exam) {
     return (
-      <View style={styles.center}>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
         <Text style={styles.errorText}>Exam not found.</Text>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: COLORS.primary }}>Go back</Text>
+          <Text style={{ color: colors.primary }}>Go back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -1302,14 +1341,14 @@ export default function ExamPlayerScreen() {
           : ['4 Sections', '40 Questions', 'Computer Based'];
 
     return (
-      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-        <View style={styles.prepContainer}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <View style={[styles.prepContainer, { backgroundColor: colors.background }]}>
           {/* Header nav */}
-          <View style={styles.prepHeader}>
+          <View style={[styles.prepHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
             <TouchableOpacity onPress={() => router.back()} style={styles.prepBack}>
-              <Ionicons name="arrow-back" size={20} color={COLORS.textSecondary} />
+              <Ionicons name="arrow-back" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
-            <Text style={styles.prepHeaderTitle}>Exam Preparation</Text>
+            <Text style={[styles.prepHeaderTitle, { color: colors.text }]}>Exam Preparation</Text>
             <View style={{ width: 28 }} />
           </View>
 
@@ -1319,82 +1358,82 @@ export default function ExamPlayerScreen() {
           >
             {/* Cambridge IELTS badge + title */}
             <View style={styles.prepTitleSection}>
-              <View style={styles.prepCamBadge}>
-                <Ionicons name="book-outline" size={12} color={COLORS.primary} />
-                <Text style={styles.prepCamBadgeText}>Cambridge IELTS</Text>
+              <View style={[styles.prepCamBadge, { backgroundColor: colors.primary + '20' }]}>
+                <Ionicons name="book-outline" size={12} color={colors.primary} />
+                <Text style={[styles.prepCamBadgeText, { color: colors.primary }]}>Cambridge IELTS</Text>
               </View>
-              <Text style={styles.prepGroupTitle}>{groupTitle}</Text>
-              {testTitle ? <Text style={styles.prepTestTitle}>{testTitle}</Text> : null}
+              <Text style={[styles.prepGroupTitle, { color: colors.text }]}>{groupTitle}</Text>
+              {testTitle ? <Text style={[styles.prepTestTitle, { color: colors.textSecondary }]}>{testTitle}</Text> : null}
               {/* Decorative bar */}
               <View style={styles.prepDecorRow}>
                 <View
-                  style={[styles.prepDecorBar, { width: 40, backgroundColor: COLORS.primary }]}
+                  style={[styles.prepDecorBar, { width: 40, backgroundColor: colors.primary }]}
                 />
-                <View style={[styles.prepDecorBar, { width: 12, backgroundColor: '#D1D5DB' }]} />
-                <View style={[styles.prepDecorBar, { width: 12, backgroundColor: '#E5E7EB' }]} />
+                <View style={[styles.prepDecorBar, { width: 12, backgroundColor: isDark ? colors.border : '#D1D5DB' }]} />
+                <View style={[styles.prepDecorBar, { width: 12, backgroundColor: isDark ? colors.border + '60' : '#E5E7EB' }]} />
               </View>
             </View>
 
             {/* Main card */}
-            <View style={styles.prepCard}>
+            <View style={[styles.prepCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               {/* LEFT — Exam details */}
               <View style={styles.prepCardLeft}>
-                <Text style={styles.prepSectionLabel}>Exam Details</Text>
+                <Text style={[styles.prepSectionLabel, { color: colors.textSecondary }]}>Exam Details</Text>
 
                 {/* Duration */}
-                <View style={styles.prepDetailRow}>
-                  <View style={styles.prepDetailIcon}>
-                    <Ionicons name="timer-outline" size={18} color={COLORS.primary} />
+                <View style={[styles.prepDetailRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <View style={[styles.prepDetailIcon, { backgroundColor: colors.primary + '20' }]}>
+                    <Ionicons name="timer-outline" size={18} color={colors.primary} />
                   </View>
                   <View>
-                    <Text style={styles.prepDetailMeta}>Duration</Text>
-                    <Text style={styles.prepDetailValue}>{exam.duration ?? 60} minutes</Text>
+                    <Text style={[styles.prepDetailMeta, { color: colors.textSecondary }]}>Duration</Text>
+                    <Text style={[styles.prepDetailValue, { color: colors.text }]}>{exam.duration ?? 60} minutes</Text>
                   </View>
                 </View>
 
                 {/* Skill */}
-                <View style={styles.prepDetailRow}>
-                  <View style={styles.prepDetailIcon}>
-                    <Ionicons name={skillIcon as any} size={18} color={COLORS.primary} />
+                <View style={[styles.prepDetailRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <View style={[styles.prepDetailIcon, { backgroundColor: colors.primary + '20' }]}>
+                    <Ionicons name={skillIcon as any} size={18} color={colors.primary} />
                   </View>
                   <View>
-                    <Text style={styles.prepDetailMeta}>Skill</Text>
-                    <Text style={styles.prepDetailValue}>
+                    <Text style={[styles.prepDetailMeta, { color: colors.textSecondary }]}>Skill</Text>
+                    <Text style={[styles.prepDetailValue, { color: colors.text }]}>
                       {prepType.charAt(0) + prepType.slice(1).toLowerCase()}
                     </Text>
                   </View>
                 </View>
 
                 {/* Questions */}
-                <View style={styles.prepDetailRow}>
-                  <View style={styles.prepDetailIcon}>
-                    <Ionicons name="checkmark-circle-outline" size={18} color={COLORS.primary} />
+                <View style={[styles.prepDetailRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <View style={[styles.prepDetailIcon, { backgroundColor: colors.primary + '20' }]}>
+                    <Ionicons name="checkmark-circle-outline" size={18} color={colors.primary} />
                   </View>
                   <View>
-                    <Text style={styles.prepDetailMeta}>{questionsLabel}</Text>
-                    <Text style={styles.prepDetailValue}>{questionsValue}</Text>
+                    <Text style={[styles.prepDetailMeta, { color: colors.textSecondary }]}>{questionsLabel}</Text>
+                    <Text style={[styles.prepDetailValue, { color: colors.text }]}>{questionsValue}</Text>
                   </View>
                 </View>
 
                 {/* Notice */}
-                <View style={styles.prepNoticeBox}>
-                  <Text style={styles.prepNoticeText}>{noticeText}</Text>
+                <View style={[styles.prepNoticeBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <Text style={[styles.prepNoticeText, { color: colors.textSecondary }]}>{noticeText}</Text>
                 </View>
               </View>
 
               {/* Divider */}
-              <View style={styles.prepCardDivider} />
+              <View style={[styles.prepCardDivider, { backgroundColor: colors.border }]} />
 
               {/* RIGHT — YouTube video */}
               <View style={styles.prepCardRight}>
                 <View style={styles.prepVideoHeader}>
-                  <Ionicons name="play-circle-outline" size={14} color={COLORS.textSecondary} />
-                  <Text style={styles.prepSectionLabel}>Test Instructions</Text>
+                  <Ionicons name="play-circle-outline" size={14} color={colors.textSecondary} />
+                  <Text style={[styles.prepSectionLabel, { color: colors.textSecondary }]}>Test Instructions</Text>
                 </View>
 
                 {videoId ? (
                   <>
-                    <View style={styles.prepVideoWrapper}>
+                    <View style={[styles.prepVideoWrapper, { borderColor: colors.border }]}>
                       <WebView
                         style={styles.prepVideo}
                         source={{ uri: `https://www.youtube.com/embed/${videoId}` }}
@@ -1403,15 +1442,15 @@ export default function ExamPlayerScreen() {
                         javaScriptEnabled
                       />
                     </View>
-                    <Text style={styles.prepVideoCaption}>
+                    <Text style={[styles.prepVideoCaption, { color: colors.textSecondary }]}>
                       Watch the full tutorial before attempting the test to familiarise yourself
                       with the format.
                     </Text>
                   </>
                 ) : (
                   <View style={styles.prepNoVideo}>
-                    <Ionicons name="mic-outline" size={40} color={COLORS.textSecondary} />
-                    <Text style={styles.prepNoVideoText}>
+                    <Ionicons name="mic-outline" size={40} color={colors.textSecondary} />
+                    <Text style={[styles.prepNoVideoText, { color: colors.textSecondary }]}>
                       Speaking test — use the device microphone during the exam.
                     </Text>
                   </View>
@@ -1420,8 +1459,8 @@ export default function ExamPlayerScreen() {
                 {/* Chips */}
                 <View style={styles.prepChipRow}>
                   {chips.map((chip) => (
-                    <View key={chip} style={styles.prepChip}>
-                      <Text style={styles.prepChipText}>{chip}</Text>
+                    <View key={chip} style={[styles.prepChip, { backgroundColor: isDark ? colors.surface : '#F3F4F6', borderColor: colors.border }]}>
+                      <Text style={[styles.prepChipText, { color: colors.textSecondary }]}>{chip}</Text>
                     </View>
                   ))}
                 </View>
@@ -1430,15 +1469,15 @@ export default function ExamPlayerScreen() {
           </ScrollView>
 
           {/* CTA */}
-          <View style={styles.prepFooter}>
+          <View style={[styles.prepFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
             <TouchableOpacity
               style={styles.prepStartBtn}
               onPress={handleStartExam}
               activeOpacity={0.85}
             >
-              <Text style={styles.prepStartBtnText}>Start Test</Text>
-              <View style={styles.prepStartBtnIcon}>
-                <Ionicons name="arrow-forward" size={16} color="#fff" />
+              <Text style={[styles.prepStartBtnText, { color: '#fff' }]}>Start Test</Text>
+              <View style={[styles.prepStartBtnIcon, { backgroundColor: '#fff' }]}>
+                <Ionicons name="arrow-forward" size={16} color={colors.primary} />
               </View>
             </TouchableOpacity>
           </View>
@@ -1573,7 +1612,7 @@ export default function ExamPlayerScreen() {
         <>
           {/* Part selector tabs — only shown when there are multiple parts */}
           {parts.length > 1 && (
-            <View style={styles.listeningPartTabs}>
+            <View style={[styles.listeningPartTabs, { backgroundColor: colors.card, borderColor: colors.border }]}>
               {parts.map((part: any, pi: number) => {
                 const isActive = activeListeningPartIndex === pi;
                 return (
@@ -1586,7 +1625,8 @@ export default function ExamPlayerScreen() {
                     <Text
                       style={[
                         styles.listeningPartTabLabel,
-                        isActive && styles.listeningPartTabLabelActive,
+                        { color: colors.textSecondary },
+                        isActive && [styles.listeningPartTabLabelActive, { color: colors.primary }],
                       ]}
                     >
                       Part {part.part_number || pi + 1}
@@ -1618,34 +1658,47 @@ export default function ExamPlayerScreen() {
                         partOffsetsRef.current[pi] = e.nativeEvent.layout.y;
                       }}
                     >
-                      <Text style={styles.partTitle}>
+                      <Text style={[styles.partTitle, { color: colors.text }]}>
                         Part {part.part_number || pi + 1}
                         {part.topic ? ` — ${part.topic}` : ''}
                       </Text>
-                      {part.part_type && <Text style={styles.instructions}>{part.part_type}</Text>}
+                      {part.part_type && (
+                        <Text
+                          style={[
+                            styles.instructions,
+                            {
+                              backgroundColor: isDark ? colors.surface : '#FFF9C4',
+                              color: colors.textSecondary,
+                              borderLeftColor: isDark ? colors.border : COLORS.warning,
+                            },
+                          ]}
+                        >
+                          {part.part_type}
+                        </Text>
+                      )}
                       {groups.map((g: any, gi: number) =>
-                        renderGroup(g, answers, setAnswer, gi, pi),
+                        renderGroup(g, answers, setAnswer, gi, pi, colors, isDark),
                       )}
                     </View>
                   );
                 })()
               : (questions.groups || []).map((g: any, gi: number) =>
-                  renderGroup(g, answers, setAnswer, gi, 0),
+                  renderGroup(g, answers, setAnswer, gi, 0, colors, isDark),
                 )}
           </ScrollView>
         </>
       )}
 
       {/* Submit bar */}
-      <View style={styles.submitBar}>
+      <View style={[styles.submitBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         {/* Navigator toggle */}
         <TouchableOpacity
-          style={styles.navToggleBtn}
+          style={[styles.navToggleBtn, { backgroundColor: isDark ? colors.surface : COLORS.primary + '12', borderColor: isDark ? colors.border : COLORS.primary + '30' }]}
           onPress={() => setNavOpen((v) => !v)}
           activeOpacity={0.8}
         >
-          <Ionicons name="grid-outline" size={18} color={COLORS.primary} />
-          <Text style={styles.navToggleText}>
+          <Ionicons name="grid-outline" size={18} color={colors.primary} />
+          <Text style={[styles.navToggleText, { color: colors.primary }]}>
             {Object.keys(answers).length}/{totalCount ?? '?'}
           </Text>
         </TouchableOpacity>
