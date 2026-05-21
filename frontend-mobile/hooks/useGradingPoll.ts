@@ -26,9 +26,11 @@ interface UseGradingPollOptions {
   onDone: (sessionId: string) => void;
   /** Called if polling detects GRADING_FAILED or max attempts exceeded. */
   onError?: (message: string) => void;
+  /** Optional custom polling function (defaults to ieltsExamsApi.getSession). */
+  pollFn?: (sessionId: string) => Promise<any>;
 }
 
-export function useGradingPoll({ sessionId, enabled, onDone, onError }: UseGradingPollOptions) {
+export function useGradingPoll({ sessionId, enabled, onDone, onError, pollFn }: UseGradingPollOptions) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const attemptsRef = useRef(0);
   const doneCalledRef = useRef(false);
@@ -58,7 +60,9 @@ export function useGradingPoll({ sessionId, enabled, onDone, onError }: UseGradi
       }
 
       try {
-        const session = await ieltsExamsApi.getSession(sessionId);
+        const session = pollFn 
+          ? await pollFn(sessionId)
+          : await ieltsExamsApi.getSession(sessionId);
 
         // Terminal failure state
         if (session.status === 'GRADING_FAILED') {
@@ -81,7 +85,7 @@ export function useGradingPoll({ sessionId, enabled, onDone, onError }: UseGradi
             onDone(sessionId);
           }
         }
-      } catch {
+      } catch (e) {
         // Silent retry — don't stop polling on transient network errors
       }
     };
@@ -91,5 +95,5 @@ export function useGradingPoll({ sessionId, enabled, onDone, onError }: UseGradi
     intervalRef.current = setInterval(tick, POLL_INTERVAL_MS);
 
     return stopPolling;
-  }, [enabled, sessionId, onDone, onError, stopPolling]);
+  }, [enabled, sessionId, onDone, onError, stopPolling, pollFn]);
 }
