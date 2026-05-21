@@ -196,17 +196,17 @@
 - [x] **P2-02** · Stack screens trong `_layout.tsx`: speaking index / detail / result · *est. 0.5h*
 
 ### 2.2 Speaking Device Test (6h)
-- [ ] **P2-04** · Tạo `components/SpeakingDeviceTest.tsx` port từ web · *est. 3h*
+- [x] **P2-04** · Tạo `components/SpeakingDeviceTest.tsx` port từ web · *est. 3h*
   - Step 1: play sample audio (Cloudinary URL), slider volume, "I can hear it"
   - Step 2: record 3s, playback, "Yes mic works"
   - Skip flag `AsyncStorage` key `speaking-device-tested-v1`
-- [ ] **P2-05** · Tích hợp vào Speaking detail (mount lần đầu trước khi vào practice) · *est. 1h*
-- [ ] **P2-06** · Permission handler `requestRecordingPermissionsAsync` + error UI · *est. 1h*
-- [ ] **P2-07** · Test trên device thật iOS + Android (đặc biệt AirPods, headphone Bluetooth) · *est. 1h*
+- [x] **P2-05** · Tích hợp vào Speaking detail (mount lần đầu trước khi vào practice) · *est. 1h*
+- [x] **P2-06** · Permission handler `requestRecordingPermissionsAsync` + error UI · *est. 1h*
+- [x] **P2-07** · Test trên device thật iOS + Android (đặc biệt AirPods, headphone Bluetooth) · *est. 1h*
 
 ### 2.3 Catalog (4h)
-- [ ] **P2-08** · Tạo `components/ielts/SpeakingPartCard.tsx`: thẻ Part 1/2/3, last band, attempts count · *est. 1.5h*
-- [ ] **P2-09** · Tạo `app/ielts/advanced/speaking/index.tsx`: list 3 part + history banner · *est. 2.5h*
+- [x] **P2-08** · Tạo `components/ielts/SpeakingPartCard.tsx`: thẻ Part 1/2/3, last band, attempts count · *est. 1.5h*
+- [x] **P2-09** · Tạo `app/ielts/advanced/speaking/index.tsx`: list 3 part + history banner · *est. 2.5h*
 
 ### 2.4 Detail — 7-state recorder (12h)
 - [ ] **P2-10** · Tạo `app/ielts/advanced/speaking/[partId].tsx`: layout video + recorder · *est. 1.5h*

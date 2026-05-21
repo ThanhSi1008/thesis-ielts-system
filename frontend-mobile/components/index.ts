@@ -16,6 +16,7 @@ export { LoadingSpinner } from './LoadingSpinner';
 export { ErrorView } from './ErrorView';
 export { Card } from './Card';
 export { ErrorBoundary } from './ErrorBoundary';
+export { SpeakingDeviceTest } from './SpeakingDeviceTest';
 
 
 
