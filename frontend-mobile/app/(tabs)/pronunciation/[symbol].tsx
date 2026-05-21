@@ -1,6 +1,6 @@
 /**
  * Pronunciation Detail Screen — /pronunciation/[symbol]
- * Shows example words for a phonetic symbol with AI recorder + smart polling
+ * Shows example words for a phonetic symbol with AI recorder + smart polling + backend data
  *
  * Polling strategy: Exponential backoff (1s → 2s → 4s → 4s… max 4s)
  * Rationale: Fast first check (AI sometimes returns in <2s), then backs off
@@ -14,6 +14,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -24,273 +25,134 @@ import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
-import { learningApi } from '@/services/learning.api';
+import { learningApi, pronunciationApi } from '@/services/learning.api';
+import type { FoundationPronunciationSound, WordProgress } from '@/types';
 
-// ─── Example words per symbol ─────────────────────────────────────────────────
-const EXAMPLE_WORDS: Record<string, { word: string; sentence: string }[]> = {
-  iː: [
-    { word: 'sleep', sentence: 'I need to sleep.' },
-    { word: 'tree', sentence: 'The tree is tall.' },
-    { word: 'see', sentence: 'Can you see it?' },
-  ],
-  ɪ: [
-    { word: 'slip', sentence: "Don't slip on ice." },
-    { word: 'sit', sentence: 'Please sit down.' },
-    { word: 'big', sentence: "It's a big house." },
-  ],
-  ʊ: [
-    { word: 'good', sentence: "That's a good idea." },
-    { word: 'book', sentence: 'Read this book.' },
-    { word: 'put', sentence: 'Put it here.' },
-  ],
-  uː: [
-    { word: 'food', sentence: 'The food is ready.' },
-    { word: 'moon', sentence: 'The moon is bright.' },
-    { word: 'shoe', sentence: 'My shoe is new.' },
-  ],
-  e: [
-    { word: 'bed', sentence: 'Time for bed.' },
-    { word: 'red', sentence: 'A red apple.' },
-    { word: 'ten', sentence: 'Count to ten.' },
-  ],
-  ə: [
-    { word: 'teacher', sentence: 'She is a teacher.' },
-    { word: 'about', sentence: 'Tell me about it.' },
-    { word: 'sofa', sentence: 'Sit on the sofa.' },
-  ],
-  ɜː: [
-    { word: 'bird', sentence: 'A bird is singing.' },
-    { word: 'word', sentence: "What's the word?" },
-    { word: 'turn', sentence: "It's your turn." },
-  ],
-  ɔː: [
-    { word: 'door', sentence: 'Open the door.' },
-    { word: 'four', sentence: 'I have four books.' },
-    { word: 'saw', sentence: 'I saw a film.' },
-  ],
-  æ: [
-    { word: 'cat', sentence: 'The cat sleeps.' },
-    { word: 'man', sentence: 'A tall man.' },
-    { word: 'back', sentence: 'Come back soon.' },
-  ],
-  ʌ: [
-    { word: 'up', sentence: 'Look up at the sky.' },
-    { word: 'cup', sentence: 'A cup of tea.' },
-    { word: 'run', sentence: "Let's run fast." },
-  ],
-  ɑː: [
-    { word: 'far', sentence: "It's not far away." },
-    { word: 'car', sentence: 'My car is fast.' },
-    { word: 'heart', sentence: 'Follow your heart.' },
-  ],
-  ɒ: [
-    { word: 'on', sentence: 'Turn it on.' },
-    { word: 'hot', sentence: 'The soup is hot.' },
-    { word: 'dog', sentence: 'A small dog.' },
-  ],
-  ɪə: [
-    { word: 'here', sentence: 'Come here please.' },
-    { word: 'ear', sentence: 'My ear hurts.' },
-    { word: 'beer', sentence: 'A glass of beer.' },
-  ],
-  eɪ: [
-    { word: 'wait', sentence: 'Please wait here.' },
-    { word: 'day', sentence: 'Have a nice day.' },
-    { word: 'name', sentence: "What's your name?" },
-  ],
-  ʊə: [
-    { word: 'tourist', sentence: 'He is a tourist.' },
-    { word: 'sure', sentence: 'Are you sure?' },
-    { word: 'pure', sentence: 'Pure water.' },
-  ],
-  ɔɪ: [
-    { word: 'boy', sentence: 'A young boy.' },
-    { word: 'oil', sentence: 'Cook in oil.' },
-    { word: 'join', sentence: 'Join the team.' },
-  ],
-  əʊ: [
-    { word: 'show', sentence: 'Show me the way.' },
-    { word: 'go', sentence: "Let's go now." },
-    { word: 'home', sentence: 'Go home.' },
-  ],
-  eə: [
-    { word: 'hair', sentence: 'Nice hair!' },
-    { word: 'care', sentence: 'Take care.' },
-    { word: 'there', sentence: "It's over there." },
-  ],
-  aɪ: [
-    { word: 'my', sentence: "It's my turn." },
-    { word: 'time', sentence: 'What time is it?' },
-    { word: 'night', sentence: 'Good night.' },
-  ],
-  aʊ: [
-    { word: 'cow', sentence: 'A black cow.' },
-    { word: 'now', sentence: 'Do it now.' },
-    { word: 'out', sentence: 'Come out here.' },
-  ],
-  p: [
-    { word: 'pen', sentence: 'Pass the pen.' },
-    { word: 'park', sentence: 'Meet at the park.' },
-    { word: 'cup', sentence: 'Fill the cup.' },
-  ],
-  b: [
-    { word: 'boat', sentence: 'A small boat.' },
-    { word: 'big', sentence: 'Very big.' },
-    { word: 'cab', sentence: 'Take a cab.' },
-  ],
-  t: [
-    { word: 'tea', sentence: 'Hot tea.' },
-    { word: 'time', sentence: 'No more time.' },
-    { word: 'cat', sentence: 'A cute cat.' },
-  ],
-  d: [
-    { word: 'dog', sentence: 'Walk the dog.' },
-    { word: 'day', sentence: 'A sunny day.' },
-    { word: 'bad', sentence: "That's bad." },
-  ],
-  ʧ: [
-    { word: 'cheese', sentence: 'Extra cheese.' },
-    { word: 'chair', sentence: 'Pull up a chair.' },
-    { word: 'watch', sentence: 'Watch the clock.' },
-  ],
-  ʤ: [
-    { word: 'job', sentence: 'A good job.' },
-    { word: 'age', sentence: "What's your age?" },
-    { word: 'jump', sentence: 'Jump over it.' },
-  ],
-  k: [
-    { word: 'car', sentence: 'Drive a car.' },
-    { word: 'key', sentence: 'Lost my key.' },
-    { word: 'back', sentence: 'Turn back.' },
-  ],
-  g: [
-    { word: 'go', sentence: 'Ready to go.' },
-    { word: 'great', sentence: "That's great." },
-    { word: 'big', sentence: 'Too big.' },
-  ],
-  f: [
-    { word: 'fly', sentence: 'Watch it fly.' },
-    { word: 'fan', sentence: 'Turn on the fan.' },
-    { word: 'off', sentence: 'Turn it off.' },
-  ],
-  v: [
-    { word: 'van', sentence: 'Drive the van.' },
-    { word: 'very', sentence: 'Very good.' },
-    { word: 'love', sentence: 'I love it.' },
-  ],
-  θ: [
-    { word: 'think', sentence: 'Think first.' },
-    { word: 'three', sentence: 'Three more.' },
-    { word: 'math', sentence: 'I like math.' },
-  ],
-  ð: [
-    { word: 'this', sentence: 'This is mine.' },
-    { word: 'the', sentence: 'The end.' },
-    { word: 'with', sentence: 'Come with me.' },
-  ],
-  s: [
-    { word: 'see', sentence: 'I can see.' },
-    { word: 'sit', sentence: 'Sit here.' },
-    { word: 'pass', sentence: 'Pass the test.' },
-  ],
-  z: [
-    { word: 'zoo', sentence: 'Visit the zoo.' },
-    { word: 'zip', sentence: 'Zip it up.' },
-    { word: 'buzz', sentence: 'I hear a buzz.' },
-  ],
-  ʃ: [
-    { word: 'she', sentence: 'She is kind.' },
-    { word: 'show', sentence: 'Show the way.' },
-    { word: 'push', sentence: 'Push the door.' },
-  ],
-  ʒ: [
-    { word: 'measure', sentence: 'Measure it.' },
-    { word: 'vision', sentence: 'Great vision.' },
-    { word: 'beige', sentence: 'Beige walls.' },
-  ],
-  m: [
-    { word: 'man', sentence: 'A kind man.' },
-    { word: 'make', sentence: 'Make it happen.' },
-    { word: 'home', sentence: 'Go home.' },
-  ],
-  n: [
-    { word: 'now', sentence: 'Do it now.' },
-    { word: 'night', sentence: 'Good night.' },
-    { word: 'ten', sentence: 'Ten seconds.' },
-  ],
-  ŋ: [
-    { word: 'sing', sentence: 'Sing a song.' },
-    { word: 'ring', sentence: 'The ring fits.' },
-    { word: 'long', sentence: 'A long road.' },
-  ],
-  h: [
-    { word: 'hot', sentence: "It's hot today." },
-    { word: 'here', sentence: 'Stay here.' },
-    { word: 'help', sentence: 'I need help.' },
-  ],
-  l: [
-    { word: 'love', sentence: 'Show some love.' },
-    { word: 'let', sentence: 'Let it go.' },
-    { word: 'full', sentence: "I'm full." },
-  ],
-  r: [
-    { word: 'red', sentence: 'A red rose.' },
-    { word: 'run', sentence: 'Run faster.' },
-    { word: 'very', sentence: 'Very well.' },
-  ],
-  w: [
-    { word: 'wet', sentence: 'The floor is wet.' },
-    { word: 'win', sentence: 'We will win.' },
-    { word: 'away', sentence: 'Go away.' },
-  ],
-  j: [
-    { word: 'yes', sentence: 'Yes, I agree.' },
-    { word: 'you', sentence: 'How are you?' },
-    { word: 'yet', sentence: 'Not yet.' },
-  ],
+// ─── Local fallback example sentences (to enrich UI) ───────────────────────────
+const SENTENCE_FALLBACKS: Record<string, string> = {
+  sleep: 'I need to sleep.',
+  tree: 'The tree is tall.',
+  see: 'Can you see it?',
+  slip: "Don't slip on ice.",
+  sit: 'Please sit down.',
+  big: "It's a big house.",
+  good: "That's a good idea.",
+  book: 'Read this book.',
+  put: 'Put it here.',
+  food: 'The food is ready.',
+  moon: 'The moon is bright.',
+  shoe: 'My shoe is new.',
+  bed: 'Time for bed.',
+  red: 'A red apple.',
+  ten: 'Count to ten.',
+  teacher: 'She is a teacher.',
+  about: 'Tell me about it.',
+  sofa: 'Sit on the sofa.',
+  bird: 'A bird is singing.',
+  word: "What's the word?",
+  turn: "It's your turn.",
+  door: 'Open the door.',
+  four: 'I have four books.',
+  saw: 'I saw a film.',
+  cat: 'The cat sleeps.',
+  man: 'A tall man.',
+  back: 'Come back soon.',
+  up: 'Look up at the sky.',
+  cup: 'A cup of tea.',
+  run: "Let's run fast.",
+  far: "It's not far away.",
+  car: 'My car is fast.',
+  heart: 'Follow your heart.',
+  on: 'Turn it on.',
+  hot: 'The soup is hot.',
+  dog: 'A small dog.',
+  here: 'Come here please.',
+  ear: 'My ear hurts.',
+  beer: 'A glass of beer.',
+  wait: 'Please wait here.',
+  day: 'Have a nice day.',
+  name: "What's your name?",
+  tourist: 'He is a tourist.',
+  sure: 'Are you sure?',
+  pure: 'Pure water.',
+  boy: 'A young boy.',
+  oil: 'Cook in oil.',
+  join: 'Join the team.',
+  show: 'Show me the way.',
+  go: "Let's go now.",
+  home: 'Go home.',
+  hair: 'Nice hair!',
+  care: 'Take care.',
+  there: "It's over there.",
+  my: "It's my turn.",
+  time: 'What time is it?',
+  night: 'Good night.',
+  cow: 'A black cow.',
+  now: 'Do it now.',
+  out: 'Come out here.',
+  pen: 'Pass the pen.',
+  park: 'Meet at the park.',
+  boat: 'A small boat.',
+  cab: 'Take a cab.',
+  tea: 'Hot tea.',
+  bad: "That's bad.",
+  cheese: 'Extra cheese.',
+  chair: 'Pull up a chair.',
+  watch: 'Watch the clock.',
+  job: 'A good job.',
+  age: "What's your age?",
+  jump: 'Jump over it.',
+  key: 'Lost my key.',
+  great: "That's great.",
+  fly: 'Watch it fly.',
+  fan: 'Turn on the fan.',
+  off: 'Turn it off.',
+  van: 'Drive the van.',
+  very: 'Very good.',
+  love: 'I love it.',
+  think: 'Think first.',
+  three: 'Three more.',
+  math: 'I like math.',
+  this: 'This is mine.',
+  the: 'The end.',
+  with: 'Come with me.',
+  pass: 'Pass the test.',
+  zoo: 'Visit the zoo.',
+  zip: 'Zip it up.',
+  buzz: 'I hear a buzz.',
+  she: 'She is kind.',
+  push: 'Push the door.',
+  measure: 'Measure it.',
+  vision: 'Great vision.',
+  beige: 'Beige walls.',
+  make: 'Make it happen.',
+  sing: 'Sing a song.',
+  ring: 'The ring fits.',
+  long: 'A long road.',
+  help: 'I need help.',
+  let: 'Let it go.',
+  full: "I'm full.",
+  rose: 'A red rose.',
+  win: 'We will win.',
+  away: 'Go away.',
+  yes: 'Yes, I agree.',
+  you: 'How are you?',
+  yet: 'Not yet.',
 };
 
-// Symbol → color map (mirrors web)
+// Symbol → color map
 const SYMBOL_COLORS: Record<string, { bg: string; text: string }> = {
   monophthong: { bg: '#FEF08A', text: '#1a1a2e' },
   diphthong: { bg: '#FCA5A5', text: '#7f1d1d' },
   consonant: { bg: '#F3F4F6', text: '#374151' },
 };
 
-const SYMBOL_TYPES: Record<string, keyof typeof SYMBOL_COLORS> = {
-  iː: 'monophthong',
-  ɪ: 'monophthong',
-  ʊ: 'monophthong',
-  uː: 'monophthong',
-  e: 'monophthong',
-  ə: 'monophthong',
-  ɜː: 'monophthong',
-  ɔː: 'monophthong',
-  æ: 'monophthong',
-  ʌ: 'monophthong',
-  ɑː: 'monophthong',
-  ɒ: 'monophthong',
-  ɪə: 'diphthong',
-  eɪ: 'diphthong',
-  ʊə: 'diphthong',
-  ɔɪ: 'diphthong',
-  əʊ: 'diphthong',
-  eə: 'diphthong',
-  aɪ: 'diphthong',
-  aʊ: 'diphthong',
-};
-
 // ─── Exponential Backoff Poller ───────────────────────────────────────────────
 function useExponentialPoller() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /** Start polling with exponential backoff.
-   *  Intervals: 1s → 2s → 4s → 4s → ... until timeout (default 60s) */
   const startPolling = useCallback(
-    (
-      fn: () => Promise<boolean>, // return true to stop polling
-      opts: { maxMs?: number } = {},
-    ) => {
+    (fn: () => Promise<boolean>, opts: { maxMs?: number } = {}) => {
       const maxMs = opts.maxMs ?? 60_000;
       const start = Date.now();
       let delay = 1_000;
@@ -316,7 +178,6 @@ function useExponentialPoller() {
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => () => stopPolling(), [stopPolling]);
 
   return { startPolling, stopPolling };
@@ -330,9 +191,20 @@ interface WordCardProps {
   sentence: string;
   index: number;
   userId: string;
+  soundId: string;
+  initialProgress?: WordProgress;
+  onSuccess?: () => void;
 }
 
-function WordCard({ word, sentence, index, userId }: WordCardProps) {
+function WordCard({
+  word,
+  sentence,
+  index,
+  userId,
+  soundId,
+  initialProgress,
+  onSuccess,
+}: WordCardProps) {
   const { isRecording, startRecording, stopRecording } = useAudioRecorderHook();
   const [status, setStatus] = useState<PracticeStatus>('idle');
   const [score, setScore] = useState<number | null>(null);
@@ -342,7 +214,6 @@ function WordCard({ word, sentence, index, userId }: WordCardProps) {
 
   const handleToggle = useCallback(async () => {
     if (status === 'recording' || isRecording) {
-      // Stop recording → submit
       setStatus('processing');
       const uri = await stopRecording();
       if (!uri) {
@@ -365,10 +236,22 @@ function WordCard({ word, sentence, index, userId }: WordCardProps) {
                 setScore(pronScore);
                 setFeedback(attempt.feedback?.level ?? null);
                 setStatus('done');
+
+                // Save overall progress for this sound
+                try {
+                  await pronunciationApi.updateProgress(soundId, pronScore);
+                } catch (e) {
+                  console.error('[WordCard] Failed to update overall sound progress:', e);
+                }
+
                 if (pronScore >= 80) {
                   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                 } else {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+
+                if (onSuccess) {
+                  onSuccess();
                 }
                 return true; // stop polling
               }
@@ -387,14 +270,13 @@ function WordCard({ word, sentence, index, userId }: WordCardProps) {
         setStatus('error');
       }
     } else {
-      // Start recording
       setStatus('recording');
       setScore(null);
       setFeedback(null);
       setErrMsg(null);
       await startRecording();
     }
-  }, [status, isRecording, word, userId, startRecording, stopRecording, startPolling]);
+  }, [status, isRecording, word, userId, soundId, startRecording, stopRecording, startPolling, onSuccess]);
 
   const reset = useCallback(() => {
     stopPolling();
@@ -413,12 +295,38 @@ function WordCard({ word, sentence, index, userId }: WordCardProps) {
           : '#DC2626'
       : COLORS.textMuted;
 
+  // Render status indicator from backend
+  const renderBackendProgress = () => {
+    if (!initialProgress) return null;
+    const { status: wordStatus, bestScore, attemptCount } = initialProgress;
+    if (wordStatus === 'NEW') return null;
+
+    const progressColor = wordStatus === 'MASTERED' ? '#059669' : '#D97706';
+
+    return (
+      <View style={styles.backendProgressRow}>
+        <View style={[styles.statusDot, { backgroundColor: progressColor }]} />
+        <Text style={[styles.backendProgressText, { color: progressColor }]}>
+          {wordStatus} · Best: {bestScore}% ({attemptCount} tries)
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <Animated.View entering={FadeInDown.delay(index * 100)} style={styles.wordCard}>
       {/* Word + sentence */}
       <View style={styles.wordCardInfo}>
-        <Text style={styles.wordText}>{word}</Text>
+        <View style={styles.wordTitleRow}>
+          <Text style={styles.wordText}>{word}</Text>
+          {initialProgress?.status === 'MASTERED' && (
+            <View style={styles.masteredBadge}>
+              <Ionicons name="checkmark-circle" size={16} color="#059669" />
+            </View>
+          )}
+        </View>
         <Text style={styles.sentenceText}>{sentence}</Text>
+        {renderBackendProgress()}
       </View>
 
       {/* Right side: recorder control */}
@@ -469,10 +377,56 @@ export default function SoundDetailScreen() {
   const router = useRouter();
   const { user } = useAuth();
 
+  const [sound, setSound] = useState<FoundationPronunciationSound | null>(null);
+  const [wordProgresses, setWordProgresses] = useState<WordProgress[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const decoded = decodeURIComponent(symbol ?? '');
-  const examples = EXAMPLE_WORDS[decoded] ?? [{ word: decoded, sentence: '' }];
-  const typeKey = SYMBOL_TYPES[decoded] ?? 'consonant';
-  const colors = SYMBOL_COLORS[typeKey];
+
+  const fetchSoundData = useCallback(async (showSkeleton = true) => {
+    if (showSkeleton) setLoading(true);
+    setError(null);
+    try {
+      // 1. Fetch sound details from backend
+      const detail = await pronunciationApi.getSound(decoded);
+      setSound(detail);
+
+      // 2. Fetch word progress if user is logged in
+      if (user && detail?.id) {
+        const progressList = await pronunciationApi.getWordProgress(detail.id);
+        setWordProgresses(progressList || []);
+      }
+    } catch (err: any) {
+      console.error('[SoundDetailScreen] Error fetching sound:', err);
+      setError(err?.message || 'Failed to load sound detail');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [decoded, user]);
+
+  useEffect(() => {
+    fetchSoundData();
+  }, [fetchSoundData]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchSoundData(false);
+  }, [fetchSoundData]);
+
+  const handleWordSuccess = useCallback(() => {
+    // Silent refetch word progress after successful attempt
+    if (user && sound?.id) {
+      pronunciationApi.getWordProgress(sound.id)
+        .then((progressList) => setWordProgresses(progressList || []))
+        .catch((err) => console.error('[SoundDetailScreen] Silent progress update failed:', err));
+    }
+  }, [user, sound]);
+
+  const typeKey = sound?.type ?? 'consonant';
+  const colors = SYMBOL_COLORS[typeKey] ?? SYMBOL_COLORS.consonant;
 
   const typeLabel =
     typeKey === 'monophthong'
@@ -497,6 +451,15 @@ export default function SoundDetailScreen() {
         </View>
       </View>
 
+      {/* Description and Tip */}
+      {sound?.description && (
+        <View style={styles.descBanner}>
+          <Text style={styles.descTitle}>💡 Pronunciation Tip</Text>
+          <Text style={styles.descText}>{sound.description}</Text>
+          {sound.tip && <Text style={styles.tipDetail}>💡 {sound.tip}</Text>}
+        </View>
+      )}
+
       {/* ── Tip banner ── */}
       <View style={styles.tipBanner}>
         <Ionicons name="bulb-outline" size={16} color={COLORS.primary} />
@@ -510,19 +473,46 @@ export default function SoundDetailScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+        }
       >
         <Text style={styles.sectionLabel}>PRACTICE WORDS</Text>
 
-        {user ? (
-          examples.map((ex, i) => (
-            <WordCard
-              key={ex.word}
-              word={ex.word}
-              sentence={ex.sentence}
-              index={i}
-              userId={user.id}
-            />
-          ))
+        {loading && !refreshing ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.loadingText}>Loading exercises...</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>⚠️ {error}</Text>
+            <Text style={styles.retryText} onPress={() => fetchSoundData()}>Tap to retry</Text>
+          </View>
+        ) : user && sound ? (
+          sound.exampleWords && sound.exampleWords.length > 0 ? (
+            sound.exampleWords.map((ex, i) => {
+              const localSentence = SENTENCE_FALLBACKS[ex.word.toLowerCase()] ?? `Practice saying the word: ${ex.word}`;
+              const progressObj = wordProgresses.find((p) => p.word.toLowerCase() === ex.word.toLowerCase());
+
+              return (
+                <WordCard
+                  key={ex.id || ex.word}
+                  word={ex.word}
+                  sentence={localSentence}
+                  index={i}
+                  userId={user.id}
+                  soundId={sound.id}
+                  initialProgress={progressObj}
+                  onSuccess={handleWordSuccess}
+                />
+              );
+            })
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No examples available for this sound.</Text>
+            </View>
+          )
         ) : (
           <View style={styles.loginPrompt}>
             <Ionicons name="lock-closed-outline" size={32} color={COLORS.textMuted} />
@@ -575,6 +565,34 @@ const styles = StyleSheet.create({
   symbolLabel: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
   typeLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontFamily: FONTS.regular },
 
+  descBanner: {
+    backgroundColor: COLORS.surface,
+    marginHorizontal: SPACING.lg,
+    marginTop: SPACING.lg,
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  descTitle: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  descText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    lineHeight: 16,
+    fontFamily: FONTS.regular,
+  },
+  tipDetail: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONTS.medium,
+    color: COLORS.primary,
+    marginTop: SPACING.xs,
+  },
+
   tipBanner: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -606,6 +624,36 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
 
+  loadingContainer: {
+    paddingVertical: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: SPACING.md,
+    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.medium,
+  },
+  errorContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.semibold,
+    textAlign: 'center',
+    marginBottom: SPACING.sm,
+  },
+  retryText: {
+    color: COLORS.primary,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    textDecorationLine: 'underline',
+  },
+
   wordCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -621,14 +669,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
-  wordCardInfo: { flex: 1, gap: 6 },
+  wordCardInfo: { flex: 1, gap: 4 },
+  wordTitleRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs },
   wordText: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
+  masteredBadge: { justifyContent: 'center' },
   sentenceText: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     fontFamily: FONTS.regular,
     opacity: 0.8,
   },
+  backendProgressRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  statusDot: { width: 6, height: 6, borderRadius: 3 },
+  backendProgressText: { fontSize: 10, fontFamily: FONTS.bold, textTransform: 'uppercase' },
 
   recorderSide: { marginLeft: SPACING.md, alignItems: 'center', minWidth: 60 },
 
@@ -679,6 +732,9 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular,
   },
   retryText: { fontSize: 11, color: COLORS.primary, fontFamily: FONTS.bold, marginTop: 4 },
+
+  emptyContainer: { paddingVertical: 40, alignItems: 'center' },
+  emptyText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm, fontFamily: FONTS.regular },
 
   loginPrompt: {
     alignItems: 'center',
