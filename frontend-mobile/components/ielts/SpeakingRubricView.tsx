@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -137,6 +138,7 @@ function FeedbackList({
   label: string;
   labelColor: string;
 }) {
+  const { colors } = useTheme();
   if (!items?.length) return null;
   return (
     <View style={fl.container}>
@@ -144,7 +146,7 @@ function FeedbackList({
       {items.map((item, i) => (
         <View key={i} style={fl.row}>
           <Text style={[fl.icon, { color: labelColor }]}>{icon}</Text>
-          <Text style={fl.text}>{item}</Text>
+          <Text style={[fl.text, { color: colors.textSecondary }]}>{item}</Text>
         </View>
       ))}
     </View>
@@ -161,22 +163,23 @@ const fl = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: SPACING.xs, marginBottom: 4 },
   icon: { fontSize: 12, marginTop: 2, width: 14 },
-  text: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, lineHeight: 19 },
+  text: { flex: 1, fontSize: FONT_SIZES.sm, lineHeight: 19 },
 });
 
 function MistakesTable({ mistakes }: { mistakes: Mistake[] }) {
+  const { colors } = useTheme();
   if (!mistakes?.length) return null;
   return (
-    <View style={mt.container}>
+    <View style={[mt.container, { borderColor: colors.border }]}>
       <Text style={mt.title}>Annotated Mistakes</Text>
       {mistakes.map((m, i) => (
-        <View key={i} style={mt.row}>
-          <View style={mt.original}>
-            <Text style={mt.originalText}>{m.original}</Text>
+        <View key={i} style={[mt.row, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <View style={[mt.original, { borderColor: colors.border }]}>
+            <Text style={[mt.originalText, { color: colors.text }]}>{m.original}</Text>
           </View>
           <View style={mt.correction}>
-            <Text style={mt.correctionText}>{m.correction}</Text>
-            <Text style={mt.explanation}>{m.explanation}</Text>
+            <Text style={[mt.correctionText, { color: colors.text }]}>{m.correction}</Text>
+            <Text style={[mt.explanation, { color: colors.textSecondary }]}>{m.explanation}</Text>
           </View>
         </View>
       ))}
@@ -189,7 +192,6 @@ const mt = StyleSheet.create({
     borderRadius: RADIUS.md,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   title: {
     fontSize: 10,
@@ -202,13 +204,10 @@ const mt = StyleSheet.create({
   row: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
   },
-  original: { width: '38%', padding: SPACING.sm, borderRightWidth: 1, borderColor: COLORS.border },
+  original: { width: '38%', padding: SPACING.sm, borderRightWidth: 1 },
   originalText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
     textDecorationLine: 'line-through',
     fontStyle: 'italic',
   },
@@ -216,10 +215,9 @@ const mt = StyleSheet.create({
   correctionText: {
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.text,
     marginBottom: 2,
   },
-  explanation: { fontSize: 11, color: COLORS.textSecondary, lineHeight: 16 },
+  explanation: { fontSize: 11, lineHeight: 16 },
 });
 
 function CriterionCard({
@@ -229,6 +227,7 @@ function CriterionCard({
   criterionKey: CriterionKey;
   data: CriterionFeedback;
 }) {
+  const { colors } = useTheme();
   const [expanded, setExpanded] = useState(true);
   const color = bandColor(data?.band ?? 0);
 
@@ -238,13 +237,13 @@ function CriterionCard({
   };
 
   return (
-    <View style={cc.card}>
+    <View style={[cc.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <TouchableOpacity style={cc.header} onPress={toggle} activeOpacity={0.8}>
         <View style={cc.headerLeft}>
           <View style={[cc.keyBadge, { backgroundColor: color + '18', borderColor: color }]}>
             <Ionicons name={CRITERIA_ICONS[criterionKey] as any} size={14} color={color} />
           </View>
-          <Text style={cc.label} numberOfLines={2}>
+          <Text style={[cc.label, { color: colors.text }]} numberOfLines={2}>
             {CRITERIA_LABELS[criterionKey]}
           </Text>
         </View>
@@ -255,12 +254,12 @@ function CriterionCard({
           <Ionicons
             name={expanded ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={COLORS.textMuted}
+            color={colors.textMuted}
           />
         </View>
       </TouchableOpacity>
       {expanded && (
-        <View style={cc.body}>
+        <View style={[cc.body, { borderColor: colors.border }]}>
           <FeedbackList
             items={data?.strengths ?? []}
             icon="✓"
@@ -287,11 +286,9 @@ function CriterionCard({
 }
 const cc = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -319,7 +316,6 @@ const cc = StyleSheet.create({
     flex: 1,
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.text,
     lineHeight: 18,
   },
   bandChip: {
@@ -335,7 +331,6 @@ const cc = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.md,
     borderTopWidth: 1,
-    borderColor: COLORS.border,
     paddingTop: SPACING.md,
   },
 });
@@ -343,17 +338,18 @@ const cc = StyleSheet.create({
 // ─── Score Summary Radar-style bars ──────────────────────────────────────────
 
 function ScoreSummaryCard({ feedback }: { feedback: SpeakingFeedback }) {
+  const { colors } = useTheme();
   const overallColor = bandColor(feedback.overall_band);
   return (
-    <View style={[ss.card, { borderColor: overallColor + '40' }]}>
+    <View style={[ss.card, { backgroundColor: colors.card, borderColor: overallColor + '40' }]}>
       <View style={ss.header}>
         <BandCircle band={feedback.overall_band} size={60} />
         <View style={ss.headerInfo}>
-          <Text style={ss.title}>Speaking Performance</Text>
-          <Text style={ss.subtitle}>Overall Band Score</Text>
+          <Text style={[ss.title, { color: colors.text }]}>Speaking Performance</Text>
+          <Text style={[ss.subtitle, { color: colors.textSecondary }]}>Overall Band Score</Text>
         </View>
       </View>
-      <View style={ss.divider} />
+      <View style={[ss.divider, { backgroundColor: colors.border }]} />
       {CRITERIA_KEYS.map((key) => {
         const cBand = feedback.criteria?.[key]?.band ?? 0;
         const cColor = bandColor(cBand);
@@ -361,9 +357,9 @@ function ScoreSummaryCard({ feedback }: { feedback: SpeakingFeedback }) {
           <View key={key} style={ss.row}>
             <View style={ss.rowLeft}>
               <Ionicons name={CRITERIA_ICONS[key] as any} size={13} color={cColor} />
-              <Text style={ss.rowLabel}>{CRITERIA_SHORT[key]}</Text>
+              <Text style={[ss.rowLabel, { color: colors.textSecondary }]}>{CRITERIA_SHORT[key]}</Text>
             </View>
-            <View style={ss.barTrack}>
+            <View style={[ss.barTrack, { backgroundColor: colors.border }]}>
               <View
                 style={[
                   ss.barFill,
@@ -380,7 +376,6 @@ function ScoreSummaryCard({ feedback }: { feedback: SpeakingFeedback }) {
 }
 const ss = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     borderWidth: 1.5,
     padding: SPACING.lg,
@@ -393,16 +388,15 @@ const ss = StyleSheet.create({
   },
   header: { flexDirection: 'row', alignItems: 'center', gap: SPACING.lg, marginBottom: SPACING.md },
   headerInfo: { flex: 1 },
-  title: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
-  subtitle: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
-  divider: { height: 1, backgroundColor: COLORS.border, marginBottom: SPACING.md },
+  title: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
+  subtitle: { fontSize: FONT_SIZES.xs, marginTop: 2 },
+  divider: { height: 1, marginBottom: SPACING.md },
   row: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginBottom: 10 },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 4, width: 52 },
-  rowLabel: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
+  rowLabel: { fontSize: 11, fontWeight: '700' },
   barTrack: {
     flex: 1,
     height: 7,
-    backgroundColor: COLORS.border,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -413,6 +407,7 @@ const ss = StyleSheet.create({
 // ─── Answer Preview per Part ──────────────────────────────────────────────────
 
 function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: string }) {
+  const { colors } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const isAudioUrl = Boolean(answer?.startsWith('http'));
   const label = PART_LABELS[partKey] ?? `Part ${partKey}`;
@@ -420,7 +415,7 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
   if (!answer) return null;
 
   return (
-    <View style={ap.card}>
+    <View style={[ap.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <TouchableOpacity
         style={ap.header}
         onPress={() => {
@@ -434,15 +429,15 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
           <Ionicons
             name={isAudioUrl ? 'mic-outline' : 'chatbubble-ellipses-outline'}
             size={15}
-            color={isAudioUrl ? COLORS.primary : COLORS.textSecondary}
+            color={isAudioUrl ? COLORS.primary : colors.textSecondary}
           />
-          <Text style={ap.title} numberOfLines={1}>
+          <Text style={[ap.title, { color: colors.text }]} numberOfLines={1}>
             {label}
           </Text>
         </View>
         <View style={ap.headerRight}>
-          <View style={[ap.wordBadge, isAudioUrl && ap.audioBadge]}>
-            <Text style={[ap.wordCount, isAudioUrl && ap.audioLabel]}>
+          <View style={[ap.wordBadge, { backgroundColor: colors.surface }, isAudioUrl && ap.audioBadge]}>
+            <Text style={[ap.wordCount, { color: colors.textSecondary }, isAudioUrl && ap.audioLabel]}>
               {isAudioUrl ? 'Audio recorded' : `${wordCount(answer)} words`}
             </Text>
           </View>
@@ -450,14 +445,14 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
             <Ionicons
               name={expanded ? 'chevron-up' : 'chevron-down'}
               size={15}
-              color={COLORS.textMuted}
+              color={colors.textMuted}
             />
           )}
         </View>
       </TouchableOpacity>
       {expanded && !isAudioUrl && (
-        <View style={ap.body}>
-          <Text style={ap.answerText}>{answer}</Text>
+        <View style={[ap.body, { borderColor: colors.border }]}>
+          <Text style={[ap.answerText, { color: colors.text }]}>{answer}</Text>
         </View>
       )}
     </View>
@@ -465,11 +460,9 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
 }
 const ap = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     marginBottom: SPACING.sm,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: 'hidden',
   },
   header: {
@@ -479,24 +472,24 @@ const ap = StyleSheet.create({
     padding: SPACING.md,
   },
   headerLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  title: { flex: 1, fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
+  title: { flex: 1, fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   wordBadge: {
-    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  wordCount: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
+  wordCount: { fontSize: 11, fontWeight: '700' },
   audioBadge: { backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE' },
   audioLabel: { color: COLORS.primary },
-  body: { borderTopWidth: 1, borderColor: COLORS.border, padding: SPACING.md },
-  answerText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 22 },
+  body: { borderTopWidth: 1, padding: SPACING.md },
+  answerText: { fontSize: FONT_SIZES.sm, lineHeight: 22 },
 });
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function SpeakingRubricView({ feedback, answers, exam }: SpeakingRubricViewProps) {
+  const { colors } = useTheme();
   // Collect answer parts from answers record (keys: '1', '2', '3' or 'part1', 'part2', 'part3')
   const partKeys = answers
     ? Object.keys(answers).filter((k) => answers[k] && typeof answers[k] === 'string')
@@ -510,7 +503,7 @@ export default function SpeakingRubricView({ feedback, answers, exam }: Speaking
       {/* Your Responses (collapsible per part) */}
       {partKeys.length > 0 && (
         <View style={sr.answersSection}>
-          <Text style={sr.sectionHeader}>Your Responses</Text>
+          <Text style={[sr.sectionHeader, { color: colors.textSecondary }]}>Your Responses</Text>
           {partKeys.map((key) => (
             <PartAnswerPreview key={key} partKey={key} answer={answers![key]} />
           ))}
@@ -518,7 +511,7 @@ export default function SpeakingRubricView({ feedback, answers, exam }: Speaking
       )}
 
       {/* Detailed Criteria */}
-      <Text style={sr.sectionHeader}>Detailed Feedback</Text>
+      <Text style={[sr.sectionHeader, { color: colors.textSecondary }]}>Detailed Feedback</Text>
       {CRITERIA_KEYS.map((key) => (
         <CriterionCard key={key} criterionKey={key} data={feedback.criteria?.[key]} />
       ))}
@@ -532,7 +525,6 @@ const sr = StyleSheet.create({
   sectionHeader: {
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: SPACING.md,

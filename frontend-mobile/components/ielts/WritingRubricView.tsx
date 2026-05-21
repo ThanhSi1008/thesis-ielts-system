@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -126,6 +127,7 @@ function FeedbackList({
   label: string;
   labelColor: string;
 }) {
+  const { colors } = useTheme();
   if (!items?.length) return null;
   return (
     <View style={fl.container}>
@@ -133,7 +135,7 @@ function FeedbackList({
       {items.map((item, i) => (
         <View key={i} style={fl.row}>
           <Text style={[fl.icon, { color: labelColor }]}>{icon}</Text>
-          <Text style={fl.text}>{item}</Text>
+          <Text style={[fl.text, { color: colors.textSecondary }]}>{item}</Text>
         </View>
       ))}
     </View>
@@ -150,7 +152,7 @@ const fl = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: SPACING.xs, marginBottom: 4 },
   icon: { fontSize: 12, marginTop: 2, width: 14 },
-  text: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, lineHeight: 19 },
+  text: { flex: 1, fontSize: FONT_SIZES.sm, lineHeight: 19 },
 });
 
 function MistakesTable({
@@ -158,18 +160,19 @@ function MistakesTable({
 }: {
   mistakes: { original: string; correction: string; explanation: string }[];
 }) {
+  const { colors } = useTheme();
   if (!mistakes?.length) return null;
   return (
-    <View style={mt.container}>
+    <View style={[mt.container, { borderColor: colors.border }]}>
       <Text style={mt.label}>Annotated Mistakes</Text>
       {mistakes.map((m, i) => (
-        <View key={i} style={mt.row}>
-          <View style={mt.original}>
-            <Text style={mt.originalText}>{m.original}</Text>
+        <View key={i} style={[mt.row, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <View style={[mt.original, { borderColor: colors.border }]}>
+            <Text style={[mt.originalText, { color: colors.text }]}>{m.original}</Text>
           </View>
           <View style={mt.correction}>
-            <Text style={mt.correctionText}>{m.correction}</Text>
-            <Text style={mt.explanation}>{m.explanation}</Text>
+            <Text style={[mt.correctionText, { color: colors.text }]}>{m.correction}</Text>
+            <Text style={[mt.explanation, { color: colors.textSecondary }]}>{m.explanation}</Text>
           </View>
         </View>
       ))}
@@ -182,7 +185,6 @@ const mt = StyleSheet.create({
     borderRadius: RADIUS.md,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   label: {
     fontSize: 10,
@@ -197,13 +199,10 @@ const mt = StyleSheet.create({
   row: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
   },
-  original: { width: '38%', padding: SPACING.sm, borderRightWidth: 1, borderColor: COLORS.border },
+  original: { width: '38%', padding: SPACING.sm, borderRightWidth: 1 },
   originalText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
     textDecorationLine: 'line-through',
     fontStyle: 'italic',
   },
@@ -211,10 +210,9 @@ const mt = StyleSheet.create({
   correctionText: {
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.text,
     marginBottom: 2,
   },
-  explanation: { fontSize: 11, color: COLORS.textSecondary, lineHeight: 16 },
+  explanation: { fontSize: 11, lineHeight: 16 },
 });
 
 function CriterionCard({
@@ -224,6 +222,7 @@ function CriterionCard({
   criterionKey: CriterionKey;
   data: CriterionFeedback;
 }) {
+  const { colors } = useTheme();
   const [expanded, setExpanded] = useState(true);
   const color = bandColor(data.band);
   const label = CRITERIA_LABELS[criterionKey];
@@ -234,13 +233,13 @@ function CriterionCard({
   };
 
   return (
-    <View style={cc.card}>
+    <View style={[cc.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <TouchableOpacity style={cc.header} onPress={toggle} activeOpacity={0.8}>
         <View style={cc.headerLeft}>
           <View style={[cc.keyBadge, { backgroundColor: color + '18', borderColor: color }]}>
             <Text style={[cc.keyText, { color }]}>{CRITERIA_SHORT[criterionKey]}</Text>
           </View>
-          <Text style={cc.label} numberOfLines={2}>
+          <Text style={[cc.label, { color: colors.text }]} numberOfLines={2}>
             {label}
           </Text>
         </View>
@@ -251,12 +250,12 @@ function CriterionCard({
           <Ionicons
             name={expanded ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={COLORS.textMuted}
+            color={colors.textMuted}
           />
         </View>
       </TouchableOpacity>
       {expanded && (
-        <View style={cc.body}>
+        <View style={[cc.body, { borderColor: colors.border }]}>
           <FeedbackList items={data.strengths} icon="✓" label="Strengths" labelColor="#22c55e" />
           <FeedbackList items={data.weak_areas} icon="⚠" label="Weak Areas" labelColor="#ef4444" />
           <FeedbackList
@@ -273,11 +272,9 @@ function CriterionCard({
 }
 const cc = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -299,7 +296,6 @@ const cc = StyleSheet.create({
     flex: 1,
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.text,
     lineHeight: 18,
   },
   bandChip: {
@@ -315,7 +311,6 @@ const cc = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingBottom: SPACING.md,
     borderTopWidth: 1,
-    borderColor: COLORS.border,
     paddingTop: SPACING.md,
   },
 });
@@ -331,11 +326,12 @@ function TaskScoreSummary({
   label: string;
   data: TaskFeedback;
 }) {
+  const { colors } = useTheme();
   const color = bandColor(data.band);
   return (
-    <View style={[ts.card, { borderColor: color + '40' }]}>
+    <View style={[ts.card, { backgroundColor: colors.card, borderColor: color + '40' }]}>
       <View style={ts.header}>
-        <Text style={ts.taskLabel}>{label}</Text>
+        <Text style={[ts.taskLabel, { color: colors.text }]}>{label}</Text>
         <BandCircle band={data.band} size={44} />
       </View>
       <View style={ts.criteriaList}>
@@ -344,10 +340,10 @@ function TaskScoreSummary({
           const cColor = bandColor(c.band);
           return (
             <View key={key} style={ts.criteriaRow}>
-              <Text style={ts.criteriaLabel} numberOfLines={1}>
+              <Text style={[ts.criteriaLabel, { color: colors.textSecondary }]} numberOfLines={1}>
                 {CRITERIA_SHORT[key]}
               </Text>
-              <View style={ts.barTrack}>
+              <View style={[ts.barTrack, { backgroundColor: colors.border }]}>
                 <View
                   style={[
                     ts.barFill,
@@ -366,7 +362,6 @@ function TaskScoreSummary({
 const ts = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     borderWidth: 1.5,
     padding: SPACING.md,
@@ -382,14 +377,13 @@ const ts = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: SPACING.md,
   },
-  taskLabel: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
+  taskLabel: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   criteriaList: { gap: 6 },
   criteriaRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  criteriaLabel: { width: 36, fontSize: 10, fontWeight: '700', color: COLORS.textSecondary },
+  criteriaLabel: { width: 36, fontSize: 10, fontWeight: '700' },
   barTrack: {
     flex: 1,
     height: 6,
-    backgroundColor: COLORS.border,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -410,11 +404,12 @@ function AnswerPreview({
   prompt?: string;
   imageUrl?: string;
 }) {
+  const { colors } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const wc = wordCount(answer);
 
   return (
-    <View style={ap.card}>
+    <View style={[ap.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <TouchableOpacity
         style={ap.header}
         onPress={() => {
@@ -424,31 +419,31 @@ function AnswerPreview({
         activeOpacity={0.8}
       >
         <View style={ap.headerLeft}>
-          <Ionicons name="document-text-outline" size={16} color={COLORS.textSecondary} />
-          <Text style={ap.headerTitle}>Task {taskNum} — Your Response</Text>
+          <Ionicons name="document-text-outline" size={16} color={colors.textSecondary} />
+          <Text style={[ap.headerTitle, { color: colors.text }]}>Task {taskNum} — Your Response</Text>
         </View>
         <View style={ap.headerRight}>
-          <View style={ap.wordBadge}>
-            <Text style={ap.wordCount}>{wc} words</Text>
+          <View style={[ap.wordBadge, { backgroundColor: colors.surface }]}>
+            <Text style={[ap.wordCount, { color: colors.textSecondary }]}>{wc} words</Text>
           </View>
           <Ionicons
             name={expanded ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={COLORS.textMuted}
+            color={colors.textMuted}
           />
         </View>
       </TouchableOpacity>
       {expanded && (
-        <View style={ap.body}>
+        <View style={[ap.body, { borderColor: colors.border }]}>
           {prompt ? (
-            <View style={ap.promptBox}>
-              <Text style={ap.promptLabel}>Prompt</Text>
-              <Text style={ap.promptText}>{prompt}</Text>
+            <View style={[ap.promptBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[ap.promptLabel, { color: colors.textMuted }]}>Prompt</Text>
+              <Text style={[ap.promptText, { color: colors.text }]}>{prompt}</Text>
             </View>
           ) : null}
-          <View style={ap.answerBox}>
-            <Text style={ap.answerText}>
-              {answer || <Text style={ap.emptyText}>No answer provided.</Text>}
+          <View style={[ap.answerBox, { backgroundColor: colors.surface }]}>
+            <Text style={[ap.answerText, { color: colors.text }]}>
+              {answer || <Text style={[ap.emptyText, { color: colors.textMuted }]}>No answer provided.</Text>}
             </Text>
           </View>
         </View>
@@ -458,11 +453,9 @@ function AnswerPreview({
 }
 const ap = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: 'hidden',
   },
   header: {
@@ -472,34 +465,30 @@ const ap = StyleSheet.create({
     padding: SPACING.md,
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  headerTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
+  headerTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   wordBadge: {
-    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  wordCount: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
-  body: { borderTopWidth: 1, borderColor: COLORS.border, padding: SPACING.md, gap: SPACING.md },
+  wordCount: { fontSize: 11, fontWeight: '700' },
+  body: { borderTopWidth: 1, padding: SPACING.md, gap: SPACING.md },
   promptBox: {
-    backgroundColor: '#f8fafc',
     borderRadius: RADIUS.md,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   promptLabel: {
     fontSize: 10,
     fontWeight: '800',
     textTransform: 'uppercase',
-    color: COLORS.textMuted,
     marginBottom: 4,
   },
-  promptText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
-  answerBox: { backgroundColor: '#fafafa', borderRadius: RADIUS.md, padding: SPACING.md },
-  answerText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 22 },
-  emptyText: { fontStyle: 'italic', color: COLORS.textMuted },
+  promptText: { fontSize: FONT_SIZES.sm, lineHeight: 20 },
+  answerBox: { borderRadius: RADIUS.md, padding: SPACING.md },
+  answerText: { fontSize: FONT_SIZES.sm, lineHeight: 22 },
+  emptyText: { fontStyle: 'italic' },
 });
 
 // ─── Main Component ──────────────────────────────────────────────────────────
@@ -510,6 +499,7 @@ export default function WritingRubricView({
   exam,
   practicePart,
 }: WritingRubricViewProps) {
+  const { colors } = useTheme();
   const [activeTask, setActiveTask] = useState<1 | 2>(practicePart === 2 ? 2 : 1);
 
   const showTask1 = !practicePart || practicePart === 1;
@@ -526,11 +516,11 @@ export default function WritingRubricView({
   return (
     <View style={wr.container}>
       {/* Overall Band */}
-      <View style={[wr.overallCard, { borderColor: overallColor + '40' }]}>
+      <View style={[wr.overallCard, { backgroundColor: colors.card, borderColor: overallColor + '40' }]}>
         <BandCircle band={feedback.overall_band} size={64} />
         <View style={wr.overallInfo}>
-          <Text style={wr.overallTitle}>Overall Writing Band</Text>
-          <Text style={wr.overallSub}>Task 1 · Task 2 Combined</Text>
+          <Text style={[wr.overallTitle, { color: colors.text }]}>Overall Writing Band</Text>
+          <Text style={[wr.overallSub, { color: colors.textSecondary }]}>Task 1 · Task 2 Combined</Text>
           <View style={wr.overallRow}>
             {showTask1 && (
               <View
@@ -562,7 +552,7 @@ export default function WritingRubricView({
       </View>
 
       {/* Task Selector */}
-      <View style={wr.taskTabs}>
+      <View style={[wr.taskTabs, { backgroundColor: colors.surface }]}>
         {showTask1 && (
           <TouchableOpacity
             style={[wr.tab, activeTask === 1 && wr.tabActive]}
@@ -572,9 +562,9 @@ export default function WritingRubricView({
             <Ionicons
               name="bar-chart-outline"
               size={14}
-              color={activeTask === 1 ? '#fff' : COLORS.textSecondary}
+              color={activeTask === 1 ? '#fff' : colors.textSecondary}
             />
-            <Text style={[wr.tabText, activeTask === 1 && wr.tabTextActive]}>Task 1</Text>
+            <Text style={[wr.tabText, { color: colors.textSecondary }, activeTask === 1 && wr.tabTextActive]}>Task 1</Text>
           </TouchableOpacity>
         )}
         {showTask2 && (
@@ -586,9 +576,9 @@ export default function WritingRubricView({
             <Ionicons
               name="document-text-outline"
               size={14}
-              color={activeTask === 2 ? '#fff' : COLORS.textSecondary}
+              color={activeTask === 2 ? '#fff' : colors.textSecondary}
             />
-            <Text style={[wr.tabText, activeTask === 2 && wr.tabTextActive]}>Task 2</Text>
+            <Text style={[wr.tabText, { color: colors.textSecondary }, activeTask === 2 && wr.tabTextActive]}>Task 2</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -597,7 +587,7 @@ export default function WritingRubricView({
       <AnswerPreview taskNum={activeTask} answer={currentAnswer} prompt={currentPrompt?.prompt} />
 
       {/* Criteria Cards */}
-      <Text style={wr.sectionHeader}>Detailed Feedback — Task {activeTask}</Text>
+      <Text style={[wr.sectionHeader, { color: colors.textSecondary }]}>Detailed Feedback — Task {activeTask}</Text>
       {CRITERIA_KEYS.map((key) => (
         <CriterionCard
           key={`${activeTask}-${key}`}
@@ -615,7 +605,6 @@ const wr = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.lg,
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     borderWidth: 1.5,
     padding: SPACING.lg,
@@ -627,10 +616,9 @@ const wr = StyleSheet.create({
     elevation: 3,
   },
   overallInfo: { flex: 1 },
-  overallTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
+  overallTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
   overallSub: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
     marginTop: 2,
     marginBottom: SPACING.sm,
   },
@@ -640,7 +628,6 @@ const wr = StyleSheet.create({
   summaryRow: { flexDirection: 'row', marginBottom: SPACING.lg },
   taskTabs: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.full,
     padding: 4,
     marginBottom: SPACING.lg,
@@ -656,12 +643,11 @@ const wr = StyleSheet.create({
     paddingVertical: 9,
   },
   tabActive: { backgroundColor: COLORS.primary },
-  tabText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.textSecondary },
+  tabText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   tabTextActive: { color: '#fff' },
   sectionHeader: {
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: SPACING.md,
