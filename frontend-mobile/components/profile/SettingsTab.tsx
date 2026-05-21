@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, Switch, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Switch, TextInput, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/constants';
+import { COLORS, FONTS } from '@/constants';
 
 interface SettingsTabProps {
   user: any;
@@ -9,6 +9,7 @@ interface SettingsTabProps {
   toggleDarkMode: (value: boolean) => Promise<void>;
   notificationsEnabled: boolean;
   setNotificationsEnabled: (value: boolean) => void;
+  permissionStatus: string | null;
   currentPassword: string;
   setCurrentPassword: (value: string) => void;
   newPassword: string;
@@ -25,6 +26,7 @@ export function ProfileSettingsTab({
   toggleDarkMode,
   notificationsEnabled,
   setNotificationsEnabled,
+  permissionStatus,
   currentPassword,
   setCurrentPassword,
   newPassword,
@@ -57,9 +59,41 @@ export function ProfileSettingsTab({
           <Switch
             value={notificationsEnabled}
             onValueChange={setNotificationsEnabled}
+            disabled={permissionStatus === 'denied'}
             trackColor={{ false: '#CBD5E1', true: COLORS.primary }}
           />
         </View>
+
+        {permissionStatus === 'denied' && (
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: isDarkMode ? '#450A0A' : '#FEF2F2',
+              borderWidth: 1,
+              borderColor: isDarkMode ? '#7F1D1D' : '#FCA5A5',
+              borderRadius: 12,
+              padding: 12,
+              marginTop: 12,
+              gap: 10,
+            }}
+            onPress={() => Linking.openSettings()}
+          >
+            <Ionicons name="warning-outline" size={20} color="#EF4444" />
+            <Text
+              style={{
+                flex: 1,
+                fontSize: 13,
+                fontFamily: FONTS.medium,
+                color: isDarkMode ? '#FCA5A5' : '#B91C1C',
+                lineHeight: 18,
+              }}
+            >
+              Notifications are denied. Tap here to open Settings and enable them.
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color={isDarkMode ? '#FCA5A5' : '#B91C1C'} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {user.googleId ? (

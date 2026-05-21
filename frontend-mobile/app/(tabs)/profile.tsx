@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {COLORS, STORAGE_KEYS, FONTS, ROUTES, RADIUS} from '@/constants';
@@ -19,7 +20,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/index';
-import { vocabLabApi, gamificationApi, subscriptionsApi } from '@/services';
+import { useNotification } from '@/contexts/NotificationContext';
+import { vocabLabApi, gamificationApi, subscriptionsApi, notificationsApi } from '@/services';
 import { apiClient } from '@/services/api-client';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GamificationProfile, AchievementItem } from '@/types';
@@ -33,7 +35,61 @@ export default function ProfileScreen() {
 
   const [activeTab, setActiveTab] = useState<TabType>('account');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  // Notification states & hooks
+  const { permissionStatus, requestPushPermission, pushToken } = useNotification();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  // Sync notificationsEnabled with actual permissions and user settings
+  useEffect(() => {
+    const loadNotifSetting = async () => {
+      const localVal = await AsyncStorage.getItem('notifications-local-enabled');
+      const isGranted = permissionStatus === 'granted';
+      if (localVal === 'false') {
+        setNotificationsEnabled(false);
+      } else {
+        setNotificationsEnabled(isGranted);
+      }
+    };
+    loadNotifSetting();
+  }, [permissionStatus]);
+
+  const handleToggleNotifications = async (value: boolean) => {
+    if (value) {
+      if (permissionStatus === 'denied') {
+        Alert.alert(
+          'Notifications Denied',
+          'Please enable notifications in system settings to receive streak reminders and grading results.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: () => Linking.openSettings() }
+          ]
+        );
+      } else {
+        const granted = await requestPushPermission();
+        if (granted) {
+          setNotificationsEnabled(true);
+          await AsyncStorage.setItem('notifications-local-enabled', 'true');
+          toast.success('Enabled', 'Notifications have been enabled');
+        } else {
+          setNotificationsEnabled(false);
+          await AsyncStorage.setItem('notifications-local-enabled', 'false');
+        }
+      }
+    } else {
+      try {
+        if (pushToken) {
+          await notificationsApi.removePushToken(pushToken);
+        }
+        setNotificationsEnabled(false);
+        await AsyncStorage.setItem('notifications-local-enabled', 'false');
+        toast.success('Disabled', 'Notifications have been disabled');
+      } catch (error) {
+        console.error('Failed to disable notifications:', error);
+        toast.error('Error', 'Failed to disable notifications');
+      }
+    }
+  };
 
   // Load theme preference on mount
   useEffect(() => {
@@ -274,7 +330,8 @@ export default function ProfileScreen() {
               isDarkMode={isDarkMode}
               toggleDarkMode={toggleDarkMode}
               notificationsEnabled={notificationsEnabled}
-              setNotificationsEnabled={setNotificationsEnabled}
+              setNotificationsEnabled={handleToggleNotifications}
+              permissionStatus={permissionStatus}
               currentPassword={currentPassword}
               setCurrentPassword={setCurrentPassword}
               newPassword={newPassword}

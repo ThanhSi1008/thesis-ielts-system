@@ -3,6 +3,11 @@ import { useAuth } from './AuthContext';
 import { notificationsApi } from '@/services';
 import { toast } from '@/components/ui/Toaster';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 export type NotificationType =
   | 'STREAK_MILESTONE'
@@ -27,14 +32,30 @@ interface NotificationContextType {
   unreadCount: number;
   notifications: Notification[];
   loading: boolean;
+  permissionStatus: Notifications.PermissionStatus | null;
+  showPermissionBanner: boolean;
+  pushToken: string | null;
   fetchNotifications: (page?: number, append?: boolean) => Promise<Notification[]>;
   fetchUnreadCount: () => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   deleteNotification: (id: string) => Promise<void>;
+  dismissPermissionBanner: () => Promise<void>;
+  requestPushPermission: () => Promise<boolean>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+// Set default notification handler
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: false, // Don't show system alert in foreground - we use custom Toast
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: false,
+    shouldShowList: false,
+  }),
+});
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -43,9 +64,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Push notifications state
+  const [permissionStatus, setPermissionStatus] = useState<Notifications.PermissionStatus | null>(null);
+  const [showPermissionBanner, setShowPermissionBanner] = useState(false);
+  const [pushToken, setPushToken] = useState<string | null>(null);
+
   const prevUnreadCountRef = useRef(0);
   const toastedIdsRef = useRef<Set<string>>(new Set());
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const notificationListener = useRef<Notifications.Subscription | undefined>(undefined);
+  const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
 
   // Fetch unread count from backend
   const fetchUnreadCount = useCallback(async () => {
@@ -84,15 +112,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         return newItems;
       });
 
-      // Update unread count based on active page 1 fetch
-      if (page === 1) {
-        const count = newItems.filter(n => !n.isRead).length;
-        // Keep in sync
-        if (unreadCount !== count) {
-          // Only sync if counts significantly mismatch (e.g. from local update)
-          // Actually, let's trust getUnreadCount from backend, but update if local changes
-        }
-      }
       return newItems;
     } catch (e) {
       console.error('Failed to fetch notifications:', e);
@@ -120,10 +139,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           n.title || 'New Notification',
           n.body || 'You have a new notification.',
           () => {
-            // Navigate to notifications tab or specific link if exists
             if (n.link) {
-              // Handle deep link or fallback to notifications list
-              router.push('/notification');
+              router.push(n.link as any);
             } else {
               router.push('/notification');
             }
@@ -148,8 +165,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       await notificationsApi.markAsRead(id);
     } catch (e) {
       console.error('Failed to mark notification as read:', e);
-      // Rollback not strictly necessary for unread count in this simple state,
-      // but fetchUnreadCount will fix it on next poll anyway.
     }
   };
 
@@ -182,36 +197,191 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Set up polling and initial fetch when user logs in/changes
-  useEffect(() => {
-    if (user) {
-      // Fetch unread count immediately
-      fetchUnreadCount();
+  // Register push token with backend
+  const registerPushToken = useCallback(async () => {
+    try {
+      if (!Device.isDevice) {
+        console.log('Must use physical device for Push Notifications');
+        return;
+      }
 
-      // Poll every 60 seconds
-      pollingIntervalRef.current = setInterval(() => {
-        fetchUnreadCount();
-      }, 60000);
-    } else {
-      // Reset state on logout
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+      if (!projectId) {
+        console.warn('EAS Project ID not found. Skipping push token registration.');
+        return;
+      }
+
+      const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
+      const token = tokenResult.data;
+
+      await notificationsApi.addPushToken(token, Platform.OS);
+      setPushToken(token);
+      console.log('Push token registered successfully:', token);
+    } catch (error) {
+      console.error('Error registering push token:', error);
+    }
+  }, []);
+
+  // Dismiss permission banner soft prompt
+  const dismissPermissionBanner = async () => {
+    setShowPermissionBanner(false);
+    const now = Date.now().toString();
+    await AsyncStorage.setItem('notif-soft-dismissed-at', now);
+    
+    const countStr = await AsyncStorage.getItem('notif-soft-dismiss-count') ?? '0';
+    const newCount = parseInt(countStr, 10) + 1;
+    await AsyncStorage.setItem('notif-soft-dismiss-count', newCount.toString());
+    console.log(`Push banner soft dismissed. Total dismiss count: ${newCount}`);
+  };
+
+  // Request system push permissions
+  const requestPushPermission = async (): Promise<boolean> => {
+    setShowPermissionBanner(false);
+    try {
+      const { status } = await Notifications.requestPermissionsAsync();
+      setPermissionStatus(status);
+      
+      if (status === 'granted') {
+        await registerPushToken();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to request push permissions:', error);
+      return false;
+    }
+  };
+
+  // Handle logout: clear backend token
+  useEffect(() => {
+    if (!user && pushToken) {
+      notificationsApi.removePushToken(pushToken).catch((err) => {
+        console.error('Failed to remove push token on logout:', err);
+      });
+      setPushToken(null);
+    }
+  }, [user, pushToken]);
+
+  // Set up notifications, listeners and soft-prompt timer
+  useEffect(() => {
+    if (!user) {
       setUnreadCount(0);
       setNotifications([]);
       prevUnreadCountRef.current = 0;
       toastedIdsRef.current.clear();
+      setShowPermissionBanner(false);
       
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
       }
+      return;
     }
+
+    // 1. Initial fetches
+    fetchUnreadCount();
+
+    // 2. Setup 60s polling for fallback
+    pollingIntervalRef.current = setInterval(() => {
+      fetchUnreadCount();
+    }, 60000);
+
+    // 3. Setup listeners
+    // Foreground listener
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      const { title, body, data } = notification.request.content;
+      
+      // Custom inside-app Toast UI on foreground push
+      toast.info(
+        title || 'New Notification',
+        body || 'You have a new message.',
+        () => {
+          if (data?.link) {
+            router.push(data.link as any);
+          } else {
+            router.push('/notification');
+          }
+        }
+      );
+      
+      // Update unread badge/lists
+      fetchUnreadCount();
+    });
+
+    // Tap/Interaction response listener (when tapping background push notifications)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      if (data?.link) {
+        router.push(data.link as any);
+      } else {
+        router.push('/notification');
+      }
+    });
+
+    // 4. Soft-prompt permission timing logic (2 minutes delay)
+    let bannerTimer: NodeJS.Timeout;
+    
+    const checkShouldShowBanner = async () => {
+      try {
+        const { status } = await Notifications.getPermissionsAsync();
+        setPermissionStatus(status);
+
+        if (status === 'granted') {
+          registerPushToken();
+          return;
+        }
+
+        if (status === 'denied') {
+          return; // Skip banner if explicitly denied
+        }
+
+        // Check AsyncStorage rules for re-prompt
+        const lastDismissedStr = await AsyncStorage.getItem('notif-soft-dismissed-at');
+        const dismissCountStr = await AsyncStorage.getItem('notif-soft-dismiss-count') ?? '0';
+        const dismissCount = parseInt(dismissCountStr, 10);
+
+        if (dismissCount >= 3) {
+          console.log('Soft-prompt dismissed 3 times. Silencing banner.');
+          return;
+        }
+
+        if (lastDismissedStr) {
+          const lastDismissed = parseInt(lastDismissedStr, 10);
+          const sevenDays = 7 * 24 * 60 * 60 * 1000;
+          if (Date.now() - lastDismissed < sevenDays) {
+            console.log('Soft-prompt banner in cooldown.');
+            return;
+          }
+        }
+
+        // Delay active prompt by 2 minutes
+        console.log('Scheduling soft-prompt banner in 2 minutes...');
+        bannerTimer = setTimeout(() => {
+          setShowPermissionBanner(true);
+        }, 120000);
+      } catch (e) {
+        console.error('Error during permission banner check:', e);
+      }
+    };
+
+    checkShouldShowBanner();
 
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
       }
+      if (notificationListener.current) {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current) {
+        responseListener.current.remove();
+      }
+      if (bannerTimer) {
+        clearTimeout(bannerTimer);
+      }
     };
-  }, [user, fetchUnreadCount]);
+  }, [user, fetchUnreadCount, registerPushToken, router]);
 
   return (
     <NotificationContext.Provider
@@ -219,11 +389,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         unreadCount,
         notifications,
         loading,
+        permissionStatus,
+        showPermissionBanner,
+        pushToken,
         fetchNotifications,
         fetchUnreadCount,
         markAsRead,
         markAllAsRead,
         deleteNotification,
+        dismissPermissionBanner,
+        requestPushPermission,
       }}
     >
       {children}
