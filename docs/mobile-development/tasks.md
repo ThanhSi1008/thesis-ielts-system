@@ -358,7 +358,7 @@
 - [x] **P8-01** · Verify mobile đã có Publish/Import deck modal chưa · *est. 1h*
 
 ### 8.2 Publish & Import (7h, làm nếu thiếu)
-- [ ] **P8-02** · `components/vocab-lab/PublishDeckModal.tsx`: form title/desc/category/visibility/cover · *est. 4h*
+- [x] **P8-02** · `components/vocab-lab/PublishDeckModal.tsx`: form title/desc/category/visibility/cover · *est. 4h*
 - [ ] **P8-03** · `components/vocab-lab/ImportDeckModal.tsx`: browse + preview + import · *est. 3h*
 
 ### 8.3 Stats charts mở rộng (4h)

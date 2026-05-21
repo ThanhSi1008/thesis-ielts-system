@@ -18,17 +18,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, Button } from '@/components/ui';
+import { PublishDeckModal } from './PublishDeckModal';
 
-// ─── Deck action menu ─────────────────────────────────────────────────────────
 type ActionMenuProps = {
   visible: boolean;
   deck: any;
   onClose: () => void;
   onRename: () => void;
   onDelete: () => void;
+  onPublish: () => void;
 };
 
-function DeckActionMenu({ visible, deck, onClose, onRename, onDelete }: ActionMenuProps) {
+function DeckActionMenu({ visible, deck, onClose, onRename, onDelete, onPublish }: ActionMenuProps) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={m.overlay} onPress={onClose}>
@@ -39,6 +40,10 @@ function DeckActionMenu({ visible, deck, onClose, onRename, onDelete }: ActionMe
           <TouchableOpacity style={m.item} onPress={onRename}>
             <Ionicons name="pencil-outline" size={20} color={COLORS.text} />
             <Text style={m.itemText}>Rename</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={m.item} onPress={onPublish}>
+            <Ionicons name="earth-outline" size={20} color={COLORS.primary} />
+            <Text style={m.itemText}>Publish to Marketplace</Text>
           </TouchableOpacity>
           <TouchableOpacity style={m.item} onPress={onDelete}>
             <Ionicons name="trash-outline" size={20} color={COLORS.error} />
@@ -192,7 +197,7 @@ export function DecksTab() {
   // Action menu + rename modal
   const [actionDeck, setActionDeck] = useState<any>(null);
   const [renameModalVisible, setRenameModalVisible] = useState(false);
-
+  const [publishModalVisible, setPublishModalVisible] = useState(false);
   const fetchData = async () => {
     try {
       const [dr, sr] = await Promise.allSettled([vocabLabApi.getDecks(), vocabLabApi.getStats()]);
@@ -393,12 +398,14 @@ export function DecksTab() {
 
       {/* Deck action menu (rename / delete) */}
       <DeckActionMenu
-        visible={!!actionDeck}
+        visible={!!actionDeck && !publishModalVisible && !renameModalVisible}
         deck={actionDeck}
         onClose={() => setActionDeck(null)}
         onRename={() => {
-          setActionDeck(null);
           setRenameModalVisible(true);
+        }}
+        onPublish={() => {
+          setPublishModalVisible(true);
         }}
         onDelete={() => handleDelete(actionDeck)}
       />
@@ -407,8 +414,22 @@ export function DecksTab() {
       <RenameDeckModal
         visible={renameModalVisible}
         deck={actionDeck}
-        onClose={() => setRenameModalVisible(false)}
+        onClose={() => {
+          setRenameModalVisible(false);
+          setActionDeck(null);
+        }}
         onSaved={fetchData}
+      />
+
+      {/* Publish modal */}
+      <PublishDeckModal
+        visible={publishModalVisible}
+        deck={actionDeck}
+        onClose={() => {
+          setPublishModalVisible(false);
+          setActionDeck(null);
+        }}
+        onSuccess={fetchData}
       />
     </ScrollView>
   );

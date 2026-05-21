@@ -8,3 +8,5 @@ export { FlashcardViewer } from './FlashcardViewer';
 export { GlobalAddCardFab } from './GlobalAddCardFab';
 export { MarketplaceTab } from './MarketplaceTab';
 export { StatsTab } from './StatsTab';
+export { PublishDeckModal } from './PublishDeckModal';
+
