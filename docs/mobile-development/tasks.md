@@ -392,10 +392,10 @@
 - [x] **P10-03** · Tích hợp vào LessonDetail, ExerciseDetail, ReadingExamBlock, PassageReview · *est. 1h*
 
 ### 10.2 Quick Vocab FAB (4h)
-- [ ] **P10-04** · Tạo `components/global/GlobalVocabFab.tsx` draggable · *est. 2.5h*
-- [ ] **P10-05** · Persist vị trí AsyncStorage · *est. 0.5h*
-- [ ] **P10-06** · Hidden trên exam/take/onboarding screen · *est. 0.5h*
-- [ ] **P10-07** · Tích hợp với GlobalAddCardFab handler · *est. 0.5h*
+- [x] **P10-04** · Tạo `components/global/GlobalVocabFab.tsx` draggable · *est. 2.5h*
+- [x] **P10-05** · Persist vị trí AsyncStorage · *est. 0.5h*
+- [x] **P10-06** · Hidden trên exam/take/onboarding screen · *est. 0.5h*
+- [x] **P10-07** · Tích hợp với GlobalAddCardFab handler · *est. 0.5h*
 
 **Tổng phase 10**: 10h
 
