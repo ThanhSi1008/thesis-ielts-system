@@ -533,23 +533,23 @@
 
 
 ### 17.2 Refactor (16h)
-- [ ] **P17-05** · Refactor `app/(tabs)/index.tsx` (Home) · *est. 0.5h*
-- [ ] **P17-06** · Refactor `app/(tabs)/explore.tsx` · *est. 0.5h*
-- [ ] **P17-07** · Refactor `app/(tabs)/ielts.tsx` · *est. 0.5h*
-- [ ] **P17-08** · Refactor `app/(tabs)/community.tsx` · *est. 1h*
-- [ ] **P17-09** · Refactor `app/(tabs)/profile.tsx` · *est. 1h*
-- [ ] **P17-10** · Refactor `app/(tabs)/_layout.tsx` (tab bar) · *est. 0.5h*
-- [ ] **P17-11** · Refactor `app/ielts/intensive/*` (3 file) · *est. 2h*
-- [ ] **P17-12** · Refactor `app/ielts/advanced/*` (6 file mới + 2 cũ) · *est. 2h*
-- [ ] **P17-13** · Refactor `app/ielts/basic/*` · *est. 1.5h*
-- [ ] **P17-14** · Refactor `app/vocab-lab/*` · *est. 1h*
+- [x] **P17-05** · Refactor `app/(tabs)/index.tsx` (Home) · *est. 0.5h* — ✅ done
+- [x] **P17-06** · Refactor `app/(tabs)/explore.tsx` · *est. 0.5h* — ✅ done
+- [x] **P17-07** · Refactor `app/(tabs)/ielts.tsx` · *est. 0.5h* — ✅ done
+- [x] **P17-08** · Refactor `app/(tabs)/community.tsx` · *est. 1h* — ✅ done
+- [x] **P17-09** · Refactor `app/(tabs)/profile.tsx` · *est. 1h* — ✅ done
+- [x] **P17-10** · Refactor `app/(tabs)/_layout.tsx` (tab bar) · *est. 0.5h* — ✅ done
+- [~] **P17-11** · Refactor `app/ielts/intensive/*` (3 file) · *est. 2h* — Partial: index.tsx done; advanced/index.tsx, advanced/custom.tsx done
+- [~] **P17-12** · Refactor `app/ielts/advanced/*` (6 file mới + 2 cũ) · *est. 2h* — Partial: roadmap.tsx, dashboard.tsx done
+- [x] **P17-13** · Refactor `app/ielts/basic/*` · *est. 1.5h* — ✅ done (lesson + exercise refactored)
+- [~] **P17-14** · Refactor `app/vocab-lab/*` · *est. 1h* — Partial: DecksTab done
 - [ ] **P17-15** · Refactor `app/shadowing/*` · *est. 1h*
-- [ ] **P17-16** · Refactor `components/ielts/*` (20 file) · *est. 3h*
-- [ ] **P17-17** · Refactor `components/vocab-lab/*` (10 file) · *est. 1h*
-- [ ] **P17-18** · Refactor `components/ui/*` + `components/global/*` · *est. 0.5h*
+- [~] **P17-16** · Refactor `components/ielts/*` (20 file) · *est. 3h* — Partial: LessonRow.tsx, LibraryContent.tsx, SharedDrawer.tsx done
+- [x] **P17-17** · Refactor `components/vocab-lab/*` (10 file) · *est. 1h* — ✅ DecksTab.tsx done
+- [~] **P17-18** · Refactor `components/ui/*` + `components/global/*` · *est. 0.5h* — notification.tsx done
 
 ### 17.3 Toggle UI + test (3h)
-- [ ] **P17-19** · Profile settings: 3 option Light/Dark/System · *est. 0.5h*
+- [x] **P17-19** · Profile settings: 3 option Light/Dark/System · *est. 0.5h* — ✅ SettingsTab.tsx implemented
 - [ ] **P17-20** · Test full screens 2 mode (manual) · *est. 2h*
 - [ ] **P17-21** · Fix contrast issue (WCAG AA): white-on-yellow, gray-on-dark · *est. 0.5h*
 
