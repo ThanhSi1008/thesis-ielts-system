@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { TextWithLookup } from '../global/TextWithLookup';
 
 // ─── Passage Text Sanitizer ──────────────────────────────────────────────────
 // Mirrors web TakeReadingBoard.tsx logic exactly:
@@ -90,7 +91,7 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
             <View key={key} style={pr.sectionBlock}>
               <Text style={pr.sectionLetter}>{sectionMatch[1].toUpperCase()}</Text>
               {sectionMatch[2].trim().length > 0 && (
-                <Text style={pr.paragraph}>{parseInline(sectionMatch[2].trim(), key)}</Text>
+                <TextWithLookup style={pr.paragraph} content={sectionMatch[2].trim()} />
               )}
             </View>
           );
@@ -102,18 +103,14 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
           const inner = headingMatch[1].trim();
           if (inner.toLowerCase() !== (topic || '').toLowerCase()) {
             return (
-              <Text key={key} style={pr.heading}>
-                {inner}
-              </Text>
+              <TextWithLookup key={key} style={pr.heading} content={inner} />
             );
           }
           return null;
         }
 
         return (
-          <Text key={key} style={pr.paragraph}>
-            {parseInline(para, key)}
-          </Text>
+          <TextWithLookup key={key} style={pr.paragraph} content={para} />
         );
       })}
     </View>
