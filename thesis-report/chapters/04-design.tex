@@ -29,7 +29,7 @@ Nhóm IELTS chứa toàn bộ nội dung học tập, tổ chức theo từng gi
 
 Hệ thống dùng PostgreSQL~\cite{postgresql-docs} thông qua Prisma ORM~\cite{prisma-docs}. Cơ sở dữ liệu được lưu trữ trên \textbf{Supabase} — một dịch vụ PostgreSQL được quản lý sẵn, kết nối qua PgBouncer (port 6543) trong môi trường chạy thực và kết nối trực tiếp (port 5432) khi chạy migration. Toàn bộ schema được định nghĩa tập trung trong file schema.prisma với 66 model. Tương tự sơ đồ lớp, ERD cũng được tách thành hai nhóm để dễ đọc: nhóm \textbf{Core} và nhóm \textbf{IELTS}.
 
-Nhóm Core quản lý người dùng và các nghiệp vụ liên quan. Bảng users lưu thông tin tài khoản, trạng thái hoạt động và định danh Google OAuth. Bên cạnh đó là các bảng subscriptions, pricing\_plans (gói cước), payments (thanh toán), notifications (thông báo) và student\_teacher\_links (liên kết học viên -- giáo viên). Sơ đồ ERD nhóm Core được trình bày trong hình~\ref{fig:erd-core}.
+Nhóm Core quản lý người dùng và các nghiệp vụ liên quan. Bảng users lưu thông tin tài khoản, trạng thái hoạt động và định danh Google OAuth. Kèm theo là các bảng subscriptions, pricing\_plans (gói cước), payments (thanh toán), notifications (thông báo) và student\_teacher\_links (liên kết học viên -- giáo viên). Sơ đồ ERD nhóm Core được trình bày trong hình~\ref{fig:erd-core}.
 
 \begin{figure}[H]
     \centering
@@ -115,7 +115,7 @@ Trang chủ là màn hình đầu tiên người dùng nhìn thấy khi truy c�
 
 \subsection{Giao diện Dashboard người học}
 
-Trang IELTS Dashboard đóng vai trò là trung tâm điều khiển (hub) chính, nơi học viên theo dõi và quản lý toàn bộ quá trình luyện thi IELTS của mình. Mục đích cốt lõi của trang là cung cấp một Lộ trình học tập (Learning Roadmap) được cấu trúc rõ ràng qua 4 giai đoạn tiến triển: Foundation (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), Basic (nắm bắt kiến thức cơ bản của 4 kỹ năng), Advanced (luyện tập chuyên sâu từng dạng câu hỏi với AI), và Intensive (thi thử sát với thực tế). Ngoài việc hiển thị thanh tiến độ và số liệu tổng quan (Quick Stats), Dashboard còn đóng vai trò là điểm truy cập cho các công cụ bổ trợ (Tools \& Features) quan trọng như tạo lộ trình học cá nhân hóa, Công cụ tính điểm Band Score, Kết nối theo dõi tiến độ giữa Học viên và Giáo viên, cùng với hệ thống Thống kê chi tiết giúp đánh giá tổng quan năng lực và nhận diện những kỹ năng cần cải thiện. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
+IELTS Dashboard là hub điều phối chính của người học. Mọi tiến độ luyện thi đều quy tụ về đây. Trục xương sống của trang là Learning Roadmap chia thành bốn giai đoạn tăng dần: Foundation (xây nền từ vựng, ngữ pháp, phát âm), Basic (nắm bốn kỹ năng cơ bản), Advanced (luyện sâu từng dạng câu hỏi với AI) và Intensive (thi thử sát thực tế). Bên cạnh thanh tiến độ và Quick Stats tổng quan, Dashboard còn là điểm truy cập tới các công cụ bổ trợ (Tools \& Features) quan trọng: lộ trình học cá nhân hóa, Band Score Calculator, liên kết Student/Teacher để giáo viên theo dõi tiến độ học viên, cùng hệ thống Statistics chi tiết --- giúp người học khoanh trúng kỹ năng còn yếu. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
 
 \begin{figure}[H]
     \centering
@@ -137,7 +137,7 @@ Trang IELTS Roadmap là công cụ hỗ trợ xây dựng lộ trình học tậ
 
 \subsection{Giao diện thư viện Từ vựng (Foundation Vocabulary)}
 
-Trang Vocabulary (Từ vựng) thuộc giai đoạn Foundation, đóng vai trò là thư viện sách từ vựng hỗ trợ học viên xây dựng vốn từ cơ bản. Mục đích chính của trang này là hiển thị danh sách các ``cuốn sách'' từ vựng theo chủ đề (Foundation Vocab Book), bao gồm hình ảnh minh họa, tên chủ đề và tổng số lượng từ vựng trong mỗi sách. Người dùng có thể dễ dàng duyệt qua các chủ đề và bấm nút ``START LEARNING'' để chuyển trực tiếp vào màn hình học chi tiết của từng chủ đề đó, tạo bước đệm vững chắc trước khi bước vào luyện thi IELTS chuyên sâu. Giao diện thư viện Vocabulary được trình bày trong hình~\ref{fig:ui-vocabulary}.
+Trang Vocabulary thuộc giai đoạn Foundation, mở thư viện sách từ vựng cho học viên xây vốn từ cơ bản. Trang hiển thị danh sách các Foundation Vocab Book theo chủ đề --- mỗi book kèm hình minh họa, tên chủ đề và tổng số từ. Người học duyệt qua các chủ đề, nhấn ``START LEARNING'' để vào màn hình học chi tiết --- bước đệm cần thiết trước khi đi vào luyện thi chuyên sâu. Giao diện thư viện Vocabulary được trình bày trong hình~\ref{fig:ui-vocabulary}.
 
 \begin{figure}[H]
     \centering
@@ -159,7 +159,7 @@ Trang IELTS Basic Listening Exercise là giao diện làm bài tập thực hàn
 
 \subsection{Giao diện thi thử Reading (Intensive Reading)}
 
-Trang IELTS Intensive Reading Test Taken cung cấp môi trường thi thử giả lập sát với bài thi Reading thực tế. Giao diện được chia đôi: một bên là các đoạn văn bản học thuật (Passages), bên còn lại là danh sách câu hỏi cần trả lời. Điểm nhấn của trang này là tính năng mô phỏng áp lực thời gian (đồng hồ đếm ngược) và khả năng tương tác trực tiếp với văn bản (như highlight), giúp người dùng làm quen với nhịp độ và không khí của một bài thi IELTS Reading thực sự. Giao diện thi thử Reading được trình bày trong hình~\ref{fig:ui-reading-intensive}.
+Trang IELTS Intensive Reading Test Taken mô phỏng phòng thi Reading sát với đề thực tế. Giao diện chia hai cột: cột trái là Passages học thuật, cột phải là danh sách câu hỏi cần trả lời. Trang khai thác hai cơ chế chính để tái hiện áp lực thi thật --- đồng hồ đếm ngược ép nhịp độ làm bài, và khả năng tương tác trực tiếp với văn bản (highlight, note). Giao diện thi thử Reading được trình bày trong hình~\ref{fig:ui-reading-intensive}.
 
 \begin{figure}[H]
     \centering
@@ -170,7 +170,7 @@ Trang IELTS Intensive Reading Test Taken cung cấp môi trường thi thử gi�
 
 \subsection{Giao diện trang đáp án Listening (Intensive Listening Answer)}
 
-Trang IELTS Intensive Listening Answer Page là giao diện hiển thị kết quả chi tiết sau khi học viên hoàn thành bài thi thử Listening. Mục đích chính là cung cấp báo cáo điểm số (tổng điểm và Band Score dự kiến), đồng thời liệt kê chi tiết từng câu hỏi để người dùng đối chiếu đáp án đã chọn với đáp án đúng. Trang này thường tích hợp sẵn Audio Transcript có bôi đậm đoạn chứa câu trả lời, giúp người học dễ dàng phân tích lỗi sai và cải thiện kỹ năng nghe hiểu. Giao diện trang đáp án Listening được trình bày trong hình~\ref{fig:ui-listening-answer}.
+Trang IELTS Intensive Listening Answer Page hiển thị kết quả chi tiết ngay sau bài thi thử Listening. Báo cáo điểm số chia hai phần: tổng điểm thô và Band Score dự kiến theo thang quy đổi IELTS. Bên dưới là danh sách từng câu hỏi đặt cạnh đáp án người học chọn và đáp án chuẩn để đối chiếu. Audio Transcript đính kèm bôi đậm đoạn chứa câu trả lời --- người học dò ngay được mình nghe sai ở chỗ nào, tiếp tục cải thiện kỹ năng nghe hiểu. Giao diện trang đáp án Listening được trình bày trong hình~\ref{fig:ui-listening-answer}.
 
 \begin{figure}[H]
     \centering
@@ -192,7 +192,7 @@ Trang IELTS Intensive Speaking Test Taken mô phỏng lại một phòng thi Spe
 
 \subsection{Giao diện kết quả Writing với phản hồi AI (Intensive Writing Answer)}
 
-Trang IELTS Intensive Writing Answer Page có chức năng hiển thị kết quả đánh giá bài thi Viết của học viên sau khi được chấm điểm bởi hệ thống AI. Giao diện cung cấp cái nhìn toàn diện về bài làm, bao gồm Band Score dự kiến, nhận xét tổng quan và phân tích chi tiết theo 4 tiêu chí chấm thi của IELTS (Task Achievement, Coherence, Lexical Resource, Grammatical Range). Đặc biệt, trang này liệt kê các lỗi ngôn ngữ cụ thể được phát hiện (kèm câu gốc, phiên bản đã sửa và giải thích ngắn), giúp người dùng nhận ra điểm yếu về ngữ pháp và từ vựng để cải thiện bài viết. Giao diện kết quả Writing được trình bày trong hình~\ref{fig:ui-writing-answer}.
+Trang IELTS Intensive Writing Answer Page hiển thị kết quả đánh giá bài Writing sau khi pipeline AI hoàn tất. Giao diện gói trọn ba lớp thông tin: Band Score dự kiến ở trên cùng, nhận xét tổng quan ở giữa, và phân tích chi tiết theo bốn tiêu chí IELTS Writing (Task Achievement, Coherence, Lexical Resource, Grammatical Range) ở dưới. Phần thú vị nhất là danh sách lỗi ngôn ngữ cụ thể được AI bóc ra --- mỗi lỗi kèm câu gốc, phiên bản đã sửa và giải thích ngắn, giúp người học chốt được điểm yếu cụ thể về ngữ pháp và từ vựng. Giao diện kết quả Writing được trình bày trong hình~\ref{fig:ui-writing-answer}.
 
 \begin{figure}[H]
     \centering
@@ -214,7 +214,7 @@ Trang Dictation Lessons (Luyện nghe chép chính tả) là một phân hệ lu
 
 \subsection{Giao diện sổ tay từ vựng cá nhân (Vocab Lab)}
 
-Trang Vocab Lab đóng vai trò như một ``phòng thí nghiệm'' hoặc cuốn sổ tay từ vựng kỹ thuật số cá nhân của người học. Mục đích chính là lưu trữ, quản lý và ôn tập những từ vựng mà học viên đã lưu lại trong suốt quá trình học trên hệ thống. Trang này cung cấp các tính năng như tạo danh sách từ vựng tùy chỉnh, ôn tập qua flashcard và áp dụng thuật toán Lặp lại ngắt quãng (Spaced Repetition) để giúp người học ghi nhớ từ vựng một cách khoa học và lâu dài. Giao diện Vocab Lab được trình bày trong hình~\ref{fig:ui-vocablab}.
+Vocab Lab là sổ tay từ vựng kỹ thuật số cá nhân --- một ``phòng thí nghiệm'' nơi người học lưu, quản lý và ôn lại các từ đã thu thập trong suốt quá trình học trên hệ thống. Trang cho phép tạo deck tùy chỉnh, ôn qua flashcard và lên lịch ôn tự động bằng thuật toán Spaced Repetition. Cơ chế này đảm bảo từ vựng được ôn đúng thời điểm não sắp quên --- ghi nhớ lâu dài với chi phí thời gian tối thiểu. Giao diện Vocab Lab được trình bày trong hình~\ref{fig:ui-vocablab}.
 
 \begin{figure}[H]
     \centering
@@ -225,7 +225,7 @@ Trang Vocab Lab đóng vai trò như một ``phòng thí nghiệm'' hoặc cuố
 
 \subsection{Giao diện Cộng đồng (Community)}
 
-Trang Community (Cộng đồng) là không gian kết nối xã hội dành cho người dùng trên toàn hệ thống. Tại đây, học viên có thể chia sẻ mẹo học tập, thảo luận về kinh nghiệm ôn thi, đăng bài chia sẻ thành tích band điểm, và tương tác với các thành viên khác. Tính năng này giúp tạo ra một môi trường học tập mang tính cộng đồng, tăng cường động lực và sự gắn kết của người dùng với hệ thống. Giao diện Cộng đồng được trình bày trong hình~\ref{fig:ui-community}.
+Trang Community là không gian kết nối xã hội nội bộ giữa người dùng trên toàn hệ thống. Học viên đăng bài chia sẻ mẹo học, thảo luận kinh nghiệm ôn thi, khoe band điểm vừa đạt và tương tác qua Like/Comment/Bookmark với các thành viên khác. Vai trò chính của tính năng này: tạo môi trường học tập mang tính cộng đồng, gia cố động lực và sự gắn kết của người học với nền tảng. Giao diện Community được trình bày trong hình~\ref{fig:ui-community}.
 
 \begin{figure}[H]
     \centering
@@ -649,5 +649,5 @@ Sau khi hoàn thiện hệ thống, toàn bộ 207 test case unit/integration c�
     16 & E2E xác thực (toàn bộ chu trình) & 12 & 12 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
 \end{longtable}
 
-Kết quả này khẳng định backend-core hiện đáp ứng đầy đủ các yêu cầu nghiệp vụ đã đặc tả ở chương~3, đồng thời đảm bảo các ràng buộc bảo mật (IDOR, JWT lifecycle), tính nhất quán cấp cơ sở dữ liệu (unique email, ownership deck/note/post) và tính chính xác của các luồng tích hợp ngoài như VNPay IPN và AI grading callback. Năm khe hở nhỏ được phát hiện trong quá trình kiểm thử (TC\_\allowbreak{}JWT\_04, TC\_\allowbreak{}JWT\_05, TC\_\allowbreak{}BOUND\_03, TC\_\allowbreak{}BOUND\_08, TC\_\allowbreak{}SEC\_08) là các trường hợp test hiện đạt PASS theo hành vi mặc định nhưng đã ghi nhận điểm cần cải thiện cho phiên bản kế tiếp -- chi tiết được nêu trong cột ``Kết quả mong muốn'' của các test case tương ứng ở bảng~\ref{tab:testcase_list}.
+Kết quả khẳng định backend-core đáp ứng đầy đủ các yêu cầu nghiệp vụ đặc tả ở chương~3 --- ràng buộc bảo mật (IDOR, JWT lifecycle), tính nhất quán cấp cơ sở dữ liệu (unique email, ownership deck/note/post) và tính chính xác của các luồng tích hợp ngoài như VNPay IPN và AI grading callback đều giữ vững. Năm khe hở nhỏ ghi nhận được trong quá trình kiểm thử (TC\_\allowbreak{}JWT\_04, TC\_\allowbreak{}JWT\_05, TC\_\allowbreak{}BOUND\_03, TC\_\allowbreak{}BOUND\_08, TC\_\allowbreak{}SEC\_08) là các trường hợp test pass theo hành vi mặc định nhưng đã đánh dấu điểm cần cải thiện cho phiên bản kế tiếp --- chi tiết nằm ở cột ``Kết quả mong muốn'' của các test case tương ứng trong bảng~\ref{tab:testcase_list}.
 

@@ -3,7 +3,7 @@
 
 \section{Quy trình nghiệp vụ}
 
-Quy trình nghiệp vụ của nền tảng IELTS Master English AI được xây dựng xoay quanh hai nhóm tác nhân chính: Người học (Learner) và Người quản lý (Admin). Thay vì ép người học đi theo một hành trình tuyến tính cố định, nền tảng tổ chức các chức năng thành sáu phân hệ hoàn toàn độc lập để người học tự do chọn lựa phần phù hợp với nhu cầu: phân hệ IELTS dành riêng cho người có mục tiêu luyện thi cụ thể, phân hệ Shadowing \& Dictation để rèn nghe--nói tiếng Anh tổng quát qua video YouTube, phân hệ Vocab Lab để quản lý và ôn luyện từ vựng bằng flashcard thông minh, phân hệ Community để kết nối với cộng đồng người học, phân hệ Pricing để nâng cấp quyền truy cập theo nhu cầu, và hệ thống thông báo để cập nhật các sự kiện quan trọng trong quá trình học. Cụ thể, quy trình hoạt động từng phân hệ có thể hình dung như sau:
+Nền tảng IELTS Master English AI vận hành quanh hai nhóm tác nhân: Người học (Learner) và Người quản lý (Admin). Thay vì ép người học đi theo một hành trình tuyến tính cố định, các chức năng được nhóm thành sáu phân hệ độc lập, người học chủ động chọn phần phù hợp với nhu cầu của mình: phân hệ IELTS dành riêng cho người có mục tiêu luyện thi cụ thể, phân hệ Shadowing \& Dictation để rèn nghe--nói tiếng Anh tổng quát qua video YouTube, phân hệ Vocab Lab để quản lý và ôn luyện từ vựng bằng flashcard thông minh, phân hệ Community để kết nối với cộng đồng người học, phân hệ Pricing để nâng cấp quyền truy cập theo nhu cầu, và hệ thống thông báo cập nhật các sự kiện quan trọng trong quá trình học. Cách vận hành từng phân hệ được mô tả dưới đây.
 
 % =================================================================
 % 1. NGHIỆP VỤ NGƯỜI HỌC
@@ -337,12 +337,12 @@ Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Hệ thống không chỉ đơn thuần lưu thông tin người dùng vào cơ sở dữ liệu mà tập trung xây dựng một quy trình xác thực bảo mật và tối ưu trải nghiệm. Cụ thể, luồng xử lý bắt đầu bằng việc cung cấp hai phương thức độc lập: đăng ký bằng email truyền thống và đăng ký nhanh qua Google OAuth.
+UC01 thiết kế quy trình xác thực theo hai luồng độc lập --- email truyền thống và Google OAuth --- chia sẻ chung phần khởi tạo tài khoản và phát hành token.
 
-Ở phương thức đăng ký qua email, điểm kỹ thuật quan trọng nhất là hệ thống tuyệt đối không lưu mật khẩu dưới dạng văn bản thuần. Thay vào đó, ngay khi tiếp nhận yêu cầu, máy chủ sẽ tiến hành kiểm tra tính duy nhất của email. Nếu hợp lệ, mật khẩu lập tức được mã hóa một chiều bằng thuật toán Bcrypt. Thuật toán này tự động tạo ra một chuỗi salt ngẫu nhiên kết hợp với cấu hình độ khó (cost factor) được tinh chỉnh hợp lý, giúp cân bằng hoàn hảo giữa mức độ bảo mật chống lại các cuộc tấn công quét mật khẩu (brute-force) và hiệu năng xử lý của máy chủ. Cùng với việc tạo tài khoản, hệ thống áp dụng cơ chế Database Transaction để tự động khởi tạo ngay một bộ thẻ từ vựng mặc định phục vụ phân hệ Vocab Lab. Ngay khi giao dịch hoàn tất, hệ thống liền cấp phát một chuỗi JWT access token, cho phép người dùng tự động đăng nhập và điều hướng thẳng vào trang chủ.
+Ở luồng email, mật khẩu thô không bao giờ chạm tới ổ đĩa. NestJS kiểm tra tính duy nhất của email trước; nếu pass, mật khẩu được đẩy qua bcrypt với cost factor cấu hình sẵn, sinh chuỗi salt ngẫu nhiên trước khi băm --- cân bằng giữa khả năng chống brute-force và tải tính toán trên VM n2-standard-4. Việc tạo tài khoản gói trong một transaction PostgreSQL: bản ghi User và bộ flashcard mặc định cho Vocab Lab được ghi cùng lúc, đảm bảo nguyên tử ACID. Ngay sau commit, hệ thống cấp phát JWT access token; người dùng được đăng nhập tự động và điều hướng thẳng về trang chủ.
 
 \begin{sloppypar}
-Đối với phương thức Google OAuth, máy chủ tận dụng giao thức xác thực ủy quyền để tối ưu luồng đăng ký trên đa nền tảng (Web và Mobile). Tại đây, thay vì quản lý mật khẩu, hệ thống nhận chuỗi xác thực từ Google, sau đó xác minh tính hợp lệ thông qua Google API. Kết quả là, hệ thống sẽ thực hiện chiến lược tìm kiếm hoặc tạo mới: nếu email lấy từ Google chưa tồn tại, máy chủ tự động tạo tài khoản mới và khởi tạo bộ thẻ mặc định; ngược lại sẽ tiến hành đăng nhập. Việc tích hợp Google OAuth không chỉ giảm thiểu thao tác nhập liệu mà còn tận dụng được hệ thống bảo mật cấp cao của nền tảng Google.
+Luồng Google OAuth phục vụ đa nền tảng (Web, iOS, Android) với cùng một backend handler. Client gửi Google ID token; máy chủ xác minh bằng google-auth-library theo danh sách audience hợp lệ cấu hình theo từng client. Nếu token đúng chữ ký và còn hạn, hệ thống tìm User theo email --- không tồn tại thì tạo mới kèm bộ flashcard mặc định, tồn tại thì binding googleId vào bản ghi cũ. Lợi ích chính: bỏ hoàn toàn bước đặt mật khẩu, đẩy trách nhiệm bảo vệ thông tin xác thực cho Google.
 \end{sloppypar}
 
 \subsection{Đăng nhập (UC02)}
@@ -400,10 +400,10 @@ Bảng~\ref{tab:uc02_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Chuyển sang chức năng đăng nhập, đây là phân hệ đòi hỏi tính bảo mật cao nhằm bảo vệ phiên làm việc của người dùng. Điểm kỹ thuật cốt lõi ở luồng xác thực email chính là quá trình đối chiếu mật khẩu. Để ngăn chặn các cuộc tấn công phân tích thời gian (Timing Attack), hệ thống ứng dụng cơ chế so sánh chuỗi theo thời gian hằng định thông qua thư viện Bcrypt. Điều này có nghĩa là thời gian thực thi của thuật toán so sánh luôn đồng nhất bất kể người dùng nhập sai mật khẩu ở ký tự đầu tiên hay ký tự cuối cùng. Song song đó, toàn bộ controller xác thực được bảo vệ bởi ThrottlerGuard --- một cơ chế giới hạn tần suất yêu cầu (Rate Limiting) được cấu hình sẵn ở tầng ứng dụng. Theo cấu hình hiện tại, hệ thống cho phép tối đa 100 yêu cầu trong mỗi cửa sổ thời gian 60 giây tính theo địa chỉ IP; nếu vượt ngưỡng, máy chủ lập tức từ chối các yêu cầu tiếp theo với mã lỗi HTTP 429, từ đó ngăn chặn hành vi dò mật khẩu tự động ở quy mô lớn mà không ảnh hưởng đến người dùng thông thường.
+Đăng nhập là điểm tấn công ưu tiên của các đợt rà mật khẩu tự động, nên UC02 đặt hai lớp phòng thủ. Lớp đầu nằm ngay trong hàm bcrypt.compare(): so sánh hash trong constant-time, không lộ ký tự nào sai trước --- ngắt đứt khả năng phân tích timing attack. Lớp thứ hai là ThrottlerGuard ở tầng NestJS controller: 100 request mỗi 60 giây trên một địa chỉ IP, vượt ngưỡng trả về HTTP 429. Phép cộng hai lớp này chặn được dò mật khẩu quy mô lớn mà gần như không gây phiền cho lượt đăng nhập bình thường.
 
 \begin{sloppypar}
-Sau khi xác thực thành công qua email (sử dụng Passport.js local strategy) hoặc Google OAuth (sử dụng thư viện google-auth-library), máy chủ sẽ cấp phát một JSON Web Token (JWT). Lý do hệ thống chọn JWT thay vì Session Cookie là để đảm bảo kiến trúc phi trạng thái (Stateless), giúp dễ dàng mở rộng máy chủ trong tương lai. JWT này được ký bằng thuật toán bảo mật kèm một khóa bí mật (Secret Key) và có hiệu lực sử dụng trong 7 ngày. Từ thời điểm này, mọi yêu cầu giao tiếp tới các endpoint cần bảo mật đều phải đính kèm JWT trong header. Máy chủ chỉ cần giải mã token để xác minh danh tính người dùng mà không cần phải truy vấn lại cơ sở dữ liệu ở mỗi lần gọi API.
+Sau khi credential pass --- bằng Passport.js local strategy với email/mật khẩu, hoặc qua google-auth-library với Google OAuth --- backend phát JWT ký bằng HS256 với secret key cấu hình qua biến môi trường, hạn 7 ngày. Lý do chọn JWT thay session cookie nằm ở tính stateless: không cần Redis lưu session khi scale ngang sang nhiều instance NestJS phía sau load balancer trong tương lai. Mỗi request về sau gắn JWT trong Authorization header; @nestjs/jwt giải mã, xác thực chữ ký và inject thông tin user --- không cần round-trip thêm xuống PostgreSQL trên mỗi lượt gọi API.
 \end{sloppypar}
 
 % ============================================================
@@ -462,11 +462,11 @@ Bảng~\ref{tab:uc27_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Chức năng tạo loại thẻ học (Card Type) được xem là nền tảng cốt lõi định hình sự linh hoạt của toàn bộ phân hệ Vocab Lab. Thay vì giới hạn cấu trúc flashcard theo một khuôn mẫu cứng nhắc, hệ thống lưu trữ định nghĩa từng trường dữ liệu dưới dạng các bản ghi quan hệ độc lập trong bảng CardTypeField và bản ghi mẫu hiển thị trong bảng CardTemplate. Nhờ cách tiếp cận này, người học có toàn quyền thêm, sửa, xóa các trường cũng như tùy chỉnh cấu hình hiển thị mà không phụ thuộc vào cấu trúc bảng cố định. Luồng thực thi được thiết kế chia làm hai giai đoạn rõ rệt: khởi tạo tên và cấu hình chi tiết cấu trúc thẻ.
+Card Type quyết định độ linh hoạt của Vocab Lab. Lược đồ dữ liệu tách định nghĩa từng trường (bảng CardTypeField) khỏi quy tắc hiển thị (bảng CardTemplate), thay vì cố định schema flashcard theo một khuôn mẫu. Người học vì thế tự thêm, sửa, xóa trường cũng như tùy biến cách hiển thị mà không đụng đến cấu trúc bảng nào. Luồng tạo thẻ chia làm hai giai đoạn: khởi tạo tên và cấu hình chi tiết.
 
-Đầu tiên, ngay khi người học khởi tạo thành công một loại thẻ mới qua form nội tuyến, hệ thống lập tức tạo bản ghi trong cơ sở dữ liệu kèm hai trường mặc định (Front và Back) và một mẫu hiển thị mặc định, sau đó điều hướng tự động sang giao diện thiết kế chi tiết. Quyết định kỹ thuật này nhằm đảm bảo dữ liệu không bị thất thoát nếu người học đột ngột thoát khỏi ứng dụng giữa chừng. Tiếp theo, hệ thống cung cấp không gian làm việc chia thành ba tab chuyên biệt. Tại tab \textit{Fields}, người học có thể động cấu hình các trường dữ liệu (ví dụ: Text cho từ vựng, Media cho âm thanh); mỗi thao tác thêm hoặc xóa trường là một lời gọi API riêng biệt đến máy chủ. Tại tab \textit{Templates}, hệ thống xử lý logic ánh xạ (mapping) các trường vừa định nghĩa lên các mặt trước và sau của thẻ, kết hợp với các bộ quy tắc định dạng do người học tự cấu hình (font chữ, màu sắc, màu nền); toàn bộ thông tin định dạng này được lưu dưới dạng trường JSON linh hoạt (fieldStyles, cardStyle) bên trong bản ghi CardTemplate. Cuối cùng, tab \textit{Preview} vận hành một engine render trực tiếp ngay trên trình duyệt (client-side rendering), giúp người học xem trước thẻ thực tế mà không phải gửi bất kỳ yêu cầu nào lên máy chủ.
+Ngay khi người học khởi tạo loại thẻ mới qua form nội tuyến, hệ thống tạo bản ghi vào DB kèm hai field mặc định (Front, Back) và một template mặc định, rồi điều hướng sang giao diện thiết kế chi tiết. Mục đích: nếu người học đột ngột thoát khỏi ứng dụng giữa chừng, dữ liệu đã khởi tạo không thất thoát. Không gian làm việc tách thành ba tab chuyên biệt. Tab \textit{Fields} cho phép cấu hình động các trường dữ liệu (Text cho từ vựng, Media cho âm thanh); mỗi thao tác thêm hoặc xóa là một lời gọi API riêng. Tab \textit{Templates} xử lý logic ánh xạ (mapping) các trường vừa định nghĩa lên hai mặt trước/sau của thẻ, kết hợp với các quy tắc định dạng do người học cấu hình (font chữ, màu chữ, màu nền) --- toàn bộ thông tin định dạng được lưu dưới dạng JSON linh hoạt (fieldStyles, cardStyle) bên trong bản ghi CardTemplate. Tab \textit{Preview} vận hành engine render trực tiếp trên trình duyệt (client-side rendering), giúp người học xem trước thẻ mà không phải gửi request nào lên máy chủ.
 
-Kết quả là, khi người học nhấn lưu cấu hình template, hệ thống thực hiện một lời gọi cập nhật tập trung lên bản ghi CardTemplate tương ứng, ghi đè đồng thời các trường ánh xạ mặt trước/sau và toàn bộ thông tin định dạng. Thiết kế này tách biệt rõ ràng giữa định nghĩa cấu trúc trường (CardTypeField) và quy tắc hiển thị (CardTemplate), đảm bảo tính toàn vẹn và dễ mở rộng của dữ liệu loại thẻ.
+Khi người học nhấn lưu cấu hình template, hệ thống gửi đúng một lời gọi cập nhật lên bản ghi CardTemplate tương ứng, ghi đè đồng thời các trường ánh xạ và toàn bộ thông tin định dạng. Tách biệt giữa định nghĩa cấu trúc trường (CardTypeField) và quy tắc hiển thị (CardTemplate) giúp dữ liệu loại thẻ vẫn toàn vẹn khi mở rộng schema về sau.
 
 % ============================================================
 % UC28 – LOOK UP AND ADD WORDS WITH AI
@@ -538,12 +538,12 @@ Bảng~\ref{tab:uc28_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Tính năng tra cứu và thêm từ vựng tự động (Lexon AI) được phát triển nhằm giải quyết bài toán trải nghiệm học tập liền mạch. Quá trình xử lý kỹ thuật của tính năng này là sự kết hợp chặt chẽ giữa việc thao tác DOM (Document Object Model) ở phía trình duyệt và tích hợp sâu với mô hình ngôn ngữ lớn (Gemini AI) ở phía máy chủ.
+Lexon AI giải bài toán trải nghiệm học tập liền mạch bằng cách ghép DOM event ở trình duyệt với pipeline LLM ở backend. Người học không phải rời màn hình đang đọc để mở Vocab Lab và gõ lại từ.
 
-Cụ thể, hệ thống liên tục lắng nghe các sự kiện bôi đen văn bản trên giao diện. Khi một vùng chọn hợp lệ được xác định, hệ thống không chỉ lấy mỗi từ vựng đó mà còn dùng thuật toán cắt chuỗi để trích xuất thêm phần câu ngữ cảnh xung quanh (khoảng 80 ký tự). Nhờ vậy, từ vựng đưa vào mô hình AI sẽ được phân tích đúng nghĩa theo ngữ cảnh cụ thể của bài đọc. Khi cửa sổ trợ lý Lexon AI kích hoạt, hệ thống sẽ tự động tải cấu trúc loại thẻ mà người dùng thường sử dụng.
+Trình duyệt lắng nghe sự kiện bôi đen văn bản trên các màn hình học hỗ trợ. Khi xác định được vùng chọn hợp lệ, hệ thống không chỉ lấy từ mục tiêu mà còn cắt thêm khoảng 80 ký tự ngữ cảnh xung quanh --- AI cần khoanh đúng nghĩa của từ trong câu thay vì giải thích chung chung. Cửa sổ trợ lý kích hoạt và tự động tải cấu trúc loại thẻ người học thường dùng.
 
 \begin{sloppypar}
-Điểm kỹ thuật quan trọng nhất ở đây là việc ứng dụng kỹ thuật Prompt Engineering. Thay vì đặt câu hỏi chung chung cho AI, máy chủ sẽ tự động đúc kết một prompt chứa toàn bộ ngữ cảnh cùng cấu trúc thẻ học tương ứng. Kết quả là, Gemini AI bị ràng buộc và phải trả về phản hồi tuân thủ định dạng. Ở giai đoạn cuối, máy chủ tận dụng khả năng phân tích chuỗi JSON có cấu trúc từ AI để bóc tách dữ liệu (nghĩa của từ, phiên âm IPA, câu ví dụ) và điền tự động (auto-fill) vào form thêm thẻ nhanh. Việc thiết kế chia làm hai pha --- sinh giải thích trước và sinh dữ liệu JSON sau --- giúp người học có cơ hội thẩm định lại kiến thức, đồng thời khoanh vùng được các lỗi sinh nội dung từ mô hình AI trước khi ghi vĩnh viễn vào hệ thống.
+Điểm kỹ thuật mấu chốt là Prompt Engineering có ràng buộc. Backend không gửi câu hỏi tự do tới Gemini mà đúc một prompt bao gồm: từ cần giải thích, câu ngữ cảnh, mô tả từng field của loại thẻ và yêu cầu trả về JSON đúng schema. Gemini bị ép sinh phản hồi tuân thủ định dạng; backend parse JSON và auto-fill vào form thêm thẻ nhanh --- nghĩa của từ, IPA, câu ví dụ điền sẵn từng ô. Pipeline tách hai pha có chủ ý: pha một sinh giải thích để người học đọc và thẩm định, pha hai sinh JSON khi người học chốt --- bóc tách lỗi hallucination trước khi ghi xuống database.
 \end{sloppypar}
 
 % ============================================================
@@ -614,11 +614,11 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Hệ thống Foundation Vocabulary được thiết kế theo mô hình phân tầng dữ liệu: nội dung tĩnh (bao gồm danh mục sách, unit, từ vựng và câu hỏi) được cache chặt chẽ ở phía máy chủ nhằm giảm thiểu tải truy vấn, trong khi tiến độ cá nhân của người học được ghi nhận vào cơ sở dữ liệu với ràng buộc duy nhất (unique constraint) theo cặp người học và bài học. Thiết kế này đảm bảo tính toàn vẹn, mỗi cặp chỉ tồn tại đúng một bản ghi tiến độ duy nhất.
+Foundation Vocabulary áp dụng mô hình phân tầng dữ liệu rõ ràng. Nội dung tĩnh --- danh mục sách, unit, từ vựng, câu hỏi --- được cache chặt ở phía máy chủ để cắt tải truy vấn, trong khi tiến độ cá nhân lưu vào DB kèm unique constraint theo cặp (userId, lessonId). Mỗi cặp đúng một bản ghi tiến độ duy nhất, không có chuyện double-counting.
 
-Cốt lõi kỹ thuật của tính năng này nằm ở việc ứng dụng thuật toán lặp lại ngắt quãng FSRS (Free Spaced Repetition Scheduler). Thay vì chỉ cho người học xem lại từ vựng theo cảm tính, hệ thống yêu cầu họ tự đánh giá mức độ ghi nhớ qua 4 cấp độ: ``Again'', ``Hard'', ``Good'', ``Easy''. Dựa trên phản hồi này, thuật toán FSRS lập tức tính toán lại bốn chỉ số quan trọng: Trạng thái thẻ (State), Độ ổn định (Stability), Độ khó (Difficulty) và Ngày ôn tập tiếp theo (Due Date). Ngay khi người học chọn một mức đánh giá, hệ thống sẽ tự động tạo một thẻ trong bộ thẻ mặc định của Vocab Lab chứa các chỉ số SRS vừa tính toán, đồng thời cập nhật tiến độ của phiên học. Riêng đối với lựa chọn ``Already know --- skip'', từ vựng được bỏ qua và tính vào tiến độ nhưng không được đẩy vào hệ thống SRS, giúp người học tiết kiệm thời gian với những từ đã biết rõ.
+Phần lõi kỹ thuật nằm ở thuật toán FSRS (Free Spaced Repetition Scheduler). Thay vì để người học tự cảm tính lúc nào ôn lại, hệ thống yêu cầu họ chấm mức độ nhớ qua bốn nút ``Again'', ``Hard'', ``Good'', ``Easy''. Đầu vào này được FSRS dùng để tính lại bốn chỉ số: State, Stability, Difficulty và Due Date. Ngay khi người học chấm rating, hệ thống tạo flashcard trong bộ thẻ mặc định của Vocab Lab kèm chỉ số SRS vừa tính, đồng thời cập nhật tiến độ của phiên học. Riêng ``Already know --- skip'': từ được tính vào tiến độ nhưng không đẩy vào SRS pipeline --- người học không tốn lượt ôn cho từ đã thuộc chắc.
 
-Một quyết định kỹ thuật khác liên quan đến trải nghiệm là xử lý lựa chọn ``Again'' hoàn toàn ở phía trình duyệt. Khi người học quên một từ, từ đó sẽ được chèn lại vào cuối hàng đợi mảng dữ liệu mà không cần gửi bất kỳ yêu cầu nào lên máy chủ. Điều này đảm bảo từ vựng đó bắt buộc phải xuất hiện lại trong cùng một phiên học. Cuối cùng, luồng kiểm tra bài tập Reading Comprehension áp dụng thuật toán chấm điểm tự động phía máy chủ: đáp án của người học được so sánh không phân biệt chữ hoa/thường với từng đáp án chuẩn, sau đó máy chủ tính tỷ lệ phần trăm đúng và vô điều kiện đánh dấu unit hoàn thành, đồng thời kích hoạt sự kiện gamification 15~XP.
+Có một quyết định kỹ thuật đáng chú ý ở phía client: chọn ``Again'' xử lý hoàn toàn trên trình duyệt. Khi người học quên, từ đó được chèn lại cuối hàng đợi array hiện tại, không gửi request nào lên máy chủ --- nhưng vẫn buộc phải xuất hiện lại trong cùng phiên học. Luồng chấm Reading Comprehension chạy hoàn toàn phía máy chủ: đáp án người học so với đáp án chuẩn theo so sánh không phân biệt chữ hoa/thường, máy chủ tính tỷ lệ đúng và đánh dấu unit hoàn thành vô điều kiện kèm sự kiện gamification +15~XP.
 
 % ============================================================
 % UC06 – STUDY IELTS BASIC LESSONS AND EXERCISES
@@ -697,17 +697,17 @@ Bảng~\ref{tab:uc06_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
 \begin{sloppypar}
-Đối với phân hệ IELTS Basic Listening, cấu trúc dữ liệu được thiết kế tách biệt rõ ràng giữa hai phần: bài học lý thuyết và bài tập luyện nghe thực hành. Tiến độ của người học được quản lý độc lập theo từng mục học thông qua cơ chế cập nhật ghi đè (upsert), ngăn chặn triệt để lỗi xung đột dữ liệu (data conflict) khi người học ôn tập lại bài cũ nhiều lần.
+Schema dữ liệu của IELTS Basic Listening tách rõ hai phần: bài học lý thuyết và bài tập luyện nghe thực hành. Tiến độ người học ở từng mục lưu độc lập, quản lý qua cơ chế upsert --- ôn lại bài cũ nhiều lần không gây data conflict.
 
-Toàn bộ nội dung bài học lý thuyết được tổ chức theo cấu trúc JSON dạng khối (block-based array). Mỗi khối không chỉ lưu trữ văn bản định dạng mà còn định danh rõ ràng loại nội dung (như tổng quan, mẹo, bẫy thường gặp). Dựa vào dữ liệu của các khối này, giao diện web sẽ tự động phân tích và xây dựng thanh mục lục điều hướng động (dynamic navigation) bên lề, tối ưu hóa quá trình theo dõi bài học.
+Toàn bộ nội dung lý thuyết tổ chức theo cấu trúc JSON dạng khối (block-based array). Mỗi khối lưu văn bản định dạng kèm trường định danh loại nội dung (overview, tips, traps, strategy, section). Frontend đọc chuỗi block này và tự dựng thanh mục lục điều hướng động (dynamic navigation) bên lề bài học.
 \end{sloppypar}
 
 \begin{sloppypar}
-Điểm nhấn kỹ thuật phức tạp nhất nằm ở kiến trúc hiển thị bài tập luyện nghe. Hệ thống hỗ trợ tới 9 định dạng câu hỏi chuẩn IELTS. Thay vì viết một logic xử lý nội tuyến khổng lồ, hệ thống áp dụng mẫu thiết kế phân tách chức năng: mỗi dạng bài được render bởi một component biệt lập với logic nội tại độc lập. Thêm vào đó, để tăng cường trải nghiệm, hệ thống tích hợp tính năng đồng bộ mốc thời gian âm thanh. Mỗi câu hỏi được gán một thuộc tính thời gian tương ứng; khi người học nhấn ``Listen from here'', trình phát âm thanh sẽ được gọi lệnh seek nhảy thẳng đến tọa độ thời gian đó thay vì phát lại từ đầu.
+Phức tạp nhất là phần render bài tập luyện nghe --- hệ thống hỗ trợ chín dạng câu hỏi chuẩn IELTS. Thay vì viết một switch-case khổng lồ trong một component duy nhất, mỗi dạng câu hỏi được tách thành component biệt lập với logic render và validation riêng. Tính năng đồng bộ mốc thời gian âm thanh nâng trải nghiệm thêm một bước: mỗi câu hỏi gắn một thuộc tính thời gian; nhấn ``Listen from here'' gọi audio.currentTime = timestamp để seek thẳng tới đoạn câu, không phát lại từ đầu.
 \end{sloppypar}
 
 \begin{sloppypar}
-Logic chấm điểm được thiết kế chạy độc lập hoàn toàn phía client. Quá trình đối chiếu đáp án áp dụng kỹ thuật chuẩn hóa dữ liệu: tự động cắt bỏ khoảng trắng thừa, chuyển đổi chữ thường đối với dạng điền từ, và so khớp mảng không phân biệt thứ tự đối với dạng trắc nghiệm nhiều đáp án. Khi người học hoàn thành bài tập và giao diện hiển thị kết quả, hệ thống gửi một yêu cầu đánh dấu hoàn thành lên máy chủ. Máy chủ áp dụng cơ chế upsert để ghi nhận trạng thái hoàn thành bất kể điểm số, đồng thời kích hoạt bất đồng bộ sự kiện gamification (10~XP cho bài học lý thuyết, 15~XP cho bài tập luyện nghe) mà không chặn phản hồi gửi về giao diện.
+Logic chấm chạy hoàn toàn phía client để giảm tải máy chủ. Khi đối chiếu đáp án, hệ thống chuẩn hóa input người học: cắt khoảng trắng thừa, lowercase đối với dạng điền từ, so khớp mảng không phân biệt thứ tự đối với dạng trắc nghiệm nhiều đáp án. Hoàn thành bài tập, frontend gửi một request đánh dấu hoàn thành lên máy chủ; backend upsert trạng thái hoàn thành bất kể điểm số, đồng thời kích hoạt event gamification bất đồng bộ (10~XP cho lý thuyết, 15~XP cho bài tập điểm tuyệt đối) --- fire-and-forget, không chặn phản hồi API.
 \end{sloppypar}
 
 % ============================================================
@@ -785,16 +785,16 @@ Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Đến với phân hệ IELTS Advanced Reading, giao diện được thiết kế theo mô hình hai cột bất đối xứng (asymmetric split-screen). Kỹ thuật này cho phép đoạn văn bản học thuật và bộ câu hỏi được hiển thị song song, mô phỏng chân thực trải nghiệm làm bài thi IELTS thực tế trên máy tính (Computer-delivered IELTS). Người học không phải cuộn trang lên xuống liên tục, giúp duy trì sự tập trung tối đa.
+IELTS Advanced Reading dùng bố cục hai cột bất đối xứng (asymmetric split-screen): đoạn văn học thuật chiếm cột trái, bộ câu hỏi cột phải. Layout này mô phỏng đúng trải nghiệm Computer-delivered IELTS chính thức --- người học không phải scroll lên xuống tìm câu hỏi và đoạn liên quan trong khi đang đọc.
 
-Cơ chế kiểm soát quyền truy cập (Access Control) được thực thi nghiêm ngặt ngay tại tầng middleware của máy chủ. Khi có yêu cầu tải nội dung Reading nâng cao, hệ thống xác minh trạng thái gói đăng ký thành viên đính kèm trong JWT. Nếu tài khoản không sở hữu gói Premium hoặc Pro đang hoạt động, máy chủ lập tức từ chối bằng mã lỗi HTTP 403 (Forbidden), đồng thời giao diện hiển thị màn hình yêu cầu nâng cấp. Cơ chế bảo vệ từ phía backend này đảm bảo người dùng không thể can thiệp vào mã nguồn nội tại để xem trái phép nội dung trả phí.
+Access control siết ngay tại tầng middleware NestJS. Mỗi request tải nội dung Reading nâng cao đều bị soi gói đăng ký đính kèm trong JWT; FREE không có Premium hoặc Pro active sẽ nhận HTTP 403, frontend hiển thị màn hình yêu cầu nâng cấp. Đặt check ở backend chứ không chỉ trên frontend là để khóa luôn các đường mở trực tiếp qua console hoặc xem source.
 
 \begin{sloppypar}
-Về mặt dữ liệu, bài luyện Reading hỗ trợ đầy đủ các định dạng câu hỏi phức tạp như True/False/Not Given, Matching Headings, hay Short Answer. Mỗi câu hỏi điền từ được cấu trúc hóa để chứa danh sách các đáp án có thể chấp nhận (acceptable answers), giúp xử lý triệt để các biến thể chính tả hợp lệ. Thêm vào đó, hệ thống tích hợp tính năng định vị vị trí (Locate): văn bản được gắn các thẻ neo (anchor tags) ẩn tương ứng với từng câu hỏi. Khi người học nhấn ``Locate'', hàm DOM sẽ được kích hoạt để cuộn màn hình mượt mà đến đúng đoạn văn chứa thông tin, đồng thời áp dụng hiệu ứng nổi bật (highlight) tạm thời thông qua CSS.
+Schema câu hỏi cover đủ các dạng phức tạp của IELTS Reading: True/False/Not Given, Matching Headings, Short Answer. Mỗi câu điền từ kèm danh sách acceptable answers, xử lý gọn các biến thể chính tả hợp lệ (vd ``percent'' vs ``per cent''). Tính năng Locate đi kèm anchor tag ẩn trên từng câu hỏi: nhấn ``Locate'' kích hoạt scroll mượt tới đúng đoạn chứa thông tin, kèm hiệu ứng highlight tạm thời qua CSS animation.
 \end{sloppypar}
 
 \begin{sloppypar}
-Logic chấm điểm được giao phó hoàn toàn cho máy chủ sau khi người học xác nhận nộp bài, ngăn chặn nguy cơ gian lận sửa điểm ở phía người dùng. Hệ thống phân tích từng câu trả lời, áp dụng thuật toán so sánh chuỗi linh hoạt và đối chiếu với đáp án chuẩn. Kết quả được đóng gói thành một báo cáo chi tiết lưu trữ cố định vào cơ sở dữ liệu. Nhờ cơ chế lưu vết này, người học có thể mở lại bất kỳ phiên luyện tập nào trong quá khứ để phân tích điểm số.
+Chấm điểm chạy hoàn toàn phía máy chủ sau khi người học submit, không tin tưởng client-side để tránh sửa điểm cục bộ. Backend duyệt từng câu trả lời, so sánh chuỗi linh hoạt với đáp án chuẩn rồi đóng gói báo cáo chi tiết lưu cố định vào DB. Mỗi phiên luyện được giữ nguyên trạng để người học mở lại bất kỳ lúc nào --- xem đáp án, đọc giải thích, so điểm trên cùng một payload không bị cập nhật về sau.
 \end{sloppypar}
 
 % ============================================================
@@ -888,17 +888,17 @@ Bảng~\ref{tab:uc17_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
 \begin{sloppypar}
-Phân hệ Speaking Mock Test là một trong những tính năng phức tạp nhất, được triển khai theo mô hình máy trạng thái (State Machine) quản lý luồng sự kiện tuần tự nghiêm ngặt. Quy trình thi được chia làm ba giai đoạn chính: kiểm tra thiết bị, tiến hành thi thực tế, và nộp bài cho hệ thống AI phân tích.
+Speaking Mock Test là phân hệ phức tạp nhất về mặt điều khiển luồng. Hệ thống triển khai bằng State Machine quản lý nghiêm ngặt thứ tự sự kiện, chia thi thành ba giai đoạn: kiểm tra thiết bị, tiến hành thi, và nộp bài cho pipeline AI phân tích.
 \end{sloppypar}
 
-Tại bước kiểm tra thiết bị, hệ thống thao tác trực tiếp với API cấp phép truyền thông của trình duyệt để yêu cầu quyền truy cập phần cứng. Điểm kỹ thuật quan trọng là người học không thể bỏ qua các bước này: ví dụ ở bước kiểm tra Microphone, hệ thống bắt buộc người học phải phát lại toàn bộ đoạn băng vừa ghi âm. Chỉ khi trình phát phát sinh sự kiện kết thúc (ended), cờ trạng thái mới được mở khóa để chuyển sang bước tiếp theo, đảm bảo tuyệt đối thiết bị hoạt động ổn định trước khi làm bài thi nghiêm túc.
+Bước kiểm tra thiết bị gọi MediaDevices API của trình duyệt để xin quyền truy cập phần cứng. Quan trọng: người học không được phép bỏ qua bước nào. Ví dụ ở bước Microphone Test, người học buộc phải phát lại đoạn vừa ghi âm; chỉ khi sự kiện ended kích hoạt trên audio element, cờ trạng thái mới mở khóa để chuyển bước tiếp theo. Cách ép buộc này đảm bảo thiết bị hoạt động trước khi vào bài thi thật.
 
 \begin{sloppypar}
-Khi chính thức vào bài thi, luồng điều khiển được tiếp quản bởi máy trạng thái với 8 trạng thái lặp vòng (chờ video, đang suy nghĩ, tiến hành ghi âm...). Tùy thuộc vào từng phần thi, hệ thống thiết lập bộ đếm ngược (countdown timer) tự động chuyển cảnh. Đặc biệt ở Part~2, giao diện hiển thị theo bố cục hai cột: một bên chứa gợi ý chủ đề (Cue Card) và ô ghi chú số hóa, bên còn lại là luồng video giám khảo đọc lại câu hỏi. Thiết kế này tuân thủ nguyên tắc mô phỏng chính xác áp lực thời gian của kỳ thi thật.
+Vào bài thi, luồng điều khiển do một State Machine với 8 trạng thái lặp vòng đảm nhiệm (chờ video, đang suy nghĩ, tiến hành ghi âm\ldots). Mỗi giai đoạn có countdown timer riêng tự động chuyển cảnh. Part~2 dùng bố cục hai cột riêng biệt: cột trái chứa Cue Card và ô ghi chú số hóa, cột phải là khung video giám khảo đọc lại câu hỏi --- mô phỏng sát áp lực thời gian của kỳ thi thật.
 \end{sloppypar}
 
 \begin{sloppypar}
-Để xử lý dữ liệu âm thanh dung lượng lớn, ứng dụng lưu tạm các Blob ghi âm trong bộ nhớ React state. Khi bài thi kết thúc, hệ thống lần lượt tải từng file lên NestJS backend qua endpoint /exams/audio/upload (Multipart Form); backend nhận file và lưu lên Cloudinary thông qua SDK, trả về đường dẫn công khai. Sau khi toàn bộ file được tải xong theo thứ tự, tập hợp liên kết được gửi về backend để lưu vào phiên thi. NestJS backend sau đó đẩy tác vụ chấm điểm vào hàng đợi RabbitMQ (exam-grading-queue). FastAPI AI Worker nhận tác vụ, thực hiện chuyển đổi giọng nói thành văn bản (STT) và gọi Gemini AI để đánh giá theo 4 tiêu chí Speaking chuẩn. Nhờ kiến trúc bất đồng bộ này, giao diện người dùng không bị chặn chờ và người học nhận thông báo khi có kết quả.
+Audio dung lượng lớn được lưu tạm dưới dạng Blob trong React state. Khi nộp bài, hệ thống lần lượt upload từng file lên NestJS qua endpoint /exams/audio/upload (multipart/form-data); backend ghi file lên Cloudinary qua SDK và trả về URL công khai. Tập hợp URL sau khi upload xong được gửi về backend ghi vào phiên thi. NestJS publish task chấm điểm vào RabbitMQ (exam-grading-queue) với cờ persistent: true. FastAPI AI Worker consume task, chạy faster-whisper để STT rồi gọi Gemini API chấm theo bốn tiêu chí Speaking chuẩn. Pipeline bất đồng bộ này giúp giao diện không bị block chờ; người học nhận thông báo khi kết quả sẵn sàng.
 \end{sloppypar}
 
 % ============================================================
@@ -976,21 +976,21 @@ Bảng~\ref{tab:uc24_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Đối với phân hệ luyện nghe chép chính tả (Dictation) và nghe và nói đuổi (Shadowing), hệ thống áp dụng kỹ thuật dùng chung cấu trúc màn hình (Shared Component) nhằm tối ưu hóa vòng đời ứng dụng. Khi người học chuyển đổi giữa hai chế độ, biến trạng thái nội bộ sẽ tự động tính toán lại phần trăm tiến trình học của từng bài dựa trên tỷ lệ số câu đã hoàn thành so với tổng số câu.
+Dictation và Shadowing dùng chung khung màn hình (Shared Component) để tối ưu vòng đời ứng dụng. Khi người học chuyển qua lại giữa hai chế độ, hook nội bộ tự tính lại phần trăm tiến trình từng bài theo tỷ lệ số câu đã hoàn thành trên tổng số câu --- không cần re-fetch từ máy chủ.
 
 \begin{sloppypar}
-Về cơ chế tải dữ liệu, màn hình luyện nghe chép chính tả được cấu hình theo chiến lược ưu tiên tĩnh: đầu tiên, hệ thống sẽ truy xuất danh sách bài học đã được đóng gói sẵn trong mã nguồn; nếu không tìm thấy, hệ thống mới khởi tạo yêu cầu gửi lên máy chủ để tải về các video tự tạo từ cộng đồng. Chiến lược Fallback này giúp giảm thiểu đáng kể độ trễ truyền tải dữ liệu trên mạng, mang lại tốc độ khởi tạo giao diện gần như tức thì đối với các bài học nền tảng.
+Cơ chế tải dữ liệu áp dụng chiến lược ưu tiên tĩnh. Frontend tra cứu danh sách bài học đóng gói sẵn trong mã nguồn trước; chỉ khi không tìm thấy mới phát yêu cầu xuống máy chủ để tải các video do người dùng tự thêm. Fallback này cắt độ trễ truyền tải mạng cho các bài thư viện chuẩn --- giao diện hiển thị gần như tức thì.
 \end{sloppypar}
 
 \begin{sloppypar}
-Điểm kỹ thuật quan trọng nhất của phân hệ này là cơ chế phát đồng bộ từng câu. Thay vì phát một luồng âm thanh nguyên khối xuyên suốt, hệ thống tách xử lý thành hai nhánh độc lập phụ thuộc vào chuẩn dữ liệu đầu vào. Đối với nguồn video YouTube, máy chủ gọi hàm nội tại của YouTube API để nhảy (seek) đến mốc thời gian bắt đầu câu, kết hợp cùng một độ trễ vi giây (micro-delay) để đảm bảo trình đệm (buffer) tải xong trước khi xuất âm. Đối với tệp âm thanh tĩnh, hệ thống seek và phát ngay lập tức. Đặc biệt, để xác định khi nào kết thúc câu, hệ thống không dùng lệnh truy vấn kiểm tra thời gian thực từ trình phát do dễ gây tắc nghẽn giao diện (blocking loop), mà thiết lập một bộ đếm thời gian (Timer) độc lập ngay trên đồng hồ trình duyệt của thiết bị. Bộ đếm này sẽ ngắt tín hiệu audio ngay khi chạm mốc tổng thời lượng phát tính toán trước đó, mô phỏng hoàn hảo trải nghiệm tương tác ``phát đúng một câu rồi dừng lại chờ phản hồi''.
+Phần phức tạp nhất là cơ chế phát đồng bộ từng câu. Hệ thống không phát một luồng âm thanh nguyên khối xuyên suốt --- xử lý tách thành hai nhánh tùy nguồn dữ liệu. Nguồn YouTube: gọi hàm seekTo() của YouTube IFrame API tới mốc bắt đầu câu, kèm micro-delay vài chục mili giây để buffer tải xong trước khi xuất âm. Nguồn audio tĩnh: seek và phát ngay. Một điểm tinh tế: để xác định khi nào câu kết thúc, hệ thống không poll trạng thái thời gian thực từ player (vòng lặp blocking gây giật UI) mà setTimeout độc lập theo đồng hồ trình duyệt --- timer ngắt audio ngay khi chạm mốc tổng thời lượng tính trước, mô phỏng trải nghiệm ``phát đúng một câu rồi dừng chờ phản hồi''.
 \end{sloppypar}
 
 \begin{sloppypar}
-Hệ thống đục lỗ transcript hoạt động theo bốn cấp độ khó ánh xạ sang tỉ lệ từ hiển thị: Beginner (70\%), Intermediate (50\%), Advanced (30\%) và Expert (0\%). Khi cấp độ khó hoặc câu hiện tại thay đổi, hệ thống tái tạo tập hợp từ được lộ: trước tiên loại dấu câu ra khỏi danh sách từ cần ẩn, sau đó sắp xếp các từ còn lại theo chiều dài tăng dần rồi giữ lại đúng số lượng tương ứng với tỉ lệ hiển thị. Chiến lược này ưu tiên lộ các từ ngắn (giới từ, mạo từ) để giảm tải nhận thức cho người học ở cấp độ thấp.
+Cơ chế đục lỗ transcript ánh xạ bốn cấp độ khó sang tỷ lệ từ hiển thị: Beginner (70\%), Intermediate (50\%), Advanced (30\%), Expert (0\%). Khi đổi cấp độ hoặc đổi câu, hệ thống tái sinh tập từ lộ: loại dấu câu khỏi pool, sắp xếp các từ còn lại theo chiều dài tăng dần, giữ lại đúng số từ tương ứng tỷ lệ hiển thị. Chiến lược ưu tiên lộ từ ngắn (giới từ, mạo từ) giúp giảm cognitive load ở cấp độ thấp.
 \end{sloppypar}
 
-Kiểm tra đáp án được kích hoạt mỗi khi người học chỉnh sửa nội dung nhập: hệ thống so sánh từng từ đã điền với đáp án chuẩn qua chuẩn hóa văn bản (chuyển về chữ thường, loại dấu câu và khoảng trắng thừa). Khi toàn bộ từ khớp chính xác, hệ thống tự động đánh dấu câu hoàn thành và hiển thị xác nhận. Khi người học hoàn thành bài, hệ thống loại bỏ trùng lặp trong danh sách chỉ số câu đã hoàn thành rồi gửi lên máy chủ. Phía máy chủ, bản ghi tiến trình được tạo mới hoặc cập nhật theo cặp định danh người học -- bài học để đảm bảo mỗi người học chỉ có một bản ghi duy nhất cho mỗi bài.
+Kiểm tra đáp án kích hoạt theo input event: mỗi khi người học chỉnh sửa, hệ thống so sánh từng từ với đáp án chuẩn qua chuẩn hóa văn bản (lowercase, loại dấu câu, cắt khoảng trắng thừa). Tất cả từ khớp thì câu được auto-mark complete và hiển thị xác nhận. Cuối bài, frontend dedupe danh sách chỉ số câu đã hoàn thành rồi gửi lên máy chủ. Backend upsert bản ghi tiến trình theo cặp (userId, lessonId) --- mỗi người học giữ đúng một bản ghi tiến độ cho mỗi bài.
 
 % ============================================================
 % UC19 – ROADMAP / ONBOARDING
@@ -1058,19 +1058,19 @@ Bảng~\ref{tab:uc19_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Tính năng Xây dựng lộ trình học tập (Onboarding \& Roadmap) là điểm chạm đầu tiên quyết định tính cá nhân hóa của hệ thống. Luồng kỹ thuật này bắt đầu bằng một lời gọi API đến endpoint /ielts/roadmap: NestJS backend kiểm tra sự tồn tại của hồ sơ IeltsProfile trong cơ sở dữ liệu và trả về cờ requiresOnboarding: true nếu người học chưa khởi tạo. Giao diện React nhận cờ này và thực hiện điều hướng về trang khởi tạo lộ trình ở phía client.
+Onboarding \& Roadmap là điểm chạm đầu tiên quyết định mức độ cá nhân hóa. Luồng kỹ thuật bắt đầu bằng lời gọi GET /ielts/roadmap: NestJS kiểm tra sự tồn tại của IeltsProfile trong DB; nếu chưa có, trả về cờ requiresOnboarding: true. React đọc cờ và điều hướng người học sang trang khởi tạo lộ trình.
 
-Tại giao diện thiết lập, hệ thống tổ chức một luồng thao tác ba bước (wizard flow) thu thập mục tiêu định lượng: dải điểm mục tiêu, thời gian cam kết mỗi ngày, và ngày thi dự kiến. Thay vì gửi rải rác từng trường dữ liệu này lên máy chủ ở mỗi bước gây lãng phí tài nguyên, hệ thống đóng gói toàn bộ trạng thái vào bộ nhớ cục bộ và chỉ thực hiện duy nhất một truy vấn tích lũy khi người học xác nhận hoàn tất bước cuối cùng.
+Giao diện thiết lập tổ chức theo wizard flow ba bước, thu thập các mục tiêu định lượng: dải band mục tiêu, thời gian cam kết mỗi ngày, ngày thi dự kiến. Thay vì gửi từng trường lên máy chủ ở mỗi bước, hệ thống đóng gói trạng thái vào local state và chỉ phát đúng một mutation tích lũy khi người học xác nhận hoàn tất bước cuối.
 
 \begin{sloppypar}
-Đối với khâu đánh giá chẩn đoán đầu vào (Placement Test), hệ thống chia chu trình thành 4 giai đoạn nối tiếp: Listening, Reading, Writing và Kết thúc. Ở các kỹ năng nền tảng Listening và Reading, giao diện tận dụng khả năng tái sử dụng module (Component Reusability) từ hệ thống luyện thi tiêu chuẩn để cung cấp bài thi, trong khi bài Writing được chuyển đổi dưới dạng kiểm tra cấu trúc câu (điền từ). Kết quả của bài thi được chấm điểm tự động và quy đổi theo thang phần trăm ngay tại bộ xử lý client.
+Placement Test chia chu trình thành bốn giai đoạn nối tiếp: Listening, Reading, Writing, Finish. Listening và Reading tái sử dụng component từ hệ thống luyện thi tiêu chuẩn để khỏi viết lại UI; bài Writing chuyển hóa thành kiểm tra cấu trúc câu dạng điền từ vào chỗ trống. Toàn bộ phép chấm và quy đổi sang thang phần trăm chạy ở client.
 \end{sloppypar}
 
 \begin{sloppypar}
-Điểm nhấn kỹ thuật ưu việt ở phía máy chủ là cơ chế đồng bộ hóa lộ trình linh hoạt (upsert architecture). Hồ sơ IELTS được đẩy vào cơ sở dữ liệu bằng thuật toán upsert: cập nhật nếu đã tồn tại, tạo mới nếu chưa có. Đặc biệt, hệ thống sở hữu cơ chế ``Đặc cách học tập'': đối với bất kỳ kỹ năng nào mà người học đạt điểm chẩn đoán từ 90\% trở lên, máy chủ sẽ duyệt tuần tự toàn bộ bài học và bài tập của kỹ năng đó, rồi lần lượt tạo hoặc cập nhật từng bản ghi tiến độ sang trạng thái đã hoàn thành. Cơ chế bộ lọc thông minh này đảm bảo đường cong học tập được tối ưu, giúp học viên bỏ qua những mảng lý thuyết đã vững vàng và bắt đầu từ mốc khó phù hợp với giới hạn của mình.
+Bên backend, điểm thiết kế đáng chú ý là cơ chế upsert linh hoạt. IeltsProfile ghi vào DB qua upsert: tồn tại thì update, chưa có thì create. Một điểm thú vị nữa --- cơ chế ``đặc cách học tập'': với bất kỳ kỹ năng nào người học đạt $\geq$90\% chẩn đoán đầu vào, máy chủ duyệt toàn bộ bài học và bài tập của kỹ năng đó, upsert tiến độ sang trạng thái hoàn thành. Bộ lọc thông minh này cho phép người học giỏi sẵn bỏ qua mảng lý thuyết đã vững và nhảy thẳng tới phần khó hơn phù hợp trình độ.
 \end{sloppypar}
 
-Sau khi API trả về thành công, giao diện tải lại toàn bộ trang thay vì điều hướng thông thường, vì layout IELTS cần đọc trạng thái hồ sơ mới nhất từ máy chủ để hiển thị đúng nội dung lộ trình sau khi tạo hồ sơ xong.
+Sau khi API trả về thành công, giao diện gọi window.location.reload() thay vì client-side navigation --- layout IELTS phải đọc lại trạng thái hồ sơ mới từ server để render đúng nội dung lộ trình sau khi profile vừa được tạo.
 
 % ============================================================
 % UC35 – POST (Community)
@@ -1135,19 +1135,19 @@ Bảng~\ref{tab:uc35_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
 
 \subsubsection{Mô tả kỹ thuật chi tiết}
 
-Trang Community sử dụng tham số điều hướng để phân biệt các chế độ hiển thị feed: All Posts, Study Tips và Achievements. Ô gợi nhắc đăng bài chỉ hiển thị khi người dùng đã xác thực và tab hiện tại là một trong ba chế độ feed chính, không hiển thị ở tab bảng xếp hạng.
+Trang Community phân biệt các chế độ hiển thị feed (All Posts, Study Tips, Achievements) qua query parameter trên URL. Ô gợi nhắc đăng bài chỉ render khi đồng thời (i) user đã xác thực và (ii) tab hiện tại nằm trong ba chế độ feed chính; tab Leaderboard không hiển thị ô soạn bài.
 
 \begin{sloppypar}
-Hộp thoại tạo bài đăng là thành phần độc lập quản lý toàn bộ trạng thái form cục bộ: loại bài, tiêu đề, nội dung, danh sách chủ đề, danh sách đường dẫn ảnh đã tải lên và các cờ trạng thái đang tải ảnh/đang gửi bài. Hộp thoại chỉ được kết xuất khi mở, khi đóng sẽ giải phóng hoàn toàn khỏi cây DOM để không chiếm tài nguyên.
+Modal Create Post là component độc lập quản lý toàn bộ form state cục bộ: loại bài, tiêu đề, nội dung, danh sách tag chủ đề, danh sách URL ảnh đã upload, kèm các cờ trạng thái loading. Modal chỉ render khi mở; khi đóng, React unmount hoàn toàn khỏi DOM tree để giải phóng tài nguyên.
 \end{sloppypar}
 
-Chức năng đăng bài trong Community đòi hỏi khả năng tiếp nhận và xử lý mượt mà các tệp phương tiện kích thước lớn. Do đó, điểm kỹ thuật quan trọng nhất ở đây là chiến lược chia tách luồng tải lên nội dung. Khi người học đính kèm hình ảnh (giới hạn thiết kế tối đa 4 tệp cùng lúc), hệ thống không lưu trữ tệp tin này trực tiếp vào cơ sở dữ liệu nội bộ nhằm giảm tải cho bộ xử lý. Thay vào đó, dữ liệu nhị phân sẽ được tải lên bất đồng bộ thông qua phương thức Multipart Request tới Cloudinary (thông qua NestJS backend).
+Đăng bài Community cần xử lý mượt các tệp media dung lượng lớn --- ảnh JPG/PNG vài MB là chuyện thường. Quyết định kỹ thuật cốt lõi nằm ở chiến lược tách luồng upload media khỏi luồng publish bài. Người học đính tối đa 4 ảnh cùng lúc; hệ thống không nhồi binary trực tiếp vào PostgreSQL --- thay vào đó, dữ liệu được upload bất đồng bộ qua multipart request lên Cloudinary (qua NestJS backend làm proxy).
 
 \begin{sloppypar}
-Chỉ khi backend xử lý ảnh thành công và trả về danh sách đường dẫn (URL HTTPS), hệ thống mới khởi chạy lệnh xuất bản bài đăng chính. Tại bước này, kỹ thuật bảo vệ toàn vẹn được thiết lập ở cả hai đầu: trình duyệt sẽ vô hiệu hóa (disable) trạng thái gửi thông tin nếu phát hiện người dùng nhập dữ liệu rỗng, và ở chốt chặn cuối cùng, máy chủ đảm nhận kiểm tra độ dài văn bản trước khi thực thi lệnh chèn dữ liệu vào PostgreSQL. Đồng thời, để tránh trễ phản hồi, lệnh gọi cộng thưởng Gamification được thực thi theo phong cách fire-and-forget (không await), đảm bảo không ảnh hưởng đến thời gian phản hồi của API đăng bài.
+Backend phải xử lý ảnh xong và trả về danh sách HTTPS URL trước khi frontend phát lệnh tạo bài đăng chính. Tại điểm này, kiểm tra toàn vẹn đặt cả hai đầu: client disable nút Post khi nội dung rỗng, server check độ dài văn bản trước khi INSERT vào PostgreSQL --- không bao giờ tin tưởng client một mình. Lệnh cộng XP Gamification phát theo phong cách fire-and-forget (không await) để không kéo dài thời gian phản hồi của API đăng bài.
 \end{sloppypar}
 
 \begin{sloppypar}
-Cuối cùng, sau khi nhận phản hồi thành công từ máy chủ, giao diện chèn bài đăng mới lên đầu danh sách feed hiện có mà không tải lại toàn bộ danh sách. Cơ chế này giữ nguyên vị trí cuộn (scroll position) của màn hình và mang lại trải nghiệm tương tác tức thì cho người dùng.
+Khi server trả về 201 Created với bản ghi bài đăng mới, frontend chèn bài thẳng vào đầu mảng feed hiện có --- không re-fetch toàn bộ danh sách. Cơ chế optimistic insert giữ nguyên scroll position của người dùng và phản hồi tức thì.
 \end{sloppypar}
 
