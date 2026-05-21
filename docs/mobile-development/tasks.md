@@ -96,11 +96,11 @@
 - [x] **P05-50** · Update `app/shadowing/[lessonId]/[mode].tsx` dùng hook mới · *est. 15min*
 
 ### 0.5.7 Port `lib/exam-parser.ts` từ web (4h)
-- [ ] **P05-51** · Tạo thư mục `lib/` mobile + port `exam-parser.ts` từ `frontend-web/src/lib/exam-parser.ts` · *est. 1.5h*
-- [ ] **P05-52** · Port `NormalizedItem` discriminated union types (mc_single, mc_multi, matching_group, completion, short_answer, true_false, diagram_label, map_label, flowchart, table_completion, summary_completion) · *est. 1h*
-- [ ] **P05-53** · Port `extractAllItemsFromPart()` + `questionNumbersFromItems()` helpers · *est. 0.5h*
-- [ ] **P05-54** · Migrate `app/ielts/advanced/[skill]/[partId].tsx` dùng parser mới (chỉ phần dễ) · *est. 0.5h*
-- [ ] **P05-55** · Manual test với 5 exam thật (3 Listening, 2 Reading) — không hồi quy render · *est. 0.5h*
+- [x] **P05-51** · Tạo thư mục `lib/` mobile + port `exam-parser.ts` từ `frontend-web/src/lib/exam-parser.ts` · *est. 1.5h*
+- [x] **P05-52** · Port `NormalizedItem` discriminated union types (mc_single, mc_multi, matching_group, completion, short_answer, true_false, diagram_label, map_label, flowchart, table_completion, summary_completion) · *est. 1h*
+- [x] **P05-53** · Port `extractAllItemsFromPart()` + `questionNumbersFromItems()` helpers · *est. 0.5h*
+- [x] **P05-54** · Migrate `app/ielts/advanced/[skill]/[partId].tsx` dùng parser mới (chỉ phần dễ) · *est. 0.5h*
+- [x] **P05-55** · Manual test với 5 exam thật (3 Listening, 2 Reading) — không hồi quy render · *est. 0.5h*
 
 ### 0.5.8 Refactor `learning.api.ts` mobile đồng bộ web (4h)
 - [x] **P05-56** · ~~Verify endpoint backend~~ · ✅ **DONE 2026-05-21** (R-04 audit): backend đầy đủ. Lưu ý URL `/pronunciation/progress/stats` (KHÔNG phải `/pronunciation/stats` như giả định ban đầu). Bonus endpoint `/pronunciation/sounds/:soundId/word-progress` chưa dùng ở web — mobile sẽ tận dụng (P05-71b dưới).

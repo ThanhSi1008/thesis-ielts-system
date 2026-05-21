@@ -22,6 +22,7 @@ import MCMultipleBlock from '@/components/ielts/MCMultipleBlock';
 import FormCompletionBlock from '@/components/ielts/FormCompletionBlock';
 import TranscriptReview from '@/components/ielts/TranscriptReview';
 import PassageReview from '@/components/ielts/PassageReview';
+import { extractAllItemsFromPart, questionNumbersFromItems } from '@/lib/exam-parser';
 
 // ─── Question blocks ───────────────────────────────────────────────────────────
 
@@ -211,6 +212,9 @@ export default function AdvancedPartScreen() {
   const isListening = skill === 'listening';
   const accentColor = isListening ? COLORS.skill.listening : COLORS.skill.reading;
 
+  const items = React.useMemo(() => (part ? extractAllItemsFromPart(part) : []), [part]);
+  const qNumbers = React.useMemo(() => questionNumbersFromItems(items), [items]);
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -293,11 +297,11 @@ export default function AdvancedPartScreen() {
             {part?.title}
           </Text>
           <Text style={styles.headerSub}>
-            Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}
+            Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}{qNumbers.length > 0 ? ` · Questions ${qNumbers[0]} - ${qNumbers[qNumbers.length - 1]}` : ''}
           </Text>
         </View>
         <View style={styles.headerActions}>
-          <Text style={styles.ansCount}>{Object.keys(answers).length} ans</Text>
+          <Text style={styles.ansCount}>{Object.keys(answers).length}/{qNumbers.length} ans</Text>
           <TouchableOpacity
             onPress={() => router.push(ROUTES.ieltsAdvancedSkillPartHistory(skill as string, partId as string))}
             hitSlop={8}
