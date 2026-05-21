@@ -26,7 +26,12 @@
     "android": {
       "package": "com.ieltsmasterai.app",
       "usesCleartextTraffic": true,
-      "permissions": ["android.permission.RECORD_AUDIO"]
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.INTERNET",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "plugins": [
       "expo-router",
