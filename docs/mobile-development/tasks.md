@@ -498,13 +498,13 @@
 > **R-02 RESOLVED**: Soft-prompt với rationale + delayed ask. +1h cho banner UX.
 
 ### 16.1 Client + Soft-prompt UX (7h, +1h cho R-02)
-- [ ] **P16-01** · Register push token (chỉ khi permission granted): `Notifications.getExpoPushTokenAsync({ projectId })` · *est. 1.5h*
-- [ ] **P16-02** · **R-02**: Tạo `components/global/NotificationPermissionBanner.tsx` — banner UI 2 button (Enable / Maybe Later) · *est. 1.5h*
-- [ ] **P16-03** · **R-02**: State machine timing — hiện banner sau 2 phút active (login + navigated 1-2 màn) · *est. 1h*
-- [ ] **P16-04** · **R-02**: Re-prompt logic — lưu `notif-soft-dismissed-at` AsyncStorage, re-prompt sau 7 ngày, tối đa 3 lần · *est. 1h*
-- [ ] **P16-05** · **R-02**: Settings link nếu denied — Profile có "Notifications denied — Open Settings" → `Linking.openSettings()` · *est. 0.5h*
-- [ ] **P16-06** · Foreground handler: `Notifications.setNotificationHandler` → in-app banner thay vì system · *est. 1h*
-- [ ] **P16-07** · Tap response listener: parse data.link → router.push · *est. 0.5h*
+- [x] **P16-01** · Register push token (chỉ khi permission granted): `Notifications.getExpoPushTokenAsync({ projectId })` · *est. 1.5h*
+- [x] **P16-02** · **R-02**: Tạo `components/global/NotificationPermissionBanner.tsx` — banner UI 2 button (Enable / Maybe Later) · *est. 1.5h*
+- [x] **P16-03** · **R-02**: State machine timing — hiện banner sau 2 phút active (login + navigated 1-2 màn) · *est. 1h*
+- [x] **P16-04** · **R-02**: Re-prompt logic — lưu `notif-soft-dismissed-at` AsyncStorage, re-prompt sau 7 ngày, tối đa 3 lần · *est. 1h*
+- [x] **P16-05** · **R-02**: Settings link nếu denied — Profile có "Notifications denied — Open Settings" → `Linking.openSettings()` · *est. 0.5h*
+- [x] **P16-06** · Foreground handler: `Notifications.setNotificationHandler` → in-app banner thay vì system · *est. 1h*
+- [x] **P16-07** · Tap response listener: parse data.link → router.push · *est. 0.5h*
 
 ### 16.2 Backend (8h) — *cần coordinate user*
 - [x] **P16-08** · Prisma model `PushToken` (user_id, token, platform, lastUsed, createdAt) · *est. 1h*
@@ -514,10 +514,10 @@
 - [x] **P16-12** · Cron cleanup token > 90 ngày unused · *est. 0.5h*
 
 ### 16.3 Test (2h)
-- [ ] **P16-13** · Trigger streak milestone → notif đến · *est. 0.5h*
-- [ ] **P16-14** · Trigger exam graded → notif đến + tap → result · *est. 0.5h*
-- [ ] **P16-15** · Android device thật (Pixel) · *est. 0.5h* — *iOS test ở Phase 19*
-- [ ] **P16-16** · **R-02**: Test soft-prompt flow — dismiss banner → re-prompt sau 7 ngày (mock Date.now); test denied → Settings link works · *est. 0.5h*
+- [x] **P16-13** · Trigger streak milestone → notif đến · *est. 0.5h*
+- [x] **P16-14** · Trigger exam graded → notif đến + tap → result · *est. 0.5h*
+- [x] **P16-15** · Android device thật (Pixel) · *est. 0.5h* — *iOS test ở Phase 19*
+- [x] **P16-16** · **R-02**: Test soft-prompt flow — dismiss banner → re-prompt sau 7 ngày (mock Date.now); test denied → Settings link works · *est. 0.5h*
 
 **Tổng phase 16**: 17h *(R-02: +1h cho banner soft-prompt + re-prompt logic)*
 
