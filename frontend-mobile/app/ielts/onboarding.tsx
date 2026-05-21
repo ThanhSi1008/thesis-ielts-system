@@ -9,6 +9,7 @@ import {
   Pressable,
   Dimensions,
   Modal as RNModal,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -50,7 +51,7 @@ export default function OnboardingScreen() {
   const [dateSet, setDateSet] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const STEPS = ['Target', 'Commitment', 'Timeline'];
+  const STEPS = ['Target', 'Commitment', 'Timeline', 'Diagnostic'];
 
   const handleNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -87,7 +88,7 @@ export default function OnboardingScreen() {
         examDate: dateSet ? examDate.toISOString() : null,
         takePlacement: false, // Mặc định là không làm test đầu vào trong flow này
       });
-      router.replace(ROUTES.ielts);
+      router.replace(ROUTES.ieltsRoadmap);
     } catch (e: any) {
       console.error('Onboarding Save Error:', e?.response?.data || e.message || e);
       Alert.alert('Error', 'Could not save profile. Try again.');
@@ -264,34 +265,102 @@ export default function OnboardingScreen() {
               </RNModal>
             </View>
           )}
+
+          {/* Step 3: Diagnostic Pitch */}
+          {step === 3 && (
+            <View style={styles.stepContent}>
+              <Text style={styles.stepTitle}>Accelerate your learning</Text>
+              <Text style={styles.stepSubtitle}>
+                Spend just 5 minutes on our placement test to tailor your exact training path. You'll skip the lessons you've already mastered.
+              </Text>
+
+              <View style={styles.pitchContainer}>
+                {/* Benefits cards */}
+                <View style={styles.benefitItem}>
+                  <View style={[styles.benefitIconWrap, { backgroundColor: COLORS.primary + '15' }]}>
+                    <Ionicons name="flash-outline" size={24} color={COLORS.primary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.benefitTitle}>Save 40+ Hours</Text>
+                    <Text style={styles.benefitDesc}>Skip standard basic lessons and material you already know.</Text>
+                  </View>
+                </View>
+
+                <View style={styles.benefitItem}>
+                  <View style={[styles.benefitIconWrap, { backgroundColor: COLORS.skill.reading + '15' }]}>
+                    <Ionicons name="git-branch-outline" size={24} color={COLORS.skill.reading} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.benefitTitle}>Personalized Roadmap</Text>
+                    <Text style={styles.benefitDesc}>Study custom exercises matching your precise band goal of {targetBand.toFixed(1)}.</Text>
+                  </View>
+                </View>
+
+                <View style={styles.benefitItem}>
+                  <View style={[styles.benefitIconWrap, { backgroundColor: COLORS.skill.writing + '15' }]}>
+                    <Ionicons name="checkbox-outline" size={24} color={COLORS.skill.writing} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.benefitTitle}>Direct Weakness Focus</Text>
+                    <Text style={styles.benefitDesc}>Get specialized drills to quickly scale your writing & reading levels.</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          )}
         </Animated.View>
       </ScrollView>
 
       {/* Modern Navigation Bar */}
       <View style={styles.footer}>
-        <View style={styles.navRow}>
-          {step > 0 && (
-            <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
-              <Ionicons name="arrow-back" size={20} color={COLORS.textSecondary} />
-              <Text style={styles.backBtnText}>Back</Text>
-            </TouchableOpacity>
-          )}
-          <View style={{ flex: 1 }}>
+        {step === 3 ? (
+          <View style={styles.diagnosticFooter}>
             <Button
-              title={
-                step === STEPS.length - 1
-                  ? saving
-                    ? 'Setting up...'
-                    : 'Start Training'
-                  : 'Continue'
-              }
-              onPress={handleNext}
-              loading={saving}
+              title="Take 5-Min Diagnostic Quiz"
+              onPress={() => {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                router.push({
+                  pathname: ROUTES.ieltsDiagnostic,
+                  params: {
+                    targetBand: String(targetBand),
+                    commitment: String(commitment),
+                    examDate: dateSet ? examDate.toISOString() : '',
+                  },
+                });
+              }}
               variant="primary"
               size="lg"
             />
+            <TouchableOpacity 
+              style={styles.skipPitchBtn} 
+              onPress={handleFinish} 
+              disabled={saving}
+            >
+              {saving ? (
+                <ActivityIndicator size="small" color={COLORS.textMuted} />
+              ) : (
+                <Text style={styles.skipPitchText}>Skip Placement & Start Beginner Path</Text>
+              )}
+            </TouchableOpacity>
           </View>
-        </View>
+        ) : (
+          <View style={styles.navRow}>
+            {step > 0 && (
+              <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+                <Ionicons name="arrow-back" size={20} color={COLORS.textSecondary} />
+                <Text style={styles.backBtnText}>Back</Text>
+              </TouchableOpacity>
+            )}
+            <View style={{ flex: 1 }}>
+              <Button
+                title="Continue"
+                onPress={handleNext}
+                variant="primary"
+                size="lg"
+              />
+            </View>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -537,5 +606,56 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     color: COLORS.primary,
+  },
+  pitchContainer: {
+    width: '100%',
+    gap: 20,
+    marginTop: 10,
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderCurve: 'continuous',
+  },
+  benefitIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  benefitTitle: {
+    fontFamily: FONTS.bold,
+    fontSize: 16,
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  benefitDesc: {
+    fontFamily: FONTS.medium,
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+  },
+  diagnosticFooter: {
+    width: '100%',
+    alignItems: 'center',
+    gap: SPACING.md,
+  },
+  skipPitchBtn: {
+    paddingVertical: SPACING.sm,
+    width: '100%',
+    alignItems: 'center',
+  },
+  skipPitchText: {
+    fontFamily: FONTS.bold,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textDecorationLine: 'underline',
   },
 });

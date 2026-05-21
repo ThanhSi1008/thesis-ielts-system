@@ -288,7 +288,7 @@
   - 5-7 câu mix (fill-blank, MC grammar, MC vocab, writing cloze)
   - Progress bar, prev/next button
 - [x] **P5-03** · Backend endpoint API integration: added `getPlacementExercises` and verified onboarding submit flow · *est. 1h*
-- [ ] **P5-04** · Refactor `app/ielts/onboarding.tsx` thêm step 4 trỏ vào diagnostic · *est. 2h*
+- [x] **P5-04** · Refactor `app/ielts/onboarding.tsx` thêm step 4 trỏ vào diagnostic · *est. 2h*
 - [ ] **P5-05** · Sau khi xong: redirect `/ielts/roadmap` với recommended step unlock · *est. 2h*
 - [ ] **P5-06** · Verify roadmap reflect recommended level từ backend · *est. 1h*
 - [ ] **P5-07** · Test new user E2E onboarding · *est. 1.5h*
