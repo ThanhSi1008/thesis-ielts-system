@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { EmptyState } from '@/components/ui';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -39,10 +40,48 @@ const PART_LABEL: Record<string, Record<number, string>> = {
   SPEAKING: { 1: 'Part 1', 2: 'Part 2', 3: 'Part 3', 4: 'Part 4' },
 };
 
+const createScStyles = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      marginBottom: SPACING.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.04,
+      shadowRadius: 6,
+      elevation: 2,
+    },
+    stripe: { width: 4 },
+    body: { flex: 1, padding: SPACING.md },
+    top: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: SPACING.sm },
+    title: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: colors.text },
+    date: { fontSize: FONT_SIZES.xs, color: colors.textMuted, marginTop: 2 },
+    scoreBadge: {
+      alignItems: 'center',
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1.5,
+      minWidth: 52,
+    },
+    scoreText: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, lineHeight: 24 },
+    bandText: { fontSize: 9, fontFamily: FONTS.medium },
+    meta: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flexWrap: 'wrap' },
+    partBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: RADIUS.sm, borderWidth: 1 },
+    partText: { fontSize: 10, fontFamily: FONTS.bold },
+  });
+
 // ─── Session Card ─────────────────────────────────────────────────────────────
 function SessionCard({ item, onPress }: { item: any; onPress: () => void }) {
+  const { colors } = useTheme();
+  const sc = createScStyles(colors);
   const skill = item.skill ?? 'LISTENING';
-  const color = SKILLS.find((s) => s.key === skill)?.color ?? COLORS.primary;
+  const color = SKILLS.find((s) => s.key === skill)?.color ?? colors.primary;
   const date = new Date(item.dateTaken).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -90,7 +129,7 @@ function SessionCard({ item, onPress }: { item: any; onPress: () => void }) {
           <Ionicons
             name="chevron-forward"
             size={14}
-            color={COLORS.textMuted}
+            color={colors.textMuted}
             style={{ marginLeft: 'auto' }}
           />
         </View>
@@ -99,40 +138,39 @@ function SessionCard({ item, onPress }: { item: any; onPress: () => void }) {
   );
 }
 
-const sc = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    marginBottom: SPACING.sm,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  stripe: { width: 4 },
-  body: { flex: 1, padding: SPACING.md },
-  top: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: SPACING.sm },
-  title: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
-  date: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginTop: 2 },
-  scoreBadge: {
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
-    minWidth: 52,
-  },
-  scoreText: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, lineHeight: 24 },
-  bandText: { fontSize: 9, fontFamily: FONTS.medium },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flexWrap: 'wrap' },
-  partBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: RADIUS.sm, borderWidth: 1 },
-  partText: { fontSize: 10, fontFamily: FONTS.bold },
-});
+const createSsStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { marginBottom: SPACING.sm },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.md,
+      backgroundColor: colors.card,
+      padding: SPACING.md,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderLeftWidth: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.03,
+      shadowRadius: 4,
+      elevation: 1,
+    },
+    iconBg: {
+      width: 32,
+      height: 32,
+      borderRadius: RADIUS.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    label: { flex: 1, fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: colors.text },
+    countBadge: { borderRadius: RADIUS.full, paddingHorizontal: 8, paddingVertical: 2 },
+    countText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold },
+    body: { paddingTop: SPACING.sm, paddingHorizontal: 2 },
+    empty: { paddingVertical: SPACING.lg, alignItems: 'center' },
+    emptyText: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
+  });
 
 // ─── Skill Section (accordion) ────────────────────────────────────────────────
 function SkillSection({
@@ -148,6 +186,9 @@ function SkillSection({
   onToggle: () => void;
   onCardPress: (item: any) => void;
 }) {
+  const { colors } = useTheme();
+  const ss = createSsStyles(colors);
+
   const toggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onToggle();
@@ -171,7 +212,7 @@ function SkillSection({
         <Ionicons
           name={isOpen ? 'chevron-up' : 'chevron-down'}
           size={16}
-          color={COLORS.textMuted}
+          color={colors.textMuted}
         />
       </TouchableOpacity>
 
@@ -197,42 +238,71 @@ function SkillSection({
   );
 }
 
-const ss = StyleSheet.create({
-  container: { marginBottom: SPACING.sm },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    backgroundColor: '#fff',
-    padding: SPACING.md,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  iconBg: {
-    width: 32,
-    height: 32,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  label: { flex: 1, fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
-  countBadge: { borderRadius: RADIUS.full, paddingHorizontal: 8, paddingVertical: 2 },
-  countText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold },
-  body: { paddingTop: SPACING.sm, paddingHorizontal: 2 },
-  empty: { paddingVertical: SPACING.lg, alignItems: 'center' },
-  emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
-});
+const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 60 },
+
+    header: {
+      backgroundColor: colors.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+    },
+    backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+    headerCenter: { flex: 1, alignItems: 'center' },
+    headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
+    headerSub: { color: 'rgba(255,255,255,0.7)', fontSize: FONT_SIZES.xs, marginTop: 1 },
+    collapseBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+
+    searchRow: {
+      backgroundColor: colors.card,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.sm,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    searchBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      backgroundColor: colors.background,
+      borderRadius: RADIUS.md,
+      paddingHorizontal: SPACING.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      height: 36,
+    },
+    searchInput: { flex: 1, fontSize: FONT_SIZES.sm, color: colors.text, padding: 0 },
+
+    summaryRow: {
+      flexDirection: 'row',
+      gap: SPACING.sm,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.sm,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    summaryPill: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      paddingVertical: 5,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1.5,
+    },
+    summaryText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
+  });
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function AdvancedHistoryScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const s = createStyles(colors);
   const [allHistory, setAllHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -366,11 +436,11 @@ export default function AdvancedHistoryScreen() {
       {/* Search bar */}
       <View style={s.searchRow}>
         <View style={s.searchBox}>
-          <Ionicons name="search-outline" size={14} color={COLORS.textMuted} />
+          <Ionicons name="search-outline" size={14} color={colors.textMuted} />
           <TextInput
             style={s.searchInput}
             placeholder="Search sessions…"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={search}
             onChangeText={setSearch}
             returnKeyType="search"
@@ -378,7 +448,7 @@ export default function AdvancedHistoryScreen() {
           />
           {search.length > 0 && Platform.OS === 'android' && (
             <TouchableOpacity onPress={() => setSearch('')}>
-              <Ionicons name="close-circle" size={14} color={COLORS.textMuted} />
+              <Ionicons name="close-circle" size={14} color={colors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -409,7 +479,7 @@ export default function AdvancedHistoryScreen() {
 
       {loading ? (
         <View style={s.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : allHistory.length === 0 ? (
         <EmptyState
@@ -431,7 +501,7 @@ export default function AdvancedHistoryScreen() {
                 setRefreshing(true);
                 load();
               }}
-              tintColor={COLORS.primary}
+              tintColor={colors.primary}
             />
           }
           renderItem={({ item: g }) => (
@@ -448,62 +518,3 @@ export default function AdvancedHistoryScreen() {
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 60 },
-
-  header: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-  },
-  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerCenter: { flex: 1, alignItems: 'center' },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
-  headerSub: { color: 'rgba(255,255,255,0.7)', fontSize: FONT_SIZES.xs, marginTop: 1 },
-  collapseBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-
-  searchRow: {
-    backgroundColor: '#fff',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    backgroundColor: COLORS.background,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    height: 36,
-  },
-  searchInput: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, padding: 0 },
-
-  summaryRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  summaryPill: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: 5,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
-  },
-  summaryText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
-});

@@ -18,6 +18,7 @@ import TranscriptReview from '@/components/ielts/TranscriptReview';
 import PassageReview from '@/components/ielts/PassageReview';
 import RichAudioPlayer from '@/components/ielts/RichAudioPlayer';
 import { isCorrect } from '@/utils/answerNormalization';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Mirrors backend grading logic to extract correct answers client-side ────────
 function extractCorrectAnswers(content: any[]): Record<string, string> {
@@ -90,8 +91,196 @@ function normalizeUserAnswers(
 
 type Tab = 'score' | 'review';
 
+const createStyles = (colors: any, isDark: boolean) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+      gap: SPACING.md,
+      backgroundColor: colors.background,
+    },
+    emptyTitle: {
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '800',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    emptyText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      maxWidth: 260,
+    },
+    retryBtn: {
+      marginTop: SPACING.sm,
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.xl,
+      backgroundColor: colors.text,
+    },
+    retryBtnText: { color: isDark ? colors.background : '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
+
+    // Header
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+    },
+    backBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+    headerCenter: { flex: 1, marginLeft: SPACING.sm },
+    headerTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
+    headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: FONT_SIZES.xs, marginTop: 2 },
+
+    // Tab bar
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 2,
+      borderBottomColor: 'transparent',
+    },
+    tabText: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+
+    // Score tab
+    scroll: { flex: 1 },
+    scoreContent: { padding: SPACING.lg, gap: SPACING.md, paddingBottom: 40 },
+
+    // Card
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    cardHeader: {
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md + 2,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    cardTitle: { fontSize: FONT_SIZES.md, fontWeight: '800', color: colors.text },
+    cardHint: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 2 },
+
+    // Score body
+    scoreBody: { flexDirection: 'row', padding: SPACING.lg, gap: SPACING.md },
+    marksBox: {
+      width: 108,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    marksLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', marginBottom: 4 },
+    marksRow: { flexDirection: 'row', alignItems: 'flex-end' },
+    marksScore: { fontSize: 30, fontWeight: '900', lineHeight: 36 },
+    marksTotal: { fontSize: FONT_SIZES.md, fontWeight: '700', marginBottom: 2, marginLeft: 4 },
+    marksPct: { fontSize: FONT_SIZES.xs, fontWeight: '700', marginTop: 4 },
+
+    // Breakdown table
+    breakdownTable: { flex: 1 },
+    tableHeader: {
+      flexDirection: 'row',
+      paddingBottom: SPACING.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginBottom: 2,
+    },
+    tableHeaderCell: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+    },
+    tableNumCell: { width: 36, textAlign: 'center', fontSize: 12, fontWeight: '600' },
+    tableRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 6,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    tableTypeText: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '600',
+      color: colors.text,
+      textTransform: 'capitalize',
+    },
+
+    // Per-question chip grid
+    chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, padding: SPACING.lg },
+    chip: {
+      width: 40,
+      height: 40,
+      borderRadius: RADIUS.md,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    chipText: { fontSize: FONT_SIZES.sm, fontWeight: '800' },
+
+    // Action buttons
+    actions: { flexDirection: 'row', gap: SPACING.md },
+
+    // Review tab
+    reviewContainer: {
+      flex: 1,
+      paddingHorizontal: SPACING.lg,
+      paddingTop: SPACING.md,
+      paddingBottom: SPACING.md,
+      gap: SPACING.md,
+    },
+    reviewSection: {},
+    // Explicit height gives `flex: 1` in AnswerSheet a bounded space to fill;
+    // the internal ScrollView can then scroll the rows within that bound.
+    answerSheetWrap: { height: 210 },
+    reviewPanel: {
+      flex: 1,
+      minHeight: 140,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: RADIUS.xl,
+      backgroundColor: colors.card,
+      overflow: 'hidden',
+    },
+    reviewPanelHeader: {
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm + 2,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    reviewPanelLabel: {
+      fontSize: 11,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    },
+  });
+
 export default function AdvancedResultScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
+  const s = createStyles(colors, isDark);
   const { skill, partId, resultId } = useLocalSearchParams<{
     skill: string;
     partId: string;
@@ -130,7 +319,7 @@ export default function AdvancedResultScreen() {
   if (loading) {
     return (
       <View style={s.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -139,7 +328,7 @@ export default function AdvancedResultScreen() {
     return (
       <SafeAreaView style={s.container} edges={['top', 'bottom']}>
         <View style={s.center}>
-          <Ionicons name="cloud-offline-outline" size={52} color={COLORS.textMuted} />
+          <Ionicons name="cloud-offline-outline" size={52} color={colors.textMuted} />
           <Text style={s.emptyTitle}>Could Not Load Result</Text>
           <Text style={s.emptyText}>Please go back and try again.</Text>
           <TouchableOpacity style={s.retryBtn} onPress={() => router.back()}>
@@ -195,7 +384,7 @@ export default function AdvancedResultScreen() {
             onPress={() => setActiveTab(tab)}
           >
             <Text
-              style={[s.tabText, { color: activeTab === tab ? accentColor : COLORS.textMuted }]}
+              style={[s.tabText, { color: activeTab === tab ? accentColor : colors.textMuted }]}
             >
               {tab === 'score' ? 'Score' : 'Review'}
             </Text>
@@ -245,7 +434,7 @@ export default function AdvancedResultScreen() {
                     <Text style={[s.tableNumCell, { color: accentColor, fontWeight: '700' }]}>
                       {stats.correct}
                     </Text>
-                    <Text style={[s.tableNumCell, { textAlign: 'right', color: COLORS.textMuted }]}>
+                    <Text style={[s.tableNumCell, { textAlign: 'right', color: colors.textMuted }]}>
                       {stats.total}
                     </Text>
                   </View>
@@ -276,8 +465,16 @@ export default function AdvancedResultScreen() {
                       style={[
                         s.chip,
                         {
-                          backgroundColor: !answered ? COLORS.surface : ok ? '#F0FDF4' : '#FFF1F2',
-                          borderColor: !answered ? COLORS.border : ok ? '#86EFAC' : '#FCA5A5',
+                          backgroundColor: !answered
+                            ? colors.surface
+                            : ok
+                              ? isDark ? 'rgba(22,163,74,0.15)' : '#F0FDF4'
+                              : isDark ? 'rgba(220,38,38,0.15)' : '#FFF1F2',
+                          borderColor: !answered
+                            ? colors.border
+                            : ok
+                              ? isDark ? '#22c55e' : '#86EFAC'
+                              : isDark ? '#f87171' : '#FCA5A5',
                         },
                       ]}
                       onPress={() => handleLocate(q)}
@@ -285,7 +482,7 @@ export default function AdvancedResultScreen() {
                       <Text
                         style={[
                           s.chipText,
-                          { color: !answered ? COLORS.textMuted : ok ? '#16A34A' : '#DC2626' },
+                          { color: !answered ? colors.textMuted : ok ? '#16A34A' : '#DC2626' },
                         ]}
                       >
                         {q}
@@ -371,187 +568,3 @@ export default function AdvancedResultScreen() {
     </SafeAreaView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-    gap: SPACING.md,
-  },
-  emptyTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '800',
-    color: COLORS.text,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    maxWidth: 260,
-  },
-  retryBtn: {
-    marginTop: SPACING.sm,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.xl,
-    backgroundColor: COLORS.text,
-  },
-  retryBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-  },
-  backBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-  headerCenter: { flex: 1, marginLeft: SPACING.sm },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
-  headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: FONT_SIZES.xs, marginTop: 2 },
-
-  // Tab bar
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  tabText: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-
-  // Score tab
-  scroll: { flex: 1 },
-  scoreContent: { padding: SPACING.lg, gap: SPACING.md, paddingBottom: 40 },
-
-  // Card
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  cardHeader: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md + 2,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  cardTitle: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.text },
-  cardHint: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
-
-  // Score body
-  scoreBody: { flexDirection: 'row', padding: SPACING.lg, gap: SPACING.md },
-  marksBox: {
-    width: 108,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  marksLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', marginBottom: 4 },
-  marksRow: { flexDirection: 'row', alignItems: 'flex-end' },
-  marksScore: { fontSize: 30, fontWeight: '900', lineHeight: 36 },
-  marksTotal: { fontSize: FONT_SIZES.md, fontWeight: '700', marginBottom: 2, marginLeft: 4 },
-  marksPct: { fontSize: FONT_SIZES.xs, fontWeight: '700', marginTop: 4 },
-
-  // Breakdown table
-  breakdownTable: { flex: 1 },
-  tableHeader: {
-    flexDirection: 'row',
-    paddingBottom: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-    marginBottom: 2,
-  },
-  tableHeaderCell: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    textTransform: 'uppercase',
-  },
-  tableNumCell: { width: 36, textAlign: 'center', fontSize: 12, fontWeight: '600' },
-  tableRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.border,
-  },
-  tableTypeText: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '600',
-    color: COLORS.text,
-    textTransform: 'capitalize',
-  },
-
-  // Per-question chip grid
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, padding: SPACING.lg },
-  chip: {
-    width: 40,
-    height: 40,
-    borderRadius: RADIUS.md,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chipText: { fontSize: FONT_SIZES.sm, fontWeight: '800' },
-
-  // Action buttons
-  actions: { flexDirection: 'row', gap: SPACING.md },
-
-  // Review tab
-  reviewContainer: {
-    flex: 1,
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.md,
-    paddingBottom: SPACING.md,
-    gap: SPACING.md,
-  },
-  reviewSection: {},
-  // Explicit height gives `flex: 1` in AnswerSheet a bounded space to fill;
-  // the internal ScrollView can then scroll the rows within that bound.
-  answerSheetWrap: { height: 210 },
-  reviewPanel: {
-    flex: 1,
-    minHeight: 140,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.xl,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-  },
-  reviewPanelHeader: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm + 2,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  reviewPanelLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-});

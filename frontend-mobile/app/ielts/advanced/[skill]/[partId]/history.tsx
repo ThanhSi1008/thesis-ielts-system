@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
+import { useTheme } from '@/contexts/ThemeContext';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
@@ -49,6 +50,32 @@ const badge = StyleSheet.create({
   pct: { fontSize: FONT_SIZES.xs, fontWeight: '600', marginTop: 1 },
 });
 
+const createRowStyles = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.md,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.md,
+      marginBottom: SPACING.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderLeftWidth: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.04,
+      shadowRadius: 6,
+      elevation: 2,
+    },
+    body: { flex: 1, gap: 6 },
+    top: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    date: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
+    bottom: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    viewText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.primary },
+  });
+
 function SessionRow({
   item,
   accentColor,
@@ -58,6 +85,8 @@ function SessionRow({
   accentColor: string;
   onPress: () => void;
 }) {
+  const { colors } = useTheme();
+  const row = createRowStyles(colors);
   return (
     <TouchableOpacity
       style={[row.card, { borderLeftColor: accentColor }]}
@@ -66,7 +95,7 @@ function SessionRow({
     >
       <View style={row.body}>
         <View style={row.top}>
-          <Ionicons name="calendar-outline" size={14} color={COLORS.textMuted} />
+          <Ionicons name="calendar-outline" size={14} color={colors.textMuted} />
           <Text style={row.date}>{formatDate(item.createdAt)}</Text>
         </View>
         <View style={row.bottom}>
@@ -83,33 +112,51 @@ function SessionRow({
   );
 }
 
-const row = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.md,
-    marginBottom: SPACING.sm,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  body: { flex: 1, gap: 6 },
-  top: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  date: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
-  bottom: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  viewText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.primary },
-});
+const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+      gap: SPACING.md,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+    },
+    headerCenter: { flex: 1, alignItems: 'center' },
+    headerTitle: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
+    headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: FONT_SIZES.xs, marginTop: 2 },
+    practiceBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+    emptyTitle: {
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '800',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    emptyText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      maxWidth: 260,
+    },
+    startBtn: {
+      marginTop: SPACING.sm,
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.xl,
+    },
+    startBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
+  });
 
 export default function PartHistoryScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { skill, partId } = useLocalSearchParams<{ skill: string; partId: string }>();
 
   const [sessions, setSessions] = useState<any[]>([]);
@@ -176,7 +223,7 @@ export default function PartHistoryScreen() {
         </View>
       ) : loadError ? (
         <View style={styles.center}>
-          <Ionicons name="cloud-offline-outline" size={52} color="#94A3B8" />
+          <Ionicons name="cloud-offline-outline" size={52} color={colors.textMuted} />
           <Text style={styles.emptyTitle}>Load Failed</Text>
           <Text style={styles.emptyText}>{loadError}</Text>
           <TouchableOpacity
@@ -191,7 +238,7 @@ export default function PartHistoryScreen() {
         </View>
       ) : sessions.length === 0 ? (
         <View style={styles.center}>
-          <Ionicons name="documents-outline" size={52} color={COLORS.textMuted} />
+          <Ionicons name="documents-outline" size={52} color={colors.textMuted} />
           <Text style={styles.emptyTitle}>No Attempts Yet</Text>
           <Text style={styles.emptyText}>
             Complete this practice part to see your results here.
@@ -227,43 +274,3 @@ export default function PartHistoryScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-    gap: SPACING.md,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-  },
-  headerCenter: { flex: 1, alignItems: 'center' },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
-  headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: FONT_SIZES.xs, marginTop: 2 },
-  practiceBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-  emptyTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '800',
-    color: COLORS.text,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    maxWidth: 260,
-  },
-  startBtn: {
-    marginTop: SPACING.sm,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.xl,
-  },
-  startBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
-});
