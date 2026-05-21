@@ -544,7 +544,7 @@
 - [x] **P17-13** · Refactor `app/ielts/basic/*` · *est. 1.5h* — ✅ done (lesson + exercise refactored)
 - [x] **P17-14** · Refactor `app/vocab-lab/*` · *est. 1h* — ✅ index.tsx + study/[deckId].tsx đã dùng useTheme đầy đủ
 - [x] **P17-15** · Refactor `app/shadowing/*` · *est. 1h* — ✅ index.tsx + [lessonId]/[mode].tsx refactored sang createStyles(colors) pattern
-- [~] **P17-16** · Refactor `components/ielts/*` (20 file) · *est. 3h* — Đã xong: FormCompletionBlock, MCMultipleBlock, PassageReview, TranscriptReview, RoadmapContent, RoadmapStepSection, RoadmapSummary, SpeakingRubricView, SpeakingVideoPlayer, WritingRubricView; Đang làm nốt: DiagramMapBlock, ReadingExamBlock, SpeakingExamBlock, WritingExamBlock, SpeakingPartCard, QuestionNoteEditor, exercise/*
+- [x] **P17-16** · Refactor `components/ielts/*` (20 file) · *est. 3h* — ✅ done: all exercise/* (DiagramCompletion, ReadingFlowchart, FlowChart, Form, MapLabelling, ReadingMatching, MCMultiple, TFNG, MCQ, Matching, Fill, Summary, Table, NoteCompletion, ReadingSummary, SentenceEndings) + main blocks (DiagramMapBlock, ReadingExamBlock, SpeakingExamBlock, WritingExamBlock, SpeakingPartCard, QuestionNoteEditor, SpeakingVideoPlayer, WritingRubricView, SpeakingRubricView, RoadmapContent)
 - [x] **P17-17** · Refactor `components/vocab-lab/*` (10 file) · *est. 1h* — ✅ DecksTab.tsx done
 - [x] **P17-18** · Refactor `components/ui/*` + `components/global/*` · *est. 0.5h* — ✅ AudioPlayer, UsageIndicator, NotificationPermissionBanner refactored; AppButton(NativeWind-skip), DictionaryPopup/GlobalVocabFab/TextWithLookup đã đúng; Toaster/UpgradeModal/FeatureLock intentionally dark
 

@@ -10,7 +10,7 @@ import {
   UIManager,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 
 // Enable LayoutAnimation on Android
@@ -555,7 +555,7 @@ export default function WritingRubricView({
       <View style={[wr.taskTabs, { backgroundColor: colors.surface }]}>
         {showTask1 && (
           <TouchableOpacity
-            style={[wr.tab, activeTask === 1 && wr.tabActive]}
+            style={[wr.tab, activeTask === 1 && { backgroundColor: colors.primary }]}
             onPress={() => setActiveTask(1)}
             activeOpacity={0.8}
           >
@@ -569,7 +569,7 @@ export default function WritingRubricView({
         )}
         {showTask2 && (
           <TouchableOpacity
-            style={[wr.tab, activeTask === 2 && wr.tabActive]}
+            style={[wr.tab, activeTask === 2 && { backgroundColor: colors.primary }]}
             onPress={() => setActiveTask(2)}
             activeOpacity={0.8}
           >
@@ -642,7 +642,7 @@ const wr = StyleSheet.create({
     borderRadius: RADIUS.full,
     paddingVertical: 9,
   },
-  tabActive: { backgroundColor: COLORS.primary },
+  tabActive: {},
   tabText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   tabTextActive: { color: '#fff' },
   sectionHeader: {

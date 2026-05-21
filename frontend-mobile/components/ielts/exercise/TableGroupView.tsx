@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput, ScrollView } from 'react-native';
-import { COLORS, FONT_SIZES, RADIUS } from '@/constants';
-import { styles } from './styles';
+import { FONT_SIZES, RADIUS } from '@/constants';
+import { createExerciseStyles } from './styles';
 import { ExplanationView } from './ExplanationView';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const styles = createExerciseStyles(colors);
   const headers = group.headers || [];
   const rows = group.rows || [];
 
@@ -14,29 +17,24 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
 
   const renderCellText = (text: string) => {
     const blankRegex = /\b(\d+)\s*\.{3,}/g;
-    const parts = [];
+    const parts: React.ReactNode[] = [];
     let lastIndex = 0;
-    let match;
-
-    // React Native doesn't support exec properly in a simple map without stateful regex
-    // So we'll use a hacky string split or matchAll
     const matches = Array.from(text.matchAll(blankRegex));
 
     if (matches.length === 0) {
-      return <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text }}>{text}</Text>;
+      return <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>{text}</Text>;
     }
 
     for (const m of matches) {
       const qNum = Number(m[1]);
       const qData = allQs.find((q: any) => q.qNum === qNum);
       const val = answers[qNum] ?? '';
-
       const isCorrect =
         submitted && val.trim().toLowerCase() === (qData?.answer ?? '').trim().toLowerCase();
 
-      if (m.index > lastIndex) {
+      if ((m.index ?? 0) > lastIndex) {
         parts.push(
-          <Text key={`t-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text }}>
+          <Text key={`t-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>
             {text.slice(lastIndex, m.index)}
           </Text>,
         );
@@ -49,8 +47,10 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
             flexDirection: 'row',
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : COLORS.border,
-            backgroundColor: submitted ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#fff',
+            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
+            backgroundColor: submitted
+              ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
+              : colors.card,
             borderRadius: RADIUS.sm,
             paddingHorizontal: 4,
             paddingVertical: 2,
@@ -62,7 +62,7 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
             style={{
               fontSize: 10,
               fontWeight: 'bold',
-              color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : COLORS.textMuted,
+              color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.textMuted,
               marginRight: 4,
             }}
           >
@@ -85,13 +85,14 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
                 padding: 0,
                 margin: 0,
                 fontSize: FONT_SIZES.sm,
-                color: COLORS.text,
+                color: colors.text,
                 minWidth: 50,
               }}
               value={val}
               onChangeText={(v) => onAnswer(qNum, v)}
               editable={!submitted}
               placeholder="..."
+              placeholderTextColor={colors.textMuted}
             />
           )}
         </View>,
@@ -108,12 +109,12 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
         );
       }
 
-      lastIndex = m.index + m[0].length;
+      lastIndex = (m.index ?? 0) + m[0].length;
     }
 
     if (lastIndex < text.length) {
       parts.push(
-        <Text key={`e-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text }}>
+        <Text key={`e-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>
           {text.slice(lastIndex)}
         </Text>,
       );
@@ -133,7 +134,7 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
                   width: 4,
                   height: 4,
                   borderRadius: 2,
-                  backgroundColor: COLORS.textMuted,
+                  backgroundColor: colors.textMuted,
                   marginTop: 8,
                   marginRight: 6,
                 }}
@@ -161,19 +162,18 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
         <View
           style={{
             borderWidth: 1,
-            borderColor: COLORS.border,
+            borderColor: colors.border,
             borderRadius: RADIUS.md,
             overflow: 'hidden',
-            backgroundColor: '#fff',
+            backgroundColor: colors.card,
           }}
         >
-          {/* Header */}
           <View
             style={{
               flexDirection: 'row',
-              backgroundColor: '#f9fafb',
+              backgroundColor: colors.surface,
               borderBottomWidth: 1,
-              borderBottomColor: COLORS.border,
+              borderBottomColor: colors.border,
             }}
           >
             {headers.map((h: string, idx: number) => (
@@ -183,21 +183,20 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
                   width: 150,
                   padding: 12,
                   borderRightWidth: idx === headers.length - 1 ? 0 : 1,
-                  borderRightColor: COLORS.border,
+                  borderRightColor: colors.border,
                 }}
               >
-                <Text style={{ fontWeight: 'bold', color: COLORS.text }}>{h}</Text>
+                <Text style={{ fontWeight: 'bold', color: colors.text }}>{h}</Text>
               </View>
             ))}
           </View>
-          {/* Rows */}
           {rows.map((row: any, ri: number) => (
             <View
               key={ri}
               style={{
                 flexDirection: 'row',
                 borderBottomWidth: ri === rows.length - 1 ? 0 : 1,
-                borderBottomColor: COLORS.border,
+                borderBottomColor: colors.border,
               }}
             >
               {headers.map((h: string, idx: number) => (
@@ -207,7 +206,7 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
                     width: 150,
                     padding: 12,
                     borderRightWidth: idx === headers.length - 1 ? 0 : 1,
-                    borderRightColor: COLORS.border,
+                    borderRightColor: colors.border,
                   }}
                 >
                   {row[h] !== undefined ? renderCell(row[h]) : null}
@@ -218,14 +217,11 @@ export function TableGroupView({ group, answers, submitted, onAnswer }: any) {
         </View>
       </ScrollView>
 
-      {/* Explanations */}
       {submitted &&
         allQs.map((q: any) =>
           q.explanation ? (
             <View key={q.qNum} style={{ marginTop: 8 }}>
-              <Text
-                style={{ fontSize: FONT_SIZES.sm, fontWeight: 'bold', color: COLORS.textSecondary }}
-              >
+              <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: 'bold', color: colors.textSecondary }}>
                 Q{q.qNum} Explanation:
               </Text>
               <ExplanationView

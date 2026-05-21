@@ -34,7 +34,7 @@ import {
   requestRecordingPermissionsAsync,
   setAudioModeAsync,
 } from 'expo-audio';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import SpeakingVideoPlayer from './SpeakingVideoPlayer';
@@ -163,18 +163,15 @@ const tt = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#EEF2FF',
     paddingHorizontal: SPACING.lg,
     paddingVertical: 12,
     borderRadius: RADIUS.full,
     borderWidth: 1,
-    borderColor: '#C7D2FE',
   },
-  label: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '700' },
+  label: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
   time: {
     fontSize: FONT_SIZES.md,
     fontWeight: '900',
-    color: COLORS.primary,
     fontVariant: ['tabular-nums'],
   },
   skipBtn: {
@@ -184,7 +181,6 @@ const tt = StyleSheet.create({
     marginTop: SPACING.sm,
     paddingHorizontal: SPACING.md,
     paddingVertical: 6,
-    backgroundColor: '#dcfce7',
     borderRadius: RADIUS.full,
   },
   skipText: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#16a34a' },
@@ -568,64 +564,53 @@ const aq = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { padding: SPACING.lg, flexGrow: 1, paddingBottom: 100 },
   questionCard: {
-    backgroundColor: '#fff',
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
-  questionText: { fontSize: FONT_SIZES.lg, color: COLORS.text, fontWeight: '600', lineHeight: 26 },
+  questionText: { fontSize: FONT_SIZES.lg, fontWeight: '600', lineHeight: 26 },
   cueCard: {
-    backgroundColor: '#FFFBEB',
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
     borderWidth: 1,
-    borderColor: '#FDE68A',
   },
   cueLabel: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '700',
-    color: '#D97706',
     textTransform: 'uppercase',
     marginBottom: 8,
   },
-  cueText: { fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 24 },
+  cueText: { fontSize: FONT_SIZES.md, lineHeight: 24 },
   videoWrap: { marginBottom: SPACING.lg },
   notesWrap: { marginBottom: SPACING.lg },
   notesLabel: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '600',
-    color: COLORS.textSecondary,
     marginBottom: 8,
   },
   notesInput: {
-    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: RADIUS.md,
     padding: SPACING.md,
     height: 100,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
   },
   controlsPanel: {
-    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     marginBottom: SPACING.xl,
     alignItems: 'center',
     gap: SPACING.md,
   },
   statusArea: { alignItems: 'center' },
-  statusText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '500' },
+  statusText: { fontSize: FONT_SIZES.sm, fontWeight: '500' },
   recordStatus: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   skipBtn: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.sm },
-  skipBtnText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm, fontWeight: '600' },
+  skipBtnText: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
   nextBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -779,7 +764,6 @@ const styles = StyleSheet.create({
   tabs: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
   },
   tab: {
     flex: 1,
@@ -788,5 +772,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     borderBottomColor: 'transparent',
   },
-  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
+  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
 });

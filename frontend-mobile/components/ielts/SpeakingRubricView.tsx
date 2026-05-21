@@ -429,7 +429,7 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
           <Ionicons
             name={isAudioUrl ? 'mic-outline' : 'chatbubble-ellipses-outline'}
             size={15}
-            color={isAudioUrl ? COLORS.primary : colors.textSecondary}
+            color={isAudioUrl ? colors.primary : colors.textSecondary}
           />
           <Text style={[ap.title, { color: colors.text }]} numberOfLines={1}>
             {label}
@@ -437,7 +437,7 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
         </View>
         <View style={ap.headerRight}>
           <View style={[ap.wordBadge, { backgroundColor: colors.surface }, isAudioUrl && ap.audioBadge]}>
-            <Text style={[ap.wordCount, { color: colors.textSecondary }, isAudioUrl && ap.audioLabel]}>
+            <Text style={[ap.wordCount, { color: isAudioUrl ? colors.primary : colors.textSecondary }]}>
               {isAudioUrl ? 'Audio recorded' : `${wordCount(answer)} words`}
             </Text>
           </View>
@@ -481,7 +481,7 @@ const ap = StyleSheet.create({
   },
   wordCount: { fontSize: 11, fontWeight: '700' },
   audioBadge: { backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE' },
-  audioLabel: { color: COLORS.primary },
+  audioLabel: {},
   body: { borderTopWidth: 1, padding: SPACING.md },
   answerText: { fontSize: FONT_SIZES.sm, lineHeight: 22 },
 });

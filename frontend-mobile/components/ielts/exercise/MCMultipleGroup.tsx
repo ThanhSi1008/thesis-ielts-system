@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONT_SIZES } from '@/constants';
-import { styles } from './styles';
+import { FONT_SIZES } from '@/constants';
+import { createExerciseStyles } from './styles';
 import { ExplanationView } from './ExplanationView';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function MCMultipleGroup({ group, gi, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const styles = createExerciseStyles(colors);
   const ansKey = `mcm-${gi}`;
   const raw = String(answers[ansKey] ?? '');
   const selectedLetters = raw ? raw.split(',') : [];
@@ -43,10 +46,10 @@ export function MCMultipleGroup({ group, gi, answers, submitted, onAnswer }: any
             ))}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '600' }}>{group.text}</Text>
+            <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '600', color: colors.text }}>{group.text}</Text>
           </View>
         </View>
-        <Text style={{ fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginBottom: 12 }}>
+        <Text style={{ fontSize: FONT_SIZES.xs, color: colors.textMuted, marginBottom: 12 }}>
           Choose {numCorrect} letters
         </Text>
 
@@ -55,19 +58,19 @@ export function MCMultipleGroup({ group, gi, answers, submitted, onAnswer }: any
           const isCorrect = (group.answers || [])
             .map((a: string) => a.toUpperCase())
             .includes(opt.letter.toUpperCase());
-          let bg: string = '#fff',
-            border: string = COLORS.border,
-            textColor: string = COLORS.text;
+          let bg: string = colors.card;
+          let border: string = colors.border;
+          let textColor: string = colors.text;
           if (submitted && isCorrect) {
-            bg = '#DCFCE7';
+            bg = isDark ? colors.successBg : '#DCFCE7';
             border = '#86EFAC';
             textColor = '#16A34A';
           } else if (submitted && isSelected && !isCorrect) {
-            bg = '#FEE2E2';
+            bg = isDark ? colors.errorBg : '#FEE2E2';
             border = '#FCA5A5';
             textColor = '#DC2626';
           } else if (!submitted && isSelected) {
-            bg = '#EFF6FF';
+            bg = isDark ? colors.infoBg : '#EFF6FF';
             border = '#3B82F6';
             textColor = '#1D4ED8';
           }
@@ -82,8 +85,7 @@ export function MCMultipleGroup({ group, gi, answers, submitted, onAnswer }: any
               <View
                 style={[
                   styles.mcmCheckbox,
-                  isSelected &&
-                    !submitted && { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
+                  isSelected && !submitted && { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
                   submitted && isCorrect && { backgroundColor: '#16A34A', borderColor: '#16A34A' },
                 ]}
               >

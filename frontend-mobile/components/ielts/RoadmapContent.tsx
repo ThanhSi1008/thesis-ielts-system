@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { COLORS, FONTS, SPACING } from '@/constants';
+import { FONTS, SPACING } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { RoadmapSummary } from './RoadmapSummary';
 import { RoadmapStepSection } from './RoadmapStepSection';
@@ -82,7 +82,7 @@ export function RoadmapContent() {
   if (loading && !refreshing) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }

@@ -12,7 +12,7 @@ import {
   PanResponder,
   Animated,
 } from 'react-native';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -254,7 +254,7 @@ export default React.memo(WritingExamBlock, (prev, next) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingBottom: 90 },
-  tabs: { flexDirection: 'row', borderBottomWidth: 1, borderColor: COLORS.border },
+  tabs: { flexDirection: 'row', borderBottomWidth: 1 },
   tab: {
     flex: 1,
     flexDirection: 'row',
@@ -264,29 +264,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     borderBottomColor: 'transparent',
   },
-  tabActive: { borderBottomColor: COLORS.primary },
-  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
-  tabLabelActive: { color: COLORS.primary },
+  tabActive: {},
+  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
+  tabLabelActive: {},
   tabCheck: { fontSize: FONT_SIZES.sm, color: '#16a34a', fontWeight: '700' },
-  promptScroll: { backgroundColor: '#fff' },
-  promptBox: { padding: SPACING.lg, backgroundColor: COLORS.surface },
+  promptScroll: {},
+  promptBox: { padding: SPACING.lg },
   taskType: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '700',
-    color: COLORS.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 4,
   },
-  promptText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
+  promptText: { fontSize: FONT_SIZES.sm, lineHeight: 20 },
   inputWrapper: { flex: 1, padding: SPACING.lg },
   essayInput: {
     flex: 1,
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
     lineHeight: 22,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.sm,
@@ -298,9 +295,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   wordCount: { fontSize: FONT_SIZES.xs, fontWeight: '700' },
-  wordCountTarget: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted },
+  wordCountTarget: { fontSize: FONT_SIZES.xs },
   wordCountOk: { color: '#16a34a' },
-  wordCountWarn: { color: COLORS.warning },
+  wordCountWarn: {},
   wordCountDone: {
     fontSize: FONT_SIZES.xs,
     color: '#16a34a',
@@ -310,48 +307,40 @@ const styles = StyleSheet.create({
   },
   progressTrack: {
     height: 6,
-    backgroundColor: COLORS.border,
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 4,
   },
   progressFill: { height: '100%', borderRadius: 3 },
   instructionBanner: {
-    backgroundColor: '#EEF2FF',
     padding: SPACING.md,
     borderRadius: RADIUS.md,
     marginBottom: SPACING.md,
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.primary,
   },
-  instructionText: { fontSize: FONT_SIZES.xs, color: COLORS.primary, lineHeight: 18 },
+  instructionText: { fontSize: FONT_SIZES.xs, lineHeight: 18 },
   instructionPrompt: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
     fontStyle: 'italic',
     marginBottom: SPACING.md,
   },
   imageScroll: {
     marginTop: SPACING.lg,
     borderRadius: RADIUS.md,
-    backgroundColor: '#f8fafc',
     padding: SPACING.sm,
   },
-  taskImage: { width: 500, height: 300 }, // Scrollable fixed size for readability
+  taskImage: { width: 500, height: 300 },
   dividerContainer: {
     height: 24,
-    backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
     cursor: 'ns-resize' as any,
   },
   dividerBar: {
     width: 40,
     height: 4,
-    backgroundColor: '#cbd5e1',
     borderRadius: 2,
     alignItems: 'center',
     justifyContent: 'center',

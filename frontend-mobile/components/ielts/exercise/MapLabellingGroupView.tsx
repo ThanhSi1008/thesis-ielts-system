@@ -1,14 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity } from 'react-native';
-import { COLORS, FONT_SIZES, RADIUS } from '@/constants';
-import { styles } from './styles';
+import { FONT_SIZES, RADIUS } from '@/constants';
+import { createExerciseStyles } from './styles';
 import { ExplanationView } from './ExplanationView';
-import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: any) {
-  const isMapOrDiagram = ['map_labelling', 'plan_labelling', 'diagram_labelling'].includes(
-    group.type,
-  );
+  const { colors, isDark } = useTheme();
+  const styles = createExerciseStyles(colors);
   const qs = group.items || group.questions || [];
   const rawOptions = group.options || [];
   const labels = group.labels || rawOptions.map((o: any) => o.letter) || [];
@@ -27,11 +26,11 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
           style={{
             alignItems: 'center',
             marginBottom: 16,
-            backgroundColor: '#fff',
+            backgroundColor: colors.card,
             padding: 8,
             borderRadius: RADIUS.md,
             borderWidth: 1,
-            borderColor: COLORS.border,
+            borderColor: colors.border,
           }}
         >
           <Image
@@ -44,7 +43,7 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
 
       {rawOptions.length > 0 && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-          <Text style={{ fontSize: 11, fontWeight: 'bold', color: COLORS.textMuted, marginTop: 4 }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.textMuted, marginTop: 4 }}>
             OPTIONS:
           </Text>
           {rawOptions.map((opt: any) => (
@@ -53,16 +52,16 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: '#fff',
+                backgroundColor: colors.card,
                 borderWidth: 1,
-                borderColor: COLORS.border,
+                borderColor: colors.border,
                 borderRadius: RADIUS.md,
                 paddingHorizontal: 8,
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ fontWeight: 'bold', marginRight: 4 }}>{opt.letter}</Text>
-              <Text style={{ color: COLORS.textMuted }}>· {opt.text}</Text>
+              <Text style={{ fontWeight: 'bold', marginRight: 4, color: colors.text }}>{opt.letter}</Text>
+              <Text style={{ color: colors.textMuted }}>· {opt.text}</Text>
             </View>
           ))}
         </View>
@@ -71,28 +70,26 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
       {labels.length > 0 ? (
         <View
           style={{
-            backgroundColor: '#fff',
+            backgroundColor: colors.card,
             borderRadius: RADIUS.md,
             borderWidth: 1,
-            borderColor: COLORS.border,
+            borderColor: colors.border,
             overflow: 'hidden',
           }}
         >
           <View
             style={{
               flexDirection: 'row',
-              backgroundColor: '#f9fafb',
+              backgroundColor: colors.surface,
               borderBottomWidth: 1,
-              borderBottomColor: COLORS.border,
+              borderBottomColor: colors.border,
             }}
           >
-            <View
-              style={{ flex: 2, padding: 12, borderRightWidth: 1, borderRightColor: COLORS.border }}
-            >
-              <Text style={{ fontWeight: 'bold' }}>Question</Text>
+            <View style={{ flex: 2, padding: 12, borderRightWidth: 1, borderRightColor: colors.border }}>
+              <Text style={{ fontWeight: 'bold', color: colors.text }}>Question</Text>
             </View>
             <View style={{ flex: 3, padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              <Text style={{ fontWeight: 'bold', width: '100%' }}>Options</Text>
+              <Text style={{ fontWeight: 'bold', width: '100%', color: colors.text }}>Options</Text>
             </View>
           </View>
           {qs.map((q: any, idx: number) => {
@@ -105,7 +102,7 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                 key={qNum}
                 style={{
                   borderBottomWidth: idx === qs.length - 1 ? 0 : 1,
-                  borderBottomColor: COLORS.border,
+                  borderBottomColor: colors.border,
                   padding: 12,
                 }}
               >
@@ -113,27 +110,27 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                   <View style={styles.qNumBadge}>
                     <Text style={styles.qNumBadgeText}>{qNum}</Text>
                   </View>
-                  <Text style={{ flex: 1, marginLeft: 8, fontSize: FONT_SIZES.sm }}>{q.text}</Text>
+                  <Text style={{ flex: 1, marginLeft: 8, fontSize: FONT_SIZES.sm, color: colors.text }}>{q.text}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {labels.map((lbl: string) => {
                     const isSelected = sel.toUpperCase() === lbl.toUpperCase();
                     const isActualAnswer = (q.answer || '').toUpperCase() === lbl.toUpperCase();
 
-                    let bg: string = '#fff';
-                    let borderColor: string = COLORS.border;
-                    let textColor: string = COLORS.text;
+                    let bg: string = colors.card;
+                    let borderColor: string = colors.border;
+                    let textColor: string = colors.text;
 
                     if (submitted && isActualAnswer) {
-                      bg = '#DCFCE7';
+                      bg = isDark ? colors.successBg : '#DCFCE7';
                       borderColor = '#86EFAC';
                       textColor = '#16A34A';
                     } else if (submitted && isSelected && !isCorrect) {
-                      bg = '#FEE2E2';
+                      bg = isDark ? colors.errorBg : '#FEE2E2';
                       borderColor = '#FCA5A5';
                       textColor = '#DC2626';
                     } else if (!submitted && isSelected) {
-                      bg = '#EFF6FF';
+                      bg = isDark ? colors.infoBg : '#EFF6FF';
                       borderColor = '#3B82F6';
                       textColor = '#1D4ED8';
                     }
@@ -174,11 +171,11 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
       ) : (
         <View
           style={{
-            backgroundColor: '#F0F9FF',
+            backgroundColor: isDark ? colors.infoBg : '#F0F9FF',
             padding: 16,
             borderRadius: RADIUS.md,
             borderWidth: 1,
-            borderColor: '#BAE6FD',
+            borderColor: isDark ? colors.border : '#BAE6FD',
           }}
         >
           {qs.map((q: any) => {
@@ -209,6 +206,7 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                     marginRight: 8,
                     fontSize: FONT_SIZES.sm,
                     fontWeight: '600',
+                    color: colors.text,
                   }}
                 >
                   {q.label_context || q.text}
@@ -219,33 +217,25 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                     style={[
                       styles.input,
                       { paddingVertical: 6, paddingHorizontal: 10, minHeight: 36, marginTop: 0 },
-                      submitted &&
-                        isCorrect && {
-                          borderColor: '#86EFAC',
-                          backgroundColor: '#DCFCE7',
-                          color: '#16A34A',
-                        },
-                      submitted &&
-                        !isCorrect && {
-                          borderColor: '#FCA5A5',
-                          backgroundColor: '#FEE2E2',
-                          color: '#DC2626',
-                        },
+                      submitted && isCorrect && {
+                        borderColor: '#86EFAC',
+                        backgroundColor: isDark ? colors.successBg : '#DCFCE7',
+                        color: '#16A34A',
+                      },
+                      submitted && !isCorrect && {
+                        borderColor: '#FCA5A5',
+                        backgroundColor: isDark ? colors.errorBg : '#FEE2E2',
+                        color: '#DC2626',
+                      },
                     ]}
                     value={val}
                     onChangeText={(v) => !submitted && onAnswer(qNum, v)}
                     editable={!submitted}
                     placeholder="Your answer"
+                    placeholderTextColor={colors.textMuted}
                   />
                   {submitted && !isCorrect && (
-                    <Text
-                      style={{
-                        fontSize: FONT_SIZES.xs,
-                        color: '#16A34A',
-                        fontWeight: 'bold',
-                        marginTop: 4,
-                      }}
-                    >
+                    <Text style={{ fontSize: FONT_SIZES.xs, color: '#16A34A', fontWeight: 'bold', marginTop: 4 }}>
                       → {q.answer}
                     </Text>
                   )}

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { COLORS, FONT_SIZES, RADIUS, SPACING } from '@/constants';
-import { markdownStyles } from './shared';
+import { FONT_SIZES, RADIUS, SPACING } from '@/constants';
+import { createMarkdownStyles } from './shared';
+import { useTheme } from '@/contexts/ThemeContext';
 
 function getExplanationText(exp: any): string {
   if (!exp) return '';
@@ -11,6 +12,8 @@ function getExplanationText(exp: any): string {
 }
 
 export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const markdownStyles = createMarkdownStyles(colors);
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
   const options = group.options || [];
@@ -20,13 +23,12 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
 
   return (
     <View style={{ marginBottom: 24 }}>
-      {/* Header */}
       {qNums.length > 0 && (
-        <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.text, marginBottom: 2 }}>
+        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text, marginBottom: 2 }}>
           Questions {Math.min(...qNums)}–{Math.max(...qNums)}
         </Text>
       )}
-      <Text style={{ fontSize: 13, color: COLORS.textSecondary, marginBottom: 14, lineHeight: 20 }}>
+      <Text style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 14, lineHeight: 20 }}>
         {instruction || 'Match each statement with the correct option.'}
       </Text>
 
@@ -35,18 +37,17 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
         <View
           style={{
             borderWidth: 1,
-            borderColor: '#E5E7EB',
+            borderColor: colors.border,
             borderRadius: RADIUS.lg,
             overflow: 'hidden',
             marginBottom: 16,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           <View
             style={{
-              backgroundColor: '#F8FAFC',
+              backgroundColor: colors.surface,
               borderBottomWidth: 1,
-              borderBottomColor: '#E5E7EB',
+              borderBottomColor: colors.border,
               paddingHorizontal: SPACING.md,
               paddingVertical: 10,
             }}
@@ -55,7 +56,7 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
               style={{
                 fontSize: 11,
                 fontWeight: '800',
-                color: '#9CA3AF',
+                color: colors.textMuted,
                 textTransform: 'uppercase',
                 letterSpacing: 0.8,
               }}
@@ -69,8 +70,8 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
               style={{
                 flexDirection: 'row',
                 borderBottomWidth: idx < options.length - 1 ? 1 : 0,
-                borderBottomColor: '#F3F4F6',
-                backgroundColor: '#fff',
+                borderBottomColor: colors.border,
+                backgroundColor: colors.card,
               }}
             >
               <View
@@ -80,11 +81,11 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRightWidth: 1,
-                  borderRightColor: '#F3F4F6',
-                  backgroundColor: '#FAFAFA',
+                  borderRightColor: colors.border,
+                  backgroundColor: colors.surface,
                 }}
               >
-                <Text style={{ fontSize: 13, fontWeight: '800', color: COLORS.text }}>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text }}>
                   {opt.letter}
                 </Text>
               </View>
@@ -94,7 +95,7 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                   paddingHorizontal: SPACING.md,
                   paddingVertical: 10,
                   fontSize: FONT_SIZES.sm,
-                  color: COLORS.text,
+                  color: colors.text,
                   fontWeight: '500',
                   lineHeight: 20,
                 }}
@@ -119,26 +120,24 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
             <View
               key={qNum}
               style={{
-                backgroundColor: '#fff',
+                backgroundColor: colors.card,
                 borderRadius: RADIUS.lg,
                 borderWidth: 1,
-                borderColor: submitted ? (isCorrect ? '#BBF7D0' : '#FCA5A5') : '#E5E7EB',
+                borderColor: submitted ? (isCorrect ? '#BBF7D0' : '#FCA5A5') : colors.border,
                 padding: SPACING.md,
-                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
               }}
             >
-              {/* Question stem */}
-              <View
-                style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}
-              >
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
                 <View
                   style={{
                     minWidth: 24,
                     height: 24,
                     borderRadius: 6,
                     borderWidth: 1,
-                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : '#BFDBFE',
-                    backgroundColor: submitted ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#EFF6FF',
+                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : (isDark ? colors.border : '#BFDBFE'),
+                    backgroundColor: submitted
+                      ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
+                      : isDark ? colors.infoBg : '#EFF6FF',
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingHorizontal: 4,
@@ -165,17 +164,16 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                 </View>
               </View>
 
-              {/* Option letter buttons — horizontal scroll */}
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {options.map((opt: any) => {
                     const isSelected = sel === opt.letter.toUpperCase();
                     const isCorrectOpt = correctLetter === opt.letter.toUpperCase();
 
-                    let circleBorder = '#D1D5DB';
+                    let circleBorder = colors.border;
                     let hasFill = false;
-                    let fillColor = '#D1D5DB';
-                    let textColor = '#9CA3AF';
+                    let fillColor = colors.border;
+                    let textColor = colors.textMuted;
 
                     if (submitted) {
                       if (isCorrectOpt) {
@@ -189,14 +187,14 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                         fillColor = '#F87171';
                         textColor = '#DC2626';
                       } else {
-                        circleBorder = '#E5E7EB';
-                        textColor = '#D1D5DB';
+                        circleBorder = colors.border;
+                        textColor = colors.textDisabled;
                       }
                     } else if (isSelected) {
-                      circleBorder = '#FFC107';
+                      circleBorder = colors.primary;
                       hasFill = true;
-                      fillColor = '#FFC107';
-                      textColor = '#92400E';
+                      fillColor = colors.primary;
+                      textColor = isDark ? colors.onPrimary : '#92400E';
                     }
 
                     return (
@@ -213,20 +211,14 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                             borderRadius: 18,
                             borderWidth: 2,
                             borderColor: circleBorder,
-                            backgroundColor: '#fff',
+                            backgroundColor: colors.card,
                             alignItems: 'center',
                             justifyContent: 'center',
                           }}
                         >
-                          {hasFill ? (
-                            <Text style={{ fontSize: 13, fontWeight: '800', color: fillColor }}>
-                              {opt.letter}
-                            </Text>
-                          ) : (
-                            <Text style={{ fontSize: 12, fontWeight: '700', color: textColor }}>
-                              {opt.letter}
-                            </Text>
-                          )}
+                          <Text style={{ fontSize: hasFill ? 13 : 12, fontWeight: '700', color: hasFill ? fillColor : textColor }}>
+                            {opt.letter}
+                          </Text>
                         </View>
                       </TouchableOpacity>
                     );
@@ -234,42 +226,40 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                 </View>
               </ScrollView>
 
-              {/* Correct answer hint */}
               {submitted && !isCorrect && correctLetter && (
                 <Text style={{ fontSize: 12, color: '#16A34A', fontWeight: '700', marginTop: 8 }}>
                   → Correct: {correctLetter}
                 </Text>
               )}
 
-              {/* Explanation */}
               {submitted && qData?.explanation && (
                 <View style={{ marginTop: 8 }}>
                   <TouchableOpacity
                     onPress={() => setShowExplanation(showExplanation === qNum ? null : qNum)}
                     style={{
                       alignSelf: 'flex-start',
-                      backgroundColor: '#F3F4F6',
+                      backgroundColor: isDark ? colors.surface : '#F3F4F6',
                       borderRadius: RADIUS.sm,
                       paddingHorizontal: 10,
                       paddingVertical: 4,
                       marginBottom: 6,
                     }}
                   >
-                    <Text style={{ fontSize: 11, fontWeight: '600', color: '#4B5563' }}>
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: colors.textSecondary }}>
                       {showExplanation === qNum ? 'Hide' : '💬 Explain'}
                     </Text>
                   </TouchableOpacity>
                   {showExplanation === qNum && (
                     <View
                       style={{
-                        backgroundColor: '#EFF6FF',
+                        backgroundColor: isDark ? colors.infoBg : '#EFF6FF',
                         borderWidth: 1,
-                        borderColor: '#BFDBFE',
+                        borderColor: isDark ? colors.border : '#BFDBFE',
                         borderRadius: RADIUS.md,
                         padding: SPACING.md,
                       }}
                     >
-                      <Text style={{ fontSize: 13, color: '#1E40AF', lineHeight: 20 }}>
+                      <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
                         {getExplanationText(qData.explanation)}
                       </Text>
                     </View>

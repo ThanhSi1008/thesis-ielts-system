@@ -1,17 +1,20 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { COLORS, FONT_SIZES, RADIUS } from '@/constants';
-import { styles } from './styles';
+import { FONT_SIZES, RADIUS } from '@/constants';
+import { createExerciseStyles } from './styles';
 import { ExplanationView } from './ExplanationView';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const styles = createExerciseStyles(colors);
   const allQs = (group.steps || []).filter((s: any) => s.question).map((s: any) => s.question);
 
   const renderStepText = (step: any) => {
     if (!step.question) {
       return (
-        <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, textAlign: 'center' }}>
+        <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text, textAlign: 'center' }}>
           {step.text}
         </Text>
       );
@@ -33,7 +36,7 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
 
     if (!match)
       return (
-        <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, textAlign: 'center' }}>
+        <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text, textAlign: 'center' }}>
           {step.text}
         </Text>
       );
@@ -43,9 +46,7 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
     const after = step.text.slice(splitIdx + match[0].length).trimStart();
 
     return (
-      <Text
-        style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, textAlign: 'center', lineHeight: 28 }}
-      >
+      <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text, textAlign: 'center', lineHeight: 28 }}>
         {before && <Text>{before} </Text>}
 
         <View
@@ -53,8 +54,10 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
             flexDirection: 'row',
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : COLORS.border,
-            backgroundColor: submitted ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#fff',
+            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
+            backgroundColor: submitted
+              ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
+              : colors.card,
             borderRadius: RADIUS.sm,
             paddingHorizontal: 4,
             paddingVertical: 2,
@@ -62,9 +65,7 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
             minWidth: 70,
           }}
         >
-          <Text
-            style={{ fontSize: 10, fontWeight: 'bold', color: COLORS.textMuted, marginRight: 4 }}
-          >
+          <Text style={{ fontSize: 10, fontWeight: 'bold', color: colors.textMuted, marginRight: 4 }}>
             {question_number}
           </Text>
           {submitted ? (
@@ -84,7 +85,7 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
                 padding: 0,
                 margin: 0,
                 fontSize: FONT_SIZES.sm,
-                color: COLORS.text,
+                color: colors.text,
                 minWidth: 50,
                 textAlign: 'center',
               }}
@@ -92,6 +93,7 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
               onChangeText={(v) => onAnswer(question_number, v)}
               editable={!submitted}
               placeholder="..."
+              placeholderTextColor={colors.textMuted}
             />
           )}
         </View>
@@ -132,7 +134,7 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
       {/* Options Bank */}
       {group.options && group.options.length > 0 && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-          <Text style={{ fontSize: 11, fontWeight: 'bold', color: COLORS.textMuted, marginTop: 4 }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: colors.textMuted, marginTop: 4 }}>
             OPTIONS:
           </Text>
           {group.options.map((opt: any) => (
@@ -141,16 +143,16 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: '#fff',
+                backgroundColor: colors.card,
                 borderWidth: 1,
-                borderColor: COLORS.border,
+                borderColor: colors.border,
                 borderRadius: RADIUS.md,
                 paddingHorizontal: 8,
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ fontWeight: 'bold', marginRight: 4 }}>{opt.letter}</Text>
-              <Text style={{ color: COLORS.textMuted }}>· {opt.text}</Text>
+              <Text style={{ fontWeight: 'bold', marginRight: 4, color: colors.text }}>{opt.letter}</Text>
+              <Text style={{ color: colors.textMuted }}>· {opt.text}</Text>
             </View>
           ))}
         </View>
@@ -164,8 +166,8 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
               style={{
                 width: '100%',
                 borderWidth: 2,
-                borderColor: step.question ? COLORS.border : '#E5E7EB',
-                backgroundColor: step.question ? '#fff' : '#F9FAFB',
+                borderColor: step.question ? colors.border : colors.border,
+                backgroundColor: step.question ? colors.card : colors.surface,
                 borderRadius: RADIUS.md,
                 padding: 12,
                 alignItems: 'center',
@@ -176,13 +178,8 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
 
             {si < (group.steps || []).length - 1 && (
               <View style={{ marginVertical: 4, alignItems: 'center' }}>
-                <View style={{ width: 2, height: 16, backgroundColor: COLORS.border }} />
-                <Ionicons
-                  name="caret-down"
-                  size={16}
-                  color={COLORS.border}
-                  style={{ marginTop: -4 }}
-                />
+                <View style={{ width: 2, height: 16, backgroundColor: colors.border }} />
+                <Ionicons name="caret-down" size={16} color={colors.border} style={{ marginTop: -4 }} />
               </View>
             )}
           </View>
@@ -194,9 +191,7 @@ export function FlowChartGroupView({ group, answers, submitted, onAnswer }: any)
         allQs.map((q: any) =>
           q.explanation ? (
             <View key={q.question_number} style={{ marginTop: 12 }}>
-              <Text
-                style={{ fontSize: FONT_SIZES.sm, fontWeight: 'bold', color: COLORS.textSecondary }}
-              >
+              <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: 'bold', color: colors.textSecondary }}>
                 Q{q.question_number} Explanation:
               </Text>
               <ExplanationView

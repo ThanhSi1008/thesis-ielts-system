@@ -120,6 +120,7 @@ function YouTubePlayer({
   captionText,
   height,
 }: SpeakingVideoPlayerProps & { height: number }) {
+  const { colors } = useTheme();
   const webRef = useRef<WebView>(null);
   const [loaded, setLoaded] = useState(false);
   const ytId = extractYouTubeId(uri);
@@ -199,7 +200,7 @@ function YouTubePlayer({
     <View style={[pStyles.videoWrap, { height }]}>
       {!loaded && (
         <View style={pStyles.loading}>
-          <ActivityIndicator color={COLORS.primary} />
+          <ActivityIndicator color={colors.primary} />
         </View>
       )}
       <WebView
@@ -233,8 +234,8 @@ function VideoPlaceholder({ height }: { height: number }) {
   const { colors } = useTheme();
   return (
     <View style={[pStyles.videoWrap, { height, backgroundColor: colors.surface }]}>
-      <View style={[pStyles.placeholderIcon, { backgroundColor: COLORS.primary + '15' }]}>
-        <Ionicons name="mic-outline" size={28} color={COLORS.primary} />
+      <View style={[pStyles.placeholderIcon, { backgroundColor: colors.primary + '15' }]}>
+        <Ionicons name="mic-outline" size={28} color={colors.primary} />
       </View>
       <Text style={[pStyles.placeholderTitle, { color: colors.text }]}>Speaking Test</Text>
       <Text style={[pStyles.placeholderSub, { color: colors.textSecondary }]}>No video for this question</Text>
@@ -313,18 +314,15 @@ const pStyles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: COLORS.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
   },
   placeholderTitle: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
-    color: COLORS.text,
   },
   placeholderSub: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
   },
   placeholderText: {
     fontSize: FONT_SIZES.sm,

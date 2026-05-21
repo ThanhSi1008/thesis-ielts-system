@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { COLORS, FONT_SIZES, RADIUS } from '@/constants';
-import { styles } from './styles';
+import { FONT_SIZES, RADIUS } from '@/constants';
+import { createExerciseStyles } from './styles';
 import { ExplanationView } from './ExplanationView';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const styles = createExerciseStyles(colors);
   const isFlowchart = group.type === 'flowchart_completion' || group.type === 'flow_chart';
   const qs = group.points || group.questions || [];
   const heading = group.heading || group.instructions;
@@ -15,7 +18,7 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
 
     if (!qNum) {
       return (
-        <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text }}>
+        <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text }}>
           {text}
         </Text>
       );
@@ -25,7 +28,7 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
     const match = text.match(blankRegex);
 
     if (!match) {
-      return <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text }}>{text}</Text>;
+      return <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>{text}</Text>;
     }
 
     const splitIdx = text.indexOf(match[0]);
@@ -39,7 +42,7 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
     const isCorrect = submitted && correctArr.includes(val.trim().toLowerCase());
 
     return (
-      <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 28 }}>
+      <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 28 }}>
         {before}
 
         <View
@@ -47,8 +50,10 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
             flexDirection: 'row',
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : COLORS.border,
-            backgroundColor: submitted ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#fff',
+            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
+            backgroundColor: submitted
+              ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
+              : colors.card,
             borderRadius: RADIUS.sm,
             paddingHorizontal: 4,
             paddingVertical: 2,
@@ -60,7 +65,7 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
             style={{
               fontSize: 10,
               fontWeight: 'bold',
-              color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : COLORS.textMuted,
+              color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.textMuted,
               marginRight: 4,
             }}
           >
@@ -83,13 +88,14 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
                 padding: 0,
                 margin: 0,
                 fontSize: FONT_SIZES.sm,
-                color: COLORS.text,
+                color: colors.text,
                 minWidth: 60,
               }}
               value={val}
               onChangeText={(v) => onAnswer(qNum, v)}
               editable={!submitted}
               placeholder="..."
+              placeholderTextColor={colors.textMuted}
             />
           )}
         </View>
@@ -116,11 +122,13 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
 
       <View
         style={{
-          backgroundColor: isFlowchart ? '#F0FDF4' : '#F9FAFB',
+          backgroundColor: isFlowchart
+            ? isDark ? colors.successBg : '#F0FDF4'
+            : colors.surface,
           padding: 16,
           borderRadius: RADIUS.md,
           borderWidth: 1,
-          borderColor: isFlowchart ? '#BBF7D0' : COLORS.border,
+          borderColor: isFlowchart ? (isDark ? '#4ADE80' : '#BBF7D0') : colors.border,
         }}
       >
         {qs.map((point: any, idx: number) => {
@@ -136,7 +144,7 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
                     width: 6,
                     height: 6,
                     borderRadius: 3,
-                    backgroundColor: COLORS.textMuted,
+                    backgroundColor: colors.textMuted,
                     marginTop: 10,
                     marginRight: 8,
                   }}

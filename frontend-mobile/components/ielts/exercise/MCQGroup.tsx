@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { COLORS, FONT_SIZES, RADIUS, SPACING } from '@/constants';
-import { markdownStyles } from './shared';
+import { FONT_SIZES, RADIUS, SPACING } from '@/constants';
+import { createMarkdownStyles } from './shared';
 import { ExplanationView } from './ExplanationView';
+import { useTheme } from '@/contexts/ThemeContext';
 
 function getExplanationText(exp: any): string {
   if (!exp) return '';
@@ -14,6 +15,8 @@ function getExplanationText(exp: any): string {
 }
 
 export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const markdownStyles = createMarkdownStyles(colors);
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
   const questions = (group.questions ?? []) as any[];
   const instruction = group.instruction || group.instructions;
@@ -21,16 +24,13 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
 
   return (
     <View style={{ marginBottom: 24 }}>
-      {/* Header */}
       {qNums.length > 0 && (
-        <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.text, marginBottom: 2 }}>
+        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text, marginBottom: 2 }}>
           Questions {Math.min(...qNums)}–{Math.max(...qNums)}
         </Text>
       )}
       {instruction && (
-        <Text
-          style={{ fontSize: 13, color: COLORS.textSecondary, marginBottom: 16, lineHeight: 20 }}
-        >
+        <Text style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 16, lineHeight: 20 }}>
           {instruction}
         </Text>
       )}
@@ -41,16 +41,13 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
           const isCorrect = sel.toUpperCase() === q.answer?.toUpperCase();
 
           return (
-            <View key={q.question_number} id={`question-${q.question_number}`}>
-              {/* Question text row */}
-              <View
-                style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}
-              >
+            <View key={q.question_number}>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
                 <Text
                   style={{
                     fontSize: 13,
                     fontWeight: '700',
-                    color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : COLORS.text,
+                    color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.text,
                     marginTop: 2,
                     minWidth: 22,
                   }}
@@ -64,16 +61,14 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                 </View>
               </View>
 
-              {/* Options — radio circle style */}
               <View style={{ gap: 10, paddingLeft: 30 }}>
                 {(q.options ?? []).map((opt: any) => {
                   const isSelected = sel.toUpperCase() === opt.letter.toUpperCase();
                   const isAnswerKey = q.answer?.toUpperCase() === opt.letter.toUpperCase();
 
-                  // Circle states
-                  let circleBorder: string = '#D1D5DB';
+                  let circleBorder: string = colors.border;
                   let circleFill: string | null = null;
-                  let textColor: string = COLORS.text;
+                  let textColor: string = colors.text;
                   let textDecoration: 'none' | 'line-through' = 'none';
                   let textWeight: '400' | '600' = '400';
 
@@ -89,14 +84,14 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                       textColor = '#DC2626';
                       textDecoration = 'line-through';
                     } else {
-                      circleBorder = '#E5E7EB';
-                      textColor = '#9CA3AF';
+                      circleBorder = colors.border;
+                      textColor = colors.textDisabled;
                     }
                   } else {
                     if (isSelected) {
-                      circleBorder = '#FFC107';
-                      circleFill = '#FFC107';
-                      textColor = COLORS.text;
+                      circleBorder = colors.primary;
+                      circleFill = colors.primary;
+                      textColor = colors.text;
                       textWeight = '600';
                     }
                   }
@@ -108,7 +103,6 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                       activeOpacity={submitted ? 1 : 0.6}
                       style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}
                     >
-                      {/* Radio circle */}
                       <View
                         style={{
                           width: 18,
@@ -116,7 +110,7 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                           borderRadius: 9,
                           borderWidth: 2,
                           borderColor: circleBorder,
-                          backgroundColor: '#fff',
+                          backgroundColor: colors.card,
                           alignItems: 'center',
                           justifyContent: 'center',
                           marginTop: 2,
@@ -124,14 +118,7 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                         }}
                       >
                         {circleFill && (
-                          <View
-                            style={{
-                              width: 9,
-                              height: 9,
-                              borderRadius: 5,
-                              backgroundColor: '#fff',
-                            }}
-                          />
+                          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: colors.card }} />
                         )}
                       </View>
                       <Text
@@ -151,41 +138,34 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                 })}
               </View>
 
-              {/* Explanation toggle */}
               {submitted && q.explanation && (
                 <View style={{ paddingLeft: 30, marginTop: 10 }}>
                   <TouchableOpacity
-                    onPress={() =>
-                      setShowExplanation(
-                        showExplanation === q.question_number ? null : q.question_number,
-                      )
-                    }
+                    onPress={() => setShowExplanation(showExplanation === q.question_number ? null : q.question_number)}
                     style={{
                       alignSelf: 'flex-start',
-                      backgroundColor: '#F3F4F6',
+                      backgroundColor: isDark ? colors.surface : '#F3F4F6',
                       borderRadius: RADIUS.sm,
-                      borderCurve: 'continuous',
                       paddingHorizontal: 10,
                       paddingVertical: 4,
                       marginBottom: 6,
                     }}
                   >
-                    <Text style={{ fontSize: 11, fontWeight: '600', color: '#4B5563' }}>
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: colors.textSecondary }}>
                       {showExplanation === q.question_number ? 'Hide' : '💬 Explain'}
                     </Text>
                   </TouchableOpacity>
                   {showExplanation === q.question_number && (
                     <View
                       style={{
-                        backgroundColor: '#EFF6FF',
+                        backgroundColor: isDark ? colors.infoBg : '#EFF6FF',
                         borderWidth: 1,
-                        borderColor: '#BFDBFE',
+                        borderColor: isDark ? colors.border : '#BFDBFE',
                         borderRadius: RADIUS.md,
-                        borderCurve: 'continuous',
                         padding: SPACING.md,
                       }}
                     >
-                      <Text style={{ fontSize: 13, color: '#1E40AF', lineHeight: 20 }}>
+                      <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
                         {getExplanationText(q.explanation)}
                       </Text>
                     </View>

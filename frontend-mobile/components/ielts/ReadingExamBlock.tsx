@@ -9,7 +9,7 @@ import {
   PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { TextWithLookup } from '../global/TextWithLookup';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -123,14 +123,12 @@ const pr = StyleSheet.create({
   container: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.xxl },
   paragraph: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
     lineHeight: 28,
     marginBottom: SPACING.md,
   },
   heading: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '800',
-    color: COLORS.text,
     marginBottom: SPACING.sm,
     marginTop: SPACING.sm,
   },
@@ -138,7 +136,6 @@ const pr = StyleSheet.create({
   sectionLetter: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '900',
-    color: COLORS.text,
     marginBottom: 2,
   },
 });
@@ -271,12 +268,10 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  container: { flex: 1 },
   tabs: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
   },
   tab: {
     flex: 1,
@@ -285,16 +280,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     borderBottomColor: 'transparent',
   },
-  tabActive: { borderBottomColor: COLORS.primary },
-  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
-  tabLabelActive: { color: COLORS.primary },
+  tabActive: {},
+  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
+  tabLabelActive: {},
   contextBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F2F1EF',
     borderBottomWidth: 1,
-    borderColor: '#E2E1DF',
     paddingHorizontal: SPACING.lg,
     paddingVertical: 10,
   },
@@ -302,13 +295,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
-    color: COLORS.text,
     marginRight: SPACING.sm,
   },
-  contextRange: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontWeight: '500' },
+  contextRange: { fontSize: FONT_SIZES.xs, fontWeight: '500' },
   content: { flex: 1, flexDirection: 'column' },
   contentRow: { flexDirection: 'row' },
-  pane: { flex: 1, backgroundColor: '#FAF9F8' },
+  pane: { flex: 1 },
   scroll: { flex: 1 },
   paneHeader: {
     flexDirection: 'row',
@@ -317,25 +309,21 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     paddingBottom: SPACING.sm,
     borderBottomWidth: 1,
-    borderColor: COLORS.border + '40',
   },
-  paneHeaderText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.primary },
+  paneHeaderText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
   passageTopic: {
     fontSize: FONT_SIZES.xl,
     fontWeight: '800',
-    color: COLORS.text,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
     paddingBottom: SPACING.sm,
   },
   splitter: {
     height: 22,
-    backgroundColor: '#E8E8E8',
     alignItems: 'center',
     justifyContent: 'center',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
   },
-  splitterHandle: { width: 44, height: 4, borderRadius: 2, backgroundColor: '#B0B0B0' },
+  splitterHandle: { width: 44, height: 4, borderRadius: 2 },
 });
