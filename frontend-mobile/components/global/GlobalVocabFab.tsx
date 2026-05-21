@@ -12,6 +12,7 @@ import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePathname } from 'expo-router';
 import { COLORS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const ASYNC_STORAGE_KEY = 'vocab-fab-position';
 
@@ -19,6 +20,7 @@ export function GlobalVocabFab() {
   const pathname = usePathname();
   const pan = useRef(new Animated.ValueXY()).current;
   const val = useRef({ x: 0, y: 0 });
+  const { colors } = useTheme();
 
   // Keep track of current coordinate values
   useEffect(() => {
@@ -117,6 +119,30 @@ export function GlobalVocabFab() {
 
   if (shouldHide) return null;
 
+  const styles = StyleSheet.create({
+    container: {
+      position: 'absolute',
+      bottom: 80,
+      right: 20,
+      zIndex: 999,
+    },
+    fab: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: COLORS.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.35,
+      shadowRadius: 10,
+      elevation: 8,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+  });
+
   return (
     <Animated.View
       style={[
@@ -133,25 +159,3 @@ export function GlobalVocabFab() {
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 80,
-    right: 20,
-    zIndex: 999,
-  },
-  fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-});

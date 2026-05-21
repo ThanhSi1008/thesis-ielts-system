@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, Mod
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { COLORS, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Post, PostType } from '@/types';
 import { Avatar } from './Avatar';
@@ -11,16 +12,16 @@ import { Avatar } from './Avatar';
 function TypePill({ type }: { type: PostType }) {
   if (type === 'STUDY_TIP')
     return (
-      <View style={[styles.pill, { backgroundColor: 'rgba(255,198,0,.18)' }]}>
+      <View style={[staticStyles.pill, { backgroundColor: 'rgba(255,198,0,.18)' }]}>
         <Ionicons name="bulb" size={10} color="#92650a" />
-        <Text style={[styles.pillText, { color: '#92650a' }]}>STUDY TIP</Text>
+        <Text style={[staticStyles.pillText, { color: '#92650a' }]}>STUDY TIP</Text>
       </View>
     );
   if (type === 'SCORE_ACHIEVEMENT')
     return (
-      <View style={[styles.pill, { backgroundColor: 'rgba(76,175,80,.12)' }]}>
+      <View style={[staticStyles.pill, { backgroundColor: 'rgba(76,175,80,.12)' }]}>
         <Ionicons name="trophy" size={10} color="#2e7d32" />
-        <Text style={[styles.pillText, { color: '#2e7d32' }]}>ACHIEVEMENT</Text>
+        <Text style={[staticStyles.pillText, { color: '#2e7d32' }]}>ACHIEVEMENT</Text>
       </View>
     );
   return null;
@@ -41,12 +42,16 @@ export function PostCard({
   onDelete: (id: string) => void;
   onOpenComments: (id: string) => void;
 }) {
+  const { colors } = useTheme();
   const [viewerVisible, setViewerVisible] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const authorName =
     [post.author.firstName, post.author.lastName].filter(Boolean).join(' ') || 'Anonymous';
   const isOwner = post.authorId === currentUserId;
+
+  const styles = makeStyles(colors);
+
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -108,7 +113,7 @@ export function PostCard({
               enableSwipeDown={true}
               renderHeader={() => (
                 <TouchableOpacity
-                  style={styles.closeButton}
+                  style={staticStyles.closeButton}
                   onPress={() => setViewerVisible(false)}
                   hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
                 >
@@ -133,7 +138,7 @@ export function PostCard({
       <View style={styles.actions}>
         <TouchableOpacity
           onPress={() => onLike(post.id)}
-          style={styles.actionBtn}
+          style={staticStyles.actionBtn}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons
@@ -149,7 +154,7 @@ export function PostCard({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => onOpenComments(post.id)}
-          style={styles.actionBtn}
+          style={staticStyles.actionBtn}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons name="chatbubble-outline" size={23} color="#9ca3af" />
@@ -158,7 +163,7 @@ export function PostCard({
         <View style={{ flex: 1 }} />
         <TouchableOpacity
           onPress={() => onBookmark(post.id)}
-          style={styles.actionBtn}
+          style={staticStyles.actionBtn}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons
@@ -172,62 +177,73 @@ export function PostCard({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 10,
-  },
-  authorName: {
-    fontFamily: FONTS.bold,
-    fontSize: 15,
-    color: '#212529',
-  },
-  timeText: {
-    fontFamily: FONTS.medium,
-    fontSize: 12,
-    color: '#9ca3af',
-    marginTop: 2,
-  },
-  postTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 16,
-    color: '#212529',
-    marginBottom: 6,
-  },
-  postBody: {
-    fontFamily: FONTS.regular,
-    fontSize: 15,
-    color: '#374151',
-    lineHeight: 22,
-    marginBottom: 10,
-  },
-  tag: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-  },
-  tagText: {
-    fontFamily: FONTS.medium,
-    fontSize: 12,
-    color: '#64748b',
-  },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    gap: 4,
-  },
+function makeStyles(colors: ReturnType<typeof useTheme>['colors']) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 18,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: 10,
+    },
+    authorName: {
+      fontFamily: FONTS.bold,
+      fontSize: 15,
+      color: colors.text,
+    },
+    timeText: {
+      fontFamily: FONTS.medium,
+      fontSize: 12,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    postTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 16,
+      color: colors.text,
+      marginBottom: 6,
+    },
+    postBody: {
+      fontFamily: FONTS.regular,
+      fontSize: 15,
+      color: colors.textSecondary,
+      lineHeight: 22,
+      marginBottom: 10,
+    },
+    tag: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: 10,
+      paddingVertical: 3,
+    },
+    tagText: {
+      fontFamily: FONTS.medium,
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+    actions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 4,
+    },
+    actionText: {
+      fontFamily: FONTS.bold,
+      fontSize: 15,
+      color: '#9ca3af',
+    },
+  });
+}
+
+// Static styles that don't depend on theme
+const staticStyles = StyleSheet.create({
   actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -236,11 +252,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 20,
     marginRight: 4,
-  },
-  actionText: {
-    fontFamily: FONTS.bold,
-    fontSize: 15,
-    color: '#9ca3af',
   },
   pill: {
     flexDirection: 'row',

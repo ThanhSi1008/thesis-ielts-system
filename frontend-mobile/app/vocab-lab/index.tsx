@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Sub-components
 import { DecksTab } from '@/components/vocab-lab/DecksTab';
@@ -38,6 +39,7 @@ const NAV_ITEMS = [
 
 export default function VocabLabScreen() {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>('decks');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnim = useRef(new Animated.Value(-280)).current;
@@ -66,12 +68,27 @@ export default function VocabLabScreen() {
     closeDrawer();
   };
 
+  const s = StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingBottom: SPACING.md,
+      backgroundColor: colors.background,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    menuBtn: { width: 40, height: 40, justifyContent: 'center' },
+    headerTitle: { fontSize: FONT_SIZES.lg, fontWeight: '700', color: colors.text },
+  });
+
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
       <View style={[s.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity style={s.menuBtn} onPress={openDrawer}>
-          <Ionicons name="menu" size={24} color={COLORS.text} />
+          <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Vocab Lab</Text>
         <View style={{ width: 40 }} />
@@ -102,18 +119,3 @@ export default function VocabLabScreen() {
     </View>
   );
 }
-
-const s = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: SPACING.md,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  menuBtn: { width: 40, height: 40, justifyContent: 'center' },
-  headerTitle: { fontSize: FONT_SIZES.lg, fontWeight: '700', color: COLORS.text },
-});

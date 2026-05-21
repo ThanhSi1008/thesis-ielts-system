@@ -17,6 +17,7 @@ import Markdown from 'react-native-markdown-display';
 
 import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
 import { apiClient } from '@/services/api-client';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface LibraryStats {
   id: string;
@@ -133,6 +134,7 @@ export function LibraryContent() {
   const { width } = useWindowDimensions();
   const [stats, setStats] = useState<LibraryStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const { colors } = useTheme();
 
   useEffect(() => {
     async function fetchStats() {
@@ -171,13 +173,13 @@ export function LibraryContent() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scroll}
       showsVerticalScrollIndicator={false}
       contentInsetAdjustmentBehavior="automatic"
     >
       <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
-        <Text style={styles.title}>Library</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Library</Text>
       </Animated.View>
 
       <View style={styles.grid}>
@@ -230,14 +232,14 @@ export function LibraryContent() {
       <Animated.View entering={FadeInDown.delay(400)} style={styles.bookmarksContainer}>
         <View style={styles.bookmarkCard}>
           <View style={styles.bookmarkInfo}>
-            <Ionicons name="bookmark" size={24} color="#1F2937" />
-            <Text style={styles.bookmarkTitle}>Bookmarks</Text>
+            <Ionicons name="bookmark" size={24} color={colors.text} />
+            <Text style={[styles.bookmarkTitle, { color: colors.text }]}>Bookmarks</Text>
           </View>
           <View style={styles.bookmarkStats}>
             <View style={styles.bookmarkIconCircle}>
               <Ionicons name="school-outline" size={24} color="#4F6C76" />
             </View>
-            <Text style={styles.bookmarkCount}>1/1</Text>
+            <Text style={[styles.bookmarkCount, { color: colors.textSecondary }]}>1/1</Text>
           </View>
         </View>
       </Animated.View>
@@ -246,7 +248,7 @@ export function LibraryContent() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1 },
   scroll: { padding: SPACING.lg, paddingBottom: 120 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
@@ -254,7 +256,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.bold,
     fontSize: 32,
-    color: '#111827',
     letterSpacing: -0.8,
   },
 
@@ -332,7 +333,6 @@ const styles = StyleSheet.create({
   bookmarkTitle: {
     fontFamily: FONTS.bold,
     fontSize: 20,
-    color: '#111827',
   },
   bookmarkStats: {
     alignItems: 'center',
@@ -351,6 +351,5 @@ const styles = StyleSheet.create({
   bookmarkCount: {
     fontFamily: FONTS.bold,
     fontSize: 13,
-    color: '#6B7280',
   },
 });

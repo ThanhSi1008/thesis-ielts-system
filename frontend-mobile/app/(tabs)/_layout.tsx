@@ -1,27 +1,30 @@
 import { Tabs, Link } from 'expo-router';
 import React from 'react';
-import { Platform, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Platform, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {COLORS, FONTS} from '@/constants';
+import { COLORS, FONTS } from '@/constants';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import { useNotification } from '@/contexts/NotificationContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TabLayout() {
   const { unreadCount } = useNotification();
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: COLORS.primary,
-          tabBarInactiveTintColor: '#64748b',
+          tabBarInactiveTintColor: colors.textSecondary,
           tabBarStyle: {
             height: Platform.OS === 'ios' ? 88 : 64,
             paddingBottom: Platform.OS === 'ios' ? 28 : 8,
             paddingTop: 8,
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.background,
             borderTopWidth: 1,
-            borderTopColor: '#e2e8f0',
+            borderTopColor: colors.border,
             boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.05)',
           },
           tabBarLabelStyle: {
@@ -78,7 +81,27 @@ export default function TabLayout() {
 
       {/* Global Lexon AI FAB */}
       <Link href="/chat-ai" asChild>
-        <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            bottom: Platform.OS === 'ios' ? 105 : 85,
+            right: 20,
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: colors.card,
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+            elevation: 5,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+          activeOpacity={0.8}
+        >
           <Svg width="26" height="26" viewBox="0 0 28 28" fill="none">
             <Defs>
               <LinearGradient id="gemini-grad-fab" x1="0" y1="0" x2="1" y2="1">
@@ -97,27 +120,3 @@ export default function TabLayout() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 105 : 85,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-});

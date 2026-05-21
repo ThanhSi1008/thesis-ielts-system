@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
@@ -13,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { postsApi } from '@/services';
 import type { Post, PostType } from '@/types';
 import { Avatar, PostCard, CreatePostModal, CommentSection, LeaderboardView } from '@/components';
@@ -35,6 +35,7 @@ const TAB_TYPE_MAP: Record<string, PostType | undefined> = {
 
 export default function CommunityScreen() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<TabId>('all');
   const [posts, setPosts] = useState<Post[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -155,17 +156,42 @@ export default function CommunityScreen() {
   const authorName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Me';
 
   return (
-    <SafeAreaView style={s.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
       {/* Header */}
-      <View style={s.header}>
-        <View style={s.headerTop}>
+      <View
+        style={{
+          backgroundColor: colors.background,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+          }}
+        >
           <View>
-            <Text style={s.headerSub}>LEXON</Text>
-            <Text style={s.headerTitle}>Community</Text>
+            <Text style={{ fontFamily: FONTS.bold, fontSize: 10, color: colors.textMuted, letterSpacing: 1 }}>
+              LEXON
+            </Text>
+            <Text style={{ fontFamily: FONTS.bold, fontSize: 24, color: colors.text }}>Community</Text>
           </View>
           <TouchableOpacity
             onPress={() => setShowCreate(true)}
-            style={[s.iconBtn, { backgroundColor: COLORS.primary, borderColor: COLORS.primary }]}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 12,
+              backgroundColor: COLORS.primary,
+              borderWidth: 1,
+              borderColor: COLORS.primary,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             <Ionicons name="create" size={20} color="#212529" />
           </TouchableOpacity>
@@ -173,7 +199,7 @@ export default function CommunityScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={s.tabBar}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12, gap: 8 }}
         >
           {TABS.map((tab) => {
             const active = activeTab === tab.id;
@@ -181,10 +207,28 @@ export default function CommunityScreen() {
               <TouchableOpacity
                 key={tab.id}
                 onPress={() => setActiveTab(tab.id)}
-                style={[s.tabBtn, active && s.tabBtnActive]}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  paddingVertical: 8,
+                  paddingHorizontal: 14,
+                  borderRadius: 20,
+                  backgroundColor: active ? COLORS.primary : colors.card,
+                  borderWidth: 1,
+                  borderColor: active ? COLORS.primary : colors.border,
+                }}
               >
-                <Ionicons name={tab.icon as any} size={14} color={active ? '#212529' : '#64748b'} />
-                <Text style={[s.tabText, active && s.tabTextActive]}>{tab.label}</Text>
+                <Ionicons name={tab.icon as any} size={14} color={active ? '#212529' : colors.textSecondary} />
+                <Text
+                  style={{
+                    fontFamily: FONTS.bold,
+                    fontSize: 13,
+                    color: active ? '#212529' : colors.textSecondary,
+                  }}
+                >
+                  {tab.label}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -229,18 +273,39 @@ export default function CommunityScreen() {
           automaticallyAdjustKeyboardInsets
         >
           {/* Create box */}
-          <TouchableOpacity style={s.createBox} onPress={() => setShowCreate(true)}>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+              backgroundColor: colors.card,
+              borderRadius: 16,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+            onPress={() => setShowCreate(true)}
+          >
             <Avatar name={authorName} avatar={user?.avatar} size={34} />
-            <Text style={s.createPlaceholder}>Share with the community…</Text>
-            <View style={s.postBtn}>
-              <Text style={s.postBtnText}>POST</Text>
+            <Text style={{ flex: 1, fontFamily: FONTS.medium, fontSize: 14, color: colors.textMuted }}>
+              Share with the community…
+            </Text>
+            <View
+              style={{
+                backgroundColor: COLORS.primary,
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                borderRadius: 20,
+              }}
+            >
+              <Text style={{ fontFamily: FONTS.bold, fontSize: 12, color: '#212529' }}>POST</Text>
             </View>
           </TouchableOpacity>
 
           {posts.length === 0 ? (
             <View style={{ alignItems: 'center', padding: 40 }}>
-              <Ionicons name="albums-outline" size={48} color="#d1d5db" />
-              <Text style={{ fontFamily: FONTS.medium, color: '#9ca3af', marginTop: 12 }}>
+              <Ionicons name="albums-outline" size={48} color={colors.border} />
+              <Text style={{ fontFamily: FONTS.medium, color: colors.textMuted, marginTop: 12 }}>
                 No posts yet. Be the first!
               </Text>
             </View>
@@ -281,65 +346,3 @@ export default function CommunityScreen() {
     </SafeAreaView>
   );
 }
-
-// ─── Styles ────────────────────────────────────────────────────
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: {
-    backgroundColor: 'rgba(248,249,250,0.97)',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  headerSub: { fontFamily: FONTS.bold, fontSize: 10, color: '#9ca3af', letterSpacing: 1 },
-  headerTitle: { fontFamily: FONTS.bold, fontSize: 24, color: '#212529' },
-  iconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabBar: { paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
-  tabBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  tabBtnActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  tabText: { fontFamily: FONTS.bold, fontSize: 13, color: '#64748b' },
-  tabTextActive: { color: '#212529' },
-  createBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  createPlaceholder: { flex: 1, fontFamily: FONTS.medium, fontSize: 14, color: '#9ca3af' },
-  postBtn: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-  },
-  postBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: '#212529' },
-});

@@ -15,10 +15,12 @@ import {
   Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import {COLORS, STORAGE_KEYS, FONTS, ROUTES, RADIUS} from '@/constants';
+import {COLORS, FONTS, ROUTES, RADIUS} from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import type { ThemeMode } from '@/contexts/ThemeContext';
 import { toast } from '@/components/ui/index';
 import { useNotification } from '@/contexts/NotificationContext';
 import { vocabLabApi, gamificationApi, subscriptionsApi, notificationsApi } from '@/services';
@@ -34,7 +36,8 @@ export default function ProfileScreen() {
   const { user, logout, refreshUser } = useAuth();
 
   const [activeTab, setActiveTab] = useState<TabType>('account');
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, resolvedTheme, setTheme, colors } = useTheme();
+  const isDarkMode = resolvedTheme === 'dark';
 
   // Notification states & hooks
   const { permissionStatus, requestPushPermission, pushToken } = useNotification();
@@ -91,16 +94,9 @@ export default function ProfileScreen() {
     }
   };
 
-  // Load theme preference on mount
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEYS.THEME).then((val) => {
-      if (val === 'dark') setIsDarkMode(true);
-    });
-  }, []);
-
+  // setTheme is handled by ThemeContext (AsyncStorage persist built-in)
   const toggleDarkMode = async (value: boolean) => {
-    setIsDarkMode(value);
-    await AsyncStorage.setItem(STORAGE_KEYS.THEME, value ? 'dark' : 'light');
+    setTheme(value ? 'dark' : 'light');
   };
 
   const styles = dynamicStyles(isDarkMode);

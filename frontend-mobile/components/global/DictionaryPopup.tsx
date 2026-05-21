@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 const SHEET_H = SCREEN_H * 0.65;
@@ -30,6 +31,7 @@ export function DictionaryPopup() {
   const [loading, setLoading] = useState(true);
   const [dictData, setDictData] = useState<any>(null);
   const [viTranslation, setViTranslation] = useState('');
+  const { colors } = useTheme();
 
   const slideAnim = useRef(new Animated.Value(SHEET_H)).current;
 
@@ -138,6 +140,287 @@ export function DictionaryPopup() {
     closeSheet();
   };
 
+  const styles = StyleSheet.create({
+    backdrop: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    sheet: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: SHEET_H,
+      backgroundColor: colors.background,
+      borderTopLeftRadius: RADIUS.xl * 1.5,
+      borderTopRightRadius: RADIUS.xl * 1.5,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      elevation: 12,
+    },
+    handle: {
+      width: 36,
+      height: 4,
+      backgroundColor: colors.border,
+      borderRadius: 2,
+      alignSelf: 'center',
+      marginTop: SPACING.sm,
+      marginBottom: SPACING.xs,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    titleWrapper: {
+      flex: 1,
+    },
+    wordTitle: {
+      fontSize: FONT_SIZES.xl,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+      textTransform: 'capitalize',
+    },
+    phoneticText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      fontFamily: FONTS.medium,
+      marginTop: 2,
+    },
+    actions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+    },
+    audioBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: COLORS.primary + '15',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    addBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: '#FF980015',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    closeBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.surface,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    tabsRow: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    tabItem: {
+      flex: 1,
+      paddingVertical: SPACING.md,
+      alignItems: 'center',
+      borderBottomWidth: 2,
+      borderColor: 'transparent',
+    },
+    tabItemActive: {
+      borderColor: COLORS.primary,
+    },
+    tabLabel: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      fontFamily: FONTS.medium,
+    },
+    tabLabelActive: {
+      color: colors.text,
+      fontFamily: FONTS.bold,
+    },
+    body: {
+      flex: 1,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: SPACING.sm,
+    },
+    loadingText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      fontFamily: FONTS.medium,
+    },
+    scrollContent: {
+      padding: SPACING.lg,
+      paddingBottom: SPACING.xxl,
+    },
+    tabContent: {
+      gap: SPACING.md,
+    },
+    sectionLabel: {
+      fontSize: FONT_SIZES.xs,
+      fontFamily: FONTS.bold,
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    translationText: {
+      fontSize: FONT_SIZES.lg,
+      color: colors.text,
+      fontFamily: FONTS.medium,
+      lineHeight: 24,
+    },
+    definitionBlock: {
+      marginBottom: SPACING.md,
+      backgroundColor: colors.surface,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    partOfSpeech: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+      color: COLORS.primary,
+      fontStyle: 'italic',
+      marginBottom: SPACING.sm,
+      textTransform: 'capitalize',
+    },
+    defItem: {
+      marginBottom: SPACING.md,
+    },
+    defText: {
+      fontSize: FONT_SIZES.sm + 1,
+      color: colors.text,
+      lineHeight: 22,
+      fontFamily: FONTS.medium,
+    },
+    defIndex: {
+      fontFamily: FONTS.bold,
+      color: COLORS.primary,
+    },
+    exampleWrapper: {
+      marginTop: 4,
+      paddingLeft: SPACING.md,
+      borderLeftWidth: 2,
+      borderColor: colors.border,
+    },
+    exampleText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+      fontFamily: FONTS.regular,
+    },
+    noDataText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: SPACING.xxl,
+    },
+    aiContextBox: {
+      backgroundColor: '#FFC60010',
+      borderColor: '#FFC60030',
+      borderWidth: 1,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      gap: SPACING.xs,
+    },
+    aiLabel: {
+      fontSize: 10,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+      letterSpacing: 0.8,
+    },
+    contextSentence: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+      lineHeight: 20,
+      borderLeftWidth: 2,
+      borderColor: COLORS.primary,
+      paddingLeft: SPACING.sm,
+      marginVertical: 4,
+    },
+    aiExplanation: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      lineHeight: 20,
+      fontFamily: FONTS.medium,
+    },
+    boldText: {
+      fontFamily: FONTS.bold,
+    },
+    italicText: {
+      fontStyle: 'italic',
+    },
+    generalBox: {
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      gap: 4,
+    },
+    generalText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      lineHeight: 20,
+      fontFamily: FONTS.medium,
+    },
+    originBox: {
+      backgroundColor: colors.surface,
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      gap: 4,
+    },
+    originText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      lineHeight: 20,
+      fontFamily: FONTS.medium,
+    },
+    footer: {
+      padding: SPACING.lg,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.background,
+    },
+    saveCtaBtn: {
+      backgroundColor: COLORS.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: SPACING.sm,
+      borderRadius: RADIUS.xl,
+      paddingVertical: SPACING.md,
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    saveCtaText: {
+      color: '#fff',
+      fontSize: FONT_SIZES.md,
+      fontFamily: FONTS.bold,
+    },
+  });
+
   return (
     <Modal visible={open} transparent animationType="none" onRequestClose={closeSheet}>
       <Pressable style={styles.backdrop} onPress={closeSheet} />
@@ -162,7 +445,7 @@ export function DictionaryPopup() {
               <Ionicons name="star" size={20} color="#FF9800" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.closeBtn} onPress={closeSheet}>
-              <Ionicons name="close" size={20} color={COLORS.textMuted} />
+              <Ionicons name="close" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
         </View>
@@ -284,284 +567,3 @@ export function DictionaryPopup() {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: SHEET_H,
-    backgroundColor: COLORS.background,
-    borderTopLeftRadius: RADIUS.xl * 1.5,
-    borderTopRightRadius: RADIUS.xl * 1.5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 12,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    backgroundColor: COLORS.border,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: SPACING.sm,
-    marginBottom: SPACING.xs,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-  },
-  titleWrapper: {
-    flex: 1,
-  },
-  wordTitle: {
-    fontSize: FONT_SIZES.xl,
-    fontFamily: FONTS.bold,
-    color: COLORS.text,
-    textTransform: 'capitalize',
-  },
-  phoneticText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    fontFamily: FONTS.medium,
-    marginTop: 2,
-  },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  audioBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.primary + '15',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  addBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FF980015',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  tabsRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
-  },
-  tabItem: {
-    flex: 1,
-    paddingVertical: SPACING.md,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderColor: 'transparent',
-  },
-  tabItemActive: {
-    borderColor: COLORS.primary,
-  },
-  tabLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    fontFamily: FONTS.medium,
-  },
-  tabLabelActive: {
-    color: COLORS.text,
-    fontFamily: FONTS.bold,
-  },
-  body: {
-    flex: 1,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  loadingText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    fontFamily: FONTS.medium,
-  },
-  scrollContent: {
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xxl,
-  },
-  tabContent: {
-    gap: SPACING.md,
-  },
-  sectionLabel: {
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONTS.bold,
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  translationText: {
-    fontSize: FONT_SIZES.lg,
-    color: COLORS.text,
-    fontFamily: FONTS.medium,
-    lineHeight: 24,
-  },
-  definitionBlock: {
-    marginBottom: SPACING.md,
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  partOfSpeech: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONTS.bold,
-    color: COLORS.primary,
-    fontStyle: 'italic',
-    marginBottom: SPACING.sm,
-    textTransform: 'capitalize',
-  },
-  defItem: {
-    marginBottom: SPACING.md,
-  },
-  defText: {
-    fontSize: FONT_SIZES.sm + 1,
-    color: COLORS.text,
-    lineHeight: 22,
-    fontFamily: FONTS.medium,
-  },
-  defIndex: {
-    fontFamily: FONTS.bold,
-    color: COLORS.primary,
-  },
-  exampleWrapper: {
-    marginTop: 4,
-    paddingLeft: SPACING.md,
-    borderLeftWidth: 2,
-    borderColor: COLORS.border,
-  },
-  exampleText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    fontStyle: 'italic',
-    fontFamily: FONTS.regular,
-  },
-  noDataText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-    marginTop: SPACING.xxl,
-  },
-  aiContextBox: {
-    backgroundColor: '#FFC60010',
-    borderColor: '#FFC60030',
-    borderWidth: 1,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    gap: SPACING.xs,
-  },
-  aiLabel: {
-    fontSize: 10,
-    fontFamily: FONTS.bold,
-    color: COLORS.text,
-    letterSpacing: 0.8,
-  },
-  contextSentence: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    fontStyle: 'italic',
-    lineHeight: 20,
-    borderLeftWidth: 2,
-    borderColor: COLORS.primary,
-    paddingLeft: SPACING.sm,
-    marginVertical: 4,
-  },
-  aiExplanation: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    lineHeight: 20,
-    fontFamily: FONTS.medium,
-  },
-  boldText: {
-    fontFamily: FONTS.bold,
-  },
-  italicText: {
-    fontStyle: 'italic',
-  },
-  generalBox: {
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.border,
-    borderWidth: 1,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    gap: 4,
-  },
-  generalText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    lineHeight: 20,
-    fontFamily: FONTS.medium,
-  },
-  originBox: {
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.border,
-    borderWidth: 1,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    gap: 4,
-  },
-  originText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    lineHeight: 20,
-    fontFamily: FONTS.medium,
-  },
-  footer: {
-    padding: SPACING.lg,
-    borderTopWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.background,
-  },
-  saveCtaBtn: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.sm,
-    borderRadius: RADIUS.xl,
-    paddingVertical: SPACING.md,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  saveCtaText: {
-    color: '#fff',
-    fontSize: FONT_SIZES.md,
-    fontFamily: FONTS.bold,
-  },
-});

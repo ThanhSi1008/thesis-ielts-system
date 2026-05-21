@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, Switch, TextInput, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
+import type { ThemeMode } from '@/contexts/ThemeContext';
 
 interface SettingsTabProps {
   user: any;
@@ -20,6 +22,12 @@ interface SettingsTabProps {
   styles: any;
 }
 
+const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: string }[] = [
+  { mode: 'light', label: 'Light', icon: 'sunny-outline' },
+  { mode: 'dark', label: 'Dark', icon: 'moon-outline' },
+  { mode: 'system', label: 'System', icon: 'phone-portrait-outline' },
+];
+
 export function ProfileSettingsTab({
   user,
   isDarkMode,
@@ -36,24 +44,74 @@ export function ProfileSettingsTab({
   handleDeleteAccount,
   styles,
 }: SettingsTabProps) {
+  const { theme, setTheme, colors } = useTheme();
+
   return (
     <View style={styles.section}>
       <View style={styles.card}>
         <Text style={styles.cardTitle}>App Preferences</Text>
-        <View style={styles.settingRow}>
-          <View style={styles.settingLeft}>
-            <Ionicons name="moon" size={22} color="#64748B" />
-            <Text style={styles.settingText}>Dark Mode</Text>
+
+        {/* ── Theme Selector: 3-button Light / Dark / System (P17-19) ── */}
+        <View style={{ marginBottom: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+            <Ionicons name="contrast-outline" size={22} color={colors.textSecondary} />
+            <Text style={{ fontFamily: FONTS.medium, fontSize: 15, color: colors.text }}>
+              Appearance
+            </Text>
           </View>
-          <Switch
-            value={isDarkMode}
-            onValueChange={toggleDarkMode}
-            trackColor={{ false: '#CBD5E1', true: COLORS.primary }}
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              backgroundColor: colors.surface,
+              borderRadius: 14,
+              borderWidth: 1,
+              borderColor: colors.border,
+              padding: 4,
+              gap: 4,
+            }}
+          >
+            {THEME_OPTIONS.map(({ mode, label, icon }) => {
+              const active = theme === mode;
+              return (
+                <TouchableOpacity
+                  key={mode}
+                  onPress={() => setTheme(mode)}
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 5,
+                    paddingVertical: 9,
+                    borderRadius: 10,
+                    backgroundColor: active ? COLORS.primary : 'transparent',
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons
+                    name={icon as any}
+                    size={15}
+                    color={active ? '#212529' : colors.textSecondary}
+                  />
+                  <Text
+                    style={{
+                      fontFamily: active ? FONTS.bold : FONTS.medium,
+                      fontSize: 13,
+                      color: active ? '#212529' : colors.textSecondary,
+                    }}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
+
+        {/* Notifications Toggle */}
         <View style={styles.settingRow}>
           <View style={styles.settingLeft}>
-            <Ionicons name="notifications" size={22} color="#64748B" />
+            <Ionicons name="notifications" size={22} color={colors.textSecondary} />
             <Text style={styles.settingText}>Notifications</Text>
           </View>
           <Switch

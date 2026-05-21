@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 import { postsApi } from '@/services';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Comment } from '@/types';
@@ -24,6 +25,7 @@ export function CommentSection({
   currentUserId?: string;
   onCommentAdded: () => void;
 }) {
+  const { colors } = useTheme();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
@@ -84,6 +86,8 @@ export function CommentSection({
     }
   };
 
+  const styles = makeStyles(colors);
+
   const renderComment = (c: Comment, isReply = false) => {
     const name = [c.author.firstName, c.author.lastName].filter(Boolean).join(' ') || 'Anonymous';
     const isLiked = !!likedComments[c.id];
@@ -136,7 +140,7 @@ export function CommentSection({
           style={{
             fontFamily: FONTS.regular,
             fontSize: 13,
-            color: '#9ca3af',
+            color: colors.textMuted,
             textAlign: 'center',
             paddingVertical: 12,
           }}
@@ -161,7 +165,7 @@ export function CommentSection({
           value={text}
           onChangeText={setText}
           placeholder={replyTo ? 'Write a reply…' : 'Write a comment…'}
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={colors.textMuted}
           style={styles.commentInput}
           returnKeyType="send"
           onSubmitEditing={submit}
@@ -172,9 +176,9 @@ export function CommentSection({
           style={[styles.sendBtn, (!text.trim() || submitting) && { opacity: 0.45 }]}
         >
           {submitting ? (
-            <ActivityIndicator size="small" color="#212529" />
+            <ActivityIndicator size="small" color={colors.text} />
           ) : (
-            <Ionicons name="send" size={18} color="#212529" />
+            <Ionicons name="send" size={18} color={colors.text} />
           )}
         </TouchableOpacity>
       </View>
@@ -182,83 +186,85 @@ export function CommentSection({
   );
 }
 
-const styles = StyleSheet.create({
-  commentSection: {
-    backgroundColor: '#fff',
-    marginTop: -10,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  commentRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 18,
-  },
-  commentBubble: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
-  },
-  commentAuthor: {
-    fontFamily: FONTS.bold,
-    fontSize: 15,
-    color: '#212529',
-    marginBottom: 4,
-  },
-  commentBody: {
-    fontFamily: FONTS.regular,
-    fontSize: 15,
-    color: '#374151',
-    lineHeight: 22,
-  },
-  commentTime: {
-    fontFamily: FONTS.medium,
-    fontSize: 13,
-    color: '#9ca3af',
-  },
-  commentInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 12,
-  },
-  commentInput: {
-    flex: 1,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 28,
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-    fontFamily: FONTS.regular,
-    fontSize: 15,
-    color: '#212529',
-    minHeight: 48,
-  },
-  sendBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  replyBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.primary + '18',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-});
+function makeStyles(colors: ReturnType<typeof useTheme>['colors']) {
+  return StyleSheet.create({
+    commentSection: {
+      backgroundColor: colors.card,
+      marginTop: -10,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 20,
+      borderBottomLeftRadius: 18,
+      borderBottomRightRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    commentRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginBottom: 18,
+    },
+    commentBubble: {
+      backgroundColor: colors.surface,
+      borderRadius: 18,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      alignSelf: 'flex-start',
+      maxWidth: '100%',
+    },
+    commentAuthor: {
+      fontFamily: FONTS.bold,
+      fontSize: 15,
+      color: colors.text,
+      marginBottom: 4,
+    },
+    commentBody: {
+      fontFamily: FONTS.regular,
+      fontSize: 15,
+      color: colors.textSecondary,
+      lineHeight: 22,
+    },
+    commentTime: {
+      fontFamily: FONTS.medium,
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+    commentInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginTop: 12,
+    },
+    commentInput: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: 28,
+      paddingHorizontal: 18,
+      paddingVertical: 13,
+      fontFamily: FONTS.regular,
+      fontSize: 15,
+      color: colors.text,
+      minHeight: 48,
+    },
+    sendBtn: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: COLORS.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    replyBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: COLORS.primary + '18',
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 12,
+      marginBottom: 10,
+    },
+  });
+}

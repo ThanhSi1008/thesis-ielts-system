@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { useRouter, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, FONT_SIZES, ROUTES } from '@/constants';
+import { FONTS, SPACING, FONT_SIZES, ROUTES } from '@/constants';
 import * as Haptics from 'expo-haptics';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Sub-components
 import { LibraryContent } from '@/components/ielts/LibraryContent';
@@ -73,6 +74,7 @@ const NAV_ITEMS = [
 export default function IeltsBasicTab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -105,20 +107,45 @@ export default function IeltsBasicTab() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Tabs.Screen options={{ headerShown: false }} />
 
       {/* ── Custom Header ── */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={styles.menuBtn} onPress={openDrawer}>
-          <Ionicons name="menu" size={24} color={COLORS.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>IELTS Basic</Text>
+      <View
+        style={{
+          backgroundColor: colors.background,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          paddingTop: insets.top + 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
         <TouchableOpacity
-          style={styles.headerIconBtn}
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 }}
+          onPress={openDrawer}
+        >
+          <Ionicons name="menu" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text
+          style={{
+            flex: 1,
+            color: colors.text,
+            fontSize: FONT_SIZES.lg,
+            fontFamily: FONTS.bold,
+            textAlign: 'center',
+          }}
+        >
+          IELTS Basic
+        </Text>
+        <TouchableOpacity
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
           onPress={() => router.push(ROUTES.ieltsRoadmap)}
         >
-          <Ionicons name="map-outline" size={22} color={COLORS.text} />
+          <Ionicons name="map-outline" size={22} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -138,31 +165,3 @@ export default function IeltsBasicTab() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  menuBtn: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 4,
-  },
-  headerTitle: {
-    flex: 1,
-    color: COLORS.text,
-    fontSize: FONT_SIZES.lg,
-    fontFamily: FONTS.bold,
-    textAlign: 'center',
-  },
-  headerIconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-});
