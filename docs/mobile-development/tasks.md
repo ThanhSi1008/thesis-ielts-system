@@ -92,8 +92,8 @@
 - [x] **P05-48** · Refactor `app/(tabs)/community.tsx` thành shell <250 lines · *est. 15min*
 
 **Shadowing helper hook (1h)**:
-- [ ] **P05-49** · Tạo `hooks/useShadowingMode.ts` — extract state machine logic (Phase 7 sẽ refactor toàn bộ) · *est. 45min*
-- [ ] **P05-50** · Update `app/shadowing/[lessonId]/[mode].tsx` dùng hook mới · *est. 15min*
+- [x] **P05-49** · Tạo `hooks/useShadowingMode.ts` — extract state machine logic (Phase 7 sẽ refactor toàn bộ) · *est. 45min*
+- [x] **P05-50** · Update `app/shadowing/[lessonId]/[mode].tsx` dùng hook mới · *est. 15min*
 
 ### 0.5.7 Port `lib/exam-parser.ts` từ web (4h)
 - [ ] **P05-51** · Tạo thư mục `lib/` mobile + port `exam-parser.ts` từ `frontend-web/src/lib/exam-parser.ts` · *est. 1.5h*

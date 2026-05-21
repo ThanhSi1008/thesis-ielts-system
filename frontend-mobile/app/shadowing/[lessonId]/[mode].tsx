@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,423 +7,77 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  Alert,
   Dimensions,
-  Pressable,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import { useAudioPlayer } from 'expo-audio';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
-import { usePronunciationChecker } from '@/hooks/usePronunciationChecker';
+import { useShadowingMode } from '@/hooks';
 import { Waveform } from '@/components/voice/Waveform';
 import { RecordButton } from '@/components/voice/RecordButton';
 import { ScoreDashboard } from '@/components/voice/feedback/ScoreDashboard';
 import { TranscriptFeedback } from '@/components/voice/feedback/TranscriptFeedback';
-import { shadowingApi } from '@/services/features.api';
 
 // Colour aliases so existing code compiles (COLORS has no .success/.error keys)
 const SUCCESS_COLOR = COLORS.status.success;
 const ERROR_COLOR = COLORS.status.error;
 
-let ExpoSpeechRecognitionModule: any = null;
-let useSpeechRecognitionEvent: any = (_eventName: string, _listener: any) => {};
-
-try {
-  const SpeechModule = require('expo-speech-recognition');
-  ExpoSpeechRecognitionModule = SpeechModule.ExpoSpeechRecognitionModule;
-  useSpeechRecognitionEvent = SpeechModule.useSpeechRecognitionEvent;
-} catch (e) {
-  console.warn('expo-speech-recognition not found. Voice features require a dev client.');
-}
-
 const { width: SCREEN_W } = Dimensions.get('window');
 const VIDEO_H = SCREEN_W * (9 / 16);
 
-// Placeholder sentence data — in production, loaded from API or bundled JSON
-const PLACEHOLDER_SENTENCES = [
-  {
-    id: 0,
-    english: 'Hello, welcome to the IELTS practice session.',
-    vietnamese: 'Xin chào, chào mừng đến với buổi luyện tập IELTS.',
-    audioStart: 0,
-    audioEnd: 3,
-  },
-  {
-    id: 1,
-    english: 'Today we will practice shadowing techniques.',
-    vietnamese: 'Hôm nay chúng ta sẽ luyện tập kỹ thuật shadowing.',
-    audioStart: 3,
-    audioEnd: 6,
-  },
-  {
-    id: 2,
-    english: 'Listen carefully and repeat after the speaker.',
-    vietnamese: 'Lắng nghe cẩn thận và nhắc lại sau người nói.',
-    audioStart: 6,
-    audioEnd: 9,
-  },
-];
-
 export default function ShadowingPracticeScreen() {
-  // ── Auth & AI scoring ────────────────────────────────────────────────────
   const { user } = useAuth();
-  const audioRecorder = useAudioRecorderHook();
-  const pronunciationChecker = usePronunciationChecker();
   const router = useRouter();
   const { lessonId, mode } = useLocalSearchParams<{ lessonId: string; mode: string }>();
-  const isShadowing = mode === 'shadowing';
 
-  const [lesson, setLesson] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [completed, setCompleted] = useState<number[]>([]);
-  const [dictationInput, setDictationInput] = useState('');
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const sentences = React.useMemo(
-    () => (lesson?.sentences?.length ? lesson.sentences : PLACEHOLDER_SENTENCES),
-    [lesson],
-  );
-  const current = React.useMemo(
-    () => sentences[currentIdx] || sentences[0],
-    [sentences, currentIdx],
-  );
-  const progress = Math.round((completed.length / sentences.length) * 100);
-
-  // Phase 1: Media Sync States
-  const [playing, setPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [trackWidth, setTrackWidth] = useState(0);
-  // react-native-youtube-iframe exposes seekTo/getCurrentTime via imperative ref
-  const playerRef = useRef<any>(null);
-  const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  // JS-clock based tracking (avoids unreliable async getCurrentTime)
-  const playStartTimeRef = useRef<number>(0); // Date.now() when play started
-  const sentenceStartSecRef = useRef<number>(0); // audioStart of sentence when play started
-
-  // Phase 2: Dictation States
-  const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>(
-    'Intermediate',
-  );
-  const [revealedWords, setRevealedWords] = useState<Set<number>>(new Set());
-  const [sentenceCorrect, setSentenceCorrect] = useState(false);
-
-  const currentSentenceWords = React.useMemo(() => {
-    return (current?.english || '').split(/\s+/).filter((w: string) => w.length > 0);
-  }, [current?.english]);
-
-  const normalizeWord = (w: string) =>
-    w
-      .toLowerCase()
-      .replace(/[.,!?'"]/g, '')
-      .trim();
-
-  // Phase 2: Apply difficulty
-  useEffect(() => {
-    const totalWords = currentSentenceWords.length;
-    const newRevealed = new Set<number>();
-    currentSentenceWords.forEach((w: string, i: number) => {
-      if (/^[.,!?'"]+$/.test(w)) newRevealed.add(i);
-    });
-
-    let targetPercent = 0;
-    if (difficulty === 'Beginner') targetPercent = 0.7;
-    else if (difficulty === 'Intermediate') targetPercent = 0.5;
-    else if (difficulty === 'Advanced') targetPercent = 0.3;
-
-    if (targetPercent > 0) {
-      const targetCount = Math.floor(totalWords * targetPercent);
-      const indices = Array.from({ length: totalWords }, (_, i) => i).filter(
-        (i) => !newRevealed.has(i),
-      );
-      indices.sort((a, b) => currentSentenceWords[a].length - currentSentenceWords[b].length);
-      for (let i = 0; i < targetCount && i < indices.length; i++) {
-        newRevealed.add(indices[i]);
-      }
-    }
-
-    setRevealedWords(newRevealed);
-    setDictationInput('');
-    setSentenceCorrect(false);
-  }, [currentIdx, difficulty, currentSentenceWords]);
-
-  useEffect(() => {
-    if (current) {
-      setCurrentTime(current.audioStart);
-      setRevealedWords(new Set());
-      setDictationInput('');
-      setSentenceCorrect(false);
-      pronunciationChecker.reset();
-      setShowAnswer(false);
-      setSpokenTranscript('');
-    }
-    // Use currentIdx (primitive) NOT current (object) to avoid spurious resets on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIdx]);
-
-  const handleSeek = (value: number) => {
-    setCurrentTime(value);
-    // Update clock refs so interval keeps counting from the seeked position
-    sentenceStartSecRef.current = value;
-    playStartTimeRef.current = Date.now();
-    if (lesson?.youtubeVideoId && playerRef.current) {
-      playerRef.current.seekTo(value, true);
-    } else if (lesson?.audioUrl) {
-      audioPlayer.seekTo(value * 1000);
-    }
-  };
-
-  const handleSeekPress = (locationX: number) => {
-    if (trackWidth > 0 && current) {
-      const duration = current.audioEnd - current.audioStart;
-      const seekTime =
-        current.audioStart + Math.max(0, Math.min(1, locationX / trackWidth)) * duration;
-      handleSeek(seekTime);
-    }
-  };
-
-  const formatTimeStr = (seconds: number) => {
-    if (!seconds || isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Phase 2: Evaluate Input Real-time
-  const userWords = React.useMemo(
-    () => dictationInput.split(/\s+/).filter((w) => w.length > 0),
-    [dictationInput],
-  );
-
-  useEffect(() => {
-    if (sentenceCorrect) return;
-    if (userWords.length === currentSentenceWords.length) {
-      const allCorrect = currentSentenceWords.every(
-        (w: string, i: number) => normalizeWord(userWords[i] || '') === normalizeWord(w),
-      );
-      if (allCorrect) {
-        setSentenceCorrect(true);
-        markCompleted(currentIdx);
-      }
-    }
-  }, [userWords, currentSentenceWords, sentenceCorrect, currentIdx]);
-
-  // Phase 3: Speech Recognition + AI Scoring
-  const [isRecording, setIsRecording] = useState(false);
-  const [spokenTranscript, setSpokenTranscript] = useState('');
-
-  useSpeechRecognitionEvent('result', (event: any) => {
-    if (event.results && event.results.length > 0) {
-      const transcript = event.results[0].transcript;
-      setSpokenTranscript(transcript);
-
-      if (isShadowing && !sentenceCorrect) {
-        const closeCount = currentSentenceWords.filter((cw: string) =>
-          transcript.toLowerCase().includes(normalizeWord(cw)),
-        ).length;
-        if (closeCount >= currentSentenceWords.length * 0.7) {
-          setSentenceCorrect(true);
-          markCompleted(currentIdx);
-          stopShadowingRecording();
-        }
-      }
-    }
-  });
-
-  /** Start speech recognition + expo-audio recording simultaneously */
-  const startShadowingRecording = useCallback(async () => {
-    pronunciationChecker.reset();
-    // Start audio file recording for AI scoring
-    await audioRecorder.startRecording();
-
-    // Also start speech recognition for real-time text matching
-    if (!ExpoSpeechRecognitionModule) return;
-    try {
-      const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-      if (!perm.granted) return;
-      setSpokenTranscript('');
-      setIsRecording(true);
-      ExpoSpeechRecognitionModule.start({ lang: 'en-US', continuous: true, interimResults: true });
-    } catch (e) {
-      console.error(e);
-      setIsRecording(false);
-    }
-  }, [audioRecorder, pronunciationChecker]);
-
-  /** Stop both speech recognition and audio recording, then submit for AI scoring */
-  const stopShadowingRecording = useCallback(async () => {
-    // Stop speech recognition
-    if (ExpoSpeechRecognitionModule) ExpoSpeechRecognitionModule.stop();
-    setIsRecording(false);
-
-    // Stop expo-audio recorder and get URI
-    const uri = await audioRecorder.stopRecording();
-    if (uri && user?.id && current?.english) {
-      await pronunciationChecker.checkPronunciation(uri, user.id, {
-        targetWord: current.english,
-      });
-      // Cleanup temp file after upload
-      audioRecorder.clearRecording();
-    }
-  }, [audioRecorder, pronunciationChecker, user, current]);
-
-  /** Legacy: kept for backward-compat (e.g. when sentenceCorrect auto-fires) */
-  const stopRecording = () => stopShadowingRecording();
-
-  // Phase 4: Dictionary State
-  const [selectedWord, setSelectedWord] = useState<string | null>(null);
-
-  const handleWordTap = (word: string) => {
-    setSelectedWord(normalizeWord(word));
-  };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
-  // Stable ref so the interval callback always sees latest `current`
-  const currentRef = useRef(current);
-  useEffect(() => {
-    currentRef.current = current;
-  }, [current]);
-
-  const playSentence = useCallback(
-    (targetSentence?: any) => {
-      const sentence = targetSentence ?? currentRef.current;
-      if (!sentence) return;
-      if (timerRef.current) clearInterval(timerRef.current);
-
-      // Record JS clock baseline for reliable progress tracking
-      sentenceStartSecRef.current = sentence.audioStart;
-      playStartTimeRef.current = Date.now();
-
-      const startInterval = (audioEnd: number) => {
-        timerRef.current = setInterval(() => {
-          const elapsed = (Date.now() - playStartTimeRef.current) / 1000;
-          const t = sentenceStartSecRef.current + elapsed;
-          setCurrentTime(t);
-          if (t >= audioEnd) {
-            setPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
-            if (lesson?.youtubeVideoId && playerRef.current) {
-              // No-op: YouTube controls will show paused state
-            } else if (lesson?.audioUrl) {
-              audioPlayer.pause();
-            }
-          }
-        }, 100);
-      };
-
-      if (lesson?.youtubeVideoId && playerRef.current) {
-        setPlaying(false);
-        playerRef.current.seekTo(sentence.audioStart, true);
-        setTimeout(() => {
-          setPlaying(true);
-          // Reset clock after the 100ms seek delay
-          playStartTimeRef.current = Date.now();
-          startInterval(sentence.audioEnd);
-        }, 150);
-      } else if (lesson?.audioUrl) {
-        audioPlayer.seekTo(sentence.audioStart * 1000);
-        audioPlayer.play();
-        setPlaying(true);
-        startInterval(sentence.audioEnd);
-      }
-    },
-    [lesson, audioPlayer],
-  );
-
-  const togglePlay = useCallback(() => {
-    if (playing) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (lesson?.youtubeVideoId && playerRef.current) {
-        setPlaying(false);
-      } else if (lesson?.audioUrl) {
-        audioPlayer.pause();
-        setPlaying(false);
-      }
-    } else {
-      playSentence(current);
-    }
-  }, [playing, lesson, audioPlayer, current, playSentence]);
-
-  const cycleSpeed = () => {
-    const speeds = [0.25, 0.5, 0.75, 1.0, 2.0];
-    const nextSpeed = speeds[(speeds.indexOf(playbackSpeed) + 1) % speeds.length];
-    setPlaybackSpeed(nextSpeed);
-  };
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        // 1. Try fetching system lesson from API first
-        const data = await shadowingApi.getLessonById(lessonId);
-        setLesson(data);
-      } catch {
-        // 2. Fallback: try fetching user-created video from API
-        try {
-          const data = await shadowingApi.getVideoById(lessonId);
-          setLesson(data);
-        } catch {
-          setLesson({ id: lessonId, title: 'Practice Session', youtubeVideoId: '', sentences: [] });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [lessonId]);
-
-  const markCompleted = (idx: number) => {
-    if (!completed.includes(idx)) setCompleted((prev) => [...prev, idx]);
-  };
-
-  const handleNext = () => {
-    markCompleted(currentIdx);
-    setDictationInput('');
-    setSpokenTranscript('');
-    setShowAnswer(false);
-    setPlaying(false);
-    if (isRecording) stopRecording();
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    if (currentIdx < sentences.length - 1) {
-      setCurrentIdx((i) => i + 1);
-    } else {
-      handleFinish();
-    }
-  };
-
-  const handleFinish = async () => {
-    setSaving(true);
-    try {
-      const allIdx = sentences.map((_: any, i: number) => i);
-      await shadowingApi.upsertProgress({
-        lessonId,
-        type: isShadowing ? 'shadowing' : 'dictation',
-        completedSentences: [...new Set([...completed, currentIdx])],
-      });
-      Alert.alert('Well done! 🎉', `You completed all ${sentences.length} sentences.`, [
-        { text: 'Back', onPress: () => router.back() },
-      ]);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSaving(false);
-    }
-  };
+  const {
+    isShadowing,
+    lesson,
+    loading,
+    currentIdx,
+    setCurrentIdx,
+    completed,
+    dictationInput,
+    setDictationInput,
+    showAnswer,
+    setShowAnswer,
+    saving,
+    sentences,
+    current,
+    progress,
+    playing,
+    playbackSpeed,
+    currentTime,
+    trackWidth,
+    setTrackWidth,
+    playerRef,
+    difficulty,
+    setDifficulty,
+    revealedWords,
+    sentenceCorrect,
+    currentSentenceWords,
+    handleSeekPress,
+    formatTimeStr,
+    userWords,
+    isRecording,
+    spokenTranscript,
+    startShadowingRecording,
+    stopShadowingRecording,
+    selectedWord,
+    setSelectedWord,
+    handleWordTap,
+    togglePlay,
+    cycleSpeed,
+    handleNext,
+    audioRecorder,
+    pronunciationChecker,
+    normalizeWord,
+    handleYoutubeStateChange,
+  } = useShadowingMode({ lessonId, mode, userId: user?.id });
 
   if (loading)
     return (
@@ -479,12 +133,7 @@ export default function ShadowingPracticeScreen() {
                 videoId={youtubeId}
                 play={playing}
                 playbackRate={playbackSpeed}
-                onChangeState={(state: string) => {
-                  if (state === 'ended' || state === 'paused') {
-                    setPlaying(false);
-                    if (timerRef.current) clearInterval(timerRef.current);
-                  }
-                }}
+                onChangeState={handleYoutubeStateChange}
                 initialPlayerParams={{
                   controls: true,
                   modestbranding: true,
