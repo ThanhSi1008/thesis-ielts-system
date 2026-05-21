@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type IeltsSkill = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
@@ -74,6 +75,7 @@ function OptionChip({
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function CustomPracticeScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   const [skill, setSkill] = useState<IeltsSkill>('LISTENING');
   const [catalog, setCatalog] = useState<any>(null);
@@ -157,13 +159,13 @@ export default function CustomPracticeScreen() {
   };
 
   return (
-    <SafeAreaView style={s.container} edges={['top']}>
+    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <View style={s.header}>
+      <View style={[s.header, { backgroundColor: colors.background, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>Custom Practice</Text>
+        <Text style={[s.headerTitle, { color: colors.text }]}>Custom Practice</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -172,38 +174,45 @@ export default function CustomPracticeScreen() {
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={s.subtitle}>Build your own practice session exactly the way you want.</Text>
+        <Text style={[s.subtitle, { color: colors.textMuted }]}>Build your own practice session exactly the way you want.</Text>
 
         {/* ── Step 1: Skill ─────────────────────────────────────────────── */}
         <StepLabel num={1} text="Select Skill" />
         <View style={s.chipRow}>
           {SKILLS.map((sk) => (
-            <OptionChip
+            <TouchableOpacity
               key={sk.key}
-              label={`${sk.icon} ${sk.label}`}
-              active={skill === sk.key}
-              color={sk.color}
+              style={[
+                s.optChip,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                skill === sk.key && { borderColor: sk.color, backgroundColor: sk.color + '15' }
+              ]}
               onPress={() => setSkill(sk.key)}
-            />
+              activeOpacity={0.8}
+            >
+              <Text style={[s.optChipText, { color: colors.textSecondary }, skill === sk.key && { color: sk.color, fontFamily: FONTS.bold }]}>
+                {sk.icon} {sk.label}
+              </Text>
+            </TouchableOpacity>
           ))}
         </View>
 
         {/* ── Step 2: Exam Source ────────────────────────────────────────── */}
         <StepLabel num={2} text="Select Exam Source" />
         {loadingCatalog ? (
-          <View style={s.loadingBox}>
+          <View style={[s.loadingBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text style={s.loadingText}>Loading exams…</Text>
+            <Text style={[s.loadingText, { color: colors.textMuted }]}>Loading exams…</Text>
           </View>
         ) : (
           <>
             <TouchableOpacity
-              style={[s.examSelector, !canStart && { borderColor: COLORS.border }]}
+              style={[s.examSelector, { backgroundColor: colors.card, borderColor: colors.border }, !canStart && { borderColor: colors.border }]}
               onPress={() => setShowExamPicker((v) => !v)}
               activeOpacity={0.8}
             >
               <Text
-                style={[s.examSelectorText, !selectedExamId && { color: COLORS.textMuted }]}
+                style={[s.examSelectorText, { color: colors.text }, !selectedExamId && { color: colors.textMuted }]}
                 numberOfLines={1}
               >
                 {selectedExamLabel}
@@ -211,20 +220,20 @@ export default function CustomPracticeScreen() {
               <Ionicons
                 name={showExamPicker ? 'chevron-up' : 'chevron-down'}
                 size={18}
-                color={COLORS.textMuted}
+                color={colors.textMuted}
               />
             </TouchableOpacity>
 
             {/* Inline exam picker */}
             {showExamPicker && (
-              <View style={s.examPickerDropdown}>
+              <View style={[s.examPickerDropdown, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <ScrollView nestedScrollEnabled style={{ maxHeight: 240 }}>
                   {allExams.map((exam) => {
                     const active = exam.examId === selectedExamId;
                     return (
                       <TouchableOpacity
                         key={exam.examId}
-                        style={[s.examPickerItem, active && s.examPickerItemActive]}
+                        style={[s.examPickerItem, { borderColor: colors.border }, active && { backgroundColor: colors.surface }]}
                         onPress={() => {
                           setSelectedExamId(exam.examId);
                           setSelectedExamLabel(exam.label);
@@ -235,6 +244,7 @@ export default function CustomPracticeScreen() {
                         <Text
                           style={[
                             s.examPickerText,
+                            { color: colors.text },
                             active && { color: skillInfo.color, fontFamily: FONTS.bold },
                           ]}
                         >
@@ -245,7 +255,7 @@ export default function CustomPracticeScreen() {
                     );
                   })}
                   {allExams.length === 0 && (
-                    <Text style={s.examPickerEmpty}>No exams available for this skill.</Text>
+                    <Text style={[s.examPickerEmpty, { color: colors.textMuted }]}>No exams available for this skill.</Text>
                   )}
                 </ScrollView>
               </View>
@@ -256,20 +266,34 @@ export default function CustomPracticeScreen() {
         {/* ── Step 3: Part ──────────────────────────────────────────────── */}
         <StepLabel num={3} text="Select Parts" />
         <View style={s.chipRow}>
-          <OptionChip
-            label="All Parts"
-            active={part === 'all'}
-            color={skillInfo.color}
+          <TouchableOpacity
+            style={[
+              s.optChip,
+              { backgroundColor: colors.card, borderColor: colors.border },
+              part === 'all' && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+            ]}
             onPress={() => setPart('all')}
-          />
+            activeOpacity={0.8}
+          >
+            <Text style={[s.optChipText, { color: colors.textSecondary }, part === 'all' && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+              All Parts
+            </Text>
+          </TouchableOpacity>
           {Array.from({ length: partCount }, (_, i) => i + 1).map((n) => (
-            <OptionChip
+            <TouchableOpacity
               key={n}
-              label={`Part ${n}`}
-              active={part === n}
-              color={skillInfo.color}
+              style={[
+                s.optChip,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                part === n && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+              ]}
               onPress={() => setPart(n)}
-            />
+              activeOpacity={0.8}
+            >
+              <Text style={[s.optChipText, { color: colors.textSecondary }, part === n && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+                Part {n}
+              </Text>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -277,28 +301,42 @@ export default function CustomPracticeScreen() {
         <StepLabel num={4} text="Time Limit" />
         <View style={s.chipRow}>
           {PRESET_TIMES.map((mins) => (
-            <OptionChip
+            <TouchableOpacity
               key={mins}
-              label={`${mins} min`}
-              active={!isCustomTime && timeLimit === mins}
-              color={skillInfo.color}
+              style={[
+                s.optChip,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                !isCustomTime && timeLimit === mins && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+              ]}
               onPress={() => {
                 setIsCustomTime(false);
                 setTimeLimit(mins);
               }}
-            />
+              activeOpacity={0.8}
+            >
+              <Text style={[s.optChipText, { color: colors.textSecondary }, !isCustomTime && timeLimit === mins && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+                {mins} min
+              </Text>
+            </TouchableOpacity>
           ))}
-          <OptionChip
-            label="Custom"
-            active={isCustomTime}
-            color={skillInfo.color}
+          <TouchableOpacity
+            style={[
+              s.optChip,
+              { backgroundColor: colors.card, borderColor: colors.border },
+              isCustomTime && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+            ]}
             onPress={() => setIsCustomTime(true)}
-          />
+            activeOpacity={0.8}
+          >
+            <Text style={[s.optChipText, { color: colors.textSecondary }, isCustomTime && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+              Custom
+            </Text>
+          </TouchableOpacity>
         </View>
         {isCustomTime && (
           <View style={s.customTimeRow}>
             <TextInput
-              style={s.customTimeInput}
+              style={[s.customTimeInput, { backgroundColor: colors.card, borderColor: skillInfo.color, color: colors.text }]}
               value={customTimeStr}
               onChangeText={(t) => {
                 setCustomTimeStr(t);
@@ -308,37 +346,37 @@ export default function CustomPracticeScreen() {
               keyboardType="number-pad"
               maxLength={3}
               placeholder="30"
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
             />
-            <Text style={s.customTimeLabel}>minutes (max 180)</Text>
+            <Text style={[s.customTimeLabel, { color: colors.textSecondary }]}>minutes (max 180)</Text>
           </View>
         )}
 
         {/* ── Step 5: Auto-Submit ───────────────────────────────────────── */}
-        <View style={s.divider} />
+        <View style={[s.divider, { backgroundColor: colors.border }]} />
         <View style={s.autoSubmitRow}>
           <View style={{ flex: 1 }}>
-            <Text style={s.autoSubmitTitle}>Auto-Submit when time is up</Text>
-            <Text style={s.autoSubmitSub}>
+            <Text style={[s.autoSubmitTitle, { color: colors.text }]}>Auto-Submit when time is up</Text>
+            <Text style={[s.autoSubmitSub, { color: colors.textSecondary }]}>
               If off, you can keep practicing after the timer reaches zero.
             </Text>
           </View>
           <Switch
             value={autoSubmit}
             onValueChange={setAutoSubmit}
-            trackColor={{ false: COLORS.border, true: skillInfo.color }}
+            trackColor={{ false: colors.border, true: skillInfo.color }}
             thumbColor="#fff"
           />
         </View>
 
         {/* ── Summary card ─────────────────────────────────────────────── */}
         {canStart && (
-          <View style={[s.summaryCard, { borderLeftColor: skillInfo.color }]}>
+          <View style={[s.summaryCard, { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: skillInfo.color }]}>
             <Text style={[s.summaryTitle, { color: skillInfo.color }]}>
               {skillInfo.icon} {skillInfo.label} · {part === 'all' ? 'All Parts' : `Part ${part}`}
             </Text>
-            <Text style={s.summaryDetail}>{selectedExamLabel}</Text>
-            <Text style={s.summaryDetail}>
+            <Text style={[s.summaryDetail, { color: colors.textSecondary }]}>{selectedExamLabel}</Text>
+            <Text style={[s.summaryDetail, { color: colors.textSecondary }]}>
               ⏱ {timeLimit} min · {autoSubmit ? 'Auto-submit on' : 'No auto-submit'}
             </Text>
           </View>
@@ -346,12 +384,12 @@ export default function CustomPracticeScreen() {
       </ScrollView>
 
       {/* ── Start button (sticky) ─────────────────────────────────────────── */}
-      <View style={s.startBar}>
+      <View style={[s.startBar, { backgroundColor: colors.background, borderColor: colors.border }]}>
         <TouchableOpacity
           style={[
             s.startBtn,
             !canStart && s.startBtnDisabled,
-            { backgroundColor: canStart ? skillInfo.color : COLORS.border },
+            { backgroundColor: canStart ? skillInfo.color : colors.border },
           ]}
           onPress={handleStart}
           disabled={!canStart}
@@ -406,7 +444,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   stepNum: { color: '#fff', fontSize: 12, fontFamily: FONTS.bold },
-  stepText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
+  stepText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
 
   // Option chips
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, marginBottom: SPACING.sm },

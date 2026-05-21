@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { TextWithLookup } from '../global/TextWithLookup';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Passage Text Sanitizer ──────────────────────────────────────────────────
 // Mirrors web TakeReadingBoard.tsx logic exactly:
@@ -74,6 +75,7 @@ function parseInline(text: string, baseKey: string): React.ReactNode[] {
 
 // ─── Passage Renderer ─────────────────────────────────────────────────────────
 function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
+  const { colors } = useTheme();
   const paragraphs = useMemo(() => {
     const cleaned = stripPassageAnnotations(text, topic || '');
     return cleaned.split('\n').filter((p) => p.trim().length > 0);
@@ -89,9 +91,9 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
         if (sectionMatch) {
           return (
             <View key={key} style={pr.sectionBlock}>
-              <Text style={pr.sectionLetter}>{sectionMatch[1].toUpperCase()}</Text>
+              <Text style={[pr.sectionLetter, { color: colors.text }]}>{sectionMatch[1].toUpperCase()}</Text>
               {sectionMatch[2].trim().length > 0 && (
-                <TextWithLookup style={pr.paragraph} content={sectionMatch[2].trim()} />
+                <TextWithLookup style={[pr.paragraph, { color: colors.text }]} content={sectionMatch[2].trim()} />
               )}
             </View>
           );
@@ -103,14 +105,14 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
           const inner = headingMatch[1].trim();
           if (inner.toLowerCase() !== (topic || '').toLowerCase()) {
             return (
-              <TextWithLookup key={key} style={pr.heading} content={inner} />
+              <TextWithLookup key={key} style={[pr.heading, { color: colors.text }]} content={inner} />
             );
           }
           return null;
         }
 
         return (
-          <TextWithLookup key={key} style={pr.paragraph} content={para} />
+          <TextWithLookup key={key} style={[pr.paragraph, { color: colors.text }]} content={para} />
         );
       })}
     </View>
@@ -147,7 +149,7 @@ interface Props {
   parts: any[];
   answers: Record<string, string>;
   onChange: (key: string, value: string) => void;
-  renderGroup: (g: any, answers: any, setAnswer: any, gi: number, pi: number) => React.ReactNode;
+  renderGroup: (g: any, answers: any, setAnswer: any, gi: number, pi: number, colors: any, isDark: boolean) => React.ReactNode;
 }
 
 export default function ReadingExamBlock({ parts, answers, onChange, renderGroup }: Props) {
@@ -155,6 +157,7 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
   const currentPart = parts[activePartIdx];
   const { width } = Dimensions.get('window');
   const isTablet = width > 600;
+  const { colors, isDark } = useTheme();
 
   // Phone split: topFlex is the passage pane share (0.2–0.8)
   const [topFlex, setTopFlex] = useState(0.48);
@@ -184,19 +187,19 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
   }, [groups]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Part tabs */}
-      <View style={styles.tabs}>
+      <View style={[styles.tabs, { backgroundColor: colors.card, borderColor: colors.border }]}>
         {parts.map((part, idx) => {
           const active = activePartIdx === idx;
           return (
             <TouchableOpacity
               key={idx}
-              style={[styles.tab, active && styles.tabActive]}
+              style={[styles.tab, active && { borderBottomColor: colors.primary }]}
               onPress={() => setActivePartIdx(idx)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>
+              <Text style={[styles.tabLabel, { color: colors.textSecondary }, active && { color: colors.primary }]}>
                 Part {part.part_number || idx + 1}
               </Text>
             </TouchableOpacity>
@@ -206,13 +209,13 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
 
       {/* Context bar: topic + question range */}
       {(currentPart?.topic || qRange) && (
-        <View style={styles.contextBar}>
+        <View style={[styles.contextBar, { backgroundColor: isDark ? colors.surface : '#F2F1EF', borderColor: colors.border }]}>
           {currentPart?.topic && (
-            <Text style={styles.contextTopic} numberOfLines={1}>
+            <Text style={[styles.contextTopic, { color: colors.text }]} numberOfLines={1}>
               {currentPart.topic}
             </Text>
           )}
-          {qRange && <Text style={styles.contextRange}>Questions {qRange}</Text>}
+          {qRange && <Text style={[styles.contextRange, { color: colors.textSecondary }]}>Questions {qRange}</Text>}
         </View>
       )}
 
@@ -221,16 +224,17 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
         <View
           style={[
             styles.pane,
+            { backgroundColor: colors.background },
             !isTablet && { flex: topFlex },
-            isTablet && { flex: 1, borderRightWidth: 1, borderColor: COLORS.border },
+            isTablet && { flex: 1, borderRightWidth: 1, borderColor: colors.border },
           ]}
         >
           <ScrollView style={styles.scroll} nestedScrollEnabled showsVerticalScrollIndicator>
-            <View style={styles.paneHeader}>
-              <Ionicons name="book-outline" size={16} color={COLORS.primary} />
-              <Text style={styles.paneHeaderText}>Reading Passage</Text>
+            <View style={[styles.paneHeader, { borderColor: colors.border + '40' }]}>
+              <Ionicons name="book-outline" size={16} color={colors.primary} />
+              <Text style={[styles.paneHeaderText, { color: colors.primary }]}>Reading Passage</Text>
             </View>
-            {currentPart?.topic && <Text style={styles.passageTopic}>{currentPart.topic}</Text>}
+            {currentPart?.topic && <Text style={[styles.passageTopic, { color: colors.text }]}>{currentPart.topic}</Text>}
             <PassageRenderer
               text={currentPart?.passage_text || currentPart?.passage || ''}
               topic={currentPart?.topic}
@@ -240,24 +244,24 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
 
         {/* DRAG SPLITTER (phone) */}
         {!isTablet && (
-          <View style={styles.splitter} {...panResponder.panHandlers}>
-            <View style={styles.splitterHandle} />
+          <View style={[styles.splitter, { backgroundColor: isDark ? colors.surface : '#E8E8E8', borderColor: colors.border }]} {...panResponder.panHandlers}>
+            <View style={[styles.splitterHandle, { backgroundColor: isDark ? colors.border : '#B0B0B0' }]} />
           </View>
         )}
 
         {/* QUESTIONS PANE */}
-        <View style={[styles.pane, !isTablet && { flex: 1 - topFlex }]}>
+        <View style={[styles.pane, { backgroundColor: colors.background }, !isTablet && { flex: 1 - topFlex }]}>
           <ScrollView
             style={styles.scroll}
             nestedScrollEnabled
             contentContainerStyle={{ padding: SPACING.lg, paddingBottom: SPACING.xxl }}
           >
-            <View style={styles.paneHeader}>
-              <Ionicons name="help-circle-outline" size={16} color="#D97706" />
-              <Text style={[styles.paneHeaderText, { color: '#D97706' }]}>Questions</Text>
+            <View style={[styles.paneHeader, { borderColor: colors.border + '40' }]}>
+              <Ionicons name="help-circle-outline" size={16} color={colors.warning} />
+              <Text style={[styles.paneHeaderText, { color: colors.warning }]}>Questions</Text>
             </View>
             {groups.map((g: any, gi: number) =>
-              renderGroup(g, answers, onChange, gi, activePartIdx),
+              renderGroup(g, answers, onChange, gi, activePartIdx, colors, isDark),
             )}
           </ScrollView>
         </View>

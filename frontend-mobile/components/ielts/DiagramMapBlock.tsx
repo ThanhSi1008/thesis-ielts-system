@@ -9,6 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Types (mirrored from web) ────────────────────────────────────────────────
 interface OptionItem {
@@ -60,6 +61,7 @@ function LabelWithBlanks({
   answers: Record<string, string>;
   onAnswer: (qNum: string, v: string) => void;
 }) {
+  const { colors, isDark } = useTheme();
   const regex = /\{\{(\d+)\}\}/g;
   const segments: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -68,7 +70,7 @@ function LabelWithBlanks({
   while ((match = regex.exec(label)) !== null) {
     if (match.index > lastIndex) {
       segments.push(
-        <Text key={`t-${lastIndex}`} style={lbStyles.text}>
+        <Text key={`t-${lastIndex}`} style={[lbStyles.text, { color: colors.text }]}>
           {label.slice(lastIndex, match.index)}
         </Text>,
       );
@@ -76,14 +78,14 @@ function LabelWithBlanks({
     const qNum = Number(match[1]);
     const val = answers[String(qNum)] || '';
     segments.push(
-      <View key={`b-${qNum}`} style={lbStyles.blank}>
-        <Text style={lbStyles.blankNum}>{qNum}</Text>
+      <View key={`b-${qNum}`} style={[lbStyles.blank, { borderColor: colors.primary, backgroundColor: isDark ? colors.surface : '#F0F7FF' }]}>
+        <Text style={[lbStyles.blankNum, { color: colors.primary }]}>{qNum}</Text>
         <TextInput
-          style={lbStyles.blankInput}
+          style={[lbStyles.blankInput, { color: colors.text }]}
           value={val}
           onChangeText={(v) => onAnswer(String(qNum), v)}
           placeholder="…"
-          placeholderTextColor={COLORS.textMuted}
+          placeholderTextColor={colors.textMuted}
         />
       </View>,
     );
@@ -92,7 +94,7 @@ function LabelWithBlanks({
 
   if (lastIndex < label.length) {
     segments.push(
-      <Text key="t-end" style={lbStyles.text}>
+      <Text key="t-end" style={[lbStyles.text, { color: colors.text }]}>
         {label.slice(lastIndex)}
       </Text>,
     );
@@ -131,14 +133,15 @@ function RadioGrid({
   answers: Record<string, string>;
   onAnswer: (qNum: string, value: string) => void;
 }) {
+  const { colors, isDark } = useTheme();
   return (
-    <View style={rgStyles.container}>
+    <View style={[rgStyles.container, { borderColor: colors.border, backgroundColor: colors.card }]}>
       {/* Header row */}
-      <View style={rgStyles.headerRow}>
+      <View style={[rgStyles.headerRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={rgStyles.labelCell} />
         {labels.map((l) => (
-          <View key={l} style={rgStyles.radioCell}>
-            <Text style={rgStyles.headerLabel}>{l}</Text>
+          <View key={l} style={[rgStyles.radioCell, { borderColor: colors.border + '60' }]}>
+            <Text style={[rgStyles.headerLabel, { color: colors.text }]}>{l}</Text>
           </View>
         ))}
       </View>
@@ -147,14 +150,14 @@ function RadioGrid({
         const num = String(item.question_number);
         const selected = answers[num] || '';
         return (
-          <View key={num} style={rgStyles.row}>
+          <View key={num} style={[rgStyles.row, { borderColor: colors.border + '80' }]}>
             {/* Question number (+ optional text) */}
             <View style={rgStyles.labelCell}>
-              <View style={rgStyles.numBadge}>
-                <Text style={rgStyles.numText}>{item.question_number}</Text>
+              <View style={[rgStyles.numBadge, { borderColor: colors.primary + '40', backgroundColor: isDark ? colors.surface : '#EFF6FF' }]}>
+                <Text style={[rgStyles.numText, { color: colors.primary }]}>{item.question_number}</Text>
               </View>
               {item.text ? (
-                <Text style={rgStyles.itemText} numberOfLines={2}>
+                <Text style={[rgStyles.itemText, { color: colors.text }]} numberOfLines={2}>
                   {item.text}
                 </Text>
               ) : null}
@@ -166,12 +169,12 @@ function RadioGrid({
               return (
                 <TouchableOpacity
                   key={l}
-                  style={rgStyles.radioCell}
+                  style={[rgStyles.radioCell, { borderColor: colors.border + '60' }]}
                   onPress={() => onAnswer(num, l)}
                   activeOpacity={0.7}
                 >
-                  <View style={[rgStyles.radio, isSelected && rgStyles.radioSelected]}>
-                    {isSelected && <View style={rgStyles.radioDot} />}
+                  <View style={[rgStyles.radio, { borderColor: colors.border, backgroundColor: colors.card }, isSelected && { borderColor: colors.primary }]}>
+                    {isSelected && <View style={[rgStyles.radioDot, { backgroundColor: colors.primary }]} />}
                   </View>
                 </TouchableOpacity>
               );
@@ -250,22 +253,23 @@ function FillList({
   answers: Record<string, string>;
   onAnswer: (qNum: string, v: string) => void;
 }) {
+  const { colors, isDark } = useTheme();
   return (
-    <View style={flStyles.container}>
+    <View style={[flStyles.container, { backgroundColor: isDark ? colors.surface : '#EFF6FF', borderColor: isDark ? colors.border : '#BFDBFE' }]}>
       {questions.map((q) => {
         const num = String(q.question_number);
         return (
           <View key={num} style={flStyles.row}>
-            <View style={flStyles.numBadge}>
-              <Text style={flStyles.numText}>{q.question_number}</Text>
+            <View style={[flStyles.numBadge, { borderColor: isDark ? colors.border : '#93C5FD', backgroundColor: colors.card }]}>
+              <Text style={[flStyles.numText, { color: colors.primary }]}>{q.question_number}</Text>
             </View>
-            {q.label_context ? <Text style={flStyles.context}>{q.label_context}</Text> : null}
+            {q.label_context ? <Text style={[flStyles.context, { color: colors.text }]}>{q.label_context}</Text> : null}
             <TextInput
-              style={flStyles.input}
+              style={[flStyles.input, { borderColor: colors.primary, color: colors.text, backgroundColor: colors.card }]}
               value={answers[num] || ''}
               onChangeText={(v) => onAnswer(num, v)}
               placeholder="Answer…"
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
             />
           </View>
         );
@@ -312,14 +316,15 @@ const flStyles = StyleSheet.create({
 
 // ─── Options bank (for diagram_labelling) ────────────────────────────────────
 function OptionsBank({ options }: { options: OptionItem[] }) {
+  const { colors, isDark } = useTheme();
   return (
-    <View style={obStyles.container}>
-      <Text style={obStyles.title}>Options Box</Text>
+    <View style={[obStyles.container, { backgroundColor: isDark ? colors.surface : '#EFF6FF', borderColor: isDark ? colors.border : '#BFDBFE' }]}>
+      <Text style={[obStyles.title, { color: colors.primary, borderColor: isDark ? colors.border : '#BFDBFE' }]}>Options Box</Text>
       <View style={obStyles.grid}>
         {options.map((opt) => (
           <View key={opt.letter} style={obStyles.item}>
-            <Text style={obStyles.letter}>{opt.letter}</Text>
-            <Text style={obStyles.optText}>{opt.text}</Text>
+            <Text style={[obStyles.letter, { color: colors.primary }]}>{opt.letter}</Text>
+            <Text style={[obStyles.optText, { color: colors.text }]}>{opt.text}</Text>
           </View>
         ))}
       </View>
@@ -355,6 +360,7 @@ const obStyles = StyleSheet.create({
 
 // ─── Main exported component ──────────────────────────────────────────────────
 export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
+  const { colors, isDark } = useTheme();
   const isDiagramLabelling = group.type === 'diagram_labelling';
   const isMapLabelling = group.type === 'map_labelling' || group.type === 'plan_labelling';
   const isDiagramCompletion = group.type === 'diagram_completion';
@@ -376,19 +382,19 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
   const tagColor = isDiagramCompletion ? '#059669' : isDiagramLabelling ? '#2563EB' : '#D97706';
 
   return (
-    <View style={s.container}>
+    <View style={[s.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
       {/* Header */}
-      <View style={s.header}>
+      <View style={[s.header, { borderColor: colors.border + '60', backgroundColor: colors.surface }]}>
         <View
           style={[s.typeTag, { backgroundColor: tagColor + '18', borderColor: tagColor + '40' }]}
         >
           <Text style={[s.typeTagText, { color: tagColor }]}>{typeTag}</Text>
         </View>
-        {title ? <Text style={s.heading}>{title}</Text> : null}
+        {title ? <Text style={[s.heading, { color: colors.text }]}>{title}</Text> : null}
       </View>
 
       {/* Instruction */}
-      {group.instruction && <Text style={s.instruction}>{group.instruction}</Text>}
+      {group.instruction && <Text style={[s.instruction, { color: colors.textSecondary }]}>{group.instruction}</Text>}
 
       {/* Image */}
       {group.image_url ? (
@@ -399,7 +405,7 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
 
       {/* ── diagram_labelling: options bank + radio grid ── */}
       {isDiagramLabelling && group.options && group.items && (
-        <>
+        <View style={{ padding: SPACING.md }}>
           <OptionsBank options={group.options} />
           <RadioGrid
             labels={group.options.map((o) => o.letter)}
@@ -407,18 +413,18 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
             answers={answers}
             onAnswer={onAnswer}
           />
-        </>
+        </View>
       )}
 
       {/* ── diagram_completion: labels with inline blanks ── */}
       {isDiagramCompletion && group.labels && group.questions && (
-        <View style={s.labelsBox}>
-          <Text style={s.labelsTitle}>Labels</Text>
+        <View style={[s.labelsBox, { backgroundColor: isDark ? colors.surface : '#EFF6FF', borderColor: isDark ? colors.border : '#BFDBFE' }]}>
+          <Text style={[s.labelsTitle, { color: colors.primary, borderColor: isDark ? colors.border : '#BFDBFE' }]}>Labels</Text>
           {group.labels.map((label, li) => {
             const qMap = Object.fromEntries(group.questions!.map((q) => [q.question_number, q]));
             return (
               <View key={li} style={s.labelRow}>
-                <View style={s.bullet} />
+                <View style={[s.bullet, { backgroundColor: colors.primary + '80' }]} />
                 <LabelWithBlanks label={label} qMap={qMap} answers={answers} onAnswer={onAnswer} />
               </View>
             );
@@ -428,21 +434,26 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
 
       {/* ── map_labelling: radio grid variant ── */}
       {hasRadioGrid && group.labels && group.items && (
-        <RadioGrid
-          labels={group.labels}
-          items={group.items}
-          answers={answers}
-          onAnswer={onAnswer}
-        />
+        <View style={{ padding: SPACING.md }}>
+          <RadioGrid
+            labels={group.labels}
+            items={group.items}
+            answers={answers}
+            onAnswer={onAnswer}
+          />
+        </View>
       )}
 
       {/* ── map_labelling: fill-text variant ── */}
       {hasFillList && !hasRadioGrid && group.questions && (
-        <FillList questions={group.questions as any} answers={answers} onAnswer={onAnswer} />
+        <View style={{ padding: SPACING.md }}>
+          <FillList questions={group.questions as any} answers={answers} onAnswer={onAnswer} />
+        </View>
       )}
     </View>
   );
 }
+
 
 const s = StyleSheet.create({
   container: {

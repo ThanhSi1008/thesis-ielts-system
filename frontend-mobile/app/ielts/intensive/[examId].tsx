@@ -21,6 +21,7 @@ import { WebView } from 'react-native-webview';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button, Badge } from '@/components/ui';
 import WritingExamBlock from '@/components/ielts/WritingExamBlock';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
@@ -70,6 +71,7 @@ function MCQQuestion({
   answers: Record<string, string>;
   onAnswer: (key: string, value: string) => void;
 }) {
+  const { colors, isDark } = useTheme();
   // Normalise options
   const rawOptions = q.options;
   const optionEntries: { letter: string; label: string }[] =
@@ -120,34 +122,43 @@ function MCQQuestion({
   };
 
   return (
-    <View style={qStyles.block}>
-      <Text style={qStyles.qNumber}>Q{displayNum}</Text>
-      {isMulti && <Text style={qStyles.multiHint}>Choose {qNums.length} letters</Text>}
-      <Text style={qStyles.qText}>{questionText}</Text>
+    <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
+      {isMulti && (
+        <Text style={[qStyles.multiHint, isDark ? { backgroundColor: 'rgba(217, 119, 6, 0.15)', color: '#fbbf24' } : { backgroundColor: '#FEF3C7', color: '#D97706' }]}>
+          Choose {qNums.length} letters
+        </Text>
+      )}
+      <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
       {optionEntries.map(({ letter, label }) => {
         const sel = isSelected(letter);
         return (
           <TouchableOpacity
             key={letter}
-            style={[qStyles.option, sel && qStyles.optionSelected]}
+            style={[
+              qStyles.option,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+              sel && { borderColor: colors.primary, backgroundColor: colors.primary + '18' }
+            ]}
             onPress={() => handlePress(letter)}
             activeOpacity={0.8}
           >
             <View
               style={[
                 qStyles.optionBullet,
-                sel && qStyles.optionBulletSelected,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                sel && { backgroundColor: colors.primary, borderColor: colors.primary },
                 isMulti && qStyles.optionBulletMulti,
-                isMulti && sel && qStyles.optionBulletMultiSelected,
+                isMulti && sel && { backgroundColor: colors.primary, borderColor: colors.primary },
               ]}
             >
               {isMulti && sel ? (
                 <Ionicons name="checkmark" size={12} color="#fff" />
               ) : (
-                <Text style={[qStyles.optionLetter, sel && { color: '#fff' }]}>{letter}</Text>
+                <Text style={[qStyles.optionLetter, { color: colors.textSecondary }, sel && { color: '#fff' }]}>{letter}</Text>
               )}
             </View>
-            <Text style={[qStyles.optionText, sel && qStyles.optionTextSelected]}>{label}</Text>
+            <Text style={[qStyles.optionText, { color: colors.text }, sel && { color: colors.primary, fontWeight: '600' }]}>{label}</Text>
           </TouchableOpacity>
         );
       })}
@@ -165,6 +176,7 @@ function FillQuestion({
   answer: string;
   onAnswer: (v: string) => void;
 }) {
+  const { colors } = useTheme();
   const questionText = q.question_text || q.question || q.text || '';
   const contextNote = q.note || q.additional_info || q.context || null;
   const qNums: string[] = q.question_numbers
@@ -174,21 +186,21 @@ function FillQuestion({
       : [];
 
   return (
-    <View style={qStyles.block}>
-      <Text style={qStyles.qNumber}>Q{qNums.join(' & ')}</Text>
-      {questionText ? <Text style={qStyles.qText}>{questionText}</Text> : null}
+    <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
+      {questionText ? <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text> : null}
       {contextNote ? (
-        <View style={qStyles.contextNote}>
-          <Ionicons name="information-circle-outline" size={13} color={COLORS.textSecondary} />
-          <Text style={qStyles.contextNoteText}>{contextNote}</Text>
+        <View style={[qStyles.contextNote, { backgroundColor: colors.surface, borderColor: colors.border + '80' }]}>
+          <Ionicons name="information-circle-outline" size={13} color={colors.textSecondary} />
+          <Text style={[qStyles.contextNoteText, { color: colors.textSecondary }]}>{contextNote}</Text>
         </View>
       ) : null}
       <TextInput
-        style={qStyles.input}
+        style={[qStyles.input, { borderColor: colors.border, color: colors.text }]}
         value={answer}
         onChangeText={onAnswer}
         placeholder="Type your answer…"
-        placeholderTextColor={COLORS.textMuted}
+        placeholderTextColor={colors.textMuted}
         returnKeyType="done"
       />
     </View>
@@ -451,25 +463,26 @@ function SummaryBlankSelector({
   onSelect: (letter: string) => void;
   onClear: () => void;
 }) {
+  const { colors, isDark } = useTheme();
   const [open, setOpen] = React.useState(false);
   const filled = !!value;
   const usedLetters = new Set(Object.values(answers).filter((v) => v && v !== value));
 
   return (
-    <View style={qStyles.selectorRow}>
+    <View style={[qStyles.selectorRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <TouchableOpacity
-        style={[qStyles.selectorChip, filled && qStyles.selectorChipFilled]}
+        style={[qStyles.selectorChip, filled && { backgroundColor: colors.primary + '08' }]}
         onPress={() => setOpen((o) => !o)}
         activeOpacity={0.75}
       >
         <View style={qStyles.selectorChipLeft}>
-          <View style={qStyles.summaryQBadge}>
-            <Text style={qStyles.summaryQBadgeText}>{qNum}</Text>
+          <View style={[qStyles.summaryQBadge, { backgroundColor: colors.primary + '18' }]}>
+            <Text style={[qStyles.summaryQBadgeText, { color: colors.primary }]}>{qNum}</Text>
           </View>
           {filled ? (
-            <Text style={qStyles.selectorChipValue}>{displayLabel}</Text>
+            <Text style={[qStyles.selectorChipValue, { color: colors.primary }]}>{displayLabel}</Text>
           ) : (
-            <Text style={qStyles.selectorChipPlaceholder}>Tap to select an answer…</Text>
+            <Text style={[qStyles.selectorChipPlaceholder, { color: colors.textSecondary }]}>Tap to select an answer…</Text>
           )}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -482,26 +495,30 @@ function SummaryBlankSelector({
               }}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="close-circle" size={18} color="#94A3B8" />
+              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
           <Ionicons
             name={open ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={COLORS.textSecondary}
+            color={colors.textSecondary}
           />
         </View>
       </TouchableOpacity>
 
       {open && (
-        <ScrollView style={qStyles.selectorList} nestedScrollEnabled>
+        <ScrollView style={[qStyles.selectorList, { borderTopColor: colors.border + '80' }]} nestedScrollEnabled>
           {Object.entries(options).map(([letter, text]) => {
             const isActive = value === letter;
             const isUsed = !isActive && usedLetters.has(letter);
             return (
               <TouchableOpacity
                 key={letter}
-                style={[qStyles.selectorListItem, isActive && qStyles.selectorListItemActive]}
+                style={[
+                  qStyles.selectorListItem,
+                  { borderBottomColor: colors.border + '40' },
+                  isActive && { backgroundColor: colors.primary + '15' }
+                ]}
                 onPress={() => {
                   onSelect(letter);
                   setOpen(false);
@@ -510,21 +527,26 @@ function SummaryBlankSelector({
                 activeOpacity={0.7}
               >
                 <View
-                  style={[qStyles.selectorListLetter, isActive && qStyles.selectorListLetterActive]}
+                  style={[
+                    qStyles.selectorListLetter,
+                    { backgroundColor: isDark ? colors.surface : '#EFF6FF' },
+                    isActive && { backgroundColor: colors.primary }
+                  ]}
                 >
                   <Text
                     style={[
                       qStyles.selectorListLetterText,
-                      isActive && qStyles.selectorListLetterTextActive,
+                      { color: colors.primary },
+                      isActive && { color: '#fff' },
                     ]}
                   >
                     {letter}
                   </Text>
                 </View>
-                <Text style={[qStyles.selectorListText, isUsed && { color: '#CBD5E1' }]}>
+                <Text style={[qStyles.selectorListText, { color: colors.text }, isUsed && { color: colors.textDisabled }]}>
                   {String(text)}
                 </Text>
-                {isActive && <Ionicons name="checkmark" size={16} color={COLORS.primary} />}
+                {isActive && <Ionicons name="checkmark" size={16} color={colors.primary} />}
               </TouchableOpacity>
             );
           })}
@@ -1025,6 +1047,7 @@ export default function ExamPlayerScreen() {
   const router = useRouter();
   const { examId } = useLocalSearchParams<{ examId: string }>();
   const { user } = useAuth();
+  const { colors, isDark } = useTheme();
 
   const [exam, setExam] = useState<any>(null);
   const [session, setSession] = useState<any>(null);

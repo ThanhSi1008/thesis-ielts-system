@@ -18,6 +18,7 @@ import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
 import WritingRubricView from '@/components/ielts/WritingRubricView';
 import SpeakingRubricView from '@/components/ielts/SpeakingRubricView';
@@ -186,6 +187,8 @@ function AnswerSheet({
   correctMap: Map<string, any>;
   totalQuestions: number;
 }) {
+  const { colors, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
   let correct = 0,
     wrong = 0,
@@ -197,14 +200,14 @@ function AnswerSheet({
   );
 
   return (
-    <View style={as.container}>
-      <Text style={as.title}>Answer Sheet</Text>
+    <View style={[as.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <Text style={[as.title, { color: colors.text }]}>Answer Sheet</Text>
       <View style={as.columnsContainer}>
         {parts.map((partNums, idx) => {
           if (partNums.length === 0) return null;
           return (
             <View key={idx} style={as.column}>
-              <Text style={as.colTitle}>Part {idx + 1}</Text>
+              <Text style={[as.colTitle, { color: colors.textSecondary }]}>Part {idx + 1}</Text>
               <View style={as.colGrid}>
                 {partNums.map((n) => {
                   const key = String(n);
@@ -219,9 +222,21 @@ function AnswerSheet({
                   else if (isWrong) wrong++;
                   else blank++;
 
-                  const bg = isCorrect ? '#DCFCE7' : isWrong ? '#FEE2E2' : COLORS.surface;
-                  const border = isCorrect ? '#16a34a' : isWrong ? COLORS.error : COLORS.border;
-                  const color = isCorrect ? '#15803D' : isWrong ? '#B91C1C' : COLORS.textMuted;
+                  const bg = isCorrect
+                    ? (isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7')
+                    : isWrong
+                    ? (isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2')
+                    : colors.surface;
+                  const border = isCorrect
+                    ? (isDark ? '#22c55e' : '#16a34a')
+                    : isWrong
+                    ? (isDark ? '#ef4444' : COLORS.error)
+                    : colors.border;
+                  const color = isCorrect
+                    ? (isDark ? '#4ade80' : '#15803D')
+                    : isWrong
+                    ? (isDark ? '#f87171' : '#B91C1C')
+                    : colors.textMuted;
 
                   return (
                     <View key={n} style={[as.cell, { backgroundColor: bg, borderColor: border }]}>
@@ -236,18 +251,18 @@ function AnswerSheet({
       </View>
       <View style={as.legend}>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: '#DCFCE7', borderColor: '#16a34a' }]} />
-          <Text style={as.legendText}>{correct} Correct</Text>
+          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7', borderColor: isDark ? '#22c55e' : '#16a34a' }]} />
+          <Text style={[as.legendText, { color: colors.textSecondary }]}>{correct} Correct</Text>
         </View>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: '#FEE2E2', borderColor: COLORS.error }]} />
-          <Text style={as.legendText}>{wrong} Wrong</Text>
+          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2', borderColor: isDark ? '#ef4444' : COLORS.error }]} />
+          <Text style={[as.legendText, { color: colors.textSecondary }]}>{wrong} Wrong</Text>
         </View>
         <View style={as.legendItem}>
           <View
-            style={[as.legendDot, { backgroundColor: COLORS.surface, borderColor: COLORS.border }]}
+            style={[as.legendDot, { backgroundColor: colors.surface, borderColor: colors.border }]}
           />
-          <Text style={as.legendText}>{blank} Blank</Text>
+          <Text style={[as.legendText, { color: colors.textSecondary }]}>{blank} Blank</Text>
         </View>
       </View>
     </View>
@@ -314,6 +329,8 @@ function QuestionReviewRow({
   timestamp?: number;
   onSeek?: (ts: number) => void;
 }) {
+  const { colors, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const user = normalizeAns(userAns);
   const correct = normalizeAns(correctAns);
   const hasAns = !!user;
@@ -322,34 +339,34 @@ function QuestionReviewRow({
   const isBlank = !hasAns;
 
   return (
-    <View style={qr.row}>
-      <View style={qr.numBadge}>
-        <Text style={qr.numText}>{questionNumber}</Text>
+    <View style={[qr.row, { borderColor: colors.border + '60' }]}>
+      <View style={[qr.numBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Text style={[qr.numText, { color: colors.textSecondary }]}>{questionNumber}</Text>
       </View>
       <View style={qr.right}>
         {isCorrect_ && (
-          <View style={qr.correctPill}>
-            <Ionicons name="checkmark" size={12} color="#15803D" />
-            <Text style={qr.correctText}>{user}</Text>
+          <View style={[qr.correctPill, isDark && { backgroundColor: 'rgba(34, 205, 94, 0.15)', borderColor: '#22c55e' }]}>
+            <Ionicons name="checkmark" size={12} color={isDark ? '#4ade80' : '#15803D'} />
+            <Text style={[qr.correctText, { color: isDark ? '#4ade80' : '#15803D' }]}>{user}</Text>
           </View>
         )}
         {isWrong && (
           <View style={qr.wrongRow}>
-            <View style={qr.wrongPill}>
-              <Text style={qr.wrongText}>{user || '—'}</Text>
+            <View style={[qr.wrongPill, isDark && { backgroundColor: 'rgba(239, 68, 68, 0.15)', borderColor: '#ef4444' }]}>
+              <Text style={[qr.wrongText, { color: isDark ? '#f87171' : '#B91C1C' }]}>{user || '—'}</Text>
             </View>
-            <Ionicons name="arrow-forward" size={12} color={COLORS.textMuted} />
-            <View style={qr.answerPill}>
-              <Text style={qr.answerText}>{correct}</Text>
+            <Ionicons name="arrow-forward" size={12} color={colors.textMuted} />
+            <View style={[qr.answerPill, isDark && { backgroundColor: 'rgba(34, 205, 94, 0.15)', borderColor: '#22c55e' }]}>
+              <Text style={[qr.answerText, { color: isDark ? '#4ade80' : '#15803D' }]}>{correct}</Text>
             </View>
           </View>
         )}
         {isBlank && (
           <View style={qr.wrongRow}>
-            <Text style={qr.blankText}>—</Text>
-            <Ionicons name="arrow-forward" size={12} color={COLORS.textMuted} />
-            <View style={qr.answerPill}>
-              <Text style={qr.answerText}>{correct}</Text>
+            <Text style={[qr.blankText, { color: colors.textMuted }]}>—</Text>
+            <Ionicons name="arrow-forward" size={12} color={colors.textMuted} />
+            <View style={[qr.answerPill, isDark && { backgroundColor: 'rgba(34, 205, 94, 0.15)', borderColor: '#22c55e' }]}>
+              <Text style={[qr.answerText, { color: isDark ? '#4ade80' : '#15803D' }]}>{correct}</Text>
             </View>
           </View>
         )}
@@ -472,6 +489,7 @@ function QuestionReviewSection({
   userId: string;
   onSeek?: (ts: number) => void;
 }) {
+  const { colors } = useTheme();
   const [open, setOpen] = useState(false);
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
@@ -481,13 +499,13 @@ function QuestionReviewSection({
   };
 
   return (
-    <View style={rev.container}>
+    <View style={[rev.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <TouchableOpacity style={rev.header} onPress={toggle} activeOpacity={0.8}>
-        <Text style={rev.headerTitle}>Question Review</Text>
+        <Text style={[rev.headerTitle, { color: colors.text }]}>Question Review</Text>
         <Ionicons
           name={open ? 'chevron-up' : 'chevron-down'}
           size={18}
-          color={COLORS.textSecondary}
+          color={colors.textSecondary}
         />
       </TouchableOpacity>
       {open && (
@@ -532,6 +550,8 @@ const rev = StyleSheet.create({
 
 // ─── Main Result Screen ───────────────────────────────────────────────────────
 export default function ResultScreen() {
+  const { colors, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const router = useRouter();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const [session, setSession] = useState<any>(null);
@@ -634,16 +654,16 @@ export default function ResultScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Loading result…</Text>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading result…</Text>
       </View>
     );
   }
 
   if (!session) {
     return (
-      <View style={styles.center}>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
         <Text style={{ color: COLORS.error }}>Session not found.</Text>
       </View>
     );
@@ -694,58 +714,58 @@ export default function ResultScreen() {
       : null;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Breadcrumb Navigation */}
         <View style={styles.breadcrumb}>
-          <Text style={styles.bcText}>IELTS</Text>
-          <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
-          <Text style={styles.bcText}>Intensive</Text>
-          <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
-          <Text style={[styles.bcText, styles.bcActive]}>Result</Text>
+          <Text style={[styles.bcText, { color: colors.textSecondary }]}>IELTS</Text>
+          <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+          <Text style={[styles.bcText, { color: colors.textSecondary }]}>Intensive</Text>
+          <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+          <Text style={[styles.bcText, styles.bcActive, { color: colors.primary }]}>Result</Text>
         </View>
 
-        <View style={[styles.hero, { backgroundColor: bandColor + '18' }]}>
-          <View style={[styles.bandCircle, { borderColor: bandColor }]}>
+        <View style={[styles.hero, { backgroundColor: bandColor + (isDark ? '24' : '18') }]}>
+          <View style={[styles.bandCircle, { borderColor: bandColor, backgroundColor: colors.card }]}>
             <Text style={[styles.bandScore, { color: bandColor }]}>{bandStr}</Text>
             <Text style={[styles.bandLabel, { color: bandColor }]}>Band</Text>
           </View>
-          <Text style={styles.resultTitle}>
+          <Text style={[styles.resultTitle, { color: colors.text }]}>
             {isPending ? '⏳ Grading in Progress' : '✅ Test Complete'}
           </Text>
-          <Text style={styles.description}>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             {isPending
               ? 'Your writing/speaking is being graded by AI. Check back soon.'
               : description}
           </Text>
-          <Text style={styles.examTitle} numberOfLines={2}>
+          <Text style={[styles.examTitle, { color: colors.textMuted }]} numberOfLines={2}>
             {session.exam?.title}
           </Text>
         </View>
 
         {!isPending && (
-          <View style={styles.statsRow}>
+          <View style={[styles.statsRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{rawScore}</Text>
-              <Text style={styles.statLabel}>Raw Score</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{rawScore}</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Raw Score</Text>
             </View>
-            <View style={[styles.statCard, styles.statMid]}>
-              <Text style={styles.statValue}>{totalQuestions}</Text>
-              <Text style={styles.statLabel}>Total Qs</Text>
+            <View style={[styles.statCard, styles.statMid, { borderColor: colors.border }]}>
+              <Text style={[styles.statValue, { color: colors.text }]}>{totalQuestions}</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total Qs</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>
+              <Text style={[styles.statValue, { color: colors.text }]}>
                 {mm}:{ss}
               </Text>
-              <Text style={styles.statLabel}>Time Taken</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Time Taken</Text>
             </View>
           </View>
         )}
 
         {!isPending && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Score Breakdown</Text>
-            <View style={styles.barBg}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Score Breakdown</Text>
+            <View style={[styles.barBg, { backgroundColor: colors.border }]}>
               <View
                 style={[
                   styles.barFill,
@@ -756,14 +776,14 @@ export default function ResultScreen() {
                 ]}
               />
             </View>
-            <Text style={styles.barLabel}>
+            <Text style={[styles.barLabel, { color: colors.textSecondary }]}>
               {rawScore} / {totalQuestions} ({Math.round((rawScore / totalQuestions) * 100)}%)
             </Text>
           </View>
         )}
 
         {!isPending && audioUrl ? (
-          <View style={styles.audioBannerContainer}>
+          <View style={[styles.audioBannerContainer, isDark ? { backgroundColor: colors.card, borderColor: colors.border } : { borderColor: '#C7D2FE', backgroundColor: '#EEF2FF' }]}>
             <View style={styles.audioBanner}>
               <TouchableOpacity
                 onPress={() => (player.playing ? player.pause() : player.play())}
@@ -771,19 +791,19 @@ export default function ResultScreen() {
               >
                 <Ionicons name={player.playing ? 'pause' : 'play'} size={20} color="#fff" />
               </TouchableOpacity>
-              <Text style={styles.audioBannerText}>
+              <Text style={[styles.audioBannerText, { color: isDark ? colors.text : colors.primary }]}>
                 {player.playing ? 'Playing exam audio' : 'Audio paused'}
               </Text>
             </View>
             <View style={styles.volumeControl}>
               <TouchableOpacity onPress={() => setVolume(Math.max(0, volume - 0.2))}>
-                <Ionicons name="volume-low" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="volume-low" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
-              <View style={styles.volumeTrack}>
-                <View style={[styles.volumeFill, { width: `${volume * 100}%` }]} />
+              <View style={[styles.volumeTrack, { backgroundColor: isDark ? colors.border : '#E0E7FF' }]}>
+                <View style={[styles.volumeFill, { width: `${volume * 100}%`, backgroundColor: colors.primary }]} />
               </View>
               <TouchableOpacity onPress={() => setVolume(Math.min(1, volume + 0.2))}>
-                <Ionicons name="volume-high" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="volume-high" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -831,7 +851,7 @@ export default function ResultScreen() {
 
         <View style={styles.actions}>
           <TouchableOpacity
-            style={[styles.actionBtn, styles.retakeBtn, retaking && { opacity: 0.7 }]}
+            style={[styles.actionBtn, styles.retakeBtn, { backgroundColor: colors.primary }, retaking && { opacity: 0.7 }]}
             onPress={handleRetake}
             disabled={retaking}
             activeOpacity={0.85}
@@ -845,7 +865,15 @@ export default function ResultScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionBtn, styles.shareBtn, sharing && { opacity: 0.7 }]}
+            style={[
+              styles.actionBtn,
+              styles.shareBtn,
+              {
+                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : colors.primary + '12',
+                borderColor: colors.primary,
+              },
+              sharing && { opacity: 0.7 }
+            ]}
             onPress={() =>
               handleShare(
                 bandStr,
@@ -861,11 +889,11 @@ export default function ResultScreen() {
             activeOpacity={0.85}
           >
             {sharing ? (
-              <ActivityIndicator size="small" color={COLORS.primary} />
+              <ActivityIndicator size="small" color={colors.primary} />
             ) : (
-              <Ionicons name="share-social-outline" size={18} color={COLORS.primary} />
+              <Ionicons name="share-social-outline" size={18} color={colors.primary} />
             )}
-            <Text style={styles.shareBtnText}>{sharing ? 'Sharing…' : 'Share Result'}</Text>
+            <Text style={[styles.shareBtnText, { color: colors.primary }]}>{sharing ? 'Sharing…' : 'Share Result'}</Text>
           </TouchableOpacity>
 
           <Button

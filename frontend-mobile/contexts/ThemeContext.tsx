@@ -8,6 +8,7 @@ export type ThemeMode = 'light' | 'dark' | 'system';
 interface ThemeContextType {
   theme: ThemeMode;
   resolvedTheme: 'light' | 'dark';
+  isDark: boolean;
   colors: ThemeTokens;
   setTheme: (theme: ThemeMode) => void;
 }
@@ -64,9 +65,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Resolve the current active token palette
   const colors: ThemeTokens = resolvedTheme === 'dark' ? DARK_TOKENS : LIGHT_TOKENS;
+  const isDark = resolvedTheme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, colors, setTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, isDark, colors, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
