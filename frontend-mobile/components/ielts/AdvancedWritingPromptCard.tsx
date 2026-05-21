@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface WritingPromptItem {
   id: string;
@@ -28,11 +29,16 @@ interface AdvancedWritingPromptCardProps {
 }
 
 export function AdvancedWritingPromptCard({ prompt, index, onPress }: AdvancedWritingPromptCardProps) {
+  const { colors, isDark } = useTheme();
   const isTask1 = prompt.taskType === 'TASK1';
   
   // Custom theme colors for tasks
-  const taskBg = isTask1 ? '#FEF3C7' : '#EDE9FE';
-  const taskColor = isTask1 ? '#D97706' : '#7C3AED';
+  const taskBg = isDark
+    ? (isTask1 ? '#451a03' : '#2e1065')
+    : (isTask1 ? '#FEF3C7' : '#EDE9FE');
+  const taskColor = isDark
+    ? (isTask1 ? '#fbbf24' : '#c084fc')
+    : (isTask1 ? '#D97706' : '#7C3AED');
   const taskLabel = isTask1 ? 'Task 1' : 'Task 2';
 
   return (
@@ -41,7 +47,7 @@ export function AdvancedWritingPromptCard({ prompt, index, onPress }: AdvancedWr
       style={styles.cardWrapper}
     >
       <TouchableOpacity 
-        style={styles.card} 
+        style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]} 
         onPress={onPress} 
         activeOpacity={0.7}
       >
@@ -51,58 +57,58 @@ export function AdvancedWritingPromptCard({ prompt, index, onPress }: AdvancedWr
             <View style={[styles.taskChip, { backgroundColor: taskBg }]}>
               <Text style={[styles.taskChipText, { color: taskColor }]}>{taskLabel}</Text>
             </View>
-            <View style={styles.subTypeChip}>
-              <Text style={styles.subTypeChipText}>{prompt.subType}</Text>
+            <View style={[styles.subTypeChip, { backgroundColor: isDark ? colors.surface : '#F3F4F6' }]}>
+              <Text style={[styles.subTypeChipText, { color: colors.textSecondary }]}>{prompt.subType}</Text>
             </View>
           </View>
           
           <View style={styles.rightTags}>
-            <View style={styles.timeBadge}>
-              <Ionicons name="time-outline" size={12} color="#6B7280" />
-              <Text style={styles.timeText}>{prompt.suggestedTime}m</Text>
+            <View style={[styles.timeBadge, { backgroundColor: isDark ? colors.surface : '#F9FAFB', borderColor: colors.border }]}>
+              <Ionicons name="time-outline" size={12} color={colors.textSecondary} />
+              <Text style={[styles.timeText, { color: colors.textSecondary }]}>{prompt.suggestedTime}m</Text>
             </View>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{prompt.category}</Text>
+            <View style={[styles.categoryBadge, { backgroundColor: isDark ? '#1e3a8a' : '#EFF6FF' }]}>
+              <Text style={[styles.categoryText, { color: isDark ? '#93c5fd' : '#1D4ED8' }]}>{prompt.category}</Text>
             </View>
           </View>
         </View>
 
         {/* Prompt Title */}
-        <Text style={styles.title} numberOfLines={2}>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
           {prompt.title}
         </Text>
 
         {/* Source metadata if available */}
         {prompt.source ? (
-          <Text style={styles.sourceText}>
+          <Text style={[styles.sourceText, { color: colors.textSecondary }]}>
             Source: {prompt.source}
           </Text>
         ) : null}
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         {/* Footer row: Best score or Status indicator */}
         <View style={styles.footerRow}>
           {prompt.bestScore !== null ? (
             <View style={styles.scoreContainer}>
-              <Text style={styles.scoreLabel}>Best Score</Text>
-              <View style={styles.scoreBadge}>
-                <Ionicons name="trophy-outline" size={14} color="#15803D" style={{ marginRight: 4 }} />
-                <Text style={styles.scoreValue}>Band {prompt.bestScore}</Text>
+              <Text style={[styles.scoreLabel, { color: colors.textMuted }]}>Best Score</Text>
+              <View style={[styles.scoreBadge, { backgroundColor: isDark ? '#064e3b' : '#DCFCE7' }]}>
+                <Ionicons name="trophy-outline" size={14} color={isDark ? '#34d399' : '#15803D'} style={{ marginRight: 4 }} />
+                <Text style={[styles.scoreValue, { color: isDark ? '#34d399' : '#15803D' }]}>Band {prompt.bestScore}</Text>
               </View>
             </View>
           ) : (
             <View style={styles.unattemptedContainer}>
-              <Ionicons name="create-outline" size={16} color="#4B5563" />
-              <Text style={styles.unattemptedText}>Not attempted yet</Text>
+              <Ionicons name="create-outline" size={16} color={colors.textSecondary} />
+              <Text style={[styles.unattemptedText, { color: colors.textSecondary }]}>Not attempted yet</Text>
             </View>
           )}
 
-          <View style={styles.actionBtn}>
-            <Text style={styles.actionBtnText}>
+          <View style={[styles.actionBtn, { backgroundColor: isDark ? colors.primary : '#D97706' }]}>
+            <Text style={[styles.actionBtnText, { color: colors.onPrimary }]}>
               {prompt.bestScore !== null ? 'Practice Again' : 'Start Practice'}
             </Text>
-            <Ionicons name="arrow-forward" size={14} color="#fff" />
+            <Ionicons name="arrow-forward" size={14} color={colors.onPrimary} />
           </View>
         </View>
       </TouchableOpacity>

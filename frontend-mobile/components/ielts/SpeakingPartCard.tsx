@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface SpeakingPartItem {
   id: string;
@@ -26,17 +27,35 @@ interface SpeakingPartCardProps {
 }
 
 export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps) {
+  const { colors, isDark } = useTheme();
+
   // Theme colors for Parts
   const getPartBadgeColor = (num: number) => {
     switch (num) {
       case 1:
-        return { bg: '#EEF2FF', text: '#4F46E5', label: 'Part 1: Interview' };
+        return {
+          bg: isDark ? '#1e1b4b' : '#EEF2FF',
+          text: isDark ? '#818cf8' : '#4F46E5',
+          label: 'Part 1: Interview'
+        };
       case 2:
-        return { bg: '#FDF2F8', text: '#DB2777', label: 'Part 2: Cue Card' };
+        return {
+          bg: isDark ? '#50072b' : '#FDF2F8',
+          text: isDark ? '#f472b6' : '#DB2777',
+          label: 'Part 2: Cue Card'
+        };
       case 3:
-        return { bg: '#ECFDF5', text: '#059669', label: 'Part 3: Discussion' };
+        return {
+          bg: isDark ? '#064e3b' : '#ECFDF5',
+          text: isDark ? '#34d399' : '#059669',
+          label: 'Part 3: Discussion'
+        };
       default:
-        return { bg: '#F3F4F6', text: '#4B5563', label: `Part ${num}` };
+        return {
+          bg: isDark ? colors.surface : '#F3F4F6',
+          text: colors.textSecondary,
+          label: `Part ${num}`
+        };
     }
   };
 
@@ -48,7 +67,7 @@ export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps
       style={styles.cardWrapper}
     >
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
         onPress={onPress}
         activeOpacity={0.7}
       >
@@ -60,16 +79,16 @@ export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps
                 {partStyle.label}
               </Text>
             </View>
-            <View style={styles.categoryChip}>
-              <Text style={styles.categoryChipText}>{part.category}</Text>
+            <View style={[styles.categoryChip, { backgroundColor: isDark ? colors.surface : '#F3F4F6' }]}>
+              <Text style={[styles.categoryChipText, { color: colors.textSecondary }]}>{part.category}</Text>
             </View>
           </View>
 
           <View style={styles.rightTags}>
             {part.source ? (
-              <View style={styles.sourceBadge}>
-                <Ionicons name="book-outline" size={11} color="#6B7280" />
-                <Text style={styles.sourceText} numberOfLines={1}>
+              <View style={[styles.sourceBadge, { backgroundColor: isDark ? colors.surface : '#F9FAFB', borderColor: colors.border }]}>
+                <Ionicons name="book-outline" size={11} color={colors.textSecondary} />
+                <Text style={[styles.sourceText, { color: colors.textSecondary }]} numberOfLines={1}>
                   {part.source}
                 </Text>
               </View>
@@ -79,38 +98,38 @@ export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps
 
         {/* Part Title & Topic */}
         <View style={styles.bodyContainer}>
-          <Text style={styles.title} numberOfLines={1}>
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
             {part.title}
           </Text>
-          <Text style={styles.topicText}>
-            Topic: <Text style={styles.topicHighlight}>{part.topic}</Text>
+          <Text style={[styles.topicText, { color: colors.textSecondary }]}>
+            Topic: <Text style={[styles.topicHighlight, { color: colors.text }]}>{part.topic}</Text>
           </Text>
         </View>
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         {/* Footer Row */}
         <View style={styles.footerRow}>
           {part.bestScore !== null ? (
             <View style={styles.scoreContainer}>
-              <Text style={styles.scoreLabel}>Best Band</Text>
-              <View style={styles.scoreBadge}>
-                <Ionicons name="sparkles" size={12} color="#7C3AED" style={{ marginRight: 4 }} />
-                <Text style={styles.scoreValue}>Band {part.bestScore}</Text>
+              <Text style={[styles.scoreLabel, { color: colors.textMuted }]}>Best Band</Text>
+              <View style={[styles.scoreBadge, { backgroundColor: isDark ? '#3b0764' : '#F3E8FF' }]}>
+                <Ionicons name="sparkles" size={12} color={isDark ? '#c084fc' : '#7C3AED'} style={{ marginRight: 4 }} />
+                <Text style={[styles.scoreValue, { color: isDark ? '#c084fc' : '#7C3AED' }]}>Band {part.bestScore}</Text>
               </View>
             </View>
           ) : (
             <View style={styles.unattemptedContainer}>
-              <Ionicons name="mic-outline" size={16} color="#6B7280" />
-              <Text style={styles.unattemptedText}>Not practiced yet</Text>
+              <Ionicons name="mic-outline" size={16} color={colors.textSecondary} />
+              <Text style={[styles.unattemptedText, { color: colors.textSecondary }]}>Not practiced yet</Text>
             </View>
           )}
 
-          <View style={styles.actionBtn}>
-            <Text style={styles.actionBtnText}>
+          <View style={[styles.actionBtn, { backgroundColor: isDark ? colors.primary : '#7C3AED' }]}>
+            <Text style={[styles.actionBtnText, { color: isDark ? colors.onPrimary : '#ffffff' }]}>
               {part.bestScore !== null ? 'Practice Again' : 'Start Practice'}
             </Text>
-            <Ionicons name="arrow-forward" size={14} color="#fff" />
+            <Ionicons name="arrow-forward" size={14} color={isDark ? colors.onPrimary : '#ffffff'} />
           </View>
         </View>
       </TouchableOpacity>
