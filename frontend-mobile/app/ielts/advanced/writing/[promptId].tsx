@@ -25,6 +25,8 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useGrading } from '@/contexts/GradingContext';
 import { useTimer, useWritingAutosave } from '@/hooks';
 
+import { useTheme } from '@/contexts/ThemeContext';
+
 const MIN_TOP_HEIGHT = 150;
 const MAX_TOP_HEIGHT = 500;
 
@@ -33,6 +35,7 @@ export default function AdvancedWritingPracticeScreen() {
   const { promptId } = useLocalSearchParams<{ promptId: string }>();
   const { isPremium } = useSubscription();
   const { submitAndTrack } = useGrading();
+  const { colors, isDark } = useTheme();
 
   const [prompt, setPrompt] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -147,6 +150,319 @@ export default function AdvancedWritingPracticeScreen() {
     }
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      marginTop: SPACING.md,
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+    },
+    errorText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+      color: colors.error,
+      textAlign: 'center',
+    },
+    backBtnText: {
+      marginTop: SPACING.md,
+      padding: SPACING.sm,
+    },
+    header: {
+      backgroundColor: isDark ? colors.card : COLORS.skill.writing,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm,
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
+    },
+    backBtn: {
+      width: 36,
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitleContainer: {
+      flex: 1,
+      marginLeft: SPACING.sm,
+    },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.md,
+      fontFamily: FONTS.bold,
+    },
+    headerSubtitle: {
+      color: isDark ? colors.textSecondary : 'rgba(255, 255, 255, 0.8)',
+      fontSize: FONT_SIZES.xs,
+      fontFamily: FONTS.regular,
+    },
+    timerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.2)',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full,
+      gap: 4,
+    },
+    timerContainerCritical: {
+      backgroundColor: isDark ? 'rgba(239, 68, 68, 0.2)' : COLORS.errorScale[50],
+      borderWidth: 1,
+      borderColor: colors.error,
+    },
+    timerText: {
+      color: isDark ? colors.text : '#fff',
+      fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '700',
+    },
+    timerTextCritical: {
+      color: colors.error,
+    },
+    keyboardView: {
+      flex: 1,
+    },
+    promptPane: {
+      backgroundColor: colors.background,
+    },
+    promptScrollContent: {
+      padding: SPACING.md,
+    },
+    promptImage: {
+      width: '100%',
+      height: 180,
+      marginBottom: SPACING.md,
+      borderRadius: RADIUS.md,
+      backgroundColor: isDark ? colors.card : '#fff',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    resizerBar: {
+      height: 10,
+      backgroundColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    resizerGrabLine: {
+      width: 40,
+      height: 4,
+      borderRadius: RADIUS.full,
+      backgroundColor: colors.textMuted,
+    },
+    editorPane: {
+      flex: 1,
+      backgroundColor: colors.card,
+    },
+    editorToolbar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.background,
+    },
+    autosaveContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.xs,
+    },
+    autosaveText: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+    },
+    wordCounter: {
+      paddingHorizontal: SPACING.sm,
+      paddingVertical: 2,
+      borderRadius: RADIUS.sm,
+    },
+    wordCountText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.xs,
+    },
+    wordCountMet: {
+      color: colors.success,
+    },
+    wordCountUnmet: {
+      color: colors.warning,
+    },
+    textInput: {
+      flex: 1,
+      fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      padding: SPACING.md,
+      lineHeight: 20,
+    },
+    bottomBar: {
+      padding: SPACING.md,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.background,
+    },
+    submitBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: COLORS.primary,
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.md,
+      gap: SPACING.xs,
+      boxShadow: SHADOWS.sm,
+    },
+    submitBtnDisabled: {
+      opacity: 0.5,
+    },
+    submitBtnText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+      color: '#212529',
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: SPACING.xl,
+    },
+    modalContainer: {
+      width: '100%',
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.xl,
+      boxShadow: SHADOWS.modal,
+    },
+    modalHeader: {
+      alignItems: 'center',
+      marginBottom: SPACING.md,
+      gap: SPACING.xs,
+    },
+    modalTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.lg,
+      color: colors.text,
+      marginTop: SPACING.xs,
+    },
+    modalBody: {
+      marginBottom: SPACING.xl,
+    },
+    modalDesc: {
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+      marginBottom: SPACING.md,
+    },
+    warningBox: {
+      flexDirection: 'row',
+      padding: SPACING.md,
+      borderRadius: RADIUS.md,
+      gap: SPACING.sm,
+      alignItems: 'flex-start',
+    },
+    warningBoxSuccess: {
+      backgroundColor: isDark ? 'rgba(16, 185, 129, 0.15)' : COLORS.successScale[50],
+    },
+    warningBoxAlert: {
+      backgroundColor: isDark ? 'rgba(217, 119, 6, 0.15)' : COLORS.warningScale[50],
+    },
+    warningText: {
+      flex: 1,
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+      lineHeight: 18,
+    },
+    modalFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: SPACING.md,
+    },
+    modalCancelBtn: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+    },
+    modalCancelText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+    },
+    modalConfirmBtn: {
+      flex: 1,
+      backgroundColor: COLORS.skill.writing,
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.md,
+    },
+    modalConfirmText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.sm,
+      color: '#fff',
+    },
+    submittingOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: SPACING.md,
+    },
+    submittingText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+      color: COLORS.skill.writing,
+    },
+  });
+
+  const markdownStyles = useMemo(() => StyleSheet.create({
+    body: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      lineHeight: 20,
+    },
+    strong: {
+      fontFamily: FONTS.bold,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    em: {
+      fontStyle: 'italic',
+      color: colors.text,
+    },
+    paragraph: {
+      marginBottom: SPACING.sm,
+      color: colors.text,
+    },
+    list_item: {
+      flexDirection: 'row',
+      marginBottom: 4,
+      color: colors.text,
+    },
+    bullet_list: {
+      marginTop: 4,
+      marginBottom: 8,
+      color: colors.text,
+    },
+  }), [colors]);
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -172,7 +488,7 @@ export default function AdvancedWritingPracticeScreen() {
       {/* Header Bar */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="close" size={24} color="#fff" />
+          <Ionicons name="close" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>{prompt.taskType} Practice</Text>
@@ -181,7 +497,7 @@ export default function AdvancedWritingPracticeScreen() {
           </Text>
         </View>
         <View style={[styles.timerContainer, isTimeCritical && styles.timerContainerCritical]}>
-          <Ionicons name="time-outline" size={16} color={isTimeCritical ? COLORS.error : '#fff'} />
+          <Ionicons name="time-outline" size={16} color={isTimeCritical ? colors.error : (isDark ? colors.text : '#fff')} />
           <Text style={[styles.timerText, isTimeCritical && styles.timerTextCritical]}>
             {timerDisplay}
           </Text>
@@ -227,17 +543,17 @@ export default function AdvancedWritingPracticeScreen() {
                 </>
               ) : saveError ? (
                 <>
-                  <Ionicons name="cloud-offline" size={14} color={COLORS.error} />
-                  <Text style={[styles.autosaveText, { color: COLORS.error }]}>Save failed</Text>
+                  <Ionicons name="cloud-offline" size={14} color={colors.error} />
+                  <Text style={[styles.autosaveText, { color: colors.error }]}>Save failed</Text>
                 </>
               ) : lastSavedAt ? (
                 <>
-                  <Ionicons name="checkmark-done" size={14} color={COLORS.success} />
+                  <Ionicons name="checkmark-done" size={14} color={colors.success} />
                   <Text style={styles.autosaveText}>Saved at {lastSavedAt}</Text>
                 </>
               ) : (
                 <>
-                  <Ionicons name="cloud-upload-outline" size={14} color={COLORS.textSecondary} />
+                  <Ionicons name="cloud-upload-outline" size={14} color={colors.textSecondary} />
                   <Text style={styles.autosaveText}>Autosave active</Text>
                 </>
               )}
@@ -260,7 +576,7 @@ export default function AdvancedWritingPracticeScreen() {
             style={styles.textInput}
             multiline
             placeholder="Write your essay here... Use appropriate academic vocabulary and paragraph structures."
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={isDark ? colors.textSecondary : COLORS.textMuted}
             value={essay}
             onChangeText={setEssay}
             textAlignVertical="top"
@@ -315,7 +631,7 @@ export default function AdvancedWritingPracticeScreen() {
                 <Ionicons
                   name={isWordCountMet ? 'checkmark-circle' : 'warning'}
                   size={20}
-                  color={isWordCountMet ? COLORS.success : COLORS.warning}
+                  color={isWordCountMet ? colors.success : colors.warning}
                 />
                 <Text style={styles.warningText}>
                   {isWordCountMet
@@ -350,308 +666,3 @@ export default function AdvancedWritingPracticeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-  },
-  loadingText: {
-    marginTop: SPACING.md,
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-  },
-  errorText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.error,
-    textAlign: 'center',
-  },
-  backBtnText: {
-    marginTop: SPACING.md,
-    padding: SPACING.sm,
-  },
-  header: {
-    backgroundColor: COLORS.skill.writing,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitleContainer: {
-    flex: 1,
-    marginLeft: SPACING.sm,
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: FONT_SIZES.md,
-    fontFamily: FONTS.bold,
-  },
-  headerSubtitle: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONTS.regular,
-  },
-  timerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-    gap: 4,
-  },
-  timerContainerCritical: {
-    backgroundColor: COLORS.errorScale[50],
-    borderWidth: 1,
-    borderColor: COLORS.error,
-  },
-  timerText: {
-    color: '#fff',
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '700',
-  },
-  timerTextCritical: {
-    color: COLORS.error,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  promptPane: {
-    backgroundColor: COLORS.surface,
-  },
-  promptScrollContent: {
-    padding: SPACING.md,
-  },
-  promptImage: {
-    width: '100%',
-    height: 180,
-    marginBottom: SPACING.md,
-    borderRadius: RADIUS.md,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  resizerBar: {
-    height: 10,
-    backgroundColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  resizerGrabLine: {
-    width: 40,
-    height: 4,
-    borderRadius: RADIUS.full,
-    backgroundColor: COLORS.textMuted,
-  },
-  editorPane: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  editorToolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
-  },
-  autosaveContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-  },
-  autosaveText: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-  },
-  wordCounter: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
-  },
-  wordCountText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.xs,
-  },
-  wordCountMet: {
-    color: COLORS.success,
-  },
-  wordCountUnmet: {
-    color: COLORS.warning,
-  },
-  textInput: {
-    flex: 1,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    padding: SPACING.md,
-    lineHeight: 20,
-  },
-  bottomBar: {
-    padding: SPACING.md,
-    borderTopWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
-  },
-  submitBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.primary,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
-    gap: SPACING.xs,
-    boxShadow: SHADOWS.sm,
-  },
-  submitBtnDisabled: {
-    opacity: 0.5,
-  },
-  submitBtnText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.md,
-    color: '#212529',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SPACING.xl,
-  },
-  modalContainer: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.xl,
-    boxShadow: SHADOWS.modal,
-  },
-  modalHeader: {
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-    gap: SPACING.xs,
-  },
-  modalTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.lg,
-    color: COLORS.text,
-    marginTop: SPACING.xs,
-  },
-  modalBody: {
-    marginBottom: SPACING.xl,
-  },
-  modalDesc: {
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: SPACING.md,
-  },
-  warningBox: {
-    flexDirection: 'row',
-    padding: SPACING.md,
-    borderRadius: RADIUS.md,
-    gap: SPACING.sm,
-    alignItems: 'flex-start',
-  },
-  warningBoxSuccess: {
-    backgroundColor: COLORS.successScale[50],
-  },
-  warningBoxAlert: {
-    backgroundColor: COLORS.warningScale[50],
-  },
-  warningText: {
-    flex: 1,
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: SPACING.md,
-  },
-  modalCancelBtn: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-  },
-  modalCancelText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-  },
-  modalConfirmBtn: {
-    flex: 1,
-    backgroundColor: COLORS.skill.writing,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
-  },
-  modalConfirmText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.sm,
-    color: '#fff',
-  },
-  submittingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: SPACING.md,
-  },
-  submittingText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.skill.writing,
-  },
-});
-
-const markdownStyles = StyleSheet.create({
-  body: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    lineHeight: 20,
-  },
-  strong: {
-    fontFamily: FONTS.bold,
-    fontWeight: '700',
-  },
-  em: {
-    fontStyle: 'italic',
-  },
-  paragraph: {
-    marginBottom: SPACING.sm,
-  },
-  list_item: {
-    flexDirection: 'row',
-    marginBottom: 4,
-  },
-  bullet_list: {
-    marginTop: 4,
-    marginBottom: 8,
-  },
-});
