@@ -372,8 +372,8 @@
 
 ## Phase 9 — Community polish (10h)
 
-- [ ] **P9-01** · Tab Leaderboard: list top 10 + user rank · *est. 3h*
-- [ ] **P9-02** · Endpoint `gamificationApi.getLeaderboard()` verify hoặc thêm · *est. 1h*
+- [x] **P9-01** · Tab Leaderboard: list top 10 + user rank · *est. 3h*
+- [x] **P9-02** · Endpoint `gamificationApi.getLeaderboard()` verify hoặc thêm · *est. 1h*
 - [ ] **P9-03** · Tab "Saved" filter posts đã bookmark · *est. 1.5h*
 - [ ] **P9-04** · Image full-screen viewer (`react-native-image-zoom-viewer` đã có dep) · *est. 1.5h*
 - [ ] **P9-05** · My-posts filter · *est. 1h*

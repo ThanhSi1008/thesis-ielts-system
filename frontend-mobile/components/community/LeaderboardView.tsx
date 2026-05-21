@@ -6,7 +6,13 @@ import { gamificationApi } from '@/services';
 import type { LeaderboardEntry } from '@/types';
 import { Avatar } from './Avatar';
 
-export function LeaderboardView({ currentUserId }: { currentUserId?: string }) {
+export function LeaderboardView({
+  currentUserId,
+  refreshTrigger,
+}: {
+  currentUserId?: string;
+  refreshTrigger?: boolean;
+}) {
   const [type, setType] = useState<'xp_weekly' | 'streak'>('xp_weekly');
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +24,7 @@ export function LeaderboardView({ currentUserId }: { currentUserId?: string }) {
       .then(setEntries)
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [type]);
+  }, [type, refreshTrigger]);
 
   const RANK_COLOR: Record<number, string> = { 1: '#FFC600', 2: '#94a3b8', 3: '#cd7f32' };
 

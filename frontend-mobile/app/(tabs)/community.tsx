@@ -78,7 +78,12 @@ export default function CommunityScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPosts();
+    if (activeTab === 'leaderboard') {
+      // LeaderboardView fetches automatically when refreshing/refreshTrigger transitions
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    } else {
+      await fetchPosts();
+    }
     setRefreshing(false);
   };
 
@@ -178,8 +183,17 @@ export default function CommunityScreen() {
 
       {/* Content */}
       {activeTab === 'leaderboard' ? (
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-          <LeaderboardView currentUserId={user?.id} />
+        <ScrollView
+          contentContainerStyle={{ padding: 16 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={COLORS.primary}
+            />
+          }
+        >
+          <LeaderboardView currentUserId={user?.id} refreshTrigger={refreshing} />
         </ScrollView>
       ) : loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
