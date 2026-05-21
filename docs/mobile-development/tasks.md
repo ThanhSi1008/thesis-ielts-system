@@ -79,10 +79,10 @@
 ### 0.5.6 Component decomposition (6h)
 
 **Profile (3h)**:
-- [ ] **P05-40** · Tạo `components/profile/AccountTab.tsx` (info form + change password + delete account) · *est. 1.5h*
-- [ ] **P05-41** · Tạo `components/profile/StatsTab.tsx` (stats + achievements + XP) · *est. 45min*
-- [ ] **P05-42** · Tạo `components/profile/SettingsTab.tsx` (theme toggle + logout) · *est. 30min*
-- [ ] **P05-43** · Refactor `app/(tabs)/profile.tsx` thành shell <200 lines + import 3 tab · *est. 15min*
+- [x] **P05-40** · Tạo `components/profile/AccountTab.tsx` (info form + change password + delete account) · *est. 1.5h*
+- [x] **P05-41** · Tạo `components/profile/StatsTab.tsx` (stats + achievements + XP) · *est. 45min*
+- [x] **P05-42** · Tạo `components/profile/SettingsTab.tsx` (theme toggle + logout) · *est. 30min*
+- [x] **P05-43** · Refactor `app/(tabs)/profile.tsx` thành shell <200 lines + import 3 tab · *est. 15min*
 
 **Community (2h)**:
 - [ ] **P05-44** · Tạo `components/community/Avatar.tsx` (reusable) · *est. 15min*

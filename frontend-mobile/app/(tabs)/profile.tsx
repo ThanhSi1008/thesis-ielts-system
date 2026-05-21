@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
   Switch,
   Alert,
   ActivityIndicator,
@@ -15,7 +14,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import {COLORS, SPACING, FONT_SIZES, RADIUS, STORAGE_KEYS, FONTS, ROUTES} from '@/constants';
+import {COLORS, STORAGE_KEYS, FONTS, ROUTES, RADIUS} from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,6 +22,7 @@ import { vocabLabApi, gamificationApi, subscriptionsApi } from '@/services';
 import { apiClient } from '@/services/api-client';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GamificationProfile, AchievementItem } from '@/types';
+import { ProfileAccountTab, ProfileStatsTab, ProfileSettingsTab } from '@/components';
 
 type TabType = 'account' | 'stats' | 'settings';
 
@@ -217,309 +217,6 @@ export default function ProfileScreen() {
     </View>
   );
 
-  const renderBadge = () => {
-    const tier = subscription?.tier || 'FREE';
-    if (tier === 'FREE') return null;
-
-    return (
-      <View style={[styles.badge, tier === 'PRO' ? styles.badgePro : styles.badgePremium]}>
-        <Ionicons name="star" size={10} color="#FFF" />
-        <Text style={styles.badgeText}>{tier}</Text>
-      </View>
-    );
-  };
-
-  const renderAccountTab = () => {
-    const tier = subscription?.tier || 'FREE';
-
-    return (
-      <View style={styles.section}>
-        <View style={styles.avatarSection}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{
-                uri:
-                  user.avatar ||
-                  `https://ui-avatars.com/api/?name=${user.firstName || 'User'}&background=random`,
-              }}
-              style={styles.avatar}
-            />
-            <TouchableOpacity style={styles.editAvatarButton}>
-              <Ionicons name="camera" size={16} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.nameRow}>
-            <Text style={styles.name}>{displayName}</Text>
-            {renderBadge()}
-          </View>
-          <Text style={styles.email}>{user.email}</Text>
-
-          <View style={styles.streakBadge}>
-            <Ionicons name="flame" size={16} color="#EF4444" />
-            <Text style={styles.streakBadgeText}>{stats.streak} Day Streak</Text>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Personal Information</Text>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>First Name</Text>
-            <TextInput
-              style={styles.input}
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder="Enter first name"
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Last Name</Text>
-            <TextInput
-              style={styles.input}
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder="Enter last name"
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[styles.input, styles.inputDisabled]}
-              value={user.email}
-              editable={false}
-            />
-          </View>
-          <TouchableOpacity style={styles.saveBtn} onPress={handleUpdateProfile} disabled={saving}>
-            {saving ? (
-              <ActivityIndicator color="#FFF" size="small" />
-            ) : (
-              <Text style={styles.saveBtnText}>Save Changes</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Subscription</Text>
-          <View style={styles.subscriptionBox}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <Text style={styles.subTier}>{tier === 'FREE' ? 'Free Plan' : `${tier} Plan`}</Text>
-                {tier !== 'FREE' && (
-                  <View
-                    style={{
-                      backgroundColor: tier === 'PRO' ? '#3B82F6' : '#8B5CF6',
-                      paddingHorizontal: 8,
-                      paddingVertical: 2,
-                      borderRadius: 8,
-                    }}
-                  >
-                    <Text style={{ fontFamily: FONTS.bold, fontSize: 10, color: '#fff' }}>
-                      ACTIVE
-                    </Text>
-                  </View>
-                )}
-              </View>
-              <Text style={styles.subDesc}>
-                {tier === 'FREE'
-                  ? 'Upgrade to unlock all premium features'
-                  : subscription?.currentPeriodEnd
-                    ? `Renews ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}`
-                    : 'Premium features unlocked'}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={[styles.upgradeBtn, tier !== 'FREE' && { backgroundColor: '#EFF6FF' }]}
-              onPress={() => router.push(ROUTES.pricing)}
-            >
-              <Text style={[styles.upgradeBtnText, tier !== 'FREE' && { color: '#3B82F6' }]}>
-                {tier === 'FREE' ? 'Upgrade' : 'Manage'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  const renderStatsTab = () => {
-    if (loadingStats) {
-      return <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />;
-    }
-
-    const progress =
-      gamProfile && gamProfile.xpNeeded > 0
-        ? Math.min(100, Math.max(0, (gamProfile.currentLevelXp / gamProfile.xpNeeded) * 100)) || 0
-        : 0;
-
-    return (
-      <View style={styles.section}>
-        {gamProfile && (
-          <View style={[styles.card, { backgroundColor: '#1E293B' }]}>
-            <View style={styles.levelHeader}>
-              <View>
-                <Text style={styles.levelTitle}>Level {gamProfile.level}</Text>
-                <Text style={styles.levelSubtitle}>{gamProfile.totalXp} Total XP</Text>
-              </View>
-              <View style={styles.levelBadge}>
-                <Ionicons name="trophy" size={20} color="#FBBF24" />
-              </View>
-            </View>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
-            </View>
-            <View style={styles.progressTextRow}>
-              <Text style={styles.progressText}>{gamProfile.currentLevelXp} XP</Text>
-              <Text style={styles.progressText}>{gamProfile.xpNeeded} XP to next level</Text>
-            </View>
-          </View>
-        )}
-
-        <Text style={styles.sectionTitle}>Overview</Text>
-        <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
-            <Ionicons name="flame" size={24} color="#EF4444" style={styles.statIcon} />
-            <Text style={styles.statValue}>{stats.streak}</Text>
-            <Text style={styles.statLabel}>Days Streak</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Ionicons name="library" size={24} color="#3B82F6" style={styles.statIcon} />
-            <Text style={styles.statValue}>{stats.words}</Text>
-            <Text style={styles.statLabel}>Words Learned</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Ionicons name="checkmark-circle" size={24} color="#10B981" style={styles.statIcon} />
-            <Text style={styles.statValue}>{stats.accuracy}%</Text>
-            <Text style={styles.statLabel}>Avg Accuracy</Text>
-          </View>
-        </View>
-
-        {achievements.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Achievements</Text>
-            <View style={styles.achievementsList}>
-              {achievements.map((ach) => {
-                const isEarned = !!ach.earnedAt;
-                return (
-                  <View key={ach.id} style={[styles.achCard, !isEarned && styles.achCardLocked]}>
-                    <View style={[styles.achIconBox, !isEarned && { backgroundColor: '#F1F5F9' }]}>
-                      <Text style={styles.achIcon}>{ach.icon || '🏆'}</Text>
-                    </View>
-                    <View style={styles.achContent}>
-                      <Text style={styles.achTitle}>{ach.name}</Text>
-                      <Text style={styles.achDesc}>{ach.description}</Text>
-                      {!isEarned && ach.progress !== undefined && (
-                        <View style={styles.achProgressBg}>
-                          <View
-                            style={[
-                              styles.achProgressFill,
-                              {
-                                width: `${ach.conditionValue ? Math.min(100, Math.max(0, (ach.progress / ach.conditionValue) * 100)) : 0}%`,
-                              },
-                            ]}
-                          />
-                        </View>
-                      )}
-                    </View>
-                    <Text style={styles.achXp}>+{ach.xpReward} XP</Text>
-                  </View>
-                );
-              })}
-            </View>
-          </>
-        )}
-      </View>
-    );
-  };
-
-  const renderSettingsTab = () => (
-    <View style={styles.section}>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>App Preferences</Text>
-        <View style={styles.settingRow}>
-          <View style={styles.settingLeft}>
-            <Ionicons name="moon" size={22} color="#64748B" />
-            <Text style={styles.settingText}>Dark Mode</Text>
-          </View>
-          <Switch
-            value={isDarkMode}
-            onValueChange={toggleDarkMode}
-            trackColor={{ false: '#CBD5E1', true: COLORS.primary }}
-          />
-        </View>
-        <View style={styles.settingRow}>
-          <View style={styles.settingLeft}>
-            <Ionicons name="notifications" size={22} color="#64748B" />
-            <Text style={styles.settingText}>Notifications</Text>
-          </View>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
-            trackColor={{ false: '#CBD5E1', true: COLORS.primary }}
-          />
-        </View>
-      </View>
-
-      {user.googleId ? (
-        <View style={[styles.card, { flexDirection: 'row', alignItems: 'center', gap: 16 }]}>
-          <View style={styles.googleIconBox}>
-            <Ionicons name="logo-google" size={24} color="#4285F4" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.googleTitle}>Signed in with Google</Text>
-            <Text style={styles.googleDesc}>
-              Password management is handled by your Google account.
-            </Text>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Change Password</Text>
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.input}
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              placeholder="Current Password"
-              placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
-              secureTextEntry
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.input}
-              value={newPassword}
-              onChangeText={setNewPassword}
-              placeholder="New Password"
-              placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
-              secureTextEntry
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.outlineBtn}
-            onPress={handleChangePassword}
-            disabled={saving}
-          >
-            {saving ? (
-              <ActivityIndicator color={COLORS.primary} size="small" />
-            ) : (
-              <Text style={styles.outlineBtnText}>Update Password</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <View style={[styles.card, styles.dangerCard]}>
-        <Text style={styles.dangerTitle}>Danger Zone</Text>
-        <TouchableOpacity style={styles.dangerBtn} onPress={handleDeleteAccount}>
-          <Ionicons name="trash-outline" size={20} color="#EF4444" />
-          <Text style={styles.dangerBtnText}>Delete Account</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.versionText}>Version 1.0.0</Text>
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <KeyboardAvoidingView
@@ -543,9 +240,49 @@ export default function ProfileScreen() {
           </View>
           {renderTabs()}
 
-          {activeTab === 'account' && renderAccountTab()}
-          {activeTab === 'stats' && renderStatsTab()}
-          {activeTab === 'settings' && renderSettingsTab()}
+          {activeTab === 'account' && (
+            <ProfileAccountTab
+              user={user}
+              displayName={displayName}
+              subscription={subscription}
+              stats={stats}
+              firstName={firstName}
+              setFirstName={setFirstName}
+              lastName={lastName}
+              setLastName={setLastName}
+              saving={saving}
+              handleUpdateProfile={handleUpdateProfile}
+              styles={styles}
+            />
+          )}
+
+          {activeTab === 'stats' && (
+            <ProfileStatsTab
+              loadingStats={loadingStats}
+              gamProfile={gamProfile}
+              achievements={achievements}
+              stats={stats}
+              styles={styles}
+            />
+          )}
+
+          {activeTab === 'settings' && (
+            <ProfileSettingsTab
+              user={user}
+              isDarkMode={isDarkMode}
+              toggleDarkMode={toggleDarkMode}
+              notificationsEnabled={notificationsEnabled}
+              setNotificationsEnabled={setNotificationsEnabled}
+              currentPassword={currentPassword}
+              setCurrentPassword={setCurrentPassword}
+              newPassword={newPassword}
+              setNewPassword={setNewPassword}
+              saving={saving}
+              handleChangePassword={handleChangePassword}
+              handleDeleteAccount={handleDeleteAccount}
+              styles={styles}
+            />
+          )}
 
           <View style={styles.logoutWrapper}>
             <TouchableOpacity style={styles.fullLogoutBtn} onPress={handleLogout}>
