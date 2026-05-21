@@ -39,12 +39,13 @@ const PRESET_TIMES = [10, 20, 30, 40, 60];
 
 // ─── Step header ─────────────────────────────────────────────────────────────
 function StepLabel({ num, text }: { num: number; text: string }) {
+  const { colors } = useTheme();
   return (
     <View style={s.stepLabel}>
-      <View style={s.stepBadge}>
+      <View style={[s.stepBadge, { backgroundColor: colors.primary }]}>
         <Text style={s.stepNum}>{num}</Text>
       </View>
-      <Text style={s.stepText}>{text}</Text>
+      <Text style={[s.stepText, { color: colors.text }]}>{text}</Text>
     </View>
   );
 }
