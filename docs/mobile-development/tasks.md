@@ -355,7 +355,7 @@
 ## Phase 8 — Vocab Lab polish (12h)
 
 ### 8.1 Audit hiện trạng (1h)
-- [ ] **P8-01** · Verify mobile đã có Publish/Import deck modal chưa · *est. 1h*
+- [x] **P8-01** · Verify mobile đã có Publish/Import deck modal chưa · *est. 1h*
 
 ### 8.2 Publish & Import (7h, làm nếu thiếu)
 - [ ] **P8-02** · `components/vocab-lab/PublishDeckModal.tsx`: form title/desc/category/visibility/cover · *est. 4h*

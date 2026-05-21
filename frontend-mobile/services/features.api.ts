@@ -97,6 +97,17 @@ export const vocabLabApi = {
   },
   importSharedDeck: (id: string) =>
     apiClient.post<void>(`/vocab-lab/community/decks/${id}/import`, {}),
+  unpublishDeck: (id: string) => apiClient.delete<void>(`/vocab-lab/community/decks/${id}`),
+  publishDeck: (id: string, payload: { name: string; description?: string; tags?: string[] }) =>
+    apiClient.post<any>(`/vocab-lab/decks/${id}/publish`, payload),
+  importDeck: (lexonData: any) =>
+    apiClient.post<{
+      deckId: string;
+      deckName: string;
+      cardTypeId: string | null;
+      cardsImported: number;
+    }>('/vocab-lab/decks/import', lexonData),
+  exportDeck: (id: string) => apiClient.get<any>(`/vocab-lab/decks/${id}/export`),
 };
 
 // ==================== SHADOWING ====================
