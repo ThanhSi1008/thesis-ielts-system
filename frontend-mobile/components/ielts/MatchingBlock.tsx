@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 interface LetterOption {
@@ -29,6 +30,7 @@ function resolveOption(options: any[], key: string): string {
 
 // ─── Option Bank (displayed above question list) ──────────────────────────────
 function OptionBank({ options, title }: { options: LetterOption[] | IdOption[]; title: string }) {
+  const { colors, isDark } = useTheme();
   const items = hasLetterOptions(options)
     ? options.map((o) => ({ key: o.letter, text: o.text }))
     : (options as IdOption[]).map((o) => ({ key: o.id, text: o.text }));
@@ -39,12 +41,12 @@ function OptionBank({ options, title }: { options: LetterOption[] | IdOption[]; 
   if (!hasContent) return null;
 
   return (
-    <View style={ob.container}>
-      <Text style={ob.title}>{title}</Text>
+    <View style={[ob.container, { backgroundColor: isDark ? colors.surface : '#EFF6FF', borderColor: isDark ? colors.border : '#BFDBFE' }]}>
+      <Text style={[ob.title, { color: colors.primary, borderColor: isDark ? colors.border : '#BFDBFE' }]}>{title}</Text>
       {items.map((item) => (
         <View key={item.key} style={ob.row}>
-          <Text style={ob.letter}>{item.key}</Text>
-          <Text style={ob.text}>{item.text}</Text>
+          <Text style={[ob.letter, { color: colors.primary }]}>{item.key}</Text>
+          <Text style={[ob.text, { color: colors.text }]}>{item.text}</Text>
         </View>
       ))}
     </View>
@@ -53,33 +55,28 @@ function OptionBank({ options, title }: { options: LetterOption[] | IdOption[]; 
 
 const ob = StyleSheet.create({
   container: {
-    backgroundColor: '#EFF6FF',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
     marginBottom: SPACING.md,
   },
   title: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '700',
-    color: '#1E3A8A',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: SPACING.sm,
     borderBottomWidth: 1,
-    borderColor: '#BFDBFE',
     paddingBottom: SPACING.xs,
   },
   row: { flexDirection: 'row', gap: SPACING.sm, marginBottom: 6 },
   letter: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
-    color: '#1D4ED8',
     width: 24,
     flexShrink: 0,
   },
-  text: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
+  text: { flex: 1, fontSize: FONT_SIZES.sm, lineHeight: 20 },
 });
 
 // ─── Single matching row (question text + letter picker) ──────────────────────
@@ -97,6 +94,7 @@ function MatchRow({
   onSelect: (letter: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { colors, isDark } = useTheme();
   const keys = hasLetterOptions(options)
     ? options.map((o: LetterOption) => o.letter)
     : (options as IdOption[]).map((o) => o.id);
@@ -104,63 +102,78 @@ function MatchRow({
   const selectedLabel = value ? `${value} · ${resolveOption(options, value)}` : 'Select answer…';
 
   return (
-    <View style={mr.wrapper}>
+    <View style={[mr.wrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
       {/* Question */}
       <View style={mr.questionRow}>
-        <View style={mr.numBadge}>
-          <Text style={mr.numText}>{qNum}</Text>
+        <View style={[mr.numBadge, { backgroundColor: isDark ? colors.surface : '#EFF6FF', borderColor: isDark ? colors.border : '#93C5FD' }]}>
+          <Text style={[mr.numText, { color: colors.primary }]}>{qNum}</Text>
         </View>
-        <Text style={mr.questionText}>{text}</Text>
+        <Text style={[mr.questionText, { color: colors.text }]}>{text}</Text>
       </View>
 
       {/* Picker trigger */}
       <TouchableOpacity
-        style={[mr.picker, value && mr.pickerFilled]}
+        style={[
+          mr.picker, 
+          { backgroundColor: colors.surface, borderColor: colors.border },
+          value && { borderColor: colors.primary, backgroundColor: colors.primary + '0A' }
+        ]}
         onPress={() => setOpen((v) => !v)}
         activeOpacity={0.8}
       >
-        <Text style={[mr.pickerText, !value && mr.pickerPlaceholder]} numberOfLines={1}>
+        <Text 
+          style={[
+            mr.pickerText, 
+            { color: colors.primary },
+            !value && { color: colors.textMuted, fontWeight: '400' }
+          ]} 
+          numberOfLines={1}
+        >
           {selectedLabel}
         </Text>
         <Ionicons
           name={open ? 'chevron-up' : 'chevron-down'}
           size={14}
-          color={value ? COLORS.primary : COLORS.textMuted}
+          color={value ? colors.primary : colors.textMuted}
         />
       </TouchableOpacity>
 
       {/* Dropdown options */}
       {open && (
-        <View style={mr.dropdown}>
+        <View style={[mr.dropdown, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <TouchableOpacity
-            style={mr.dropItem}
+            style={[mr.dropItem, { borderColor: colors.border + '60' }]}
             onPress={() => {
               onSelect('');
               setOpen(false);
             }}
           >
-            <Text style={mr.dropItemText}>— Clear</Text>
+            <Text style={[mr.dropItemText, { color: colors.text }]}>— Clear</Text>
           </TouchableOpacity>
           {keys.map((k) => {
             const isSelected = value.toUpperCase() === k.toUpperCase();
             return (
               <TouchableOpacity
                 key={k}
-                style={[mr.dropItem, isSelected && mr.dropItemActive]}
+                style={[
+                  mr.dropItem, 
+                  { borderColor: colors.border + '60' },
+                  isSelected && { backgroundColor: colors.primary + '0E' }
+                ]}
                 onPress={() => {
                   onSelect(k);
                   setOpen(false);
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={[mr.dropItemLetter, isSelected && mr.dropItemLetterActive]}>{k}</Text>
+                <Text style={[mr.dropItemLetter, { color: colors.textSecondary }, isSelected && { color: colors.primary }]}>{k}</Text>
                 <Text
-                  style={[mr.dropItemText, isSelected && mr.dropItemTextActive]}
+                  style={[mr.dropItemText, { color: colors.text }, isSelected && { color: colors.primary, fontWeight: '600' }]}
                   numberOfLines={2}
                 >
                   {resolveOption(options, k)}
                 </Text>
-                {isSelected && <Ionicons name="checkmark" size={14} color={COLORS.primary} />}
+                {isSelected && <Ionicons name="checkmark" size={14} color={colors.primary} />}
               </TouchableOpacity>
             );
           })}
@@ -173,10 +186,8 @@ function MatchRow({
 const mr = StyleSheet.create({
   wrapper: {
     marginBottom: SPACING.md,
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: SPACING.md,
   },
   questionRow: {
@@ -190,34 +201,26 @@ const mr = StyleSheet.create({
     height: 26,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#93C5FD',
-    backgroundColor: '#EFF6FF',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
-  numText: { fontSize: 11, fontWeight: '700', color: '#1D4ED8' },
-  questionText: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
+  numText: { fontSize: 11, fontWeight: '700' },
+  questionText: { flex: 1, fontSize: FONT_SIZES.sm, lineHeight: 20 },
   picker: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1.5,
-    borderColor: COLORS.border,
     borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    backgroundColor: COLORS.surface,
   },
-  pickerFilled: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + '0A' },
-  pickerText: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '600' },
-  pickerPlaceholder: { color: COLORS.textMuted, fontWeight: '400' },
+  pickerText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '600' },
   dropdown: {
     marginTop: 4,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: RADIUS.md,
-    backgroundColor: '#fff',
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -232,18 +235,13 @@ const mr = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     borderBottomWidth: 1,
-    borderColor: COLORS.border + '60',
   },
-  dropItemActive: { backgroundColor: COLORS.primary + '0E' },
   dropItemLetter: {
     width: 24,
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
-    color: COLORS.textSecondary,
   },
-  dropItemLetterActive: { color: COLORS.primary },
-  dropItemText: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text },
-  dropItemTextActive: { color: COLORS.primary, fontWeight: '600' },
+  dropItemText: { flex: 1, fontSize: FONT_SIZES.sm },
 });
 
 // ─── Listening `matching` variant (items[] + options[] + answers{}) ───────────
@@ -296,15 +294,6 @@ function ListeningMatchingVariant({
 }
 
 // ─── Reading variants: matching_headings / features / information ─────────────
-// Data shapes:
-//   Shape A (Listening): group.questions[] with {question_number, text}
-//   Shape B (Reading):   group.items[]    with {question_number, question_text}
-//   group.questions may also be a string range like "14-17" — never map it
-//
-// Options may come from:
-//   group.options_box.options → { A: "Paragraph A label", ... }
-//   group.options → [{ letter, text }]
-//   OR auto-generated from instructions ("Choose ONE letter, A–G") — web exam-parser.ts logic
 function StandardMatchingVariant({
   group,
   answers,
@@ -429,6 +418,7 @@ const TYPE_TAGS: Record<string, string> = {
 };
 
 export default function MatchingBlock({ group, answers, onAnswer }: Props) {
+  const { colors, isDark } = useTheme();
   // question_type is the actual field (e.g. "Matching"); type is legacy fallback
   const rawType: string = group.question_type || group.type || 'matching';
   const type = rawType.toLowerCase().replace(/\s+/g, '_');
@@ -453,21 +443,23 @@ export default function MatchingBlock({ group, answers, onAnswer }: Props) {
     );
   };
 
+  const tagColor = '#1D4ED8';
+
   return (
-    <View style={s.container}>
+    <View style={[s.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
       {/* Header */}
-      <View style={s.header}>
-        <View style={s.tag}>
-          <Text style={s.tagText}>{TYPE_TAGS[type] || 'MATCHING'}</Text>
+      <View style={[s.header, { borderColor: colors.border + '60', backgroundColor: colors.surface }]}>
+        <View style={[s.tag, { backgroundColor: isDark ? colors.surface : '#1D4ED818', borderColor: isDark ? colors.border : '#1D4ED840' }]}>
+          <Text style={[s.tagText, { color: isDark ? colors.primary : tagColor }]}>{TYPE_TAGS[type] || 'MATCHING'}</Text>
         </View>
-        {heading ? <Text style={s.heading}>{heading}</Text> : null}
+        {heading ? <Text style={[s.heading, { color: colors.text }]}>{heading}</Text> : null}
       </View>
 
       {/* Instruction */}
       {instruction ? (
-        <View style={s.instructionBox}>
-          <Ionicons name="information-circle-outline" size={14} color={COLORS.textSecondary} />
-          <Text style={s.instructionText}>{instruction}</Text>
+        <View style={[s.instructionBox, { backgroundColor: colors.surface, borderColor: colors.border + '40' }]}>
+          <Ionicons name="information-circle-outline" size={14} color={colors.textSecondary} />
+          <Text style={[s.instructionText, { color: colors.textSecondary }]}>{instruction}</Text>
         </View>
       ) : null}
 
@@ -480,10 +472,8 @@ export default function MatchingBlock({ group, answers, onAnswer }: Props) {
 const s = StyleSheet.create({
   container: {
     marginBottom: SPACING.xl,
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
     overflow: 'hidden',
   },
   header: {
@@ -492,39 +482,31 @@ const s = StyleSheet.create({
     gap: SPACING.sm,
     padding: SPACING.md,
     borderBottomWidth: 1,
-    borderColor: COLORS.border + '60',
-    backgroundColor: COLORS.surface,
   },
   tag: {
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: RADIUS.sm,
-    backgroundColor: '#1D4ED818',
     borderWidth: 1,
-    borderColor: '#1D4ED840',
   },
   tagText: {
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.8,
-    color: '#1D4ED8',
     textTransform: 'uppercase',
   },
-  heading: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.text },
+  heading: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700' },
   instructionBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 6,
-    backgroundColor: COLORS.surface,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     borderBottomWidth: 1,
-    borderColor: COLORS.border + '40',
   },
   instructionText: {
     flex: 1,
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
     lineHeight: 18,
     fontStyle: 'italic',
   },
