@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, FONTS, RADIUS, SPACING } from '@/constants';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface UsageIndicatorProps {
   label: string;
@@ -16,6 +17,7 @@ export function UsageIndicator({
   limit,
   color,
 }: UsageIndicatorProps) {
+  const { colors } = useTheme();
   const percentage = Math.min(100, Math.max(0, limit > 0 ? (used / limit) * 100 : 0));
   const isNearLimit = percentage >= 80;
   const isAtLimit = percentage >= 100;
@@ -28,6 +30,44 @@ export function UsageIndicator({
     : isNearLimit
     ? [COLORS.warningScale?.[500] || '#f59e0b', COLORS.warningScale?.[700] || '#b45309']
     : [COLORS.primary, '#E0A300']; // Premium golden brand colors
+
+  const styles = StyleSheet.create({
+    container: {
+      width: '100%',
+      marginVertical: SPACING.xs,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
+    labelText: {
+      fontFamily: FONTS.semibold,
+      fontSize: 13,
+      color: colors.text,
+    },
+    countText: {
+      fontFamily: FONTS.bold,
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    limitReachedText: {
+      color: COLORS.error,
+    },
+    track: {
+      height: 8,
+      width: '100%',
+      backgroundColor: colors.border,
+      borderRadius: RADIUS.full,
+      overflow: 'hidden',
+    },
+    fillWrapper: {
+      height: '100%',
+      borderRadius: RADIUS.full,
+      overflow: 'hidden',
+    },
+  });
 
   return (
     <View style={styles.container}>
@@ -53,42 +93,3 @@ export function UsageIndicator({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginVertical: SPACING.xs,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  labelText: {
-    fontFamily: FONTS.semibold,
-    fontSize: 13,
-    color: COLORS.text,
-  },
-  countText: {
-    fontFamily: FONTS.bold,
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  limitReachedText: {
-    color: COLORS.error,
-  },
-  track: {
-    height: 8,
-    width: '100%',
-    backgroundColor: COLORS.gray[100],
-    borderRadius: RADIUS.full,
-    overflow: 'hidden',
-  },
-  fillWrapper: {
-    height: '100%',
-    borderRadius: RADIUS.full,
-    overflow: 'hidden',
-  },
-});
-
