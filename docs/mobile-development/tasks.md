@@ -9,14 +9,14 @@
 
 ## Phase 0 — Chuẩn bị (4h)
 
-- [ ] **P0-01** · Cài deps mới (`expo-notifications`, `expo-device`, `expo-tracking-transparency`, `react-native-toast-message`, `zustand`) · *est. 0.5h*
-- [ ] **P0-02** · Cập nhật `.env.example`: thêm `EXPO_PUBLIC_APP_SCHEME=iemai` · *est. 0.25h*
-- [ ] **P0-03** · Cập nhật `app.json`: thêm `scheme: "iemai"`, verify `bundleIdentifier` + `package` · *est. 0.5h*
-- [ ] **P0-04** · Tạo 4 file context rỗng (`SubscriptionContext`, `GradingContext`, `NotificationContext`, `ThemeContext`) · *est. 0.5h*
-- [ ] **P0-05** · Tạo 4 file UI rỗng (`Toaster`, `FeatureLock`, `UpgradeModal`, `UsageIndicator`) trong `components/ui/` · *est. 0.5h*
-- [ ] **P0-06** · Thêm script `"type-check": "tsc --noEmit"` vào `package.json` · *est. 0.25h*
-- [ ] **P0-07** · Chạy `npm run type-check` baseline + fix lỗi blocking (nếu có) · *est. 1h*
-- [ ] **P0-08** · Verify `expo start` boot OK trên cả iOS + Android sim · *est. 0.5h*
+- [x] **P0-01** · Cài deps mới (`expo-notifications`, `expo-device`, `expo-tracking-transparency`, `react-native-toast-message`, `zustand`) · *est. 0.5h*
+- [x] **P0-02** · Cập nhật `.env.example`: thêm `EXPO_PUBLIC_APP_SCHEME=iemai` · *est. 0.25h*
+- [x] **P0-03** · Cập nhật `app.json`: thêm `scheme: "iemai"`, verify `bundleIdentifier` + `package` · *est. 0.5h*
+- [x] **P0-04** · Tạo 4 file context rỗng (`SubscriptionContext`, `GradingContext`, `NotificationContext`, `ThemeContext`) · *est. 0.5h*
+- [x] **P0-05** · Tạo 4 file UI rỗng (`Toaster`, `FeatureLock`, `UpgradeModal`, `UsageIndicator`) trong `components/ui/` · *est. 0.5h*
+- [x] **P0-06** · Thêm script `"type-check": "tsc --noEmit"` vào `package.json` · *est. 0.25h*
+- [x] **P0-07** · Chạy `npm run type-check` baseline + fix lỗi blocking (nếu có) · *est. 1h*
+- [x] **P0-08** · Verify `expo start` boot OK trên cả iOS + Android sim · *est. 0.5h*
 
 **Tổng phase 0**: 4h
 

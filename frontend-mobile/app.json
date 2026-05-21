@@ -50,8 +50,9 @@
       "expo-video",
       "@react-native-community/datetimepicker",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-tracking-transparency"
     ],
-    "scheme": "ielts-master-ai"
+    "scheme": "iemai"
   }
 }
