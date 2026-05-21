@@ -404,19 +404,19 @@
 ## Phase 11 — Chat AI streaming + suggestions (12h)
 
 ### 11.1 Streaming (6h)
-- [ ] **P11-01** · Refactor `app/chat-ai.tsx` dùng fetch ReadableStream · *est. 3h*
-- [ ] **P11-02** · Append chunk vào message state + auto-scroll · *est. 1.5h*
-- [ ] **P11-03** · Backend verify `/chat` endpoint hỗ trợ SSE (đã có với stream:true?) · *est. 0.5h*
-- [ ] **P11-04** · Test latency, abort khi user navigate away · *est. 1h*
+- [x] **P11-01** · Refactor `app/chat-ai.tsx` dùng fetch ReadableStream · *est. 3h*
+- [x] **P11-02** · Append chunk vào message state + auto-scroll · *est. 1.5h*
+- [x] **P11-03** · Backend verify `/chat` endpoint hỗ trợ SSE (đã có với stream:true?) · *est. 0.5h*
+- [x] **P11-04** · Test latency, abort khi user navigate away · *est. 1h*
 
 ### 11.2 Suggestions UI (4h)
-- [ ] **P11-05** · Render suggestion pills dưới message · *est. 1.5h*
-- [ ] **P11-06** · Handler EXPLAIN_NOTE → send follow-up · *est. 1h*
-- [ ] **P11-07** · Handler ADD_VOCAB → open GlobalAddCardFab prefilled · *est. 1.5h*
+- [x] **P11-05** · Render suggestion pills dưới message · *est. 1.5h*
+- [x] **P11-06** · Handler EXPLAIN_NOTE → send follow-up · *est. 1h*
+- [x] **P11-07** · Handler ADD_VOCAB → open GlobalAddCardFab prefilled · *est. 1.5h*
 
 ### 11.3 History persistence (2h)
-- [ ] **P11-08** · Save/load history AsyncStorage (max 50 msg) · *est. 1h*
-- [ ] **P11-09** · Header button "Clear history" · *est. 1h*
+- [x] **P11-08** · Save/load history AsyncStorage (max 50 msg) · *est. 1h*
+- [x] **P11-09** · Header button "Clear history" · *est. 1h*
 
 **Tổng phase 11**: 12h
 
