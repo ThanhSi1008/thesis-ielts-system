@@ -9,11 +9,12 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   ActivityIndicator,
-  Linking,
 } from 'react-native';
+import * as Linking from 'expo-linking';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
 import { subscriptionsApi } from '@/services';
 import type { PricingPlan } from '@/services/features.api'; // keep import type from features.api or import it differently if needed, wait PricingPlan is in features.api
 import { useAuth } from '@/contexts/AuthContext';
@@ -165,7 +166,34 @@ export default function PricingScreen() {
       if (plan.priceAmount > 0) {
         const result = await subscriptionsApi.checkout(plan.id);
         if (result.redirectUrl) {
-          await Linking.openURL(result.redirectUrl);
+          const returnUrl = Linking.createURL('payment/vnpay-return');
+          const authResult = await WebBrowser.openAuthSessionAsync(
+            result.redirectUrl,
+            returnUrl
+          );
+          
+          if (authResult.type === 'success' && authResult.url) {
+            // Parse URL and navigate to vnpay-return with search params
+            const queryString = authResult.url.split('?')[1] || '';
+            const queryParams: Record<string, string> = {};
+            if (queryString) {
+              const pairs = queryString.split('&');
+              for (const pair of pairs) {
+                const [key, val] = pair.split('=');
+                if (key) {
+                  queryParams[decodeURIComponent(key)] = decodeURIComponent(val || '');
+                }
+              }
+            }
+            
+            router.replace({
+              pathname: '/payment/vnpay-return',
+              params: queryParams,
+            });
+            return;
+          }
+          
+          await fetchData();
           return;
         }
         await fetchData();

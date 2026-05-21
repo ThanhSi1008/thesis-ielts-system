@@ -195,6 +195,9 @@ export const subscriptionsApi = {
   checkout: (planId: string): Promise<CheckoutResponse> =>
     apiClient.post<CheckoutResponse>('/subscriptions/checkout', { planId }),
 
+  verifyCheckout: (sessionId: string, vnpParams?: Record<string, string>): Promise<CheckoutResponse> =>
+    apiClient.post<CheckoutResponse>('/subscriptions/checkout/verify', { sessionId, vnpParams }),
+
   cancel: (reason?: string): Promise<any> =>
     apiClient.post<any>('/subscriptions/cancel', { reason }),
 };

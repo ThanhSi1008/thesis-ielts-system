@@ -425,18 +425,18 @@
 ## Phase 12 — Payment / VNPay return (8h)
 
 ### 12.1 VNPay open (3h)
-- [ ] **P12-01** · Trong `app/pricing.tsx`, button Upgrade → `WebBrowser.openAuthSessionAsync` với deep-link return · *est. 1.5h*
-- [ ] **P12-02** · Config Linking trong `app/_layout.tsx` (scheme `iemai`) · *est. 1h*
-- [ ] **P12-03** · Test deep-link callback iOS + Android · *est. 0.5h*
+- [x] **P12-01** · Trong `app/pricing.tsx`, button Upgrade → `WebBrowser.openAuthSessionAsync` với deep-link return · *est. 1.5h*
+- [x] **P12-02** · Config Linking trong `app/_layout.tsx` (scheme `iemai`) · *est. 1h*
+- [x] **P12-03** · Test deep-link callback iOS + Android · *est. 0.5h*
 
 ### 12.2 Return handler (2h)
-- [ ] **P12-04** · Tạo `app/payment/vnpay-return.tsx` parse params · *est. 1h*
-- [ ] **P12-05** · 3 trạng thái UI: verifying / success / failed · *est. 1h*
+- [x] **P12-04** · Tạo `app/payment/vnpay-return.tsx` parse params · *est. 1h*
+- [x] **P12-05** · 3 trạng thái UI: verifying / success / failed · *est. 1h*
 
 ### 12.3 Cancel subscription UI (3h)
-- [ ] **P12-06** · Profile → SubscriptionSection: cancel button (chỉ PREMIUM/PRO) · *est. 1h*
-- [ ] **P12-07** · Modal confirm với reason dropdown · *est. 1h*
-- [ ] **P12-08** · API `subscriptionsApi.cancel(reason)` + refresh + toast · *est. 1h*
+- [x] **P12-06** · Profile → SubscriptionSection: cancel button (chỉ PREMIUM/PRO) · *est. 1h*
+- [x] **P12-07** · Modal confirm với reason dropdown · *est. 1h*
+- [x] **P12-08** · API `subscriptionsApi.cancel(reason)` + refresh + toast · *est. 1h*
 
 **Tổng phase 12**: 8h
 

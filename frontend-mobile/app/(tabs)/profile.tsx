@@ -254,6 +254,7 @@ export default function ProfileScreen() {
               saving={saving}
               handleUpdateProfile={handleUpdateProfile}
               styles={styles}
+              refreshSubscription={fetchData}
             />
           )}
 

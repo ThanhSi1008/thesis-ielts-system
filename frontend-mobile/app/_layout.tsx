@@ -145,6 +145,7 @@ export default function RootLayout() {
 
               {/* Pricing / Subscription */}
               <Stack.Screen name="pricing" options={{ presentation: 'modal', headerShown: false }} />
+              <Stack.Screen name="payment/vnpay-return" options={{ headerShown: false }} />
             </Stack>
             <Toaster />
             <UpgradeModal />
