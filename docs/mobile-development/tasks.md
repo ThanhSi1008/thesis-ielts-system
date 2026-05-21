@@ -526,10 +526,11 @@
 ## Phase 17 — Dark mode toàn app (24h)
 
 ### 17.1 Foundation (5h)
-- [ ] **P17-01** · `constants/theme.ts`: LIGHT_TOKENS + DARK_TOKENS (bg/text/border/primary/...) · *est. 1.5h*
-- [ ] **P17-02** · `contexts/ThemeContext.tsx`: theme/setTheme/resolvedTheme · *est. 1.5h*
-- [ ] **P17-03** · Persist AsyncStorage + Appearance.addChangeListener · *est. 1h*
-- [ ] **P17-04** · Hook `useTheme()` trả token hiện tại · *est. 1h*
+- [x] **P17-01** · `constants/theme.ts`: LIGHT_TOKENS + DARK_TOKENS (bg/text/border/primary/...) · *est. 1.5h*
+- [x] **P17-02** · `contexts/ThemeContext.tsx`: theme/setTheme/resolvedTheme · *est. 1.5h*
+- [x] **P17-03** · Persist AsyncStorage + Appearance.addChangeListener · *est. 1h*
+- [x] **P17-04** · Hook `useTheme()` trả token hiện tại · *est. 1h*
+
 
 ### 17.2 Refactor (16h)
 - [ ] **P17-05** · Refactor `app/(tabs)/index.tsx` (Home) · *est. 0.5h*
