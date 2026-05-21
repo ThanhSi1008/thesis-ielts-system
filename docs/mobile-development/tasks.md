@@ -507,11 +507,11 @@
 - [ ] **P16-07** · Tap response listener: parse data.link → router.push · *est. 0.5h*
 
 ### 16.2 Backend (8h) — *cần coordinate user*
-- [ ] **P16-08** · Prisma model `PushToken` (user_id, token, platform, lastUsed, createdAt) · *est. 1h*
-- [ ] **P16-09** · Endpoint `POST/DELETE /users/me/push-token` · *est. 2h*
-- [ ] **P16-10** · `notifications.service.ts` mở rộng `sendPushNotification(userId, payload)` qua Expo Push API · *est. 3h*
-- [ ] **P16-11** · Tích hợp vào các trigger hiện có: streak, exam graded, pronunciation result · *est. 1.5h*
-- [ ] **P16-12** · Cron cleanup token > 90 ngày unused · *est. 0.5h*
+- [x] **P16-08** · Prisma model `PushToken` (user_id, token, platform, lastUsed, createdAt) · *est. 1h*
+- [x] **P16-09** · Endpoint `POST/DELETE /users/me/push-token` · *est. 2h*
+- [x] **P16-10** · `notifications.service.ts` mở rộng `sendPushNotification(userId, payload)` qua Expo Push API · *est. 3h*
+- [x] **P16-11** · Tích hợp vào các trigger hiện có: streak, exam graded, pronunciation result · *est. 1.5h*
+- [x] **P16-12** · Cron cleanup token > 90 ngày unused · *est. 0.5h*
 
 ### 16.3 Test (2h)
 - [ ] **P16-13** · Trigger streak milestone → notif đến · *est. 0.5h*
