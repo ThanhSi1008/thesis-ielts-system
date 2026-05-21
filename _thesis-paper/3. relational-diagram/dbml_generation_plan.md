@@ -6,9 +6,9 @@ You have three authoritative sources that all represent the same data model:
 
 | Source | Format | Status |
 |--------|--------|--------|
-| [schema.prisma](file:///c:/Users/Admin/Desktop/thesis/merge/thesis-toeic-system/backend-core/prisma/schema.prisma) | Prisma ORM schema | **Source of truth** (1465 lines, 60+ models) |
-| [core.puml](file:///c:/Users/Admin/Desktop/thesis/merge/thesis-toeic-system/_thesis-paper/2.%20class-diagram/v5/core.puml) | PlantUML class diagram | Finalized (v5) |
-| [ielts.puml](file:///c:/Users/Admin/Desktop/thesis/merge/thesis-toeic-system/_thesis-paper/2.%20class-diagram/v5/ielts.puml) | PlantUML class diagram | Finalized (v5) |
+| [schema.prisma](file:///c:/Users/Admin/Desktop/thesis/merge/thesis-ielts-system/backend-core/prisma/schema.prisma) | Prisma ORM schema | **Source of truth** (1465 lines, 60+ models) |
+| [core.puml](file:///c:/Users/Admin/Desktop/thesis/merge/thesis-ielts-system/_thesis-paper/2.%20class-diagram/v5/core.puml) | PlantUML class diagram | Finalized (v5) |
+| [ielts.puml](file:///c:/Users/Admin/Desktop/thesis/merge/thesis-ielts-system/_thesis-paper/2.%20class-diagram/v5/ielts.puml) | PlantUML class diagram | Finalized (v5) |
 
 The class diagram PNGs you shared (from `xmi/v2/` and `xmi/v3/`) are the Visual Paradigm exports of these same models.
 

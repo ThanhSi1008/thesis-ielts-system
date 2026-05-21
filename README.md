@@ -412,7 +412,7 @@ The Prisma 5 schema (`backend-core/prisma/schema.prisma`, 1346 lines) defines **
 ## 7. Project Structure
 
 ```
-thesis-toeic-system/
+thesis-ielts-system/
 │
 ├── backend-core/                        # NestJS 10 modular monolith (port 3000)
 │   ├── prisma/
@@ -554,17 +554,17 @@ npm run start:dev       # → http://localhost:3000/api/v1
 
 ```dotenv
 # Database
-DATABASE_URL="postgresql://toeic_user:toeic_password@localhost:5433/toeic_db?schema=public"
-DIRECT_URL="postgresql://toeic_user:toeic_password@localhost:5433/toeic_db"
+DATABASE_URL="postgresql://ielts_user:ielts_password@localhost:5433/ielts_db?schema=public"
+DIRECT_URL="postgresql://ielts_user:ielts_password@localhost:5433/ielts_db"
 
 # Redis
 REDIS_URL="redis://localhost:6379"
 
 # RabbitMQ
-RABBITMQ_URL="amqp://toeic:toeic_password@localhost:5672"
+RABBITMQ_URL="amqp://ielts:ielts_password@localhost:5672"
 RABBITMQ_QUEUE_GRADING="exam-grading-queue"
 RABBITMQ_QUEUE_TRANSCRIPTION="dictation-transcription-queue"
-RABBITMQ_EXCHANGE="toeic-exchange"
+RABBITMQ_EXCHANGE="ielts-exchange"
 
 # JWT
 JWT_SECRET="change-in-production"
@@ -613,16 +613,16 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 **`backend-ai/.env` reference:**
 
 ```dotenv
-RABBITMQ_URL="amqp://toeic:toeic_password@localhost:5672"
+RABBITMQ_URL="amqp://ielts:ielts_password@localhost:5672"
 RABBITMQ_QUEUE_GRADING="exam-grading-queue"
 
-DATABASE_URL="postgresql://toeic_user:toeic_password@localhost:5432/toeic_db"
+DATABASE_URL="postgresql://ielts_user:ielts_password@localhost:5432/ielts_db"
 
 # MinIO (local) — swap for GCS vars in production
 STORAGE_ENDPOINT="http://localhost:9000"
 STORAGE_ACCESS_KEY="minioadmin"
 STORAGE_SECRET_KEY="minioadmin"
-STORAGE_BUCKET="toeic-files"
+STORAGE_BUCKET="ielts-files"
 STORAGE_USE_SSL="false"
 
 # Google Cloud Storage (production)
@@ -770,7 +770,7 @@ Faculty of Information Technology · Bachelor of Engineering in Information Tech
 
 This project is released under the **MIT License**. See [`LICENSE`](LICENSE) for full terms.
 
-**Contact:** lathanhsi100804@gmail.com · [GitHub Issues](https://github.com/xishanht108/thesis-toeic-system/issues)
+**Contact:** lathanhsi100804@gmail.com · [GitHub Issues](https://github.com/xishanht108/thesis-ielts-system/issues)
 
 ---
 

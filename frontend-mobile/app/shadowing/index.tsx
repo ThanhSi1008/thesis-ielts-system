@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { shadowingApi } from '@/services/features.api';
-import { SHADOWING_LESSONS } from '@/constants/shadowing-lessons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const THEME = {
@@ -41,6 +40,7 @@ export default function ShadowingScreen() {
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState('');
   
+  const [systemLessons, setSystemLessons] = useState<any[]>([]);
   const [userVideos, setUserVideos] = useState<any[]>([]);
   const [progress, setProgress] = useState<Record<string, { shadowing: number; dictation: number }>>({});
   const [loading, setLoading] = useState(true);
@@ -48,15 +48,19 @@ export default function ShadowingScreen() {
 
   const fetchData = async () => {
     try {
-      const [videosRes, progressRes] = await Promise.allSettled([
+      const [videosRes, lessonsRes, progressRes] = await Promise.allSettled([
         shadowingApi.getVideos(),
+        shadowingApi.getLessons(),
         shadowingApi.getAllProgress(),
       ]);
       if (videosRes.status === 'fulfilled') setUserVideos(videosRes.value);
+      if (lessonsRes.status === 'fulfilled') setSystemLessons(lessonsRes.value);
       if (progressRes.status === 'fulfilled') {
         const rawProgress = progressRes.value;
         const computed: Record<string, { shadowing: number; dictation: number }> = {};
-        [...SHADOWING_LESSONS, ...((videosRes.status === 'fulfilled' ? videosRes.value : []) as any[])].forEach((lesson: any) => {
+        const activeLessons = lessonsRes.status === 'fulfilled' ? lessonsRes.value : [];
+        const activeVideos = videosRes.status === 'fulfilled' ? videosRes.value : [];
+        [...activeLessons, ...activeVideos].forEach((lesson: any) => {
           const p = rawProgress[lesson.id];
           const total = lesson.sentences?.length || 1;
           computed[lesson.id] = {
@@ -73,7 +77,7 @@ export default function ShadowingScreen() {
   useEffect(() => { fetchData(); }, []);
 
   const allLessons = [
-    ...SHADOWING_LESSONS.map(l => ({ ...l, tags: l.tags })),
+    ...systemLessons.map(l => ({ ...l, tags: l.tags || ['English'] })),
     ...userVideos.map(v => ({ ...v, tags: ['YOUTUBE'] })),
   ];
   

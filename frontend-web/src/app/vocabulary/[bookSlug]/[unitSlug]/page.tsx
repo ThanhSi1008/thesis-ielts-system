@@ -1,15 +1,31 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { ChevronLeft, Lock } from "lucide-react";
+import FloatingSelectionManager from "@/components/FloatingSelectionManager";
 import { vocabularyApi } from "@/services/learning.api";
+import { vocabLabApi } from "@/services/vocabLab.api";
 import { useAuth } from "@/contexts/AuthContext";
-import type { VocabularyUnitWithContent, VocabularyWord, SubmitExerciseResponse, SubmitQuestionsResponse } from "@/types";
+import { toast } from "@/components/Toaster";
+import type { VocabularyUnitWithContent, FoundationVocabItem, SubmitQuestionsResponse } from "@/types";
 import PageHeader from "@/components/PageHeader";
 
 // ============================================================
-// WORD LIST FLIP CARD COMPONENT
+// SRS RATING CONSTANTS
+// ============================================================
+
+const SRS_RATINGS = [
+  { rating: 1, label: 'Again', interval: '<10m', bgColor: 'bg-red-50', hoverBg: 'hover:bg-red-100', textColor: 'text-red-700', borderColor: 'border-red-200', keyBg: 'bg-red-100', keyHoverBg: 'group-hover:bg-red-200' },
+  { rating: 2, label: 'Hard', interval: '1d', bgColor: 'bg-orange-50', hoverBg: 'hover:bg-orange-100', textColor: 'text-orange-700', borderColor: 'border-orange-200', keyBg: 'bg-orange-100', keyHoverBg: 'group-hover:bg-orange-200' },
+  { rating: 3, label: 'Good', interval: '3d', bgColor: 'bg-blue-50', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-700', borderColor: 'border-blue-200', keyBg: 'bg-blue-100', keyHoverBg: 'group-hover:bg-blue-200' },
+  { rating: 4, label: 'Easy', interval: '5d', bgColor: 'bg-green-50', hoverBg: 'hover:bg-green-100', textColor: 'text-green-700', borderColor: 'border-green-200', keyBg: 'bg-green-100', keyHoverBg: 'group-hover:bg-green-200' },
+] as const;
+
+// ============================================================
+// SCORE MODAL COMPONENT
 // ============================================================
 
 interface ScoreModalProps {
@@ -24,9 +40,9 @@ interface ScoreModalProps {
 function ScoreModal({ isOpen, score, totalQuestions, isPassed, onRetry, onContinue }: ScoreModalProps) {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl transform scale-100 animate-in zoom-in-95 duration-300 text-center">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-md w-full shadow-2xl transform scale-100 animate-in zoom-in-95 duration-300 text-center">
         <div className="mb-6">
           <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl shadow-lg mb-4 ${isPassed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
             {isPassed ? '🏆' : '💪'}
@@ -57,7 +73,7 @@ function ScoreModal({ isOpen, score, totalQuestions, isPassed, onRetry, onContin
           {isPassed && (
             <button
               onClick={onRetry}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-colors"
+              className="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-colors"
             >
               Review Answers
             </button>
@@ -66,6 +82,9 @@ function ScoreModal({ isOpen, score, totalQuestions, isPassed, onRetry, onContin
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(modalContent, document.body);
 }
 
 // ============================================================
@@ -73,38 +92,101 @@ function ScoreModal({ isOpen, score, totalQuestions, isPassed, onRetry, onContin
 // ============================================================
 
 interface WordListFlipCardProps {
-  currentWord: VocabularyWord;
+  currentWord: FoundationVocabItem;
   currentWordIndex: number;
   totalWords: number;
-  onNextWord: () => void;
-  onSkip?: () => void; // Optional skip handler for dev/testing
+  onNextWord: (rating?: number) => void;
+  onSkip?: () => void;
+  bookName: string;
 }
 
-function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWord, onSkip }: WordListFlipCardProps) {
-  const { user } = useAuth();
+function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWord, onSkip, bookName }: WordListFlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
-  // Reset flip state when word changes
   useEffect(() => {
     setIsFlipped(false);
+    setShowButtons(false);
   }, [currentWordIndex]);
 
   const handleCardClick = () => {
-    setIsFlipped(!isFlipped);
+    if (!isFlipped) {
+      setIsFlipped(true);
+      setTimeout(() => setShowButtons(true), 300);
+    } else {
+      setIsFlipped(false);
+      setShowButtons(false);
+    }
   };
 
   const handleSpeakWord = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if ('speechSynthesis' in window) {
+    if (currentWord.audioUrl) {
+      const audio = new Audio(currentWord.audioUrl);
+      audio.play().catch(err => console.error("Error playing audio:", err));
+    } else if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(currentWord.word);
       utterance.lang = 'en-US';
       speechSynthesis.speak(utterance);
     }
   };
 
+  const handleRateAndAdd = async (rating: number) => {
+    if (isAdding) return;
+
+    setIsAdding(true);
+    try {
+      await vocabLabApi.createFlashcardFromVocabularyWithReview({
+        bookName,
+        word: currentWord,
+        rating,
+      });
+      window.dispatchEvent(new CustomEvent('vocabduechanged'));
+
+      const ratingLabel = SRS_RATINGS.find(r => r.rating === rating)?.label ?? '';
+      toast.success(
+        <div className="flex flex-col gap-1">
+          <span>Added to Vocab Lab as &quot;{ratingLabel}&quot;</span>
+          <Link href="/vocab-lab" className="text-blue-500 hover:text-blue-600 hover:underline text-xs font-bold mt-1 inline-block">
+            GO TO VOCAB LAB →
+          </Link>
+        </div>,
+        5000
+      );
+      onNextWord(rating);
+    } catch (err) {
+      console.error("Failed to add flashcard:", err);
+      toast.error("Failed to add flashcard.");
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!showButtons || isAdding) return;
+
+      switch (e.key) {
+        case '1': e.preventDefault(); handleRateAndAdd(1); break;
+        case '2': e.preventDefault(); handleRateAndAdd(2); break;
+        case '3': e.preventDefault(); handleRateAndAdd(3); break;
+        case '4': e.preventDefault(); handleRateAndAdd(4); break;
+        case 'Enter':
+        case ' ': // Space to skip/know
+          e.preventDefault();
+          onNextWord();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showButtons, isAdding, currentWord.id]);
+
   return (
     <div className="animate-in fade-in duration-300">
-      {/* Progress bar */}
       <div className="flex justify-between items-center mb-4 gap-4">
         <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
           <div
@@ -115,7 +197,6 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
         <span className="font-bold text-gray-600 min-w-[3rem] text-right">{currentWordIndex}/{totalWords}</span>
       </div>
 
-      {/* Dev Skip Button */}
       {onSkip && (
         <div className="flex justify-end mb-2">
           <button
@@ -127,7 +208,6 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
         </div>
       )}
 
-      {/* Flip Card Container */}
       <div
         className="perspective-1000 cursor-pointer"
         style={{ perspective: '1000px' }}
@@ -141,45 +221,35 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
             minHeight: '450px'
           }}
         >
-          {/* FRONT SIDE */}
           <div
             className="absolute inset-0 w-full h-full backface-hidden"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            <div className="border-2 border-blue-400 rounded-2xl p-8 md:p-12 flex flex-col items-center justify-center text-center shadow-sm min-h-[450px] bg-white">
-              {/* Image */}
-              <div className="w-40 h-40 rounded-full overflow-hidden mb-8 border-4 border-white shadow-lg bg-gray-100">
+            <div className="border-2 border-blue-400 rounded-2xl p-8 md:p-12 flex flex-col items-center justify-center text-center shadow-sm min-h-[450px] bg-white dark:bg-gray-900">
+              <div className="w-40 h-40 rounded-full overflow-hidden mb-8 border-4 border-white dark:border-gray-800 shadow-lg bg-gray-100 dark:bg-gray-800">
                 {currentWord.imageUrl ? (
                   <img src={currentWord.imageUrl} alt={currentWord.word} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400 text-6xl">📚</div>
                 )}
               </div>
-
-              {/* Word */}
               <h2 className="text-2xl font-bold mb-2">{currentWord.word}</h2>
-
-              {/* IPA + Part of Speech + Speaker */}
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <span>[{currentWord.ipa}]</span>
                 <span>{currentWord.partOfSpeech}.</span>
                 <button
                   onClick={handleSpeakWord}
-                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                  title="Listen to pronunciation"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                   </svg>
                 </button>
               </div>
-
-              {/* Hint to flip */}
-              <p className="text-sm text-gray-400 mt-8">Click to see meaning</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-8">Click to see meaning</p>
             </div>
           </div>
 
-          {/* BACK SIDE */}
           <div
             className="absolute inset-0 w-full h-full backface-hidden"
             style={{
@@ -187,38 +257,30 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
               transform: 'rotateY(180deg)'
             }}
           >
-            <div className="border-2 border-blue-400 rounded-2xl p-8 md:p-12 flex flex-col items-center text-center shadow-sm min-h-[450px] bg-white">
-              {/* Smaller Image at top */}
-              <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-white shadow-md bg-gray-100">
+            <div className="border-2 border-blue-400 rounded-2xl p-8 md:p-12 flex flex-col items-center text-center shadow-sm min-h-[450px] bg-white dark:bg-gray-900">
+              <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-white dark:border-gray-800 shadow-md bg-gray-100 dark:bg-gray-800">
                 {currentWord.imageUrl ? (
                   <img src={currentWord.imageUrl} alt={currentWord.word} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400 text-3xl">📚</div>
                 )}
               </div>
-
-              {/* Word + IPA + Speaker inline */}
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl font-bold">{currentWord.word}</span>
-                <span className="text-gray-600">[{currentWord.ipa}]</span>
-                <span className="text-gray-600">{currentWord.partOfSpeech}.</span>
+                <span className="text-gray-600 dark:text-gray-400">[{currentWord.ipa}]</span>
+                <span className="text-gray-600 dark:text-gray-400">{currentWord.partOfSpeech}.</span>
                 <button
                   onClick={handleSpeakWord}
                   className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                  title="Listen to pronunciation"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                   </svg>
                 </button>
               </div>
-
-              {/* Meaning */}
-              <p className="text-lg text-gray-800 mb-4">{currentWord.meaning}</p>
-
-              {/* Example */}
+              <p className="text-lg text-gray-800 dark:text-gray-200 mb-4">{currentWord.meaning}</p>
               {currentWord.example && (
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   → {currentWord.example.split(currentWord.word).map((part, i, arr) => (
                     <React.Fragment key={i}>
                       {part}
@@ -227,37 +289,51 @@ function WordListFlipCard({ currentWord, currentWordIndex, totalWords, onNextWor
                   ))}
                 </p>
               )}
-
-              {/* Hint to flip back */}
-              <p className="text-sm text-gray-400 mt-2">Click to flip back</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">Click to flip back</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Action Buttons - only show when card is flipped */}
-      {isFlipped && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <button
-            className="bg-[#5B9557] hover:bg-[#4a7a47] text-white font-bold py-4 rounded-xl uppercase tracking-wide transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              onNextWord();
-            }}
-          >
-            {currentWordIndex < totalWords - 1 ? "ALREADY KNOW" : "GO TO EXERCISE"}
-          </button>
-          <button
-            className="bg-[#E74C3C] hover:bg-[#d64132] text-white font-bold py-4 rounded-xl uppercase tracking-wide transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            ADD TO MY FLASHCARD
-          </button>
+      {showButtons && (
+        <div className="mt-8 animate-in fade-in duration-300">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {SRS_RATINGS.map((srs) => (
+              <button
+                key={srs.rating}
+                onClick={(e) => { e.stopPropagation(); handleRateAndAdd(srs.rating); }}
+                disabled={isAdding}
+                className={`group flex flex-col items-center justify-center py-3 rounded-xl border transition-colors disabled:opacity-50 ${srs.bgColor} ${srs.hoverBg} ${srs.textColor} ${srs.borderColor}`}
+              >
+                <span className="font-bold text-sm mb-0.5">{srs.label}</span>
+                <div className="flex items-center text-[10px] opacity-70">
+                  <span>{srs.interval}</span>
+                  <span className={`ml-1.5 px-1 py-px rounded hidden sm:block ${srs.keyBg} ${srs.keyHoverBg}`}>{srs.rating}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={(e) => { e.stopPropagation(); onNextWord(); }}
+              className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex items-center gap-1.5 py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              {currentWordIndex < totalWords - 1 ? "Already know — skip" : "Already know — go to reading"}
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
+
+// ============================================================
+// MAIN PAGE COMPONENT
+// ============================================================
 
 export default function UnitPage() {
   const params = useParams();
@@ -316,7 +392,7 @@ export default function UnitPage() {
           { label: `Unit ${unit.order}: ${unit.title}` },
         ]}
       />
-      <div className="container mx-auto max-w-screen-xl px-4 py-8">
+      <div className="container mx-auto max-w-screen-xl px-4 py-8 bg-white dark:bg-slate-950 rounded-2xl my-6 shadow-sm border border-gray-100 dark:border-gray-800">
         <UnitLearningClient
           unit={unit}
           bookId={bookId}
@@ -324,6 +400,34 @@ export default function UnitPage() {
       </div>
     </>
   );
+}
+
+// Helper to inject tooltips for bolded vocab words in the story
+function processStoryContent(html: string, words: FoundationVocabItem[]) {
+  if (!html) return '';
+
+  const wordMap = new Map<string, FoundationVocabItem>();
+  words.forEach(w => {
+    wordMap.set(w.word.toLowerCase().trim(), w);
+  });
+
+  return html.replace(/<strong>(.*?)<\/strong>/gi, (match, wordText) => {
+    const cleanWord = wordText.toLowerCase().replace(/[^a-z0-9]/g, '');
+    let matchedWord = wordMap.get(cleanWord);
+
+    if (!matchedWord) {
+      const found = words.find(w => cleanWord.startsWith(w.word.toLowerCase()) || w.word.toLowerCase().startsWith(cleanWord));
+      if (found) matchedWord = found;
+    }
+
+    if (matchedWord) {
+      const ipaStr = matchedWord.ipa ? ` [${matchedWord.ipa}]` : '';
+      const tooltipText = `${matchedWord.meaning}${ipaStr}`;
+      const safeTooltip = tooltipText.replace(/"/g, '&quot;');
+      return `<strong class="vocab-tooltip text-yellow-600 dark:text-yellow-400 cursor-help border-b border-dashed border-yellow-500/50 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 transition-colors" data-tooltip="${safeTooltip}">${wordText}</strong>`;
+    }
+    return match;
+  });
 }
 
 // ============================================================
@@ -336,14 +440,10 @@ interface UnitLearningClientProps {
 }
 
 function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
-  const [activeTab, setActiveTab] = useState<'word-list' | 'exercise' | 'reading' | 'questions'>('word-list');
+  const [activeTab, setActiveTab] = useState<'word-list' | 'reading'>('word-list');
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [wordsLearned, setWordsLearned] = useState(0);
-
-  // Exercise state
-  const [exerciseAnswers, setExerciseAnswers] = useState<Record<string, string>>({});
-  const [exerciseResult, setExerciseResult] = useState<SubmitExerciseResponse | null>(null);
-  const [exerciseSubmitting, setExerciseSubmitting] = useState(false);
+  const [words, setWords] = useState(unit.words);
 
   // Questions state
   const [questionAnswers, setQuestionAnswers] = useState<Record<string, string>>({});
@@ -352,40 +452,116 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
 
   // Reading completion state
   const [readingComplete, setReadingComplete] = useState(false);
-
-  // Modal state for showing score popups
-  const [showExerciseModal, setShowExerciseModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
 
-  const currentWord = unit.words[currentWordIndex];
-  const totalWords = unit.words.length;
+  const currentWord = words[currentWordIndex];
+  const totalWords = words.length;
 
-  // Update word progress when moving through words
-  const handleNextWord = async () => {
-    if (currentWordIndex < totalWords - 1) {
+  const [hoverTooltip, setHoverTooltip] = useState<{ visible: boolean; x: number; y: number; text: string } | null>(null);
+
+  useEffect(() => {
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target.classList && target.classList.contains('vocab-tooltip')) {
+        const rect = target.getBoundingClientRect();
+        const text = target.getAttribute('data-tooltip');
+        if (text) {
+          let safeX = rect.left + rect.width / 2;
+          const estimatedWidth = 200;
+          if (safeX < estimatedWidth / 2 + 10) safeX = estimatedWidth / 2 + 10;
+          if (safeX > window.innerWidth - estimatedWidth / 2 - 10) safeX = window.innerWidth - estimatedWidth / 2 - 10;
+
+          setHoverTooltip({
+            visible: true,
+            x: safeX,
+            y: rect.top - 8,
+            text
+          });
+        }
+      }
+    };
+
+    const handleMouseOut = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && target.classList && target.classList.contains('vocab-tooltip')) {
+        setHoverTooltip(null);
+      }
+    };
+
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+      document.removeEventListener('mouseout', handleMouseOut);
+    };
+  }, []);
+
+  useEffect(() => {
+    const loadProgress = async () => {
+      try {
+        const progressData = await vocabularyApi.getProgress(bookId);
+        const unitProgress = progressData.units.find(u => u.id === unit.id);
+        if (unitProgress) {
+          if (unitProgress.wordsLearned > 0) {
+            setWordsLearned(unitProgress.wordsLearned);
+            setCurrentWordIndex(Math.min(unitProgress.wordsLearned, totalWords - 1));
+          }
+
+          if (unitProgress.questionScore !== undefined && unitProgress.questionScore !== null) {
+            setReadingComplete(true);
+            const totalQuestions = unit.questions.length;
+            const correctCount = Math.round((unitProgress.questionScore / 100) * totalQuestions);
+            setQuestionResult({
+              score: unitProgress.questionScore,
+              correctCount,
+              totalQuestions,
+              results: [],
+            });
+          }
+
+          if (unitProgress.isCompleted || (unitProgress.questionScore !== undefined && unitProgress.questionScore !== null)) {
+            setReadingComplete(true);
+            setActiveTab('reading');
+          } else if (unitProgress.wordsLearned >= totalWords) {
+            setActiveTab('reading');
+          }
+        }
+      } catch {
+        // User not logged in or no progress
+      }
+    };
+    loadProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookId, unit.id, unit.questions.length]);
+
+  const handleNextWord = async (rating?: number) => {
+    let nextTotal = totalWords;
+
+    if (rating === 1) {
+      setWords(prev => [...prev, currentWord]);
+      nextTotal += 1;
+    }
+
+    if (currentWordIndex < nextTotal - 1) {
       setCurrentWordIndex(prev => prev + 1);
-      const newLearned = Math.min(wordsLearned + 1, totalWords);
+      const newLearned = Math.min(wordsLearned + 1, nextTotal);
       setWordsLearned(newLearned);
-
-      // Update progress on server
       try {
         await vocabularyApi.updateWordProgress(unit.id, newLearned);
       } catch (err) {
         console.error("Failed to update progress:", err);
       }
     } else {
-      // Completed all words - mark as fully learned and move to exercise
-      setWordsLearned(totalWords);
+      setWordsLearned(nextTotal);
       try {
-        await vocabularyApi.updateWordProgress(unit.id, totalWords);
+        await vocabularyApi.updateWordProgress(unit.id, nextTotal);
       } catch (err) {
         console.error("Failed to update progress:", err);
       }
-      setActiveTab('exercise');
+      setActiveTab('reading');
     }
   };
 
-  // Dev skip handler
   const handleSkipWordList = async () => {
     setWordsLearned(totalWords);
     try {
@@ -393,30 +569,9 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
     } catch (err) {
       console.error("Failed to update progress:", err);
     }
-    setActiveTab('exercise');
+    setActiveTab('reading');
   };
 
-  // Submit exercise answers
-  const handleSubmitExercise = async () => {
-    setExerciseSubmitting(true);
-    try {
-      const answers = Object.entries(exerciseAnswers).map(([exerciseId, answer]) => ({
-        exerciseId,
-        answer,
-      }));
-      const result = await vocabularyApi.submitExercise(unit.id, answers);
-      console.log("Exercise submission result:", result);
-      setExerciseResult(result);
-      setShowExerciseModal(true); // Show the score modal
-    } catch (err: any) {
-      console.error("Failed to submit exercise:", err);
-      alert("Failed to submit exercise: " + (err.message || "Unknown error"));
-    } finally {
-      setExerciseSubmitting(false);
-    }
-  };
-
-  // Submit question answers
   const handleSubmitQuestions = async () => {
     setQuestionSubmitting(true);
     try {
@@ -424,9 +579,9 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
         questionId,
         answer,
       }));
-      const result = await vocabularyApi.submitQuestions(unit.id, answers);
-      setQuestionResult(result);
-      setShowQuestionModal(true); // Show the score modal
+      const res = await vocabularyApi.submitQuestions(unit.id, answers);
+      setQuestionResult(res);
+      setShowQuestionModal(true);
     } catch (err: any) {
       console.error("Failed to submit questions:", err);
     } finally {
@@ -434,73 +589,75 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
     }
   };
 
-  // Check if each activity is completed (with ALL CORRECT answers required)
   const isWordListComplete = wordsLearned >= totalWords;
-  const isExerciseComplete = exerciseResult !== null && exerciseResult.correctCount === exerciseResult.totalQuestions;
-  const isReadingCompleteFlag = readingComplete;
+  const isReadingUnlocked = isWordListComplete;
   const isQuestionsComplete = questionResult !== null && questionResult.correctCount === questionResult.totalQuestions;
-
-  // Check if each activity is unlocked (previous one completed with all correct)
-  const isExerciseUnlocked = isWordListComplete;
-  const isReadingUnlocked = isExerciseComplete;
-  const isQuestionsUnlocked = isReadingCompleteFlag;
 
   const getCompletionIcon = (isComplete: boolean) => {
     if (isComplete) {
-      return <div className="w-6 h-6 rounded-full bg-[#FFC600] flex items-center justify-center text-white text-sm font-bold">✓</div>;
+      return <span className="text-[#FFC600] text-sm font-bold ml-auto">✓</span>;
     }
-    return <div className="w-6 h-6 rounded-full border-2 border-gray-300"></div>;
+    return null;
   };
 
   return (
     <>
-      <div className="mb-4">
-        <h1 className="text-4xl font-bold mb-2">Vocabulary</h1>
-        <p className="text-gray-600">{unit.book.name} - Unit {unit.order}: {unit.title}</p>
-      </div>
+      {hoverTooltip && hoverTooltip.visible && typeof window !== 'undefined' && createPortal(
+        <div
+          className="fixed z-[9999] pointer-events-none bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 text-[13px] font-medium px-3 py-2 rounded-lg shadow-xl max-w-[250px] text-center animate-in fade-in zoom-in-95 duration-150"
+          style={{
+            left: hoverTooltip.x,
+            top: hoverTooltip.y,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          {hoverTooltip.text}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-t-gray-900 dark:border-t-gray-100 border-l-transparent border-r-transparent border-b-transparent"></div>
+        </div>,
+        document.body
+      )}
 
-      <div className="flex flex-col lg:flex-row gap-12">
-        {/* Sidebar */}
-        <div className="w-full lg:w-64 flex-shrink-0">
-          <div className="sticky top-8">
-            <h3 className="font-bold text-lg mb-4 text-black border-b-2 border-[#FFC600] pb-2 inline-block">Lessons</h3>
-
-            <ul className="space-y-6">
-              <li
-                className={`flex items-center gap-3 cursor-pointer ${activeTab === 'word-list' ? 'text-black font-bold' : 'text-gray-500 font-medium'}`}
-                onClick={() => setActiveTab('word-list')}
-              >
-                {getCompletionIcon(isWordListComplete)}
-                Word List ({wordsLearned}/{totalWords})
-              </li>
-              <li
-                className={`flex items-center gap-3 ${isExerciseUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'exercise' ? 'text-black font-bold' : isExerciseUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
-                onClick={() => isExerciseUnlocked && setActiveTab('exercise')}
-              >
-                {getCompletionIcon(isExerciseComplete)}
-                Exercise
-              </li>
-              <li
-                className={`flex items-center gap-3 ${isReadingUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'reading' ? 'text-black font-bold' : isReadingUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
-                onClick={() => isReadingUnlocked && setActiveTab('reading')}
-              >
-                {getCompletionIcon(isReadingCompleteFlag)}
-                Reading Comprehension
-              </li>
-              <li
-                className={`flex items-center gap-3 ${isQuestionsUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'} ${activeTab === 'questions' ? 'text-black font-bold' : isQuestionsUnlocked ? 'text-gray-500 font-medium' : 'text-gray-300 font-medium'}`}
-                onClick={() => isQuestionsUnlocked && setActiveTab('questions')}
-              >
-                {getCompletionIcon(isQuestionsComplete)}
-                Answer the questions
-              </li>
-            </ul>
+      <div className="flex flex-col lg:flex-row gap-12 mt-4 p-4">
+        <aside className="w-full lg:w-[260px] xl:w-[280px] shrink-0 sticky top-6 self-start max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar">
+          <div className="mb-8 pr-4">
+            <h2 className="text-[16px] font-bold text-gray-900 dark:text-gray-100 mb-5 leading-snug">
+              Unit {unit.order}: {unit.title}
+            </h2>
+            <Link href={`/vocabulary/${bookId}`} className="text-[11px] font-extrabold text-gray-400 dark:text-gray-500 tracking-widest uppercase flex items-center gap-1 hover:text-gray-900 dark:hover:text-gray-300 transition-colors">
+              <ChevronLeft className="w-4 h-4 shrink-0 -ml-1" />
+              <span className="truncate">{unit.book.name}</span>
+            </Link>
           </div>
-        </div>
 
-        {/* Main Content */}
+          <div className="flex flex-col relative border-l border-gray-200 dark:border-gray-800 ml-2 space-y-1">
+            <button
+              onClick={() => setActiveTab('word-list')}
+              className={`flex items-center text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeTab === 'word-list'
+                ? 'border-gray-900 dark:border-gray-100 text-gray-900 dark:text-gray-100 font-extrabold'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 font-medium'
+                }`}
+            >
+              <span className="flex-1">Lesson</span>
+              {getCompletionIcon(isWordListComplete)}
+            </button>
+            <button
+              onClick={() => isReadingUnlocked && setActiveTab('reading')}
+              disabled={!isReadingUnlocked}
+              className={`flex items-center text-left transition-all py-1.5 border-l-[2px] -ml-[1px] block w-full pl-4 text-[13.5px] ${activeTab === 'reading'
+                ? 'border-gray-900 dark:border-gray-100 text-gray-900 dark:text-gray-100 font-extrabold'
+                : isReadingUnlocked
+                  ? 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 font-medium cursor-pointer'
+                  : 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed font-medium'
+                }`}
+            >
+              {!isReadingUnlocked && <Lock className="w-3.5 h-3.5 mr-2 shrink-0" />}
+              <span className="flex-1">Reading Comprehension</span>
+              {getCompletionIcon(isQuestionsComplete)}
+            </button>
+          </div>
+        </aside>
+
         <div className="flex-1">
-          {/* WORD LIST TAB */}
           {activeTab === 'word-list' && currentWord && (
             <WordListFlipCard
               currentWord={currentWord}
@@ -508,412 +665,153 @@ function UnitLearningClient({ unit, bookId }: UnitLearningClientProps) {
               totalWords={totalWords}
               onNextWord={handleNextWord}
               onSkip={handleSkipWordList}
+              bookName={unit.book.name}
             />
           )}
 
-          {/* EXERCISE TAB */}
-          {activeTab === 'exercise' && (
-            <div className="animate-in fade-in duration-300">
-              <div className="flex justify-between items-center mb-8 pb-4 border-b">
-                <h2 className="text-xl font-bold">Exercise</h2>
-                {exerciseResult && (
-                  <span className="font-bold text-[#5B9557]">{exerciseResult.correctCount}/{exerciseResult.totalQuestions} correct</span>
-                )}
-              </div>
-
-              <h3 className="font-bold text-lg mb-6">Choose the right word for the given definition.</h3>
-
-              <div className="space-y-8">
-                {unit.exercises.map((ex, idx) => {
-                  const result = exerciseResult?.results.find(r => r.exerciseId === ex.id);
-                  return (
-                    <div key={ex.id}>
-                      <p className="font-semibold mb-3">{idx + 1}. {ex.question}</p>
-                      <div className="space-y-1 ml-4">
-                        {(ex.options as string[]).map((opt, optIdx) => (
-                          <label
-                            key={optIdx}
-                            className={`flex items-center gap-3 cursor-pointer p-2 rounded block ${result
-                              ? (opt.toLowerCase().includes(result.correctAnswer.toLowerCase())
-                                ? 'bg-green-100'
-                                : exerciseAnswers[ex.id] === opt && !result.isCorrect
-                                  ? 'bg-red-100'
-                                  : 'hover:bg-gray-50')
-                              : 'hover:bg-gray-50'
-                              }`}
-                          >
-                            <input
-                              type="radio"
-                              name={`ex-${ex.id}`}
-                              value={opt}
-                              checked={exerciseAnswers[ex.id] === opt}
-                              onChange={() => setExerciseAnswers(prev => ({ ...prev, [ex.id]: opt }))}
-                              disabled={!!exerciseResult}
-                              className="w-4 h-4 text-primary focus:ring-primary"
-                            />
-                            <span>{opt}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!exerciseResult && (
-                <button
-                  className="mt-8 bg-[#FFC600] text-black font-bold py-3 px-8 rounded-xl uppercase tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50"
-                  onClick={handleSubmitExercise}
-                  disabled={exerciseSubmitting || Object.keys(exerciseAnswers).length < unit.exercises.length}
-                >
-                  {exerciseSubmitting ? "Submitting..." : "Submit"}
-                </button>
-              )}
-
-              <ScoreModal
-                isOpen={!!exerciseResult && showExerciseModal}
-                score={exerciseResult?.correctCount || 0}
-                totalQuestions={exerciseResult?.totalQuestions || 0}
-                isPassed={isExerciseComplete}
-                onRetry={() => {
-                  setShowExerciseModal(false);
-                  setExerciseResult(null);
-                  setExerciseAnswers({});
-                }}
-                onContinue={() => {
-                  setShowExerciseModal(false);
-                  setActiveTab('reading');
-                }}
-              />
-            </div>
-          )}
-
-          {/* READING TAB */}
           {activeTab === 'reading' && (
-            <div className="animate-in fade-in duration-300">
+            <div className="animate-in fade-in duration-300 h-full flex flex-col">
               <div className="flex items-center gap-4 mb-6">
                 <h2 className="text-2xl font-bold">{unit.storyTitle || unit.title}</h2>
               </div>
 
-              <div className="flex flex-col-reverse xl:flex-row gap-8">
-                <div className="flex-1 text-lg leading-relaxed text-gray-800 space-y-4">
-                  {unit.storyContent ? (
-                    <div dangerouslySetInnerHTML={{ __html: unit.storyContent }} />
-                  ) : (
-                    <p className="text-gray-500 italic">No reading content available for this unit.</p>
-                  )}
+              <div className="flex flex-col xl:flex-row gap-8 items-start relative h-full">
+                <div className="flex-1 text-base leading-relaxed text-gray-800 dark:text-gray-200 space-y-4 xl:sticky top-0 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-160px)] pr-6 custom-scrollbar">
+                  <FloatingSelectionManager>
+                    {unit.storyContent ? (
+                      <div dangerouslySetInnerHTML={{ __html: processStoryContent(unit.storyContent, unit.words) }} />
+                    ) : (
+                      <p className="text-gray-500 italic text-sm">No reading content available for this unit.</p>
+                    )}
+                  </FloatingSelectionManager>
                 </div>
 
-                {unit.storyImageUrl && (
-                  <div className="w-full xl:w-80 flex-shrink-0">
-                    <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-100">
-                      <img src={unit.storyImageUrl} alt={unit.storyTitle} className="w-full h-auto" />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <button
-                className="mt-8 bg-[#FFC600] text-black font-bold py-3 px-8 rounded-xl uppercase tracking-wide hover:opacity-90"
-                onClick={() => {
-                  setReadingComplete(true);
-                  setActiveTab('questions');
-                }}
-              >
-                Continue to Questions
-              </button>
-            </div>
-          )}
-
-          {/* QUESTIONS TAB */}
-          {activeTab === 'questions' && (
-            <div className="animate-in fade-in duration-300">
-              <div className="flex justify-between items-center mb-8 pb-4 border-b">
-                <h2 className="text-xl font-bold">Answer the questions</h2>
-                {questionResult && (
-                  <span className="font-bold text-[#5B9557]">{questionResult.correctCount}/{questionResult.totalQuestions} correct</span>
-                )}
-              </div>
-
-              <div className="space-y-8 mb-8">
-                {unit.questions.map((q, idx) => {
-                  const result = questionResult?.results.find(r => r.questionId === q.id);
-                  return (
-                    <div key={q.id}>
-                      <p className="font-semibold mb-3">{idx + 1}. {q.question}</p>
-
-                      {q.type === 'fill_blank' ? (
-                        <div className="ml-4">
-                          <input
-                            type="text"
-                            className={`w-full bg-gray-100 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-[#FFC600] ${result ? (result.isCorrect ? 'bg-green-100' : 'bg-red-100') : ''
-                              }`}
-                            placeholder="Type your answer here..."
-                            value={questionAnswers[q.id] || ''}
-                            onChange={(e) => setQuestionAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-                            disabled={!!questionResult}
-                          />
-                          {result && !result.isCorrect && (
-                            <p className="text-sm text-green-600 mt-1">Correct answer: {result.correctAnswer}</p>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="space-y-1 ml-4">
-                          {q.options?.map((opt, optIdx) => (
-                            <label
-                              key={optIdx}
-                              className={`flex items-start gap-3 cursor-pointer p-2 rounded block ${result
-                                ? (opt.toLowerCase().includes(result.correctAnswer.toLowerCase())
-                                  ? 'bg-green-100'
-                                  : questionAnswers[q.id] === opt && !result.isCorrect
-                                    ? 'bg-red-100'
-                                    : 'hover:bg-gray-50')
-                                : 'hover:bg-gray-50'
-                                }`}
-                            >
-                              <input
-                                type="radio"
-                                name={`q-${q.id}`}
-                                value={opt}
-                                checked={questionAnswers[q.id] === opt}
-                                onChange={() => setQuestionAnswers(prev => ({ ...prev, [q.id]: opt }))}
-                                disabled={!!questionResult}
-                                className="mt-1 w-4 h-4 text-primary focus:ring-primary flex-shrink-0"
-                              />
-                              <span>{opt}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!questionResult && (
-                <button
-                  className="bg-[#FFC600] text-black font-bold py-3 px-8 rounded-xl uppercase tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50"
-                  onClick={handleSubmitQuestions}
-                  disabled={questionSubmitting || Object.keys(questionAnswers).length < unit.questions.length}
-                >
-                  {questionSubmitting ? "Submitting..." : "Submit"}
-                </button>
-              )}
-
-              {questionResult && (
-                <div className="mt-8">
-                  {/* Score feedback */}
-                  <div className={`p-4 rounded-xl mb-4 ${isQuestionsComplete ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
-                    <p className="font-bold text-lg">
-                      Score: {questionResult.correctCount}/{questionResult.totalQuestions}
-                    </p>
-                    {isQuestionsComplete ? (
-                      <p>🎉 Excellent! All answers correct. Unit completed!</p>
-                    ) : (
-                      <p>⚠️ You must get all answers correct to complete this unit. Please review and try again.</p>
+                <div className="flex-1 w-full bg-gray-50/80 dark:bg-gray-800/50 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm max-h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar">
+                  <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-xl font-bold">Questions</h2>
+                    {questionResult && (
+                      <span className="font-bold text-[#5B9557]">{questionResult.correctCount}/{questionResult.totalQuestions} correct</span>
                     )}
                   </div>
 
-                  {isQuestionsComplete ? (
-                    <div className="bg-green-50 p-6 rounded-xl">
-                      <h3 className="text-xl font-bold text-green-700 mb-2">🎉 Unit Completed!</h3>
-                      <p className="text-green-600">
-                        Congratulations! You have successfully completed this unit with a perfect score.
-                        <Link href={`/vocabulary/${bookId}`} className="underline ml-2 font-bold">
-                          Back to Units
-                        </Link>
-                      </p>
-                    </div>
-                  ) : (
+                  <div className="space-y-8 mb-8">
+                    {unit.questions.map((q, idx) => {
+                      const res = questionResult?.results.find(r => r.questionId === q.id);
+                      return (
+                        <div key={q.id}>
+                          <p className="font-semibold mb-3 text-sm">{idx + 1}. {q.question}</p>
+                          {q.type === 'fill_blank' ? (
+                            <div className="ml-4">
+                              <input
+                                type="text"
+                                className={`w-full text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#FFC600] outline-none transition-all ${res ? (res.isCorrect ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-900 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-900 dark:text-red-400') : ''}`}
+                                placeholder="Type your answer here..."
+                                value={questionAnswers[q.id] || ''}
+                                onChange={(e) => setQuestionAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                                disabled={!!questionResult}
+                              />
+                              {res && !res.isCorrect && (
+                                <p className="text-xs text-green-600 mt-2 font-medium">Correct answer: {res.correctAnswer}</p>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="space-y-1 ml-4">
+                              {q.options?.map((opt, optIdx) => (
+                                <label
+                                  key={optIdx}
+                                  className={`flex items-start gap-3 text-sm cursor-pointer p-3 rounded-xl border border-transparent transition-all ${res
+                                    ? (opt.toLowerCase().includes(res.correctAnswer.toLowerCase())
+                                      ? 'bg-green-50 border-green-200'
+                                      : questionAnswers[q.id] === opt && !res.isCorrect
+                                        ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                                        : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 opacity-50')
+                                    : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 shadow-sm hover:shadow'}`}
+                                >
+                                  <input
+                                    type="radio"
+                                    name={`q-${q.id}`}
+                                    value={opt}
+                                    checked={questionAnswers[q.id] === opt}
+                                    onChange={() => setQuestionAnswers(prev => ({ ...prev, [q.id]: opt }))}
+                                    disabled={!!questionResult}
+                                    className="mt-1 w-4 h-4 text-[#FFC600] focus:ring-[#FFC600] flex-shrink-0"
+                                  />
+                                  <span>{opt}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {!questionResult && (
                     <button
-                      className="bg-[#E74C3C] text-white font-bold py-3 px-8 rounded-xl uppercase tracking-wide hover:opacity-90"
-                      onClick={() => {
-                        setQuestionResult(null);
-                        setQuestionAnswers({});
-                      }}
+                      className="w-full bg-[#FFC600] text-black font-bold py-4 px-8 rounded-xl uppercase tracking-wide hover:opacity-90 transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                      onClick={handleSubmitQuestions}
+                      disabled={questionSubmitting || Object.keys(questionAnswers).length < unit.questions.length}
                     >
-                      Try Again
+                      {questionSubmitting ? "Submitting..." : "Submit Answers"}
                     </button>
                   )}
+
+                  {questionResult && (
+                    <div className="mt-8">
+                      <div className={`p-5 rounded-2xl mb-4 border ${isQuestionsComplete ? 'bg-green-50 border-green-200 text-green-900' : 'bg-amber-50 border-amber-200 text-amber-900'}`}>
+                        <h3 className="font-bold text-lg mb-2">{isQuestionsComplete ? '🎉 Perfect!' : '⚠️ Almost there!'}</h3>
+                        <p className="opacity-90">{isQuestionsComplete ? "Excellent! You've mastered this unit." : "Review the correct answers and try again to complete the unit."}</p>
+                      </div>
+                      {isQuestionsComplete ? (
+                        <Link href={`/vocabulary/${bookId}`} className="w-full block bg-black text-white text-center font-bold py-4 rounded-xl uppercase tracking-wide hover:opacity-90">
+                          Return to Unit List
+                        </Link>
+                      ) : (
+                        <button
+                          className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl uppercase tracking-wide hover:bg-black"
+                          onClick={() => { setQuestionResult(null); setQuestionAnswers({}); }}
+                        >
+                          Try Again
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* EXERCISE SCORE MODAL */}
-      {showExerciseModal && exerciseResult && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-            {/* Modal Header */}
-            <div className={`p-6 ${isExerciseComplete ? 'bg-green-500' : 'bg-amber-500'} text-white`}>
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold">Exercise Results</h2>
-                  <p className="text-lg opacity-90">
-                    Score: {exerciseResult.correctCount}/{exerciseResult.totalQuestions}
-                  </p>
-                </div>
-                <div className="text-5xl">
-                  {isExerciseComplete ? '🎉' : '⚠️'}
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Body - Answer Key */}
-            <div className="p-6 overflow-y-auto max-h-[50vh]">
-              <h3 className="font-bold text-lg mb-4">Answer Key</h3>
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="p-2 text-left border">#</th>
-                    <th className="p-2 text-left border">Question</th>
-                    <th className="p-2 text-left border">Correct Answer</th>
-                    <th className="p-2 text-left border">Your Answer</th>
-                    <th className="p-2 text-center border">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {exerciseResult.results.map((result, idx) => {
-                    const exercise = unit.exercises.find(e => e.id === result.exerciseId);
-                    return (
-                      <tr key={result.exerciseId} className={result.isCorrect ? 'bg-green-50' : 'bg-red-50'}>
-                        <td className="p-2 border font-medium">{idx + 1}</td>
-                        <td className="p-2 border">{exercise?.question}</td>
-                        <td className="p-2 border text-green-700 font-medium">{result.correctAnswer}</td>
-                        <td className={`p-2 border ${result.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                          {result.userAnswer}
-                        </td>
-                        <td className="p-2 border text-center text-lg">
-                          {result.isCorrect ? '✅' : '❌'}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-6 bg-gray-50 flex justify-between items-center">
-              <p className={`font-medium ${isExerciseComplete ? 'text-green-700' : 'text-amber-700'}`}>
-                {isExerciseComplete
-                  ? '✓ All answers correct! You can proceed to Reading.'
-                  : '⚠ You must get all answers correct to proceed.'
-                }
-              </p>
-              <div className="flex gap-4">
-                <button
-                  className="px-6 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition-colors"
-                  onClick={() => setShowExerciseModal(false)}
-                >
-                  Close
-                </button>
-                {isExerciseComplete ? (
-                  <button
-                    className="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors"
-                    onClick={() => {
-                      setShowExerciseModal(false);
-                      setActiveTab('reading');
-                    }}
-                  >
-                    Continue to Reading
-                  </button>
-                ) : (
-                  <button
-                    className="px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors"
-                    onClick={() => {
-                      setShowExerciseModal(false);
-                      setExerciseResult(null);
-                      setExerciseAnswers({});
-                    }}
-                  >
-                    Try Again
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* QUESTION SCORE MODAL */}
       {showQuestionModal && questionResult && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-            {/* Modal Header */}
-            <div className={`p-6 ${isQuestionsComplete ? 'bg-green-500' : 'bg-amber-500'} text-white`}>
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold">Comprehension Results</h2>
-                  <p className="text-lg opacity-90">
-                    Score: {questionResult.correctCount}/{questionResult.totalQuestions}
-                  </p>
-                </div>
-                <div className="text-5xl">
-                  {isQuestionsComplete ? '🎉' : '⚠️'}
-                </div>
-              </div>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className={`p-6 ${isQuestionsComplete ? 'bg-green-500' : 'bg-amber-500'} text-white text-center`}>
+              <h2 className="text-2xl font-bold mb-2">Comprehension Results</h2>
+              <p className="text-4xl font-bold">{questionResult.correctCount}/{questionResult.totalQuestions}</p>
             </div>
-
-            {/* Modal Body - Answer Key */}
             <div className="p-6 overflow-y-auto max-h-[50vh]">
               <h3 className="font-bold text-lg mb-4">Answer Key</h3>
               <div className="space-y-4">
-                {questionResult.results.map((result, idx) => {
-                  const question = unit.questions.find(q => q.id === result.questionId);
+                {questionResult.results.map((res, idx) => {
+                  const q = unit.questions.find(q => q.id === res.questionId);
                   return (
-                    <div key={result.questionId} className={`p-4 rounded-lg ${result.isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="font-medium">{idx + 1}. {question?.question}</p>
-                        <span className="text-xl">{result.isCorrect ? '✅' : '❌'}</span>
-                      </div>
-                      <p className="text-green-700"><strong>Correct:</strong> {result.correctAnswer}</p>
-                      {!result.isCorrect && (
-                        <p className="text-red-700"><strong>Your answer:</strong> {result.userAnswer}</p>
-                      )}
+                    <div key={res.questionId} className={`p-4 rounded-lg ${res.isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
+                      <p className="font-medium mb-1">{idx + 1}. {q?.question}</p>
+                      <p className="text-green-700 font-bold">Correct: {res.correctAnswer}</p>
+                      {!res.isCorrect && <p className="text-red-700">Yours: {res.userAnswer}</p>}
                     </div>
                   );
                 })}
               </div>
             </div>
-
-            {/* Modal Footer */}
-            <div className="p-6 bg-gray-50 flex justify-between items-center">
-              <p className={`font-medium ${isQuestionsComplete ? 'text-green-700' : 'text-amber-700'}`}>
-                {isQuestionsComplete
-                  ? '🎉 Congratulations! Unit completed!'
-                  : '⚠ You must get all answers correct to complete this unit.'
-                }
-              </p>
-              <div className="flex gap-4">
-                <button
-                  className="px-6 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition-colors"
-                  onClick={() => setShowQuestionModal(false)}
-                >
-                  Close
-                </button>
-                {isQuestionsComplete ? (
-                  <Link
-                    href={`/vocabulary/${bookId}`}
-                    className="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors"
-                  >
-                    Back to Units
-                  </Link>
-                ) : (
-                  <button
-                    className="px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors"
-                    onClick={() => {
-                      setShowQuestionModal(false);
-                      setQuestionResult(null);
-                      setQuestionAnswers({});
-                    }}
-                  >
-                    Try Again
-                  </button>
-                )}
-              </div>
+            <div className="p-6 bg-gray-50 flex justify-end gap-4">
+              <button className="px-6 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg" onClick={() => setShowQuestionModal(false)}>Close</button>
+              {isQuestionsComplete ? (
+                <Link href={`/vocabulary/${bookId}`} className="px-6 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600">Back to Units</Link>
+              ) : (
+                <button className="px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600" onClick={() => { setShowQuestionModal(false); setQuestionResult(null); setQuestionAnswers({}); }}>Try Again</button>
+              )}
             </div>
           </div>
         </div>

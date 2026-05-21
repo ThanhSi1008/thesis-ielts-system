@@ -1,4 +1,4 @@
-// Prisma Schema for TOEIC Master AI
+// Prisma Schema for IELTS Master AI
 // Database: PostgreSQL with pgvector extension
 
 generator client {

@@ -66,6 +66,8 @@ export const vocabLabApi = {
 
 // ==================== SHADOWING ====================
 export const shadowingApi = {
+  getLessons: () => apiClient.get<ShadowingVideo[]>('/shadowing/lessons'),
+  getLessonById: (id: string) => apiClient.get<ShadowingVideo>(`/shadowing/lessons/${id}`),
   getVideos: () => apiClient.get<ShadowingVideo[]>('/shadowing/videos'),
   getVideoById: (id: string) => apiClient.get<ShadowingVideo>(`/shadowing/videos/${id}`),
   createVideo: (dto: { title: string; youtubeVideoId: string; folder?: string; category?: string; duration: string; sentences: ShadowingSentence[] }) =>

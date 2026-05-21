@@ -8,7 +8,7 @@ export class AppController {
   @Get()
   getRoot(): object {
     return {
-      message: "TOEIC Master AI - Core Backend API",
+      message: "IELTS Master AI - Core Backend API",
       version: "1.0.0",
       status: "running",
     };

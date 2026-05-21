@@ -14,7 +14,7 @@ skinparam ranksep 80
 actor "User" as User
 actor "Admin" as Admin
 
-rectangle "Hệ thống TOEIC Master" {
+rectangle "Hệ thống IELTS Master" {
 
   ' --- CORE HUBS ---
   usecase "Đăng ký" as Register

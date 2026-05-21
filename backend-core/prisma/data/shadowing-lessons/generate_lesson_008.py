@@ -2,7 +2,7 @@ import re
 import json
 
 input_file = r"c:\Users\Admin\Desktop\data\speech_to_timestamp\output\1.txt"
-output_file = r"c:\Users\Admin\Desktop\thesis\merge\thesis-toeic-system\backend-core\prisma\data\shadowing-lessons\lesson-008-walts-deal-with-the-schwartzs-breaking-bad.ts"
+output_file = r"c:\Users\Admin\Desktop\thesis\merge\thesis-ielts-system\backend-core\prisma\data\shadowing-lessons\lesson-008-walts-deal-with-the-schwartzs-breaking-bad.ts"
 
 with open(input_file, "r", encoding="utf-8") as f:
     lines = f.readlines()

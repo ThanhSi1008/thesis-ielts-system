@@ -7,7 +7,7 @@ This plan rebuilds `flowchart.drawio` in 7 phases. Each phase is self-contained 
 2. The specific phase instructions below
 
 **Target file:** `flowchart.drawio` (Draw.io XML format)
-**Goal:** Complete site-map flowchart for a TOEIC/IELTS learning web app
+**Goal:** Complete site-map flowchart for an IELTS learning web app
 
 ---
 

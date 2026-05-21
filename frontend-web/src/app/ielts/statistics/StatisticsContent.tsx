@@ -19,7 +19,13 @@ const TABS = [
 
 type TabId = typeof TABS[number]["id"];
 
-export default function StatisticsContent() {
+export default function StatisticsContent({
+  embedded,
+  studentId,
+}: {
+  embedded?: boolean;
+  studentId?: string;
+} = {}) {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [animKey, setAnimKey] = useState(0);
 

@@ -451,7 +451,7 @@ export default function ResultScreen() {
         `✅ Raw Score: ${rawScore}/${totalQuestions}`,
         `⏱ Time: ${mm}:${ss}`,
         ``,
-        `Practiced with TOEIC Master AI 🚀`,
+        `Practiced with IELTS Master AI 🚀`,
       ].join('\n');
       await Share.share({ message, title: `IELTS ${examType} — Band ${bandStr}` });
     } catch {

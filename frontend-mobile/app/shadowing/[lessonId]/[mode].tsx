@@ -13,7 +13,6 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
 import { usePronunciationChecker } from '@/hooks/usePronunciationChecker';
-import { SHADOWING_LESSONS } from '@/constants/shadowing-lessons';
 import { Waveform } from '@/components/voice/Waveform';
 import { RecordButton } from '@/components/voice/RecordButton';
 import { ScoreDashboard } from '@/components/voice/feedback/ScoreDashboard';
@@ -326,20 +325,21 @@ export default function ShadowingPracticeScreen() {
 
   useEffect(() => {
     const load = async () => {
-      // 1. Check bundled static lessons first (no network needed)
-      const staticLesson = SHADOWING_LESSONS.find(l => l.id === lessonId);
-      if (staticLesson) {
-        setLesson(staticLesson);
-        setLoading(false);
-        return;
-      }
-      // 2. Fallback: try fetching user-created video from API
       try {
-        const data = await shadowingApi.getVideoById(lessonId);
+        // 1. Try fetching system lesson from API first
+        const data = await shadowingApi.getLessonById(lessonId);
         setLesson(data);
       } catch {
-        setLesson({ id: lessonId, title: 'Practice Session', youtubeVideoId: '', sentences: [] });
-      } finally { setLoading(false); }
+        // 2. Fallback: try fetching user-created video from API
+        try {
+          const data = await shadowingApi.getVideoById(lessonId);
+          setLesson(data);
+        } catch {
+          setLesson({ id: lessonId, title: 'Practice Session', youtubeVideoId: '', sentences: [] });
+        }
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [lessonId]);
