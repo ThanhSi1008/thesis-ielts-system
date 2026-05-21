@@ -16,6 +16,7 @@ import { apiClient } from '@/services/api-client';
 import { RoadmapSummary } from './RoadmapSummary';
 import { RoadmapStepSection } from './RoadmapStepSection';
 import { RoadmapItem } from './LessonRow';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface RoadmapStep {
   step: number;
@@ -25,6 +26,7 @@ interface RoadmapStep {
 }
 
 export function RoadmapContent() {
+  const { colors } = useTheme();
   const router = useRouter();
   const [steps, setSteps] = useState<RoadmapStep[]>([]);
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -69,6 +71,13 @@ export function RoadmapContent() {
     const baseUrl = item.type === 'lesson' ? '/ielts/basic/lesson/' : '/ielts/basic/exercise/';
     router.push(`${baseUrl}${item.id}${q}` as any);
   };
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { paddingBottom: 100 },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    list: { marginTop: SPACING.lg },
+  });
 
   if (loading && !refreshing) {
     return (
@@ -138,10 +147,3 @@ export function RoadmapContent() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  scroll: { paddingBottom: 100 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  list: { marginTop: SPACING.lg },
-});

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
+import { FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface RoadmapSummaryProps {
   totalLessons: number;
@@ -16,8 +17,60 @@ export function RoadmapSummary({
   totalExercises,
   completedExercises,
 }: RoadmapSummaryProps) {
+  const { colors, isDark } = useTheme();
   const lessonsLeft = totalLessons - completedLessons;
   const exercisesLeft = totalExercises - completedExercises;
+
+  const styles = StyleSheet.create({
+    card: {
+      margin: SPACING.lg,
+      backgroundColor: isDark ? colors.surface : '#FAF7F2',
+      borderRadius: 24,
+      borderCurve: 'continuous',
+      padding: SPACING.xl,
+      borderWidth: 1,
+      borderColor: isDark ? colors.border : '#E8E3D8',
+    },
+    title: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.xl,
+      color: colors.text,
+      marginBottom: SPACING.md,
+      letterSpacing: -0.3,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      marginBottom: SPACING.lg,
+    },
+    metaLabel: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+    },
+    metaBold: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+    },
+    metaDim: {
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textMuted,
+    },
+    metaDot: {
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textMuted,
+    },
+    desc: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      lineHeight: 22,
+    },
+  });
 
   return (
     <View style={styles.card}>
@@ -47,54 +100,3 @@ export function RoadmapSummary({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    margin: SPACING.lg,
-    backgroundColor: '#FAF7F2',
-    borderRadius: 24,
-    borderCurve: 'continuous',
-    padding: SPACING.xl,
-    borderWidth: 1,
-    borderColor: '#E8E3D8',
-  },
-  title: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.xl,
-    color: '#111827',
-    marginBottom: SPACING.md,
-    letterSpacing: -0.3,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    marginBottom: SPACING.lg,
-  },
-  metaLabel: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.xs,
-    color: '#9CA3AF',
-  },
-  metaBold: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.xs,
-    color: '#6B7280',
-  },
-  metaDim: {
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.xs,
-    color: '#D1D5DB',
-  },
-  metaDot: {
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.xs,
-    color: '#D1D5DB',
-  },
-  desc: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-    color: '#4B5563',
-    lineHeight: 22,
-  },
-});

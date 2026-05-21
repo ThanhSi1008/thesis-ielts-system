@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface TranscriptSegment {
   text: string;
@@ -18,6 +19,7 @@ export default function TranscriptReview({
   locatedQuestion,
   accentColor = COLORS.skill.listening,
 }: Props) {
+  const { colors } = useTheme();
   const scrollRef = useRef<ScrollView>(null);
   // Map from question number → y-offset of that segment
   const yOffsets = useRef<Record<number, number>>({});
@@ -44,6 +46,44 @@ export default function TranscriptReview({
       yOffsets.current[q] = y;
     });
   }, []);
+
+  const styles = StyleSheet.create({
+    scroll: { flex: 1 },
+    inner: { padding: SPACING.md, gap: SPACING.sm },
+    segment: {
+      borderRadius: RADIUS.lg,
+      padding: SPACING.sm,
+      paddingHorizontal: SPACING.md,
+    },
+    markerRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+      marginBottom: 4,
+    },
+    qBadge: {
+      borderRadius: 4,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    qBadgeText: {
+      fontSize: 10,
+      fontWeight: '800',
+      color: '#fff',
+    },
+    segText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      lineHeight: 20,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+    },
+    emptyText: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
+  });
 
   if (!transcript || transcript.length === 0) {
     return (
@@ -78,7 +118,7 @@ export default function TranscriptReview({
                   ))}
                 </View>
               )}
-              <Text style={[styles.segText, isHighlighted && { color: COLORS.text }]}>
+              <Text style={[styles.segText, isHighlighted && { color: colors.text }]}>
                 {seg.text}
               </Text>
             </View>
@@ -88,41 +128,3 @@ export default function TranscriptReview({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  scroll: { flex: 1 },
-  inner: { padding: SPACING.md, gap: SPACING.sm },
-  segment: {
-    borderRadius: RADIUS.lg,
-    padding: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-  },
-  markerRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-    marginBottom: 4,
-  },
-  qBadge: {
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  qBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#fff',
-  },
-  segText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-  },
-  emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted },
-});

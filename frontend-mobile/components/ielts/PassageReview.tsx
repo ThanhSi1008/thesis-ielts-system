@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { TextWithLookup } from '../global/TextWithLookup';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface PassageLocation {
   paragraphIndex: number;
@@ -22,6 +23,7 @@ export default function PassageReview({
   locatedQuestion,
   accentColor = COLORS.skill.reading,
 }: Props) {
+  const { colors } = useTheme();
   const scrollRef = useRef<ScrollView>(null);
   const yOffsets = useRef<Record<number, number>>({}); // paragraphIndex → y
   const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -58,6 +60,46 @@ export default function PassageReview({
   }, [locatedQuestion, qToParaIndex]);
 
   const paragraphs = passage ? passage.split(/\n\n+/) : [];
+
+  const styles = StyleSheet.create({
+    scroll: { flex: 1 },
+    inner: { padding: SPACING.md, gap: SPACING.sm },
+    paragraph: {
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      borderWidth: 1,
+      borderColor: 'transparent',
+      backgroundColor: colors.card,
+    },
+    markerRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+      marginBottom: 6,
+    },
+    qBadge: {
+      borderRadius: 4,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    qBadgeText: {
+      fontSize: 10,
+      fontWeight: '800',
+      color: '#fff',
+    },
+    paraText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      lineHeight: 22,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+    },
+    emptyText: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
+  });
 
   if (paragraphs.length === 0) {
     return (
@@ -112,43 +154,3 @@ export default function PassageReview({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  scroll: { flex: 1 },
-  inner: { padding: SPACING.md, gap: SPACING.sm },
-  paragraph: {
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    backgroundColor: '#fff',
-  },
-  markerRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-    marginBottom: 6,
-  },
-  qBadge: {
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  qBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#fff',
-  },
-  paraText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    lineHeight: 22,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-  },
-  emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted },
-});

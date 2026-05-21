@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Option {
   letter: string;
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: Props) {
+  const { colors, isDark } = useTheme();
   const ansKey = `mcm-${groupIdx}`;
   const selectedLetters: string[] = answer ? answer.split(',').filter(Boolean) : [];
   const numRequired = group.answers?.length ?? 2;
@@ -39,6 +41,141 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
     }
     onAnswer(ansKey, next.join(','));
   };
+
+  const styles = StyleSheet.create({
+    container: {
+      marginBottom: SPACING.xl,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      padding: SPACING.md,
+      backgroundColor: isDark ? '#0c1a3d' : '#EFF6FF',
+      borderBottomWidth: 1,
+      borderColor: isDark ? '#1e3a8a' : '#BFDBFE',
+    },
+    typeBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: RADIUS.sm,
+      backgroundColor: '#1D4ED818',
+      borderWidth: 1,
+      borderColor: '#1D4ED840',
+    },
+    typeBadgeText: {
+      fontSize: 10,
+      fontWeight: '800',
+      letterSpacing: 0.8,
+      color: '#1D4ED8',
+      textTransform: 'uppercase',
+    },
+    qNumRow: { flexDirection: 'row', gap: 4 },
+    qNumBadge: {
+      width: 22,
+      height: 22,
+      borderRadius: 5,
+      backgroundColor: isDark ? '#1e3a8a' : '#DBEAFE',
+      borderWidth: 1,
+      borderColor: isDark ? '#3b82f6' : '#93C5FD',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    qNumText: { fontSize: 11, fontWeight: '700', color: '#1D4ED8' },
+
+    qText: {
+      fontSize: FONT_SIZES.md,
+      color: colors.text,
+      fontWeight: '600',
+      lineHeight: 22,
+      padding: SPACING.md,
+      paddingBottom: 0,
+    },
+    instrBox: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 6,
+      backgroundColor: colors.surface,
+      marginHorizontal: SPACING.md,
+      marginTop: SPACING.sm,
+      borderRadius: RADIUS.md,
+      padding: SPACING.sm,
+    },
+    instrText: {
+      flex: 1,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+      lineHeight: 18,
+      fontStyle: 'italic',
+    },
+    hint: {
+      fontSize: FONT_SIZES.xs,
+      color: '#1D4ED8',
+      fontWeight: '600',
+      paddingHorizontal: SPACING.md,
+      paddingTop: SPACING.sm,
+    },
+
+    progressRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm,
+    },
+    progressDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.border,
+      borderWidth: 1,
+      borderColor: colors.textMuted,
+    },
+    progressDotFilled: { backgroundColor: '#3B82F6', borderColor: '#2563EB' },
+    progressText: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginLeft: 4 },
+
+    option: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      marginHorizontal: SPACING.md,
+      marginBottom: SPACING.sm,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      padding: SPACING.md,
+      backgroundColor: colors.surface,
+    },
+    optionSelected: {
+      borderColor: '#3B82F6',
+      backgroundColor: isDark ? '#0c1a3d' : '#EFF6FF',
+    },
+    optionDisabled: { opacity: 0.45 },
+
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 5,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    checkboxFilled: { backgroundColor: '#3B82F6', borderColor: '#2563EB' },
+
+    letter: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.textSecondary, width: 18 },
+    letterSelected: { color: '#1D4ED8' },
+    optText: { flex: 1, fontSize: FONT_SIZES.md, color: colors.text, lineHeight: 20 },
+    optTextSelected: { color: '#1D4ED8', fontWeight: '500' },
+    optTextDisabled: { color: colors.textMuted },
+  });
 
   return (
     <View style={styles.container}>
@@ -62,7 +199,7 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
       {/* Instructions */}
       {group.instructions ? (
         <View style={styles.instrBox}>
-          <Ionicons name="information-circle-outline" size={14} color={COLORS.textSecondary} />
+          <Ionicons name="information-circle-outline" size={14} color={colors.textSecondary} />
           <Text style={styles.instrText}>{group.instructions}</Text>
         </View>
       ) : (
@@ -118,135 +255,3 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: SPACING.xl,
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    padding: SPACING.md,
-    backgroundColor: '#EFF6FF',
-    borderBottomWidth: 1,
-    borderColor: '#BFDBFE',
-  },
-  typeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: RADIUS.sm,
-    backgroundColor: '#1D4ED818',
-    borderWidth: 1,
-    borderColor: '#1D4ED840',
-  },
-  typeBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    color: '#1D4ED8',
-    textTransform: 'uppercase',
-  },
-  qNumRow: { flexDirection: 'row', gap: 4 },
-  qNumBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 5,
-    backgroundColor: '#DBEAFE',
-    borderWidth: 1,
-    borderColor: '#93C5FD',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  qNumText: { fontSize: 11, fontWeight: '700', color: '#1D4ED8' },
-
-  qText: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-    fontWeight: '600',
-    lineHeight: 22,
-    padding: SPACING.md,
-    paddingBottom: 0,
-  },
-  instrBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 6,
-    backgroundColor: COLORS.surface,
-    marginHorizontal: SPACING.md,
-    marginTop: SPACING.sm,
-    borderRadius: RADIUS.md,
-    padding: SPACING.sm,
-  },
-  instrText: {
-    flex: 1,
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
-    fontStyle: 'italic',
-  },
-  hint: {
-    fontSize: FONT_SIZES.xs,
-    color: '#1D4ED8',
-    fontWeight: '600',
-    paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.sm,
-  },
-
-  progressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-  },
-  progressDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.border,
-    borderWidth: 1,
-    borderColor: COLORS.textMuted,
-  },
-  progressDotFilled: { backgroundColor: '#3B82F6', borderColor: '#2563EB' },
-  progressText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginLeft: 4 },
-
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    marginHorizontal: SPACING.md,
-    marginBottom: SPACING.sm,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    padding: SPACING.md,
-    backgroundColor: COLORS.surface,
-  },
-  optionSelected: { borderColor: '#3B82F6', backgroundColor: '#EFF6FF' },
-  optionDisabled: { opacity: 0.45 },
-
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  checkboxFilled: { backgroundColor: '#3B82F6', borderColor: '#2563EB' },
-
-  letter: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary, width: 18 },
-  letterSelected: { color: '#1D4ED8' },
-  optText: { flex: 1, fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 20 },
-  optTextSelected: { color: '#1D4ED8', fontWeight: '500' },
-  optTextDisabled: { color: COLORS.textMuted },
-});

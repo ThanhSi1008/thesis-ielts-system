@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONTS, FONT_SIZES, SPACING } from '@/constants';
+import { FONTS, FONT_SIZES, SPACING } from '@/constants';
 import { LessonRow, RoadmapItem } from './LessonRow';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface RoadmapStep {
   step: number;
@@ -25,8 +26,66 @@ export function RoadmapStepSection({
   nextItemId,
   onItemPress,
 }: RoadmapStepSectionProps) {
+  const { colors } = useTheme();
   const isActiveStep = step.step === currentStep;
   const isCompletedStep = step.isCompleted;
+
+  const styles = StyleSheet.create({
+    section: {
+      paddingHorizontal: SPACING.lg,
+      marginBottom: SPACING.xxl,
+    },
+    sectionLocked: {
+      opacity: 0.5,
+    },
+
+    // Header — matches web's flex items-center justify-between py-3 px-2 border-b-2 border-gray-100 mb-6
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: SPACING.sm + 2,
+      paddingHorizontal: SPACING.xs,
+    },
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+    },
+
+    // Day label — matches web text-lg font-extrabold
+    dayLabel: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.lg,
+      color: colors.text,
+    },
+    dayLabelActive: {
+      color: '#FFC107',
+    },
+    dayLabelDone: {
+      color: '#16A34A',
+    },
+
+    // Divider — matches web border-b-2 border-gray-100
+    divider: {
+      height: 2,
+      backgroundColor: colors.border,
+      marginBottom: SPACING.lg,
+      marginHorizontal: SPACING.xs,
+    },
+
+    // Timeline — matches web ml-5 border-l-[3px] border-[#EEEEEE] pl-7
+    timeline: {
+      flexDirection: 'row',
+      marginLeft: SPACING.md,
+    },
+    timelineLine: {
+      width: 3,
+      backgroundColor: colors.border,
+      borderRadius: 2,
+      marginRight: 0,
+    },
+  });
 
   return (
     <View style={[styles.section, step.isLocked && styles.sectionLocked]}>
@@ -65,60 +124,3 @@ export function RoadmapStepSection({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    paddingHorizontal: SPACING.lg,
-    marginBottom: SPACING.xxl,
-  },
-  sectionLocked: {
-    opacity: 0.5,
-  },
-
-  // Header — matches web's flex items-center justify-between py-3 px-2 border-b-2 border-gray-100 mb-6
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: SPACING.sm + 2,
-    paddingHorizontal: SPACING.xs,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-
-  // Day label — matches web text-lg font-extrabold
-  dayLabel: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.lg,
-    color: '#111827',
-  },
-  dayLabelActive: {
-    color: '#FFC107',
-  },
-  dayLabelDone: {
-    color: '#16A34A',
-  },
-
-  // Divider — matches web border-b-2 border-gray-100
-  divider: {
-    height: 2,
-    backgroundColor: '#F3F4F6',
-    marginBottom: SPACING.lg,
-    marginHorizontal: SPACING.xs,
-  },
-
-  // Timeline — matches web ml-5 border-l-[3px] border-[#EEEEEE] pl-7
-  timeline: {
-    flexDirection: 'row',
-    marginLeft: SPACING.md,
-  },
-  timelineLine: {
-    width: 3,
-    backgroundColor: '#EEEEEE',
-    borderRadius: 2,
-    marginRight: 0,
-  },
-});
