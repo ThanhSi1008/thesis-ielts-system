@@ -7,6 +7,7 @@ export const ieltsProfileApi = {
   update: (data: any) => apiClient.patch<any>('/ielts/profile', data),
   onboarding: (data: any) => apiClient.post<any>('/ielts/onboarding', data),
   getStreak: () => apiClient.get<{ currentStreak: number; longestStreak: number }>('/ielts/streak'),
+  getPlacementExercises: () => apiClient.get<{ listening: any; reading: any; writing: any }>('/ielts/placement-exercises'),
 };
 
 // ==================== IELTS ADVANCED ====================
