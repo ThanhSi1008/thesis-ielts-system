@@ -192,12 +192,16 @@ export interface GrammarExercise {
   id: string;
   question: string;
   answer: string;
+  options?: string[];
+  correctAnswer?: string;
 }
 
 export interface GrammarBookWithUnits {
   id: string;
   slug: string;
   name: string;
+  level?: string;
+  author?: string;
   units: GrammarUnit[];
 }
 
@@ -205,6 +209,10 @@ export interface GrammarUnitWithContent {
   id: string;
   title: string;
   theoryContent?: string;
+  explanation?: string;
+  theory?: string;
+  examples?: string[];
+  notes?: string;
   book: { id: string; slug: string; name: string };
   exercises: GrammarExercise[];
 }

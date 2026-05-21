@@ -36,19 +36,17 @@ export const gamificationApi = {
 
 // Re-export new unified APIs from learning.api
 export { vocabularyApi, grammarApi, pronunciationApi } from './learning.api';
-export { authApi } from './api';
-
 
 // Re-export types for convenience
 export type {
   VocabularyBook,
-  BookWithUnits,
-  UnitWithContent,
+  VocabularyBookWithUnits as BookWithUnits,
+  VocabularyUnitWithContent as UnitWithContent,
   VocabularyWord,
   GrammarBook,
   GrammarBookWithUnits,
   GrammarUnitWithContent,
   PronunciationSound,
   GroupedSounds,
-} from './api';
+} from '../types';
 

@@ -482,12 +482,12 @@
 
 ## Phase 15 — Grammar tab refactor (6h)
 
-- [ ] **P15-01** · Audit ref còn dùng `services/api.ts` cho grammar · *est. 0.5h*
-- [ ] **P15-02** · Migrate `app/(tabs)/grammar.tsx` sang `grammarApi` từ `features.api.ts` · *est. 1.5h*
-- [ ] **P15-03** · English-first UI, đồng nhất với `vocabulary.tsx` style · *est. 1h*
-- [ ] **P15-04** · Migrate `app/grammar/[bookSlug].tsx` + `[unitId].tsx` · *est. 2h*
-- [ ] **P15-05** · Xóa code chết trong `services/api.ts` (nếu không còn ref) · *est. 0.5h*
-- [ ] **P15-06** · Type-check + test list/detail/unit · *est. 0.5h*
+- [x] **P15-01** · Audit ref còn dùng `services/api.ts` cho grammar · *est. 0.5h*
+- [x] **P15-02** · Migrate `app/(tabs)/grammar.tsx` sang `grammarApi` từ `features.api.ts` · *est. 1.5h*
+- [x] **P15-03** · English-first UI, đồng nhất với `vocabulary.tsx` style · *est. 1h*
+- [x] **P15-04** · Migrate `app/grammar/[bookSlug].tsx` + `[unitId].tsx` · *est. 2h*
+- [x] **P15-05** · Xóa code chết trong `services/api.ts` (nếu không còn ref) · *est. 0.5h*
+- [x] **P15-06** · Type-check + test list/detail/unit · *est. 0.5h*
 
 **Tổng phase 15**: 6h
 
