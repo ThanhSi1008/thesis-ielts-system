@@ -16,7 +16,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services';
 import { Badge, ScoreBadge, EmptyState } from '@/components/ui';
 
@@ -366,10 +366,10 @@ export default function HistoryScreen() {
       if (item.practicePart) {
         // Practice → advanced result
         const skillPath = item.skill?.toLowerCase() ?? 'listening';
-        router.push(`/ielts/advanced/${skillPath}/${item.examId}/result/${id}` as any);
+        router.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.examId, id) as any);
       } else {
         // Mock → intensive result
-        router.push(`/ielts/intensive/result/${id}` as any);
+        router.push(ROUTES.ieltsIntensiveResult(id) as any);
       }
     },
     [router],
@@ -541,7 +541,7 @@ export default function HistoryScreen() {
                   ? { label: 'Clear search', onPress: () => setSearch('') }
                   : {
                       label: mode === 'mock' ? 'Take a Test' : 'Start Practice',
-                      onPress: () => router.push('/ielts/intensive' as any),
+                      onPress: () => router.push(ROUTES.ieltsIntensive),
                     }
               }
             />

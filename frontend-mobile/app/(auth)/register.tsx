@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
@@ -86,7 +86,7 @@ export default function RegisterScreen() {
 
       await registerUser({ email, password, firstName, lastName });
       Alert.alert('Success', 'Account created successfully! Please log in.', [
-        { text: 'OK', onPress: () => router.replace('/(auth)/login') },
+        { text: 'OK', onPress: () => router.replace(ROUTES.login) },
       ]);
     } catch (error: any) {
       Alert.alert('Registration Failed', error.message || 'Something went wrong');

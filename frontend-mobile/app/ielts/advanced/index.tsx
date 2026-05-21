@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { EmptyState } from '@/components/ui';
 import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
@@ -84,13 +84,13 @@ export default function AdvancedScreen() {
         <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
           <TouchableOpacity
             style={styles.headerBtn}
-            onPress={() => router.push('/ielts/advanced/statistics' as any)}
+            onPress={() => router.push(ROUTES.ieltsAdvancedStatistics)}
           >
             <Ionicons name="stats-chart-outline" size={22} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerBtn}
-            onPress={() => router.push('/ielts/advanced/history' as any)}
+            onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
           >
             <Ionicons name="time-outline" size={22} color="#fff" />
           </TouchableOpacity>
@@ -177,7 +177,7 @@ export default function AdvancedScreen() {
           {/* History banner */}
           <TouchableOpacity
             style={styles.historyBanner}
-            onPress={() => router.push('/ielts/advanced/history' as any)}
+            onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
             activeOpacity={0.85}
           >
             <Ionicons name="time-outline" size={16} color={color} />
@@ -223,7 +223,7 @@ export default function AdvancedScreen() {
               <TouchableOpacity
                 key={part.id}
                 style={styles.partCard}
-                onPress={() => router.push(`/ielts/advanced/${activeTab}/${part.id}` as any)}
+                onPress={() => router.push(ROUTES.ieltsAdvancedSkillPart(activeTab, part.id))}
                 activeOpacity={0.85}
               >
                 <View style={[styles.partBadge, { backgroundColor: color + '18' }]}>

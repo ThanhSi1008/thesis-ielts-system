@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { EmptyState } from '@/components/ui';
 
@@ -296,7 +296,7 @@ export default function AdvancedHistoryScreen() {
       const id = item.id;
       if (!id || !item.partId) return;
       const skillPath = (item.skill ?? 'LISTENING').toLowerCase();
-      router.push(`/ielts/advanced/${skillPath}/${item.partId}/result/${id}` as any);
+      router.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.partId, id));
     },
     [router],
   );
@@ -401,7 +401,7 @@ export default function AdvancedHistoryScreen() {
           icon="🏋️"
           title="No practice sessions yet"
           subtitle="Complete an Advanced practice test to see your history here."
-          action={{ label: 'Go to Advanced', onPress: () => router.push('/ielts/advanced' as any) }}
+          action={{ label: 'Go to Advanced', onPress: () => router.push(ROUTES.ieltsAdvanced) }}
         />
       ) : (
         <FlatList

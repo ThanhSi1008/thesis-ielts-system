@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { useRouter, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, FONT_SIZES, ROUTES } from '@/constants';
 import * as Haptics from 'expo-haptics';
 
 // Sub-components
@@ -16,7 +16,7 @@ const NAV_ITEMS = [
     key: 'dashboard',
     label: 'Dashboard',
     icon: 'grid-outline' as const,
-    route: '/ielts/dashboard',
+    route: ROUTES.ieltsDashboard,
   },
   {
     key: 'foundation',
@@ -24,49 +24,49 @@ const NAV_ITEMS = [
     icon: 'book-outline' as const,
     route: '#',
     children: [
-      { key: 'pronunciation', label: 'Pronunciation', route: '/ielts/pronunciation' },
-      { key: 'vocabulary', label: 'Vocabulary', route: '/(tabs)/vocabulary' },
-      { key: 'grammar', label: 'Grammar', route: '/ielts/grammar' },
+      { key: 'pronunciation', label: 'Pronunciation', route: ROUTES.ieltsPronunciation },
+      { key: 'vocabulary', label: 'Vocabulary', route: ROUTES.vocabulary },
+      { key: 'grammar', label: 'Grammar', route: ROUTES.ieltsGrammar },
     ],
   },
   {
     key: 'basic',
     label: 'IELTS Basic',
     icon: 'information-circle-outline' as const,
-    route: '/(tabs)/ielts',
+    route: ROUTES.ieltsBasic,
     isActive: true,
   },
   {
     key: 'advanced',
     label: 'IELTS Advanced',
     icon: 'trending-up-outline' as const,
-    route: '/ielts/advanced',
+    route: ROUTES.ieltsAdvanced,
   },
   {
     key: 'intensive',
     label: 'IELTS Intensive',
     icon: 'flash-outline' as const,
-    route: '/ielts/intensive',
+    route: ROUTES.ieltsIntensive,
   },
-  { key: 'roadmap', label: 'Roadmap', icon: 'map-outline' as const, route: '/ielts/roadmap' },
+  { key: 'roadmap', label: 'Roadmap', icon: 'map-outline' as const, route: ROUTES.ieltsRoadmap },
   {
     key: 'calculator',
     label: 'Calculator',
     icon: 'calculator-outline' as const,
-    route: '/ielts/calculator',
+    route: ROUTES.ieltsCalculator,
   },
-  { key: 'history', label: 'Test History', icon: 'time-outline' as const, route: '/ielts/history' },
+  { key: 'history', label: 'Test History', icon: 'time-outline' as const, route: ROUTES.ieltsHistory },
   {
     key: 'statistics',
     label: 'Statistics',
     icon: 'bar-chart-outline' as const,
-    route: '/ielts/statistics',
+    route: ROUTES.ieltsStatistics,
   },
   {
     key: 'student-teacher',
     label: 'Student/Teacher',
     icon: 'people-outline' as const,
-    route: '/ielts/student-teacher',
+    route: ROUTES.ieltsStudentTeacher,
   },
 ];
 
@@ -99,7 +99,7 @@ export default function IeltsBasicTab() {
   };
   const handleNavPress = (route: string) => {
     closeDrawer();
-    if (route !== '/(tabs)/ielts') {
+    if (route !== ROUTES.ieltsBasic) {
       setTimeout(() => router.push(route as any), 200);
     }
   };
@@ -116,7 +116,7 @@ export default function IeltsBasicTab() {
         <Text style={styles.headerTitle}>IELTS Basic</Text>
         <TouchableOpacity
           style={styles.headerIconBtn}
-          onPress={() => router.push('/ielts/roadmap')}
+          onPress={() => router.push(ROUTES.ieltsRoadmap)}
         >
           <Ionicons name="map-outline" size={22} color={COLORS.text} />
         </TouchableOpacity>

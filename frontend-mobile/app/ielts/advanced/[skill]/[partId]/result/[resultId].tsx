@@ -10,7 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
 import AnswerSheet from '@/components/ielts/AnswerSheet';
@@ -303,14 +303,14 @@ export default function AdvancedResultScreen() {
               <Button
                 title="Back to Hub"
                 variant="outline"
-                onPress={() => router.replace('/ielts/advanced' as any)}
+                onPress={() => router.replace(ROUTES.ieltsAdvanced)}
                 fullWidth
               />
             </View>
             <View style={{ flex: 1 }}>
               <Button
                 title="Try Again"
-                onPress={() => router.replace(`/ielts/advanced/${skill}/${partId}` as any)}
+                onPress={() => router.replace(ROUTES.ieltsAdvancedSkillPart(skill as string, partId as string))}
                 fullWidth
               />
             </View>

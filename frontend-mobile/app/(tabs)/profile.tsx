@@ -15,7 +15,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import {COLORS, SPACING, FONT_SIZES, RADIUS, STORAGE_KEYS, FONTS} from '@/constants';
+import {COLORS, SPACING, FONT_SIZES, RADIUS, STORAGE_KEYS, FONTS, ROUTES} from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -191,7 +191,7 @@ export default function ProfileScreen() {
           <Text style={styles.guestDesc}>
             Sign in to save your progress, sync across devices, and earn achievements.
           </Text>
-          <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push('/(auth)/login')}>
+          <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push(ROUTES.login)}>
             <Text style={styles.primaryBtnText}>Log In / Sign Up</Text>
           </TouchableOpacity>
         </View>
@@ -329,7 +329,7 @@ export default function ProfileScreen() {
             </View>
             <TouchableOpacity
               style={[styles.upgradeBtn, tier !== 'FREE' && { backgroundColor: '#EFF6FF' }]}
-              onPress={() => router.push('/pricing')}
+              onPress={() => router.push(ROUTES.pricing)}
             >
               <Text style={[styles.upgradeBtnText, tier !== 'FREE' && { color: '#3B82F6' }]}>
                 {tier === 'FREE' ? 'Upgrade' : 'Manage'}

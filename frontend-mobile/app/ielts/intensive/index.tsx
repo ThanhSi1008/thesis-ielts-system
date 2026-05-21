@@ -14,7 +14,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { Chip, EmptyState, SectionHeader, Badge } from '@/components/ui';
 
@@ -379,7 +379,7 @@ export default function IntensiveScreen() {
         <Text style={styles.headerTitle}>Mock Tests</Text>
         <TouchableOpacity
           style={styles.customBtn}
-          onPress={() => router.push('/ielts/intensive/custom' as any)}
+          onPress={() => router.push(ROUTES.ieltsIntensiveCustom)}
           activeOpacity={0.8}
         >
           <Ionicons name="construct-outline" size={15} color="#fff" />
@@ -512,7 +512,7 @@ export default function IntensiveScreen() {
                   onToggle={() => toggleGroup(group.id)}
                   skillColor={skillInfo.color}
                   activeSkill={activeSkill}
-                  onTestPress={(examId: string) => router.push(`/ielts/intensive/${examId}` as any)}
+                  onTestPress={(examId: string) => router.push(ROUTES.ieltsIntensiveExam(examId) as any)}
                 />
               ))
             )}

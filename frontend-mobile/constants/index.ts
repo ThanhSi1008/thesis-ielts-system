@@ -157,3 +157,6 @@ export const SHADOWS = {
   card: '0 1px 4px rgba(0, 0, 0, 0.03)',
   modal: '0 20px 25px rgba(0, 0, 0, 0.1)',
 } as const;
+
+export { ROUTES } from './routes';
+

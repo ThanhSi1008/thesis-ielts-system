@@ -14,7 +14,7 @@ import {
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, API_BASE_URL, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, API_BASE_URL, FONTS, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import Markdown from 'react-native-markdown-display';
@@ -430,13 +430,13 @@ export default function ExerciseViewerScreen() {
       }
       if (nextItem?.type === 'lesson') {
         router.replace(
-          `/ielts/basic/lesson/${nextItem.id}?skill=${nextItem.skill.toLowerCase()}` as any,
+          (ROUTES.ieltsBasicLesson(nextItem.id) + `?skill=${nextItem.skill.toLowerCase()}`) as any,
         );
       } else if (nextItem) {
         const q = nextItem.lessonId
           ? `?lessonId=${nextItem.lessonId}&skill=${nextItem.skill.toLowerCase()}`
           : `?skill=${nextItem.skill.toLowerCase()}`;
-        router.replace(`/ielts/basic/exercise/${nextItem.id}${q}` as any);
+        router.replace((ROUTES.ieltsBasicExercise(nextItem.id) + q) as any);
       } else {
         router.back();
       }

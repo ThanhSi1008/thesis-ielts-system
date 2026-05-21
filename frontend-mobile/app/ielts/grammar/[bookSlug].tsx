@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { grammarApi } from '@/services/ielts.api';
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -110,7 +110,7 @@ export default function IeltsGrammarBookScreen() {
               <TouchableOpacity
                 key={unit.id}
                 style={s.unitRow}
-                onPress={() => router.push(`/ielts/grammar/${bookSlug}/${unit.id}` as any)}
+                onPress={() => router.push(ROUTES.ieltsGrammarUnit(bookSlug!, unit.id) as any)}
                 activeOpacity={0.8}
               >
                 <View style={[s.unitNum, { backgroundColor: accentColor + '18' }]}>

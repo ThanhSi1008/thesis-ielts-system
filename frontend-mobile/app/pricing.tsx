@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { subscriptionsApi } from '@/services';
 import type { PricingPlan } from '@/services/features.api'; // keep import type from features.api or import it differently if needed, wait PricingPlan is in features.api
 import { useAuth } from '@/contexts/AuthContext';
-import { COLORS, FONTS } from '@/constants';
+import { COLORS, FONTS, ROUTES } from '@/constants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH * 0.82;
@@ -150,7 +150,7 @@ export default function PricingScreen() {
 
   const handleSelect = async (plan: PricingPlan) => {
     if (!user) {
-      router.push('/(auth)/login');
+      router.push(ROUTES.login);
       return;
     }
     if (plan.tier === currentTier) return;

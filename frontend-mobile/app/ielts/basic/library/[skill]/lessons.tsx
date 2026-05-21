@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api-client';
 
 interface Lesson {
@@ -60,7 +60,7 @@ export default function SkillLessonsScreen() {
 
   const handlePress = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push(`/ielts/basic/lesson/${id}?skill=${skill}` as any);
+    router.push((ROUTES.ieltsBasicLesson(id) + `?skill=${skill}`) as any);
   };
 
   if (loading && !refreshing) {

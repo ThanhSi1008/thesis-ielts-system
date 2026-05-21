@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { shadowingApi } from '@/services/features.api';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, FONTS } from '@/constants';
+import { COLORS, FONTS, ROUTES } from '@/constants';
 
 
 const STATUS_FILTERS = [
@@ -291,7 +291,7 @@ export default function ShadowingScreen() {
                           styles.actionBtn,
                           isComp ? styles.actionBtnComp : styles.actionBtnStart,
                         ]}
-                        onPress={() => router.push(`/shadowing/${lesson.id}/${mode}` as any)}
+                        onPress={() => router.push(ROUTES.shadowingLesson(lesson.id, mode))}
                       >
                         <Text
                           style={[

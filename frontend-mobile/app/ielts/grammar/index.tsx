@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { grammarApi } from '@/services/ielts.api';
 
 // Level badge color mapping
@@ -203,7 +203,7 @@ export default function IeltsGrammarScreen() {
             <BookCard
               key={book.id ?? book.slug}
               book={book}
-              onPress={() => router.push(`/ielts/grammar/${book.slug}` as any)}
+              onPress={() => router.push(ROUTES.ieltsGrammarBook(book.slug) as any)}
             />
           ))}
 

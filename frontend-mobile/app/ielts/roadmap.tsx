@@ -12,7 +12,7 @@ import {
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api-client';
 
 // Sub-components
@@ -116,7 +116,7 @@ export default function IeltsRoadmapScreen() {
       }>('/ielts/roadmap');
 
       if (data.requiresOnboarding) {
-        router.replace('/ielts/onboarding' as any);
+        router.replace(ROUTES.ieltsOnboarding);
         return;
       }
       setSteps(data.steps ?? []);
@@ -189,12 +189,12 @@ export default function IeltsRoadmapScreen() {
   const handleItemPress = (item: RoadmapItem) => {
     if (item.isLocked) return;
     if (item.type === 'lesson') {
-      router.push(`/ielts/basic/lesson/${item.id}?skill=${item.skill.toLowerCase()}` as any);
+      router.push((ROUTES.ieltsBasicLesson(item.id) + `?skill=${item.skill.toLowerCase()}`) as any);
     } else {
       const q = item.lessonId
         ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}`
         : `?skill=${item.skill.toLowerCase()}`;
-      router.push(`/ielts/basic/exercise/${item.id}${q}` as any);
+      router.push((ROUTES.ieltsBasicExercise(item.id) + q) as any);
     }
   };
 

@@ -12,7 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
 import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
@@ -255,7 +255,7 @@ export default function AdvancedPartScreen() {
               ? await ieltsAdvancedApi.submitListening(partId, answers)
               : await ieltsAdvancedApi.submitReading(partId, answers);
             console.log('[SUBMIT] response:', JSON.stringify(result)); // DEBUG
-            router.replace(`/ielts/advanced/${skill}/${partId}/result/${result.id}` as any);
+            router.replace(ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id));
           } catch (err) {
             console.error('[SUBMIT] error:', err);
             Alert.alert('Error', 'Submission failed.');
@@ -299,7 +299,7 @@ export default function AdvancedPartScreen() {
         <View style={styles.headerActions}>
           <Text style={styles.ansCount}>{Object.keys(answers).length} ans</Text>
           <TouchableOpacity
-            onPress={() => router.push(`/ielts/advanced/${skill}/${partId}/history` as any)}
+            onPress={() => router.push(ROUTES.ieltsAdvancedSkillPartHistory(skill as string, partId as string))}
             hitSlop={8}
             style={styles.historyBtn}
           >

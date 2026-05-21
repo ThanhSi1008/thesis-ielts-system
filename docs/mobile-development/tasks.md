@@ -70,11 +70,11 @@
 
 
 ### 0.5.5 Typed routes (3h)
-- [ ] **P05-35** · Tạo `constants/routes.ts` với ROUTES object cho ~40 route hiện có + 10 route Phase sau · *est. 1h*
-- [ ] **P05-36** · Replace `router.push(... as any)` trong `app/(tabs)/*` (5 file chính) · *est. 30min*
-- [ ] **P05-37** · Replace `router.push(... as any)` trong `app/ielts/*` (~15 file) · *est. 1h*
-- [ ] **P05-38** · Replace `router.push(... as any)` các route còn lại (vocab-lab, shadowing, etc.) · *est. 20min*
-- [ ] **P05-39** · `grep -rn "router\.\(push\|replace\).*as any" app/` → confirm <5 (corner case OK) · *est. 10min*
+- [x] **P05-35** · Tạo `constants/routes.ts` với ROUTES object cho ~40 route hiện có + 10 route Phase sau · *est. 1h*
+- [x] **P05-36** · Replace `router.push(... as any)` trong `app/(tabs)/*` (5 file chính) · *est. 30min*
+- [x] **P05-37** · Replace `router.push(... as any)` trong `app/ielts/*` (~15 file) · *est. 1h*
+- [x] **P05-38** · Replace `router.push(... as any)` các route còn lại (vocab-lab, shadowing, etc.) · *est. 20min*
+- [x] **P05-39** · `grep -rn "router\.\(push\|replace\).*as any" app/` → confirm <5 (corner case OK) · *est. 10min*
 
 ### 0.5.6 Component decomposition (6h)
 

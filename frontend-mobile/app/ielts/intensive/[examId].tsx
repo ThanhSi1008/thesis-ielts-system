@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioPlayer } from 'expo-audio';
 import { useGradingPoll } from '@/hooks';
 import { WebView } from 'react-native-webview';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button, Badge } from '@/components/ui';
@@ -1143,12 +1143,12 @@ export default function ExamPlayerScreen() {
     enabled: isAiGrading,
     onDone: (sid) => {
       setIsAiGrading(false);
-      router.replace(`/ielts/intensive/result/${sid}` as any);
+      router.replace(ROUTES.ieltsIntensiveResult(sid) as any);
     },
     onError: (msg) => {
       setIsAiGrading(false);
       Alert.alert('Grading Error', msg, [
-        { text: 'View History', onPress: () => router.replace('/(tabs)/ielts') },
+        { text: 'View History', onPress: () => router.replace(ROUTES.ielts) },
       ]);
     },
   });
@@ -1186,7 +1186,7 @@ export default function ExamPlayerScreen() {
             await ieltsExamsApi.submitSession(session.id, payload, elapsed);
 
             if (!isAiType) {
-              router.replace(`/ielts/intensive/result/${session.id}` as any);
+              router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
             }
           } catch (e) {
             setIsAiGrading(false);
@@ -1648,7 +1648,7 @@ export default function ExamPlayerScreen() {
 
       {/* AI Grading overlay */}
       {isAiGrading && (
-        <AIGradingOverlay onGoBack={() => router.replace('/ielts/intensive' as any)} />
+        <AIGradingOverlay onGoBack={() => router.replace(ROUTES.ieltsIntensive)} />
       )}
     </SafeAreaView>
   );

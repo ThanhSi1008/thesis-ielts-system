@@ -16,7 +16,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
 import WritingRubricView from '@/components/ielts/WritingRubricView';
@@ -593,7 +593,7 @@ export default function ResultScreen() {
     try {
       setRetaking(true);
       const newSession = await ieltsExamsApi.createSession(session.exam.id, session.userId ?? '');
-      router.replace(`/ielts/intensive/${session.exam.id}?sessionId=${newSession.id}` as any);
+      router.replace((ROUTES.ieltsIntensiveExam(session.exam.id) + `?sessionId=${newSession.id}`) as any);
     } catch {
       Alert.alert('Error', 'Could not start a new session. Please try again.');
     } finally {
@@ -871,14 +871,14 @@ export default function ResultScreen() {
           <Button
             title="Back to Tests"
             variant="outline"
-            onPress={() => router.replace('/ielts/intensive' as any)}
+            onPress={() => router.replace(ROUTES.ieltsIntensive)}
             fullWidth
           />
           <View style={{ height: SPACING.sm }} />
           <Button
             title="View All History"
             variant="ghost"
-            onPress={() => router.replace('/ielts/history' as any)}
+            onPress={() => router.replace(ROUTES.ieltsHistory)}
             fullWidth
           />
         </View>

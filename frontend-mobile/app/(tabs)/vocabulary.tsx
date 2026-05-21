@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, FONTS } from '@/constants';
+import { COLORS, FONTS, ROUTES } from '@/constants';
 import { vocabularyApi } from '@/services/ielts.api';
 
 
@@ -148,7 +148,7 @@ export default function VocabularyScreen() {
                         styles.actionBtn,
                         started ? styles.actionBtnStarted : styles.actionBtnNew,
                       ]}
-                      onPress={() => router.push(`/vocabulary/${book.id}` as any)}
+                      onPress={() => router.push(ROUTES.vocabularyBook(book.id))}
                       activeOpacity={0.8}
                     >
                       <Text

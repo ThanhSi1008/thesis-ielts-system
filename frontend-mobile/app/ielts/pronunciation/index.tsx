@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 
 // ─── IPA Data ────────────────────────────────────────────────────────────────
 const IPA_DATA = {
@@ -94,7 +94,7 @@ function SymbolCell({
 export default function IeltsPronunciationScreen() {
   const router = useRouter();
   const go = (symbol: string) =>
-    router.push(`/ielts/pronunciation/${encodeURIComponent(symbol)}` as any);
+    router.push(ROUTES.ieltsPronunciationSymbol(encodeURIComponent(symbol)) as any);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

@@ -15,7 +15,7 @@ import Animated, { FadeInDown, FadeInRight, Layout } from 'react-native-reanimat
 import * as Haptics from 'expo-haptics';
 import Markdown from 'react-native-markdown-display';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
 import { API_BASE_URL } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { Stack } from 'expo-router';
@@ -399,12 +399,12 @@ export default function LessonViewerScreen() {
           typeof nextItem.skill === 'object' ? nextItem.skill.name : nextItem.skill
         ).toLowerCase();
         if (nextItem.type === 'lesson') {
-          router.replace(`/ielts/basic/lesson/${nextItem.id}?skill=${skillSlug}` as any);
+          router.replace((ROUTES.ieltsBasicLesson(nextItem.id) + `?skill=${skillSlug}`) as any);
         } else {
           const q = nextItem.lessonId
             ? `?lessonId=${nextItem.lessonId}&skill=${skillSlug}`
             : `?skill=${skillSlug}`;
-          router.replace(`/ielts/basic/exercise/${nextItem.id}${q}` as any);
+          router.replace((ROUTES.ieltsBasicExercise(nextItem.id) + q) as any);
         }
       } else {
         router.back();

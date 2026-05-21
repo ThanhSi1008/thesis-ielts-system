@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { SectionHeader } from '@/components/ui';
 
@@ -140,7 +140,7 @@ export default function DashboardScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => router.push('/ielts/statistics')}
+            onPress={() => router.push(ROUTES.ieltsStatistics)}
           >
             <Text style={styles.primaryButtonText}>VIEW PROGRESS</Text>
             <Ionicons name="arrow-forward" size={18} color="#fff" />

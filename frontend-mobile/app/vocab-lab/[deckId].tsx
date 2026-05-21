@@ -15,7 +15,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, Button } from '@/components/ui';
 
@@ -132,7 +132,7 @@ export default function DeckDetailScreen() {
             title={dueCount > 0 ? `Study (${dueCount})` : 'All done ✓'}
             onPress={() =>
               dueCount > 0
-                ? router.push(`/vocab-lab/study/${deckId}` as any)
+                ? router.push(ROUTES.vocabLabStudy(deckId))
                 : Alert.alert('All caught up! 🎉', 'No cards due.')
             }
             size="sm"

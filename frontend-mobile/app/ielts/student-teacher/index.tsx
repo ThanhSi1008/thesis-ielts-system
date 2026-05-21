@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { studentTeacherApi } from '@/services/ielts.api';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -270,7 +270,7 @@ export default function StudentTeacherScreen() {
                   <TouchableOpacity
                     key={link.id}
                     style={s.personRow}
-                    onPress={() => router.push(`/ielts/student-teacher/${st.id}` as any)}
+                    onPress={() => router.push(ROUTES.ieltsStudentDetail(st.id) as any)}
                     activeOpacity={0.8}
                   >
                     <Avatar first={st.firstName} last={st.lastName} />

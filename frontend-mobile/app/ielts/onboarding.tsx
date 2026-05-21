@@ -24,7 +24,7 @@ import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, SHADOWS } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, SHADOWS, ROUTES } from '@/constants';
 import { ieltsProfileApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
 
@@ -87,7 +87,7 @@ export default function OnboardingScreen() {
         examDate: dateSet ? examDate.toISOString() : null,
         takePlacement: false, // Mặc định là không làm test đầu vào trong flow này
       });
-      router.replace('/(tabs)/ielts' as any);
+      router.replace(ROUTES.ielts);
     } catch (e: any) {
       console.error('Onboarding Save Error:', e?.response?.data || e.message || e);
       Alert.alert('Error', 'Could not save profile. Try again.');

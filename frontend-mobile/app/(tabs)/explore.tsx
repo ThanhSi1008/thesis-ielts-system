@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
-import {COLORS, RADIUS, SPACING, FONTS} from '@/constants';
+import {COLORS, RADIUS, SPACING, FONTS, ROUTES} from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -21,7 +21,7 @@ const MODULES = [
     icon: 'flask',
     color: '#E11D48',
     gradient: ['#F43F5E', '#E11D48'],
-    link: '/vocab-lab',
+    link: ROUTES.vocabLab,
   },
   {
     id: 'vocab',
@@ -30,7 +30,7 @@ const MODULES = [
     icon: 'book',
     color: '#FF9800',
     gradient: ['#FBBF24', '#F59E0B'],
-    link: '/vocabulary',
+    link: ROUTES.vocabulary,
   },
   {
     id: 'shadowing',
@@ -39,7 +39,7 @@ const MODULES = [
     icon: 'headset',
     color: '#3B82F6',
     gradient: ['#60A5FA', '#3B82F6'],
-    link: '/shadowing',
+    link: ROUTES.shadowing,
   },
   {
     id: 'grammar',
@@ -48,7 +48,7 @@ const MODULES = [
     icon: 'text',
     color: '#10B981',
     gradient: ['#34D399', '#10B981'],
-    link: '/grammar',
+    link: ROUTES.grammar,
   },
   {
     id: 'pronunciation',
@@ -57,7 +57,7 @@ const MODULES = [
     icon: 'mic',
     color: '#8B5CF6',
     gradient: ['#A78BFA', '#8B5CF6'],
-    link: '/pronunciation',
+    link: ROUTES.ieltsPronunciation,
   },
 ];
 
@@ -90,7 +90,7 @@ export default function ExploreTab() {
             <Text style={styles.bannerDesc}>
               Supercharge your memory with our AI-powered SRS flashcards.
             </Text>
-            <Link href="/vocab-lab" asChild>
+            <Link href={ROUTES.vocabLab} asChild>
               <TouchableOpacity style={styles.bannerBtn}>
                 <Text style={styles.bannerBtnText}>Try it now</Text>
                 <Ionicons name="arrow-forward" size={14} color="#0F172A" />
@@ -109,7 +109,7 @@ export default function ExploreTab() {
 
         <View style={styles.list}>
           {MODULES.map((mod) => (
-            <Link key={mod.id} href={mod.link as any} asChild>
+            <Link key={mod.id} href={mod.link} asChild>
               <TouchableOpacity style={styles.card} activeOpacity={0.8}>
                 <LinearGradient
                   colors={mod.gradient as [string, string]}

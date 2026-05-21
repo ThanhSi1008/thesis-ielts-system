@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -153,7 +153,7 @@ export default function CustomPracticeScreen() {
       .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
       .join('&');
 
-    router.push(`/ielts/intensive/${selectedExamId}?${query}` as any);
+    router.push((ROUTES.ieltsIntensiveExam(selectedExamId) + `?${query}`) as any);
   };
 
   return (
