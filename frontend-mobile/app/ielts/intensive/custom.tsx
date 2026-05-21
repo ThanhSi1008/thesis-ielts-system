@@ -39,13 +39,14 @@ const PRESET_TIMES = [10, 20, 30, 40, 60];
 
 // ─── Step header ─────────────────────────────────────────────────────────────
 function StepLabel({ num, text }: { num: number; text: string }) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = createStyles(colors, isDark);
   return (
-    <View style={s.stepLabel}>
-      <View style={[s.stepBadge, { backgroundColor: colors.primary }]}>
-        <Text style={s.stepNum}>{num}</Text>
+    <View style={styles.stepLabel}>
+      <View style={[styles.stepBadge, { backgroundColor: colors.primary }]}>
+        <Text style={styles.stepNum}>{num}</Text>
       </View>
-      <Text style={[s.stepText, { color: colors.text }]}>{text}</Text>
+      <Text style={[styles.stepText, { color: colors.text }]}>{text}</Text>
     </View>
   );
 }
@@ -54,7 +55,7 @@ function StepLabel({ num, text }: { num: number; text: string }) {
 function OptionChip({
   label,
   active,
-  color = COLORS.primary,
+  color,
   onPress,
 }: {
   label: string;
@@ -62,13 +63,16 @@ function OptionChip({
   color?: string;
   onPress: () => void;
 }) {
+  const { colors, isDark } = useTheme();
+  const activeColor = color || colors.primary;
+  const styles = createStyles(colors, isDark);
   return (
     <TouchableOpacity
-      style={[s.optChip, active && { borderColor: color, backgroundColor: color + '15' }]}
+      style={[styles.optChip, active && { borderColor: activeColor, backgroundColor: activeColor + '15' }]}
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <Text style={[s.optChipText, active && { color, fontFamily: FONTS.bold }]}>{label}</Text>
+      <Text style={[styles.optChipText, active && { color: activeColor, fontFamily: FONTS.bold }]}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -76,7 +80,8 @@ function OptionChip({
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function CustomPracticeScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = createStyles(colors, isDark);
 
   const [skill, setSkill] = useState<IeltsSkill>('LISTENING');
   const [catalog, setCatalog] = useState<any>(null);
@@ -160,13 +165,13 @@ export default function CustomPracticeScreen() {
   };
 
   return (
-    <SafeAreaView style={[s.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
-      <View style={[s.header, { backgroundColor: colors.background, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
-        <Text style={[s.headerTitle, { color: colors.text }]}>Custom Practice</Text>
+        <Text style={styles.headerTitle}>Custom Practice</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -175,23 +180,22 @@ export default function CustomPracticeScreen() {
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={[s.subtitle, { color: colors.textMuted }]}>Build your own practice session exactly the way you want.</Text>
+        <Text style={styles.subtitle}>Build your own practice session exactly the way you want.</Text>
 
         {/* ── Step 1: Skill ─────────────────────────────────────────────── */}
         <StepLabel num={1} text="Select Skill" />
-        <View style={s.chipRow}>
+        <View style={styles.chipRow}>
           {SKILLS.map((sk) => (
             <TouchableOpacity
               key={sk.key}
               style={[
-                s.optChip,
-                { backgroundColor: colors.card, borderColor: colors.border },
+                styles.optChip,
                 skill === sk.key && { borderColor: sk.color, backgroundColor: sk.color + '15' }
               ]}
               onPress={() => setSkill(sk.key)}
               activeOpacity={0.8}
             >
-              <Text style={[s.optChipText, { color: colors.textSecondary }, skill === sk.key && { color: sk.color, fontFamily: FONTS.bold }]}>
+              <Text style={[styles.optChipText, skill === sk.key && { color: sk.color, fontFamily: FONTS.bold }]}>
                 {sk.icon} {sk.label}
               </Text>
             </TouchableOpacity>
@@ -201,19 +205,19 @@ export default function CustomPracticeScreen() {
         {/* ── Step 2: Exam Source ────────────────────────────────────────── */}
         <StepLabel num={2} text="Select Exam Source" />
         {loadingCatalog ? (
-          <View style={[s.loadingBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text style={[s.loadingText, { color: colors.textMuted }]}>Loading exams…</Text>
+          <View style={styles.loadingBox}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={styles.loadingText}>Loading exams…</Text>
           </View>
         ) : (
           <>
             <TouchableOpacity
-              style={[s.examSelector, { backgroundColor: colors.card, borderColor: colors.border }, !canStart && { borderColor: colors.border }]}
+              style={styles.examSelector}
               onPress={() => setShowExamPicker((v) => !v)}
               activeOpacity={0.8}
             >
               <Text
-                style={[s.examSelectorText, { color: colors.text }, !selectedExamId && { color: colors.textMuted }]}
+                style={[styles.examSelectorText, !selectedExamId && { color: colors.textMuted }]}
                 numberOfLines={1}
               >
                 {selectedExamLabel}
@@ -227,14 +231,14 @@ export default function CustomPracticeScreen() {
 
             {/* Inline exam picker */}
             {showExamPicker && (
-              <View style={[s.examPickerDropdown, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.examPickerDropdown}>
                 <ScrollView nestedScrollEnabled style={{ maxHeight: 240 }}>
                   {allExams.map((exam) => {
                     const active = exam.examId === selectedExamId;
                     return (
                       <TouchableOpacity
                         key={exam.examId}
-                        style={[s.examPickerItem, { borderColor: colors.border }, active && { backgroundColor: colors.surface }]}
+                        style={[styles.examPickerItem, active && styles.examPickerItemActive]}
                         onPress={() => {
                           setSelectedExamId(exam.examId);
                           setSelectedExamLabel(exam.label);
@@ -244,8 +248,7 @@ export default function CustomPracticeScreen() {
                       >
                         <Text
                           style={[
-                            s.examPickerText,
-                            { color: colors.text },
+                            styles.examPickerText,
                             active && { color: skillInfo.color, fontFamily: FONTS.bold },
                           ]}
                         >
@@ -256,7 +259,7 @@ export default function CustomPracticeScreen() {
                     );
                   })}
                   {allExams.length === 0 && (
-                    <Text style={[s.examPickerEmpty, { color: colors.textMuted }]}>No exams available for this skill.</Text>
+                    <Text style={styles.examPickerEmpty}>No exams available for this skill.</Text>
                   )}
                 </ScrollView>
               </View>
@@ -266,17 +269,16 @@ export default function CustomPracticeScreen() {
 
         {/* ── Step 3: Part ──────────────────────────────────────────────── */}
         <StepLabel num={3} text="Select Parts" />
-        <View style={s.chipRow}>
+        <View style={styles.chipRow}>
           <TouchableOpacity
             style={[
-              s.optChip,
-              { backgroundColor: colors.card, borderColor: colors.border },
+              styles.optChip,
               part === 'all' && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
             ]}
             onPress={() => setPart('all')}
             activeOpacity={0.8}
           >
-            <Text style={[s.optChipText, { color: colors.textSecondary }, part === 'all' && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+            <Text style={[styles.optChipText, part === 'all' && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
               All Parts
             </Text>
           </TouchableOpacity>
@@ -284,14 +286,13 @@ export default function CustomPracticeScreen() {
             <TouchableOpacity
               key={n}
               style={[
-                s.optChip,
-                { backgroundColor: colors.card, borderColor: colors.border },
+                styles.optChip,
                 part === n && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
               ]}
               onPress={() => setPart(n)}
               activeOpacity={0.8}
             >
-              <Text style={[s.optChipText, { color: colors.textSecondary }, part === n && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+              <Text style={[styles.optChipText, part === n && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
                 Part {n}
               </Text>
             </TouchableOpacity>
@@ -300,13 +301,12 @@ export default function CustomPracticeScreen() {
 
         {/* ── Step 4: Time Limit ────────────────────────────────────────── */}
         <StepLabel num={4} text="Time Limit" />
-        <View style={s.chipRow}>
+        <View style={styles.chipRow}>
           {PRESET_TIMES.map((mins) => (
             <TouchableOpacity
               key={mins}
               style={[
-                s.optChip,
-                { backgroundColor: colors.card, borderColor: colors.border },
+                styles.optChip,
                 !isCustomTime && timeLimit === mins && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
               ]}
               onPress={() => {
@@ -315,29 +315,28 @@ export default function CustomPracticeScreen() {
               }}
               activeOpacity={0.8}
             >
-              <Text style={[s.optChipText, { color: colors.textSecondary }, !isCustomTime && timeLimit === mins && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+              <Text style={[styles.optChipText, !isCustomTime && timeLimit === mins && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
                 {mins} min
               </Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity
             style={[
-              s.optChip,
-              { backgroundColor: colors.card, borderColor: colors.border },
+              styles.optChip,
               isCustomTime && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
             ]}
             onPress={() => setIsCustomTime(true)}
             activeOpacity={0.8}
           >
-            <Text style={[s.optChipText, { color: colors.textSecondary }, isCustomTime && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+            <Text style={[styles.optChipText, isCustomTime && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
               Custom
             </Text>
           </TouchableOpacity>
         </View>
         {isCustomTime && (
-          <View style={s.customTimeRow}>
+          <View style={styles.customTimeRow}>
             <TextInput
-              style={[s.customTimeInput, { backgroundColor: colors.card, borderColor: skillInfo.color, color: colors.text }]}
+              style={styles.customTimeInput}
               value={customTimeStr}
               onChangeText={(t) => {
                 setCustomTimeStr(t);
@@ -349,16 +348,16 @@ export default function CustomPracticeScreen() {
               placeholder="30"
               placeholderTextColor={colors.textMuted}
             />
-            <Text style={[s.customTimeLabel, { color: colors.textSecondary }]}>minutes (max 180)</Text>
+            <Text style={styles.customTimeLabel}>minutes (max 180)</Text>
           </View>
         )}
 
         {/* ── Step 5: Auto-Submit ───────────────────────────────────────── */}
-        <View style={[s.divider, { backgroundColor: colors.border }]} />
-        <View style={s.autoSubmitRow}>
+        <View style={styles.divider} />
+        <View style={styles.autoSubmitRow}>
           <View style={{ flex: 1 }}>
-            <Text style={[s.autoSubmitTitle, { color: colors.text }]}>Auto-Submit when time is up</Text>
-            <Text style={[s.autoSubmitSub, { color: colors.textSecondary }]}>
+            <Text style={styles.autoSubmitTitle}>Auto-Submit when time is up</Text>
+            <Text style={styles.autoSubmitSub}>
               If off, you can keep practicing after the timer reaches zero.
             </Text>
           </View>
@@ -372,12 +371,12 @@ export default function CustomPracticeScreen() {
 
         {/* ── Summary card ─────────────────────────────────────────────── */}
         {canStart && (
-          <View style={[s.summaryCard, { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: skillInfo.color }]}>
-            <Text style={[s.summaryTitle, { color: skillInfo.color }]}>
+          <View style={[styles.summaryCard, { borderLeftColor: skillInfo.color }]}>
+            <Text style={[styles.summaryTitle, { color: skillInfo.color }]}>
               {skillInfo.icon} {skillInfo.label} · {part === 'all' ? 'All Parts' : `Part ${part}`}
             </Text>
-            <Text style={[s.summaryDetail, { color: colors.textSecondary }]}>{selectedExamLabel}</Text>
-            <Text style={[s.summaryDetail, { color: colors.textSecondary }]}>
+            <Text style={styles.summaryDetail}>{selectedExamLabel}</Text>
+            <Text style={styles.summaryDetail}>
               ⏱ {timeLimit} min · {autoSubmit ? 'Auto-submit on' : 'No auto-submit'}
             </Text>
           </View>
@@ -385,18 +384,18 @@ export default function CustomPracticeScreen() {
       </ScrollView>
 
       {/* ── Start button (sticky) ─────────────────────────────────────────── */}
-      <View style={[s.startBar, { backgroundColor: colors.background, borderColor: colors.border }]}>
+      <View style={styles.startBar}>
         <TouchableOpacity
           style={[
-            s.startBtn,
-            !canStart && s.startBtnDisabled,
+            styles.startBtn,
+            !canStart && styles.startBtnDisabled,
             { backgroundColor: canStart ? skillInfo.color : colors.border },
           ]}
           onPress={handleStart}
           disabled={!canStart}
           activeOpacity={0.85}
         >
-          <Text style={s.startBtnText}>
+          <Text style={styles.startBtnText}>
             {canStart ? 'Start Custom Practice' : 'Select an exam to start'}
           </Text>
           {canStart && (
@@ -408,22 +407,24 @@ export default function CustomPracticeScreen() {
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+// ─── Styles Factory ──────────────────────────────────────────────────────────
+const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: isDark ? colors.surface : colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
+    borderBottomWidth: isDark ? 1 : 0,
+    borderBottomColor: colors.border,
   },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
+  headerTitle: { color: isDark ? colors.text : '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
   subtitle: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SPACING.xl,
     lineHeight: 20,
   },
@@ -440,11 +441,10 @@ const s = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepNum: { color: '#fff', fontSize: 12, fontFamily: FONTS.bold },
+  stepNum: { color: isDark ? colors.background : '#fff', fontSize: 12, fontFamily: FONTS.bold },
   stepText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
 
   // Option chips
@@ -454,10 +454,10 @@ const s = StyleSheet.create({
     paddingVertical: SPACING.sm,
     borderRadius: RADIUS.xl,
     borderWidth: 2,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
+    borderColor: colors.border,
+    backgroundColor: colors.card,
   },
-  optChipText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
+  optChipText: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
 
   // Exam picker
   loadingBox: {
@@ -465,25 +465,25 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: SPACING.sm,
     padding: SPACING.lg,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
-  loadingText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted },
+  loadingText: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
   examSelector: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.border,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: isDark ? 0.2 : 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -491,19 +491,19 @@ const s = StyleSheet.create({
     flex: 1,
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.text,
+    color: colors.text,
     marginRight: SPACING.sm,
   },
   examPickerDropdown: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     marginTop: SPACING.xs,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: isDark ? 0.3 : 0.08,
     shadowRadius: 12,
     elevation: 4,
   },
@@ -514,14 +514,14 @@ const s = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
-  examPickerItemActive: { backgroundColor: COLORS.surface },
-  examPickerText: { fontSize: FONT_SIZES.sm, color: COLORS.text, flex: 1, marginRight: SPACING.sm },
+  examPickerItemActive: { backgroundColor: colors.surface },
+  examPickerText: { fontSize: FONT_SIZES.sm, color: colors.text, flex: 1, marginRight: SPACING.sm },
   examPickerEmpty: {
     padding: SPACING.lg,
     textAlign: 'center',
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: FONT_SIZES.sm,
   },
 
@@ -538,22 +538,22 @@ const s = StyleSheet.create({
     height: 44,
     borderRadius: RADIUS.lg,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     textAlign: 'center',
     fontSize: FONT_SIZES.lg,
     fontFamily: FONTS.bold,
-    color: COLORS.text,
-    backgroundColor: '#fff',
+    color: colors.text,
+    backgroundColor: colors.card,
   },
-  customTimeLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
+  customTimeLabel: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
 
   // Auto submit
-  divider: { height: 1, backgroundColor: COLORS.border, marginVertical: SPACING.xl },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: SPACING.xl },
   autoSubmitRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.lg },
-  autoSubmitTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
+  autoSubmitTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: colors.text },
   autoSubmitSub: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 3,
     lineHeight: 18,
   },
@@ -561,20 +561,20 @@ const s = StyleSheet.create({
   // Summary
   summaryCard: {
     marginTop: SPACING.xl,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderLeftWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: isDark ? 0.2 : 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
   summaryTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, marginBottom: 6 },
-  summaryDetail: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginTop: 3 },
+  summaryDetail: { fontSize: FONT_SIZES.sm, color: colors.textSecondary, marginTop: 3 },
 
   // Start bar
   startBar: {
@@ -584,9 +584,9 @@ const s = StyleSheet.create({
     right: 0,
     padding: SPACING.lg,
     paddingBottom: SPACING.xl,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   startBtn: {
     flexDirection: 'row',
@@ -601,5 +601,6 @@ const s = StyleSheet.create({
     elevation: 4,
   },
   startBtnDisabled: { opacity: 0.7 },
-  startBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
+  startBtnText: { color: isDark ? colors.background : '#fff', fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
 });
+
