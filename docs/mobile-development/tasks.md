@@ -270,12 +270,12 @@
 
 ## Phase 4 — IELTS Advanced Statistics (8h)
 
-- [~] **P4-01** · Tạo `app/ielts/advanced/statistics.tsx` (refactor một phần `ielts/statistics.tsx`) · *est. 1.5h*
-- [ ] **P4-02** · 4 tab skill, lazy load data per tab · *est. 1h*
-- [ ] **P4-03** · Line chart band score trend (SVG react-native-svg) · *est. 2h*
-- [ ] **P4-04** · Bar chart correct ratio per part · *est. 1.5h*
-- [ ] **P4-05** · Donut chart breakdown question type (L/R only) · *est. 1.5h*
-- [ ] **P4-06** · Empty state + pull-to-refresh · *est. 0.5h*
+- [x] **P4-01** · Tạo `app/ielts/advanced/statistics.tsx` (refactor một phần `ielts/statistics.tsx`) · *est. 1.5h*
+- [x] **P4-02** · 4 tab skill, lazy load data per tab · *est. 1h*
+- [x] **P4-03** · Line chart band score trend (SVG react-native-svg) · *est. 2h*
+- [x] **P4-04** · Bar chart correct ratio per part · *est. 1.5h*
+- [x] **P4-05** · Donut chart breakdown question type (L/R only) · *est. 1.5h*
+- [x] **P4-06** · Empty state + pull-to-refresh · *est. 0.5h*
 
 **Tổng phase 4**: 8h
 
