@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { TextWithLookup } from '../global/TextWithLookup';
 
 export interface PassageLocation {
   paragraphIndex: number;
@@ -103,7 +104,7 @@ export default function PassageReview({
                   ))}
                 </View>
               )}
-              <Text style={styles.paraText}>{para.trim()}</Text>
+              <TextWithLookup style={styles.paraText} content={para.trim()} />
             </View>
           );
         })}
