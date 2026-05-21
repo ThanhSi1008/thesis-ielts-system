@@ -5,6 +5,7 @@ import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { GradingProvider } from '@/contexts/GradingContext';
 import { Toaster, UpgradeModal } from '@/components/ui/index';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { DictionaryPopup, GlobalVocabFab, GlobalAddCardFab } from '@/components';
 import { useFonts } from 'expo-font';
 import {
   Farro_300Light,
@@ -147,6 +148,9 @@ export default function RootLayout() {
             </Stack>
             <Toaster />
             <UpgradeModal />
+            <GlobalAddCardFab hideFab={true} />
+            <GlobalVocabFab />
+            <DictionaryPopup />
           </GradingProvider>
         </SubscriptionProvider>
       </AuthProvider>

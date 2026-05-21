@@ -20,6 +20,7 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { SpeakingDeviceTest } from './SpeakingDeviceTest';
 export { DictionaryPopup } from './global/DictionaryPopup';
 export { TextWithLookup } from './global/TextWithLookup';
+export { GlobalVocabFab } from './global/GlobalVocabFab';
 
 
 

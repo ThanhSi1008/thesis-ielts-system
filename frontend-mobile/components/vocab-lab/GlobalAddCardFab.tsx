@@ -70,7 +70,7 @@ const t = StyleSheet.create({
 });
 
 // ─── GlobalAddCardFab ──────────────────────────────────────────────────────────
-export function GlobalAddCardFab() {
+export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}) {
   // Sheet visibility
   const [open, setOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(SHEET_H)).current;
@@ -89,7 +89,9 @@ export function GlobalAddCardFab() {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   // Open / close animations
-  const openSheet = useCallback(() => {
+  const openSheet = useCallback((prefill?: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+    const prefillData = (prefill && typeof prefill === 'object' && 'front' in prefill) ? prefill : undefined;
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setOpen(true);
     Animated.parallel([
@@ -101,25 +103,66 @@ export function GlobalAddCardFab() {
         useNativeDriver: true,
       }),
     ]).start();
-    // Lazy-load decks
-    if (!dataLoaded) {
-      Promise.all([vocabLabApi.getDecks(), vocabLabApi.getCardTypes()])
-        .then(([d, ct]) => {
+
+    const loadAndPrefill = async () => {
+      let currentDecks = decks;
+      let currentCardTypes = cardTypes;
+
+      if (!dataLoaded) {
+        try {
+          const [d, ct] = await Promise.all([vocabLabApi.getDecks(), vocabLabApi.getCardTypes()]);
+          currentDecks = d;
+          currentCardTypes = ct;
           setDecks(d);
           setCardTypes(ct);
           if (d.length > 0) setSelectedDeckId(d[0].id);
-          if (ct.length > 0) {
-            const dt = ct.find((t) => t.isBuiltIn) || ct[0];
-            setCardTypeId(dt.id);
-            const iv: any = {};
-            dt.fields.forEach((f: any) => (iv[f.id] = ''));
-            setFieldValues(iv);
-          }
           setDataLoaded(true);
-        })
-        .catch(() => {});
-    }
-  }, [dataLoaded]);
+        } catch (e) {
+          console.error('Failed to load decks/cardTypes in Fab', e);
+        }
+      }
+
+      if (currentCardTypes.length > 0) {
+        const dt = currentCardTypes.find((t) => t.isBuiltIn) || currentCardTypes[0];
+        setCardTypeId(dt.id);
+        
+        const sortedFields = [...dt.fields].sort((a: any, b: any) => a.order - b.order);
+        const iv: Record<string, string> = {};
+        dt.fields.forEach((f: any) => (iv[f.id] = ''));
+        
+        if (prefillData) {
+          if (sortedFields[0]) {
+            iv[sortedFields[0].id] = prefillData.front;
+          }
+          if (sortedFields[1]) {
+            let backVal = prefillData.back;
+            if (prefillData.audioUrl) {
+              backVal = `${backVal}\n<audio src="${prefillData.audioUrl}"></audio>`;
+            }
+            iv[sortedFields[1].id] = backVal;
+          }
+          if (prefillData.tags) {
+            setTagsList(prefillData.tags);
+          }
+        } else {
+          setTagsList([]);
+        }
+        setFieldValues(iv);
+      }
+    };
+
+    loadAndPrefill();
+  }, [dataLoaded, decks, cardTypes]);
+
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener(
+      'OPEN_QUICK_ADD_CARD',
+      (payload: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+        openSheet(payload);
+      }
+    );
+    return () => sub.remove();
+  }, [openSheet]);
 
   const handleCardTypeChange = (id: string) => {
     setCardTypeId(id);
@@ -189,16 +232,18 @@ export function GlobalAddCardFab() {
   return (
     <>
       {/* ── FAB button ────────────────────────────────────────────── */}
-      <Animated.View style={[fab.wrap, { transform: [{ scale: fabScale }] }]}>
-        <TouchableOpacity
-          style={fab.btn}
-          onPress={openSheet}
-          activeOpacity={0.85}
-          id="global-add-card-fab"
-        >
-          <Ionicons name="add" size={26} color="#fff" />
-        </TouchableOpacity>
-      </Animated.View>
+      {!hideFab && (
+        <Animated.View style={[fab.wrap, { transform: [{ scale: fabScale }] }]}>
+          <TouchableOpacity
+            style={fab.btn}
+            onPress={() => openSheet()}
+            activeOpacity={0.85}
+            id="global-add-card-fab"
+          >
+            <Ionicons name="add" size={26} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+      )}
 
       {/* ── Bottom sheet ──────────────────────────────────────────── */}
       <Modal visible={open} transparent animationType="none" onRequestClose={closeSheet}>
