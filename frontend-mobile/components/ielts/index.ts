@@ -1,6 +1,7 @@
 export { default as AnswerSheet } from './AnswerSheet';
 export { default as DiagramMapBlock } from './DiagramMapBlock';
 export { default as FormCompletionBlock } from './FormCompletionBlock';
+export { AdvancedWritingPromptCard } from './AdvancedWritingPromptCard';
 export { LessonRow } from './LessonRow';
 export { LibraryContent } from './LibraryContent';
 export { default as MCMultipleBlock } from './MCMultipleBlock';

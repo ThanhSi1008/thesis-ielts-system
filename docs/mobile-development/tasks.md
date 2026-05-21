@@ -149,13 +149,13 @@
 
 ### 1.1 Service & route (2h)
 - [x] **P1-01-AUDIT** · ~~Verify endpoint backend~~ ✅ DONE 2026-05-21 (R-05 audit): backend dùng 2-step session flow + có `PATCH .../draft` autosave + `GET /speaking/stats` riêng. URL chính xác đã ghi vào implement.md.
-- [ ] **P1-01** · Mở rộng `ieltsAdvancedApi`: `getWritingPrompts({taskType,subType,category,page,limit})`, `getWritingPrompt(id)`, `getWritingSessionsByPrompt(promptId)`, `createWritingSession(promptId)`, `saveWritingDraft(sessionId, draft)`, `submitWritingSession(sessionId, payload)`, `getWritingSession(sessionId)`, `getWritingHistory()` · *est. 1.5h*
-- [ ] **P1-02** · Khai báo Stack screens mới trong `app/_layout.tsx`: writing index / detail / result · *est. 0.5h*
+- [x] **P1-01** · Mở rộng `ieltsAdvancedApi`: `getWritingPrompts({taskType,subType,category,page,limit})`, `getWritingPrompt(id)`, `getWritingSessionsByPrompt(promptId)`, `createWritingSession(promptId)`, `saveWritingDraft(sessionId, draft)`, `submitWritingSession(sessionId, payload)`, `getWritingSession(sessionId)`, `getWritingHistory()` · *est. 1.5h*
+- [x] **P1-02** · Khai báo Stack screens mới trong `app/_layout.tsx`: writing index / detail / result · *est. 0.5h*
 
 ### 1.2 Catalog (5h)
-- [ ] **P1-04** · Tạo `components/ielts/AdvancedWritingPromptCard.tsx`: thẻ prompt với task type chip, score badge nếu đã làm · *est. 2h*
-- [ ] **P1-05** · Tạo `app/ielts/advanced/writing/index.tsx`: list prompts, filter Task 1 / Task 2, pull-to-refresh, history banner · *est. 2.5h*
-- [ ] **P1-06** · Refactor `app/ielts/advanced/index.tsx`: thêm 2 tab Writing + Speaking vào TABS array (hiện chỉ L/R) · *est. 0.5h*
+- [x] **P1-04** · Tạo `components/ielts/AdvancedWritingPromptCard.tsx`: thẻ prompt với task type chip, score badge nếu đã làm · *est. 2h*
+- [x] **P1-05** · Tạo `app/ielts/advanced/writing/index.tsx`: list prompts, filter Task 1 / Task 2, pull-to-refresh, history banner · *est. 2.5h*
+- [x] **P1-06** · Refactor `app/ielts/advanced/index.tsx`: thêm 2 tab Writing + Speaking vào TABS array (hiện chỉ L/R) · *est. 0.5h*
 
 ### 1.3 Detail screen — Editor + Session lifecycle (10h, +2h cho R-05)
 - [ ] **P1-07** · Tạo `app/ielts/advanced/writing/[promptId].tsx`: layout 2 phần (prompt + editor) với PanResponder resize · *est. 2h*
