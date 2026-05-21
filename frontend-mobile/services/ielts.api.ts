@@ -73,23 +73,17 @@ export const studentTeacherApi = {
   getStudentStats: (studentId: string) => apiClient.get<any>(`/users/student/${studentId}/stats`),
 };
 
+import { vocabularyApi as newVocabularyApi, grammarApi as newGrammarApi } from './learning.api';
+
 // ==================== VOCABULARY ====================
-export const vocabularyApi = {
-  getBooks: () => apiClient.get<any[]>('/vocabulary/books'),
-  getBook: (id: string) => apiClient.get<any>(`/vocabulary/books/${id}`),
-  getUnit: (id: string) => apiClient.get<any>(`/vocabulary/units/${id}`),
-  getProgress: (bookId: string) => apiClient.get<any>(`/vocabulary/progress/${bookId}`),
-  updateWordProgress: (unitId: string, wordsLearned: number) =>
-    apiClient.post<any>('/vocabulary/progress/words', { unitId, wordsLearned }),
-  submitExercise: (unitId: string, answers: { exerciseId: string; answer: string }[]) =>
-    apiClient.post<any>('/vocabulary/progress/exercise', { unitId, answers }),
-  submitQuestions: (unitId: string, answers: { questionId: string; answer: string }[]) =>
-    apiClient.post<any>('/vocabulary/progress/questions', { unitId, answers }),
-};
+/**
+ * @deprecated Use vocabularyApi from @/services instead
+ */
+export const vocabularyApi = newVocabularyApi;
 
 // ==================== GRAMMAR ====================
-export const grammarApi = {
-  getBooks: () => apiClient.get<any[]>('/grammar/books'),
-  getBook: (slug: string) => apiClient.get<any>(`/grammar/books/${slug}`),
-  getUnit: (id: string) => apiClient.get<any>(`/grammar/units/${id}`),
-};
+/**
+ * @deprecated Use grammarApi from @/services instead
+ */
+export const grammarApi = newGrammarApi;
+

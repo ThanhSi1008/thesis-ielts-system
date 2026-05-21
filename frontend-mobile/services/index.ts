@@ -33,21 +33,10 @@ export const gamificationApi = {
   ...postsGamification,
 };
 
-// Combined vocabularyApi and grammarApi to merge type-safe methods with advanced methods
-import { vocabularyApi as apiVocab, grammarApi as apiGrammar, pronunciationApi, authApi } from './api';
-import { vocabularyApi as ieltsVocab, grammarApi as ieltsGrammar } from './ielts.api';
+// Re-export new unified APIs from learning.api
+export { vocabularyApi, grammarApi, pronunciationApi } from './learning.api';
+export { authApi } from './api';
 
-export const vocabularyApi = {
-  ...apiVocab,
-  ...ieltsVocab,
-};
-
-export const grammarApi = {
-  ...apiGrammar,
-  ...ieltsGrammar,
-};
-
-export { pronunciationApi, authApi };
 
 // Re-export types for convenience
 export type {

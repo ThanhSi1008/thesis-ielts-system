@@ -96,6 +96,73 @@ export interface VocabularyUnitWithContent {
 export type BookWithUnits = VocabularyBookWithUnits;
 export type UnitWithContent = VocabularyUnitWithContent;
 
+export interface FoundationVocabBook {
+  id: string;
+  name: string;
+  imageUrl: string;
+  wordCount: number;
+  _count?: { units: number };
+}
+
+export interface FoundationVocabUnit {
+  id: string;
+  title: string;
+  order: number;
+}
+
+export interface FoundationVocabItem {
+  id: string;
+  word: string;
+  meaning: string;
+  ipa?: string;
+  partOfSpeech?: string;
+  example?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  lessonId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FoundationVocabQuestion {
+  id: string;
+  question: string;
+  type: 'multiple_choice' | 'fill_blank';
+  options?: string[];
+  answer: string;
+  order: number;
+}
+
+export interface VocabularyUnitProgress {
+  id: string;
+  title: string;
+  order: number;
+  totalWords: number;
+  wordsLearned: number;
+  questionScore?: number;
+  isCompleted: boolean;
+}
+
+export interface VocabularyBookProgress {
+  book: { id: string; name: string };
+  units: VocabularyUnitProgress[];
+}
+
+export interface QuestionResult {
+  questionId: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+export interface SubmitQuestionsResponse {
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  results: QuestionResult[];
+}
+
+
 // ==================== GRAMMAR ====================
 
 export interface GrammarBook {
@@ -136,6 +203,35 @@ export interface GrammarUnitWithContent {
   book: { id: string; slug: string; name: string };
   exercises: GrammarExercise[];
 }
+
+export interface FoundationGrammarBook {
+  id: string;
+  slug: string;
+  name: string;
+  author: string;
+  level: string;
+  imageUrl: string;
+  color: string;
+  unitCount: number;
+  _count?: { units: number };
+}
+
+export interface FoundationGrammarUnit {
+  id: string;
+  title: string;
+  order: number;
+  theoryContent?: string;
+}
+
+export interface GrammarUnitProgress {
+  unitOrder: number;
+  theoryCompleted: boolean;
+  exerciseScore: number | null;
+  exerciseTotal: number | null;
+  isCompleted: boolean;
+  completedAt: string | null;
+}
+
 
 // ==================== PRONUNCIATION ====================
 
@@ -180,6 +276,62 @@ export interface PronunciationCheckResponse {
   score?: PronunciationScore;
   audioUrl?: string;
 }
+
+export interface FoundationPronunciationSound {
+  id: string;
+  symbol: string;
+  name?: string;
+  type: string;
+  word: string;
+  description?: string;
+  tip?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  voiced?: boolean;
+  order: number;
+  exampleWords: FoundationSoundExample[];
+}
+
+export interface FoundationSoundExample {
+  id: string;
+  word: string;
+  ipa?: string;
+  audioUrl?: string;
+  order: number;
+}
+
+export interface SoundProgress {
+  soundId: string;
+  symbol: string;
+  type: string;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+  practiceCount: number;
+  bestScore: number | null;
+  lastPracticedAt: string | null;
+}
+
+export interface PronunciationStats {
+  totalSounds: number;
+  masteredCount: number;
+  practicingCount: number;
+  newCount: number;
+  overallMastery: number;
+}
+
+export interface WordProgress {
+  word: string;
+  bestScore: number | null;
+  attemptCount: number;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+}
+
+export interface PronunciationData {
+  monophthongs: FoundationPronunciationSound[];
+  diphthongs: FoundationPronunciationSound[];
+  consonants: FoundationPronunciationSound[];
+}
+
 
 // ==================== EXAMS ====================
 
