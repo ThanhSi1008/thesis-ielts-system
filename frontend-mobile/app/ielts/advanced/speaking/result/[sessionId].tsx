@@ -16,6 +16,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/c
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { useGradingPoll } from '@/hooks/useGradingPoll';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import SpeakingRubricView from '@/components/ielts/SpeakingRubricView';
 
 const MOCK_TIPS = [
@@ -31,6 +32,7 @@ interface AudioPlayButtonProps {
 }
 
 function AudioPlayButton({ url }: AudioPlayButtonProps) {
+  const { colors, isDark } = useTheme();
   const player = useAudioPlayer(url);
   const status = useAudioPlayerStatus(player);
 
@@ -51,28 +53,30 @@ function AudioPlayButton({ url }: AudioPlayButtonProps) {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  const activeColor = isDark ? colors.primary : COLORS.skill.speaking;
+
   return (
-    <View style={audioStyles.container}>
+    <View style={[audioStyles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <TouchableOpacity
-        style={audioStyles.button}
+        style={[audioStyles.button, { backgroundColor: isDark ? colors.surface : '#fff', borderColor: colors.border }]}
         onPress={handlePlay}
         disabled={isLoading}
       >
         {isLoading ? (
-          <ActivityIndicator size="small" color={COLORS.skill.speaking} />
+          <ActivityIndicator size="small" color={activeColor} />
         ) : (
           <Ionicons
             name={player.playing ? 'pause' : 'play'}
             size={16}
-            color={COLORS.skill.speaking}
+            color={activeColor}
           />
         )}
       </TouchableOpacity>
-      <Text style={audioStyles.time}>
+      <Text style={[audioStyles.time, { color: colors.textSecondary }]}>
         {formatTime(status.currentTime)} / {formatTime(status.duration || 0)}
       </Text>
-      <View style={audioStyles.track}>
-        <View style={[audioStyles.progress, { width: `${progress}%` }]} />
+      <View style={[audioStyles.track, { backgroundColor: colors.border }]}>
+        <View style={[audioStyles.progress, { width: `${progress}%`, backgroundColor: activeColor }]} />
       </View>
     </View>
   );
@@ -82,12 +86,10 @@ const audioStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.sm,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     gap: 10,
     marginTop: SPACING.xs,
   },
@@ -95,34 +97,30 @@ const audioStyles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
   },
   time: {
     fontFamily: FONTS.semibold,
     fontSize: 11,
-    color: '#64748B',
     minWidth: 70,
   },
   track: {
     flex: 1,
     height: 4,
-    backgroundColor: '#E2E8F0',
     borderRadius: 2,
     overflow: 'hidden',
   },
   progress: {
     height: '100%',
-    backgroundColor: COLORS.skill.speaking,
     borderRadius: 2,
   },
 });
 
 export default function AdvancedSpeakingResultScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const { isPremium } = useSubscription();
 
@@ -217,21 +215,23 @@ export default function AdvancedSpeakingResultScreen() {
     }
   }, [session]);
 
+  const activeColor = isDark ? colors.primary : COLORS.skill.speaking;
+
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.skill.speaking} />
-        <Text style={styles.loadingText}>Fetching practice details...</Text>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={activeColor} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Fetching practice details...</Text>
       </View>
     );
   }
 
   if (!session) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>Session details could not be found.</Text>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.error }]}>Session details could not be found.</Text>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={{ color: COLORS.skill.speaking }}>Go Back</Text>
+          <Text style={{ color: activeColor }}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -240,22 +240,22 @@ export default function AdvancedSpeakingResultScreen() {
   // Render evaluation pending page
   if (pollingActive || session.status === 'GRADING') {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <Stack.Screen options={{ headerShown: false }} />
-        <View style={styles.pendingContainer}>
-          <ActivityIndicator size="large" color={COLORS.skill.speaking} />
-          <Text style={styles.pendingTitle}>Evaluating Your Speaking...</Text>
-          <Text style={styles.pendingSubtitle}>
+        <View style={[styles.pendingContainer, { backgroundColor: colors.background }]}>
+          <ActivityIndicator size="large" color={activeColor} />
+          <Text style={[styles.pendingTitle, { color: colors.text }]}>Evaluating Your Speaking...</Text>
+          <Text style={[styles.pendingSubtitle, { color: colors.textSecondary }]}>
             Our AI engine is currently grading your speaking answers against standard IELTS rubrics (Fluency, Vocabulary, Grammar, Pronunciation). This usually takes 30 to 90 seconds.
           </Text>
 
           {/* Tips Carousel */}
-          <View style={styles.tipBox}>
+          <View style={[styles.tipBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.tipHeader}>
-              <Ionicons name="bulb" size={18} color={COLORS.warning} />
-              <Text style={styles.tipTitle}>Did you know?</Text>
+              <Ionicons name="bulb" size={18} color={colors.warning} />
+              <Text style={[styles.tipTitle, { color: colors.text }]}>Did you know?</Text>
             </View>
-            <Text style={styles.tipContent}>{MOCK_TIPS[tipIndex]}</Text>
+            <Text style={[styles.tipContent, { color: colors.textSecondary }]}>{MOCK_TIPS[tipIndex]}</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -264,16 +264,16 @@ export default function AdvancedSpeakingResultScreen() {
 
   if (session.status === 'GRADING_FAILED') {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <Stack.Screen options={{ headerShown: false }} />
-        <View style={styles.center}>
-          <Ionicons name="alert-circle" size={54} color={COLORS.error} />
-          <Text style={styles.errorText}>AI Grading Failed</Text>
-          <Text style={styles.errorSub}>
+        <View style={[styles.center, { backgroundColor: colors.background }]}>
+          <Ionicons name="alert-circle" size={54} color={colors.error} />
+          <Text style={[styles.errorText, { color: colors.error }]}>AI Grading Failed</Text>
+          <Text style={[styles.errorSub, { color: colors.textSecondary }]}>
             We were unable to successfully grade your speaking audio. Please try practicing again or reviewing your speaking history.
           </Text>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => router.back()}>
-            <Text style={styles.actionBtnText}>Go Back</Text>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary }]} onPress={() => router.back()}>
+            <Text style={[styles.actionBtnText, { color: colors.onPrimary }]}>Go Back</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -281,36 +281,36 @@ export default function AdvancedSpeakingResultScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Dynamic Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: isDark ? colors.surface : COLORS.skill.speaking, borderBottomWidth: isDark ? 1 : 0, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.headerBack} onPress={() => router.replace('/ielts/advanced/speaking')}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : "#fff"} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Evaluation Results</Text>
+        <Text style={[styles.headerTitle, { color: isDark ? colors.text : "#fff" }]}>Evaluation Results</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator contentContainerStyle={styles.scrollContent}>
         {/* Score & Topic Overview Card */}
-        <View style={styles.overviewCard}>
-          <View style={styles.scoreCircle}>
-            <Text style={styles.scoreVal}>{session.bandScore?.toFixed(1) ?? 'N/A'}</Text>
-            <Text style={styles.scoreLbl}>Band Score</Text>
+        <View style={[styles.overviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[styles.scoreCircle, { backgroundColor: activeColor }]}>
+            <Text style={[styles.scoreVal, { color: isDark ? colors.onPrimary : '#fff' }]}>{session.bandScore?.toFixed(1) ?? 'N/A'}</Text>
+            <Text style={[styles.scoreLbl, { color: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)' }]}>Band Score</Text>
           </View>
 
           <View style={styles.overviewDetails}>
-            <Text style={styles.promptTitle} numberOfLines={2}>
+            <Text style={[styles.promptTitle, { color: colors.text }]} numberOfLines={2}>
               {part?.topic ?? part?.title ?? 'IELTS Speaking Practice'}
             </Text>
             <View style={styles.promptMetaRow}>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaBadgeText}>PART {part?.partNumber ?? 1}</Text>
+              <View style={[styles.metaBadge, { backgroundColor: isDark ? 'rgba(255, 198, 0, 0.15)' : 'rgba(124, 58, 237, 0.1)' }]}>
+                <Text style={[styles.metaBadgeText, { color: activeColor }]}>PART {part?.partNumber ?? 1}</Text>
               </View>
-              <Text style={styles.metaItem}>
-                <Ionicons name="time-outline" size={14} color={COLORS.textSecondary} />{' '}
+              <Text style={[styles.metaItem, { color: colors.textSecondary }]}>
+                <Ionicons name="time-outline" size={14} color={colors.textSecondary} />{' '}
                 {timeDisplay}
               </Text>
             </View>
@@ -319,30 +319,30 @@ export default function AdvancedSpeakingResultScreen() {
 
         {/* Interactive Audio & Transcript Section */}
         {part?.questions && part.questions.length > 0 && (
-          <View style={styles.transcriptCard}>
-            <Text style={styles.sectionHeader}>Your Response Details</Text>
+          <View style={[styles.transcriptCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>Your Response Details</Text>
             {part.questions.map((question: any, idx: number) => {
               const qIdxStr = String(idx);
               const audioUrl = session.audioUrls?.[qIdxStr];
               const transcription = session.transcription?.[qIdxStr];
 
               return (
-                <View key={idx} style={[styles.questionItem, idx > 0 && styles.questionItemBorder]}>
-                  <Text style={styles.questionText}>
+                <View key={idx} style={[styles.questionItem, idx > 0 && [styles.questionItemBorder, { borderTopColor: colors.border }]]}>
+                  <Text style={[styles.questionText, { color: colors.text }]}>
                     Q{idx + 1}: {question.text}
                   </Text>
                   {audioUrl ? (
                     <AudioPlayButton url={audioUrl} />
                   ) : (
-                    <Text style={styles.noAudioText}>No audio answer recorded.</Text>
+                    <Text style={[styles.noAudioText, { color: colors.textMuted }]}>No audio answer recorded.</Text>
                   )}
                   {transcription ? (
-                    <View style={styles.transcriptionBox}>
-                      <Text style={styles.transcriptionLabel}>AI Transcription:</Text>
-                      <Text style={styles.transcriptionText}>{transcription}</Text>
+                    <View style={[styles.transcriptionBox, { backgroundColor: isDark ? colors.surface : '#F8FAFC', borderColor: isDark ? colors.border : '#F1F5F9' }]}>
+                      <Text style={[styles.transcriptionLabel, { color: activeColor }]}>AI Transcription:</Text>
+                      <Text style={[styles.transcriptionText, { color: colors.text }]}>{transcription}</Text>
                     </View>
                   ) : (
-                    <Text style={styles.noTranscriptionText}>No transcription available.</Text>
+                    <Text style={[styles.noTranscriptionText, { color: colors.textMuted }]}>No transcription available.</Text>
                   )}
                 </View>
               );
@@ -357,18 +357,18 @@ export default function AdvancedSpeakingResultScreen() {
             exam={part}
           />
         ) : (
-          <View style={styles.noFeedbackBox}>
-            <Ionicons name="alert-circle-outline" size={24} color={COLORS.textMuted} />
-            <Text style={styles.noFeedbackText}>No detailed evaluation details found.</Text>
+          <View style={[styles.noFeedbackBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Ionicons name="alert-circle-outline" size={24} color={colors.textMuted} />
+            <Text style={[styles.noFeedbackText, { color: colors.textSecondary }]}>No detailed evaluation details found.</Text>
           </View>
         )}
 
         {/* Action Button */}
         <TouchableOpacity
-          style={styles.doneBtn}
+          style={[styles.doneBtn, { backgroundColor: isDark ? colors.primary : colors.card, borderColor: isDark ? colors.primary : colors.border }]}
           onPress={() => router.replace('/ielts/advanced/speaking')}
         >
-          <Text style={styles.doneBtnText}>Return to List</Text>
+          <Text style={[styles.doneBtnText, { color: isDark ? colors.onPrimary : colors.textSecondary }]}>Return to List</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -378,7 +378,6 @@ export default function AdvancedSpeakingResultScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   center: {
     flex: 1,
@@ -390,19 +389,16 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
   },
   errorText: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.lg,
-    color: COLORS.error,
     textAlign: 'center',
     marginBottom: SPACING.xs,
   },
   errorSub: {
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
     textAlign: 'center',
     marginBottom: SPACING.lg,
     lineHeight: 18,
@@ -412,7 +408,6 @@ const styles = StyleSheet.create({
     padding: SPACING.sm,
   },
   header: {
-    backgroundColor: COLORS.skill.speaking,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -426,7 +421,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    color: '#fff',
     fontSize: FONT_SIZES.lg,
     fontFamily: FONTS.bold,
   },
@@ -435,30 +429,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: SPACING.xxl,
-    backgroundColor: '#fff',
   },
   pendingTitle: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.xl,
-    color: COLORS.text,
     marginTop: SPACING.xl,
     marginBottom: SPACING.sm,
   },
   pendingSubtitle: {
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 40,
   },
   tipBox: {
     width: '100%',
-    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   tipHeader: {
     flexDirection: 'row',
@@ -469,12 +458,10 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
   },
   tipContent: {
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
     lineHeight: 18,
   },
   scrollContent: {
@@ -483,34 +470,27 @@ const styles = StyleSheet.create({
   },
   overviewCard: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     alignItems: 'center',
     gap: SPACING.lg,
     marginBottom: SPACING.lg,
-    boxShadow: SHADOWS.card,
   },
   scoreCircle: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: COLORS.skill.speaking,
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: SHADOWS.sm,
   },
   scoreVal: {
     fontFamily: FONTS.bold,
     fontSize: 24,
-    color: '#fff',
   },
   scoreLbl: {
     fontFamily: FONTS.medium,
     fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.8)',
     textTransform: 'uppercase',
   },
   overviewDetails: {
@@ -519,7 +499,6 @@ const styles = StyleSheet.create({
   promptTitle: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
     lineHeight: 20,
     marginBottom: SPACING.xs,
   },
@@ -530,7 +509,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   metaBadge: {
-    backgroundColor: 'rgba(124, 58, 237, 0.1)',
     paddingHorizontal: SPACING.sm,
     paddingVertical: 2,
     borderRadius: RADIUS.sm,
@@ -538,26 +516,20 @@ const styles = StyleSheet.create({
   metaBadgeText: {
     fontFamily: FONTS.bold,
     fontSize: 10,
-    color: COLORS.skill.speaking,
   },
   metaItem: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
   },
   transcriptCard: {
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
-    boxShadow: SHADOWS.card,
   },
   sectionHeader: {
     fontSize: FONT_SIZES.sm,
     fontFamily: FONTS.bold,
-    color: COLORS.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: SPACING.md,
@@ -567,66 +539,54 @@ const styles = StyleSheet.create({
   },
   questionItemBorder: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
   },
   questionText: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
     lineHeight: 18,
     marginBottom: SPACING.xs,
   },
   noAudioText: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textMuted,
     fontStyle: 'italic',
     marginTop: SPACING.xs,
   },
   transcriptionBox: {
-    backgroundColor: '#F8FAFC',
     borderRadius: RADIUS.md,
     padding: SPACING.md,
     marginTop: SPACING.sm,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
   },
   transcriptionLabel: {
     fontFamily: FONTS.semibold,
     fontSize: 11,
-    color: COLORS.skill.speaking,
     marginBottom: 4,
   },
   transcriptionText: {
     fontFamily: FONTS.regular,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
     lineHeight: 20,
   },
   noTranscriptionText: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textMuted,
     fontStyle: 'italic',
     marginTop: SPACING.xs,
   },
   noFeedbackBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.surface,
     padding: 40,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
     gap: SPACING.sm,
   },
   noFeedbackText: {
     fontFamily: FONTS.medium,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
   },
   actionBtn: {
-    backgroundColor: COLORS.primary,
     paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.md,
     borderRadius: RADIUS.md,
@@ -635,12 +595,9 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.sm,
-    color: '#212529',
   },
   doneBtn: {
-    backgroundColor: COLORS.surface,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
     paddingVertical: SPACING.md,
     borderRadius: RADIUS.md,
     alignItems: 'center',
@@ -649,6 +606,5 @@ const styles = StyleSheet.create({
   doneBtnText: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.md,
-    color: COLORS.textSecondary,
   },
 });
