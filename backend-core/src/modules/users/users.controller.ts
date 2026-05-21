@@ -8,16 +8,24 @@ import {
   UseGuards,
   Post,
   Req,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { StorageService } from "../../common/storage/storage.service";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard, ThrottlerGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly storageService: StorageService,
+  ) {}
 
   @Get()
   findAll() {
@@ -39,6 +47,29 @@ export class UsersController {
   @Delete("me")
   deleteMe(@Req() req: any) {
     return this.usersService.remove(req.user.id);
+  }
+
+  @Post("me/avatar")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException("No file uploaded");
+    }
+    const url = await this.storageService.uploadFile(file, "avatars");
+    return this.usersService.updateAvatar(req.user.id, url);
+  }
+
+  @Delete("me/avatar")
+  async deleteAvatar(@Req() req: any) {
+    const user = await this.usersService.findOne(req.user.id);
+    if (user && user.avatar) {
+      try {
+        await this.storageService.deleteFile(user.avatar);
+      } catch (error) {
+        // Silently ignore Cloudinary delete errors
+      }
+    }
+    return this.usersService.updateAvatar(req.user.id, null);
   }
 
   // --- Student-Teacher Linking ---
