@@ -46,9 +46,9 @@
 - [x] **P05-15** · Cleanup hidden tabs không dùng (nếu có) · *est. 0.5h*
 
 ### 0.5.3 Theme tokens unification (6h)
-- [ ] **P05-16** · Mở rộng `constants/index.ts` COLORS: thêm `skill.{listening,reading,writing,speaking}`, `gray.50-900`, `successScale/warningScale/errorScale` · *est. 1h*
-- [ ] **P05-17** · Refactor `app/pricing.tsx`: xóa inline THEME, thay = COLORS.* · *est. 30min*
-- [ ] **P05-18** · Refactor `app/shadowing/index.tsx`: xóa inline THEME · *est. 30min*
+- [x] **P05-16** · Mở rộng `constants/index.ts` COLORS: thêm `skill.{listening,reading,writing,speaking}`, `gray.50-900`, `successScale/warningScale/errorScale` · *est. 1h*
+- [x] **P05-17** · Refactor `app/pricing.tsx`: xóa inline THEME, thay = COLORS.* · *est. 30min*
+- [x] **P05-18** · Refactor `app/shadowing/index.tsx`: xóa inline THEME · *est. 30min*
 - [ ] **P05-19** · Refactor `app/(tabs)/vocabulary.tsx`: xóa inline THEME · *est. 15min*
 - [ ] **P05-20** · Refactor `app/vocabulary/[bookId].tsx`: xóa inline THEME · *est. 20min*
 - [ ] **P05-21** · Refactor `app/vocabulary/[bookId]/[unitId].tsx`: xóa inline THEME · *est. 30min*
