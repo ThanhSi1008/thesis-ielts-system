@@ -10,5 +10,6 @@ export { MarketplaceTab } from './MarketplaceTab';
 export { StatsTab } from './StatsTab';
 export { PublishDeckModal } from './PublishDeckModal';
 export { ImportDeckModal } from './ImportDeckModal';
-
-
+export { ForecastChart } from './ForecastChart';
+export { HourlyActivityChart } from './HourlyActivityChart';
+export { MaturityDonut } from './MaturityDonut';

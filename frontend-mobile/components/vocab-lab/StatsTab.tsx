@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Animated } from 'react-native';
-import Svg, { Circle, G, Text as SvgText } from 'react-native-svg';
+import Svg, { G, Text as SvgText } from 'react-native-svg';
 import { COLORS, SPACING, FONT_SIZES, RADIUS } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
+import { ForecastChart } from './ForecastChart';
+import { HourlyActivityChart } from './HourlyActivityChart';
+import { MaturityDonut } from './MaturityDonut';
 
 // react-native-svg Path is not exported by name in all versions — import directly
 import { Path as SvgPath } from 'react-native-svg';
@@ -261,6 +264,15 @@ export function StatsTab() {
           <Text style={s.totalVal}>{rawTotal}</Text>
         </View>
       </View>
+
+      {/* Maturity Distribution Donut Chart */}
+      <MaturityDonut maturityData={stats.maturityDistribution} />
+
+      {/* 30-Day / 7-Day Forecast Chart */}
+      <ForecastChart forecastData={stats.forecast} />
+
+      {/* 24-Hour Hourly Activity Chart */}
+      <HourlyActivityChart hourlyData={stats.hourlyActivity} />
 
       {/* "No cards to review" hint */}
       {rawTotal > 0 && (stats.newCount ?? 0) === rawTotal && (

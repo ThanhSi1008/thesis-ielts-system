@@ -362,9 +362,9 @@
 - [x] **P8-03** · `components/vocab-lab/ImportDeckModal.tsx`: browse + preview + import · *est. 3h*
 
 ### 8.3 Stats charts mở rộng (4h)
-- [ ] **P8-04** · ForecastChart 7-day reviews-due (SVG) · *est. 1.5h*
-- [ ] **P8-05** · HourlyActivityChart 24h (SVG bar) · *est. 1h*
-- [ ] **P8-06** · DonutCharts (mature/young/learning/new) · *est. 1.5h*
+- [x] **P8-04** · ForecastChart 7-day reviews-due (SVG) · *est. 1.5h*
+- [x] **P8-05** · HourlyActivityChart 24h (SVG bar) · *est. 1h*
+- [x] **P8-06** · DonutCharts (mature/young/learning/new) · *est. 1.5h*
 
 **Tổng phase 8**: 12h
 
