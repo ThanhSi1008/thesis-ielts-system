@@ -300,4 +300,18 @@ export class UsersService {
     });
     return user;
   }
+
+  async addPushToken(userId: string, token: string, platform: string) {
+    return this.prisma.pushToken.upsert({
+      where: { token },
+      update: { lastUsed: new Date(), userId },
+      create: { userId, token, platform, lastUsed: new Date() },
+    });
+  }
+
+  async removePushToken(userId: string, token: string) {
+    return this.prisma.pushToken.deleteMany({
+      where: { userId, token },
+    });
+  }
 }

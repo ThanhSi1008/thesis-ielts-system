@@ -72,6 +72,26 @@ export class UsersController {
     return this.usersService.updateAvatar(req.user.id, null);
   }
 
+  @Post("me/push-token")
+  async addPushToken(
+    @Req() req: any,
+    @Body("token") token: string,
+    @Body("platform") platform: string,
+  ) {
+    if (!token || !platform) {
+      throw new BadRequestException("Token and platform are required");
+    }
+    return this.usersService.addPushToken(req.user.id, token, platform);
+  }
+
+  @Delete("me/push-token")
+  async removePushToken(@Req() req: any, @Body("token") token: string) {
+    if (!token) {
+      throw new BadRequestException("Token is required");
+    }
+    return this.usersService.removePushToken(req.user.id, token);
+  }
+
   // --- Student-Teacher Linking ---
 
   @Post("link-teacher")
