@@ -12,17 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { vocabularyApi } from '@/services/ielts.api';
-
-const THEME = {
-  P: '#FFC600',
-  FG1: '#212529',
-  FG2: '#64748b',
-  FG3: '#9ca3af',
-  BDR: '#e5e7eb',
-  SRF: '#f8f9fa',
-  WH: '#ffffff',
-  BLU: '#2196F3',
-};
+import { COLORS, FONTS } from '@/constants';
 
 // Group component for 10 units
 function UnitGroup({
@@ -63,7 +53,7 @@ function UnitGroup({
           <Ionicons
             name={isExpanded ? 'chevron-down' : 'chevron-forward'}
             size={14}
-            color={isExpanded ? THEME.FG1 : THEME.FG3}
+            color={isExpanded ? COLORS.text : COLORS.gray[400]}
           />
         </View>
         <View style={styles.groupInfo}>
@@ -73,7 +63,7 @@ function UnitGroup({
           </Text>
         </View>
         <View style={styles.groupProgressCol}>
-          <Text style={[styles.groupProgressText, completedCount > 0 && { color: THEME.FG2 }]}>
+          <Text style={[styles.groupProgressText, completedCount > 0 && { color: COLORS.textSecondary }]}>
             {completedCount}/{units.length}
           </Text>
           {completedCount > 0 && (
@@ -115,7 +105,7 @@ function UnitGroup({
                   ]}
                 >
                   {isComp ? (
-                    <Ionicons name="checkmark" size={14} color={THEME.FG1} />
+                    <Ionicons name="checkmark" size={14} color={COLORS.text} />
                   ) : (
                     <Text style={styles.unitBadgeText}>{orderNum}</Text>
                   )}
@@ -123,7 +113,7 @@ function UnitGroup({
 
                 {/* Info */}
                 <View style={styles.unitMain}>
-                  <Text style={[styles.unitName, isComp && { color: THEME.FG1 }]} numberOfLines={1}>
+                  <Text style={[styles.unitName, isComp && { color: COLORS.text }]} numberOfLines={1}>
                     {unit.title}
                   </Text>
 
@@ -201,7 +191,7 @@ export default function VocabularyBookScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="chevron-back" size={18} color={THEME.FG1} />
+            <Ionicons name="chevron-back" size={18} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleCol}>
             <Text style={styles.headerEyebrow}>Vocabulary</Text>
@@ -211,7 +201,7 @@ export default function VocabularyBookScreen() {
           </View>
         </View>
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={THEME.P} />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       </SafeAreaView>
     );
@@ -242,7 +232,7 @@ export default function VocabularyBookScreen() {
       <SafeAreaView style={styles.headerWrapper} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="chevron-back" size={18} color={THEME.FG1} />
+            <Ionicons name="chevron-back" size={18} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleCol}>
             <Text style={styles.headerEyebrow}>Vocabulary</Text>
@@ -290,7 +280,7 @@ export default function VocabularyBookScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.SRF },
+  container: { flex: 1, backgroundColor: COLORS.surface },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   headerWrapper: {
@@ -311,37 +301,37 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitleCol: { flex: 1 },
   headerEyebrow: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
   },
-  headerTitle: { fontFamily: 'Farro-Bold', fontSize: 15, color: THEME.FG1, letterSpacing: -0.1 },
+  headerTitle: { fontFamily: FONTS.bold, fontSize: 15, color: COLORS.text, letterSpacing: -0.1 },
   headerBadge: { alignItems: 'center' },
-  headerBadgeVal: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG1 },
+  headerBadgeVal: { fontFamily: FONTS.bold, fontSize: 13, color: COLORS.text },
   headerBadgeLbl: {
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     fontSize: 9,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     letterSpacing: 0.4,
   },
 
   content: { padding: 14, paddingBottom: 60 },
 
   groupCard: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     overflow: 'hidden',
     marginBottom: 10,
     shadowColor: '#000',
@@ -357,12 +347,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     padding: 14,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
   },
   groupHeaderExpanded: {
-    backgroundColor: THEME.SRF,
+    backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: THEME.BDR,
+    borderBottomColor: COLORS.border,
   },
   groupToggleBtn: {
     width: 30,
@@ -373,18 +363,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   groupToggleBtnActive: {
-    backgroundColor: THEME.P,
-    shadowColor: THEME.P,
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
     elevation: 4,
   },
   groupInfo: { flex: 1 },
-  groupTitle: { fontFamily: 'Farro-Bold', fontSize: 14, color: THEME.FG1 },
-  groupSubtitle: { fontFamily: 'Farro-Regular', fontSize: 11, color: THEME.FG3, marginTop: 1 },
+  groupTitle: { fontFamily: FONTS.bold, fontSize: 14, color: COLORS.text },
+  groupSubtitle: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400], marginTop: 1 },
   groupProgressCol: { alignItems: 'flex-end' },
-  groupProgressText: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG3 },
+  groupProgressText: { fontFamily: FONTS.bold, fontSize: 13, color: COLORS.gray[400] },
   groupProgressBar: {
     width: 60,
     height: 3,
@@ -393,7 +383,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginTop: 4,
   },
-  groupProgressFill: { height: '100%', backgroundColor: THEME.P, borderRadius: 2 },
+  groupProgressFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 2 },
 
   groupContent: {
     paddingHorizontal: 10,
@@ -411,9 +401,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   unitRowDefault: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
@@ -421,8 +411,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   unitRowCompleted: {
-    backgroundColor: THEME.P,
-    shadowColor: THEME.P,
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
@@ -438,12 +428,12 @@ const styles = StyleSheet.create({
   },
   unitBadgeDefault: { backgroundColor: '#f3f4f6' },
   unitBadgeCompleted: { backgroundColor: 'rgba(0,0,0,0.12)' },
-  unitBadgeText: { fontFamily: 'Farro-Bold', fontSize: 12, color: THEME.FG2 },
+  unitBadgeText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.textSecondary },
 
   unitMain: { flex: 1 },
-  unitName: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG1 },
+  unitName: { fontFamily: FONTS.bold, fontSize: 13, color: COLORS.text },
   unitCompletedLabel: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 9,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
@@ -460,10 +450,10 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     overflow: 'hidden',
   },
-  unitIPFill: { height: '100%', backgroundColor: THEME.BLU, borderRadius: 2 },
-  unitIPText: { fontFamily: 'Farro-Medium', fontSize: 9, color: THEME.FG3 },
+  unitIPFill: { height: '100%', backgroundColor: COLORS.info, borderRadius: 2 },
+  unitIPText: { fontFamily: FONTS.medium, fontSize: 9, color: COLORS.gray[400] },
 
   unitStats: { alignItems: 'flex-end' },
-  unitStatsCount: { fontFamily: 'Farro-Bold', fontSize: 10, color: THEME.FG3 },
-  unitStatsStatus: { fontFamily: 'Farro-Regular', fontSize: 9, color: THEME.FG3, marginTop: 2 },
+  unitStatsCount: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.gray[400] },
+  unitStatsStatus: { fontFamily: FONTS.regular, fontSize: 9, color: COLORS.gray[400], marginTop: 2 },
 });
