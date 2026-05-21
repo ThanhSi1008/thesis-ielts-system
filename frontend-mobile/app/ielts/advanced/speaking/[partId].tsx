@@ -13,12 +13,88 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 
 export default function AdvancedSpeakingPracticeScreen() {
   const router = useRouter();
   const { partId } = useLocalSearchParams<{ partId: string }>();
   const { isPremium } = useSubscription();
+  const { colors, isDark } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+    },
+    loadingText: {
+      marginTop: SPACING.md,
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+    },
+    errorText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+      color: colors.error,
+      textAlign: 'center',
+    },
+    backBtnText: {
+      marginTop: SPACING.md,
+      padding: SPACING.sm,
+    },
+    header: {
+      backgroundColor: isDark ? colors.card : COLORS.skill.speaking,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm,
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
+    },
+    backBtn: {
+      width: 36,
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitleContainer: {
+      flex: 1,
+      marginLeft: SPACING.sm,
+    },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.md,
+      fontFamily: FONTS.bold,
+    },
+    headerSubtitle: {
+      color: isDark ? colors.textSecondary : 'rgba(255, 255, 255, 0.8)',
+      fontSize: FONT_SIZES.xs,
+      fontFamily: FONTS.regular,
+    },
+    body: {
+      flex: 1,
+    },
+    submittingOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: SPACING.md,
+      zIndex: 999,
+    },
+    submittingText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+      color: isDark ? '#A78BFA' : COLORS.skill.speaking,
+    },
+  });
 
   const [part, setPart] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -154,7 +230,7 @@ export default function AdvancedSpeakingPracticeScreen() {
             { text: 'Exit', style: 'destructive', onPress: () => router.back() },
           ])
         }>
-          <Ionicons name="close" size={24} color="#fff" />
+          <Ionicons name="close" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>Part {part.partNumber ?? 1} Practice</Text>
@@ -183,75 +259,3 @@ export default function AdvancedSpeakingPracticeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-  },
-  loadingText: {
-    marginTop: SPACING.md,
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-  },
-  errorText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.error,
-    textAlign: 'center',
-  },
-  backBtnText: {
-    marginTop: SPACING.md,
-    padding: SPACING.sm,
-  },
-  header: {
-    backgroundColor: COLORS.skill.speaking,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitleContainer: {
-    flex: 1,
-    marginLeft: SPACING.sm,
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: FONT_SIZES.md,
-    fontFamily: FONTS.bold,
-  },
-  headerSubtitle: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONTS.regular,
-  },
-  body: {
-    flex: 1,
-  },
-  submittingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: SPACING.md,
-    zIndex: 999,
-  },
-  submittingText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.skill.speaking,
-  },
-});
