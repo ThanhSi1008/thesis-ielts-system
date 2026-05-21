@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS } from '@/constants';
+import { COLORS, FONTS } from '@/constants';
 
 // ─── DATA ──────────────────────────────────────────────────────────
 const L_BANDS = [
@@ -211,26 +211,11 @@ const utils = {
   uniqBands: (table: any[]) => table.map((r) => r.b),
 };
 
-// ─── THEME ─────────────────────────────────────────────────────────
-const THEME = {
-  P: '#FFC600',
-  FG1: '#212529',
-  FG2: '#64748b',
-  FG3: '#9ca3af',
-  BDR: '#e5e7eb',
-  SRF: '#f8f9fa',
-  WH: '#ffffff',
-  GRN: '#4CAF50',
-  BLU: '#2196F3',
-  ORG: '#FF9800',
-  RED: '#F44336',
-};
-
 const SK_COLOR: Record<string, string> = {
-  listening: THEME.GRN,
-  reading: THEME.BLU,
-  writing: THEME.ORG,
-  speaking: THEME.RED,
+  listening: COLORS.skill.listening,
+  reading: COLORS.skill.reading,
+  writing: COLORS.skill.writing,
+  speaking: COLORS.skill.speaking,
 };
 const SK_ICON: Record<string, string> = {
   listening: 'headset',
@@ -247,7 +232,7 @@ const SK_LABEL: Record<string, string> = {
 const TABS = ['listening', 'reading', 'writing', 'speaking'];
 
 const getBandColor = (b: number | null) =>
-  b == null ? THEME.FG3 : b >= 7 ? THEME.GRN : b >= 5.5 ? THEME.BLU : THEME.ORG;
+  b == null ? COLORS.gray[400] : b >= 7 ? COLORS.success : b >= 5.5 ? COLORS.info : COLORS.warning;
 const getBandLabel = (b: number) =>
   b >= 7 ? 'Good user' : b >= 5.5 ? 'Modest / Competent' : 'Limited or below';
 
@@ -317,7 +302,7 @@ function ScoreTable({
             <Text
               style={[
                 styles.scoreTableRowRaw,
-                hi && { fontFamily: 'Farro-Bold', color: THEME.FG1 },
+                hi && { fontFamily: FONTS.bold, color: COLORS.text },
               ]}
             >
               {row.r}
@@ -360,7 +345,7 @@ function BandDescriptorView({
               onPress={() => setSel(on ? null : b)}
               style={[styles.bandPickerBtn, on && { backgroundColor: color, shadowColor: color }]}
             >
-              <Text style={[styles.bandPickerBtnText, on && { color: THEME.WH }]}>{b}</Text>
+              <Text style={[styles.bandPickerBtnText, on && { color: COLORS.background }]}>{b}</Text>
             </TouchableOpacity>
           );
         })}
@@ -432,10 +417,10 @@ function ListeningTab() {
               onPress={() => handleBand(b)}
               style={[
                 styles.quickBandBtn,
-                highlighted === b && { backgroundColor: THEME.GRN + '20', borderColor: THEME.GRN },
+                highlighted === b && { backgroundColor: COLORS.skill.listening + '20', borderColor: COLORS.skill.listening },
               ]}
             >
-              <Text style={[styles.quickBandText, highlighted === b && { color: THEME.GRN }]}>
+              <Text style={[styles.quickBandText, highlighted === b && { color: COLORS.skill.listening }]}>
                 {b % 1 === 0 ? b + '.0' : b}
               </Text>
             </TouchableOpacity>
@@ -452,7 +437,7 @@ function ListeningTab() {
         data={data}
         highlighted={highlighted}
         onRowClick={(b) => setHighlighted(highlighted === b ? null : b)}
-        color={THEME.GRN}
+        color={COLORS.skill.listening}
       />
     </View>
   );
@@ -521,10 +506,10 @@ function ReadingTab() {
               onPress={() => handleBand(b)}
               style={[
                 styles.quickBandBtn,
-                highlighted === b && { backgroundColor: THEME.BLU + '20', borderColor: THEME.BLU },
+                highlighted === b && { backgroundColor: COLORS.skill.reading + '20', borderColor: COLORS.skill.reading },
               ]}
             >
-              <Text style={[styles.quickBandText, highlighted === b && { color: THEME.BLU }]}>
+              <Text style={[styles.quickBandText, highlighted === b && { color: COLORS.skill.reading }]}>
                 {b % 1 === 0 ? b + '.0' : b}
               </Text>
             </TouchableOpacity>
@@ -541,7 +526,7 @@ function ReadingTab() {
         data={data}
         highlighted={highlighted}
         onRowClick={(b) => setHighlighted(highlighted === b ? null : b)}
-        color={THEME.BLU}
+        color={COLORS.skill.reading}
       />
     </View>
   );
@@ -579,20 +564,21 @@ function WritingTab() {
         <Text style={styles.fieldLabel}>
           <Ionicons name="bar-chart" size={12} /> BAND DESCRIPTORS
         </Text>
-        <BandDescriptorView descriptor={descriptor} color={THEME.ORG} />
+        <BandDescriptorView descriptor={descriptor} color={COLORS.skill.writing} />
       </View>
     </View>
   );
 }
 
 function SpeakingTab() {
+  const descriptor = SP_BANDS;
   return (
     <View style={{ gap: 16 }}>
       <View>
         <Text style={styles.fieldLabel}>
           <Ionicons name="bar-chart" size={12} /> BAND DESCRIPTORS
         </Text>
-        <BandDescriptorView descriptor={SP_BANDS} color={THEME.RED} />
+        <BandDescriptorView descriptor={descriptor} color={COLORS.skill.speaking} />
       </View>
     </View>
   );
@@ -627,13 +613,13 @@ function BandStepper({
       ]}
     >
       <TouchableOpacity onPress={handleDec} style={styles.bandStepperBtn}>
-        <Ionicons name="remove" size={20} color={value !== '' ? color : THEME.FG3} />
+        <Ionicons name="remove" size={20} color={value !== '' ? color : COLORS.gray[400]} />
       </TouchableOpacity>
       <View style={styles.bandStepperVal}>
         <Text style={[styles.bandStepperText, value !== '' && { color }]}>{displayVal}</Text>
       </View>
       <TouchableOpacity onPress={handleInc} style={styles.bandStepperBtn}>
-        <Ionicons name="add" size={20} color={value !== '' ? color : THEME.FG3} />
+        <Ionicons name="add" size={20} color={value !== '' ? color : COLORS.gray[400]} />
       </TouchableOpacity>
     </View>
   );
@@ -666,7 +652,7 @@ export default function IELTSCalculatorScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color={THEME.FG1} />
+          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerSubtitle}>IELTS · LEXON</Text>
@@ -678,7 +664,7 @@ export default function IELTSCalculatorScreen() {
         {/* Overall Calculator Widget */}
         <View style={styles.overallWidget}>
           <View style={styles.overallHeader}>
-            <Ionicons name="calculator" size={16} color={THEME.FG2} />
+            <Ionicons name="calculator" size={16} color={COLORS.textSecondary} />
             <Text style={styles.overallTitle}>Overall Band Calculator</Text>
           </View>
 
@@ -729,9 +715,9 @@ export default function IELTSCalculatorScreen() {
                 <Ionicons
                   name={SK_ICON[tab] as any}
                   size={14}
-                  color={on ? SK_COLOR[tab] : THEME.FG3}
+                  color={on ? SK_COLOR[tab] : COLORS.gray[400]}
                 />
-                <Text style={[styles.tabBtnText, on && { color: THEME.FG1 }]}>{SK_LABEL[tab]}</Text>
+                <Text style={[styles.tabBtnText, on && { color: COLORS.text }]}>{SK_LABEL[tab]}</Text>
               </TouchableOpacity>
             );
           })}
@@ -750,7 +736,7 @@ export default function IELTSCalculatorScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.SRF },
+  container: { flex: 1, backgroundColor: COLORS.surface },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -759,17 +745,17 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerTitleContainer: { flex: 1, marginLeft: 8 },
-  headerSubtitle: { fontFamily: 'Farro-Bold', fontSize: 10, color: THEME.FG3, letterSpacing: 1 },
-  headerTitle: { fontFamily: 'Farro-Bold', fontSize: 22, color: THEME.FG1 },
+  headerSubtitle: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.gray[400], letterSpacing: 1 },
+  headerTitle: { fontFamily: FONTS.bold, fontSize: 22, color: COLORS.text },
 
   scrollContent: { padding: 16, paddingBottom: 40 },
 
   overallWidget: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOpacity: 0.04,
@@ -777,13 +763,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   overallHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
-  overallTitle: { fontFamily: 'Farro-Bold', fontSize: 14, color: THEME.FG1 },
+  overallTitle: { fontFamily: FONTS.bold, fontSize: 14, color: COLORS.text },
   overallInputs: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 16 },
   overallInputCol: { width: '47%' },
   overallInputLabel: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     textTransform: 'uppercase',
     marginBottom: 4,
   },
@@ -794,12 +780,12 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: THEME.BDR,
-    backgroundColor: THEME.SRF,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
   },
   bandStepperBtn: { width: 44, height: '100%', alignItems: 'center', justifyContent: 'center' },
   bandStepperVal: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  bandStepperText: { fontFamily: 'Farro-Bold', fontSize: 15, color: THEME.FG3 },
+  bandStepperText: { fontFamily: FONTS.bold, fontSize: 15, color: COLORS.gray[400] },
 
   resultCard: {
     borderRadius: 16,
@@ -809,19 +795,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resultCardLabel: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     color: 'rgba(255,255,255,0.4)',
     letterSpacing: 1,
   },
   resultCardTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 13,
     color: 'rgba(255,255,255,0.8)',
     marginTop: 2,
   },
-  resultCardBadge: { fontFamily: 'Farro-Bold', fontSize: 11, marginTop: 6 },
-  resultCardScore: { fontFamily: 'Farro-Bold', fontSize: 48, lineHeight: 54 },
+  resultCardBadge: { fontFamily: FONTS.bold, fontSize: 11, marginTop: 6 },
+  resultCardScore: { fontFamily: FONTS.bold, fontSize: 48, lineHeight: 54 },
 
   tabStrip: {
     flexDirection: 'row',
@@ -840,20 +826,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   tabBtnActive: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 1,
   },
-  tabBtnText: { fontFamily: 'Farro-Bold', fontSize: 11, color: THEME.FG3 },
+  tabBtnText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.gray[400] },
 
   tabContentCard: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOpacity: 0.03,
     shadowRadius: 8,
@@ -861,9 +847,9 @@ const styles = StyleSheet.create({
   },
 
   fieldLabel: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     letterSpacing: 0.5,
     marginBottom: 6,
   },
@@ -875,66 +861,66 @@ const styles = StyleSheet.create({
   },
   segmentBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
   segmentBtnActive: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 1,
   },
-  segmentText: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG3 },
-  segmentTextActive: { color: THEME.FG1 },
+  segmentText: { fontFamily: FONTS.bold, fontSize: 13, color: COLORS.gray[400] },
+  segmentTextActive: { color: COLORS.text },
 
   quickBandSelector: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   quickBandBtn: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: THEME.SRF,
+    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
   },
-  quickBandText: { fontFamily: 'Farro-Bold', fontSize: 13, color: THEME.FG3 },
+  quickBandText: { fontFamily: FONTS.bold, fontSize: 13, color: COLORS.gray[400] },
 
   stepperContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     height: 50,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
   },
   stepperBtn: {
     width: 50,
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: THEME.SRF,
+    backgroundColor: COLORS.surface,
   },
-  stepperBtnText: { fontFamily: 'Farro-Medium', fontSize: 24, color: THEME.FG2, marginTop: -4 },
+  stepperBtnText: { fontFamily: FONTS.medium, fontSize: 24, color: COLORS.textSecondary, marginTop: -4 },
   stepperValueContainer: { flex: 1, alignItems: 'center' },
-  stepperValue: { fontFamily: 'Farro-Bold', fontSize: 18, color: THEME.FG1 },
+  stepperValue: { fontFamily: FONTS.bold, fontSize: 18, color: COLORS.text },
 
-  scoreTable: { borderRadius: 14, borderWidth: 1, borderColor: THEME.BDR, overflow: 'hidden' },
+  scoreTable: { borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' },
   scoreTableHeader: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: THEME.SRF,
+    backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: THEME.BDR,
+    borderBottomColor: COLORS.border,
   },
   scoreTableHeaderTextRaw: {
     flex: 1,
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     textTransform: 'uppercase',
   },
   scoreTableHeaderTextBand: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     textTransform: 'uppercase',
   },
   scoreTableRow: {
@@ -942,23 +928,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderBottomWidth: 1,
-    borderBottomColor: THEME.SRF,
+    borderBottomColor: COLORS.surface,
   },
-  scoreTableRowRaw: { flex: 1, fontFamily: 'Farro-Medium', fontSize: 14, color: THEME.FG2 },
-  scoreTableRowBand: { fontFamily: 'Farro-Bold', fontSize: 15, color: THEME.FG1 },
+  scoreTableRowRaw: { flex: 1, fontFamily: FONTS.medium, fontSize: 14, color: COLORS.textSecondary },
+  scoreTableRowBand: { fontFamily: FONTS.bold, fontSize: 15, color: COLORS.text },
 
   bandPicker: { gap: 8, paddingBottom: 8 },
   bandPickerBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: THEME.SRF,
+    backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bandPickerBtnText: { fontFamily: 'Farro-Bold', fontSize: 15, color: THEME.FG2 },
+  bandPickerBtnText: { fontFamily: FONTS.bold, fontSize: 15, color: COLORS.textSecondary },
 
   bandSummary: {
     flexDirection: 'row',
@@ -968,16 +954,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
   },
-  bandSummaryScore: { fontFamily: 'Farro-Bold', fontSize: 32, lineHeight: 36 },
-  bandSummaryTitle: { fontFamily: 'Farro-Bold', fontSize: 14 },
-  bandSummaryDesc: { fontFamily: 'Farro-Medium', fontSize: 12, color: THEME.FG3, marginTop: 2 },
+  bandSummaryScore: { fontFamily: FONTS.bold, fontSize: 32, lineHeight: 36 },
+  bandSummaryTitle: { fontFamily: FONTS.bold, fontSize: 14 },
+  bandSummaryDesc: { fontFamily: FONTS.medium, fontSize: 12, color: COLORS.gray[400], marginTop: 2 },
 
   criteriaCard: {
     padding: 14,
     borderRadius: 14,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     borderLeftWidth: 4,
     shadowColor: '#000',
     shadowOpacity: 0.03,
@@ -985,17 +971,17 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   criteriaLabel: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 6,
   },
-  criteriaText: { fontFamily: 'Farro-Medium', fontSize: 13, color: THEME.FG1, lineHeight: 20 },
+  criteriaText: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.text, lineHeight: 20 },
   bandEmptyText: {
-    fontFamily: 'Farro-Medium',
+    fontFamily: FONTS.medium,
     fontSize: 13,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     textAlign: 'center',
     marginTop: 20,
   },
