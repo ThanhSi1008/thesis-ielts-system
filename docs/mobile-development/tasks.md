@@ -540,13 +540,13 @@
 - [x] **P17-09** · Refactor `app/(tabs)/profile.tsx` · *est. 1h* — ✅ done
 - [x] **P17-10** · Refactor `app/(tabs)/_layout.tsx` (tab bar) · *est. 0.5h* — ✅ done
 - [x] **P17-11** · Refactor `app/ielts/intensive/*` (3 file) · *est. 2h* — ✅ done: index.tsx, custom.tsx, [examId].tsx, result/[sessionId].tsx all refactored with dynamic `createStyles` factory pattern
-- [~] **P17-12** · Refactor `app/ielts/advanced/*` (6 file mới + 2 cũ) · *est. 2h* — Partial: roadmap.tsx, dashboard.tsx done
+- [x] **P17-12** · Refactor `app/ielts/advanced/*` (6 file mới + 2 cũ) · *est. 2h* — ✅ done: history/index.tsx, [skill]/[partId].tsx, [skill]/[partId]/history.tsx, [skill]/[partId]/result/[resultId].tsx refactored
 - [x] **P17-13** · Refactor `app/ielts/basic/*` · *est. 1.5h* — ✅ done (lesson + exercise refactored)
-- [~] **P17-14** · Refactor `app/vocab-lab/*` · *est. 1h* — Partial: DecksTab done
-- [ ] **P17-15** · Refactor `app/shadowing/*` · *est. 1h*
-- [~] **P17-16** · Refactor `components/ielts/*` (20 file) · *est. 3h* — Partial: LessonRow.tsx, LibraryContent.tsx, SharedDrawer.tsx done
+- [x] **P17-14** · Refactor `app/vocab-lab/*` · *est. 1h* — ✅ index.tsx + study/[deckId].tsx đã dùng useTheme đầy đủ
+- [x] **P17-15** · Refactor `app/shadowing/*` · *est. 1h* — ✅ index.tsx + [lessonId]/[mode].tsx refactored sang createStyles(colors) pattern
+- [~] **P17-16** · Refactor `components/ielts/*` (20 file) · *est. 3h* — Đã xong: FormCompletionBlock, MCMultipleBlock, PassageReview, TranscriptReview, RoadmapContent, RoadmapStepSection, RoadmapSummary, SpeakingRubricView, SpeakingVideoPlayer, WritingRubricView; Đang làm nốt: DiagramMapBlock, ReadingExamBlock, SpeakingExamBlock, WritingExamBlock, SpeakingPartCard, QuestionNoteEditor, exercise/*
 - [x] **P17-17** · Refactor `components/vocab-lab/*` (10 file) · *est. 1h* — ✅ DecksTab.tsx done
-- [~] **P17-18** · Refactor `components/ui/*` + `components/global/*` · *est. 0.5h* — notification.tsx done
+- [x] **P17-18** · Refactor `components/ui/*` + `components/global/*` · *est. 0.5h* — ✅ AudioPlayer, UsageIndicator, NotificationPermissionBanner refactored; AppButton(NativeWind-skip), DictionaryPopup/GlobalVocabFab/TextWithLookup đã đúng; Toaster/UpgradeModal/FeatureLock intentionally dark
 
 ### 17.3 Toggle UI + test (3h)
 - [x] **P17-19** · Profile settings: 3 option Light/Dark/System · *est. 0.5h* — ✅ SettingsTab.tsx implemented
