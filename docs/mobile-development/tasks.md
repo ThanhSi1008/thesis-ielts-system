@@ -113,15 +113,15 @@
 - [x] **P05-63** · Update 5-7 file import dùng path mới qua `@/services` barrel · *est. 0.25h*
 
 ### 0.5.9 Foundation Pronunciation API migrate (6h)
-- [ ] **P05-64** · Xóa `const IPA_DATA` hard-coded trong `app/(tabs)/pronunciation/index.tsx` · *est. 0.5h*
-- [ ] **P05-65** · Gọi `pronunciationApi.getAllSounds()` + loading skeleton · *est. 0.5h*
-- [ ] **P05-66** · Nếu user logged in: gọi song song `getProgress()` + `getStats()` · *est. 0.5h*
-- [ ] **P05-67** · Port `components/foundation/ProgressSummary.tsx` từ web `_components/ProgressSummary.tsx` (4.4K) · *est. 1.5h*
-- [ ] **P05-68** · Port `components/foundation/IpaChart.tsx` — grid render nhận `sounds: PronunciationData` prop · *est. 1.5h*
-- [ ] **P05-69** · Mỗi SymbolCell hiển thị badge progress (chấm xanh nếu mastered, vàng in-progress) · *est. 0.5h*
-- [ ] **P05-70** · Refactor `app/ielts/pronunciation/index.tsx` dùng cùng IpaChart component (DRY) · *est. 0.5h*
-- [ ] **P05-71** · Verify `app/(tabs)/pronunciation/[symbol].tsx` (21.2K) gọi đúng `getSoundDetail(symbol)` thay vì lookup hard-coded · *est. 0.5h*
-- [ ] **P05-71b** · **R-04 BONUS**: Tận dụng endpoint `/pronunciation/sounds/:soundId/word-progress` — mỗi example word trong `[symbol]` hiển thị best score + attempt count + mastered status · *est. 1h*
+- [x] **P05-64** · Xóa `const IPA_DATA` hard-coded trong `app/(tabs)/pronunciation/index.tsx` · *est. 0.5h*
+- [x] **P05-65** · Gọi `pronunciationApi.getAllSounds()` + loading skeleton · *est. 0.5h*
+- [x] **P05-66** · Nếu user logged in: gọi song song `getProgress()` + `getStats()` · *est. 0.5h*
+- [x] **P05-67** · Port `components/foundation/ProgressSummary.tsx` từ web `_components/ProgressSummary.tsx` (4.4K) · *est. 1.5h*
+- [x] **P05-68** · Port `components/foundation/IpaChart.tsx` — grid render nhận `sounds: PronunciationData` prop · *est. 1.5h*
+- [x] **P05-69** · Mỗi SymbolCell hiển thị badge progress (chấm xanh nếu mastered, vàng in-progress) · *est. 0.5h*
+- [x] **P05-70** · Refactor `app/ielts/pronunciation/index.tsx` dùng cùng IpaChart component (DRY) · *est. 0.5h*
+- [x] **P05-71** · Verify `app/(tabs)/pronunciation/[symbol].tsx` (21.2K) gọi đúng `getSoundDetail(symbol)` thay vì lookup hard-coded · *est. 0.5h*
+- [x] **P05-71b** · **R-04 BONUS**: Tận dụng endpoint `/pronunciation/sounds/:soundId/word-progress` — mỗi example word trong `[symbol]` hiển thị best score + attempt count + mastered status · *est. 1h*
 
 ### 0.5.10 Foundation Vocabulary Unit verify (1h) — R-06 RESOLVED
 
