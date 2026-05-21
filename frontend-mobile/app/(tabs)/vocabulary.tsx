@@ -12,19 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS } from '@/constants';
+import { COLORS, FONTS } from '@/constants';
 import { vocabularyApi } from '@/services/ielts.api';
 
-const THEME = {
-  P: '#FFC600',
-  FG1: '#212529',
-  FG2: '#64748b',
-  FG3: '#9ca3af',
-  BDR: '#e5e7eb',
-  SRF: '#f8f9fa',
-  WH: '#ffffff',
-  SAFE_TOP: 62,
-};
 
 const BOOK_THEMES: { stage: string; colors: readonly [string, string] }[] = [
   { stage: 'Foundation', colors: ['#10b981', '#0d9488'] },
@@ -66,7 +56,7 @@ export default function VocabularyScreen() {
           <Text style={styles.title}>Vocabulary</Text>
         </View>
         <TouchableOpacity style={styles.searchBtn}>
-          <Ionicons name="search" size={17} color={THEME.FG1} />
+          <Ionicons name="search" size={17} color={COLORS.text} />
         </TouchableOpacity>
       </View>
 
@@ -79,7 +69,7 @@ export default function VocabularyScreen() {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={THEME.P} />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : (
         <ScrollView
@@ -149,7 +139,7 @@ export default function VocabularyScreen() {
 
                   <View style={styles.actionRow}>
                     <View style={styles.unitInfo}>
-                      <Ionicons name="layers" size={12} color={THEME.FG3} />
+                      <Ionicons name="layers" size={12} color={COLORS.gray[400]} />
                       <Text style={styles.unitText}>{totalUnits} units</Text>
                     </View>
 
@@ -182,7 +172,7 @@ export default function VocabularyScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.SRF },
+  container: { flex: 1, backgroundColor: COLORS.surface },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   header: {
@@ -194,16 +184,16 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   eyebrow: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
   },
   title: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 22,
-    color: THEME.FG1,
+    color: COLORS.text,
     letterSpacing: -0.25,
     lineHeight: 24,
     marginTop: 2,
@@ -212,9 +202,9 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -226,21 +216,21 @@ const styles = StyleSheet.create({
 
   countRow: { paddingHorizontal: 16, paddingBottom: 8 },
   countText: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-    color: THEME.FG3,
+    color: COLORS.gray[400],
   },
 
   listContent: { paddingHorizontal: 16, paddingBottom: 30, gap: 12 },
 
   card: {
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -260,7 +250,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  badgeText: { fontFamily: 'Farro-Bold', fontSize: 10, color: 'rgba(255,255,255,0.92)' },
+  badgeText: { fontFamily: FONTS.bold, fontSize: 10, color: 'rgba(255,255,255,0.92)' },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   iconTile: {
     width: 58,
@@ -272,7 +262,7 @@ const styles = StyleSheet.create({
   },
   heroTextCol: { flex: 1 },
   heroStage: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
@@ -280,7 +270,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   heroTitle: {
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     fontSize: 15,
     color: '#fff',
     lineHeight: 19.5,
@@ -290,25 +280,25 @@ const styles = StyleSheet.create({
   cardBody: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 14 },
   progressSection: { marginBottom: 10 },
   progressRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  progressLabel: { fontFamily: 'Farro-Bold', fontSize: 10, color: THEME.FG3 },
-  progressValue: { fontFamily: 'Farro-Bold', fontSize: 10, color: THEME.FG2 },
+  progressLabel: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.gray[400] },
+  progressValue: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.textSecondary },
   progressTrack: { height: 4, backgroundColor: '#f3f4f6', borderRadius: 2, overflow: 'hidden' },
-  progressFill: { height: '100%', backgroundColor: THEME.P, borderRadius: 2 },
+  progressFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 2 },
 
   actionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   unitInfo: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  unitText: { fontFamily: 'Farro-Medium', fontSize: 11, color: THEME.FG3 },
+  unitText: { fontFamily: FONTS.medium, fontSize: 11, color: COLORS.gray[400] },
   actionBtn: { paddingVertical: 8, paddingHorizontal: 18, borderRadius: 20 },
-  actionBtnStarted: { backgroundColor: THEME.SRF, borderWidth: 1, borderColor: THEME.BDR },
+  actionBtnStarted: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border },
   actionBtnNew: {
-    backgroundColor: THEME.P,
-    shadowColor: THEME.P,
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 4,
   },
-  actionBtnText: { fontFamily: 'Farro-Bold', fontSize: 11, letterSpacing: 0.5 },
-  actionBtnTextStarted: { color: THEME.FG2 },
-  actionBtnTextNew: { color: THEME.FG1 },
+  actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.5 },
+  actionBtnTextStarted: { color: COLORS.textSecondary },
+  actionBtnTextNew: { color: COLORS.text },
 });
