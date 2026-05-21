@@ -445,15 +445,15 @@
 ## Phase 13 — Profile polish (6h)
 
 ### 13.1 Avatar upload (3h)
-- [ ] **P13-01** · Tap avatar → ActionSheet (Camera / Gallery / Remove) · *est. 1h*
-- [ ] **P13-02** · `expo-image-picker` integration · *est. 0.5h*
-- [ ] **P13-03** · Upload qua `apiClient.postForm('/users/me/avatar', formData)` + verify endpoint · *est. 1h*
-- [ ] **P13-04** · Refresh user data + reflect avatar mới · *est. 0.5h*
+- [x] **P13-01** · Tap avatar → ActionSheet (Camera / Gallery / Remove) · *est. 1h*
+- [x] **P13-02** · `expo-image-picker` integration · *est. 0.5h*
+- [x] **P13-03** · Upload qua `apiClient.postForm('/users/me/avatar', formData)` + verify endpoint · *est. 1h*
+- [x] **P13-04** · Refresh user data + reflect avatar mới · *est. 0.5h*
 
 ### 13.2 Subscription block polish (3h)
-- [ ] **P13-05** · Hiển thị đúng tier badge, next billing, trial days · *est. 1h*
-- [ ] **P13-06** · Layout parity với web SubscriptionSection · *est. 1.5h*
-- [ ] **P13-07** · Test với 3 tier (FREE, PREMIUM, PRO) + TRIALING · *est. 0.5h*
+- [x] **P13-05** · Hiển thị đúng tier badge, next billing, trial days · *est. 1h*
+- [x] **P13-06** · Layout parity với web SubscriptionSection · *est. 1.5h*
+- [x] **P13-07** · Test với 3 tier (FREE, PREMIUM, PRO) + TRIALING · *est. 0.5h*
 
 **Tổng phase 13**: 6h
 

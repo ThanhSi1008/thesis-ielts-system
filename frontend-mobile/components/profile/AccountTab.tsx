@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ROUTES, FONTS, COLORS } from '@/constants';
 import { subscriptionsApi } from '@/services';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { toast } from '@/components/ui/index';
+import * as ImagePicker from 'expo-image-picker';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiClient } from '@/services/api-client';
 
 interface AccountTabProps {
   user: any;
@@ -38,6 +41,7 @@ export function ProfileAccountTab({
 }: AccountTabProps) {
   const router = useRouter();
   const { refresh: refreshGlobalSub } = useSubscription();
+  const { refreshUser } = useAuth();
   const tier = subscription?.tier || 'FREE';
   const status = subscription?.status || 'ACTIVE';
 
@@ -46,6 +50,7 @@ export function ProfileAccountTab({
   const [cancelReason, setCancelReason] = useState('');
   const [customReason, setCustomReason] = useState('');
   const [canceling, setCanceling] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const REASONS = [
     'Too expensive',
@@ -54,6 +59,112 @@ export function ProfileAccountTab({
     'Found a better alternative',
     'Other',
   ];
+
+  const handleEditAvatar = () => {
+    Alert.alert(
+      'Profile Photo',
+      'Choose an option to update your profile photo:',
+      [
+        { text: 'Cancel', style: 'cancel' as const },
+        { text: 'Take Photo', onPress: handleTakePhoto },
+        { text: 'Choose from Gallery', onPress: handleChooseFromGallery },
+        ...(user.avatar ? [{ text: 'Remove Photo', style: 'destructive' as const, onPress: handleRemoveAvatar }] : [])
+      ]
+    );
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) {
+        toast.error('Permission Required', 'Please allow camera access in settings to take a photo.');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        await uploadAvatar(result.assets[0].uri);
+      }
+    } catch (err: any) {
+      toast.error('Camera Error', err?.message || 'Failed to open camera');
+    }
+  };
+
+  const handleChooseFromGallery = async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        toast.error('Permission Required', 'Please allow photo library access in settings to choose a photo.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        await uploadAvatar(result.assets[0].uri);
+      }
+    } catch (err: any) {
+      toast.error('Gallery Error', err?.message || 'Failed to open gallery');
+    }
+  };
+
+  const uploadAvatar = async (uri: string) => {
+    setUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      const filename = `avatar_${Date.now()}.jpg`;
+      formData.append('file', {
+        uri,
+        name: filename,
+        type: 'image/jpeg',
+      } as any);
+
+      await apiClient.postForm('/users/me/avatar', formData);
+      await refreshUser();
+      toast.success('Success', 'Profile picture updated successfully.');
+    } catch (err: any) {
+      toast.error('Upload Failed', err?.message || 'Could not upload avatar picture.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    Alert.alert(
+      'Remove Photo',
+      'Are you sure you want to remove your profile photo?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            setUploadingAvatar(true);
+            try {
+              await apiClient.delete('/users/me/avatar');
+              await refreshUser();
+              toast.success('Success', 'Profile picture removed successfully.');
+            } catch (err: any) {
+              toast.error('Removal Failed', err?.message || 'Could not remove avatar.');
+            } finally {
+              setUploadingAvatar(false);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   const handleCancelSubscription = async () => {
     const finalReason = cancelReason === 'Other' ? customReason : cancelReason;
@@ -130,7 +241,16 @@ export function ProfileAccountTab({
             }}
             style={parentStyles.avatar}
           />
-          <TouchableOpacity style={parentStyles.editAvatarButton}>
+          {uploadingAvatar && (
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15, 23, 42, 0.4)', borderRadius: 44, justifyContent: 'center', alignItems: 'center' }]}>
+              <ActivityIndicator color="#fff" size="small" />
+            </View>
+          )}
+          <TouchableOpacity 
+            style={parentStyles.editAvatarButton} 
+            onPress={handleEditAvatar}
+            disabled={uploadingAvatar}
+          >
             <Ionicons name="camera" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
