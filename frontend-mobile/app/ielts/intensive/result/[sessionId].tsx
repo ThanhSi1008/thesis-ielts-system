@@ -373,12 +373,18 @@ function QuestionReviewRow({
 
         {timestamp !== undefined && onSeek && (
           <TouchableOpacity
-            style={qr.listenBtn}
+            style={[
+              qr.listenBtn,
+              {
+                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EFF6FF',
+                borderColor: isDark ? colors.border : '#BFDBFE',
+              },
+            ]}
             onPress={() => onSeek(timestamp)}
             activeOpacity={0.7}
           >
-            <Ionicons name="volume-medium" size={13} color={COLORS.primary} />
-            <Text style={qr.listenText}>Listen</Text>
+            <Ionicons name="volume-medium" size={13} color={colors.primary} />
+            <Text style={[qr.listenText, { color: colors.primary }]}>Listen</Text>
           </TouchableOpacity>
         )}
 
@@ -664,7 +670,7 @@ export default function ResultScreen() {
   if (!session) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: COLORS.error }}>Session not found.</Text>
+        <Text style={{ color: colors.error }}>Session not found.</Text>
       </View>
     );
   }
