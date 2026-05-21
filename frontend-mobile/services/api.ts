@@ -1,4 +1,7 @@
 /**
+ * @deprecated This file is deprecated and will be removed in Phase 15.
+ * Please use domain-specific APIs in @/services instead (e.g. authApi, learningApi).
+ *
  * Services - Domain-specific API endpoints
  * Uses ApiClient for HTTP operations and types from types/
  */

@@ -38,12 +38,12 @@
 - [ ] **P05-09** · *Optional*: Husky + lint-staged pre-commit hook · *est. 0.5h*
 
 ### 0.5.2 Dead code & duplicate removal (3h)
-- [ ] **P05-10** · Verify `features/vocab-lab/` không có import (grep) → xóa thư mục · *est. 0.5h*
-- [ ] **P05-11** · Inline `types/api.ts` re-export hollow vào `types/index.ts`, update imports · *est. 0.5h*
-- [ ] **P05-12** · Thêm deprecation comment vào `services/api.ts` (sẽ xóa P15) · *est. 0.25h*
-- [ ] **P05-13** · Confirm 3 file dùng `services/api.ts`: grammar tab + book + unit · *est. 0.25h*
-- [ ] **P05-14** · Audit 6 hidden tabs trong `(tabs)/_layout.tsx` — verify route deep-link còn cần · *est. 1h*
-- [ ] **P05-15** · Cleanup hidden tabs không dùng (nếu có) · *est. 0.5h*
+- [x] **P05-10** · Verify `features/vocab-lab/` không có import (grep) → xóa thư mục · *est. 0.5h*
+- [x] **P05-11** · Inline `types/api.ts` re-export hollow vào `types/index.ts`, update imports · *est. 0.5h*
+- [x] **P05-12** · Thêm deprecation comment vào `services/api.ts` (sẽ xóa P15) · *est. 0.25h*
+- [x] **P05-13** · Confirm 3 file dùng `services/api.ts`: grammar tab + book + unit · *est. 0.25h*
+- [x] **P05-14** · Audit 6 hidden tabs trong `(tabs)/_layout.tsx` — verify route deep-link còn cần · *est. 1h*
+- [x] **P05-15** · Cleanup hidden tabs không dùng (nếu có) · *est. 0.5h*
 
 ### 0.5.3 Theme tokens unification (6h)
 - [ ] **P05-16** · Mở rộng `constants/index.ts` COLORS: thêm `skill.{listening,reading,writing,speaking}`, `gray.50-900`, `successScale/warningScale/errorScale` · *est. 1h*

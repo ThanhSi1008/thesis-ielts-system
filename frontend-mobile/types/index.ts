@@ -93,6 +93,9 @@ export interface VocabularyUnitWithContent {
   words: VocabularyWord[];
 }
 
+export type BookWithUnits = VocabularyBookWithUnits;
+export type UnitWithContent = VocabularyUnitWithContent;
+
 // ==================== GRAMMAR ====================
 
 export interface GrammarBook {

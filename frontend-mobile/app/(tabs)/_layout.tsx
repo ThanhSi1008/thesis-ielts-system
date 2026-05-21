@@ -70,7 +70,6 @@ export default function TabLayout() {
         <Tabs.Screen name="shadowing" options={{ href: null }} />
         <Tabs.Screen name="pronunciation" options={{ href: null }} />
         <Tabs.Screen name="vocabulary" options={{ href: null }} />
-        <Tabs.Screen name="more" options={{ href: null }} />
         <Tabs.Screen name="grammar" options={{ href: null }} />
       </Tabs>
 
