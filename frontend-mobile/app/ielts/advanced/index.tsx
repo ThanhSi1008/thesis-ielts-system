@@ -19,11 +19,13 @@ import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
 const TABS = [
   { key: 'listening', label: '🎧 Listening', color: COLORS.skill.listening },
   { key: 'reading', label: '📖 Reading', color: COLORS.skill.reading },
+  { key: 'writing', label: '✍️ Writing', color: COLORS.skill.writing },
+  { key: 'speaking', label: '🗣️ Speaking', color: COLORS.skill.speaking },
 ];
 
 export default function AdvancedScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'listening' | 'reading'>('listening');
+  const [activeTab, setActiveTab] = useState<'listening' | 'reading' | 'writing' | 'speaking'>('listening');
   const [listeningParts, setListeningParts] = useState<any[]>([]);
   const [readingParts, setReadingParts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,13 +51,21 @@ export default function AdvancedScreen() {
   }, []);
 
   // Reset filter when switching tabs
-  const handleTabChange = (tab: 'listening' | 'reading') => {
+  const handleTabChange = (tab: 'listening' | 'reading' | 'writing' | 'speaking') => {
+    if (tab === 'writing') {
+      router.push('/ielts/advanced/writing');
+      return;
+    }
+    if (tab === 'speaking') {
+      router.push('/ielts/advanced/speaking');
+      return;
+    }
     setActiveTab(tab);
     setSelectedType(null);
   };
 
   const allParts = activeTab === 'listening' ? listeningParts : readingParts;
-  const color = TABS.find((t) => t.key === activeTab)!.color;
+  const color = TABS.find((t) => t.key === activeTab)?.color || COLORS.primary;
 
   // Collect unique question types across all parts for this tab
   const availableTypes = useMemo(() => {

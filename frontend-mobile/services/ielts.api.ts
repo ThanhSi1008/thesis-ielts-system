@@ -44,6 +44,25 @@ export const ieltsAdvancedApi = {
     apiClient.get<Record<string, { correct: number; total: number; attempted: number }>>(
       '/ielts/advanced/statistics',
     ),
+
+  // --- IELTS Advanced Writing ---
+  getWritingPrompts: (params?: { taskType?: 'TASK1' | 'TASK2'; subType?: string; category?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.taskType) q.set('taskType', params.taskType);
+    if (params?.subType) q.set('subType', params.subType);
+    if (params?.category) q.set('category', params.category);
+    if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    const qs = q.toString();
+    return apiClient.get<any>(`/ielts/advanced/writing/prompts${qs ? `?${qs}` : ''}`);
+  },
+  getWritingPrompt: (id: string) => apiClient.get<any>(`/ielts/advanced/writing/prompts/${id}`),
+  getWritingSessionsByPrompt: (promptId: string) => apiClient.get<any[]>(`/ielts/advanced/writing/prompts/${promptId}/sessions`),
+  createWritingSession: (promptId: string) => apiClient.post<any>('/ielts/advanced/writing/sessions', { promptId }),
+  saveWritingDraft: (sessionId: string, draftEssay: string) => apiClient.patch<any>(`/ielts/advanced/writing/sessions/${sessionId}/draft`, { draftEssay }),
+  submitWritingSession: (sessionId: string, payload: { essay: string; timeTaken?: number }) => apiClient.post<any>(`/ielts/advanced/writing/sessions/${sessionId}/submit`, payload),
+  getWritingSession: (sessionId: string) => apiClient.get<any>(`/ielts/advanced/writing/sessions/${sessionId}`),
+  getWritingHistory: () => apiClient.get<any[]>('/ielts/advanced/writing/history'),
 };
 
 // ==================== IELTS EXAMS (Mock Tests) ====================
