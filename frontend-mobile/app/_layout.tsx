@@ -6,7 +6,7 @@ import { GradingProvider } from '@/contexts/GradingContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { Toaster, UpgradeModal } from '@/components/ui/index';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { DictionaryPopup, GlobalVocabFab, GlobalAddCardFab } from '@/components';
+import { DictionaryPopup, GlobalVocabFab, GlobalAddCardFab, NotificationPermissionBanner } from '@/components';
 import { useFonts } from 'expo-font';
 import {
   Farro_300Light,
@@ -154,6 +154,7 @@ export default function RootLayout() {
             <GlobalAddCardFab hideFab={true} />
             <GlobalVocabFab />
             <DictionaryPopup />
+            <NotificationPermissionBanner />
           </GradingProvider>
         </SubscriptionProvider>
         </NotificationProvider>
