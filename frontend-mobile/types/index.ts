@@ -89,8 +89,13 @@ export interface VocabularyBookWithUnits {
 export interface VocabularyUnitWithContent {
   id: string;
   title: string;
+  order: number;
   book: { id: string; name: string };
   words: VocabularyWord[];
+  questions: FoundationVocabQuestion[];
+  storyTitle?: string;
+  storyContent?: string;
+  storyImageUrl?: string;
 }
 
 export type BookWithUnits = VocabularyBookWithUnits;

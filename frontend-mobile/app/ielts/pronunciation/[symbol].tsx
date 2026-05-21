@@ -344,9 +344,9 @@ function WordCard({
           </Animated.View>
         ) : status === 'error' ? (
           <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{errMsg}</Text>
+            <Text style={styles.recorderErrorText}>{errMsg}</Text>
             <TouchableOpacity onPress={reset}>
-              <Text style={styles.retryText}>Retry</Text>
+              <Text style={styles.recorderRetryText}>Retry</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -718,14 +718,14 @@ const styles = StyleSheet.create({
   retryBtn: { marginTop: 4 },
 
   errorBox: { alignItems: 'center' },
-  errorText: {
+  recorderErrorText: {
     fontSize: 10,
     color: '#EF4444',
     textAlign: 'center',
     maxWidth: 64,
     fontFamily: FONTS.regular,
   },
-  retryText: { fontSize: 11, color: COLORS.primary, fontFamily: FONTS.bold, marginTop: 4 },
+  recorderRetryText: { fontSize: 11, color: COLORS.primary, fontFamily: FONTS.bold, marginTop: 4 },
 
   emptyContainer: { paddingVertical: 40, alignItems: 'center' },
   emptyText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm, fontFamily: FONTS.regular },

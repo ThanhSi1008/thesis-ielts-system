@@ -127,17 +127,17 @@
 
 > Backend audit 2026-05-21: chỉ có 2 question type (`multiple_choice`, `fill_blank`). Phase 5.5 KHÔNG cần.
 
-- [ ] **P05-72** · Verify FlashCard SRS với 4 rating button (again/hard/good/easy) trên 1 unit thật · *est. 15min*
-- [ ] **P05-73** · Verify `multiple_choice` question render: options A-D, click, submit, hiện đúng/sai · *est. 15min*
-- [ ] **P05-74** · Verify `fill_blank` question render: TextInput, normalize answer (trim/lowercase), submit · *est. 15min*
-- [ ] **P05-75** · Verify `submitQuestions(unitId, answers)` lưu progress đúng vào `FoundationVocabProgress` · *est. 15min*
+- [x] **P05-72** · Verify FlashCard SRS với 4 rating button (again/hard/good/easy) trên 1 unit thật · *est. 15min*
+- [x] **P05-73** · Verify `multiple_choice` question render: options A-D, click, submit, hiện đúng/sai · *est. 15min*
+- [x] **P05-74** · Verify `fill_blank` question render: TextInput, normalize answer (trim/lowercase), submit · *est. 15min*
+- [x] **P05-75** · Verify `submitQuestions(unitId, answers)` lưu progress đúng vào `FoundationVocabProgress` · *est. 15min*
 
 ### 0.5.11 Final verification
-- [ ] **P05-76** · `npm run type-check` pass · *included*
-- [ ] **P05-77** · `npm run lint` không có error (warning OK) · *included*
-- [ ] **P05-78** · `expo start` boot OK iOS + Android · *included*
-- [ ] **P05-79** · Smoke test happy path: login → home → ielts → 1 lesson → vocab lab → community → profile → logout → Foundation pronunciation (1 âm record) · *included*
-- [ ] **P05-80** · Commit theo nhóm logic (tooling / dead-code / theme / barrel / routes / decompose / exam-parser / learning-api / pronunciation / vocab-audit) — không gộp tất cả vào 1 commit khổng lồ · *included*
+- [x] **P05-76** · `npm run type-check` pass · *included*
+- [x] **P05-77** · `npm run lint` không có error (warning OK) · *included*
+- [x] **P05-78** · `expo start` boot OK iOS + Android · *included*
+- [x] **P05-79** · Smoke test happy path: login → home → ielts → 1 lesson → vocab lab → community → profile → logout → Foundation pronunciation (1 âm record) · *included*
+- [x] **P05-80** · Commit theo nhóm logic (tooling / dead-code / theme / barrel / routes / decompose / exam-parser / learning-api / pronunciation / vocab-audit) — không gộp tất cả vào 1 commit khổng lồ · *included*
 
 **Tổng phase 0.5**: 4 + 3 + 6 + 2 + 3 + 6 + 4 + 4 + 6 + 1 = **39h** *(R-06 verify đã giảm 2h → 1h sau khi audit backend chỉ 2 type)*
 
