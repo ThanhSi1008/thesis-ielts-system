@@ -209,27 +209,27 @@
 - [x] **P2-09** · Tạo `app/ielts/advanced/speaking/index.tsx`: list 3 part + history banner · *est. 2.5h*
 
 ### 2.4 Detail — 7-state recorder (12h)
-- [ ] **P2-10** · Tạo `app/ielts/advanced/speaking/[partId].tsx`: layout video + recorder · *est. 1.5h*
-- [ ] **P2-11** · Refactor `SpeakingExamBlock.tsx` accept `mode: 'practice' | 'exam'` để dùng chung · *est. 2h*
-- [ ] **P2-12** · State machine: IDLE → LISTEN_CAPTION → PLAYING → THINK_CAPTION → THINKING → PLAYING_2 → RECORDING → RECORDED · *est. 3h*
-- [ ] **P2-13** · Video player `expo-video` với poster, autoplay muted-then-unmute pattern iOS · *est. 2h*
-- [ ] **P2-14** · Recording lưu URI WAV qua `useAudioRecorder` (đã có) · *est. 1h*
-- [ ] **P2-15** · Notes area khi THINKING (Part 2 only) · *est. 1.5h*
-- [ ] **P2-16** · Next / Skip / Re-record buttons · *est. 1h*
+- [x] **P2-10** · Tạo `app/ielts/advanced/speaking/[partId].tsx`: layout video + recorder · *est. 1.5h*
+- [x] **P2-11** · Refactor `SpeakingExamBlock.tsx` accept `mode: 'practice' | 'exam'` để dùng chung · *est. 2h*
+- [x] **P2-12** · State machine: IDLE → LISTEN_CAPTION → PLAYING → THINK_CAPTION → THINKING → PLAYING_2 → RECORDING → RECORDED · *est. 3h*
+- [x] **P2-13** · Video player `expo-video` với poster, autoplay muted-then-unmute pattern iOS · *est. 2h*
+- [x] **P2-14** · Recording lưu URI WAV qua `useAudioRecorder` (đã có) · *est. 1h*
+- [x] **P2-15** · Notes area khi THINKING (Part 2 only) · *est. 1.5h*
+- [x] **P2-16** · Next / Skip / Re-record buttons · *est. 1h*
 
 ### 2.5 Submission + Session lifecycle + Result (8h, +2h cho R-05)
-- [ ] **P2-17** · **R-05**: Mount handler — `createSpeakingSession(partId)` tự động + lưu `sessionId` · *est. 1h*
-- [ ] **P2-18** · Upload từng audio tuần tự qua `uploadSpeakingAudio` với progress bar · *est. 2h*
-- [ ] **P2-19** · `submitSpeakingSession(sessionId, { audioAnswers })` → router.replace result · *est. 1h*
-- [ ] **P2-20** · Result page: audio playback từng câu, transcript, 4 band rubric (SpeakingRubricView đã có) · *est. 2.5h*
-- [ ] **P2-21** · IPA highlights (optional nếu backend trả `pronunciationPhonemes`) · *est. 0.5h*
-- [ ] **P2-22** · **R-05**: Tích hợp `getSpeakingStats()` vào catalog page — show "Your last band: 6.5, Weak area: Part 2" · *est. 1h*
+- [x] **P2-17** · **R-05**: Mount handler — `createSpeakingSession(partId)` tự động + lưu `sessionId` · *est. 1h*
+- [x] **P2-18** · Upload từng audio tuần tự qua `uploadSpeakingAudio` với progress bar · *est. 2h*
+- [x] **P2-19** · `submitSpeakingSession(sessionId, { audioAnswers })` → router.replace result · *est. 1h*
+- [x] **P2-20** · Result page: audio playback từng câu, transcript, 4 band rubric (SpeakingRubricView đã có) · *est. 2.5h*
+- [x] **P2-21** · IPA highlights (optional nếu backend trả `pronunciationPhonemes`) · *est. 0.5h*
+- [x] **P2-22** · **R-05**: Tích hợp `getSpeakingStats()` vào catalog page — show "Your last band: 6.5, Weak area: Part 2" · *est. 1h*
 
 ### 2.6 QA (2h)
-- [ ] **P2-23** · E2E Part 1 (5 câu hỏi short) · *est. 0.5h*
-- [ ] **P2-24** · E2E Part 2 (cue card 60s think + 2 min answer) · *est. 0.5h*
-- [ ] **P2-25** · Test permission denied, app background mid-record · *est. 0.5h*
-- [ ] **P2-26** · Test FeatureLock PREMIUM gate · *est. 0.5h*
+- [x] **P2-23** · E2E Part 1 (5 câu hỏi short) · *est. 0.5h*
+- [x] **P2-24** · E2E Part 2 (cue card 60s think + 2 min answer) · *est. 0.5h*
+- [x] **P2-25** · Test permission denied, app background mid-record · *est. 0.5h*
+- [x] **P2-26** · Test FeatureLock PREMIUM gate · *est. 0.5h*
 
 **Tổng phase 2**: 34h *(R-05: +2h cho session lifecycle + stats integration)*
 

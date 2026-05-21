@@ -210,9 +210,8 @@ export default function AdvancedSpeakingIndexScreen() {
         <Text style={styles.headerTitle}>Advanced Speaking</Text>
         <View style={styles.rightHeaderContainer}>
           <TouchableOpacity
-            style={styles.headerBtn}
+            style={[styles.headerBtn, { marginRight: 8 }]}
             onPress={handleRetestDevices}
-            style={{ marginRight: 8 }}
           >
             <Ionicons name="construct-outline" size={20} color="#fff" />
           </TouchableOpacity>

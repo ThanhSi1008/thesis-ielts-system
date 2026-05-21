@@ -73,10 +73,11 @@ export function useGradingPoll({ sessionId, enabled, onDone, onError, pollFn }: 
 
         const result = session?.result;
         const isGraded =
-          result &&
-          (result.speakingScore != null ||
-            result.writingScore != null ||
-            session.status === 'GRADED');
+          (result &&
+            (result.speakingScore != null ||
+              result.writingScore != null ||
+              session.status === 'GRADED')) ||
+          session.status === 'GRADED';
 
         if (isGraded) {
           stopPolling();
