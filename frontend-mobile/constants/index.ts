@@ -19,20 +19,20 @@ export const COLORS = {
   primary: '#FFC600',
   primaryHover: '#FFC600E6',
   secondary: '#EDEDED',
-  
+
   background: '#FFFFFF',
   surface: '#F8F9FA',
   card: '#FFFFFF',
-  
+
   text: '#212529',
   textSecondary: '#64748B',
   textMuted: '#ADB5BD',
   textDisabled: '#CBD5E1',
   onPrimary: '#212529',
-  
+
   border: '#E2E8F0',
   borderFocus: '#FFC600',
-  
+
   // Semantic shorthand aliases (used across the codebase)
   success: '#4CAF50',
   error: '#F44336',

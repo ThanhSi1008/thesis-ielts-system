@@ -27,11 +27,11 @@
 > **Bối cảnh**: 6 inline THEME object, 1471 hex literal, 143 `as any`, 3328 `any` tổng, không ESLint/Prettier, không ErrorBoundary, 6 file >700 lines, 36 router.push as any. Dọn 1 lần trước khi build feature mới — ROI cao.
 
 ### 0.5.1 Tooling baseline (4h)
-- [ ] **P05-01** · Cài + config ESLint (`eslint-config-expo` + plugin TS + react-hooks) · *est. 1h*
-- [ ] **P05-02** · Thêm scripts `lint`, `lint:fix` vào package.json · *est. 0.25h*
-- [ ] **P05-03** · Chạy `lint:fix` lần đầu auto-fix + commit riêng · *est. 0.25h*
-- [ ] **P05-04** · Cài Prettier + `.prettierrc` + `.prettierignore` + script `format` · *est. 0.5h*
-- [ ] **P05-05** · Chạy `npm run format` 1 lần toàn repo (commit riêng để dễ review code thật về sau) · *est. 0.5h*
+- [x] **P05-01** · Cài + config ESLint (`eslint-config-expo` + plugin TS + react-hooks) · *est. 1h*
+- [x] **P05-02** · Thêm scripts `lint`, `lint:fix` vào package.json · *est. 0.25h*
+- [x] **P05-03** · Chạy `lint:fix` lần đầu auto-fix + commit riêng · *est. 0.25h*
+- [x] **P05-04** · Cài Prettier + `.prettierrc` + `.prettierignore` + script `format` · *est. 0.5h*
+- [x] **P05-05** · Chạy `npm run format` 1 lần toàn repo (commit riêng để dễ review code thật về sau) · *est. 0.5h*
 - [ ] **P05-06** · Tạo `components/ErrorBoundary.tsx` (class component + fallback UI + reload button) · *est. 1h*
 - [ ] **P05-07** · Wrap ErrorBoundary vào `app/_layout.tsx` ngoài cùng · *est. 0.25h*
 - [ ] **P05-08** · Crash test: throw Error trong 1 screen → verify ErrorBoundary catch · *est. 0.25h*

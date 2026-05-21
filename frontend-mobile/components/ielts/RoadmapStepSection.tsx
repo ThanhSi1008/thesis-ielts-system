@@ -25,7 +25,7 @@ export function RoadmapStepSection({
   nextItemId,
   onItemPress,
 }: RoadmapStepSectionProps) {
-  const isActiveStep    = step.step === currentStep;
+  const isActiveStep = step.step === currentStep;
   const isCompletedStep = step.isCompleted;
 
   return (
@@ -36,18 +36,14 @@ export function RoadmapStepSection({
           <Text
             style={[
               styles.dayLabel,
-              isActiveStep    && styles.dayLabelActive,
+              isActiveStep && styles.dayLabelActive,
               isCompletedStep && styles.dayLabelDone,
             ]}
           >
             Day {step.step}
           </Text>
-          {isCompletedStep && (
-            <Ionicons name="checkmark-circle" size={18} color="#22C55E" />
-          )}
-          {step.isLocked && (
-            <Ionicons name="lock-closed" size={14} color="#9CA3AF" />
-          )}
+          {isCompletedStep && <Ionicons name="checkmark-circle" size={18} color="#22C55E" />}
+          {step.isLocked && <Ionicons name="lock-closed" size={14} color="#9CA3AF" />}
         </View>
       </View>
       <View style={styles.divider} />

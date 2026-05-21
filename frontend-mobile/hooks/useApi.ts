@@ -16,7 +16,7 @@ interface UseApiResult<T> extends UseApiState<T> {
 
 export function useApi<T>(
   fetchFn: () => Promise<T>,
-  dependencies: unknown[] = []
+  dependencies: unknown[] = [],
 ): UseApiResult<T> {
   const [state, setState] = useState<UseApiState<T>>({
     data: null,
@@ -26,7 +26,7 @@ export function useApi<T>(
 
   const fetchData = useCallback(async () => {
     try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
+      setState((prev) => ({ ...prev, loading: true, error: null }));
       const result = await fetchFn();
       setState({ data: result, loading: false, error: null });
     } catch (err) {

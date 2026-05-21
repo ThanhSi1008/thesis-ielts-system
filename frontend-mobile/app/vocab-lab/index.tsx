@@ -1,7 +1,12 @@
 import React, { useRef, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  Pressable, Animated,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,34 +24,47 @@ import { GlobalAddCardFab } from '@/components/vocab-lab/GlobalAddCardFab';
 type Tab = 'decks' | 'add' | 'browse' | 'stats' | 'marketplace';
 
 const NAV_ITEMS = [
-  { key: 'decks',       label: 'My Decks',       icon: 'library-outline'       as const, route: 'decks' },
-  { key: 'add',         label: 'Add Card',        icon: 'add-circle-outline'    as const, route: 'add' },
-  { key: 'browse',      label: 'Browse Cards',    icon: 'search-outline'        as const, route: 'browse' },
-  { key: 'stats',       label: 'Statistics',      icon: 'bar-chart-outline'     as const, route: 'stats' },
-  { key: 'marketplace', label: 'Community',       icon: 'storefront-outline'    as const, route: 'marketplace' },
+  { key: 'decks', label: 'My Decks', icon: 'library-outline' as const, route: 'decks' },
+  { key: 'add', label: 'Add Card', icon: 'add-circle-outline' as const, route: 'add' },
+  { key: 'browse', label: 'Browse Cards', icon: 'search-outline' as const, route: 'browse' },
+  { key: 'stats', label: 'Statistics', icon: 'bar-chart-outline' as const, route: 'stats' },
+  {
+    key: 'marketplace',
+    label: 'Community',
+    icon: 'storefront-outline' as const,
+    route: 'marketplace',
+  },
 ];
 
 export default function VocabLabScreen() {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<Tab>('decks');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const drawerAnim   = useRef(new Animated.Value(-280)).current;
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
 
   const openDrawer = () => {
     setDrawerOpen(true);
     Animated.parallel([
-      Animated.spring(drawerAnim,   { toValue: 0,    useNativeDriver: true, tension: 80, friction: 12 }),
-      Animated.timing(backdropAnim, { toValue: 1,    duration: 250, useNativeDriver: true }),
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
     ]).start();
   };
   const closeDrawer = () => {
     Animated.parallel([
-      Animated.spring(drawerAnim,   { toValue: -280, useNativeDriver: true, tension: 80, friction: 12 }),
-      Animated.timing(backdropAnim, { toValue: 0,    duration: 200, useNativeDriver: true }),
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
     ]).start(() => setDrawerOpen(false));
   };
-  const handleNavPress = (route: string) => { setActiveTab(route as Tab); closeDrawer(); };
+  const handleNavPress = (route: string) => {
+    setActiveTab(route as Tab);
+    closeDrawer();
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -61,20 +79,20 @@ export default function VocabLabScreen() {
 
       {/* Content */}
       <View style={{ flex: 1 }}>
-        {activeTab === 'decks'       && <DecksTab />}
-        {activeTab === 'add'          && <AddTab />}
-        {activeTab === 'browse'       && <BrowseTab />}
-        {activeTab === 'stats'        && <StatsTab />}
-        {activeTab === 'marketplace'  && <MarketplaceTab />}
+        {activeTab === 'decks' && <DecksTab />}
+        {activeTab === 'add' && <AddTab />}
+        {activeTab === 'browse' && <BrowseTab />}
+        {activeTab === 'stats' && <StatsTab />}
+        {activeTab === 'marketplace' && <MarketplaceTab />}
       </View>
 
       {/* Shared Drawer */}
-      <SharedDrawer 
+      <SharedDrawer
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}
         backdropAnim={backdropAnim}
         insetsTop={insets.top}
-        navItems={NAV_ITEMS.map(item => ({ ...item, isActive: activeTab === item.key }))}
+        navItems={NAV_ITEMS.map((item) => ({ ...item, isActive: activeTab === item.key }))}
         onClose={closeDrawer}
         onNavPress={handleNavPress}
       />
@@ -87,11 +105,15 @@ export default function VocabLabScreen() {
 
 const s = StyleSheet.create({
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md,
-    backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.md,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   menuBtn: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: { fontSize: FONT_SIZES.lg, fontWeight: '700', color: COLORS.text },
 });
-

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, 
-  ActivityIndicator, useWindowDimensions 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
@@ -52,18 +57,28 @@ const SKILL_THEMES: Record<string, any> = {
 };
 
 function getDefaultTheme(skill: string) {
-  return SKILL_THEMES[skill] || {
-    bg: '#FAF7F2',
-    text: COLORS.primary,
-    circleBase: 'rgba(255, 193, 7, 0.1)',
-    fillColor: COLORS.primary,
-    icon: 'school-outline',
-  };
+  return (
+    SKILL_THEMES[skill] || {
+      bg: '#FAF7F2',
+      text: COLORS.primary,
+      circleBase: 'rgba(255, 193, 7, 0.1)',
+      fillColor: COLORS.primary,
+      icon: 'school-outline',
+    }
+  );
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-function CircularProgressLink({ completed, total, color, baseColor, textColor, icon, onPress }: any) {
+function CircularProgressLink({
+  completed,
+  total,
+  color,
+  baseColor,
+  textColor,
+  icon,
+  onPress,
+}: any) {
   const size = 60;
   const strokeWidth = 3;
   const radius = 24;
@@ -142,18 +157,20 @@ export function LibraryContent() {
     );
   }
 
-  const displayStats = ["Listening", "Reading", "Writing", "Speaking"].map((skillName) => {
-    const existing = (stats || []).find(s => s.skill.toLowerCase() === skillName.toLowerCase());
-    return existing || {
-      id: skillName.toLowerCase(),
-      skill: skillName,
-      lessons: { total: 0, completed: 0 },
-      exercises: { total: 0, completed: 0 },
-    };
+  const displayStats = ['Listening', 'Reading', 'Writing', 'Speaking'].map((skillName) => {
+    const existing = (stats || []).find((s) => s.skill.toLowerCase() === skillName.toLowerCase());
+    return (
+      existing || {
+        id: skillName.toLowerCase(),
+        skill: skillName,
+        lessons: { total: 0, completed: 0 },
+        exercises: { total: 0, completed: 0 },
+      }
+    );
   });
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={styles.scroll}
       showsVerticalScrollIndicator={false}
@@ -167,13 +184,18 @@ export function LibraryContent() {
         {displayStats.map((stat, index) => {
           const theme = getDefaultTheme(stat.skill);
           return (
-            <Animated.View 
-              key={stat.id} 
+            <Animated.View
+              key={stat.id}
               entering={FadeInDown.delay(index * 100).duration(500)}
               style={[styles.card, { backgroundColor: theme.bg }]}
             >
               <View style={styles.cardHeader}>
-                <Ionicons name={theme.icon} size={24} color={theme.fillColor} style={{ fontWeight: '800' }} />
+                <Ionicons
+                  name={theme.icon}
+                  size={24}
+                  color={theme.fillColor}
+                  style={{ fontWeight: '800' }}
+                />
                 <Text style={[styles.cardTitle, { color: theme.fillColor }]}>{stat.skill}</Text>
               </View>
 
@@ -184,7 +206,9 @@ export function LibraryContent() {
                   color={theme.fillColor}
                   baseColor={theme.circleBase}
                   icon="school-outline"
-                  onPress={() => router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/lessons` as any)}
+                  onPress={() =>
+                    router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/lessons` as any)
+                  }
                 />
 
                 <CircularProgressLink
@@ -193,7 +217,9 @@ export function LibraryContent() {
                   color={theme.fillColor}
                   baseColor={theme.circleBase}
                   icon="fitness-outline"
-                  onPress={() => router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/exercises` as any)}
+                  onPress={() =>
+                    router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/exercises` as any)
+                  }
                 />
               </View>
             </Animated.View>
@@ -223,7 +249,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   scroll: { padding: SPACING.lg, paddingBottom: 120 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  
+
   header: { marginBottom: SPACING.xl, paddingHorizontal: 4 },
   title: {
     fontFamily: FONTS.bold,

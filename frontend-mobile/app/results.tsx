@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function ResultsScreen() {
   return (
@@ -7,7 +7,7 @@ export default function ResultsScreen() {
       <Text style={styles.subtitle}>View your exam history and scores</Text>
       {/* TODO: Implement results list */}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -26,5 +26,4 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 20,
   },
-})
-
+});

@@ -10,8 +10,16 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View, Text, Image, StyleSheet, TouchableOpacity,
-  ActivityIndicator, Pressable, Dimensions, ScrollView, Animated,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Pressable,
+  Dimensions,
+  ScrollView,
+  Animated,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useAudioPlayer } from 'expo-audio';
@@ -57,19 +65,23 @@ interface FlashcardViewerProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SCREEN_W = Dimensions.get('window').width;
 const FONT_SIZE_MAP: Record<string, number> = {
-  sm: 12, md: 14, lg: 18, xl: 24, '2xl': 30,
+  sm: 12,
+  md: 14,
+  lg: 18,
+  xl: 24,
+  '2xl': 30,
 };
 
 // ─── Field style mapping ──────────────────────────────────────────────────────
 function resolveFieldStyle(raw?: Record<string, string>): object {
   if (!raw) return {};
   const style: any = {};
-  if (raw.fontSize)       style.fontSize = FONT_SIZE_MAP[raw.fontSize] ?? 18;
-  if (raw.fontWeight)     style.fontWeight = raw.fontWeight;
-  if (raw.fontStyle)      style.fontStyle  = raw.fontStyle;
+  if (raw.fontSize) style.fontSize = FONT_SIZE_MAP[raw.fontSize] ?? 18;
+  if (raw.fontWeight) style.fontWeight = raw.fontWeight;
+  if (raw.fontStyle) style.fontStyle = raw.fontStyle;
   if (raw.textDecoration) style.textDecorationLine = raw.textDecoration;
-  if (raw.color)          style.color = raw.color;
-  if (raw.textAlign)      style.textAlign = raw.textAlign as any;
+  if (raw.color) style.color = raw.color;
+  if (raw.textAlign) style.textAlign = raw.textAlign as any;
   return style;
 }
 
@@ -101,8 +113,10 @@ function AudioField({ url }: { url: string }) {
       } else {
         player.play();
       }
-      setPlaying(p => !p);
-    } catch { /* silent */ }
+      setPlaying((p) => !p);
+    } catch {
+      /* silent */
+    }
   }, [playing, player]);
 
   return (
@@ -116,14 +130,23 @@ function AudioField({ url }: { url: string }) {
 }
 const af = StyleSheet.create({
   row: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
-    backgroundColor: COLORS.background, borderRadius: RADIUS.xl,
-    borderWidth: 1, borderColor: COLORS.border,
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
   btn: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   label: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '600' },
 });
@@ -135,23 +158,30 @@ function ImageField({ src, maxW }: { src: string; maxW: number }) {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    Image.getSize(src,
+    Image.getSize(
+      src,
       (w, h) => {
         const ratio = h / w;
         const displayW = Math.min(w, maxW);
         setSize({ w: displayW, h: Math.min(displayW * ratio, 280) });
         setLoading(false);
       },
-      () => { setLoading(false); setError(true); }
+      () => {
+        setLoading(false);
+        setError(true);
+      },
     );
   }, [src, maxW]);
 
-  if (error) return (
-    <View style={[imgf.placeholder, { width: maxW, height: 120 }]}>
-      <Ionicons name="image-outline" size={32} color={COLORS.textMuted} />
-      <Text style={{ color: COLORS.textMuted, fontSize: FONT_SIZES.xs, marginTop: 4 }}>Image unavailable</Text>
-    </View>
-  );
+  if (error)
+    return (
+      <View style={[imgf.placeholder, { width: maxW, height: 120 }]}>
+        <Ionicons name="image-outline" size={32} color={COLORS.textMuted} />
+        <Text style={{ color: COLORS.textMuted, fontSize: FONT_SIZES.xs, marginTop: 4 }}>
+          Image unavailable
+        </Text>
+      </View>
+    );
 
   return (
     <View style={imgf.wrapper}>
@@ -167,7 +197,14 @@ function ImageField({ src, maxW }: { src: string; maxW: number }) {
 }
 const imgf = StyleSheet.create({
   wrapper: { alignItems: 'center' },
-  placeholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.background, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.border },
+  placeholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
   loader: { position: 'absolute' },
 });
 
@@ -194,7 +231,15 @@ const HTML_TEMPLATE = (body: string, textColor: string) => `
 <body>${body}</body>
 </html>`;
 
-function HtmlField({ html, fieldStyle, cardW }: { html: string; fieldStyle?: object; cardW: number }) {
+function HtmlField({
+  html,
+  fieldStyle,
+  cardW,
+}: {
+  html: string;
+  fieldStyle?: object;
+  cardW: number;
+}) {
   // Estimate height based on content length (rough approximation)
   const [height, setHeight] = useState(100);
 
@@ -204,7 +249,7 @@ function HtmlField({ html, fieldStyle, cardW }: { html: string; fieldStyle?: obj
       style={{ width: cardW, height, backgroundColor: 'transparent' }}
       scrollEnabled={false}
       showsVerticalScrollIndicator={false}
-      onMessage={e => {
+      onMessage={(e) => {
         const h = parseInt(e.nativeEvent.data, 10);
         if (!isNaN(h) && h > 0) setHeight(h + 16);
       }}
@@ -245,14 +290,7 @@ function FieldRenderer({
   }
 
   // Plain text
-  return (
-    <Text style={[
-      isFront ? f.frontText : f.backText,
-      resolvedStyle,
-    ]}>
-      {value}
-    </Text>
-  );
+  return <Text style={[isFront ? f.frontText : f.backText, resolvedStyle]}>{value}</Text>;
 }
 
 // ─── FlashcardViewer ──────────────────────────────────────────────────────────
@@ -268,9 +306,7 @@ export const FlashcardViewer = React.memo(function FlashcardViewer({
   // Determine which fields to show
   const fieldIds: string[] = (() => {
     if (!ct?.templates?.[0]) return [];
-    return isFront
-      ? ct.templates[0].frontFields
-      : ct.templates[0].backFields;
+    return isFront ? ct.templates[0].frontFields : ct.templates[0].backFields;
   })();
 
   // Fallback for non-custom cards
@@ -295,11 +331,17 @@ export const FlashcardViewer = React.memo(function FlashcardViewer({
 
   // Custom card type: dynamic fields
   const fieldsToRender = fieldIds
-    .map(fid => {
-      const fieldDef = ct.fields.find(f => f.id === fid);
+    .map((fid) => {
+      const fieldDef = ct.fields.find((f) => f.id === fid);
       const raw = card.fieldValues?.[fid] ?? '';
       // Fallback for standard Front/Back named fields
-      const value = raw || (fieldDef?.name === 'Front' ? (card.front ?? '') : fieldDef?.name === 'Back' ? (card.back ?? '') : '');
+      const value =
+        raw ||
+        (fieldDef?.name === 'Front'
+          ? (card.front ?? '')
+          : fieldDef?.name === 'Back'
+            ? (card.back ?? '')
+            : '');
       if (!value) return null;
 
       const templateFieldStyle = ct.templates[0]?.fieldStyles?.[fid];
@@ -308,7 +350,12 @@ export const FlashcardViewer = React.memo(function FlashcardViewer({
 
       return { fid, value, fieldDef, mergedStyle };
     })
-    .filter(Boolean) as { fid: string; value: string; fieldDef?: CardField; mergedStyle: Record<string, string> }[];
+    .filter(Boolean) as {
+    fid: string;
+    value: string;
+    fieldDef?: CardField;
+    mergedStyle: Record<string, string>;
+  }[];
 
   return (
     <View style={f.container}>
@@ -332,7 +379,7 @@ export const FlashcardViewer = React.memo(function FlashcardViewer({
 function TagsRow({ tags }: { tags: string[] }) {
   return (
     <View style={f.tagsRow}>
-      {tags.map(t => (
+      {tags.map((t) => (
         <View key={t} style={f.tagChip}>
           <Text style={f.tagText}>#{t}</Text>
         </View>

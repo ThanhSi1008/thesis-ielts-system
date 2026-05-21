@@ -41,7 +41,8 @@ export const grammarApi = {
 
 export const pronunciationApi = {
   getSounds: () => apiClient.get<GroupedSounds>('/pronunciation/sounds'),
-  getSound: (symbol: string) => apiClient.get<PronunciationSound>(`/pronunciation/sounds/${symbol}`),
+  getSound: (symbol: string) =>
+    apiClient.get<PronunciationSound>(`/pronunciation/sounds/${symbol}`),
 };
 
 // ==================== AUTH API ====================

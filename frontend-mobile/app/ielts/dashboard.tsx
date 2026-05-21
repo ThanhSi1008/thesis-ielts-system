@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, ActivityIndicator,
-  TouchableOpacity, RefreshControl
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -14,7 +19,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  
+
   const [profile, setProfile] = useState<any>(null);
   const [streak, setStreak] = useState<any>(null);
   const [mockHistory, setMockHistory] = useState<any[]>([]);
@@ -41,7 +46,9 @@ export default function DashboardScreen() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const totalPractice = advListening.length + advReading.length;
 
@@ -65,7 +72,15 @@ export default function DashboardScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchData();
+            }}
+          />
+        }
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         {/* Profile summary */}
@@ -77,7 +92,8 @@ export default function DashboardScreen() {
                   {profile.user?.firstName || profile.user?.email || 'Student'}
                 </Text>
                 <Text style={styles.profileSub}>
-                  Target Band {profile.targetBand?.toFixed(1) ?? '—'} · {profile.dailyCommitmentMins ?? 30}m/day
+                  Target Band {profile.targetBand?.toFixed(1) ?? '—'} ·{' '}
+                  {profile.dailyCommitmentMins ?? 30}m/day
                 </Text>
               </View>
               <View style={styles.streakPill}>
@@ -122,7 +138,7 @@ export default function DashboardScreen() {
 
         {/* View Progress Button */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.primaryButton}
             onPress={() => router.push('/ielts/statistics')}
           >
@@ -130,7 +146,6 @@ export default function DashboardScreen() {
             <Ionicons name="arrow-forward" size={18} color="#fff" />
           </TouchableOpacity>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -161,17 +176,40 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  profileRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SPACING.lg },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.lg,
+  },
   profileName: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, color: COLORS.text },
-  profileSub: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 2 },
-  streakPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FEF3C7', paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: RADIUS.full },
+  profileSub: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  streakPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
+  },
   streakFire: { fontSize: 18 },
   streakVal: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: '#D97706' },
   overviewRow: { flexDirection: 'row' },
   overviewItem: { flex: 1, alignItems: 'center' },
   overviewMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: COLORS.border },
   overviewValue: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
-  overviewLabel: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 2 },
+  overviewLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
   section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.lg },
   advRow: { flexDirection: 'row', gap: SPACING.md },
   advCard: {
@@ -184,7 +222,12 @@ const styles = StyleSheet.create({
   },
   advIcon: { fontSize: 28, marginBottom: SPACING.sm },
   advCount: { fontSize: FONT_SIZES.xxl, fontFamily: FONTS.bold, color: COLORS.text },
-  advLabel: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.medium, color: COLORS.textSecondary, marginTop: 4 },
+  advLabel: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+  },
   buttonContainer: {
     paddingHorizontal: SPACING.lg,
     marginTop: SPACING.xl,

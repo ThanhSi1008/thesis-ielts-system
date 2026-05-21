@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native';
 
 export default function ExamsScreen() {
   return (
@@ -7,7 +7,7 @@ export default function ExamsScreen() {
       <Text style={styles.subtitle}>Select an exam to begin</Text>
       {/* TODO: Implement exam list */}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -26,5 +26,4 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 20,
   },
-})
-
+});

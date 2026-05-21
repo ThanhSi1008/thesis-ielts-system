@@ -1,8 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView,
-  ActivityIndicator, Keyboard
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,12 +27,12 @@ type Message = {
 export default function ChatAIScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: `Hello${user?.firstName ? `, ${user.firstName}` : ''}! I'm Lexon AI, your personal IELTS study assistant. How can I help you today?`
-    }
+      content: `Hello${user?.firstName ? `, ${user.firstName}` : ''}! I'm Lexon AI, your personal IELTS study assistant. How can I help you today?`,
+    },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -44,7 +51,7 @@ export default function ChatAIScreen() {
     const userText = input.trim();
     setInput('');
     Keyboard.dismiss();
-    
+
     const newMessages = [...messages, { role: 'user', content: userText } as Message];
     setMessages(newMessages);
     setIsTyping(true);
@@ -53,16 +60,20 @@ export default function ChatAIScreen() {
       // Use standard non-streaming response for React Native
       const res = await apiClient.post<{ response: string }>('/chat', {
         messages: newMessages,
-        stream: false
+        stream: false,
       });
-      
-      setMessages(prev => [...prev, { role: 'model', content: res.response }]);
+
+      setMessages((prev) => [...prev, { role: 'model', content: res.response }]);
     } catch (error) {
       console.error('Lexon AI error:', error);
-      setMessages(prev => [...prev, { 
-        role: 'model', 
-        content: 'Sorry, I encountered an error. Please check your internet connection and try again.' 
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'model',
+          content:
+            'Sorry, I encountered an error. Please check your internet connection and try again.',
+        },
+      ]);
     } finally {
       setIsTyping(false);
     }
@@ -88,8 +99,8 @@ export default function ChatAIScreen() {
           </Svg>
           <Text style={styles.headerTitle}>Lexon AI</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.closeBtn} 
+        <TouchableOpacity
+          style={styles.closeBtn}
           onPress={() => router.back()}
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
         >
@@ -97,13 +108,13 @@ export default function ChatAIScreen() {
         </TouchableOpacity>
       </View>
 
-        <KeyboardAvoidingView 
-          style={styles.flex1} 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        >
+      <KeyboardAvoidingView
+        style={styles.flex1}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
         {/* Chat Area */}
-        <ScrollView 
+        <ScrollView
           ref={scrollViewRef}
           style={styles.chatArea}
           contentContainerStyle={styles.chatContent}
@@ -113,12 +124,9 @@ export default function ChatAIScreen() {
           {messages.map((msg, index) => {
             const isUser = msg.role === 'user';
             return (
-              <View 
-                key={index} 
-                style={[
-                  styles.messageRow, 
-                  isUser ? styles.messageRowUser : styles.messageRowAI
-                ]}
+              <View
+                key={index}
+                style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowAI]}
               >
                 {!isUser && (
                   <View style={styles.aiAvatar}>
@@ -137,19 +145,17 @@ export default function ChatAIScreen() {
                     </Svg>
                   </View>
                 )}
-                
-                <View style={[
-                  styles.messageBubble,
-                  isUser ? styles.messageBubbleUser : styles.messageBubbleAI
-                ]}>
+
+                <View
+                  style={[
+                    styles.messageBubble,
+                    isUser ? styles.messageBubbleUser : styles.messageBubbleAI,
+                  ]}
+                >
                   {isUser ? (
-                    <Text style={[styles.messageText, styles.messageTextUser]}>
-                      {msg.content}
-                    </Text>
+                    <Text style={[styles.messageText, styles.messageTextUser]}>{msg.content}</Text>
                   ) : (
-                    <Markdown style={markdownStyles}>
-                      {msg.content}
-                    </Markdown>
+                    <Markdown style={markdownStyles}>{msg.content}</Markdown>
                   )}
                 </View>
               </View>
@@ -179,8 +185,8 @@ export default function ChatAIScreen() {
             multiline
             maxLength={1000}
           />
-          <TouchableOpacity 
-            style={[styles.sendBtn, (!input.trim() || isTyping) && styles.sendBtnDisabled]} 
+          <TouchableOpacity
+            style={[styles.sendBtn, (!input.trim() || isTyping) && styles.sendBtnDisabled]}
             onPress={handleSend}
             disabled={!input.trim() || isTyping}
           >
@@ -254,7 +260,7 @@ const markdownStyles = {
   paragraph: {
     marginTop: 4,
     marginBottom: 4,
-  }
+  },
 } as any;
 
 const styles = StyleSheet.create({

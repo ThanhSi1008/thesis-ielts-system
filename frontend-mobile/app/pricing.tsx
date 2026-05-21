@@ -1,8 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  Dimensions, NativeSyntheticEvent, NativeScrollEvent,
-  ActivityIndicator, Alert, Linking
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  ActivityIndicator,
+  Alert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
@@ -54,21 +62,22 @@ const FREE_PLAN: PricingPlan = {
 
 // Feature comparison table — static content (same as web side)
 const COMPARE = [
-  { label: 'Vocabulary Books',      free: '2 books',      prem: 'Unlimited',  pro: 'Unlimited' },
-  { label: 'Grammar Levels',        free: 'Elementary',   prem: 'All levels', pro: 'All levels' },
-  { label: 'Pronunciation Checks',  free: '5/day',        prem: 'Unlimited',  pro: 'Unlimited' },
-  { label: 'IELTS Advanced',        free: false,          prem: true,         pro: true        },
-  { label: 'AI Writing Grading',    free: false,          prem: '10/mo',      pro: 'Unlimited' },
-  { label: 'AI Speaking Grading',   free: false,          prem: '10/mo',      pro: 'Unlimited' },
-  { label: 'Shadowing Lessons',     free: '5 only',       prem: 'Unlimited',  pro: 'Unlimited' },
-  { label: 'Vocab Lab Decks',       free: '3 decks',      prem: 'Unlimited',  pro: 'Unlimited' },
-  { label: 'AI Card Generation',    free: false,          prem: '50/mo',      pro: 'Unlimited' },
-  { label: 'YouTube Import',        free: false,          prem: true,         pro: true        },
-  { label: 'Community Marketplace', free: false,          prem: true,         pro: true        },
+  { label: 'Vocabulary Books', free: '2 books', prem: 'Unlimited', pro: 'Unlimited' },
+  { label: 'Grammar Levels', free: 'Elementary', prem: 'All levels', pro: 'All levels' },
+  { label: 'Pronunciation Checks', free: '5/day', prem: 'Unlimited', pro: 'Unlimited' },
+  { label: 'IELTS Advanced', free: false, prem: true, pro: true },
+  { label: 'AI Writing Grading', free: false, prem: '10/mo', pro: 'Unlimited' },
+  { label: 'AI Speaking Grading', free: false, prem: '10/mo', pro: 'Unlimited' },
+  { label: 'Shadowing Lessons', free: '5 only', prem: 'Unlimited', pro: 'Unlimited' },
+  { label: 'Vocab Lab Decks', free: '3 decks', prem: 'Unlimited', pro: 'Unlimited' },
+  { label: 'AI Card Generation', free: false, prem: '50/mo', pro: 'Unlimited' },
+  { label: 'YouTube Import', free: false, prem: true, pro: true },
+  { label: 'Community Marketplace', free: false, prem: true, pro: true },
 ];
 
 const CVal = ({ v }: { v: string | boolean }) => {
-  if (v === true) return <Text style={{ color: '#22c55e', fontSize: 14, fontWeight: '800' }}>✓</Text>;
+  if (v === true)
+    return <Text style={{ color: '#22c55e', fontSize: 14, fontWeight: '800' }}>✓</Text>;
   if (v === false) return <Text style={{ color: '#d1d5db', fontSize: 14 }}>✗</Text>;
   return <Text style={{ color: '#6b7280', fontSize: 10.5, fontWeight: '600' }}>{v}</Text>;
 };
@@ -111,12 +120,12 @@ export default function PricingScreen() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Filter plans by billing interval (same logic as web)
-  const visiblePlans = plans.filter(
-    p => p.priceAmount === 0 || p.interval === billing
-  );
+  const visiblePlans = plans.filter((p) => p.priceAmount === 0 || p.interval === billing);
 
   useEffect(() => {
     // Scroll to PREMIUM plan (index 1) after plans load
@@ -203,8 +212,11 @@ export default function PricingScreen() {
         </View>
       </SafeAreaView>
 
-      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Hero */}
         <View style={styles.hero}>
           <View style={styles.badgeSparkle}>
@@ -224,13 +236,17 @@ export default function PricingScreen() {
               style={[styles.billBtn, billing === 'month' && styles.billBtnActive]}
               onPress={() => setBilling('month')}
             >
-              <Text style={[styles.billBtnText, billing === 'month' && styles.billBtnTextActive]}>Monthly</Text>
+              <Text style={[styles.billBtnText, billing === 'month' && styles.billBtnTextActive]}>
+                Monthly
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.billBtn, billing === 'year' && styles.billBtnActive]}
               onPress={() => setBilling('year')}
             >
-              <Text style={[styles.billBtnText, billing === 'year' && styles.billBtnTextActive]}>Annual</Text>
+              <Text style={[styles.billBtnText, billing === 'year' && styles.billBtnTextActive]}>
+                Annual
+              </Text>
               <View style={styles.saveBadge}>
                 <Text style={styles.saveBadgeText}>Save 33%</Text>
               </View>
@@ -241,7 +257,7 @@ export default function PricingScreen() {
         {/* Loading skeleton or cards */}
         {loading ? (
           <View style={styles.skeletonRow}>
-            {[0, 1, 2].map(i => (
+            {[0, 1, 2].map((i) => (
               <View key={i} style={styles.skeleton} />
             ))}
           </View>
@@ -267,7 +283,10 @@ export default function PricingScreen() {
                 const isLoadingThis = loadingPlanId === plan.id;
 
                 return (
-                  <View key={plan.id} style={[styles.priceCard, isPopular && styles.priceCardPopular]}>
+                  <View
+                    key={plan.id}
+                    style={[styles.priceCard, isPopular && styles.priceCardPopular]}
+                  >
                     {isPopular && (
                       <View style={styles.popularBadge}>
                         <Text style={styles.popularBadgeText}>⭐ Most Popular</Text>
@@ -291,23 +310,41 @@ export default function PricingScreen() {
                       disabled={isCurrentPlan || isLoadingThis || loadingPlanId !== null}
                       style={[
                         styles.ctaBtn,
-                        isCurrentPlan ? styles.ctaBtnCurrent : isPopular ? styles.ctaBtnPopular : styles.ctaBtnNormal
+                        isCurrentPlan
+                          ? styles.ctaBtnCurrent
+                          : isPopular
+                            ? styles.ctaBtnPopular
+                            : styles.ctaBtnNormal,
                       ]}
                       onPress={() => handleSelect(plan)}
                     >
-                      {isLoadingThis
-                        ? <ActivityIndicator size="small" color={isPopular ? '#212529' : '#fff'} />
-                        : <Text style={[
+                      {isLoadingThis ? (
+                        <ActivityIndicator size="small" color={isPopular ? '#212529' : '#fff'} />
+                      ) : (
+                        <Text
+                          style={[
                             styles.ctaBtnText,
-                            isCurrentPlan ? styles.ctaBtnTextCurrent : isPopular ? styles.ctaBtnTextPopular : styles.ctaBtnTextNormal
-                          ]}>{ctaLabel}</Text>
-                      }
+                            isCurrentPlan
+                              ? styles.ctaBtnTextCurrent
+                              : isPopular
+                                ? styles.ctaBtnTextPopular
+                                : styles.ctaBtnTextNormal,
+                          ]}
+                        >
+                          {ctaLabel}
+                        </Text>
+                      )}
                     </TouchableOpacity>
 
                     <View style={styles.featuresList}>
                       {plan.features.map((feat, i) => (
                         <View key={i} style={styles.featRow}>
-                          <Ionicons name="checkmark" size={14} color="#22c55e" style={{ marginTop: 2 }} />
+                          <Ionicons
+                            name="checkmark"
+                            size={14}
+                            color="#22c55e"
+                            style={{ marginTop: 2 }}
+                          />
                           <Text style={styles.featText}>{feat}</Text>
                         </View>
                       ))}
@@ -331,19 +368,21 @@ export default function PricingScreen() {
           <View style={styles.trialNote}>
             <Ionicons name="gift" size={15} color="#FFC600" style={{ marginTop: 1 }} />
             <Text style={styles.trialNoteText}>
-              Start with a <Text style={{ fontWeight: 'bold' }}>7-day free PREMIUM trial</Text> — no credit card required.
+              Start with a <Text style={{ fontWeight: 'bold' }}>7-day free PREMIUM trial</Text> — no
+              credit card required.
             </Text>
           </View>
         )}
 
         {/* Compare Features Toggle */}
         <View style={styles.compareWrap}>
-          <TouchableOpacity
-            style={styles.compareBtn}
-            onPress={() => setShowCompare(!showCompare)}
-          >
+          <TouchableOpacity style={styles.compareBtn} onPress={() => setShowCompare(!showCompare)}>
             <Text style={styles.compareBtnText}>Compare all features</Text>
-            <Ionicons name={showCompare ? 'chevron-up' : 'chevron-down'} size={18} color="#9ca3af" />
+            <Ionicons
+              name={showCompare ? 'chevron-up' : 'chevron-down'}
+              size={18}
+              color="#9ca3af"
+            />
           </TouchableOpacity>
         </View>
 
@@ -357,11 +396,23 @@ export default function PricingScreen() {
               <Text style={[styles.cvalText, { color: '#6b7280' }]}>Pro</Text>
             </View>
             {COMPARE.map((row, i) => (
-              <View key={i} style={[styles.cmpRow, i % 2 === 0 ? { backgroundColor: '#fff' } : { backgroundColor: '#fafafa' }]}>
+              <View
+                key={i}
+                style={[
+                  styles.cmpRow,
+                  i % 2 === 0 ? { backgroundColor: '#fff' } : { backgroundColor: '#fafafa' },
+                ]}
+              >
                 <Text style={styles.cmpRowLabel}>{row.label}</Text>
-                <View style={styles.cval}><CVal v={row.free} /></View>
-                <View style={styles.cval}><CVal v={row.prem} /></View>
-                <View style={styles.cval}><CVal v={row.pro} /></View>
+                <View style={styles.cval}>
+                  <CVal v={row.free} />
+                </View>
+                <View style={styles.cval}>
+                  <CVal v={row.prem} />
+                </View>
+                <View style={styles.cval}>
+                  <CVal v={row.pro} />
+                </View>
               </View>
             ))}
           </View>
@@ -369,9 +420,9 @@ export default function PricingScreen() {
 
         {/* Footer Note */}
         <Text style={styles.footerNote}>
-          All prices in USD · Cancel anytime · <Text style={{ color: '#FFC600', fontWeight: 'bold' }}>Contact us</Text>
+          All prices in USD · Cancel anytime ·{' '}
+          <Text style={{ color: '#FFC600', fontWeight: 'bold' }}>Contact us</Text>
         </Text>
-
       </ScrollView>
     </View>
   );
@@ -381,54 +432,96 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: THEME.WH },
   headerSafe: {
     backgroundColor: 'rgba(255,255,255,0.96)',
-    borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
     zIndex: 10,
   },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingBottom: 12, paddingTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    paddingTop: 4,
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: '#f3f4f6',
-    alignItems: 'center', justifyContent: 'center'
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: { fontFamily: 'Farro-Bold', fontSize: 16, color: '#111', letterSpacing: -0.1 },
 
   content: { flex: 1 },
   hero: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 6, alignItems: 'center' },
   badgeSparkle: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: 'rgba(255,198,0,0.12)', paddingVertical: 5, paddingHorizontal: 14,
-    borderRadius: 999, marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255,198,0,0.12)',
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    marginBottom: 12,
   },
   badgeSparkleText: { color: '#b45309', fontSize: 12, fontWeight: '700' },
   heroTitle: {
-    fontFamily: 'Farro-Bold', fontSize: 22, color: '#111', letterSpacing: -0.25,
-    marginBottom: 8, textAlign: 'center', lineHeight: 26,
+    fontFamily: 'Farro-Bold',
+    fontSize: 22,
+    color: '#111',
+    letterSpacing: -0.25,
+    marginBottom: 8,
+    textAlign: 'center',
+    lineHeight: 26,
   },
   heroDesc: {
-    fontFamily: 'Farro-Regular', fontSize: 13, color: '#64748b', textAlign: 'center', lineHeight: 20,
+    fontFamily: 'Farro-Regular',
+    fontSize: 13,
+    color: '#64748b',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 
   billingRow: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4, alignItems: 'center' },
   billWrap: {
-    flexDirection: 'row', backgroundColor: '#fff',
-    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 999,
-    padding: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06, shadowRadius: 3, elevation: 1,
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 999,
+    padding: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 1,
   },
   billBtn: {
-    paddingVertical: 9, paddingHorizontal: 22, borderRadius: 999,
-    flexDirection: 'row', alignItems: 'center', gap: 7,
+    paddingVertical: 9,
+    paddingHorizontal: 22,
+    borderRadius: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
   },
   billBtnActive: {
     backgroundColor: '#FFC600',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12, shadowRadius: 4, elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 2,
   },
   billBtnText: { fontFamily: 'Farro-Bold', fontSize: 13, color: '#6b7280' },
   billBtnTextActive: { color: '#212529' },
-  saveBadge: { backgroundColor: '#22c55e', paddingVertical: 2, paddingHorizontal: 7, borderRadius: 999 },
+  saveBadge: {
+    backgroundColor: '#22c55e',
+    paddingVertical: 2,
+    paddingHorizontal: 7,
+    borderRadius: 999,
+  },
   saveBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
 
   skeletonRow: { flexDirection: 'row', justifyContent: 'center', gap: 12, padding: 20 },
@@ -436,37 +529,82 @@ const styles = StyleSheet.create({
 
   cardsScroll: { paddingHorizontal: SCREEN_WIDTH * 0.09, paddingVertical: 20, paddingBottom: 28 },
   priceCard: {
-    width: CARD_WIDTH, marginHorizontal: CARD_MARGIN,
-    backgroundColor: '#fff', borderRadius: 20,
-    borderWidth: 1, borderColor: '#e5e7eb',
-    paddingTop: 26, paddingHorizontal: 20, paddingBottom: 22,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+    width: CARD_WIDTH,
+    marginHorizontal: CARD_MARGIN,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingTop: 26,
+    paddingHorizontal: 20,
+    paddingBottom: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   priceCardPopular: {
     borderColor: 'rgba(255,198,0,0.35)',
-    shadowColor: '#FFC600', shadowOffset: { width: 0, height: 16 }, shadowOpacity: 0.14, shadowRadius: 32, elevation: 8,
+    shadowColor: '#FFC600',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.14,
+    shadowRadius: 32,
+    elevation: 8,
   },
   popularBadge: {
-    position: 'absolute', top: -13, alignSelf: 'center',
-    backgroundColor: '#FFC600', paddingVertical: 5, paddingHorizontal: 16, borderRadius: 999,
-    shadowColor: '#FFC600', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 4,
+    position: 'absolute',
+    top: -13,
+    alignSelf: 'center',
+    backgroundColor: '#FFC600',
+    paddingVertical: 5,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    shadowColor: '#FFC600',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 4,
   },
   popularBadgeText: { color: '#212529', fontSize: 11, fontWeight: '800', letterSpacing: 0.4 },
 
-  planName: { fontFamily: 'Farro-Bold', fontSize: 20, color: '#111', letterSpacing: -0.25, marginBottom: 4 },
+  planName: {
+    fontFamily: 'Farro-Bold',
+    fontSize: 20,
+    color: '#111',
+    letterSpacing: -0.25,
+    marginBottom: 4,
+  },
   planDesc: { fontSize: 12.5, color: '#64748b', lineHeight: 18, marginBottom: 14 },
   priceRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 16 },
   priceVal: { fontSize: 42, fontWeight: '800', color: '#111', letterSpacing: -0.25 },
   pricePeriod: { fontSize: 13, color: '#9ca3af', marginLeft: 4 },
-  priceSaveBadge: { backgroundColor: '#dcfce7', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, marginLeft: 6 },
+  priceSaveBadge: {
+    backgroundColor: '#dcfce7',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 999,
+    marginLeft: 6,
+  },
   priceSaveBadgeText: { color: '#16a34a', fontSize: 10, fontWeight: 'bold' },
 
   ctaBtn: {
-    width: '100%', height: 46, borderRadius: 999,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+    width: '100%',
+    height: 46,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   ctaBtnCurrent: { backgroundColor: '#f3f4f6' },
-  ctaBtnPopular: { backgroundColor: '#FFC600', shadowColor: '#FFC600', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.39, shadowRadius: 14, elevation: 6 },
+  ctaBtnPopular: {
+    backgroundColor: '#FFC600',
+    shadowColor: '#FFC600',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.39,
+    shadowRadius: 14,
+    elevation: 6,
+  },
   ctaBtnNormal: { backgroundColor: '#1f2937' },
   ctaBtnText: { fontFamily: 'Farro-Bold', fontSize: 14 },
   ctaBtnTextCurrent: { color: '#9ca3af' },
@@ -474,7 +612,14 @@ const styles = StyleSheet.create({
   ctaBtnTextNormal: { color: '#fff' },
 
   featuresList: {},
-  featRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 9, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  featRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 9,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
   featText: { fontSize: 12.5, color: '#374151', flex: 1, lineHeight: 18 },
 
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, paddingBottom: 16 },
@@ -482,30 +627,97 @@ const styles = StyleSheet.create({
   dotActive: { width: 20, backgroundColor: '#FFC600' },
 
   trialNote: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: 8,
-    backgroundColor: '#fffbeb', borderWidth: 1, borderColor: 'rgba(255,198,0,0.35)', borderRadius: 14,
-    marginHorizontal: 16, marginBottom: 16, paddingVertical: 12, paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: '#fffbeb',
+    borderWidth: 1,
+    borderColor: 'rgba(255,198,0,0.35)',
+    borderRadius: 14,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
-  trialNoteText: { flex: 1, fontSize: 12.5, color: '#92400e', fontFamily: 'Farro-Regular', lineHeight: 18 },
+  trialNoteText: {
+    flex: 1,
+    fontSize: 12.5,
+    color: '#92400e',
+    fontFamily: 'Farro-Regular',
+    lineHeight: 18,
+  },
 
   compareWrap: { paddingHorizontal: 16, paddingBottom: 8 },
   compareBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14,
-    paddingVertical: 13, paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 14,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
   },
   compareBtnText: { fontFamily: 'Farro-Bold', fontSize: 14, color: '#111' },
 
   cmpTable: {
-    marginHorizontal: 16, marginBottom: 16,
-    backgroundColor: '#fff', borderRadius: 14, borderWidth: 1, borderColor: '#e5e7eb', overflow: 'hidden',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    overflow: 'hidden',
   },
-  cmpHead: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', paddingVertical: 10, paddingHorizontal: 14, borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
-  cmpHeadLeft: { flex: 1, fontFamily: 'Farro-Bold', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4, color: '#9ca3af' },
-  cvalText: { width: 52, textAlign: 'center', fontFamily: 'Farro-Bold', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4 },
-  cmpRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  cmpRowLabel: { flex: 1, fontFamily: 'Farro-Medium', fontSize: 12, color: '#374151', paddingRight: 8 },
+  cmpHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  cmpHeadLeft: {
+    flex: 1,
+    fontFamily: 'Farro-Bold',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    color: '#9ca3af',
+  },
+  cvalText: {
+    width: 52,
+    textAlign: 'center',
+    fontFamily: 'Farro-Bold',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  cmpRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  cmpRowLabel: {
+    flex: 1,
+    fontFamily: 'Farro-Medium',
+    fontSize: 12,
+    color: '#374151',
+    paddingRight: 8,
+  },
   cval: { width: 52, alignItems: 'center' },
 
-  footerNote: { textAlign: 'center', paddingVertical: 8, paddingBottom: 28, fontFamily: 'Farro-Regular', fontSize: 11.5, color: '#9ca3af' },
+  footerNote: {
+    textAlign: 'center',
+    paddingVertical: 8,
+    paddingBottom: 28,
+    fontFamily: 'Farro-Regular',
+    fontSize: 11.5,
+    color: '#9ca3af',
+  },
 });

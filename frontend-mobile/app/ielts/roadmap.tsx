@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  Animated, ActivityIndicator, RefreshControl,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,39 +31,80 @@ interface RoadmapStep {
 
 /* ─── Nav items ─── */
 const NAV_ITEMS = [
-  { key: 'dashboard',      label: 'Dashboard',        icon: 'grid-outline' as const,        route: '/ielts/dashboard' },
-  { 
-    key: 'foundation',     
-    label: 'Foundation',       
-    icon: 'book-outline' as const,        
+  {
+    key: 'dashboard',
+    label: 'Dashboard',
+    icon: 'grid-outline' as const,
+    route: '/ielts/dashboard',
+  },
+  {
+    key: 'foundation',
+    label: 'Foundation',
+    icon: 'book-outline' as const,
     route: '#',
     children: [
       { key: 'pronunciation', label: 'Pronunciation', route: '/(tabs)/pronunciation' },
-      { key: 'vocabulary',    label: 'Vocabulary',    route: '/(tabs)/vocabulary' },
-      { key: 'grammar',       label: 'Grammar',       route: '/(tabs)/grammar' }
-    ]
+      { key: 'vocabulary', label: 'Vocabulary', route: '/(tabs)/vocabulary' },
+      { key: 'grammar', label: 'Grammar', route: '/(tabs)/grammar' },
+    ],
   },
-  { key: 'basic',          label: 'IELTS Basic',       icon: 'information-circle-outline' as const, route: '/(tabs)/ielts' },
-  { key: 'advanced',       label: 'IELTS Advanced',    icon: 'trending-up-outline' as const, route: '/ielts/advanced' },
-  { key: 'intensive',      label: 'IELTS Intensive',   icon: 'flash-outline' as const,       route: '/ielts/intensive' },
-  { key: 'roadmap',        label: 'Roadmap',           icon: 'map-outline' as const,         route: '/ielts/roadmap', isActive: true },
-  { key: 'calculator',     label: 'Calculator',        icon: 'calculator-outline' as const,  route: '/ielts/calculator' },
-  { key: 'history',        label: 'Test History',      icon: 'time-outline' as const,        route: '/ielts/history' },
-  { key: 'statistics',     label: 'Statistics',        icon: 'bar-chart-outline' as const,   route: '/ielts/statistics' },
-  { key: 'student-teacher',label: 'Student/Teacher',   icon: 'people-outline' as const,      route: '/student-teacher' },
+  {
+    key: 'basic',
+    label: 'IELTS Basic',
+    icon: 'information-circle-outline' as const,
+    route: '/(tabs)/ielts',
+  },
+  {
+    key: 'advanced',
+    label: 'IELTS Advanced',
+    icon: 'trending-up-outline' as const,
+    route: '/ielts/advanced',
+  },
+  {
+    key: 'intensive',
+    label: 'IELTS Intensive',
+    icon: 'flash-outline' as const,
+    route: '/ielts/intensive',
+  },
+  {
+    key: 'roadmap',
+    label: 'Roadmap',
+    icon: 'map-outline' as const,
+    route: '/ielts/roadmap',
+    isActive: true,
+  },
+  {
+    key: 'calculator',
+    label: 'Calculator',
+    icon: 'calculator-outline' as const,
+    route: '/ielts/calculator',
+  },
+  { key: 'history', label: 'Test History', icon: 'time-outline' as const, route: '/ielts/history' },
+  {
+    key: 'statistics',
+    label: 'Statistics',
+    icon: 'bar-chart-outline' as const,
+    route: '/ielts/statistics',
+  },
+  {
+    key: 'student-teacher',
+    label: 'Student/Teacher',
+    icon: 'people-outline' as const,
+    route: '/student-teacher',
+  },
 ];
 
 export default function IeltsRoadmapScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [steps, setSteps]               = useState<RoadmapStep[]>([]);
-  const [currentStep, setCurrentStep]   = useState(1);
-  const [loading, setLoading]           = useState(true);
-  const [refreshing, setRefreshing]     = useState(false);
-  const [drawerOpen, setDrawerOpen]     = useState(false);
-  
-  const drawerAnim   = useRef(new Animated.Value(-280)).current;
+  const [steps, setSteps] = useState<RoadmapStep[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
 
   const fetchRoadmap = async () => {
@@ -82,19 +129,26 @@ export default function IeltsRoadmapScreen() {
     }
   };
 
-  useEffect(() => { fetchRoadmap(); }, []);
+  useEffect(() => {
+    fetchRoadmap();
+  }, []);
 
   const openDrawer = () => {
     setDrawerOpen(true);
     Animated.parallel([
-      Animated.spring(drawerAnim,   { toValue: 0,    useNativeDriver: true, tension: 80, friction: 12 }),
-      Animated.timing(backdropAnim, { toValue: 1,    duration: 250,         useNativeDriver: true }),
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
     ]).start();
   };
   const closeDrawer = () => {
     Animated.parallel([
-      Animated.spring(drawerAnim,   { toValue: -280, useNativeDriver: true, tension: 80, friction: 12 }),
-      Animated.timing(backdropAnim, { toValue: 0,    duration: 200,         useNativeDriver: true }),
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
     ]).start(() => setDrawerOpen(false));
   };
   const handleNavPress = (route: string) => {
@@ -107,29 +161,46 @@ export default function IeltsRoadmapScreen() {
   let nextItem: RoadmapItem | null = null;
   for (const step of steps) {
     for (const item of step.items) {
-      if (!item.isCompleted && !item.isLocked) { nextItem = item; break; }
+      if (!item.isCompleted && !item.isLocked) {
+        nextItem = item;
+        break;
+      }
     }
     if (nextItem) break;
   }
 
-  const totalLessons     = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'lesson').length, 0);
-  const completedLessons = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'lesson' && i.isCompleted).length, 0);
-  const totalExercises     = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'exercise').length, 0);
-  const completedExercises = steps.reduce((a, s) => a + s.items.filter(i => i.type === 'exercise' && i.isCompleted).length, 0);
+  const totalLessons = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'lesson').length,
+    0,
+  );
+  const completedLessons = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'lesson' && i.isCompleted).length,
+    0,
+  );
+  const totalExercises = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'exercise').length,
+    0,
+  );
+  const completedExercises = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'exercise' && i.isCompleted).length,
+    0,
+  );
 
   const handleItemPress = (item: RoadmapItem) => {
     if (item.isLocked) return;
     if (item.type === 'lesson') {
       router.push(`/ielts/basic/lesson/${item.id}?skill=${item.skill.toLowerCase()}` as any);
     } else {
-      const q = item.lessonId ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}` : `?skill=${item.skill.toLowerCase()}`;
+      const q = item.lessonId
+        ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}`
+        : `?skill=${item.skill.toLowerCase()}`;
       router.push(`/ielts/basic/exercise/${item.id}${q}` as any);
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: true,
           title: 'Your Roadmap',
@@ -137,7 +208,10 @@ export default function IeltsRoadmapScreen() {
           headerStyle: { backgroundColor: '#fff' },
           headerTitleStyle: { fontFamily: FONTS.bold, fontSize: FONT_SIZES.lg, color: COLORS.text },
           headerLeft: () => (
-            <TouchableOpacity style={[styles.menuBtn, { marginLeft: SPACING.md }]} onPress={openDrawer}>
+            <TouchableOpacity
+              style={[styles.menuBtn, { marginLeft: SPACING.md }]}
+              onPress={openDrawer}
+            >
               <Ionicons name="menu" size={24} color={COLORS.text} />
             </TouchableOpacity>
           ),
@@ -145,8 +219,8 @@ export default function IeltsRoadmapScreen() {
             <TouchableOpacity style={{ marginRight: SPACING.md }} onPress={() => router.back()}>
               <Ionicons name="close" size={24} color={COLORS.text} />
             </TouchableOpacity>
-          )
-        }} 
+          ),
+        }}
       />
 
       {loading ? (
@@ -162,11 +236,14 @@ export default function IeltsRoadmapScreen() {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={() => { setRefreshing(true); fetchRoadmap(); }}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchRoadmap();
+              }}
             />
           }
         >
-          <RoadmapSummary 
+          <RoadmapSummary
             totalLessons={totalLessons}
             completedLessons={completedLessons}
             totalExercises={totalExercises}
@@ -174,7 +251,7 @@ export default function IeltsRoadmapScreen() {
           />
 
           {steps.map((step) => (
-            <RoadmapStepSection 
+            <RoadmapStepSection
               key={step.step}
               step={step}
               currentStep={currentStep}
@@ -185,7 +262,7 @@ export default function IeltsRoadmapScreen() {
         </ScrollView>
       )}
 
-      <SharedDrawer 
+      <SharedDrawer
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}
         backdropAnim={backdropAnim}

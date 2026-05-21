@@ -38,15 +38,12 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
       pulseScale.value = withRepeat(
         withTiming(1.6, { duration: 900, easing: Easing.out(Easing.ease) }),
         -1,
-        false
+        false,
       );
       pulseOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.4, { duration: 450 }),
-          withTiming(0, { duration: 450 })
-        ),
+        withSequence(withTiming(0.4, { duration: 450 }), withTiming(0, { duration: 450 })),
         -1,
-        false
+        false,
       );
     } else {
       pulseScale.value = withTiming(1);
@@ -60,12 +57,10 @@ export const RecordButton: React.FC<RecordButtonProps> = ({
     buttonScale.value = withSequence(
       withTiming(0.88, { duration: 80 }),
       withTiming(1.05, { duration: 120 }),
-      withTiming(1, { duration: 80 })
+      withTiming(1, { duration: 80 }),
     );
     Haptics.impactAsync(
-      isRecording
-        ? Haptics.ImpactFeedbackStyle.Medium
-        : Haptics.ImpactFeedbackStyle.Heavy
+      isRecording ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Heavy,
     );
     onPress();
   };

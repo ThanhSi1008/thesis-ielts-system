@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams, Link, Stack } from 'expo-router';
 import { grammarApi, GrammarBookWithUnits } from '../../services/api';

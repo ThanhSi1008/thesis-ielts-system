@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, Alert, TextInput,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  TextInput,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,9 +38,15 @@ const locate = StyleSheet.create({
 });
 
 function MCQBlock({
-  q, answer, onAnswer, onLocate,
+  q,
+  answer,
+  onAnswer,
+  onLocate,
 }: {
-  q: any; answer: string; onAnswer: (v: string) => void; onLocate?: () => void;
+  q: any;
+  answer: string;
+  onAnswer: (v: string) => void;
+  onLocate?: () => void;
 }) {
   const options = q.options || [];
   return (
@@ -67,9 +79,15 @@ function MCQBlock({
 }
 
 function FillBlock({
-  q, answer, onAnswer, onLocate,
+  q,
+  answer,
+  onAnswer,
+  onLocate,
 }: {
-  q: any; answer: string; onAnswer: (v: string) => void; onLocate?: () => void;
+  q: any;
+  answer: string;
+  onAnswer: (v: string) => void;
+  onLocate?: () => void;
 }) {
   return (
     <View style={styles.qBlock}>
@@ -91,9 +109,25 @@ function FillBlock({
 
 // ─── Type sets ─────────────────────────────────────────────────────────────────
 
-const DIAGRAM_TYPES = new Set(['diagram_labelling', 'diagram_completion', 'map_labelling', 'plan_labelling']);
-const MATCHING_TYPES = new Set(['matching', 'matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings']);
-const FORM_TYPES = new Set(['form_completion', 'note_completion', 'flowchart_completion', 'flow_chart']);
+const DIAGRAM_TYPES = new Set([
+  'diagram_labelling',
+  'diagram_completion',
+  'map_labelling',
+  'plan_labelling',
+]);
+const MATCHING_TYPES = new Set([
+  'matching',
+  'matching_headings',
+  'matching_features',
+  'matching_information',
+  'matching_sentence_endings',
+]);
+const FORM_TYPES = new Set([
+  'form_completion',
+  'note_completion',
+  'flowchart_completion',
+  'flow_chart',
+]);
 
 // ─── Group renderer ────────────────────────────────────────────────────────────
 
@@ -134,14 +168,16 @@ function renderGroup(
       {group.instructions && <Text style={styles.instructions}>{group.instructions}</Text>}
       {qs.map((q: any) => {
         const num = String(q.question_number);
-        const handleLocate = q.question_number ? () => onLocate(Number(q.question_number)) : undefined;
+        const handleLocate = q.question_number
+          ? () => onLocate(Number(q.question_number))
+          : undefined;
         if (type === 'multiple_choice' || q.options) {
           return (
             <MCQBlock
               key={`${baseKey}-${num}`}
               q={q}
               answer={answers[num] || ''}
-              onAnswer={v => setAns(num, v)}
+              onAnswer={(v) => setAns(num, v)}
               onLocate={handleLocate}
             />
           );
@@ -151,7 +187,7 @@ function renderGroup(
             key={`${baseKey}-${num}`}
             q={q}
             answer={answers[num] || ''}
-            onAnswer={v => setAns(num, v)}
+            onAnswer={(v) => setAns(num, v)}
             onLocate={handleLocate}
           />
         );
@@ -182,27 +218,36 @@ export default function AdvancedPartScreen() {
           ? await ieltsAdvancedApi.getListeningPart(partId)
           : await ieltsAdvancedApi.getReadingPart(partId);
         setPart(data);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [partId, isListening]);
 
-  const setAnswer = useCallback((key: string, value: string) =>
-    setAnswers(prev => ({ ...prev, [key]: value })), []);
+  const setAnswer = useCallback(
+    (key: string, value: string) => setAnswers((prev) => ({ ...prev, [key]: value })),
+    [],
+  );
 
-  const handleLocate = useCallback((qNum: number) => {
-    // Reset to re-trigger scroll effect in child even if same question
-    setLocatedQuestion(null);
-    setTimeout(() => setLocatedQuestion(qNum), 30);
-    if (isListening) setShowTranscript(true);
-  }, [isListening]);
+  const handleLocate = useCallback(
+    (qNum: number) => {
+      // Reset to re-trigger scroll effect in child even if same question
+      setLocatedQuestion(null);
+      setTimeout(() => setLocatedQuestion(qNum), 30);
+      if (isListening) setShowTranscript(true);
+    },
+    [isListening],
+  );
 
   const handleSubmit = async () => {
     Alert.alert('Submit?', 'You cannot change answers after submitting.', [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Submit', onPress: async () => {
+        text: 'Submit',
+        onPress: async () => {
           setSubmitting(true);
           try {
             console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers })); // DEBUG
@@ -211,15 +256,23 @@ export default function AdvancedPartScreen() {
               : await ieltsAdvancedApi.submitReading(partId, answers);
             console.log('[SUBMIT] response:', JSON.stringify(result)); // DEBUG
             router.replace(`/ielts/advanced/${skill}/${partId}/result/${result.id}` as any);
-          } catch (err) { console.error('[SUBMIT] error:', err); Alert.alert('Error', 'Submission failed.'); }
-          finally { setSubmitting(false); }
+          } catch (err) {
+            console.error('[SUBMIT] error:', err);
+            Alert.alert('Error', 'Submission failed.');
+          } finally {
+            setSubmitting(false);
+          }
         },
       },
     ]);
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
   }
 
   const content: any[] = part?.content || [];
@@ -236,8 +289,12 @@ export default function AdvancedPartScreen() {
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={{ flex: 1, marginHorizontal: SPACING.md }}>
-          <Text style={styles.headerTitle} numberOfLines={1}>{part?.title}</Text>
-          <Text style={styles.headerSub}>Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}</Text>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {part?.title}
+          </Text>
+          <Text style={styles.headerSub}>
+            Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}
+          </Text>
         </View>
         <View style={styles.headerActions}>
           <Text style={styles.ansCount}>{Object.keys(answers).length} ans</Text>
@@ -260,14 +317,22 @@ export default function AdvancedPartScreen() {
       {isListening && transcript && transcript.length > 0 && (
         <View style={styles.transcriptSection}>
           <TouchableOpacity
-            style={[styles.transcriptToggle, { borderColor: accentColor + '40', backgroundColor: accentColor + '08' }]}
-            onPress={() => setShowTranscript(v => !v)}
+            style={[
+              styles.transcriptToggle,
+              { borderColor: accentColor + '40', backgroundColor: accentColor + '08' },
+            ]}
+            onPress={() => setShowTranscript((v) => !v)}
           >
             <Ionicons name="document-text-outline" size={16} color={accentColor} />
             <Text style={[styles.transcriptToggleText, { color: accentColor }]}>
               {showTranscript ? 'Hide Transcript' : 'Show Transcript'}
             </Text>
-            <Ionicons name={showTranscript ? 'chevron-up' : 'chevron-down'} size={14} color={accentColor} style={{ marginLeft: 'auto' }} />
+            <Ionicons
+              name={showTranscript ? 'chevron-up' : 'chevron-down'}
+              size={14}
+              color={accentColor}
+              style={{ marginLeft: 'auto' }}
+            />
           </TouchableOpacity>
           {showTranscript && (
             <View style={styles.transcriptPanel}>
@@ -305,7 +370,12 @@ export default function AdvancedPartScreen() {
 
       {/* Submit bar */}
       <View style={styles.submitBar}>
-        <Button title={submitting ? 'Submitting…' : 'Submit'} onPress={handleSubmit} loading={submitting} size="lg" />
+        <Button
+          title={submitting ? 'Submitting…' : 'Submit'}
+          onPress={handleSubmit}
+          loading={submitting}
+          size="lg"
+        />
       </View>
     </SafeAreaView>
   );
@@ -316,8 +386,10 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
   headerTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
   headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: FONT_SIZES.xs, marginTop: 2 },
@@ -329,70 +401,128 @@ const styles = StyleSheet.create({
 
   transcriptSection: { marginHorizontal: SPACING.md, marginTop: SPACING.sm },
   transcriptToggle: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
-    borderWidth: 1, borderRadius: RADIUS.lg, padding: SPACING.sm, paddingHorizontal: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    borderWidth: 1,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.sm,
+    paddingHorizontal: SPACING.md,
   },
   transcriptToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
   transcriptPanel: {
-    maxHeight: 240, marginTop: 4,
-    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.lg,
-    backgroundColor: '#fff', overflow: 'hidden',
+    maxHeight: 240,
+    marginTop: 4,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
   },
 
   passagePanel: {
-    maxHeight: 220, marginHorizontal: SPACING.md, marginTop: SPACING.sm,
-    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.lg,
-    backgroundColor: '#fff', overflow: 'hidden', padding: SPACING.sm,
+    maxHeight: 220,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+    padding: SPACING.sm,
   },
   panelLabel: {
-    fontSize: FONT_SIZES.xs, fontWeight: '800', textTransform: 'uppercase',
-    letterSpacing: 0.5, marginBottom: 4, paddingHorizontal: SPACING.sm,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+    paddingHorizontal: SPACING.sm,
   },
 
   scroll: { flex: 1 },
 
   // Question blocks
   qBlock: {
-    marginBottom: SPACING.xl, padding: SPACING.lg,
-    backgroundColor: '#fff', borderRadius: RADIUS.xl,
-    borderWidth: 1, borderColor: COLORS.border,
+    marginBottom: SPACING.xl,
+    padding: SPACING.lg,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   qTopRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 4,
   },
-  qNum: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.primary, textTransform: 'uppercase' },
+  qNum: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    color: COLORS.primary,
+    textTransform: 'uppercase',
+  },
   qText: { fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.md, lineHeight: 22 },
   option: {
-    flexDirection: 'row', alignItems: 'center', padding: SPACING.md,
-    borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.border,
-    marginBottom: SPACING.sm, backgroundColor: COLORS.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: SPACING.sm,
+    backgroundColor: COLORS.surface,
   },
   optionSel: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + '12' },
   bullet: {
-    width: 28, height: 28, borderRadius: 14, borderWidth: 1.5,
-    borderColor: COLORS.border, alignItems: 'center', justifyContent: 'center',
-    marginRight: SPACING.md, backgroundColor: '#fff',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: SPACING.md,
+    backgroundColor: '#fff',
   },
   bulletSel: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
   bulletLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
   optText: { flex: 1, fontSize: FONT_SIZES.md, color: COLORS.text },
   optTextSel: { color: COLORS.primary, fontWeight: '600' },
   input: {
-    borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md,
-    padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
   },
   instructions: {
-    fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontStyle: 'italic',
-    marginBottom: SPACING.md, padding: SPACING.md, backgroundColor: '#FFF9C4',
-    borderRadius: RADIUS.md, borderLeftWidth: 3, borderLeftColor: COLORS.warning,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
+    marginBottom: SPACING.md,
+    padding: SPACING.md,
+    backgroundColor: '#FFF9C4',
+    borderRadius: RADIUS.md,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.warning,
   },
 
   submitBar: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: SPACING.lg, backgroundColor: '#fff',
-    borderTopWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.08, shadowRadius: 12, elevation: 8,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: SPACING.lg,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 8,
   },
 });

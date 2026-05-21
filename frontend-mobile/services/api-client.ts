@@ -41,8 +41,8 @@ export class ApiClient {
       try {
         const errorData = await response.json();
         if (errorData.message) {
-          errorMessage = Array.isArray(errorData.message) 
-            ? errorData.message[0] 
+          errorMessage = Array.isArray(errorData.message)
+            ? errorData.message[0]
             : errorData.message;
         } else if (errorData.error) {
           errorMessage = errorData.error;
@@ -52,7 +52,7 @@ export class ApiClient {
       }
       throw new ApiError(errorMessage, response.status);
     }
-    
+
     if (response.status === 204) {
       return {} as T;
     }
@@ -63,7 +63,7 @@ export class ApiClient {
     if (this.isRefreshing) {
       return this.refreshPromise || Promise.resolve(false);
     }
-    
+
     this.isRefreshing = true;
     this.refreshPromise = (async () => {
       try {
@@ -101,7 +101,7 @@ export class ApiClient {
   async get<T>(endpoint: string): Promise<T> {
     const headers = await this.getHeaders();
     let response = await fetch(`${this.baseUrl}${endpoint}`, { headers });
-    
+
     if (response.status === 401) {
       const success = await this.refreshToken();
       if (success) {
@@ -109,7 +109,7 @@ export class ApiClient {
         response = await fetch(`${this.baseUrl}${endpoint}`, { headers: newHeaders });
       }
     }
-    
+
     return this.handleResponse<T>(response);
   }
 
@@ -232,8 +232,6 @@ export class ApiClient {
     return this.handleResponse<T>(response);
   }
 }
-
-
 
 // Export singleton instance
 export const apiClient = new ApiClient();

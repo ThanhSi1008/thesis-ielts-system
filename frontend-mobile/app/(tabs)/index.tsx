@@ -1,5 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, useWindowDimensions, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  useWindowDimensions,
+  Animated,
+} from 'react-native';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { COLORS, FONT_SIZES, RADIUS, SPACING } from '@/constants';
@@ -12,14 +20,14 @@ export default function HomeTab() {
   // Animations
   const floatAnim1 = useRef(new Animated.Value(0)).current;
   const floatAnim2 = useRef(new Animated.Value(0)).current;
-  
+
   useEffect(() => {
     const createFloatAnim = (anim: Animated.Value, delay: number, duration: number) => {
       return Animated.loop(
         Animated.sequence([
           Animated.timing(anim, { toValue: 1, duration: duration, delay, useNativeDriver: true }),
-          Animated.timing(anim, { toValue: 0, duration: duration, useNativeDriver: true })
-        ])
+          Animated.timing(anim, { toValue: 0, duration: duration, useNativeDriver: true }),
+        ]),
       );
     };
 
@@ -33,7 +41,9 @@ export default function HomeTab() {
     <View style={styles.container}>
       {/* Background Image with Overlay */}
       <Image
-        source={{ uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1773916745/ca3ae396-1909-4543-b0d3-8a1c7424d3ce.png' }}
+        source={{
+          uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1773916745/ca3ae396-1909-4543-b0d3-8a1c7424d3ce.png',
+        }}
         style={[StyleSheet.absoluteFillObject, { opacity: 0.6 }]}
         contentFit="cover"
       />
@@ -43,10 +53,7 @@ export default function HomeTab() {
         pointerEvents="none"
       />
 
-      <ScrollView 
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header / Notifications */}
         <View style={styles.headerArea}>
           <View style={{ flex: 1 }} />
@@ -69,13 +76,19 @@ export default function HomeTab() {
             <View style={styles.inlineIconWrapper}>
               <Text style={styles.titleHighlight}>AI</Text>
               <Animated.View style={{ transform: [{ translateY: translateY1 }] }}>
-                <Ionicons name="sparkles" size={28} color={COLORS.primary} style={styles.sparkles} />
+                <Ionicons
+                  name="sparkles"
+                  size={28}
+                  color={COLORS.primary}
+                  style={styles.sparkles}
+                />
               </Animated.View>
             </View>
           </Text>
 
           <Text style={styles.subtitle}>
-            An intelligent learning platform that helps you build vocabulary, improve speaking, and prepare for IELTS with personalized guidance
+            An intelligent learning platform that helps you build vocabulary, improve speaking, and
+            prepare for IELTS with personalized guidance
           </Text>
 
           {/* Action Buttons */}
@@ -96,25 +109,39 @@ export default function HomeTab() {
           <View style={[styles.glow, styles.glowInfo, { right: 20, bottom: 20 }]} />
 
           {/* Image 1 */}
-          <View style={[styles.imageWrapper, styles.image1, { width: width * 0.6, height: width * 0.6 }]}>
+          <View
+            style={[
+              styles.imageWrapper,
+              styles.image1,
+              { width: width * 0.6, height: width * 0.6 },
+            ]}
+          >
             <Image
-              source={{ uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1773729695/3e3d5ef3-5951-4cb2-8cf8-3266a1304cdf.png' }}
+              source={{
+                uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1773729695/3e3d5ef3-5951-4cb2-8cf8-3266a1304cdf.png',
+              }}
               style={StyleSheet.absoluteFillObject}
               contentFit="cover"
             />
           </View>
 
           {/* Image 2 */}
-          <View style={[styles.imageWrapper, styles.image2, { width: width * 0.6, height: width * 0.6 }]}>
+          <View
+            style={[
+              styles.imageWrapper,
+              styles.image2,
+              { width: width * 0.6, height: width * 0.6 },
+            ]}
+          >
             <Image
-              source={{ uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1773729718/25516531-c70c-44ad-846b-790cbc14e7ae.png' }}
+              source={{
+                uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1773729718/25516531-c70c-44ad-846b-790cbc14e7ae.png',
+              }}
               style={StyleSheet.absoluteFillObject}
               contentFit="cover"
             />
           </View>
-
         </View>
-
       </ScrollView>
     </View>
   );

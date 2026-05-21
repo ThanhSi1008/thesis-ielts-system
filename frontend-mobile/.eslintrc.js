@@ -1,0 +1,20 @@
+module.exports = {
+  extends: ['expo', 'prettier'],
+  plugins: ['@typescript-eslint', 'react-hooks'],
+  rules: {
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    'prefer-const': 'warn',
+    'react-hooks/exhaustive-deps': 'warn',
+    '@typescript-eslint/no-explicit-any': 'off',
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
+    'react-hooks/rules-of-hooks': 'warn',
+    'react-hooks/set-state-in-effect': 'off',
+    'react-hooks/immutability': 'off',
+    'react-hooks/refs': 'off',
+    'react-hooks/purity': 'off',
+    'react-hooks/preserve-manual-memoization': 'off',
+    'react-compiler/react-compiler': 'off',
+  },
+};

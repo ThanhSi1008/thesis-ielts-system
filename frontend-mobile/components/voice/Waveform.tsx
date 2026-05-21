@@ -19,11 +19,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 /**
  * Animated Waveform component that reacts to microphone metering
  */
-export const Waveform: React.FC<WaveformProps> = ({
-  isRecording,
-  metering,
-  barCount = 30,
-}) => {
+export const Waveform: React.FC<WaveformProps> = ({ isRecording, metering, barCount = 30 }) => {
   // Normalize metering to 0-1 range
   // -160 is silence, 0 is max
   // Practical range is usually -60 to 0
@@ -58,12 +54,7 @@ interface WaveBarProps {
   totalBars: number;
 }
 
-const WaveBar: React.FC<WaveBarProps> = ({
-  index,
-  normalizedValue,
-  isRecording,
-  totalBars,
-}) => {
+const WaveBar: React.FC<WaveBarProps> = ({ index, normalizedValue, isRecording, totalBars }) => {
   const height = useSharedValue(4);
   const opacity = useSharedValue(0.3);
 
@@ -72,7 +63,7 @@ const WaveBar: React.FC<WaveBarProps> = ({
       // Add some randomness/offset based on index for a more natural look
       const offset = Math.sin(index * 0.5) * 0.2;
       const targetHeight = Math.max(4, normalizedValue * 40 * (1 + offset));
-      
+
       height.value = withSpring(targetHeight, {
         damping: 15,
         stiffness: 100,

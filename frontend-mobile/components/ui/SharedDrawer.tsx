@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Animated, Pressable, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Animated,
+  Pressable,
+  StyleSheet,
+  Image,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 
@@ -31,12 +40,12 @@ export function SharedDrawer({
   navItems,
   title,
   onClose,
-  onNavPress
+  onNavPress,
 }: SharedDrawerProps) {
   const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>({});
 
   const toggleExpand = (key: string) => {
-    setExpandedKeys(prev => ({ ...prev, [key]: !prev[key] }));
+    setExpandedKeys((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -61,17 +70,22 @@ export function SharedDrawer({
             <Text style={styles.drawerTitle}>{title}</Text>
           ) : (
             <Image
-              source={{ uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png' }}
+              source={{
+                uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1772802715/9a1c3431-a5ce-4470-949b-8318ff2f3911.png',
+              }}
               style={styles.drawerLogoImage}
               resizeMode="contain"
             />
           )}
         </View>
-        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingVertical: SPACING.sm }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ flex: 1, paddingVertical: SPACING.sm }}
+        >
           <Text style={styles.drawerSection}>MENU</Text>
           {navItems.map((item) => {
             const isExpanded = expandedKeys[item.key];
-            
+
             if (item.children) {
               return (
                 <View key={item.key}>
@@ -88,22 +102,24 @@ export function SharedDrawer({
                     <Text style={[styles.navLabel, item.isActive && styles.navLabelActive]}>
                       {item.label}
                     </Text>
-                    <Ionicons 
-                      name={isExpanded ? "chevron-up" : "chevron-down"} 
-                      size={18} 
-                      color={COLORS.textSecondary} 
+                    <Ionicons
+                      name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                      size={18}
+                      color={COLORS.textSecondary}
                     />
                   </TouchableOpacity>
-                  
+
                   {isExpanded && (
                     <View style={styles.childrenContainer}>
-                      {item.children.map(child => (
+                      {item.children.map((child) => (
                         <TouchableOpacity
                           key={child.key}
                           style={[styles.childItem, child.isActive && styles.childItemActive]}
                           onPress={() => onNavPress(child.route)}
                         >
-                          <Text style={[styles.childLabel, child.isActive && styles.childLabelActive]}>
+                          <Text
+                            style={[styles.childLabel, child.isActive && styles.childLabelActive]}
+                          >
                             {child.label}
                           </Text>
                         </TouchableOpacity>
@@ -141,17 +157,30 @@ export function SharedDrawer({
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 50,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    zIndex: 50,
   },
   drawer: {
-    position: 'absolute', top: 0, left: 0, bottom: 0,
-    width: 280, backgroundColor: '#fff', zIndex: 60,
-    shadowColor: '#000', shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.15, shadowRadius: 20, elevation: 20,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 280,
+    backgroundColor: '#fff',
+    zIndex: 60,
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 20,
   },
   drawerHeader: {
-    height: 64, flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: SPACING.md, borderBottomWidth: 1, borderColor: COLORS.border,
+    height: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
     gap: SPACING.md,
   },
   drawerTitle: {
@@ -160,22 +189,38 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   drawerLogoImage: {
-    width: 120, height: 40,
+    width: 120,
+    height: 40,
   },
-  drawerSection: { 
-    fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold, color: COLORS.textMuted, 
-    textTransform: 'uppercase', letterSpacing: 0.8, 
-    paddingHorizontal: SPACING.lg, paddingTop: SPACING.md, paddingBottom: SPACING.sm 
+  drawerSection: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONTS.bold,
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.sm,
   },
   navItem: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
-    paddingHorizontal: SPACING.lg, paddingVertical: 14,
-    marginHorizontal: SPACING.sm, borderRadius: RADIUS.lg, marginBottom: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: 14,
+    marginHorizontal: SPACING.sm,
+    borderRadius: RADIUS.lg,
+    marginBottom: 2,
   },
   navItemActive: { backgroundColor: COLORS.primary + '15' },
-  navLabel: { flex: 1, fontFamily: FONTS.medium, fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
+  navLabel: {
+    flex: 1,
+    fontFamily: FONTS.medium,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textSecondary,
+  },
   navLabelActive: { fontFamily: FONTS.bold, color: COLORS.primary },
-  
+
   childrenContainer: {
     marginLeft: 44,
     marginRight: SPACING.sm,
@@ -200,5 +245,5 @@ const styles = StyleSheet.create({
   childLabelActive: {
     fontFamily: FONTS.bold,
     color: COLORS.primary,
-  }
+  },
 });

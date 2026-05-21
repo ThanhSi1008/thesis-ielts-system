@@ -16,7 +16,7 @@ export function RoadmapSummary({
   totalExercises,
   completedExercises,
 }: RoadmapSummaryProps) {
-  const lessonsLeft   = totalLessons - completedLessons;
+  const lessonsLeft = totalLessons - completedLessons;
   const exercisesLeft = totalExercises - completedExercises;
 
   return (
@@ -30,7 +30,7 @@ export function RoadmapSummary({
         <Text style={styles.metaBold}>{lessonsLeft}</Text>
         <Text style={styles.metaDim}> / {totalLessons}</Text>
 
-        <Text style={styles.metaDot}>  ·  </Text>
+        <Text style={styles.metaDot}> · </Text>
 
         <Text style={styles.metaLabel}>Exercises left </Text>
         <Text style={styles.metaBold}>{exercisesLeft}</Text>
@@ -39,10 +39,10 @@ export function RoadmapSummary({
 
       {/* Description — matches web paragraph */}
       <Text style={styles.desc}>
-        This section is designed to build your fundamental English skills for the IELTS exam.
-        You will work through structured daily lessons and exercises covering Listening and Reading
-        to establish a strong baseline before moving on to advanced strategies.
-        Complete the tasks in sequential order to unlock the next steps.
+        This section is designed to build your fundamental English skills for the IELTS exam. You
+        will work through structured daily lessons and exercises covering Listening and Reading to
+        establish a strong baseline before moving on to advanced strategies. Complete the tasks in
+        sequential order to unlock the next steps.
       </Text>
     </View>
   );

@@ -15,9 +15,7 @@ export function GradingProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <GradingContext.Provider value={{ isGrading, submitEssay }}>
-      {children}
-    </GradingContext.Provider>
+    <GradingContext.Provider value={{ isGrading, submitEssay }}>{children}</GradingContext.Provider>
   );
 }
 

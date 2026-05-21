@@ -1,6 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
   PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,11 +21,11 @@ function stripPassageAnnotations(raw: string, topic: string): string {
   const topicClean = topic.trim().toLowerCase();
   return raw
     .split('\n')
-    .filter(line => {
+    .filter((line) => {
       const stripped = line.replace(/\*\*/g, '').trim().toLowerCase();
       return stripped !== topicClean; // drop duplicate title
     })
-    .map(line => {
+    .map((line) => {
       let text = line;
       // Remove *(Q27, Q28 — strategic alliance)* style annotations
       text = text.replace(/\s*(?:\*)?\(Q[\d,\s–\-]+[^)]*\)(?:\*)?/g, '');
@@ -46,9 +51,17 @@ function parseInline(text: string, baseKey: string): React.ReactNode[] {
       parts.push(text.slice(lastIndex, match.index));
     }
     if (match[1] !== undefined) {
-      parts.push(<Text key={`${baseKey}-b${match.index}`} style={{ fontWeight: '700' }}>{match[1]}</Text>);
+      parts.push(
+        <Text key={`${baseKey}-b${match.index}`} style={{ fontWeight: '700' }}>
+          {match[1]}
+        </Text>,
+      );
     } else if (match[2] !== undefined) {
-      parts.push(<Text key={`${baseKey}-i${match.index}`} style={{ fontStyle: 'italic' }}>{match[2]}</Text>);
+      parts.push(
+        <Text key={`${baseKey}-i${match.index}`} style={{ fontStyle: 'italic' }}>
+          {match[2]}
+        </Text>,
+      );
     }
     lastIndex = regex.lastIndex;
   }
@@ -62,7 +75,7 @@ function parseInline(text: string, baseKey: string): React.ReactNode[] {
 function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
   const paragraphs = useMemo(() => {
     const cleaned = stripPassageAnnotations(text, topic || '');
-    return cleaned.split('\n').filter(p => p.trim().length > 0);
+    return cleaned.split('\n').filter((p) => p.trim().length > 0);
   }, [text, topic]);
 
   return (
@@ -88,7 +101,11 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
         if (headingMatch) {
           const inner = headingMatch[1].trim();
           if (inner.toLowerCase() !== (topic || '').toLowerCase()) {
-            return <Text key={key} style={pr.heading}>{inner}</Text>;
+            return (
+              <Text key={key} style={pr.heading}>
+                {inner}
+              </Text>
+            );
           }
           return null;
         }
@@ -106,16 +123,24 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
 const pr = StyleSheet.create({
   container: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.xxl },
   paragraph: {
-    fontSize: FONT_SIZES.md, color: COLORS.text,
-    lineHeight: 28, marginBottom: SPACING.md,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    lineHeight: 28,
+    marginBottom: SPACING.md,
   },
   heading: {
-    fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text,
-    marginBottom: SPACING.sm, marginTop: SPACING.sm,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: SPACING.sm,
+    marginTop: SPACING.sm,
   },
   sectionBlock: { marginBottom: SPACING.sm },
   sectionLetter: {
-    fontSize: FONT_SIZES.lg, fontWeight: '900', color: COLORS.text, marginBottom: 2,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '900',
+    color: COLORS.text,
+    marginBottom: 2,
   },
 });
 
@@ -136,13 +161,17 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
 
   // Phone split: topFlex is the passage pane share (0.2–0.8)
   const [topFlex, setTopFlex] = useState(0.48);
-  const panResponder = useMemo(() => PanResponder.create({
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderMove: (_, gs) => {
-      const screenH = Dimensions.get('window').height - 160;
-      setTopFlex(prev => Math.min(0.8, Math.max(0.2, prev + gs.dy / screenH)));
-    },
-  }), []);
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderMove: (_, gs) => {
+          const screenH = Dimensions.get('window').height - 160;
+          setTopFlex((prev) => Math.min(0.8, Math.max(0.2, prev + gs.dy / screenH)));
+        },
+      }),
+    [],
+  );
 
   // Build question range label from question_groups
   const groups: any[] = currentPart?.question_groups || currentPart?.groups || [];
@@ -182,29 +211,29 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
       {(currentPart?.topic || qRange) && (
         <View style={styles.contextBar}>
           {currentPart?.topic && (
-            <Text style={styles.contextTopic} numberOfLines={1}>{currentPart.topic}</Text>
+            <Text style={styles.contextTopic} numberOfLines={1}>
+              {currentPart.topic}
+            </Text>
           )}
-          {qRange && (
-            <Text style={styles.contextRange}>Questions {qRange}</Text>
-          )}
+          {qRange && <Text style={styles.contextRange}>Questions {qRange}</Text>}
         </View>
       )}
 
       <View style={[styles.content, isTablet && styles.contentRow]}>
         {/* PASSAGE PANE */}
-        <View style={[
-          styles.pane,
-          !isTablet && { flex: topFlex },
-          isTablet && { flex: 1, borderRightWidth: 1, borderColor: COLORS.border },
-        ]}>
+        <View
+          style={[
+            styles.pane,
+            !isTablet && { flex: topFlex },
+            isTablet && { flex: 1, borderRightWidth: 1, borderColor: COLORS.border },
+          ]}
+        >
           <ScrollView style={styles.scroll} nestedScrollEnabled showsVerticalScrollIndicator>
             <View style={styles.paneHeader}>
               <Ionicons name="book-outline" size={16} color={COLORS.primary} />
               <Text style={styles.paneHeaderText}>Reading Passage</Text>
             </View>
-            {currentPart?.topic && (
-              <Text style={styles.passageTopic}>{currentPart.topic}</Text>
-            )}
+            {currentPart?.topic && <Text style={styles.passageTopic}>{currentPart.topic}</Text>}
             <PassageRenderer
               text={currentPart?.passage_text || currentPart?.passage || ''}
               topic={currentPart?.topic}
@@ -231,7 +260,7 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
               <Text style={[styles.paneHeaderText, { color: '#D97706' }]}>Questions</Text>
             </View>
             {groups.map((g: any, gi: number) =>
-              renderGroup(g, answers, onChange, gi, activePartIdx)
+              renderGroup(g, answers, onChange, gi, activePartIdx),
             )}
           </ScrollView>
         </View>
@@ -244,24 +273,36 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   tabs: {
     flexDirection: 'row',
-    borderBottomWidth: 1, borderColor: COLORS.border,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
     backgroundColor: '#fff',
   },
   tab: {
-    flex: 1, alignItems: 'center', paddingVertical: 12,
-    borderBottomWidth: 3, borderBottomColor: 'transparent',
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
   },
   tabActive: { borderBottomColor: COLORS.primary },
   tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
   tabLabelActive: { color: COLORS.primary },
   contextBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#F2F1EF', borderBottomWidth: 1, borderColor: '#E2E1DF',
-    paddingHorizontal: SPACING.lg, paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F2F1EF',
+    borderBottomWidth: 1,
+    borderColor: '#E2E1DF',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: 10,
   },
   contextTopic: {
-    flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700',
-    color: COLORS.text, marginRight: SPACING.sm,
+    flex: 1,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginRight: SPACING.sm,
   },
   contextRange: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontWeight: '500' },
   content: { flex: 1, flexDirection: 'column' },
@@ -269,20 +310,31 @@ const styles = StyleSheet.create({
   pane: { flex: 1, backgroundColor: '#FAF9F8' },
   scroll: { flex: 1 },
   paneHeader: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    padding: SPACING.lg, paddingBottom: SPACING.sm,
-    borderBottomWidth: 1, borderColor: COLORS.border + '40',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    padding: SPACING.lg,
+    paddingBottom: SPACING.sm,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border + '40',
   },
   paneHeaderText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.primary },
   passageTopic: {
-    fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text,
-    paddingHorizontal: SPACING.lg, paddingTop: SPACING.lg, paddingBottom: SPACING.sm,
+    fontSize: FONT_SIZES.xl,
+    fontWeight: '800',
+    color: COLORS.text,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.sm,
   },
   splitter: {
-    height: 22, backgroundColor: '#E8E8E8',
-    alignItems: 'center', justifyContent: 'center',
-    borderTopWidth: 1, borderBottomWidth: 1, borderColor: COLORS.border,
+    height: 22,
+    backgroundColor: '#E8E8E8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   splitterHandle: { width: 44, height: 4, borderRadius: 2, backgroundColor: '#B0B0B0' },
 });
-

@@ -17,9 +17,9 @@ function checkAnswer(q: any, userAns: string): boolean {
 
 // Parse "Parrotfish enter the ocean as {{3}}." → text + blank segments
 function parseStageText(
-  text: string
-): Array<{ type: 'text'; value: string } | { type: 'blank'; qNum: number }> {
-  const segments: Array<{ type: 'text'; value: string } | { type: 'blank'; qNum: number }> = [];
+  text: string,
+): ({ type: 'text'; value: string } | { type: 'blank'; qNum: number })[] {
+  const segments: ({ type: 'text'; value: string } | { type: 'blank'; qNum: number })[] = [];
   const regex = /\{\{(\d+)\}\}/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -83,11 +83,27 @@ function StageBox({
       ) : null}
 
       {/* Stage text with inline blanks */}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 2,
+        }}
+      >
         {segments.map((seg, si) => {
           if (seg.type === 'text') {
             return (
-              <Text key={si} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26, textAlign: 'center' }}>
+              <Text
+                key={si}
+                style={{
+                  fontSize: FONT_SIZES.sm,
+                  color: COLORS.text,
+                  lineHeight: 26,
+                  textAlign: 'center',
+                }}
+              >
                 {seg.value}
               </Text>
             );
@@ -105,12 +121,8 @@ function StageBox({
                 flexDirection: 'row',
                 alignItems: 'center',
                 borderWidth: 1,
-                borderColor: submitted
-                  ? isCorrect ? '#86EFAC' : '#FCA5A5'
-                  : '#9CA3AF',
-                backgroundColor: submitted
-                  ? isCorrect ? '#F0FDF4' : '#FFF5F5'
-                  : '#fff',
+                borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : '#9CA3AF',
+                backgroundColor: submitted ? (isCorrect ? '#F0FDF4' : '#FFF5F5') : '#fff',
                 borderRadius: RADIUS.sm,
                 paddingHorizontal: 6,
                 paddingVertical: 3,
@@ -131,7 +143,9 @@ function StageBox({
               </Text>
 
               {submitted ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}
+                >
                   <Text
                     style={{
                       fontSize: 12,
@@ -200,20 +214,16 @@ function ArrowDown() {
   );
 }
 
-export function ReadingFlowchartGroupView({
-  group,
-  answers,
-  submitted,
-  onAnswer,
-}: any) {
+export function ReadingFlowchartGroupView({ group, answers, submitted, onAnswer }: any) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
   const questions: any[] = group.questions || [];
   const stages: any[] = group.stages || [];
   const qMap: Record<number, any> = Object.fromEntries(
-    questions.map((q: any) => [q.question_number, q])
+    questions.map((q: any) => [q.question_number, q]),
   );
-  const instruction: string = group.instruction || group.instructions || 'Complete the flow-chart below.';
+  const instruction: string =
+    group.instruction || group.instructions || 'Complete the flow-chart below.';
   const flowchartTitle: string = group.flowchart_title || group.heading || '';
   const qNums = questions.map((q: any) => q.question_number);
 
@@ -257,7 +267,13 @@ export function ReadingFlowchartGroupView({
         ) : null}
 
         {/* Stages column */}
-        <View style={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, alignItems: 'center' }}>
+        <View
+          style={{
+            paddingHorizontal: SPACING.lg,
+            paddingVertical: SPACING.md,
+            alignItems: 'center',
+          }}
+        >
           {stages.map((stage, si) => (
             <View key={si} style={{ width: '100%', alignItems: 'center' }}>
               <StageBox
@@ -282,7 +298,7 @@ export function ReadingFlowchartGroupView({
                 <TouchableOpacity
                   onPress={() =>
                     setShowExplanation(
-                      showExplanation === q.question_number ? null : q.question_number
+                      showExplanation === q.question_number ? null : q.question_number,
                     )
                   }
                   style={{
@@ -321,7 +337,7 @@ export function ReadingFlowchartGroupView({
                   </View>
                 )}
               </View>
-            ) : null
+            ) : null,
           )}
         </View>
       )}

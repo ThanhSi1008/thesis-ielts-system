@@ -41,7 +41,7 @@ export function isCorrect(userAnswer: string, correctAnswer: string): boolean {
   const userNorm = normalize(userAnswer);
 
   // Slash-separated alternatives in correct answer
-  const alternatives = correctAnswer.split('/').map(a => a.trim());
+  const alternatives = correctAnswer.split('/').map((a) => a.trim());
 
   for (const alt of alternatives) {
     const forms = withoutOptionalParens(alt);

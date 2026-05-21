@@ -16,9 +16,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import {
-  View, Text, StyleSheet, ActivityIndicator, Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Ionicons } from '@expo/vector-icons';
@@ -63,13 +61,17 @@ export interface SpeakingVideoPlayerProps {
 // ─── Direct-URL player (expo-video) ─────────────────────────────────────────
 
 function NativeVideoPlayer({
-  uri, playing, onEnded, onReady, captionText, height = DEFAULT_HEIGHT,
+  uri,
+  playing,
+  onEnded,
+  onReady,
+  captionText,
+  height = DEFAULT_HEIGHT,
 }: SpeakingVideoPlayerProps) {
-  const player = useVideoPlayer(uri, p => {
+  const player = useVideoPlayer(uri, (p) => {
     p.loop = false;
     p.muted = false;
   });
-
 
   // Play / pause in sync with `playing` prop
   useEffect(() => {
@@ -96,12 +98,7 @@ function NativeVideoPlayer({
 
   return (
     <View style={[pStyles.videoWrap, { height }]}>
-      <VideoView
-        player={player}
-        style={pStyles.video}
-        contentFit="cover"
-        nativeControls={false}
-      />
+      <VideoView player={player} style={pStyles.video} contentFit="cover" nativeControls={false} />
       {captionText && (
         <View style={pStyles.captionWrap} pointerEvents="none">
           <Text style={pStyles.caption}>{captionText}</Text>
@@ -116,31 +113,38 @@ function NativeVideoPlayer({
 const YT_AUTO_ADVANCE_MS = 300; // brief delay after postMessage ACK
 
 function YouTubePlayer({
-  uri, playing, onEnded, captionText, height,
+  uri,
+  playing,
+  onEnded,
+  captionText,
+  height,
 }: SpeakingVideoPlayerProps & { height: number }) {
   const webRef = useRef<WebView>(null);
   const [loaded, setLoaded] = useState(false);
   const ytId = extractYouTubeId(uri);
 
-
   // Inject JS to play/pause via YouTube IFrame API
-  const controlPlayback = useCallback((play: boolean) => {
-    if (!loaded || !webRef.current) return;
-    const fn = play ? 'playVideo' : 'pauseVideo';
-    webRef.current.injectJavaScript(`
+  const controlPlayback = useCallback(
+    (play: boolean) => {
+      if (!loaded || !webRef.current) return;
+      const fn = play ? 'playVideo' : 'pauseVideo';
+      webRef.current.injectJavaScript(`
       (function() {
         try { document.querySelector('iframe')?.contentWindow?.postMessage('{"event":"command","func":"${fn}","args":""}', '*'); } catch(e) {}
         try { if (window.player && window.player.${fn}) { window.player.${fn}(); } } catch(e) {}
       })();
       true;
     `);
-  }, [loaded]);
+    },
+    [loaded],
+  );
 
   useEffect(() => {
     controlPlayback(!!playing);
   }, [playing, controlPlayback]);
 
-  const html = ytId ? `
+  const html = ytId
+    ? `
     <!DOCTYPE html>
     <html>
     <head>
@@ -176,7 +180,8 @@ function YouTubePlayer({
       </script>
     </body>
     </html>
-  ` : '';
+  `
+    : '';
 
   if (!ytId) {
     return (

@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -24,7 +28,7 @@ function extractCorrectAnswers(content: any[]): Record<string, string> {
     // MCM: answers stored as string[] of correct letters (e.g. ['A','C'])
     if (group.type === 'multiple_choice_multiple' && group.question_numbers && group.answers) {
       const correctStr = (group.answers as string[]).slice().sort().join(', ');
-      (group.question_numbers as number[]).forEach(qNum => {
+      (group.question_numbers as number[]).forEach((qNum) => {
         map[String(qNum)] = correctStr;
       });
       continue;
@@ -75,7 +79,7 @@ function normalizeUserAnswers(
       const mcmVal = rawAnswers[`mcm-${idx}`];
       if (mcmVal != null) {
         const sortedVal = mcmVal.split(',').filter(Boolean).sort().join(', ');
-        (group.question_numbers as number[]).forEach(qNum => {
+        (group.question_numbers as number[]).forEach((qNum) => {
           out[String(qNum)] = sortedVal;
         });
       }
@@ -89,7 +93,9 @@ type Tab = 'score' | 'review';
 export default function AdvancedResultScreen() {
   const router = useRouter();
   const { skill, partId, resultId } = useLocalSearchParams<{
-    skill: string; partId: string; resultId: string;
+    skill: string;
+    partId: string;
+    resultId: string;
   }>();
 
   const [result, setResult] = useState<any>(null);
@@ -100,13 +106,17 @@ export default function AdvancedResultScreen() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = skill === 'listening'
-          ? await ieltsAdvancedApi.getListeningHistoryDetail(resultId)
-          : await ieltsAdvancedApi.getReadingHistoryDetail(resultId);
+        const data =
+          skill === 'listening'
+            ? await ieltsAdvancedApi.getListeningHistoryDetail(resultId)
+            : await ieltsAdvancedApi.getReadingHistoryDetail(resultId);
         console.log('[RESULT] raw response:', JSON.stringify(data, null, 2)); // DEBUG
         setResult(data);
-      } catch (e) { console.error('[Result] load failed:', e); }
-      finally { setLoading(false); }
+      } catch (e) {
+        console.error('[Result] load failed:', e);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [resultId, skill]);
@@ -175,13 +185,18 @@ export default function AdvancedResultScreen() {
 
       {/* ── Tab bar ── */}
       <View style={s.tabBar}>
-        {(['score', 'review'] as Tab[]).map(tab => (
+        {(['score', 'review'] as Tab[]).map((tab) => (
           <TouchableOpacity
             key={tab}
-            style={[s.tab, activeTab === tab && { borderBottomColor: accentColor, borderBottomWidth: 2 }]}
+            style={[
+              s.tab,
+              activeTab === tab && { borderBottomColor: accentColor, borderBottomWidth: 2 },
+            ]}
             onPress={() => setActiveTab(tab)}
           >
-            <Text style={[s.tabText, { color: activeTab === tab ? accentColor : COLORS.textMuted }]}>
+            <Text
+              style={[s.tabText, { color: activeTab === tab ? accentColor : COLORS.textMuted }]}
+            >
               {tab === 'score' ? 'Score' : 'Review'}
             </Text>
           </TouchableOpacity>
@@ -206,7 +221,9 @@ export default function AdvancedResultScreen() {
                 <Text style={[s.marksLabel, { color: accentColor }]}>Marks</Text>
                 <View style={s.marksRow}>
                   <Text style={[s.marksScore, { color: accentColor }]}>{totalScore}</Text>
-                  <Text style={[s.marksTotal, { color: accentColor + '80' }]}>/ {totalQuestions}</Text>
+                  <Text style={[s.marksTotal, { color: accentColor + '80' }]}>
+                    / {totalQuestions}
+                  </Text>
                 </View>
                 <Text style={[s.marksPct, { color: accentColor + 'BB' }]}>{pct}%</Text>
               </View>
@@ -216,7 +233,9 @@ export default function AdvancedResultScreen() {
                 <View style={s.tableHeader}>
                   <Text style={[s.tableHeaderCell, { flex: 1 }]}>Type</Text>
                   <Text style={[s.tableHeaderCell, s.tableNumCell]}>Cor</Text>
-                  <Text style={[s.tableHeaderCell, s.tableNumCell, { textAlign: 'right' }]}>Tot</Text>
+                  <Text style={[s.tableHeaderCell, s.tableNumCell, { textAlign: 'right' }]}>
+                    Tot
+                  </Text>
                 </View>
                 {Object.entries(scoreData).map(([type, stats]) => (
                   <View key={type} style={s.tableRow}>
@@ -263,10 +282,12 @@ export default function AdvancedResultScreen() {
                       ]}
                       onPress={() => handleLocate(q)}
                     >
-                      <Text style={[
-                        s.chipText,
-                        { color: !answered ? COLORS.textMuted : ok ? '#16A34A' : '#DC2626' },
-                      ]}>
+                      <Text
+                        style={[
+                          s.chipText,
+                          { color: !answered ? COLORS.textMuted : ok ? '#16A34A' : '#DC2626' },
+                        ]}
+                      >
                         {q}
                       </Text>
                     </TouchableOpacity>
@@ -354,16 +375,40 @@ export default function AdvancedResultScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: SPACING.xl, gap: SPACING.md,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: SPACING.xl,
+    gap: SPACING.md,
   },
-  emptyTitle: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text, textAlign: 'center' },
-  emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', maxWidth: 260 },
-  retryBtn: { marginTop: SPACING.sm, paddingHorizontal: SPACING.xl, paddingVertical: SPACING.md, borderRadius: RADIUS.xl, backgroundColor: COLORS.text },
+  emptyTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '800',
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    maxWidth: 260,
+  },
+  retryBtn: {
+    marginTop: SPACING.sm,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.xl,
+    backgroundColor: COLORS.text,
+  },
   retryBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
 
   // Header
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+  },
   backBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   headerCenter: { flex: 1, marginLeft: SPACING.sm },
   headerTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
@@ -377,12 +422,17 @@ const s = StyleSheet.create({
     borderBottomColor: COLORS.border,
   },
   tab: {
-    flex: 1, alignItems: 'center', paddingVertical: SPACING.md,
-    borderBottomWidth: 2, borderBottomColor: 'transparent',
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
   },
   tabText: {
-    fontSize: FONT_SIZES.xs, fontWeight: '700',
-    textTransform: 'uppercase', letterSpacing: 0.5,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 
   // Score tab
@@ -402,13 +452,24 @@ const s = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  cardHeader: { paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md + 2, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  cardHeader: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md + 2,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
   cardTitle: { fontSize: FONT_SIZES.md, fontWeight: '800', color: COLORS.text },
   cardHint: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
 
   // Score body
   scoreBody: { flexDirection: 'row', padding: SPACING.lg, gap: SPACING.md },
-  marksBox: { width: 108, borderRadius: RADIUS.lg, padding: SPACING.md, alignItems: 'center', justifyContent: 'center' },
+  marksBox: {
+    width: 108,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   marksLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', marginBottom: 4 },
   marksRow: { flexDirection: 'row', alignItems: 'flex-end' },
   marksScore: { fontSize: 30, fontWeight: '900', lineHeight: 36 },
@@ -418,23 +479,42 @@ const s = StyleSheet.create({
   // Breakdown table
   breakdownTable: { flex: 1 },
   tableHeader: {
-    flexDirection: 'row', paddingBottom: SPACING.sm,
-    borderBottomWidth: 1, borderBottomColor: COLORS.border, marginBottom: 2,
+    flexDirection: 'row',
+    paddingBottom: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    marginBottom: 2,
   },
-  tableHeaderCell: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary, textTransform: 'uppercase' },
+  tableHeaderCell: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+  },
   tableNumCell: { width: 36, textAlign: 'center', fontSize: 12, fontWeight: '600' },
   tableRow: {
-    flexDirection: 'row', alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 6,
-    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.border,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.border,
   },
-  tableTypeText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.text, textTransform: 'capitalize' },
+  tableTypeText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
+    color: COLORS.text,
+    textTransform: 'capitalize',
+  },
 
   // Per-question chip grid
   chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, padding: SPACING.lg },
   chip: {
-    width: 40, height: 40, borderRadius: RADIUS.md,
-    borderWidth: 1.5, alignItems: 'center', justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.md,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chipText: { fontSize: FONT_SIZES.sm, fontWeight: '800' },
 
@@ -462,6 +542,16 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
     overflow: 'hidden',
   },
-  reviewPanelHeader: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm + 2, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  reviewPanelLabel: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
+  reviewPanelHeader: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  reviewPanelLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
 });

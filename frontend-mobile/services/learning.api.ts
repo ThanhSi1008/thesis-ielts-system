@@ -16,7 +16,7 @@ export const learningApi = {
   checkPronunciation: async (
     audioUri: string,
     userId: string,
-    options: { vocabularyId?: string; targetWord?: string } = {}
+    options: { vocabularyId?: string; targetWord?: string } = {},
   ): Promise<PronunciationCheckResponse> => {
     const formData = new FormData();
 
@@ -29,7 +29,7 @@ export const learningApi = {
       '.wav': 'audio/wav',
       '.mp3': 'audio/mpeg',
       '.webm': 'audio/webm',
-      '.m4a': 'audio/mp4',   // iOS M4A is MPEG-4 Audio container (RFC 4337)
+      '.m4a': 'audio/mp4', // iOS M4A is MPEG-4 Audio container (RFC 4337)
       '.mp4': 'audio/mp4',
       '.aac': 'audio/aac',
       '.caf': 'audio/x-caf', // iOS Core Audio Format (edge case)

@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,7 +18,7 @@ import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
 
 const TABS = [
   { key: 'listening', label: '🎧 Listening', color: '#E11D48' },
-  { key: 'reading',   label: '📖 Reading',   color: '#2563EB' },
+  { key: 'reading', label: '📖 Reading', color: '#2563EB' },
 ];
 
 export default function AdvancedScreen() {
@@ -39,7 +44,9 @@ export default function AdvancedScreen() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Reset filter when switching tabs
   const handleTabChange = (tab: 'listening' | 'reading') => {
@@ -48,18 +55,21 @@ export default function AdvancedScreen() {
   };
 
   const allParts = activeTab === 'listening' ? listeningParts : readingParts;
-  const color = TABS.find(t => t.key === activeTab)!.color;
+  const color = TABS.find((t) => t.key === activeTab)!.color;
 
   // Collect unique question types across all parts for this tab
   const availableTypes = useMemo(() => {
     const set = new Set<string>();
-    allParts.forEach(p => (p.questionTypes || []).forEach((qt: string) => set.add(qt)));
+    allParts.forEach((p) => (p.questionTypes || []).forEach((qt: string) => set.add(qt)));
     return Array.from(set).sort();
   }, [allParts]);
 
   // Client-side filter
-  const parts = useMemo(() =>
-    selectedType ? allParts.filter(p => (p.questionTypes || []).includes(selectedType)) : allParts,
+  const parts = useMemo(
+    () =>
+      selectedType
+        ? allParts.filter((p) => (p.questionTypes || []).includes(selectedType))
+        : allParts,
     [allParts, selectedType],
   );
 
@@ -89,13 +99,18 @@ export default function AdvancedScreen() {
 
       {/* Skill tabs */}
       <View style={styles.tabBar}>
-        {TABS.map(t => (
+        {TABS.map((t) => (
           <TouchableOpacity
             key={t.key}
             style={[styles.tab, activeTab === t.key && { borderBottomColor: t.color }]}
             onPress={() => handleTabChange(t.key as any)}
           >
-            <Text style={[styles.tabLabel, activeTab === t.key && { color: t.color, fontWeight: '700' }]}>
+            <Text
+              style={[
+                styles.tabLabel,
+                activeTab === t.key && { color: t.color, fontWeight: '700' },
+              ]}
+            >
               {t.label}
             </Text>
           </TouchableOpacity>
@@ -121,7 +136,7 @@ export default function AdvancedScreen() {
             <Text style={[styles.filterChipText, !selectedType && { color: '#fff' }]}>All</Text>
           </TouchableOpacity>
 
-          {availableTypes.map(type => {
+          {availableTypes.map((type) => {
             const active = selectedType === type;
             return (
               <TouchableOpacity
@@ -149,7 +164,15 @@ export default function AdvancedScreen() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchData();
+              }}
+            />
+          }
         >
           {/* History banner */}
           <TouchableOpacity
@@ -159,12 +182,22 @@ export default function AdvancedScreen() {
           >
             <Ionicons name="time-outline" size={16} color={color} />
             <Text style={[styles.historyBannerText, { color }]}>View Practice History</Text>
-            <Ionicons name="chevron-forward" size={14} color={color} style={{ marginLeft: 'auto' }} />
+            <Ionicons
+              name="chevron-forward"
+              size={14}
+              color={color}
+              style={{ marginLeft: 'auto' }}
+            />
           </TouchableOpacity>
 
           {/* Active filter badge */}
           {selectedType && (
-            <View style={[styles.activeFilter, { borderColor: color + '40', backgroundColor: color + '0C' }]}>
+            <View
+              style={[
+                styles.activeFilter,
+                { borderColor: color + '40', backgroundColor: color + '0C' },
+              ]}
+            >
               <Ionicons name="funnel" size={12} color={color} />
               <Text style={[styles.activeFilterText, { color }]}>
                 Filtered: {getQuestionTypeLabel(selectedType)}
@@ -179,7 +212,11 @@ export default function AdvancedScreen() {
             <EmptyState
               icon="🔍"
               title={selectedType ? 'No matching parts' : 'No practice parts yet'}
-              subtitle={selectedType ? 'Try a different question type filter.' : 'Check back soon for new content.'}
+              subtitle={
+                selectedType
+                  ? 'Try a different question type filter.'
+                  : 'Check back soon for new content.'
+              }
             />
           ) : (
             parts.map((part: any) => (
@@ -193,21 +230,28 @@ export default function AdvancedScreen() {
                   <Text style={[styles.partBadgeText, { color }]}>Part {part.partNumber}</Text>
                 </View>
                 <View style={styles.partInfo}>
-                  <Text style={styles.partTitle} numberOfLines={2}>{part.title}</Text>
+                  <Text style={styles.partTitle} numberOfLines={2}>
+                    {part.title}
+                  </Text>
                   <View style={styles.partTypes}>
                     {(part.questionTypes || []).map((qt: string) => (
                       <TouchableOpacity
                         key={qt}
                         style={[
                           styles.qtChip,
-                          selectedType === qt && { backgroundColor: color + '15', borderColor: color + '50' },
+                          selectedType === qt && {
+                            backgroundColor: color + '15',
+                            borderColor: color + '50',
+                          },
                         ]}
                         onPress={() => setSelectedType(selectedType === qt ? null : qt)}
                       >
-                        <Text style={[
-                          styles.qtChipText,
-                          selectedType === qt && { color, fontWeight: '700' },
-                        ]}>
+                        <Text
+                          style={[
+                            styles.qtChipText,
+                            selectedType === qt && { color, fontWeight: '700' },
+                          ]}
+                        >
                           {qt.replace(/_/g, ' ')}
                         </Text>
                       </TouchableOpacity>
@@ -241,59 +285,101 @@ const styles = StyleSheet.create({
 
   tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderColor: COLORS.border },
   tab: {
-    flex: 1, alignItems: 'center', paddingVertical: SPACING.md,
-    borderBottomWidth: 3, borderBottomColor: 'transparent',
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
   },
   tabLabel: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
 
   filterScroll: { flexGrow: 0, borderBottomWidth: 1, borderColor: COLORS.border },
   filterContent: {
-    flexDirection: 'row', gap: SPACING.sm,
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm,
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
   },
   filterChip: {
-    paddingHorizontal: SPACING.md, paddingVertical: 6,
-    borderRadius: RADIUS.full ?? 999, borderWidth: 1.5, borderColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full ?? 999,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     backgroundColor: '#fff',
   },
   filterChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.textSecondary },
 
   activeFilter: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    borderWidth: 1, borderRadius: RADIUS.lg,
-    paddingHorizontal: SPACING.md, paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
     marginBottom: SPACING.md,
   },
   activeFilterText: { flex: 1, fontSize: FONT_SIZES.xs, fontWeight: '700' },
 
   partCard: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#fff', borderRadius: RADIUS.xl,
-    padding: SPACING.lg, marginBottom: SPACING.md,
-    borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
     gap: SPACING.md,
   },
   partBadge: {
-    width: 52, height: 52, borderRadius: RADIUS.lg,
-    alignItems: 'center', justifyContent: 'center',
+    width: 52,
+    height: 52,
+    borderRadius: RADIUS.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   partBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800', textAlign: 'center' },
   partInfo: { flex: 1 },
-  partTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.sm },
+  partTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: SPACING.sm,
+  },
   partTypes: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
   qtChip: {
-    backgroundColor: COLORS.surface, paddingHorizontal: 6, paddingVertical: 2,
-    borderRadius: RADIUS.sm, borderWidth: 1, borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   qtChipText: { fontSize: 10, color: COLORS.textSecondary, textTransform: 'capitalize' },
 
   historyBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
-    backgroundColor: '#fff', borderRadius: RADIUS.xl,
-    paddingHorizontal: SPACING.lg, paddingVertical: 12,
-    marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: 12,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   historyBannerText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700' },
 });

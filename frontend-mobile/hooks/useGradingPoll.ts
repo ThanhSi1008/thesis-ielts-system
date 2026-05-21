@@ -28,12 +28,7 @@ interface UseGradingPollOptions {
   onError?: (message: string) => void;
 }
 
-export function useGradingPoll({
-  sessionId,
-  enabled,
-  onDone,
-  onError,
-}: UseGradingPollOptions) {
+export function useGradingPoll({ sessionId, enabled, onDone, onError }: UseGradingPollOptions) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const attemptsRef = useRef(0);
   const doneCalledRef = useRef(false);

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -12,12 +16,12 @@ import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
 
 const SKILLS = [
   { key: 'listening', label: 'Listening', color: '#E11D48' },
-  { key: 'reading',   label: 'Reading',   color: '#2563EB' },
-  { key: 'writing',   label: 'Writing',   color: '#7C3AED' },
-  { key: 'speaking',  label: 'Speaking',  color: '#059669' },
+  { key: 'reading', label: 'Reading', color: '#2563EB' },
+  { key: 'writing', label: 'Writing', color: '#7C3AED' },
+  { key: 'speaking', label: 'Speaking', color: '#059669' },
 ] as const;
 
-type SkillKey = typeof SKILLS[number]['key'];
+type SkillKey = (typeof SKILLS)[number]['key'];
 
 // Listening stats use scoreData across all ieltsPracticeSession records.
 // The statistics endpoint returns aggregated data across all skills.
@@ -29,18 +33,21 @@ type SkillKey = typeof SKILLS[number]['key'];
 export default function StatisticsScreen() {
   const router = useRouter();
   const [activeSkill, setActiveSkill] = useState<SkillKey>('listening');
-  const [stats, setStats] = useState<Record<string, { correct: number; total: number; attempted: number }>>({});
+  const [stats, setStats] = useState<
+    Record<string, { correct: number; total: number; attempted: number }>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    ieltsAdvancedApi.getStatistics()
-      .then(data => setStats(data))
+    ieltsAdvancedApi
+      .getStatistics()
+      .then((data) => setStats(data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
-  const skill = SKILLS.find(s => s.key === activeSkill)!;
+  const skill = SKILLS.find((s) => s.key === activeSkill)!;
   const isComingSoon = activeSkill === 'writing' || activeSkill === 'speaking';
 
   const entries = Object.entries(stats).sort((a, b) => b[1].total - a[1].total);
@@ -57,14 +64,24 @@ export default function StatisticsScreen() {
       </View>
 
       {/* Skill tabs */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabScroll} contentContainerStyle={styles.tabContent}>
-        {SKILLS.map(s => (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.tabScroll}
+        contentContainerStyle={styles.tabContent}
+      >
+        {SKILLS.map((s) => (
           <TouchableOpacity
             key={s.key}
-            style={[styles.tabChip, activeSkill === s.key && { backgroundColor: s.color, borderColor: s.color }]}
+            style={[
+              styles.tabChip,
+              activeSkill === s.key && { backgroundColor: s.color, borderColor: s.color },
+            ]}
             onPress={() => setActiveSkill(s.key)}
           >
-            <Text style={[styles.tabChipText, activeSkill === s.key && { color: '#fff' }]}>{s.label}</Text>
+            <Text style={[styles.tabChipText, activeSkill === s.key && { color: '#fff' }]}>
+              {s.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -82,18 +99,27 @@ export default function StatisticsScreen() {
         <View style={styles.center}>
           <Ionicons name="construct-outline" size={56} color={COLORS.textMuted} />
           <Text style={styles.emptyTitle}>Coming Soon</Text>
-          <Text style={styles.emptyText}>{skill.label} statistics will be available in a future update.</Text>
+          <Text style={styles.emptyText}>
+            {skill.label} statistics will be available in a future update.
+          </Text>
         </View>
       ) : entries.length === 0 ? (
         <View style={styles.center}>
           <Ionicons name="stats-chart-outline" size={56} color={COLORS.textMuted} />
           <Text style={styles.emptyTitle}>No Data Yet</Text>
-          <Text style={styles.emptyText}>Complete some practice sessions to see your statistics.</Text>
+          <Text style={styles.emptyText}>
+            Complete some practice sessions to see your statistics.
+          </Text>
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
           {/* Summary row */}
-          <View style={[styles.summaryCard, { backgroundColor: skill.color + '10', borderColor: skill.color + '30' }]}>
+          <View
+            style={[
+              styles.summaryCard,
+              { backgroundColor: skill.color + '10', borderColor: skill.color + '30' },
+            ]}
+          >
             {(() => {
               const totalCorrect = entries.reduce((s, [, v]) => s + v.correct, 0);
               const totalQs = entries.reduce((s, [, v]) => s + v.total, 0);
@@ -105,8 +131,12 @@ export default function StatisticsScreen() {
                     <Text style={[styles.summaryLabel, { color: skill.color }]}>Overall</Text>
                   </View>
                   <View style={styles.summaryMeta}>
-                    <Text style={[styles.summaryBig, { color: skill.color }]}>{totalCorrect} / {totalQs}</Text>
-                    <Text style={styles.summaryCaption}>correct across {entries.length} question type{entries.length !== 1 ? 's' : ''}</Text>
+                    <Text style={[styles.summaryBig, { color: skill.color }]}>
+                      {totalCorrect} / {totalQs}
+                    </Text>
+                    <Text style={styles.summaryCaption}>
+                      correct across {entries.length} question type{entries.length !== 1 ? 's' : ''}
+                    </Text>
                   </View>
                 </>
               );
@@ -121,14 +151,23 @@ export default function StatisticsScreen() {
               <View key={type} style={styles.statRow}>
                 <View style={styles.statHeader}>
                   <Text style={styles.statType}>{getQuestionTypeLabel(type)}</Text>
-                  <Text style={[styles.statScore, { color: skill.color }]}>{data.correct}/{data.total}</Text>
+                  <Text style={[styles.statScore, { color: skill.color }]}>
+                    {data.correct}/{data.total}
+                  </Text>
                 </View>
                 <View style={styles.progressTrack}>
-                  <View style={[styles.progressFill, { width: `${pct}%` as any, backgroundColor: skill.color }]} />
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${pct}%` as any, backgroundColor: skill.color },
+                    ]}
+                  />
                 </View>
                 <View style={styles.statMeta}>
                   <Text style={styles.statPct}>{pct}% accuracy</Text>
-                  <Text style={styles.statAttempted}>{data.attempted} attempt{data.attempted !== 1 ? 's' : ''}</Text>
+                  <Text style={styles.statAttempted}>
+                    {data.attempted} attempt{data.attempted !== 1 ? 's' : ''}
+                  </Text>
                 </View>
               </View>
             );
@@ -141,7 +180,13 @@ export default function StatisticsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl, gap: SPACING.md },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: SPACING.xl,
+    gap: SPACING.md,
+  },
 
   header: {
     backgroundColor: COLORS.primary,
@@ -184,10 +229,17 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   summaryCircle: {
-    width: 80, height: 80, borderRadius: 40,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: '#fff',
-    alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   summaryPct: { fontSize: 24, fontWeight: '900' },
   summaryLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', textTransform: 'uppercase' },
@@ -222,6 +274,16 @@ const styles = StyleSheet.create({
   statPct: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontWeight: '600' },
   statAttempted: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted },
 
-  emptyTitle: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text, textAlign: 'center' },
-  emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', maxWidth: 260 },
+  emptyTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '800',
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    maxWidth: 260,
+  },
 });

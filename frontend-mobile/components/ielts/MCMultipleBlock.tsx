@@ -16,8 +16,8 @@ interface Props {
     options?: Option[];
     answers?: string[]; // correct answer letters (used for scoring; not shown during practice)
   };
-  groupIdx: number;         // index in content array — used to build the 'mcm-{idx}' answer key
-  answer: string;           // current value: comma-separated selected letters, e.g. "A,C"
+  groupIdx: number; // index in content array — used to build the 'mcm-{idx}' answer key
+  answer: string; // current value: comma-separated selected letters, e.g. "A,C"
   onAnswer: (key: string, value: string) => void;
 }
 
@@ -31,7 +31,7 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
   const toggle = (letter: string) => {
     let next = [...selectedLetters];
     if (next.includes(letter)) {
-      next = next.filter(l => l !== letter);
+      next = next.filter((l) => l !== letter);
     } else {
       if (next.length < numRequired) {
         next.push(letter);
@@ -48,7 +48,7 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
           <Text style={styles.typeBadgeText}>MULTIPLE ANSWER</Text>
         </View>
         <View style={styles.qNumRow}>
-          {qNums.map(n => (
+          {qNums.map((n) => (
             <View key={n} style={styles.qNumBadge}>
               <Text style={styles.qNumText}>{n}</Text>
             </View>
@@ -57,9 +57,7 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
       </View>
 
       {/* Question text */}
-      {group.text ? (
-        <Text style={styles.qText}>{group.text}</Text>
-      ) : null}
+      {group.text ? <Text style={styles.qText}>{group.text}</Text> : null}
 
       {/* Instructions */}
       {group.instructions ? (
@@ -68,7 +66,9 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
           <Text style={styles.instrText}>{group.instructions}</Text>
         </View>
       ) : (
-        <Text style={styles.hint}>Choose {numRequired} answer{numRequired !== 1 ? 's' : ''}</Text>
+        <Text style={styles.hint}>
+          Choose {numRequired} answer{numRequired !== 1 ? 's' : ''}
+        </Text>
       )}
 
       {/* Progress indicator */}
@@ -85,7 +85,7 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
       </View>
 
       {/* Options */}
-      {options.map(opt => {
+      {options.map((opt) => {
         const selected = selectedLetters.includes(opt.letter);
         const disabled = !selected && selectedLetters.length >= numRequired;
         return (
@@ -103,7 +103,13 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
               {selected && <Ionicons name="checkmark" size={14} color="#fff" />}
             </View>
             <Text style={[styles.letter, selected && styles.letterSelected]}>{opt.letter}.</Text>
-            <Text style={[styles.optText, selected && styles.optTextSelected, disabled && styles.optTextDisabled]}>
+            <Text
+              style={[
+                styles.optText,
+                selected && styles.optTextSelected,
+                disabled && styles.optTextDisabled,
+              ]}
+            >
               {opt.text}
             </Text>
           </TouchableOpacity>
@@ -139,12 +145,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#1D4ED840',
   },
-  typeBadgeText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.8, color: '#1D4ED8', textTransform: 'uppercase' },
+  typeBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    color: '#1D4ED8',
+    textTransform: 'uppercase',
+  },
   qNumRow: { flexDirection: 'row', gap: 4 },
   qNumBadge: {
-    width: 22, height: 22, borderRadius: 5,
-    backgroundColor: '#DBEAFE', borderWidth: 1, borderColor: '#93C5FD',
-    alignItems: 'center', justifyContent: 'center',
+    width: 22,
+    height: 22,
+    borderRadius: 5,
+    backgroundColor: '#DBEAFE',
+    borderWidth: 1,
+    borderColor: '#93C5FD',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   qNumText: { fontSize: 11, fontWeight: '700', color: '#1D4ED8' },
 
@@ -166,7 +183,13 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
     padding: SPACING.sm,
   },
-  instrText: { flex: 1, fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, lineHeight: 18, fontStyle: 'italic' },
+  instrText: {
+    flex: 1,
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    fontStyle: 'italic',
+  },
   hint: {
     fontSize: FONT_SIZES.xs,
     color: '#1D4ED8',
@@ -183,8 +206,12 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
   },
   progressDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: COLORS.border, borderWidth: 1, borderColor: COLORS.textMuted,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.border,
+    borderWidth: 1,
+    borderColor: COLORS.textMuted,
   },
   progressDotFilled: { backgroundColor: '#3B82F6', borderColor: '#2563EB' },
   progressText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginLeft: 4 },
@@ -205,10 +232,14 @@ const styles = StyleSheet.create({
   optionDisabled: { opacity: 0.45 },
 
   checkbox: {
-    width: 22, height: 22, borderRadius: 5,
-    borderWidth: 1.5, borderColor: COLORS.border,
+    width: 22,
+    height: 22,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     backgroundColor: '#fff',
-    alignItems: 'center', justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     flexShrink: 0,
   },
   checkboxFilled: { backgroundColor: '#3B82F6', borderColor: '#2563EB' },

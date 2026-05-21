@@ -35,7 +35,8 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
   const options: any[] = group.options || [];
   const optionLetters: string[] = options.map((o: any) => o.letter);
   const typeLabel = LABEL_BY_TYPE[group.type] ?? group.type?.replace(/_/g, ' ');
-  const instruction = group.instruction || group.instructions || DEFAULT_INSTRUCTION[group.type] || '';
+  const instruction =
+    group.instruction || group.instructions || DEFAULT_INSTRUCTION[group.type] || '';
   const qNums = questions.map((q: any) => q.question_number);
 
   return (
@@ -79,7 +80,13 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                   <Text style={styles.qNumBadgeText}>{q.question_number}</Text>
                 </View>
                 <Text
-                  style={{ flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 22, fontWeight: '500' }}
+                  style={{
+                    flex: 1,
+                    fontSize: FONT_SIZES.sm,
+                    color: COLORS.text,
+                    lineHeight: 22,
+                    fontWeight: '500',
+                  }}
                 >
                   {q.text}
                 </Text>
@@ -90,17 +97,24 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {optionLetters.map((letter) => {
                     const isSelected = selected === letter.toUpperCase();
-                    const isCorrectCell = submitted && letter.toUpperCase() === q.answer?.toUpperCase();
+                    const isCorrectCell =
+                      submitted && letter.toUpperCase() === q.answer?.toUpperCase();
                     let bg: string = '#fff';
                     let border: string = COLORS.border;
                     let textColor: string = COLORS.text;
 
                     if (submitted && isCorrectCell) {
-                      bg = '#DCFCE7'; border = '#86EFAC'; textColor = '#16A34A';
+                      bg = '#DCFCE7';
+                      border = '#86EFAC';
+                      textColor = '#16A34A';
                     } else if (submitted && isSelected && !isCorrectCell) {
-                      bg = '#FEE2E2'; border = '#FCA5A5'; textColor = '#DC2626';
+                      bg = '#FEE2E2';
+                      border = '#FCA5A5';
+                      textColor = '#DC2626';
                     } else if (!submitted && isSelected) {
-                      bg = '#FEF9C3'; border = '#FDE047'; textColor = '#854D0E';
+                      bg = '#FEF9C3';
+                      border = '#FDE047';
+                      textColor = '#854D0E';
                     }
 
                     return (
@@ -118,7 +132,9 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                           justifyContent: 'center',
                         }}
                       >
-                        <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '800', color: textColor }}>
+                        <Text
+                          style={{ fontSize: FONT_SIZES.md, fontWeight: '800', color: textColor }}
+                        >
                           {letter}
                         </Text>
                       </TouchableOpacity>
@@ -136,12 +152,17 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
 
               {/* Explanation */}
               {submitted && q.explanation && showExplanation === q.question_number && (
-                <ExplanationView explanation={getExplanationText(q.explanation)} isCorrect={isCorrect} />
+                <ExplanationView
+                  explanation={getExplanationText(q.explanation)}
+                  isCorrect={isCorrect}
+                />
               )}
               {submitted && q.explanation && (
                 <TouchableOpacity
                   onPress={() =>
-                    setShowExplanation(showExplanation === q.question_number ? null : q.question_number)
+                    setShowExplanation(
+                      showExplanation === q.question_number ? null : q.question_number,
+                    )
                   }
                   style={{
                     marginTop: 8,
@@ -186,7 +207,13 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
             }}
           >
             <Text
-              style={{ fontSize: 11, fontWeight: '800', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.8 }}
+              style={{
+                fontSize: 11,
+                fontWeight: '800',
+                color: COLORS.textMuted,
+                textTransform: 'uppercase',
+                letterSpacing: 0.8,
+              }}
             >
               {OPTIONS_BOX_TITLE[group.type] ?? 'Options'}
             </Text>
@@ -212,7 +239,9 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                   backgroundColor: '#F8FAFC',
                 }}
               >
-                <Text style={{ fontSize: 13, fontWeight: '800', color: COLORS.text }}>{opt.letter}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: COLORS.text }}>
+                  {opt.letter}
+                </Text>
               </View>
               <Text
                 style={{

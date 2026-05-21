@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import { COLORS, RADIUS, SPACING } from '@/constants';
@@ -14,7 +21,7 @@ const MODULES = [
     icon: 'flask',
     color: '#E11D48',
     gradient: ['#F43F5E', '#E11D48'],
-    link: '/vocab-lab'
+    link: '/vocab-lab',
   },
   {
     id: 'vocab',
@@ -23,7 +30,7 @@ const MODULES = [
     icon: 'book',
     color: '#FF9800',
     gradient: ['#FBBF24', '#F59E0B'],
-    link: '/vocabulary'
+    link: '/vocabulary',
   },
   {
     id: 'shadowing',
@@ -32,7 +39,7 @@ const MODULES = [
     icon: 'headset',
     color: '#3B82F6',
     gradient: ['#60A5FA', '#3B82F6'],
-    link: '/shadowing'
+    link: '/shadowing',
   },
   {
     id: 'grammar',
@@ -41,7 +48,7 @@ const MODULES = [
     icon: 'text',
     color: '#10B981',
     gradient: ['#34D399', '#10B981'],
-    link: '/grammar'
+    link: '/grammar',
   },
   {
     id: 'pronunciation',
@@ -50,8 +57,8 @@ const MODULES = [
     icon: 'mic',
     color: '#8B5CF6',
     gradient: ['#A78BFA', '#8B5CF6'],
-    link: '/pronunciation'
-  }
+    link: '/pronunciation',
+  },
 ];
 
 export default function ExploreTab() {
@@ -61,24 +68,28 @@ export default function ExploreTab() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Explore</Text>
-        <Text style={styles.headerSubtitle}>Discover specialized tools to boost your band score.</Text>
+        <Text style={styles.headerSubtitle}>
+          Discover specialized tools to boost your band score.
+        </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        
         {/* Featured Banner */}
         <View style={styles.banner}>
           <LinearGradient
             colors={['#1E293B', '#0F172A']}
             style={StyleSheet.absoluteFillObject}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           />
           <View style={styles.bannerContent}>
             <View style={styles.bannerBadge}>
               <Text style={styles.bannerBadgeText}>FEATURED</Text>
             </View>
             <Text style={styles.bannerTitle}>Vocab Lab is here!</Text>
-            <Text style={styles.bannerDesc}>Supercharge your memory with our AI-powered SRS flashcards.</Text>
+            <Text style={styles.bannerDesc}>
+              Supercharge your memory with our AI-powered SRS flashcards.
+            </Text>
             <Link href="/vocab-lab" asChild>
               <TouchableOpacity style={styles.bannerBtn}>
                 <Text style={styles.bannerBtnText}>Try it now</Text>
@@ -86,7 +97,12 @@ export default function ExploreTab() {
               </TouchableOpacity>
             </Link>
           </View>
-          <Ionicons name="flask" size={100} color="rgba(255,255,255,0.05)" style={styles.bannerIcon} />
+          <Ionicons
+            name="flask"
+            size={100}
+            color="rgba(255,255,255,0.05)"
+            style={styles.bannerIcon}
+          />
         </View>
 
         <Text style={styles.sectionTitle}>Learning Modules</Text>
@@ -97,14 +113,17 @@ export default function ExploreTab() {
               <TouchableOpacity style={styles.card} activeOpacity={0.8}>
                 <LinearGradient
                   colors={mod.gradient as [string, string]}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                   style={styles.cardIconBox}
                 >
                   <Ionicons name={mod.icon as any} size={26} color="#FFF" />
                 </LinearGradient>
                 <View style={styles.cardContent}>
                   <Text style={styles.cardTitle}>{mod.title}</Text>
-                  <Text style={styles.cardDesc} numberOfLines={2}>{mod.desc}</Text>
+                  <Text style={styles.cardDesc} numberOfLines={2}>
+                    {mod.desc}
+                  </Text>
                 </View>
                 <View style={styles.cardAction}>
                   <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
@@ -113,7 +132,6 @@ export default function ExploreTab() {
             </Link>
           ))}
         </View>
-        
       </ScrollView>
     </SafeAreaView>
   );
@@ -268,5 +286,5 @@ const styles = StyleSheet.create({
     width: 24,
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });

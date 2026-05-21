@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, TextInput, Alert, RefreshControl,
-  Modal, Pressable, DeviceEventEmitter
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  Alert,
+  RefreshControl,
+  Modal,
+  Pressable,
+  DeviceEventEmitter,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,7 +33,9 @@ function DeckActionMenu({ visible, deck, onClose, onRename, onDelete }: ActionMe
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={m.overlay} onPress={onClose}>
         <Pressable style={m.sheet} onPress={() => {}}>
-          <Text style={m.title} numberOfLines={1}>{deck?.name}</Text>
+          <Text style={m.title} numberOfLines={1}>
+            {deck?.name}
+          </Text>
           <TouchableOpacity style={m.item} onPress={onRename}>
             <Ionicons name="pencil-outline" size={20} color={COLORS.text} />
             <Text style={m.itemText}>Rename</Text>
@@ -33,8 +44,21 @@ function DeckActionMenu({ visible, deck, onClose, onRename, onDelete }: ActionMe
             <Ionicons name="trash-outline" size={20} color={COLORS.error} />
             <Text style={[m.itemText, { color: COLORS.error }]}>Delete Deck</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[m.item, { borderTopWidth: 1, borderColor: COLORS.border, marginTop: SPACING.xs }]} onPress={onClose}>
-            <Text style={[m.itemText, { color: COLORS.textSecondary, fontWeight: '600', textAlign: 'center', flex: 1 }]}>Cancel</Text>
+          <TouchableOpacity
+            style={[
+              m.item,
+              { borderTopWidth: 1, borderColor: COLORS.border, marginTop: SPACING.xs },
+            ]}
+            onPress={onClose}
+          >
+            <Text
+              style={[
+                m.itemText,
+                { color: COLORS.textSecondary, fontWeight: '600', textAlign: 'center', flex: 1 },
+              ]}
+            >
+              Cancel
+            </Text>
           </TouchableOpacity>
         </Pressable>
       </Pressable>
@@ -44,9 +68,28 @@ function DeckActionMenu({ visible, deck, onClose, onRename, onDelete }: ActionMe
 
 const m = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#fff', borderTopLeftRadius: RADIUS.xl * 1.5, borderTopRightRadius: RADIUS.xl * 1.5, padding: SPACING.lg, paddingBottom: SPACING.xl + 16 },
-  title: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.textSecondary, marginBottom: SPACING.md, paddingBottom: SPACING.md, borderBottomWidth: 1, borderColor: COLORS.border },
-  item: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md, paddingVertical: SPACING.md },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: RADIUS.xl * 1.5,
+    borderTopRightRadius: RADIUS.xl * 1.5,
+    padding: SPACING.lg,
+    paddingBottom: SPACING.xl + 16,
+  },
+  title: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.md,
+    paddingBottom: SPACING.md,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    paddingVertical: SPACING.md,
+  },
   itemText: { fontSize: FONT_SIZES.md, color: COLORS.text, fontWeight: '600' },
 });
 
@@ -62,10 +105,15 @@ function RenameDeckModal({ visible, deck, onClose, onSaved }: RenameModalProps) 
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { if (visible && deck) setName(deck.name); }, [visible, deck]);
+  useEffect(() => {
+    if (visible && deck) setName(deck.name);
+  }, [visible, deck]);
 
   const handleSave = async () => {
-    if (!name.trim() || name.trim() === deck?.name) { onClose(); return; }
+    if (!name.trim() || name.trim() === deck?.name) {
+      onClose();
+      return;
+    }
     setSaving(true);
     try {
       await vocabLabApi.renameDeck(deck.id, name.trim());
@@ -104,10 +152,28 @@ function RenameDeckModal({ visible, deck, onClose, onSaved }: RenameModalProps) 
 }
 
 const r = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modal: { backgroundColor: '#fff', width: '85%', borderRadius: RADIUS.xl, padding: SPACING.xl },
-  title: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text, marginBottom: SPACING.lg },
-  input: { borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.lg, padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.lg },
+  title: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: SPACING.lg,
+  },
+  input: {
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    marginBottom: SPACING.lg,
+  },
 });
 
 // ─── Main DecksTab ─────────────────────────────────────────────────────────────
@@ -132,8 +198,11 @@ export function DecksTab() {
       const [dr, sr] = await Promise.allSettled([vocabLabApi.getDecks(), vocabLabApi.getStats()]);
       if (dr.status === 'fulfilled') setDecks(dr.value);
       if (sr.status === 'fulfilled') setStats(sr.value);
-    } catch {}
-    finally { setLoading(false); setRefreshing(false); }
+    } catch {
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -164,22 +233,37 @@ export function DecksTab() {
     Alert.alert('Delete Deck', `Delete "${deck.name}"? All cards will be removed.`, [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Delete', style: 'destructive', onPress: async () => {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
           await vocabLabApi.deleteDeck(deck.id);
           fetchData();
-        }
+        },
       },
     ]);
   };
 
   const openActionMenu = (deck: any) => setActionDeck(deck);
 
-  if (loading) return <View style={s.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+  if (loading)
+    return (
+      <View style={s.center}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
 
   return (
     <ScrollView
       contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            fetchData();
+          }}
+        />
+      }
     >
       {/* Global stats */}
       {stats && (
@@ -187,7 +271,7 @@ export function DecksTab() {
           {[
             ['Total', stats.totalCards ?? stats.totalCount ?? 0, COLORS.text],
             ['Due', stats.totalDue ?? stats.dueCount ?? 0, COLORS.error],
-            ['Learned', stats.totalLearned ?? stats.reviewCount ?? 0, COLORS.success]
+            ['Learned', stats.totalLearned ?? stats.reviewCount ?? 0, COLORS.success],
           ].map(([label, val, color]) => (
             <View key={label as string} style={s.statItem}>
               <Text style={[s.statVal, { color: color as string }]}>{val as number}</Text>
@@ -204,9 +288,15 @@ export function DecksTab() {
       </TouchableOpacity>
 
       {/* Deck list */}
-      {decks.length === 0
-        ? <EmptyState icon="📦" title="No decks yet" subtitle="Create your first flashcard deck." action={{ label: 'Create Deck', onPress: () => setCreateModal(true) }} />
-        : decks.map(deck => {
+      {decks.length === 0 ? (
+        <EmptyState
+          icon="📦"
+          title="No decks yet"
+          subtitle="Create your first flashcard deck."
+          action={{ label: 'Create Deck', onPress: () => setCreateModal(true) }}
+        />
+      ) : (
+        decks.map((deck) => {
           const totalDue = (deck.dueCount ?? 0) + (deck.learningCount ?? 0);
           return (
             <View key={deck.id} style={s.deckCard}>
@@ -265,7 +355,7 @@ export function DecksTab() {
             </View>
           );
         })
-      }
+      )}
 
       {/* Create Deck Modal */}
       <Modal visible={createModal} transparent animationType="fade">
@@ -282,8 +372,20 @@ export function DecksTab() {
               onSubmitEditing={handleCreate}
             />
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: SPACING.md }}>
-              <Button title="Cancel" variant="ghost" onPress={() => { setCreateModal(false); setNewDeckName(''); }} />
-              <Button title="Create" onPress={handleCreate} loading={creating} disabled={!newDeckName.trim()} />
+              <Button
+                title="Cancel"
+                variant="ghost"
+                onPress={() => {
+                  setCreateModal(false);
+                  setNewDeckName('');
+                }}
+              />
+              <Button
+                title="Create"
+                onPress={handleCreate}
+                loading={creating}
+                disabled={!newDeckName.trim()}
+              />
             </View>
           </Pressable>
         </Pressable>
@@ -314,15 +416,44 @@ export function DecksTab() {
 
 const s = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
-  statsRow: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.lg, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.lg },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: SPACING.lg,
+  },
   statItem: { flex: 1, alignItems: 'center' },
   statVal: { fontSize: FONT_SIZES.xxl, fontWeight: '800' },
   statLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary },
-  newDeckBtn: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, alignSelf: 'flex-end', marginBottom: SPACING.md, paddingVertical: SPACING.xs, paddingHorizontal: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1.5, borderColor: COLORS.primary },
+  newDeckBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    alignSelf: 'flex-end',
+    marginBottom: SPACING.md,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+  },
   newDeckBtnText: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZES.sm },
 
   // Deck card
-  deckCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.md, marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border, gap: SPACING.md },
+  deckCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    gap: SPACING.md,
+  },
   deckName: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
   deckMeta: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
 
@@ -330,16 +461,59 @@ const s = StyleSheet.create({
   countsRow: { flexDirection: 'row', gap: SPACING.sm },
   countItem: { alignItems: 'center', minWidth: 28 },
   countVal: { fontWeight: '800', fontSize: FONT_SIZES.md },
-  countLabel: { fontSize: 9, color: COLORS.textSecondary, textTransform: 'uppercase', fontWeight: '700' },
+  countLabel: {
+    fontSize: 9,
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    fontWeight: '700',
+  },
 
   // Action buttons
-  deckActions: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, borderLeftWidth: 1, borderColor: COLORS.border, paddingLeft: SPACING.sm },
-  studyBtn: { width: 32, height: 32, borderRadius: RADIUS.lg, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' },
-  moreBtn: { width: 32, height: 32, justifyContent: 'center', alignItems: 'center', borderRadius: RADIUS.lg },
+  deckActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    borderLeftWidth: 1,
+    borderColor: COLORS.border,
+    paddingLeft: SPACING.sm,
+  },
+  studyBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  moreBtn: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: RADIUS.lg,
+  },
 
   // Modals
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modal: { backgroundColor: '#fff', width: '85%', borderRadius: RADIUS.xl, padding: SPACING.xl },
-  modalTitle: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text, marginBottom: SPACING.lg },
-  modalInput: { borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.lg, padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.lg },
+  modalTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: SPACING.lg,
+  },
+  modalInput: {
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    marginBottom: SPACING.lg,
+  },
 });

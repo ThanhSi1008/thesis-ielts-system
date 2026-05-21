@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  Alert, Pressable, Dimensions, Modal as RNModal,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Pressable,
+  Dimensions,
+  Modal as RNModal,
 } from 'react-native';
-
-const { width: SCREEN_W } = Dimensions.get('window');
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { 
-  FadeIn, 
-  FadeOut, 
-  SlideInRight, 
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInRight,
   SlideOutLeft,
   Layout,
-  LinearTransition
+  LinearTransition,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -22,6 +27,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, SHADOWS } from '@/constants';
 import { ieltsProfileApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
+
+const { width: SCREEN_W } = Dimensions.get('window');
 
 const TARGET_BANDS = [4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0];
 const COMMITMENTS = [
@@ -48,7 +55,7 @@ export default function OnboardingScreen() {
   const handleNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (step < STEPS.length - 1) {
-      setStep(s => s + 1);
+      setStep((s) => s + 1);
     } else {
       handleFinish();
     }
@@ -56,7 +63,7 @@ export default function OnboardingScreen() {
 
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setStep(s => s - 1);
+    setStep((s) => s - 1);
   };
 
   const handleSelectBand = (b: number) => {
@@ -95,25 +102,25 @@ export default function OnboardingScreen() {
       <View style={styles.header}>
         <View style={styles.progressContainer}>
           {STEPS.map((_, i) => (
-            <Animated.View 
-              key={i} 
+            <Animated.View
+              key={i}
               layout={LinearTransition}
               style={[
-                styles.progressPill, 
+                styles.progressPill,
                 i <= step && styles.pillActive,
-                i === step && styles.pillCurrent
-              ]} 
+                i === step && styles.pillCurrent,
+              ]}
             />
           ))}
         </View>
       </View>
 
-      <ScrollView 
-        contentContainerStyle={styles.scroll} 
+      <ScrollView
+        contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
       >
-        <Animated.View 
+        <Animated.View
           key={step}
           entering={FadeIn.duration(400).delay(100)}
           exiting={FadeOut.duration(300)}
@@ -122,10 +129,12 @@ export default function OnboardingScreen() {
           {step === 0 && (
             <View style={styles.stepContent}>
               <Text style={styles.stepTitle}>Set your target</Text>
-              <Text style={styles.stepSubtitle}>We'll build a personalized roadmap to help you reach your goal.</Text>
-              
+              <Text style={styles.stepSubtitle}>
+                We'll build a personalized roadmap to help you reach your goal.
+              </Text>
+
               <View style={styles.bandGrid}>
-                {TARGET_BANDS.map(b => {
+                {TARGET_BANDS.map((b) => {
                   const isActive = targetBand === b;
                   return (
                     <TouchableOpacity
@@ -148,10 +157,12 @@ export default function OnboardingScreen() {
           {step === 1 && (
             <View style={styles.stepContent}>
               <Text style={styles.stepTitle}>Daily dedication</Text>
-              <Text style={styles.stepSubtitle}>How much time can you realistically invest in your future each day?</Text>
-              
+              <Text style={styles.stepSubtitle}>
+                How much time can you realistically invest in your future each day?
+              </Text>
+
               <View style={styles.commitGrid}>
-                {COMMITMENTS.map(item => {
+                {COMMITMENTS.map((item) => {
                   const isActive = commitment === item.value;
                   return (
                     <TouchableOpacity
@@ -161,10 +172,10 @@ export default function OnboardingScreen() {
                       onPress={() => handleSelectCommitment(item.value)}
                     >
                       <View style={[styles.iconCircle, isActive && styles.iconCircleActive]}>
-                        <Ionicons 
-                          name={item.icon as any} 
-                          size={24} 
-                          color={isActive ? '#fff' : COLORS.primary} 
+                        <Ionicons
+                          name={item.icon as any}
+                          size={24}
+                          color={isActive ? '#fff' : COLORS.primary}
                         />
                       </View>
                       <View style={{ flex: 1 }}>
@@ -175,7 +186,9 @@ export default function OnboardingScreen() {
                           {item.sub}
                         </Text>
                       </View>
-                      {isActive && <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />}
+                      {isActive && (
+                        <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
+                      )}
                     </TouchableOpacity>
                   );
                 })}
@@ -187,13 +200,15 @@ export default function OnboardingScreen() {
           {step === 2 && (
             <View style={styles.stepContent}>
               <Text style={styles.stepTitle}>Your deadline</Text>
-              <Text style={styles.stepSubtitle}>Optional. We'll show a countdown to keep you motivated.</Text>
-              
+              <Text style={styles.stepSubtitle}>
+                Optional. We'll show a countdown to keep you motivated.
+              </Text>
+
               <View style={styles.dateCardContainer}>
-                <Pressable 
+                <Pressable
                   style={({ pressed }) => [
                     styles.premiumDateCard,
-                    pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }
+                    pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
                   ]}
                   onPress={() => setShowPicker(true)}
                 >
@@ -203,12 +218,14 @@ export default function OnboardingScreen() {
                   <View style={styles.dateInfo}>
                     <Text style={styles.dateLabel}>Test Date</Text>
                     <Text style={styles.dateDisplay}>
-                      {dateSet ? examDate.toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      }) : 'Not scheduled yet'}
+                      {dateSet
+                        ? examDate.toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                        : 'Not scheduled yet'}
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color={COLORS.textMuted} />
@@ -217,11 +234,7 @@ export default function OnboardingScreen() {
                 {/* Nút bỏ qua đã được gỡ bỏ để tránh gây rối, người dùng chỉ cần nhấn Continue/Start ở dưới cùng */}
               </View>
 
-              <RNModal
-                visible={showPicker}
-                transparent={true}
-                animationType="slide"
-              >
+              <RNModal visible={showPicker} transparent={true} animationType="slide">
                 <View style={styles.modalOverlay}>
                   <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
@@ -258,18 +271,21 @@ export default function OnboardingScreen() {
       <View style={styles.footer}>
         <View style={styles.navRow}>
           {step > 0 && (
-            <TouchableOpacity 
-              style={styles.backBtn} 
-              onPress={handleBack}
-            >
+            <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
               <Ionicons name="arrow-back" size={20} color={COLORS.textSecondary} />
               <Text style={styles.backBtnText}>Back</Text>
             </TouchableOpacity>
           )}
           <View style={{ flex: 1 }}>
-            <Button 
-              title={step === STEPS.length - 1 ? (saving ? 'Setting up...' : 'Start Training') : 'Continue'} 
-              onPress={handleNext} 
+            <Button
+              title={
+                step === STEPS.length - 1
+                  ? saving
+                    ? 'Setting up...'
+                    : 'Start Training'
+                  : 'Continue'
+              }
+              onPress={handleNext}
               loading={saving}
               variant="primary"
               size="lg"
@@ -288,53 +304,53 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.lg,
     paddingBottom: SPACING.md,
   },
-  progressContainer: { 
-    flexDirection: 'row', 
+  progressContainer: {
+    flexDirection: 'row',
     gap: 6,
     height: 6,
   },
-  progressPill: { 
-    flex: 1, 
-    height: '100%', 
-    borderRadius: 3, 
+  progressPill: {
+    flex: 1,
+    height: '100%',
+    borderRadius: 3,
     backgroundColor: COLORS.border,
   },
-  pillActive: { 
+  pillActive: {
     backgroundColor: COLORS.primary + '40',
   },
   pillCurrent: {
     backgroundColor: COLORS.primary,
   },
-  scroll: { 
-    paddingHorizontal: SPACING.xl, 
+  scroll: {
+    paddingHorizontal: SPACING.xl,
     paddingTop: SPACING.xl,
     paddingBottom: 40,
   },
-  stepContent: { 
+  stepContent: {
     alignItems: 'flex-start',
   },
-  stepTitle: { 
+  stepTitle: {
     fontFamily: FONTS.bold,
-    fontSize: 32, 
-    color: COLORS.text, 
+    fontSize: 32,
+    color: COLORS.text,
     marginBottom: SPACING.sm,
     letterSpacing: -0.5,
   },
-  stepSubtitle: { 
+  stepSubtitle: {
     fontFamily: FONTS.medium,
-    fontSize: 17, 
-    color: COLORS.textSecondary, 
+    fontSize: 17,
+    color: COLORS.textSecondary,
     lineHeight: 24,
     marginBottom: SPACING.xxl,
   },
-  
+
   // Band Grid
-  bandGrid: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
+  bandGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
-  bandCard: { 
+  bandCard: {
     width: (SCREEN_W - SPACING.xl * 2 - 24) / 3,
     aspectRatio: 1,
     borderRadius: RADIUS.xl,
@@ -346,17 +362,17 @@ const styles = StyleSheet.create({
     borderCurve: 'continuous',
     boxShadow: SHADOWS.sm,
   },
-  bandCardActive: { 
+  bandCardActive: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
     boxShadow: SHADOWS.md,
   },
-  bandValue: { 
+  bandValue: {
     fontFamily: FONTS.bold,
-    fontSize: 22, 
+    fontSize: 22,
     color: COLORS.text,
   },
-  bandValueActive: { 
+  bandValueActive: {
     color: COLORS.onPrimary,
   },
 
@@ -365,21 +381,21 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: 12,
   },
-  commitCard: { 
-    width: '100%', 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: SPACING.lg, 
-    borderRadius: 20, 
-    borderWidth: 1, 
-    borderColor: COLORS.border, 
+  commitCard: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.lg,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     backgroundColor: COLORS.background,
     borderCurve: 'continuous',
     boxShadow: SHADOWS.card,
     gap: SPACING.md,
   },
-  commitCardActive: { 
-    borderColor: COLORS.primary, 
+  commitCardActive: {
+    borderColor: COLORS.primary,
     backgroundColor: COLORS.primary + '10',
     boxShadow: SHADOWS.md,
   },
@@ -394,17 +410,17 @@ const styles = StyleSheet.create({
   iconCircleActive: {
     backgroundColor: COLORS.primary,
   },
-  commitLabel: { 
+  commitLabel: {
     fontFamily: FONTS.bold,
-    fontSize: 18, 
+    fontSize: 18,
     color: COLORS.text,
   },
-  commitLabelActive: { 
+  commitLabelActive: {
     color: COLORS.onPrimary,
   },
-  commitSub: { 
+  commitSub: {
     fontFamily: FONTS.medium,
-    fontSize: 14, 
+    fontSize: 14,
     color: COLORS.textMuted,
     marginTop: 2,
   },
@@ -473,23 +489,23 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     backgroundColor: COLORS.background,
   },
-  navRow: { 
-    flexDirection: 'row', 
-    gap: SPACING.md, 
+  navRow: {
+    flexDirection: 'row',
+    gap: SPACING.md,
     alignItems: 'center',
   },
-  backBtn: { 
+  backBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: SPACING.md, 
-    borderRadius: RADIUS.lg, 
-    borderWidth: 1, 
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
     borderColor: COLORS.border,
     gap: 4,
   },
-  backBtnText: { 
-    color: COLORS.textSecondary, 
-    fontWeight: '700', 
+  backBtnText: {
+    color: COLORS.textSecondary,
+    fontWeight: '700',
     fontSize: 16,
   },
   modalOverlay: {

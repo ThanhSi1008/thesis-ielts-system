@@ -15,7 +15,12 @@ interface Props {
   accentColor?: string;
 }
 
-export default function PassageReview({ passage, passageWithLocations, locatedQuestion, accentColor = '#2563EB' }: Props) {
+export default function PassageReview({
+  passage,
+  passageWithLocations,
+  locatedQuestion,
+  accentColor = '#2563EB',
+}: Props) {
   const scrollRef = useRef<ScrollView>(null);
   const yOffsets = useRef<Record<number, number>>({}); // paragraphIndex → y
   const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -25,8 +30,10 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
   const qToParaIndex = React.useMemo(() => {
     const map: Record<number, number> = {};
     if (passageWithLocations) {
-      passageWithLocations.forEach(loc => {
-        loc.questionNumbers?.forEach(q => { map[q] = loc.paragraphIndex; });
+      passageWithLocations.forEach((loc) => {
+        loc.questionNumbers?.forEach((q) => {
+          map[q] = loc.paragraphIndex;
+        });
       });
     }
     return map;
@@ -62,7 +69,7 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
   // Build a set of question numbers per paragraph for labels
   const paraToQNums: Record<number, number[]> = {};
   if (passageWithLocations) {
-    passageWithLocations.forEach(loc => {
+    passageWithLocations.forEach((loc) => {
       if (loc.questionNumbers?.length) paraToQNums[loc.paragraphIndex] = loc.questionNumbers;
     });
   }
@@ -76,12 +83,20 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
           return (
             <View
               key={idx}
-              style={[styles.paragraph, isHighlighted && { backgroundColor: accentColor + '18', borderColor: accentColor + '60' }]}
-              onLayout={evt => { yOffsets.current[idx] = evt.nativeEvent.layout.y; }}
+              style={[
+                styles.paragraph,
+                isHighlighted && {
+                  backgroundColor: accentColor + '18',
+                  borderColor: accentColor + '60',
+                },
+              ]}
+              onLayout={(evt) => {
+                yOffsets.current[idx] = evt.nativeEvent.layout.y;
+              }}
             >
               {qNums && qNums.length > 0 && (
                 <View style={styles.markerRow}>
-                  {qNums.map(q => (
+                  {qNums.map((q) => (
                     <View key={q} style={[styles.qBadge, { backgroundColor: accentColor }]}>
                       <Text style={styles.qBadgeText}>Q{q}</Text>
                     </View>

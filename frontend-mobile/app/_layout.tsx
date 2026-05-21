@@ -1,7 +1,12 @@
 import { Stack } from 'expo-router';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useFonts } from 'expo-font';
-import { Farro_300Light, Farro_400Regular, Farro_500Medium, Farro_700Bold } from '@expo-google-fonts/farro';
+import {
+  Farro_300Light,
+  Farro_400Regular,
+  Farro_500Medium,
+  Farro_700Bold,
+} from '@expo-google-fonts/farro';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { Text, TextInput } from 'react-native';
@@ -15,11 +20,15 @@ interface TextInputWithDefaultProps extends TextInput {
   defaultProps?: { style?: any };
 }
 
-((Text as unknown) as TextWithDefaultProps).defaultProps = ((Text as unknown) as TextWithDefaultProps).defaultProps || {};
-((Text as unknown) as TextWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
+(Text as unknown as TextWithDefaultProps).defaultProps =
+  (Text as unknown as TextWithDefaultProps).defaultProps || {};
+(Text as unknown as TextWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
 
-((TextInput as unknown) as TextInputWithDefaultProps).defaultProps = ((TextInput as unknown) as TextInputWithDefaultProps).defaultProps || {};
-((TextInput as unknown) as TextInputWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
+(TextInput as unknown as TextInputWithDefaultProps).defaultProps =
+  (TextInput as unknown as TextInputWithDefaultProps).defaultProps || {};
+(TextInput as unknown as TextInputWithDefaultProps).defaultProps!.style = {
+  fontFamily: 'Farro-Bold',
+};
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -46,12 +55,44 @@ export default function RootLayout() {
         <Stack.Screen name="chat-ai" options={{ presentation: 'modal' }} />
 
         {/* Vocabulary nested */}
-        <Stack.Screen name="vocabulary/[bookId]" options={{ headerShown: true, title: 'Units', headerStyle: { backgroundColor: '#FFC600' }, headerTintColor: '#FFFFFF' }} />
-        <Stack.Screen name="vocabulary/[bookId]/[unitId]" options={{ headerShown: true, title: 'Learning', headerStyle: { backgroundColor: '#FFC600' }, headerTintColor: '#FFFFFF' }} />
+        <Stack.Screen
+          name="vocabulary/[bookId]"
+          options={{
+            headerShown: true,
+            title: 'Units',
+            headerStyle: { backgroundColor: '#FFC600' },
+            headerTintColor: '#FFFFFF',
+          }}
+        />
+        <Stack.Screen
+          name="vocabulary/[bookId]/[unitId]"
+          options={{
+            headerShown: true,
+            title: 'Learning',
+            headerStyle: { backgroundColor: '#FFC600' },
+            headerTintColor: '#FFFFFF',
+          }}
+        />
 
         {/* Grammar nested */}
-        <Stack.Screen name="grammar/[bookSlug]" options={{ headerShown: true, title: 'Units', headerStyle: { backgroundColor: '#5B9557' }, headerTintColor: '#FFFFFF' }} />
-        <Stack.Screen name="grammar/[bookSlug]/[unitId]" options={{ headerShown: true, title: 'Lesson', headerStyle: { backgroundColor: '#5B9557' }, headerTintColor: '#FFFFFF' }} />
+        <Stack.Screen
+          name="grammar/[bookSlug]"
+          options={{
+            headerShown: true,
+            title: 'Units',
+            headerStyle: { backgroundColor: '#5B9557' },
+            headerTintColor: '#FFFFFF',
+          }}
+        />
+        <Stack.Screen
+          name="grammar/[bookSlug]/[unitId]"
+          options={{
+            headerShown: true,
+            title: 'Lesson',
+            headerStyle: { backgroundColor: '#5B9557' },
+            headerTintColor: '#FFFFFF',
+          }}
+        />
 
         {/* IELTS screens */}
         <Stack.Screen name="ielts/intensive/index" />

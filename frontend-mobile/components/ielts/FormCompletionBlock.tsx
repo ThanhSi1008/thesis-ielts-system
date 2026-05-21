@@ -32,9 +32,7 @@ export default function FormCompletionBlock({ group, answers, onAnswer }: Props)
       {/* Header */}
       <View style={[styles.header, isFlowchart && styles.headerFlowchart]}>
         <View style={styles.typeBadge}>
-          <Text style={styles.typeBadgeText}>
-            {isFlowchart ? 'FLOWCHART' : 'FORM COMPLETION'}
-          </Text>
+          <Text style={styles.typeBadgeText}>{isFlowchart ? 'FLOWCHART' : 'FORM COMPLETION'}</Text>
         </View>
       </View>
 
@@ -78,7 +76,7 @@ export default function FormCompletionBlock({ group, answers, onAnswer }: Props)
               <TextInput
                 style={styles.fieldInput}
                 value={val}
-                onChangeText={v => onAnswer(key, v)}
+                onChangeText={(v) => onAnswer(key, v)}
                 placeholder="…"
                 placeholderTextColor={COLORS.textMuted}
               />
@@ -135,8 +133,11 @@ const styles = StyleSheet.create({
     borderColor: '#16A34A40',
   },
   typeBadgeText: {
-    fontSize: 10, fontWeight: '800', letterSpacing: 0.8,
-    color: '#16A34A', textTransform: 'uppercase',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    color: '#16A34A',
+    textTransform: 'uppercase',
   },
   headingBox: {
     flexDirection: 'row',
@@ -147,7 +148,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: COLORS.border + '60',
   },
-  headingText: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, fontWeight: '600', lineHeight: 20 },
+  headingText: {
+    flex: 1,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.text,
+    fontWeight: '600',
+    lineHeight: 20,
+  },
 
   formBody: {
     padding: SPACING.md,
@@ -176,9 +183,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
   qBadge: {
-    minWidth: 24, height: 24, borderRadius: 5,
-    backgroundColor: '#DCFCE7', borderWidth: 1, borderColor: '#86EFAC',
-    alignItems: 'center', justifyContent: 'center',
+    minWidth: 24,
+    height: 24,
+    borderRadius: 5,
+    backgroundColor: '#DCFCE7',
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 4,
     flexShrink: 0,
   },

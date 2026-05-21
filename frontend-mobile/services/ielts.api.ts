@@ -12,9 +12,11 @@ export const ieltsProfileApi = {
 // ==================== IELTS ADVANCED ====================
 export const ieltsAdvancedApi = {
   getListeningParts: (questionType?: string) =>
-    apiClient.get<any[]>(questionType
-      ? `/ielts/advanced/listening?questionType=${encodeURIComponent(questionType)}`
-      : '/ielts/advanced/listening'),
+    apiClient.get<any[]>(
+      questionType
+        ? `/ielts/advanced/listening?questionType=${encodeURIComponent(questionType)}`
+        : '/ielts/advanced/listening',
+    ),
   getListeningPart: (id: string) => apiClient.get<any>(`/ielts/advanced/listening/${id}`),
   submitListening: (id: string, answers: Record<string, string>) =>
     apiClient.post<any>(`/ielts/advanced/listening/${id}/submit`, { answers }),
@@ -25,9 +27,11 @@ export const ieltsAdvancedApi = {
     apiClient.get<any>(`/ielts/advanced/history/${sessionId}`),
 
   getReadingParts: (questionType?: string) =>
-    apiClient.get<any[]>(questionType
-      ? `/ielts/advanced/reading?questionType=${encodeURIComponent(questionType)}`
-      : '/ielts/advanced/reading'),
+    apiClient.get<any[]>(
+      questionType
+        ? `/ielts/advanced/reading?questionType=${encodeURIComponent(questionType)}`
+        : '/ielts/advanced/reading',
+    ),
   getReadingPart: (id: string) => apiClient.get<any>(`/ielts/advanced/reading/${id}`),
   submitReading: (id: string, answers: Record<string, string>) =>
     apiClient.post<any>(`/ielts/advanced/reading/${id}/submit`, { answers }),
@@ -37,7 +41,9 @@ export const ieltsAdvancedApi = {
   getReadingHistoryDetail: (sessionId: string) =>
     apiClient.get<any>(`/ielts/advanced/reading/history/${sessionId}`),
   getStatistics: () =>
-    apiClient.get<Record<string, { correct: number; total: number; attempted: number }>>('/ielts/advanced/statistics'),
+    apiClient.get<Record<string, { correct: number; total: number; attempted: number }>>(
+      '/ielts/advanced/statistics',
+    ),
 };
 
 // ==================== IELTS EXAMS (Mock Tests) ====================

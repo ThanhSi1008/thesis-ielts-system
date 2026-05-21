@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl, useWindowDimensions
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  useWindowDimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -48,7 +54,11 @@ export default function SkillExercisesScreen() {
         setGroups([]);
         return;
       }
-      const endpoint = isListening ? "listening-exercises" : isWriting ? "writing-exercises" : "reading-exercises";
+      const endpoint = isListening
+        ? 'listening-exercises'
+        : isWriting
+          ? 'writing-exercises'
+          : 'reading-exercises';
       const exPromises = lessons.map(async (l: any) => {
         try {
           const exData = await apiClient.get<any[]>(`/ielts/lessons/${l.id}/${endpoint}`);
@@ -57,25 +67,41 @@ export default function SkillExercisesScreen() {
             lessonTitle: l.title,
             lessonId: l.id,
           }));
-        } catch (e) { return []; }
+        } catch (e) {
+          return [];
+        }
       });
       const exResults = await Promise.all(exPromises);
       const allExercises = exResults.flat();
       const grouped: GroupedExercises[] = [];
       const toTypeLabel = (title: string) =>
-        (title || "Other").replace(/^Chapter\s+\d+\s*[-–]\s*/i, "").trim() || "Other";
+        (title || 'Other').replace(/^Chapter\s+\d+\s*[-–]\s*/i, '').trim() || 'Other';
       for (const ex of allExercises) {
         const groupTitle = toTypeLabel(ex.lessonTitle);
         const existing = grouped.find((g) => g.title === groupTitle);
-        if (existing) { existing.items.push(ex); } else { grouped.push({ title: groupTitle, items: [ex] }); }
+        if (existing) {
+          existing.items.push(ex);
+        } else {
+          grouped.push({ title: groupTitle, items: [ex] });
+        }
       }
       setGroups(grouped);
-    } catch (error) { console.error('Failed to fetch exercises', error); } finally { setLoading(false); setRefreshing(false); }
+    } catch (error) {
+      console.error('Failed to fetch exercises', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
-  useEffect(() => { fetchExercises(); }, [skillName]);
+  useEffect(() => {
+    fetchExercises();
+  }, [skillName]);
 
-  const onRefresh = () => { setRefreshing(true); fetchExercises(); };
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchExercises();
+  };
 
   const handlePress = (ex: Exercise) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -93,7 +119,7 @@ export default function SkillExercisesScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: true,
           title: `${skillName} Exercises`,
@@ -101,7 +127,7 @@ export default function SkillExercisesScreen() {
           headerShadowVisible: false,
           headerStyle: { backgroundColor: '#fff' },
           headerTitleStyle: { fontFamily: FONTS.bold, fontSize: 18 },
-        }} 
+        }}
       />
 
       <ScrollView
@@ -125,7 +151,11 @@ export default function SkillExercisesScreen() {
           </View>
         ) : (
           groups.map((group, gIdx) => (
-            <Animated.View key={gIdx} entering={FadeInDown.delay(gIdx * 100).duration(500)} style={styles.group}>
+            <Animated.View
+              key={gIdx}
+              entering={FadeInDown.delay(gIdx * 100).duration(500)}
+              style={styles.group}
+            >
               <Text style={styles.groupTitle}>{group.title}</Text>
               <View style={styles.list}>
                 {group.items.map((ex) => (
@@ -219,7 +249,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F3F4F6',
     borderCurve: 'continuous',
-    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.03)",
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
   },
   exIconBg: {
     width: 44,

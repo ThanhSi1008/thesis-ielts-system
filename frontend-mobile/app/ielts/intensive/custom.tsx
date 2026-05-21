@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, TextInput, Switch, Alert,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  Switch,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -15,9 +22,9 @@ type PartOption = 'all' | number;
 
 const SKILLS: { key: IeltsSkill; label: string; icon: string; color: string }[] = [
   { key: 'LISTENING', label: 'Listening', icon: '🎧', color: '#E11D48' },
-  { key: 'READING',   label: 'Reading',   icon: '📖', color: '#2563EB' },
-  { key: 'WRITING',   label: 'Writing',   icon: '✍️', color: '#D97706' },
-  { key: 'SPEAKING',  label: 'Speaking',  icon: '🎤', color: '#7C3AED' },
+  { key: 'READING', label: 'Reading', icon: '📖', color: '#2563EB' },
+  { key: 'WRITING', label: 'Writing', icon: '✍️', color: '#D97706' },
+  { key: 'SPEAKING', label: 'Speaking', icon: '🎤', color: '#7C3AED' },
 ];
 
 const PART_COUNTS: Record<IeltsSkill, number> = {
@@ -55,16 +62,11 @@ function OptionChip({
 }) {
   return (
     <TouchableOpacity
-      style={[
-        s.optChip,
-        active && { borderColor: color, backgroundColor: color + '15' },
-      ]}
+      style={[s.optChip, active && { borderColor: color, backgroundColor: color + '15' }]}
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <Text style={[s.optChipText, active && { color, fontFamily: FONTS.bold }]}>
-        {label}
-      </Text>
+      <Text style={[s.optChipText, active && { color, fontFamily: FONTS.bold }]}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -87,7 +89,7 @@ export default function CustomPracticeScreen() {
   const [isCustomTime, setIsCustomTime] = useState(false);
   const [autoSubmit, setAutoSubmit] = useState(true);
 
-  const skillInfo = SKILLS.find(s => s.key === skill)!;
+  const skillInfo = SKILLS.find((s) => s.key === skill)!;
   const partCount = PART_COUNTS[skill];
 
   // Fetch catalog when skill changes
@@ -106,7 +108,7 @@ export default function CustomPracticeScreen() {
         if (firstExam) {
           setSelectedExamId(firstExam.examId);
           setSelectedExamLabel(
-            `${data.groups[0].title} – ${skill.charAt(0) + skill.slice(1).toLowerCase()} Test ${firstExam.testNumber}`
+            `${data.groups[0].title} – ${skill.charAt(0) + skill.slice(1).toLowerCase()} Test ${firstExam.testNumber}`,
           );
         }
       } catch {
@@ -175,7 +177,7 @@ export default function CustomPracticeScreen() {
         {/* ── Step 1: Skill ─────────────────────────────────────────────── */}
         <StepLabel num={1} text="Select Skill" />
         <View style={s.chipRow}>
-          {SKILLS.map(sk => (
+          {SKILLS.map((sk) => (
             <OptionChip
               key={sk.key}
               label={`${sk.icon} ${sk.label}`}
@@ -197,10 +199,13 @@ export default function CustomPracticeScreen() {
           <>
             <TouchableOpacity
               style={[s.examSelector, !canStart && { borderColor: COLORS.border }]}
-              onPress={() => setShowExamPicker(v => !v)}
+              onPress={() => setShowExamPicker((v) => !v)}
               activeOpacity={0.8}
             >
-              <Text style={[s.examSelectorText, !selectedExamId && { color: COLORS.textMuted }]} numberOfLines={1}>
+              <Text
+                style={[s.examSelectorText, !selectedExamId && { color: COLORS.textMuted }]}
+                numberOfLines={1}
+              >
                 {selectedExamLabel}
               </Text>
               <Ionicons
@@ -214,7 +219,7 @@ export default function CustomPracticeScreen() {
             {showExamPicker && (
               <View style={s.examPickerDropdown}>
                 <ScrollView nestedScrollEnabled style={{ maxHeight: 240 }}>
-                  {allExams.map(exam => {
+                  {allExams.map((exam) => {
                     const active = exam.examId === selectedExamId;
                     return (
                       <TouchableOpacity
@@ -227,7 +232,12 @@ export default function CustomPracticeScreen() {
                         }}
                         activeOpacity={0.7}
                       >
-                        <Text style={[s.examPickerText, active && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+                        <Text
+                          style={[
+                            s.examPickerText,
+                            active && { color: skillInfo.color, fontFamily: FONTS.bold },
+                          ]}
+                        >
                           {exam.label}
                         </Text>
                         {active && <Ionicons name="checkmark" size={16} color={skillInfo.color} />}
@@ -252,7 +262,7 @@ export default function CustomPracticeScreen() {
             color={skillInfo.color}
             onPress={() => setPart('all')}
           />
-          {Array.from({ length: partCount }, (_, i) => i + 1).map(n => (
+          {Array.from({ length: partCount }, (_, i) => i + 1).map((n) => (
             <OptionChip
               key={n}
               label={`Part ${n}`}
@@ -266,13 +276,16 @@ export default function CustomPracticeScreen() {
         {/* ── Step 4: Time Limit ────────────────────────────────────────── */}
         <StepLabel num={4} text="Time Limit" />
         <View style={s.chipRow}>
-          {PRESET_TIMES.map(mins => (
+          {PRESET_TIMES.map((mins) => (
             <OptionChip
               key={mins}
               label={`${mins} min`}
               active={!isCustomTime && timeLimit === mins}
               color={skillInfo.color}
-              onPress={() => { setIsCustomTime(false); setTimeLimit(mins); }}
+              onPress={() => {
+                setIsCustomTime(false);
+                setTimeLimit(mins);
+              }}
             />
           ))}
           <OptionChip
@@ -287,7 +300,7 @@ export default function CustomPracticeScreen() {
             <TextInput
               style={s.customTimeInput}
               value={customTimeStr}
-              onChangeText={t => {
+              onChangeText={(t) => {
                 setCustomTimeStr(t);
                 const n = parseInt(t, 10);
                 if (!isNaN(n) && n > 0 && n <= 180) setTimeLimit(n);
@@ -297,7 +310,7 @@ export default function CustomPracticeScreen() {
               placeholder="30"
               placeholderTextColor={COLORS.textMuted}
             />
-            <Text style={s.customTimeLabel}>minutes  (max 180)</Text>
+            <Text style={s.customTimeLabel}>minutes (max 180)</Text>
           </View>
         )}
 
@@ -324,9 +337,7 @@ export default function CustomPracticeScreen() {
             <Text style={[s.summaryTitle, { color: skillInfo.color }]}>
               {skillInfo.icon} {skillInfo.label} · {part === 'all' ? 'All Parts' : `Part ${part}`}
             </Text>
-            <Text style={s.summaryDetail}>
-              {selectedExamLabel}
-            </Text>
+            <Text style={s.summaryDetail}>{selectedExamLabel}</Text>
             <Text style={s.summaryDetail}>
               ⏱ {timeLimit} min · {autoSubmit ? 'Auto-submit on' : 'No auto-submit'}
             </Text>
@@ -337,7 +348,11 @@ export default function CustomPracticeScreen() {
       {/* ── Start button (sticky) ─────────────────────────────────────────── */}
       <View style={s.startBar}>
         <TouchableOpacity
-          style={[s.startBtn, !canStart && s.startBtnDisabled, { backgroundColor: canStart ? skillInfo.color : COLORS.border }]}
+          style={[
+            s.startBtn,
+            !canStart && s.startBtnDisabled,
+            { backgroundColor: canStart ? skillInfo.color : COLORS.border },
+          ]}
           onPress={handleStart}
           disabled={!canStart}
           activeOpacity={0.85}
@@ -345,7 +360,9 @@ export default function CustomPracticeScreen() {
           <Text style={s.startBtnText}>
             {canStart ? 'Start Custom Practice' : 'Select an exam to start'}
           </Text>
-          {canStart && <Ionicons name="arrow-forward" size={20} color="#fff" style={{ marginLeft: 6 }} />}
+          {canStart && (
+            <Ionicons name="arrow-forward" size={20} color="#fff" style={{ marginLeft: 6 }} />
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -357,53 +374,137 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   header: {
     backgroundColor: COLORS.primary,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
-  subtitle: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginBottom: SPACING.xl, lineHeight: 20 },
+  subtitle: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xl,
+    lineHeight: 20,
+  },
 
   // Step label
-  stepLabel: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginBottom: SPACING.md, marginTop: SPACING.xl },
-  stepBadge: { width: 24, height: 24, borderRadius: 12, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
+  stepLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
+    marginTop: SPACING.xl,
+  },
+  stepBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   stepNum: { color: '#fff', fontSize: 12, fontFamily: FONTS.bold },
   stepText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
 
   // Option chips
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, marginBottom: SPACING.sm },
   optChip: {
-    paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.xl, borderWidth: 2, borderColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.xl,
+    borderWidth: 2,
+    borderColor: COLORS.border,
     backgroundColor: '#fff',
   },
   optChipText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
 
   // Exam picker
-  loadingBox: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, padding: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border },
+  loadingBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    padding: SPACING.lg,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
   loadingText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted },
   examSelector: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, borderWidth: 2, borderColor: COLORS.primary,
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  examSelectorText: { flex: 1, fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text, marginRight: SPACING.sm },
+  examSelectorText: {
+    flex: 1,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginRight: SPACING.sm,
+  },
   examPickerDropdown: {
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border,
-    marginTop: SPACING.xs, overflow: 'hidden',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginTop: SPACING.xs,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  examPickerItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, borderBottomWidth: 1, borderColor: COLORS.border },
+  examPickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
+  },
   examPickerItemActive: { backgroundColor: COLORS.surface },
   examPickerText: { fontSize: FONT_SIZES.sm, color: COLORS.text, flex: 1, marginRight: SPACING.sm },
-  examPickerEmpty: { padding: SPACING.lg, textAlign: 'center', color: COLORS.textMuted, fontSize: FONT_SIZES.sm },
+  examPickerEmpty: {
+    padding: SPACING.lg,
+    textAlign: 'center',
+    color: COLORS.textMuted,
+    fontSize: FONT_SIZES.sm,
+  },
 
   // Custom time
-  customTimeRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md, marginTop: SPACING.sm, marginBottom: SPACING.sm },
+  customTimeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.sm,
+  },
   customTimeInput: {
-    width: 72, height: 44, borderRadius: RADIUS.lg, borderWidth: 2, borderColor: COLORS.primary,
-    textAlign: 'center', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, color: COLORS.text, backgroundColor: '#fff',
+    width: 72,
+    height: 44,
+    borderRadius: RADIUS.lg,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    textAlign: 'center',
+    fontSize: FONT_SIZES.lg,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    backgroundColor: '#fff',
   },
   customTimeLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
 
@@ -411,30 +512,54 @@ const s = StyleSheet.create({
   divider: { height: 1, backgroundColor: COLORS.border, marginVertical: SPACING.xl },
   autoSubmitRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.lg },
   autoSubmitTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
-  autoSubmitSub: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 3, lineHeight: 18 },
+  autoSubmitSub: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    marginTop: 3,
+    lineHeight: 18,
+  },
 
   // Summary
   summaryCard: {
-    marginTop: SPACING.xl, backgroundColor: '#fff',
-    borderRadius: RADIUS.xl, padding: SPACING.lg,
-    borderWidth: 1, borderColor: COLORS.border,
+    marginTop: SPACING.xl,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     borderLeftWidth: 4,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   summaryTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, marginBottom: 6 },
   summaryDetail: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginTop: 3 },
 
   // Start bar
   startBar: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: SPACING.lg, paddingBottom: SPACING.xl,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: SPACING.lg,
+    paddingBottom: SPACING.xl,
     backgroundColor: COLORS.background,
-    borderTopWidth: 1, borderColor: COLORS.border,
+    borderTopWidth: 1,
+    borderColor: COLORS.border,
   },
   startBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingVertical: SPACING.lg, borderRadius: RADIUS.xl,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: SPACING.lg,
+    borderRadius: RADIUS.xl,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
   startBtnDisabled: { opacity: 0.7 },
   startBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },

@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl, TextInput, Alert, Modal, Pressable,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  TextInput,
+  Alert,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,41 +39,64 @@ export default function DeckDetailScreen() {
       ]);
       if (deckRes.status === 'fulfilled') setDeck(deckRes.value);
       if (cardsRes.status === 'fulfilled') setCards(cardsRes.value);
-    } finally { setLoading(false); setRefreshing(false); }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
-  useEffect(() => { fetchData(); }, [deckId]);
+  useEffect(() => {
+    fetchData();
+  }, [deckId]);
 
   const handleAddCard = async () => {
     if (!front.trim() || !back.trim()) return;
     setAdding(true);
     try {
       await vocabLabApi.createFlashcard({ deckId, front: front.trim(), back: back.trim() });
-      setFront(''); setBack('');
+      setFront('');
+      setBack('');
       setAddModal(false);
       fetchData();
-    } catch { Alert.alert('Error', 'Failed to add card.'); }
-    finally { setAdding(false); }
+    } catch {
+      Alert.alert('Error', 'Failed to add card.');
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleDeleteCard = (cardId: string) => {
     Alert.alert('Delete Card?', 'This card will be permanently removed.', [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Delete', style: 'destructive', onPress: async () => {
-          try { await vocabLabApi.deleteFlashcard(cardId); fetchData(); }
-          catch { Alert.alert('Error', 'Failed to delete card.'); }
-        }
-      }
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await vocabLabApi.deleteFlashcard(cardId);
+            fetchData();
+          } catch {
+            Alert.alert('Error', 'Failed to delete card.');
+          }
+        },
+      },
     ]);
   };
 
   const STATE_COLORS: Record<string, string> = {
-    New: COLORS.info, Learning: COLORS.warning, Review: COLORS.primary,
-    Relearning: COLORS.error, Mastered: COLORS.success,
+    New: COLORS.info,
+    Learning: COLORS.warning,
+    Review: COLORS.primary,
+    Relearning: COLORS.error,
+    Mastered: COLORS.success,
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+  if (loading)
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
 
   const dueCount = deck?.dueCount ?? 0;
 
@@ -75,7 +107,9 @@ export default function DeckDetailScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{deck?.name ?? 'Deck'}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {deck?.name ?? 'Deck'}
+        </Text>
         <TouchableOpacity style={styles.addCardBtn} onPress={() => setAddModal(true)}>
           <Ionicons name="add" size={22} color="#fff" />
         </TouchableOpacity>
@@ -88,13 +122,19 @@ export default function DeckDetailScreen() {
           <Text style={styles.statLabel}>Cards</Text>
         </View>
         <View style={[styles.statItem, styles.statMid]}>
-          <Text style={[styles.statVal, { color: dueCount > 0 ? COLORS.error : COLORS.success }]}>{dueCount}</Text>
+          <Text style={[styles.statVal, { color: dueCount > 0 ? COLORS.error : COLORS.success }]}>
+            {dueCount}
+          </Text>
           <Text style={styles.statLabel}>Due</Text>
         </View>
         <View style={styles.statItem}>
           <Button
             title={dueCount > 0 ? `Study (${dueCount})` : 'All done ✓'}
-            onPress={() => dueCount > 0 ? router.push(`/vocab-lab/study/${deckId}` as any) : Alert.alert('All caught up! 🎉', 'No cards due.')}
+            onPress={() =>
+              dueCount > 0
+                ? router.push(`/vocab-lab/study/${deckId}` as any)
+                : Alert.alert('All caught up! 🎉', 'No cards due.')
+            }
             size="sm"
             variant={dueCount > 0 ? 'primary' : 'outline'}
           />
@@ -105,7 +145,15 @@ export default function DeckDetailScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchData();
+            }}
+          />
+        }
       >
         {cards.length === 0 ? (
           <EmptyState
@@ -123,35 +171,38 @@ export default function DeckDetailScreen() {
             const stateColor = STATE_COLORS[state] ?? COLORS.primary;
 
             return (
-              <View 
-                key={card.id} 
+              <View
+                key={card.id}
                 style={[
                   styles.cardRow,
-                  card.cardType?.templates?.[0]?.cardStyle 
-                    ? { backgroundColor: card.cardType.templates[0].cardStyle.backgroundColor || '#fff' }
-                    : null
+                  card.cardType?.templates?.[0]?.cardStyle
+                    ? {
+                        backgroundColor:
+                          card.cardType.templates[0].cardStyle.backgroundColor || '#fff',
+                      }
+                    : null,
                 ]}
               >
                 <View style={styles.cardContent}>
                   <View style={styles.cardTexts}>
-                    <Text 
+                    <Text
                       style={[
                         styles.cardFront,
-                        card.cardType?.templates?.[0]?.cardStyle?.color 
+                        card.cardType?.templates?.[0]?.cardStyle?.color
                           ? { color: card.cardType.templates[0].cardStyle.color }
-                          : null
-                      ]} 
+                          : null,
+                      ]}
                       numberOfLines={2}
                     >
                       {frontText}
                     </Text>
-                    <Text 
+                    <Text
                       style={[
                         styles.cardBack,
-                        card.cardType?.templates?.[0]?.cardStyle?.color 
+                        card.cardType?.templates?.[0]?.cardStyle?.color
                           ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.7 }
-                          : null
-                      ]} 
+                          : null,
+                      ]}
                       numberOfLines={2}
                     >
                       {backText}
@@ -161,11 +212,14 @@ export default function DeckDetailScreen() {
                     <Text style={[styles.stateLabel, { color: stateColor }]}>{state}</Text>
                   </View>
                 </View>
-                <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteCard(card.id)}>
-                  <Ionicons 
-                    name="trash-outline" 
-                    size={18} 
-                    color={card.cardType?.templates?.[0]?.cardStyle?.color || COLORS.textMuted} 
+                <TouchableOpacity
+                  style={styles.deleteBtn}
+                  onPress={() => handleDeleteCard(card.id)}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={18}
+                    color={card.cardType?.templates?.[0]?.cardStyle?.color || COLORS.textMuted}
                   />
                 </TouchableOpacity>
               </View>
@@ -198,8 +252,21 @@ export default function DeckDetailScreen() {
               multiline
             />
             <View style={styles.modalActions}>
-              <Button title="Cancel" variant="ghost" onPress={() => { setAddModal(false); setFront(''); setBack(''); }} />
-              <Button title="Add" onPress={handleAddCard} loading={adding} disabled={!front.trim() || !back.trim()} />
+              <Button
+                title="Cancel"
+                variant="ghost"
+                onPress={() => {
+                  setAddModal(false);
+                  setFront('');
+                  setBack('');
+                }}
+              />
+              <Button
+                title="Add"
+                onPress={handleAddCard}
+                loading={adding}
+                disabled={!front.trim() || !back.trim()}
+              />
             </View>
           </Pressable>
         </Pressable>
@@ -212,24 +279,54 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
-    backgroundColor: COLORS.primary, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
-  headerTitle: { flex: 1, color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700', marginHorizontal: SPACING.md },
-  addCardBtn: { width: 36, height: 36, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: {
+    flex: 1,
+    color: '#fff',
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '700',
+    marginHorizontal: SPACING.md,
+  },
+  addCardBtn: {
+    width: 36,
+    height: 36,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   statsRow: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
-    padding: SPACING.lg, borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: SPACING.lg,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   statItem: { flex: 1, alignItems: 'center' },
   statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: COLORS.border },
   statVal: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text },
   statLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
   cardRow: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.md,
-    borderWidth: 1, borderColor: COLORS.border, padding: SPACING.md,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: SPACING.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   cardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
   cardTexts: { flex: 1 },
@@ -239,13 +336,39 @@ const styles = StyleSheet.create({
   stateLabel: { fontSize: 10, fontWeight: '700' },
   deleteBtn: { padding: SPACING.sm },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  modal: { backgroundColor: '#fff', borderTopLeftRadius: RADIUS.xl * 2, borderTopRightRadius: RADIUS.xl * 2, padding: SPACING.xl },
-  modalTitle: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text, marginBottom: SPACING.lg },
-  modalFieldLabel: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary, marginBottom: SPACING.xs },
-  modalInput: {
-    borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.lg,
-    padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.md,
-    minHeight: 80, textAlignVertical: 'top',
+  modal: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: RADIUS.xl * 2,
+    borderTopRightRadius: RADIUS.xl * 2,
+    padding: SPACING.xl,
   },
-  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: SPACING.md, marginTop: SPACING.sm },
+  modalTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: SPACING.lg,
+  },
+  modalFieldLabel: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+  },
+  modalInput: {
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    marginBottom: SPACING.md,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: SPACING.md,
+    marginTop: SPACING.sm,
+  },
 });

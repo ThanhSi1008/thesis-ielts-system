@@ -13,7 +13,7 @@ function getExplanationText(exp: any): string {
 export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }: any) {
   const questions: any[] = group.questions || [];
   const qMap: Record<number, any> = Object.fromEntries(
-    questions.map((q: any) => [q.question_number, q])
+    questions.map((q: any) => [q.question_number, q]),
   );
 
   const checkAnswer = (q: any, userAns: string): boolean => {
@@ -24,7 +24,8 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
   };
 
   const summaryText: string = group.summary || group.text || '';
-  const instruction: string = group.instruction || group.instructions || 'Complete the summary below.';
+  const instruction: string =
+    group.instruction || group.instructions || 'Complete the summary below.';
 
   // Parse {{qNum}} placeholders and render inline inputs
   const renderSummaryText = () => {
@@ -50,9 +51,12 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
 
       if ((match.index ?? 0) > lastIndex) {
         parts.push(
-          <Text key={`t-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26 }}>
+          <Text
+            key={`t-${lastIndex}`}
+            style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26 }}
+          >
             {summaryText.slice(lastIndex, match.index)}
-          </Text>
+          </Text>,
         );
       }
 
@@ -117,7 +121,7 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
               placeholderTextColor={COLORS.textMuted}
             />
           )}
-        </View>
+        </View>,
       );
 
       lastIndex = (match.index ?? 0) + match[0].length;
@@ -125,9 +129,12 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
 
     if (lastIndex < summaryText.length) {
       parts.push(
-        <Text key={`end-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26 }}>
+        <Text
+          key={`end-${lastIndex}`}
+          style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26 }}
+        >
           {summaryText.slice(lastIndex)}
-        </Text>
+        </Text>,
       );
     }
 
@@ -172,7 +179,9 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
         questions.map((q: any) =>
           q.explanation ? (
             <View key={q.question_number} style={{ marginTop: SPACING.sm }}>
-              <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary }}>
+              <Text
+                style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary }}
+              >
                 Q{q.question_number} Explanation:
               </Text>
               <ExplanationView
@@ -180,7 +189,7 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
                 isCorrect={checkAnswer(q, answers[q.question_number] ?? '')}
               />
             </View>
-          ) : null
+          ) : null,
         )}
     </View>
   );

@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, useWindowDimensions, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  useWindowDimensions,
+  Pressable,
+} from 'react-native';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS } from '@/constants';
@@ -30,7 +38,7 @@ export function AudioPlayer({ url }: AudioPlayerProps) {
   };
 
   const formatTime = (seconds: number) => {
-    if (!seconds || isNaN(seconds)) return "0:00";
+    if (!seconds || isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -52,17 +60,17 @@ export function AudioPlayer({ url }: AudioPlayerProps) {
         {isLoading ? (
           <ActivityIndicator size="small" color="#000" />
         ) : (
-          <Ionicons 
-            name={player.playing ? "pause" : "play"} 
-            size={18} 
-            color="#000" 
+          <Ionicons
+            name={player.playing ? 'pause' : 'play'}
+            size={18}
+            color="#000"
             style={!player.playing && { marginLeft: 2 }}
           />
         )}
       </TouchableOpacity>
 
-      <Pressable 
-        style={styles.progressContainer} 
+      <Pressable
+        style={styles.progressContainer}
         onPress={handleSeek}
         onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
       >
@@ -91,7 +99,7 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     gap: 12,
     marginVertical: SPACING.md,
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
   playBtn: {
     width: 40,

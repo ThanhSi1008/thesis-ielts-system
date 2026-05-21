@@ -12,8 +12,10 @@ function getExplanationText(exp: any): string {
 }
 
 // Parse "Some text {{12}} more text" into segments
-function parseNote(note: string): Array<{ type: 'text'; value: string } | { type: 'blank'; qNum: number }> {
-  const segments: Array<{ type: 'text'; value: string } | { type: 'blank'; qNum: number }> = [];
+function parseNote(
+  note: string,
+): ({ type: 'text'; value: string } | { type: 'blank'; qNum: number })[] {
+  const segments: ({ type: 'text'; value: string } | { type: 'blank'; qNum: number })[] = [];
   const regex = /\{\{(\d+)\}\}/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -53,9 +55,12 @@ function NoteLine({
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
         <View
           style={{
-            width: 5, height: 5, borderRadius: 3,
+            width: 5,
+            height: 5,
+            borderRadius: 3,
             backgroundColor: COLORS.textMuted,
-            marginTop: 9, flexShrink: 0,
+            marginTop: 9,
+            flexShrink: 0,
           }}
         />
         <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 24 }}>
@@ -69,17 +74,25 @@ function NoteLine({
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
       <View
         style={{
-          width: 5, height: 5, borderRadius: 3,
+          width: 5,
+          height: 5,
+          borderRadius: 3,
           backgroundColor: COLORS.textMuted,
-          marginTop: 9, flexShrink: 0,
+          marginTop: 9,
+          flexShrink: 0,
         }}
       />
       {/* Flex wrap of text + inline inputs */}
-      <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}>
+      <View
+        style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}
+      >
         {segments.map((seg, si) => {
           if (seg.type === 'text') {
             return (
-              <Text key={si} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 24 }}>
+              <Text
+                key={si}
+                style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 24 }}
+              >
                 {seg.value}
               </Text>
             );
@@ -100,12 +113,8 @@ function NoteLine({
                 flexDirection: 'row',
                 alignItems: 'center',
                 borderWidth: 1,
-                borderColor: submitted
-                  ? isCorrect ? '#86EFAC' : '#FCA5A5'
-                  : '#9CA3AF',
-                backgroundColor: submitted
-                  ? isCorrect ? '#F0FDF4' : '#FFF5F5'
-                  : '#fff',
+                borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : '#9CA3AF',
+                backgroundColor: submitted ? (isCorrect ? '#F0FDF4' : '#FFF5F5') : '#fff',
                 borderRadius: RADIUS.sm,
                 paddingHorizontal: 6,
                 paddingVertical: 3,
@@ -170,18 +179,13 @@ function NoteLine({
   );
 }
 
-export function NoteCompletionGroupView({
-  group,
-  answers,
-  submitted,
-  onAnswer,
-}: any) {
+export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }: any) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
   const questions: any[] = group.questions || [];
   const notes: NoteEntry[] = group.notes || [];
   const qMap: Record<number, any> = Object.fromEntries(
-    questions.map((q: any) => [q.question_number, q])
+    questions.map((q: any) => [q.question_number, q]),
   );
 
   const instruction: string =
@@ -223,85 +227,86 @@ export function NoteCompletionGroupView({
               alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.text }}>
-              {noteTitle}
-            </Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.text }}>{noteTitle}</Text>
           </View>
         ) : null}
 
         {/* Notes content */}
         <View style={{ backgroundColor: '#fff', padding: SPACING.lg }}>
-          {notes.length > 0 ? (
-            notes.map((entry, ni) => {
-              // Grouped format: { subheading, points[] }
-              if (typeof entry === 'object' && 'points' in entry) {
+          {notes.length > 0
+            ? notes.map((entry, ni) => {
+                // Grouped format: { subheading, points[] }
+                if (typeof entry === 'object' && 'points' in entry) {
+                  return (
+                    <View key={ni} style={{ marginBottom: 14 }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: COLORS.textSecondary,
+                          fontStyle: 'italic',
+                          marginBottom: 8,
+                        }}
+                      >
+                        {entry.subheading}
+                      </Text>
+                      <View style={{ paddingLeft: 4 }}>
+                        {entry.points.map((point, pi) => (
+                          <NoteLine
+                            key={pi}
+                            note={point}
+                            qMap={qMap}
+                            answers={answers}
+                            submitted={submitted}
+                            onAnswer={onAnswer}
+                          />
+                        ))}
+                      </View>
+                    </View>
+                  );
+                }
+
+                // Flat format: plain string with {{qNum}} placeholders
                 return (
-                  <View key={ni} style={{ marginBottom: 14 }}>
+                  <NoteLine
+                    key={ni}
+                    note={entry as string}
+                    qMap={qMap}
+                    answers={answers}
+                    submitted={submitted}
+                    onAnswer={onAnswer}
+                  />
+                );
+              })
+            : // Fallback: render from group.points (Listening note format)
+              (group.points || []).map((point: any, idx: number) => {
+                const isHeader = !point.question_number;
+                if (isHeader) {
+                  return (
                     <Text
+                      key={idx}
                       style={{
                         fontSize: 13,
-                        fontWeight: '600',
-                        color: COLORS.textSecondary,
-                        fontStyle: 'italic',
+                        fontWeight: '700',
+                        color: COLORS.text,
                         marginBottom: 8,
                       }}
                     >
-                      {entry.subheading}
+                      {point.text}
                     </Text>
-                    <View style={{ paddingLeft: 4 }}>
-                      {entry.points.map((point, pi) => (
-                        <NoteLine
-                          key={pi}
-                          note={point}
-                          qMap={qMap}
-                          answers={answers}
-                          submitted={submitted}
-                          onAnswer={onAnswer}
-                        />
-                      ))}
-                    </View>
-                  </View>
-                );
-              }
-
-              // Flat format: plain string with {{qNum}} placeholders
-              return (
-                <NoteLine
-                  key={ni}
-                  note={entry as string}
-                  qMap={qMap}
-                  answers={answers}
-                  submitted={submitted}
-                  onAnswer={onAnswer}
-                />
-              );
-            })
-          ) : (
-            // Fallback: render from group.points (Listening note format)
-            (group.points || []).map((point: any, idx: number) => {
-              const isHeader = !point.question_number;
-              if (isHeader) {
+                  );
+                }
                 return (
-                  <Text
+                  <NoteLine
                     key={idx}
-                    style={{ fontSize: 13, fontWeight: '700', color: COLORS.text, marginBottom: 8 }}
-                  >
-                    {point.text}
-                  </Text>
+                    note={point.text || ''}
+                    qMap={qMap}
+                    answers={answers}
+                    submitted={submitted}
+                    onAnswer={onAnswer}
+                  />
                 );
-              }
-              return (
-                <NoteLine
-                  key={idx}
-                  note={point.text || ''}
-                  qMap={qMap}
-                  answers={answers}
-                  submitted={submitted}
-                  onAnswer={onAnswer}
-                />
-              );
-            })
-          )}
+              })}
         </View>
       </View>
 
@@ -314,7 +319,7 @@ export function NoteCompletionGroupView({
                 <TouchableOpacity
                   onPress={() =>
                     setShowExplanation(
-                      showExplanation === q.question_number ? null : q.question_number
+                      showExplanation === q.question_number ? null : q.question_number,
                     )
                   }
                   style={{
@@ -353,7 +358,7 @@ export function NoteCompletionGroupView({
                   </View>
                 )}
               </View>
-            ) : null
+            ) : null,
           )}
         </View>
       )}

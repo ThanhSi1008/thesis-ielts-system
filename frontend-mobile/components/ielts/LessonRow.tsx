@@ -18,9 +18,9 @@ export interface RoadmapItem {
 // Matches web's getSkillIcon()
 const SKILL_ICON: Record<string, React.ComponentProps<typeof Ionicons>['name']> = {
   Listening: 'headset-outline',
-  Reading:   'book-outline',
-  Writing:   'create-outline',
-  Speaking:  'mic-outline',
+  Reading: 'book-outline',
+  Writing: 'create-outline',
+  Speaking: 'mic-outline',
 };
 
 interface LessonRowProps {
@@ -35,11 +35,7 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
 
   // Icon background — matches web: next → #FFF0C2, completed → green-50, default → gray-50
   const iconBg = isNext ? '#FFF0C2' : item.isCompleted ? '#DCFCE7' : '#F3F4F6';
-  const iconColor = isNext
-    ? '#E0A800'
-    : item.isCompleted
-    ? '#16A34A'
-    : '#9CA3AF';
+  const iconColor = isNext ? '#E0A800' : item.isCompleted ? '#16A34A' : '#9CA3AF';
 
   // Card border/bg — matches web: next → #FFF9E6 + #FFC107/40, default → white
   const cardStyle = [

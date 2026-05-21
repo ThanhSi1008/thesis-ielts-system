@@ -51,7 +51,15 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
               paddingVertical: 10,
             }}
           >
-            <Text style={{ fontSize: 11, fontWeight: '800', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: '800',
+                color: '#9CA3AF',
+                textTransform: 'uppercase',
+                letterSpacing: 0.8,
+              }}
+            >
               Options List
             </Text>
           </View>
@@ -114,28 +122,34 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                 backgroundColor: '#fff',
                 borderRadius: RADIUS.lg,
                 borderWidth: 1,
-                borderColor: submitted
-                  ? isCorrect ? '#BBF7D0' : '#FCA5A5'
-                  : '#E5E7EB',
+                borderColor: submitted ? (isCorrect ? '#BBF7D0' : '#FCA5A5') : '#E5E7EB',
                 padding: SPACING.md,
                 boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
               }}
             >
               {/* Question stem */}
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}
+              >
                 <View
                   style={{
-                    minWidth: 24, height: 24, borderRadius: 6,
+                    minWidth: 24,
+                    height: 24,
+                    borderRadius: 6,
                     borderWidth: 1,
                     borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : '#BFDBFE',
                     backgroundColor: submitted ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#EFF6FF',
-                    alignItems: 'center', justifyContent: 'center',
-                    paddingHorizontal: 4, flexShrink: 0, marginTop: 2,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 4,
+                    flexShrink: 0,
+                    marginTop: 2,
                   }}
                 >
                   <Text
                     style={{
-                      fontSize: 12, fontWeight: '700',
+                      fontSize: 12,
+                      fontWeight: '700',
                       color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : '#1D4ED8',
                     }}
                   >
@@ -144,7 +158,9 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                 </View>
                 <View style={{ flex: 1 }}>
                   {item.text ? (
-                    <Markdown style={markdownStyles}>{(item.text || '').replace(/<br\s*\/?>/gi, '\n')}</Markdown>
+                    <Markdown style={markdownStyles}>
+                      {(item.text || '').replace(/<br\s*\/?>/gi, '\n')}
+                    </Markdown>
                   ) : null}
                 </View>
               </View>
@@ -163,14 +179,24 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
 
                     if (submitted) {
                       if (isCorrectOpt) {
-                        circleBorder = '#22C55E'; hasFill = true; fillColor = '#22C55E'; textColor = '#16A34A';
+                        circleBorder = '#22C55E';
+                        hasFill = true;
+                        fillColor = '#22C55E';
+                        textColor = '#16A34A';
                       } else if (isSelected && !isCorrectOpt) {
-                        circleBorder = '#F87171'; hasFill = true; fillColor = '#F87171'; textColor = '#DC2626';
+                        circleBorder = '#F87171';
+                        hasFill = true;
+                        fillColor = '#F87171';
+                        textColor = '#DC2626';
                       } else {
-                        circleBorder = '#E5E7EB'; textColor = '#D1D5DB';
+                        circleBorder = '#E5E7EB';
+                        textColor = '#D1D5DB';
                       }
                     } else if (isSelected) {
-                      circleBorder = '#FFC107'; hasFill = true; fillColor = '#FFC107'; textColor = '#92400E';
+                      circleBorder = '#FFC107';
+                      hasFill = true;
+                      fillColor = '#FFC107';
+                      textColor = '#92400E';
                     }
 
                     return (
@@ -182,10 +208,14 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                       >
                         <View
                           style={{
-                            width: 36, height: 36, borderRadius: 18,
-                            borderWidth: 2, borderColor: circleBorder,
+                            width: 36,
+                            height: 36,
+                            borderRadius: 18,
+                            borderWidth: 2,
+                            borderColor: circleBorder,
                             backgroundColor: '#fff',
-                            alignItems: 'center', justifyContent: 'center',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
                         >
                           {hasFill ? (

@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -11,9 +16,9 @@ import { grammarApi } from '@/services/ielts.api';
 
 // Level badge color mapping
 const LEVEL_CONFIG: Record<string, { bg: string; text: string; badge: string }> = {
-  Elementary:   { bg: '#EF4444', text: '#fff', badge: 'A1–A2' },
+  Elementary: { bg: '#EF4444', text: '#fff', badge: 'A1–A2' },
   Intermediate: { bg: '#3B82F6', text: '#fff', badge: 'B1–B2' },
-  Advanced:     { bg: '#7C3AED', text: '#fff', badge: 'C1–C2' },
+  Advanced: { bg: '#7C3AED', text: '#fff', badge: 'C1–C2' },
 };
 
 function BookCard({ book, onPress }: { book: any; onPress: () => void }) {
@@ -27,7 +32,8 @@ function BookCard({ book, onPress }: { book: any; onPress: () => void }) {
         <Text style={bc.coverSub}>Cambridge</Text>
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <Text style={bc.coverTitle}>
-            {book.name?.split(' in Use')[0] ?? book.name}{'\n'}
+            {book.name?.split(' in Use')[0] ?? book.name}
+            {'\n'}
             <Text style={bc.coverTitleIn}>in Use</Text>
           </Text>
         </View>
@@ -42,7 +48,9 @@ function BookCard({ book, onPress }: { book: any; onPress: () => void }) {
       {/* Card body */}
       <View style={bc.body}>
         <Text style={bc.levelLabel}>{book.level}</Text>
-        <Text style={bc.bookName} numberOfLines={2}>{book.name}</Text>
+        <Text style={bc.bookName} numberOfLines={2}>
+          {book.name}
+        </Text>
         <View style={bc.metaRow}>
           <Ionicons name="layers-outline" size={12} color={COLORS.textMuted} />
           <Text style={bc.metaText}>{unitCount} units</Text>
@@ -57,25 +65,75 @@ function BookCard({ book, onPress }: { book: any; onPress: () => void }) {
 
 const bc = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', borderRadius: RADIUS.xl,
-    overflow: 'hidden', marginBottom: SPACING.lg,
-    borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.07, shadowRadius: 10, elevation: 3,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 3,
   },
   cover: { padding: SPACING.lg, minHeight: 160, justifyContent: 'space-between' },
-  coverSub: { fontSize: 10, color: 'rgba(255,255,255,0.7)', letterSpacing: 2, textTransform: 'uppercase' },
+  coverSub: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.7)',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
   coverTitle: { fontSize: 26, fontFamily: FONTS.bold, color: '#fff', lineHeight: 32 },
   coverTitleIn: { fontSize: 32 },
-  coverAuthor: { fontSize: 11, color: 'rgba(255,255,255,0.85)', textAlign: 'right', marginBottom: 4 },
-  levelBadge: { alignSelf: 'flex-start', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 2 },
-  levelBadgeText: { fontSize: 9, color: '#fff', fontFamily: FONTS.bold, textTransform: 'uppercase', letterSpacing: 1 },
+  coverAuthor: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.85)',
+    textAlign: 'right',
+    marginBottom: 4,
+  },
+  levelBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  levelBadgeText: {
+    fontSize: 9,
+    color: '#fff',
+    fontFamily: FONTS.bold,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   body: { padding: SPACING.lg, gap: 4 },
-  levelLabel: { fontSize: 10, color: COLORS.textMuted, fontFamily: FONTS.bold, textTransform: 'uppercase', letterSpacing: 0.5 },
-  bookName: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: 4 },
+  levelLabel: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    fontFamily: FONTS.bold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  bookName: {
+    fontSize: FONT_SIZES.md,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: 4,
+  },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: SPACING.sm },
   metaText: { fontSize: 11, color: COLORS.textSecondary },
-  startBtn: { borderRadius: RADIUS.lg, paddingVertical: 12, alignItems: 'center', marginTop: SPACING.sm },
-  startBtnText: { color: '#fff', fontFamily: FONTS.bold, fontSize: FONT_SIZES.sm, letterSpacing: 0.5 },
+  startBtn: {
+    borderRadius: RADIUS.lg,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: SPACING.sm,
+  },
+  startBtnText: {
+    color: '#fff',
+    fontFamily: FONTS.bold,
+    fontSize: FONT_SIZES.sm,
+    letterSpacing: 0.5,
+  },
 });
 
 export default function IeltsGrammarScreen() {
@@ -96,7 +154,9 @@ export default function IeltsGrammarScreen() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <SafeAreaView style={s.container} edges={['top']}>
@@ -113,11 +173,21 @@ export default function IeltsGrammarScreen() {
       </View>
 
       {loading ? (
-        <View style={s.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>
+        <View style={s.center}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                load();
+              }}
+            />
+          }
           contentContainerStyle={s.scroll}
         >
           {/* Intro banner */}
@@ -153,9 +223,13 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
   header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
-    backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },
@@ -163,10 +237,15 @@ const s = StyleSheet.create({
   headerSub: { fontSize: 10, color: COLORS.textSecondary, marginTop: 1 },
   scroll: { padding: SPACING.lg, paddingBottom: 60 },
   introBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
-    backgroundColor: COLORS.primary + '0D', borderRadius: RADIUS.xl,
-    padding: SPACING.md, marginBottom: SPACING.lg,
-    borderLeftWidth: 3, borderLeftColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.primary + '0D',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.primary,
   },
   introText: { flex: 1, fontSize: FONT_SIZES.xs, color: COLORS.text, lineHeight: 18 },
   emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center' },

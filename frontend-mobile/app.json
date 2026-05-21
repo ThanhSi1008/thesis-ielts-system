@@ -10,9 +10,7 @@
       "backgroundColor": "#3B82F6",
       "resizeMode": "contain"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.ieltsmasterai.app",
       "infoPlist": {
@@ -28,9 +26,7 @@
     "android": {
       "package": "com.ieltsmasterai.app",
       "usesCleartextTraffic": true,
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "plugins": [
       "expo-router",

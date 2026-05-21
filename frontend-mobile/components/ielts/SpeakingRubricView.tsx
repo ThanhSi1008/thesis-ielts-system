@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
@@ -51,7 +57,7 @@ const CRITERIA_KEYS = [
   'pronunciation',
 ] as const;
 
-type CriterionKey = typeof CRITERIA_KEYS[number];
+type CriterionKey = (typeof CRITERIA_KEYS)[number];
 
 const CRITERIA_LABELS: Record<CriterionKey, string> = {
   fluency_and_coherence: 'Fluency & Coherence',
@@ -99,7 +105,18 @@ function wordCount(text?: string): number {
 function BandCircle({ band, size = 48 }: { band: number; size?: number }) {
   const color = bandColor(band);
   return (
-    <View style={[bc.circle, { width: size, height: size, borderRadius: size / 2, borderColor: color, backgroundColor: color + '15' }]}>
+    <View
+      style={[
+        bc.circle,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderColor: color,
+          backgroundColor: color + '15',
+        },
+      ]}
+    >
       <Text style={[bc.score, { color, fontSize: size * 0.3 }]}>{band.toFixed(1)}</Text>
     </View>
   );
@@ -109,7 +126,17 @@ const bc = StyleSheet.create({
   score: { fontFamily: FONTS.bold },
 });
 
-function FeedbackList({ items, icon, label, labelColor }: { items: string[]; icon: string; label: string; labelColor: string }) {
+function FeedbackList({
+  items,
+  icon,
+  label,
+  labelColor,
+}: {
+  items: string[];
+  icon: string;
+  label: string;
+  labelColor: string;
+}) {
   if (!items?.length) return null;
   return (
     <View style={fl.container}>
@@ -125,7 +152,13 @@ function FeedbackList({ items, icon, label, labelColor }: { items: string[]; ico
 }
 const fl = StyleSheet.create({
   container: { marginBottom: SPACING.md },
-  label: { fontSize: 10, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: SPACING.xs },
+  label: {
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.xs,
+  },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: SPACING.xs, marginBottom: 4 },
   icon: { fontSize: 12, marginTop: 2, width: 14 },
   text: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, lineHeight: 19 },
@@ -151,23 +184,57 @@ function MistakesTable({ mistakes }: { mistakes: Mistake[] }) {
   );
 }
 const mt = StyleSheet.create({
-  container: { marginTop: SPACING.md, borderRadius: RADIUS.md, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.border },
-  title: { fontSize: 10, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.8, color: '#ef4444', padding: SPACING.sm },
-  row: { flexDirection: 'row', borderTopWidth: 1, borderColor: COLORS.border, backgroundColor: '#fff' },
+  container: {
+    marginTop: SPACING.md,
+    borderRadius: RADIUS.md,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  title: {
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    color: '#ef4444',
+    padding: SPACING.sm,
+  },
+  row: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: '#fff',
+  },
   original: { width: '38%', padding: SPACING.sm, borderRightWidth: 1, borderColor: COLORS.border },
-  originalText: { fontSize: FONT_SIZES.sm, color: COLORS.text, textDecorationLine: 'line-through', fontStyle: 'italic' },
+  originalText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.text,
+    textDecorationLine: 'line-through',
+    fontStyle: 'italic',
+  },
   correction: { flex: 1, padding: SPACING.sm },
-  correctionText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: 2 },
+  correctionText: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: 2,
+  },
   explanation: { fontSize: 11, color: COLORS.textSecondary, lineHeight: 16 },
 });
 
-function CriterionCard({ criterionKey, data }: { criterionKey: CriterionKey; data: CriterionFeedback }) {
+function CriterionCard({
+  criterionKey,
+  data,
+}: {
+  criterionKey: CriterionKey;
+  data: CriterionFeedback;
+}) {
   const [expanded, setExpanded] = useState(true);
   const color = bandColor(data?.band ?? 0);
 
   const toggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpanded(v => !v);
+    setExpanded((v) => !v);
   };
 
   return (
@@ -177,20 +244,41 @@ function CriterionCard({ criterionKey, data }: { criterionKey: CriterionKey; dat
           <View style={[cc.keyBadge, { backgroundColor: color + '18', borderColor: color }]}>
             <Ionicons name={CRITERIA_ICONS[criterionKey] as any} size={14} color={color} />
           </View>
-          <Text style={cc.label} numberOfLines={2}>{CRITERIA_LABELS[criterionKey]}</Text>
+          <Text style={cc.label} numberOfLines={2}>
+            {CRITERIA_LABELS[criterionKey]}
+          </Text>
         </View>
         <View style={cc.headerRight}>
           <View style={[cc.bandChip, { backgroundColor: color + '18', borderColor: color }]}>
             <Text style={[cc.bandValue, { color }]}>{(data?.band ?? 0).toFixed(1)}</Text>
           </View>
-          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={COLORS.textMuted} />
+          <Ionicons
+            name={expanded ? 'chevron-up' : 'chevron-down'}
+            size={16}
+            color={COLORS.textMuted}
+          />
         </View>
       </TouchableOpacity>
       {expanded && (
         <View style={cc.body}>
-          <FeedbackList items={data?.strengths ?? []} icon="✓" label="Strengths" labelColor="#22c55e" />
-          <FeedbackList items={data?.weak_areas ?? []} icon="⚠" label="Weak Areas" labelColor="#ef4444" />
-          <FeedbackList items={data?.how_to_improve ?? []} icon="" label="How to Improve" labelColor="#3b82f6" />
+          <FeedbackList
+            items={data?.strengths ?? []}
+            icon="✓"
+            label="Strengths"
+            labelColor="#22c55e"
+          />
+          <FeedbackList
+            items={data?.weak_areas ?? []}
+            icon="⚠"
+            label="Weak Areas"
+            labelColor="#ef4444"
+          />
+          <FeedbackList
+            items={data?.how_to_improve ?? []}
+            icon=""
+            label="How to Improve"
+            labelColor="#3b82f6"
+          />
           <MistakesTable mistakes={data?.mistakes ?? []} />
         </View>
       )}
@@ -199,18 +287,57 @@ function CriterionCard({ criterionKey, data }: { criterionKey: CriterionKey; dat
 }
 const cc = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.md,
-    borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: SPACING.md, gap: SPACING.sm },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: SPACING.md,
+    gap: SPACING.sm,
+  },
   headerLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  keyBadge: { width: 32, height: 32, borderRadius: RADIUS.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  label: { flex: 1, fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text, lineHeight: 18 },
-  bandChip: { borderRadius: RADIUS.md, borderWidth: 1.5, paddingHorizontal: SPACING.sm, paddingVertical: 3, minWidth: 44, alignItems: 'center' },
+  keyBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  label: {
+    flex: 1,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    lineHeight: 18,
+  },
+  bandChip: {
+    borderRadius: RADIUS.md,
+    borderWidth: 1.5,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 3,
+    minWidth: 44,
+    alignItems: 'center',
+  },
   bandValue: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
-  body: { paddingHorizontal: SPACING.md, paddingBottom: SPACING.md, borderTopWidth: 1, borderColor: COLORS.border, paddingTop: SPACING.md },
+  body: {
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
+    borderTopWidth: 1,
+    borderColor: COLORS.border,
+    paddingTop: SPACING.md,
+  },
 });
 
 // ─── Score Summary Radar-style bars ──────────────────────────────────────────
@@ -227,7 +354,7 @@ function ScoreSummaryCard({ feedback }: { feedback: SpeakingFeedback }) {
         </View>
       </View>
       <View style={ss.divider} />
-      {CRITERIA_KEYS.map(key => {
+      {CRITERIA_KEYS.map((key) => {
         const cBand = feedback.criteria?.[key]?.band ?? 0;
         const cColor = bandColor(cBand);
         return (
@@ -237,7 +364,12 @@ function ScoreSummaryCard({ feedback }: { feedback: SpeakingFeedback }) {
               <Text style={ss.rowLabel}>{CRITERIA_SHORT[key]}</Text>
             </View>
             <View style={ss.barTrack}>
-              <View style={[ss.barFill, { width: `${(cBand / 9) * 100}%` as any, backgroundColor: cColor }]} />
+              <View
+                style={[
+                  ss.barFill,
+                  { width: `${(cBand / 9) * 100}%` as any, backgroundColor: cColor },
+                ]}
+              />
             </View>
             <Text style={[ss.rowScore, { color: cColor }]}>{cBand.toFixed(1)}</Text>
           </View>
@@ -248,9 +380,16 @@ function ScoreSummaryCard({ feedback }: { feedback: SpeakingFeedback }) {
 }
 const ss = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, borderWidth: 1.5,
-    padding: SPACING.lg, marginBottom: SPACING.lg,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.07, shadowRadius: 10, elevation: 3,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    borderWidth: 1.5,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 3,
   },
   header: { flexDirection: 'row', alignItems: 'center', gap: SPACING.lg, marginBottom: SPACING.md },
   headerInfo: { flex: 1 },
@@ -260,7 +399,13 @@ const ss = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginBottom: 10 },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 4, width: 52 },
   rowLabel: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
-  barTrack: { flex: 1, height: 7, backgroundColor: COLORS.border, borderRadius: 4, overflow: 'hidden' },
+  barTrack: {
+    flex: 1,
+    height: 7,
+    backgroundColor: COLORS.border,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
   barFill: { height: '100%', borderRadius: 4 },
   rowScore: { width: 34, fontSize: 13, fontFamily: FONTS.bold, textAlign: 'right' },
 });
@@ -281,7 +426,7 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
         onPress={() => {
           if (isAudioUrl) return;
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          setExpanded(v => !v);
+          setExpanded((v) => !v);
         }}
         activeOpacity={isAudioUrl ? 1 : 0.8}
       >
@@ -291,7 +436,9 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
             size={15}
             color={isAudioUrl ? COLORS.primary : COLORS.textSecondary}
           />
-          <Text style={ap.title} numberOfLines={1}>{label}</Text>
+          <Text style={ap.title} numberOfLines={1}>
+            {label}
+          </Text>
         </View>
         <View style={ap.headerRight}>
           <View style={[ap.wordBadge, isAudioUrl && ap.audioBadge]}>
@@ -300,7 +447,11 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
             </Text>
           </View>
           {!isAudioUrl && (
-            <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={15} color={COLORS.textMuted} />
+            <Ionicons
+              name={expanded ? 'chevron-up' : 'chevron-down'}
+              size={15}
+              color={COLORS.textMuted}
+            />
           )}
         </View>
       </TouchableOpacity>
@@ -314,14 +465,28 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
 }
 const ap = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, marginBottom: SPACING.sm,
-    borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: 'hidden',
   },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: SPACING.md },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: SPACING.md,
+  },
   headerLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   title: { flex: 1, fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  wordBadge: { backgroundColor: COLORS.surface, borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 3 },
+  wordBadge: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
   wordCount: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
   audioBadge: { backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE' },
   audioLabel: { color: COLORS.primary },
@@ -334,7 +499,7 @@ const ap = StyleSheet.create({
 export default function SpeakingRubricView({ feedback, answers, exam }: SpeakingRubricViewProps) {
   // Collect answer parts from answers record (keys: '1', '2', '3' or 'part1', 'part2', 'part3')
   const partKeys = answers
-    ? Object.keys(answers).filter(k => answers[k] && typeof answers[k] === 'string')
+    ? Object.keys(answers).filter((k) => answers[k] && typeof answers[k] === 'string')
     : [];
 
   return (
@@ -346,7 +511,7 @@ export default function SpeakingRubricView({ feedback, answers, exam }: Speaking
       {partKeys.length > 0 && (
         <View style={sr.answersSection}>
           <Text style={sr.sectionHeader}>Your Responses</Text>
-          {partKeys.map(key => (
+          {partKeys.map((key) => (
             <PartAnswerPreview key={key} partKey={key} answer={answers![key]} />
           ))}
         </View>
@@ -354,12 +519,8 @@ export default function SpeakingRubricView({ feedback, answers, exam }: Speaking
 
       {/* Detailed Criteria */}
       <Text style={sr.sectionHeader}>Detailed Feedback</Text>
-      {CRITERIA_KEYS.map(key => (
-        <CriterionCard
-          key={key}
-          criterionKey={key}
-          data={feedback.criteria?.[key]}
-        />
+      {CRITERIA_KEYS.map((key) => (
+        <CriterionCard key={key} criterionKey={key} data={feedback.criteria?.[key]} />
       ))}
     </View>
   );
@@ -369,8 +530,11 @@ const sr = StyleSheet.create({
   container: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.md },
   answersSection: { marginBottom: SPACING.md },
   sectionHeader: {
-    fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.textSecondary,
-    textTransform: 'uppercase', letterSpacing: 0.8,
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
     marginBottom: SPACING.md,
   },
 });

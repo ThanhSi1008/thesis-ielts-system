@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, Text, ScrollView, StyleSheet, ActivityIndicator, 
-  RefreshControl, useWindowDimensions 
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  RefreshControl,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -28,7 +33,11 @@ export function RoadmapContent() {
 
   const fetchRoadmap = async () => {
     try {
-      const res = await apiClient.get<{ steps: RoadmapStep[]; currentStep: number; requiresOnboarding?: boolean }>('/ielts/roadmap');
+      const res = await apiClient.get<{
+        steps: RoadmapStep[];
+        currentStep: number;
+        requiresOnboarding?: boolean;
+      }>('/ielts/roadmap');
       if (res.requiresOnboarding) {
         router.push('/ielts/onboarding');
         return;
@@ -54,7 +63,9 @@ export function RoadmapContent() {
 
   const handleItemClick = (item: RoadmapItem) => {
     if (item.isLocked) return;
-    const q = item.lessonId ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}` : `?skill=${item.skill.toLowerCase()}`;
+    const q = item.lessonId
+      ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}`
+      : `?skill=${item.skill.toLowerCase()}`;
     const baseUrl = item.type === 'lesson' ? '/ielts/basic/lesson/' : '/ielts/basic/exercise/';
     router.push(`${baseUrl}${item.id}${q}` as any);
   };
@@ -67,10 +78,22 @@ export function RoadmapContent() {
     );
   }
 
-  const totalLessons = steps.reduce((acc, s) => acc + (s.items || []).filter(i => i.type === 'lesson').length, 0);
-  const completedLessons = steps.reduce((acc, s) => acc + (s.items || []).filter(i => i.type === 'lesson' && i.isCompleted).length, 0);
-  const totalExercises = steps.reduce((acc, s) => acc + (s.items || []).filter(i => i.type === 'exercise').length, 0);
-  const completedExercises = steps.reduce((acc, s) => acc + (s.items || []).filter(i => i.type === 'exercise' && i.isCompleted).length, 0);
+  const totalLessons = steps.reduce(
+    (acc, s) => acc + (s.items || []).filter((i) => i.type === 'lesson').length,
+    0,
+  );
+  const completedLessons = steps.reduce(
+    (acc, s) => acc + (s.items || []).filter((i) => i.type === 'lesson' && i.isCompleted).length,
+    0,
+  );
+  const totalExercises = steps.reduce(
+    (acc, s) => acc + (s.items || []).filter((i) => i.type === 'exercise').length,
+    0,
+  );
+  const completedExercises = steps.reduce(
+    (acc, s) => acc + (s.items || []).filter((i) => i.type === 'exercise' && i.isCompleted).length,
+    0,
+  );
 
   let nextItem: RoadmapItem | undefined;
   for (const step of steps) {
@@ -84,7 +107,7 @@ export function RoadmapContent() {
   }
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={styles.scroll}
       showsVerticalScrollIndicator={false}
@@ -92,7 +115,7 @@ export function RoadmapContent() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <Animated.View entering={FadeInDown.duration(600)}>
-        <RoadmapSummary 
+        <RoadmapSummary
           totalLessons={totalLessons}
           completedLessons={completedLessons}
           totalExercises={totalExercises}
@@ -103,7 +126,7 @@ export function RoadmapContent() {
       <View style={styles.list}>
         {steps.map((step, idx) => (
           <Animated.View key={step.step} entering={FadeInDown.delay(idx * 100).duration(500)}>
-            <RoadmapStepSection 
+            <RoadmapStepSection
               step={step}
               currentStep={currentStep}
               nextItemId={nextItem?.id}

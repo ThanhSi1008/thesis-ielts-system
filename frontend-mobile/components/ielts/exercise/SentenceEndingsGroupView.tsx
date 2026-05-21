@@ -15,7 +15,8 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
 
   const questions: any[] = group.questions || [];
   const options: any[] = group.options || [];
-  const instruction: string = group.instruction || group.instructions || 'Complete each sentence with the correct ending.';
+  const instruction: string =
+    group.instruction || group.instructions || 'Complete each sentence with the correct ending.';
   const qNums = questions.map((q: any) => q.question_number);
 
   // Track which option IDs are already used (to dim them)
@@ -42,7 +43,9 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
         {questions.map((q: any) => {
           const selected = (answers[q.question_number] ?? '').toUpperCase();
           const isCorrect = submitted && selected === q.answer?.toUpperCase();
-          const selectedOpt = options.find((o: any) => (o.id ?? o.letter ?? '').toUpperCase() === selected);
+          const selectedOpt = options.find(
+            (o: any) => (o.id ?? o.letter ?? '').toUpperCase() === selected,
+          );
 
           return (
             <View
@@ -64,12 +67,8 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                     height: 26,
                     borderRadius: 6,
                     borderWidth: 1,
-                    borderColor: submitted
-                      ? isCorrect ? '#86EFAC' : '#FCA5A5'
-                      : '#BFDBFE',
-                    backgroundColor: submitted
-                      ? isCorrect ? '#DCFCE7' : '#FEE2E2'
-                      : '#EFF6FF',
+                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : '#BFDBFE',
+                    backgroundColor: submitted ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#EFF6FF',
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingHorizontal: 4,
@@ -161,9 +160,18 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                       <Text style={{ fontSize: 13, fontWeight: '800', color: '#16A34A' }}>
                         {q.answer}
                       </Text>
-                      {options.find((o: any) => (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase()) && (
+                      {options.find(
+                        (o: any) =>
+                          (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase(),
+                      ) && (
                         <Text style={{ fontSize: 12, color: '#15803D', flexShrink: 1 }}>
-                          · {options.find((o: any) => (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase())?.text}
+                          ·{' '}
+                          {
+                            options.find(
+                              (o: any) =>
+                                (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase(),
+                            )?.text
+                          }
                         </Text>
                       )}
                     </View>
@@ -185,8 +193,16 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                           flexDirection: 'row',
                           alignItems: 'center',
                           borderWidth: 1.5,
-                          borderColor: isSelected ? '#F59E0B' : isUsedElsewhere ? '#E5E7EB' : COLORS.border,
-                          backgroundColor: isSelected ? '#FEF3C7' : isUsedElsewhere ? '#F9FAFB' : '#fff',
+                          borderColor: isSelected
+                            ? '#F59E0B'
+                            : isUsedElsewhere
+                              ? '#E5E7EB'
+                              : COLORS.border,
+                          backgroundColor: isSelected
+                            ? '#FEF3C7'
+                            : isUsedElsewhere
+                              ? '#F9FAFB'
+                              : '#fff',
                           borderRadius: RADIUS.md,
                           paddingHorizontal: 10,
                           paddingVertical: 6,
@@ -214,7 +230,9 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                 <>
                   <TouchableOpacity
                     onPress={() =>
-                      setShowExplanation(showExplanation === q.question_number ? null : q.question_number)
+                      setShowExplanation(
+                        showExplanation === q.question_number ? null : q.question_number,
+                      )
                     }
                     style={{
                       marginTop: 10,
@@ -274,7 +292,8 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
           {options.map((opt: any) => {
             const optId = (opt.id ?? opt.letter ?? '').toUpperCase();
             const isUsed = !submitted && usedIds.includes(optId);
-            const isCorrectAns = submitted && questions.some((q: any) => q.answer?.toUpperCase() === optId);
+            const isCorrectAns =
+              submitted && questions.some((q: any) => q.answer?.toUpperCase() === optId);
 
             return (
               <View key={optId} style={{ flexDirection: 'row', gap: 8, marginBottom: 6 }}>
@@ -283,8 +302,12 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                     fontSize: 13,
                     fontWeight: '800',
                     color: submitted
-                      ? isCorrectAns ? '#16A34A' : COLORS.textMuted
-                      : isUsed ? '#F59E0B' : COLORS.text,
+                      ? isCorrectAns
+                        ? '#16A34A'
+                        : COLORS.textMuted
+                      : isUsed
+                        ? '#F59E0B'
+                        : COLORS.text,
                     width: 20,
                   }}
                 >
@@ -295,8 +318,12 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                     flex: 1,
                     fontSize: FONT_SIZES.sm,
                     color: submitted
-                      ? isCorrectAns ? '#16A34A' : COLORS.textMuted
-                      : isUsed ? '#92400E' : COLORS.text,
+                      ? isCorrectAns
+                        ? '#16A34A'
+                        : COLORS.textMuted
+                      : isUsed
+                        ? '#92400E'
+                        : COLORS.text,
                     fontWeight: submitted ? (isCorrectAns ? '700' : '400') : '500',
                     lineHeight: 20,
                   }}

@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl, useWindowDimensions
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  useWindowDimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -67,7 +73,7 @@ export default function SkillLessonsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: true,
           title: `${skillName} Lessons`,
@@ -75,7 +81,7 @@ export default function SkillLessonsScreen() {
           headerShadowVisible: false,
           headerStyle: { backgroundColor: '#fff' },
           headerTitleStyle: { fontFamily: FONTS.bold, fontSize: 18 },
-        }} 
+        }}
       />
 
       <ScrollView
@@ -179,7 +185,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F3F4F6',
     borderCurve: 'continuous',
-    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.03)",
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
   },
   lessonIndex: {
     width: 44,

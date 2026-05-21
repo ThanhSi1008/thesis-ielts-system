@@ -12,7 +12,10 @@ interface Props {
 }
 
 export default function AnswerSheet({
-  answers, correctAnswers, totalQuestions, accentColor = COLORS.primary,
+  answers,
+  correctAnswers,
+  totalQuestions,
+  accentColor = COLORS.primary,
 }: Props) {
   const questionNumbers = Array.from({ length: totalQuestions }, (_, i) => String(i + 1));
 
@@ -45,11 +48,7 @@ export default function AnswerSheet({
           return (
             <View
               key={num}
-              style={[
-                s.row,
-                { backgroundColor: rowBg },
-                idx < totalQuestions - 1 && s.rowBorder,
-              ]}
+              style={[s.row, { backgroundColor: rowBg }, idx < totalQuestions - 1 && s.rowBorder]}
             >
               {/* Q number */}
               <Text style={[s.numCol, s.numText]}>{num}</Text>
@@ -59,11 +58,9 @@ export default function AnswerSheet({
                 {wrong ? (
                   <Text style={s.wrongUserText}>{userAns}</Text>
                 ) : (
-                  <Text style={[
-                    s.ansText,
-                    correct && s.correctText,
-                    !answered && s.unansweredText,
-                  ]}>
+                  <Text
+                    style={[s.ansText, correct && s.correctText, !answered && s.unansweredText]}
+                  >
                     {answered ? userAns : '—'}
                   </Text>
                 )}
@@ -76,9 +73,7 @@ export default function AnswerSheet({
                     <Text style={s.correctBadgeText}>{correctAns || '—'}</Text>
                   </View>
                 ) : (
-                  <Text style={[s.ansText, correct && s.correctText]}>
-                    {correctAns || '—'}
-                  </Text>
+                  <Text style={[s.ansText, correct && s.correctText]}>{correctAns || '—'}</Text>
                 )}
               </View>
 
@@ -86,7 +81,9 @@ export default function AnswerSheet({
               <View style={s.iconCol}>
                 {correct && <Ionicons name="checkmark-circle" size={18} color="#16A34A" />}
                 {wrong && <Ionicons name="close-circle" size={18} color="#EF4444" />}
-                {!answered && <Ionicons name="remove-circle-outline" size={18} color={COLORS.textMuted} />}
+                {!answered && (
+                  <Ionicons name="remove-circle-outline" size={18} color={COLORS.textMuted} />
+                )}
               </View>
             </View>
           );

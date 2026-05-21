@@ -13,7 +13,11 @@ interface Props {
   accentColor?: string;
 }
 
-export default function TranscriptReview({ transcript, locatedQuestion, accentColor = '#E11D48' }: Props) {
+export default function TranscriptReview({
+  transcript,
+  locatedQuestion,
+  accentColor = '#E11D48',
+}: Props) {
   const scrollRef = useRef<ScrollView>(null);
   // Map from question number → y-offset of that segment
   const yOffsets = useRef<Record<number, number>>({});
@@ -36,7 +40,9 @@ export default function TranscriptReview({ transcript, locatedQuestion, accentCo
   }, [locatedQuestion]);
 
   const onSegmentLayout = useCallback((qNums: number[], y: number) => {
-    qNums.forEach(q => { yOffsets.current[q] = y; });
+    qNums.forEach((q) => {
+      yOffsets.current[q] = y;
+    });
   }, []);
 
   if (!transcript || transcript.length === 0) {
@@ -52,12 +58,12 @@ export default function TranscriptReview({ transcript, locatedQuestion, accentCo
       <View style={styles.inner}>
         {transcript.map((seg, idx) => {
           const hasMarkers = seg.question_markers && seg.question_markers.length > 0;
-          const isHighlighted = hasMarkers && seg.question_markers!.some(q => q === highlightedQ);
+          const isHighlighted = hasMarkers && seg.question_markers!.some((q) => q === highlightedQ);
           return (
             <View
               key={idx}
               style={[styles.segment, isHighlighted && { backgroundColor: accentColor + '20' }]}
-              onLayout={evt => {
+              onLayout={(evt) => {
                 if (hasMarkers) {
                   onSegmentLayout(seg.question_markers!, evt.nativeEvent.layout.y);
                 }
@@ -65,7 +71,7 @@ export default function TranscriptReview({ transcript, locatedQuestion, accentCo
             >
               {hasMarkers && (
                 <View style={styles.markerRow}>
-                  {seg.question_markers!.map(q => (
+                  {seg.question_markers!.map((q) => (
                     <View key={q} style={[styles.qBadge, { backgroundColor: accentColor }]}>
                       <Text style={styles.qBadgeText}>Q{q}</Text>
                     </View>

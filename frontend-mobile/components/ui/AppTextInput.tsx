@@ -1,12 +1,5 @@
 import React, { forwardRef } from 'react';
-import {
-  TextInput,
-  TextInputProps,
-  View,
-  Text,
-  StyleProp,
-  ViewStyle,
-} from 'react-native';
+import { TextInput, TextInputProps, View, Text, StyleProp, ViewStyle } from 'react-native';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -25,36 +18,20 @@ export interface AppTextInputProps extends TextInputProps {
 }
 
 export const AppTextInput = forwardRef<TextInput, AppTextInputProps>(
-  (
-    {
-      label,
-      errorMessage,
-      containerClassName,
-      inputClassName,
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ label, errorMessage, containerClassName, inputClassName, className, ...props }, ref) => {
     const hasError = !!errorMessage;
 
     return (
       <View className={cn('w-full mb-4', containerClassName)}>
         {/* Label */}
-        {label && (
-          <Text className="text-sm font-medium text-slate-700 mb-1.5">
-            {label}
-          </Text>
-        )}
+        {label && <Text className="text-sm font-medium text-slate-700 mb-1.5">{label}</Text>}
 
         {/* Input Field */}
         <View
           className={cn(
             'flex-row items-center w-full h-12 px-4 rounded-xl border bg-white',
-            hasError
-              ? 'border-red-500 bg-red-50'
-              : 'border-slate-300 focus:border-blue-500',
-            className
+            hasError ? 'border-red-500 bg-red-50' : 'border-slate-300 focus:border-blue-500',
+            className,
           )}
         >
           <TextInput
@@ -67,14 +44,10 @@ export const AppTextInput = forwardRef<TextInput, AppTextInputProps>(
         </View>
 
         {/* Error Message */}
-        {hasError && (
-          <Text className="text-xs text-red-500 mt-1.5 ml-1">
-            {errorMessage}
-          </Text>
-        )}
+        {hasError && <Text className="text-xs text-red-500 mt-1.5 ml-1">{errorMessage}</Text>}
       </View>
     );
-  }
+  },
 );
 
 AppTextInput.displayName = 'AppTextInput';

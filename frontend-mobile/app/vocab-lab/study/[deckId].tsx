@@ -1,7 +1,13 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
-  View, Text, Pressable, ActivityIndicator, ScrollView,
-  StyleSheet, Animated, Dimensions,
+  View,
+  Text,
+  Pressable,
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,9 +28,9 @@ interface StudyCard {
   fieldValues?: Record<string, string>;
   cardType?: {
     fields: { id: string; name: string; order: number; fieldType: string }[];
-    templates: { 
-      frontFields: string[]; 
-      backFields: string[]; 
+    templates: {
+      frontFields: string[];
+      backFields: string[];
       cardStyle?: Record<string, string>;
       fieldStyles?: Record<string, any>;
     }[];
@@ -34,30 +40,28 @@ interface StudyCard {
 // ─── Rating config ─────────────────────────────────────────────────────────────
 const RATINGS = [
   { label: 'Again', value: 1, color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
-  { label: 'Hard',  value: 2, color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
-  { label: 'Good',  value: 3, color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
-  { label: 'Easy',  value: 4, color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' },
+  { label: 'Hard', value: 2, color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
+  { label: 'Good', value: 3, color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
+  { label: 'Easy', value: 4, color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' },
 ] as const;
 
 // ─── Helper: derive display text from fieldValues or front/back ───────────────
 function getDisplayText(card: StudyCard, side: 'front' | 'back'): string {
   const ct = card.cardType;
   if (ct?.templates?.[0] && card.fieldValues) {
-    const fieldIds = side === 'front'
-      ? ct.templates[0].frontFields
-      : ct.templates[0].backFields;
+    const fieldIds = side === 'front' ? ct.templates[0].frontFields : ct.templates[0].backFields;
     const parts = fieldIds
-      .map(fid => card.fieldValues?.[fid] ?? '')
-      .filter(v => v && !/^<(img|audio)/i.test(v)); // strip bare media tags
+      .map((fid) => card.fieldValues?.[fid] ?? '')
+      .filter((v) => v && !/^<(img|audio)/i.test(v)); // strip bare media tags
     if (parts.length > 0) return parts.join('\n');
   }
-  return side === 'front' ? (card.front || '') : (card.back || '');
+  return side === 'front' ? card.front || '' : card.back || '';
 }
 
 // ─── Flip Card ────────────────────────────────────────────────────────────────
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W - SPACING.lg * 2;
-const CARD_H = 320;  // slightly taller to accommodate media
+const CARD_H = 320; // slightly taller to accommodate media
 
 function FlipCard({
   card,
@@ -80,7 +84,7 @@ function FlipCard({
   }, [showBack]);
 
   const frontRotate = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
-  const backRotate  = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
+  const backRotate = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
 
   const tpl = card.cardType?.templates?.[0];
   const cardStyle = tpl?.cardStyle || {};
@@ -100,27 +104,56 @@ function FlipCard({
   return (
     <Pressable onPress={onFlip} style={{ width: CARD_W, minHeight: CARD_H }}>
       {/* Front face */}
-      <Animated.View style={[
-        styles.cardFace,
-        containerStyle,
-        { transform: [{ rotateY: frontRotate }], backfaceVisibility: 'hidden' }
-      ]}>
-        <Text style={[styles.cardSideLabel, containerStyle.color ? { color: containerStyle.color, opacity: 0.5 } : null]}>FRONT</Text>
+      <Animated.View
+        style={[
+          styles.cardFace,
+          containerStyle,
+          { transform: [{ rotateY: frontRotate }], backfaceVisibility: 'hidden' },
+        ]}
+      >
+        <Text
+          style={[
+            styles.cardSideLabel,
+            containerStyle.color ? { color: containerStyle.color, opacity: 0.5 } : null,
+          ]}
+        >
+          FRONT
+        </Text>
         <FlashcardViewer card={card} side="front" width={CARD_W} cardStyle={cardStyle} />
-        <Text style={[styles.tapHint, containerStyle.color ? { color: containerStyle.color, opacity: 0.4 } : null]}>Tap to reveal answer</Text>
+        <Text
+          style={[
+            styles.tapHint,
+            containerStyle.color ? { color: containerStyle.color, opacity: 0.4 } : null,
+          ]}
+        >
+          Tap to reveal answer
+        </Text>
       </Animated.View>
 
       {/* Back face */}
-      <Animated.View style={[
-        styles.cardFace,
-        styles.cardFaceBack,
-        containerStyle,
-        { transform: [{ rotateY: backRotate }], backfaceVisibility: 'hidden' }
-      ]}>
-        <Text style={[styles.cardSideLabel, { color: containerStyle.color || COLORS.primary, opacity: 0.5 }]}>BACK</Text>
+      <Animated.View
+        style={[
+          styles.cardFace,
+          styles.cardFaceBack,
+          containerStyle,
+          { transform: [{ rotateY: backRotate }], backfaceVisibility: 'hidden' },
+        ]}
+      >
+        <Text
+          style={[
+            styles.cardSideLabel,
+            { color: containerStyle.color || COLORS.primary, opacity: 0.5 },
+          ]}
+        >
+          BACK
+        </Text>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', width: CARD_W - SPACING.xl * 2 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            width: CARD_W - SPACING.xl * 2,
+          }}
         >
           <FlashcardViewer card={card} side="back" width={CARD_W} cardStyle={cardStyle} />
         </ScrollView>
@@ -132,8 +165,10 @@ function FlipCard({
 // ─── Interval label ───────────────────────────────────────────────────────────
 function intervalLabel(rating: number, scheduledDays = 0): string {
   if (rating === 1) return '<10m';
-  if (rating === 2) return scheduledDays > 0 ? `${Math.max(1, Math.round(scheduledDays * 1.2))}d` : '1d';
-  if (rating === 3) return scheduledDays > 0 ? `${Math.max(2, Math.round(scheduledDays * 2.5))}d` : '3d';
+  if (rating === 2)
+    return scheduledDays > 0 ? `${Math.max(1, Math.round(scheduledDays * 1.2))}d` : '1d';
+  if (rating === 3)
+    return scheduledDays > 0 ? `${Math.max(2, Math.round(scheduledDays * 2.5))}d` : '3d';
   return scheduledDays > 0 ? `${Math.max(3, Math.round(scheduledDays * 3.5))}d` : '5d';
 }
 
@@ -147,7 +182,12 @@ function formatDuration(seconds: number): string {
 
 // ─── All Done screen ──────────────────────────────────────────────────────────
 function AllDoneScreen({
-  reviewed, deckId, timeSpentSeconds, ratingBreakdown, onStudyAgain, onGoBack
+  reviewed,
+  deckId,
+  timeSpentSeconds,
+  ratingBreakdown,
+  onStudyAgain,
+  onGoBack,
 }: {
   reviewed: number;
   deckId: string;
@@ -157,7 +197,7 @@ function AllDoneScreen({
   onGoBack: () => void;
 }) {
   const scaleAnim = useRef(new Animated.Value(0.85)).current;
-  const fadeAnim  = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -167,10 +207,10 @@ function AllDoneScreen({
   }, []);
 
   const ratingLabels: Record<number, { label: string; color: string; emoji: string }> = {
-    1: { label: 'Again',  color: '#DC2626', emoji: '🔴' },
-    2: { label: 'Hard',   color: '#F97316', emoji: '🟠' },
-    3: { label: 'Good',   color: '#16A34A', emoji: '🟢' },
-    4: { label: 'Easy',   color: '#2563EB', emoji: '🔵' },
+    1: { label: 'Again', color: '#DC2626', emoji: '🔴' },
+    2: { label: 'Hard', color: '#F97316', emoji: '🟠' },
+    3: { label: 'Good', color: '#16A34A', emoji: '🟢' },
+    4: { label: 'Easy', color: '#2563EB', emoji: '🔵' },
   };
 
   const totalRatings = Object.values(ratingBreakdown).reduce((a, v) => a + v, 0);
@@ -182,8 +222,7 @@ function AllDoneScreen({
         <Text style={styles.allDoneEmoji}>🎉</Text>
         <Text style={styles.allDoneTitle}>Session Complete!</Text>
         <Text style={styles.allDoneSubtitle}>
-          You reviewed{' '}
-          <Text style={{ fontWeight: '800', color: COLORS.primary }}>{reviewed}</Text>{' '}
+          You reviewed <Text style={{ fontWeight: '800', color: COLORS.primary }}>{reviewed}</Text>{' '}
           {reviewed === 1 ? 'card' : 'cards'}
           {timeSpentSeconds > 0 ? ` in ${formatDuration(timeSpentSeconds)}` : ''}.
         </Text>
@@ -212,7 +251,7 @@ function AllDoneScreen({
         {hasBreakdown && (
           <View style={styles.breakdownCard}>
             <Text style={styles.breakdownTitle}>Rating Breakdown</Text>
-            {[1, 2, 3, 4].map(r => {
+            {[1, 2, 3, 4].map((r) => {
               const cnt = ratingBreakdown[r] ?? 0;
               if (cnt === 0) return null;
               const meta = ratingLabels[r];
@@ -222,7 +261,12 @@ function AllDoneScreen({
                   <Text style={{ fontSize: 14 }}>{meta.emoji}</Text>
                   <Text style={[styles.breakdownLabel, { color: meta.color }]}>{meta.label}</Text>
                   <View style={styles.breakdownBarBg}>
-                    <View style={[styles.breakdownBarFill, { width: `${pct}%` as any, backgroundColor: meta.color + '50' }]} />
+                    <View
+                      style={[
+                        styles.breakdownBarFill,
+                        { width: `${pct}%` as any, backgroundColor: meta.color + '50' },
+                      ]}
+                    />
                   </View>
                   <Text style={[styles.breakdownCount, { color: meta.color }]}>{cnt}</Text>
                 </View>
@@ -288,7 +332,9 @@ export default function StudyScreen() {
     }
   }, [deckId]);
 
-  useEffect(() => { fetchCards(); }, [fetchCards]);
+  useEffect(() => {
+    fetchCards();
+  }, [fetchCards]);
 
   // Animate progress bar when index changes
   useEffect(() => {
@@ -302,7 +348,7 @@ export default function StudyScreen() {
 
   const handleFlip = () => {
     Haptics.selectionAsync();
-    setShowBack(prev => !prev);
+    setShowBack((prev) => !prev);
   };
 
   const handleRating = async (rating: number) => {
@@ -315,24 +361,24 @@ export default function StudyScreen() {
       await vocabLabApi.submitReview({ flashcardId: card.id, rating });
       const nextReviewed = reviewed + 1;
       setReviewed(nextReviewed);
-      setRatingBreakdown(prev => ({ ...prev, [rating]: (prev[rating] ?? 0) + 1 }));
+      setRatingBreakdown((prev) => ({ ...prev, [rating]: (prev[rating] ?? 0) + 1 }));
 
       if (index + 1 >= cards.length) {
         // All cards done — record time
         setTimeSpentSeconds(Math.round((Date.now() - startTime) / 1000));
         setDone(true);
       } else {
-        setIndex(prev => prev + 1);
+        setIndex((prev) => prev + 1);
         setShowBack(false);
       }
     } catch {
       // Silent fail — advance anyway to avoid blocking the user
-      setRatingBreakdown(prev => ({ ...prev, [rating]: (prev[rating] ?? 0) + 1 }));
+      setRatingBreakdown((prev) => ({ ...prev, [rating]: (prev[rating] ?? 0) + 1 }));
       if (index + 1 >= cards.length) {
         setTimeSpentSeconds(Math.round((Date.now() - startTime) / 1000));
         setDone(true);
       } else {
-        setIndex(prev => prev + 1);
+        setIndex((prev) => prev + 1);
         setShowBack(false);
       }
     } finally {
@@ -383,16 +429,28 @@ export default function StudyScreen() {
         <View style={styles.loadingContainer}>
           <Text style={{ fontSize: 60, marginBottom: SPACING.md }}>🎉</Text>
           <Text style={styles.allDoneTitle}>All Caught Up!</Text>
-          <Text style={[styles.allDoneSubtitle, { textAlign: 'center', marginTop: SPACING.md, paddingHorizontal: SPACING.xl }]}>
+          <Text
+            style={[
+              styles.allDoneSubtitle,
+              { textAlign: 'center', marginTop: SPACING.md, paddingHorizontal: SPACING.xl },
+            ]}
+          >
             There are no more cards due for review right now. Great job!
           </Text>
           <View style={{ alignItems: 'center', width: '100%' }}>
-            <Pressable 
+            <Pressable
               style={[
-                styles.allDoneBtn, 
+                styles.allDoneBtn,
                 styles.allDoneBtnPrimary,
-                { flex: 0, width: 'auto', minWidth: 160, marginTop: SPACING.xl, paddingHorizontal: SPACING.xl, alignSelf: 'center' }
-              ]} 
+                {
+                  flex: 0,
+                  width: 'auto',
+                  minWidth: 160,
+                  marginTop: SPACING.xl,
+                  paddingHorizontal: SPACING.xl,
+                  alignSelf: 'center',
+                },
+              ]}
               onPress={() => router.back()}
             >
               <Text style={[styles.allDoneBtnText, { color: '#fff' }]}>Go Back</Text>
@@ -427,7 +485,7 @@ export default function StudyScreen() {
     );
   }
 
-  const progress = cards.length > 0 ? (index) / cards.length : 0;
+  const progress = cards.length > 0 ? index / cards.length : 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -462,30 +520,21 @@ export default function StudyScreen() {
 
       {/* Card area */}
       <View style={styles.cardArea}>
-        {currentCard && (
-          <FlipCard
-            card={currentCard}
-            showBack={showBack}
-            onFlip={handleFlip}
-          />
-        )}
+        {currentCard && <FlipCard card={currentCard} showBack={showBack} onFlip={handleFlip} />}
       </View>
 
       {/* Action area */}
       <View style={styles.actionArea}>
         {!showBack ? (
           /* Show Answer button */
-          <Pressable
-            style={styles.showAnswerBtn}
-            onPress={handleFlip}
-          >
+          <Pressable style={styles.showAnswerBtn} onPress={handleFlip}>
             <Ionicons name="eye-outline" size={18} color={COLORS.text} />
             <Text style={styles.showAnswerText}>Show Answer</Text>
           </Pressable>
         ) : (
           /* Rating buttons */
           <View style={styles.ratingsGrid}>
-            {RATINGS.map(r => (
+            {RATINGS.map((r) => (
               <Pressable
                 key={r.value}
                 style={[
@@ -521,9 +570,14 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md,
-    backgroundColor: '#fff', borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   headerClose: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },
@@ -657,7 +711,12 @@ const styles = StyleSheet.create({
   // Loading / Error
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: SPACING.md },
   loadingText: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
-  errorText: { fontSize: FONT_SIZES.md, color: COLORS.error, textAlign: 'center', paddingHorizontal: SPACING.xl },
+  errorText: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.error,
+    textAlign: 'center',
+    paddingHorizontal: SPACING.xl,
+  },
   retryBtn: {
     backgroundColor: COLORS.primary,
     borderRadius: RADIUS.lg,
@@ -667,7 +726,12 @@ const styles = StyleSheet.create({
   retryBtnText: { color: '#fff', fontWeight: '700', fontSize: FONT_SIZES.md },
 
   // All done
-  allDoneContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SPACING.xl },
+  allDoneContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
+  },
   allDoneCard: {
     backgroundColor: '#fff',
     borderRadius: RADIUS.xl * 2,
@@ -744,14 +808,27 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   breakdownTitle: {
-    fontSize: FONT_SIZES.xs, fontWeight: '800', color: COLORS.textMuted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: SPACING.sm,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '800',
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.sm,
   },
   breakdownRow: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, marginBottom: SPACING.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    marginBottom: SPACING.xs,
   },
   breakdownLabel: { width: 48, fontSize: FONT_SIZES.xs, fontWeight: '700' },
-  breakdownBarBg: { flex: 1, height: 8, backgroundColor: COLORS.border, borderRadius: 4, overflow: 'hidden' },
+  breakdownBarBg: {
+    flex: 1,
+    height: 8,
+    backgroundColor: COLORS.border,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
   breakdownBarFill: { height: '100%', borderRadius: 4 },
   breakdownCount: { width: 24, textAlign: 'right', fontSize: FONT_SIZES.sm, fontWeight: '800' },
 });

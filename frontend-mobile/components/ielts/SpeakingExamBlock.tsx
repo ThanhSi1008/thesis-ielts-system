@@ -1,16 +1,30 @@
 /**
  * SpeakingExamBlock — Sequential Mobile Speaking Test Flow
- * 
+ *
  * Implements:
  * 1. 7-state video-think-record machine per question
  * 2. Sequential "Next/Skip" navigation (no scrolling between questions)
  * 3. Part 2 Notes area during THINKING
  */
 
-import React, { useState, useRef, useCallback, useEffect, useMemo, useImperativeHandle } from 'react';
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useImperativeHandle,
+} from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ActivityIndicator, Platform, KeyboardAvoidingView, ScrollView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -68,7 +82,11 @@ function getMaxRecordTime(partNumber?: number) {
 function RecordingTimer({ seconds }: { seconds: number }) {
   const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
   const ss = String(seconds % 60).padStart(2, '0');
-  return <Text style={rt.text}>{mm}:{ss}</Text>;
+  return (
+    <Text style={rt.text}>
+      {mm}:{ss}
+    </Text>
+  );
 }
 const rt = StyleSheet.create({
   text: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: '#ef4444', letterSpacing: 1 },
@@ -77,7 +95,7 @@ const rt = StyleSheet.create({
 function ThinkTimer({
   seconds,
   onDone,
-  showSkip = false
+  showSkip = false,
 }: {
   seconds: number;
   onDone: () => void;
@@ -99,7 +117,7 @@ function ThinkTimer({
       }
       return;
     }
-    const t = setTimeout(() => setLeft(l => l - 1), 1000);
+    const t = setTimeout(() => setLeft((l) => l - 1), 1000);
     return () => clearTimeout(t);
   }, [left, onDone]);
 
@@ -111,7 +129,9 @@ function ThinkTimer({
       <View style={tt.wrap}>
         <Ionicons name="time-outline" size={16} color={COLORS.primary} />
         <Text style={tt.label}>Preparation Time</Text>
-        <Text style={tt.time}>{mm}:{ss}</Text>
+        <Text style={tt.time}>
+          {mm}:{ss}
+        </Text>
       </View>
       {showSkip && left > 0 && (
         <TouchableOpacity style={tt.skipBtn} onPress={onDone} activeOpacity={0.8}>
@@ -125,34 +145,41 @@ function ThinkTimer({
 const tt = StyleSheet.create({
   container: { alignItems: 'center', marginBottom: SPACING.lg },
   wrap: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#EEF2FF', paddingHorizontal: SPACING.lg,
-    paddingVertical: 12, borderRadius: RADIUS.full,
-    borderWidth: 1, borderColor: '#C7D2FE',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: 12,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
   },
   label: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '700' },
   time: {
-    fontSize: FONT_SIZES.md, fontWeight: '900', color: COLORS.primary,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '900',
+    color: COLORS.primary,
     fontVariant: ['tabular-nums'],
   },
   skipBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    marginTop: SPACING.sm, paddingHorizontal: SPACING.md, paddingVertical: 6,
-    backgroundColor: '#dcfce7', borderRadius: RADIUS.full,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    backgroundColor: '#dcfce7',
+    borderRadius: RADIUS.full,
   },
-  skipText: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#16a34a' }
+  skipText: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#16a34a' },
 });
 
 // ─── Metering Waveform (isolated so 100ms polling never re-renders the ScrollView) ──
 
 function MeteringWaveform({ recorder }: { recorder: ReturnType<typeof useAudioRecorder> }) {
   const recorderState = useAudioRecorderState(recorder, 100);
-  return (
-    <Waveform
-      isRecording={true}
-      metering={recorderState.metering ?? -160}
-    />
-  );
+  return <Waveform isRecording={true} metering={recorderState.metering ?? -160} />;
 }
 
 // ─── Recording Controller ─────────────────────────────────────────────────────
@@ -171,8 +198,23 @@ interface RecordingControllerProps {
 }
 
 const RecordingController = React.forwardRef<RecordingControllerHandle, RecordingControllerProps>(
-  ({ answerKey, partNumber, maxRecordTime, answer, currentStep, isDisabled, onAnswerChange, onStepChange }, ref) => {
-    const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true });
+  (
+    {
+      answerKey,
+      partNumber,
+      maxRecordTime,
+      answer,
+      currentStep,
+      isDisabled,
+      onAnswerChange,
+      onStepChange,
+    },
+    ref,
+  ) => {
+    const recorder = useAudioRecorder({
+      ...RecordingPresets.HIGH_QUALITY,
+      isMeteringEnabled: true,
+    });
     const isDegradedRef = useRef(false);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const [recordTimeElapsed, setRecordTimeElapsed] = useState(0);
@@ -183,7 +225,9 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
     const isUploading = currentStep === 'UPLOADING';
 
     useEffect(() => {
-      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+      };
     }, []);
 
     const stopAndUpload = useCallback(async () => {
@@ -192,7 +236,11 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
         await recorder.stop();
         await setAudioModeAsync({ allowsRecording: false });
         const uri = recorder.uri;
-        if (!uri) { setUploadError('No audio file.'); onStepChange('RECORDED'); return; }
+        if (!uri) {
+          setUploadError('No audio file.');
+          onStepChange('RECORDED');
+          return;
+        }
 
         onStepChange('UPLOADING');
 
@@ -229,7 +277,7 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
 
         if (timerRef.current) clearInterval(timerRef.current);
         timerRef.current = setInterval(() => {
-          setRecordTimeElapsed(prev => {
+          setRecordTimeElapsed((prev) => {
             if (prev >= maxRecordTime - 1) {
               stopAndUpload();
               return maxRecordTime;
@@ -241,7 +289,11 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
         const msg = String(e?.message ?? e ?? '');
         // Error -50 = invalid param (iOS simulator has no real mic). Flag as
         // degraded so we never retry and perpetuate the failure loop.
-        if (msg.includes('-50') || msg.includes('ENODEV') || msg.toLowerCase().includes('no device')) {
+        if (
+          msg.includes('-50') ||
+          msg.includes('ENODEV') ||
+          msg.toLowerCase().includes('no device')
+        ) {
           isDegradedRef.current = true;
         }
         setUploadError('Could not start recording.');
@@ -265,7 +317,9 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
           ) : audioUploaded ? (
             <View style={aq.recordStatus}>
               <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-              <Text style={[aq.statusText, { color: '#22c55e', fontWeight: '700' }]}>Audio saved</Text>
+              <Text style={[aq.statusText, { color: '#22c55e', fontWeight: '700' }]}>
+                Audio saved
+              </Text>
             </View>
           ) : uploadError ? (
             <Text style={[aq.statusText, { color: '#ef4444' }]}>{uploadError}</Text>
@@ -276,7 +330,9 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
 
         <RecordButton
           isRecording={isRecording}
-          isDisabled={isDisabled || isUploading || currentStep === 'PLAYING' || currentStep === 'PLAYING_2'}
+          isDisabled={
+            isDisabled || isUploading || currentStep === 'PLAYING' || currentStep === 'PLAYING_2'
+          }
           onPress={isRecording ? stopAndUpload : start}
           size={48}
         />
@@ -284,7 +340,7 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
         {isRecording && <MeteringWaveform recorder={recorder} />}
       </View>
     );
-  }
+  },
 );
 
 // ─── Active Question View (VoiceRecorder + Notes) ────────────────────────────
@@ -330,7 +386,7 @@ function ActiveQuestionBlock({
   isCueCard,
   onNext,
   onSkip,
-  isLastQuestion
+  isLastQuestion,
 }: ActiveQuestionProps) {
   const scrollRef = useRef<ScrollView>(null);
   const recorderRef = useRef<RecordingControllerHandle>(null);
@@ -372,10 +428,13 @@ function ActiveQuestionBlock({
   }, [video2Uri]);
 
   const videoCaptionText =
-    step === 'LISTEN_CAPTION' ? 'Listen to the question' :
-    step === 'THINK_CAPTION' ? 'Time to think' : undefined;
+    step === 'LISTEN_CAPTION'
+      ? 'Listen to the question'
+      : step === 'THINK_CAPTION'
+        ? 'Time to think'
+        : undefined;
 
-  const activeVideoUri = step === 'PLAYING_2' ? video2Uri : (videoUri || video2Uri);
+  const activeVideoUri = step === 'PLAYING_2' ? video2Uri : videoUri || video2Uri;
 
   return (
     <View style={aq.container}>
@@ -393,11 +452,7 @@ function ActiveQuestionBlock({
       )}
 
       {step === 'THINKING' && (
-        <ThinkTimer
-          seconds={thinkTime}
-          onDone={handleThinkDone}
-          showSkip={isCueCard}
-        />
+        <ThinkTimer seconds={thinkTime} onDone={handleThinkDone} showSkip={isCueCard} />
       )}
 
       {isCueCard && step === 'THINKING' && (
@@ -452,7 +507,10 @@ function ActiveQuestionBlock({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[aq.nextBtn, (!audioUploaded || step === 'RECORDING' || step === 'UPLOADING') && { opacity: 0.5 }]}
+            style={[
+              aq.nextBtn,
+              (!audioUploaded || step === 'RECORDING' || step === 'UPLOADING') && { opacity: 0.5 },
+            ]}
             onPress={onNext}
             disabled={!audioUploaded || step === 'RECORDING' || step === 'UPLOADING'}
             activeOpacity={0.8}
@@ -470,27 +528,57 @@ const aq = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { padding: SPACING.lg, flexGrow: 1, paddingBottom: 100 },
   questionCard: {
-    backgroundColor: '#fff', borderRadius: RADIUS.lg, padding: SPACING.lg,
-    marginBottom: SPACING.lg, borderWidth: 1, borderColor: COLORS.border,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   questionText: { fontSize: FONT_SIZES.lg, color: COLORS.text, fontWeight: '600', lineHeight: 26 },
   cueCard: {
-    backgroundColor: '#FFFBEB', borderRadius: RADIUS.lg, padding: SPACING.lg,
-    marginBottom: SPACING.lg, borderWidth: 1, borderColor: '#FDE68A',
+    backgroundColor: '#FFFBEB',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
   },
-  cueLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#D97706', textTransform: 'uppercase', marginBottom: 8 },
+  cueLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    color: '#D97706',
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
   cueText: { fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 24 },
   videoWrap: { marginBottom: SPACING.lg },
   notesWrap: { marginBottom: SPACING.lg },
-  notesLabel: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 8 },
+  notesLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
   notesInput: {
-    backgroundColor: '#fff', borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md,
-    padding: SPACING.md, height: 100, fontSize: FONT_SIZES.sm, color: COLORS.text,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+    height: 100,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.text,
   },
   controlsPanel: {
-    backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.lg,
-    borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.xl,
-    alignItems: 'center', gap: SPACING.md,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: SPACING.xl,
+    alignItems: 'center',
+    gap: SPACING.md,
   },
   statusArea: { alignItems: 'center' },
   statusText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '500' },
@@ -499,13 +587,16 @@ const aq = StyleSheet.create({
   skipBtn: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.sm },
   skipBtnText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm, fontWeight: '600' },
   nextBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#10b981', paddingHorizontal: SPACING.xl, paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#10b981',
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: 12,
     borderRadius: RADIUS.full,
   },
   nextBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
 });
-
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -515,24 +606,36 @@ function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
 
   // Flatten questions list for sequential navigation
   const flatQuestions = useMemo(() => {
-    const list: { partIdx: number, qIdx: number, part: SpeakingPart, questionText: string, videoUri?: string, video2Uri?: string, isCueCard: boolean }[] = [];
+    const list: {
+      partIdx: number;
+      qIdx: number;
+      part: SpeakingPart;
+      questionText: string;
+      videoUri?: string;
+      video2Uri?: string;
+      isCueCard: boolean;
+    }[] = [];
     parts.forEach((part, pIdx) => {
       if (part.cue_card) {
         list.push({
-          partIdx: pIdx, qIdx: 0, part,
+          partIdx: pIdx,
+          qIdx: 0,
+          part,
           questionText: part.cue_card,
           videoUri: part.video,
           video2Uri: part.video2,
-          isCueCard: true
+          isCueCard: true,
         });
       } else if (part.questions) {
         part.questions.forEach((q, qIdx) => {
           list.push({
-            partIdx: pIdx, qIdx, part,
+            partIdx: pIdx,
+            qIdx,
+            part,
             questionText: q.text || q.question || '',
             videoUri: q.video,
             video2Uri: q.video2,
-            isCueCard: false
+            isCueCard: false,
           });
         });
       }
@@ -542,9 +645,9 @@ function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
 
   // Sync active part tab with sequential flat index
   const currentFlatIdx = flatQuestions.findIndex(
-    q => q.partIdx === activePartIdx && q.qIdx === activeQIdx
+    (q) => q.partIdx === activePartIdx && q.qIdx === activeQIdx,
   );
-  
+
   const currentQ = flatQuestions[currentFlatIdx];
   const isLastQuestion = currentFlatIdx === flatQuestions.length - 1;
 
@@ -571,11 +674,15 @@ function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
   const answerKey = currentQ ? `${currentQ.partIdx}-${currentQ.qIdx}` : '';
 
   if (!currentQ) {
-    return <View style={styles.container}><ActivityIndicator /></View>;
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator />
+      </View>
+    );
   }
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 110 : 0}
@@ -622,10 +729,18 @@ export default React.memo(SpeakingExamBlock, (prev, next) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc', paddingBottom: 90 },
-  tabs: { flexDirection: 'row', borderBottomWidth: 1, borderColor: COLORS.border, backgroundColor: '#fff' },
+  tabs: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: '#fff',
+  },
   tab: {
-    flex: 1, alignItems: 'center', paddingVertical: SPACING.md,
-    borderBottomWidth: 3, borderBottomColor: 'transparent',
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
   },
   tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
 });

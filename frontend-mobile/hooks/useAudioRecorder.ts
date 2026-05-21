@@ -28,7 +28,7 @@ export const useAudioRecorderHook = () => {
     // Use WAV format: backend accepts audio/wav without any changes
     // WAV is uncompressed PCM — works natively on iOS & Android
     extension: '.wav',
-    sampleRate: 16000,  // 16kHz is optimal for speech/Whisper AI
+    sampleRate: 16000, // 16kHz is optimal for speech/Whisper AI
     numberOfChannels: 1, // Mono is sufficient and halves file size
     bitRate: 128000,
     android: {

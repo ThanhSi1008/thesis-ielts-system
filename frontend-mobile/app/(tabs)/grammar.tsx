@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useEffect, useState } from 'react';
 import { Link } from 'expo-router';
 import { grammarApi, GrammarBook } from '../../services/api';
@@ -27,9 +34,9 @@ export default function GrammarScreen() {
 
   const getLevelLabel = (level: string) => {
     const labels: Record<string, string> = {
-      'Elementary': 'Cơ bản',
-      'Intermediate': 'Trung cấp',
-      'Advanced': 'Nâng cao',
+      Elementary: 'Cơ bản',
+      Intermediate: 'Trung cấp',
+      Advanced: 'Nâng cao',
     };
     return labels[level] || level;
   };
@@ -87,7 +94,12 @@ const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { marginTop: 12, color: '#6B7280' },
   errorText: { color: '#EF4444', fontSize: 16, marginBottom: 16 },
-  retryButton: { backgroundColor: '#10B981', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 },
+  retryButton: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
   retryButtonText: { color: '#FFFFFF', fontWeight: '600' },
   header: { padding: 20, paddingTop: 24 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#1F2937' },

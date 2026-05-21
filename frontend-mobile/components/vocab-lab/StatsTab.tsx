@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  View, Text, ScrollView, StyleSheet, ActivityIndicator,
-  Animated,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import Svg, { Circle, G, Text as SvgText } from 'react-native-svg';
 import { COLORS, SPACING, FONT_SIZES, RADIUS } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
+
+// react-native-svg Path is not exported by name in all versions — import directly
+import { Path as SvgPath } from 'react-native-svg';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Segment {
@@ -65,11 +65,20 @@ function DonutChart({ segments, total }: DonutChartProps) {
   let cumulative = 0;
 
   for (const seg of segments) {
-    if (seg.count === 0) { cumulative += 0; continue; }
+    if (seg.count === 0) {
+      cumulative += 0;
+      continue;
+    }
     const startDeg = (cumulative / total) * 360;
     const endDeg = ((cumulative + seg.count) / total) * 360;
     const midAngle = (startDeg + endDeg) / 2;
-    paths.push({ d: describeArc(startDeg, endDeg), color: seg.color, label: seg.label, midAngle, pct: seg.pct });
+    paths.push({
+      d: describeArc(startDeg, endDeg),
+      color: seg.color,
+      label: seg.label,
+      midAngle,
+      pct: seg.pct,
+    });
     cumulative += seg.count;
   }
 
@@ -77,7 +86,7 @@ function DonutChart({ segments, total }: DonutChartProps) {
     <Animated.View style={{ opacity: fadeAnim, alignItems: 'center' }}>
       <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
         <G>
-          {paths.map(p => (
+          {paths.map((p) => (
             <G key={p.label}>
               {/* Segment arc (filled path using Polygon-equivalent) */}
               <SvgPath d={p.d} fill={p.color} />
@@ -110,15 +119,17 @@ function DonutChart({ segments, total }: DonutChartProps) {
   );
 }
 
-// react-native-svg Path is not exported by name in all versions — import directly
-import { Path as SvgPath } from 'react-native-svg';
-
 // ─── Legend row ──────────────────────────────────────────────────────────────
 function LegendRow({ label, count, color, pct }: Segment) {
   const barAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(barAnim, { toValue: pct / 100, duration: 700, delay: 100, useNativeDriver: false }).start();
+    Animated.timing(barAnim, {
+      toValue: pct / 100,
+      duration: 700,
+      delay: 100,
+      useNativeDriver: false,
+    }).start();
   }, [pct]);
 
   return (
@@ -126,7 +137,15 @@ function LegendRow({ label, count, color, pct }: Segment) {
       <View style={[l.dot, { backgroundColor: color }]} />
       <Text style={l.label}>{label}</Text>
       <View style={l.barBg}>
-        <Animated.View style={[l.barFill, { backgroundColor: color, width: barAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
+        <Animated.View
+          style={[
+            l.barFill,
+            {
+              backgroundColor: color,
+              width: barAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
+            },
+          ]}
+        />
       </View>
       <Text style={[l.count, { color }]}>{count}</Text>
       <Text style={l.pct}>{pct.toFixed(0)}%</Text>
@@ -137,10 +156,22 @@ const l = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginBottom: SPACING.md },
   dot: { width: 10, height: 10, borderRadius: 5 },
   label: { width: 72, fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.text },
-  barBg: { flex: 1, height: 8, backgroundColor: COLORS.border, borderRadius: 4, overflow: 'hidden' },
+  barBg: {
+    flex: 1,
+    height: 8,
+    backgroundColor: COLORS.border,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
   barFill: { height: '100%', borderRadius: 4 },
   count: { width: 36, textAlign: 'right', fontWeight: '800', fontSize: FONT_SIZES.sm },
-  pct: { width: 40, textAlign: 'right', fontSize: FONT_SIZES.xs, fontWeight: '700', color: COLORS.textSecondary },
+  pct: {
+    width: 40,
+    textAlign: 'right',
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+  },
 });
 
 // ─── StatsTab ─────────────────────────────────────────────────────────────────
@@ -149,22 +180,48 @@ export function StatsTab() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    vocabLabApi.getStats()
+    vocabLabApi
+      .getStats()
       .then(setStats)
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <View style={s.center}><ActivityIndicator color={COLORS.primary} /></View>;
-  if (!stats) return <View style={s.center}><Text style={{ color: COLORS.textSecondary }}>No data yet.</Text></View>;
+  if (loading)
+    return (
+      <View style={s.center}>
+        <ActivityIndicator color={COLORS.primary} />
+      </View>
+    );
+  if (!stats)
+    return (
+      <View style={s.center}>
+        <Text style={{ color: COLORS.textSecondary }}>No data yet.</Text>
+      </View>
+    );
 
-  const rawTotal = (stats.totalCount ?? stats.totalCards ?? 0);
+  const rawTotal = stats.totalCount ?? stats.totalCards ?? 0;
   const total = Math.max(rawTotal, 1); // prevent /0
 
   const segments: Segment[] = [
-    { label: 'New',       count: stats.newCount ?? 0,      color: '#3B82F6', pct: ((stats.newCount ?? 0) / total) * 100 },
-    { label: 'Learning',  count: stats.learningCount ?? 0,  color: '#F97316', pct: ((stats.learningCount ?? 0) / total) * 100 },
-    { label: 'Review',    count: stats.reviewCount ?? 0,    color: '#10B981', pct: ((stats.reviewCount ?? 0) / total) * 100 },
+    {
+      label: 'New',
+      count: stats.newCount ?? 0,
+      color: '#3B82F6',
+      pct: ((stats.newCount ?? 0) / total) * 100,
+    },
+    {
+      label: 'Learning',
+      count: stats.learningCount ?? 0,
+      color: '#F97316',
+      pct: ((stats.learningCount ?? 0) / total) * 100,
+    },
+    {
+      label: 'Review',
+      count: stats.reviewCount ?? 0,
+      color: '#10B981',
+      pct: ((stats.reviewCount ?? 0) / total) * 100,
+    },
   ];
 
   // Fill remaining if counts don't add up (floating point, relearning, etc.)
@@ -180,20 +237,19 @@ export function StatsTab() {
 
       {/* Donut chart */}
       <View style={s.chartContainer}>
-        {rawTotal === 0
-          ? (
-            <View style={s.emptyChart}>
-              <Text style={s.emptyEmoji}>📭</Text>
-              <Text style={s.emptyText}>No cards yet</Text>
-            </View>
-          )
-          : <DonutChart segments={segments} total={rawTotal} />
-        }
+        {rawTotal === 0 ? (
+          <View style={s.emptyChart}>
+            <Text style={s.emptyEmoji}>📭</Text>
+            <Text style={s.emptyText}>No cards yet</Text>
+          </View>
+        ) : (
+          <DonutChart segments={segments} total={rawTotal} />
+        )}
       </View>
 
       {/* Legend + bar rows */}
       <View style={s.legendCard}>
-        {segments.map(seg => (
+        {segments.map((seg) => (
           <LegendRow key={seg.label} {...seg} />
         ))}
 
@@ -209,7 +265,9 @@ export function StatsTab() {
       {/* "No cards to review" hint */}
       {rawTotal > 0 && (stats.newCount ?? 0) === rawTotal && (
         <View style={s.hintCard}>
-          <Text style={s.hintText}>🌱 All cards are new! Start a study session to begin learning.</Text>
+          <Text style={s.hintText}>
+            🌱 All cards are new! Start a study session to begin learning.
+          </Text>
         </View>
       )}
     </ScrollView>
@@ -219,7 +277,12 @@ export function StatsTab() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
-  title: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.text, marginBottom: SPACING.lg },
+  title: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: SPACING.lg,
+  },
   chartContainer: {
     alignItems: 'center',
     marginBottom: SPACING.xl,

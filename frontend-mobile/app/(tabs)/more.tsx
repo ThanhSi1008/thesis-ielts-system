@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,26 +12,66 @@ const SECTIONS = [
   {
     title: 'Learning',
     items: [
-      { label: 'Vocabulary Books', icon: 'book' as IoniconsName, color: '#FFC600', route: '/vocabulary' },
+      {
+        label: 'Vocabulary Books',
+        icon: 'book' as IoniconsName,
+        color: '#FFC600',
+        route: '/vocabulary',
+      },
       { label: 'Grammar', icon: 'library' as IoniconsName, color: '#5B9557', route: '/grammar' },
-      { label: 'Pronunciation', icon: 'mic-circle' as IoniconsName, color: '#E11D48', route: '/(tabs)/pronunciation' },
-      { label: 'Student / Teacher', icon: 'people' as IoniconsName, color: '#7C3AED', route: '/student-teacher' },
+      {
+        label: 'Pronunciation',
+        icon: 'mic-circle' as IoniconsName,
+        color: '#E11D48',
+        route: '/(tabs)/pronunciation',
+      },
+      {
+        label: 'Student / Teacher',
+        icon: 'people' as IoniconsName,
+        color: '#7C3AED',
+        route: '/student-teacher',
+      },
     ],
   },
   {
     title: 'IELTS',
     items: [
-      { label: 'Advanced Practice', icon: 'trending-up' as IoniconsName, color: '#2563EB', route: '/ielts/advanced' },
-      { label: 'Mock Tests', icon: 'flash' as IoniconsName, color: '#D97706', route: '/ielts/intensive' },
-      { label: 'Test History', icon: 'time' as IoniconsName, color: '#059669', route: '/ielts/history' },
-      { label: 'Statistics', icon: 'bar-chart' as IoniconsName, color: '#0EA5E9', route: '/ielts/statistics' },
+      {
+        label: 'Advanced Practice',
+        icon: 'trending-up' as IoniconsName,
+        color: '#2563EB',
+        route: '/ielts/advanced',
+      },
+      {
+        label: 'Mock Tests',
+        icon: 'flash' as IoniconsName,
+        color: '#D97706',
+        route: '/ielts/intensive',
+      },
+      {
+        label: 'Test History',
+        icon: 'time' as IoniconsName,
+        color: '#059669',
+        route: '/ielts/history',
+      },
+      {
+        label: 'Statistics',
+        icon: 'bar-chart' as IoniconsName,
+        color: '#0EA5E9',
+        route: '/ielts/statistics',
+      },
       { label: 'Roadmap', icon: 'map' as IoniconsName, color: '#6366F1', route: '/(tabs)/ielts' },
     ],
   },
   {
     title: 'Account',
     items: [
-      { label: 'Profile', icon: 'person' as IoniconsName, color: '#64748B', route: '/(tabs)/profile' },
+      {
+        label: 'Profile',
+        icon: 'person' as IoniconsName,
+        color: '#64748B',
+        route: '/(tabs)/profile',
+      },
     ],
   },
 ];
@@ -70,10 +108,7 @@ export default function MoreScreen() {
             {section.items.map((item, i) => (
               <TouchableOpacity
                 key={item.label}
-                style={[
-                  styles.row,
-                  i < section.items.length - 1 && styles.rowBorder,
-                ]}
+                style={[styles.row, i < section.items.length - 1 && styles.rowBorder]}
                 onPress={() => router.push(item.route as any)}
                 activeOpacity={0.7}
               >
@@ -89,11 +124,7 @@ export default function MoreScreen() {
       ))}
 
       {/* Logout */}
-      <TouchableOpacity
-        style={styles.logoutBtn}
-        onPress={logout}
-        activeOpacity={0.8}
-      >
+      <TouchableOpacity style={styles.logoutBtn} onPress={logout} activeOpacity={0.8}>
         <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
         <Text style={styles.logoutText}>Sign Out</Text>
       </TouchableOpacity>
@@ -115,9 +146,12 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   avatar: {
-    width: 52, height: 52, borderRadius: 26,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: COLORS.primary,
-    alignItems: 'center', justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatarText: { color: '#fff', fontSize: FONT_SIZES.xl, fontWeight: '800' },
   greeting: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
@@ -125,9 +159,12 @@ const styles = StyleSheet.create({
 
   section: { paddingHorizontal: SPACING.lg, marginBottom: SPACING.lg },
   sectionTitle: {
-    fontSize: FONT_SIZES.xs, fontWeight: '700',
-    color: COLORS.textMuted, textTransform: 'uppercase',
-    letterSpacing: 0.8, marginBottom: SPACING.sm,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.sm,
   },
   sectionCard: {
     backgroundColor: '#fff',
@@ -137,19 +174,25 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   row: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: SPACING.lg, paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: 14,
     gap: SPACING.md,
   },
   rowBorder: { borderBottomWidth: 1, borderColor: COLORS.border },
   iconBox: {
-    width: 36, height: 36, borderRadius: RADIUS.md,
-    alignItems: 'center', justifyContent: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   rowLabel: { flex: 1, fontSize: FONT_SIZES.md, fontWeight: '600', color: COLORS.text },
 
   logoutBtn: {
-    flexDirection: 'row', alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: SPACING.md,
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.xl,
