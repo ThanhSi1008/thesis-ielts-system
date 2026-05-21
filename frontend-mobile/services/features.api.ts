@@ -217,5 +217,9 @@ export const notificationsApi = {
   markAsRead: (id: string) => apiClient.patch<void>(`/notifications/${id}/read`, {}),
   deleteNotification: (id: string) => apiClient.delete<void>(`/notifications/${id}`),
   createTestNotification: () => apiClient.post<any>('/notifications/test', {}),
+  addPushToken: (token: string, platform: string) =>
+    apiClient.post<any>('/users/me/push-token', { token, platform }),
+  removePushToken: (token: string) =>
+    apiClient.deleteWithBody<any>('/users/me/push-token', { token }),
 };
 

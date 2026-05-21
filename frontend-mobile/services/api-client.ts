@@ -203,6 +203,29 @@ export class ApiClient {
     return this.handleResponse<T>(response);
   }
 
+  async deleteWithBody<T>(endpoint: string, body: unknown): Promise<T> {
+    const headers = await this.getHeaders();
+    let response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'DELETE',
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (response.status === 401) {
+      const success = await this.refreshToken();
+      if (success) {
+        const newHeaders = await this.getHeaders();
+        response = await fetch(`${this.baseUrl}${endpoint}`, {
+          method: 'DELETE',
+          headers: newHeaders,
+          body: JSON.stringify(body),
+        });
+      }
+    }
+
+    return this.handleResponse<T>(response);
+  }
+
   async postForm<T>(endpoint: string, formData: FormData): Promise<T> {
     const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     const getFormHeaders = (t: string | null) => {
