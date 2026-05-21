@@ -148,19 +148,233 @@ export default function AdvancedWritingResultScreen() {
 
   const activeColor = isDark ? colors.primary : COLORS.skill.writing;
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      marginTop: SPACING.md,
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+    },
+    errorText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.lg,
+      textAlign: 'center',
+      marginBottom: SPACING.xs,
+      color: colors.error,
+    },
+    errorSub: {
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.sm,
+      textAlign: 'center',
+      marginBottom: SPACING.lg,
+      lineHeight: 18,
+      color: colors.textSecondary,
+    },
+    backBtn: {
+      marginTop: SPACING.md,
+      padding: SPACING.sm,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+      backgroundColor: isDark ? colors.card : COLORS.skill.writing,
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
+    },
+    headerBack: {
+      width: 36,
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitle: {
+      fontSize: FONT_SIZES.lg,
+      fontFamily: FONTS.bold,
+      color: isDark ? colors.text : '#fff',
+    },
+    pendingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.xxl,
+      backgroundColor: colors.background,
+    },
+    pendingTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.xl,
+      marginTop: SPACING.xl,
+      marginBottom: SPACING.sm,
+      color: colors.text,
+    },
+    pendingSubtitle: {
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.sm,
+      textAlign: 'center',
+      lineHeight: 20,
+      marginBottom: 40,
+      color: colors.textSecondary,
+    },
+    tipBox: {
+      width: '100%',
+      borderRadius: RADIUS.lg,
+      padding: SPACING.lg,
+      borderWidth: 1,
+      backgroundColor: colors.card,
+      borderColor: colors.border,
+    },
+    tipHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.xs,
+      marginBottom: SPACING.xs,
+    },
+    tipTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+    },
+    tipContent: {
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.sm,
+      lineHeight: 18,
+      color: colors.textSecondary,
+    },
+    scrollContent: {
+      padding: SPACING.md,
+      paddingBottom: 40,
+    },
+    overviewCard: {
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.lg,
+      alignItems: 'center',
+      gap: SPACING.lg,
+      marginBottom: SPACING.lg,
+      backgroundColor: colors.card,
+      borderColor: colors.border,
+    },
+    scoreCircle: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: activeColor,
+    },
+    scoreVal: {
+      fontFamily: FONTS.bold,
+      fontSize: 24,
+      color: isDark ? colors.onPrimary : '#fff',
+    },
+    scoreLbl: {
+      fontFamily: FONTS.medium,
+      fontSize: 10,
+      textTransform: 'uppercase',
+      color: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+    },
+    overviewDetails: {
+      flex: 1,
+    },
+    promptTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+      lineHeight: 20,
+      marginBottom: SPACING.xs,
+      color: colors.text,
+    },
+    promptMetaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.md,
+      marginTop: 2,
+    },
+    metaBadge: {
+      paddingHorizontal: SPACING.sm,
+      paddingVertical: 2,
+      borderRadius: RADIUS.sm,
+      backgroundColor: isDark ? 'rgba(255, 198, 0, 0.15)' : 'rgba(217, 119, 6, 0.1)',
+    },
+    metaBadgeText: {
+      fontFamily: FONTS.bold,
+      fontSize: 10,
+      color: activeColor,
+    },
+    metaItem: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+    },
+    noFeedbackBox: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 40,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      gap: SPACING.sm,
+      backgroundColor: colors.card,
+      borderColor: colors.border,
+    },
+    noFeedbackText: {
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+    },
+    actionBtn: {
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.md,
+      marginTop: SPACING.xl,
+      backgroundColor: colors.primary,
+    },
+    actionBtnText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.sm,
+      color: colors.onPrimary,
+    },
+    doneBtn: {
+      borderWidth: 1.5,
+      paddingVertical: SPACING.md,
+      borderRadius: RADIUS.md,
+      alignItems: 'center',
+      marginTop: SPACING.xl,
+      backgroundColor: isDark ? colors.primary : colors.card,
+      borderColor: isDark ? colors.primary : colors.border,
+    },
+    doneBtnText: {
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+      color: isDark ? colors.onPrimary : colors.textSecondary,
+    },
+  });
+
   if (loading) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <View style={styles.center}>
         <ActivityIndicator size="large" color={activeColor} />
-        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Fetching practice details...</Text>
+        <Text style={styles.loadingText}>Fetching practice details...</Text>
       </View>
     );
   }
 
   if (!session) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.error }]}>Session details could not be found.</Text>
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Session details could not be found.</Text>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Text style={{ color: activeColor }}>Go Back</Text>
         </TouchableOpacity>
@@ -171,22 +385,22 @@ export default function AdvancedWritingResultScreen() {
   // Render evaluation pending page
   if (pollingActive || session.status === 'GRADING') {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         <Stack.Screen options={{ headerShown: false }} />
-        <View style={[styles.pendingContainer, { backgroundColor: colors.background }]}>
+        <View style={styles.pendingContainer}>
           <ActivityIndicator size="large" color={activeColor} />
-          <Text style={[styles.pendingTitle, { color: colors.text }]}>Evaluating Your Essay...</Text>
-          <Text style={[styles.pendingSubtitle, { color: colors.textSecondary }]}>
+          <Text style={styles.pendingTitle}>Evaluating Your Essay...</Text>
+          <Text style={styles.pendingSubtitle}>
             Our AI engine is currently grading your writing against standard IELTS rubrics. This usually takes 10 to 60 seconds.
           </Text>
 
           {/* Tips Carousel */}
-          <View style={[styles.tipBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.tipBox}>
             <View style={styles.tipHeader}>
               <Ionicons name="bulb" size={18} color={colors.warning} />
-              <Text style={[styles.tipTitle, { color: colors.text }]}>Did you know?</Text>
+              <Text style={styles.tipTitle}>Did you know?</Text>
             </View>
-            <Text style={[styles.tipContent, { color: colors.textSecondary }]}>{MOCK_TIPS[tipIndex]}</Text>
+            <Text style={styles.tipContent}>{MOCK_TIPS[tipIndex]}</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -195,16 +409,16 @@ export default function AdvancedWritingResultScreen() {
 
   if (session.status === 'GRADING_FAILED') {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         <Stack.Screen options={{ headerShown: false }} />
-        <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <View style={styles.center}>
           <Ionicons name="alert-circle" size={54} color={colors.error} />
-          <Text style={[styles.errorText, { color: colors.error }]}>AI Grading Failed</Text>
-          <Text style={[styles.errorSub, { color: colors.textSecondary }]}>
+          <Text style={styles.errorText}>AI Grading Failed</Text>
+          <Text style={styles.errorSub}>
             We were unable to successfully grade your essay. Please try retaking or reviewing your essay history.
           </Text>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: colors.primary }]} onPress={() => router.back()}>
-            <Text style={[styles.actionBtnText, { color: colors.onPrimary }]}>Go Back</Text>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => router.back()}>
+            <Text style={styles.actionBtnText}>Go Back</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -212,39 +426,39 @@ export default function AdvancedWritingResultScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Dynamic Header */}
-      <View style={[styles.header, { backgroundColor: isDark ? colors.surface : COLORS.skill.writing, borderBottomWidth: isDark ? 1 : 0, borderBottomColor: colors.border }]}>
+      <View style={styles.header}>
         <TouchableOpacity style={styles.headerBack} onPress={() => router.replace('/ielts/advanced/writing')}>
           <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : "#fff"} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: isDark ? colors.text : "#fff" }]}>Evaluation Results</Text>
+        <Text style={styles.headerTitle}>Evaluation Results</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator contentContainerStyle={styles.scrollContent}>
         {/* Score & Prompt Overview Card */}
-        <View style={[styles.overviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <View style={[styles.scoreCircle, { backgroundColor: activeColor }]}>
-            <Text style={[styles.scoreVal, { color: isDark ? colors.onPrimary : '#fff' }]}>{session.bandScore?.toFixed(1) ?? 'N/A'}</Text>
-            <Text style={[styles.scoreLbl, { color: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)' }]}>Band Score</Text>
+        <View style={styles.overviewCard}>
+          <View style={styles.scoreCircle}>
+            <Text style={styles.scoreVal}>{session.bandScore?.toFixed(1) ?? 'N/A'}</Text>
+            <Text style={styles.scoreLbl}>Band Score</Text>
           </View>
 
           <View style={styles.overviewDetails}>
-            <Text style={[styles.promptTitle, { color: colors.text }]} numberOfLines={2}>
+            <Text style={styles.promptTitle} numberOfLines={2}>
               {prompt?.title ?? 'IELTS Essay'}
             </Text>
             <View style={styles.promptMetaRow}>
-              <View style={[styles.metaBadge, { backgroundColor: isDark ? 'rgba(255, 198, 0, 0.15)' : 'rgba(217, 119, 6, 0.1)' }]}>
-                <Text style={[styles.metaBadgeText, { color: activeColor }]}>{prompt?.taskType ?? 'TASK'}</Text>
+              <View style={styles.metaBadge}>
+                <Text style={styles.metaBadgeText}>{prompt?.taskType ?? 'TASK'}</Text>
               </View>
-              <Text style={[styles.metaItem, { color: colors.textSecondary }]}>
+              <Text style={styles.metaItem}>
                 <Ionicons name="document-text-outline" size={14} color={colors.textSecondary} />{' '}
                 {essayWordCount} words
               </Text>
-              <Text style={[styles.metaItem, { color: colors.textSecondary }]}>
+              <Text style={styles.metaItem}>
                 <Ionicons name="time-outline" size={14} color={colors.textSecondary} />{' '}
                 {timeDisplay}
               </Text>
@@ -260,201 +474,20 @@ export default function AdvancedWritingResultScreen() {
             practicePart={prompt?.taskType === 'TASK1' ? 1 : 2}
           />
         ) : (
-          <View style={[styles.noFeedbackBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.noFeedbackBox}>
             <Ionicons name="alert-circle-outline" size={24} color={colors.textMuted} />
-            <Text style={[styles.noFeedbackText, { color: colors.textSecondary }]}>No detailed evaluation details found.</Text>
+            <Text style={styles.noFeedbackText}>No detailed evaluation details found.</Text>
           </View>
         )}
 
         {/* Action Button */}
         <TouchableOpacity
-          style={[styles.doneBtn, { backgroundColor: isDark ? colors.primary : colors.card, borderColor: isDark ? colors.primary : colors.border }]}
+          style={styles.doneBtn}
           onPress={() => router.replace('/ielts/advanced/writing')}
         >
-          <Text style={[styles.doneBtnText, { color: isDark ? colors.onPrimary : colors.textSecondary }]}>Return to List</Text>
+          <Text style={styles.doneBtnText}>Return to List</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-  },
-  loadingText: {
-    marginTop: SPACING.md,
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-  },
-  errorText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.lg,
-    textAlign: 'center',
-    marginBottom: SPACING.xs,
-  },
-  errorSub: {
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.sm,
-    textAlign: 'center',
-    marginBottom: SPACING.lg,
-    lineHeight: 18,
-  },
-  backBtn: {
-    marginTop: SPACING.md,
-    padding: SPACING.sm,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-  },
-  headerBack: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontFamily: FONTS.bold,
-  },
-  pendingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.xxl,
-  },
-  pendingTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.xl,
-    marginTop: SPACING.xl,
-    marginBottom: SPACING.sm,
-  },
-  pendingSubtitle: {
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.sm,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 40,
-  },
-  tipBox: {
-    width: '100%',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.lg,
-    borderWidth: 1,
-  },
-  tipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-    marginBottom: SPACING.xs,
-  },
-  tipTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.sm,
-  },
-  tipContent: {
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.sm,
-    lineHeight: 18,
-  },
-  scrollContent: {
-    padding: SPACING.md,
-    paddingBottom: 40,
-  },
-  overviewCard: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    alignItems: 'center',
-    gap: SPACING.lg,
-    marginBottom: SPACING.lg,
-  },
-  scoreCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scoreVal: {
-    fontFamily: FONTS.bold,
-    fontSize: 24,
-  },
-  scoreLbl: {
-    fontFamily: FONTS.medium,
-    fontSize: 10,
-    textTransform: 'uppercase',
-  },
-  overviewDetails: {
-    flex: 1,
-  },
-  promptTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.md,
-    lineHeight: 20,
-    marginBottom: SPACING.xs,
-  },
-  promptMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    marginTop: 2,
-  },
-  metaBadge: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
-  },
-  metaBadgeText: {
-    fontFamily: FONTS.bold,
-    fontSize: 10,
-  },
-  metaItem: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.xs,
-  },
-  noFeedbackBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    gap: SPACING.sm,
-  },
-  noFeedbackText: {
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-  },
-  actionBtn: {
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
-    marginTop: SPACING.xl,
-  },
-  actionBtnText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.sm,
-  },
-  doneBtn: {
-    borderWidth: 1.5,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    marginTop: SPACING.xl,
-  },
-  doneBtnText: {
-    fontFamily: FONTS.bold,
-    fontSize: FONT_SIZES.md,
-  },
-});
