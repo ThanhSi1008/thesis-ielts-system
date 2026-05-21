@@ -192,8 +192,8 @@
 
 ### 2.1 Service & route (2h)
 - [x] **P2-01-AUDIT** · ~~Verify endpoint backend~~ ✅ DONE 2026-05-21 (R-05 audit).
-- [ ] **P2-01** · Mở rộng `ieltsAdvancedApi`: `getSpeakingParts({partNumber,category,topic,page,limit})`, `getSpeakingPart(id)`, `getSpeakingSessionsByPart(partId)`, `createSpeakingSession(partId)`, `submitSpeakingSession(sessionId, payload)`, `getSpeakingSession(sessionId)`, `getSpeakingHistory()`, `getSpeakingStats()` · *est. 1.5h*
-- [ ] **P2-02** · Stack screens trong `_layout.tsx`: speaking index / detail / result · *est. 0.5h*
+- [x] **P2-01** · Mở rộng `ieltsAdvancedApi`: `getSpeakingParts({partNumber,category,topic,page,limit})`, `getSpeakingPart(id)`, `getSpeakingSessionsByPart(partId)`, `createSpeakingSession(partId)`, `submitSpeakingSession(sessionId, payload)`, `getSpeakingSession(sessionId)`, `getSpeakingHistory()`, `getSpeakingStats()` · *est. 1.5h*
+- [x] **P2-02** · Stack screens trong `_layout.tsx`: speaking index / detail / result · *est. 0.5h*
 
 ### 2.2 Speaking Device Test (6h)
 - [ ] **P2-04** · Tạo `components/SpeakingDeviceTest.tsx` port từ web · *est. 3h*

@@ -23,6 +23,8 @@ export const ROUTES = {
   ieltsAdvancedReading: (partId: string) => `/ielts/advanced/reading/${partId}`,
   ieltsAdvancedWriting: (promptId: string) => `/ielts/advanced/writing/${promptId}`,
   ieltsAdvancedSpeaking: (partId: string) => `/ielts/advanced/speaking/${partId}`,
+  ieltsAdvancedSpeakingIndex: '/ielts/advanced/speaking',
+  ieltsAdvancedSpeakingResult: (sessionId: string) => `/ielts/advanced/speaking/result/${sessionId}`,
   ieltsAdvancedHistory: '/ielts/advanced/history',
   ieltsAdvancedStatistics: '/ielts/advanced/statistics',
   

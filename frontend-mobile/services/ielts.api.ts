@@ -63,6 +63,26 @@ export const ieltsAdvancedApi = {
   submitWritingSession: (sessionId: string, payload: { essay: string; timeTaken?: number }) => apiClient.post<any>(`/ielts/advanced/writing/sessions/${sessionId}/submit`, payload),
   getWritingSession: (sessionId: string) => apiClient.get<any>(`/ielts/advanced/writing/sessions/${sessionId}`),
   getWritingHistory: () => apiClient.get<any[]>('/ielts/advanced/writing/history'),
+
+  // --- IELTS Advanced Speaking ---
+  getSpeakingParts: (params?: { partNumber?: 1 | 2 | 3; category?: string; topic?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.partNumber) q.set('partNumber', String(params.partNumber));
+    if (params?.category) q.set('category', params.category);
+    if (params?.topic) q.set('topic', params.topic);
+    if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    const qs = q.toString();
+    return apiClient.get<any>(`/ielts/advanced/speaking/parts${qs ? `?${qs}` : ''}`);
+  },
+  getSpeakingPart: (id: string) => apiClient.get<any>(`/ielts/advanced/speaking/parts/${id}`),
+  getSpeakingSessionsByPart: (partId: string) => apiClient.get<any[]>(`/ielts/advanced/speaking/parts/${partId}/sessions`),
+  createSpeakingSession: (partId: string) => apiClient.post<any>('/ielts/advanced/speaking/sessions', { partId }),
+  submitSpeakingSession: (sessionId: string, payload: { audioAnswers: Record<string, string>; timeTaken?: number }) =>
+    apiClient.post<any>(`/ielts/advanced/speaking/sessions/${sessionId}/submit`, payload),
+  getSpeakingSession: (sessionId: string) => apiClient.get<any>(`/ielts/advanced/speaking/sessions/${sessionId}`),
+  getSpeakingHistory: () => apiClient.get<any[]>('/ielts/advanced/speaking/history'),
+  getSpeakingStats: () => apiClient.get<any>('/ielts/advanced/speaking/stats'),
 };
 
 // ==================== IELTS EXAMS (Mock Tests) ====================

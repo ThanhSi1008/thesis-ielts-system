@@ -105,6 +105,9 @@ export default function RootLayout() {
           <Stack.Screen name="ielts/advanced/writing/index" />
           <Stack.Screen name="ielts/advanced/writing/[promptId]" />
           <Stack.Screen name="ielts/advanced/writing/result/[sessionId]" />
+          <Stack.Screen name="ielts/advanced/speaking/index" />
+          <Stack.Screen name="ielts/advanced/speaking/[partId]" />
+          <Stack.Screen name="ielts/advanced/speaking/result/[sessionId]" />
           <Stack.Screen name="ielts/advanced/history/index" />
           <Stack.Screen name="ielts/advanced/[skill]/[partId]" />
           <Stack.Screen name="ielts/advanced/[skill]/[partId]/result/[resultId]" />
