@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   View,
   Text,
@@ -143,6 +144,7 @@ export default function NotificationScreen() {
   const [hasMore, setHasMore] = useState(true);
   const [markingAll, setMarkingAll] = useState(false);
   const router = useRouter();
+  const { colors } = useTheme();
 
   const LIMIT = 20;
 
@@ -219,9 +221,8 @@ export default function NotificationScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
             onPress={() => router.back()}
@@ -302,7 +303,7 @@ export default function NotificationScreen() {
 
 // ── Styles ─────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  container: { flex: 1 },
   centerLoad: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   header: {
@@ -312,9 +313,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 4,
     paddingBottom: 12,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   backBtn: {

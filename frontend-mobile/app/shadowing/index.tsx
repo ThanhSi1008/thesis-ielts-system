@@ -17,6 +17,7 @@ import { COLORS, FONTS, ROUTES, SPACING, RADIUS } from '@/constants';
 import { FeatureLock } from '@/components/ui/index';
 import { AddVideoModal } from '@/components/shadowing';
 import { useShadowingLessons } from '@/hooks';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const STATUS_FILTERS = [
   { id: 'all', label: 'All' },
@@ -28,6 +29,7 @@ const STATUS_FILTERS = [
 export default function ShadowingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const {
     mode,
@@ -50,6 +52,275 @@ export default function ShadowingScreen() {
     handleRefresh,
     handleDeleteVideo,
   } = useShadowingLessons();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: {
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      zIndex: 20,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingBottom: 8,
+      paddingTop: 4,
+    },
+    eyebrow: {
+      fontFamily: FONTS.bold,
+      fontSize: 10,
+      textTransform: 'uppercase',
+      letterSpacing: 0.6,
+      color: COLORS.gray[400],
+    },
+    headerTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 21,
+      color: colors.text,
+      letterSpacing: -0.25,
+      lineHeight: 26,
+    },
+    searchBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 12,
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    searchWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+      marginHorizontal: 16,
+      marginBottom: 8,
+      paddingHorizontal: 12,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      height: 38,
+    },
+    searchInput: { flex: 1, fontFamily: FONTS.regular, fontSize: 13, color: colors.text },
+
+    modeToggle: {
+      flexDirection: 'row',
+      marginHorizontal: 16,
+      marginBottom: 8,
+      backgroundColor: colors.border,
+      borderRadius: 11,
+      padding: 3,
+    },
+    modeBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 5,
+      paddingVertical: 8,
+      borderRadius: 9,
+    },
+    modeBtnActive: {
+      backgroundColor: colors.background,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    modeBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
+    modeBtnTextActive: { color: colors.text },
+
+    subTabs: {
+      flexDirection: 'row',
+      marginHorizontal: 16,
+      borderBottomWidth: 2,
+      borderBottomColor: colors.border,
+    },
+    subTab: {
+      paddingVertical: 7,
+      paddingRight: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderBottomWidth: 2,
+      borderBottomColor: 'transparent',
+      marginBottom: -2,
+    },
+    subTabActive: { borderBottomColor: COLORS.primary },
+    subTabText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
+    subTabTextActive: { color: colors.text },
+
+    statusFilters: { paddingHorizontal: 16, paddingVertical: 9, gap: 6 },
+    chip: {
+      paddingVertical: 5,
+      paddingHorizontal: 11,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.background,
+    },
+    chipActive: {
+      backgroundColor: COLORS.primary,
+      borderColor: COLORS.primary,
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.5,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    chipText: { fontFamily: FONTS.bold, fontSize: 11, color: colors.textSecondary },
+    chipTextActive: { color: colors.text },
+
+    listWrap: { flex: 1, paddingHorizontal: 16 },
+    countText: {
+      fontFamily: FONTS.medium,
+      fontSize: 11,
+      color: COLORS.gray[400],
+      paddingVertical: 7,
+      fontWeight: '600',
+    },
+
+    lessonCard: {
+      flexDirection: 'row',
+      gap: 12,
+      paddingVertical: 11,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    thumbWrap: { width: 68, height: 68, borderRadius: 12, overflow: 'hidden' },
+    thumbBg: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    thumbGlow: {
+      position: 'absolute',
+      top: -8,
+      right: -8,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      opacity: 0.3,
+    },
+    thumbProgBg: {
+      position: 'absolute',
+      bottom: 5,
+      left: 5,
+      right: 5,
+      height: 3,
+      backgroundColor: 'rgba(255,255,255,0.15)',
+      borderRadius: 999,
+    },
+    thumbProgFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 999 },
+
+    metaWrap: { flex: 1, justifyContent: 'center' },
+    lessonTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 13,
+      color: colors.text,
+      lineHeight: 17,
+      marginBottom: 3,
+    },
+    metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+    durWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+    durText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
+    catWrap: {
+      backgroundColor: colors.border,
+      paddingVertical: 1,
+      paddingHorizontal: 6,
+      borderRadius: 4,
+    },
+    folderBadge: {
+      backgroundColor: 'rgba(255, 198, 0, 0.08)',
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    catText: { fontFamily: FONTS.bold, fontSize: 10, color: colors.textSecondary },
+
+    progBarRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
+    progBarBg: {
+      flex: 1,
+      height: 3,
+      backgroundColor: colors.border,
+      borderRadius: 999,
+      overflow: 'hidden',
+    },
+    progBarFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 999 },
+    progBarText: { fontFamily: FONTS.bold, fontSize: 10, color: colors.textSecondary },
+
+    actionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 4,
+    },
+    statusText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
+    compWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+    compText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.success },
+
+    actionGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    deleteBtn: {
+      width: 30,
+      height: 30,
+      borderRadius: RADIUS.md,
+      backgroundColor: 'rgba(244, 67, 54, 0.08)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    processingWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    processingText: {
+      fontFamily: FONTS.bold,
+      fontSize: 10,
+      color: COLORS.gray[400],
+    },
+    actionBtn: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999 },
+    actionBtnStart: {
+      backgroundColor: COLORS.primary,
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.5,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    actionBtnComp: { backgroundColor: colors.border },
+    actionBtnDisabled: {
+      backgroundColor: COLORS.gray[200],
+    },
+    actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.4 },
+    actionBtnTextStart: { color: colors.text },
+    actionBtnTextComp: { color: colors.textSecondary },
+    actionBtnTextDisabled: { color: COLORS.gray[400] },
+
+    fab: {
+      position: 'absolute',
+      bottom: 24,
+      right: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: COLORS.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 10,
+      elevation: 6,
+      zIndex: 99,
+    },
+  });
 
   const renderLessonList = () => {
     if (loading) {
@@ -200,7 +471,7 @@ export default function ShadowingScreen() {
             <Text style={styles.headerTitle}>Shadowing & Dictation</Text>
           </View>
           <TouchableOpacity style={styles.searchBtn} onPress={() => setShowSearch(!showSearch)}>
-            <Ionicons name="search" size={18} color={COLORS.text} />
+            <Ionicons name="search" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -331,272 +602,3 @@ export default function ShadowingScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.surface },
-  header: {
-    backgroundColor: 'rgba(248,249,250,0.97)',
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-    zIndex: 20,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    paddingTop: 4,
-  },
-  eyebrow: {
-    fontFamily: FONTS.bold,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    color: COLORS.gray[400],
-  },
-  headerTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 21,
-    color: COLORS.text,
-    letterSpacing: -0.25,
-    lineHeight: 26,
-  },
-  searchBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  searchWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.background,
-    marginHorizontal: 16,
-    marginBottom: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    height: 38,
-  },
-  searchInput: { flex: 1, fontFamily: FONTS.regular, fontSize: 13, color: COLORS.text },
-
-  modeToggle: {
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    marginBottom: 8,
-    backgroundColor: '#ebebeb',
-    borderRadius: 11,
-    padding: 3,
-  },
-  modeBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingVertical: 8,
-    borderRadius: 9,
-  },
-  modeBtnActive: {
-    backgroundColor: COLORS.background,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  modeBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
-  modeBtnTextActive: { color: COLORS.text },
-
-  subTabs: {
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: '#f0f0f0',
-  },
-  subTab: {
-    paddingVertical: 7,
-    paddingRight: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-    marginBottom: -2,
-  },
-  subTabActive: { borderBottomColor: COLORS.primary },
-  subTabText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
-  subTabTextActive: { color: COLORS.text },
-
-  statusFilters: { paddingHorizontal: 16, paddingVertical: 9, gap: 6 },
-  chip: {
-    paddingVertical: 5,
-    paddingHorizontal: 11,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.background,
-  },
-  chipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  chipText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.textSecondary },
-  chipTextActive: { color: COLORS.text },
-
-  listWrap: { flex: 1, paddingHorizontal: 16 },
-  countText: {
-    fontFamily: FONTS.medium,
-    fontSize: 11,
-    color: COLORS.gray[400],
-    paddingVertical: 7,
-    fontWeight: '600',
-  },
-
-  lessonCard: {
-    flexDirection: 'row',
-    gap: 12,
-    paddingVertical: 11,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  thumbWrap: { width: 68, height: 68, borderRadius: 12, overflow: 'hidden' },
-  thumbBg: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  thumbGlow: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    opacity: 0.3,
-  },
-  thumbProgBg: {
-    position: 'absolute',
-    bottom: 5,
-    left: 5,
-    right: 5,
-    height: 3,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 999,
-  },
-  thumbProgFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 999 },
-
-  metaWrap: { flex: 1, justifyContent: 'center' },
-  lessonTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 13,
-    color: COLORS.text,
-    lineHeight: 17,
-    marginBottom: 3,
-  },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  durWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  durText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
-  catWrap: {
-    backgroundColor: '#f3f4f6',
-    paddingVertical: 1,
-    paddingHorizontal: 6,
-    borderRadius: 4,
-  },
-  folderBadge: {
-    backgroundColor: 'rgba(255, 198, 0, 0.08)',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  catText: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.textSecondary },
-
-  progBarRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
-  progBarBg: {
-    flex: 1,
-    height: 3,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  progBarFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 999 },
-  progBarText: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.textSecondary },
-
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 4,
-  },
-  statusText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
-  compWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  compText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.success },
-
-  actionGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  deleteBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: RADIUS.md,
-    backgroundColor: 'rgba(244, 67, 54, 0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  processingWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  processingText: {
-    fontFamily: FONTS.bold,
-    fontSize: 10,
-    color: COLORS.gray[400],
-  },
-  actionBtn: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999 },
-  actionBtnStart: {
-    backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  actionBtnComp: { backgroundColor: '#f3f4f6' },
-  actionBtnDisabled: {
-    backgroundColor: COLORS.gray[200],
-  },
-  actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.4 },
-  actionBtnTextStart: { color: COLORS.text },
-  actionBtnTextComp: { color: COLORS.textSecondary },
-  actionBtnTextDisabled: { color: COLORS.gray[400] },
-
-  fab: {
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 6,
-    zIndex: 99,
-  },
-});

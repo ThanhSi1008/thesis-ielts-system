@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
 import Animated, { FadeInRight } from 'react-native-reanimated';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface RoadmapItem {
   id: string;
@@ -32,6 +33,7 @@ interface LessonRowProps {
 /** Matches web's RoadmapContent item card design exactly */
 export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
   const skillIcon = SKILL_ICON[item.skill] ?? 'book-outline';
+  const { colors } = useTheme();
 
   // Icon background — matches web: next → #FFF0C2, completed → green-50, default → gray-50
   const iconBg = isNext ? '#FFF0C2' : item.isCompleted ? '#DCFCE7' : '#F3F4F6';
@@ -40,6 +42,7 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
   // Card border/bg — matches web: next → #FFF9E6 + #FFC107/40, default → white
   const cardStyle = [
     styles.card,
+    { backgroundColor: colors.card, borderColor: colors.border },
     isNext && styles.cardNext,
     item.isCompleted && styles.cardDone,
     item.isLocked && styles.cardLocked,
@@ -80,7 +83,7 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
 
         {/* Text section */}
         <View style={{ flex: 1 }}>
-          <Text style={[styles.title, isNext && styles.titleNext]} numberOfLines={2}>
+          <Text style={[styles.title, { color: colors.text }, isNext && styles.titleNext]} numberOfLines={2}>
             {item.title}
           </Text>
           <Text style={styles.meta}>
@@ -158,11 +161,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
-    backgroundColor: '#fff',
     borderRadius: 16,
     borderCurve: 'continuous',
     borderWidth: 1,
-    borderColor: '#F3F4F6',
     padding: SPACING.md,
   },
   cardNext: {
@@ -192,13 +193,11 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.bold,
     fontSize: FONT_SIZES.sm,
-    color: '#1F2937',
     marginBottom: 3,
     lineHeight: 18,
   },
   titleNext: {
     fontFamily: FONTS.bold,
-    color: '#111827',
   },
 
   // Meta — matches web: uppercase tracking-widest font-bold text-gray-400

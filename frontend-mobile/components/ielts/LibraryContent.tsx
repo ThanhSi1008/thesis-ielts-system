@@ -16,8 +16,8 @@ import * as Haptics from 'expo-haptics';
 import Markdown from 'react-native-markdown-display';
 
 import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
-import { apiClient } from '@/services/api-client';
 import { useTheme } from '@/contexts/ThemeContext';
+import { apiClient } from '@/services/api-client';
 
 interface LibraryStats {
   id: string;
@@ -93,9 +93,9 @@ function CircularProgressLink({
   };
 
   return (
-    <View style={styles.progLinkWrapper}>
-      <TouchableOpacity onPress={handlePress} style={styles.progLinkCircle} activeOpacity={0.7}>
-        <Svg width={size} height={size} style={styles.svgRotate}>
+    <View style={staticStyles.progLinkWrapper}>
+      <TouchableOpacity onPress={handlePress} style={staticStyles.progLinkCircle} activeOpacity={0.7}>
+        <Svg width={size} height={size} style={staticStyles.svgRotate}>
           <Circle
             cx={size / 2}
             cy={size / 2}
@@ -118,11 +118,11 @@ function CircularProgressLink({
             />
           )}
         </Svg>
-        <View style={[styles.progLinkIconBox, { backgroundColor: color + '1A' }]}>
+        <View style={[staticStyles.progLinkIconBox, { backgroundColor: color + '1A' }]}>
           <Ionicons name={icon} size={20} color={color} />
         </View>
       </TouchableOpacity>
-      <Text style={[styles.progLinkText, { color: color }]}>
+      <Text style={[staticStyles.progLinkText, { color: color }]}>
         {completed}/{total}
       </Text>
     </View>
@@ -131,10 +131,10 @@ function CircularProgressLink({
 
 export function LibraryContent() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [stats, setStats] = useState<LibraryStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const { colors } = useTheme();
 
   useEffect(() => {
     async function fetchStats() {
@@ -153,7 +153,7 @@ export function LibraryContent() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={staticStyles.center}>
         <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
@@ -173,35 +173,35 @@ export function LibraryContent() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.scroll}
+      style={[staticStyles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={staticStyles.scroll}
       showsVerticalScrollIndicator={false}
       contentInsetAdjustmentBehavior="automatic"
     >
-      <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Library</Text>
+      <Animated.View entering={FadeInDown.duration(600)} style={staticStyles.header}>
+        <Text style={[staticStyles.title, { color: colors.text }]}>Library</Text>
       </Animated.View>
 
-      <View style={styles.grid}>
+      <View style={staticStyles.grid}>
         {displayStats.map((stat, index) => {
           const theme = getDefaultTheme(stat.skill);
           return (
             <Animated.View
               key={stat.id}
               entering={FadeInDown.delay(index * 100).duration(500)}
-              style={[styles.card, { backgroundColor: theme.bg }]}
+              style={[staticStyles.card, { backgroundColor: theme.bg }]}
             >
-              <View style={styles.cardHeader}>
+              <View style={staticStyles.cardHeader}>
                 <Ionicons
                   name={theme.icon}
                   size={24}
                   color={theme.fillColor}
                   style={{ fontWeight: '800' }}
                 />
-                <Text style={[styles.cardTitle, { color: theme.fillColor }]}>{stat.skill}</Text>
+                <Text style={[staticStyles.cardTitle, { color: theme.fillColor }]}>{stat.skill}</Text>
               </View>
 
-              <View style={styles.progressRow}>
+              <View style={staticStyles.progressRow}>
                 <CircularProgressLink
                   completed={stat.lessons.completed}
                   total={stat.lessons.total}
@@ -229,17 +229,17 @@ export function LibraryContent() {
         })}
       </View>
 
-      <Animated.View entering={FadeInDown.delay(400)} style={styles.bookmarksContainer}>
-        <View style={styles.bookmarkCard}>
-          <View style={styles.bookmarkInfo}>
+      <Animated.View entering={FadeInDown.delay(400)} style={staticStyles.bookmarksContainer}>
+        <View style={[staticStyles.bookmarkCard, { backgroundColor: colors.surface }]}>
+          <View style={staticStyles.bookmarkInfo}>
             <Ionicons name="bookmark" size={24} color={colors.text} />
-            <Text style={[styles.bookmarkTitle, { color: colors.text }]}>Bookmarks</Text>
+            <Text style={[staticStyles.bookmarkTitle, { color: colors.text }]}>Bookmarks</Text>
           </View>
-          <View style={styles.bookmarkStats}>
-            <View style={styles.bookmarkIconCircle}>
+          <View style={staticStyles.bookmarkStats}>
+            <View style={staticStyles.bookmarkIconCircle}>
               <Ionicons name="school-outline" size={24} color="#4F6C76" />
             </View>
-            <Text style={[styles.bookmarkCount, { color: colors.textSecondary }]}>1/1</Text>
+            <Text style={[staticStyles.bookmarkCount, { color: colors.textSecondary }]}>1/1</Text>
           </View>
         </View>
       </Animated.View>
@@ -247,7 +247,8 @@ export function LibraryContent() {
   );
 }
 
-const styles = StyleSheet.create({
+// All static styles (no theme-dependent colors)
+const staticStyles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: SPACING.lg, paddingBottom: 120 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -315,7 +316,6 @@ const styles = StyleSheet.create({
 
   bookmarksContainer: { marginTop: SPACING.lg },
   bookmarkCard: {
-    backgroundColor: '#FAF7F2',
     borderRadius: 32,
     paddingVertical: 16,
     paddingHorizontal: 32,

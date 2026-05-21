@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, Button } from '@/components/ui';
+import { useTheme } from '@/contexts/ThemeContext';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { PublishDeckModal } from './PublishDeckModal';
@@ -186,6 +187,7 @@ const r = StyleSheet.create({
 // ─── Main DecksTab ─────────────────────────────────────────────────────────────
 export function DecksTab() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [decks, setDecks] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -331,7 +333,7 @@ export function DecksTab() {
     >
       {/* Global stats */}
       {stats && (
-        <View style={s.statsRow}>
+        <View style={[s.statsRow, { backgroundColor: colors.card }]}>
           {[
             ['Total', stats.totalCards ?? stats.totalCount ?? 0, COLORS.text],
             ['Due', stats.totalDue ?? stats.dueCount ?? 0, COLORS.error],
@@ -347,7 +349,7 @@ export function DecksTab() {
 
       {/* Action buttons row */}
       <View style={s.actionHeaderRow}>
-        <TouchableOpacity style={s.importDeckBtn} onPress={handleImportFile}>
+        <TouchableOpacity style={[s.importDeckBtn, { backgroundColor: colors.card }]} onPress={handleImportFile}>
           <Ionicons name="download-outline" size={16} color={COLORS.primary} />
           <Text style={s.importDeckBtnText}>Import Deck</Text>
         </TouchableOpacity>
@@ -369,7 +371,7 @@ export function DecksTab() {
         decks.map((deck) => {
           const totalDue = (deck.dueCount ?? 0) + (deck.learningCount ?? 0);
           return (
-            <View key={deck.id} style={s.deckCard}>
+            <View key={deck.id} style={[s.deckCard, { backgroundColor: colors.card }]}>
               {/* Deck info — tap → detail */}
               <TouchableOpacity
                 style={{ flex: 1 }}
@@ -430,7 +432,7 @@ export function DecksTab() {
       {/* Create Deck Modal */}
       <Modal visible={createModal} transparent animationType="fade">
         <Pressable style={s.overlay} onPress={() => setCreateModal(false)}>
-          <Pressable style={s.modal} onPress={() => {}}>
+          <Pressable style={[s.modal, { backgroundColor: colors.card }]} onPress={() => {}}>
             <Text style={s.modalTitle}>New Deck</Text>
             <TextInput
               style={s.modalInput}
@@ -517,7 +519,6 @@ const s = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
   statsRow: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     marginBottom: SPACING.lg,
     borderWidth: 1,
@@ -554,7 +555,6 @@ const s = StyleSheet.create({
     borderRadius: RADIUS.lg,
     borderWidth: 1.5,
     borderColor: COLORS.primary,
-    backgroundColor: '#fff',
   },
   importDeckBtnText: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZES.sm },
 
@@ -562,7 +562,6 @@ const s = StyleSheet.create({
   deckCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     padding: SPACING.md,
     marginBottom: SPACING.md,
@@ -616,7 +615,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modal: { backgroundColor: '#fff', width: '85%', borderRadius: RADIUS.xl, padding: SPACING.xl },
+  modal: { width: '85%', borderRadius: RADIUS.xl, padding: SPACING.xl },
   modalTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '800',

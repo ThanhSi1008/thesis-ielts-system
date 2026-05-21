@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api-client';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Sub-components
 import { RoadmapItem } from '@/components/ielts/LessonRow';
@@ -97,6 +98,7 @@ const NAV_ITEMS = [
 export default function IeltsRoadmapScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const [steps, setSteps] = useState<RoadmapStep[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
@@ -199,25 +201,25 @@ export default function IeltsRoadmapScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Stack.Screen
         options={{
           headerShown: true,
           title: 'Your Roadmap',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#fff' },
-          headerTitleStyle: { fontFamily: FONTS.bold, fontSize: FONT_SIZES.lg, color: COLORS.text },
+          headerStyle: { backgroundColor: colors.background },
+          headerTitleStyle: { fontFamily: FONTS.bold, fontSize: FONT_SIZES.lg, color: colors.text },
           headerLeft: () => (
             <TouchableOpacity
               style={[styles.menuBtn, { marginLeft: SPACING.md }]}
               onPress={openDrawer}
             >
-              <Ionicons name="menu" size={24} color={COLORS.text} />
+              <Ionicons name="menu" size={24} color={colors.text} />
             </TouchableOpacity>
           ),
           headerRight: () => (
             <TouchableOpacity style={{ marginRight: SPACING.md }} onPress={() => router.back()}>
-              <Ionicons name="close" size={24} color={COLORS.text} />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
           ),
         }}

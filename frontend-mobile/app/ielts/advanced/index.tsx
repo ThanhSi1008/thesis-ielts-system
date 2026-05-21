@@ -15,6 +15,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { EmptyState } from '@/components/ui';
 import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const TABS = [
   { key: 'listening', label: '🎧 Listening', color: COLORS.skill.listening },
@@ -25,6 +26,7 @@ const TABS = [
 
 export default function AdvancedScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<'listening' | 'reading' | 'writing' | 'speaking'>('listening');
   const [listeningParts, setListeningParts] = useState<any[]>([]);
   const [readingParts, setReadingParts] = useState<any[]>([]);
@@ -82,6 +84,122 @@ export default function AdvancedScreen() {
         : allParts,
     [allParts, selectedType],
   );
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+
+    header: {
+      backgroundColor: COLORS.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+    },
+    headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
+    headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+
+    tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderColor: colors.border },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 3,
+      borderBottomColor: 'transparent',
+    },
+    tabLabel: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
+
+    filterScroll: { flexGrow: 0, borderBottomWidth: 1, borderColor: colors.border },
+    filterContent: {
+      flexDirection: 'row',
+      gap: SPACING.sm,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.sm,
+    },
+    filterChip: {
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full ?? 999,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    filterChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.textSecondary },
+
+    activeFilter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      borderWidth: 1,
+      borderRadius: RADIUS.lg,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 6,
+      marginBottom: SPACING.md,
+    },
+    activeFilterText: { flex: 1, fontSize: FONT_SIZES.xs, fontWeight: '700' },
+
+    partCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.lg,
+      marginBottom: SPACING.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.04,
+      shadowRadius: 8,
+      elevation: 2,
+      gap: SPACING.md,
+    },
+    partBadge: {
+      width: 52,
+      height: 52,
+      borderRadius: RADIUS.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    partBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800', textAlign: 'center' },
+    partInfo: { flex: 1 },
+    partTitle: {
+      fontSize: FONT_SIZES.md,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: SPACING.sm,
+    },
+    partTypes: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
+    qtChip: {
+      backgroundColor: colors.surface,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: RADIUS.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    qtChipText: { fontSize: 10, color: COLORS.textSecondary, textTransform: 'capitalize' },
+
+    historyBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: 12,
+      marginBottom: SPACING.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.03,
+      shadowRadius: 4,
+      elevation: 1,
+    },
+    historyBannerText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700' },
+  });
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -277,119 +395,3 @@ export default function AdvancedScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-
-  header: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-  },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
-  headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-
-  tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderColor: COLORS.border },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
-  },
-  tabLabel: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
-
-  filterScroll: { flexGrow: 0, borderBottomWidth: 1, borderColor: COLORS.border },
-  filterContent: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-  },
-  filterChip: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full ?? 999,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
-  },
-  filterChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.textSecondary },
-
-  activeFilter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderWidth: 1,
-    borderRadius: RADIUS.lg,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    marginBottom: SPACING.md,
-  },
-  activeFilterText: { flex: 1, fontSize: FONT_SIZES.xs, fontWeight: '700' },
-
-  partCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-    gap: SPACING.md,
-  },
-  partBadge: {
-    width: 52,
-    height: 52,
-    borderRadius: RADIUS.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  partBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800', textAlign: 'center' },
-  partInfo: { flex: 1 },
-  partTitle: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
-    color: COLORS.text,
-    marginBottom: SPACING.sm,
-  },
-  partTypes: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
-  qtChip: {
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: RADIUS.sm,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  qtChipText: { fontSize: 10, color: COLORS.textSecondary, textTransform: 'capitalize' },
-
-  historyBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: 12,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  historyBannerText: { flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700' },
-});
