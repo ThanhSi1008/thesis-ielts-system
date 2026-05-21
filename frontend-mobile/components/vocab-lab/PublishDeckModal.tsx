@@ -177,7 +177,7 @@ const s = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'between',
+    justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderColor: COLORS.border,
     paddingBottom: SPACING.md,

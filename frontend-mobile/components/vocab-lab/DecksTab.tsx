@@ -18,8 +18,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, Button } from '@/components/ui';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 import { PublishDeckModal } from './PublishDeckModal';
-
+import { ImportDeckModal } from './ImportDeckModal';
 type ActionMenuProps = {
   visible: boolean;
   deck: any;
@@ -193,11 +195,15 @@ export function DecksTab() {
   const [createModal, setCreateModal] = useState(false);
   const [newDeckName, setNewDeckName] = useState('');
   const [creating, setCreating] = useState(false);
-
   // Action menu + rename modal
   const [actionDeck, setActionDeck] = useState<any>(null);
   const [renameModalVisible, setRenameModalVisible] = useState(false);
   const [publishModalVisible, setPublishModalVisible] = useState(false);
+
+  // Import file modal
+  const [lexonData, setLexonData] = useState<any>(null);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [importing, setImporting] = useState(false);
   const fetchData = async () => {
     try {
       const [dr, sr] = await Promise.allSettled([vocabLabApi.getDecks(), vocabLabApi.getStats()]);
@@ -230,6 +236,59 @@ export function DecksTab() {
       Alert.alert('Error', 'Failed to create deck.');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleImportFile = async () => {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: 'application/json',
+        copyToCacheDirectory: true,
+      });
+
+      if (res.canceled || !res.assets || res.assets.length === 0) return;
+
+      const fileUri = res.assets[0].uri;
+      const fileContent = await FileSystem.readAsStringAsync(fileUri);
+      const parsed = JSON.parse(fileContent);
+
+      if (!parsed || typeof parsed !== 'object' || !parsed.deck || !parsed.cards || !Array.isArray(parsed.cards)) {
+        Alert.alert('Invalid Format', 'This file is not a valid Vocab Lab deck file.');
+        return;
+      }
+
+      setLexonData(parsed);
+      setImportModalVisible(true);
+    } catch (err: any) {
+      Alert.alert('Error', 'Failed to pick or parse the file: ' + err.message);
+    }
+  };
+
+  const handleConfirmImport = async (finalDeckName: string) => {
+    if (!lexonData) return;
+    setImporting(true);
+    try {
+      const payload = {
+        ...lexonData,
+        deck: {
+          ...lexonData.deck,
+          name: finalDeckName,
+        },
+      };
+
+      const res = await vocabLabApi.importDeck(payload);
+      Alert.alert(
+        'Import Success',
+        `Successfully imported deck "${res.deckName}" with ${res.cardsImported} cards!`
+      );
+      setImportModalVisible(false);
+      setLexonData(null);
+      fetchData();
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message || err.message || 'Failed to import deck';
+      Alert.alert('Import Failed', errMsg);
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -286,11 +345,17 @@ export function DecksTab() {
         </View>
       )}
 
-      {/* New deck button */}
-      <TouchableOpacity style={s.newDeckBtn} onPress={() => setCreateModal(true)}>
-        <Ionicons name="add" size={18} color={COLORS.primary} />
-        <Text style={s.newDeckBtnText}>New Deck</Text>
-      </TouchableOpacity>
+      {/* Action buttons row */}
+      <View style={s.actionHeaderRow}>
+        <TouchableOpacity style={s.importDeckBtn} onPress={handleImportFile}>
+          <Ionicons name="download-outline" size={16} color={COLORS.primary} />
+          <Text style={s.importDeckBtnText}>Import Deck</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={s.newDeckBtn} onPress={() => setCreateModal(true)}>
+          <Ionicons name="add" size={18} color={COLORS.primary} />
+          <Text style={s.newDeckBtnText}>New Deck</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Deck list */}
       {decks.length === 0 ? (
@@ -431,6 +496,19 @@ export function DecksTab() {
         }}
         onSuccess={fetchData}
       />
+
+      {/* Import Modal */}
+      <ImportDeckModal
+        visible={importModalVisible}
+        onClose={() => {
+          setImportModalVisible(false);
+          setLexonData(null);
+        }}
+        onConfirm={handleConfirmImport}
+        lexonData={lexonData}
+        isImporting={importing}
+        existingDeckNames={decks.map((d) => d.name)}
+      />
     </ScrollView>
   );
 }
@@ -449,12 +527,17 @@ const s = StyleSheet.create({
   statItem: { flex: 1, alignItems: 'center' },
   statVal: { fontSize: FONT_SIZES.xxl, fontWeight: '800' },
   statLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary },
+  actionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
+    alignItems: 'center',
+  },
   newDeckBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs,
-    alignSelf: 'flex-end',
-    marginBottom: SPACING.md,
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.lg,
@@ -462,6 +545,18 @@ const s = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   newDeckBtnText: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZES.sm },
+  importDeckBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.md,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    backgroundColor: '#fff',
+  },
+  importDeckBtnText: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZES.sm },
 
   // Deck card
   deckCard: {
