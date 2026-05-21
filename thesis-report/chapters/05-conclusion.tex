@@ -5,19 +5,19 @@
 
 \subsection{Về mặt công nghệ và kiến trúc hệ thống}
 
-Qua quá trình nghiên cứu, thiết kế và hiện thực, đề tài đã xây dựng thành công hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith sử dụng các công nghệ hiện đại, đáp ứng tiêu chuẩn phát triển phần mềm chuyên nghiệp.
+Đồ án hoàn thiện hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith trên các công nghệ hiện đại, bám sát chuẩn phát triển phần mềm cấp sản xuất.
 
-Về kiến trúc, hệ thống được tổ chức theo mô hình Event-driven Modular Monolith: NestJS Backend Core chứa 17 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions...) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection để đảm bảo tính nhất quán và dễ bảo trì. FastAPI AI Worker là microservice độc lập duy nhất, kết nối qua RabbitMQ để xử lý AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách tổ chức này cân bằng giữa sự đơn giản của monolith với khả năng mở rộng độc lập cho thành phần tính toán chuyên sâu (AI grading).
+Về kiến trúc, hệ thống tổ chức theo mô hình Event-driven Modular Monolith. NestJS Backend Core gói 17 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions\ldots) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection --- giữ tính nhất quán và dễ bảo trì. FastAPI AI Worker tách thành microservice độc lập, kết nối với core qua RabbitMQ để chạy AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách bố trí này cân bằng giữa độ đơn giản của monolith và khả năng scale độc lập cho phần tính toán nặng (AI grading).
 
-Về đa nền tảng, hệ thống cung cấp đồng thời giao diện Web (Next.js với Server-Side Rendering) và ứng dụng Mobile (React Native), sử dụng chung một backend API. Việc áp dụng Next.js giúp tối ưu SEO và tốc độ tải trang thông qua SSR và Static Site Generation, trong khi React Native cho phép triển khai trên cả iOS và Android từ một codebase TypeScript duy nhất, tiết kiệm đáng kể chi phí phát triển so với native riêng biệt~\cite{reactnative-docs}.
+Về đa nền tảng, hệ thống đẩy ra song song giao diện Web (Next.js với Server-Side Rendering) và ứng dụng Mobile (React Native), dùng chung một backend API. Next.js giúp tối ưu SEO và tốc độ tải trang qua SSR và Static Site Generation; React Native cho phép deploy iOS và Android từ một codebase TypeScript duy nhất, cắt đáng kể chi phí so với native riêng biệt~\cite{reactnative-docs}.
 
-Về tích hợp trí tuệ nhân tạo, hệ thống tích hợp thành công Gemini API~\cite{gemini-api} (model gemini-2.5-flash) để chấm điểm tự động bài Writing theo 4 tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và chấm điểm Speaking theo 4 tiêu chí tương ứng. faster-whisper~\cite{whisper-paper} (bản tối ưu hóa của OpenAI Whisper, sử dụng CTranslate2 backend) được triển khai cục bộ trong Docker container để chuyển đổi giọng nói thành văn bản phục vụ chấm phát âm và dictation, hoàn toàn tự chủ về xử lý và không chịu ràng buộc quota từ dịch vụ bên thứ ba. Luồng grading bất đồng bộ qua RabbitMQ đảm bảo API phản hồi ngay lập tức dù inference mất vài giây.
+Về tích hợp trí tuệ nhân tạo, hệ thống đưa Gemini API~\cite{gemini-api} (model gemini-2.5-flash) vào pipeline chấm tự động bài Writing theo bốn tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và bài Speaking theo bốn tiêu chí Speaking tương ứng. faster-whisper~\cite{whisper-paper} --- bản tối ưu hóa của OpenAI Whisper trên CTranslate2 backend --- chạy cục bộ trong Docker container, đảm nhiệm chuyển giọng nói thành văn bản cho chấm phát âm và dictation; hoàn toàn tự chủ, không chịu quota từ dịch vụ bên thứ ba. Pipeline grading bất đồng bộ qua RabbitMQ giữ cho API trả về tức thì dù inference mất vài giây.
 
-Về bảo mật, hệ thống áp dụng đồng thời nhiều lớp bảo vệ: mật khẩu được băm bằng bcrypt với 10 vòng tăng cường (saltRounds = 10), xác thực bằng JWT access token có hiệu lực 7 ngày, và giới hạn tốc độ truy cập (rate limiting) toàn cục 100 request/60 giây để ngăn chặn brute-force. Prisma ORM~\cite{prisma-docs} ngăn chặn SQL injection qua parameterized queries và cung cấp type-safe database access nhất quán trên toàn backend.
+Về bảo mật, hệ thống đặt nhiều lớp phòng thủ song song: mật khẩu băm bằng bcrypt với 10 vòng (saltRounds = 10), xác thực qua JWT access token hạn 7 ngày, rate limiting toàn cục 100 request/60 giây chặn brute-force. Prisma ORM~\cite{prisma-docs} ngăn SQL injection thông qua parameterized queries và cung cấp truy cập DB type-safe nhất quán trên toàn backend.
 
 \subsection{Về mặt chức năng nghiệp vụ}
 
-Hệ thống đã hiện thực đầy đủ các chức năng cốt lõi của một nền tảng luyện thi IELTS toàn diện, đáp ứng nhu cầu của người học từ band 4.0 đến 7.5+ theo chuẩn mực IELTS quốc tế~\cite{ielts-global-stats}:
+Hệ thống đã hiện thực đủ các chức năng cốt lõi của một nền tảng luyện thi IELTS toàn diện, phục vụ người học từ band 4.0 đến 7.5+ theo chuẩn IELTS quốc tế~\cite{ielts-global-stats}:
 
 \begin{itemize}
     \item \textbf{Luyện tập 4 kỹ năng IELTS:} Listening với audio player tùy chỉnh và chấm điểm linh hoạt (tự động loại bỏ khoảng trắng thừa và không phân biệt chữ hoa/thường); Reading với layout 2 cột đồng bộ cuộn độc lập; Writing Task 1 và Task 2 với tính năng auto-save mỗi 30 giây và AI scoring tự động bất đồng bộ; Speaking với mô phỏng phòng thi thực tế --- người học lắng nghe câu hỏi theo 3 phần thi chuẩn IELTS, thu âm câu trả lời và nhận điểm từ AI theo 4 tiêu chí Speaking chính thức.
@@ -35,7 +35,7 @@ Hệ thống đã hiện thực đầy đủ các chức năng cốt lõi của 
 
 \section{Hạn chế của đồ án}
 
-Mặc dù đã đạt được nhiều kết quả tích cực, hệ thống vẫn còn một số hạn chế cần được thừa nhận một cách khách quan:
+Hệ thống vẫn để lộ một số hạn chế cần thừa nhận thẳng thắn:
 
 \begin{itemize}
     \item \textbf{Độ trễ của AI scoring:} Việc gọi Gemini API~\cite{gemini-api} để chấm bài Writing và Speaking mất trung bình 5--10 giây tuỳ theo độ dài bài làm. Đây là hạn chế phụ thuộc vào tốc độ phản hồi của dịch vụ bên thứ ba và hiện chưa có cơ chế cache kết quả cho các bài làm tương tự.
@@ -53,7 +53,7 @@ Mặc dù đã đạt được nhiều kết quả tích cực, hệ thống v�
 
 \section{Hướng phát triển}
 
-Dựa trên nền tảng đã xây dựng và những hạn chế đã nhận diện, các hướng phát triển tiếp theo được đề xuất trong các giai đoạn sau:
+Trên nền tảng đã có và các hạn chế vừa nêu, một số hướng phát triển tiếp theo được đề xuất cho các giai đoạn sau:
 
 \begin{itemize}
     \item \textbf{Fine-tune mô hình AI chuyên biệt:} Xây dựng tập dữ liệu bài mẫu IELTS đã được giám khảo chấm điểm thực tế để fine-tune mô hình ngôn ngữ, nhằm tăng độ chính xác AI scoring và đưa chênh lệch band điểm so với giám khảo con người xuống mức $\leq$0.5~\cite{le2023nlp}.

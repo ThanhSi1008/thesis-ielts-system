@@ -149,7 +149,7 @@ Chất lượng sản phẩm được kiểm soát qua ba cơ chế chính:
 \begin{itemize}
     \item \textbf{Kiểm soát mã nguồn:} Toàn bộ mã nguồn được quản lý trên GitHub với quy trình Code Review. Chuẩn mã hóa được duy trì bằng ESLint và Prettier, đảm bảo tính nhất quán trên toàn bộ codebase gồm backend (NestJS), frontend web (Next.js) và mobile (React Native).
 
-    \item \textbf{Kiểm thử tự động:} Hệ thống áp dụng kiểm thử đơn vị tự động (Automated Unit Testing) bằng framework Jest 29.7.0 kết hợp Supertest cho tầng backend. Tổng cộng 61 test case được tổ chức thành 7 nhóm chức năng cốt lõi, tất cả đạt kết quả Pass. Chi tiết danh sách test case và kết quả kiểm thử được trình bày trong Chương~4, mục Kiểm thử hệ thống.
+    \item \textbf{Kiểm thử tự động:} Hệ thống áp dụng tháp kiểm thử ba tầng (unit, integration và end-to-end) bằng framework Jest 29.7.0 kết hợp Supertest cho tầng backend. Tổng cộng 207 test case unit/integration cùng 12 test case E2E, phủ 16 nhóm chức năng (xác thực, IELTS, Vocab Lab, Subscription, Edge case, Security...), tất cả đều đạt kết quả Pass. Coverage threshold được áp dụng ở pipeline CI cho các service trọng yếu (auth 70\%, subscriptions 50\%, gamification 30\%). Chi tiết danh sách test case và kết quả kiểm thử được trình bày trong Chương~4, mục Kiểm thử hệ thống.
 
     \item \textbf{Tiêu chí nghiệm thu:} Hệ thống phải hoàn thành 100\% tính năng cốt lõi theo danh sách use case đã đặc tả (xem Chương~3), hoạt động ổn định trên cả nền tảng Web và Mobile (Android), và đảm bảo tính chính xác của module AI grading trong phạm vi chênh lệch chấp nhận được ($\pm$0.5 band).
 \end{itemize}
