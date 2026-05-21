@@ -74,7 +74,7 @@ export default function ShadowingScreen() {
       fontSize: 10,
       textTransform: 'uppercase',
       letterSpacing: 0.6,
-      color: COLORS.gray[400],
+      color: colors.textMuted,
     },
     headerTitle: {
       fontFamily: FONTS.bold,
@@ -137,7 +137,7 @@ export default function ShadowingScreen() {
       shadowRadius: 4,
       elevation: 2,
     },
-    modeBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
+    modeBtnText: { fontFamily: FONTS.bold, fontSize: 12, color: colors.textMuted },
     modeBtnTextActive: { color: colors.text },
 
     subTabs: {
@@ -156,7 +156,7 @@ export default function ShadowingScreen() {
       marginBottom: -2,
     },
     subTabActive: { borderBottomColor: COLORS.primary },
-    subTabText: { fontFamily: FONTS.bold, fontSize: 12, color: COLORS.gray[400] },
+    subTabText: { fontFamily: FONTS.bold, fontSize: 12, color: colors.textMuted },
     subTabTextActive: { color: colors.text },
 
     statusFilters: { paddingHorizontal: 16, paddingVertical: 9, gap: 6 },
@@ -184,7 +184,7 @@ export default function ShadowingScreen() {
     countText: {
       fontFamily: FONTS.medium,
       fontSize: 11,
-      color: COLORS.gray[400],
+      color: colors.textMuted,
       paddingVertical: 7,
       fontWeight: '600',
     },
@@ -228,7 +228,7 @@ export default function ShadowingScreen() {
     },
     metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
     durWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-    durText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
+    durText: { fontFamily: FONTS.regular, fontSize: 11, color: colors.textMuted },
     catWrap: {
       backgroundColor: colors.border,
       paddingVertical: 1,
@@ -259,7 +259,7 @@ export default function ShadowingScreen() {
       justifyContent: 'space-between',
       marginTop: 4,
     },
-    statusText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
+    statusText: { fontFamily: FONTS.regular, fontSize: 11, color: colors.textMuted },
     compWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
     compText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.success },
 
@@ -283,7 +283,7 @@ export default function ShadowingScreen() {
     processingText: {
       fontFamily: FONTS.bold,
       fontSize: 10,
-      color: COLORS.gray[400],
+      color: colors.textMuted,
     },
     actionBtn: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999 },
     actionBtnStart: {
@@ -301,7 +301,7 @@ export default function ShadowingScreen() {
     actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.4 },
     actionBtnTextStart: { color: colors.text },
     actionBtnTextComp: { color: colors.textSecondary },
-    actionBtnTextDisabled: { color: COLORS.gray[400] },
+    actionBtnTextDisabled: { color: colors.textMuted },
 
     fab: {
       position: 'absolute',
@@ -377,7 +377,7 @@ export default function ShadowingScreen() {
                 </Text>
                 <View style={styles.metaRow}>
                   <View style={styles.durWrap}>
-                    <Ionicons name="time-outline" size={11} color={COLORS.gray[400]} />
+                    <Ionicons name="time-outline" size={11} color={colors.textMuted} />
                     <Text style={styles.durText}>
                       {isProcessing ? 'Analyzing...' : lesson.duration || '5 min'}
                     </Text>
@@ -387,7 +387,7 @@ export default function ShadowingScreen() {
                   </View>
                   {lesson.folder && (
                     <View style={[styles.catWrap, styles.folderBadge]}>
-                      <Ionicons name="folder-outline" size={10} color={COLORS.textSecondary} style={{ marginRight: 2 }} />
+                      <Ionicons name="folder-outline" size={10} color={colors.textSecondary} style={{ marginRight: 2 }} />
                       <Text style={styles.catText}>{lesson.folder}</Text>
                     </View>
                   )}
@@ -477,17 +477,17 @@ export default function ShadowingScreen() {
 
         {showSearch && (
           <View style={styles.searchWrap}>
-            <Ionicons name="search" size={16} color={COLORS.gray[400]} style={{ marginRight: 8 }} />
+            <Ionicons name="search" size={16} color={colors.textMuted} style={{ marginRight: 8 }} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search lessons..."
               value={search}
               onChangeText={setSearch}
-              placeholderTextColor={COLORS.gray[400]}
+              placeholderTextColor={colors.textMuted}
             />
             {search.length > 0 && (
               <TouchableOpacity onPress={() => setSearch('')}>
-                <Ionicons name="close-circle" size={16} color={COLORS.gray[400]} />
+                <Ionicons name="close-circle" size={16} color={colors.textMuted} />
               </TouchableOpacity>
             )}
           </View>

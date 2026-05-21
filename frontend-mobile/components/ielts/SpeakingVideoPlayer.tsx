@@ -21,6 +21,7 @@ import { WebView } from 'react-native-webview';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -229,13 +230,14 @@ function YouTubePlayer({
 // ─── Empty / Placeholder ─────────────────────────────────────────────────────
 
 function VideoPlaceholder({ height }: { height: number }) {
+  const { colors } = useTheme();
   return (
-    <View style={[pStyles.placeholder, { height }]}>
-      <View style={pStyles.placeholderIcon}>
+    <View style={[pStyles.videoWrap, { height, backgroundColor: colors.surface }]}>
+      <View style={[pStyles.placeholderIcon, { backgroundColor: COLORS.primary + '15' }]}>
         <Ionicons name="mic-outline" size={28} color={COLORS.primary} />
       </View>
-      <Text style={pStyles.placeholderTitle}>Speaking Test</Text>
-      <Text style={pStyles.placeholderSub}>No video for this question</Text>
+      <Text style={[pStyles.placeholderTitle, { color: colors.text }]}>Speaking Test</Text>
+      <Text style={[pStyles.placeholderSub, { color: colors.textSecondary }]}>No video for this question</Text>
     </View>
   );
 }
