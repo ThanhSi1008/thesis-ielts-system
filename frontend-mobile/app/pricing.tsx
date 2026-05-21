@@ -9,7 +9,6 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   ActivityIndicator,
-  Alert,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { subscriptionsApi } from '@/services';
 import type { PricingPlan } from '@/services/features.api'; // keep import type from features.api or import it differently if needed, wait PricingPlan is in features.api
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/index';
 import { COLORS, FONTS, ROUTES } from '@/constants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -176,7 +176,7 @@ export default function PricingScreen() {
       router.back();
     } catch (err: any) {
       const msg = err?.message ?? 'Something went wrong. Please try again.';
-      Alert.alert('Error', msg);
+      toast.error('Subscription Error', msg);
     } finally {
       setLoadingPlanId(null);
     }

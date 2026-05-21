@@ -3,7 +3,7 @@ export { AppTextInput } from './AppTextInput';
 export { AudioPlayer } from './AudioPlayer';
 export { FeatureLock } from './FeatureLock';
 export { SharedDrawer } from './SharedDrawer';
-export { Toaster } from './Toaster';
+export { Toaster, toast } from './Toaster';
 export { UpgradeModal } from './UpgradeModal';
 export { UsageIndicator } from './UsageIndicator';
 

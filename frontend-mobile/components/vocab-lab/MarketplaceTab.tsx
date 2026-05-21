@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {COLORS, SPACING, FONTS} from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { useAuth } from '@/contexts/AuthContext';
+import { FeatureLock } from '@/components/ui/index';
 
 // ── Types ──────────────────────────────────────────────────────
 interface SharedDeck {
@@ -229,8 +230,9 @@ export function MarketplaceTab() {
   };
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: '#f8f9fa' }}
+    <FeatureLock requiredTier="PREMIUM" featureName="Community Marketplace">
+      <ScrollView
+        style={{ flex: 1, backgroundColor: '#f8f9fa' }}
       contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
@@ -357,7 +359,8 @@ export function MarketplaceTab() {
       ) : (
         decks.map((deck) => <SharedDeckCard key={deck.id} deck={deck} onImported={fetchDecks} />)
       )}
-    </ScrollView>
+      </ScrollView>
+    </FeatureLock>
   );
 }
 

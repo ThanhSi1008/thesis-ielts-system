@@ -18,6 +18,7 @@ import {COLORS, STORAGE_KEYS, FONTS, ROUTES, RADIUS} from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/index';
 import { vocabLabApi, gamificationApi, subscriptionsApi } from '@/services';
 import { apiClient } from '@/services/api-client';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -110,16 +111,16 @@ export default function ProfileScreen() {
 
   const handleUpdateProfile = async () => {
     if (!firstName.trim()) {
-      Alert.alert('Error', 'First name is required');
+      toast.error('First Name Required', 'First name is required');
       return;
     }
     setSaving(true);
     try {
       await apiClient.patch('/users/me', { firstName, lastName });
       await refreshUser(); // re-render with new name
-      Alert.alert('Success', 'Profile updated successfully');
+      toast.success('Success', 'Profile updated successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update profile');
+      toast.error('Error', error.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -127,17 +128,17 @@ export default function ProfileScreen() {
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword) {
-      Alert.alert('Error', 'Please fill in all password fields');
+      toast.error('Error', 'Please fill in all password fields');
       return;
     }
     setSaving(true);
     try {
       await apiClient.post('/auth/change-password', { currentPassword, newPassword });
-      Alert.alert('Success', 'Password changed successfully');
+      toast.success('Success', 'Password changed successfully');
       setCurrentPassword('');
       setNewPassword('');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to change password');
+      toast.error('Error', error.message || 'Failed to change password');
     } finally {
       setSaving(false);
     }
@@ -157,7 +158,7 @@ export default function ProfileScreen() {
               await apiClient.delete('/users/me');
               await logout();
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to delete account');
+              toast.error('Error', error.message || 'Failed to delete account');
             }
           },
         },

@@ -15,6 +15,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { shadowingApi } from '@/services/features.api';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, ROUTES } from '@/constants';
+import { FeatureLock } from '@/components/ui/index';
 
 
 const STATUS_FILTERS = [
@@ -209,7 +210,110 @@ export default function ShadowingScreen() {
           {filtered.length} of {tabLessons.length} lessons
         </Text>
 
-        {loading ? (
+        {tab === 'my-videos' ? (
+          <FeatureLock requiredTier="PREMIUM" featureName="Shadowing My Videos">
+            {loading ? (
+              <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
+            ) : (
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={() => {
+                      setRefreshing(true);
+                      fetchData();
+                    }}
+                  />
+                }
+                contentContainerStyle={{ paddingBottom: 100 }}
+              >
+                {filtered.map((lesson) => {
+                  const p = progress[lesson.id]?.[mode] || 0;
+                  const isComp = p === 100;
+                  const isIP = p > 0 && p < 100;
+                  const accent = mode === 'shadowing' ? COLORS.info : COLORS.warning;
+                  const cat = lesson.tags?.[0] || 'English';
+
+                  return (
+                    <View key={lesson.id} style={styles.lessonCard}>
+                      {/* Thumbnail */}
+                      <View style={styles.thumbWrap}>
+                        <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
+                          <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
+                          {isComp ? (
+                            <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
+                          ) : (
+                            <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
+                          )}
+                        </LinearGradient>
+                        {isIP && (
+                          <View style={styles.thumbProgBg}>
+                            <View style={[styles.thumbProgFill, { width: `${p}%` as any }]} />
+                          </View>
+                        )}
+                      </View>
+
+                      {/* Meta */}
+                      <View style={styles.metaWrap}>
+                        <Text style={styles.lessonTitle} numberOfLines={2}>
+                          {lesson.title}
+                        </Text>
+                        <View style={styles.metaRow}>
+                          <View style={styles.durWrap}>
+                            <Ionicons name="time-outline" size={11} color={COLORS.gray[400]} />
+                            <Text style={styles.durText}>{lesson.duration || '5 min'}</Text>
+                          </View>
+                          <View style={styles.catWrap}>
+                            <Text style={styles.catText}>{cat}</Text>
+                          </View>
+                        </View>
+
+                        {isIP && (
+                          <View style={styles.progBarRow}>
+                            <View style={styles.progBarBg}>
+                              <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
+                            </View>
+                            <Text style={styles.progBarText}>{p}%</Text>
+                          </View>
+                        )}
+
+                        <View style={styles.actionRow}>
+                          <View style={{ flex: 1 }}>
+                            {p === 0 && <Text style={styles.statusText}>Not started</Text>}
+                            {isComp && (
+                              <View style={styles.compWrap}>
+                                <Ionicons name="checkmark" size={11} color={COLORS.success} />
+                                <Text style={styles.compText}>Completed</Text>
+                              </View>
+                            )}
+                          </View>
+
+                          <TouchableOpacity
+                            style={[
+                              styles.actionBtn,
+                              isComp ? styles.actionBtnComp : styles.actionBtnStart,
+                            ]}
+                            onPress={() => router.push(ROUTES.shadowingLesson(lesson.id, mode))}
+                          >
+                            <Text
+                              style={[
+                                styles.actionBtnText,
+                                isComp ? styles.actionBtnTextComp : styles.actionBtnTextStart,
+                              ]}
+                            >
+                              {isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </FeatureLock>
+        ) : loading ? (
           <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
         ) : (
           <ScrollView
@@ -309,6 +413,7 @@ export default function ShadowingScreen() {
             })}
           </ScrollView>
         )}
+
       </View>
     </View>
   );

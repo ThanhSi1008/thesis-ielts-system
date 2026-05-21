@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { AdvancedWritingPromptCard } from '@/components/ielts';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, FeatureLock, UsageIndicator } from '@/components/ui/index';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 
 // Enable LayoutAnimation on Android
@@ -35,7 +35,7 @@ const TABS = [
 
 export default function AdvancedWritingIndexScreen() {
   const router = useRouter();
-  const { isPremium } = useSubscription();
+  const { isPremium, usage } = useSubscription();
   const [prompts, setPrompts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -124,7 +124,8 @@ export default function AdvancedWritingIndexScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Tabs */}
+      <FeatureLock requiredTier="PREMIUM" featureName="Advanced Writing Evaluation">
+        {/* Tabs */}
       <View style={styles.tabBar}>
         {TABS.map((t) => (
           <TouchableOpacity
@@ -223,6 +224,17 @@ export default function AdvancedWritingIndexScreen() {
         <FlatList
           data={filteredPrompts}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={
+            usage?.AI_WRITING_GRADING && usage.AI_WRITING_GRADING.limit !== Infinity ? (
+              <View style={{ backgroundColor: '#fff', padding: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.md }}>
+                <UsageIndicator
+                  label="Monthly AI Writing Evaluations"
+                  used={usage.AI_WRITING_GRADING.used}
+                  limit={usage.AI_WRITING_GRADING.limit}
+                />
+              </View>
+            ) : null
+          }
           renderItem={({ item, index }) => (
             <AdvancedWritingPromptCard
               prompt={{
@@ -252,6 +264,7 @@ export default function AdvancedWritingIndexScreen() {
           }
         />
       )}
+      </FeatureLock>
     </SafeAreaView>
   );
 }

@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { SpeakingPartCard } from '@/components/ielts';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, FeatureLock } from '@/components/ui/index';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { SpeakingDeviceTest } from '@/components';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -224,7 +224,8 @@ export default function AdvancedSpeakingIndexScreen() {
         </View>
       </View>
 
-      {/* Tabs */}
+      <FeatureLock requiredTier="PREMIUM" featureName="Advanced Speaking Evaluation">
+        {/* Tabs */}
       <View style={styles.tabBar}>
         {TABS.map((t) => (
           <TouchableOpacity
@@ -338,6 +339,7 @@ export default function AdvancedSpeakingIndexScreen() {
           }
         />
       )}
+      </FeatureLock>
     </SafeAreaView>
   );
 }

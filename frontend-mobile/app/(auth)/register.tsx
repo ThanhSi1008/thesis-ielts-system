@@ -15,6 +15,7 @@ import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/index';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
@@ -45,7 +46,7 @@ export default function RegisterScreen() {
         handleGoogleSuccess(id_token);
       }
     } else if (response?.type === 'error') {
-      Alert.alert('Google Login Failed', 'Authentication failed or was canceled.');
+      toast.error('Google Login Failed', 'Authentication failed or was canceled.');
     }
   }, [response]);
 
@@ -54,18 +55,18 @@ export default function RegisterScreen() {
       await loginWithGoogle(idToken);
       // Redirect handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Google Login Failed', error.message || 'Something went wrong');
+      toast.error('Google Login Failed', error.message || 'Something went wrong');
     }
   };
 
   const handleRegister = async () => {
     if (!email || !fullName || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
+      toast.error('Error', 'Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      toast.error('Error', 'Passwords do not match');
       return;
     }
 
@@ -85,11 +86,12 @@ export default function RegisterScreen() {
       }
 
       await registerUser({ email, password, firstName, lastName });
-      Alert.alert('Success', 'Account created successfully! Please log in.', [
-        { text: 'OK', onPress: () => router.replace(ROUTES.login) },
-      ]);
+      toast.success('Success', 'Account created successfully! Redirecting...');
+      setTimeout(() => {
+        router.replace(ROUTES.login);
+      }, 1500);
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message || 'Something went wrong');
+      toast.error('Registration Failed', error.message || 'Something went wrong');
     }
   };
 

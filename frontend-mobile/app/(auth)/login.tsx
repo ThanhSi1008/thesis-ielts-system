@@ -15,6 +15,7 @@ import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/index';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
@@ -43,7 +44,7 @@ export default function LoginScreen() {
         handleGoogleSuccess(id_token);
       }
     } else if (response?.type === 'error') {
-      Alert.alert('Google Login Failed', 'Authentication failed or was canceled.');
+      toast.error('Google Login Failed', 'Authentication failed or was canceled.');
     }
   }, [response]);
 
@@ -52,13 +53,13 @@ export default function LoginScreen() {
       await loginWithGoogle(idToken);
       // Redirect handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Google Login Failed', error.message || 'Something went wrong');
+      toast.error('Google Login Failed', error.message || 'Something went wrong');
     }
   };
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      toast.error('Error', 'Please fill in all fields');
       return;
     }
 
@@ -72,7 +73,7 @@ export default function LoginScreen() {
       } else if (error.message) {
         message = error.message;
       }
-      Alert.alert('Login Failed', message);
+      toast.error('Login Failed', message);
     }
   };
 

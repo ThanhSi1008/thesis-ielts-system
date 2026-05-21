@@ -22,6 +22,7 @@ import Markdown from 'react-native-markdown-display';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useGrading } from '@/contexts/GradingContext';
 import { useTimer, useWritingAutosave } from '@/hooks';
 
 const MIN_TOP_HEIGHT = 150;
@@ -31,6 +32,7 @@ export default function AdvancedWritingPracticeScreen() {
   const router = useRouter();
   const { promptId } = useLocalSearchParams<{ promptId: string }>();
   const { isPremium } = useSubscription();
+  const { submitAndTrack } = useGrading();
 
   const [prompt, setPrompt] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -128,11 +130,14 @@ export default function AdvancedWritingPracticeScreen() {
     setTimerRunning(false);
 
     try {
-      await ieltsAdvancedApi.submitWritingSession(sessionId, {
-        essay,
+      await submitAndTrack({
+        sessionId,
+        examType: 'WRITING',
+        answers: essay,
         timeTaken: elapsed,
+        resultUrl: `/ielts/advanced/writing/result/${sessionId}`,
       });
-      // Replace practice with results screen
+      // Replace practice with results screen immediately
       router.replace(`/ielts/advanced/writing/result/${sessionId}`);
     } catch (err: any) {
       console.error('[WritingPractice] Submit failed:', err);

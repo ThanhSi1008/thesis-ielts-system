@@ -238,31 +238,31 @@
 ## Phase 3 — Infrastructure: Contexts + Toast + Lock (16h)
 
 ### 3.1 SubscriptionContext (4h)
-- [ ] **P3-01** · Implement `contexts/SubscriptionContext.tsx` (tier/status/usage/refresh/isPremiumOrAbove) · *est. 2h*
-- [ ] **P3-02** · Wrap vào `app/_layout.tsx` sau AuthProvider · *est. 0.25h*
-- [ ] **P3-03** · AppState listener: refresh khi foreground · *est. 0.75h*
-- [ ] **P3-04** · Hook `useSubscription()` + test trong Profile/Pricing · *est. 1h*
+- [x] **P3-01** · Implement `contexts/SubscriptionContext.tsx` (tier/status/usage/refresh/isPremiumOrAbove) · *est. 2h*
+- [x] **P3-02** · Wrap vào `app/_layout.tsx` sau AuthProvider · *est. 0.25h*
+- [x] **P3-03** · AppState listener: refresh khi foreground · *est. 0.75h*
+- [x] **P3-04** · Hook `useSubscription()` + test trong Profile/Pricing · *est. 1h*
 
 ### 3.2 GradingContext (4h)
-- [ ] **P3-05** · Implement `contexts/GradingContext.tsx` (jobs, submitAndTrack, polling 5s) · *est. 2.5h*
-- [ ] **P3-06** · Custom toast render cho 3 trạng thái (SUBMITTING/GRADING/DONE) · *est. 1h*
-- [ ] **P3-07** · Tích hợp vào Writing & Speaking submit (Phase 1, 2 refactor sang gradingContext.submitAndTrack) · *est. 0.5h*
+- [x] **P3-05** · Implement `contexts/GradingContext.tsx` (jobs, submitAndTrack, polling 5s) · *est. 2.5h*
+- [x] **P3-06** · Custom toast render cho 3 trạng thái (SUBMITTING/GRADING/DONE) · *est. 1h*
+- [x] **P3-07** · Tích hợp vào Writing & Speaking submit (Phase 1, 2 refactor sang gradingContext.submitAndTrack) · *est. 0.5h*
 
 ### 3.3 Toaster (2h)
-- [ ] **P3-08** · Implement `components/ui/Toaster.tsx` với 4 type (success/error/info/loading) · *est. 1.5h*
-- [ ] **P3-09** · Helper `toast.success(msg)`, `toast.update(id, {...})`, expose qua singleton · *est. 0.5h*
+- [x] **P3-08** · Implement `components/ui/Toaster.tsx` với 4 type (success/error/info/loading) · *est. 1.5h*
+- [x] **P3-09** · Helper `toast.success(msg)`, `toast.update(id, {...})`, expose qua singleton · *est. 0.5h*
 
 ### 3.4 FeatureLock (2h)
-- [ ] **P3-10** · Implement `components/ui/FeatureLock.tsx` (blur child + CTA upgrade + trial) · *est. 1.5h*
-- [ ] **P3-11** · Apply vào: `/ielts/advanced/*`, `/vocab-lab/marketplace`, `/shadowing/my-videos` · *est. 0.5h*
+- [x] **P3-10** · Implement `components/ui/FeatureLock.tsx` (blur child + CTA upgrade + trial) · *est. 1.5h*
+- [x] **P3-11** · Apply vào: `/ielts/advanced/*`, `/vocab-lab/marketplace`, `/shadowing/my-videos` · *est. 0.5h*
 
 ### 3.5 UpgradeModal + UsageIndicator (2h)
-- [ ] **P3-12** · Implement `UpgradeModal.tsx` (bottom sheet + benefits + CTA) · *est. 1h*
-- [ ] **P3-13** · Implement `UsageIndicator.tsx` (progress bar) · *est. 0.5h*
-- [ ] **P3-14** · Tích hợp Usage vào Pronunciation check (5/day), Writing grading (10/mo) · *est. 0.5h*
+- [x] **P3-12** · Implement `UpgradeModal.tsx` (bottom sheet + benefits + CTA) · *est. 1h*
+- [x] **P3-13** · Implement `UsageIndicator.tsx` (progress bar) · *est. 0.5h*
+- [x] **P3-14** · Tích hợp Usage vào Pronunciation check (5/day), Writing grading (10/mo) · *est. 0.5h*
 
 ### 3.6 Migrate Alert → toast (2h)
-- [ ] **P3-15** · Replace `Alert.alert` chỉ ở: login error, register error, save profile, payment success/fail · *est. 2h*
+- [x] **P3-15** · Replace `Alert.alert` chỉ ở: login error, register error, save profile, payment success/fail · *est. 2h*
 
 **Tổng phase 3**: 16h
 

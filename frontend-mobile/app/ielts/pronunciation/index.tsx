@@ -12,6 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { pronunciationApi } from '@/services/learning.api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { UsageIndicator } from '@/components/ui/index';
 import type { PronunciationData, SoundProgress, PronunciationStats } from '@/types';
 import ProgressSummary from '@/components/foundation/ProgressSummary';
 import IpaChart from '@/components/foundation/IpaChart';
@@ -19,6 +21,7 @@ import IpaChart from '@/components/foundation/IpaChart';
 export default function IeltsPronunciationScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { usage } = useSubscription();
   const [sounds, setSounds] = useState<PronunciationData | null>(null);
   const [progress, setProgress] = useState<SoundProgress[]>([]);
   const [stats, setStats] = useState<PronunciationStats | null>(null);
@@ -111,6 +114,17 @@ export default function IeltsPronunciationScreen() {
           <>
             {/* Show stats summary if user is logged in and stats are loaded */}
             {user && stats && <ProgressSummary stats={stats} />}
+
+            {/* Daily Pronunciation Usage Indicator */}
+            {user && usage?.PRONUNCIATION_ATTEMPT && usage.PRONUNCIATION_ATTEMPT.limit !== Infinity && (
+              <View style={{ backgroundColor: '#fff', padding: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.md }}>
+                <UsageIndicator
+                  label="Daily AI Pronunciation Drills"
+                  used={usage.PRONUNCIATION_ATTEMPT.used}
+                  limit={usage.PRONUNCIATION_ATTEMPT.limit}
+                />
+              </View>
+            )}
 
             <IpaChart sounds={sounds} progress={progress} onSymbolPress={go} />
             
