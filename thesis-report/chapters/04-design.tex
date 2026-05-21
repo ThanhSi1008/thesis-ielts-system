@@ -305,7 +305,7 @@ Hai mươi sáu file spec của backend-core được tổ chức thành 16 nhó
 
     1 & Xác thực và phân quyền (auth) & register.spec.ts\newline login.spec.ts\newline auth-extended.spec.ts\newline jwt-strategy.spec.ts & 29 & Đăng ký với DTO validation và bcrypt hash; đăng nhập + cấp JWT; refresh token; đổi mật khẩu; Google OAuth ID token; JwtStrategy của Passport \\ \hline
 
-    2 & Cập nhật thông tin tài khoản (users) & update-profile.spec.ts & 12 & DTO whitelist (forbidNonWhitelisted), email uniqueness, role enum, trạng thái hoạt động \\ \hline
+    2 & Cập nhật thông tin tài khoản (users) & update-profile.spec.ts & 12 & DTO whitelist (forbid\allowbreak{}Non\allowbreak{}Whitelisted), email uniqueness, role enum, trạng thái hoạt động \\ \hline
 
     3 & Cộng đồng -- đăng bài (posts) & posts.spec.ts & 11 & CRUD bài đăng, like/unlike, ẩn bài đã xóa, kích hoạt gamification onEvent (XP = 5) \\ \hline
 
@@ -325,7 +325,7 @@ Hai mươi sáu file spec của backend-core được tổ chức thành 16 nhó
 
     11 & Bài thi thử IELTS Intensive (exams) & exams-submit.spec.ts\newline result-callback.spec.ts & 10 & Submit + dispatch publishGradingTask, quota guard cho gói FREE, HMAC signature callback từ AI worker, idempotency \\ \hline
 
-    12 & Polling kết quả chấm AI (results) & results.spec.ts & 6 & Trạng thái GRADING/GRADED/GRADING\_FAILED; bảo vệ IDOR (trả 404 ẩn existence) \\ \hline
+    12 & Polling kết quả chấm AI (results) & results.spec.ts & 6 & Trạng thái GRADING/GRADED/GRADING\_\allowbreak{}FAILED; bảo vệ IDOR (trả 404 ẩn existence) \\ \hline
 
     13 & Subscription và thanh toán (subscriptions) & subscriptions-webhook.spec.ts\newline subscriptions.service.spec.ts\newline subscriptions.cron.spec.ts & 13 & VNPay IPN HMAC-SHA512, replay protection, dùng thử 7 ngày, cancel subscription, quota usage và rollback, downgrade cron sau grace period 3 ngày \\ \hline
 
@@ -340,11 +340,11 @@ Hai nhóm Edge case (STT~14) và Security (STT~15) không gắn với một mô-
 
 \subsection{Danh sách các test case}
 
-Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integration của backend-core được trình bày chi tiết trong bảng~\ref{tab:testcase_list}. Bảng có sáu cột: mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Tất cả test case đều sử dụng quy ước đặt mã thống nhất dạng TC\_TIỀN-TỐ-MÔ-ĐUN\_SỐ-NHÓM và mô tả ở mức kỹ thuật, bao gồm: xác thực và phân quyền (TC\_AUTH\_01--TC\_AUTH\_05, TC\_JWT), cộng đồng (TC\_POST), thông báo (TC\_NOTIF), thông tin tài khoản (TC\_USER), phát âm cơ bản (TC\_PRON), Pronunciation\allowbreak{}Service (TC\_PRO\_S), IELTS Advanced (TC\_IADV), thuật toán FSRS (TC\_FSRS), gamification (TC\_GAMI), chuỗi học (TC\_STREAK), dictation/shadowing (TC\_DCT, TC\_SHD), bài thi Intensive (TC\_EXAM, TC\_CB, TC\_RES), subscription (TC\_SUB), thống kê IELTS (TC\_STAT), giá trị biên (TC\_BOUND), phân trang bất thường (TC\_EDGE) và bảo mật truy cập chéo (TC\_SEC).
+Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integration của backend-core được trình bày chi tiết trong bảng~\ref{tab:testcase_list}. Bảng có sáu cột: mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Tất cả test case đều sử dụng quy ước đặt mã thống nhất dạng TC\_\allowbreak{}TIỀN-TỐ-MÔ-ĐUN\_\allowbreak{}SỐ-NHÓM và mô tả ở mức kỹ thuật, bao gồm: xác thực và phân quyền (TC\_\allowbreak{}AUTH\_01--TC\_\allowbreak{}AUTH\_05, TC\_\allowbreak{}JWT), cộng đồng (TC\_\allowbreak{}POST), thông báo (TC\_\allowbreak{}NOTIF), thông tin tài khoản (TC\_\allowbreak{}USER), phát âm cơ bản (TC\_\allowbreak{}PRON), Pronunciation\allowbreak{}Service (TC\_\allowbreak{}PRO\_\allowbreak{}S), IELTS Advanced (TC\_\allowbreak{}IADV), thuật toán FSRS (TC\_\allowbreak{}FSRS), gamification (TC\_\allowbreak{}GAMI), chuỗi học (TC\_\allowbreak{}STREAK), dictation/shadowing (TC\_\allowbreak{}DCT, TC\_\allowbreak{}SHD), bài thi Intensive (TC\_\allowbreak{}EXAM, TC\_\allowbreak{}CB, TC\_\allowbreak{}RES), subscription (TC\_\allowbreak{}SUB), thống kê IELTS (TC\_\allowbreak{}STAT), giá trị biên (TC\_\allowbreak{}BOUND), phân trang bất thường (TC\_\allowbreak{}EDGE) và bảo mật truy cập chéo (TC\_\allowbreak{}SEC).
 
 % 6 cột p{}, divisor=134: (1.8+0.4+1.8+2.6+3.3+3.3)×10; -4pt buffer cho rounding
-\setlength{\tbu}{\dimexpr(\linewidth - 12\tabcolsep - 7\arrayrulewidth - 4pt)/134\relax}
-\begin{longtable}{|p{18\tbu}|p{4\tbu}|p{18\tbu}|p{26\tbu}|p{33\tbu}|p{33\tbu}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 12\tabcolsep - 7\arrayrulewidth - 4pt)/132\relax}
+\begin{longtable}{|p{20\tbu}|p{4\tbu}|p{24\tbu}|p{28\tbu}|p{28\tbu}|p{28\tbu}|}
     \caption{Danh sách test case}
     \label{tab:testcase_list} \\
     \hline
@@ -402,7 +402,7 @@ Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integr
     \hspace{0pt}TC\_\allowbreak{}USER & 3 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Chọn vai trò ngoài ba vai trò được hỗ trợ & 400 Bad Request -- role ngoài [STUDENT, INSTRUCTOR, ADMIN] \\ \hline
     \hspace{0pt}TC\_\allowbreak{}USER & 4 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập trạng thái hoạt động không phải đúng/sai & 400 Bad Request -- isActive không phải boolean \\ \hline
     \hspace{0pt}TC\_\allowbreak{}USER & 5 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập họ tên dưới dạng số & 400 Bad Request -- name không phải string \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}USER & 6 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi kèm trường dữ liệu không được hỗ trợ & 400 Bad Request -- forbidNonWhitelisted reject trường lạ \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}USER & 6 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi kèm trường dữ liệu không được hỗ trợ & 400 Bad Request -- forbid\allowbreak{}Non\allowbreak{}Whitelisted reject trường lạ \\ \hline
     \hspace{0pt}TC\_\allowbreak{}USER & 7 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật họ tên hợp lệ & 200 OK -- name mới được lưu \\ \hline
     \hspace{0pt}TC\_\allowbreak{}USER & 8 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email mới chưa được sử dụng & 200 OK -- email mới được lưu \\ \hline
     \hspace{0pt}TC\_\allowbreak{}USER & 9 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email đã có tài khoản khác sử dụng & 400 Bad Request -- email đã được sử dụng bởi tài khoản khác \\ \hline
@@ -443,25 +443,25 @@ Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integr
 
     % Nhóm TC_JWT — JwtStrategy của Passport (5 case)
     \hspace{0pt}TC\_\allowbreak{}JWT & 1 & JwtStrategy validate & Payload JWT đầy đủ sub, email, role & Passport gọi validate() với payload hợp lệ & Trả về object \{id, email, role\} cho request scope \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}JWT & 2 & JwtStrategy validate & Token được ký bằng secret khác JWT\_SECRET & Gửi request kèm token sai secret & Passport từ chối, ném UnauthorizedException \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}JWT & 3 & JwtStrategy validate & Token có trường exp ở thời điểm quá khứ & Gửi request kèm token expired & Passport từ chối, ném UnauthorizedException \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}JWT & 4 & JwtStrategy validate & Payload JWT thiếu trường sub & validate() được gọi với payload không có sub & Trả id = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}JWT & 5 & JwtStrategy validate & Payload JWT thiếu trường role & validate() được gọi với payload không có role & Trả role = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}JWT & 2 & JwtStrategy validate & Token được ký bằng secret khác JWT\_\allowbreak{}SECRET & Gửi request kèm token sai secret & Passport từ chối, ném Unauthorized\allowbreak{}Exception \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}JWT & 3 & JwtStrategy validate & Token có trường exp ở thời điểm quá khứ & Gửi request kèm token expired & Passport từ chối, ném Unauthorized\allowbreak{}Exception \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}JWT & 4 & JwtStrategy validate & Payload JWT thiếu trường sub & validate() được gọi với payload không có sub & Trả id = undefined (khe hở đã ghi nhận, cần ném Unauthorized\allowbreak{}Exception) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}JWT & 5 & JwtStrategy validate & Payload JWT thiếu trường role & validate() được gọi với payload không có role & Trả role = undefined (khe hở đã ghi nhận, cần ném Unauthorized\allowbreak{}Exception) \\ \hline
 
     % Nhóm TC_PRO_S — Pronunciation\allowbreak{}Service (13 case)
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 1 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc danh sách & Redis cache đã có danh sách sounds & Gọi \hspace{0pt}getAllSounds() & Trả kết quả từ cache, không truy vấn Prisma \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 2 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc danh sách & Redis cache rỗng & Gọi \hspace{0pt}getAllSounds() & Truy vấn DB qua Prisma và ghi kết quả vào cache \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 3 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc theo symbol & Cache có sound theo symbol cụ thể & Gọi \hspace{0pt}getSoundBySymbol(symbol) & Trả từ cache, không gọi Prisma \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 4 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc theo symbol & Cache miss & Gọi \hspace{0pt}getSoundBySymbol(symbol) & Truy vấn DB và ghi vào cache \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 1 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc danh sách & Redis cache đã có danh sách sounds & Gọi \hspace{0pt}get\allowbreak{}All\allowbreak{}Sounds\allowbreak{}() & Trả kết quả từ cache, không truy vấn Prisma \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 2 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc danh sách & Redis cache rỗng & Gọi \hspace{0pt}get\allowbreak{}All\allowbreak{}Sounds\allowbreak{}() & Truy vấn DB qua Prisma và ghi kết quả vào cache \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 3 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc theo symbol & Cache có sound theo symbol cụ thể & Gọi \hspace{0pt}get\allowbreak{}Sound\allowbreak{}By\allowbreak{}Symbol\allowbreak{}(symbol) & Trả từ cache, không gọi Prisma \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 4 & \hspace{0pt}Pronunciation\allowbreak{}Service -- đọc theo symbol & Cache miss & Gọi \hspace{0pt}get\allowbreak{}Sound\allowbreak{}By\allowbreak{}Symbol\allowbreak{}(symbol) & Truy vấn DB và ghi vào cache \\ \hline
     \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 5 & \hspace{0pt}Pronunciation\allowbreak{}Service -- thêm sound & Admin gọi createSound với payload hợp lệ & Service lưu sound mới vào DB & Sound được tạo, cache bị invalidate \\ \hline
     \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 6 & \hspace{0pt}Pronunciation\allowbreak{}Service -- cập nhật sound & Admin gọi updateSound & Service cập nhật trường của sound & Sound được update, cache bị invalidate \\ \hline
     \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 7 & \hspace{0pt}Pronunciation\allowbreak{}Service -- xóa sound & Admin gọi deleteSound & Service xóa sound khỏi DB & Sound bị xóa, cache bị invalidate \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 8 & \hspace{0pt}Pronunciation\allowbreak{}Service -- progress user & User có progress trên một số sound & Gọi \hspace{0pt}getUserProgress(userId) & Trả progress đã join với toàn bộ danh sách sounds \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 9 & \hspace{0pt}Pronunciation\allowbreak{}Service -- thống kê & User có lịch sử attempt phong phú & Gọi \hspace{0pt}getUserStats(userId) & Tính các chỉ số mastery cho từng loại âm \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 10 & \hspace{0pt}Pronunciation\allowbreak{}Service -- progress theo từ & User có attempt cho các từ ví dụ & Gọi \hspace{0pt}getWordProgress(userId) & Trả danh sách từ kèm mastery status dựa trên attempt \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 11 & \hspace{0pt}Pronunciation\allowbreak{}Service -- cập nhật progress & User submit điểm phát âm hợp lệ & Gọi \hspace{0pt}updateProgress(userId, soundId, score) & Upsert progress, invalidate cache, gọi gamification.onEvent để cộng XP \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 12 & \hspace{0pt}Pronunciation\allowbreak{}Service -- tạo attempt & User bắt đầu một lượt luyện phát âm & Gọi \hspace{0pt}createPronunciationAttempt & Tạo bản ghi attempt với trạng thái PENDING \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 13 & \hspace{0pt}Pronunciation\allowbreak{}Service -- cập nhật attempt & Attempt PENDING đã tồn tại & Gọi \hspace{0pt}updatePronunciationAttempt với chi tiết & Cập nhật các trường của attempt \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 8 & \hspace{0pt}Pronunciation\allowbreak{}Service -- progress user & User có progress trên một số sound & Gọi \hspace{0pt}get\allowbreak{}User\allowbreak{}Progress\allowbreak{}(userId) & Trả progress đã join với toàn bộ danh sách sounds \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 9 & \hspace{0pt}Pronunciation\allowbreak{}Service -- thống kê & User có lịch sử attempt phong phú & Gọi \hspace{0pt}get\allowbreak{}User\allowbreak{}Stats\allowbreak{}(userId) & Tính các chỉ số mastery cho từng loại âm \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 10 & \hspace{0pt}Pronunciation\allowbreak{}Service -- progress theo từ & User có attempt cho các từ ví dụ & Gọi \hspace{0pt}get\allowbreak{}Word\allowbreak{}Progress\allowbreak{}(userId) & Trả danh sách từ kèm mastery status dựa trên attempt \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 11 & \hspace{0pt}Pronunciation\allowbreak{}Service -- cập nhật progress & User submit điểm phát âm hợp lệ & Gọi \hspace{0pt}update\allowbreak{}Progress\allowbreak{}(userId, soundId, score) & Upsert progress, invalidate cache, gọi gamification\allowbreak{}.onEvent để cộng XP \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 12 & \hspace{0pt}Pronunciation\allowbreak{}Service -- tạo attempt & User bắt đầu một lượt luyện phát âm & Gọi \hspace{0pt}create\allowbreak{}Pronunciation\allowbreak{}Attempt & Tạo bản ghi attempt với trạng thái PENDING \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}PRO\_\allowbreak{}S & 13 & \hspace{0pt}Pronunciation\allowbreak{}Service -- cập nhật attempt & Attempt PENDING đã tồn tại & Gọi \hspace{0pt}update\allowbreak{}Pronunciation\allowbreak{}Attempt với chi tiết & Cập nhật các trường của attempt \\ \hline
 
     % Nhóm TC_FSRS — Vocab Lab spaced repetition (10 case)
     \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}01 & 1 & VocabLab -- submitReview rating Good & User có card mới chưa từng review & Gọi \hspace{0pt}submitReview với rating = Good (3) & Card được lưu với stability lớn hơn 0 và due lớn hơn now \\ \hline
@@ -469,11 +469,11 @@ Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integr
     \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}02 & 1 & VocabLab -- submitReview rating Again & User có card đã review trước đó & Gọi \hspace{0pt}submitReview với rating = Again (1) & Stability reset về xấp xỉ 0.4 (mặc định FSRS) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}02 & 2 & VocabLab -- submitReview rating Again & Card mới & \hspace{0pt}submitReview với Again & due được lập lịch trong khoảng 10 phút sau \\ \hline
     \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}03 & 1 & VocabLab -- so sánh interval & Cùng một card được test với hai rating khác nhau & \hspace{0pt}submitReview với rating Easy (4) so với Good (3) & scheduledDays khi Easy luôn lớn hơn hoặc bằng scheduledDays khi Good \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}04 & 1 & VocabLab -- ownership card & Card thuộc deck của user khác & \hspace{0pt}submitReview với userId không khớp deck.userId & Throw NotFoundException \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}04 & 2 & VocabLab -- card không tồn tại & cardId không có trong DB & \hspace{0pt}submitReview với cardId sai & Throw NotFoundException \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}05 & 1 & VocabLab -- getStudyCards & Deck có cards NEW + LEARNING/REVIEW/RELEARNING với due đã đến hạn & Gọi \hspace{0pt}getStudyCards(deckId) & Trả về cards NEW cùng cards đến hạn ôn \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}05 & 2 & VocabLab -- getStudyCards loại trừ tương lai & Có cards với due lớn hơn now & Gọi \hspace{0pt}getStudyCards(deckId) & Loại trừ những cards có lịch ôn tương lai \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}05 & 3 & VocabLab -- getStudyCards ownership & Deck không tồn tại hoặc không thuộc user & Gọi \hspace{0pt}getStudyCards(deckId, userId) & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}04 & 1 & VocabLab -- ownership card & Card thuộc deck của user khác & \hspace{0pt}submitReview với userId không khớp deck.userId & Throw Not\allowbreak{}Found\allowbreak{}Exception \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}04 & 2 & VocabLab -- card không tồn tại & cardId không có trong DB & \hspace{0pt}submitReview với cardId sai & Throw Not\allowbreak{}Found\allowbreak{}Exception \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}05 & 1 & VocabLab -- get\allowbreak{}Study\allowbreak{}Cards & Deck có cards NEW + LEARNING\allowbreak{}/REVIEW\allowbreak{}/RELEARNING với due đã đến hạn & Gọi \hspace{0pt}get\allowbreak{}Study\allowbreak{}Cards\allowbreak{}(deckId) & Trả về cards NEW cùng cards đến hạn ôn \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}05 & 2 & VocabLab -- get\allowbreak{}Study\allowbreak{}Cards loại trừ tương lai & Có cards với due lớn hơn now & Gọi \hspace{0pt}get\allowbreak{}Study\allowbreak{}Cards\allowbreak{}(deckId) & Loại trừ những cards có lịch ôn tương lai \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}FSRS\_\allowbreak{}05 & 3 & VocabLab -- get\allowbreak{}Study\allowbreak{}Cards ownership & Deck không tồn tại hoặc không thuộc user & Gọi \hspace{0pt}get\allowbreak{}Study\allowbreak{}Cards\allowbreak{}(deckId, userId) & Throw Not\allowbreak{}Found\allowbreak{}Exception \\ \hline
 
     % Nhóm TC_GAMI — gamification XP & achievement (10 case)
     \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}01 & 1 & Gamification onEvent (xp dương) & Event gửi tới có xp dương & Service xử lý event & Tạo XpLog với đầy đủ trường (userId, eventKey, xp, reason) \\ \hline
@@ -481,77 +481,77 @@ Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integr
     \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}01 & 3 & Gamification onEvent (xp dương) & IeltsProfile của user chưa tồn tại & Service xử lý event & Không crash, log nhẹ và bỏ qua bước cập nhật profile \\ \hline
     \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}02 & 1 & Gamification level-up & XP mới vượt ngưỡng nâng level & Service xử lý event & Gửi notification loại ACHIEVEMENT cho user \\ \hline
     \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}02 & 2 & Gamification level-up & XP tăng nhưng cùng mức level & Service xử lý event & KHÔNG gửi notification level-up \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}03 & 1 & Gamification achievement trùng & User đã có achievement trước đó & Service grant lại cùng achievement key & Bỏ qua UserAchievement.create, không tạo bản ghi trùng \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}03 & 1 & Gamification achievement trùng & User đã có achievement trước đó & Service grant lại cùng achievement key & Bỏ qua User\allowbreak{}Achievement\allowbreak{}.create, không tạo bản ghi trùng \\ \hline
     \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}04 & 1 & Gamification onEvent (xp = 0) & Event không kèm XP & Service xử lý event & Bỏ qua tạo XpLog hoàn toàn \\ \hline
     \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}04 & 2 & Gamification onEvent (xp = 0) & Event có achievementKeys nhưng xp = 0 & Service xử lý event & Vẫn xử lý achievementKeys bình thường \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}05 & 1 & Gamification tryGrantAchievement & User chưa có achievement & Gọi \hspace{0pt}tryGrantAchievement(userId, key) & Tạo UserAchievement và gửi notification ACHIEVEMENT \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}05 & 2 & Gamification tryGrantAchievement & achievementKey không có định nghĩa trong DB & Gọi \hspace{0pt}tryGrantAchievement với key sai & No-op, không tạo gì cả \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}05 & 1 & Gamification try\allowbreak{}Grant\allowbreak{}Achievement & User chưa có achievement & Gọi \hspace{0pt}try\allowbreak{}Grant\allowbreak{}Achievement\allowbreak{}(userId, key) & Tạo UserAchievement và gửi notification ACHIEVEMENT \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}GAMI\_\allowbreak{}05 & 2 & Gamification try\allowbreak{}Grant\allowbreak{}Achievement & achievementKey không có định nghĩa trong DB & Gọi \hspace{0pt}try\allowbreak{}Grant\allowbreak{}Achievement với key sai & No-op, không tạo gì cả \\ \hline
 
     % Nhóm TC_STREAK — chuỗi học liên tục (13 case)
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}01 & 1 & Streak recordActivity (lần đầu) & IeltsProfile chưa có lastActiveDate & Gọi \hspace{0pt}recordActivity(userId) & currentStreak = 1, lastActiveDate = ngày hôm nay \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}01 & 2 & Streak recordActivity (lần đầu) & Như trường hợp trên & Gọi \hspace{0pt}recordActivity(userId) & longestStreak ít nhất bằng 1 \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}02 & 1 & Streak recordActivity (liên tiếp) & lastActiveDate = ngày hôm qua & Gọi \hspace{0pt}recordActivity(userId) & currentStreak tăng thêm 1 \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}02 & 2 & Streak recordActivity (liên tiếp) & Streak mới vượt longestStreak cũ & Gọi \hspace{0pt}recordActivity(userId) & Cập nhật longestStreak bằng giá trị mới \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}03 & 1 & Streak recordActivity (gap 2+ ngày) & lastActiveDate cách hôm nay từ 2 ngày trở lên & Gọi \hspace{0pt}recordActivity(userId) & currentStreak reset về 1 \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}03 & 2 & Streak recordActivity (gap 2+ ngày) & Như trên & Gọi \hspace{0pt}recordActivity(userId) & longestStreak KHÔNG bị giảm \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}04 & 1 & Streak recordActivity (cùng ngày) & lastActiveDate = hôm nay & Gọi \hspace{0pt}recordActivity(userId) & Trả về profile, KHÔNG gọi update (idempotent) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}04 & 2 & Streak recordActivity (cùng ngày) & Như trên & Gọi \hspace{0pt}recordActivity(userId) & KHÔNG kích hoạt gamification event \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}05 & 1 & Streak milestone 7 ngày & Streak mới đạt 7 ngày liên tiếp & Gọi \hspace{0pt}recordActivity (lần thứ 7) & Gọi \hspace{0pt}Gamification\allowbreak{}Service.onEvent kèm achievementKeys chứa XM\_ON\_FIRE \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}05 & 2 & Streak milestone 7 ngày & Như trên & Gọi \hspace{0pt}recordActivity & Gửi milestone notification (STREAK\_MILESTONES có 7) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}05 & 3 & Streak milestone 7 ngày & Như trên & Gọi \hspace{0pt}recordActivity & XP truyền vào tỷ lệ với streak mới (5 nhân newStreak) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}06 & 1 & Streak getStreakStats edge & IeltsProfile không tồn tại & Gọi \hspace{0pt}getStreakStats(userId) & Trả về null \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}06 & 2 & Streak getStreakStats edge & Prisma throw error & Gọi \hspace{0pt}getStreakStats(userId) & Trả null, KHÔNG throw (silent fail) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}01 & 1 & Streak record\allowbreak{}Activity (lần đầu) & IeltsProfile chưa có lastActiveDate & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & currentStreak = 1, lastActiveDate = ngày hôm nay \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}01 & 2 & Streak record\allowbreak{}Activity (lần đầu) & Như trường hợp trên & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & longestStreak ít nhất bằng 1 \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}02 & 1 & Streak record\allowbreak{}Activity (liên tiếp) & lastActiveDate = ngày hôm qua & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & currentStreak tăng thêm 1 \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}02 & 2 & Streak record\allowbreak{}Activity (liên tiếp) & Streak mới vượt longestStreak cũ & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & Cập nhật longestStreak bằng giá trị mới \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}03 & 1 & Streak record\allowbreak{}Activity (gap 2+ ngày) & lastActiveDate cách hôm nay từ 2 ngày trở lên & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & currentStreak reset về 1 \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}03 & 2 & Streak record\allowbreak{}Activity (gap 2+ ngày) & Như trên & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & longestStreak KHÔNG bị giảm \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}04 & 1 & Streak record\allowbreak{}Activity (cùng ngày) & lastActiveDate = hôm nay & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & Trả về profile, KHÔNG gọi update (idempotent) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}04 & 2 & Streak record\allowbreak{}Activity (cùng ngày) & Như trên & Gọi \hspace{0pt}record\allowbreak{}Activity\allowbreak{}(userId) & KHÔNG kích hoạt gamification event \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}05 & 1 & Streak milestone 7 ngày & Streak mới đạt 7 ngày liên tiếp & Gọi \hspace{0pt}record\allowbreak{}Activity (lần thứ 7) & Gọi \hspace{0pt}Gamification\allowbreak{}Service.onEvent kèm achievementKeys chứa XM\_\allowbreak{}ON\_FIRE \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}05 & 2 & Streak milestone 7 ngày & Như trên & Gọi \hspace{0pt}record\allowbreak{}Activity & Gửi milestone notification (STREAK\_\allowbreak{}MILESTONES có 7) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}05 & 3 & Streak milestone 7 ngày & Như trên & Gọi \hspace{0pt}record\allowbreak{}Activity & XP truyền vào tỷ lệ với streak mới (5 nhân newStreak) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}06 & 1 & Streak get\allowbreak{}Streak\allowbreak{}Stats edge & IeltsProfile không tồn tại & Gọi \hspace{0pt}get\allowbreak{}Streak\allowbreak{}Stats\allowbreak{}(userId) & Trả về null \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}STREAK\_\allowbreak{}06 & 2 & Streak get\allowbreak{}Streak\allowbreak{}Stats edge & Prisma throw error & Gọi \hspace{0pt}get\allowbreak{}Streak\allowbreak{}Stats\allowbreak{}(userId) & Trả null, KHÔNG throw (silent fail) \\ \hline
 
     % Nhóm TC_DCT — Dictation\allowbreak{}Progress\allowbreak{}Service (6 case)
-    \hspace{0pt}TC\_\allowbreak{}DCT & 1 & DictationProgress findByLesson & Progress chưa có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences = [] và difficulty mặc định \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}DCT & 2 & DictationProgress findByLesson & Progress đã có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences và difficulty từ DB \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}DCT & 3 & DictationProgress upsert & Progress mới, số câu hoàn thành nhỏ hơn total & Gọi upsert(userId, lessonId, completed) & Tạo bản ghi, award sentence XP, KHÔNG complete lesson \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}DCT & 4 & DictationProgress upsert & Đủ số câu (bằng total) & Gọi upsert & Chuyển sang complete, gửi notification, award lesson achievement \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}DCT & 5 & DictationProgress upsert & Lesson đã hoàn thành trước đó & Gọi upsert lại & KHÔNG kích hoạt completion notification lần thứ hai \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}DCT & 6 & DictationProgress findAllByUser & User có progress trên nhiều lesson & Gọi \hspace{0pt}findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}DCT & 1 & Dictation\allowbreak{}Progress findByLesson & Progress chưa có trong DB & Gọi \hspace{0pt}find\allowbreak{}By\allowbreak{}Lesson\allowbreak{}(userId, lessonId) & Trả completedSentences = [] và difficulty mặc định \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}DCT & 2 & Dictation\allowbreak{}Progress findByLesson & Progress đã có trong DB & Gọi \hspace{0pt}find\allowbreak{}By\allowbreak{}Lesson\allowbreak{}(userId, lessonId) & Trả completedSentences và difficulty từ DB \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}DCT & 3 & Dictation\allowbreak{}Progress upsert & Progress mới, số câu hoàn thành nhỏ hơn total & Gọi upsert(userId, lessonId, completed) & Tạo bản ghi, award sentence XP, KHÔNG complete lesson \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}DCT & 4 & Dictation\allowbreak{}Progress upsert & Đủ số câu (bằng total) & Gọi upsert & Chuyển sang complete, gửi notification, award lesson achievement \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}DCT & 5 & Dictation\allowbreak{}Progress upsert & Lesson đã hoàn thành trước đó & Gọi upsert lại & KHÔNG kích hoạt completion notification lần thứ hai \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}DCT & 6 & Dictation\allowbreak{}Progress find\allowbreak{}All\allowbreak{}By\allowbreak{}User & User có progress trên nhiều lesson & Gọi \hspace{0pt}find\allowbreak{}All\allowbreak{}By\allowbreak{}User\allowbreak{}(userId) & Trả map progress theo lessonId \\ \hline
 
     % Nhóm TC_SHD — Shadowing\allowbreak{}Progress\allowbreak{}Service (6 case)
-    \hspace{0pt}TC\_\allowbreak{}SHD & 1 & ShadowingProgress findByLesson & Progress chưa có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences = [] \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SHD & 2 & ShadowingProgress findByLesson & Progress đã có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences từ DB \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SHD & 3 & ShadowingProgress upsert & Số câu nhỏ hơn tổng số câu video & Gọi upsert & Award sentence XP, KHÔNG award lesson complete \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SHD & 4 & ShadowingProgress upsert & Đủ tổng số câu của video & Gọi upsert & Complete video, award lesson completion achievement \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SHD & 5 & ShadowingProgress upsert & newCount không lớn hơn existingCount & Gọi upsert & KHÔNG kích hoạt sentence XP (no-op) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SHD & 6 & ShadowingProgress findAllByUser & User có progress trên nhiều video & Gọi \hspace{0pt}findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SHD & 1 & Shadowing\allowbreak{}Progress findByLesson & Progress chưa có trong DB & Gọi \hspace{0pt}find\allowbreak{}By\allowbreak{}Lesson\allowbreak{}(userId, lessonId) & Trả completedSentences = [] \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SHD & 2 & Shadowing\allowbreak{}Progress findByLesson & Progress đã có trong DB & Gọi \hspace{0pt}find\allowbreak{}By\allowbreak{}Lesson\allowbreak{}(userId, lessonId) & Trả completedSentences từ DB \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SHD & 3 & Shadowing\allowbreak{}Progress upsert & Số câu nhỏ hơn tổng số câu video & Gọi upsert & Award sentence XP, KHÔNG award lesson complete \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SHD & 4 & Shadowing\allowbreak{}Progress upsert & Đủ tổng số câu của video & Gọi upsert & Complete video, award lesson completion achievement \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SHD & 5 & Shadowing\allowbreak{}Progress upsert & newCount không lớn hơn existingCount & Gọi upsert & KHÔNG kích hoạt sentence XP (no-op) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SHD & 6 & Shadowing\allowbreak{}Progress find\allowbreak{}All\allowbreak{}By\allowbreak{}User & User có progress trên nhiều video & Gọi \hspace{0pt}find\allowbreak{}All\allowbreak{}By\allowbreak{}User\allowbreak{}(userId) & Trả map progress theo lessonId \\ \hline
 
     % Nhóm TC_IADV — Ielts\allowbreak{}Advanced\allowbreak{}Service (20 case)
-    \hspace{0pt}TC\_\allowbreak{}IADV & 1 & IELTS Advanced -- danh sách Listening & Có nhiều Listening parts trong DB & Gọi \hspace{0pt}getListeningParts() & Danh sách trả về sắp xếp theo partNumber \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 2 & IELTS Advanced -- chi tiết Listening part & partId không tồn tại & Gọi \hspace{0pt}getListeningPartDetail(partId) & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 1 & IELTS Advanced -- danh sách Listening & Có nhiều Listening parts trong DB & Gọi \hspace{0pt}get\allowbreak{}Listening\allowbreak{}Parts\allowbreak{}() & Danh sách trả về sắp xếp theo partNumber \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 2 & IELTS Advanced -- chi tiết Listening part & partId không tồn tại & Gọi \hspace{0pt}get\allowbreak{}Listening\allowbreak{}Part\allowbreak{}Detail\allowbreak{}(partId) & Throw Not\allowbreak{}Found\allowbreak{}Exception \\ \hline
     \hspace{0pt}TC\_\allowbreak{}IADV & 3 & IELTS Advanced -- submit Listening & User submit đáp án nhiều định dạng (multiple choice, fill-in, matching) & Gọi \hspace{0pt}submitListeningPart & Đánh giá đúng từng định dạng, tạo session lưu kết quả \\ \hline
     \hspace{0pt}TC\_\allowbreak{}IADV & 4 & IELTS Advanced -- high-score XP Listening & Tổng điểm Listening đạt từ 80\% trở lên & Gọi \hspace{0pt}submitListeningPart & Thưởng thêm XP cho high-score \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 5 & IELTS Advanced -- danh sách Reading & Có nhiều Reading parts trong DB & Gọi \hspace{0pt}getReadingParts() & Sắp xếp theo partNumber \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 6 & IELTS Advanced -- chi tiết Reading part & partId không tồn tại & Gọi \hspace{0pt}getReadingPartDetail(partId) & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 5 & IELTS Advanced -- danh sách Reading & Có nhiều Reading parts trong DB & Gọi \hspace{0pt}get\allowbreak{}Reading\allowbreak{}Parts\allowbreak{}() & Sắp xếp theo partNumber \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 6 & IELTS Advanced -- chi tiết Reading part & partId không tồn tại & Gọi \hspace{0pt}get\allowbreak{}Reading\allowbreak{}Part\allowbreak{}Detail\allowbreak{}(partId) & Throw Not\allowbreak{}Found\allowbreak{}Exception \\ \hline
     \hspace{0pt}TC\_\allowbreak{}IADV & 7 & IELTS Advanced -- submit Reading & User submit đáp án Reading & Gọi \hspace{0pt}submitReadingPart & Đánh giá đúng, award reading achievements \\ \hline
     \hspace{0pt}TC\_\allowbreak{}IADV & 8 & IELTS Advanced -- danh sách Writing prompts & Có nhiều writing prompts trong DB & Gọi \hspace{0pt}getWritingPrompts (phân trang) & Trả danh sách prompts kèm best score mapping \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 9 & IELTS Advanced -- chi tiết Writing prompt & User có active session và lịch sử bài viết & Gọi \hspace{0pt}getWritingPromptDetail(promptId) & Trả chi tiết prompt cùng active session và history \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 10 & IELTS Advanced -- tạo Writing session & User đã có session IN\_PROGRESS & Gọi \hspace{0pt}createWritingSession & Trả session đang có, không tạo session mới \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 11 & IELTS Advanced -- tạo Writing session & User chưa có session đang chạy & Gọi \hspace{0pt}createWritingSession & Tạo session mới \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 9 & IELTS Advanced -- chi tiết Writing prompt & User có active session và lịch sử bài viết & Gọi \hspace{0pt}get\allowbreak{}Writing\allowbreak{}Prompt\allowbreak{}Detail\allowbreak{}(promptId) & Trả chi tiết prompt cùng active session và history \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 10 & IELTS Advanced -- tạo Writing session & User đã có session IN\_\allowbreak{}PROGRESS & Gọi \hspace{0pt}create\allowbreak{}Writing\allowbreak{}Session & Trả session đang có, không tạo session mới \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 11 & IELTS Advanced -- tạo Writing session & User chưa có session đang chạy & Gọi \hspace{0pt}create\allowbreak{}Writing\allowbreak{}Session & Tạo session mới \\ \hline
     \hspace{0pt}TC\_\allowbreak{}IADV & 12 & IELTS Advanced -- lưu draft Writing & Session đang active & Gọi \hspace{0pt}saveWritingDraft & Cập nhật draft của session đang active \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 13 & IELTS Advanced -- lưu draft Writing & Session không active hoặc không tồn tại & Gọi \hspace{0pt}saveWritingDraft & Throw NotFoundException \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 14 & IELTS Advanced -- submit Writing & User submit bài Writing & Gọi \hspace{0pt}submitWritingSession & Status chuyển sang GRADING, publish task lên RabbitMQ cho AI worker \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 15 & IELTS Advanced -- tạo Speaking session & User chưa hoặc đang có session & Gọi \hspace{0pt}createSpeakingSession & Tạo mới hoặc trả session đang chạy \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 16 & IELTS Advanced -- submit Speaking & Không có audio answer nào được upload & Gọi \hspace{0pt}submitSpeakingSession & Fail / từ chối submit \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 17 & IELTS Advanced -- submit Speaking & Có đầy đủ audio answers hợp lệ & Gọi \hspace{0pt}submitSpeakingSession & Lưu answers, publish task AI cho RabbitMQ \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 18 & IELTS Advanced -- thống kê & User có nhiều session đã hoàn thành & Gọi \hspace{0pt}getStatistics(userId) & Tổng hợp điểm đúng qua các session \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 19 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user yêu cầu & Gọi \hspace{0pt}getHistoryDetail(sessionId, userId) & Trả chi tiết session Listening \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}IADV & 20 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user khác & Gọi \hspace{0pt}getHistoryDetail(sessionId, otherUserId) & Throw NotFoundException (bảo vệ ownership) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 13 & IELTS Advanced -- lưu draft Writing & Session không active hoặc không tồn tại & Gọi \hspace{0pt}saveWritingDraft & Throw Not\allowbreak{}Found\allowbreak{}Exception \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 14 & IELTS Advanced -- submit Writing & User submit bài Writing & Gọi \hspace{0pt}submit\allowbreak{}Writing\allowbreak{}Session & Status chuyển sang GRADING, publish task lên RabbitMQ cho AI worker \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 15 & IELTS Advanced -- tạo Speaking session & User chưa hoặc đang có session & Gọi \hspace{0pt}create\allowbreak{}Speaking\allowbreak{}Session & Tạo mới hoặc trả session đang chạy \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 16 & IELTS Advanced -- submit Speaking & Không có audio answer nào được upload & Gọi \hspace{0pt}submit\allowbreak{}Speaking\allowbreak{}Session & Fail / từ chối submit \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 17 & IELTS Advanced -- submit Speaking & Có đầy đủ audio answers hợp lệ & Gọi \hspace{0pt}submit\allowbreak{}Speaking\allowbreak{}Session & Lưu answers, publish task AI cho RabbitMQ \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 18 & IELTS Advanced -- thống kê & User có nhiều session đã hoàn thành & Gọi \hspace{0pt}get\allowbreak{}Statistics\allowbreak{}(userId) & Tổng hợp điểm đúng qua các session \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 19 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user yêu cầu & Gọi \hspace{0pt}get\allowbreak{}History\allowbreak{}Detail\allowbreak{}(sessionId, userId) & Trả chi tiết session Listening \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}IADV & 20 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user khác & Gọi \hspace{0pt}get\allowbreak{}History\allowbreak{}Detail\allowbreak{}(sessionId, otherUserId) & Throw Not\allowbreak{}Found\allowbreak{}Exception (bảo vệ ownership) \\ \hline
 
     % Nhóm TC_EXAM — Submit bài thi IELTS Intensive (6 case)
-    \hspace{0pt}TC\_\allowbreak{}EXAM & 1 & Submit bài thi IELTS Intensive & User có session IN\_PROGRESS (WRITING), còn quota & POST /exams/sessions/:id/submit hợp lệ & 201, status = SUBMITTED, publishGradingTask được gọi đúng 1 lần kèm đúng payload \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}EXAM & 1 & Submit bài thi IELTS Intensive & User có session IN\_\allowbreak{}PROGRESS (WRITING), còn quota & POST /exams\allowbreak{}/sessions\allowbreak{}/:id\allowbreak{}/submit hợp lệ & 201, status = SUBMITTED, publishGradingTask được gọi đúng 1 lần kèm đúng payload \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EXAM & 2 & Submit bài thi IELTS Intensive & Session đã ở trạng thái GRADED & POST submit lại session đã chấm xong & 400 ``Session already graded'' \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EXAM & 3 & Submit bài thi IELTS Intensive & sessionId thuộc user khác & POST submit với JWT của user khác & 403 Access denied \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}EXAM & 4 & Submit bài thi IELTS Intensive & Quota AI\_WRITING\_GRADING vượt giới hạn gói FREE & POST submit khi đã hết quota tháng & 403 QUOTA\_EXCEEDED \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}EXAM & 4 & Submit bài thi IELTS Intensive & Quota AI\_\allowbreak{}WRITING\_\allowbreak{}GRADING vượt giới hạn gói FREE & POST submit khi đã hết quota tháng & 403 QUOTA\_\allowbreak{}EXCEEDED \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EXAM & 5 & Submit bài thi IELTS Intensive & Không có JWT token & POST submit không có header Authorization & 401 Unauthorized \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EXAM & 6 & Submit bài thi IELTS Intensive & sessionId không tồn tại & POST submit với sessionId sai & 404 Not Found \\ \hline
 
     % Nhóm TC_CB — Result callback từ AI worker (4 case)
     \hspace{0pt}TC\_\allowbreak{}CB & 1 & Callback chấm AI & AI worker hoàn tất grading, gửi callback với HMAC signature đúng & POST callback với signature hợp lệ & 200 OK, lưu IeltsIntensiveResult, session.status = GRADED \\ \hline
     \hspace{0pt}TC\_\allowbreak{}CB & 2 & Callback chấm AI & Signature không khớp HMAC & POST callback với signature giả mạo & 401 Unauthorized, KHÔNG ghi vào DB \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}CB & 3 & Callback chấm AI & Session đã ở trạng thái GRADING\_FAILED & POST callback với cùng sessionId & 200 OK (idempotent), result không bị ghi đè \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}CB & 3 & Callback chấm AI & Session đã ở trạng thái GRADING\_\allowbreak{}FAILED & POST callback với cùng sessionId & 200 OK (idempotent), result không bị ghi đè \\ \hline
     \hspace{0pt}TC\_\allowbreak{}CB & 4 & Callback chấm AI & Body thiếu totalScore và feedback & POST callback với payload không đủ trường & 400 Bad Request \\ \hline
 
     % Nhóm TC_RES — Polling kết quả chấm AI (6 case)
@@ -560,35 +560,35 @@ Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integr
     \hspace{0pt}TC\_\allowbreak{}RES & 3 & Polling kết quả chấm & sessionId thuộc user khác & GET /results/:sessionId với JWT user khác & 404 (không tiết lộ existence) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}RES & 4 & Polling kết quả chấm & sessionId không tồn tại & GET /results/:sessionId với id sai & 404 Not Found \\ \hline
     \hspace{0pt}TC\_\allowbreak{}RES & 5 & Polling kết quả chấm & Không có JWT token & GET /results/:sessionId không kèm token & 401 Unauthorized \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}RES & 6 & Polling kết quả chấm & Session ở GRADING\_FAILED & GET /results/:sessionId & 200, trả \{status: ``GRADING\_FAILED'', error: string\} \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}RES & 6 & Polling kết quả chấm & Session ở GRADING\_\allowbreak{}FAILED & GET /results/:sessionId & 200, trả \{status: ``GRADING\_\allowbreak{}FAILED'', error: string\} \\ \hline
 
     % Nhóm TC_SUB — Subscription, VNPay IPN và cron downgrade (13 case)
-    \hspace{0pt}TC\_\allowbreak{}SUB & 1 & VNPay IPN -- checksum sai & vnp\_SecureHash sai (HMAC không khớp) & GET /subscriptions/webhook/vnpay với hash sai & RspCode ``97'' (Fail checksum) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SUB & 1 & VNPay IPN -- checksum sai & vnp\_SecureHash sai (HMAC không khớp) & GET /subscriptions\allowbreak{}/webhook\allowbreak{}/vnpay với hash sai & RspCode ``97'' (Fail checksum) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}SUB & 2 & VNPay IPN -- thanh toán thành công & ResponseCode = 00, HMAC đúng & GET webhook payment thành công & payment status = ``succeeded'', subscription nâng lên PREMIUM \\ \hline
     \hspace{0pt}TC\_\allowbreak{}SUB & 3 & VNPay IPN -- user hủy giao dịch & vnp\_ResponseCode = 24 (user hủy) & GET webhook cancel & RspCode ``00'' non-success, payment.create KHÔNG được gọi \\ \hline
     \hspace{0pt}TC\_\allowbreak{}SUB & 4 & VNPay IPN -- replay & Session đã xóa, payment đã tồn tại & GET webhook lại với cùng TxnRef & RspCode ``02'', KHÔNG double-credit \\ \hline
     \hspace{0pt}TC\_\allowbreak{}SUB & 5 & VNPay IPN -- thiếu TxnRef & Payload thiếu vnp\_TxnRef & GET webhook & RspCode ``99'' (Missing txnRef) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SUB & 6 & Subscriptions\allowbreak{}Service -- startTrial & User chưa từng dùng trial & Gọi \hspace{0pt}startTrial(userId) & Tạo subscription TRIALING, endDate xấp xỉ now cộng 7 ngày \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SUB & 7 & Subscriptions\allowbreak{}Service -- startTrial & trialUsed = true & Gọi \hspace{0pt}startTrial(userId) & Throw BadRequestException ``already used'' \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SUB & 8 & Subscriptions\allowbreak{}Service -- cancel & User đang ở gói FREE & Gọi \hspace{0pt}cancelSubscription(userId) & Throw BadRequestException \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SUB & 9 & Subscriptions\allowbreak{}Service -- cancel & User đang ở gói PREMIUM & Gọi \hspace{0pt}cancelSubscription(userId) & status = CANCELED, gọi paymentProvider.cancelSubscription \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SUB & 10 & Subscriptions\allowbreak{}Service -- incrementUsage & Còn quota AI\_WRITING\_GRADING & Gọi \hspace{0pt}incrementUsage(AI\_WRITING\_GRADING) & Trả về true, count tăng thêm 1 \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}SUB & 11 & Subscriptions\allowbreak{}Service -- incrementUsage & Đã vượt quota & Gọi \hspace{0pt}incrementUsage(AI\_WRITING\_GRADING) & Trả về false, count bị rollback \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SUB & 6 & Subscriptions\allowbreak{}Service -- startTrial & User chưa từng dùng trial & Gọi \hspace{0pt}start\allowbreak{}Trial\allowbreak{}(userId) & Tạo subscription TRIALING, endDate xấp xỉ now cộng 7 ngày \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SUB & 7 & Subscriptions\allowbreak{}Service -- startTrial & trialUsed = true & Gọi \hspace{0pt}start\allowbreak{}Trial\allowbreak{}(userId) & Throw Bad\allowbreak{}Request\allowbreak{}Exception ``already used'' \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SUB & 8 & Subscriptions\allowbreak{}Service -- cancel & User đang ở gói FREE & Gọi \hspace{0pt}cancel\allowbreak{}Subscription\allowbreak{}(userId) & Throw Bad\allowbreak{}Request\allowbreak{}Exception \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SUB & 9 & Subscriptions\allowbreak{}Service -- cancel & User đang ở gói PREMIUM & Gọi \hspace{0pt}cancel\allowbreak{}Subscription\allowbreak{}(userId) & status = CANCELED, gọi paymentProvider\allowbreak{}.cancel\allowbreak{}Subscription \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SUB & 10 & Subscriptions\allowbreak{}Service -- increment\allowbreak{}Usage & Còn quota AI\_\allowbreak{}WRITING\_\allowbreak{}GRADING & Gọi \hspace{0pt}increment\allowbreak{}Usage\allowbreak{}(AI\_\allowbreak{}WRITING\_\allowbreak{}GRADING) & Trả về true, count tăng thêm 1 \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}SUB & 11 & Subscriptions\allowbreak{}Service -- increment\allowbreak{}Usage & Đã vượt quota & Gọi \hspace{0pt}increment\allowbreak{}Usage\allowbreak{}(AI\_\allowbreak{}WRITING\_\allowbreak{}GRADING) & Trả về false, count bị rollback \\ \hline
     \hspace{0pt}TC\_\allowbreak{}SUB & 12 & Subscriptions Cron -- downgrade & Subscription quá endDate cộng 3 ngày grace period & Cron 2:00 AM chạy & Downgrade về FREE \\ \hline
     \hspace{0pt}TC\_\allowbreak{}SUB & 13 & Subscriptions Cron -- downgrade & Trong grace period (endDate nhỏ hơn now, dưới 3 ngày) & Cron chạy & KHÔNG downgrade, giữ trạng thái \\ \hline
 
     % Nhóm TC_EDGE — Edge case pagination (8 case)
     \hspace{0pt}TC\_\allowbreak{}EDGE & 1 & Notifications pagination & User đã đăng nhập & GET /notifications?page=0 & 200 (ParseInt không reject 0) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EDGE & 2 & Notifications pagination & Như trên & GET /notifications?page=-1 & 200 (ParseInt chấp nhận số âm, không có @Min) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}EDGE & 3 & Notifications pagination & Như trên & GET /notifications?limit=10000 & 200 (không có cap maxLimit) \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}EDGE & 4 & Notifications pagination & Như trên & GET /notifications?cursor=not-a-valid-uuid & 200 (notifications không có cursor param, bị whitelist drop) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}EDGE & 3 & Notifications pagination & Như trên & GET /notifications\allowbreak{}?limit=10000 & 200 (không có cap maxLimit) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}EDGE & 4 & Notifications pagination & Như trên & GET /notifications\allowbreak{}?cursor=not-a-valid-uuid & 200 (notifications không có cursor param, bị whitelist drop) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EDGE & 5 & Notifications pagination & Như trên & GET /notifications không có query param & 200, DefaultValuePipe gán page=1, limit=20 \\ \hline
-    \hspace{0pt}TC\_\allowbreak{}EDGE & 6 & Notifications pagination & Như trên & GET /notifications?limit=0 & 200 (ParseInt chấp nhận 0, không có @Min(1)) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}EDGE & 6 & Notifications pagination & Như trên & GET /notifications\allowbreak{}?limit=0 & 200 (ParseInt chấp nhận 0, không có @Min(1)) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EDGE & 7 & Notifications empty & User không có notification nào trong DB & GET /notifications & 200, trả \{notifications: [], total: 0\}, KHÔNG throw 404 \\ \hline
     \hspace{0pt}TC\_\allowbreak{}EDGE & 8 & Posts cursor pagination & cursor đúng định dạng UUID nhưng không tồn tại & GET /posts?cursor=uuid-không-tồn-tại & 200, trả \{items: []\} \\ \hline
 
     % Nhóm TC_BOUND — Boundary value (8 case)
-    \hspace{0pt}TC\_\allowbreak{}BOUND & 1 & Pronunciation score boundary & User đăng nhập & POST /pronunciation/progress với score = 0 & 201 (lower boundary, @Min(0) pass) \\ \hline
+    \hspace{0pt}TC\_\allowbreak{}BOUND & 1 & Pronunciation score boundary & User đăng nhập & POST /pronunciation\allowbreak{}/progress với score = 0 & 201 (lower boundary, @Min(0) pass) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}BOUND & 2 & Pronunciation score boundary & User đăng nhập & POST với score = 100 & 201 (upper boundary hợp lệ) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}BOUND & 3 & Pronunciation score boundary & User đăng nhập & POST với score = 101 & 201 (over max, hiện tại pass vì DTO thiếu @Max(100), khe hở đã ghi nhận) \\ \hline
     \hspace{0pt}TC\_\allowbreak{}BOUND & 4 & Pronunciation score boundary & User đăng nhập & POST với score = -1 & 400 (under @Min(0), ValidationPipe reject) \\ \hline
@@ -649,5 +649,5 @@ Sau khi hoàn thiện hệ thống, toàn bộ 207 test case unit/integration c�
     16 & E2E xác thực (toàn bộ chu trình) & 12 & 12 & 0 & 100\% & Auto (Jest) & 20/05/2026 \\ \hline
 \end{longtable}
 
-Kết quả này khẳng định backend-core hiện đáp ứng đầy đủ các yêu cầu nghiệp vụ đã đặc tả ở chương~3, đồng thời đảm bảo các ràng buộc bảo mật (IDOR, JWT lifecycle), tính nhất quán cấp cơ sở dữ liệu (unique email, ownership deck/note/post) và tính chính xác của các luồng tích hợp ngoài như VNPay IPN và AI grading callback. Năm khe hở nhỏ được phát hiện trong quá trình kiểm thử (TC\_JWT\_04, TC\_JWT\_05, TC\_BOUND\_03, TC\_BOUND\_08, TC\_SEC\_08) là các trường hợp test hiện đạt PASS theo hành vi mặc định nhưng đã ghi nhận điểm cần cải thiện cho phiên bản kế tiếp -- chi tiết được nêu trong cột ``Kết quả mong muốn'' của các test case tương ứng ở bảng~\ref{tab:testcase_list}.
+Kết quả này khẳng định backend-core hiện đáp ứng đầy đủ các yêu cầu nghiệp vụ đã đặc tả ở chương~3, đồng thời đảm bảo các ràng buộc bảo mật (IDOR, JWT lifecycle), tính nhất quán cấp cơ sở dữ liệu (unique email, ownership deck/note/post) và tính chính xác của các luồng tích hợp ngoài như VNPay IPN và AI grading callback. Năm khe hở nhỏ được phát hiện trong quá trình kiểm thử (TC\_\allowbreak{}JWT\_04, TC\_\allowbreak{}JWT\_05, TC\_\allowbreak{}BOUND\_03, TC\_\allowbreak{}BOUND\_08, TC\_\allowbreak{}SEC\_08) là các trường hợp test hiện đạt PASS theo hành vi mặc định nhưng đã ghi nhận điểm cần cải thiện cho phiên bản kế tiếp -- chi tiết được nêu trong cột ``Kết quả mong muốn'' của các test case tương ứng ở bảng~\ref{tab:testcase_list}.
 
