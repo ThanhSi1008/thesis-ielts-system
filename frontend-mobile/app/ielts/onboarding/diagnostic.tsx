@@ -175,7 +175,7 @@ export default function DiagnosticScreen() {
     const fetchPlacement = async () => {
       try {
         const res = await ieltsProfileApi.getPlacementExercises();
-        setExercises(res.data);
+        setExercises(res);
       } catch (err) {
         console.error('Failed to load placement exercises:', err);
         Alert.alert('Error', 'Could not load diagnostic test. Please check your connection.');

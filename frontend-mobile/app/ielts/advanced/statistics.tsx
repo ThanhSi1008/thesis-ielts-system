@@ -946,6 +946,67 @@ const chartStyles = StyleSheet.create({
   },
 });
 
+const donutStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: SPACING.md,
+  },
+  donutContainer: {
+    width: 120,
+    height: 120,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerLabel: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overallPctText: {
+    fontSize: FONT_SIZES.md,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+  },
+  overallSubText: {
+    fontSize: 9,
+    fontFamily: FONTS.semibold,
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
+  legendContainer: {
+    flex: 1,
+    paddingLeft: SPACING.lg,
+    gap: SPACING.xs,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+  },
+  colorIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  legendTextContainer: {
+    flex: 1,
+  },
+  legendLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONTS.semibold,
+    color: COLORS.text,
+  },
+  legendStats: {
+    fontSize: 10,
+    fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
+  },
+});
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: {
