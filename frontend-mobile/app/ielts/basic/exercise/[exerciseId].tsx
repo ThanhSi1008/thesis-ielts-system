@@ -19,6 +19,7 @@ import { apiClient } from '@/services/api-client';
 import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import Markdown from 'react-native-markdown-display';
 import { ContentGroupView } from '@/components/ielts/exercise/ContentGroupView';
+import { TextWithLookup } from '@/components/global/TextWithLookup';
 
 /* ─── Mobile-friendly Markdown Table Override ─── */
 function buildMarkdownRules(): any {
@@ -28,9 +29,7 @@ function buildMarkdownRules(): any {
       // Ta replace nó thành \n ở bước render này để không làm vỡ cấu trúc Markdown Table lúc parse.
       const content = (node.content || '').replace(/<br\s*\/?>/gi, '\n');
       return (
-        <Text key={node.key} style={styles.text}>
-          {content}
-        </Text>
+        <TextWithLookup key={node.key} style={styles.text} content={content} />
       );
     },
     image: (node: any) => (
@@ -503,7 +502,7 @@ export default function ExerciseViewerScreen() {
         {exercise.passage && (
           <View style={styles.passageBox}>
             <Text style={styles.passageLabel}>📖 Passage</Text>
-            <Text style={styles.passageText}>{exercise.passage}</Text>
+            <TextWithLookup style={styles.passageText} content={exercise.passage} />
           </View>
         )}
 
