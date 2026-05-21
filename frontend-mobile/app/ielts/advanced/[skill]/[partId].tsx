@@ -209,7 +209,7 @@ export default function AdvancedPartScreen() {
   const [showTranscript, setShowTranscript] = useState(false);
 
   const isListening = skill === 'listening';
-  const accentColor = isListening ? '#E11D48' : '#2563EB';
+  const accentColor = isListening ? COLORS.skill.listening : COLORS.skill.reading;
 
   useEffect(() => {
     const load = async () => {

@@ -118,7 +118,7 @@ export default function PartHistoryScreen() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const isListening = skill === 'listening';
-  const accentColor = isListening ? '#E11D48' : '#2563EB';
+  const accentColor = isListening ? COLORS.skill.listening : COLORS.skill.reading;
 
   const load = useCallback(async () => {
     setLoadError(null);

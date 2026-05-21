@@ -151,7 +151,7 @@ export default function AdvancedResultScreen() {
   }
 
   const isListening = skill === 'listening';
-  const accentColor = isListening ? '#E11D48' : '#2563EB';
+  const accentColor = isListening ? COLORS.skill.listening : COLORS.skill.reading;
 
   const totalScore: number = result.totalScore ?? 0;
   const totalQuestions: number = result.totalQuestions ?? 0;
