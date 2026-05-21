@@ -539,7 +539,7 @@
 - [x] **P17-08** · Refactor `app/(tabs)/community.tsx` · *est. 1h* — ✅ done
 - [x] **P17-09** · Refactor `app/(tabs)/profile.tsx` · *est. 1h* — ✅ done
 - [x] **P17-10** · Refactor `app/(tabs)/_layout.tsx` (tab bar) · *est. 0.5h* — ✅ done
-- [~] **P17-11** · Refactor `app/ielts/intensive/*` (3 file) · *est. 2h* — Partial: index.tsx done; advanced/index.tsx, advanced/custom.tsx done
+- [x] **P17-11** · Refactor `app/ielts/intensive/*` (3 file) · *est. 2h* — ✅ done: index.tsx, custom.tsx, [examId].tsx, result/[sessionId].tsx all refactored with dynamic `createStyles` factory pattern
 - [~] **P17-12** · Refactor `app/ielts/advanced/*` (6 file mới + 2 cũ) · *est. 2h* — Partial: roadmap.tsx, dashboard.tsx done
 - [x] **P17-13** · Refactor `app/ielts/basic/*` · *est. 1.5h* — ✅ done (lesson + exercise refactored)
 - [~] **P17-14** · Refactor `app/vocab-lab/*` · *est. 1h* — Partial: DecksTab done

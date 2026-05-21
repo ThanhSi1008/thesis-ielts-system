@@ -72,6 +72,7 @@ function MCQQuestion({
   onAnswer: (key: string, value: string) => void;
 }) {
   const { colors, isDark } = useTheme();
+  const qStyles = createQStyles(colors, isDark);
   // Normalise options
   const rawOptions = q.options;
   const optionEntries: { letter: string; label: string }[] =
@@ -176,7 +177,8 @@ function FillQuestion({
   answer: string;
   onAnswer: (v: string) => void;
 }) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const qStyles = createQStyles(colors, isDark);
   const questionText = q.question_text || q.question || q.text || '';
   const contextNote = q.note || q.additional_info || q.context || null;
   const qNums: string[] = q.question_numbers
@@ -207,71 +209,71 @@ function FillQuestion({
   );
 }
 
-const qStyles = StyleSheet.create({
+const createQStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   block: {
     marginBottom: SPACING.xl,
     padding: SPACING.lg,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   qNumber: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   multiHint: {
     fontSize: FONT_SIZES.xs,
-    color: '#D97706',
+    color: isDark ? '#fbbf24' : '#D97706',
     fontWeight: '600',
     marginBottom: SPACING.sm,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: isDark ? 'rgba(217, 119, 6, 0.15)' : '#FEF3C7',
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 99,
   },
-  qText: { fontSize: FONT_SIZES.md, color: COLORS.text, marginBottom: SPACING.md, lineHeight: 22 },
+  qText: { fontSize: FONT_SIZES.md, color: colors.text, marginBottom: SPACING.md, lineHeight: 22 },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: SPACING.md,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     marginBottom: SPACING.sm,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
   },
-  optionSelected: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + '12' },
+  optionSelected: { borderColor: colors.primary, backgroundColor: colors.primary + '18' },
   optionBullet: {
     width: 28,
     height: 28,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
   },
-  optionBulletSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  optionBulletSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
   // Checkbox variant for multi-select
   optionBulletMulti: { borderRadius: 6 },
-  optionBulletMultiSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  optionLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },
-  optionText: { flex: 1, fontSize: FONT_SIZES.md, color: COLORS.text },
-  optionTextSelected: { color: COLORS.primary, fontWeight: '600' },
+  optionBulletMultiSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  optionLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm, color: colors.textSecondary },
+  optionText: { flex: 1, fontSize: FONT_SIZES.md, color: colors.text },
+  optionTextSelected: { color: colors.primary, fontWeight: '600' },
   input: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: RADIUS.md,
     padding: SPACING.md,
     fontSize: FONT_SIZES.md,
-    color: COLORS.text,
+    color: colors.text,
   },
   contextNote: {
     flexDirection: 'row',
@@ -279,46 +281,46 @@ const qStyles = StyleSheet.create({
     gap: 4,
     marginBottom: SPACING.sm,
     padding: SPACING.sm,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.sm,
     borderWidth: 1,
-    borderColor: COLORS.border + '60',
+    borderColor: colors.border + '80',
   },
   contextNoteText: {
     flex: 1,
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 18,
   },
   sectionBlock: { marginBottom: SPACING.lg },
   sectionHeading: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: SPACING.sm,
     paddingBottom: 4,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border + '60',
+    borderBottomColor: colors.border + '60',
   },
   sectionText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 22,
     marginBottom: SPACING.md,
   },
   // Word bank (options_box) for Summary/Note Completion
   optionsBox: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     marginBottom: SPACING.lg,
   },
   optionsBoxTitle: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '800',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: SPACING.sm,
@@ -328,33 +330,33 @@ const qStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.sm,
     paddingVertical: 4,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
-  optionsBoxLetter: { fontSize: FONT_SIZES.xs, fontWeight: '800', color: COLORS.primary },
-  optionsBoxText: { fontSize: FONT_SIZES.xs, color: COLORS.text },
+  optionsBoxLetter: { fontSize: FONT_SIZES.xs, fontWeight: '800', color: colors.primary },
+  optionsBoxText: { fontSize: FONT_SIZES.xs, color: colors.text },
   // Passage context wrap
   passageContextWrap: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: isDark ? colors.surface : '#F8F9FA',
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.border,
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.primary + '80',
+    borderLeftColor: colors.primary + '80',
     padding: SPACING.md,
     marginBottom: SPACING.lg,
   },
   passageContextText: {
     fontSize: FONT_SIZES.sm,
-    color: '#374151',
+    color: colors.text,
     lineHeight: 26,
   },
   blankBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     color: '#fff',
     fontWeight: '800',
     fontSize: 11,
@@ -368,10 +370,10 @@ const qStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
   },
@@ -379,26 +381,26 @@ const qStyles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 8,
-    backgroundColor: COLORS.primary + '18',
+    backgroundColor: colors.primary + '18',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
-  summaryQBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800', color: COLORS.primary },
+  summaryQBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800', color: colors.primary },
   summaryAnswerInput: {
     flex: 1,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
+    color: colors.text,
     paddingVertical: 4,
     borderBottomWidth: 1.5,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   // Selector chip (word-bank per-blank row)
   selectorRow: {
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
+    borderColor: colors.border,
+    backgroundColor: colors.card,
     marginBottom: SPACING.sm,
     overflow: 'hidden',
   },
@@ -410,13 +412,13 @@ const qStyles = StyleSheet.create({
     paddingVertical: SPACING.md,
   },
   selectorChipLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flex: 1 },
-  selectorChipFilled: { backgroundColor: COLORS.primary + '08' },
-  selectorChipLabel: { fontSize: FONT_SIZES.sm, color: COLORS.text },
-  selectorChipValue: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.primary },
-  selectorChipPlaceholder: { fontSize: FONT_SIZES.sm, color: '#94A3B8' },
+  selectorChipFilled: { backgroundColor: colors.primary + '08' },
+  selectorChipLabel: { fontSize: FONT_SIZES.sm, color: colors.text },
+  selectorChipValue: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.primary },
+  selectorChipPlaceholder: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
   selectorList: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.border + '60',
+    borderTopColor: colors.border + '60',
     maxHeight: 220,
   },
   selectorListItem: {
@@ -426,21 +428,33 @@ const qStyles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border + '40',
+    borderBottomColor: colors.border + '40',
   },
-  selectorListItemActive: { backgroundColor: COLORS.primary + '10' },
+  selectorListItemActive: { backgroundColor: colors.primary + '10' },
   selectorListLetter: {
     width: 28,
     height: 28,
     borderRadius: 6,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: isDark ? colors.surface : '#EFF6FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  selectorListLetterActive: { backgroundColor: COLORS.primary },
-  selectorListLetterText: { fontSize: 13, fontWeight: '800', color: COLORS.primary },
+  selectorListLetterActive: { backgroundColor: colors.primary },
+  selectorListLetterText: { fontSize: 13, fontWeight: '800', color: colors.primary },
   selectorListLetterTextActive: { color: '#fff' },
-  selectorListText: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text },
+  selectorListText: { flex: 1, fontSize: FONT_SIZES.sm, color: colors.text },
+  // instructions banner (Note/Form completion groups)
+  instructions: {
+    fontSize: FONT_SIZES.sm,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    marginBottom: SPACING.md,
+    padding: SPACING.md,
+    backgroundColor: isDark ? colors.surface : '#FFF9C4',
+    borderRadius: RADIUS.md,
+    borderLeftWidth: 3,
+    borderLeftColor: isDark ? colors.border : colors.warning,
+  },
 });
 
 // ─── Summary Completion sub-components ───────────────────────────────────────
@@ -464,6 +478,7 @@ function SummaryBlankSelector({
   onClear: () => void;
 }) {
   const { colors, isDark } = useTheme();
+  const qStyles = createQStyles(colors, isDark);
   const [open, setOpen] = React.useState(false);
   const filled = !!value;
   const usedLetters = new Set(Object.values(answers).filter((v) => v && v !== value));
@@ -582,6 +597,7 @@ function renderGroup(
   isDark?: boolean,
 ) {
   const type = group.question_type ?? group.type ?? 'fill';
+  const qStyles = createQStyles(colors ?? {}, isDark ?? false);
   // Key: p{partIdx}-g{groupIdx}-{type} — always unique across parts & groups
   const baseKey = `p${partIdx}-g${groupIdx}-${type}`;
 
@@ -752,12 +768,7 @@ function renderGroup(
       {group.instructions && (
         <Text
           style={[
-            styles.instructions,
-            colors && {
-              backgroundColor: isDark ? colors.surface : '#FFF9C4',
-              color: colors.textSecondary,
-              borderLeftColor: isDark ? colors.border : colors.warning,
-            },
+            qStyles.instructions,
           ]}
         >
           {group.instructions}
@@ -946,6 +957,7 @@ function QuestionNavigatorDrawer({
   onSelect: (n: number) => void;
 }) {
   const { colors, isDark } = useTheme();
+  const nav = createNavStyles(colors, isDark);
   const slideAnim = useRef(new Animated.Value(DRAWER_HEIGHT)).current;
 
   useEffect(() => {
@@ -1025,7 +1037,7 @@ function QuestionNavigatorDrawer({
   );
 }
 
-const nav = StyleSheet.create({
+const createNavStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 90 },
   sheet: {
     position: 'absolute',
@@ -1033,7 +1045,7 @@ const nav = StyleSheet.create({
     left: 0,
     right: 0,
     height: DRAWER_HEIGHT,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     zIndex: 100,
@@ -1049,7 +1061,7 @@ const nav = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#D1D5DB',
+    backgroundColor: isDark ? colors.border : '#D1D5DB',
     alignSelf: 'center',
     marginTop: 12,
     marginBottom: 8,
@@ -1060,25 +1072,25 @@ const nav = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: SPACING.md,
   },
-  sheetTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
+  sheetTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
   legend: { flexDirection: 'row', gap: SPACING.md },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   dot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { fontSize: 10, color: COLORS.textSecondary },
+  legendText: { fontSize: 10, color: colors.textSecondary },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 8 },
   cell: {
     width: 44,
     height: 44,
     borderRadius: RADIUS.md,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: isDark ? colors.surface : '#F3F4F6',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: isDark ? colors.border : '#E5E7EB',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cellAnswered: { backgroundColor: COLORS.primary + '18', borderColor: COLORS.primary },
-  cellText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textMuted },
-  cellTextAnswered: { color: COLORS.primary },
+  cellAnswered: { backgroundColor: colors.primary + '18', borderColor: colors.primary },
+  cellText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.textMuted },
+  cellTextAnswered: { color: colors.primary },
 });
 
 // ─── Main Exam Player ─────────────────────────────────────────────────────────
@@ -1087,6 +1099,7 @@ export default function ExamPlayerScreen() {
   const { examId } = useLocalSearchParams<{ examId: string }>();
   const { user } = useAuth();
   const { colors, isDark } = useTheme();
+  const styles = createStyles(colors, isDark);
 
   const [exam, setExam] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
@@ -1730,13 +1743,13 @@ export default function ExamPlayerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  loadingText: { marginTop: SPACING.md, color: COLORS.textSecondary },
-  errorText: { fontSize: FONT_SIZES.lg, color: COLORS.error, marginBottom: SPACING.md },
+const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+  loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
+  errorText: { fontSize: FONT_SIZES.lg, color: colors.error, marginBottom: SPACING.md },
   examHeader: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
@@ -1763,9 +1776,9 @@ const styles = StyleSheet.create({
   },
 
   audioBannerContainer: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: isDark ? colors.surface : '#EEF2FF',
     borderBottomWidth: 1,
-    borderColor: '#C7D2FE',
+    borderColor: isDark ? colors.border : '#C7D2FE',
   },
   audioBanner: {
     flex: 1,
@@ -1778,54 +1791,54 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#C7D2FE',
+    backgroundColor: isDark ? colors.border : '#C7D2FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  audioStatusDotInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#94A3B8' },
+  audioStatusDotInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: isDark ? colors.textMuted : '#94A3B8' },
   audioStatusDotActive: { backgroundColor: '#EF4444' },
-  audioLabel: { flex: 1, fontSize: FONT_SIZES.md, color: COLORS.primary, fontWeight: '600' },
+  audioLabel: { flex: 1, fontSize: FONT_SIZES.md, color: colors.primary, fontWeight: '600' },
   volumeControl: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   volBtn: { padding: 4 },
   volumeTrack: {
     width: 60,
     height: 6,
-    backgroundColor: '#C7D2FE',
+    backgroundColor: isDark ? colors.border : '#C7D2FE',
     borderRadius: 3,
     overflow: 'hidden',
   },
-  volumeFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 3 },
+  volumeFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 3 },
   scrollArea: { flex: 1 },
   partSection: { marginBottom: SPACING.xxl },
   partTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SPACING.lg,
     paddingBottom: SPACING.sm,
     borderBottomWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   passageBox: {
     maxHeight: 220,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
-  passageText: { fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
+  passageText: { fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 20 },
   instructions: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontStyle: 'italic',
     marginBottom: SPACING.md,
     padding: SPACING.md,
-    backgroundColor: '#FFF9C4',
+    backgroundColor: isDark ? colors.surface : '#FFF9C4',
     borderRadius: RADIUS.md,
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.warning,
+    borderLeftColor: isDark ? colors.border : colors.warning,
   },
   submitBar: {
     position: 'absolute',
@@ -1837,34 +1850,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderTopWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 8,
   },
-  answeredCount: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '600' },
+  answeredCount: { fontSize: FONT_SIZES.sm, color: colors.textSecondary, fontWeight: '600' },
   navToggleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: COLORS.primary + '12',
+    backgroundColor: isDark ? colors.surface : colors.primary + '12',
     borderRadius: RADIUS.xl,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderWidth: 1.5,
-    borderColor: COLORS.primary + '30',
+    borderColor: isDark ? colors.border : colors.primary + '30',
   },
-  navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.primary },
+  navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.primary },
   // Listening part tab bar
   listeningPartTabs: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   listeningPartTab: {
     flex: 1,
@@ -1873,16 +1886,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     borderBottomColor: 'transparent',
   },
-  listeningPartTabActive: { borderBottomColor: COLORS.primary },
+  listeningPartTabActive: { borderBottomColor: colors.primary },
   listeningPartTabLabel: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
-  listeningPartTabLabelActive: { color: COLORS.primary },
+  listeningPartTabLabelActive: { color: colors.primary },
 
   // ── Preparation Screen (web-matched) ─────────────────────────────────────
-  prepContainer: { flex: 1, backgroundColor: '#F9FAFB' },
+  prepContainer: { flex: 1, backgroundColor: colors.background },
   prepHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1890,11 +1903,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
+    borderColor: colors.border,
+    backgroundColor: colors.card,
   },
   prepBack: { padding: 4 },
-  prepHeaderTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
+  prepHeaderTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
   prepScroll: { padding: SPACING.lg, paddingBottom: 120 },
 
   // Title section
@@ -1903,7 +1916,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     paddingHorizontal: SPACING.md,
     paddingVertical: 5,
     borderRadius: 99,
@@ -1912,21 +1925,21 @@ const styles = StyleSheet.create({
   prepCamBadgeText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '800',
-    color: '#111',
+    color: colors.text,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
   prepGroupTitle: {
     fontSize: FONT_SIZES.xxl,
     fontWeight: '900',
-    color: '#111',
+    color: colors.text,
     textAlign: 'center',
     lineHeight: 34,
   },
   prepTestTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '600',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 4,
   },
@@ -1935,10 +1948,10 @@ const styles = StyleSheet.create({
 
   // Main card
   prepCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
@@ -1947,12 +1960,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   prepCardLeft: { padding: SPACING.xl, gap: SPACING.md },
-  prepCardDivider: { height: 1, backgroundColor: '#E5E7EB' },
+  prepCardDivider: { height: 1, backgroundColor: colors.border },
   prepCardRight: { padding: SPACING.xl, gap: SPACING.md },
   prepSectionLabel: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '900',
-    color: '#9CA3AF',
+    color: colors.textSecondary,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -1962,17 +1975,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.xl,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
   },
   prepDetailIcon: {
     width: 40,
     height: 40,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
@@ -1980,19 +1993,19 @@ const styles = StyleSheet.create({
   prepDetailMeta: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '700',
-    color: '#9CA3AF',
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
-  prepDetailValue: { fontSize: FONT_SIZES.md, fontWeight: '800', color: '#111', marginTop: 2 },
+  prepDetailValue: { fontSize: FONT_SIZES.md, fontWeight: '800', color: colors.text, marginTop: 2 },
   prepNoticeBox: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.xl,
     padding: SPACING.md,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
   },
-  prepNoticeText: { fontSize: FONT_SIZES.sm, color: '#4B5563', fontWeight: '500', lineHeight: 22 },
+  prepNoticeText: { fontSize: FONT_SIZES.sm, color: colors.textSecondary, fontWeight: '500', lineHeight: 22 },
 
   // Video section
   prepVideoHeader: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
@@ -2002,7 +2015,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     aspectRatio: 16 / 9,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -2012,7 +2025,7 @@ const styles = StyleSheet.create({
   prepVideo: { flex: 1 },
   prepVideoCaption: {
     fontSize: FONT_SIZES.xs,
-    color: '#9CA3AF',
+    color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 18,
   },
@@ -2024,7 +2037,7 @@ const styles = StyleSheet.create({
   },
   prepNoVideoText: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -2032,32 +2045,32 @@ const styles = StyleSheet.create({
   // Chips
   prepChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
   prepChip: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: isDark ? colors.surface : '#F3F4F6',
     borderRadius: 99,
     paddingHorizontal: SPACING.md,
     paddingVertical: 5,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
   },
-  prepChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: '#6B7280' },
+  prepChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: colors.textSecondary },
 
   // Footer
   prepFooter: {
     padding: SPACING.xl,
     borderTopWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
+    borderColor: colors.border,
+    backgroundColor: colors.card,
   },
   prepStartBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 99,
     paddingVertical: SPACING.md,
     paddingLeft: SPACING.xl,
     paddingRight: SPACING.md,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -2068,7 +2081,7 @@ const styles = StyleSheet.create({
   prepStartBtnText: {
     fontSize: FONT_SIZES.md,
     fontWeight: '900',
-    color: '#111',
+    color: '#fff',
     letterSpacing: 0.3,
     textTransform: 'uppercase',
     paddingLeft: SPACING.sm,
@@ -2077,7 +2090,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 99,
-    backgroundColor: '#111',
+    backgroundColor: 'rgba(255,255,255,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
