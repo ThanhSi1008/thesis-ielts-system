@@ -23,6 +23,7 @@ import { SpeakingPartCard } from '@/components/ielts';
 import { EmptyState, FeatureLock } from '@/components/ui/index';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { SpeakingDeviceTest } from '@/components';
+import { useTheme } from '@/contexts/ThemeContext';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 // Enable LayoutAnimation on Android
@@ -40,6 +41,7 @@ const TABS = [
 export default function AdvancedSpeakingIndexScreen() {
   const router = useRouter();
   const { isPremium } = useSubscription();
+  const { colors, isDark } = useTheme();
   const [parts, setParts] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,12 +202,171 @@ export default function AdvancedSpeakingIndexScreen() {
     );
   }
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      marginTop: SPACING.sm,
+      fontFamily: FONTS.medium,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+    },
+    header: {
+      backgroundColor: isDark ? colors.card : COLORS.skill.speaking,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
+    },
+    backBtn: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.lg,
+      fontFamily: FONTS.bold,
+    },
+    rightHeaderContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    headerBtn: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    tabBar: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 3,
+      borderBottomColor: 'transparent',
+    },
+    activeTab: {
+      borderBottomColor: COLORS.skill.speaking,
+    },
+    tabLabel: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.medium,
+      color: colors.textSecondary,
+    },
+    activeTabLabel: {
+      color: COLORS.skill.speaking,
+      fontFamily: FONTS.bold,
+    },
+    statsBanner: {
+      backgroundColor: isDark ? 'rgba(124, 58, 237, 0.1)' : '#FAF5FF',
+      marginHorizontal: SPACING.lg,
+      marginTop: SPACING.md,
+      padding: SPACING.md,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(124, 58, 237, 0.3)' : '#E9D5FF',
+    },
+    statsBannerHeader: {
+      marginBottom: SPACING.md,
+    },
+    statsBannerTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    statsBannerTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 15,
+      color: isDark ? '#C084FC' : '#581C87',
+    },
+    statsBannerSubtitle: {
+      fontFamily: FONTS.regular,
+      fontSize: 11,
+      color: isDark ? '#A78BFA' : '#7B39B9',
+      marginTop: 2,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+    },
+    statBox: {
+      alignItems: 'center',
+      flex: 1,
+    },
+    statVal: {
+      fontFamily: FONTS.bold,
+      fontSize: 18,
+      color: isDark ? '#C084FC' : '#7C3AED',
+    },
+    statLbl: {
+      fontFamily: FONTS.medium,
+      fontSize: 10,
+      color: colors.textSecondary,
+      marginTop: 4,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    statDivider: {
+      width: 1,
+      height: 30,
+      backgroundColor: isDark ? colors.border : '#E9D5FF',
+    },
+    searchRow: {
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.sm,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    searchBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+      borderRadius: RADIUS.md,
+      paddingHorizontal: SPACING.md,
+      height: 40,
+      gap: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    searchInput: {
+      flex: 1,
+      height: '100%',
+      fontFamily: FONTS.regular,
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      padding: 0,
+    },
+    listContent: {
+      padding: SPACING.lg,
+      paddingBottom: 100,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color="#fff" />
+          <Ionicons name="chevron-back" size={22} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Advanced Speaking</Text>
         <View style={styles.rightHeaderContainer}>
@@ -213,13 +374,13 @@ export default function AdvancedSpeakingIndexScreen() {
             style={[styles.headerBtn, { marginRight: 8 }]}
             onPress={handleRetestDevices}
           >
-            <Ionicons name="construct-outline" size={20} color="#fff" />
+            <Ionicons name="construct-outline" size={20} color={isDark ? colors.text : '#fff'} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerBtn}
             onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
           >
-            <Ionicons name="time-outline" size={22} color="#fff" />
+            <Ionicons name="time-outline" size={22} color={isDark ? colors.text : '#fff'} />
           </TouchableOpacity>
         </View>
       </View>
@@ -250,7 +411,7 @@ export default function AdvancedSpeakingIndexScreen() {
         <Animated.View entering={FadeInUp.duration(400)} style={styles.statsBanner}>
           <View style={styles.statsBannerHeader}>
             <View style={styles.statsBannerTitleRow}>
-              <Ionicons name="trophy" size={18} color="#7C3AED" />
+              <Ionicons name="trophy" size={18} color={isDark ? '#C084FC' : '#7C3AED'} />
               <Text style={styles.statsBannerTitle}>Speaking Performance</Text>
             </View>
             <Text style={styles.statsBannerSubtitle}>Calculated from graded practices</Text>
@@ -283,11 +444,11 @@ export default function AdvancedSpeakingIndexScreen() {
       {/* Search Bar */}
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={16} color={COLORS.textMuted} />
+          <Ionicons name="search-outline" size={16} color={colors.textMuted} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search topics or categories..."
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search"
@@ -343,158 +504,3 @@ export default function AdvancedSpeakingIndexScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: SPACING.sm,
-    fontFamily: FONTS.medium,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-  },
-  header: {
-    backgroundColor: COLORS.skill.speaking,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: FONT_SIZES.lg,
-    fontFamily: FONTS.bold,
-  },
-  rightHeaderContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabBar: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#fff',
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: COLORS.skill.speaking,
-  },
-  tabLabel: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONTS.medium,
-    color: COLORS.textSecondary,
-  },
-  activeTabLabel: {
-    color: COLORS.skill.speaking,
-    fontFamily: FONTS.bold,
-  },
-  statsBanner: {
-    backgroundColor: '#FAF5FF',
-    marginHorizontal: SPACING.lg,
-    marginTop: SPACING.md,
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: '#E9D5FF',
-  },
-  statsBannerHeader: {
-    marginBottom: SPACING.md,
-  },
-  statsBannerTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  statsBannerTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 15,
-    color: '#581C87',
-  },
-  statsBannerSubtitle: {
-    fontFamily: FONTS.regular,
-    fontSize: 11,
-    color: '#7B39B9',
-    marginTop: 2,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  statBox: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statVal: {
-    fontFamily: FONTS.bold,
-    fontSize: 18,
-    color: '#7C3AED',
-  },
-  statLbl: {
-    fontFamily: FONTS.medium,
-    fontSize: 10,
-    color: '#6B7280',
-    marginTop: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  statDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: '#E9D5FF',
-  },
-  searchRow: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    height: 40,
-    gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    height: '100%',
-    fontFamily: FONTS.regular,
-    fontSize: FONT_SIZES.sm,
-    color: '#1F2937',
-    padding: 0,
-  },
-  listContent: {
-    padding: SPACING.lg,
-    paddingBottom: 100,
-  },
-});
