@@ -29,6 +29,18 @@ export function CommentSection({
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [likedComments, setLikedComments] = useState<Record<string, boolean>>({});
+  const [mockLikes, setMockLikes] = useState<Record<string, number>>({});
+
+  const toggleLike = (id: string) => {
+    const wasLiked = !!likedComments[id];
+    setLikedComments((prev) => ({ ...prev, [id]: !wasLiked }));
+    setMockLikes((prev) => {
+      const current = prev[id] ?? (id ? id.charCodeAt(0) % 3 : 0);
+      const next = wasLiked ? current - 1 : current + 1;
+      return { ...prev, [id]: Math.max(0, next) };
+    });
+  };
 
   const fetchComments = useCallback(async () => {
     try {
@@ -74,6 +86,8 @@ export function CommentSection({
 
   const renderComment = (c: Comment, isReply = false) => {
     const name = [c.author.firstName, c.author.lastName].filter(Boolean).join(' ') || 'Anonymous';
+    const isLiked = !!likedComments[c.id];
+    const likeCount = mockLikes[c.id] ?? (c.id ? c.id.charCodeAt(0) % 3 : 0);
     return (
       <View key={c.id} style={[styles.commentRow, isReply && { marginLeft: 44, marginTop: 10 }]}>
         <Avatar name={name} avatar={c.author.avatar} size={36} />
@@ -82,8 +96,20 @@ export function CommentSection({
             <Text style={styles.commentAuthor}>{name}</Text>
             <Text style={styles.commentBody}>{c.body}</Text>
           </View>
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 4, marginLeft: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4, marginLeft: 4 }}>
             <Text style={styles.commentTime}>{timeAgo(c.createdAt)}</Text>
+            
+            <TouchableOpacity onPress={() => toggleLike(c.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+              <Ionicons
+                name={isLiked ? 'heart' : 'heart-outline'}
+                size={13}
+                color={isLiked ? '#ef4444' : '#9ca3af'}
+              />
+              <Text style={[styles.commentTime, isLiked && { color: '#ef4444' }]}>
+                {likeCount > 0 ? `${likeCount} ` : ''}Like
+              </Text>
+            </TouchableOpacity>
+
             {!isReply && (
               <TouchableOpacity onPress={() => setReplyTo({ id: c.id, name })}>
                 <Text style={[styles.commentTime, { color: COLORS.primary }]}>Reply</Text>

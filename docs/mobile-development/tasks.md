@@ -377,7 +377,7 @@
 - [x] **P9-03** · Tab "Saved" filter posts đã bookmark · *est. 1.5h*
 - [x] **P9-04** · Image full-screen viewer (`react-native-image-zoom-viewer` đã có dep) · *est. 1.5h*
 - [x] **P9-05** · My-posts filter · *est. 1h*
-- [ ] **P9-06** · Comment thread: reply, like, delete own · *est. 1.5h*
+- [x] **P9-06** · Comment thread: reply, like, delete own · *est. 1.5h*
 - [ ] **P9-07** · Test E2E community: post → comment → leaderboard refresh · *est. 0.5h*
 
 **Tổng phase 9**: 10h
