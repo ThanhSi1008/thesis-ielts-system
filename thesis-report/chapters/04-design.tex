@@ -340,11 +340,11 @@ Hai nhóm Edge case (STT~14) và Security (STT~15) không gắn với một mô-
 
 \subsection{Danh sách các test case}
 
-Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integration của backend-core được trình bày chi tiết trong bảng~\ref{tab:testcase_list}. Bảng có sáu cột: mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Các trường hợp kế thừa từ phiên bản trước (TC01 đến TC11) đại diện cho bảy chức năng cốt lõi -- Đăng ký, Đăng nhập, Đăng bài, Thông báo, Cập nhật thông tin tài khoản, Luyện phát âm và Thống kê IELTS -- được mô tả theo góc nhìn người dùng cuối. Các test case bổ sung sử dụng quy ước đặt mã có dạng TC\_TIỀN-TỐ-MÔ-ĐUN\_SỐ-TRƯỜNG-HỢP và mô tả ở mức kỹ thuật để phản ánh chính xác hành vi mà từng test thực hiện, bao gồm các luồng xác thực mở rộng (TC\_AUTH, TC\_JWT), PronunciationService (TC\_PRO\_S), IELTS Advanced service (TC\_IADV), thuật toán lặp lại ngắt quãng FSRS (TC\_FSRS), gamification (TC\_GAMI), chuỗi học (TC\_STREAK), tiến độ dictation và shadowing (TC\_DCT, TC\_SHD), bài thi IELTS Intensive (TC\_EXAM, TC\_CB, TC\_RES), subscription thanh toán (TC\_SUB), giá trị biên (TC\_BOUND), phân trang bất thường (TC\_EDGE) và bảo mật truy cập chéo (TC\_SEC).
+Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integration của backend-core được trình bày chi tiết trong bảng~\ref{tab:testcase_list}. Bảng có sáu cột: mã định danh, số thứ tự trường hợp, chức năng kiểm tra, tiền điều kiện, tình huống thực hiện và kết quả mong muốn. Tất cả test case đều sử dụng quy ước đặt mã thống nhất dạng TC\_TIỀN-TỐ-MÔ-ĐUN\_SỐ-NHÓM và mô tả ở mức kỹ thuật, bao gồm: xác thực và phân quyền (TC\_AUTH\_01--TC\_AUTH\_05, TC\_JWT), cộng đồng (TC\_POST), thông báo (TC\_NOTIF), thông tin tài khoản (TC\_USER), phát âm cơ bản (TC\_PRON), PronunciationService (TC\_PRO\_S), IELTS Advanced (TC\_IADV), thuật toán FSRS (TC\_FSRS), gamification (TC\_GAMI), chuỗi học (TC\_STREAK), dictation/shadowing (TC\_DCT, TC\_SHD), bài thi Intensive (TC\_EXAM, TC\_CB, TC\_RES), subscription (TC\_SUB), thống kê IELTS (TC\_STAT), giá trị biên (TC\_BOUND), phân trang bất thường (TC\_EDGE) và bảo mật truy cập chéo (TC\_SEC).
 
-% 6 cột p{}, divisor=134: (1.0+0.4+2.0+2.8+3.5+3.7)×10; -4pt buffer cho rounding
+% 6 cột p{}, divisor=134: (1.8+0.4+1.8+2.6+3.3+3.3)×10; -4pt buffer cho rounding
 \setlength{\tbu}{\dimexpr(\linewidth - 12\tabcolsep - 7\arrayrulewidth - 4pt)/134\relax}
-\begin{longtable}{|p{10\tbu}|p{4\tbu}|p{20\tbu}|p{28\tbu}|p{35\tbu}|p{37\tbu}|}
+\begin{longtable}{|p{18\tbu}|p{4\tbu}|p{18\tbu}|p{26\tbu}|p{33\tbu}|p{33\tbu}|}
     \caption{Danh sách test case}
     \label{tab:testcase_list} \\
     \hline
@@ -359,253 +359,253 @@ Trên cơ sở phạm vi đã xác định, toàn bộ 207 test case unit/integr
     \hline
     \endlastfoot
 
-    TC01 & 1 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Để trống họ tên người dùng & Thông báo họ tên không được bỏ trống \\ \hline
-    TC01 & 2 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập email sai định dạng & Thông báo email không hợp lệ \\ \hline
-    TC01 & 3 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập mật khẩu ít hơn 6 ký tự & Thông báo mật khẩu phải có ít nhất 6 ký tự \\ \hline
-    TC01 & 4 & Đăng ký & Email đã đăng ký trước đó & Nhập email đã tồn tại trong hệ thống & Thông báo email đã được sử dụng \\ \hline
-    TC01 & 5 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập đầy đủ thông tin hợp lệ & Tạo tài khoản thành công, trả thông tin tài khoản (không hiển thị mật khẩu) \\ \hline
-    TC01 & 6 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập mật khẩu hợp lệ và nộp đăng ký & Mật khẩu được lưu ở dạng mã hoá, không lưu nguyên văn \\ \hline
-    TC01 & 7 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký thành công với thông tin hợp lệ & Hệ thống tự động tạo bộ thẻ từ vựng ``Default'' cho tài khoản mới \\ \hline
-    TC01 & 8 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký không chọn vai trò / chọn vai trò hợp lệ (Học viên hoặc Giáo viên) & Gán vai trò Học viên mặc định / lưu đúng vai trò được chọn \\ \hline
-    TC01 & 9 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký với vai trò Quản trị viên & Từ chối yêu cầu, thông báo vai trò không hợp lệ \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 1 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Để trống họ tên người dùng & 400 Bad Request -- họ tên không được bỏ trống \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 2 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập email sai định dạng & 400 Bad Request -- email không hợp lệ \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 3 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập mật khẩu ít hơn 6 ký tự & 400 Bad Request -- mật khẩu phải có ít nhất 6 ký tự \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 4 & Đăng ký & Email đã đăng ký trước đó & Nhập email đã tồn tại trong hệ thống & 400 Bad Request -- email đã được sử dụng \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 5 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập đầy đủ thông tin hợp lệ & 201 Created -- trả thông tin tài khoản, không hiển thị mật khẩu \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 6 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Nhập mật khẩu hợp lệ và nộp đăng ký & 201 Created -- mật khẩu được lưu dạng bcrypt hash \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 7 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký thành công với thông tin hợp lệ & 201 Created -- bộ thẻ Vocab Lab ``Default'' được tạo tự động \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 8 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký không chọn vai trò / chọn vai trò hợp lệ (Học viên hoặc Giáo viên) & 201 -- gán role STUDENT mặc định hoặc lưu đúng role được chọn \\ \hline
+    \hspace{0pt}TC\_AUTH\_01 & 9 & Đăng ký & Chưa có tài khoản, ở trang Đăng ký & Đăng ký với vai trò Quản trị viên & 400 Bad Request -- role ADMIN không được phép đăng ký \\ \hline
 
-    TC02 & 1 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email đúng, mật khẩu sai & Thông báo thông tin đăng nhập không chính xác \\ \hline
-    TC02 & 2 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email không tồn tại, mật khẩu đúng & Thông báo thông tin đăng nhập không chính xác \\ \hline
-    TC02 & 3 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email và mật khẩu đều sai & Thông báo thông tin đăng nhập không chính xác \\ \hline
-    TC02 & 4 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Chỉ nhập email, để trống mật khẩu & Thông báo thông tin đăng nhập không chính xác \\ \hline
-    TC02 & 5 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email và mật khẩu đúng & Đăng nhập thành công, hệ thống cấp mã truy cập kèm thông tin tài khoản \\ \hline
+    \hspace{0pt}TC\_AUTH\_02 & 1 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email đúng, mật khẩu sai & 401 Unauthorized -- thông tin đăng nhập không chính xác \\ \hline
+    \hspace{0pt}TC\_AUTH\_02 & 2 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email không tồn tại, mật khẩu đúng & 401 Unauthorized -- thông tin đăng nhập không chính xác \\ \hline
+    \hspace{0pt}TC\_AUTH\_02 & 3 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email và mật khẩu đều sai & 401 Unauthorized -- thông tin đăng nhập không chính xác \\ \hline
+    \hspace{0pt}TC\_AUTH\_02 & 4 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Chỉ nhập email, để trống mật khẩu & 401 Unauthorized -- thông tin đăng nhập không chính xác \\ \hline
+    \hspace{0pt}TC\_AUTH\_02 & 5 & Đăng nhập & Tài khoản tồn tại, ở trang Đăng nhập & Email và mật khẩu đúng & 200 OK -- trả accessToken và refreshToken kèm thông tin user \\ \hline
 
-    TC03 & 1 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài với nội dung để trống & Thông báo cần nhập nội dung \\ \hline
-    TC03 & 2 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài với nội dung vượt 10000 ký tự & Thông báo nội dung vượt giới hạn cho phép \\ \hline
-    TC03 & 3 & Đăng bài & Đã đăng nhập, ở Newsfeed & Chọn loại bài viết không thuộc danh mục cho phép & Thông báo loại bài viết không hợp lệ \\ \hline
-    TC03 & 4 & Đăng bài & Chưa đăng nhập & Cố gắng đăng bài với nội dung hợp lệ & Yêu cầu đăng nhập, không cho phép đăng bài \\ \hline
-    TC03 & 5 & Đăng bài & Đã đăng nhập, ở Newsfeed & Nhập nội dung hợp lệ và nộp bài & Đăng bài thành công, hệ thống cộng điểm kinh nghiệm cho người đăng \\ \hline
-    TC03 & 6 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài kèm danh sách thẻ và hình ảnh & Bài đăng được lưu đầy đủ thẻ và hình ảnh đã đính kèm \\ \hline
-    TC03 & 7 & Xem bài & Đã đăng nhập, ở Newsfeed & Mở danh sách bài viết & Hiển thị bài viết theo thứ tự mới nhất, ẩn các bài đã bị gỡ \\ \hline
-    TC03 & 8 & Tương tác & Đã đăng nhập, bài chưa được thích & Nhấn Thích lên bài viết & Bài được đánh dấu đã thích, số lượt thích tăng thêm 1 \\ \hline
-    TC03 & 9 & Tương tác & Đã đăng nhập, bài đã thích trước đó & Nhấn Thích lần thứ hai lên cùng bài viết & Bỏ thích, số lượt thích giảm đi 1 \\ \hline
-    TC03 & 10 & Tương tác & Đã đăng nhập & Nhấn Thích lên bài viết đã bị xoá & Thông báo không tìm thấy bài viết \\ \hline
-    TC03 & 11 & Xem bài & Đã đăng nhập & Truyền tham số phân trang sai định dạng & Hệ thống từ chối yêu cầu phân trang \\ \hline
+    \hspace{0pt}TC\_POST & 1 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài với nội dung để trống & 400 Bad Request -- nội dung không được để trống \\ \hline
+    \hspace{0pt}TC\_POST & 2 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài với nội dung vượt 10000 ký tự & 400 Bad Request -- nội dung vượt 10000 ký tự \\ \hline
+    \hspace{0pt}TC\_POST & 3 & Đăng bài & Đã đăng nhập, ở Newsfeed & Chọn loại bài viết không thuộc danh mục cho phép & 400 Bad Request -- PostType không hợp lệ \\ \hline
+    \hspace{0pt}TC\_POST & 4 & Đăng bài & Chưa đăng nhập & Cố gắng đăng bài với nội dung hợp lệ & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_POST & 5 & Đăng bài & Đã đăng nhập, ở Newsfeed & Nhập nội dung hợp lệ và nộp bài & 201 Created -- bài đăng được lưu, XP được cộng cho user \\ \hline
+    \hspace{0pt}TC\_POST & 6 & Đăng bài & Đã đăng nhập, ở Newsfeed & Đăng bài kèm danh sách thẻ và hình ảnh & 201 Created -- thẻ và hình ảnh được lưu đầy đủ \\ \hline
+    \hspace{0pt}TC\_POST & 7 & Xem bài & Đã đăng nhập, ở Newsfeed & Mở danh sách bài viết & 200 OK -- danh sách bài viết mới nhất, loại trừ bài đã gỡ \\ \hline
+    \hspace{0pt}TC\_POST & 8 & Tương tác & Đã đăng nhập, bài chưa được thích & Nhấn Thích lên bài viết & 200 OK -- tăng likeCount thêm 1, bài được đánh dấu đã thích \\ \hline
+    \hspace{0pt}TC\_POST & 9 & Tương tác & Đã đăng nhập, bài đã thích trước đó & Nhấn Thích lần thứ hai lên cùng bài viết & 200 OK -- giảm likeCount thêm 1, bỏ đánh dấu thích \\ \hline
+    \hspace{0pt}TC\_POST & 10 & Tương tác & Đã đăng nhập & Nhấn Thích lên bài viết đã bị xoá & 404 Not Found -- bài viết không tồn tại \\ \hline
+    \hspace{0pt}TC\_POST & 11 & Xem bài & Đã đăng nhập & Truyền tham số phân trang sai định dạng & 400 Bad Request -- tham số phân trang sai định dạng \\ \hline
 
-    TC05 & 1 & Thông báo & Chưa đăng nhập & Truy cập danh sách thông báo & Yêu cầu đăng nhập \\ \hline
-    TC05 & 2 & Thông báo & Chưa đăng nhập & Truy cập số lượng thông báo chưa đọc & Yêu cầu đăng nhập \\ \hline
-    TC05 & 3 & Thông báo & Chưa đăng nhập & Xoá một thông báo & Yêu cầu đăng nhập, không thực hiện xoá \\ \hline
-    TC05 & 4 & Thông báo & Đã đăng nhập & Mở danh sách thông báo trang đầu & Hiển thị 20 thông báo mới nhất của tài khoản, sắp xếp giảm dần \\ \hline
-    TC05 & 5 & Thông báo & Đã đăng nhập & Mở danh sách thông báo trang thứ hai & Hiển thị 20 thông báo tiếp theo, đúng quy tắc phân trang \\ \hline
-    TC05 & 6 & Thông báo & Đã đăng nhập & Đánh dấu một thông báo của mình là đã đọc & Thông báo được cập nhật trạng thái đã đọc \\ \hline
-    TC05 & 7 & Thông báo & Đã đăng nhập & Cố gắng đánh dấu thông báo của người dùng khác & Hệ thống bỏ qua, không cập nhật và không lộ thông tin \\ \hline
-    TC05 & 8 & Thông báo & Đã đăng nhập & Nhấn Đánh dấu tất cả là đã đọc & Toàn bộ thông báo chưa đọc của tài khoản chuyển sang đã đọc \\ \hline
-    TC05 & 9 & Thông báo & Đã đăng nhập & Xoá một thông báo của chính mình & Thông báo bị xoá khỏi danh sách \\ \hline
+    \hspace{0pt}TC\_NOTIF & 1 & Thông báo & Chưa đăng nhập & Truy cập danh sách thông báo & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_NOTIF & 2 & Thông báo & Chưa đăng nhập & Truy cập số lượng thông báo chưa đọc & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_NOTIF & 3 & Thông báo & Chưa đăng nhập & Xoá một thông báo & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_NOTIF & 4 & Thông báo & Đã đăng nhập & Mở danh sách thông báo trang đầu & 200 OK -- trả 20 thông báo mới nhất của tài khoản, sắp xếp giảm dần \\ \hline
+    \hspace{0pt}TC\_NOTIF & 5 & Thông báo & Đã đăng nhập & Mở danh sách thông báo trang thứ hai & 200 OK -- trả 20 thông báo tiếp theo, đúng quy tắc phân trang \\ \hline
+    \hspace{0pt}TC\_NOTIF & 6 & Thông báo & Đã đăng nhập & Đánh dấu một thông báo của mình là đã đọc & 200 OK -- notification.isRead = true \\ \hline
+    \hspace{0pt}TC\_NOTIF & 7 & Thông báo & Đã đăng nhập & Cố gắng đánh dấu thông báo của người dùng khác & 200 OK -- không cập nhật, không lộ thông tin người dùng khác \\ \hline
+    \hspace{0pt}TC\_NOTIF & 8 & Thông báo & Đã đăng nhập & Nhấn Đánh dấu tất cả là đã đọc & 200 OK -- toàn bộ notification chưa đọc chuyển isRead = true \\ \hline
+    \hspace{0pt}TC\_NOTIF & 9 & Thông báo & Đã đăng nhập & Xoá một thông báo của chính mình & 200 OK -- notification bị xoá khỏi DB \\ \hline
 
-    TC06 & 1 & Cập nhật thông tin & Chưa đăng nhập & Cập nhật thông tin cá nhân & Yêu cầu đăng nhập \\ \hline
-    TC06 & 2 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập email mới sai định dạng & Thông báo email không hợp lệ \\ \hline
-    TC06 & 3 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Chọn vai trò ngoài ba vai trò được hỗ trợ & Thông báo vai trò không hợp lệ \\ \hline
-    TC06 & 4 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập trạng thái hoạt động không phải đúng/sai & Thông báo dữ liệu không hợp lệ \\ \hline
-    TC06 & 5 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập họ tên dưới dạng số & Thông báo dữ liệu không hợp lệ \\ \hline
-    TC06 & 6 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi kèm trường dữ liệu không được hỗ trợ & Thông báo trường dữ liệu không hợp lệ \\ \hline
-    TC06 & 7 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật họ tên hợp lệ & Cập nhật thành công, thông tin mới được lưu lại \\ \hline
-    TC06 & 8 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email mới chưa được sử dụng & Cập nhật thành công, email mới được lưu \\ \hline
-    TC06 & 9 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email đã có tài khoản khác sử dụng & Thông báo email đã được sử dụng \\ \hline
-    TC06 & 10 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật vai trò sang Giáo viên & Cập nhật thành công, vai trò mới được lưu \\ \hline
-    TC06 & 11 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Tắt trạng thái hoạt động của tài khoản & Cập nhật thành công, tài khoản chuyển sang ngừng hoạt động \\ \hline
-    TC06 & 12 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi yêu cầu cập nhật với dữ liệu rỗng & Hệ thống không thay đổi thông tin, giữ nguyên trạng thái hiện tại \\ \hline
+    \hspace{0pt}TC\_USER & 1 & Cập nhật thông tin & Chưa đăng nhập & Cập nhật thông tin cá nhân & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_USER & 2 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập email mới sai định dạng & 400 Bad Request -- email sai định dạng \\ \hline
+    \hspace{0pt}TC\_USER & 3 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Chọn vai trò ngoài ba vai trò được hỗ trợ & 400 Bad Request -- role ngoài [STUDENT, INSTRUCTOR, ADMIN] \\ \hline
+    \hspace{0pt}TC\_USER & 4 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập trạng thái hoạt động không phải đúng/sai & 400 Bad Request -- isActive không phải boolean \\ \hline
+    \hspace{0pt}TC\_USER & 5 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Nhập họ tên dưới dạng số & 400 Bad Request -- name không phải string \\ \hline
+    \hspace{0pt}TC\_USER & 6 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi kèm trường dữ liệu không được hỗ trợ & 400 Bad Request -- forbidNonWhitelisted reject trường lạ \\ \hline
+    \hspace{0pt}TC\_USER & 7 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật họ tên hợp lệ & 200 OK -- name mới được lưu \\ \hline
+    \hspace{0pt}TC\_USER & 8 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email mới chưa được sử dụng & 200 OK -- email mới được lưu \\ \hline
+    \hspace{0pt}TC\_USER & 9 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật email đã có tài khoản khác sử dụng & 400 Bad Request -- email đã được sử dụng bởi tài khoản khác \\ \hline
+    \hspace{0pt}TC\_USER & 10 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Cập nhật vai trò sang Giáo viên & 200 OK -- role INSTRUCTOR được lưu \\ \hline
+    \hspace{0pt}TC\_USER & 11 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Tắt trạng thái hoạt động của tài khoản & 200 OK -- isActive = false \\ \hline
+    \hspace{0pt}TC\_USER & 12 & Cập nhật thông tin & Đã đăng nhập, ở trang cá nhân & Gửi yêu cầu cập nhật với dữ liệu rỗng & 200 OK -- không thay đổi thông tin, giữ nguyên trạng thái \\ \hline
 
-    TC10 & 1 & Luyện phát âm & Không yêu cầu đăng nhập & Mở danh sách âm vị công khai & Hiển thị danh sách âm vị, người chưa đăng nhập vẫn xem được \\ \hline
-    TC10 & 2 & Luyện phát âm & Không yêu cầu đăng nhập & Tra cứu một âm vị không tồn tại & Thông báo không tìm thấy âm vị \\ \hline
-    TC10 & 3 & Luyện phát âm & Không yêu cầu đăng nhập & Tra cứu một âm vị có trong cơ sở dữ liệu & Hiển thị đầy đủ thông tin âm vị \\ \hline
-    TC10 & 4 & Luyện phát âm & Chưa đăng nhập & Gửi kết quả luyện phát âm lên hệ thống & Yêu cầu đăng nhập, không ghi nhận kết quả \\ \hline
-    TC10 & 5 & Luyện phát âm & Đã đăng nhập, hoàn thành một bài luyện & Gửi điểm phát âm hợp lệ lên hệ thống & Hệ thống ghi nhận tiến độ luyện phát âm cho tài khoản \\ \hline
-    TC10 & 6 & Quản lý âm vị & Đã đăng nhập với vai trò Học viên & Tạo mới một âm vị & Từ chối truy cập, yêu cầu vai trò Quản trị viên \\ \hline
-    TC10 & 7 & Quản lý âm vị & Đã đăng nhập với vai trò Quản trị viên & Tạo âm vị mới với đầy đủ thông tin bắt buộc & Tạo âm vị thành công \\ \hline
-    TC10 & 8 & Quản lý âm vị & Đã đăng nhập với vai trò Quản trị viên & Tạo âm vị nhưng thiếu thông tin bắt buộc & Thông báo dữ liệu không hợp lệ \\ \hline
+    \hspace{0pt}TC\_PRON & 1 & Luyện phát âm & Không yêu cầu đăng nhập & Mở danh sách âm vị công khai & 200 OK -- danh sách sounds, không yêu cầu xác thực \\ \hline
+    \hspace{0pt}TC\_PRON & 2 & Luyện phát âm & Không yêu cầu đăng nhập & Tra cứu một âm vị không tồn tại & 404 Not Found \\ \hline
+    \hspace{0pt}TC\_PRON & 3 & Luyện phát âm & Không yêu cầu đăng nhập & Tra cứu một âm vị có trong cơ sở dữ liệu & 200 OK -- đầy đủ thông tin sound \\ \hline
+    \hspace{0pt}TC\_PRON & 4 & Luyện phát âm & Chưa đăng nhập & Gửi kết quả luyện phát âm lên hệ thống & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_PRON & 5 & Luyện phát âm & Đã đăng nhập, hoàn thành một bài luyện & Gửi điểm phát âm hợp lệ lên hệ thống & 201 Created -- progress được upsert, XP được cộng \\ \hline
+    \hspace{0pt}TC\_PRON & 6 & Quản lý âm vị & Đã đăng nhập với vai trò Học viên & Tạo mới một âm vị & 403 Forbidden -- role STUDENT không có quyền \\ \hline
+    \hspace{0pt}TC\_PRON & 7 & Quản lý âm vị & Đã đăng nhập với vai trò Quản trị viên & Tạo âm vị mới với đầy đủ thông tin bắt buộc & 201 Created -- sound mới được lưu vào DB \\ \hline
+    \hspace{0pt}TC\_PRON & 8 & Quản lý âm vị & Đã đăng nhập với vai trò Quản trị viên & Tạo âm vị nhưng thiếu thông tin bắt buộc & 400 Bad Request -- thiếu trường bắt buộc \\ \hline
 
-    TC11 & 1 & Thống kê & Chưa đăng nhập & Xem thống kê tổng quan & Yêu cầu đăng nhập \\ \hline
-    TC11 & 2 & Thống kê & Chưa đăng nhập & Xem thống kê giai đoạn Foundation & Yêu cầu đăng nhập \\ \hline
-    TC11 & 3 & Thống kê & Đã đăng nhập & Xem thống kê tổng quan tiến độ học & Hiển thị thống kê tổng quan của tài khoản \\ \hline
-    TC11 & 4 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Foundation & Hiển thị thống kê giai đoạn Foundation của tài khoản \\ \hline
-    TC11 & 5 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Basic & Hiển thị thống kê giai đoạn Basic của tài khoản \\ \hline
-    TC11 & 6 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Advanced & Hiển thị thống kê giai đoạn Advanced của tài khoản \\ \hline
-    TC11 & 7 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Intensive & Hiển thị thống kê giai đoạn Intensive của tài khoản \\ \hline
+    \hspace{0pt}TC\_STAT & 1 & Thống kê & Chưa đăng nhập & Xem thống kê tổng quan & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_STAT & 2 & Thống kê & Chưa đăng nhập & Xem thống kê giai đoạn Foundation & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_STAT & 3 & Thống kê & Đã đăng nhập & Xem thống kê tổng quan tiến độ học & 200 OK -- thống kê tổng quan của user \\ \hline
+    \hspace{0pt}TC\_STAT & 4 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Foundation & 200 OK -- thống kê Foundation của user \\ \hline
+    \hspace{0pt}TC\_STAT & 5 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Basic & 200 OK -- thống kê Basic của user \\ \hline
+    \hspace{0pt}TC\_STAT & 6 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Advanced & 200 OK -- thống kê Advanced của user \\ \hline
+    \hspace{0pt}TC\_STAT & 7 & Thống kê & Đã đăng nhập & Xem thống kê giai đoạn Intensive & 200 OK -- thống kê Intensive của user \\ \hline
 
     % ===== 146 test case bổ sung =====
 
     % Nhóm TC_AUTH — refresh token, đổi mật khẩu, Google OAuth (10 case)
-    TC\_AUTH\_03 & 1 & Refresh token & Đã đăng nhập, có refresh token hợp lệ & Gửi POST /auth/refresh kèm refresh token hợp lệ & 201, trả về cặp accessToken và refreshToken mới \\ \hline
-    TC\_AUTH\_03 & 2 & Refresh token & Refresh token đã hết hạn & Gửi POST /auth/refresh với refresh token expired & 401 Unauthorized \\ \hline
-    TC\_AUTH\_03 & 3 & Refresh token & Refresh token bị giả mạo chữ ký & Gửi POST /auth/refresh với refresh token tampered & 401 Unauthorized \\ \hline
-    TC\_AUTH\_04 & 1 & Đổi mật khẩu & Đã đăng nhập, nhập đúng currentPassword & Gửi POST /auth/change-password với mật khẩu hiện tại chính xác & 201 kèm thông báo ``changed successfully'', mật khẩu mới được hash bcrypt \\ \hline
-    TC\_AUTH\_04 & 2 & Đổi mật khẩu & Đã đăng nhập, nhập sai currentPassword & Gửi POST /auth/change-password với mật khẩu hiện tại sai & 400 ``Current password is incorrect'' \\ \hline
-    TC\_AUTH\_04 & 3 & Đổi mật khẩu & Tài khoản đăng ký qua Google OAuth (password = null) & Gửi POST /auth/change-password trên tài khoản Google & 400, từ chối vì tài khoản đăng nhập bằng Google \\ \hline
-    TC\_AUTH\_05 & 1 & Google OAuth & Chưa có tài khoản trên hệ thống & Gửi POST /auth/google với Google ID token hợp lệ (user mới) & 201, tạo user mới kèm bộ thẻ Default cho Vocab Lab \\ \hline
-    TC\_AUTH\_05 & 2 & Google OAuth & Đã có user với googleId khớp & Gửi POST /auth/google với Google ID token của user cũ & 201, đăng nhập bình thường, không tạo user mới \\ \hline
-    TC\_AUTH\_05 & 3 & Google OAuth & Google ID token có audience không thuộc danh sách cho phép & Gửi POST /auth/google với token sai audience & 401 ``Invalid Google ID token'' \\ \hline
-    TC\_AUTH\_05 & 4 & Google OAuth & Google ID token hợp lệ nhưng payload thiếu email & Gửi POST /auth/google với payload không có email & 400 Bad Request \\ \hline
+    \hspace{0pt}TC\_AUTH\_03 & 1 & Refresh token & Đã đăng nhập, có refresh token hợp lệ & Gửi POST /auth/refresh kèm refresh token hợp lệ & 201, trả về cặp accessToken và refreshToken mới \\ \hline
+    \hspace{0pt}TC\_AUTH\_03 & 2 & Refresh token & Refresh token đã hết hạn & Gửi POST /auth/refresh với refresh token expired & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_AUTH\_03 & 3 & Refresh token & Refresh token bị giả mạo chữ ký & Gửi POST /auth/refresh với refresh token tampered & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_AUTH\_04 & 1 & Đổi mật khẩu & Đã đăng nhập, nhập đúng currentPassword & Gửi POST /auth/change-password với mật khẩu hiện tại chính xác & 201 kèm thông báo ``changed successfully'', mật khẩu mới được hash bcrypt \\ \hline
+    \hspace{0pt}TC\_AUTH\_04 & 2 & Đổi mật khẩu & Đã đăng nhập, nhập sai currentPassword & Gửi POST /auth/change-password với mật khẩu hiện tại sai & 400 ``Current password is incorrect'' \\ \hline
+    \hspace{0pt}TC\_AUTH\_04 & 3 & Đổi mật khẩu & Tài khoản đăng ký qua Google OAuth (password = null) & Gửi POST /auth/change-password trên tài khoản Google & 400, từ chối vì tài khoản đăng nhập bằng Google \\ \hline
+    \hspace{0pt}TC\_AUTH\_05 & 1 & Google OAuth & Chưa có tài khoản trên hệ thống & Gửi POST /auth/google với Google ID token hợp lệ (user mới) & 201, tạo user mới kèm bộ thẻ Default cho Vocab Lab \\ \hline
+    \hspace{0pt}TC\_AUTH\_05 & 2 & Google OAuth & Đã có user với googleId khớp & Gửi POST /auth/google với Google ID token của user cũ & 201, đăng nhập bình thường, không tạo user mới \\ \hline
+    \hspace{0pt}TC\_AUTH\_05 & 3 & Google OAuth & Google ID token có audience không thuộc danh sách cho phép & Gửi POST /auth/google với token sai audience & 401 ``Invalid Google ID token'' \\ \hline
+    \hspace{0pt}TC\_AUTH\_05 & 4 & Google OAuth & Google ID token hợp lệ nhưng payload thiếu email & Gửi POST /auth/google với payload không có email & 400 Bad Request \\ \hline
 
     % Nhóm TC_JWT — JwtStrategy của Passport (5 case)
-    TC\_JWT & 1 & JwtStrategy validate & Payload JWT đầy đủ sub, email, role & Passport gọi validate() với payload hợp lệ & Trả về object \{id, email, role\} cho request scope \\ \hline
-    TC\_JWT & 2 & JwtStrategy validate & Token được ký bằng secret khác JWT\_SECRET & Gửi request kèm token sai secret & Passport từ chối, ném UnauthorizedException \\ \hline
-    TC\_JWT & 3 & JwtStrategy validate & Token có trường exp ở thời điểm quá khứ & Gửi request kèm token expired & Passport từ chối, ném UnauthorizedException \\ \hline
-    TC\_JWT & 4 & JwtStrategy validate & Payload JWT thiếu trường sub & validate() được gọi với payload không có sub & Trả id = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
-    TC\_JWT & 5 & JwtStrategy validate & Payload JWT thiếu trường role & validate() được gọi với payload không có role & Trả role = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
+    \hspace{0pt}TC\_JWT & 1 & JwtStrategy validate & Payload JWT đầy đủ sub, email, role & Passport gọi validate() với payload hợp lệ & Trả về object \{id, email, role\} cho request scope \\ \hline
+    \hspace{0pt}TC\_JWT & 2 & JwtStrategy validate & Token được ký bằng secret khác JWT\_SECRET & Gửi request kèm token sai secret & Passport từ chối, ném UnauthorizedException \\ \hline
+    \hspace{0pt}TC\_JWT & 3 & JwtStrategy validate & Token có trường exp ở thời điểm quá khứ & Gửi request kèm token expired & Passport từ chối, ném UnauthorizedException \\ \hline
+    \hspace{0pt}TC\_JWT & 4 & JwtStrategy validate & Payload JWT thiếu trường sub & validate() được gọi với payload không có sub & Trả id = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
+    \hspace{0pt}TC\_JWT & 5 & JwtStrategy validate & Payload JWT thiếu trường role & validate() được gọi với payload không có role & Trả role = undefined (khe hở đã ghi nhận, cần ném UnauthorizedException) \\ \hline
 
     % Nhóm TC_PRO_S — PronunciationService (13 case)
-    TC\_PRO\_S & 1 & PronunciationService -- đọc danh sách & Redis cache đã có danh sách sounds & Gọi getAllSounds() & Trả kết quả từ cache, không truy vấn Prisma \\ \hline
-    TC\_PRO\_S & 2 & PronunciationService -- đọc danh sách & Redis cache rỗng & Gọi getAllSounds() & Truy vấn DB qua Prisma và ghi kết quả vào cache \\ \hline
-    TC\_PRO\_S & 3 & PronunciationService -- đọc theo symbol & Cache có sound theo symbol cụ thể & Gọi getSoundBySymbol(symbol) & Trả từ cache, không gọi Prisma \\ \hline
-    TC\_PRO\_S & 4 & PronunciationService -- đọc theo symbol & Cache miss & Gọi getSoundBySymbol(symbol) & Truy vấn DB và ghi vào cache \\ \hline
-    TC\_PRO\_S & 5 & PronunciationService -- thêm sound & Admin gọi createSound với payload hợp lệ & Service lưu sound mới vào DB & Sound được tạo, cache bị invalidate \\ \hline
-    TC\_PRO\_S & 6 & PronunciationService -- cập nhật sound & Admin gọi updateSound & Service cập nhật trường của sound & Sound được update, cache bị invalidate \\ \hline
-    TC\_PRO\_S & 7 & PronunciationService -- xóa sound & Admin gọi deleteSound & Service xóa sound khỏi DB & Sound bị xóa, cache bị invalidate \\ \hline
-    TC\_PRO\_S & 8 & PronunciationService -- progress user & User có progress trên một số sound & Gọi getUserProgress(userId) & Trả progress đã join với toàn bộ danh sách sounds \\ \hline
-    TC\_PRO\_S & 9 & PronunciationService -- thống kê & User có lịch sử attempt phong phú & Gọi getUserStats(userId) & Tính các chỉ số mastery cho từng loại âm \\ \hline
-    TC\_PRO\_S & 10 & PronunciationService -- progress theo từ & User có attempt cho các từ ví dụ & Gọi getWordProgress(userId) & Trả danh sách từ kèm mastery status dựa trên attempt \\ \hline
-    TC\_PRO\_S & 11 & PronunciationService -- cập nhật progress & User submit điểm phát âm hợp lệ & Gọi updateProgress(userId, soundId, score) & Upsert progress, invalidate cache, gọi gamification.onEvent để cộng XP \\ \hline
-    TC\_PRO\_S & 12 & PronunciationService -- tạo attempt & User bắt đầu một lượt luyện phát âm & Gọi createPronunciationAttempt & Tạo bản ghi attempt với trạng thái PENDING \\ \hline
-    TC\_PRO\_S & 13 & PronunciationService -- cập nhật attempt & Attempt PENDING đã tồn tại & Gọi updatePronunciationAttempt với chi tiết & Cập nhật các trường của attempt \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 1 & \hspace{0pt}PronunciationService -- đọc danh sách & Redis cache đã có danh sách sounds & Gọi \hspace{0pt}getAllSounds() & Trả kết quả từ cache, không truy vấn Prisma \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 2 & \hspace{0pt}PronunciationService -- đọc danh sách & Redis cache rỗng & Gọi \hspace{0pt}getAllSounds() & Truy vấn DB qua Prisma và ghi kết quả vào cache \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 3 & \hspace{0pt}PronunciationService -- đọc theo symbol & Cache có sound theo symbol cụ thể & Gọi \hspace{0pt}getSoundBySymbol(symbol) & Trả từ cache, không gọi Prisma \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 4 & \hspace{0pt}PronunciationService -- đọc theo symbol & Cache miss & Gọi \hspace{0pt}getSoundBySymbol(symbol) & Truy vấn DB và ghi vào cache \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 5 & \hspace{0pt}PronunciationService -- thêm sound & Admin gọi createSound với payload hợp lệ & Service lưu sound mới vào DB & Sound được tạo, cache bị invalidate \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 6 & \hspace{0pt}PronunciationService -- cập nhật sound & Admin gọi updateSound & Service cập nhật trường của sound & Sound được update, cache bị invalidate \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 7 & \hspace{0pt}PronunciationService -- xóa sound & Admin gọi deleteSound & Service xóa sound khỏi DB & Sound bị xóa, cache bị invalidate \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 8 & \hspace{0pt}PronunciationService -- progress user & User có progress trên một số sound & Gọi \hspace{0pt}getUserProgress(userId) & Trả progress đã join với toàn bộ danh sách sounds \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 9 & \hspace{0pt}PronunciationService -- thống kê & User có lịch sử attempt phong phú & Gọi \hspace{0pt}getUserStats(userId) & Tính các chỉ số mastery cho từng loại âm \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 10 & \hspace{0pt}PronunciationService -- progress theo từ & User có attempt cho các từ ví dụ & Gọi \hspace{0pt}getWordProgress(userId) & Trả danh sách từ kèm mastery status dựa trên attempt \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 11 & \hspace{0pt}PronunciationService -- cập nhật progress & User submit điểm phát âm hợp lệ & Gọi \hspace{0pt}updateProgress(userId, soundId, score) & Upsert progress, invalidate cache, gọi gamification.onEvent để cộng XP \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 12 & \hspace{0pt}PronunciationService -- tạo attempt & User bắt đầu một lượt luyện phát âm & Gọi \hspace{0pt}createPronunciationAttempt & Tạo bản ghi attempt với trạng thái PENDING \\ \hline
+    \hspace{0pt}TC\_PRO\_S & 13 & \hspace{0pt}PronunciationService -- cập nhật attempt & Attempt PENDING đã tồn tại & Gọi \hspace{0pt}updatePronunciationAttempt với chi tiết & Cập nhật các trường của attempt \\ \hline
 
     % Nhóm TC_FSRS — Vocab Lab spaced repetition (10 case)
-    TC\_FSRS\_01 & 1 & VocabLab -- submitReview rating Good & User có card mới chưa từng review & Gọi submitReview với rating = Good (3) & Card được lưu với stability lớn hơn 0 và due lớn hơn now \\ \hline
-    TC\_FSRS\_01 & 2 & VocabLab -- submitReview rating Good & Như trường hợp trên & submitReview hoàn tất & Tạo một bản ghi FlashcardReview gắn với card \\ \hline
-    TC\_FSRS\_02 & 1 & VocabLab -- submitReview rating Again & User có card đã review trước đó & Gọi submitReview với rating = Again (1) & Stability reset về xấp xỉ 0.4 (mặc định FSRS) \\ \hline
-    TC\_FSRS\_02 & 2 & VocabLab -- submitReview rating Again & Card mới & submitReview với Again & due được lập lịch trong khoảng 10 phút sau \\ \hline
-    TC\_FSRS\_03 & 1 & VocabLab -- so sánh interval & Cùng một card được test với hai rating khác nhau & submitReview với rating Easy (4) so với Good (3) & scheduledDays khi Easy luôn lớn hơn hoặc bằng scheduledDays khi Good \\ \hline
-    TC\_FSRS\_04 & 1 & VocabLab -- ownership card & Card thuộc deck của user khác & submitReview với userId không khớp deck.userId & Throw NotFoundException \\ \hline
-    TC\_FSRS\_04 & 2 & VocabLab -- card không tồn tại & cardId không có trong DB & submitReview với cardId sai & Throw NotFoundException \\ \hline
-    TC\_FSRS\_05 & 1 & VocabLab -- getStudyCards & Deck có cards NEW + LEARNING/REVIEW/RELEARNING với due đã đến hạn & Gọi getStudyCards(deckId) & Trả về cards NEW cùng cards đến hạn ôn \\ \hline
-    TC\_FSRS\_05 & 2 & VocabLab -- getStudyCards loại trừ tương lai & Có cards với due lớn hơn now & Gọi getStudyCards(deckId) & Loại trừ những cards có lịch ôn tương lai \\ \hline
-    TC\_FSRS\_05 & 3 & VocabLab -- getStudyCards ownership & Deck không tồn tại hoặc không thuộc user & Gọi getStudyCards(deckId, userId) & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_FSRS\_01 & 1 & VocabLab -- submitReview rating Good & User có card mới chưa từng review & Gọi \hspace{0pt}submitReview với rating = Good (3) & Card được lưu với stability lớn hơn 0 và due lớn hơn now \\ \hline
+    \hspace{0pt}TC\_FSRS\_01 & 2 & VocabLab -- submitReview rating Good & Như trường hợp trên & \hspace{0pt}submitReview hoàn tất & Tạo một bản ghi FlashcardReview gắn với card \\ \hline
+    \hspace{0pt}TC\_FSRS\_02 & 1 & VocabLab -- submitReview rating Again & User có card đã review trước đó & Gọi \hspace{0pt}submitReview với rating = Again (1) & Stability reset về xấp xỉ 0.4 (mặc định FSRS) \\ \hline
+    \hspace{0pt}TC\_FSRS\_02 & 2 & VocabLab -- submitReview rating Again & Card mới & \hspace{0pt}submitReview với Again & due được lập lịch trong khoảng 10 phút sau \\ \hline
+    \hspace{0pt}TC\_FSRS\_03 & 1 & VocabLab -- so sánh interval & Cùng một card được test với hai rating khác nhau & \hspace{0pt}submitReview với rating Easy (4) so với Good (3) & scheduledDays khi Easy luôn lớn hơn hoặc bằng scheduledDays khi Good \\ \hline
+    \hspace{0pt}TC\_FSRS\_04 & 1 & VocabLab -- ownership card & Card thuộc deck của user khác & \hspace{0pt}submitReview với userId không khớp deck.userId & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_FSRS\_04 & 2 & VocabLab -- card không tồn tại & cardId không có trong DB & \hspace{0pt}submitReview với cardId sai & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_FSRS\_05 & 1 & VocabLab -- getStudyCards & Deck có cards NEW + LEARNING/REVIEW/RELEARNING với due đã đến hạn & Gọi \hspace{0pt}getStudyCards(deckId) & Trả về cards NEW cùng cards đến hạn ôn \\ \hline
+    \hspace{0pt}TC\_FSRS\_05 & 2 & VocabLab -- getStudyCards loại trừ tương lai & Có cards với due lớn hơn now & Gọi \hspace{0pt}getStudyCards(deckId) & Loại trừ những cards có lịch ôn tương lai \\ \hline
+    \hspace{0pt}TC\_FSRS\_05 & 3 & VocabLab -- getStudyCards ownership & Deck không tồn tại hoặc không thuộc user & Gọi \hspace{0pt}getStudyCards(deckId, userId) & Throw NotFoundException \\ \hline
 
     % Nhóm TC_GAMI — gamification XP & achievement (10 case)
-    TC\_GAMI\_01 & 1 & Gamification onEvent (xp dương) & Event gửi tới có xp dương & Service xử lý event & Tạo XpLog với đầy đủ trường (userId, eventKey, xp, reason) \\ \hline
-    TC\_GAMI\_01 & 2 & Gamification onEvent (xp dương) & Như trên, IeltsProfile của user tồn tại & Service xử lý event & Cập nhật totalXp của IeltsProfile \\ \hline
-    TC\_GAMI\_01 & 3 & Gamification onEvent (xp dương) & IeltsProfile của user chưa tồn tại & Service xử lý event & Không crash, log nhẹ và bỏ qua bước cập nhật profile \\ \hline
-    TC\_GAMI\_02 & 1 & Gamification level-up & XP mới vượt ngưỡng nâng level & Service xử lý event & Gửi notification loại ACHIEVEMENT cho user \\ \hline
-    TC\_GAMI\_02 & 2 & Gamification level-up & XP tăng nhưng cùng mức level & Service xử lý event & KHÔNG gửi notification level-up \\ \hline
-    TC\_GAMI\_03 & 1 & Gamification achievement trùng & User đã có achievement trước đó & Service grant lại cùng achievement key & Bỏ qua UserAchievement.create, không tạo bản ghi trùng \\ \hline
-    TC\_GAMI\_04 & 1 & Gamification onEvent (xp = 0) & Event không kèm XP & Service xử lý event & Bỏ qua tạo XpLog hoàn toàn \\ \hline
-    TC\_GAMI\_04 & 2 & Gamification onEvent (xp = 0) & Event có achievementKeys nhưng xp = 0 & Service xử lý event & Vẫn xử lý achievementKeys bình thường \\ \hline
-    TC\_GAMI\_05 & 1 & Gamification tryGrantAchievement & User chưa có achievement & Gọi tryGrantAchievement(userId, key) & Tạo UserAchievement và gửi notification ACHIEVEMENT \\ \hline
-    TC\_GAMI\_05 & 2 & Gamification tryGrantAchievement & achievementKey không có định nghĩa trong DB & Gọi tryGrantAchievement với key sai & No-op, không tạo gì cả \\ \hline
+    \hspace{0pt}TC\_GAMI\_01 & 1 & Gamification onEvent (xp dương) & Event gửi tới có xp dương & Service xử lý event & Tạo XpLog với đầy đủ trường (userId, eventKey, xp, reason) \\ \hline
+    \hspace{0pt}TC\_GAMI\_01 & 2 & Gamification onEvent (xp dương) & Như trên, IeltsProfile của user tồn tại & Service xử lý event & Cập nhật totalXp của IeltsProfile \\ \hline
+    \hspace{0pt}TC\_GAMI\_01 & 3 & Gamification onEvent (xp dương) & IeltsProfile của user chưa tồn tại & Service xử lý event & Không crash, log nhẹ và bỏ qua bước cập nhật profile \\ \hline
+    \hspace{0pt}TC\_GAMI\_02 & 1 & Gamification level-up & XP mới vượt ngưỡng nâng level & Service xử lý event & Gửi notification loại ACHIEVEMENT cho user \\ \hline
+    \hspace{0pt}TC\_GAMI\_02 & 2 & Gamification level-up & XP tăng nhưng cùng mức level & Service xử lý event & KHÔNG gửi notification level-up \\ \hline
+    \hspace{0pt}TC\_GAMI\_03 & 1 & Gamification achievement trùng & User đã có achievement trước đó & Service grant lại cùng achievement key & Bỏ qua UserAchievement.create, không tạo bản ghi trùng \\ \hline
+    \hspace{0pt}TC\_GAMI\_04 & 1 & Gamification onEvent (xp = 0) & Event không kèm XP & Service xử lý event & Bỏ qua tạo XpLog hoàn toàn \\ \hline
+    \hspace{0pt}TC\_GAMI\_04 & 2 & Gamification onEvent (xp = 0) & Event có achievementKeys nhưng xp = 0 & Service xử lý event & Vẫn xử lý achievementKeys bình thường \\ \hline
+    \hspace{0pt}TC\_GAMI\_05 & 1 & Gamification tryGrantAchievement & User chưa có achievement & Gọi \hspace{0pt}tryGrantAchievement(userId, key) & Tạo UserAchievement và gửi notification ACHIEVEMENT \\ \hline
+    \hspace{0pt}TC\_GAMI\_05 & 2 & Gamification tryGrantAchievement & achievementKey không có định nghĩa trong DB & Gọi \hspace{0pt}tryGrantAchievement với key sai & No-op, không tạo gì cả \\ \hline
 
     % Nhóm TC_STREAK — chuỗi học liên tục (13 case)
-    TC\_STREAK\_01 & 1 & Streak recordActivity (lần đầu) & IeltsProfile chưa có lastActiveDate & Gọi recordActivity(userId) & currentStreak = 1, lastActiveDate = ngày hôm nay \\ \hline
-    TC\_STREAK\_01 & 2 & Streak recordActivity (lần đầu) & Như trường hợp trên & Gọi recordActivity(userId) & longestStreak ít nhất bằng 1 \\ \hline
-    TC\_STREAK\_02 & 1 & Streak recordActivity (liên tiếp) & lastActiveDate = ngày hôm qua & Gọi recordActivity(userId) & currentStreak tăng thêm 1 \\ \hline
-    TC\_STREAK\_02 & 2 & Streak recordActivity (liên tiếp) & Streak mới vượt longestStreak cũ & Gọi recordActivity(userId) & Cập nhật longestStreak bằng giá trị mới \\ \hline
-    TC\_STREAK\_03 & 1 & Streak recordActivity (gap 2+ ngày) & lastActiveDate cách hôm nay từ 2 ngày trở lên & Gọi recordActivity(userId) & currentStreak reset về 1 \\ \hline
-    TC\_STREAK\_03 & 2 & Streak recordActivity (gap 2+ ngày) & Như trên & Gọi recordActivity(userId) & longestStreak KHÔNG bị giảm \\ \hline
-    TC\_STREAK\_04 & 1 & Streak recordActivity (cùng ngày) & lastActiveDate = hôm nay & Gọi recordActivity(userId) & Trả về profile, KHÔNG gọi update (idempotent) \\ \hline
-    TC\_STREAK\_04 & 2 & Streak recordActivity (cùng ngày) & Như trên & Gọi recordActivity(userId) & KHÔNG kích hoạt gamification event \\ \hline
-    TC\_STREAK\_05 & 1 & Streak milestone 7 ngày & Streak mới đạt 7 ngày liên tiếp & Gọi recordActivity (lần thứ 7) & Gọi GamificationService.onEvent kèm achievementKeys chứa XM\_ON\_FIRE \\ \hline
-    TC\_STREAK\_05 & 2 & Streak milestone 7 ngày & Như trên & Gọi recordActivity & Gửi milestone notification (STREAK\_MILESTONES có 7) \\ \hline
-    TC\_STREAK\_05 & 3 & Streak milestone 7 ngày & Như trên & Gọi recordActivity & XP truyền vào tỷ lệ với streak mới (5 nhân newStreak) \\ \hline
-    TC\_STREAK\_06 & 1 & Streak getStreakStats edge & IeltsProfile không tồn tại & Gọi getStreakStats(userId) & Trả về null \\ \hline
-    TC\_STREAK\_06 & 2 & Streak getStreakStats edge & Prisma throw error & Gọi getStreakStats(userId) & Trả null, KHÔNG throw (silent fail) \\ \hline
+    \hspace{0pt}TC\_STREAK\_01 & 1 & Streak recordActivity (lần đầu) & IeltsProfile chưa có lastActiveDate & Gọi \hspace{0pt}recordActivity(userId) & currentStreak = 1, lastActiveDate = ngày hôm nay \\ \hline
+    \hspace{0pt}TC\_STREAK\_01 & 2 & Streak recordActivity (lần đầu) & Như trường hợp trên & Gọi \hspace{0pt}recordActivity(userId) & longestStreak ít nhất bằng 1 \\ \hline
+    \hspace{0pt}TC\_STREAK\_02 & 1 & Streak recordActivity (liên tiếp) & lastActiveDate = ngày hôm qua & Gọi \hspace{0pt}recordActivity(userId) & currentStreak tăng thêm 1 \\ \hline
+    \hspace{0pt}TC\_STREAK\_02 & 2 & Streak recordActivity (liên tiếp) & Streak mới vượt longestStreak cũ & Gọi \hspace{0pt}recordActivity(userId) & Cập nhật longestStreak bằng giá trị mới \\ \hline
+    \hspace{0pt}TC\_STREAK\_03 & 1 & Streak recordActivity (gap 2+ ngày) & lastActiveDate cách hôm nay từ 2 ngày trở lên & Gọi \hspace{0pt}recordActivity(userId) & currentStreak reset về 1 \\ \hline
+    \hspace{0pt}TC\_STREAK\_03 & 2 & Streak recordActivity (gap 2+ ngày) & Như trên & Gọi \hspace{0pt}recordActivity(userId) & longestStreak KHÔNG bị giảm \\ \hline
+    \hspace{0pt}TC\_STREAK\_04 & 1 & Streak recordActivity (cùng ngày) & lastActiveDate = hôm nay & Gọi \hspace{0pt}recordActivity(userId) & Trả về profile, KHÔNG gọi update (idempotent) \\ \hline
+    \hspace{0pt}TC\_STREAK\_04 & 2 & Streak recordActivity (cùng ngày) & Như trên & Gọi \hspace{0pt}recordActivity(userId) & KHÔNG kích hoạt gamification event \\ \hline
+    \hspace{0pt}TC\_STREAK\_05 & 1 & Streak milestone 7 ngày & Streak mới đạt 7 ngày liên tiếp & Gọi \hspace{0pt}recordActivity (lần thứ 7) & Gọi \hspace{0pt}GamificationService.onEvent kèm achievementKeys chứa XM\_ON\_FIRE \\ \hline
+    \hspace{0pt}TC\_STREAK\_05 & 2 & Streak milestone 7 ngày & Như trên & Gọi \hspace{0pt}recordActivity & Gửi milestone notification (STREAK\_MILESTONES có 7) \\ \hline
+    \hspace{0pt}TC\_STREAK\_05 & 3 & Streak milestone 7 ngày & Như trên & Gọi \hspace{0pt}recordActivity & XP truyền vào tỷ lệ với streak mới (5 nhân newStreak) \\ \hline
+    \hspace{0pt}TC\_STREAK\_06 & 1 & Streak getStreakStats edge & IeltsProfile không tồn tại & Gọi \hspace{0pt}getStreakStats(userId) & Trả về null \\ \hline
+    \hspace{0pt}TC\_STREAK\_06 & 2 & Streak getStreakStats edge & Prisma throw error & Gọi \hspace{0pt}getStreakStats(userId) & Trả null, KHÔNG throw (silent fail) \\ \hline
 
     % Nhóm TC_DCT — DictationProgressService (6 case)
-    TC\_DCT & 1 & DictationProgress findByLesson & Progress chưa có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences = [] và difficulty mặc định \\ \hline
-    TC\_DCT & 2 & DictationProgress findByLesson & Progress đã có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences và difficulty từ DB \\ \hline
-    TC\_DCT & 3 & DictationProgress upsert & Progress mới, số câu hoàn thành nhỏ hơn total & Gọi upsert(userId, lessonId, completed) & Tạo bản ghi, award sentence XP, KHÔNG complete lesson \\ \hline
-    TC\_DCT & 4 & DictationProgress upsert & Đủ số câu (bằng total) & Gọi upsert & Chuyển sang complete, gửi notification, award lesson achievement \\ \hline
-    TC\_DCT & 5 & DictationProgress upsert & Lesson đã hoàn thành trước đó & Gọi upsert lại & KHÔNG kích hoạt completion notification lần thứ hai \\ \hline
-    TC\_DCT & 6 & DictationProgress findAllByUser & User có progress trên nhiều lesson & Gọi findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
+    \hspace{0pt}TC\_DCT & 1 & DictationProgress findByLesson & Progress chưa có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences = [] và difficulty mặc định \\ \hline
+    \hspace{0pt}TC\_DCT & 2 & DictationProgress findByLesson & Progress đã có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences và difficulty từ DB \\ \hline
+    \hspace{0pt}TC\_DCT & 3 & DictationProgress upsert & Progress mới, số câu hoàn thành nhỏ hơn total & Gọi upsert(userId, lessonId, completed) & Tạo bản ghi, award sentence XP, KHÔNG complete lesson \\ \hline
+    \hspace{0pt}TC\_DCT & 4 & DictationProgress upsert & Đủ số câu (bằng total) & Gọi upsert & Chuyển sang complete, gửi notification, award lesson achievement \\ \hline
+    \hspace{0pt}TC\_DCT & 5 & DictationProgress upsert & Lesson đã hoàn thành trước đó & Gọi upsert lại & KHÔNG kích hoạt completion notification lần thứ hai \\ \hline
+    \hspace{0pt}TC\_DCT & 6 & DictationProgress findAllByUser & User có progress trên nhiều lesson & Gọi \hspace{0pt}findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
 
     % Nhóm TC_SHD — ShadowingProgressService (6 case)
-    TC\_SHD & 1 & ShadowingProgress findByLesson & Progress chưa có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences = [] \\ \hline
-    TC\_SHD & 2 & ShadowingProgress findByLesson & Progress đã có trong DB & Gọi findByLesson(userId, lessonId) & Trả completedSentences từ DB \\ \hline
-    TC\_SHD & 3 & ShadowingProgress upsert & Số câu nhỏ hơn tổng số câu video & Gọi upsert & Award sentence XP, KHÔNG award lesson complete \\ \hline
-    TC\_SHD & 4 & ShadowingProgress upsert & Đủ tổng số câu của video & Gọi upsert & Complete video, award lesson completion achievement \\ \hline
-    TC\_SHD & 5 & ShadowingProgress upsert & newCount không lớn hơn existingCount & Gọi upsert & KHÔNG kích hoạt sentence XP (no-op) \\ \hline
-    TC\_SHD & 6 & ShadowingProgress findAllByUser & User có progress trên nhiều video & Gọi findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
+    \hspace{0pt}TC\_SHD & 1 & ShadowingProgress findByLesson & Progress chưa có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences = [] \\ \hline
+    \hspace{0pt}TC\_SHD & 2 & ShadowingProgress findByLesson & Progress đã có trong DB & Gọi \hspace{0pt}findByLesson(userId, lessonId) & Trả completedSentences từ DB \\ \hline
+    \hspace{0pt}TC\_SHD & 3 & ShadowingProgress upsert & Số câu nhỏ hơn tổng số câu video & Gọi upsert & Award sentence XP, KHÔNG award lesson complete \\ \hline
+    \hspace{0pt}TC\_SHD & 4 & ShadowingProgress upsert & Đủ tổng số câu của video & Gọi upsert & Complete video, award lesson completion achievement \\ \hline
+    \hspace{0pt}TC\_SHD & 5 & ShadowingProgress upsert & newCount không lớn hơn existingCount & Gọi upsert & KHÔNG kích hoạt sentence XP (no-op) \\ \hline
+    \hspace{0pt}TC\_SHD & 6 & ShadowingProgress findAllByUser & User có progress trên nhiều video & Gọi \hspace{0pt}findAllByUser(userId) & Trả map progress theo lessonId \\ \hline
 
     % Nhóm TC_IADV — IeltsAdvancedService (20 case)
-    TC\_IADV & 1 & IELTS Advanced -- danh sách Listening & Có nhiều Listening parts trong DB & Gọi getListeningParts() & Danh sách trả về sắp xếp theo partNumber \\ \hline
-    TC\_IADV & 2 & IELTS Advanced -- chi tiết Listening part & partId không tồn tại & Gọi getListeningPartDetail(partId) & Throw NotFoundException \\ \hline
-    TC\_IADV & 3 & IELTS Advanced -- submit Listening & User submit đáp án nhiều định dạng (multiple choice, fill-in, matching) & Gọi submitListeningPart & Đánh giá đúng từng định dạng, tạo session lưu kết quả \\ \hline
-    TC\_IADV & 4 & IELTS Advanced -- high-score XP Listening & Tổng điểm Listening đạt từ 80\% trở lên & Gọi submitListeningPart & Thưởng thêm XP cho high-score \\ \hline
-    TC\_IADV & 5 & IELTS Advanced -- danh sách Reading & Có nhiều Reading parts trong DB & Gọi getReadingParts() & Sắp xếp theo partNumber \\ \hline
-    TC\_IADV & 6 & IELTS Advanced -- chi tiết Reading part & partId không tồn tại & Gọi getReadingPartDetail(partId) & Throw NotFoundException \\ \hline
-    TC\_IADV & 7 & IELTS Advanced -- submit Reading & User submit đáp án Reading & Gọi submitReadingPart & Đánh giá đúng, award reading achievements \\ \hline
-    TC\_IADV & 8 & IELTS Advanced -- danh sách Writing prompts & Có nhiều writing prompts trong DB & Gọi getWritingPrompts (phân trang) & Trả danh sách prompts kèm best score mapping \\ \hline
-    TC\_IADV & 9 & IELTS Advanced -- chi tiết Writing prompt & User có active session và lịch sử bài viết & Gọi getWritingPromptDetail(promptId) & Trả chi tiết prompt cùng active session và history \\ \hline
-    TC\_IADV & 10 & IELTS Advanced -- tạo Writing session & User đã có session IN\_PROGRESS & Gọi createWritingSession & Trả session đang có, không tạo session mới \\ \hline
-    TC\_IADV & 11 & IELTS Advanced -- tạo Writing session & User chưa có session đang chạy & Gọi createWritingSession & Tạo session mới \\ \hline
-    TC\_IADV & 12 & IELTS Advanced -- lưu draft Writing & Session đang active & Gọi saveWritingDraft & Cập nhật draft của session đang active \\ \hline
-    TC\_IADV & 13 & IELTS Advanced -- lưu draft Writing & Session không active hoặc không tồn tại & Gọi saveWritingDraft & Throw NotFoundException \\ \hline
-    TC\_IADV & 14 & IELTS Advanced -- submit Writing & User submit bài Writing & Gọi submitWritingSession & Status chuyển sang GRADING, publish task lên RabbitMQ cho AI worker \\ \hline
-    TC\_IADV & 15 & IELTS Advanced -- tạo Speaking session & User chưa hoặc đang có session & Gọi createSpeakingSession & Tạo mới hoặc trả session đang chạy \\ \hline
-    TC\_IADV & 16 & IELTS Advanced -- submit Speaking & Không có audio answer nào được upload & Gọi submitSpeakingSession & Fail / từ chối submit \\ \hline
-    TC\_IADV & 17 & IELTS Advanced -- submit Speaking & Có đầy đủ audio answers hợp lệ & Gọi submitSpeakingSession & Lưu answers, publish task AI cho RabbitMQ \\ \hline
-    TC\_IADV & 18 & IELTS Advanced -- thống kê & User có nhiều session đã hoàn thành & Gọi getStatistics(userId) & Tổng hợp điểm đúng qua các session \\ \hline
-    TC\_IADV & 19 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user yêu cầu & Gọi getHistoryDetail(sessionId, userId) & Trả chi tiết session Listening \\ \hline
-    TC\_IADV & 20 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user khác & Gọi getHistoryDetail(sessionId, otherUserId) & Throw NotFoundException (bảo vệ ownership) \\ \hline
+    \hspace{0pt}TC\_IADV & 1 & IELTS Advanced -- danh sách Listening & Có nhiều Listening parts trong DB & Gọi \hspace{0pt}getListeningParts() & Danh sách trả về sắp xếp theo partNumber \\ \hline
+    \hspace{0pt}TC\_IADV & 2 & IELTS Advanced -- chi tiết Listening part & partId không tồn tại & Gọi \hspace{0pt}getListeningPartDetail(partId) & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_IADV & 3 & IELTS Advanced -- submit Listening & User submit đáp án nhiều định dạng (multiple choice, fill-in, matching) & Gọi \hspace{0pt}submitListeningPart & Đánh giá đúng từng định dạng, tạo session lưu kết quả \\ \hline
+    \hspace{0pt}TC\_IADV & 4 & IELTS Advanced -- high-score XP Listening & Tổng điểm Listening đạt từ 80\% trở lên & Gọi \hspace{0pt}submitListeningPart & Thưởng thêm XP cho high-score \\ \hline
+    \hspace{0pt}TC\_IADV & 5 & IELTS Advanced -- danh sách Reading & Có nhiều Reading parts trong DB & Gọi \hspace{0pt}getReadingParts() & Sắp xếp theo partNumber \\ \hline
+    \hspace{0pt}TC\_IADV & 6 & IELTS Advanced -- chi tiết Reading part & partId không tồn tại & Gọi \hspace{0pt}getReadingPartDetail(partId) & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_IADV & 7 & IELTS Advanced -- submit Reading & User submit đáp án Reading & Gọi \hspace{0pt}submitReadingPart & Đánh giá đúng, award reading achievements \\ \hline
+    \hspace{0pt}TC\_IADV & 8 & IELTS Advanced -- danh sách Writing prompts & Có nhiều writing prompts trong DB & Gọi \hspace{0pt}getWritingPrompts (phân trang) & Trả danh sách prompts kèm best score mapping \\ \hline
+    \hspace{0pt}TC\_IADV & 9 & IELTS Advanced -- chi tiết Writing prompt & User có active session và lịch sử bài viết & Gọi \hspace{0pt}getWritingPromptDetail(promptId) & Trả chi tiết prompt cùng active session và history \\ \hline
+    \hspace{0pt}TC\_IADV & 10 & IELTS Advanced -- tạo Writing session & User đã có session IN\_PROGRESS & Gọi \hspace{0pt}createWritingSession & Trả session đang có, không tạo session mới \\ \hline
+    \hspace{0pt}TC\_IADV & 11 & IELTS Advanced -- tạo Writing session & User chưa có session đang chạy & Gọi \hspace{0pt}createWritingSession & Tạo session mới \\ \hline
+    \hspace{0pt}TC\_IADV & 12 & IELTS Advanced -- lưu draft Writing & Session đang active & Gọi \hspace{0pt}saveWritingDraft & Cập nhật draft của session đang active \\ \hline
+    \hspace{0pt}TC\_IADV & 13 & IELTS Advanced -- lưu draft Writing & Session không active hoặc không tồn tại & Gọi \hspace{0pt}saveWritingDraft & Throw NotFoundException \\ \hline
+    \hspace{0pt}TC\_IADV & 14 & IELTS Advanced -- submit Writing & User submit bài Writing & Gọi \hspace{0pt}submitWritingSession & Status chuyển sang GRADING, publish task lên RabbitMQ cho AI worker \\ \hline
+    \hspace{0pt}TC\_IADV & 15 & IELTS Advanced -- tạo Speaking session & User chưa hoặc đang có session & Gọi \hspace{0pt}createSpeakingSession & Tạo mới hoặc trả session đang chạy \\ \hline
+    \hspace{0pt}TC\_IADV & 16 & IELTS Advanced -- submit Speaking & Không có audio answer nào được upload & Gọi \hspace{0pt}submitSpeakingSession & Fail / từ chối submit \\ \hline
+    \hspace{0pt}TC\_IADV & 17 & IELTS Advanced -- submit Speaking & Có đầy đủ audio answers hợp lệ & Gọi \hspace{0pt}submitSpeakingSession & Lưu answers, publish task AI cho RabbitMQ \\ \hline
+    \hspace{0pt}TC\_IADV & 18 & IELTS Advanced -- thống kê & User có nhiều session đã hoàn thành & Gọi \hspace{0pt}getStatistics(userId) & Tổng hợp điểm đúng qua các session \\ \hline
+    \hspace{0pt}TC\_IADV & 19 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user yêu cầu & Gọi \hspace{0pt}getHistoryDetail(sessionId, userId) & Trả chi tiết session Listening \\ \hline
+    \hspace{0pt}TC\_IADV & 20 & IELTS Advanced -- lịch sử chi tiết & sessionId thuộc user khác & Gọi \hspace{0pt}getHistoryDetail(sessionId, otherUserId) & Throw NotFoundException (bảo vệ ownership) \\ \hline
 
     % Nhóm TC_EXAM — Submit bài thi IELTS Intensive (6 case)
-    TC\_EXAM & 1 & Submit bài thi IELTS Intensive & User có session IN\_PROGRESS (WRITING), còn quota & POST /exams/sessions/:id/submit hợp lệ & 201, status = SUBMITTED, publishGradingTask được gọi đúng 1 lần kèm đúng payload \\ \hline
-    TC\_EXAM & 2 & Submit bài thi IELTS Intensive & Session đã ở trạng thái GRADED & POST submit lại session đã chấm xong & 400 ``Session already graded'' \\ \hline
-    TC\_EXAM & 3 & Submit bài thi IELTS Intensive & sessionId thuộc user khác & POST submit với JWT của user khác & 403 Access denied \\ \hline
-    TC\_EXAM & 4 & Submit bài thi IELTS Intensive & Quota AI\_WRITING\_GRADING vượt giới hạn gói FREE & POST submit khi đã hết quota tháng & 403 QUOTA\_EXCEEDED \\ \hline
-    TC\_EXAM & 5 & Submit bài thi IELTS Intensive & Không có JWT token & POST submit không có header Authorization & 401 Unauthorized \\ \hline
-    TC\_EXAM & 6 & Submit bài thi IELTS Intensive & sessionId không tồn tại & POST submit với sessionId sai & 404 Not Found \\ \hline
+    \hspace{0pt}TC\_EXAM & 1 & Submit bài thi IELTS Intensive & User có session IN\_PROGRESS (WRITING), còn quota & POST /exams/sessions/:id/submit hợp lệ & 201, status = SUBMITTED, publishGradingTask được gọi đúng 1 lần kèm đúng payload \\ \hline
+    \hspace{0pt}TC\_EXAM & 2 & Submit bài thi IELTS Intensive & Session đã ở trạng thái GRADED & POST submit lại session đã chấm xong & 400 ``Session already graded'' \\ \hline
+    \hspace{0pt}TC\_EXAM & 3 & Submit bài thi IELTS Intensive & sessionId thuộc user khác & POST submit với JWT của user khác & 403 Access denied \\ \hline
+    \hspace{0pt}TC\_EXAM & 4 & Submit bài thi IELTS Intensive & Quota AI\_WRITING\_GRADING vượt giới hạn gói FREE & POST submit khi đã hết quota tháng & 403 QUOTA\_EXCEEDED \\ \hline
+    \hspace{0pt}TC\_EXAM & 5 & Submit bài thi IELTS Intensive & Không có JWT token & POST submit không có header Authorization & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_EXAM & 6 & Submit bài thi IELTS Intensive & sessionId không tồn tại & POST submit với sessionId sai & 404 Not Found \\ \hline
 
     % Nhóm TC_CB — Result callback từ AI worker (4 case)
-    TC\_CB & 1 & Callback chấm AI & AI worker hoàn tất grading, gửi callback với HMAC signature đúng & POST callback với signature hợp lệ & 200 OK, lưu IeltsIntensiveResult, session.status = GRADED \\ \hline
-    TC\_CB & 2 & Callback chấm AI & Signature không khớp HMAC & POST callback với signature giả mạo & 401 Unauthorized, KHÔNG ghi vào DB \\ \hline
-    TC\_CB & 3 & Callback chấm AI & Session đã ở trạng thái GRADING\_FAILED & POST callback với cùng sessionId & 200 OK (idempotent), result không bị ghi đè \\ \hline
-    TC\_CB & 4 & Callback chấm AI & Body thiếu totalScore và feedback & POST callback với payload không đủ trường & 400 Bad Request \\ \hline
+    \hspace{0pt}TC\_CB & 1 & Callback chấm AI & AI worker hoàn tất grading, gửi callback với HMAC signature đúng & POST callback với signature hợp lệ & 200 OK, lưu IeltsIntensiveResult, session.status = GRADED \\ \hline
+    \hspace{0pt}TC\_CB & 2 & Callback chấm AI & Signature không khớp HMAC & POST callback với signature giả mạo & 401 Unauthorized, KHÔNG ghi vào DB \\ \hline
+    \hspace{0pt}TC\_CB & 3 & Callback chấm AI & Session đã ở trạng thái GRADING\_FAILED & POST callback với cùng sessionId & 200 OK (idempotent), result không bị ghi đè \\ \hline
+    \hspace{0pt}TC\_CB & 4 & Callback chấm AI & Body thiếu totalScore và feedback & POST callback với payload không đủ trường & 400 Bad Request \\ \hline
 
     % Nhóm TC_RES — Polling kết quả chấm AI (6 case)
-    TC\_RES & 1 & Polling kết quả chấm & Session đang ở GRADING & GET /results/:sessionId & 200, trả \{status: ``GRADING'', result: null\} \\ \hline
-    TC\_RES & 2 & Polling kết quả chấm & Session đã GRADED & GET /results/:sessionId & 200, trả full result shape \\ \hline
-    TC\_RES & 3 & Polling kết quả chấm & sessionId thuộc user khác & GET /results/:sessionId với JWT user khác & 404 (không tiết lộ existence) \\ \hline
-    TC\_RES & 4 & Polling kết quả chấm & sessionId không tồn tại & GET /results/:sessionId với id sai & 404 Not Found \\ \hline
-    TC\_RES & 5 & Polling kết quả chấm & Không có JWT token & GET /results/:sessionId không kèm token & 401 Unauthorized \\ \hline
-    TC\_RES & 6 & Polling kết quả chấm & Session ở GRADING\_FAILED & GET /results/:sessionId & 200, trả \{status: ``GRADING\_FAILED'', error: string\} \\ \hline
+    \hspace{0pt}TC\_RES & 1 & Polling kết quả chấm & Session đang ở GRADING & GET /results/:sessionId & 200, trả \{status: ``GRADING'', result: null\} \\ \hline
+    \hspace{0pt}TC\_RES & 2 & Polling kết quả chấm & Session đã GRADED & GET /results/:sessionId & 200, trả full result shape \\ \hline
+    \hspace{0pt}TC\_RES & 3 & Polling kết quả chấm & sessionId thuộc user khác & GET /results/:sessionId với JWT user khác & 404 (không tiết lộ existence) \\ \hline
+    \hspace{0pt}TC\_RES & 4 & Polling kết quả chấm & sessionId không tồn tại & GET /results/:sessionId với id sai & 404 Not Found \\ \hline
+    \hspace{0pt}TC\_RES & 5 & Polling kết quả chấm & Không có JWT token & GET /results/:sessionId không kèm token & 401 Unauthorized \\ \hline
+    \hspace{0pt}TC\_RES & 6 & Polling kết quả chấm & Session ở GRADING\_FAILED & GET /results/:sessionId & 200, trả \{status: ``GRADING\_FAILED'', error: string\} \\ \hline
 
     % Nhóm TC_SUB — Subscription, VNPay IPN và cron downgrade (13 case)
-    TC\_SUB & 1 & VNPay IPN -- checksum sai & vnp\_SecureHash sai (HMAC không khớp) & GET /subscriptions/webhook/vnpay với hash sai & RspCode ``97'' (Fail checksum) \\ \hline
-    TC\_SUB & 2 & VNPay IPN -- thanh toán thành công & ResponseCode = 00, HMAC đúng & GET webhook payment thành công & payment status = ``succeeded'', subscription nâng lên PREMIUM \\ \hline
-    TC\_SUB & 3 & VNPay IPN -- user hủy giao dịch & vnp\_ResponseCode = 24 (user hủy) & GET webhook cancel & RspCode ``00'' non-success, payment.create KHÔNG được gọi \\ \hline
-    TC\_SUB & 4 & VNPay IPN -- replay & Session đã xóa, payment đã tồn tại & GET webhook lại với cùng TxnRef & RspCode ``02'', KHÔNG double-credit \\ \hline
-    TC\_SUB & 5 & VNPay IPN -- thiếu TxnRef & Payload thiếu vnp\_TxnRef & GET webhook & RspCode ``99'' (Missing txnRef) \\ \hline
-    TC\_SUB & 6 & SubscriptionsService -- startTrial & User chưa từng dùng trial & Gọi startTrial(userId) & Tạo subscription TRIALING, endDate xấp xỉ now cộng 7 ngày \\ \hline
-    TC\_SUB & 7 & SubscriptionsService -- startTrial & trialUsed = true & Gọi startTrial(userId) & Throw BadRequestException ``already used'' \\ \hline
-    TC\_SUB & 8 & SubscriptionsService -- cancel & User đang ở gói FREE & Gọi cancelSubscription(userId) & Throw BadRequestException \\ \hline
-    TC\_SUB & 9 & SubscriptionsService -- cancel & User đang ở gói PREMIUM & Gọi cancelSubscription(userId) & status = CANCELED, gọi paymentProvider.cancelSubscription \\ \hline
-    TC\_SUB & 10 & SubscriptionsService -- incrementUsage & Còn quota AI\_WRITING\_GRADING & Gọi incrementUsage(AI\_WRITING\_GRADING) & Trả về true, count tăng thêm 1 \\ \hline
-    TC\_SUB & 11 & SubscriptionsService -- incrementUsage & Đã vượt quota & Gọi incrementUsage(AI\_WRITING\_GRADING) & Trả về false, count bị rollback \\ \hline
-    TC\_SUB & 12 & Subscriptions Cron -- downgrade & Subscription quá endDate cộng 3 ngày grace period & Cron 2:00 AM chạy & Downgrade về FREE \\ \hline
-    TC\_SUB & 13 & Subscriptions Cron -- downgrade & Trong grace period (endDate nhỏ hơn now, dưới 3 ngày) & Cron chạy & KHÔNG downgrade, giữ trạng thái \\ \hline
+    \hspace{0pt}TC\_SUB & 1 & VNPay IPN -- checksum sai & vnp\_SecureHash sai (HMAC không khớp) & GET /subscriptions/webhook/vnpay với hash sai & RspCode ``97'' (Fail checksum) \\ \hline
+    \hspace{0pt}TC\_SUB & 2 & VNPay IPN -- thanh toán thành công & ResponseCode = 00, HMAC đúng & GET webhook payment thành công & payment status = ``succeeded'', subscription nâng lên PREMIUM \\ \hline
+    \hspace{0pt}TC\_SUB & 3 & VNPay IPN -- user hủy giao dịch & vnp\_ResponseCode = 24 (user hủy) & GET webhook cancel & RspCode ``00'' non-success, payment.create KHÔNG được gọi \\ \hline
+    \hspace{0pt}TC\_SUB & 4 & VNPay IPN -- replay & Session đã xóa, payment đã tồn tại & GET webhook lại với cùng TxnRef & RspCode ``02'', KHÔNG double-credit \\ \hline
+    \hspace{0pt}TC\_SUB & 5 & VNPay IPN -- thiếu TxnRef & Payload thiếu vnp\_TxnRef & GET webhook & RspCode ``99'' (Missing txnRef) \\ \hline
+    \hspace{0pt}TC\_SUB & 6 & SubscriptionsService -- startTrial & User chưa từng dùng trial & Gọi \hspace{0pt}startTrial(userId) & Tạo subscription TRIALING, endDate xấp xỉ now cộng 7 ngày \\ \hline
+    \hspace{0pt}TC\_SUB & 7 & SubscriptionsService -- startTrial & trialUsed = true & Gọi \hspace{0pt}startTrial(userId) & Throw BadRequestException ``already used'' \\ \hline
+    \hspace{0pt}TC\_SUB & 8 & SubscriptionsService -- cancel & User đang ở gói FREE & Gọi \hspace{0pt}cancelSubscription(userId) & Throw BadRequestException \\ \hline
+    \hspace{0pt}TC\_SUB & 9 & SubscriptionsService -- cancel & User đang ở gói PREMIUM & Gọi \hspace{0pt}cancelSubscription(userId) & status = CANCELED, gọi paymentProvider.cancelSubscription \\ \hline
+    \hspace{0pt}TC\_SUB & 10 & SubscriptionsService -- incrementUsage & Còn quota AI\_WRITING\_GRADING & Gọi \hspace{0pt}incrementUsage(AI\_WRITING\_GRADING) & Trả về true, count tăng thêm 1 \\ \hline
+    \hspace{0pt}TC\_SUB & 11 & SubscriptionsService -- incrementUsage & Đã vượt quota & Gọi \hspace{0pt}incrementUsage(AI\_WRITING\_GRADING) & Trả về false, count bị rollback \\ \hline
+    \hspace{0pt}TC\_SUB & 12 & Subscriptions Cron -- downgrade & Subscription quá endDate cộng 3 ngày grace period & Cron 2:00 AM chạy & Downgrade về FREE \\ \hline
+    \hspace{0pt}TC\_SUB & 13 & Subscriptions Cron -- downgrade & Trong grace period (endDate nhỏ hơn now, dưới 3 ngày) & Cron chạy & KHÔNG downgrade, giữ trạng thái \\ \hline
 
     % Nhóm TC_EDGE — Edge case pagination (8 case)
-    TC\_EDGE & 1 & Notifications pagination & User đã đăng nhập & GET /notifications?page=0 & 200 (ParseInt không reject 0) \\ \hline
-    TC\_EDGE & 2 & Notifications pagination & Như trên & GET /notifications?page=-1 & 200 (ParseInt chấp nhận số âm, không có @Min) \\ \hline
-    TC\_EDGE & 3 & Notifications pagination & Như trên & GET /notifications?limit=10000 & 200 (không có cap maxLimit) \\ \hline
-    TC\_EDGE & 4 & Notifications pagination & Như trên & GET /notifications?cursor=not-a-valid-uuid & 200 (notifications không có cursor param, bị whitelist drop) \\ \hline
-    TC\_EDGE & 5 & Notifications pagination & Như trên & GET /notifications không có query param & 200, DefaultValuePipe gán page=1, limit=20 \\ \hline
-    TC\_EDGE & 6 & Notifications pagination & Như trên & GET /notifications?limit=0 & 200 (ParseInt chấp nhận 0, không có @Min(1)) \\ \hline
-    TC\_EDGE & 7 & Notifications empty & User không có notification nào trong DB & GET /notifications & 200, trả \{notifications: [], total: 0\}, KHÔNG throw 404 \\ \hline
-    TC\_EDGE & 8 & Posts cursor pagination & cursor đúng định dạng UUID nhưng không tồn tại & GET /posts?cursor=uuid-không-tồn-tại & 200, trả \{items: []\} \\ \hline
+    \hspace{0pt}TC\_EDGE & 1 & Notifications pagination & User đã đăng nhập & GET /notifications?page=0 & 200 (ParseInt không reject 0) \\ \hline
+    \hspace{0pt}TC\_EDGE & 2 & Notifications pagination & Như trên & GET /notifications?page=-1 & 200 (ParseInt chấp nhận số âm, không có @Min) \\ \hline
+    \hspace{0pt}TC\_EDGE & 3 & Notifications pagination & Như trên & GET /notifications?limit=10000 & 200 (không có cap maxLimit) \\ \hline
+    \hspace{0pt}TC\_EDGE & 4 & Notifications pagination & Như trên & GET /notifications?cursor=not-a-valid-uuid & 200 (notifications không có cursor param, bị whitelist drop) \\ \hline
+    \hspace{0pt}TC\_EDGE & 5 & Notifications pagination & Như trên & GET /notifications không có query param & 200, DefaultValuePipe gán page=1, limit=20 \\ \hline
+    \hspace{0pt}TC\_EDGE & 6 & Notifications pagination & Như trên & GET /notifications?limit=0 & 200 (ParseInt chấp nhận 0, không có @Min(1)) \\ \hline
+    \hspace{0pt}TC\_EDGE & 7 & Notifications empty & User không có notification nào trong DB & GET /notifications & 200, trả \{notifications: [], total: 0\}, KHÔNG throw 404 \\ \hline
+    \hspace{0pt}TC\_EDGE & 8 & Posts cursor pagination & cursor đúng định dạng UUID nhưng không tồn tại & GET /posts?cursor=uuid-không-tồn-tại & 200, trả \{items: []\} \\ \hline
 
     % Nhóm TC_BOUND — Boundary value (8 case)
-    TC\_BOUND & 1 & Pronunciation score boundary & User đăng nhập & POST /pronunciation/progress với score = 0 & 201 (lower boundary, @Min(0) pass) \\ \hline
-    TC\_BOUND & 2 & Pronunciation score boundary & User đăng nhập & POST với score = 100 & 201 (upper boundary hợp lệ) \\ \hline
-    TC\_BOUND & 3 & Pronunciation score boundary & User đăng nhập & POST với score = 101 & 201 (over max, hiện tại pass vì DTO thiếu @Max(100), khe hở đã ghi nhận) \\ \hline
-    TC\_BOUND & 4 & Pronunciation score boundary & User đăng nhập & POST với score = -1 & 400 (under @Min(0), ValidationPipe reject) \\ \hline
-    TC\_BOUND & 5 & IELTS Statistics zero-data & User chưa học gì & GET /ielts-statistics/foundation & 200, trả \{vocabulary: \{wordsLearned: 0\}\}, KHÔNG throw \\ \hline
-    TC\_BOUND & 6 & Posts body boundary & User đăng nhập & POST /posts với body = chuỗi rỗng & 400 (@MinLength(1) violation) \\ \hline
-    TC\_BOUND & 7 & Posts imageUrls boundary & User đăng nhập & POST /posts với imageUrls = [] & 201 (mảng rỗng được phép) \\ \hline
-    TC\_BOUND & 8 & Posts imageUrls boundary & User đăng nhập & POST /posts với imageUrls có 11 phần tử & 201 (hiện tại pass vì thiếu @ArrayMaxSize(10), khe hở đã ghi nhận) \\ \hline
+    \hspace{0pt}TC\_BOUND & 1 & Pronunciation score boundary & User đăng nhập & POST /pronunciation/progress với score = 0 & 201 (lower boundary, @Min(0) pass) \\ \hline
+    \hspace{0pt}TC\_BOUND & 2 & Pronunciation score boundary & User đăng nhập & POST với score = 100 & 201 (upper boundary hợp lệ) \\ \hline
+    \hspace{0pt}TC\_BOUND & 3 & Pronunciation score boundary & User đăng nhập & POST với score = 101 & 201 (over max, hiện tại pass vì DTO thiếu @Max(100), khe hở đã ghi nhận) \\ \hline
+    \hspace{0pt}TC\_BOUND & 4 & Pronunciation score boundary & User đăng nhập & POST với score = -1 & 400 (under @Min(0), ValidationPipe reject) \\ \hline
+    \hspace{0pt}TC\_BOUND & 5 & IELTS Statistics zero-data & User chưa học gì & GET /ielts-statistics/foundation & 200, trả \{vocabulary: \{wordsLearned: 0\}\}, KHÔNG throw \\ \hline
+    \hspace{0pt}TC\_BOUND & 6 & Posts body boundary & User đăng nhập & POST /posts với body = chuỗi rỗng & 400 (@MinLength(1) violation) \\ \hline
+    \hspace{0pt}TC\_BOUND & 7 & Posts imageUrls boundary & User đăng nhập & POST /posts với imageUrls = [] & 201 (mảng rỗng được phép) \\ \hline
+    \hspace{0pt}TC\_BOUND & 8 & Posts imageUrls boundary & User đăng nhập & POST /posts với imageUrls có 11 phần tử & 201 (hiện tại pass vì thiếu @ArrayMaxSize(10), khe hở đã ghi nhận) \\ \hline
 
     % Nhóm TC_SEC — Cross-user access control (8 case)
-    TC\_SEC & 1 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & PATCH /vocab-lab/decks/:id (của userA) với token userB & 404 (ẩn existence theo mô hình ownership) \\ \hline
-    TC\_SEC & 2 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & DELETE /vocab-lab/decks/:id với token userB & 404 \\ \hline
-    TC\_SEC & 3 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & GET /vocab-lab/decks/:id/cards với token userB & 404 \\ \hline
-    TC\_SEC & 4 & Cross-user Notes & userB đăng nhập, note thuộc userA & DELETE /notes/:id với token userB & 404 \\ \hline
-    TC\_SEC & 5 & Cross-user Notes & userB đăng nhập, note thuộc userA & PATCH /notes/:id với token userB & 404 \\ \hline
-    TC\_SEC & 6 & Cross-user Posts & userB (non-admin) đăng nhập, post thuộc userA & DELETE /posts/:id với token userB & 403 (Posts có phân quyền role rõ ràng nên trả 403 thay vì 404) \\ \hline
-    TC\_SEC & 7 & Cross-user Posts & userB đăng nhập, post thuộc userA & PATCH /posts/:id với token userB & 404 \\ \hline
-    TC\_SEC & 8 & Admin bypass Posts & admin (role ADMIN) cố xóa post của user khác & DELETE /posts/:id với token admin & Mong đợi 200 (admin được phép). Hiện tại trả 403, khe hở admin bypass đã ghi nhận \\ \hline
+    \hspace{0pt}TC\_SEC & 1 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & PATCH /vocab-lab/decks/:id (của userA) với token userB & 404 (ẩn existence theo mô hình ownership) \\ \hline
+    \hspace{0pt}TC\_SEC & 2 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & DELETE /vocab-lab/decks/:id với token userB & 404 \\ \hline
+    \hspace{0pt}TC\_SEC & 3 & Cross-user VocabLab & userB đăng nhập, deck thuộc userA & GET /vocab-lab/decks/:id/cards với token userB & 404 \\ \hline
+    \hspace{0pt}TC\_SEC & 4 & Cross-user Notes & userB đăng nhập, note thuộc userA & DELETE /notes/:id với token userB & 404 \\ \hline
+    \hspace{0pt}TC\_SEC & 5 & Cross-user Notes & userB đăng nhập, note thuộc userA & PATCH /notes/:id với token userB & 404 \\ \hline
+    \hspace{0pt}TC\_SEC & 6 & Cross-user Posts & userB (non-admin) đăng nhập, post thuộc userA & DELETE /posts/:id với token userB & 403 (Posts có phân quyền role rõ ràng nên trả 403 thay vì 404) \\ \hline
+    \hspace{0pt}TC\_SEC & 7 & Cross-user Posts & userB đăng nhập, post thuộc userA & PATCH /posts/:id với token userB & 404 \\ \hline
+    \hspace{0pt}TC\_SEC & 8 & Admin bypass Posts & admin (role ADMIN) cố xóa post của user khác & DELETE /posts/:id với token admin & Mong đợi 200 (admin được phép). Hiện tại trả 403, khe hở admin bypass đã ghi nhận \\ \hline
 
 \end{longtable}
 
