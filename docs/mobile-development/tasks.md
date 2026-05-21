@@ -284,7 +284,7 @@
 ## Phase 5 — Diagnostic Quiz onboarding (12h)
 
 - [x] **P5-01** · Port `writingClozeData.ts` từ web → `constants/writingClozeData.ts` · *est. 0.5h*
-- [ ] **P5-02** · Tạo `app/ielts/onboarding/diagnostic.tsx` port DiagnosticQuiz · *est. 4h*
+- [x] **P5-02** · Tạo `app/ielts/onboarding/diagnostic.tsx` port DiagnosticQuiz · *est. 4h*
   - 5-7 câu mix (fill-blank, MC grammar, MC vocab, writing cloze)
   - Progress bar, prev/next button
 - [x] **P5-03** · Backend endpoint API integration: added `getPlacementExercises` and verified onboarding submit flow · *est. 1h*
