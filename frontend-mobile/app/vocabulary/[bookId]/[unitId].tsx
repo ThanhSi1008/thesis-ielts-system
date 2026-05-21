@@ -13,18 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { vocabularyApi } from '@/services/ielts.api';
-
-// ─── Theme ────────────────────────────────────────────────────────────────────
-const THEME = {
-  P: '#FFC600',
-  FG1: '#212529',
-  FG2: '#64748b',
-  FG3: '#9ca3af',
-  BDR: '#e5e7eb',
-  SRF: '#f8f9fa',
-  WH: '#ffffff',
-  BLU: '#2196F3',
-};
+import { COLORS, FONTS } from '@/constants';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tab = 'flashcard' | 'exercise' | 'reading';
@@ -102,7 +91,7 @@ function FlashCard({
               <View />
             )}
             <TouchableOpacity style={fc.audioBtn}>
-              <Ionicons name="volume-high" size={22} color={THEME.FG2} />
+              <Ionicons name="volume-high" size={22} color={COLORS.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -133,7 +122,7 @@ function FlashCard({
               <View />
             )}
             <TouchableOpacity style={fc.audioBtn}>
-              <Ionicons name="volume-high" size={22} color={THEME.FG2} />
+              <Ionicons name="volume-high" size={22} color={COLORS.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -193,11 +182,11 @@ const fc = StyleSheet.create({
   wrap: { flex: 1, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
   card: {
     flex: 1,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderRadius: 24,
     padding: 24,
     borderWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
     backfaceVisibility: 'hidden',
     position: 'absolute',
     top: 0,
@@ -220,9 +209,9 @@ const fc = StyleSheet.create({
     borderRadius: 20,
   },
   posText: {
-    color: THEME.BLU,
+    color: COLORS.info,
     fontSize: 11,
-    fontFamily: 'Farro-Bold',
+    fontFamily: FONTS.bold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -231,44 +220,44 @@ const fc = StyleSheet.create({
   cardBody: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   wordText: {
     fontSize: 32,
-    fontFamily: 'Farro-Bold',
-    color: THEME.FG1,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
     letterSpacing: -0.5,
     textAlign: 'center',
   },
   wordTextSmall: {
     fontSize: 24,
-    fontFamily: 'Farro-Bold',
-    color: THEME.FG1,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
     marginBottom: 16,
     textAlign: 'center',
   },
-  pronText: { fontSize: 15, color: THEME.FG3, marginTop: 6, fontFamily: 'monospace' },
+  pronText: { fontSize: 15, color: COLORS.gray[400], marginTop: 6, fontFamily: 'monospace' },
   hintText: {
     textAlign: 'center',
-    color: THEME.FG3,
+    color: COLORS.gray[400],
     fontSize: 12,
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
     marginTop: 'auto',
   },
 
   defText: {
     fontSize: 16,
-    color: THEME.FG1,
+    color: COLORS.text,
     textAlign: 'center',
     lineHeight: 26,
-    fontFamily: 'Farro-Medium',
+    fontFamily: FONTS.medium,
   },
   exampleBox: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: THEME.SRF,
+    backgroundColor: COLORS.surface,
     borderRadius: 16,
     width: '100%',
   },
   exampleText: {
     fontSize: 14,
-    color: THEME.FG2,
+    color: COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     fontStyle: 'italic',
@@ -276,8 +265,8 @@ const fc = StyleSheet.create({
 
   srsActions: { flexDirection: 'row', gap: 10, marginTop: 24 },
   srsBtn: { flex: 1, borderWidth: 1, borderRadius: 16, paddingVertical: 14, alignItems: 'center' },
-  srsLabel: { fontFamily: 'Farro-Bold', fontSize: 15 },
-  srsTime: { fontFamily: 'Farro-Medium', fontSize: 11, marginTop: 2 },
+  srsLabel: { fontFamily: FONTS.bold, fontSize: 15 },
+  srsTime: { fontFamily: FONTS.medium, fontSize: 11, marginTop: 2 },
 });
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
@@ -347,7 +336,7 @@ export default function VocabularyUnitScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
-            <Ionicons name="close" size={28} color={THEME.FG1} />
+            <Ionicons name="close" size={28} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>Loading…</Text>
@@ -355,7 +344,7 @@ export default function VocabularyUnitScreen() {
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={THEME.P} />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       </SafeAreaView>
     );
@@ -368,7 +357,7 @@ export default function VocabularyUnitScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
-          <Ionicons name="close" size={28} color={THEME.FG1} />
+          <Ionicons name="close" size={28} color={COLORS.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle} numberOfLines={1}>
@@ -401,7 +390,7 @@ export default function VocabularyUnitScreen() {
               style={[styles.tabItem, active && styles.tabItemActive]}
               onPress={() => setActiveTab(tab.key)}
             >
-              <Ionicons name={tab.icon} size={16} color={active ? THEME.P : THEME.FG3} />
+              <Ionicons name={tab.icon} size={16} color={active ? COLORS.primary : COLORS.gray[400]} />
               <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{tab.label}</Text>
             </TouchableOpacity>
           );
@@ -452,9 +441,9 @@ export default function VocabularyUnitScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.SRF },
+  container: { flex: 1, backgroundColor: COLORS.surface },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 },
-  emptyText: { fontSize: 14, color: THEME.FG3, textAlign: 'center', fontFamily: 'Farro-Regular' },
+  emptyText: { fontSize: 14, color: COLORS.gray[400], textAlign: 'center', fontFamily: FONTS.regular },
 
   header: {
     flexDirection: 'row',
@@ -462,21 +451,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
   },
   closeBtn: { width: 40, height: 40, alignItems: 'flex-start', justifyContent: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },
-  headerTitle: { fontSize: 16, fontFamily: 'Farro-Bold', color: THEME.FG1 },
-  headerSub: { fontSize: 12, color: THEME.FG3, marginTop: 2, fontFamily: 'Farro-Medium' },
+  headerTitle: { fontSize: 16, fontFamily: FONTS.bold, color: COLORS.text },
+  headerSub: { fontSize: 12, color: COLORS.gray[400], marginTop: 2, fontFamily: FONTS.medium },
 
-  progressBar: { height: 3, backgroundColor: THEME.BDR },
+  progressBar: { height: 3, backgroundColor: COLORS.border },
   progressFill: { height: '100%', backgroundColor: '#22C55E' },
 
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: THEME.WH,
+    backgroundColor: COLORS.background,
     borderBottomWidth: 1,
-    borderColor: THEME.BDR,
+    borderColor: COLORS.border,
   },
   tabItem: {
     flex: 1,
@@ -488,18 +477,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
-  tabItemActive: { borderBottomColor: THEME.P },
-  tabLabel: { fontSize: 12, color: THEME.FG3, fontFamily: 'Farro-Medium' },
-  tabLabelActive: { color: THEME.FG1, fontFamily: 'Farro-Bold' },
+  tabItemActive: { borderBottomColor: COLORS.primary },
+  tabLabel: { fontSize: 12, color: COLORS.gray[400], fontFamily: FONTS.medium },
+  tabLabelActive: { color: COLORS.text, fontFamily: FONTS.bold },
 
   content: { flex: 1 },
 
-  readingTitle: { fontSize: 20, fontFamily: 'Farro-Bold', color: THEME.FG1, marginBottom: 16 },
+  readingTitle: { fontSize: 20, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: 16 },
   readingPara: {
     fontSize: 14,
-    color: THEME.FG1,
+    color: COLORS.text,
     lineHeight: 24,
     marginBottom: 16,
-    fontFamily: 'Farro-Regular',
+    fontFamily: FONTS.regular,
   },
 });
