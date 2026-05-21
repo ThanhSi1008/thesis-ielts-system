@@ -26,7 +26,7 @@ const TABS = [
 
 export default function AdvancedScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState<'listening' | 'reading' | 'writing' | 'speaking'>('listening');
   const [listeningParts, setListeningParts] = useState<any[]>([]);
   const [readingParts, setReadingParts] = useState<any[]>([]);
@@ -67,7 +67,7 @@ export default function AdvancedScreen() {
   };
 
   const allParts = activeTab === 'listening' ? listeningParts : readingParts;
-  const color = TABS.find((t) => t.key === activeTab)?.color || COLORS.primary;
+  const color = TABS.find((t) => t.key === activeTab)?.color || colors.primary;
 
   // Collect unique question types across all parts for this tab
   const availableTypes = useMemo(() => {
@@ -90,14 +90,16 @@ export default function AdvancedScreen() {
     center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
     header: {
-      backgroundColor: COLORS.primary,
+      backgroundColor: isDark ? colors.card : colors.primary,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: SPACING.lg,
       paddingVertical: SPACING.md,
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
     },
-    headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
+    headerTitle: { color: isDark ? colors.text : '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
     headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
 
     tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderColor: colors.border },
@@ -108,7 +110,7 @@ export default function AdvancedScreen() {
       borderBottomWidth: 3,
       borderBottomColor: 'transparent',
     },
-    tabLabel: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary },
+    tabLabel: { fontSize: FONT_SIZES.md, color: colors.textSecondary },
 
     filterScroll: { flexGrow: 0, borderBottomWidth: 1, borderColor: colors.border },
     filterContent: {
@@ -125,7 +127,7 @@ export default function AdvancedScreen() {
       borderColor: colors.border,
       backgroundColor: colors.card,
     },
-    filterChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.textSecondary },
+    filterChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: colors.textSecondary },
 
     activeFilter: {
       flexDirection: 'row',
@@ -179,7 +181,7 @@ export default function AdvancedScreen() {
       borderWidth: 1,
       borderColor: colors.border,
     },
-    qtChipText: { fontSize: 10, color: COLORS.textSecondary, textTransform: 'capitalize' },
+    qtChipText: { fontSize: 10, color: colors.textSecondary, textTransform: 'capitalize' },
 
     historyBanner: {
       flexDirection: 'row',
@@ -206,7 +208,7 @@ export default function AdvancedScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Ionicons name="chevron-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Advanced Practice</Text>
         <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
@@ -214,13 +216,13 @@ export default function AdvancedScreen() {
             style={styles.headerBtn}
             onPress={() => router.push(ROUTES.ieltsAdvancedStatistics)}
           >
-            <Ionicons name="stats-chart-outline" size={22} color="#fff" />
+            <Ionicons name="stats-chart-outline" size={22} color={isDark ? colors.text : '#fff'} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerBtn}
             onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
           >
-            <Ionicons name="time-outline" size={22} color="#fff" />
+            <Ionicons name="time-outline" size={22} color={isDark ? colors.text : '#fff'} />
           </TouchableOpacity>
         </View>
       </View>
@@ -286,21 +288,21 @@ export default function AdvancedScreen() {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                fetchData();
-              }}
-            />
-          }
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => {
+                  setRefreshing(true);
+                  fetchData();
+                }}
+              />
+            }
         >
           {/* History banner */}
           <TouchableOpacity
@@ -386,7 +388,7 @@ export default function AdvancedScreen() {
                     ))}
                   </View>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color={COLORS.textMuted} />
+                <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             ))
           )}
