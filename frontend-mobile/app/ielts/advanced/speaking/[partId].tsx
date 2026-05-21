@@ -1,0 +1,257 @@
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
+import { ieltsAdvancedApi } from '@/services/ielts.api';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
+
+export default function AdvancedSpeakingPracticeScreen() {
+  const router = useRouter();
+  const { partId } = useLocalSearchParams<{ partId: string }>();
+  const { isPremium } = useSubscription();
+
+  const [part, setPart] = useState<any>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [speakingAnswers, setSpeakingAnswers] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Track elapsed time
+  const startTimeRef = useRef<number>(0);
+
+  // Verify subscription status
+  useEffect(() => {
+    if (!isPremium) {
+      router.replace(ROUTES.pricing);
+    }
+  }, [isPremium]);
+
+  // Fetch part detail and initialize session
+  useEffect(() => {
+    if (!isPremium || !partId) return;
+
+    const initPractice = async () => {
+      try {
+        const res = await ieltsAdvancedApi.getSpeakingPart(partId);
+        setPart(res);
+
+        if (res.activeSession) {
+          setSessionId(res.activeSession.id);
+          // Set draft answers if any exist (e.g. from prior attempts)
+          const draftAnswers: Record<string, string> = {};
+          if (res.activeSession.answers) {
+            Object.entries(res.activeSession.answers).forEach(([key, val]) => {
+              // Convert index key "0" back to "0-0" structure for SpeakingExamBlock
+              draftAnswers[`0-${key}`] = String(val);
+            });
+          }
+          setSpeakingAnswers(draftAnswers);
+        } else {
+          const session = await ieltsAdvancedApi.createSpeakingSession(partId);
+          setSessionId(session.id);
+          setSpeakingAnswers({});
+        }
+
+        startTimeRef.current = Date.now();
+      } catch (err) {
+        console.error('[SpeakingPractice] Failed to initialize:', err);
+        Alert.alert('Error', 'Failed to load speaking session. Please try again.', [
+          { text: 'Go Back', onPress: () => router.back() },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initPractice();
+  }, [partId, isPremium]);
+
+  const handleSubmit = async () => {
+    if (!sessionId) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const timeTaken = Math.floor((Date.now() - startTimeRef.current) / 1000);
+
+      // Map answers format from "0-i" (SpeakingExamBlock flat structure) to "i" (backend format)
+      const audioAnswers: Record<string, string> = {};
+      Object.entries(speakingAnswers).forEach(([key, url]) => {
+        const partsOfKey = key.split('-');
+        if (partsOfKey.length === 2 && partsOfKey[0] === '0') {
+          audioAnswers[partsOfKey[1]] = url;
+        }
+      });
+
+      await ieltsAdvancedApi.submitSpeakingSession(sessionId, {
+        audioAnswers,
+        timeTaken,
+      });
+
+      // Navigate to polling/results screen
+      router.replace(`/ielts/advanced/speaking/result/${sessionId}`);
+    } catch (err: any) {
+      console.error('[SpeakingPractice] Submit failed:', err);
+      Alert.alert(
+        'Submit Failed',
+        err?.message ?? 'Could not submit your speaking practice. Please try again.'
+      );
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.skill.speaking} />
+        <Text style={styles.loadingText}>Initializing practice room...</Text>
+      </View>
+    );
+  }
+
+  if (!part) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Speaking topic not found.</Text>
+        <TouchableOpacity style={styles.backBtnText} onPress={() => router.back()}>
+          <Text style={{ color: COLORS.skill.speaking }}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // Map backend part properties to snake_case structure expected by SpeakingExamBlock
+  const mappedPart = {
+    part_number: part.partNumber ?? 1,
+    topic: part.topic ?? part.title ?? '',
+    cue_card: part.cueCard ?? part.cue_card ?? '',
+    video: part.video ?? '',
+    video2: part.video2 ?? '',
+    questions: (part.questions ?? []).map((q: any) => ({
+      text: q.text ?? q.question ?? '',
+      video: q.video ?? '',
+      video2: q.video2 ?? '',
+    })),
+  };
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Header Bar */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() =>
+          Alert.alert('Exit Practice?', 'Your progress will be saved.', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Exit', style: 'destructive', onPress: () => router.back() },
+          ])
+        }>
+          <Ionicons name="close" size={24} color="#fff" />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Part {part.partNumber ?? 1} Practice</Text>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>
+            {part.topic ?? part.title}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.body}>
+        <SpeakingExamBlock
+          parts={[mappedPart]}
+          answers={speakingAnswers}
+          onChange={setSpeakingAnswers}
+          onSubmit={handleSubmit}
+        />
+      </View>
+
+      {/* Full screen loader during submission */}
+      {isSubmitting && (
+        <View style={styles.submittingOverlay}>
+          <ActivityIndicator size="large" color={COLORS.skill.speaking} />
+          <Text style={styles.submittingText}>Submitting answers for grading...</Text>
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: SPACING.xl,
+  },
+  loadingText: {
+    marginTop: SPACING.md,
+    fontFamily: FONTS.medium,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+  },
+  errorText: {
+    fontFamily: FONTS.bold,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.error,
+    textAlign: 'center',
+  },
+  backBtnText: {
+    marginTop: SPACING.md,
+    padding: SPACING.sm,
+  },
+  header: {
+    backgroundColor: COLORS.skill.speaking,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleContainer: {
+    flex: 1,
+    marginLeft: SPACING.sm,
+  },
+  headerTitle: {
+    color: '#fff',
+    fontSize: FONT_SIZES.md,
+    fontFamily: FONTS.bold,
+  },
+  headerSubtitle: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: FONT_SIZES.xs,
+    fontFamily: FONTS.regular,
+  },
+  body: {
+    flex: 1,
+  },
+  submittingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: SPACING.md,
+    zIndex: 999,
+  },
+  submittingText: {
+    fontFamily: FONTS.bold,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.skill.speaking,
+  },
+});
