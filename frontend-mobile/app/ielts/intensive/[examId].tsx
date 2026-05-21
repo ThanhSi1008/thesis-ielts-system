@@ -756,7 +756,7 @@ function renderGroup(
             colors && {
               backgroundColor: isDark ? colors.surface : '#FFF9C4',
               color: colors.textSecondary,
-              borderLeftColor: isDark ? colors.border : COLORS.warning,
+              borderLeftColor: isDark ? colors.border : colors.warning,
             },
           ]}
         >
@@ -1518,7 +1518,7 @@ export default function ExamPlayerScreen() {
       : undefined;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Sticky header */}
       <View style={styles.examHeader}>
         <TouchableOpacity
@@ -1547,14 +1547,14 @@ export default function ExamPlayerScreen() {
 
       {/* Audio bar (Listening only) — no pause/seek per exam rules */}
       {audioUrl && (
-        <View style={styles.audioBannerContainer}>
+        <View style={[styles.audioBannerContainer, { backgroundColor: isDark ? colors.surface : '#EEF2FF', borderColor: isDark ? colors.border : '#C7D2FE' }]}>
           <View style={styles.audioBanner}>
-            <View style={styles.audioStatusDot}>
+            <View style={[styles.audioStatusDot, { backgroundColor: isDark ? colors.border : '#C7D2FE' }]}>
               <View
-                style={[styles.audioStatusDotInner, player.playing && styles.audioStatusDotActive]}
+                style={[styles.audioStatusDotInner, { backgroundColor: isDark ? colors.textMuted : '#94A3B8' }, player.playing && styles.audioStatusDotActive]}
               />
             </View>
-            <Text style={styles.audioLabel}>
+            <Text style={[styles.audioLabel, { color: colors.primary }]}>
               {player.playing ? 'Audio playing…' : 'Preparing audio…'}
             </Text>
             <View style={styles.volumeControl}>
@@ -1562,16 +1562,16 @@ export default function ExamPlayerScreen() {
                 onPress={() => setVolume(Math.max(0, volume - 0.2))}
                 style={styles.volBtn}
               >
-                <Ionicons name="volume-low" size={18} color={COLORS.textSecondary} />
+                <Ionicons name="volume-low" size={18} color={colors.textSecondary} />
               </TouchableOpacity>
-              <View style={styles.volumeTrack}>
-                <View style={[styles.volumeFill, { width: `${volume * 100}%` as any }]} />
+              <View style={[styles.volumeTrack, { backgroundColor: isDark ? colors.border : '#C7D2FE' }]}>
+                <View style={[styles.volumeFill, { backgroundColor: colors.primary, width: `${volume * 100}%` as any }]} />
               </View>
               <TouchableOpacity
                 onPress={() => setVolume(Math.min(1, volume + 0.2))}
                 style={styles.volBtn}
               >
-                <Ionicons name="volume-high" size={18} color={COLORS.textSecondary} />
+                <Ionicons name="volume-high" size={18} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -1669,7 +1669,7 @@ export default function ExamPlayerScreen() {
                             {
                               backgroundColor: isDark ? colors.surface : '#FFF9C4',
                               color: colors.textSecondary,
-                              borderLeftColor: isDark ? colors.border : COLORS.warning,
+                              borderLeftColor: isDark ? colors.border : colors.warning,
                             },
                           ]}
                         >
