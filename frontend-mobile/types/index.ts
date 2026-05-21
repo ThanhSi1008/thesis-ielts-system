@@ -448,6 +448,7 @@ export interface ShadowingVideo {
   category?: string;
   duration: string;
   sentences: ShadowingSentence[];
+  tags?: string[];
 }
 
 export interface ShadowingProgress {

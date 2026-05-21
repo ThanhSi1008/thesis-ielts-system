@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,11 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { shadowingApi } from '@/services/features.api';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, FONTS, ROUTES } from '@/constants';
+import { COLORS, FONTS, ROUTES, SPACING, RADIUS } from '@/constants';
 import { FeatureLock } from '@/components/ui/index';
-
+import { AddVideoModal } from '@/components/shadowing';
+import { useShadowingLessons } from '@/hooks';
 
 const STATUS_FILTERS = [
   { id: 'all', label: 'All' },
@@ -29,76 +29,166 @@ export default function ShadowingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const [mode, setMode] = useState<'shadowing' | 'dictation'>('shadowing');
-  const [tab, setTab] = useState<'library' | 'my-videos'>('library');
-  const [status, setStatus] = useState('all');
-  const [showSearch, setShowSearch] = useState(false);
-  const [search, setSearch] = useState('');
+  const {
+    mode,
+    setMode,
+    tab,
+    setTab,
+    status,
+    setStatus,
+    search,
+    setSearch,
+    showSearch,
+    setShowSearch,
+    showAddModal,
+    setShowAddModal,
+    filtered,
+    tabLessons,
+    progress,
+    loading,
+    refreshing,
+    handleRefresh,
+    handleDeleteVideo,
+  } = useShadowingLessons();
 
-  const [systemLessons, setSystemLessons] = useState<any[]>([]);
-  const [userVideos, setUserVideos] = useState<any[]>([]);
-  const [progress, setProgress] = useState<
-    Record<string, { shadowing: number; dictation: number }>
-  >({});
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const fetchData = async () => {
-    try {
-      const [videosRes, lessonsRes, progressRes] = await Promise.allSettled([
-        shadowingApi.getVideos(),
-        shadowingApi.getLessons(),
-        shadowingApi.getAllProgress(),
-      ]);
-      if (videosRes.status === 'fulfilled') setUserVideos(videosRes.value);
-      if (lessonsRes.status === 'fulfilled') setSystemLessons(lessonsRes.value);
-      if (progressRes.status === 'fulfilled') {
-        const rawProgress = progressRes.value;
-        const computed: Record<string, { shadowing: number; dictation: number }> = {};
-        const activeLessons = lessonsRes.status === 'fulfilled' ? lessonsRes.value : [];
-        const activeVideos = videosRes.status === 'fulfilled' ? videosRes.value : [];
-        [...activeLessons, ...activeVideos].forEach((lesson: any) => {
-          const p = rawProgress[lesson.id];
-          const total = lesson.sentences?.length || 1;
-          computed[lesson.id] = {
-            shadowing: p?.shadowing ? Math.round((p.shadowing.length / total) * 100) : 0,
-            dictation: p?.dictation ? Math.round((p.dictation.length / total) * 100) : 0,
-          };
-        });
-        setProgress(computed);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+  const renderLessonList = () => {
+    if (loading) {
+      return (
+        <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
+      );
     }
+
+    return (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[COLORS.primary]}
+          />
+        }
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        {filtered.map((lesson) => {
+          const p = progress[lesson.id]?.[mode] || 0;
+          const isComp = p === 100;
+          const isIP = p > 0 && p < 100;
+          const isProcessing = (lesson as any).status === 'PROCESSING';
+          const accent = mode === 'shadowing' ? COLORS.info : COLORS.warning;
+          const cat = lesson.category || (lesson.tags?.[0] || 'English');
+
+          return (
+            <View key={lesson.id} style={styles.lessonCard}>
+              {/* Thumbnail */}
+              <View style={styles.thumbWrap}>
+                <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
+                  <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
+                  {isProcessing ? (
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  ) : isComp ? (
+                    <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
+                  ) : (
+                    <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
+                  )}
+                </LinearGradient>
+                {isIP && !isProcessing && (
+                  <View style={styles.thumbProgBg}>
+                    <View style={[styles.thumbProgFill, { width: `${p}%` as any }]} />
+                  </View>
+                )}
+              </View>
+
+              {/* Meta */}
+              <View style={styles.metaWrap}>
+                <Text style={styles.lessonTitle} numberOfLines={2}>
+                  {lesson.title}
+                </Text>
+                <View style={styles.metaRow}>
+                  <View style={styles.durWrap}>
+                    <Ionicons name="time-outline" size={11} color={COLORS.gray[400]} />
+                    <Text style={styles.durText}>
+                      {isProcessing ? 'Analyzing...' : lesson.duration || '5 min'}
+                    </Text>
+                  </View>
+                  <View style={styles.catWrap}>
+                    <Text style={styles.catText}>{cat}</Text>
+                  </View>
+                  {lesson.folder && (
+                    <View style={[styles.catWrap, styles.folderBadge]}>
+                      <Ionicons name="folder-outline" size={10} color={COLORS.textSecondary} style={{ marginRight: 2 }} />
+                      <Text style={styles.catText}>{lesson.folder}</Text>
+                    </View>
+                  )}
+                </View>
+
+                {isIP && !isProcessing && (
+                  <View style={styles.progBarRow}>
+                    <View style={styles.progBarBg}>
+                      <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
+                    </View>
+                    <Text style={styles.progBarText}>{p}%</Text>
+                  </View>
+                )}
+
+                <View style={styles.actionRow}>
+                  <View style={{ flex: 1 }}>
+                    {isProcessing ? (
+                      <View style={styles.processingWrap}>
+                        <ActivityIndicator size="small" color={COLORS.primary} style={{ marginRight: 4 }} />
+                        <Text style={styles.processingText}>Transcribing...</Text>
+                      </View>
+                    ) : p === 0 ? (
+                      <Text style={styles.statusText}>Not started</Text>
+                    ) : isComp ? (
+                      <View style={styles.compWrap}>
+                        <Ionicons name="checkmark" size={11} color={COLORS.success} />
+                        <Text style={styles.compText}>Completed</Text>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <View style={styles.actionGroup}>
+                    {tab === 'my-videos' && (
+                      <TouchableOpacity
+                        style={styles.deleteBtn}
+                        onPress={() => handleDeleteVideo(lesson.id, lesson.title)}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons name="trash-outline" size={15} color={COLORS.error} />
+                      </TouchableOpacity>
+                    )}
+
+                    <TouchableOpacity
+                      disabled={isProcessing}
+                      style={[
+                        styles.actionBtn,
+                        isProcessing ? styles.actionBtnDisabled : isComp ? styles.actionBtnComp : styles.actionBtnStart,
+                      ]}
+                      onPress={() => router.push(ROUTES.shadowingLesson(lesson.id, mode))}
+                    >
+                      <Text
+                        style={[
+                          styles.actionBtnText,
+                          isProcessing
+                            ? styles.actionBtnTextDisabled
+                            : isComp
+                            ? styles.actionBtnTextComp
+                            : styles.actionBtnTextStart,
+                        ]}
+                      >
+                        {isProcessing ? 'ETA ~1M' : isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </View>
+          );
+        })}
+      </ScrollView>
+    );
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const allLessons = [
-    ...systemLessons.map((l) => ({ ...l, tags: l.tags || ['English'] })),
-    ...userVideos.map((v) => ({ ...v, tags: ['YOUTUBE'] })),
-  ];
-
-  const tabLessons =
-    tab === 'my-videos'
-      ? allLessons.filter((l) => l.tags.includes('YOUTUBE'))
-      : allLessons.filter((l) => !l.tags.includes('YOUTUBE'));
-
-  const filtered = tabLessons.filter((l) => {
-    const p = progress[l.id]?.[mode] || 0;
-    let matchStatus = true;
-    if (status === 'completed') matchStatus = p === 100;
-    if (status === 'in-progress') matchStatus = p > 0 && p < 100;
-    if (status === 'not-started') matchStatus = p === 0;
-
-    const matchSearch = l.title.toLowerCase().includes(search.toLowerCase());
-    return matchStatus && matchSearch;
-  });
 
   return (
     <View style={styles.container}>
@@ -204,7 +294,7 @@ export default function ShadowingScreen() {
         </ScrollView>
       </View>
 
-      {/* List */}
+      {/* List content */}
       <View style={styles.listWrap}>
         <Text style={styles.countText}>
           {filtered.length} of {tabLessons.length} lessons
@@ -212,209 +302,32 @@ export default function ShadowingScreen() {
 
         {tab === 'my-videos' ? (
           <FeatureLock requiredTier="PREMIUM" featureName="Shadowing My Videos">
-            {loading ? (
-              <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
-            ) : (
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={() => {
-                      setRefreshing(true);
-                      fetchData();
-                    }}
-                  />
-                }
-                contentContainerStyle={{ paddingBottom: 100 }}
-              >
-                {filtered.map((lesson) => {
-                  const p = progress[lesson.id]?.[mode] || 0;
-                  const isComp = p === 100;
-                  const isIP = p > 0 && p < 100;
-                  const accent = mode === 'shadowing' ? COLORS.info : COLORS.warning;
-                  const cat = lesson.tags?.[0] || 'English';
+            <View style={{ flex: 1 }}>
+              {renderLessonList()}
 
-                  return (
-                    <View key={lesson.id} style={styles.lessonCard}>
-                      {/* Thumbnail */}
-                      <View style={styles.thumbWrap}>
-                        <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
-                          <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
-                          {isComp ? (
-                            <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
-                          ) : (
-                            <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
-                          )}
-                        </LinearGradient>
-                        {isIP && (
-                          <View style={styles.thumbProgBg}>
-                            <View style={[styles.thumbProgFill, { width: `${p}%` as any }]} />
-                          </View>
-                        )}
-                      </View>
-
-                      {/* Meta */}
-                      <View style={styles.metaWrap}>
-                        <Text style={styles.lessonTitle} numberOfLines={2}>
-                          {lesson.title}
-                        </Text>
-                        <View style={styles.metaRow}>
-                          <View style={styles.durWrap}>
-                            <Ionicons name="time-outline" size={11} color={COLORS.gray[400]} />
-                            <Text style={styles.durText}>{lesson.duration || '5 min'}</Text>
-                          </View>
-                          <View style={styles.catWrap}>
-                            <Text style={styles.catText}>{cat}</Text>
-                          </View>
-                        </View>
-
-                        {isIP && (
-                          <View style={styles.progBarRow}>
-                            <View style={styles.progBarBg}>
-                              <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
-                            </View>
-                            <Text style={styles.progBarText}>{p}%</Text>
-                          </View>
-                        )}
-
-                        <View style={styles.actionRow}>
-                          <View style={{ flex: 1 }}>
-                            {p === 0 && <Text style={styles.statusText}>Not started</Text>}
-                            {isComp && (
-                              <View style={styles.compWrap}>
-                                <Ionicons name="checkmark" size={11} color={COLORS.success} />
-                                <Text style={styles.compText}>Completed</Text>
-                              </View>
-                            )}
-                          </View>
-
-                          <TouchableOpacity
-                            style={[
-                              styles.actionBtn,
-                              isComp ? styles.actionBtnComp : styles.actionBtnStart,
-                            ]}
-                            onPress={() => router.push(ROUTES.shadowingLesson(lesson.id, mode))}
-                          >
-                            <Text
-                              style={[
-                                styles.actionBtnText,
-                                isComp ? styles.actionBtnTextComp : styles.actionBtnTextStart,
-                              ]}
-                            >
-                              {isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </View>
-                  );
-                })}
-              </ScrollView>
-            )}
+              {/* Floating Action Button (FAB) inside premium wrapper */}
+              {!loading && (
+                <TouchableOpacity
+                  style={styles.fab}
+                  onPress={() => setShowAddModal(true)}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="add" size={24} color="#FFF" />
+                </TouchableOpacity>
+              )}
+            </View>
           </FeatureLock>
-        ) : loading ? (
-          <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
         ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => {
-                  setRefreshing(true);
-                  fetchData();
-                }}
-              />
-            }
-            contentContainerStyle={{ paddingBottom: 100 }}
-          >
-            {filtered.map((lesson) => {
-              const p = progress[lesson.id]?.[mode] || 0;
-              const isComp = p === 100;
-              const isIP = p > 0 && p < 100;
-              const accent = mode === 'shadowing' ? COLORS.info : COLORS.warning;
-              const cat = lesson.tags?.[0] || 'English';
-
-              return (
-                <View key={lesson.id} style={styles.lessonCard}>
-                  {/* Thumbnail */}
-                  <View style={styles.thumbWrap}>
-                    <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
-                      <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
-                      {isComp ? (
-                        <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
-                      ) : (
-                        <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
-                      )}
-                    </LinearGradient>
-                    {isIP && (
-                      <View style={styles.thumbProgBg}>
-                        <View style={[styles.thumbProgFill, { width: `${p}%` as any }]} />
-                      </View>
-                    )}
-                  </View>
-
-                  {/* Meta */}
-                  <View style={styles.metaWrap}>
-                    <Text style={styles.lessonTitle} numberOfLines={2}>
-                      {lesson.title}
-                    </Text>
-                    <View style={styles.metaRow}>
-                      <View style={styles.durWrap}>
-                        <Ionicons name="time-outline" size={11} color={COLORS.gray[400]} />
-                        <Text style={styles.durText}>{lesson.duration || '5 min'}</Text>
-                      </View>
-                      <View style={styles.catWrap}>
-                        <Text style={styles.catText}>{cat}</Text>
-                      </View>
-                    </View>
-
-                    {isIP && (
-                      <View style={styles.progBarRow}>
-                        <View style={styles.progBarBg}>
-                          <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
-                        </View>
-                        <Text style={styles.progBarText}>{p}%</Text>
-                      </View>
-                    )}
-
-                    <View style={styles.actionRow}>
-                      <View style={{ flex: 1 }}>
-                        {p === 0 && <Text style={styles.statusText}>Not started</Text>}
-                        {isComp && (
-                          <View style={styles.compWrap}>
-                            <Ionicons name="checkmark" size={11} color={COLORS.success} />
-                            <Text style={styles.compText}>Completed</Text>
-                          </View>
-                        )}
-                      </View>
-
-                      <TouchableOpacity
-                        style={[
-                          styles.actionBtn,
-                          isComp ? styles.actionBtnComp : styles.actionBtnStart,
-                        ]}
-                        onPress={() => router.push(ROUTES.shadowingLesson(lesson.id, mode))}
-                      >
-                        <Text
-                          style={[
-                            styles.actionBtnText,
-                            isComp ? styles.actionBtnTextComp : styles.actionBtnTextStart,
-                          ]}
-                        >
-                          {isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              );
-            })}
-          </ScrollView>
+          renderLessonList()
         )}
-
       </View>
+
+      {/* YouTube Import Modal */}
+      <AddVideoModal
+        visible={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleRefresh}
+      />
     </View>
   );
 }
@@ -592,7 +505,7 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     marginBottom: 3,
   },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   durWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   durText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.gray[400] },
   catWrap: {
@@ -600,6 +513,11 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
     paddingHorizontal: 6,
     borderRadius: 4,
+  },
+  folderBadge: {
+    backgroundColor: 'rgba(255, 198, 0, 0.08)',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   catText: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.textSecondary },
 
@@ -624,6 +542,28 @@ const styles = StyleSheet.create({
   compWrap: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   compText: { fontFamily: FONTS.bold, fontSize: 11, color: COLORS.success },
 
+  actionGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  deleteBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: RADIUS.md,
+    backgroundColor: 'rgba(244, 67, 54, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  processingWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  processingText: {
+    fontFamily: FONTS.bold,
+    fontSize: 10,
+    color: COLORS.gray[400],
+  },
   actionBtn: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999 },
   actionBtnStart: {
     backgroundColor: COLORS.primary,
@@ -634,7 +574,29 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   actionBtnComp: { backgroundColor: '#f3f4f6' },
+  actionBtnDisabled: {
+    backgroundColor: COLORS.gray[200],
+  },
   actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.4 },
   actionBtnTextStart: { color: COLORS.text },
   actionBtnTextComp: { color: COLORS.textSecondary },
+  actionBtnTextDisabled: { color: COLORS.gray[400] },
+
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+    zIndex: 99,
+  },
 });

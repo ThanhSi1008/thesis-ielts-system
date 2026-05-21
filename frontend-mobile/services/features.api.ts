@@ -113,8 +113,11 @@ export const shadowingApi = {
     duration: string;
     sentences: ShadowingSentence[];
   }) => apiClient.post<ShadowingVideo>('/shadowing/videos', dto),
+  importVideo: (dto: { youtubeUrl: string; title: string; folder?: string }) =>
+    apiClient.post<ShadowingVideo>('/shadowing/videos/import', dto),
   deleteVideo: (id: string) => apiClient.delete<void>(`/shadowing/videos/${id}`),
   getFolders: () => apiClient.get<string[]>('/shadowing/folders'),
+  createFolder: (name: string) => apiClient.post<void>('/shadowing/folders', { name }),
   getAllProgress: () =>
     apiClient.get<Record<string, { shadowing: number[]; dictation: number[] }>>(
       '/shadowing/progress',

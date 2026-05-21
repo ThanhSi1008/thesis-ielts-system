@@ -7,6 +7,7 @@ export * from './vocab-lab';
 export * from './profile';
 export * from './community';
 export * from './ui';
+export * from './shadowing';
 export * from './voice/Waveform';
 export * from './voice/RecordButton';
 export * from './voice/feedback/ScoreDashboard';

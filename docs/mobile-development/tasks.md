@@ -329,24 +329,24 @@
 ## Phase 7 — Shadowing & Dictation polish (16h)
 
 ### 7.1 Add YouTube modal (6h)
-- [ ] **P7-01** · Tạo `components/shadowing/AddVideoModal.tsx` · *est. 3h*
+- [x] **P7-01** · Tạo `components/shadowing/AddVideoModal.tsx` · *est. 3h*
   - Inputs: URL, title, category, folder
   - Validate YouTube ID + preview thumbnail
-- [ ] **P7-02** · Submit qua `shadowingApi.createVideo` + toast loading · *est. 1.5h*
-- [ ] **P7-03** · Trigger từ FAB hoặc button trong "My Videos" tab · *est. 1.5h*
+- [x] **P7-02** · Submit qua `shadowingApi.createVideo` + toast loading · *est. 1.5h*
+- [x] **P7-03** · Trigger từ FAB hoặc button trong "My Videos" tab · *est. 1.5h*
 
 ### 7.2 Folder management (3h)
-- [ ] **P7-04** · `components/shadowing/FolderPicker.tsx` (dropdown + create new) · *est. 2h*
-- [ ] **P7-05** · Tích hợp vào AddVideoModal + filter list theo folder · *est. 1h*
+- [x] **P7-04** · `components/shadowing/FolderPicker.tsx` (dropdown + create new) · *est. 2h*
+- [x] **P7-05** · Tích hợp vào AddVideoModal + filter list theo folder · *est. 1h*
 
 ### 7.3 Polling PROCESSING (4h)
-- [ ] **P7-06** · Detect video status PROCESSING trong list → set interval 5s · *est. 2h*
-- [ ] **P7-07** · Card UI: spinner overlay + ETA, auto refresh khi READY · *est. 1.5h*
-- [ ] **P7-08** · Toast khi 1 video done · *est. 0.5h*
+- [x] **P7-06** · Detect video status PROCESSING trong list → set interval 5s · *est. 2h*
+- [x] **P7-07** · Card UI: spinner overlay + ETA, auto refresh khi READY · *est. 1.5h*
+- [x] **P7-08** · Toast khi 1 video done · *est. 0.5h*
 
 ### 7.4 Refactor (3h)
-- [ ] **P7-09** · Tách logic ra `hooks/useShadowingLessons.ts` · *est. 2h*
-- [ ] **P7-10** · Clean dead code + consistent naming · *est. 1h*
+- [x] **P7-09** · Tách logic ra `hooks/useShadowingLessons.ts` · *est. 2h*
+- [x] **P7-10** · Clean dead code + consistent naming · *est. 1h*
 
 **Tổng phase 7**: 16h
 
