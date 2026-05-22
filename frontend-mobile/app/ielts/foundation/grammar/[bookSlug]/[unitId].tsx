@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -15,6 +14,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { grammarApi } from '@/services';
 import type { GrammarUnitWithContent } from '@/types';
 import { Breadcrumb } from '@/components';
+import { toast } from '@/components/ui';
 
 type Tab = 'theory' | 'exercises';
 
@@ -152,7 +152,7 @@ function ExercisesTab({
     const isMultipleChoice = exercises.some((e) => e.options && e.options.length > 0);
 
     if (isMultipleChoice && Object.keys(answers).length < exercises.length) {
-      Alert.alert('Incomplete Answers', 'Please reply to all questions before submitting.');
+      toast.info('Warning', 'Please reply to all questions before submitting.');
       return;
     }
 

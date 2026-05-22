@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  Alert,
   RefreshControl,
   Modal,
   Pressable,
@@ -18,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, Button, DeckCardSkeleton, ConfirmDialog } from '@/components';
+import { toast } from '@/components/ui';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTheme } from '@/contexts/ThemeContext';
 import * as DocumentPicker from 'expo-document-picker';
@@ -136,7 +136,7 @@ function RenameDeckModal({ visible, deck, onClose, onSaved }: RenameModalProps) 
       onSaved();
       onClose();
     } catch {
-      Alert.alert('Error', 'Could not rename deck. Please try again.');
+      toast.error('Error', 'Could not rename deck. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -244,7 +244,7 @@ export function DecksTab() {
       setCreateModal(false);
       fetchData();
     } catch {
-      Alert.alert('Error', 'Failed to create deck.');
+      toast.error('Error', 'Failed to create deck.');
     } finally {
       setCreating(false);
     }
@@ -270,14 +270,14 @@ export function DecksTab() {
         !parsed.cards ||
         !Array.isArray(parsed.cards)
       ) {
-        Alert.alert('Invalid Format', 'This file is not a valid Vocab Lab deck file.');
+        toast.error('Invalid Format', 'This file is not a valid Vocab Lab deck file.');
         return;
       }
 
       setLexonData(parsed);
       setImportModalVisible(true);
     } catch (err: any) {
-      Alert.alert('Error', 'Failed to pick or parse the file: ' + err.message);
+      toast.error('Error', 'Failed to pick or parse the file: ' + err.message);
     }
   };
 
@@ -294,7 +294,7 @@ export function DecksTab() {
       };
 
       const res = await vocabLabApi.importDeck(payload);
-      Alert.alert(
+      toast.success(
         'Import Success',
         `Successfully imported deck "${res.deckName}" with ${res.cardsImported} cards!`,
       );
@@ -303,7 +303,7 @@ export function DecksTab() {
       fetchData();
     } catch (err: any) {
       const errMsg = err?.response?.data?.message || err.message || 'Failed to import deck';
-      Alert.alert('Import Failed', errMsg);
+      toast.error('Import Failed', errMsg);
     } finally {
       setImporting(false);
     }

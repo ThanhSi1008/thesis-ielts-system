@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
-  Alert,
   Animated,
   ScrollView,
   Platform,
@@ -19,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
-import { Badge, ScoreBadge } from '@/components/ui';
+import { Badge, ScoreBadge, toast } from '@/components/ui';
 import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTabBarVisibility } from '@/hooks';
@@ -641,7 +640,7 @@ export default function HistoryScreen() {
               await ieltsExamsApi.deleteSession(id);
               setHistory((prev) => prev.filter((h) => (h.id ?? h.sessionId) !== id));
             } catch {
-              Alert.alert('Error', 'Failed to delete. Try again.');
+              toast.error('Failed to delete. Try again.');
             } finally {
               setDeletingId(null);
               setDeleteItem(null);

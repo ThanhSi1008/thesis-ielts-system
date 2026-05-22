@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Pressable,
   Dimensions,
   Modal as RNModal,
@@ -27,7 +26,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, SHADOWS, ROUTES } from '@/constants';
 import { ieltsProfileApi } from '@/services/ielts.api';
-import { Button } from '@/components/ui';
+import { Button, toast } from '@/components/ui';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -91,7 +90,7 @@ export default function OnboardingScreen() {
       router.replace(ROUTES.ieltsRoadmap);
     } catch (e: any) {
       if (__DEV__) console.error('Onboarding Save Error:', e?.response?.data || e.message || e);
-      Alert.alert('Error', 'Could not save profile. Try again.');
+      toast.error('Could not save profile. Try again.');
     } finally {
       setSaving(false);
     }

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  Alert,
   RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -16,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { studentTeacherApi } from '@/services/ielts.api';
 import { EmptyState, SectionHeader, Button, Badge } from '@/components/ui';
+import { toast } from '@/components/ui/index';
 
 type View_ = 'students' | 'teachers';
 
@@ -52,11 +52,11 @@ export default function StudentTeacherScreen() {
     setLinking(true);
     try {
       await studentTeacherApi.linkTeacher(teacherIdInput.trim());
-      Alert.alert('Success! 🎉', 'Teacher linked successfully.');
+      toast.success('Success! 🎉', 'Teacher linked successfully.');
       setTeacherIdInput('');
       fetchData();
     } catch (e) {
-      Alert.alert('Error', 'Could not link teacher. Check the ID and try again.');
+      toast.error('Error', 'Could not link teacher. Check the ID and try again.');
     } finally {
       setLinking(false);
     }

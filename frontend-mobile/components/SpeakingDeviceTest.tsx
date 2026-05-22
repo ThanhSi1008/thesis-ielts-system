@@ -6,8 +6,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
-  Alert,
 } from 'react-native';
+import { toast } from '@/components/ui/index';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -95,7 +95,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
         }, 1000);
       } catch (err) {
         if (__DEV__) console.error('Mic error:', err);
-        Alert.alert('Permission Denied', 'Microphone access is required to run the test.');
+        toast.error('Permission Denied', 'Microphone access is required to run the test.');
       }
     } else if (micState === 'RECORDING') {
       // Stop Recording

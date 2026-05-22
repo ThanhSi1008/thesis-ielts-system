@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Animated,
-  Alert,
   TextInput,
   Image,
 } from 'react-native';
@@ -18,7 +17,8 @@ import { vocabularyApi } from '@/services';
 import { COLORS, FONTS } from '@/constants';
 import { useAudioPlayer } from 'expo-audio';
 import type { VocabularyUnitWithContent, SubmitQuestionsResponse } from '@/types';
-import { Breadcrumb } from '@/components';
+import { Breadcrumb, ConfirmDialog } from '@/components';
+import { toast } from '@/components/ui';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tab = 'flashcard' | 'reading' | 'exercise';
@@ -364,6 +364,7 @@ export default function VocabularyUnitScreen() {
 
   // Tab unlocking
   const [wordListComplete, setWordListComplete] = useState(false);
+  const [completedVisible, setCompletedVisible] = useState(false);
 
   const loadingBreadcrumb = useMemo(() => [
     { label: 'IELTS', route: '/(tabs)/ielts' },
@@ -464,11 +465,7 @@ export default function VocabularyUnitScreen() {
       } catch (err) {
         if (__DEV__) console.log('Failed to update progress', err);
       }
-      Alert.alert(
-        '🎉 Flashcards Completed!',
-        "You have successfully learned all vocabulary words in this unit! Next, let's read the comprehension story.",
-        [{ text: 'Go to Reading', onPress: () => setActiveTab('reading') }],
-      );
+      setCompletedVisible(true);
     }
   };
 
@@ -496,14 +493,12 @@ export default function VocabularyUnitScreen() {
       const isPerfect = res.correctCount === res.totalQuestions;
       if (isPerfect) {
         setQuestionsCompleted(true);
+        toast.success(`Perfect Score! You got ${res.correctCount} out of ${res.totalQuestions} questions correct.`);
+      } else {
+        toast.info(`Keep Trying! You got ${res.correctCount} out of ${res.totalQuestions} questions correct.`);
       }
-      Alert.alert(
-        isPerfect ? '🎉 Perfect Score!' : '💪 Keep Trying!',
-        `You got ${res.correctCount} out of ${res.totalQuestions} questions correct.`,
-        [{ text: 'OK' }],
-      );
     } catch (err) {
-      Alert.alert('Error', 'Failed to submit answers. Please try again.');
+      toast.error('Failed to submit answers. Please try again.');
       if (__DEV__) console.error(err);
     } finally {
       setQuestionSubmitting(false);
@@ -864,6 +859,19 @@ export default function VocabularyUnitScreen() {
           </ScrollView>
         )}
       </View>
+      <ConfirmDialog
+        visible={completedVisible}
+        onClose={() => setCompletedVisible(false)}
+        title="🎉 Flashcards Completed!"
+        message="You have successfully learned all vocabulary words in this unit! Next, let's read the comprehension story."
+        primaryAction={{
+          title: 'Go to Reading',
+          onPress: () => {
+            setCompletedVisible(false);
+            setActiveTab('reading');
+          },
+        }}
+      />
     </SafeAreaView>
   );
 }

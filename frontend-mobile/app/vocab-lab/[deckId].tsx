@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
-  Alert,
   Modal,
   Pressable,
 } from 'react-native';
@@ -17,9 +16,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
-import { EmptyState, Button } from '@/components/ui';
+import { EmptyState, Button, toast } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Breadcrumb } from '@/components';
+import { Breadcrumb, ConfirmDialog } from '@/components';
 
 const createStyles = (colors: any) =>
   StyleSheet.create({
@@ -143,6 +142,8 @@ export default function DeckDetailScreen() {
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
   const [adding, setAdding] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -172,28 +173,26 @@ export default function DeckDetailScreen() {
       setAddModal(false);
       fetchData();
     } catch {
-      Alert.alert('Error', 'Failed to add card.');
+      toast.error('Error', 'Failed to add card.');
     } finally {
       setAdding(false);
     }
   };
 
   const handleDeleteCard = (cardId: string) => {
-    Alert.alert('Delete Card?', 'This card will be permanently removed.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await vocabLabApi.deleteFlashcard(cardId);
-            fetchData();
-          } catch {
-            Alert.alert('Error', 'Failed to delete card.');
-          }
-        },
-      },
-    ]);
+    setCardToDelete(cardId);
+    setDeleteConfirmVisible(true);
+  };
+
+  const confirmDeleteCard = async () => {
+    if (!cardToDelete) return;
+    try {
+      await vocabLabApi.deleteFlashcard(cardToDelete);
+      toast.success('Success', 'Card deleted successfully.');
+      fetchData();
+    } catch {
+      toast.error('Error', 'Failed to delete card.');
+    }
   };
 
   const STATE_COLORS: Record<string, string> = {
@@ -246,7 +245,7 @@ export default function DeckDetailScreen() {
             onPress={() =>
               dueCount > 0
                 ? router.push(ROUTES.vocabLabStudy(deckId))
-                : Alert.alert('All caught up! 🎉', 'No cards due.')
+                : toast.info('All caught up! 🎉', 'No cards due.')
             }
             size="sm"
             variant={dueCount > 0 ? 'primary' : 'outline'}
@@ -388,6 +387,22 @@ export default function DeckDetailScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Card?"
+        message="This card will be permanently removed."
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: confirmDeleteCard,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => {},
+        }}
+      />
     </SafeAreaView>
   );
 }

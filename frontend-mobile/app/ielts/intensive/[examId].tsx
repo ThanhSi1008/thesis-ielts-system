@@ -6,12 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioPlayer } from 'expo-audio';
+
+import { toast } from '@/components/ui';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,6 +49,10 @@ export default function ExamPlayerScreen() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [pendingResultSessionId, setPendingResultSessionId] = useState<string | null>(null);
 
+  const [gradingErrorVisible, setGradingErrorVisible] = useState(false);
+  const [gradingErrorMessage, setGradingErrorMessage] = useState('');
+  const [submitConfirmVisible, setSubmitConfirmVisible] = useState(false);
+
   const scrollViewRef = useRef<ScrollView>(null);
   const partOffsetsRef = useRef<Record<number, number>>({});
 
@@ -60,11 +65,10 @@ export default function ExamPlayerScreen() {
 
   const onGradingError = useCallback(
     (msg: string) => {
-      Alert.alert('Grading Error', msg, [
-        { text: 'View History', onPress: () => router.replace(ROUTES.ielts) },
-      ]);
+      setGradingErrorMessage(msg);
+      setGradingErrorVisible(true);
     },
-    [router],
+    [],
   );
 
   const { exam, session, loading, submitting, isAiGrading, submitSession } = useExamSession({
@@ -73,36 +77,6 @@ export default function ExamPlayerScreen() {
     onGradingDone,
     onGradingError,
   });
-
-  const {
-    isVisible: exitConfirmVisible,
-    showDialog: showExitConfirm,
-    hideDialog: hideExitConfirm,
-    confirmSave: handleExitSave,
-    confirmDiscard: handleExitDiscard,
-  } = useExitConfirm(examReady && !submitting && !isAiGrading);
-
-  const handleExpire = useCallback(() => {
-    Alert.alert('Time Expired', 'Your exam is being automatically submitted.', [
-      {
-        text: 'OK',
-        onPress: async () => {
-          if (!session) return;
-          const payload = buildSubmitPayload(exam?.type);
-          await submitSession(payload, (exam?.duration ?? 60) * 60);
-          if (exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
-            router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
-          }
-        },
-      },
-    ]);
-  }, [session, exam, submitSession, router]);
-
-  const {
-    elapsed,
-    display: timerDisplay,
-    isWarning: isTimerWarning,
-  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire);
 
   const {
     answers,
@@ -115,6 +89,30 @@ export default function ExamPlayerScreen() {
     getTotalCount,
     buildSubmitPayload,
   } = useAnswerState(exam?.type);
+
+  const {
+    isVisible: exitConfirmVisible,
+    showDialog: showExitConfirm,
+    hideDialog: hideExitConfirm,
+    confirmSave: handleExitSave,
+    confirmDiscard: handleExitDiscard,
+  } = useExitConfirm(examReady && !submitting && !isAiGrading);
+
+  const handleExpire = useCallback(async () => {
+    toast.info('Your exam is being automatically submitted.');
+    if (!session) return;
+    const payload = buildSubmitPayload(exam?.type);
+    await submitSession(payload, (exam?.duration ?? 60) * 60);
+    if (exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
+      router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
+    }
+  }, [session, exam, submitSession, router, buildSubmitPayload]);
+
+  const {
+    elapsed,
+    display: timerDisplay,
+    isWarning: isTimerWarning,
+  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire);
 
   const scrollToQuestion = useCallback(
     (n: number) => {
@@ -198,33 +196,29 @@ export default function ExamPlayerScreen() {
   };
 
   const handleSubmit = async () => {
-    Alert.alert('Submit Test?', 'You cannot change answers after submitting.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Submit',
-        onPress: async () => {
-          if (!session) return;
-          try {
-            setTimerRunning(false);
-            if (player && player.playing) player.pause();
-            const payload = buildSubmitPayload(exam?.type);
-            const res = await submitSession(payload, elapsed);
-            if (res) {
-              setExamReady(false); // disable exit intercept
-              if (!res.isAiType) {
-                setPendingResultSessionId(res.sessionId);
-                setShowSuccess(true);
-              } else {
-                setPendingResultSessionId(null);
-                setShowSuccess(true);
-              }
-            }
-          } catch (e) {
-            Alert.alert('Error', 'Failed to submit. Try again.');
-          }
-        },
-      },
-    ]);
+    setSubmitConfirmVisible(true);
+  };
+
+  const executeSubmit = async () => {
+    if (!session) return;
+    try {
+      setTimerRunning(false);
+      if (player && player.playing) player.pause();
+      const payload = buildSubmitPayload(exam?.type);
+      const res = await submitSession(payload, elapsed);
+      if (res) {
+        setExamReady(false); // disable exit intercept
+        if (!res.isAiType) {
+          setPendingResultSessionId(res.sessionId);
+          setShowSuccess(true);
+        } else {
+          setPendingResultSessionId(null);
+          setShowSuccess(true);
+        }
+      }
+    } catch (e) {
+      toast.error('Failed to submit. Try again.');
+    }
   };
 
   if (loading) {

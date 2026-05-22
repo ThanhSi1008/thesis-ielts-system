@@ -10,11 +10,12 @@ import {
   Dimensions,
   TextInput,
   FlatList,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import { ConfirmDialog } from '@/components';
+import { toast } from '@/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
@@ -47,6 +48,8 @@ export function CardTypeManagerModal({
   // Edit state (Rename)
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible) {
@@ -88,8 +91,9 @@ export function CardTypeManagerModal({
       setTypes([...types, res]);
       setNewName('');
       setIsCreating(false);
+      toast.success('Success', 'Card type created successfully.');
     } catch (e) {
-      Alert.alert('Error', 'Could not create card type');
+      toast.error('Error', 'Could not create card type');
     }
   };
 
@@ -102,31 +106,30 @@ export function CardTypeManagerModal({
       const res = await vocabLabApi.updateCardType(id, { name: editName.trim() });
       setTypes(types.map((t) => (t.id === id ? { ...t, name: res.name } : t)));
       setEditingId(null);
+      toast.success('Success', 'Card type renamed successfully.');
     } catch (e) {
-      Alert.alert('Error', 'Could not rename card type');
+      toast.error('Error', 'Could not rename card type');
     }
   };
 
   const handleDelete = (id: string, isBuiltIn: boolean) => {
     if (isBuiltIn) {
-      Alert.alert('Cannot delete', 'Built-in card types cannot be deleted.');
+      toast.error('Cannot delete', 'Built-in card types cannot be deleted.');
       return;
     }
-    Alert.alert('Delete Card Type?', 'Are you sure? This might affect existing flashcards.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await vocabLabApi.deleteCardType(id);
-            setTypes(types.filter((t) => t.id !== id));
-          } catch (e) {
-            Alert.alert('Error', 'Could not delete card type');
-          }
-        },
-      },
-    ]);
+    setTypeToDelete(id);
+    setDeleteConfirmVisible(true);
+  };
+
+  const confirmDeleteType = async () => {
+    if (!typeToDelete) return;
+    try {
+      await vocabLabApi.deleteCardType(typeToDelete);
+      setTypes(types.filter((t) => t.id !== typeToDelete));
+      toast.success('Success', 'Card type deleted successfully.');
+    } catch (e) {
+      toast.error('Error', 'Could not delete card type');
+    }
   };
 
   const renderItem = ({ item }: { item: CardType }) => {
@@ -261,6 +264,22 @@ export function CardTypeManagerModal({
           )}
         </KeyboardAvoidingView>
       </Animated.View>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Card Type?"
+        message="Are you sure? This might affect existing flashcards."
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: confirmDeleteType,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => {},
+        }}
+      />
     </Modal>
   );
 }

@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, ROUTES, SPACING, RADIUS } from '@/constants';
 import { FeatureLock } from '@/components/ui/index';
 import { AddVideoModal } from '@/components/shadowing';
+import { ConfirmDialog } from '@/components';
 import { useShadowingLessons } from '@/hooks';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -51,6 +52,10 @@ export default function ShadowingScreen() {
     refreshing,
     handleRefresh,
     handleDeleteVideo,
+    deleteConfirmVisible,
+    setDeleteConfirmVisible,
+    videoToDelete,
+    executeDeleteVideo,
   } = useShadowingLessons();
 
   const styles = StyleSheet.create({
@@ -617,6 +622,23 @@ export default function ShadowingScreen() {
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSuccess={handleRefresh}
+      />
+
+      {/* Confirm deletion dialog */}
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Video"
+        message={`Are you sure you want to delete "${videoToDelete?.title}"? This action cannot be undone.`}
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: executeDeleteVideo,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setDeleteConfirmVisible(false),
+        }}
       />
     </View>
   );

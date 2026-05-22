@@ -6,9 +6,9 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
-  Alert,
   Image,
 } from 'react-native';
+import { toast } from '@/components/ui/index';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
@@ -72,7 +72,7 @@ export function CreatePostModal({
   const pickImages = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission required', 'Please allow access to your photo library.');
+      toast.info('Permission required', 'Please allow access to your photo library.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -120,7 +120,7 @@ export function CreatePostModal({
       reset();
       onClose();
     } catch {
-      Alert.alert('Error', 'Failed to create post. Please try again.');
+      toast.error('Error', 'Failed to create post. Please try again.');
     } finally {
       setLoading(false);
       setUploading(false);

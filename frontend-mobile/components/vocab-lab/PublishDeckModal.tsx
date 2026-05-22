@@ -6,7 +6,6 @@ import {
   Modal,
   Pressable,
   TextInput,
-  Alert,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -14,7 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
-import { Button } from '@/components/ui';
+import { Button, toast } from '@/components/ui';
 
 interface PublishDeckModalProps {
   visible: boolean;
@@ -54,12 +53,12 @@ export function PublishDeckModal({ visible, onClose, deck, onSuccess }: PublishD
         tags: tags.length > 0 ? tags : undefined,
       });
 
-      Alert.alert('Success', 'Deck has been successfully published to the community marketplace!');
+      toast.success('Success', 'Deck has been successfully published to the community marketplace!');
       onSuccess();
       onClose();
     } catch (err: any) {
       const errMsg = err?.response?.data?.message || err.message || 'Failed to publish deck';
-      Alert.alert('Error', errMsg);
+      toast.error('Error', errMsg);
     } finally {
       setIsPublishing(false);
     }

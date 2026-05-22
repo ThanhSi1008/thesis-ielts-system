@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  Alert,
   Clipboard,
 } from 'react-native';
+import { ConfirmDialog } from '@/components';
+import { toast } from '@/components/ui/index';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -43,6 +44,7 @@ export default function StudentTeacherScreen() {
   const [teacherIdInput, setTeacherIdInput] = useState('');
   const [linking, setLinking] = useState(false);
   const [teachers, setTeachers] = useState<any[]>([]);
+  const [unlinkTarget, setUnlinkTarget] = useState<{ id: string; name: string } | null>(null);
 
   // Teacher tab state
   const [students, setStudents] = useState<any[]>([]);
@@ -84,31 +86,29 @@ export default function StudentTeacherScreen() {
     try {
       await studentTeacherApi.linkTeacher(teacherIdInput.trim());
       setTeacherIdInput('');
-      Alert.alert('Success', 'Successfully linked to teacher!');
+      toast.success('Success', 'Successfully linked to teacher!');
       load();
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Failed to link teacher. Check the ID and try again.');
+      toast.error('Error', e?.message || 'Failed to link teacher. Check the ID and try again.');
     } finally {
       setLinking(false);
     }
   };
 
   const handleUnlink = (teacherId: string, name: string) => {
-    Alert.alert(`Unlink ${name}?`, 'They will no longer see your progress.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Unlink',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await studentTeacherApi.unlinkTeacher(teacherId);
-            load();
-          } catch {
-            Alert.alert('Error', 'Failed to unlink teacher.');
-          }
-        },
-      },
-    ]);
+    setUnlinkTarget({ id: teacherId, name });
+  };
+
+  const confirmUnlink = async () => {
+    if (!unlinkTarget) return;
+    try {
+      await studentTeacherApi.unlinkTeacher(unlinkTarget.id);
+      load();
+    } catch {
+      toast.error('Error', 'Failed to unlink teacher.');
+    } finally {
+      setUnlinkTarget(null);
+    }
   };
 
   return (
@@ -291,6 +291,21 @@ export default function StudentTeacherScreen() {
           </>
         )}
       </ScrollView>
+      <ConfirmDialog
+        visible={!!unlinkTarget}
+        onClose={() => setUnlinkTarget(null)}
+        variant="destructive"
+        title={`Unlink ${unlinkTarget?.name}?`}
+        message="They will no longer see your progress."
+        primaryAction={{
+          title: 'Unlink',
+          onPress: confirmUnlink,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setUnlinkTarget(null),
+        }}
+      />
     </SafeAreaView>
   );
 }

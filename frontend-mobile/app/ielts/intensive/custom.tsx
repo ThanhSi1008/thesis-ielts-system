@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   TextInput,
   Switch,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -16,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useTheme } from '@/contexts/ThemeContext';
+import { toast } from '@/components/ui';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type IeltsSkill = 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
@@ -152,7 +152,7 @@ export default function CustomPracticeScreen() {
 
   const handleStart = () => {
     if (!canStart) {
-      Alert.alert('Select an exam', 'Please choose an exam source first.');
+      toast.info('Warning', 'Please choose an exam source first.');
       return;
     }
     // Navigate to the exam player, passing custom params via query string

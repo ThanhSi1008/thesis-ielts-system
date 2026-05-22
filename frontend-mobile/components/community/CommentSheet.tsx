@@ -5,11 +5,11 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { toast } from '@/components/ui/index';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -87,7 +87,7 @@ export function CommentSheet({
       await fetchComments();
       onCommentAdded();
     } catch {
-      Alert.alert('Error', 'Failed to post comment');
+      toast.error('Error', 'Failed to post comment');
     } finally {
       setSubmitting(false);
     }

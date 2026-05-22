@@ -18,6 +18,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useShadowingMode } from '@/hooks';
+import { ConfirmDialog } from '@/components';
 import { Waveform } from '@/components/voice/Waveform';
 import { RecordButton } from '@/components/voice/RecordButton';
 import { ScoreDashboard } from '@/components/voice/feedback/ScoreDashboard';
@@ -79,6 +80,8 @@ export default function ShadowingPracticeScreen() {
     pronunciationChecker,
     normalizeWord,
     handleYoutubeStateChange,
+    showFinishDialog,
+    setShowFinishDialog,
   } = useShadowingMode({ lessonId, mode, userId: user?.id });
 
   const styles = createStyles(colors);
@@ -426,6 +429,25 @@ export default function ShadowingPracticeScreen() {
           </View>
         </View>
       )}
+
+      {/* Lesson Complete Confirm Dialog */}
+      <ConfirmDialog
+        visible={showFinishDialog}
+        onClose={() => {
+          setShowFinishDialog(false);
+          router.back();
+        }}
+        title="Well done! 🎉"
+        message={`You completed all ${sentences.length} sentences.`}
+        variant="confirm"
+        primaryAction={{
+          title: 'Back',
+          onPress: () => {
+            setShowFinishDialog(false);
+            router.back();
+          },
+        }}
+      />
     </SafeAreaView>
   );
 }

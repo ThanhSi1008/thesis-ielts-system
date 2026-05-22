@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Alert,
   Modal,
   Pressable,
   Animated,
@@ -15,6 +14,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { ConfirmDialog } from '@/components';
+import { toast } from '@/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
@@ -83,6 +84,7 @@ export function CardDetailSheet({
   const [editFieldValues, setEditFieldValues] = useState<Record<string, string>>({});
   const [editTags, setEditTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
 
   // Sync form when card changes or edit mode is opened
   const startEdit = useCallback(() => {
@@ -114,29 +116,26 @@ export function CardDetailSheet({
       onSaved({ ...card, ...updated, fieldValues: editFieldValues, tags: editTags });
       setEditing(false);
     } catch {
-      Alert.alert('Error', 'Failed to save changes.');
+      toast.error('Error', 'Failed to save changes.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = () => {
-    Alert.alert('Delete Card', 'This will permanently delete this card.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await vocabLabApi.deleteFlashcard(card.id);
-            onDeleted(card.id);
-            onClose();
-          } catch {
-            Alert.alert('Error', 'Failed to delete card.');
-          }
-        },
-      },
-    ]);
+    setDeleteConfirmVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!card) return;
+    try {
+      await vocabLabApi.deleteFlashcard(card.id);
+      onDeleted(card.id);
+      onClose();
+      toast.success('Success', 'Card deleted successfully.');
+    } catch {
+      toast.error('Error', 'Failed to delete card.');
+    }
   };
 
   const handleAddTag = () => {
@@ -478,6 +477,22 @@ export function CardDetailSheet({
           </ScrollView>
         </KeyboardAvoidingView>
       </Animated.View>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Card"
+        message="This will permanently delete this card."
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: confirmDelete,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => {},
+        }}
+      />
     </Modal>
   );
 }

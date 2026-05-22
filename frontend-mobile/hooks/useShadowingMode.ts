@@ -1,6 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useAudioPlayer } from 'expo-audio';
 import { useAudioRecorderHook } from './useAudioRecorder';
 import { usePronunciationChecker } from './usePronunciationChecker';
@@ -51,7 +49,6 @@ export interface UseShadowingModeProps {
 
 export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModeProps) {
   const isShadowing = mode === 'shadowing';
-  const router = useRouter();
 
   const audioRecorder = useAudioRecorderHook();
   const pronunciationChecker = usePronunciationChecker();
@@ -63,6 +60,7 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   const [dictationInput, setDictationInput] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
 
   const sentences = useMemo(
     () => (lesson?.sentences?.length ? lesson.sentences : PLACEHOLDER_SENTENCES),
@@ -383,15 +381,13 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
         type: isShadowing ? 'shadowing' : 'dictation',
         completedSentences: [...new Set([...completed, currentIdx])],
       });
-      Alert.alert('Well done! 🎉', `You completed all ${sentences.length} sentences.`, [
-        { text: 'Back', onPress: () => router.back() },
-      ]);
+      setShowFinishDialog(true);
     } catch (e) {
       console.error(e);
     } finally {
       setSaving(false);
     }
-  }, [lessonId, isShadowing, completed, currentIdx, sentences.length, router]);
+  }, [lessonId, isShadowing, completed, currentIdx]);
 
   const handleNext = useCallback(() => {
     markCompleted(currentIdx);
@@ -467,5 +463,7 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     audioRecorder,
     pronunciationChecker,
     handleYoutubeStateChange,
+    showFinishDialog,
+    setShowFinishDialog,
   };
 }

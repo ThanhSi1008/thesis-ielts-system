@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { toast } from '@/components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
@@ -40,6 +40,8 @@ export function CardTypeEditorModal({
   const [fields, setFields] = useState<CardField[]>([]);
   const [templates, setTemplates] = useState<CardTemplate[]>([]);
   const [saving, setSaving] = useState(false);
+  const [fontSizeSelectorVisible, setFontSizeSelectorVisible] = useState(false);
+  const [activeFieldIdForSize, setActiveFieldIdForSize] = useState<string | null>(null);
 
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
   const [currentColorKey, setCurrentColorKey] = useState<'backgroundColor' | 'color'>(
@@ -150,17 +152,8 @@ export function CardTypeEditorModal({
   };
 
   const handleFontSizeSelect = (fieldId: string) => {
-    Alert.alert('Select Font Size', '', [
-      { text: 'Small (14px)', onPress: () => toggleFieldStyle(fieldId, 'fontSize', '14px') },
-      { text: 'Medium (18px)', onPress: () => toggleFieldStyle(fieldId, 'fontSize', '18px') },
-      { text: 'Large (24px)', onPress: () => toggleFieldStyle(fieldId, 'fontSize', '24px') },
-      {
-        text: 'Clear',
-        style: 'destructive',
-        onPress: () => toggleFieldStyle(fieldId, 'fontSize', ''),
-      },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+    setActiveFieldIdForSize(fieldId);
+    setFontSizeSelectorVisible(true);
   };
 
   // ─── Save ────────────────────────────────────────────────────────
@@ -240,7 +233,7 @@ export function CardTypeEditorModal({
       onClose();
     } catch (e: any) {
       if (__DEV__) console.error('Save CardType Error:', e?.response?.data || e.message || e);
-      Alert.alert(
+      toast.error(
         'Error',
         `Failed to save card type: ${e?.response?.data?.message || e.message || 'Unknown error'}`,
       );
@@ -358,6 +351,117 @@ export function CardTypeEditorModal({
                     }}
                   >
                     <Text style={s.saveBtnText}>Apply</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Font Size Selector Overlay */}
+          {fontSizeSelectorVisible && activeFieldIdForSize && (
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                {
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  zIndex: 1000,
+                },
+              ]}
+            >
+              <View
+                style={{
+                  width: '85%',
+                  backgroundColor: COLORS.surface || '#fff',
+                  borderRadius: RADIUS.lg,
+                  padding: SPACING.lg,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.2,
+                  shadowRadius: 10,
+                  elevation: 5,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: FONT_SIZES.lg,
+                    fontWeight: 'bold',
+                    color: COLORS.text,
+                    marginBottom: SPACING.md,
+                    textAlign: 'center',
+                  }}
+                >
+                  Select Font Size
+                </Text>
+                
+                <View style={{ gap: SPACING.sm }}>
+                  {[
+                    { label: 'Small (14px)', value: '14px' },
+                    { label: 'Medium (18px)', value: '18px' },
+                    { label: 'Large (24px)', value: '24px' }
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={{
+                        padding: SPACING.md,
+                        backgroundColor: tpl.fieldStyles?.[activeFieldIdForSize]?.fontSize === opt.value ? COLORS.primary + '15' : COLORS.background,
+                        borderRadius: RADIUS.md,
+                        alignItems: 'center',
+                        borderWidth: 1,
+                        borderColor: tpl.fieldStyles?.[activeFieldIdForSize]?.fontSize === opt.value ? COLORS.primary : COLORS.border,
+                      }}
+                      onPress={() => {
+                        toggleFieldStyle(activeFieldIdForSize, 'fontSize', opt.value);
+                        setFontSizeSelectorVisible(false);
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: FONT_SIZES.md,
+                          fontWeight: '600',
+                          color: tpl.fieldStyles?.[activeFieldIdForSize]?.fontSize === opt.value ? COLORS.primary : COLORS.text,
+                        }}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                  
+                  <TouchableOpacity
+                    style={{
+                      padding: SPACING.md,
+                      backgroundColor: COLORS.error + '10',
+                      borderRadius: RADIUS.md,
+                      alignItems: 'center',
+                      borderWidth: 1,
+                      borderColor: COLORS.error,
+                      marginTop: SPACING.xs,
+                    }}
+                    onPress={() => {
+                      toggleFieldStyle(activeFieldIdForSize, 'fontSize', '');
+                      setFontSizeSelectorVisible(false);
+                    }}
+                  >
+                    <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '600', color: COLORS.error }}>
+                      Clear Style
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={{
+                      padding: SPACING.md,
+                      backgroundColor: COLORS.surface,
+                      borderRadius: RADIUS.md,
+                      alignItems: 'center',
+                      borderWidth: 1,
+                      borderColor: COLORS.border,
+                      marginTop: SPACING.xs,
+                    }}
+                    onPress={() => setFontSizeSelectorVisible(false)}
+                  >
+                    <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '600', color: COLORS.textSecondary }}>
+                      Cancel
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

@@ -4,7 +4,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   RefreshControl,
   DeviceEventEmitter,
   Platform,
@@ -12,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
+import { toast } from '@/components/ui/index';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTabBarVisibility } from '@/hooks';
@@ -113,7 +113,7 @@ export default function CommunityScreen() {
         }
         setNextCursor(res.nextCursor);
       } catch {
-        Alert.alert('Error', 'Failed to load posts');
+        toast.error('Error', 'Failed to load posts');
       }
     },
     [activeTab, user?.id],
@@ -181,7 +181,7 @@ export default function CommunityScreen() {
     try {
       await postsApi.deletePost(postId);
     } catch {
-      Alert.alert('Error', 'Failed to delete post');
+      toast.error('Error', 'Failed to delete post');
     }
   }, []);
 

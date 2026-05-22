@@ -11,6 +11,7 @@ export { default as Divider } from './atoms/Divider';
 export { default as Chip } from './atoms/Chip';
 export type { ChipProps } from './atoms/Chip';
 export { default as ScoreBadge } from './atoms/ScoreBadge';
+export { Toaster, toast } from './ui/Toaster';
 
 // ─── Section Header ───────────────────────────────────────────────────────────
 interface SectionHeaderProps {

@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Alert } from 'react-native';
 import { shadowingApi } from '@/services/features.api';
 import { ShadowingVideo } from '@/types';
 import { toast } from '@/components/ui/index';
@@ -13,6 +12,8 @@ export function useShadowingLessons() {
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [videoToDelete, setVideoToDelete] = useState<{ id: string; title: string } | null>(null);
 
   const [systemLessons, setSystemLessons] = useState<ShadowingVideo[]>([]);
   const [userVideos, setUserVideos] = useState<ShadowingVideo[]>([]);
@@ -141,29 +142,26 @@ export function useShadowingLessons() {
 
   // Delete video handler
   const handleDeleteVideo = useCallback((id: string, title: string) => {
-    Alert.alert(
-      'Delete Video',
-      `Are you sure you want to delete "${title}"? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await shadowingApi.deleteVideo(id);
-              toast.success('Deleted', `"${title}" has been deleted.`);
-              setUserVideos((prev) => prev.filter((v) => v.id !== id));
-              processingRef.current.delete(id);
-            } catch (e) {
-              console.error('Failed to delete video:', e);
-              toast.error('Error', 'Failed to delete video.');
-            }
-          },
-        },
-      ],
-    );
+    setVideoToDelete({ id, title });
+    setDeleteConfirmVisible(true);
   }, []);
+
+  const executeDeleteVideo = useCallback(async () => {
+    if (!videoToDelete) return;
+    const { id, title } = videoToDelete;
+    try {
+      await shadowingApi.deleteVideo(id);
+      toast.success('Deleted', `"${title}" has been deleted.`);
+      setUserVideos((prev) => prev.filter((v) => v.id !== id));
+      processingRef.current.delete(id);
+    } catch (e) {
+      console.error('Failed to delete video:', e);
+      toast.error('Error', 'Failed to delete video.');
+    } finally {
+      setDeleteConfirmVisible(false);
+      setVideoToDelete(null);
+    }
+  }, [videoToDelete]);
 
   // Build the list based on current tab and filters
   const allLessons = [
@@ -208,5 +206,9 @@ export function useShadowingLessons() {
     handleRefresh,
     handleDeleteVideo,
     refetch: fetchData,
+    deleteConfirmVisible,
+    setDeleteConfirmVisible,
+    videoToDelete,
+    executeDeleteVideo,
   };
 }

@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
+import { toast } from '@/components/ui';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -97,7 +97,7 @@ export default function AdvancedWritingResultScreen() {
         }
       } catch (err) {
         if (__DEV__) console.error('[WritingResult] Fetch failed:', err);
-        Alert.alert('Error', 'Failed to load session details.');
+        toast.error('Error', 'Failed to load session details.');
       } finally {
         setLoading(false);
       }
@@ -120,7 +120,7 @@ export default function AdvancedWritingResultScreen() {
     },
     onError: (errMsg) => {
       setPollingActive(false);
-      Alert.alert('Grading Error', errMsg);
+      toast.error('Grading Error', errMsg);
     },
   });
 

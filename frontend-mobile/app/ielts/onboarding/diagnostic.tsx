@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal as RNModal,
-  Alert,
   Dimensions,
 } from 'react-native';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
@@ -21,7 +20,7 @@ import { ieltsProfileApi } from '@/services/ielts.api';
 import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import { ContentGroupView } from '@/components/ielts/exercise/ContentGroupView';
 import { writingClozeData } from '@/constants/writingClozeData';
-import { Button } from '@/components/ui';
+import { Button, toast } from '@/components/ui';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 
@@ -183,7 +182,8 @@ export default function DiagnosticScreen() {
         setExercises(res);
       } catch (err) {
         if (__DEV__) console.error('Failed to load placement exercises:', err);
-        Alert.alert('Error', 'Could not load diagnostic test. Please check your connection.');
+        toast.error('Could not load diagnostic test. Please check your connection.');
+        router.back();
       } finally {
         setLoading(false);
       }
@@ -254,7 +254,7 @@ export default function DiagnosticScreen() {
       router.replace(ROUTES.ieltsRoadmap);
     } catch (e: any) {
       if (__DEV__) console.error('Diagnostic Complete Error:', e?.response?.data || e.message || e);
-      Alert.alert('Error', 'Could not generate your custom roadmap. Try again.');
+      toast.error('Could not generate your custom roadmap. Try again.');
       setSubmitting(false);
     }
   };
