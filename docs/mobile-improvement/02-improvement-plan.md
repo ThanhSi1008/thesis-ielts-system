@@ -291,6 +291,65 @@ Login/Register → Welcome (1 screen, không skip-able)
 - Email/Username có icon prefix
 - Loading button thay text bằng spinner inline
 
+### 5.7 Navigation architecture — **Quyết định strategy**
+
+Sau audit navigation, các quyết định kiến trúc đã được xác nhận với product:
+
+#### Strategy A — Sidebar/Drawer per tab
+
+**Adopted: B2 — Drawer chỉ cho IELTS tab; 4 tab còn lại dùng section header**
+
+| Tab | Secondary navigation |
+|---|---|
+| **Home** | Section header với "Quick links" chips (không drawer) |
+| **Explore** | Filter chips top + category grid (không drawer) |
+| **IELTS** | ✅ Giữ drawer + polish toàn diện (header context, grouping, active highlight) |
+| **Community** | Tab pills horizontal (đã có) |
+| **Profile** | Segmented control 3-tab (đã có) |
+
+**Lý do**: IELTS có 10 sub-section logic phân nhánh sâu nên drawer phù hợp. 4 tab khác nông hơn, không cần drawer overhead.
+
+#### Strategy B — Bottom navbar
+
+**Adopted: 5 tab flat + active indicator pill** (KHÔNG dùng center FAB pattern)
+
+- Giữ pattern 5 tab quen thuộc với user
+- Thêm visual cues: pill indicator + icon morphing outline→filled
+- Mở rộng badge cho tất cả 5 tab (IELTS pending grading, Community unread, Profile notif đã có)
+- Hide on scroll + hide trong exam fullscreen
+
+#### Strategy C — Route topology restructure (BREAKING)
+
+**Decision**: Move Foundation modules vào nested route + consolidate Shadowing & Dictation.
+
+| Trước | Sau |
+|---|---|
+| `app/vocabulary/` (top-level) | `app/ielts/foundation/vocabulary/` |
+| `app/grammar/` (top-level) — duplicate với `/ielts/grammar/` | **XOÁ top-level**; giữ duy nhất `app/ielts/foundation/grammar/` |
+| `app/ielts/pronunciation/` | Move thành `app/ielts/foundation/pronunciation/` |
+| `app/shadowing/` (top-level) | `app/practice-tools/shadowing/` hoặc `app/shadowing-dictation/shadowing/` |
+| (chưa có) `app/dictation/` | `app/practice-tools/dictation/` (group chung với shadowing) |
+
+**Rationale**:
+- 3 module Foundation (Pronunciation/Vocabulary/Grammar) logically thuộc IELTS Foundation tier → route topology phải phản ánh điều đó
+- Top-level vocabulary/grammar/shadowing là **dư thừa** + gây nhầm lẫn entry point
+- Shadowing & Dictation là **cặp tính năng đôi** (cùng dùng video YouTube, cùng pattern interaction) → phải đi chung
+- Loại bỏ duplication `/grammar/` vs `/ielts/grammar/`
+
+**Backward compat**: Giữ alias redirect (e.g., `/vocabulary/[bookSlug]` → `/ielts/foundation/vocabulary/[bookSlug]`) trong 1 release cycle để link cũ + push notification cũ vẫn work.
+
+#### Strategy D — Back navigation & breadcrumb
+
+| Pattern | Áp dụng |
+|---|---|
+| **Smart breadcrumb header** | Mọi screen ≥2 level deep (e.g., "IELTS › Foundation › Vocabulary › Unit 3") |
+| **Tap breadcrumb segment to jump** | Tap "IELTS" → pop về root tab IELTS |
+| **Long-press back chevron** | Pop tới root của stack (bypass intermediate screens) |
+| **Save-and-exit modal** | Exam screen, form chưa submit, autosave-aware screens |
+| **Hardware back consistency** | Android hardware back = in-app back chevron (đặc biệt trong modal) |
+| **Swipe-back gesture** | Default Expo Router + đảm bảo custom modal không break |
+| **"Continue where you left" snackbar** | Khi quay lại tab có lesson đang dở → snackbar bottom với CTA |
+
 ---
 
 ## 6. Cải thiện chuyển trang & animation

@@ -13,7 +13,7 @@
 
 ---
 
-## Tổng quan 14 phase
+## Tổng quan 15 phase
 
 | Phase | Tên | Ước tính | Mục tiêu chính |
 |---|---|---|---|
@@ -24,16 +24,17 @@
 | **MI-05** | Brand Refresh & Visual Polish | 8h | Logo/icon/splash, gradient rules, skill color rules |
 | **MI-06** | Auth Screens Redesign | 4h | Login + Register polish (theme-aware, inline error, password toggle) |
 | **MI-07** | Home Tab Redesign | 8h | Personalized greeting, continue learning, daily goal, leaderboard |
-| **MI-08** | Explore + IELTS Tab + Drawer Polish | 10h | Visual hierarchy, animation, theme-aware Library card |
+| **MI-08** | Explore + IELTS Tab + (Drawer ↗ MI-15) | 9h | Visual hierarchy, animation, theme-aware Library card |
 | **MI-09** | Profile + Community + Vocab/Grammar Polish | 10h | Adopt atoms, skeleton, illustrated empty |
 | **MI-10** | IELTS Intensive Refactor & Exam UI Polish | 12h | Split 74K file, polish exam screen |
 | **MI-11** | Animation & Micro-interactions | 8h | Screen transitions, haptic standard, list stagger |
 | **MI-12** | Accessibility Pass | 10h | A11y labels, hit slop, contrast, font scaling |
 | **MI-13** | Performance Pass & Cleanup | 8h | Console cleanup, memo, image cache, bundle trim |
+| **MI-15** | Navigation Architecture Overhaul | 18h | Bottom navbar, drawer polish, breadcrumb, route restructure |
 | **MI-14** | QA & Device Matrix | 8h | Manual test trên 3 device + fix regression |
-| **TOTAL** | | **~122h** | |
+| **TOTAL** | | **~139h** | |
 
-> **Tip thực thi**: Có thể chạy MI-02 và MI-04 song song (atom có sẵn skeleton trước, screen rollout sau).
+> **Tip thực thi**: MI-15 có thể chạy song song một phần với MI-02/MI-03 (sau khi atoms cơ bản sẵn sàng). Block D (route restructure) PHẢI làm xong trước MI-09 (polish các tab nội bộ). Block A+B+C có thể làm độc lập.
 
 ---
 
@@ -640,12 +641,9 @@
 - Progress overview row: "Completed: 23/120 lessons"
 - **AC**: Visible at top of library
 
-### MI-08-06 — Drawer polish (1h)
+### MI-08-06 — (MOVED to MI-15) Drawer polish
 
-- File: `components/ui/SharedDrawer.tsx`
-- Better visual: avatar + tier badge top, divider, nav items với icon background
-- Footer: logout + version number
-- **AC**: Drawer mở → looks premium; active item highlighted
+> **Note**: Drawer polish đã được mở rộng thành toàn bộ section trong **Phase MI-15** (Navigation Architecture Overhaul). Skip task này trong MI-08.
 
 ### MI-08-07 — Roadmap screen polish (1h)
 
@@ -1045,6 +1043,324 @@
 
 ---
 
+## Phase MI-15 — Navigation Architecture Overhaul (18h)
+
+**Mục tiêu**: Cải thiện toàn diện navigation: bottom navbar, drawer, back navigation, route topology restructure.
+
+> **Tham chiếu quyết định**: [`02-improvement-plan.md §5.7`](./02-improvement-plan.md#57-navigation-architecture--quyết-định-strategy) — strategy B2 (drawer chỉ IELTS), 5 tab flat, route restructure foundation modules.
+
+### Block A — Bottom navbar polish (4h)
+
+#### MI-15-A1 — Active indicator pill (0.5h)
+
+- File: `app/(tabs)/_layout.tsx`
+- Thêm custom `tabBarBackground` component với animated pill yellow phía trên icon active
+- Pill width = icon width, translate horizontally khi đổi tab dùng Reanimated `useDerivedValue`
+- **AC**: Switch tab → pill slide smooth qua icon mới; visible cả light/dark theme
+
+#### MI-15-A2 — Icon morphing outline → filled (0.3h)
+
+- Trong `tabBarIcon`, conditional render icon dựa trên `focused`:
+  - Inactive: `home-outline`, `compass-outline`, `school-outline`, `people-outline`, `person-outline`
+  - Active: `home`, `compass`, `school`, `people`, `person`
+- **AC**: Tap tab → icon đổi outline ↔ filled
+
+#### MI-15-A3 — Badge expansion cho IELTS + Community (0.7h)
+
+- File: `app/(tabs)/_layout.tsx`
+- IELTS tab: badge count từ `useGrading()` — `pendingGradingCount` hoặc tương đương
+- Community tab: badge từ `postsApi.getUnreadComments()` (cần endpoint hoặc derive từ notifications)
+- Profile tab: giữ unread count (đã có)
+- Home + Explore: optional dot indicator nếu có "new content" flag
+- **AC**: Badge hiển thị real-time, ≤99 hiện số, >99 hiện "99+"
+
+#### MI-15-A4 — Hide tab bar on scroll (0.7h)
+
+- Tạo `hooks/useTabBarVisibility.ts` — track scroll direction
+- Trong screen list (vocabulary/grammar/community/history): wrap với hook
+- Tab bar `transform: translateY` animated khi scroll xuống >100px continuous
+- **AC**: Scroll xuống → tab bar trượt khuất; scroll lên → tab bar trượt lên lại
+
+#### MI-15-A5 — Hide tab bar in exam fullscreen (0.3h)
+
+- File: `app/ielts/intensive/[examId].tsx` + `app/ielts/advanced/{writing,speaking}/[promptId].tsx`
+- `<Tabs.Screen>` override `options={{ tabBarStyle: { display: 'none' } }}`
+- **AC**: Vào exam → tab bar biến mất; thoát exam → tab bar trở lại
+
+#### MI-15-A6 — Haptic + icon scale animation on press (0.3h)
+
+- Custom `tabBarButton` wrap với `Pressable` + Reanimated scale spring 1→1.15→1
+- Trigger `haptics.light()` on press (từ utility ở MI-11-03)
+- **AC**: Tap tab → feel "bouncy" + haptic
+
+#### MI-15-A7 — Double-tap tab to scroll-to-top (0.7h)
+
+- Track `lastTapTime` per tab — nếu <300ms → emit scroll-to-top event
+- Mỗi screen list listen event qua `DeviceEventEmitter` hoặc ref forwarded to FlatList
+- Apply cho: Home, Explore, Community, History, Notification
+- **AC**: Tap tab đang active 2 lần nhanh → list scroll top với animation
+
+#### MI-15-A8 — Long-press tab quick menu (0.5h)
+
+- IELTS tab long-press → bottom sheet 6 quick links (Mock Exam · Continue lesson · Vocab quiz · Speaking · Statistics · Calculator)
+- Profile tab long-press → bottom sheet (Edit avatar · Subscription · Settings · Logout)
+- **AC**: Long-press feedback + sheet open; tap option → navigate
+
+---
+
+### Block B — IELTS Drawer polish (5h)
+
+#### MI-15-B1 — Drawer header context section (0.7h)
+
+- File: `components/ui/SharedDrawer.tsx`
+- Top header section (≈120px height):
+  - Avatar + name (large)
+  - Tier badge (FREE/PREMIUM/PRO) + status
+  - Current best band (computed từ stats)
+  - Streak indicator "🔥 12 days"
+- **AC**: Drawer mở → user thấy ngay context bản thân
+
+#### MI-15-B2 — Group nav items hierarchically (0.8h)
+
+- Refactor `NAV_ITEMS` array thành nested structure với group:
+  ```
+  📚 Foundation: Pronunciation · Vocabulary · Grammar
+  🎓 Practice: Basic · Advanced · Intensive
+  📊 Insights: Dashboard · History · Statistics · Calculator
+  🛠️ Tools: Roadmap · Student-Teacher
+  ```
+- Group title style: caps, small, textMuted
+- **AC**: Drawer items grouped với section header; scan nhanh hơn
+
+#### MI-15-B3 — Active item highlight (0.3h)
+
+- Detect current route qua `usePathname()` hoặc `useSegments()`
+- Active item: border-left 4px yellow + bg `colors.primary + '15'` (10% opacity)
+- Icon đổi sang filled variant
+- **AC**: Mở drawer ở screen Dashboard → "Dashboard" item highlighted
+
+#### MI-15-B4 — Progress indicator per item (0.7h)
+
+- Cho mỗi item có data, gắn progress mini text/bar:
+  - "Vocabulary" → "23/120 units"
+  - "Grammar" → "8/40 lessons"
+  - "History" → "12 exams taken"
+- Fetch tổng hợp khi drawer mở (parallel với Promise.all)
+- **AC**: Progress text hiển thị bên phải item; loading skeleton inline
+
+#### MI-15-B5 — Lock badge cho premium items (0.2h)
+
+- Advanced + Intensive + Statistics (nếu PRO-only) → small 🔒 icon prefix khi user FREE
+- Tap locked item → mở `<UpgradeModal>` (đã có)
+- **AC**: User FREE thấy lock icon; tap → upgrade flow
+
+#### MI-15-B6 — Recently visited section (0.5h)
+
+- AsyncStorage track 3 last visited routes
+- Section "Recently" top drawer (trên Foundation group) hiển thị 3 items
+- **AC**: Visit 3 sub-screen → mở drawer thấy chúng trong Recently
+
+#### MI-15-B7 — Edge swipe gesture to open drawer (0.5h)
+
+- Sử dụng `react-native-gesture-handler` `PanGestureHandler` ở edge trái 20px width
+- Vuốt sang phải → drawer mở dần theo gesture
+- **AC**: Swipe từ mép trái → drawer mở; vuốt qua threshold 60% → snap open
+
+#### MI-15-B8 — Dynamic drawer width (0.2h)
+
+- File: `components/ui/SharedDrawer.tsx`
+- Width = `Math.min(width * 0.85, 320)` (responsive)
+- **AC**: Trên phone nhỏ width tối đa 85%, trên tablet width 320px
+
+#### MI-15-B9 — Quick-jump search bar (0.5h)
+
+- Top drawer (dưới header) thêm `<SearchBar>` molecule
+- Filter NAV_ITEMS realtime theo label
+- **AC**: Type "vocab" → chỉ Vocabulary visible; clear → tất cả trở lại
+
+#### MI-15-B10 — Footer actions (0.3h)
+
+- Bottom drawer:
+  - Primary CTA "🎯 Practice now" → navigate IELTS Advanced
+  - Settings icon + Help icon row
+  - App version text bottom (e.g., "v1.0.0")
+- **AC**: Footer visible khi scroll drawer xuống
+
+#### MI-15-B11 — Remove setTimeout(200) navigation delay (0.1h)
+
+- File: `app/(tabs)/ielts.tsx` `handleNavPress`
+- Thay `setTimeout(() => router.push(...), 200)` bằng router.push trực tiếp + drawer close animation parallel
+- **AC**: Tap nav item → navigate ngay, không bị lag
+
+#### MI-15-B12 — Drawer for IELTS sub-pages (0.2h)
+
+- Hiện tại drawer chỉ trong `(tabs)/ielts.tsx`. Cần expose drawer ở các sub-page (`/ielts/dashboard`, `/ielts/history`, etc.) qua shared layout hoặc menu button trong custom header
+- Cân nhắc: dùng `<Drawer>` của Expo Router thay vì custom
+- **AC**: Mỗi sub-page IELTS có hamburger icon mở drawer
+
+---
+
+### Block C — Back navigation & breadcrumb (4h)
+
+#### MI-15-C1 — `<Breadcrumb>` molecule (0.7h)
+
+- File mới: `components/molecules/Breadcrumb.tsx`
+- Props: `items: { label: string; route?: string }[]`
+- Render: "IELTS › Foundation › Vocabulary › Unit 3" với chevron separator
+- Tap segment có route → `router.push(route)`
+- Truncate giữa nếu >4 levels (use ellipsis)
+- **AC**: Render breadcrumb trên screen 3 levels deep
+
+#### MI-15-C2 — Integrate breadcrumb vào Header organism (0.3h)
+
+- File: `components/organisms/Header.tsx` (từ MI-03-08)
+- Optional prop `breadcrumb?: BreadcrumbItem[]` — nếu có, render dưới title hoặc thay thế title trên screen nested
+- **AC**: `<Header breadcrumb={[...]}>` render breadcrumb dưới title
+
+#### MI-15-C3 — Add breadcrumb cho nested screens (1h)
+
+- Update các screen ≥2 level deep:
+  - `app/ielts/foundation/vocabulary/[bookSlug]/[unitId]`
+  - `app/ielts/foundation/grammar/[bookSlug]/[unitId]`
+  - `app/ielts/foundation/pronunciation/[symbol]`
+  - `app/ielts/basic/library/[skill]/...`
+  - `app/vocab-lab/study/...`
+- **AC**: ≥10 screen có breadcrumb hiển thị + clickable
+
+#### MI-15-C4 — Long-press back to pop to root (0.5h)
+
+- Wrap header back button với `Pressable` `onLongPress` handler
+- Long-press 500ms → `router.dismissAll()` hoặc `router.replace('/(tabs)/ielts')` tùy stack
+- Show toast "Returned to home" feedback
+- **AC**: Long-press back → pop về tab root, không phải step-by-step
+
+#### MI-15-C5 — Save-and-exit confirm dialog (0.7h)
+
+- Hook mới: `hooks/useExitConfirm.ts`
+- Params: `hasUnsavedChanges: boolean, onSave?: () => Promise<void>`
+- Intercept back action (`useNavigation().addListener('beforeRemove')` + hardware back)
+- Render `<ConfirmDialog>` với 3 action: "Save & exit" / "Exit without saving" / "Cancel"
+- Apply ở: exam screens, form screens (create post, create deck, settings unsaved)
+- **AC**: Exit khi có unsaved → confirm dialog; "Save & exit" → autosave xong navigate
+
+#### MI-15-C6 — Hardware back consistency (0.5h)
+
+- File: tất cả modal components — đảm bảo `BackHandler` Android được handle giống nhau với in-app close button
+- Use `BackHandler.addEventListener('hardwareBackPress', ...)` cleanup đúng cách
+- **AC**: Android back trong modal → đóng modal, không pop stack
+
+#### MI-15-C7 — Swipe-back gesture audit (0.3h)
+
+- Audit screens có `gestureEnabled: false` — xác nhận có lý do (vd exam screen tránh accidental exit)
+- Mọi screen khác phải có swipe-back default
+- **AC**: ≥90% screen support swipe-back; exception documented
+
+#### MI-15-C8 — "Continue where you left" snackbar (0.5h)
+
+- AsyncStorage track `lastActiveLesson` cho mỗi tab
+- Khi user tap tab IELTS và có `lastActiveLesson` chưa complete trong 24h → snackbar bottom "Continue Lesson 3?" với CTA
+- Auto-dismiss sau 5s nếu không tap
+- **AC**: Vào lesson → exit nửa chừng → quay lại tab IELTS → snackbar hiện
+
+---
+
+### Block D — Route topology restructure (5h)
+
+> **⚠️ BREAKING**: Block này thay đổi cấu trúc URL. Phải:
+> 1. Có alias redirect cho route cũ
+> 2. Test toàn bộ push notification cũ
+> 3. Update `constants/routes.ts` ROUTES
+> 4. Update mọi internal link
+> 5. Sync với backend nếu có deep-link generation từ server
+
+#### MI-15-D1 — Backup + branch (0.1h)
+
+- Tạo branch `feature/mobile-route-restructure`
+- Snapshot ROUTES + grep tất cả `router.push|replace` reference
+- **AC**: Branch ready; có audit list ≥30 reference
+
+#### MI-15-D2 — Move `app/vocabulary/*` → `app/ielts/foundation/vocabulary/*` (0.8h)
+
+- Move file:
+  - `app/vocabulary/index.tsx` → `app/ielts/foundation/vocabulary/index.tsx`
+  - `app/vocabulary/[bookSlug]/` → `app/ielts/foundation/vocabulary/[bookSlug]/`
+- Update imports + relative path
+- **AC**: New route works; old route returns 404 (or redirect — xem D5)
+
+#### MI-15-D3 — Move `app/grammar/*` → `app/ielts/foundation/grammar/*` + delete dup `app/ielts/grammar/` (1h)
+
+- Audit: nội dung `app/grammar/` vs `app/ielts/grammar/` — chọn canonical (likely `app/grammar/` mới hơn)
+- Move canonical sang `app/ielts/foundation/grammar/`
+- Delete `app/ielts/grammar/` cũ
+- Update tất cả import
+- **AC**: Single source of truth; no duplication
+
+#### MI-15-D4 — Move `app/ielts/pronunciation/*` → `app/ielts/foundation/pronunciation/*` (0.5h)
+
+- Move folder
+- Update imports + tab `(tabs)/_layout.tsx` hidden `pronunciation` route reference
+- **AC**: Pronunciation accessible từ `/ielts/foundation/pronunciation`
+
+#### MI-15-D5 — Consolidate Shadowing & Dictation routes (1h)
+
+- Tạo folder mới `app/practice-tools/` (hoặc tên user thích `app/shadowing-dictation/`)
+- Move `app/shadowing/` → `app/practice-tools/shadowing/`
+- Tạo placeholder `app/practice-tools/dictation/index.tsx` (route mới nếu chưa tồn tại, hoặc link sang web)
+- Tạo `app/practice-tools/index.tsx` — landing page có 2 card "Shadowing" + "Dictation" cho user chọn
+- **AC**: `/practice-tools` mở landing; 2 sub-route work
+
+#### MI-15-D6 — Update `ROUTES` constants (0.3h)
+
+- File: `constants/routes.ts`
+- Rename + add new keys:
+  ```ts
+  ROUTES.foundationVocabulary = '/ielts/foundation/vocabulary'
+  ROUTES.foundationGrammar    = '/ielts/foundation/grammar'
+  ROUTES.foundationPronunciation = '/ielts/foundation/pronunciation'
+  ROUTES.practiceTools        = '/practice-tools'
+  ROUTES.shadowing            = '/practice-tools/shadowing'
+  ROUTES.dictation            = '/practice-tools/dictation'
+  ```
+- Mark legacy aliases deprecated
+- **AC**: Type-safe; old keys vẫn export với @deprecated
+
+#### MI-15-D7 — Update internal links (0.5h)
+
+- Grep + replace mọi `router.push('/vocabulary'...)`, `'/grammar'...`, `'/shadowing'...` sang ROUTES mới
+- Update `NAV_ITEMS` trong drawer (`(tabs)/ielts.tsx` + Foundation children) sang new routes
+- Update Explore tab module `link` field
+- **AC**: 0 reference đến route cũ trong codebase
+
+#### MI-15-D8 — Redirect alias cho backward compat (0.5h)
+
+- Tạo file route trung gian:
+  - `app/vocabulary/index.tsx` — chỉ `<Redirect href="/ielts/foundation/vocabulary" />`
+  - `app/grammar/index.tsx` — Redirect
+  - `app/shadowing/index.tsx` — Redirect
+  - `app/ielts/pronunciation/index.tsx` — Redirect
+- Cùng cho dynamic sub-routes (vd `[bookSlug]`)
+- **AC**: Push notification cũ + share link cũ vẫn navigate đúng
+
+#### MI-15-D9 — Update Foundation children trong drawer (0.2h)
+
+- File: `app/(tabs)/ielts.tsx` NAV_ITEMS
+- Cập nhật `foundation.children` routes sang `/ielts/foundation/...`
+- **AC**: Drawer Foundation tap → đến đúng nested route
+
+#### MI-15-D10 — Smoke test restructure (0.3h)
+
+- Manual test:
+  - Tap mọi entry point vocabulary/grammar/pronunciation/shadowing
+  - Push notification simulation (nếu có tools)
+  - Deep link `iemai://vocabulary/algeometry` vẫn redirect
+- **AC**: 100% pass; tài liệu hóa nếu có route nào chưa update
+
+---
+
+**Tổng MI-15: 18h** (A: 4h + B: 5h + C: 4h + D: 5h)
+
+---
+
 ## Phase MI-14 — QA & Device Matrix (8h)
 
 ### MI-14-01 — Smoke test checklist (1h)
@@ -1111,8 +1427,12 @@
 | MI-11-01 → MI-11-11 | 11 | Animation | 8 |
 | MI-12-01 → MI-12-06 | 12 | A11y | 10 |
 | MI-13-01 → MI-13-08 | 13 | Performance | 8 |
+| MI-15-A1 → MI-15-A8 | 15 | Bottom navbar polish | 4 |
+| MI-15-B1 → MI-15-B12 | 15 | IELTS drawer polish | 5 |
+| MI-15-C1 → MI-15-C8 | 15 | Back navigation & breadcrumb | 4 |
+| MI-15-D1 → MI-15-D10 | 15 | Route topology restructure | 5 |
 | MI-14-01 → MI-14-06 | 14 | QA matrix | 8 |
-| **TOTAL** | | **102 task** | **~122h** |
+| **TOTAL** | | **140 task** | **~139h** |
 
 ---
 
@@ -1126,7 +1446,12 @@ MI-01 (foundation)
   │       │       ├──> MI-06 (auth redesign)
   │       │       ├──> MI-07 (home redesign)
   │       │       ├──> MI-08 (explore + ielts)
-  │       │       ├──> MI-09 (profile + community + vocab)
+  │       │       ├──> MI-15 (navigation overhaul) ★
+  │       │       │       ├──> Block A (bottom navbar)
+  │       │       │       ├──> Block B (drawer polish)
+  │       │       │       ├──> Block C (back nav + breadcrumb)
+  │       │       │       └──> Block D (route restructure) ★ blocking
+  │       │       ├──> MI-09 (profile + community + vocab) ← depends MI-15-D
   │       │       └──> MI-10 (intensive refactor)
   │       └──> MI-05 (brand refresh)  [partial dep]
   │
@@ -1136,7 +1461,9 @@ MI-01 (foundation)
   └──> MI-14 (QA) [must be last]
 ```
 
-**Critical path**: MI-01 → MI-02 → MI-03 → MI-04..10 (parallel) → MI-11..13 (parallel) → MI-14.
+**Critical path**: MI-01 → MI-02 → MI-03 → MI-15-D (route restructure, blocking) → MI-04..10 (parallel) → MI-11..13 + MI-15-A/B/C (parallel) → MI-14.
+
+**⚠️ Critical dependency**: **MI-15 Block D (route restructure)** phải hoàn thành TRƯỚC khi bắt đầu MI-09 polish — nếu không sẽ phải sửa file polish 2 lần (1 lần ở vị trí cũ + 1 lần ở vị trí mới).
 
 ---
 

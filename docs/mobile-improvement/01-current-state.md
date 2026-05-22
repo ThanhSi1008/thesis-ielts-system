@@ -343,6 +343,51 @@ if (loading) return <View style={{flex:1}}><ActivityIndicator /></View>;
 | Search global | 🔴 Chưa có |
 | Recently viewed / continue | 🟠 Chưa nổi bật ở Home |
 
+### 6.1.1 Navigation UX issues — **🔴 Cần overhaul**
+
+Sau khi audit lại navigation tổng thể, phát hiện **các vấn đề có ảnh hưởng lớn đến UX**:
+
+**Bottom navbar (5 tabs)**:
+- Active state chỉ đổi màu icon → khó scan nhanh, không có pill/bar/dot indicator
+- Badge **chỉ có ở Profile** (notification count) — IELTS không hiển thị practice queue / pending grading, Community không hiển thị unread comments
+- Tab labels font 10px → quá nhỏ trên màn hình lớn
+- Tab bar **không tự ẩn khi vào exam fullscreen** → giảm immersion + chiếm real estate
+- Tab labels không có haptic + animation feedback
+- Double-tap tab đang active → không scroll-to-top (iOS pattern miss)
+
+**Sidebar/Drawer asymmetry**:
+- **Chỉ IELTS tab có drawer**, 4 tab còn lại không → kiến trúc bất đối xứng
+- Drawer 10 nav items **phẳng**, không group hierarchically → khó scan
+- **Không có active item indicator** trong drawer → user không biết đang ở đâu
+- Không có **edge swipe gesture** để mở drawer → phải tap menu icon góc trái
+- Drawer chỉ có nav, **không có context** (avatar, tier, streak, current band)
+- `setTimeout(200)` sau close drawer rồi mới navigate → animation chậm 200ms
+- Drawer width 280px cứng → label đôi khi truncated trên màn hình nhỏ
+
+**Back navigation & breadcrumb**:
+- Back chỉ là chevron mặc định, **không breadcrumb** → user vào sâu 4 level không biết route
+- Không có **smart back** (long-press → pop to tab root)
+- Exam screen back → không có "Save and exit?" confirm (rủi ro mất progress)
+- Hardware back Android đôi khi conflict với in-app back trong modal
+- Swipe-back gesture không hoạt động uniform ở custom modal
+
+**Route topology bất nhất quán**:
+- `/vocabulary/`, `/grammar/`, `/shadowing/` là **top-level routes** nhưng cũng nằm dưới IELTS drawer → user không biết entry "chính thức" ở đâu
+- Có **DUPLICATION**: `/grammar/` top-level **AND** `/ielts/grammar/` cùng tồn tại
+- `/ielts/pronunciation/` đã nested đúng, nhưng vocabulary/grammar/shadowing không nhất quán
+- 3 module foundation (vocab/grammar/pronunciation) thuộc về IELTS Foundation logically nhưng route topology không phản ánh điều đó
+
+**Deep-link & continuity**:
+- Notification tap deep-link OK nhưng back stack rỗng → back về home thẳng
+- Không có "Continue where you left" hint khi quay lại tab
+- Không có restore last route on relaunch
+- Universal link / share URL chưa support
+
+**FAB position management**:
+- Lexon AI FAB position cố định bottom-right → đè lên content
+- Không hide khi keyboard mở
+- Không context-aware (label luôn "Chat" thay vì action tương ứng)
+
 ### 6.2 Visual hierarchy
 
 - **Title** đôi khi quá to (Home 42px hero, Library 32px) — chiếm 25-30% màn hình đầu
