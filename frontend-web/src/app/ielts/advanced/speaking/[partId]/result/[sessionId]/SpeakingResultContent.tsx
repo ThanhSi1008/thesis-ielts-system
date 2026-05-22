@@ -76,7 +76,7 @@ export default function SpeakingResultContent({
             Back to My Answers
           </Link>
         </div>
-        <SpeakingResultView feedback={session.feedback} />
+        <SpeakingResultView feedback={session.feedback as any} />
       </div>
     </div>
   );

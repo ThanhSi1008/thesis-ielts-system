@@ -26,6 +26,14 @@ export class SubscriptionsService {
     });
 
     if (!sub) {
+      const userExists = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+      if (!userExists) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
       sub = await this.prisma.subscription.create({
         data: { userId, tier: "FREE", status: "ACTIVE" },
       });

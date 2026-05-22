@@ -10,9 +10,20 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
-  Animated, Dimensions, Modal, Pressable, ActivityIndicator,
-  KeyboardAvoidingView, Platform, ScrollView, DeviceEventEmitter,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Animated,
+  Dimensions,
+  Modal,
+  Pressable,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  DeviceEventEmitter,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -43,21 +54,27 @@ function MiniToast({ visible }: { visible: boolean }) {
 }
 const t = StyleSheet.create({
   pill: {
-    position: 'absolute', top: 16, alignSelf: 'center',
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#1A1A2E', paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.xs, borderRadius: RADIUS.full,
+    position: 'absolute',
+    top: 16,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#1A1A2E',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
     zIndex: 100,
   },
   text: { color: '#fff', fontWeight: '700', fontSize: FONT_SIZES.sm },
 });
 
 // ─── GlobalAddCardFab ──────────────────────────────────────────────────────────
-export function GlobalAddCardFab() {
+export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}) {
   // Sheet visibility
   const [open, setOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(SHEET_H)).current;
-  const fabScale  = useRef(new Animated.Value(1)).current;
+  const fabScale = useRef(new Animated.Value(1)).current;
 
   // Data
   const [decks, setDecks] = useState<any[]>([]);
@@ -72,37 +89,87 @@ export function GlobalAddCardFab() {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   // Open / close animations
-  const openSheet = useCallback(() => {
+  const openSheet = useCallback((prefill?: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+    const prefillData = (prefill && typeof prefill === 'object' && 'front' in prefill) ? prefill : undefined;
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setOpen(true);
     Animated.parallel([
       Animated.spring(slideAnim, { toValue: 0, tension: 65, friction: 11, useNativeDriver: true }),
-      Animated.spring(fabScale, { toValue: 0.92, tension: 200, friction: 10, useNativeDriver: true }),
+      Animated.spring(fabScale, {
+        toValue: 0.92,
+        tension: 200,
+        friction: 10,
+        useNativeDriver: true,
+      }),
     ]).start();
-    // Lazy-load decks
-    if (!dataLoaded) {
-      Promise.all([vocabLabApi.getDecks(), vocabLabApi.getCardTypes()]).then(([d, ct]) => {
-        setDecks(d);
-        setCardTypes(ct);
-        if (d.length > 0) setSelectedDeckId(d[0].id);
-        if (ct.length > 0) {
-          const dt = ct.find(t => t.isBuiltIn) || ct[0];
-          setCardTypeId(dt.id);
-          const iv: any = {};
-          dt.fields.forEach((f: any) => iv[f.id] = '');
-          setFieldValues(iv);
+
+    const loadAndPrefill = async () => {
+      let currentDecks = decks;
+      let currentCardTypes = cardTypes;
+
+      if (!dataLoaded) {
+        try {
+          const [d, ct] = await Promise.all([vocabLabApi.getDecks(), vocabLabApi.getCardTypes()]);
+          currentDecks = d;
+          currentCardTypes = ct;
+          setDecks(d);
+          setCardTypes(ct);
+          if (d.length > 0) setSelectedDeckId(d[0].id);
+          setDataLoaded(true);
+        } catch (e) {
+          console.error('Failed to load decks/cardTypes in Fab', e);
         }
-        setDataLoaded(true);
-      }).catch(() => {});
-    }
-  }, [dataLoaded]);
+      }
+
+      if (currentCardTypes.length > 0) {
+        const dt = currentCardTypes.find((t) => t.isBuiltIn) || currentCardTypes[0];
+        setCardTypeId(dt.id);
+        
+        const sortedFields = [...dt.fields].sort((a: any, b: any) => a.order - b.order);
+        const iv: Record<string, string> = {};
+        dt.fields.forEach((f: any) => (iv[f.id] = ''));
+        
+        if (prefillData) {
+          if (sortedFields[0]) {
+            iv[sortedFields[0].id] = prefillData.front;
+          }
+          if (sortedFields[1]) {
+            let backVal = prefillData.back;
+            if (prefillData.audioUrl) {
+              backVal = `${backVal}\n<audio src="${prefillData.audioUrl}"></audio>`;
+            }
+            iv[sortedFields[1].id] = backVal;
+          }
+          if (prefillData.tags) {
+            setTagsList(prefillData.tags);
+          }
+        } else {
+          setTagsList([]);
+        }
+        setFieldValues(iv);
+      }
+    };
+
+    loadAndPrefill();
+  }, [dataLoaded, decks, cardTypes]);
+
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener(
+      'OPEN_QUICK_ADD_CARD',
+      (payload: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+        openSheet(payload);
+      }
+    );
+    return () => sub.remove();
+  }, [openSheet]);
 
   const handleCardTypeChange = (id: string) => {
     setCardTypeId(id);
-    const ct = cardTypes.find(t => t.id === id);
+    const ct = cardTypes.find((t) => t.id === id);
     if (ct) {
       const iv: any = {};
-      ct.fields.forEach((f: any) => iv[f.id] = '');
+      ct.fields.forEach((f: any) => (iv[f.id] = ''));
       setFieldValues(iv);
     }
   };
@@ -115,14 +182,19 @@ export function GlobalAddCardFab() {
 
   const closeSheet = useCallback(() => {
     Animated.parallel([
-      Animated.spring(slideAnim, { toValue: SHEET_H, tension: 65, friction: 11, useNativeDriver: true }),
+      Animated.spring(slideAnim, {
+        toValue: SHEET_H,
+        tension: 65,
+        friction: 11,
+        useNativeDriver: true,
+      }),
       Animated.spring(fabScale, { toValue: 1, tension: 200, friction: 10, useNativeDriver: true }),
     ]).start(() => setOpen(false));
   }, []);
 
   const handleSubmit = async () => {
     if (!selectedDeckId || !cardTypeId) return;
-    const ct = cardTypes.find(t => t.id === cardTypeId);
+    const ct = cardTypes.find((t) => t.id === cardTypeId);
     if (!ct) return;
 
     const firstField = ct.fields.sort((a: any, b: any) => a.order - b.order)[0];
@@ -136,13 +208,13 @@ export function GlobalAddCardFab() {
         back: '',
         cardTypeId,
         fieldValues,
-        tags: tagsList.length > 0 ? tagsList : undefined
+        tags: tagsList.length > 0 ? tagsList : undefined,
       });
 
       DeviceEventEmitter.emit('VOCAB_LAB_CARD_ADDED');
 
       const resetFields: Record<string, string> = {};
-      ct.fields.forEach((f: any) => resetFields[f.id] = '');
+      ct.fields.forEach((f: any) => (resetFields[f.id] = ''));
       setFieldValues(resetFields);
       setTagsList([]);
       setShowToast(false);
@@ -154,24 +226,34 @@ export function GlobalAddCardFab() {
     }
   };
 
-  const activeDeck = decks.find(d => d.id === selectedDeckId);
-  const activeType = cardTypes.find(t => t.id === cardTypeId);
+  const activeDeck = decks.find((d) => d.id === selectedDeckId);
+  const activeType = cardTypes.find((t) => t.id === cardTypeId);
 
   return (
     <>
       {/* ── FAB button ────────────────────────────────────────────── */}
-      <Animated.View style={[fab.wrap, { transform: [{ scale: fabScale }] }]}>
-        <TouchableOpacity style={fab.btn} onPress={openSheet} activeOpacity={0.85} id="global-add-card-fab">
-          <Ionicons name="add" size={26} color="#fff" />
-        </TouchableOpacity>
-      </Animated.View>
+      {!hideFab && (
+        <Animated.View style={[fab.wrap, { transform: [{ scale: fabScale }] }]}>
+          <TouchableOpacity
+            style={fab.btn}
+            onPress={() => openSheet()}
+            activeOpacity={0.85}
+            id="global-add-card-fab"
+          >
+            <Ionicons name="add" size={26} color="#fff" />
+          </TouchableOpacity>
+        </Animated.View>
+      )}
 
       {/* ── Bottom sheet ──────────────────────────────────────────── */}
       <Modal visible={open} transparent animationType="none" onRequestClose={closeSheet}>
         <Pressable style={fab.backdrop} onPress={closeSheet} />
 
         <Animated.View style={[fab.sheet, { transform: [{ translateY: slideAnim }] }]}>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={{ flex: 1 }}
+          >
             {/* Handle */}
             <View style={fab.handle} />
 
@@ -192,66 +274,98 @@ export function GlobalAddCardFab() {
             >
               {/* Deck selector */}
               <Text style={fab.label}>DECK</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={fab.deckPillBar} contentContainerStyle={{ gap: SPACING.xs }}>
-                {decks.map(d => (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={fab.deckPillBar}
+                contentContainerStyle={{ gap: SPACING.xs }}
+              >
+                {decks.map((d) => (
                   <TouchableOpacity
                     key={d.id}
                     style={[fab.deckPill, selectedDeckId === d.id && fab.deckPillActive]}
                     onPress={() => setSelectedDeckId(d.id)}
                   >
-                    <Text style={[fab.deckPillText, selectedDeckId === d.id && fab.deckPillTextActive]}>{d.name}</Text>
+                    <Text
+                      style={[fab.deckPillText, selectedDeckId === d.id && fab.deckPillTextActive]}
+                    >
+                      {d.name}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
 
               {/* Type selector */}
               <Text style={[fab.label, { marginTop: SPACING.md }]}>CARD TYPE</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={fab.deckPillBar} contentContainerStyle={{ gap: SPACING.xs }}>
-                {cardTypes.map(ct => (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={fab.deckPillBar}
+                contentContainerStyle={{ gap: SPACING.xs }}
+              >
+                {cardTypes.map((ct) => (
                   <TouchableOpacity
                     key={ct.id}
                     style={[fab.deckPill, cardTypeId === ct.id && fab.deckPillActive]}
                     onPress={() => handleCardTypeChange(ct.id)}
                   >
-                    <Text style={[fab.deckPillText, cardTypeId === ct.id && fab.deckPillTextActive]}>{ct.name}</Text>
+                    <Text
+                      style={[fab.deckPillText, cardTypeId === ct.id && fab.deckPillTextActive]}
+                    >
+                      {ct.name}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
 
               {/* Dynamic fields */}
-              {activeType?.fields.sort((a: any, b: any) => a.order - b.order).map((field: any, idx: number) => {
-                const val = fieldValues[field.id] || '';
-                const hasMedia = /<(img|audio)\s/i.test(val);
-                const textOnly = hasMedia ? val.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '') : val;
-                
-                return (
-                  <View key={field.id} style={{ marginTop: SPACING.md }}>
-                    <Text style={fab.label}>{field.name.toUpperCase()} {idx === 0 ? '*' : ''}</Text>
-                    <TextInput
-                      style={fab.input}
-                      value={textOnly}
-                      onChangeText={text => {
-                        const mediaHtml = val.match(/<(img|audio)[^>]*>(<\/audio>)?/gi)?.join('\n') || '';
-                        setFieldValues(prev => ({ ...prev, [field.id]: mediaHtml ? `${text}\n${mediaHtml}` : text }));
-                      }}
-                      placeholder={hasMedia ? 'Add text...' : `Enter ${field.name.toLowerCase()}…`}
-                      placeholderTextColor={COLORS.textMuted}
-                      multiline
-                      textAlignVertical="top"
-                      autoFocus={idx === 0}
-                    />
-                  </View>
-                );
-              })}
+              {activeType?.fields
+                .sort((a: any, b: any) => a.order - b.order)
+                .map((field: any, idx: number) => {
+                  const val = fieldValues[field.id] || '';
+                  const hasMedia = /<(img|audio)\s/i.test(val);
+                  const textOnly = hasMedia
+                    ? val.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '')
+                    : val;
+
+                  return (
+                    <View key={field.id} style={{ marginTop: SPACING.md }}>
+                      <Text style={fab.label}>
+                        {field.name.toUpperCase()} {idx === 0 ? '*' : ''}
+                      </Text>
+                      <TextInput
+                        style={fab.input}
+                        value={textOnly}
+                        onChangeText={(text) => {
+                          const mediaHtml =
+                            val.match(/<(img|audio)[^>]*>(<\/audio>)?/gi)?.join('\n') || '';
+                          setFieldValues((prev) => ({
+                            ...prev,
+                            [field.id]: mediaHtml ? `${text}\n${mediaHtml}` : text,
+                          }));
+                        }}
+                        placeholder={
+                          hasMedia ? 'Add text...' : `Enter ${field.name.toLowerCase()}…`
+                        }
+                        placeholderTextColor={COLORS.textMuted}
+                        multiline
+                        textAlignVertical="top"
+                        autoFocus={idx === 0}
+                      />
+                    </View>
+                  );
+                })}
 
               {/* Tags */}
               <View style={{ marginTop: SPACING.md }}>
                 <Text style={fab.label}>TAGS</Text>
                 <View style={sAdd.tagsContainer}>
-                  {tagsList.map(tag => (
+                  {tagsList.map((tag) => (
                     <View key={tag} style={sAdd.tagChip}>
                       <Text style={sAdd.tagText}>{tag}</Text>
-                      <TouchableOpacity onPress={() => setTagsList(tagsList.filter(t => t !== tag))}>
+                      <TouchableOpacity
+                        onPress={() => setTagsList(tagsList.filter((t) => t !== tag))}
+                      >
                         <Ionicons name="close" size={14} color={COLORS.textSecondary} />
                       </TouchableOpacity>
                     </View>
@@ -275,17 +389,14 @@ export function GlobalAddCardFab() {
                 onPress={handleSubmit}
                 disabled={submitting}
               >
-                {submitting
-                  ? <ActivityIndicator size="small" color="#fff" />
-                  : (
-                    <>
-                      <Ionicons name="add-circle-outline" size={18} color="#fff" />
-                      <Text style={fab.submitBtnText}>
-                        Add to {activeDeck?.name ?? 'deck'}
-                      </Text>
-                    </>
-                  )
-                }
+                {submitting ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="add-circle-outline" size={18} color="#fff" />
+                    <Text style={fab.submitBtnText}>Add to {activeDeck?.name ?? 'deck'}</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </ScrollView>
 
@@ -342,27 +453,43 @@ const fab = StyleSheet.create({
     elevation: 16,
   },
   handle: {
-    width: 40, height: 4, backgroundColor: COLORS.border,
-    borderRadius: 2, alignSelf: 'center',
-    marginTop: SPACING.md, marginBottom: SPACING.xs,
+    width: 40,
+    height: 4,
+    backgroundColor: COLORS.border,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: SPACING.md,
+    marginBottom: SPACING.xs,
   },
   header: {
-    flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md,
-    borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.md,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   sheetTitle: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text },
   sheetSubtitle: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, marginTop: 2 },
   closeBtn: {
-    width: 32, height: 32, borderRadius: RADIUS.lg,
-    backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // Deck pills
   deckPillBar: { maxHeight: 40 },
   deckPill: {
-    paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.xl, borderWidth: 1.5, borderColor: COLORS.border, backgroundColor: '#fff',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    backgroundColor: '#fff',
   },
   deckPillActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primary + '12' },
   deckPillText: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
@@ -370,18 +497,31 @@ const fab = StyleSheet.create({
 
   // Form
   label: {
-    fontSize: FONT_SIZES.xs, fontWeight: '800', color: COLORS.textMuted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: SPACING.xs,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '800',
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.xs,
   },
   input: {
-    borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.lg,
-    padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text,
-    backgroundColor: '#fff', minHeight: 80,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    backgroundColor: '#fff',
+    minHeight: 80,
   },
   submitBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: SPACING.sm, backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.xl, paddingVertical: SPACING.md + 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.xl,
+    paddingVertical: SPACING.md + 2,
     marginTop: SPACING.xl,
   },
   submitBtnDisabled: { opacity: 0.45 },
@@ -389,8 +529,28 @@ const fab = StyleSheet.create({
 });
 
 const sAdd = StyleSheet.create({
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, backgroundColor: '#fff', padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.border, minHeight: 48 },
-  tagChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.background, paddingHorizontal: SPACING.sm, paddingVertical: 4, borderRadius: RADIUS.xl, gap: 4, borderWidth: 1, borderColor: COLORS.border },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+    backgroundColor: '#fff',
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    minHeight: 48,
+  },
+  tagChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: RADIUS.xl,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
   tagText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.text },
   tagInput: { flex: 1, minWidth: 100, fontSize: FONT_SIZES.sm, color: COLORS.text },
 });

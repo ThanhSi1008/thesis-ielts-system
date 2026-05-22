@@ -52,7 +52,7 @@ export function useWritingPrompts(filters: { taskType?: string, subType?: string
     api.get("/ielts/advanced/writing/prompts", { params: filters })
       .then(res => {
         if (isMounted) {
-          setData(res.data);
+          setData(res.data as { data: WritingPrompt[]; total: number; totalPages: number });
           setIsLoading(false);
         }
       })
@@ -85,7 +85,7 @@ export function useWritingPromptDetail(id: string) {
     api.get(`/ielts/advanced/writing/prompts/${id}`)
       .then(res => {
         if (isMounted) {
-          setData(res.data);
+          setData(res.data as (WritingPrompt & { sessions: WritingSession[] }));
           setIsLoading(false);
         }
       })

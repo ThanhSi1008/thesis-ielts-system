@@ -1,6 +1,6 @@
 """
 FastAPI AI Service - Main Application
-Handles AI operations for TOEIC Master AI system
+Handles AI operations for IELTS Master AI system
 v1.0.3
 """
 
@@ -69,7 +69,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI application
 app = FastAPI(
-    title="TOEIC Master AI - AI Service",
+    title="IELTS Master AI - AI Service",
     description="AI microservice for speech-to-text transcription and automated grading",
     version="1.0.0",
     lifespan=lifespan
@@ -98,7 +98,7 @@ app.include_router(chat.router, prefix="/api/v1/chat", tags=["Chat"])
 async def root():
     """Root endpoint"""
     return {
-        "message": "TOEIC Master AI - AI Service",
+        "message": "IELTS Master AI - AI Service",
         "version": "1.0.0",
         "status": "running",
         "environment": settings.environment

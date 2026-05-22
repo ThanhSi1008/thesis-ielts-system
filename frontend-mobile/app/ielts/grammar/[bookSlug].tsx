@@ -1,18 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { grammarApi } from '@/services/ielts.api';
 
 const LEVEL_COLOR: Record<string, string> = {
-  Elementary:   '#EF4444',
+  Elementary: '#EF4444',
   Intermediate: '#3B82F6',
-  Advanced:     '#7C3AED',
+  Advanced: '#7C3AED',
 };
 
 export default function IeltsGrammarBookScreen() {
@@ -36,7 +41,9 @@ export default function IeltsGrammarBookScreen() {
     }
   }, [bookSlug]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const accentColor = LEVEL_COLOR[book?.level] ?? COLORS.primary;
   const units: any[] = book?.units ?? [];
@@ -53,7 +60,7 @@ export default function IeltsGrammarBookScreen() {
         </TouchableOpacity>
         <View style={s.headerCenter}>
           <Text style={s.headerTitle} numberOfLines={1}>
-            {loading ? 'Loading…' : book?.name ?? 'Grammar'}
+            {loading ? 'Loading…' : (book?.name ?? 'Grammar')}
           </Text>
           {book?.level && <Text style={s.headerSub}>{book.level}</Text>}
         </View>
@@ -61,11 +68,21 @@ export default function IeltsGrammarBookScreen() {
       </View>
 
       {loading ? (
-        <View style={s.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>
+        <View style={s.center}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                load();
+              }}
+            />
+          }
           contentContainerStyle={{ paddingBottom: 60 }}
         >
           {/* Stats row */}
@@ -93,13 +110,17 @@ export default function IeltsGrammarBookScreen() {
               <TouchableOpacity
                 key={unit.id}
                 style={s.unitRow}
-                onPress={() => router.push(`/ielts/grammar/${bookSlug}/${unit.id}` as any)}
+                onPress={() => router.push(ROUTES.ieltsGrammarUnit(bookSlug!, unit.id) as any)}
                 activeOpacity={0.8}
               >
                 <View style={[s.unitNum, { backgroundColor: accentColor + '18' }]}>
-                  <Text style={[s.unitNumText, { color: accentColor }]}>{unit.order ?? idx + 1}</Text>
+                  <Text style={[s.unitNumText, { color: accentColor }]}>
+                    {unit.order ?? idx + 1}
+                  </Text>
                 </View>
-                <Text style={s.unitTitle} numberOfLines={2}>{unit.title}</Text>
+                <Text style={s.unitTitle} numberOfLines={2}>
+                  {unit.title}
+                </Text>
                 <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
               </TouchableOpacity>
             ))}
@@ -120,30 +141,58 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
   header: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: SPACING.md, paddingVertical: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
   },
   backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },
   headerTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: '#fff' },
   headerSub: { fontSize: 10, color: 'rgba(255,255,255,0.75)', marginTop: 1 },
   statsBanner: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around',
-    paddingVertical: SPACING.lg, borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingVertical: SPACING.lg,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   statItem: { alignItems: 'center', flex: 1 },
   statValue: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
   statLabel: { fontSize: 10, color: COLORS.textMuted, marginTop: 2 },
   statDivider: { width: 1, height: 30, backgroundColor: COLORS.border },
   list: { padding: SPACING.lg },
-  sectionTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: SPACING.md },
-  unitRow: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.md, marginBottom: SPACING.sm,
-    borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
+  sectionTitle: {
+    fontSize: FONT_SIZES.md,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: SPACING.md,
   },
-  unitNum: { width: 36, height: 36, borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  unitRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  unitNum: {
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
   unitNumText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   unitTitle: { flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 },
   emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary },

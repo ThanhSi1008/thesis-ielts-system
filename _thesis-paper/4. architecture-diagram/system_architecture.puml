@@ -3,7 +3,7 @@
 skinparam componentStyle rectangle
 skinparam linetype ortho
 
-title TOEIC Master AI - System Architecture
+title IELTS Master AI - System Architecture
 
 actor "Student / User" as user
 actor "Admin / Instructor" as admin

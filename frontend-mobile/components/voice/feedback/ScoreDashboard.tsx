@@ -28,11 +28,11 @@ export const ScoreDashboard: React.FC<ScoreDashboardProps> = ({ score }) => {
               <Text style={[styles.value, { color: m.color }]}>{Math.round(m.value)}</Text>
             </View>
             <View style={styles.progressBg}>
-              <View 
+              <View
                 style={[
-                  styles.progressFill, 
-                  { width: `${m.value}%` as any, backgroundColor: m.color }
-                ]} 
+                  styles.progressFill,
+                  { width: `${m.value}%` as any, backgroundColor: m.color },
+                ]}
               />
             </View>
           </View>

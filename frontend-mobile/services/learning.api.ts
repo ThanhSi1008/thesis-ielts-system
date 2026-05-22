@@ -1,10 +1,108 @@
 /**
- * Learning API - Handles AI Voice pronunciation checks
+ * Learning API - Handles Vocabulary, Grammar, Pronunciation and AI Voice checks
  * Syncs with Web implementation
  */
 
 import { apiClient } from './api-client';
-import type { PronunciationCheckResponse } from '../types';
+import type {
+  FoundationVocabBook,
+  VocabularyBookWithUnits,
+  VocabularyUnitWithContent,
+  VocabularyBookProgress,
+  SubmitQuestionsResponse,
+  FoundationGrammarBook,
+  GrammarBookWithUnits,
+  GrammarUnitWithContent,
+  GrammarUnitProgress,
+  PronunciationData,
+  FoundationPronunciationSound,
+  SoundProgress,
+  PronunciationStats,
+  WordProgress,
+  PronunciationCheckResponse,
+} from '../types';
+
+// ============================================================
+// VOCABULARY API
+// ============================================================
+
+export const vocabularyApi = {
+  getBooks: async (): Promise<FoundationVocabBook[]> => {
+    return apiClient.get<FoundationVocabBook[]>('/foundationVocabWord/books');
+  },
+  getBook: async (id: string): Promise<VocabularyBookWithUnits> => {
+    return apiClient.get<VocabularyBookWithUnits>(`/foundationVocabWord/books/${id}`);
+  },
+  getUnit: async (id: string): Promise<VocabularyUnitWithContent> => {
+    return apiClient.get<VocabularyUnitWithContent>(`/foundationVocabWord/units/${id}`);
+  },
+
+  // Progress tracking
+  getProgress: async (bookId: string): Promise<VocabularyBookProgress> => {
+    return apiClient.get<VocabularyBookProgress>(`/foundationVocabWord/progress/${bookId}`);
+  },
+  updateWordProgress: async (unitId: string, wordsLearned: number): Promise<any> => {
+    return apiClient.post('/foundationVocabWord/progress/words', { unitId, wordsLearned });
+  },
+
+  submitQuestions: async (unitId: string, answers: { questionId: string; answer: string }[]): Promise<SubmitQuestionsResponse> => {
+    return apiClient.post<SubmitQuestionsResponse>('/foundationVocabWord/progress/questions', { unitId, answers });
+  },
+};
+
+// ============================================================
+// GRAMMAR API
+// ============================================================
+
+export const grammarApi = {
+  getBooks: async (): Promise<FoundationGrammarBook[]> => {
+    return apiClient.get<FoundationGrammarBook[]>('/grammar/books');
+  },
+  getBook: async (slug: string): Promise<GrammarBookWithUnits> => {
+    return apiClient.get<GrammarBookWithUnits>(`/grammar/books/${slug}`);
+  },
+  getUnit: async (id: string): Promise<GrammarUnitWithContent> => {
+    return apiClient.get<GrammarUnitWithContent>(`/grammar/units/${id}`);
+  },
+  getUnitByOrder: async (bookSlug: string, order: string | number): Promise<GrammarUnitWithContent> => {
+    return apiClient.get<GrammarUnitWithContent>(`/grammar/books/${bookSlug}/units/${order}`);
+  },
+  getProgress: async (bookSlug: string): Promise<GrammarUnitProgress[]> => {
+    return apiClient.get<GrammarUnitProgress[]>(`/grammar/progress/${bookSlug}`);
+  },
+  updateProgress: async (unitId: string, payload: { theoryCompleted?: boolean; exerciseScore?: number; exerciseTotal?: number }): Promise<any> => {
+    return apiClient.post('/grammar/progress', { unitId, ...payload });
+  },
+};
+
+// ============================================================
+// PRONUNCIATION API
+// ============================================================
+
+export const pronunciationApi = {
+  getAllSounds: async (): Promise<PronunciationData> => {
+    return apiClient.get<PronunciationData>('/pronunciation/sounds');
+  },
+  getSound: async (symbol: string): Promise<FoundationPronunciationSound> => {
+    return apiClient.get<FoundationPronunciationSound>(`/pronunciation/sounds/${encodeURIComponent(symbol)}`);
+  },
+  getProgress: async (): Promise<SoundProgress[]> => {
+    return apiClient.get<SoundProgress[]>('/pronunciation/progress');
+  },
+  getStats: async (): Promise<PronunciationStats> => {
+    return apiClient.get<PronunciationStats>('/pronunciation/progress/stats');
+  },
+  updateProgress: async (soundId: string, score: number): Promise<any> => {
+    return apiClient.post('/pronunciation/progress', { soundId, score });
+  },
+  getWordProgress: async (soundId: string): Promise<WordProgress[]> => {
+    return apiClient.get<WordProgress[]>(`/pronunciation/sounds/${soundId}/word-progress`);
+  },
+};
+
+// ============================================================
+// LEARNING API (General & Voice checks)
+// ============================================================
 
 export const learningApi = {
   /**
@@ -16,7 +114,7 @@ export const learningApi = {
   checkPronunciation: async (
     audioUri: string,
     userId: string,
-    options: { vocabularyId?: string; targetWord?: string } = {}
+    options: { vocabularyId?: string; targetWord?: string } = {},
   ): Promise<PronunciationCheckResponse> => {
     const formData = new FormData();
 
@@ -29,7 +127,7 @@ export const learningApi = {
       '.wav': 'audio/wav',
       '.mp3': 'audio/mpeg',
       '.webm': 'audio/webm',
-      '.m4a': 'audio/mp4',   // iOS M4A is MPEG-4 Audio container (RFC 4337)
+      '.m4a': 'audio/mp4', // iOS M4A is MPEG-4 Audio container (RFC 4337)
       '.mp4': 'audio/mp4',
       '.aac': 'audio/aac',
       '.caf': 'audio/x-caf', // iOS Core Audio Format (edge case)

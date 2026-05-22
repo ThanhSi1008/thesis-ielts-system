@@ -14,11 +14,7 @@ interface CardProps {
 }
 
 export function Card({ children, onPress, style, variant = 'default' }: CardProps) {
-  const cardStyle = [
-    styles.card,
-    variant === 'elevated' && styles.elevated,
-    style,
-  ];
+  const cardStyle = [styles.card, variant === 'elevated' && styles.elevated, style];
 
   if (onPress) {
     return (

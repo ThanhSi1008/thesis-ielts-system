@@ -1,14 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, LayoutAnimation, UIManager, Platform, Share, Alert,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+  Share,
+  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
 import WritingRubricView from '@/components/ielts/WritingRubricView';
 import SpeakingRubricView from '@/components/ielts/SpeakingRubricView';
@@ -22,20 +32,40 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 // ─── Band helpers ─────────────────────────────────────────────────────────────
 function getListeningBand(score: number) {
-  if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0;
-  if (score >= 32) return 7.5; if (score >= 30) return 7.0; if (score >= 26) return 6.5;
-  if (score >= 23) return 6.0; if (score >= 18) return 5.5; if (score >= 16) return 5.0;
-  if (score >= 13) return 4.5; if (score >= 10) return 4.0; if (score >= 8) return 3.5;
-  if (score >= 6) return 3.0; if (score >= 4) return 2.5; if (score >= 2) return 2.0;
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 32) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 26) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 18) return 5.5;
+  if (score >= 16) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
   return 1.0;
 }
 
 function getReadingBand(score: number) {
-  if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0;
-  if (score >= 33) return 7.5; if (score >= 30) return 7.0; if (score >= 27) return 6.5;
-  if (score >= 23) return 6.0; if (score >= 19) return 5.5; if (score >= 15) return 5.0;
-  if (score >= 13) return 4.5; if (score >= 10) return 4.0; if (score >= 8) return 3.5;
-  if (score >= 6) return 3.0; if (score >= 4) return 2.5; if (score >= 2) return 2.0;
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 33) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 27) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 19) return 5.5;
+  if (score >= 15) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
   return 1.0;
 }
 
@@ -51,18 +81,29 @@ function getBandColor(band: number): string {
 }
 
 const BAND_LABELS: Record<string, string> = {
-  '9.0': 'Expert', '8.5': 'Very Good', '8.0': 'Very Good',
-  '7.5': 'Good', '7.0': 'Good', '6.5': 'Competent',
-  '6.0': 'Competent', '5.5': 'Modest', '5.0': 'Modest',
-  '4.5': 'Limited', '4.0': 'Limited', '3.5': 'Extremely Limited',
-  '3.0': 'Extremely Limited', '2.5': 'Intermittent', '2.0': 'Intermittent', '1.0': 'Non User',
+  '9.0': 'Expert',
+  '8.5': 'Very Good',
+  '8.0': 'Very Good',
+  '7.5': 'Good',
+  '7.0': 'Good',
+  '6.5': 'Competent',
+  '6.0': 'Competent',
+  '5.5': 'Modest',
+  '5.0': 'Modest',
+  '4.5': 'Limited',
+  '4.0': 'Limited',
+  '3.5': 'Extremely Limited',
+  '3.0': 'Extremely Limited',
+  '2.5': 'Intermittent',
+  '2.0': 'Intermittent',
+  '1.0': 'Non User',
 };
 
 // ─── Extract correct answers recursively from exam.questions ─────────────────
 function extractCorrectAnswers(obj: any, map: Map<string, any>) {
   if (!obj || typeof obj !== 'object') return;
   if (Array.isArray(obj)) {
-    obj.forEach(x => extractCorrectAnswers(x, map));
+    obj.forEach((x) => extractCorrectAnswers(x, map));
     return;
   }
   if ('question_number' in obj && 'answer' in obj) {
@@ -79,14 +120,14 @@ function extractCorrectAnswers(obj: any, map: Map<string, any>) {
     }
     return;
   }
-  Object.values(obj).forEach(v => extractCorrectAnswers(v, map));
+  Object.values(obj).forEach((v) => extractCorrectAnswers(v, map));
 }
 
 // ─── Extract timestamps recursively from exam.questions ────────────────────────
 function extractTimestamps(obj: any, map: Map<string, number>) {
   if (!obj || typeof obj !== 'object') return;
   if (Array.isArray(obj)) {
-    obj.forEach(x => extractTimestamps(x, map));
+    obj.forEach((x) => extractTimestamps(x, map));
     return;
   }
   if ('question_number' in obj && 'timestamp_seconds' in obj) {
@@ -99,7 +140,7 @@ function extractTimestamps(obj: any, map: Map<string, number>) {
     }
     return;
   }
-  Object.values(obj).forEach(v => extractTimestamps(v, map));
+  Object.values(obj).forEach((v) => extractTimestamps(v, map));
 }
 
 // ─── Answer correctness check (mirrors web logic) ────────────────────────────
@@ -110,12 +151,16 @@ function normalizeAns(a: any): string {
 }
 
 function checkCorrect(userAns: any, correctAns: any): boolean {
-  const un = normalizeAns(userAns).toLowerCase().replace(/[^a-z0-9]/g, '');
+  const un = normalizeAns(userAns)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
   if (!un) return false;
   const candidates = Array.isArray(correctAns) ? correctAns : [String(correctAns)];
   for (const c of candidates) {
     const variants: string[] = [];
-    const parts = String(c).split('/').map(p => p.trim());
+    const parts = String(c)
+      .split('/')
+      .map((p) => p.trim());
     for (const p of parts) {
       const m = p.match(/^(.*?)\((.*?)\)(.*)$/);
       if (m) {
@@ -134,18 +179,25 @@ function checkCorrect(userAns: any, correctAns: any): boolean {
 
 // ─── Answer Sheet (4 columns) ────────────────────────────────────────────────
 function AnswerSheet({
-  userAnswers, correctMap, totalQuestions,
+  userAnswers,
+  correctMap,
+  totalQuestions,
 }: {
   userAnswers: Record<string, any>;
   correctMap: Map<string, any>;
   totalQuestions: number;
 }) {
+  const { colors, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const as = createAsStyles(colors);
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
-  let correct = 0, wrong = 0, blank = 0;
+  let correct = 0,
+    wrong = 0,
+    blank = 0;
 
   const chunkSize = Math.ceil(totalQuestions / 4) || 10;
-  const parts = Array.from({ length: 4 }, (_, i) => 
-    numbers.slice(i * chunkSize, (i + 1) * chunkSize)
+  const parts = Array.from({ length: 4 }, (_, i) =>
+    numbers.slice(i * chunkSize, (i + 1) * chunkSize),
   );
 
   return (
@@ -158,21 +210,34 @@ function AnswerSheet({
             <View key={idx} style={as.column}>
               <Text style={as.colTitle}>Part {idx + 1}</Text>
               <View style={as.colGrid}>
-                {partNums.map(n => {
+                {partNums.map((n) => {
                   const key = String(n);
                   const user = userAnswers[key];
                   const correct_ = correctMap.get(key);
                   const hasAns = !!normalizeAns(user);
-                  const isCorrect = hasAns && correct_ !== undefined && checkCorrect(user, correct_);
+                  const isCorrect =
+                    hasAns && correct_ !== undefined && checkCorrect(user, correct_);
                   const isWrong = hasAns && correct_ !== undefined && !isCorrect;
 
                   if (isCorrect) correct++;
                   else if (isWrong) wrong++;
                   else blank++;
 
-                  const bg = isCorrect ? '#DCFCE7' : isWrong ? '#FEE2E2' : COLORS.surface;
-                  const border = isCorrect ? '#16a34a' : isWrong ? COLORS.error : COLORS.border;
-                  const color = isCorrect ? '#15803D' : isWrong ? '#B91C1C' : COLORS.textMuted;
+                  const bg = isCorrect
+                    ? (isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7')
+                    : isWrong
+                    ? (isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2')
+                    : colors.surface;
+                  const border = isCorrect
+                    ? (isDark ? '#22c55e' : '#16a34a')
+                    : isWrong
+                    ? (isDark ? '#ef4444' : colors.error)
+                    : colors.border;
+                  const color = isCorrect
+                    ? (isDark ? '#4ade80' : '#15803D')
+                    : isWrong
+                    ? (isDark ? '#f87171' : '#B91C1C')
+                    : colors.textMuted;
 
                   return (
                     <View key={n} style={[as.cell, { backgroundColor: bg, borderColor: border }]}>
@@ -187,15 +252,17 @@ function AnswerSheet({
       </View>
       <View style={as.legend}>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: '#DCFCE7', borderColor: '#16a34a' }]} />
+          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7', borderColor: isDark ? '#22c55e' : '#16a34a' }]} />
           <Text style={as.legendText}>{correct} Correct</Text>
         </View>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: '#FEE2E2', borderColor: COLORS.error }]} />
+          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2', borderColor: isDark ? '#ef4444' : colors.error }]} />
           <Text style={as.legendText}>{wrong} Wrong</Text>
         </View>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: COLORS.surface, borderColor: COLORS.border }]} />
+          <View
+            style={[as.legendDot, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          />
           <Text style={as.legendText}>{blank} Blank</Text>
         </View>
       </View>
@@ -203,24 +270,56 @@ function AnswerSheet({
   );
 }
 
-const as = StyleSheet.create({
-  container: { margin: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.lg, borderWidth: 1, borderColor: COLORS.border },
-  title: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.md },
+const createAsStyles = (colors: any) => StyleSheet.create({
+  container: {
+    margin: SPACING.lg,
+    backgroundColor: colors.card,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  title: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: SPACING.md,
+  },
   columnsContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: SPACING.sm },
   column: { flex: 1, alignItems: 'center' },
-  colTitle: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary, marginBottom: SPACING.sm, textTransform: 'uppercase' },
+  colTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.textSecondary,
+    marginBottom: SPACING.sm,
+    textTransform: 'uppercase',
+  },
   colGrid: { flexDirection: 'column', gap: 6 },
-  cell: { width: 36, height: 36, borderRadius: RADIUS.sm, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  cell: {
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   cellNum: { fontSize: 11, fontWeight: '700' },
   legend: { flexDirection: 'row', gap: SPACING.lg, marginTop: SPACING.md },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 12, height: 12, borderRadius: 3, borderWidth: 1.5 },
-  legendText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, fontWeight: '600' },
+  legendText: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, fontWeight: '600' },
 });
 
 // ─── Question Review Row ──────────────────────────────────────────────────────
 function QuestionReviewRow({
-  questionNumber, userAns, correctAns, note, examId, userId, timestamp, onSeek,
+  questionNumber,
+  userAns,
+  correctAns,
+  note,
+  examId,
+  userId,
+  timestamp,
+  onSeek,
 }: {
   questionNumber: number;
   userAns: any;
@@ -231,6 +330,9 @@ function QuestionReviewRow({
   timestamp?: number;
   onSeek?: (ts: number) => void;
 }) {
+  const { colors, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const qr = createQrStyles(colors, isDark);
   const user = normalizeAns(userAns);
   const correct = normalizeAns(correctAns);
   const hasAns = !!user;
@@ -246,7 +348,7 @@ function QuestionReviewRow({
       <View style={qr.right}>
         {isCorrect_ && (
           <View style={qr.correctPill}>
-            <Ionicons name="checkmark" size={12} color="#15803D" />
+            <Ionicons name="checkmark" size={12} color={isDark ? '#4ade80' : '#15803D'} />
             <Text style={qr.correctText}>{user}</Text>
           </View>
         )}
@@ -255,7 +357,7 @@ function QuestionReviewRow({
             <View style={qr.wrongPill}>
               <Text style={qr.wrongText}>{user || '—'}</Text>
             </View>
-            <Ionicons name="arrow-forward" size={12} color={COLORS.textMuted} />
+            <Ionicons name="arrow-forward" size={12} color={colors.textMuted} />
             <View style={qr.answerPill}>
               <Text style={qr.answerText}>{correct}</Text>
             </View>
@@ -264,16 +366,20 @@ function QuestionReviewRow({
         {isBlank && (
           <View style={qr.wrongRow}>
             <Text style={qr.blankText}>—</Text>
-            <Ionicons name="arrow-forward" size={12} color={COLORS.textMuted} />
+            <Ionicons name="arrow-forward" size={12} color={colors.textMuted} />
             <View style={qr.answerPill}>
               <Text style={qr.answerText}>{correct}</Text>
             </View>
           </View>
         )}
-        
+
         {timestamp !== undefined && onSeek && (
-          <TouchableOpacity style={qr.listenBtn} onPress={() => onSeek(timestamp)} activeOpacity={0.7}>
-            <Ionicons name="volume-medium" size={13} color={COLORS.primary} />
+          <TouchableOpacity
+            style={qr.listenBtn}
+            onPress={() => onSeek(timestamp)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="volume-medium" size={13} color={colors.primary} />
             <Text style={qr.listenText}>Listen</Text>
           </TouchableOpacity>
         )}
@@ -289,30 +395,92 @@ function QuestionReviewRow({
   );
 }
 
-const qr = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: SPACING.sm, borderBottomWidth: 1, borderColor: COLORS.border + '60', gap: SPACING.md },
-  numBadge: { width: 28, height: 28, borderRadius: 6, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  numText: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary },
-  right: { flex: 1 },
-  correctPill: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#DCFCE7', borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', borderWidth: 1, borderColor: '#86EFAC' },
-  correctText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#15803D' },
-  listenBtn: { 
-    flexDirection: 'row', alignItems: 'center', gap: 4, 
-    alignSelf: 'flex-start', marginTop: 4, paddingHorizontal: 8, paddingVertical: 4,
-    backgroundColor: '#EFF6FF', borderRadius: RADIUS.sm, borderWidth: 1, borderColor: '#BFDBFE'
+const createQrStyles = (colors: any, isDark: boolean) => StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderColor: colors.border + '60',
+    gap: SPACING.md,
   },
-  listenText: { fontSize: 11, fontWeight: '700', color: COLORS.primary },
+  numBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  numText: { fontSize: 11, fontWeight: '700', color: colors.textSecondary },
+  right: { flex: 1 },
+  correctPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: isDark ? '#22c55e' : '#86EFAC',
+  },
+  correctText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: isDark ? '#4ade80' : '#15803D' },
+  listenBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EFF6FF',
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+    borderColor: isDark ? colors.border : '#BFDBFE',
+  },
+  listenText: { fontSize: 11, fontWeight: '700', color: colors.primary },
   wrongRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  wrongPill: { backgroundColor: '#FEE2E2', borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: '#FECACA' },
-  wrongText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#B91C1C', textDecorationLine: 'line-through' },
-  answerPill: { backgroundColor: '#DCFCE7', borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: '#86EFAC' },
-  answerText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: '#15803D' },
-  blankText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted, fontWeight: '600' },
+  wrongPill: {
+    backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2',
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: isDark ? '#ef4444' : '#FECACA',
+  },
+  wrongText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '700',
+    color: isDark ? '#f87171' : '#B91C1C',
+    textDecorationLine: 'line-through',
+  },
+  answerPill: {
+    backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: isDark ? '#22c55e' : '#86EFAC',
+  },
+  answerText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: isDark ? '#4ade80' : '#15803D' },
+  blankText: { fontSize: FONT_SIZES.sm, color: colors.textMuted, fontWeight: '600' },
 });
 
 // ─── Question Review Section (collapsible) ────────────────────────────────────
 function QuestionReviewSection({
-  userAnswers, correctMap, timestampMap, totalQuestions, noteMap, examId, userId, onSeek,
+  userAnswers,
+  correctMap,
+  timestampMap,
+  totalQuestions,
+  noteMap,
+  examId,
+  userId,
+  onSeek,
 }: {
   userAnswers: Record<string, any>;
   correctMap: Map<string, any>;
@@ -323,23 +491,29 @@ function QuestionReviewSection({
   userId: string;
   onSeek?: (ts: number) => void;
 }) {
+  const { colors } = useTheme();
+  const rev = createRevStyles(colors);
   const [open, setOpen] = useState(false);
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
   const toggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setOpen(v => !v);
+    setOpen((v) => !v);
   };
 
   return (
     <View style={rev.container}>
       <TouchableOpacity style={rev.header} onPress={toggle} activeOpacity={0.8}>
         <Text style={rev.headerTitle}>Question Review</Text>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color={COLORS.textSecondary} />
+        <Ionicons
+          name={open ? 'chevron-up' : 'chevron-down'}
+          size={18}
+          color={colors.textSecondary}
+        />
       </TouchableOpacity>
       {open && (
         <View style={rev.body}>
-          {numbers.map(n => (
+          {numbers.map((n) => (
             <QuestionReviewRow
               key={n}
               questionNumber={n}
@@ -358,15 +532,30 @@ function QuestionReviewSection({
   );
 }
 
-const rev = StyleSheet.create({
-  container: { margin: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: SPACING.lg },
-  headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text },
+const createRevStyles = (colors: any) => StyleSheet.create({
+  container: {
+    margin: SPACING.lg,
+    backgroundColor: colors.card,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: SPACING.lg,
+  },
+  headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
   body: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md },
 });
 
 // ─── Main Result Screen ───────────────────────────────────────────────────────
 export default function ResultScreen() {
+  const { colors, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const styles = createStyles(colors, isDark);
   const router = useRouter();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const [session, setSession] = useState<any>(null);
@@ -389,17 +578,19 @@ export default function ResultScreen() {
   };
 
   useEffect(() => {
-    ieltsExamsApi.getSession(sessionId)
-      .then(data => {
+    ieltsExamsApi
+      .getSession(sessionId)
+      .then((data) => {
         setSession(data);
         if (data?.userId && data?.exam?.id) {
-          notesApi.getExamNotes(data.userId, data.exam.id)
-            .then(notes => {
+          notesApi
+            .getExamNotes(data.userId, data.exam.id)
+            .then((notes) => {
               const map = new Map<number, QuestionNote>();
-              notes.forEach(n => map.set(n.questionNumber, n));
+              notes.forEach((n) => map.set(n.questionNumber, n));
               setNoteMap(map);
             })
-            .catch(() => { });
+            .catch(() => {});
         }
       })
       .catch(console.error)
@@ -414,7 +605,9 @@ export default function ResultScreen() {
         const data = await ieltsExamsApi.getSession(sessionId);
         setSession(data);
         if (!['SUBMITTED', 'GRADING'].includes(data.status)) clearInterval(interval);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }, 5000);
     return () => clearInterval(interval);
   }, [session?.status, sessionId]);
@@ -424,7 +617,7 @@ export default function ResultScreen() {
     try {
       setRetaking(true);
       const newSession = await ieltsExamsApi.createSession(session.exam.id, session.userId ?? '');
-      router.replace(`/ielts/intensive/${session.exam.id}?sessionId=${newSession.id}` as any);
+      router.replace((ROUTES.ieltsIntensiveExam(session.exam.id) + `?sessionId=${newSession.id}`) as any);
     } catch {
       Alert.alert('Error', 'Could not start a new session. Please try again.');
     } finally {
@@ -432,38 +625,41 @@ export default function ResultScreen() {
     }
   }, [session, router]);
 
-  const handleShare = useCallback(async (
-    bandStr: string,
-    rawScore: number,
-    totalQuestions: number,
-    examTitle: string,
-    examType: string,
-    mm: string,
-    ss: string,
-  ) => {
-    try {
-      setSharing(true);
-      const message = [
-        `🎓 IELTS ${examType} Result`,
-        `📝 Exam: ${examTitle}`,
-        ``,
-        `⭐ Band Score: ${bandStr}`,
-        `✅ Raw Score: ${rawScore}/${totalQuestions}`,
-        `⏱ Time: ${mm}:${ss}`,
-        ``,
-        `Practiced with TOEIC Master AI 🚀`,
-      ].join('\n');
-      await Share.share({ message, title: `IELTS ${examType} — Band ${bandStr}` });
-    } catch {
-    } finally {
-      setSharing(false);
-    }
-  }, []);
+  const handleShare = useCallback(
+    async (
+      bandStr: string,
+      rawScore: number,
+      totalQuestions: number,
+      examTitle: string,
+      examType: string,
+      mm: string,
+      ss: string,
+    ) => {
+      try {
+        setSharing(true);
+        const message = [
+          `🎓 IELTS ${examType} Result`,
+          `📝 Exam: ${examTitle}`,
+          ``,
+          `⭐ Band Score: ${bandStr}`,
+          `✅ Raw Score: ${rawScore}/${totalQuestions}`,
+          `⏱ Time: ${mm}:${ss}`,
+          ``,
+          `Practiced with IELTS Master AI 🚀`,
+        ].join('\n');
+        await Share.share({ message, title: `IELTS ${examType} — Band ${bandStr}` });
+      } catch {
+      } finally {
+        setSharing(false);
+      }
+    },
+    [],
+  );
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading result…</Text>
       </View>
     );
@@ -472,7 +668,7 @@ export default function ResultScreen() {
   if (!session) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: COLORS.error }}>Session not found.</Text>
+        <Text style={{ color: colors.error }}>Session not found.</Text>
       </View>
     );
   }
@@ -508,26 +704,32 @@ export default function ResultScreen() {
   const totalQuestions = correctMap.size > 0 ? correctMap.size : 40;
 
   const rawSpeakingFeedback = session.result?.feedback;
-  const speakingFeedback = rawSpeakingFeedback != null
-    ? (typeof rawSpeakingFeedback === 'string'
-        ? (() => { try { return JSON.parse(rawSpeakingFeedback); } catch { return null; } })()
-        : rawSpeakingFeedback)
-    : null;
+  const speakingFeedback =
+    rawSpeakingFeedback != null
+      ? typeof rawSpeakingFeedback === 'string'
+        ? (() => {
+            try {
+              return JSON.parse(rawSpeakingFeedback);
+            } catch {
+              return null;
+            }
+          })()
+        : rawSpeakingFeedback
+      : null;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-
         {/* Breadcrumb Navigation */}
         <View style={styles.breadcrumb}>
           <Text style={styles.bcText}>IELTS</Text>
-          <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
+          <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
           <Text style={styles.bcText}>Intensive</Text>
-          <Ionicons name="chevron-forward" size={14} color={COLORS.textMuted} />
+          <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
           <Text style={[styles.bcText, styles.bcActive]}>Result</Text>
         </View>
 
-        <View style={[styles.hero, { backgroundColor: bandColor + '18' }]}>
+        <View style={[styles.hero, { backgroundColor: bandColor + (isDark ? '24' : '18') }]}>
           <View style={[styles.bandCircle, { borderColor: bandColor }]}>
             <Text style={[styles.bandScore, { color: bandColor }]}>{bandStr}</Text>
             <Text style={[styles.bandLabel, { color: bandColor }]}>Band</Text>
@@ -540,7 +742,9 @@ export default function ResultScreen() {
               ? 'Your writing/speaking is being graded by AI. Check back soon.'
               : description}
           </Text>
-          <Text style={styles.examTitle} numberOfLines={2}>{session.exam?.title}</Text>
+          <Text style={styles.examTitle} numberOfLines={2}>
+            {session.exam?.title}
+          </Text>
         </View>
 
         {!isPending && (
@@ -554,7 +758,9 @@ export default function ResultScreen() {
               <Text style={styles.statLabel}>Total Qs</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{mm}:{ss}</Text>
+              <Text style={styles.statValue}>
+                {mm}:{ss}
+              </Text>
               <Text style={styles.statLabel}>Time Taken</Text>
             </View>
           </View>
@@ -583,20 +789,25 @@ export default function ResultScreen() {
         {!isPending && audioUrl ? (
           <View style={styles.audioBannerContainer}>
             <View style={styles.audioBanner}>
-              <TouchableOpacity onPress={() => player.playing ? player.pause() : player.play()} style={styles.playBtn}>
+              <TouchableOpacity
+                onPress={() => (player.playing ? player.pause() : player.play())}
+                style={styles.playBtn}
+              >
                 <Ionicons name={player.playing ? 'pause' : 'play'} size={20} color="#fff" />
               </TouchableOpacity>
-              <Text style={styles.audioBannerText}>{player.playing ? 'Playing exam audio' : 'Audio paused'}</Text>
+              <Text style={styles.audioBannerText}>
+                {player.playing ? 'Playing exam audio' : 'Audio paused'}
+              </Text>
             </View>
             <View style={styles.volumeControl}>
               <TouchableOpacity onPress={() => setVolume(Math.max(0, volume - 0.2))}>
-                <Ionicons name="volume-low" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="volume-low" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
               <View style={styles.volumeTrack}>
                 <View style={[styles.volumeFill, { width: `${volume * 100}%` }]} />
               </View>
               <TouchableOpacity onPress={() => setVolume(Math.min(1, volume + 0.2))}>
-                <Ionicons name="volume-high" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="volume-high" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
@@ -649,104 +860,196 @@ export default function ResultScreen() {
             disabled={retaking}
             activeOpacity={0.85}
           >
-            {retaking
-              ? <ActivityIndicator size="small" color="#fff" />
-              : <Ionicons name="refresh-outline" size={18} color="#fff" />}
+            {retaking ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Ionicons name="refresh-outline" size={18} color="#fff" />
+            )}
             <Text style={styles.retakeBtnText}>{retaking ? 'Starting…' : 'Retake Exam'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.actionBtn, styles.shareBtn, sharing && { opacity: 0.7 }]}
-            onPress={() => handleShare(bandStr, rawScore, totalQuestions, session.exam?.title ?? '', examType, mm, ss)}
+            onPress={() =>
+              handleShare(
+                bandStr,
+                rawScore,
+                totalQuestions,
+                session.exam?.title ?? '',
+                examType,
+                mm,
+                ss,
+              )
+            }
             disabled={sharing}
             activeOpacity={0.85}
           >
-            {sharing
-              ? <ActivityIndicator size="small" color={COLORS.primary} />
-              : <Ionicons name="share-social-outline" size={18} color={COLORS.primary} />}
+            {sharing ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Ionicons name="share-social-outline" size={18} color={colors.primary} />
+            )}
             <Text style={styles.shareBtnText}>{sharing ? 'Sharing…' : 'Share Result'}</Text>
           </TouchableOpacity>
 
           <Button
             title="Back to Tests"
             variant="outline"
-            onPress={() => router.replace('/ielts/intensive' as any)}
+            onPress={() => router.replace(ROUTES.ieltsIntensive)}
             fullWidth
           />
           <View style={{ height: SPACING.sm }} />
           <Button
             title="View All History"
             variant="ghost"
-            onPress={() => router.replace('/ielts/history' as any)}
+            onPress={() => router.replace(ROUTES.ieltsHistory)}
             fullWidth
           />
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  loadingText: { marginTop: SPACING.md, color: COLORS.textSecondary },
-  breadcrumb: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: SPACING.lg, paddingTop: SPACING.md },
-  bcText: { fontSize: 13, color: COLORS.textSecondary, fontWeight: '500' },
-  bcActive: { color: COLORS.primary, fontWeight: '700' },
+const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+  loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
+  breadcrumb: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
+  },
+  bcText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
+  bcActive: { color: colors.primary, fontWeight: '700' },
   hero: { alignItems: 'center', padding: SPACING.xxxl, paddingTop: SPACING.lg },
   bandCircle: {
-    width: 120, height: 120, borderRadius: 60, borderWidth: 5,
-    alignItems: 'center', justifyContent: 'center', marginBottom: SPACING.lg,
-    backgroundColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1, shadowRadius: 12, elevation: 4,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.lg,
+    backgroundColor: colors.card,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
   bandScore: { fontSize: 40, fontWeight: '900', lineHeight: 44 },
-  bandLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  resultTitle: { fontSize: 24, fontWeight: '800', color: COLORS.text, marginBottom: 8, textAlign: 'center' },
-  description: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 22 },
+  bandLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  resultTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: FONT_SIZES.sm,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
   audioBannerContainer: {
-    marginHorizontal: SPACING.lg, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF', overflow: 'hidden'
+    marginHorizontal: SPACING.lg,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: isDark ? colors.border : '#C7D2FE',
+    backgroundColor: isDark ? colors.card : '#EEF2FF',
+    overflow: 'hidden',
   },
   audioBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.md, padding: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    padding: SPACING.md,
   },
-  playBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
-  audioBannerText: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '600' },
+  playBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  audioBannerText: { fontSize: FONT_SIZES.sm, color: isDark ? colors.text : colors.primary, fontWeight: '600' },
   volumeControl: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, paddingHorizontal: SPACING.md, paddingBottom: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
   },
-  volumeTrack: { flex: 1, height: 6, backgroundColor: '#E0E7FF', borderRadius: 3, overflow: 'hidden' },
-  volumeFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 3 },
-  examTitle: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted, textAlign: 'center' },
+  volumeTrack: {
+    flex: 1,
+    height: 6,
+    backgroundColor: isDark ? colors.border : '#E0E7FF',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  volumeFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 3 },
+  examTitle: { fontSize: FONT_SIZES.sm, color: colors.textMuted, textAlign: 'center' },
   statsRow: {
-    flexDirection: 'row', marginHorizontal: SPACING.lg, marginTop: SPACING.md,
-    backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.lg,
-    borderWidth: 1, borderColor: COLORS.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    flexDirection: 'row',
+    marginHorizontal: SPACING.lg,
+    marginTop: SPACING.md,
+    backgroundColor: colors.card,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statCard: { flex: 1, alignItems: 'center' },
-  statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: COLORS.border },
-  statValue: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: COLORS.text },
-  statLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
+  statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
+  statValue: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: colors.text },
+  statLabel: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 2 },
   section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.xl },
-  sectionTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.md },
-  barBg: { height: 12, backgroundColor: COLORS.border, borderRadius: 6, overflow: 'hidden' },
+  sectionTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: SPACING.md,
+  },
+  barBg: { height: 12, backgroundColor: colors.border, borderRadius: 6, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 6 },
-  barLabel: { marginTop: SPACING.sm, fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'right' },
+  barLabel: {
+    marginTop: SPACING.sm,
+    fontSize: FONT_SIZES.sm,
+    color: colors.textSecondary,
+    textAlign: 'right',
+  },
   actions: { padding: SPACING.xl, marginTop: SPACING.lg, gap: SPACING.sm },
   // Retake button
   actionBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: SPACING.sm, borderRadius: RADIUS.xl, paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    borderRadius: RADIUS.xl,
+    paddingVertical: 14,
   },
-  retakeBtn: { backgroundColor: COLORS.primary },
+  retakeBtn: { backgroundColor: colors.primary },
   retakeBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
   // Share button
   shareBtn: {
-    backgroundColor: COLORS.primary + '12',
-    borderWidth: 1.5, borderColor: COLORS.primary,
+    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : colors.primary + '12',
+    borderWidth: 1.5,
+    borderColor: colors.primary,
   },
-  shareBtnText: { color: COLORS.primary, fontSize: FONT_SIZES.md, fontWeight: '700' },
+  shareBtnText: { color: colors.primary, fontSize: FONT_SIZES.md, fontWeight: '700' },
 });

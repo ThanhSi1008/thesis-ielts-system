@@ -38,7 +38,7 @@ class AuthService extends ApiClient {
     const response = await apiClient.get<User>('/users/me');
     return response;
   }
-  
+
   // Session Management Helpers
   async setSession(accessToken: string, refreshToken?: string) {
     await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);

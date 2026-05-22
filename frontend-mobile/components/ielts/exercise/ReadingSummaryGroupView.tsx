@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { COLORS, FONT_SIZES, RADIUS, SPACING } from '@/constants';
-import { styles } from './styles';
+import { FONT_SIZES, RADIUS, SPACING } from '@/constants';
+import { createExerciseStyles } from './styles';
 import { ExplanationView } from './ExplanationView';
+import { useTheme } from '@/contexts/ThemeContext';
 
 function getExplanationText(exp: any): string {
   if (!exp) return '';
@@ -11,9 +12,11 @@ function getExplanationText(exp: any): string {
 }
 
 export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const styles = createExerciseStyles(colors);
   const questions: any[] = group.questions || [];
   const qMap: Record<number, any> = Object.fromEntries(
-    questions.map((q: any) => [q.question_number, q])
+    questions.map((q: any) => [q.question_number, q]),
   );
 
   const checkAnswer = (q: any, userAns: string): boolean => {
@@ -26,14 +29,13 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
   const summaryText: string = group.summary || group.text || '';
   const instruction: string = group.instruction || group.instructions || 'Complete the summary below.';
 
-  // Parse {{qNum}} placeholders and render inline inputs
   const renderSummaryText = () => {
     const blankRegex = /\{\{(\d+)\}\}/g;
     const matches = Array.from(summaryText.matchAll(blankRegex));
 
     if (matches.length === 0) {
       return (
-        <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26 }}>
+        <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}>
           {summaryText}
         </Text>
       );
@@ -50,9 +52,9 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
 
       if ((match.index ?? 0) > lastIndex) {
         parts.push(
-          <Text key={`t-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26 }}>
+          <Text key={`t-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}>
             {summaryText.slice(lastIndex, match.index)}
-          </Text>
+          </Text>,
         );
       }
 
@@ -63,8 +65,10 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
             flexDirection: 'row',
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : '#9CA3AF',
-            backgroundColor: submitted ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#fff',
+            borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
+            backgroundColor: submitted
+              ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
+              : colors.card,
             borderRadius: RADIUS.sm,
             paddingHorizontal: 6,
             paddingVertical: 2,
@@ -74,10 +78,8 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
         >
           <Text
             style={{
-              fontSize: 10,
-              fontWeight: 'bold',
-              marginRight: 4,
-              color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : '#9CA3AF',
+              fontSize: 10, fontWeight: 'bold', marginRight: 4,
+              color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.textMuted,
             }}
           >
             {qNum}
@@ -86,8 +88,7 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
             <>
               <Text
                 style={{
-                  fontSize: FONT_SIZES.sm,
-                  fontWeight: '600',
+                  fontSize: FONT_SIZES.sm, fontWeight: '600',
                   color: isCorrect ? '#15803D' : '#DC2626',
                   textDecorationLine: isCorrect ? 'none' : 'line-through',
                 }}
@@ -102,22 +103,15 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
             </>
           ) : (
             <TextInput
-              style={{
-                padding: 0,
-                margin: 0,
-                fontSize: FONT_SIZES.sm,
-                color: COLORS.text,
-                minWidth: 60,
-                fontWeight: '500',
-              }}
+              style={{ padding: 0, margin: 0, fontSize: FONT_SIZES.sm, color: colors.text, minWidth: 60, fontWeight: '500' }}
               value={userAnswer}
               onChangeText={(v) => onAnswer(qNum, v)}
               editable={!submitted}
               placeholder="..."
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
             />
           )}
-        </View>
+        </View>,
       );
 
       lastIndex = (match.index ?? 0) + match[0].length;
@@ -125,9 +119,9 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
 
     if (lastIndex < summaryText.length) {
       parts.push(
-        <Text key={`end-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 26 }}>
+        <Text key={`end-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}>
           {summaryText.slice(lastIndex)}
-        </Text>
+        </Text>,
       );
     }
 
@@ -140,9 +134,8 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
     <View style={{ marginBottom: 24 }}>
       <Text style={styles.groupType}>Summary Completion</Text>
 
-      {/* Question range header */}
       {qNums.length > 0 && (
-        <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.text, marginBottom: 4 }}>
+        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
           Questions {Math.min(...qNums)}–{Math.max(...qNums)}
         </Text>
       )}
@@ -153,26 +146,23 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
         </View>
       ) : null}
 
-      {/* Summary Box */}
       <View
         style={{
-          backgroundColor: '#F9FAFB',
+          backgroundColor: colors.surface,
           borderWidth: 1,
-          borderColor: '#E5E7EB',
+          borderColor: colors.border,
           borderRadius: RADIUS.lg,
           padding: SPACING.lg,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
         }}
       >
         {renderSummaryText()}
       </View>
 
-      {/* Explanations after submit */}
       {submitted &&
         questions.map((q: any) =>
           q.explanation ? (
             <View key={q.question_number} style={{ marginTop: SPACING.sm }}>
-              <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: COLORS.textSecondary }}>
+              <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.textSecondary }}>
                 Q{q.question_number} Explanation:
               </Text>
               <ExplanationView
@@ -180,7 +170,7 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
                 isCorrect={checkAnswer(q, answers[q.question_number] ?? '')}
               />
             </View>
-          ) : null
+          ) : null,
         )}
     </View>
   );

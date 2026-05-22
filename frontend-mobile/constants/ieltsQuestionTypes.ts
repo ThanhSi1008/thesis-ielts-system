@@ -19,5 +19,7 @@ export const QUESTION_TYPE_LABELS: Record<string, string> = {
 };
 
 export function getQuestionTypeLabel(type: string): string {
-  return QUESTION_TYPE_LABELS[type] ?? type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return (
+    QUESTION_TYPE_LABELS[type] ?? type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  );
 }

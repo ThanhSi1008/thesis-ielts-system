@@ -11,14 +11,11 @@ interface TranscriptFeedbackProps {
 /**
  * Renders transcribed words with color-coded feedback based on accuracy
  */
-export const TranscriptFeedback: React.FC<TranscriptFeedbackProps> = ({ 
-  words, 
-  onWordPress 
-}) => {
+export const TranscriptFeedback: React.FC<TranscriptFeedbackProps> = ({ words, onWordPress }) => {
   const getWordColor = (score: number, errorType?: string) => {
     if (errorType === 'Omission') return COLORS.textMuted;
     if (errorType === 'Insertion') return '#9CA3AF'; // Gray
-    
+
     if (score >= 75) return '#059669'; // Emerald-600
     if (score >= 40) return '#D97706'; // Amber-600
     return '#DC2626'; // Red-600
@@ -27,16 +24,12 @@ export const TranscriptFeedback: React.FC<TranscriptFeedbackProps> = ({
   return (
     <View style={styles.container}>
       {words.map((item, idx) => (
-        <TouchableOpacity 
-          key={idx} 
-          onPress={() => onWordPress?.(item.word)}
-          activeOpacity={0.7}
-        >
-          <Text 
+        <TouchableOpacity key={idx} onPress={() => onWordPress?.(item.word)} activeOpacity={0.7}>
+          <Text
             style={[
-              styles.word, 
+              styles.word,
               { color: getWordColor(item.accuracyScore, item.errorType) },
-              item.errorType === 'Omission' && styles.omission
+              item.errorType === 'Omission' && styles.omission,
             ]}
           >
             {item.word}{' '}

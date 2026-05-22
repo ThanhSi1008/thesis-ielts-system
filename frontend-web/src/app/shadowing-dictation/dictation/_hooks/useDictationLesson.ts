@@ -24,7 +24,7 @@ export function useDictationLesson(lessonId: string | undefined): UseDictationLe
     const fetchLesson = async () => {
       try {
         let data: DictationVideo | null = null;
-        if (lessonId.startsWith('sys-') || lessonId.startsWith('toeic-') || lessonId.startsWith('shadowing-') || lessonId.startsWith('ielts-') || lessonId.startsWith('test-')) {
+        if (lessonId.startsWith('sys-') || lessonId.startsWith('ielts-') || lessonId.startsWith('shadowing-') || lessonId.startsWith('test-')) {
           data = await dictationApi.getLessonById(lessonId);
         } else {
           try {

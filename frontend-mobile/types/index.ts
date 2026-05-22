@@ -89,9 +89,84 @@ export interface VocabularyBookWithUnits {
 export interface VocabularyUnitWithContent {
   id: string;
   title: string;
+  order: number;
   book: { id: string; name: string };
   words: VocabularyWord[];
+  questions: FoundationVocabQuestion[];
+  storyTitle?: string;
+  storyContent?: string;
+  storyImageUrl?: string;
 }
+
+export type BookWithUnits = VocabularyBookWithUnits;
+export type UnitWithContent = VocabularyUnitWithContent;
+
+export interface FoundationVocabBook {
+  id: string;
+  name: string;
+  imageUrl: string;
+  wordCount: number;
+  _count?: { units: number };
+}
+
+export interface FoundationVocabUnit {
+  id: string;
+  title: string;
+  order: number;
+}
+
+export interface FoundationVocabItem {
+  id: string;
+  word: string;
+  meaning: string;
+  ipa?: string;
+  partOfSpeech?: string;
+  example?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  lessonId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FoundationVocabQuestion {
+  id: string;
+  question: string;
+  type: 'multiple_choice' | 'fill_blank';
+  options?: string[];
+  answer: string;
+  order: number;
+}
+
+export interface VocabularyUnitProgress {
+  id: string;
+  title: string;
+  order: number;
+  totalWords: number;
+  wordsLearned: number;
+  questionScore?: number;
+  isCompleted: boolean;
+}
+
+export interface VocabularyBookProgress {
+  book: { id: string; name: string };
+  units: VocabularyUnitProgress[];
+}
+
+export interface QuestionResult {
+  questionId: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+export interface SubmitQuestionsResponse {
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  results: QuestionResult[];
+}
+
 
 // ==================== GRAMMAR ====================
 
@@ -117,12 +192,16 @@ export interface GrammarExercise {
   id: string;
   question: string;
   answer: string;
+  options?: string[];
+  correctAnswer?: string;
 }
 
 export interface GrammarBookWithUnits {
   id: string;
   slug: string;
   name: string;
+  level?: string;
+  author?: string;
   units: GrammarUnit[];
 }
 
@@ -130,9 +209,42 @@ export interface GrammarUnitWithContent {
   id: string;
   title: string;
   theoryContent?: string;
+  explanation?: string;
+  theory?: string;
+  examples?: string[];
+  notes?: string;
   book: { id: string; slug: string; name: string };
   exercises: GrammarExercise[];
 }
+
+export interface FoundationGrammarBook {
+  id: string;
+  slug: string;
+  name: string;
+  author: string;
+  level: string;
+  imageUrl: string;
+  color: string;
+  unitCount: number;
+  _count?: { units: number };
+}
+
+export interface FoundationGrammarUnit {
+  id: string;
+  title: string;
+  order: number;
+  theoryContent?: string;
+}
+
+export interface GrammarUnitProgress {
+  unitOrder: number;
+  theoryCompleted: boolean;
+  exerciseScore: number | null;
+  exerciseTotal: number | null;
+  isCompleted: boolean;
+  completedAt: string | null;
+}
+
 
 // ==================== PRONUNCIATION ====================
 
@@ -177,6 +289,62 @@ export interface PronunciationCheckResponse {
   score?: PronunciationScore;
   audioUrl?: string;
 }
+
+export interface FoundationPronunciationSound {
+  id: string;
+  symbol: string;
+  name?: string;
+  type: string;
+  word: string;
+  description?: string;
+  tip?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  voiced?: boolean;
+  order: number;
+  exampleWords: FoundationSoundExample[];
+}
+
+export interface FoundationSoundExample {
+  id: string;
+  word: string;
+  ipa?: string;
+  audioUrl?: string;
+  order: number;
+}
+
+export interface SoundProgress {
+  soundId: string;
+  symbol: string;
+  type: string;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+  practiceCount: number;
+  bestScore: number | null;
+  lastPracticedAt: string | null;
+}
+
+export interface PronunciationStats {
+  totalSounds: number;
+  masteredCount: number;
+  practicingCount: number;
+  newCount: number;
+  overallMastery: number;
+}
+
+export interface WordProgress {
+  word: string;
+  bestScore: number | null;
+  attemptCount: number;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+}
+
+export interface PronunciationData {
+  monophthongs: FoundationPronunciationSound[];
+  diphthongs: FoundationPronunciationSound[];
+  consonants: FoundationPronunciationSound[];
+}
+
 
 // ==================== EXAMS ====================
 
@@ -288,6 +456,7 @@ export interface ShadowingVideo {
   category?: string;
   duration: string;
   sentences: ShadowingSentence[];
+  tags?: string[];
 }
 
 export interface ShadowingProgress {
@@ -437,4 +606,38 @@ export interface PostListParams {
   tag?: string;
   authorId?: string;
   limit?: number;
+  bookmarkedOnly?: boolean;
+}
+
+// ==================== SUBSCRIPTION ====================
+
+export type SubscriptionTier = 'FREE' | 'PREMIUM' | 'PRO';
+export type SubscriptionStatus = 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | 'EXPIRED';
+
+export interface UserSubscription {
+  id: string;
+  userId: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  canceledAt: string | null;
+  trialEndsAt: string | null;
+  trialUsed: boolean;
+  usage: Record<string, { used: number; limit: number }>;
+  limits: Record<string, unknown>;
+}
+
+export interface SubscriptionError {
+  statusCode: 403;
+  error:
+    | 'SUBSCRIPTION_REQUIRED'
+    | 'QUOTA_EXCEEDED'
+    | 'DECK_LIMIT_REACHED'
+    | 'CARD_LIMIT_REACHED'
+    | 'DAILY_QUOTA_EXCEEDED';
+  message: string;
+  requiredTier?: SubscriptionTier;
+  currentTier?: SubscriptionTier;
+  upgradeUrl?: string;
 }

@@ -23,7 +23,7 @@ Create `_thesis_paper/v2/generate_staruml.js` — a Node.js script that:
 {
   "_type": "Project",
   "_id": "<unique-id>",
-  "name": "TOEIC System",
+  "name": "IELTS System",
   "ownedElements": [
     {
       "_type": "UMLModel",
@@ -201,7 +201,7 @@ const IELTS_MODELS = [
 ## Phase 3 — Run the Generator
 
 ```powershell
-cd c:\Users\Admin\Desktop\thesis\merge\thesis-toeic-system\_thesis_paper\v2
+cd c:\Users\Admin\Desktop\thesis\merge\thesis-ielts-system\_thesis_paper\v2
 node generate_staruml.js
 ```
 

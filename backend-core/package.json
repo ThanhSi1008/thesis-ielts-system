@@ -1,8 +1,8 @@
 {
   "name": "backend-core",
   "version": "1.0.0",
-  "description": "TOEIC Master AI - Core Backend (NestJS Modular Monolith)",
-  "author": "TOEIC Master AI Team",
+  "description": "IELTS Master AI - Core Backend (NestJS Modular Monolith)",
+  "author": "IELTS Master AI Team",
   "private": true,
   "license": "MIT",
   "scripts": {

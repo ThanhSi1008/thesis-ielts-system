@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  ActivityIndicator, RefreshControl, useWindowDimensions
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  useWindowDimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,8 +15,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api-client';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Lesson {
   id: string;
@@ -25,6 +32,7 @@ export default function SkillLessonsScreen() {
   const { skill } = useLocalSearchParams<{ skill: string }>();
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { colors } = useTheme();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -54,8 +62,99 @@ export default function SkillLessonsScreen() {
 
   const handlePress = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push(`/ielts/basic/lesson/${id}?skill=${skill}` as any);
+    router.push((ROUTES.ieltsBasicLesson(id) + `?skill=${skill}`) as any);
   };
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    scroll: { padding: SPACING.xl },
+    header: { marginBottom: SPACING.xxl },
+    subtitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 12,
+      color: COLORS.primary,
+      textTransform: 'uppercase',
+      letterSpacing: 1.5,
+      marginBottom: 6,
+    },
+    title: {
+      fontFamily: FONTS.bold,
+      fontSize: 34,
+      color: colors.text,
+      marginBottom: SPACING.sm,
+      letterSpacing: -0.8,
+    },
+    description: {
+      fontFamily: FONTS.medium,
+      fontSize: 16,
+      color: colors.textSecondary,
+      lineHeight: 24,
+    },
+    emptyContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 80,
+      opacity: 0.5,
+    },
+    emptyText: {
+      fontFamily: FONTS.medium,
+      fontSize: 16,
+      color: colors.textMuted,
+      marginTop: SPACING.md,
+    },
+    list: { gap: SPACING.md },
+    lessonCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: SPACING.lg,
+      backgroundColor: colors.card,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderCurve: 'continuous',
+      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
+    },
+    lessonIndex: {
+      width: 44,
+      height: 44,
+      borderRadius: 14,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: SPACING.md,
+      borderCurve: 'continuous',
+    },
+    indexText: {
+      fontFamily: FONTS.bold,
+      fontSize: 15,
+      color: colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
+    lessonInfo: { flex: 1 },
+    chapterText: {
+      fontFamily: FONTS.bold,
+      fontSize: 11,
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+      marginBottom: 4,
+    },
+    lessonTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 18,
+      color: colors.text,
+      letterSpacing: -0.3,
+    },
+    completedBadge: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: '#10B981',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
 
   if (loading && !refreshing) {
     return (
@@ -67,15 +166,15 @@ export default function SkillLessonsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: true,
           title: `${skillName} Lessons`,
           headerBackTitle: 'Library',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#fff' },
+          headerStyle: { backgroundColor: colors.background },
           headerTitleStyle: { fontFamily: FONTS.bold, fontSize: 18 },
-        }} 
+        }}
       />
 
       <ScrollView
@@ -94,7 +193,7 @@ export default function SkillLessonsScreen() {
 
         {lessons.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="book-outline" size={64} color={COLORS.textMuted} />
+            <Ionicons name="book-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyText}>No lessons found for this skill.</Text>
           </View>
         ) : (
@@ -120,7 +219,7 @@ export default function SkillLessonsScreen() {
                     <Ionicons name="checkmark" size={14} color="#fff" />
                   </View>
                 ) : (
-                  <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
+                  <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
                 )}
               </AnimatedTouchableOpacity>
             ))}
@@ -130,94 +229,3 @@ export default function SkillLessonsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scroll: { padding: SPACING.xl },
-  header: { marginBottom: SPACING.xxl },
-  subtitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 12,
-    color: COLORS.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    marginBottom: 6,
-  },
-  title: {
-    fontFamily: FONTS.bold,
-    fontSize: 34,
-    color: COLORS.text,
-    marginBottom: SPACING.sm,
-    letterSpacing: -0.8,
-  },
-  description: {
-    fontFamily: FONTS.medium,
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    lineHeight: 24,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 80,
-    opacity: 0.5,
-  },
-  emptyText: {
-    fontFamily: FONTS.medium,
-    fontSize: 16,
-    color: COLORS.textMuted,
-    marginTop: SPACING.md,
-  },
-  list: { gap: SPACING.md },
-  lessonCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.lg,
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    borderCurve: 'continuous',
-    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.03)",
-  },
-  lessonIndex: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: '#F9FAFB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.md,
-    borderCurve: 'continuous',
-  },
-  indexText: {
-    fontFamily: FONTS.bold,
-    fontSize: 15,
-    color: COLORS.textSecondary,
-    fontVariant: ['tabular-nums'],
-  },
-  lessonInfo: { flex: 1 },
-  chapterText: {
-    fontFamily: FONTS.bold,
-    fontSize: 11,
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  lessonTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 18,
-    color: COLORS.text,
-    letterSpacing: -0.3,
-  },
-  completedBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#10B981',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

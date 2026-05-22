@@ -66,7 +66,7 @@ export function useSpeakingParts(filters: {
       })
       .then((res) => {
         if (!isMounted) return;
-        setData(res.data);
+        setData(res.data as { data: SpeakingPartSummary[]; total: number; totalPages: number });
         setIsLoading(false);
       })
       .catch(() => {

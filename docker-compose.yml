@@ -4,20 +4,20 @@ services:
   # PostgreSQL 16 - Primary relational database
   postgres:
     image: postgres:16-alpine
-    container_name: toeic-postgres
+    container_name: ielts-postgres
     environment:
-      POSTGRES_DB: toeic_db
-      POSTGRES_USER: toeic_user
-      POSTGRES_PASSWORD: toeic_password
+      POSTGRES_DB: ielts_db
+      POSTGRES_USER: ielts_user
+      POSTGRES_PASSWORD: ielts_password
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - toeic-network
+      - ielts-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U toeic_user -d toeic_db"]
+      test: ["CMD-SHELL", "pg_isready -U ielts_user -d ielts_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,14 +25,14 @@ services:
   # Redis 7 - In-memory cache and session store
   redis:
     image: redis:7-alpine
-    container_name: toeic-redis
+    container_name: ielts-redis
     command: redis-server --appendonly yes
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - toeic-network
+      - ielts-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -43,17 +43,17 @@ services:
   # RabbitMQ 3 - Message broker for event-driven communication
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: toeic-rabbitmq
+    container_name: ielts-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: toeic
-      RABBITMQ_DEFAULT_PASS: toeic_password
+      RABBITMQ_DEFAULT_USER: ielts
+      RABBITMQ_DEFAULT_PASS: ielts_password
     ports:
       - "5672:5672"   # AMQP protocol port
       - "15672:15672" # Management UI port
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - toeic-network
+      - ielts-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
@@ -64,7 +64,7 @@ services:
   # MinIO - S3-compatible object storage for local development
   minio:
     image: minio/minio:latest
-    container_name: toeic-minio
+    container_name: ielts-minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -75,7 +75,7 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - toeic-network
+      - ielts-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -86,9 +86,9 @@ services:
   # PgAdmin 4 - PostgreSQL database management tool (optional)
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: toeic-pgadmin
+    container_name: ielts-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@toeic.com
+      PGADMIN_DEFAULT_EMAIL: admin@ielts.com
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
@@ -96,27 +96,27 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
-      - toeic-network
+      - ielts-network
     restart: unless-stopped
     depends_on:
       - postgres
 
 # Custom bridge network for service communication
 networks:
-  toeic-network:
+  ielts-network:
     driver: bridge
-    name: toeic-network
+    name: ielts-network
 
 # Named volumes for data persistence
 volumes:
   postgres_data:
-    name: toeic_postgres_data
+    name: ielts_postgres_data
   redis_data:
-    name: toeic_redis_data
+    name: ielts_redis_data
   rabbitmq_data:
-    name: toeic_rabbitmq_data
+    name: ielts_rabbitmq_data
   minio_data:
-    name: toeic_minio_data
+    name: ielts_minio_data
   pgadmin_data:
-    name: toeic_pgadmin_data
+    name: ielts_pgadmin_data
 

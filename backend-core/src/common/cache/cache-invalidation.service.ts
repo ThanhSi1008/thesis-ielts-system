@@ -27,7 +27,7 @@ export class CacheInvalidationService {
     try {
       const rabbitUrl =
         this.configService.get<string>("RABBITMQ_URL") ||
-        "amqp://toeic:toeic_password@localhost:5672";
+        "amqp://ielts:ielts_password@localhost:5672";
       this.connection = (await amqp.connect(rabbitUrl)) as any;
       this.channel = await (this.connection as any).createChannel();
 

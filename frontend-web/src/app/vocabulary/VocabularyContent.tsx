@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { vocabularyApi } from '@/services/learning.api';
-import type { VocabularyBook } from '@/types';
+import type { FoundationVocabBook } from '@/types';
 
 export default function VocabularyContent({ embedded }: { embedded?: boolean }) {
-  const [books, setBooks] = useState<VocabularyBook[]>([]);
+  const [books, setBooks] = useState<FoundationVocabBook[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

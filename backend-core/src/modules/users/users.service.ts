@@ -11,6 +11,7 @@ export interface SafeUser {
   role: string;
   isActive: boolean;
   createdAt: Date;
+  avatar?: string | null;
 }
 
 @Injectable()
@@ -27,6 +28,7 @@ export class UsersService {
         role: true,
         isActive: true,
         createdAt: true,
+        avatar: true,
       },
     });
     return users;
@@ -43,6 +45,7 @@ export class UsersService {
         role: true,
         isActive: true,
         createdAt: true,
+        avatar: true,
       },
     });
     return user;
@@ -67,6 +70,7 @@ export class UsersService {
           role: true,
           isActive: true,
           createdAt: true,
+          avatar: true,
         },
       });
       return user;
@@ -277,5 +281,37 @@ export class UsersService {
       advancedListeningHistory,
       advancedReadingHistory,
     };
+  }
+
+  async updateAvatar(id: string, url: string | null): Promise<SafeUser> {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { avatar: url },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        avatar: true,
+      },
+    });
+    return user;
+  }
+
+  async addPushToken(userId: string, token: string, platform: string) {
+    return this.prisma.pushToken.upsert({
+      where: { token },
+      update: { lastUsed: new Date(), userId },
+      create: { userId, token, platform, lastUsed: new Date() },
+    });
+  }
+
+  async removePushToken(userId: string, token: string) {
+    return this.prisma.pushToken.deleteMany({
+      where: { userId, token },
+    });
   }
 }

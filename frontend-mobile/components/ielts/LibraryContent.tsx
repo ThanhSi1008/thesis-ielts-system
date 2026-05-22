@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, 
-  ActivityIndicator, useWindowDimensions 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
@@ -11,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import Markdown from 'react-native-markdown-display';
 
 import { COLORS, FONTS, RADIUS, FONT_SIZES, SPACING } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 import { apiClient } from '@/services/api-client';
 
 interface LibraryStats {
@@ -52,18 +58,28 @@ const SKILL_THEMES: Record<string, any> = {
 };
 
 function getDefaultTheme(skill: string) {
-  return SKILL_THEMES[skill] || {
-    bg: '#FAF7F2',
-    text: COLORS.primary,
-    circleBase: 'rgba(255, 193, 7, 0.1)',
-    fillColor: COLORS.primary,
-    icon: 'school-outline',
-  };
+  return (
+    SKILL_THEMES[skill] || {
+      bg: '#FAF7F2',
+      text: COLORS.primary,
+      circleBase: 'rgba(255, 193, 7, 0.1)',
+      fillColor: COLORS.primary,
+      icon: 'school-outline',
+    }
+  );
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-function CircularProgressLink({ completed, total, color, baseColor, textColor, icon, onPress }: any) {
+function CircularProgressLink({
+  completed,
+  total,
+  color,
+  baseColor,
+  textColor,
+  icon,
+  onPress,
+}: any) {
   const size = 60;
   const strokeWidth = 3;
   const radius = 24;
@@ -77,9 +93,9 @@ function CircularProgressLink({ completed, total, color, baseColor, textColor, i
   };
 
   return (
-    <View style={styles.progLinkWrapper}>
-      <TouchableOpacity onPress={handlePress} style={styles.progLinkCircle} activeOpacity={0.7}>
-        <Svg width={size} height={size} style={styles.svgRotate}>
+    <View style={staticStyles.progLinkWrapper}>
+      <TouchableOpacity onPress={handlePress} style={staticStyles.progLinkCircle} activeOpacity={0.7}>
+        <Svg width={size} height={size} style={staticStyles.svgRotate}>
           <Circle
             cx={size / 2}
             cy={size / 2}
@@ -102,11 +118,11 @@ function CircularProgressLink({ completed, total, color, baseColor, textColor, i
             />
           )}
         </Svg>
-        <View style={[styles.progLinkIconBox, { backgroundColor: color + '1A' }]}>
+        <View style={[staticStyles.progLinkIconBox, { backgroundColor: color + '1A' }]}>
           <Ionicons name={icon} size={20} color={color} />
         </View>
       </TouchableOpacity>
-      <Text style={[styles.progLinkText, { color: color }]}>
+      <Text style={[staticStyles.progLinkText, { color: color }]}>
         {completed}/{total}
       </Text>
     </View>
@@ -115,6 +131,7 @@ function CircularProgressLink({ completed, total, color, baseColor, textColor, i
 
 export function LibraryContent() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [stats, setStats] = useState<LibraryStats[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,55 +153,64 @@ export function LibraryContent() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={staticStyles.center}>
         <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
 
-  const displayStats = ["Listening", "Reading", "Writing", "Speaking"].map((skillName) => {
-    const existing = (stats || []).find(s => s.skill.toLowerCase() === skillName.toLowerCase());
-    return existing || {
-      id: skillName.toLowerCase(),
-      skill: skillName,
-      lessons: { total: 0, completed: 0 },
-      exercises: { total: 0, completed: 0 },
-    };
+  const displayStats = ['Listening', 'Reading', 'Writing', 'Speaking'].map((skillName) => {
+    const existing = (stats || []).find((s) => s.skill.toLowerCase() === skillName.toLowerCase());
+    return (
+      existing || {
+        id: skillName.toLowerCase(),
+        skill: skillName,
+        lessons: { total: 0, completed: 0 },
+        exercises: { total: 0, completed: 0 },
+      }
+    );
   });
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.scroll}
+    <ScrollView
+      style={[staticStyles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={staticStyles.scroll}
       showsVerticalScrollIndicator={false}
       contentInsetAdjustmentBehavior="automatic"
     >
-      <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
-        <Text style={styles.title}>Library</Text>
+      <Animated.View entering={FadeInDown.duration(600)} style={staticStyles.header}>
+        <Text style={[staticStyles.title, { color: colors.text }]}>Library</Text>
       </Animated.View>
 
-      <View style={styles.grid}>
+      <View style={staticStyles.grid}>
         {displayStats.map((stat, index) => {
           const theme = getDefaultTheme(stat.skill);
           return (
-            <Animated.View 
-              key={stat.id} 
+            <Animated.View
+              key={stat.id}
               entering={FadeInDown.delay(index * 100).duration(500)}
-              style={[styles.card, { backgroundColor: theme.bg }]}
+              style={[staticStyles.card, { backgroundColor: theme.bg }]}
             >
-              <View style={styles.cardHeader}>
-                <Ionicons name={theme.icon} size={24} color={theme.fillColor} style={{ fontWeight: '800' }} />
-                <Text style={[styles.cardTitle, { color: theme.fillColor }]}>{stat.skill}</Text>
+              <View style={staticStyles.cardHeader}>
+                <Ionicons
+                  name={theme.icon}
+                  size={24}
+                  color={theme.fillColor}
+                  style={{ fontWeight: '800' }}
+                />
+                <Text style={[staticStyles.cardTitle, { color: theme.fillColor }]}>{stat.skill}</Text>
               </View>
 
-              <View style={styles.progressRow}>
+              <View style={staticStyles.progressRow}>
                 <CircularProgressLink
                   completed={stat.lessons.completed}
                   total={stat.lessons.total}
                   color={theme.fillColor}
                   baseColor={theme.circleBase}
                   icon="school-outline"
-                  onPress={() => router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/lessons` as any)}
+                  onPress={() =>
+                    router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/lessons` as any)
+                  }
                 />
 
                 <CircularProgressLink
@@ -193,7 +219,9 @@ export function LibraryContent() {
                   color={theme.fillColor}
                   baseColor={theme.circleBase}
                   icon="fitness-outline"
-                  onPress={() => router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/exercises` as any)}
+                  onPress={() =>
+                    router.push(`/ielts/basic/library/${stat.skill.toLowerCase()}/exercises` as any)
+                  }
                 />
               </View>
             </Animated.View>
@@ -201,17 +229,17 @@ export function LibraryContent() {
         })}
       </View>
 
-      <Animated.View entering={FadeInDown.delay(400)} style={styles.bookmarksContainer}>
-        <View style={styles.bookmarkCard}>
-          <View style={styles.bookmarkInfo}>
-            <Ionicons name="bookmark" size={24} color="#1F2937" />
-            <Text style={styles.bookmarkTitle}>Bookmarks</Text>
+      <Animated.View entering={FadeInDown.delay(400)} style={staticStyles.bookmarksContainer}>
+        <View style={[staticStyles.bookmarkCard, { backgroundColor: colors.surface }]}>
+          <View style={staticStyles.bookmarkInfo}>
+            <Ionicons name="bookmark" size={24} color={colors.text} />
+            <Text style={[staticStyles.bookmarkTitle, { color: colors.text }]}>Bookmarks</Text>
           </View>
-          <View style={styles.bookmarkStats}>
-            <View style={styles.bookmarkIconCircle}>
+          <View style={staticStyles.bookmarkStats}>
+            <View style={staticStyles.bookmarkIconCircle}>
               <Ionicons name="school-outline" size={24} color="#4F6C76" />
             </View>
-            <Text style={styles.bookmarkCount}>1/1</Text>
+            <Text style={[staticStyles.bookmarkCount, { color: colors.textSecondary }]}>1/1</Text>
           </View>
         </View>
       </Animated.View>
@@ -219,16 +247,16 @@ export function LibraryContent() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+// All static styles (no theme-dependent colors)
+const staticStyles = StyleSheet.create({
+  container: { flex: 1 },
   scroll: { padding: SPACING.lg, paddingBottom: 120 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  
+
   header: { marginBottom: SPACING.xl, paddingHorizontal: 4 },
   title: {
     fontFamily: FONTS.bold,
     fontSize: 32,
-    color: '#111827',
     letterSpacing: -0.8,
   },
 
@@ -288,7 +316,6 @@ const styles = StyleSheet.create({
 
   bookmarksContainer: { marginTop: SPACING.lg },
   bookmarkCard: {
-    backgroundColor: '#FAF7F2',
     borderRadius: 32,
     paddingVertical: 16,
     paddingHorizontal: 32,
@@ -306,7 +333,6 @@ const styles = StyleSheet.create({
   bookmarkTitle: {
     fontFamily: FONTS.bold,
     fontSize: 20,
-    color: '#111827',
   },
   bookmarkStats: {
     alignItems: 'center',
@@ -325,6 +351,5 @@ const styles = StyleSheet.create({
   bookmarkCount: {
     fontFamily: FONTS.bold,
     fontSize: 13,
-    color: '#6B7280',
   },
 });

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Pronunciation | TOEIC Master AI',
+    title: 'Pronunciation | IELTS Master AI',
     description: 'Improve your English pronunciation',
 };
 

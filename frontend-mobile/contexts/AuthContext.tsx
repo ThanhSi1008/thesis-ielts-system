@@ -53,18 +53,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // For now, let's assume if token exists, we try to fetch user profile
         // If profile fetch fails (401), we'll catch error and logout
         try {
-          // You might need a specific endpoint to get profile if /login doesn't return it individually 
+          // You might need a specific endpoint to get profile if /login doesn't return it individually
           // or if you want to refresh it.
           // For resilience, if we stored user data, load it first
           const storedUser = await AsyncStorage.getItem(STORAGE_KEYS.USER_DATA);
           if (storedUser) {
-             setUser(JSON.parse(storedUser));
+            setUser(JSON.parse(storedUser));
           }
-          
+
           // Verify with backend
           const userProfile = await authService.getCurrentUser();
           setUser(userProfile);
-          
         } catch (e) {
           // Token invalid
           await logout();
@@ -145,7 +144,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, loginWithGoogle, register, logout, checkAuth, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, login, loginWithGoogle, register, logout, checkAuth, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

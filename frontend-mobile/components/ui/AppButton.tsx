@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  ActivityIndicator,
-  TouchableOpacityProps,
-} from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, TouchableOpacityProps } from 'react-native';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -51,23 +46,14 @@ export const AppButton: React.FC<AppButtonProps> = ({
         'w-full h-14 rounded-xl flex-row items-center justify-center',
         variantClasses[variant],
         isDisabled && 'opacity-60',
-        className
+        className,
       )}
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator 
-          color={variant === 'outline' ? '#2563eb' : '#ffffff'} 
-          size="small" 
-        />
+        <ActivityIndicator color={variant === 'outline' ? '#2563eb' : '#ffffff'} size="small" />
       ) : (
-        <Text
-          className={cn(
-            'text-lg font-semibold',
-            textVariantClasses[variant],
-            textClassName
-          )}
-        >
+        <Text className={cn('text-lg font-semibold', textVariantClasses[variant], textClassName)}>
           {title}
         </Text>
       )}

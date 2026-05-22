@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, ActivityIndicator,
-  TouchableOpacity, RefreshControl,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -11,10 +16,18 @@ import { studentTeacherApi } from '@/services/ielts.api';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function getIeltsBandFromScore(score: number) {
-  if (score >= 39) return 9.0; if (score >= 37) return 8.5; if (score >= 35) return 8.0;
-  if (score >= 32) return 7.5; if (score >= 30) return 7.0; if (score >= 26) return 6.5;
-  if (score >= 23) return 6.0; if (score >= 18) return 5.5; if (score >= 16) return 5.0;
-  if (score >= 13) return 4.5; if (score >= 10) return 4.0; return 1.0;
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 32) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 26) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 18) return 5.5;
+  if (score >= 16) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  return 1.0;
 }
 
 function getBandForItem(h: any): number {
@@ -32,14 +45,24 @@ function bandColor(band: number) {
 }
 
 const SKILLS = [
-  { key: 'LISTENING', label: 'Listening', icon: '🎧', color: '#E11D48' },
-  { key: 'READING',   label: 'Reading',   icon: '📖', color: '#2563EB' },
-  { key: 'WRITING',   label: 'Writing',   icon: '✍️', color: '#D97706' },
-  { key: 'SPEAKING',  label: 'Speaking',  icon: '🎤', color: '#7C3AED' },
+  { key: 'LISTENING', label: 'Listening', icon: '🎧', color: COLORS.skill.listening },
+  { key: 'READING', label: 'Reading', icon: '📖', color: COLORS.skill.reading },
+  { key: 'WRITING', label: 'Writing', icon: '✍️', color: COLORS.skill.writing },
+  { key: 'SPEAKING', label: 'Speaking', icon: '🎤', color: COLORS.skill.speaking },
 ];
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
+function StatCard({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  color: string;
+}) {
   return (
     <View style={[sc.card, { borderTopColor: color }]}>
       <Text style={[sc.value, { color }]}>{value}</Text>
@@ -50,10 +73,19 @@ function StatCard({ label, value, sub, color }: { label: string; value: string; 
 }
 const sc = StyleSheet.create({
   card: {
-    flex: 1, backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.md,
-    borderTopWidth: 3, borderWidth: 1, borderColor: COLORS.border,
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.md,
+    borderTopWidth: 3,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   value: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold },
   label: { fontSize: 10, color: COLORS.textSecondary, marginTop: 2, textAlign: 'center' },
@@ -70,8 +102,12 @@ function AccuracyBar({ label, correct, total }: { label: string; correct: number
         <Text style={{ fontSize: 11, color: COLORS.text }}>{label}</Text>
         <Text style={{ fontSize: 11, fontFamily: FONTS.bold, color }}>{pct}%</Text>
       </View>
-      <View style={{ height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden' }}>
-        <View style={{ width: `${pct}%`, height: '100%', backgroundColor: color, borderRadius: 3 }} />
+      <View
+        style={{ height: 6, backgroundColor: COLORS.border, borderRadius: 3, overflow: 'hidden' }}
+      >
+        <View
+          style={{ width: `${pct}%`, height: '100%', backgroundColor: color, borderRadius: 3 }}
+        />
       </View>
     </View>
   );
@@ -82,7 +118,11 @@ function SessionRow({ item, activeSkill }: { item: any; activeSkill: string }) {
   const band = getBandForItem(item);
   const color = bandColor(band);
   const isWS = item.skill === 'WRITING' || item.skill === 'SPEAKING';
-  const date = new Date(item.dateTaken).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const date = new Date(item.dateTaken).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   return (
     <View style={sr.row}>
@@ -90,8 +130,13 @@ function SessionRow({ item, activeSkill }: { item: any; activeSkill: string }) {
         <Text style={[sr.bandValue, { color }]}>{band.toFixed(1)}</Text>
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={sr.title} numberOfLines={1}>{item.examTitle}</Text>
-        <Text style={sr.meta}>{date}{item.practicePart ? ` · Part ${item.practicePart}` : ''}</Text>
+        <Text style={sr.title} numberOfLines={1}>
+          {item.examTitle}
+        </Text>
+        <Text style={sr.meta}>
+          {date}
+          {item.practicePart ? ` · Part ${item.practicePart}` : ''}
+        </Text>
       </View>
       <Text style={[sr.score, { color }]}>
         {isWS ? `Band ${band.toFixed(1)}` : `${item.rawScore}/${item.maxScore}`}
@@ -100,8 +145,22 @@ function SessionRow({ item, activeSkill }: { item: any; activeSkill: string }) {
   );
 }
 const sr = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md, paddingVertical: SPACING.sm, borderBottomWidth: 1, borderColor: COLORS.border },
-  bandBadge: { width: 40, height: 40, borderRadius: 20, borderWidth: 2.5, alignItems: 'center', justifyContent: 'center' },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
+  },
+  bandBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   bandValue: { fontSize: 13, fontFamily: FONTS.bold },
   title: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: COLORS.text },
   meta: { fontSize: 10, color: COLORS.textSecondary, marginTop: 1 },
@@ -130,7 +189,9 @@ export default function StudentDetailScreen() {
     }
   };
 
-  useEffect(() => { load(); }, [studentId]);
+  useEffect(() => {
+    load();
+  }, [studentId]);
 
   const profile = data?.ieltsProfile;
   const user = profile?.user ?? {};
@@ -144,11 +205,11 @@ export default function StudentDetailScreen() {
   ];
 
   // Filter by active skill
-  const filteredHistory = allHistory.filter(h => h.skill === activeSkill);
+  const filteredHistory = allHistory.filter((h) => h.skill === activeSkill);
 
   // Per-skill best band
   const bestBand = (skill: string) => {
-    const items = allHistory.filter(h => h.skill === skill);
+    const items = allHistory.filter((h) => h.skill === skill);
     if (items.length === 0) return null;
     return Math.max(...items.map(getBandForItem));
   };
@@ -164,7 +225,9 @@ export default function StudentDetailScreen() {
       });
     }
   });
-  const qtEntries = Object.entries(questionTypeStats).sort((a, b) => b[1].total - a[1].total).slice(0, 8);
+  const qtEntries = Object.entries(questionTypeStats)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 8);
 
   const totalSessions = allHistory.length;
 
@@ -178,7 +241,9 @@ export default function StudentDetailScreen() {
           <Text style={s.headerTitle}>Student Details</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={s.center}><ActivityIndicator size="large" color={COLORS.primary} /></View>
+        <View style={s.center}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
       </SafeAreaView>
     );
   }
@@ -191,7 +256,9 @@ export default function StudentDetailScreen() {
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={s.headerTitle} numberOfLines={1}>{name}</Text>
+          <Text style={s.headerTitle} numberOfLines={1}>
+            {name}
+          </Text>
           <Text style={s.headerSub}>Teacher Mode · Student Stats</Text>
         </View>
         <View style={{ width: 40 }} />
@@ -199,7 +266,15 @@ export default function StudentDetailScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              load();
+            }}
+          />
+        }
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 60 }}
       >
         {/* Student info */}
@@ -222,15 +297,29 @@ export default function StudentDetailScreen() {
         <Text style={s.sectionTitle}>Overview</Text>
         <View style={s.statRow}>
           <StatCard label="Sessions" value={String(totalSessions)} color={COLORS.primary} />
-          {SKILLS.slice(0, 2).map(sk => {
+          {SKILLS.slice(0, 2).map((sk) => {
             const b = bestBand(sk.key);
-            return <StatCard key={sk.key} label={`${sk.icon} Best`} value={b != null ? `Band ${b.toFixed(1)}` : '—'} color={sk.color} />;
+            return (
+              <StatCard
+                key={sk.key}
+                label={`${sk.icon} Best`}
+                value={b != null ? `Band ${b.toFixed(1)}` : '—'}
+                color={sk.color}
+              />
+            );
           })}
         </View>
         <View style={[s.statRow, { marginTop: SPACING.sm }]}>
-          {SKILLS.slice(2).map(sk => {
+          {SKILLS.slice(2).map((sk) => {
             const b = bestBand(sk.key);
-            return <StatCard key={sk.key} label={`${sk.icon} Best`} value={b != null ? `Band ${b.toFixed(1)}` : '—'} color={sk.color} />;
+            return (
+              <StatCard
+                key={sk.key}
+                label={`${sk.icon} Best`}
+                value={b != null ? `Band ${b.toFixed(1)}` : '—'}
+                color={sk.color}
+              />
+            );
           })}
         </View>
 
@@ -240,7 +329,12 @@ export default function StudentDetailScreen() {
             <Text style={s.sectionTitle}>Question-Type Accuracy</Text>
             <View style={s.card}>
               {qtEntries.map(([qt, v]) => (
-                <AccuracyBar key={qt} label={qt.replace(/_/g, ' ')} correct={v.correct} total={v.total} />
+                <AccuracyBar
+                  key={qt}
+                  label={qt.replace(/_/g, ' ')}
+                  correct={v.correct}
+                  total={v.total}
+                />
               ))}
             </View>
           </>
@@ -248,18 +342,30 @@ export default function StudentDetailScreen() {
 
         {/* Skill filter + history */}
         <Text style={s.sectionTitle}>Session History</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SPACING.md }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginBottom: SPACING.md }}
+        >
           <View style={{ flexDirection: 'row', gap: SPACING.sm, paddingRight: SPACING.lg }}>
-            {SKILLS.map(sk => {
+            {SKILLS.map((sk) => {
               const active = activeSkill === sk.key;
               return (
                 <TouchableOpacity
                   key={sk.key}
-                  style={[s.filterChip, active && { backgroundColor: sk.color + '18', borderColor: sk.color }]}
+                  style={[
+                    s.filterChip,
+                    active && { backgroundColor: sk.color + '18', borderColor: sk.color },
+                  ]}
                   onPress={() => setActiveSkill(sk.key)}
                   activeOpacity={0.8}
                 >
-                  <Text style={[s.filterChipText, active && { color: sk.color, fontFamily: FONTS.bold }]}>
+                  <Text
+                    style={[
+                      s.filterChipText,
+                      active && { color: sk.color, fontFamily: FONTS.bold },
+                    ]}
+                  >
                     {sk.icon} {sk.label}
                   </Text>
                 </TouchableOpacity>
@@ -289,23 +395,85 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
-    backgroundColor: COLORS.primary, flexDirection: 'row',
-    alignItems: 'center', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, gap: SPACING.md,
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    gap: SPACING.md,
   },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { color: '#fff', fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
   headerSub: { color: 'rgba(255,255,255,0.7)', fontSize: 10, marginTop: 1 },
-  studentCard: { flexDirection: 'row', alignItems: 'center', gap: SPACING.lg, backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.lg, marginBottom: SPACING.lg, borderWidth: 1, borderColor: COLORS.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  studentAvatar: { width: 54, height: 54, borderRadius: 27, backgroundColor: '#3B82F6', alignItems: 'center', justifyContent: 'center' },
+  studentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.lg,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  studentAvatar: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: '#3B82F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   studentInitials: { color: '#fff', fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold },
   studentName: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
   studentEmail: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
-  studentTarget: { fontSize: FONT_SIZES.xs, color: COLORS.primary, marginTop: 4, fontFamily: FONTS.bold },
-  sectionTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: SPACING.md, marginTop: SPACING.lg },
+  studentTarget: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.primary,
+    marginTop: 4,
+    fontFamily: FONTS.bold,
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZES.md,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: SPACING.md,
+    marginTop: SPACING.lg,
+  },
   statRow: { flexDirection: 'row', gap: SPACING.sm },
-  card: { backgroundColor: '#fff', borderRadius: RADIUS.xl, padding: SPACING.lg, borderWidth: 1, borderColor: COLORS.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 },
-  filterChip: { paddingHorizontal: SPACING.md, paddingVertical: 6, borderRadius: RADIUS.full, borderWidth: 1.5, borderColor: COLORS.border, backgroundColor: '#fff' },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  filterChip: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    backgroundColor: '#fff',
+  },
   filterChipText: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary },
-  emptyBox: { alignItems: 'center', paddingVertical: SPACING.xl, backgroundColor: '#fff', borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border },
+  emptyBox: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xl,
+    backgroundColor: '#fff',
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
   emptyText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm },
 });

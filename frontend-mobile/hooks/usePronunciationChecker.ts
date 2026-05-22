@@ -9,7 +9,7 @@ interface UsePronunciationCheckerReturn {
   checkPronunciation: (
     audioUri: string,
     userId: string,
-    options?: { vocabularyId?: string; targetWord?: string }
+    options?: { vocabularyId?: string; targetWord?: string },
   ) => Promise<PronunciationCheckResponse | null>;
   reset: () => void;
 }
@@ -27,7 +27,7 @@ export const usePronunciationChecker = (): UsePronunciationCheckerReturn => {
     async (
       audioUri: string,
       userId: string,
-      options: { vocabularyId?: string; targetWord?: string } = {}
+      options: { vocabularyId?: string; targetWord?: string } = {},
     ): Promise<PronunciationCheckResponse | null> => {
       setIsChecking(true);
       setError(null);
@@ -45,7 +45,7 @@ export const usePronunciationChecker = (): UsePronunciationCheckerReturn => {
         setIsChecking(false);
       }
     },
-    []
+    [],
   );
 
   const reset = useCallback(() => {

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { COLORS, FONT_SIZES, RADIUS, SPACING } from '@/constants';
-import { styles } from './styles';
+import { FONT_SIZES, RADIUS, SPACING } from '@/constants';
+import { createExerciseStyles } from './styles';
 import { ExplanationView } from './ExplanationView';
+import { useTheme } from '@/contexts/ThemeContext';
 
 function getExplanationText(exp: any): string {
   if (!exp) return '';
@@ -29,6 +30,8 @@ const DEFAULT_INSTRUCTION: Record<string, string> = {
 };
 
 export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }: any) {
+  const { colors, isDark } = useTheme();
+  const styles = createExerciseStyles(colors);
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
   const questions: any[] = group.questions || [];
@@ -42,9 +45,8 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
     <View style={{ marginBottom: 24 }}>
       <Text style={styles.groupType}>{typeLabel}</Text>
 
-      {/* Question range */}
       {qNums.length > 0 && (
-        <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.text, marginBottom: 4 }}>
+        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text, marginBottom: 4 }}>
           Questions {Math.min(...qNums)}–{Math.max(...qNums)}
         </Text>
       )}
@@ -65,42 +67,45 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
             <View
               key={q.question_number}
               style={{
-                backgroundColor: submitted ? (isCorrect ? '#F0FDF4' : '#FFF5F5') : '#fff',
+                backgroundColor: submitted
+                  ? isCorrect ? (isDark ? colors.successBg : '#F0FDF4') : (isDark ? colors.errorBg : '#FFF5F5')
+                  : colors.card,
                 borderRadius: RADIUS.lg,
                 borderWidth: 1,
-                borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : COLORS.border,
+                borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
                 padding: SPACING.md,
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
               }}
             >
-              {/* Question header row */}
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
                 <View style={styles.qNumBadge}>
                   <Text style={styles.qNumBadgeText}>{q.question_number}</Text>
                 </View>
-                <Text
-                  style={{ flex: 1, fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 22, fontWeight: '500' }}
-                >
+                <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 22, fontWeight: '500' }}>
                   {q.text}
                 </Text>
               </View>
 
-              {/* Option buttons */}
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {optionLetters.map((letter) => {
                     const isSelected = selected === letter.toUpperCase();
                     const isCorrectCell = submitted && letter.toUpperCase() === q.answer?.toUpperCase();
-                    let bg: string = '#fff';
-                    let border: string = COLORS.border;
-                    let textColor: string = COLORS.text;
+                    let bg: string = colors.card;
+                    let border: string = colors.border;
+                    let textColor: string = colors.text;
 
                     if (submitted && isCorrectCell) {
-                      bg = '#DCFCE7'; border = '#86EFAC'; textColor = '#16A34A';
+                      bg = isDark ? colors.successBg : '#DCFCE7';
+                      border = '#86EFAC';
+                      textColor = '#16A34A';
                     } else if (submitted && isSelected && !isCorrectCell) {
-                      bg = '#FEE2E2'; border = '#FCA5A5'; textColor = '#DC2626';
+                      bg = isDark ? colors.errorBg : '#FEE2E2';
+                      border = '#FCA5A5';
+                      textColor = '#DC2626';
                     } else if (!submitted && isSelected) {
-                      bg = '#FEF9C3'; border = '#FDE047'; textColor = '#854D0E';
+                      bg = isDark ? colors.warningBg : '#FEF9C3';
+                      border = '#FDE047';
+                      textColor = isDark ? colors.primary : '#854D0E';
                     }
 
                     return (
@@ -127,29 +132,25 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                 </View>
               </ScrollView>
 
-              {/* Correct answer hint after submit */}
               {submitted && !isCorrect && (
                 <Text style={{ fontSize: 12, color: '#16A34A', fontWeight: '700', marginTop: 6 }}>
                   → Correct: {q.answer}
                 </Text>
               )}
 
-              {/* Explanation */}
               {submitted && q.explanation && showExplanation === q.question_number && (
                 <ExplanationView explanation={getExplanationText(q.explanation)} isCorrect={isCorrect} />
               )}
               {submitted && q.explanation && (
                 <TouchableOpacity
-                  onPress={() =>
-                    setShowExplanation(showExplanation === q.question_number ? null : q.question_number)
-                  }
+                  onPress={() => setShowExplanation(showExplanation === q.question_number ? null : q.question_number)}
                   style={{
                     marginTop: 8,
                     alignSelf: 'flex-start',
-                    backgroundColor: '#EFF6FF',
+                    backgroundColor: isDark ? colors.infoBg : '#EFF6FF',
                     borderRadius: RADIUS.sm,
                     borderWidth: 1,
-                    borderColor: '#BFDBFE',
+                    borderColor: isDark ? colors.border : '#BFDBFE',
                     paddingHorizontal: 10,
                     paddingVertical: 4,
                   }}
@@ -171,22 +172,27 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
             marginTop: SPACING.lg,
             borderRadius: RADIUS.lg,
             borderWidth: 1,
-            borderColor: COLORS.border,
+            borderColor: colors.border,
             overflow: 'hidden',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           }}
         >
           <View
             style={{
-              backgroundColor: '#F8FAFC',
+              backgroundColor: colors.surface,
               borderBottomWidth: 1,
-              borderBottomColor: COLORS.border,
+              borderBottomColor: colors.border,
               paddingHorizontal: SPACING.md,
               paddingVertical: 10,
             }}
           >
             <Text
-              style={{ fontSize: 11, fontWeight: '800', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.8 }}
+              style={{
+                fontSize: 11,
+                fontWeight: '800',
+                color: colors.textMuted,
+                textTransform: 'uppercase',
+                letterSpacing: 0.8,
+              }}
             >
               {OPTIONS_BOX_TITLE[group.type] ?? 'Options'}
             </Text>
@@ -197,8 +203,8 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
               style={{
                 flexDirection: 'row',
                 borderBottomWidth: idx < options.length - 1 ? 1 : 0,
-                borderBottomColor: COLORS.border,
-                backgroundColor: '#fff',
+                borderBottomColor: colors.border,
+                backgroundColor: colors.card,
               }}
             >
               <View
@@ -208,11 +214,13 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRightWidth: 1,
-                  borderRightColor: COLORS.border,
-                  backgroundColor: '#F8FAFC',
+                  borderRightColor: colors.border,
+                  backgroundColor: colors.surface,
                 }}
               >
-                <Text style={{ fontSize: 13, fontWeight: '800', color: COLORS.text }}>{opt.letter}</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text }}>
+                  {opt.letter}
+                </Text>
               </View>
               <Text
                 style={{
@@ -220,7 +228,7 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                   paddingHorizontal: SPACING.md,
                   paddingVertical: 12,
                   fontSize: FONT_SIZES.sm,
-                  color: COLORS.text,
+                  color: colors.text,
                   fontWeight: '500',
                   lineHeight: 20,
                 }}

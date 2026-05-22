@@ -89,8 +89,7 @@ export default function BookPage() {
             const isCompleted = unitProgress?.isCompleted || false;
             const completedSections =
               (unitProgress?.wordsLearned ? 1 : 0) +
-              (unitProgress?.exerciseScore !== undefined ? 1 : 0) +
-              (unitProgress?.questionScore !== undefined ? 1 : 0) +
+              (unitProgress?.questionScore !== undefined && unitProgress?.questionScore !== null ? 1 : 0) +
               (isCompleted ? 1 : 0);
 
             return (
@@ -121,7 +120,7 @@ export default function BookPage() {
                   </div>
 
                   <div className="font-bold text-lg">
-                    {completedSections}/4
+                    {completedSections}/3
                   </div>
                 </div>
               </Link>

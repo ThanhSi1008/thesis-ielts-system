@@ -18,8 +18,14 @@ interface ButtonProps {
 }
 
 export function Button({
-  title, onPress, variant = 'primary', size = 'md',
-  disabled, loading, icon, fullWidth,
+  title,
+  onPress,
+  variant = 'primary',
+  size = 'md',
+  disabled,
+  loading,
+  icon,
+  fullWidth,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -39,9 +45,17 @@ export function Button({
   ];
 
   return (
-    <TouchableOpacity style={containerStyle} onPress={onPress} disabled={isDisabled} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={containerStyle}
+      onPress={onPress}
+      disabled={isDisabled}
+      activeOpacity={0.8}
+    >
       {loading ? (
-        <ActivityIndicator size="small" color={variant === 'outline' || variant === 'ghost' ? COLORS.primary : '#fff'} />
+        <ActivityIndicator
+          size="small"
+          color={variant === 'outline' || variant === 'ghost' ? COLORS.primary : '#fff'}
+        />
       ) : (
         <View style={styles.btnContent}>
           {icon && <View style={{ marginRight: 6 }}>{icon}</View>}
@@ -111,9 +125,7 @@ export function EmptyState({ icon = '📭', title, subtitle, action }: EmptyStat
 
 // ─── Divider ──────────────────────────────────────────────────────────────────
 export function Divider({ vertical = false }: { vertical?: boolean }) {
-  return (
-    <View style={vertical ? styles.dividerVertical : styles.dividerHorizontal} />
-  );
+  return <View style={vertical ? styles.dividerVertical : styles.dividerHorizontal} />;
 }
 
 // ─── Chip / Tab ───────────────────────────────────────────────────────────────
@@ -184,21 +196,58 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: FONT_SIZES.lg, fontWeight: '700', color: COLORS.text },
   sectionSubtitle: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, marginTop: 2 },
   // Empty state
-  emptyState: { alignItems: 'center', paddingVertical: SPACING.xxxl, paddingHorizontal: SPACING.xl },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xxxl,
+    paddingHorizontal: SPACING.xl,
+  },
   emptyIcon: { fontSize: 48, marginBottom: SPACING.lg },
-  emptyTitle: { fontSize: FONT_SIZES.lg, fontWeight: '700', color: COLORS.text, textAlign: 'center' },
-  emptySubtitle: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, textAlign: 'center', marginTop: SPACING.sm },
-  emptyAction: { marginTop: SPACING.lg, backgroundColor: COLORS.primary, paddingHorizontal: SPACING.xl, paddingVertical: SPACING.sm, borderRadius: RADIUS.lg },
+  emptyTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '700',
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: SPACING.sm,
+  },
+  emptyAction: {
+    marginTop: SPACING.lg,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.lg,
+  },
   emptyActionText: { color: '#fff', fontWeight: '600', fontSize: FONT_SIZES.md },
   // Divider
   dividerHorizontal: { height: 1, backgroundColor: COLORS.border, marginVertical: SPACING.sm },
   dividerVertical: { width: 1, backgroundColor: COLORS.border, marginHorizontal: SPACING.sm },
   // Chip
-  chip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm + 2, minHeight: 40, borderRadius: RADIUS.full, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, marginRight: SPACING.sm },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm + 2,
+    minHeight: 40,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginRight: SPACING.sm,
+  },
   chipActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
   chipText: { fontSize: FONT_SIZES.md, color: COLORS.textSecondary, fontWeight: '600' },
   chipTextActive: { color: '#fff', fontWeight: '800' },
   // Score badge
-  scoreBadge: { borderWidth: 2, borderRadius: RADIUS.md, paddingHorizontal: SPACING.sm, paddingVertical: 2 },
+  scoreBadge: {
+    borderWidth: 2,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+  },
   scoreText: { fontSize: FONT_SIZES.lg, fontWeight: '800' },
 });

@@ -24,7 +24,7 @@ export function useShadowingLesson(lessonId: string | undefined): UseShadowingLe
     const fetchLesson = async () => {
       try {
         let data: ShadowingVideo | null = null;
-        if (lessonId.startsWith('sys-') || lessonId.startsWith('toeic-') || lessonId.startsWith('shadowing-') || lessonId.startsWith('ielts-') || lessonId.startsWith('test-')) {
+        if (lessonId.startsWith('sys-') || lessonId.startsWith('ielts-') || lessonId.startsWith('shadowing-') || lessonId.startsWith('test-')) {
           data = await shadowingApi.getLessonById(lessonId);
         } else {
           try {

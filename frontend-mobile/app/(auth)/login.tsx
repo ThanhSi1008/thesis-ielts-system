@@ -1,9 +1,21 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/index';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
@@ -18,7 +30,9 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('123456');
   const { login, loginWithGoogle, isLoading } = useAuth();
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'your-google-client-id.apps.googleusercontent.com',
+    webClientId:
+      process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ||
+      'your-google-client-id.apps.googleusercontent.com',
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
   });
@@ -30,7 +44,7 @@ export default function LoginScreen() {
         handleGoogleSuccess(id_token);
       }
     } else if (response?.type === 'error') {
-      Alert.alert('Google Login Failed', 'Authentication failed or was canceled.');
+      toast.error('Google Login Failed', 'Authentication failed or was canceled.');
     }
   }, [response]);
 
@@ -39,13 +53,13 @@ export default function LoginScreen() {
       await loginWithGoogle(idToken);
       // Redirect handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Google Login Failed', error.message || 'Something went wrong');
+      toast.error('Google Login Failed', error.message || 'Something went wrong');
     }
   };
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      toast.error('Error', 'Please fill in all fields');
       return;
     }
 
@@ -59,17 +73,17 @@ export default function LoginScreen() {
       } else if (error.message) {
         message = error.message;
       }
-      Alert.alert('Login Failed', message);
+      toast.error('Login Failed', message);
     }
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
       <StatusBar style="dark" />
-      
+
       <View style={styles.header}>
         <Text style={styles.title}>Welcome Back!</Text>
         <Text style={styles.subtitle}>Sign in to continue your learning journey</Text>
@@ -99,8 +113,8 @@ export default function LoginScreen() {
           />
         </View>
 
-        <TouchableOpacity 
-          style={[styles.button, isLoading && styles.buttonDisabled]} 
+        <TouchableOpacity
+          style={[styles.button, isLoading && styles.buttonDisabled]}
           onPress={handleLogin}
           disabled={isLoading}
         >
@@ -117,8 +131,8 @@ export default function LoginScreen() {
           <View style={styles.divider} />
         </View>
 
-        <TouchableOpacity 
-          style={styles.googleButton} 
+        <TouchableOpacity
+          style={styles.googleButton}
           onPress={() => {
             if (request) promptAsync();
           }}

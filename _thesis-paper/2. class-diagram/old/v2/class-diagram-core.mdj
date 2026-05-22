@@ -1,7 +1,7 @@
 {
   "_type": "Project",
   "_id": "id_1",
-  "name": "TOEIC System - Core",
+  "name": "IELTS System - Core",
   "ownedElements": [
     {
       "_type": "UMLModel",

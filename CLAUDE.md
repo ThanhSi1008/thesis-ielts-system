@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**IELTS Master English AI** — a full-stack AI-powered IELTS preparation platform (originally bootstrapped as TOEIC and still named `toeic-master-ai` at the workspace level). Four deployable units:
+**IELTS Master English AI** — a full-stack AI-powered IELTS preparation platform (originally bootstrapped as IELTS and still named `ielts-master-ai` at the workspace level). Four deployable units:
 
 1. **`backend-core`** — NestJS 10 modular monolith (TypeScript) — primary API on port `3000`, prefix `/api/v1`
 2. **`backend-ai`** — FastAPI 0.109 microservice (Python 3.11) — AI/ML workloads on port `8000`

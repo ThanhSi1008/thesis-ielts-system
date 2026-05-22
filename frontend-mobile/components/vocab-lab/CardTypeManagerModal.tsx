@@ -1,8 +1,19 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  View, Text, StyleSheet, Modal, TouchableOpacity,
-  Animated, Pressable, Dimensions, TextInput, FlatList,
-  Alert, KeyboardAvoidingView, Platform, ActivityIndicator
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  TouchableOpacity,
+  Animated,
+  Pressable,
+  Dimensions,
+  TextInput,
+  FlatList,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
@@ -89,7 +100,7 @@ export function CardTypeManagerModal({
     }
     try {
       const res = await vocabLabApi.updateCardType(id, { name: editName.trim() });
-      setTypes(types.map(t => (t.id === id ? { ...t, name: res.name } : t)));
+      setTypes(types.map((t) => (t.id === id ? { ...t, name: res.name } : t)));
       setEditingId(null);
     } catch (e) {
       Alert.alert('Error', 'Could not rename card type');
@@ -109,7 +120,7 @@ export function CardTypeManagerModal({
         onPress: async () => {
           try {
             await vocabLabApi.deleteCardType(id);
-            setTypes(types.filter(t => t.id !== id));
+            setTypes(types.filter((t) => t.id !== id));
           } catch (e) {
             Alert.alert('Error', 'Could not delete card type');
           }
@@ -160,7 +171,7 @@ export function CardTypeManagerModal({
             <Text style={s.fieldCount}>{item.fields?.length || 0} fields</Text>
           )}
         </TouchableOpacity>
-        
+
         <View style={s.itemActions}>
           {!item.isBuiltIn && onEditFields && (
             <TouchableOpacity onPress={() => onEditFields(item)} style={s.actionBtn}>
@@ -179,7 +190,10 @@ export function CardTypeManagerModal({
             </TouchableOpacity>
           )}
           {!item.isBuiltIn && (
-            <TouchableOpacity onPress={() => handleDelete(item.id, item.isBuiltIn)} style={s.actionBtn}>
+            <TouchableOpacity
+              onPress={() => handleDelete(item.id, item.isBuiltIn)}
+              style={s.actionBtn}
+            >
               <Ionicons name="trash-outline" size={18} color={COLORS.error} />
             </TouchableOpacity>
           )}
@@ -192,7 +206,10 @@ export function CardTypeManagerModal({
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <Pressable style={s.backdrop} onPress={onClose} />
       <Animated.View style={[s.sheet, { transform: [{ translateY: slideAnim }] }]}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1 }}
+        >
           <View style={s.handle} />
           <View style={s.header}>
             <Text style={s.title}>Manage Card Types</Text>
@@ -206,7 +223,7 @@ export function CardTypeManagerModal({
           ) : (
             <FlatList
               data={types}
-              keyExtractor={item => item.id}
+              keyExtractor={(item) => item.id}
               renderItem={renderItem}
               contentContainerStyle={{ padding: SPACING.md, paddingBottom: SPACING.xxl }}
               ListHeaderComponent={
@@ -225,7 +242,10 @@ export function CardTypeManagerModal({
                       <TouchableOpacity style={s.createBtnConfirm} onPress={handleCreate}>
                         <Ionicons name="checkmark" size={20} color="#fff" />
                       </TouchableOpacity>
-                      <TouchableOpacity style={s.createBtnCancel} onPress={() => setIsCreating(false)}>
+                      <TouchableOpacity
+                        style={s.createBtnCancel}
+                        onPress={() => setIsCreating(false)}
+                      >
                         <Ionicons name="close" size={20} color={COLORS.textMuted} />
                       </TouchableOpacity>
                     </View>
@@ -251,73 +271,144 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   sheet: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    height: SHEET_H, backgroundColor: '#fff',
-    borderTopLeftRadius: RADIUS.xl, borderTopRightRadius: RADIUS.xl,
-    shadowColor: '#000', shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1, shadowRadius: 10, elevation: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: SHEET_H,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 10,
   },
   handle: {
-    width: 40, height: 4, backgroundColor: COLORS.border,
-    borderRadius: 2, alignSelf: 'center', marginTop: SPACING.md,
+    width: 40,
+    height: 4,
+    backgroundColor: COLORS.border,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: SPACING.md,
   },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    padding: SPACING.lg, borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: SPACING.lg,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   title: { fontSize: FONT_SIZES.lg, fontWeight: '800', color: COLORS.text },
   closeBtn: {
-    width: 32, height: 32, borderRadius: RADIUS.lg,
-    backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   itemRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingVertical: SPACING.md, paddingHorizontal: SPACING.sm,
-    borderBottomWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.sm,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
   },
   itemContent: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
   },
   itemName: { fontSize: FONT_SIZES.md, fontWeight: '600', color: COLORS.text },
   badgeBuiltin: {
-    backgroundColor: COLORS.background, paddingHorizontal: 6, paddingVertical: 2,
-    borderRadius: 4, borderWidth: 1, borderColor: COLORS.border,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  badgeText: { fontSize: 10, fontWeight: '700', color: COLORS.textMuted, textTransform: 'uppercase' },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+  },
   fieldCount: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted },
   itemActions: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
   },
   actionBtn: {
-    width: 32, height: 32, justifyContent: 'center', alignItems: 'center',
-    borderRadius: RADIUS.md, backgroundColor: COLORS.background,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.background,
   },
   editInput: {
-    flex: 1, borderWidth: 1.5, borderColor: COLORS.primary, borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.sm, paddingVertical: 6, fontSize: FONT_SIZES.md,
-    color: COLORS.text, marginRight: SPACING.sm,
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 6,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    marginRight: SPACING.sm,
   },
   createTrigger: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
-    padding: SPACING.md, backgroundColor: COLORS.primary + '10',
-    borderRadius: RADIUS.lg, borderWidth: 1, borderColor: COLORS.primary + '30',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    padding: SPACING.md,
+    backgroundColor: COLORS.primary + '10',
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '30',
     borderStyle: 'dashed',
   },
   createTriggerText: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZES.sm },
   createForm: {
-    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
   },
   createInput: {
-    flex: 1, borderWidth: 1.5, borderColor: COLORS.primary, borderRadius: RADIUS.lg,
-    paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
-    fontSize: FONT_SIZES.md, color: COLORS.text, backgroundColor: '#fff',
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    backgroundColor: '#fff',
   },
   createBtnConfirm: {
-    width: 40, height: 40, borderRadius: RADIUS.lg, backgroundColor: COLORS.primary,
-    justifyContent: 'center', alignItems: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   createBtnCancel: {
-    width: 40, height: 40, borderRadius: RADIUS.lg, backgroundColor: COLORS.background,
-    justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border,
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
 });
