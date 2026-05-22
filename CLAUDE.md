@@ -113,7 +113,7 @@ npm run prisma:studio
 NestJS 10 modular monolith. `main.ts` sets global prefix `api/v1`, enables CORS from `CORS_ORIGIN` (comma-separated), and raises Express body limits to `50mb` (for base64 audio). Global `ValidationPipe` runs with `whitelist`, `forbidNonWhitelisted`, and `transform`. Throttler is enabled globally (100 req / 60 s).
 
 **Feature modules registered in `app.module.ts`:**
-`AuthModule`, `UsersModule`, `ExamsModule`, `ResultsModule`, `LearningModule`, `AiClientModule`, `IeltsModule`, `VocabularyModule`, `GrammarModule`, `PronunciationModule`, `VocabLabModule`, `NotesModule`, `ShadowingModule`, `DictationModule`, `NotificationsModule`, `PostsModule`, `GamificationModule`, `SubscriptionsModule`.
+`AuthModule`, `UsersModule`, `ExamsModule`, `ResultsModule`, `AiClientModule`, `IeltsModule`, `VocabularyModule`, `GrammarModule`, `PronunciationModule`, `VocabLabModule`, `NotesModule`, `ShadowingModule`, `DictationModule`, `NotificationsModule`, `PostsModule`, `GamificationModule`, `SubscriptionsModule`.
 
 **Global common modules:**
 
@@ -121,7 +121,7 @@ NestJS 10 modular monolith. `main.ts` sets global prefix `api/v1`, enables CORS 
 - `RedisModule` — ioredis-backed
 - `CacheModule` — app-level cache wrapper
 - `PrometheusModule` (`@willsoto/nestjs-prometheus`) — `/metrics` endpoint with default Node metrics
-- `ScheduleModule` (`@nestjs/schedule`) — used by subscription lifecycle cron
+- `ScheduleModule` (`@nestjs/schedule`) — powers the subscription-lifecycle cron and the push-token cleanup cron
 - `ThrottlerModule` (`@nestjs/throttler`)
 
 **Auth:** Email/password (bcrypt) + Google OAuth via `google-auth-library`. `googleLogin` accepts ID tokens whose audience matches any of `GOOGLE_CLIENT_ID` (web), `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_ANDROID_CLIENT_ID`. JWT issued via `@nestjs/jwt`. Guards/decorators live in `src/modules/auth/` and `src/common/{guards,decorators}/` (`roles.guard.ts`, `roles.decorator.ts`).
@@ -143,25 +143,26 @@ Pronunciation tasks share the grading channel via the `pronunciation-check-queue
 
 **Subscriptions module:** Tiers `FREE / PREMIUM / PRO`, providers `MOCK / VNPAY / STRIPE / MANUAL`. Quotas tracked in `UsageRecord` (monthly) and per-day for `PRONUNCIATION_ATTEMPT`. 7-day Premium trial available once per user. `subscriptions.cron.ts` runs daily at 2:00 AM to send 7/3/1-day expiry reminders, downgrade expired subs (3-day grace), and end trials. VNPay payments verified via HMAC-SHA512 + IPN webhook.
 
+**Notifications module:** Persists `Notification` rows and fans out push deliveries through the **Expo Push API** (`https://exp.host/--/api/v2/push/send`, called via native `fetch` — no `expo-server-sdk` dependency). Device tokens are registered via `POST /users/me/push-token` (and revoked via `DELETE`) and stored in the `PushToken` table. `DeviceNotRegistered` responses trigger immediate token deletion; a daily cron at **3:00 AM** removes tokens unused for > 90 days.
+
 **Storage (`src/common/storage/`):** Wraps Cloudinary v2 SDK — `uploadFile(file, folder)` returns the secure URL, `deleteFile(url)` parses `public_id` from the URL. Used for all user-uploaded images.
 
-**Database:** Prisma 5 (`schema.prisma`, ~1440 lines, **66 models**). The Postgres datasource takes both `DATABASE_URL` (pooled) and `directUrl` (`DIRECT_URL`, used by migrations). Key domains:
+**Database:** Prisma 5 (`schema.prisma`, ~1360 lines, **62 models**). The Postgres datasource takes both `DATABASE_URL` (pooled) and `directUrl` (`DIRECT_URL`, used by migrations). Key domains:
 
-| Domain                      | Representative models                                                                                                                                                                                                                                                     |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Identity                    | `User` (roles `STUDENT / INSTRUCTOR / ADMIN`), `StudentTeacherLink`, `IeltsProfile`                                                                                                                                                                                       |
-| Foundation tier             | `FoundationVocabBook/Unit/Item/Question/Progress`, `FoundationVocabLesson/Word`, `FoundationGrammarBook/Unit/Exercise/Progress`, `Grammar`, `FoundationPronunciationSound`, `FoundationSoundExample`, `FoundationPronunciationAttempt`, `FoundationPronunciationProgress` |
-| IELTS Basic                 | `IeltsBasicSkill`, `IeltsBasicLesson`, `IeltsBasicListeningExercise`, `IeltsBasicReadingExercise`, `IeltsBasicWritingExercise`, `IeltsBasicWritingAnswer`, `IeltsBasicSpeakingExercise`, `IeltsBasicProgress`                                                             |
-| IELTS Advanced              | `IeltsAdvancedListeningPart/Session`, `IeltsAdvancedReadingPart/Session`, `IeltsAdvancedWritingPrompt/Session`, `IeltsAdvancedSpeakingPart/Session`                                                                                                                       |
-| IELTS Intensive (mock exam) | `IeltsIntensiveExam`, `IeltsIntensiveSession` (status `IN_PROGRESS → SUBMITTED → GRADING → GRADED / COMPLETED / ABANDONED / GRADING_FAILED`), `IeltsIntensiveResult`                                                                                                      |
-| Vocab Lab                   | `Deck`, `Flashcard`, `FlashcardReview`, `CardType`, `CardTypeField`, `CardTemplate`, `SharedDeck` (uses `ts-fsrs` for spaced repetition)                                                                                                                                  |
-| Shadowing / Dictation       | `ShadowingVideo/Folder/Progress`, `DictationVideo/Folder/Progress`                                                                                                                                                                                                        |
-| Notes                       | `QuestionNote`                                                                                                                                                                                                                                                            |
-| Gamification                | `Achievement`, `UserAchievement`, `XpLog`                                                                                                                                                                                                                                 |
-| Community                   | `Post`, `Comment`, `PostLike`, `PostBookmark` (enum `PostType`)                                                                                                                                                                                                           |
-| Subscriptions               | `Subscription`, `Payment`, `UsageRecord`, `PricingPlan`                                                                                                                                                                                                                   |
-| Notifications               | `Notification` (enum `NotificationType`)                                                                                                                                                                                                                                  |
-| Generic                     | `LearningMaterial`, `LearningProgress`                                                                                                                                                                                                                                    |
+| Domain                      | Representative models                                                                                                                                                                                                       |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity                    | `User` (roles `STUDENT / INSTRUCTOR / ADMIN`), `StudentTeacherLink`, `IeltsProfile`                                                                                                                                         |
+| Foundation tier             | `FoundationVocabBook/Unit/Item/Question/Progress`, `FoundationGrammarBook/Unit/Exercise/Progress`, `FoundationPronunciationSound`, `FoundationSoundExample`, `FoundationPronunciationAttempt`, `FoundationPronunciationProgress` |
+| IELTS Basic                 | `IeltsBasicSkill`, `IeltsBasicLesson`, `IeltsBasicListeningExercise`, `IeltsBasicReadingExercise`, `IeltsBasicWritingExercise`, `IeltsBasicWritingAnswer`, `IeltsBasicSpeakingExercise`, `IeltsBasicProgress`               |
+| IELTS Advanced              | `IeltsAdvancedListeningPart/Session`, `IeltsAdvancedReadingPart/Session`, `IeltsAdvancedWritingPrompt/Session`, `IeltsAdvancedSpeakingPart/Session`                                                                         |
+| IELTS Intensive (mock exam) | `IeltsIntensiveExam`, `IeltsIntensiveSession` (status `IN_PROGRESS → SUBMITTED → GRADING → GRADED / COMPLETED / ABANDONED / GRADING_FAILED`), `IeltsIntensiveResult`                                                        |
+| Vocab Lab                   | `Deck`, `Flashcard`, `FlashcardReview`, `CardType`, `CardTypeField`, `CardTemplate`, `SharedDeck` (uses `ts-fsrs` for spaced repetition)                                                                                    |
+| Shadowing / Dictation       | `ShadowingVideo/Folder/Progress`, `DictationVideo/Folder/Progress`                                                                                                                                                          |
+| Notes                       | `QuestionNote`                                                                                                                                                                                                              |
+| Gamification                | `Achievement`, `UserAchievement`, `XpLog`                                                                                                                                                                                   |
+| Community                   | `Post`, `Comment`, `PostLike`, `PostBookmark` (enum `PostType`)                                                                                                                                                             |
+| Subscriptions               | `Subscription`, `Payment`, `UsageRecord`, `PricingPlan`                                                                                                                                                                     |
+| Notifications               | `Notification` (enum `NotificationType`), `PushToken` (Expo device tokens, per-platform)                                                                                                                                    |
 
 Many JSON columns hold structured content (exam questions, transcripts with speaker labels, table/map labelling answer groups).
 
@@ -207,22 +208,36 @@ Next.js 14 App Router on port 3001. TypeScript 5, Tailwind CSS 3, Radix UI primi
 
 ### Frontend Mobile (`frontend-mobile/`)
 
-Expo SDK 54, Expo Router 6, React Native 0.81, React 19, NativeWind 4 (Tailwind for RN), Reanimated 4, `expo-audio`, `expo-video`, `expo-speech-recognition`, `expo-auth-session`, `react-native-youtube-iframe`.
+Expo SDK 54, Expo Router 6, React Native 0.81, React 19, NativeWind 4 (Tailwind for RN), Reanimated 4, **Zustand 5**, `expo-audio`, `expo-video`, `expo-speech-recognition`, `expo-auth-session`, `expo-notifications`, `expo-device`, `expo-dev-client`, `react-native-youtube-iframe`.
 
 **Routes (`app/`):**
 
 - `(auth)/` — `login.tsx`, `register.tsx`
-- `(tabs)/` — `index` (home), `ielts`, `vocabulary`, `pronunciation`, `grammar`, `shadowing`, `vocablab`, `profile`, `community`, `explore`, `more`
-- Deep-linked stacks: `ielts/` (advanced, basic, intensive, grammar, pronunciation, student-teacher, calculator, dashboard, history, onboarding, roadmap, statistics), `vocabulary/`, `grammar/`, `vocab-lab/` (`[deckId].tsx`, `study/`), `shadowing/`, `student-teacher/`
-- Top-level screens: `chat-ai.tsx`, `exams.tsx`, `notification.tsx`, `pricing.tsx`, `results.tsx`
+- `(tabs)/` — `index` (home), `ielts`, `vocabulary`, `grammar`, `community`, `explore`, `profile`, plus thin re-export tabs `shadowing.tsx` / `vocablab.tsx` (each just renders the stack screen of the same name), and a nested `pronunciation/` group
+- `_dev/` — developer sandbox (e.g. `atom-gallery.tsx`); mounted as a normal Stack screen under `Stack.Screen name="_dev/atom-gallery"`
+- Deep-linked stacks: `ielts/` (`advanced/`, `basic/`, `intensive/`, `grammar/`, `pronunciation/`, `student-teacher/`, `onboarding/`, plus screens `calculator.tsx`, `dashboard.tsx`, `history.tsx`, `roadmap.tsx`, `statistics.tsx`), `vocabulary/`, `grammar/`, `vocab-lab/` (`[deckId].tsx`, `study/`), `shadowing/`, `student-teacher/`, `payment/vnpay-return`
+- Top-level screens: `chat-ai.tsx`, `exams.tsx`, `notification.tsx` (modal), `pricing.tsx` (modal), `results.tsx`
 
-**Feature folders (`features/`):** `vocab-lab/components/` (richer domain components).
+**Provider tree (`app/_layout.tsx`):** `ErrorBoundary → ThemeProvider → AuthProvider → NotificationProvider → SubscriptionProvider → GradingProvider → RootNavigator`. The `RootNavigator` mounts global overlays — `Toaster`, `UpgradeModal`, `GlobalAddCardFab`, `GlobalVocabFab`, `DictionaryPopup`, `NotificationPermissionBanner` — and binds the system `StatusBar` style to `useTheme().resolvedTheme`.
 
-**Service layer (`services/`):** `api-client.ts` (native `fetch` wrapper with `AsyncStorage` JWT + structured `ApiError`), `api.ts`, `auth.service.ts`, `features.api.ts`, `ielts.api.ts`, `learning.api.ts`, `notes.api.ts`, `posts.api.ts`.
+**Contexts (`contexts/`):** `AuthContext`, `GradingContext`, `NotificationContext`, `SubscriptionContext`, **`ThemeContext`**.
 
-**Hooks (`hooks/`):** `useApi`, `useAudioRecorder`, `useGradingPoll`, `usePronunciationChecker`.
+**Design system (Phase MI-01 + Phase 17):**
 
-**Design system:** Farro (Google Fonts) typography, `tailwind.config.js` + NativeWind, design tokens at `docs/design-tokens.json`.
+- **Tokens (`constants/tokens/`):** `colors`, `spacing`, `typography`, `radius`, `elevation`, `motion` — the single source of truth for visual primitives. Re-exported from `constants/index.ts` alongside the `LIGHT_TOKENS` / `DARK_TOKENS` palettes from `constants/theme.ts`.
+- **Theme (`contexts/ThemeContext.tsx`):** `'light' | 'dark' | 'system'` mode (persisted in `AsyncStorage` under `STORAGE_KEYS.THEME`), listens to `Appearance.addChangeListener` for live OS-scheme updates, and exposes `{ theme, resolvedTheme, isDark, colors, setTheme }`. Components must read `colors` from `useTheme()` rather than hard-coding the legacy `COLORS` palette.
+- **Atoms (`components/atoms/`):** `Button`, `IconButton`, `Text`, `Input`, `Avatar`, `Badge`, `Chip`, `Skeleton`, `Switch`, `Divider`, `Spacer`, `ProgressBar`, `ProgressCircle`, `ScoreBadge`.
+- **Molecules (`components/molecules/`):** `FormField` (and growing).
+- **Showcase:** `app/_dev/atom-gallery.tsx` renders every atom/molecule against both themes — use it as the canonical visual test bench.
+- Typography uses Farro (Google Fonts); `tailwind.config.js` + NativeWind handle Tailwind class translation; tokens at `docs/design-tokens.json` mirror the runtime constants.
+
+**Other component groups (`components/`):** `ielts/`, `vocab-lab/`, `profile/`, `community/`, `shadowing/`, `foundation/`, `voice/` (`Waveform`, `RecordButton`, `feedback/ScoreDashboard`, `feedback/TranscriptFeedback`), `global/` (`DictionaryPopup`, `GlobalVocabFab`, `NotificationPermissionBanner`, `TextWithLookup`), `ui/` (`AppButton`, `AppTextInput`, `AudioPlayer`, `FeatureLock`, `SharedDrawer`, `Toaster`, `UpgradeModal`, `UsageIndicator`, plus the `SectionHeader` / `EmptyState` re-exports), and shared `Card`, `LoadingSpinner`, `ErrorView`, `ErrorBoundary`, `SpeakingDeviceTest`.
+
+**Service layer (`services/`):** `api-client.ts` (native `fetch` wrapper with `AsyncStorage` JWT, refresh-token deduplication, and structured `ApiError`), `auth.service.ts`, `features.api.ts` (`vocabLabApi`, `shadowingApi`, `ieltsBasicApi`, `subscriptionsApi`, `notificationsApi` — including `POST/DELETE /users/me/push-token`), `ielts.api.ts` (`ieltsProfileApi`, `ieltsAdvancedApi`, `ieltsExamsApi`, `studentTeacherApi`), `learning.api.ts` (`vocabularyApi`, `grammarApi`, `pronunciationApi`), `notes.api.ts`, `posts.api.ts`. The barrel in `index.ts` also merges `gamificationApi` from `features.api` and `posts.api`.
+
+**Hooks (`hooks/`):** `useApi`, `useAudioRecorder`, `useGradingPoll`, `usePronunciationChecker`, `useShadowingLessons`, `useShadowingMode`, `useThemedStyles` (memoises a `StyleSheet` keyed by the active `ThemeTokens`), `useTimer`, `useWritingAutosave`.
+
+**Push notifications (Phase 16):** `NotificationContext` requests OS permission, registers an Expo push token via `Notifications.getExpoPushTokenAsync({ projectId })`, posts it to `POST /users/me/push-token`, and subscribes to `Notifications.addNotificationReceivedListener` + `addNotificationResponseReceivedListener` to display in-app toasts and deep-link on tap. A soft-prompt `NotificationPermissionBanner` appears once if the OS status is `undetermined`.
 
 ## Async AI Grading Flow
 
@@ -273,10 +288,13 @@ NestJS + FastAPI ── OTLP traces           ──▶ Alloy (OTLP receiver)   
 - **Storage**: server-uploaded images go through Cloudinary; AI audio is read from MinIO/GCS via boto3 in the FastAPI worker. Cloudinary URLs are sometimes downloaded directly with `requests` when boto3 sees an `http(s)://` `object_key`.
 - **Payment provider**: default `PAYMENT_PROVIDER=mock` auto-completes checkouts. Switch to `vnpay` in production and supply `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, `VNPAY_URL`, `VNPAY_RETURN_URL`, `VNPAY_IPN_URL`.
 - **Mobile NativeWind**: use `className` for Tailwind classes; fall back to `StyleSheet` when dynamic styles can't be statically resolved.
+- **Mobile theming**: every visual surface must consume `colors` from `useTheme()` (or a `useThemedStyles(create)` factory); the legacy `COLORS` constant from `constants/index.ts` is only safe for theme-invariant brand values. Setting `theme: 'system'` should be the default selectable mode.
+- **Mobile design system**: build new UI from `components/atoms/` and `components/molecules/` first; only fall back to bespoke styling when no atom fits. Validate any new atom/molecule in `app/_dev/atom-gallery.tsx` under both light and dark themes before shipping.
 - **Mobile navigation**: Expo Router (file-based). Use `router.replace()` for auth-driven redirects to avoid the back-stack retaining the login screen.
 - **IELTS exam blocks** are memoised with `React.memo` to prevent scroll jumps caused by the global timer interval re-renders.
 - **FastAPI routing**: define routes with exact prefixes (e.g. `@router.post("")`) — a trailing slash can trigger a 307 redirect that breaks CORS preflight between web/mobile clients and the AI service.
 - **IELTS Intensive sessions** must be saved via the API when the user navigates away from an active test; the engine relies on programmatic "Protect Session" semantics rather than client-side persistence.
 - **RabbitMQ queues** are asserted with `durable: true`; the grading queue uses a 5-minute message TTL and a dead-letter routing key (`exam-grading-dlq`). Don't change these without coordinating with `backend-ai` consumers.
 - **Telemetry**: production traces go to OTLP HTTP `http://172.18.0.1:4318/v1/traces` (Alloy on the Docker host bridge). Locally, traces print to stdout via `ConsoleSpanExporter`.
-- **Subscription cron** runs daily at 2:00 AM (`@nestjs/schedule`) — keep `ScheduleModule.forRoot()` registered in `AppModule`.
+- **Subscription cron** runs daily at 2:00 AM (`@nestjs/schedule`); the push-token cleanup cron runs at 3:00 AM. Both rely on `ScheduleModule.forRoot()` being registered in `AppModule` — do not remove it.
+- **Push notifications**: backend hits the Expo Push API directly via `fetch` (no `expo-server-sdk`). Treat any `DeviceNotRegistered` response as authoritative and delete the row from `PushToken` — never retry the same token. On the mobile side, request permission lazily through `NotificationContext.requestPushPermission()` rather than at app boot.
