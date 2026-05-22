@@ -16,7 +16,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
@@ -729,22 +729,63 @@ export default function ResultScreen() {
           <Text style={[styles.bcText, styles.bcActive]}>Result</Text>
         </View>
 
-        <View style={[styles.hero, { backgroundColor: bandColor + (isDark ? '24' : '18') }]}>
-          <View style={[styles.bandCircle, { borderColor: bandColor }]}>
-            <Text style={[styles.bandScore, { color: bandColor }]}>{bandStr}</Text>
-            <Text style={[styles.bandLabel, { color: bandColor }]}>Band</Text>
+        {/* Polished Exam Certificate Hero */}
+        <View style={[styles.certContainer, { borderColor: bandColor }]}>
+          <View style={[styles.certInnerFrame, { borderColor: bandColor + '40' }]}>
+            <Text style={[styles.certHeader, { color: bandColor }]}>
+              {isPending ? '⏳ GRADING IN PROGRESS' : '🏆 IELTS MOCK EXAM CERTIFICATE'}
+            </Text>
+            
+            <Text style={[styles.certSubText, { color: colors.textSecondary }]}>
+              {isPending 
+                ? 'Your practice session has been recorded. AI scoring engine is evaluating your performance...'
+                : `This is to certify that you have successfully completed the practice mock exam of ${examType.toUpperCase()}`
+              }
+            </Text>
+            
+            <Text style={[styles.certExamTitle, { color: colors.text }]} numberOfLines={2}>
+              {session.exam?.title}
+            </Text>
+            
+            <View style={styles.certBody}>
+              <View style={styles.certScoreContainer}>
+                {/* Beautiful Gold/Skill Color Score Seal */}
+                <View style={[styles.certSeal, { borderColor: bandColor, backgroundColor: colors.card }]}>
+                  <Text style={[styles.certSealBand, { color: bandColor }]}>{bandStr}</Text>
+                  <Text style={[styles.certSealText, { color: colors.textSecondary }]}>BAND SCORE</Text>
+                </View>
+                
+                {/* Verification Stamp & Signature */}
+                <View style={styles.certStampContainer}>
+                  <View style={[styles.certStamp, isPending && { borderColor: colors.border, backgroundColor: colors.surface }]}>
+                    <Ionicons 
+                      name={isPending ? "hourglass-outline" : "ribbon-outline"} 
+                      size={18} 
+                      color={isPending ? colors.textMuted : bandColor} 
+                    />
+                    <Text style={[styles.certStampText, { color: isPending ? colors.textSecondary : bandColor }]}>
+                      {isPending ? 'PROCESSING' : 'AI EVALUATED'}
+                    </Text>
+                  </View>
+                  
+                  <View style={styles.certSignatureLine}>
+                    <Text style={[styles.certSignature, { color: colors.text, fontFamily: FONTS.medium }]}>
+                      IELTS Master AI
+                    </Text>
+                    <View style={[styles.certLine, { backgroundColor: colors.border }]} />
+                    <Text style={[styles.certSignatureLabel, { color: colors.textMuted }]}>VERIFIED BY</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+            
+            {/* Descriptive Performance Band Badge */}
+            {!isPending && description && (
+              <View style={[styles.certBadge, { backgroundColor: bandColor + '15', borderColor: bandColor }]}>
+                <Text style={[styles.certBadgeText, { color: bandColor }]}>{description}</Text>
+              </View>
+            )}
           </View>
-          <Text style={styles.resultTitle}>
-            {isPending ? '⏳ Grading in Progress' : '✅ Test Complete'}
-          </Text>
-          <Text style={styles.description}>
-            {isPending
-              ? 'Your writing/speaking is being graded by AI. Check back soon.'
-              : description}
-          </Text>
-          <Text style={styles.examTitle} numberOfLines={2}>
-            {session.exam?.title}
-          </Text>
         </View>
 
         {!isPending && (
@@ -924,6 +965,143 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   },
   bcText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
   bcActive: { color: colors.primary, fontWeight: '700' },
+  certContainer: {
+    margin: SPACING.lg,
+    borderWidth: 3,
+    borderRadius: RADIUS.xl,
+    padding: 6,
+    backgroundColor: isDark ? 'rgba(30, 27, 20, 0.4)' : '#FCFAF6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 4,
+  },
+  certInnerFrame: {
+    borderWidth: 1,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.xl,
+    alignItems: 'center',
+  },
+  certHeader: {
+    fontSize: 12,
+    fontFamily: FONTS.bold,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 2.5,
+    marginBottom: SPACING.sm,
+    textAlign: 'center',
+  },
+  certSubText: {
+    fontSize: 11,
+    fontFamily: FONTS.regular,
+    textAlign: 'center',
+    marginBottom: SPACING.md,
+    lineHeight: 16,
+  },
+  certExamTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontFamily: FONTS.bold,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: SPACING.xl,
+    paddingHorizontal: SPACING.sm,
+  },
+  certBody: {
+    width: '100%',
+    marginBottom: SPACING.lg,
+  },
+  certScoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '100%',
+    gap: SPACING.md,
+  },
+  certSeal: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 3,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  certSealBand: {
+    fontSize: 28,
+    fontFamily: FONTS.bold,
+    fontWeight: '900',
+    lineHeight: 30,
+  },
+  certSealText: {
+    fontSize: 8,
+    fontFamily: FONTS.bold,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  certStampContainer: {
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  certStamp: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
+    backgroundColor: 'rgba(34, 197, 94, 0.06)',
+  },
+  certStampText: {
+    fontSize: 10,
+    fontFamily: FONTS.bold,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  certSignatureLine: {
+    alignItems: 'center',
+    width: 110,
+  },
+  certSignature: {
+    fontSize: 13,
+    fontStyle: 'italic',
+    marginBottom: 2,
+  },
+  certLine: {
+    height: 1,
+    width: '100%',
+    marginBottom: 4,
+  },
+  certSignatureLabel: {
+    fontSize: 9,
+    fontFamily: FONTS.bold,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  certBadge: {
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: SPACING.sm,
+  },
+  certBadgeText: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
   hero: { alignItems: 'center', padding: SPACING.xxxl, paddingTop: SPACING.lg },
   bandCircle: {
     width: 120,

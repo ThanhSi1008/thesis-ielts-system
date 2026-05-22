@@ -26,6 +26,32 @@ const MOCK_TIPS = [
   'For Task 1, do not list every single detail. Summarize main trends and make comparisons where relevant.',
 ];
 
+function getBandColor(band: number): string {
+  if (band >= 8.0) return '#22c55e';
+  if (band >= 6.5) return '#3b82f6';
+  if (band >= 5.0) return '#f59e0b';
+  return '#ef4444';
+}
+
+const BAND_LABELS: Record<string, string> = {
+  '9.0': 'Expert',
+  '8.5': 'Very Good',
+  '8.0': 'Very Good',
+  '7.5': 'Good',
+  '7.0': 'Good',
+  '6.5': 'Competent',
+  '6.0': 'Competent',
+  '5.5': 'Modest',
+  '5.0': 'Modest',
+  '4.5': 'Limited',
+  '4.0': 'Limited',
+  '3.5': 'Extremely Limited',
+  '3.0': 'Extremely Limited',
+  '2.5': 'Intermittent',
+  '2.0': 'Intermittent',
+  '1.0': 'Non User',
+};
+
 export default function AdvancedWritingResultScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
@@ -146,6 +172,12 @@ export default function AdvancedWritingResultScreen() {
       : { task2: session.essay };
   }, [session, prompt]);
 
+  const band = session?.bandScore ?? 0;
+  const bandStr = band.toFixed(1);
+  const bandColor = getBandColor(band);
+  const description = BAND_LABELS[bandStr] || '';
+  const isPending = pollingActive || session?.status === 'GRADING';
+
   const activeColor = isDark ? colors.primary : COLORS.skill.writing;
 
   const styles = StyleSheet.create({
@@ -257,45 +289,142 @@ export default function AdvancedWritingResultScreen() {
       padding: SPACING.md,
       paddingBottom: 40,
     },
-    overviewCard: {
-      flexDirection: 'row',
-      borderWidth: 1,
+    certContainer: {
+      borderWidth: 3,
       borderRadius: RADIUS.xl,
-      padding: SPACING.lg,
-      alignItems: 'center',
-      gap: SPACING.lg,
+      padding: 6,
+      backgroundColor: isDark ? 'rgba(30, 27, 20, 0.4)' : '#FCFAF6',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.1,
+      shadowRadius: 16,
+      elevation: 4,
       marginBottom: SPACING.lg,
-      backgroundColor: colors.card,
-      borderColor: colors.border,
     },
-    scoreCircle: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
+    certInnerFrame: {
+      borderWidth: 1,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.xl,
+      alignItems: 'center',
+    },
+    certHeader: {
+      fontSize: 12,
+      fontFamily: FONTS.bold,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 2.5,
+      marginBottom: SPACING.sm,
+      textAlign: 'center',
+    },
+    certSubText: {
+      fontSize: 11,
+      fontFamily: FONTS.regular,
+      textAlign: 'center',
+      marginBottom: SPACING.md,
+      lineHeight: 16,
+    },
+    certExamTitle: {
+      fontSize: FONT_SIZES.lg,
+      fontFamily: FONTS.bold,
+      fontWeight: '800',
+      textAlign: 'center',
+      marginBottom: SPACING.xl,
+      paddingHorizontal: SPACING.sm,
+    },
+    certBody: {
+      width: '100%',
+      marginBottom: SPACING.lg,
+    },
+    certScoreContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      width: '100%',
+      gap: SPACING.md,
+    },
+    certSeal: {
+      width: 90,
+      height: 90,
+      borderRadius: 45,
+      borderWidth: 3,
+      borderStyle: 'dashed',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: activeColor,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 8,
+      elevation: 2,
     },
-    scoreVal: {
+    certSealBand: {
+      fontSize: 28,
       fontFamily: FONTS.bold,
-      fontSize: 24,
-      color: isDark ? colors.onPrimary : '#fff',
+      fontWeight: '900',
+      lineHeight: 30,
     },
-    scoreLbl: {
-      fontFamily: FONTS.medium,
-      fontSize: 10,
+    certSealText: {
+      fontSize: 8,
+      fontFamily: FONTS.bold,
+      fontWeight: '700',
       textTransform: 'uppercase',
-      color: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+      letterSpacing: 0.8,
     },
-    overviewDetails: {
-      flex: 1,
+    certStampContainer: {
+      alignItems: 'center',
+      gap: SPACING.sm,
     },
-    promptTitle: {
+    certStamp: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: RADIUS.sm,
+      borderWidth: 1,
+      borderColor: 'rgba(34, 197, 94, 0.3)',
+      backgroundColor: 'rgba(34, 197, 94, 0.06)',
+    },
+    certStampText: {
+      fontSize: 10,
       fontFamily: FONTS.bold,
-      fontSize: FONT_SIZES.md,
-      lineHeight: 20,
-      marginBottom: SPACING.xs,
-      color: colors.text,
+      fontWeight: '800',
+      letterSpacing: 0.5,
+    },
+    certSignatureLine: {
+      alignItems: 'center',
+      width: 110,
+    },
+    certSignature: {
+      fontSize: 13,
+      fontStyle: 'italic',
+      marginBottom: 2,
+    },
+    certLine: {
+      height: 1,
+      width: '100%',
+      marginBottom: 4,
+    },
+    certSignatureLabel: {
+      fontSize: 9,
+      fontFamily: FONTS.bold,
+      fontWeight: '700',
+      letterSpacing: 1,
+    },
+    certBadge: {
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: SPACING.sm,
+    },
+    certBadgeText: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
     },
     promptMetaRow: {
       flexDirection: 'row',
@@ -439,20 +568,60 @@ export default function AdvancedWritingResultScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator contentContainerStyle={styles.scrollContent}>
-        {/* Score & Prompt Overview Card */}
-        <View style={styles.overviewCard}>
-          <View style={styles.scoreCircle}>
-            <Text style={styles.scoreVal}>{session.bandScore?.toFixed(1) ?? 'N/A'}</Text>
-            <Text style={styles.scoreLbl}>Band Score</Text>
-          </View>
-
-          <View style={styles.overviewDetails}>
-            <Text style={styles.promptTitle} numberOfLines={2}>
+        {/* Polished Exam Certificate Hero */}
+        <View style={[styles.certContainer, { borderColor: bandColor }]}>
+          <View style={[styles.certInnerFrame, { borderColor: bandColor + '40' }]}>
+            <Text style={[styles.certHeader, { color: bandColor }]}>
+              {isPending ? '⏳ GRADING IN PROGRESS' : '🏆 IELTS WRITING PRACTICE CERTIFICATE'}
+            </Text>
+            
+            <Text style={[styles.certSubText, { color: colors.textSecondary }]}>
+              {isPending 
+                ? 'Your practice session has been recorded. AI scoring engine is evaluating your performance...'
+                : `This is to certify that you have successfully completed the practice of Advanced Writing`
+              }
+            </Text>
+            
+            <Text style={[styles.certExamTitle, { color: colors.text }]} numberOfLines={2}>
               {prompt?.title ?? 'IELTS Essay'}
             </Text>
-            <View style={styles.promptMetaRow}>
-              <View style={styles.metaBadge}>
-                <Text style={styles.metaBadgeText}>{prompt?.taskType ?? 'TASK'}</Text>
+            
+            <View style={styles.certBody}>
+              <View style={styles.certScoreContainer}>
+                {/* Beautiful Gold/Skill Color Score Seal */}
+                <View style={[styles.certSeal, { borderColor: bandColor, backgroundColor: colors.card }]}>
+                  <Text style={[styles.certSealBand, { color: bandColor }]}>{bandStr}</Text>
+                  <Text style={[styles.certSealText, { color: colors.textSecondary }]}>BAND SCORE</Text>
+                </View>
+                
+                {/* Verification Stamp & Signature */}
+                <View style={styles.certStampContainer}>
+                  <View style={[styles.certStamp, isPending && { borderColor: colors.border, backgroundColor: colors.surface }]}>
+                    <Ionicons 
+                      name={isPending ? "hourglass-outline" : "ribbon-outline"} 
+                      size={18} 
+                      color={isPending ? colors.textMuted : bandColor} 
+                    />
+                    <Text style={[styles.certStampText, { color: isPending ? colors.textSecondary : bandColor }]}>
+                      {isPending ? 'PROCESSING' : 'AI EVALUATED'}
+                    </Text>
+                  </View>
+                  
+                  <View style={styles.certSignatureLine}>
+                    <Text style={[styles.certSignature, { color: colors.text, fontFamily: FONTS.medium }]}>
+                      IELTS Master AI
+                    </Text>
+                    <View style={[styles.certLine, { backgroundColor: colors.border }]} />
+                    <Text style={[styles.certSignatureLabel, { color: colors.textMuted }]}>VERIFIED BY</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+            
+            {/* Metadata Info Row */}
+            <View style={[styles.promptMetaRow, { marginTop: SPACING.md, marginBottom: SPACING.sm }]}>
+              <View style={[styles.metaBadge, { backgroundColor: bandColor + '15' }]}>
+                <Text style={[styles.metaBadgeText, { color: bandColor }]}>{prompt?.taskType ?? 'TASK'}</Text>
               </View>
               <Text style={styles.metaItem}>
                 <Ionicons name="document-text-outline" size={14} color={colors.textSecondary} />{' '}
@@ -463,6 +632,13 @@ export default function AdvancedWritingResultScreen() {
                 {timeDisplay}
               </Text>
             </View>
+
+            {/* Descriptive Performance Band Badge */}
+            {!isPending && description && (
+              <View style={[styles.certBadge, { backgroundColor: bandColor + '15', borderColor: bandColor }]}>
+                <Text style={[styles.certBadgeText, { color: bandColor }]}>{description}</Text>
+              </View>
+            )}
           </View>
         </View>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,1093 +7,30 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  TextInput,
-  Animated,
-  Dimensions,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioPlayer } from 'expo-audio';
-import { useGradingPoll } from '@/hooks';
-import { WebView } from 'react-native-webview';
+
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
-import { ieltsExamsApi } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Button, Badge } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { useAnswerState, useExamSession, useExamTimer } from '@/hooks';
+import {
+  ExamHeader,
+  ExamAudioPlayer,
+  ExamAnswerSheet,
+  AIGradingOverlay,
+  PreparationScreen,
+  renderGroup,
+} from '@/components/intensive';
+
 import WritingExamBlock from '@/components/ielts/WritingExamBlock';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
-import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
-import MatchingBlock from '@/components/ielts/MatchingBlock';
 
-// ─── Timer (wall-clock fix) ───────────────────────────────────────────────────
-function useTimer(initialSeconds: number, running: boolean) {
-  const [elapsed, setElapsed] = useState(0);
-  const startTimeRef = useRef<number | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (running) {
-      // Capture wall-clock start, subtract already-elapsed to resume correctly
-      startTimeRef.current = Date.now() - elapsed * 1000;
-      intervalRef.current = setInterval(() => {
-        const wallElapsed = Math.round((Date.now() - startTimeRef.current!) / 1000);
-        setElapsed(wallElapsed);
-      }, 500); // 500ms polling keeps display accurate without being costly
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running]);
-
-  const remaining = Math.max(0, initialSeconds - elapsed);
-  const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
-  const ss = String(remaining % 60).padStart(2, '0');
-  return { elapsed, remaining, display: `${mm}:${ss}`, isExpired: remaining === 0 };
-}
-
-// ─── MCQ Question ────────────────────────────────────────────────────────────
-// Supports both single-answer (question_number) and multi-select (question_numbers[])
-// Multi-select: each slot in question_numbers gets its own answers key, e.g. answers["23"], answers["24"]
-// Selecting a letter writes it to the next empty slot (or deselects if already chosen)
-function MCQQuestion({
-  q,
-  answers, // full answers map (needed for multi-select)
-  onAnswer, // (key, value) setter
-}: {
-  q: any;
-  answers: Record<string, string>;
-  onAnswer: (key: string, value: string) => void;
-}) {
-  const { colors, isDark } = useTheme();
-  const qStyles = createQStyles(colors, isDark);
-  // Normalise options
-  const rawOptions = q.options;
-  const optionEntries: { letter: string; label: string }[] =
-    rawOptions && !Array.isArray(rawOptions) && typeof rawOptions === 'object'
-      ? Object.entries(rawOptions).map(([letter, label]) => ({ letter, label: String(label) }))
-      : Array.isArray(rawOptions)
-        ? rawOptions.map((opt: any, i: number) => ({
-            letter: opt.letter || String.fromCharCode(65 + i),
-            label: opt.text || String(opt),
-          }))
-        : [];
-
-  const questionText = q.question_text || q.question || q.text || '';
-
-  // Determine if this is multi-select
-  const qNums: string[] = q.question_numbers
-    ? (q.question_numbers as number[]).map(String)
-    : q.question_number != null
-      ? [String(q.question_number)]
-      : [];
-  const isMulti = qNums.length > 1;
-  const displayNum = qNums.join(' & ');
-
-  // Currently selected letters (one per slot)
-  const selectedLetters: string[] = qNums.map((k) => answers[k] || '').filter(Boolean);
-  const isSelected = (letter: string) => selectedLetters.includes(letter);
-
-  const handlePress = (letter: string) => {
-    if (!isMulti) {
-      // Single-answer: simple toggle (radio)
-      const key = qNums[0];
-      if (!key) return;
-      onAnswer(key, answers[key] === letter ? '' : letter);
-      return;
-    }
-    // Multi-select: toggle across slots
-    if (isSelected(letter)) {
-      // Deselect — find which slot holds this letter and clear it
-      const slotKey = qNums.find((k) => answers[k] === letter);
-      if (slotKey) onAnswer(slotKey, '');
-    } else {
-      // Select — write into the first empty slot
-      const emptySlot = qNums.find((k) => !answers[k]);
-      if (emptySlot) onAnswer(emptySlot, letter);
-      // If all slots are full, replace the last one
-      else onAnswer(qNums[qNums.length - 1], letter);
-    }
-  };
-
-  return (
-    <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
-      {isMulti && (
-        <Text style={[qStyles.multiHint, isDark ? { backgroundColor: 'rgba(217, 119, 6, 0.15)', color: '#fbbf24' } : { backgroundColor: '#FEF3C7', color: '#D97706' }]}>
-          Choose {qNums.length} letters
-        </Text>
-      )}
-      <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
-      {optionEntries.map(({ letter, label }) => {
-        const sel = isSelected(letter);
-        return (
-          <TouchableOpacity
-            key={letter}
-            style={[
-              qStyles.option,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-              sel && { borderColor: colors.primary, backgroundColor: colors.primary + '18' }
-            ]}
-            onPress={() => handlePress(letter)}
-            activeOpacity={0.8}
-          >
-            <View
-              style={[
-                qStyles.optionBullet,
-                { backgroundColor: colors.card, borderColor: colors.border },
-                sel && { backgroundColor: colors.primary, borderColor: colors.primary },
-                isMulti && qStyles.optionBulletMulti,
-                isMulti && sel && { backgroundColor: colors.primary, borderColor: colors.primary },
-              ]}
-            >
-              {isMulti && sel ? (
-                <Ionicons name="checkmark" size={12} color="#fff" />
-              ) : (
-                <Text style={[qStyles.optionLetter, { color: colors.textSecondary }, sel && { color: '#fff' }]}>{letter}</Text>
-              )}
-            </View>
-            <Text style={[qStyles.optionText, { color: colors.text }, sel && { color: colors.primary, fontWeight: '600' }]}>{label}</Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
-}
-
-// ─── Fill blank Question ──────────────────────────────────────────────────────
-function FillQuestion({
-  q,
-  answer,
-  onAnswer,
-}: {
-  q: any;
-  answer: string;
-  onAnswer: (v: string) => void;
-}) {
-  const { colors, isDark } = useTheme();
-  const qStyles = createQStyles(colors, isDark);
-  const questionText = q.question_text || q.question || q.text || '';
-  const contextNote = q.note || q.additional_info || q.context || null;
-  const qNums: string[] = q.question_numbers
-    ? (q.question_numbers as number[]).map(String)
-    : q.question_number != null
-      ? [String(q.question_number)]
-      : [];
-
-  return (
-    <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
-      {questionText ? <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text> : null}
-      {contextNote ? (
-        <View style={[qStyles.contextNote, { backgroundColor: colors.surface, borderColor: colors.border + '80' }]}>
-          <Ionicons name="information-circle-outline" size={13} color={colors.textSecondary} />
-          <Text style={[qStyles.contextNoteText, { color: colors.textSecondary }]}>{contextNote}</Text>
-        </View>
-      ) : null}
-      <TextInput
-        style={[qStyles.input, { borderColor: colors.border, color: colors.text }]}
-        value={answer}
-        onChangeText={onAnswer}
-        placeholder="Type your answer…"
-        placeholderTextColor={colors.textMuted}
-        returnKeyType="done"
-      />
-    </View>
-  );
-}
-
-const createQStyles = (colors: any, isDark: boolean) => StyleSheet.create({
-  block: {
-    marginBottom: SPACING.xl,
-    padding: SPACING.lg,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  qNumber: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  multiHint: {
-    fontSize: FONT_SIZES.xs,
-    color: isDark ? '#fbbf24' : '#D97706',
-    fontWeight: '600',
-    marginBottom: SPACING.sm,
-    backgroundColor: isDark ? 'rgba(217, 119, 6, 0.15)' : '#FEF3C7',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 99,
-  },
-  qText: { fontSize: FONT_SIZES.md, color: colors.text, marginBottom: SPACING.md, lineHeight: 22 },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: SPACING.sm,
-    backgroundColor: colors.surface,
-  },
-  optionSelected: { borderColor: colors.primary, backgroundColor: colors.primary + '18' },
-  optionBullet: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.md,
-    backgroundColor: colors.card,
-  },
-  optionBulletSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
-  // Checkbox variant for multi-select
-  optionBulletMulti: { borderRadius: 6 },
-  optionBulletMultiSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
-  optionLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm, color: colors.textSecondary },
-  optionText: { flex: 1, fontSize: FONT_SIZES.md, color: colors.text },
-  optionTextSelected: { color: colors.primary, fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
-    fontSize: FONT_SIZES.md,
-    color: colors.text,
-  },
-  contextNote: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 4,
-    marginBottom: SPACING.sm,
-    padding: SPACING.sm,
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.sm,
-    borderWidth: 1,
-    borderColor: colors.border + '80',
-  },
-  contextNoteText: {
-    flex: 1,
-    fontSize: FONT_SIZES.xs,
-    color: colors.textSecondary,
-    lineHeight: 18,
-  },
-  sectionBlock: { marginBottom: SPACING.lg },
-  sectionHeading: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: SPACING.sm,
-    paddingBottom: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border + '60',
-  },
-  sectionText: {
-    fontSize: FONT_SIZES.sm,
-    color: colors.text,
-    lineHeight: 22,
-    marginBottom: SPACING.md,
-  },
-  // Word bank (options_box) for Summary/Note Completion
-  optionsBox: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: SPACING.lg,
-  },
-  optionsBoxTitle: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '800',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: SPACING.sm,
-  },
-  optionsBoxGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
-  optionsBoxItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  optionsBoxLetter: { fontSize: FONT_SIZES.xs, fontWeight: '800', color: colors.primary },
-  optionsBoxText: { fontSize: FONT_SIZES.xs, color: colors.text },
-  // Passage context wrap
-  passageContextWrap: {
-    backgroundColor: isDark ? colors.surface : '#F8F9FA',
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary + '80',
-    padding: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-  passageContextText: {
-    fontSize: FONT_SIZES.sm,
-    color: colors.text,
-    lineHeight: 26,
-  },
-  blankBadge: {
-    backgroundColor: colors.primary,
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 11,
-    borderRadius: 4,
-    paddingHorizontal: 5,
-    overflow: 'hidden',
-  },
-  // Summary answer list (below context)
-  summaryAnswerList: { gap: SPACING.sm, marginTop: SPACING.sm },
-  summaryAnswerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-  },
-  summaryQBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    backgroundColor: colors.primary + '18',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  summaryQBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800', color: colors.primary },
-  summaryAnswerInput: {
-    flex: 1,
-    fontSize: FONT_SIZES.sm,
-    color: colors.text,
-    paddingVertical: 4,
-    borderBottomWidth: 1.5,
-    borderBottomColor: colors.border,
-  },
-  // Selector chip (word-bank per-blank row)
-  selectorRow: {
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-    marginBottom: SPACING.sm,
-    overflow: 'hidden',
-  },
-  selectorChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-  },
-  selectorChipLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flex: 1 },
-  selectorChipFilled: { backgroundColor: colors.primary + '08' },
-  selectorChipLabel: { fontSize: FONT_SIZES.sm, color: colors.text },
-  selectorChipValue: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.primary },
-  selectorChipPlaceholder: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
-  selectorList: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border + '60',
-    maxHeight: 220,
-  },
-  selectorListItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border + '40',
-  },
-  selectorListItemActive: { backgroundColor: colors.primary + '10' },
-  selectorListLetter: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: isDark ? colors.surface : '#EFF6FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectorListLetterActive: { backgroundColor: colors.primary },
-  selectorListLetterText: { fontSize: 13, fontWeight: '800', color: colors.primary },
-  selectorListLetterTextActive: { color: '#fff' },
-  selectorListText: { flex: 1, fontSize: FONT_SIZES.sm, color: colors.text },
-  // instructions banner (Note/Form completion groups)
-  instructions: {
-    fontSize: FONT_SIZES.sm,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-    marginBottom: SPACING.md,
-    padding: SPACING.md,
-    backgroundColor: isDark ? colors.surface : '#FFF9C4',
-    borderRadius: RADIUS.md,
-    borderLeftWidth: 3,
-    borderLeftColor: isDark ? colors.border : colors.warning,
-  },
-});
-
-// ─── Summary Completion sub-components ───────────────────────────────────────
-
-// Per-blank selector row: tap to expand inline option list (word-bank variant)
-function SummaryBlankSelector({
-  qNum,
-  value,
-  displayLabel,
-  options,
-  answers,
-  onSelect,
-  onClear,
-}: {
-  qNum: number;
-  value: string;
-  displayLabel: string;
-  options: Record<string, string>;
-  answers: Record<string, string>;
-  onSelect: (letter: string) => void;
-  onClear: () => void;
-}) {
-  const { colors, isDark } = useTheme();
-  const qStyles = createQStyles(colors, isDark);
-  const [open, setOpen] = React.useState(false);
-  const filled = !!value;
-  const usedLetters = new Set(Object.values(answers).filter((v) => v && v !== value));
-
-  return (
-    <View style={[qStyles.selectorRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <TouchableOpacity
-        style={[qStyles.selectorChip, filled && { backgroundColor: colors.primary + '08' }]}
-        onPress={() => setOpen((o) => !o)}
-        activeOpacity={0.75}
-      >
-        <View style={qStyles.selectorChipLeft}>
-          <View style={[qStyles.summaryQBadge, { backgroundColor: colors.primary + '18' }]}>
-            <Text style={[qStyles.summaryQBadgeText, { color: colors.primary }]}>{qNum}</Text>
-          </View>
-          {filled ? (
-            <Text style={[qStyles.selectorChipValue, { color: colors.primary }]}>{displayLabel}</Text>
-          ) : (
-            <Text style={[qStyles.selectorChipPlaceholder, { color: colors.textSecondary }]}>Tap to select an answer…</Text>
-          )}
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          {filled && (
-            <TouchableOpacity
-              onPress={(e) => {
-                e.stopPropagation?.();
-                onClear();
-                setOpen(false);
-              }}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
-            </TouchableOpacity>
-          )}
-          <Ionicons
-            name={open ? 'chevron-up' : 'chevron-down'}
-            size={16}
-            color={colors.textSecondary}
-          />
-        </View>
-      </TouchableOpacity>
-
-      {open && (
-        <ScrollView style={[qStyles.selectorList, { borderTopColor: colors.border + '80' }]} nestedScrollEnabled>
-          {Object.entries(options).map(([letter, text]) => {
-            const isActive = value === letter;
-            const isUsed = !isActive && usedLetters.has(letter);
-            return (
-              <TouchableOpacity
-                key={letter}
-                style={[
-                  qStyles.selectorListItem,
-                  { borderBottomColor: colors.border + '40' },
-                  isActive && { backgroundColor: colors.primary + '15' }
-                ]}
-                onPress={() => {
-                  onSelect(letter);
-                  setOpen(false);
-                }}
-                disabled={isUsed}
-                activeOpacity={0.7}
-              >
-                <View
-                  style={[
-                    qStyles.selectorListLetter,
-                    { backgroundColor: isDark ? colors.surface : '#EFF6FF' },
-                    isActive && { backgroundColor: colors.primary }
-                  ]}
-                >
-                  <Text
-                    style={[
-                      qStyles.selectorListLetterText,
-                      { color: colors.primary },
-                      isActive && { color: '#fff' },
-                    ]}
-                  >
-                    {letter}
-                  </Text>
-                </View>
-                <Text style={[qStyles.selectorListText, { color: colors.text }, isUsed && { color: colors.textDisabled }]}>
-                  {String(text)}
-                </Text>
-                {isActive && <Ionicons name="checkmark" size={16} color={colors.primary} />}
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      )}
-    </View>
-  );
-}
-
-const DIAGRAM_TYPES = new Set([
-  'diagram_labelling',
-  'diagram_completion',
-  'map_labelling',
-  'plan_labelling',
-]);
-const MATCHING_TYPES = new Set([
-  'matching',
-  'matching_headings',
-  'matching_features',
-  'matching_information',
-  'matching_sentence_endings',
-]);
-
-// ─── Render question groups (Listening / Reading) ─────────────────────────────
-// partIdx + groupIdx together guarantee a globally-unique key across all parts.
-function renderGroup(
-  group: any,
-  answers: Record<string, string>,
-  setAnswer: (k: string, v: string) => void,
-  groupIdx = 0,
-  partIdx = 0,
-  colors?: any,
-  isDark?: boolean,
-) {
-  const type = group.question_type ?? group.type ?? 'fill';
-  const qStyles = createQStyles(colors ?? {}, isDark ?? false);
-  // Key: p{partIdx}-g{groupIdx}-{type} — always unique across parts & groups
-  const baseKey = `p${partIdx}-g${groupIdx}-${type}`;
-
-  // ── Resolve questions array from the 3 possible data shapes ──────────────
-  // Shape A: MCQ / multi-select  → group.items[]  (question_text + options)
-  // Shape B: Note/Form/Summary   → group.content[].points[]  (nested)
-  // Shape C: Reading flat        → group.content[]  (direct items)
-  // Guard: group.questions is often a range string like "1–5", never an array
-  let questions: any[] = [];
-
-  if (Array.isArray(group.items)) {
-    // Shape A — MCQ, Yes/No/Not Given, True/False/Not Given, multiple choice
-    questions = group.items;
-  } else if (Array.isArray(group.content)) {
-    const firstItem = group.content[0];
-    if (firstItem && Array.isArray(firstItem.points)) {
-      // Shape B — flatten all points from all content sections
-      questions = group.content.flatMap((section: any) => section.points ?? []);
-    } else {
-      // Shape C — content items are the questions directly
-      questions = group.content;
-    }
-  } else if (Array.isArray(group.points)) {
-    questions = group.points;
-  }
-  const answerableQuestions = questions.filter(
-    (q: any) => q.question_number != null || Array.isArray(q.question_numbers),
-  );
-
-  // ── Determine render type ─────────────────────────────────────────────────
-  const isMatchingType = MATCHING_TYPES.has(type.toLowerCase().replace(/ /g, '_'));
-  const isDiagramType = DIAGRAM_TYPES.has(type.toLowerCase().replace(/ /g, '_'));
-  const isMCQ = type.toLowerCase().includes('multiple') || Array.isArray(group.items);
-
-  // Yes/No/Not Given and True/False/Not Given — render as MCQ with synthetic options
-  const isTFNG = /true.false|yes.no/i.test(type);
-  const tfOptions = /yes.no/i.test(type)
-    ? { YES: 'Yes', NO: 'No', 'NOT GIVEN': 'Not Given' }
-    : { TRUE: 'True', FALSE: 'False', 'NOT GIVEN': 'Not Given' };
-
-  // options_box for Summary/Note Completion with word bank (e.g. Part 3 Q27-31)
-  const optionsBox = group.options_box ?? null;
-
-  // Mutable ref for tracking which blank is focused (word-bank Summary Completion)
-  // renderGroup is a plain function, so we use a closure-scoped object
-  const focusedBlankRef: { current: number | null } = { current: null };
-
-  if (isDiagramType) {
-    return <DiagramMapBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
-  }
-
-  if (isMatchingType) {
-    return <MatchingBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
-  }
-
-  // Content sections with headings (Note Completion, Form Completion, Summary Completion)
-  const hasSections =
-    Array.isArray(group.content) && group.content[0] && Array.isArray(group.content[0].points);
-
-  // ── Helper: render passage context paragraph (blanks shown as numbered badges, display only)
-  const renderPassageContext = (rawText: string, cKey: string) => {
-    // Replace "18 [blank]" with highlighted Q-number badge marker
-    const regex = /(\d+)\s*\[blank\]/g;
-    const segments: { type: 'text' | 'badge'; content: string }[] = [];
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-    while ((match = regex.exec(rawText)) !== null) {
-      if (match.index > lastIndex) {
-        segments.push({ type: 'text', content: rawText.slice(lastIndex, match.index) });
-      }
-      segments.push({ type: 'badge', content: match[1] });
-      lastIndex = regex.lastIndex;
-    }
-    if (lastIndex < rawText.length) {
-      segments.push({ type: 'text', content: rawText.slice(lastIndex) });
-    }
-
-    // Render as flex-wrap row so badges sit inline with text
-    return (
-      <View style={[qStyles.passageContextWrap, colors && { backgroundColor: isDark ? colors.surface : '#F8F9FA', borderColor: colors.border, borderLeftColor: colors.primary + '80' }]}>
-        <Text style={[qStyles.passageContextText, colors && { color: colors.text }]}>
-          {segments.map((seg, i) =>
-            seg.type === 'badge' ? (
-              <Text key={`${cKey}-seg${i}`} style={[qStyles.blankBadge, colors && { backgroundColor: colors.primary }]}>
-                {' '}
-                {seg.content}{' '}
-              </Text>
-            ) : (
-              <Text key={`${cKey}-seg${i}`}>{seg.content}</Text>
-            ),
-          )}
-        </Text>
-      </View>
-    );
-  };
-
-  // ── Helper: Summary Completion section renderer ───────────────────────────────
-  // Layout: [Context paragraph with numbered blank badges] → [Answer inputs/selectors]
-  const renderSummaryInline = (section: any, sKey: string) => {
-    const rawText: string = section.text || '';
-    const points: { question_number: number }[] = (section.points || []).filter(
-      (p: any) => typeof p.question_number === 'number',
-    );
-
-    const hasWordBank = !!(optionsBox && optionsBox.options);
-
-    return (
-      <View key={sKey} style={qStyles.sectionBlock}>
-        {section.heading && (
-          <Text style={[qStyles.sectionHeading, colors && { color: colors.primary, borderBottomColor: colors.border + '60' }]}>
-            {section.heading}
-          </Text>
-        )}
-
-        {/* Passage context — display only with blank number badges */}
-        {rawText.length > 0 && renderPassageContext(rawText, sKey)}
-
-        {/* Answer inputs below the context */}
-        <View style={qStyles.summaryAnswerList}>
-          {points.map((p) => {
-            const qNum = p.question_number;
-            const qKey = String(qNum);
-            const currentVal = answers[qKey] || '';
-
-            if (hasWordBank) {
-              // Word-bank variant: show a tappable selector chip per blank
-              const displayLabel = optionsBox!.options[currentVal]
-                ? `${currentVal} — ${optionsBox!.options[currentVal]}`
-                : '';
-              return (
-                <SummaryBlankSelector
-                  key={qKey}
-                  qNum={qNum}
-                  value={currentVal}
-                  displayLabel={displayLabel}
-                  options={optionsBox!.options}
-                  answers={answers}
-                  onSelect={(letter) => setAnswer(qKey, letter)}
-                  onClear={() => setAnswer(qKey, '')}
-                />
-              );
-            }
-
-            // Free-text variant: labeled TextInput row
-            return (
-              <View key={qKey} style={[qStyles.summaryAnswerRow, colors && { backgroundColor: colors.card, borderColor: colors.border }]}>
-                <View style={[qStyles.summaryQBadge, colors && { backgroundColor: colors.primary + '18' }]}>
-                  <Text style={[qStyles.summaryQBadgeText, colors && { color: colors.primary }]}>{qNum}</Text>
-                </View>
-                <TextInput
-                  style={[qStyles.summaryAnswerInput, colors && { color: colors.text, borderBottomColor: colors.border }]}
-                  value={currentVal}
-                  onChangeText={(v) => setAnswer(qKey, v)}
-                  placeholder="Type answer..."
-                  placeholderTextColor={colors ? colors.textMuted : '#94A3B8'}
-                  returnKeyType="done"
-                />
-              </View>
-            );
-          })}
-        </View>
-      </View>
-    );
-  };
-
-  return (
-    <View key={baseKey}>
-      {group.instructions && (
-        <Text
-          style={[
-            qStyles.instructions,
-          ]}
-        >
-          {group.instructions}
-        </Text>
-      )}
-
-      {hasSections
-        ? // Detect if each section is a Summary Completion (has text + points with Q numbers)
-          group.content.map((section: any, si: number) => {
-            const sKey = `${baseKey}-s${si}`;
-            const sectionPoints = section.points ?? [];
-            const hasSummaryText =
-              typeof section.text === 'string' && section.text.includes('[blank]');
-
-            if (hasSummaryText) {
-              // Summary Completion — render paragraph with inline blanks
-              return renderSummaryInline(section, sKey);
-            }
-
-            // Note/Form Completion — render each point as fill or MCQ
-            return (
-              <View key={sKey} style={qStyles.sectionBlock}>
-                {section.heading && (
-                  <Text style={[qStyles.sectionHeading, colors && { color: colors.primary, borderBottomColor: colors.border + '60' }]}>
-                    {section.heading}
-                  </Text>
-                )}
-                {section.text && <Text style={[qStyles.sectionText, colors && { color: colors.text }]}>{section.text}</Text>}
-                {sectionPoints
-                  .filter((q: any) => q.question_number != null)
-                  .map((q: any, qi: number) => {
-                    const num = String(q.question_number);
-                    const qKey = `${sKey}-${num}`;
-                    if (isTFNG) {
-                      return (
-                        <MCQQuestion
-                          key={qKey}
-                          q={{ ...q, options: tfOptions }}
-                          answers={answers}
-                          onAnswer={(k, v) => setAnswer(k, v)}
-                        />
-                      );
-                    }
-                    if (optionsBox) {
-                      return (
-                        <MCQQuestion
-                          key={qKey}
-                          q={{ ...q, options: optionsBox.options }}
-                          answers={answers}
-                          onAnswer={(k, v) => setAnswer(k, v)}
-                        />
-                      );
-                    }
-                    return (
-                      <FillQuestion
-                        key={qKey}
-                        q={q}
-                        answer={answers[num] || ''}
-                        onAnswer={(v) => setAnswer(num, v)}
-                      />
-                    );
-                  })}
-              </View>
-            );
-          })
-        : // Flat render — MCQ, TFNG, or plain fill-in
-          answerableQuestions.map((q: any, qi: number) => {
-            const num =
-              q.question_number != null ? String(q.question_number) : `${baseKey}-qi${qi}`;
-            const qKey = `${baseKey}-${num}`;
-
-            if (isTFNG) {
-              const enriched = { ...q, options: tfOptions };
-              return (
-                <MCQQuestion
-                  key={qKey}
-                  q={enriched}
-                  answers={answers}
-                  onAnswer={(k, v) => setAnswer(k, v)}
-                />
-              );
-            }
-            if (isMCQ) {
-              return (
-                <MCQQuestion
-                  key={qKey}
-                  q={q}
-                  answers={answers}
-                  onAnswer={(k, v) => setAnswer(k, v)}
-                />
-              );
-            }
-            return (
-              <FillQuestion
-                key={qKey}
-                q={q}
-                answer={answers[num] || ''}
-                onAnswer={(v) => setAnswer(num, v)}
-              />
-            );
-          })}
-    </View>
-  );
-}
-
-// ─── AI Grading Overlay (Writing / Speaking) ──────────────────────────────────
-function AIGradingOverlay({ onGoBack }: { onGoBack: () => void }) {
-  return (
-    <View style={overlayStyles.container}>
-      <View style={overlayStyles.spinnerWrapper}>
-        <ActivityIndicator size="large" color="#D51025" />
-      </View>
-      <Text style={overlayStyles.title}>Calculating your score…</Text>
-      <Text style={overlayStyles.subtitle}>
-        Our AI examiner is grading your responses.{'\n'}This may take a minute.
-      </Text>
-      <TouchableOpacity style={overlayStyles.backBtn} onPress={onGoBack}>
-        <Ionicons name="arrow-back-outline" size={16} color="rgba(255,255,255,0.8)" />
-        <Text style={overlayStyles.backBtnText}>Go back to mock tests</Text>
-      </TouchableOpacity>
-      <Text style={overlayStyles.note}>You'll be redirected automatically when done.</Text>
-    </View>
-  );
-}
-
-const overlayStyles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10,10,10,0.93)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-    zIndex: 200,
-  },
-  spinnerWrapper: {
-    width: 80,
-    height: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.xl,
-  },
-  title: {
-    color: '#fff',
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '800',
-    marginBottom: SPACING.sm,
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: FONT_SIZES.sm,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: SPACING.xxl,
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    marginBottom: SPACING.md,
-  },
-  backBtnText: { color: 'rgba(255,255,255,0.8)', fontWeight: '600', fontSize: FONT_SIZES.sm },
-  note: { color: 'rgba(255,255,255,0.25)', fontSize: FONT_SIZES.xs, textAlign: 'center' },
-});
-
-// ─── Question Navigator Drawer ────────────────────────────────────────────────
-const DRAWER_HEIGHT = Math.min(Dimensions.get('window').height * 0.55, 420);
-
-function QuestionNavigatorDrawer({
-  open,
-  onClose,
-  totalQuestions,
-  answers,
-  onSelect,
-}: {
-  open: boolean;
-  onClose: () => void;
-  totalQuestions: number;
-  answers: Record<string, string>;
-  onSelect: (n: number) => void;
-}) {
-  const { colors, isDark } = useTheme();
-  const nav = createNavStyles(colors, isDark);
-  const slideAnim = useRef(new Animated.Value(DRAWER_HEIGHT)).current;
-
-  useEffect(() => {
-    Animated.spring(slideAnim, {
-      toValue: open ? 0 : DRAWER_HEIGHT,
-      useNativeDriver: true,
-      tension: 80,
-      friction: 12,
-    }).start();
-  }, [open]);
-
-  const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
-  const answeredCount = Object.keys(answers).length;
-
-  return (
-    <>
-      {/* Backdrop */}
-      {open && (
-        <TouchableWithoutFeedback onPress={onClose}>
-          <View style={nav.backdrop} />
-        </TouchableWithoutFeedback>
-      )}
-      {/* Sheet */}
-      <Animated.View style={[nav.sheet, { backgroundColor: colors.card }, { transform: [{ translateY: slideAnim }] }]}>
-        {/* Handle */}
-        <View style={[nav.handle, { backgroundColor: isDark ? colors.border : '#D1D5DB' }]} />
-        {/* Header */}
-        <View style={nav.sheetHeader}>
-          <Text style={[nav.sheetTitle, { color: colors.text }]}>Question Navigator</Text>
-          <View style={nav.legend}>
-            <View style={nav.legendRow}>
-              <View style={[nav.dot, { backgroundColor: colors.primary }]} />
-              <Text style={[nav.legendText, { color: colors.textSecondary }]}>{answeredCount} Answered</Text>
-            </View>
-            <View style={nav.legendRow}>
-              <View style={[nav.dot, { backgroundColor: isDark ? colors.border : '#E5E7EB' }]} />
-              <Text style={[nav.legendText, { color: colors.textSecondary }]}>{totalQuestions - answeredCount} Unanswered</Text>
-            </View>
-          </View>
-        </View>
-        {/* Grid */}
-        <ScrollView contentContainerStyle={nav.grid} showsVerticalScrollIndicator={false}>
-          {numbers.map((n) => {
-            const answered = !!answers[String(n)];
-            return (
-              <TouchableOpacity
-                key={n}
-                style={[
-                  nav.cell,
-                  {
-                    backgroundColor: isDark ? colors.surface : '#F3F4F6',
-                    borderColor: isDark ? colors.border : '#E5E7EB',
-                  },
-                  answered && [nav.cellAnswered, { backgroundColor: colors.primary + '18', borderColor: colors.primary }],
-                ]}
-                onPress={() => {
-                  onClose();
-                  setTimeout(() => onSelect(n), 150);
-                }}
-                activeOpacity={0.75}
-              >
-                <Text
-                  style={[
-                    nav.cellText,
-                    { color: colors.textSecondary },
-                    answered && [nav.cellTextAnswered, { color: colors.primary }],
-                  ]}
-                >
-                  {n}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </Animated.View>
-    </>
-  );
-}
-
-const createNavStyles = (colors: any, isDark: boolean) => StyleSheet.create({
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 90 },
-  sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: DRAWER_HEIGHT,
-    backgroundColor: colors.card,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    zIndex: 100,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 20,
-    paddingHorizontal: SPACING.lg,
-    paddingBottom: SPACING.lg,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: isDark ? colors.border : '#D1D5DB',
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  sheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.md,
-  },
-  sheetTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
-  legend: { flexDirection: 'row', gap: SPACING.md },
-  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  dot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { fontSize: 10, color: colors.textSecondary },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 8 },
-  cell: {
-    width: 44,
-    height: 44,
-    borderRadius: RADIUS.md,
-    backgroundColor: isDark ? colors.surface : '#F3F4F6',
-    borderWidth: 1.5,
-    borderColor: isDark ? colors.border : '#E5E7EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cellAnswered: { backgroundColor: colors.primary + '18', borderColor: colors.primary },
-  cellText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.textMuted },
-  cellTextAnswered: { color: colors.primary },
-});
-
-// ─── Main Exam Player ─────────────────────────────────────────────────────────
 export default function ExamPlayerScreen() {
   const router = useRouter();
   const { examId } = useLocalSearchParams<{ examId: string }>();
@@ -1101,38 +38,85 @@ export default function ExamPlayerScreen() {
   const { colors, isDark } = useTheme();
   const styles = createStyles(colors, isDark);
 
-  const [exam, setExam] = useState<any>(null);
-  const [session, setSession] = useState<any>(null);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [writingAnswers, setWritingAnswers] = useState({ task1: '', task2: '' });
-  const [speakingAnswers, setSpeakingAnswers] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [isAiGrading, setIsAiGrading] = useState(false);
+  const [examReady, setExamReady] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const [examReady, setExamReady] = useState(false); // false = still in prep screen
-  // Tracks which Listening part is currently active (for per-part audio)
   const [activeListeningPartIndex, setActiveListeningPartIndex] = useState(0);
+  const [volume, setVolume] = useState(1.0);
 
-  // Question navigator: track Y-offsets per part via onLayout
   const scrollViewRef = useRef<ScrollView>(null);
-  const partOffsetsRef = useRef<Record<number, number>>({}); // partIndex → Y offset
+  const partOffsetsRef = useRef<Record<number, number>>({});
 
-  // Scroll to a question number (estimates part based on question ranges)
+  const onGradingDone = useCallback((sid: string) => {
+    router.replace(ROUTES.ieltsIntensiveResult(sid) as any);
+  }, [router]);
+
+  const onGradingError = useCallback((msg: string) => {
+    Alert.alert('Grading Error', msg, [
+      { text: 'View History', onPress: () => router.replace(ROUTES.ielts) },
+    ]);
+  }, [router]);
+
+  const {
+    exam,
+    session,
+    loading,
+    submitting,
+    isAiGrading,
+    submitSession,
+  } = useExamSession({
+    examId,
+    userId: user?.id,
+    onGradingDone,
+    onGradingError,
+  });
+
+  const handleExpire = useCallback(() => {
+    Alert.alert('Time Expired', 'Your exam is being automatically submitted.', [
+      {
+        text: 'OK',
+        onPress: async () => {
+          if (!session) return;
+          const payload = buildSubmitPayload(exam?.type);
+          await submitSession(payload, (exam?.duration ?? 60) * 60);
+          if (exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
+            router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
+          }
+        },
+      },
+    ]);
+  }, [session, exam, submitSession, router]);
+
+  const {
+    elapsed,
+    display: timerDisplay,
+    isWarning: isTimerWarning,
+  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire);
+
+  const {
+    answers,
+    setAnswer,
+    writingAnswers,
+    setWritingAnswers,
+    speakingAnswers,
+    setSpeakingAnswers,
+    getAnsweredCount,
+    getTotalCount,
+    buildSubmitPayload,
+  } = useAnswerState(exam?.type);
+
   const scrollToQuestion = useCallback(
     (n: number) => {
       if (!exam) return;
-      const questions = exam.questions as any;
-      const parts = questions?.parts || questions?.passages || questions?.tasks || [];
-      if (parts.length === 0) {
+      const questionsData = exam.questions as any;
+      const partsData = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
+      if (partsData.length === 0) {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
         return;
       }
-      // Find which part contains question n by scanning question_number in groups
       let targetPartIndex = 0;
-      for (let pi = 0; pi < parts.length; pi++) {
-        const groups = parts[pi].question_groups || parts[pi].groups || parts[pi].content || [];
+      for (let pi = 0; pi < partsData.length; pi++) {
+        const groups = partsData[pi].question_groups || partsData[pi].groups || partsData[pi].content || [];
         for (const g of groups) {
           const allNums: number[] = [];
           const collectNums = (obj: any) => {
@@ -1164,10 +148,6 @@ export default function ExamPlayerScreen() {
     [exam],
   );
 
-  const [volume, setVolume] = useState(1.0);
-
-  // Derive audio URL from the currently active Listening part.
-  // Data structure: questions.parts[i].audio_url (per-part, not top-level)
   const listeningParts = exam?.questions?.parts ?? [];
   const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
   const player = useAudioPlayer(audioUrl || '');
@@ -1176,73 +156,28 @@ export default function ExamPlayerScreen() {
     if (player) player.volume = volume;
   }, [volume, player]);
 
-  // Auto-play audio ONLY when the exam is active (never on prep screen)
   useEffect(() => {
     if (!examReady) return;
     if (audioUrl && player && !player.playing) {
       player.play();
     }
-  }, [audioUrl, examReady]);
+  }, [audioUrl, examReady, player]);
 
-  // Stop audio and switch part
   const handleListeningPartChange = (index: number) => {
     if (player.playing) player.pause();
     setActiveListeningPartIndex(index);
   };
-
-  const { elapsed, display: timerDisplay } = useTimer((exam?.duration ?? 60) * 60, timerRunning);
-
-  useEffect(() => {
-    loadExam();
-  }, [examId]);
-
-  const loadExam = async () => {
-    try {
-      const examData = await ieltsExamsApi.getExam(examId);
-      setExam(examData);
-      // Session created but timer doesn't start until user confirms prep screen
-      if (user) {
-        const sess = await ieltsExamsApi.createSession(examId, user.id);
-        setSession(sess);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Poll for AI Grading (Speaking & Writing)
-  useGradingPoll({
-    sessionId: session?.id || null,
-    enabled: isAiGrading,
-    onDone: (sid) => {
-      setIsAiGrading(false);
-      router.replace(ROUTES.ieltsIntensiveResult(sid) as any);
-    },
-    onError: (msg) => {
-      setIsAiGrading(false);
-      Alert.alert('Grading Error', msg, [
-        { text: 'View History', onPress: () => router.replace(ROUTES.ielts) },
-      ]);
-    },
-  });
 
   const handleStartExam = () => {
     setExamReady(true);
     setTimerRunning(true);
   };
 
-  const setAnswer = useCallback(
-    (key: string, value: string) => setAnswers((prev) => ({ ...prev, [key]: value })),
-    [],
-  );
-
-  const buildSubmitPayload = () => {
-    const type = exam?.type;
-    if (type === 'WRITING') return { task1: writingAnswers.task1, task2: writingAnswers.task2 };
-    if (type === 'SPEAKING') return speakingAnswers;
-    return answers;
+  const handleExitPress = () => {
+    Alert.alert('Exit Test?', 'Progress will be saved.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Exit', style: 'destructive', onPress: () => router.back() },
+    ]);
   };
 
   const handleSubmit = async () => {
@@ -1253,21 +188,15 @@ export default function ExamPlayerScreen() {
         onPress: async () => {
           if (!session) return;
           try {
-            setSubmitting(true);
             setTimerRunning(false);
-            const payload = buildSubmitPayload();
-            const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
-            if (isAiType) setIsAiGrading(true);
-            await ieltsExamsApi.submitSession(session.id, payload, elapsed);
-
-            if (!isAiType) {
-              router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
+            if (player && player.playing) player.pause();
+            const payload = buildSubmitPayload(exam?.type);
+            const res = await submitSession(payload, elapsed);
+            if (res && !res.isAiType) {
+              router.replace(ROUTES.ieltsIntensiveResult(res.sessionId) as any);
             }
           } catch (e) {
-            setIsAiGrading(false);
             Alert.alert('Error', 'Failed to submit. Try again.');
-          } finally {
-            setSubmitting(false);
           }
         },
       },
@@ -1294,304 +223,43 @@ export default function ExamPlayerScreen() {
     );
   }
 
-  // ─── Preparation Screen (matches web version) ─────────────────────────────
   if (!examReady) {
-    const prepType: string = exam.type || 'LISTENING';
-    const prepParts: any[] =
-      exam.questions?.parts || exam.questions?.passages || exam.questions?.tasks || [];
-    const isSpeaking = prepType === 'SPEAKING';
-
-    // YouTube video IDs — same as web
-    const videoId =
-      prepType === 'READING'
-        ? 'zectOHoEduM'
-        : prepType === 'WRITING'
-          ? 'ZU7RjBvAj2E'
-          : prepType === 'SPEAKING'
-            ? ''
-            : 'UFjDeMuyPMs'; // LISTENING default
-
-    // Split title: "Cambridge IELTS 17 - Listening Test 1" → group / test
-    const titleParts = (exam.title || '').split(' - ');
-    const groupTitle = titleParts[0]?.trim() || exam.title;
-    const testTitle = titleParts.slice(1).join(' - ').trim();
-
-    // Skill icon name
-    const skillIcon =
-      prepType === 'READING'
-        ? 'book-outline'
-        : prepType === 'WRITING'
-          ? 'pencil-outline'
-          : prepType === 'SPEAKING'
-            ? 'mic-outline'
-            : 'headset-outline';
-
-    // Questions/structure description
-    const questionsLabel = isSpeaking
-      ? 'Structure'
-      : prepType === 'WRITING'
-        ? 'Tasks'
-        : 'Questions';
-    const questionsValue = isSpeaking
-      ? '3 Parts · multiple questions'
-      : prepType === 'WRITING'
-        ? '2 tasks'
-        : '40 questions';
-
-    // Notice text per skill
-    const noticeText = isSpeaking
-      ? 'Make sure your microphone is connected and allowed. Speak clearly and at a natural pace.'
-      : prepType === 'LISTENING'
-        ? 'Make sure your headphones or speakers are on. Audio will play automatically when you start.'
-        : 'Ensure you have a quiet environment and are ready to focus for the duration of the test.';
-
-    // Chips
-    const chips =
-      prepType === 'WRITING'
-        ? ['2 Tasks', '60 Minutes', 'Computer Based']
-        : prepType === 'READING'
-          ? ['3 Sections', '40 Questions', 'Computer Based']
-          : ['4 Sections', '40 Questions', 'Computer Based'];
-
-    return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
-        <View style={[styles.prepContainer, { backgroundColor: colors.background }]}>
-          {/* Header nav */}
-          <View style={[styles.prepHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.prepBack}>
-              <Ionicons name="arrow-back" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
-            <Text style={[styles.prepHeaderTitle, { color: colors.text }]}>Exam Preparation</Text>
-            <View style={{ width: 28 }} />
-          </View>
-
-          <ScrollView
-            contentContainerStyle={styles.prepScroll}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Cambridge IELTS badge + title */}
-            <View style={styles.prepTitleSection}>
-              <View style={[styles.prepCamBadge, { backgroundColor: colors.primary + '20' }]}>
-                <Ionicons name="book-outline" size={12} color={colors.primary} />
-                <Text style={[styles.prepCamBadgeText, { color: colors.primary }]}>Cambridge IELTS</Text>
-              </View>
-              <Text style={[styles.prepGroupTitle, { color: colors.text }]}>{groupTitle}</Text>
-              {testTitle ? <Text style={[styles.prepTestTitle, { color: colors.textSecondary }]}>{testTitle}</Text> : null}
-              {/* Decorative bar */}
-              <View style={styles.prepDecorRow}>
-                <View
-                  style={[styles.prepDecorBar, { width: 40, backgroundColor: colors.primary }]}
-                />
-                <View style={[styles.prepDecorBar, { width: 12, backgroundColor: isDark ? colors.border : '#D1D5DB' }]} />
-                <View style={[styles.prepDecorBar, { width: 12, backgroundColor: isDark ? colors.border + '60' : '#E5E7EB' }]} />
-              </View>
-            </View>
-
-            {/* Main card */}
-            <View style={[styles.prepCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              {/* LEFT — Exam details */}
-              <View style={styles.prepCardLeft}>
-                <Text style={[styles.prepSectionLabel, { color: colors.textSecondary }]}>Exam Details</Text>
-
-                {/* Duration */}
-                <View style={[styles.prepDetailRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <View style={[styles.prepDetailIcon, { backgroundColor: colors.primary + '20' }]}>
-                    <Ionicons name="timer-outline" size={18} color={colors.primary} />
-                  </View>
-                  <View>
-                    <Text style={[styles.prepDetailMeta, { color: colors.textSecondary }]}>Duration</Text>
-                    <Text style={[styles.prepDetailValue, { color: colors.text }]}>{exam.duration ?? 60} minutes</Text>
-                  </View>
-                </View>
-
-                {/* Skill */}
-                <View style={[styles.prepDetailRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <View style={[styles.prepDetailIcon, { backgroundColor: colors.primary + '20' }]}>
-                    <Ionicons name={skillIcon as any} size={18} color={colors.primary} />
-                  </View>
-                  <View>
-                    <Text style={[styles.prepDetailMeta, { color: colors.textSecondary }]}>Skill</Text>
-                    <Text style={[styles.prepDetailValue, { color: colors.text }]}>
-                      {prepType.charAt(0) + prepType.slice(1).toLowerCase()}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Questions */}
-                <View style={[styles.prepDetailRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <View style={[styles.prepDetailIcon, { backgroundColor: colors.primary + '20' }]}>
-                    <Ionicons name="checkmark-circle-outline" size={18} color={colors.primary} />
-                  </View>
-                  <View>
-                    <Text style={[styles.prepDetailMeta, { color: colors.textSecondary }]}>{questionsLabel}</Text>
-                    <Text style={[styles.prepDetailValue, { color: colors.text }]}>{questionsValue}</Text>
-                  </View>
-                </View>
-
-                {/* Notice */}
-                <View style={[styles.prepNoticeBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <Text style={[styles.prepNoticeText, { color: colors.textSecondary }]}>{noticeText}</Text>
-                </View>
-              </View>
-
-              {/* Divider */}
-              <View style={[styles.prepCardDivider, { backgroundColor: colors.border }]} />
-
-              {/* RIGHT — YouTube video */}
-              <View style={styles.prepCardRight}>
-                <View style={styles.prepVideoHeader}>
-                  <Ionicons name="play-circle-outline" size={14} color={colors.textSecondary} />
-                  <Text style={[styles.prepSectionLabel, { color: colors.textSecondary }]}>Test Instructions</Text>
-                </View>
-
-                {videoId ? (
-                  <>
-                    <View style={[styles.prepVideoWrapper, { borderColor: colors.border }]}>
-                      <WebView
-                        style={styles.prepVideo}
-                        source={{ uri: `https://www.youtube.com/embed/${videoId}` }}
-                        allowsFullscreenVideo
-                        mediaPlaybackRequiresUserAction={false}
-                        javaScriptEnabled
-                      />
-                    </View>
-                    <Text style={[styles.prepVideoCaption, { color: colors.textSecondary }]}>
-                      Watch the full tutorial before attempting the test to familiarise yourself
-                      with the format.
-                    </Text>
-                  </>
-                ) : (
-                  <View style={styles.prepNoVideo}>
-                    <Ionicons name="mic-outline" size={40} color={colors.textSecondary} />
-                    <Text style={[styles.prepNoVideoText, { color: colors.textSecondary }]}>
-                      Speaking test — use the device microphone during the exam.
-                    </Text>
-                  </View>
-                )}
-
-                {/* Chips */}
-                <View style={styles.prepChipRow}>
-                  {chips.map((chip) => (
-                    <View key={chip} style={[styles.prepChip, { backgroundColor: isDark ? colors.surface : '#F3F4F6', borderColor: colors.border }]}>
-                      <Text style={[styles.prepChipText, { color: colors.textSecondary }]}>{chip}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </View>
-          </ScrollView>
-
-          {/* CTA */}
-          <View style={[styles.prepFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-            <TouchableOpacity
-              style={styles.prepStartBtn}
-              onPress={handleStartExam}
-              activeOpacity={0.85}
-            >
-              <Text style={[styles.prepStartBtnText, { color: '#fff' }]}>Start Test</Text>
-              <View style={[styles.prepStartBtnIcon, { backgroundColor: '#fff' }]}>
-                <Ionicons name="arrow-forward" size={16} color={colors.primary} />
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
-    );
+    return <PreparationScreen exam={exam} onStartExam={handleStartExam} onBack={() => router.back()} />;
   }
 
   const examType: string = exam.type || 'LISTENING';
-  const questions = exam.questions as any;
-  const parts = questions?.parts || questions?.passages || questions?.tasks || [];
+  const questionsData = exam.questions as any;
+  const parts = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
 
-  // Writing
   const isWriting = examType === 'WRITING';
-  const writingTasks = questions?.tasks || [];
+  const writingTasks = questionsData?.tasks || [];
 
-  // Speaking
   const isSpeaking = examType === 'SPEAKING';
-  const speakingParts = questions?.parts || [];
+  const speakingParts = questionsData?.parts || [];
 
-  // Reading
   const isReading = examType === 'READING';
 
-  // Answered count display
-  const answeredCount = isWriting
-    ? [writingAnswers.task1, writingAnswers.task2].filter((v) => v.trim()).length
-    : isSpeaking
-      ? Object.values(speakingAnswers).filter((v) => v.trim()).length
-      : Object.keys(answers).length;
-
-  const totalCount = isWriting
-    ? 2
-    : isSpeaking
-      ? speakingParts.reduce(
-          (s: number, p: any) => s + (p.questions?.length || (p.cue_card ? 1 : 0)),
-          0,
-        )
-      : undefined;
+  const answeredCount = getAnsweredCount(examType);
+  const totalCount = getTotalCount(examType, exam);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
-      {/* Sticky header */}
-      <View style={styles.examHeader}>
-        <TouchableOpacity
-          onPress={() =>
-            Alert.alert('Exit Test?', 'Progress will be saved.', [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Exit', style: 'destructive', onPress: () => router.back() },
-            ])
-          }
-        >
-          <Ionicons name="close" size={24} color="#fff" />
-        </TouchableOpacity>
-        <View style={styles.examTitleContainer}>
-          <Text style={styles.examTitle} numberOfLines={1}>
-            {exam.title?.split(' - ')[1] ?? exam.title}
-          </Text>
-          <Badge label={examType} color="#fff" bg="rgba(255,255,255,0.2)" />
-        </View>
-        <View
-          style={[styles.timerBadge, elapsed > (exam.duration - 5) * 60 && styles.timerWarning]}
-        >
-          <Ionicons name="timer-outline" size={14} color="#fff" />
-          <Text style={styles.timerText}>{timerDisplay}</Text>
-        </View>
-      </View>
+      <ExamHeader
+        title={exam.title}
+        examType={examType}
+        timerDisplay={timerDisplay}
+        isTimerWarning={isTimerWarning}
+        onExitPress={handleExitPress}
+      />
 
-      {/* Audio bar (Listening only) — no pause/seek per exam rules */}
       {audioUrl && (
-        <View style={[styles.audioBannerContainer, { backgroundColor: isDark ? colors.surface : '#EEF2FF', borderColor: isDark ? colors.border : '#C7D2FE' }]}>
-          <View style={styles.audioBanner}>
-            <View style={[styles.audioStatusDot, { backgroundColor: isDark ? colors.border : '#C7D2FE' }]}>
-              <View
-                style={[styles.audioStatusDotInner, { backgroundColor: isDark ? colors.textMuted : '#94A3B8' }, player.playing && styles.audioStatusDotActive]}
-              />
-            </View>
-            <Text style={[styles.audioLabel, { color: colors.primary }]}>
-              {player.playing ? 'Audio playing…' : 'Preparing audio…'}
-            </Text>
-            <View style={styles.volumeControl}>
-              <TouchableOpacity
-                onPress={() => setVolume(Math.max(0, volume - 0.2))}
-                style={styles.volBtn}
-              >
-                <Ionicons name="volume-low" size={18} color={colors.textSecondary} />
-              </TouchableOpacity>
-              <View style={[styles.volumeTrack, { backgroundColor: isDark ? colors.border : '#C7D2FE' }]}>
-                <View style={[styles.volumeFill, { backgroundColor: colors.primary, width: `${volume * 100}%` as any }]} />
-              </View>
-              <TouchableOpacity
-                onPress={() => setVolume(Math.min(1, volume + 0.2))}
-                style={styles.volBtn}
-              >
-                <Ionicons name="volume-high" size={18} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+        <ExamAudioPlayer
+          isPlaying={player.playing}
+          volume={volume}
+          onVolumeChange={setVolume}
+        />
       )}
 
-      {/* Writing board */}
       {isWriting && (
         <WritingExamBlock
           tasks={writingTasks}
@@ -1600,7 +268,6 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {/* Speaking board */}
       {isSpeaking && (
         <SpeakingExamBlock
           parts={speakingParts}
@@ -1610,7 +277,6 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {/* Reading board */}
       {isReading && (
         <ReadingExamBlock
           parts={parts}
@@ -1620,10 +286,8 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {/* Listening questions */}
       {!isWriting && !isSpeaking && !isReading && (
         <>
-          {/* Part selector tabs — only shown when there are multiple parts */}
           {parts.length > 1 && (
             <View style={[styles.listeningPartTabs, { backgroundColor: colors.card, borderColor: colors.border }]}>
               {parts.map((part: any, pi: number) => {
@@ -1658,7 +322,6 @@ export default function ExamPlayerScreen() {
           >
             {parts.length > 0
               ? (() => {
-                  // Only render the active part — switching tab changes both audio and questions
                   const pi = activeListeningPartIndex;
                   const part = parts[pi];
                   if (!part) return null;
@@ -1695,16 +358,14 @@ export default function ExamPlayerScreen() {
                     </View>
                   );
                 })()
-              : (questions.groups || []).map((g: any, gi: number) =>
+              : (questionsData.groups || []).map((g: any, gi: number) =>
                   renderGroup(g, answers, setAnswer, gi, 0, colors, isDark),
                 )}
           </ScrollView>
         </>
       )}
 
-      {/* Submit bar */}
       <View style={[styles.submitBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-        {/* Navigator toggle */}
         <TouchableOpacity
           style={[styles.navToggleBtn, { backgroundColor: isDark ? colors.surface : COLORS.primary + '12', borderColor: isDark ? colors.border : COLORS.primary + '30' }]}
           onPress={() => setNavOpen((v) => !v)}
@@ -1712,7 +373,7 @@ export default function ExamPlayerScreen() {
         >
           <Ionicons name="grid-outline" size={18} color={colors.primary} />
           <Text style={[styles.navToggleText, { color: colors.primary }]}>
-            {Object.keys(answers).length}/{totalCount ?? '?'}
+            {answeredCount}/{totalCount ?? '?'}
           </Text>
         </TouchableOpacity>
 
@@ -1724,9 +385,8 @@ export default function ExamPlayerScreen() {
         />
       </View>
 
-      {/* Question Navigator Drawer (Listening/Reading only) */}
       {!isWriting && !isSpeaking && totalCount !== undefined && (
-        <QuestionNavigatorDrawer
+        <ExamAnswerSheet
           open={navOpen}
           onClose={() => setNavOpen(false)}
           totalQuestions={totalCount}
@@ -1735,7 +395,6 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {/* AI Grading overlay */}
       {isAiGrading && (
         <AIGradingOverlay onGoBack={() => router.replace(ROUTES.ieltsIntensive)} />
       )}
@@ -1748,66 +407,6 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
   loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
   errorText: { fontSize: FONT_SIZES.lg, color: colors.error, marginBottom: SPACING.md },
-  examHeader: {
-    backgroundColor: colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    gap: SPACING.md,
-  },
-  examTitleContainer: { flex: 1, gap: 4 },
-  examTitle: { color: '#fff', fontSize: FONT_SIZES.sm, fontWeight: '700' },
-  timerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: RADIUS.full,
-  },
-  timerWarning: { backgroundColor: '#ef4444' },
-  timerText: {
-    color: '#fff',
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
-  },
-
-  audioBannerContainer: {
-    backgroundColor: isDark ? colors.surface : '#EEF2FF',
-    borderBottomWidth: 1,
-    borderColor: isDark ? colors.border : '#C7D2FE',
-  },
-  audioBanner: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.md,
-    gap: SPACING.sm,
-  },
-  audioStatusDot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: isDark ? colors.border : '#C7D2FE',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  audioStatusDotInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: isDark ? colors.textMuted : '#94A3B8' },
-  audioStatusDotActive: { backgroundColor: '#EF4444' },
-  audioLabel: { flex: 1, fontSize: FONT_SIZES.md, color: colors.primary, fontWeight: '600' },
-  volumeControl: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  volBtn: { padding: 4 },
-  volumeTrack: {
-    width: 60,
-    height: 6,
-    backgroundColor: isDark ? colors.border : '#C7D2FE',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  volumeFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 3 },
   scrollArea: { flex: 1 },
   partSection: { marginBottom: SPACING.xxl },
   partTitle: {
@@ -1819,16 +418,6 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     borderBottomWidth: 2,
     borderColor: colors.primary,
   },
-  passageBox: {
-    maxHeight: 220,
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    marginBottom: SPACING.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  passageText: { fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 20 },
   instructions: {
     fontSize: FONT_SIZES.sm,
     color: colors.textSecondary,
@@ -1859,20 +448,16 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  answeredCount: { fontSize: FONT_SIZES.sm, color: colors.textSecondary, fontWeight: '600' },
   navToggleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: isDark ? colors.surface : colors.primary + '12',
     borderRadius: RADIUS.xl,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderWidth: 1.5,
-    borderColor: isDark ? colors.border : colors.primary + '30',
   },
-  navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.primary },
-  // Listening part tab bar
+  navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
   listeningPartTabs: {
     flexDirection: 'row',
     backgroundColor: colors.card,
@@ -1893,205 +478,4 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     color: colors.textSecondary,
   },
   listeningPartTabLabelActive: { color: colors.primary },
-
-  // ── Preparation Screen (web-matched) ─────────────────────────────────────
-  prepContainer: { flex: 1, backgroundColor: colors.background },
-  prepHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-  prepBack: { padding: 4 },
-  prepHeaderTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
-  prepScroll: { padding: SPACING.lg, paddingBottom: 120 },
-
-  // Title section
-  prepTitleSection: { alignItems: 'center', marginBottom: SPACING.xl },
-  prepCamBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: colors.primary + '20',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 5,
-    borderRadius: 99,
-    marginBottom: SPACING.md,
-  },
-  prepCamBadgeText: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  prepGroupTitle: {
-    fontSize: FONT_SIZES.xxl,
-    fontWeight: '900',
-    color: colors.text,
-    textAlign: 'center',
-    lineHeight: 34,
-  },
-  prepTestTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  prepDecorRow: { flexDirection: 'row', gap: 6, marginTop: SPACING.md, alignItems: 'center' },
-  prepDecorBar: { height: 3, borderRadius: 99 },
-
-  // Main card
-  prepCard: {
-    backgroundColor: colors.card,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.06,
-    shadowRadius: 24,
-    elevation: 4,
-  },
-  prepCardLeft: { padding: SPACING.xl, gap: SPACING.md },
-  prepCardDivider: { height: 1, backgroundColor: colors.border },
-  prepCardRight: { padding: SPACING.xl, gap: SPACING.md },
-  prepSectionLabel: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '900',
-    color: colors.textSecondary,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
-
-  // Detail rows
-  prepDetailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  prepDetailIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: RADIUS.md,
-    backgroundColor: colors.primary + '20',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  prepDetailMeta: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  prepDetailValue: { fontSize: FONT_SIZES.md, fontWeight: '800', color: colors.text, marginTop: 2 },
-  prepNoticeBox: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  prepNoticeText: { fontSize: FONT_SIZES.sm, color: colors.textSecondary, fontWeight: '500', lineHeight: 22 },
-
-  // Video section
-  prepVideoHeader: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  prepVideoWrapper: {
-    borderRadius: RADIUS.xl,
-    overflow: 'hidden',
-    backgroundColor: '#000',
-    aspectRatio: 16 / 9,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  prepVideo: { flex: 1 },
-  prepVideoCaption: {
-    fontSize: FONT_SIZES.xs,
-    color: colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  prepNoVideo: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xxl,
-    gap: SPACING.md,
-  },
-  prepNoVideoText: {
-    fontSize: FONT_SIZES.sm,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-
-  // Chips
-  prepChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
-  prepChip: {
-    backgroundColor: isDark ? colors.surface : '#F3F4F6',
-    borderRadius: 99,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  prepChipText: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: colors.textSecondary },
-
-  // Footer
-  prepFooter: {
-    padding: SPACING.xl,
-    borderTopWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-  prepStartBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.primary,
-    borderRadius: 99,
-    paddingVertical: SPACING.md,
-    paddingLeft: SPACING.xl,
-    paddingRight: SPACING.md,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
-    alignSelf: 'center',
-    minWidth: 200,
-  },
-  prepStartBtnText: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '900',
-    color: '#fff',
-    letterSpacing: 0.3,
-    textTransform: 'uppercase',
-    paddingLeft: SPACING.sm,
-  },
-  prepStartBtnIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 99,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 });
