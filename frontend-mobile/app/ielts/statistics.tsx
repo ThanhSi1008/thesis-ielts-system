@@ -18,6 +18,7 @@ import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CHART_W = SCREEN_W - SPACING.lg * 2 - SPACING.lg * 2;
@@ -130,6 +131,7 @@ const SKILLS = [
 
 export default function StatisticsScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [profile, setProfile] = useState<any>(null);
@@ -224,15 +226,50 @@ export default function StatisticsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* ── Synchronized Theme-Aware Header ── */}
+      <View
+        style={{
+          backgroundColor: colors.background,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          paddingTop: insets.top + 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
+        >
+          <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Statistics</Text>
-        <TouchableOpacity onPress={openDrawer}>
-          <Ionicons name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
+        
+        <Text
+          style={{
+            flex: 1,
+            color: colors.text,
+            fontSize: FONT_SIZES.lg,
+            fontFamily: FONTS.bold,
+            textAlign: 'center',
+          }}
+        >
+          My Statistics
+        </Text>
+        
+        <View style={{ width: 44 }} />
       </View>
 
       <ScrollView
@@ -384,7 +421,7 @@ export default function StatisticsScreen() {
         onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 

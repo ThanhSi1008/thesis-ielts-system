@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { EmptyState } from '@/components/ui';
 import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
@@ -27,6 +29,37 @@ const TABS = [
 export default function AdvancedScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== '/ielts/advanced') {
+      navigation.push(route);
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<'listening' | 'reading' | 'writing' | 'speaking'>(
     'listening',
   );
@@ -213,20 +246,39 @@ export default function AdvancedScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color={isDark ? colors.text : '#fff'} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Advanced Practice</Text>
-        <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
+        <View style={{ width: 88, flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
-            style={styles.headerBtn}
+            style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+            onPress={openDrawer}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Open menu drawer"
+            accessibilityHint="Double tap to open the navigation menu"
+          >
+            <Ionicons name="menu" size={24} color={isDark ? colors.text : '#fff'} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={styles.headerTitle}>Advanced Practice</Text>
+        </View>
+
+        <View style={{ width: 88, flexDirection: 'row', justifyContent: 'flex-end', gap: SPACING.xs }}>
+          <TouchableOpacity
+            style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
             onPress={() => router.push(ROUTES.ieltsAdvancedStatistics)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="View statistics"
           >
             <Ionicons name="stats-chart-outline" size={22} color={isDark ? colors.text : '#fff'} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.headerBtn}
+            style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
             onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="View practice history"
           >
             <Ionicons name="time-outline" size={22} color={isDark ? colors.text : '#fff'} />
           </TouchableOpacity>
@@ -400,6 +452,15 @@ export default function AdvancedScreen() {
           )}
         </ScrollView>
       )}
+      <SharedDrawer
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        onClose={closeDrawer}
+        onOpen={openDrawer}
+        onNavPress={handleNavPress}
+      />
     </SafeAreaView>
   );
 }

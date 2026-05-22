@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,9 +6,9 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
-  Alert,
   Image,
 } from 'react-native';
+import { toast } from '@/components/ui/index';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
@@ -21,6 +21,7 @@ import Text from '../atoms/Text';
 import Button from '../atoms/Button';
 import Chip from '../atoms/Chip';
 import BottomSheet from '../organisms/BottomSheet';
+import * as Haptics from 'expo-haptics';
 
 const TAGS = [
   'Listening',
@@ -61,6 +62,12 @@ export function CreatePostModal({
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (visible) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  }, [visible]);
+
   const reset = () => {
     setType('GENERAL');
     setTitle('');
@@ -72,7 +79,7 @@ export function CreatePostModal({
   const pickImages = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission required', 'Please allow access to your photo library.');
+      toast.info('Permission required', 'Please allow access to your photo library.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -116,11 +123,12 @@ export function CreatePostModal({
         tags,
         imageUrls,
       });
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onCreated(post);
       reset();
       onClose();
     } catch {
-      Alert.alert('Error', 'Failed to create post. Please try again.');
+      toast.error('Error', 'Failed to create post. Please try again.');
     } finally {
       setLoading(false);
       setUploading(false);

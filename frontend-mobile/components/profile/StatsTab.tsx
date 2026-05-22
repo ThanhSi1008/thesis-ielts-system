@@ -7,7 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { GamificationProfile, AchievementItem } from '@/types';
-import { Card, Text, ProgressBar } from '@/components';
+import { Text, ProgressBar } from '../atoms';
+import { Card } from '../molecules';
 
 export function ProfileStatsTab() {
   const { user } = useAuth();

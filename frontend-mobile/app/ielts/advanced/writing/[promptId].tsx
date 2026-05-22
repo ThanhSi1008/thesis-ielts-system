@@ -12,9 +12,9 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Modal,
 } from 'react-native';
+import { toast } from '@/components/ui';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -95,9 +95,8 @@ export default function AdvancedWritingPracticeScreen() {
         setTimerRunning(true);
       } catch (err) {
         if (__DEV__) console.error('[WritingPractice] Failed to initialize:', err);
-        Alert.alert('Error', 'Failed to load writing session. Please try again.', [
-          { text: 'Go Back', onPress: () => router.back() },
-        ]);
+        toast.error('Error', 'Failed to load writing session. Please try again.');
+        router.back();
       } finally {
         setLoading(false);
       }
@@ -146,7 +145,7 @@ export default function AdvancedWritingPracticeScreen() {
       router.replace(`/ielts/advanced/writing/result/${sessionId}`);
     } catch (err: any) {
       if (__DEV__) console.error('[WritingPractice] Submit failed:', err);
-      Alert.alert(
+      toast.error(
         'Submit Failed',
         err?.message ?? 'Could not submit your essay. Please try again.',
       );

@@ -6,12 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioPlayer } from 'expo-audio';
+
+import { toast } from '@/components/ui';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +20,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
 import { ConfirmDialog, SuccessCelebration } from '@/components';
 import { useAnswerState, useExamSession, useExamTimer, useExitConfirm } from '@/hooks';
+import { ieltsExamsApi } from '@/services';
 import {
   ExamHeader,
   ExamAudioPlayer,
@@ -48,6 +50,10 @@ export default function ExamPlayerScreen() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [pendingResultSessionId, setPendingResultSessionId] = useState<string | null>(null);
 
+  const [gradingErrorVisible, setGradingErrorVisible] = useState(false);
+  const [gradingErrorMessage, setGradingErrorMessage] = useState('');
+  const [submitConfirmVisible, setSubmitConfirmVisible] = useState(false);
+
   const scrollViewRef = useRef<ScrollView>(null);
   const partOffsetsRef = useRef<Record<number, number>>({});
 
@@ -60,11 +66,10 @@ export default function ExamPlayerScreen() {
 
   const onGradingError = useCallback(
     (msg: string) => {
-      Alert.alert('Grading Error', msg, [
-        { text: 'View History', onPress: () => router.replace(ROUTES.ielts) },
-      ]);
+      setGradingErrorMessage(msg);
+      setGradingErrorVisible(true);
     },
-    [router],
+    [],
   );
 
   const { exam, session, loading, submitting, isAiGrading, submitSession } = useExamSession({
@@ -73,36 +78,6 @@ export default function ExamPlayerScreen() {
     onGradingDone,
     onGradingError,
   });
-
-  const {
-    isVisible: exitConfirmVisible,
-    showDialog: showExitConfirm,
-    hideDialog: hideExitConfirm,
-    confirmSave: handleExitSave,
-    confirmDiscard: handleExitDiscard,
-  } = useExitConfirm(examReady && !submitting && !isAiGrading);
-
-  const handleExpire = useCallback(() => {
-    Alert.alert('Time Expired', 'Your exam is being automatically submitted.', [
-      {
-        text: 'OK',
-        onPress: async () => {
-          if (!session) return;
-          const payload = buildSubmitPayload(exam?.type);
-          await submitSession(payload, (exam?.duration ?? 60) * 60);
-          if (exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
-            router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
-          }
-        },
-      },
-    ]);
-  }, [session, exam, submitSession, router]);
-
-  const {
-    elapsed,
-    display: timerDisplay,
-    isWarning: isTimerWarning,
-  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire);
 
   const {
     answers,
@@ -115,6 +90,55 @@ export default function ExamPlayerScreen() {
     getTotalCount,
     buildSubmitPayload,
   } = useAnswerState(exam?.type);
+
+  const handleExpire = useCallback(async () => {
+    toast.info('Your exam is being automatically submitted.');
+    if (!session) return;
+    const payload = buildSubmitPayload(exam?.type);
+    await submitSession(payload, (exam?.duration ?? 60) * 60);
+    if (exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
+      router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
+    }
+  }, [session, exam, submitSession, router, buildSubmitPayload]);
+
+  const {
+    elapsed,
+    display: timerDisplay,
+    isWarning: isTimerWarning,
+  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire);
+
+  const handleSaveProgress = useCallback(async () => {
+    if (!session) return;
+    try {
+      const payload = buildSubmitPayload(exam?.type);
+      await ieltsExamsApi.saveProgress(session.id, payload, elapsed);
+      toast.success('Progress saved successfully.');
+    } catch (e) {
+      toast.error('Failed to save progress.');
+    }
+  }, [session, exam, buildSubmitPayload, elapsed]);
+
+  const handleDiscardProgress = useCallback(async () => {
+    if (!session) return;
+    try {
+      await ieltsExamsApi.deleteSession(session.id);
+      toast.info('Exam session discarded.');
+    } catch (e) {
+      console.error('Failed to discard session:', e);
+    }
+  }, [session]);
+
+  const {
+    isVisible: exitConfirmVisible,
+    showDialog: showExitConfirm,
+    hideDialog: hideExitConfirm,
+    confirmSave: handleExitSave,
+    confirmDiscard: handleExitDiscard,
+  } = useExitConfirm(
+    examReady && !submitting && !isAiGrading,
+    handleSaveProgress,
+    handleDiscardProgress
+  );
 
   const scrollToQuestion = useCallback(
     (n: number) => {
@@ -190,58 +214,71 @@ export default function ExamPlayerScreen() {
     showExitConfirm();
   };
 
-  const handleSuccessClose = () => {
+  const handleSuccessClose = useCallback(() => {
     setShowSuccess(false);
-    if (pendingResultSessionId) {
+
+    // If it's a standard Listening/Reading exam (non-AI), redirect to results instantly
+    if (pendingResultSessionId && exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
+      setExamReady(false); // disable exit intercept
       router.replace(ROUTES.ieltsIntensiveResult(pendingResultSessionId) as any);
+    } else if (exam?.type === 'WRITING' || exam?.type === 'SPEAKING') {
+      // For Writing/Speaking (AI graded) exams, they will stay on this screen
+      // which shows the AIGradingOverlay while polling in the background.
+      // Do NOT set examReady to false yet, because we need to render the grading overlay!
+      // Once grading completes, useExamSession will call onGradingDone which redirects them.
+    } else {
+      // Fallback: if no pending ID (e.g. error or unknown state), exit to intensive dashboard
+      setExamReady(false);
+      router.replace(ROUTES.ieltsIntensive as any);
     }
-  };
+  }, [pendingResultSessionId, exam?.type, router]);
 
   const handleSubmit = async () => {
-    Alert.alert('Submit Test?', 'You cannot change answers after submitting.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Submit',
-        onPress: async () => {
-          if (!session) return;
-          try {
-            setTimerRunning(false);
-            if (player && player.playing) player.pause();
-            const payload = buildSubmitPayload(exam?.type);
-            const res = await submitSession(payload, elapsed);
-            if (res) {
-              setExamReady(false); // disable exit intercept
-              if (!res.isAiType) {
-                setPendingResultSessionId(res.sessionId);
-                setShowSuccess(true);
-              } else {
-                setPendingResultSessionId(null);
-                setShowSuccess(true);
-              }
-            }
-          } catch (e) {
-            Alert.alert('Error', 'Failed to submit. Try again.');
-          }
-        },
-      },
-    ]);
+    setSubmitConfirmVisible(true);
+  };
+
+  const executeSubmit = async () => {
+    if (!session) return;
+    try {
+      setTimerRunning(false);
+      if (player && player.playing) player.pause();
+      const payload = buildSubmitPayload(exam?.type);
+      const res = await submitSession(payload, elapsed);
+      if (res) {
+        // Do NOT call setExamReady(false) here, because we want the page to stay active
+        // so that SuccessCelebration is NOT unmounted prematurely,
+        // and AIGradingOverlay renders correctly when SuccessCelebration closes.
+        if (res.sessionId) {
+          setPendingResultSessionId(res.sessionId);
+        }
+        setShowSuccess(true);
+      }
+    } catch (e) {
+      toast.error('Failed to submit. Try again.');
+    }
   };
 
   if (loading) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <View style={[styles.center, { backgroundColor: colors.background }]} accessible={true} accessibilityLabel="Loading exam player, please wait.">
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading exam…</Text>
+        <Text allowFontScaling={true} style={[styles.loadingText, { color: colors.textSecondary }]}>Loading exam…</Text>
       </View>
     );
   }
 
   if (!exam) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={styles.errorText}>Exam not found.</Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: colors.primary }}>Go back</Text>
+      <View style={[styles.center, { backgroundColor: colors.background }]} accessible={true} accessibilityLabel="Exam not found.">
+        <Text allowFontScaling={true} style={styles.errorText}>Exam not found.</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          accessibilityHint="Double tap to return to the previous screen"
+        >
+          <Text allowFontScaling={true} style={{ color: colors.primary }}>Go back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -316,6 +353,9 @@ export default function ExamPlayerScreen() {
                 styles.listeningPartTabs,
                 { backgroundColor: colors.card, borderColor: colors.border },
               ]}
+              accessible={true}
+              accessibilityRole="tablist"
+              accessibilityLabel="Listening parts navigation"
             >
               {parts.map((part: any, pi: number) => {
                 const isActive = activeListeningPartIndex === pi;
@@ -325,8 +365,14 @@ export default function ExamPlayerScreen() {
                     style={[styles.listeningPartTab, isActive && styles.listeningPartTabActive]}
                     onPress={() => handleListeningPartChange(pi)}
                     activeOpacity={0.8}
+                    accessible={true}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: isActive }}
+                    accessibilityLabel={`Part ${part.part_number || pi + 1}`}
+                    accessibilityHint="Double tap to switch to this section of the listening test"
                   >
                     <Text
+                      allowFontScaling={true}
                       style={[
                         styles.listeningPartTabLabel,
                         { color: colors.textSecondary },
@@ -360,13 +406,16 @@ export default function ExamPlayerScreen() {
                       onLayout={(e) => {
                         partOffsetsRef.current[pi] = e.nativeEvent.layout.y;
                       }}
+                      accessible={true}
+                      accessibilityLabel={`Listening Section Part ${part.part_number || pi + 1}${part.topic ? ', Topic: ' + part.topic : ''}`}
                     >
-                      <Text style={[styles.partTitle, { color: colors.text }]}>
+                      <Text allowFontScaling={true} style={[styles.partTitle, { color: colors.text }]}>
                         Part {part.part_number || pi + 1}
                         {part.topic ? ` — ${part.topic}` : ''}
                       </Text>
                       {part.part_type && (
                         <Text
+                          allowFontScaling={true}
                           style={[
                             styles.instructions,
                             {
@@ -405,9 +454,13 @@ export default function ExamPlayerScreen() {
           ]}
           onPress={() => setNavOpen((v) => !v)}
           activeOpacity={0.8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={`Answer sheet: ${answeredCount} of ${totalCount ?? '?'} answered`}
+          accessibilityHint="Double tap to toggle the interactive answer sheet drawer"
         >
           <Ionicons name="grid-outline" size={18} color={colors.primary} />
-          <Text style={[styles.navToggleText, { color: colors.primary }]}>
+          <Text allowFontScaling={true} style={[styles.navToggleText, { color: colors.primary }]}>
             {answeredCount}/{totalCount ?? '?'}
           </Text>
         </TouchableOpacity>
@@ -430,7 +483,14 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {isAiGrading && <AIGradingOverlay onGoBack={() => router.replace(ROUTES.ieltsIntensive)} />}
+      {isAiGrading && (
+        <AIGradingOverlay
+          onGoBack={() => {
+            setExamReady(false);
+            router.replace(ROUTES.ieltsIntensive as any);
+          }}
+        />
+      )}
 
       <ConfirmDialog
         visible={exitConfirmVisible}
@@ -451,6 +511,37 @@ export default function ExamPlayerScreen() {
       <SuccessCelebration
         visible={showSuccess}
         onClose={handleSuccessClose}
+      />
+
+      <ConfirmDialog
+        visible={submitConfirmVisible}
+        onClose={() => setSubmitConfirmVisible(false)}
+        title="Submit Exam?"
+        message="Are you sure you want to submit your answers for grading?"
+        variant="info"
+        primaryAction={{
+          title: "Submit",
+          onPress: () => {
+            setSubmitConfirmVisible(false);
+            executeSubmit();
+          },
+        }}
+        secondaryAction={{
+          title: "Cancel",
+          onPress: () => setSubmitConfirmVisible(false),
+        }}
+      />
+
+      <ConfirmDialog
+        visible={gradingErrorVisible}
+        onClose={() => setGradingErrorVisible(false)}
+        title="Grading Error"
+        message={gradingErrorMessage || "An error occurred while grading your exam. Please try again."}
+        variant="destructive"
+        primaryAction={{
+          title: "OK",
+          onPress: () => setGradingErrorVisible(false),
+        }}
       />
     </SafeAreaView>
   );

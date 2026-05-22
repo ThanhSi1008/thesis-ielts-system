@@ -32,7 +32,7 @@ export default function TabLayout() {
   return (
     <View style={{ flex: 1 }}>
       <Tabs
-        tabBar={(props) => <CustomTabBar {...props} />}
+        tabBar={() => null}
         screenOptions={{
           headerShown: false,
         }}
@@ -71,7 +71,6 @@ export default function TabLayout() {
         {/* Ẩn các màn hình khác khỏi bottom tab bar */}
         <Tabs.Screen name="vocablab" options={{ href: null }} />
         <Tabs.Screen name="shadowing" options={{ href: null }} />
-        <Tabs.Screen name="pronunciation" options={{ href: null }} />
         <Tabs.Screen name="vocabulary" options={{ href: null }} />
         <Tabs.Screen name="grammar" options={{ href: null }} />
       </Tabs>
@@ -81,7 +80,7 @@ export default function TabLayout() {
         style={[
           {
             position: 'absolute',
-            bottom: Platform.OS === 'ios' ? 105 : 85,
+            bottom: Platform.OS === 'ios' ? 100 : 80,
             right: 20,
             zIndex: 100,
           },

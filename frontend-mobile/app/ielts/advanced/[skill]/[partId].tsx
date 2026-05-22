@@ -6,9 +6,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   TextInput,
 } from 'react-native';
+import { ConfirmDialog } from '@/components';
+import { toast } from '@/components/ui';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -378,6 +379,7 @@ export default function AdvancedPartScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
   const [showTranscript, setShowTranscript] = useState(false);
+  const [confirmSubmitVisible, setConfirmSubmitVisible] = useState(false);
 
   const isListening = skill === 'listening';
   const accentColor = isListening ? COLORS.skill.listening : COLORS.skill.reading;
@@ -417,30 +419,7 @@ export default function AdvancedPartScreen() {
   );
 
   const handleSubmit = async () => {
-    Alert.alert('Submit?', 'You cannot change answers after submitting.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Submit',
-        onPress: async () => {
-          setSubmitting(true);
-          try {
-            if (__DEV__) console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers }));
-            const result = isListening
-              ? await ieltsAdvancedApi.submitListening(partId, answers)
-              : await ieltsAdvancedApi.submitReading(partId, answers);
-            if (__DEV__) console.log('[SUBMIT] response:', JSON.stringify(result));
-            router.replace(
-              ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id),
-            );
-          } catch (err) {
-            if (__DEV__) console.error('[SUBMIT] error:', err);
-            Alert.alert('Error', 'Submission failed.');
-          } finally {
-            setSubmitting(false);
-          }
-        },
-      },
-    ]);
+    setConfirmSubmitVisible(true);
   };
 
   if (loading) {
@@ -562,6 +541,40 @@ export default function AdvancedPartScreen() {
           size="lg"
         />
       </View>
+
+      <ConfirmDialog
+        visible={confirmSubmitVisible}
+        onClose={() => setConfirmSubmitVisible(false)}
+        title="Submit Answers?"
+        message="You cannot change your answers after submitting."
+        variant="confirm"
+        primaryAction={{
+          title: 'Submit',
+          onPress: async () => {
+            setConfirmSubmitVisible(false);
+            setSubmitting(true);
+            try {
+              if (__DEV__) console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers }));
+              const result = isListening
+                ? await ieltsAdvancedApi.submitListening(partId, answers)
+                : await ieltsAdvancedApi.submitReading(partId, answers);
+              if (__DEV__) console.log('[SUBMIT] response:', JSON.stringify(result));
+              router.replace(
+                ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id),
+              );
+            } catch (err) {
+              if (__DEV__) console.error('[SUBMIT] error:', err);
+              toast.error('Error', 'Submission failed.');
+            } finally {
+              setSubmitting(false);
+            }
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setConfirmSubmitVisible(false),
+        }}
+      />
     </SafeAreaView>
   );
 }

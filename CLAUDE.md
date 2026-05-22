@@ -10,6 +10,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - For large files (>500 lines): use `rtk read <file>`
 - For schema/config files: use `rtk read <file> -l aggressive`
 
+## CodeGraph — Structural Code Intelligence
+
+This monorepo has a CodeGraph MCP server (`codegraph_*` tools) indexed at `.codegraph/codegraph.db` (~20 MB SQLite). It is a tree-sitter AST graph of every symbol, edge, and file across `backend-core`, `backend-ai`, `frontend-web`, and `frontend-mobile`. Reads are sub-millisecond; the file watcher debounces ~500 ms behind writes.
+
+### When to prefer CodeGraph over `rtk grep` / `rtk read`
+
+CodeGraph is for **structural** queries (who calls what, what breaks if I change X, where is symbol Y defined). RTK is for **literal text** queries (a log message, a comment string, a JSON config value) and for opening a file you already know the path of.
+
+| Question | Tool |
+|---|---|
+| "Where is `IeltsAdvancedService` / `gradeWritingExam` defined?" | `codegraph_search` |
+| "What calls `prisma.user.update` / `submitSession`?" | `codegraph_callers` |
+| "What does `GradingConsumer.handle` call?" | `codegraph_callees` |
+| "What would break if I rename `IeltsIntensiveResult`?" | `codegraph_impact` |
+| "Show me `useExamSession`'s signature + source" | `codegraph_node` |
+| "Give me focused context for the AI grading flow" | `codegraph_context` |
+| "Show several related symbols' source in one shot" | `codegraph_explore` |
+| "What files exist under `backend-core/src/modules/auth/`" | `codegraph_files` |
+| "Is the index healthy?" | `codegraph_status` |
+
+### Workflow rules
+
+- **Answer directly — don't delegate exploration.** For "how does X work" / architecture / trace questions, answer with **2-3 codegraph calls**: `codegraph_context` first to compose search + node + callers + callees in one call, then ONE `codegraph_explore` for the source of related symbols. Do not spawn a sub-agent to grep-and-read what codegraph already indexed.
+- **Trust codegraph results.** They come from a full AST parse — do NOT re-verify with `rtk grep`. That's slower, less accurate, and burns context.
+- **Don't grep first for a symbol name.** `codegraph_search` returns kind + location + signature in one call.
+- **Don't chain `codegraph_search` + `codegraph_node`** when you just want context — `codegraph_context` is one call that bundles both.
+- **Don't loop `codegraph_node` over many symbols.** One `codegraph_explore` call returns several symbols' source grouped together in a capped response, far cheaper than N separate node/Read calls.
+- **Index lag**: don't re-query immediately after editing a file in the same turn — wait or just trust your edit.
+
+### Common chains for this monorepo
+
+- **Onboarding a feature** (e.g. "how does push notification work"): `codegraph_context` → if still unclear, `codegraph_explore` for breadth, then `codegraph_node` on the specific service.
+- **Refactor planning** (e.g. "rename `IeltsIntensiveSession`"): `codegraph_search` → `codegraph_callers` → `codegraph_impact`. The blast-radius answer comes from `impact`, not from walking callers manually.
+- **Cross-service tracing** (e.g. "trace exam submit from mobile → core → AI"): `codegraph_context` with the entry symbol → `codegraph_callees` to follow the chain across `backend-core` ↔ `backend-ai` ↔ `frontend-mobile`.
+- **Debugging a regression**: `codegraph_callers` on the suspect function → `codegraph_impact` to see surface area → only then `rtk read` the specific file for the bug.
+
+### If `.codegraph/` is missing or stale
+
+The MCP server returns "not initialized" or out-of-date results. Run `codegraph init -i` from the repo root to rebuild, or `codegraph_status` to confirm health.
+
 ## Project Overview
 
 **IELTS Master English AI** — a full-stack AI-powered IELTS preparation platform (originally bootstrapped as IELTS and still named `ielts-master-ai` at the workspace level). Four deployable units:
@@ -298,3 +338,106 @@ NestJS + FastAPI ── OTLP traces           ──▶ Alloy (OTLP receiver)   
 - **Telemetry**: production traces go to OTLP HTTP `http://172.18.0.1:4318/v1/traces` (Alloy on the Docker host bridge). Locally, traces print to stdout via `ConsoleSpanExporter`.
 - **Subscription cron** runs daily at 2:00 AM (`@nestjs/schedule`); the push-token cleanup cron runs at 3:00 AM. Both rely on `ScheduleModule.forRoot()` being registered in `AppModule` — do not remove it.
 - **Push notifications**: backend hits the Expo Push API directly via `fetch` (no `expo-server-sdk`). Treat any `DeviceNotRegistered` response as authoritative and delete the row from `PushToken` — never retry the same token. On the mobile side, request permission lazily through `NotificationContext.requestPushPermission()` rather than at app boot.
+
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+**IMPORTANT: This project has a knowledge graph. ALWAYS use the
+code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
+the codebase.** The graph is faster, cheaper (fewer tokens), and gives
+you structural context (callers, dependents, test coverage) that file
+scanning cannot.
+
+### Current index state (last built 2026-05-23)
+
+- **Files**: 1,007 · **Nodes**: 4,915 · **Edges**: 44,326
+- **Languages**: python, javascript, java, typescript, sql, tsx, bash
+- **Node kinds**: 1,007 File · 3,130 Function · 372 Class · 406 Test
+- **Edge kinds**: 32,634 CALLS · 4,246 CONTAINS · 4,104 IMPORTS_FROM · 2,699 TESTED_BY · 634 REFERENCES · 9 INHERITS
+- **Embeddings**: 0 (call `embed_graph_tool` first if you want semantic similarity beyond name-based FTS)
+
+### codegraph vs code-review-graph — which one?
+
+Both MCPs are installed. Treat them as **complementary**, not interchangeable:
+
+| Need | Prefer |
+| ---- | ------ |
+| Quick "where is symbol X / who calls Y / what does Z call" lookups | `codegraph_*` (lighter, faster response) |
+| Reviewing a diff or planning a refactor with risk scoring | `mcp__code-review-graph__*` (purpose-built for review) |
+| Architecture overview, communities, hub/bridge nodes | `mcp__code-review-graph__*` (only side that exposes them) |
+| Test coverage of a symbol | `mcp__code-review-graph__query_graph_tool` with `pattern="tests_for"` |
+| Impact / blast radius of a change | `get_impact_radius_tool` (review graph) or `codegraph_impact` (lighter alternative) |
+
+### Building & maintaining the graph
+
+```text
+# First-time build or full rebuild
+mcp__code-review-graph__build_or_update_graph_tool { full_rebuild: true }
+
+# Incremental update (default; diffs working tree vs HEAD~1)
+mcp__code-review-graph__build_or_update_graph_tool
+
+# Check graph health / staleness
+mcp__code-review-graph__list_graph_stats_tool
+
+# Faster build, skip community/flow detection
+mcp__code-review-graph__build_or_update_graph_tool { postprocess: "minimal" }
+```
+
+The file watcher debounces ~500 ms behind writes. After editing files in the same turn, either trust the edit or call `build_or_update_graph_tool` to force a re-parse before re-querying. If `list_graph_stats_tool` returns no data the index is missing — rebuild before querying.
+
+### Tool cheat-sheet
+
+| Tool | Use when |
+| ---- | -------- |
+| `build_or_update_graph_tool` | Initialise or refresh the index |
+| `list_graph_stats_tool` | Confirm graph is built and current |
+| `detect_changes_tool` | Reviewing the current diff — gives risk-scored analysis |
+| `get_review_context_tool` | Need source snippets for review — token-efficient |
+| `get_impact_radius_tool` | Understanding blast radius of a change |
+| `get_affected_flows_tool` | Finding which execution paths a change touches |
+| `query_graph_tool` | Tracing callers / callees / imports / tests / dependencies |
+| `semantic_search_nodes_tool` | Finding functions/classes by name or keyword (FTS) |
+| `traverse_graph_tool` | Walk multi-hop relationships (e.g. transitive callers) |
+| `get_architecture_overview_tool` | High-level shape of the monorepo |
+| `list_communities_tool` / `get_community_tool` | Cluster-level navigation |
+| `get_hub_nodes_tool` / `get_bridge_nodes_tool` | Spot god-objects and cross-module connectors |
+| `get_minimal_context_tool` | Smallest possible context window for a symbol |
+| `find_large_functions_tool` | Refactor candidates (too long / too branchy) |
+| `refactor_tool` / `apply_refactor_tool` | Plan & apply renames or dead-code removal |
+| `get_flow_tool` / `list_flows_tool` | Execution flows the postprocessor detected |
+| `get_surprising_connections_tool` | Non-obvious dependencies worth a second look |
+| `get_knowledge_gaps_tool` | Symbols missing docs/tests/comments |
+| `get_suggested_questions_tool` | "What should I ask next?" prompts about a node |
+| `generate_wiki_tool` / `get_wiki_page_tool` / `get_docs_section_tool` | Auto-generated repo docs |
+| `embed_graph_tool` | Compute vector embeddings (one-off; needed before semantic similarity) |
+| `cross_repo_search_tool` / `list_repos_tool` | Multi-repo lookups via the registry |
+
+### Worked workflows for this monorepo
+
+- **PR review** (`feature/improve-mobile-app-ux`-style branches):
+  1. `detect_changes_tool` → risk-scored diff summary
+  2. `get_review_context_tool` on the high-risk files → exact snippets needed
+  3. `get_affected_flows_tool` → which exam-submit / grading / push-notification flows are touched
+- **Refactor blast-radius** (e.g. rename `IeltsIntensiveSession`):
+  1. `semantic_search_nodes_tool` → confirm the canonical node
+  2. `get_impact_radius_tool` → callers + transitive dependents + tests
+  3. `refactor_tool` (dry-run) → preview rename → `apply_refactor_tool` to commit
+- **Cross-service tracing** (mobile → backend-core → backend-ai):
+  1. `query_graph_tool` `pattern="callees_of"` on the controller entry point
+  2. `traverse_graph_tool` to follow the chain through `AiClientModule` → RabbitMQ → `GradingConsumer`
+  3. `get_flow_tool` if the postprocessor already detected the flow
+- **Architecture onboarding**:
+  1. `get_architecture_overview_tool` → top-level shape
+  2. `list_communities_tool` → module clusters → `get_community_tool` for the one you care about
+  3. `get_hub_nodes_tool` → identify the load-bearing classes/services
+- **Test-coverage audit**:
+  1. `query_graph_tool` `pattern="tests_for"` with the target symbol
+  2. `get_knowledge_gaps_tool` to surface untested/undocumented siblings
+
+### Hard rules
+
+- Do **not** delegate graph exploration to a sub-agent — the index already is the search; spawning another agent to grep/read repeats work the MCP just did.
+- Do **not** re-verify graph results with `rtk grep`. The graph is AST-accurate; grep is text-only and will under- or over-report.
+- Do **not** call `embed_graph_tool` casually — it is expensive. Only run it once before genuinely needing vector similarity (then reuse the embeddings).
+- After large edits or merges, run `build_or_update_graph_tool` (incremental) before any review query, otherwise stats/edges may be stale.

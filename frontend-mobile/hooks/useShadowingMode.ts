@@ -1,6 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useAudioPlayer } from 'expo-audio';
 import { useAudioRecorderHook } from './useAudioRecorder';
 import { usePronunciationChecker } from './usePronunciationChecker';
@@ -43,6 +41,17 @@ const PLACEHOLDER_SENTENCES = [
   },
 ];
 
+export const getHintText = (word: string, level: number): string => {
+  if (level <= 0 || word.length === 0) return '';
+  if (level >= 3) return word;
+
+  const clean = word.replace(/[.,!?'"]/g, '');
+  if (level === 1) return `${clean[0]}...`;
+  if (level === 2 && clean.length > 1) return `${clean[0]}...${clean[clean.length - 1]}`;
+
+  return '';
+};
+
 export interface UseShadowingModeProps {
   lessonId: string;
   mode: string;
@@ -51,7 +60,6 @@ export interface UseShadowingModeProps {
 
 export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModeProps) {
   const isShadowing = mode === 'shadowing';
-  const router = useRouter();
 
   const audioRecorder = useAudioRecorderHook();
   const pronunciationChecker = usePronunciationChecker();
@@ -63,6 +71,7 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   const [dictationInput, setDictationInput] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
 
   const sentences = useMemo(
     () => (lesson?.sentences?.length ? lesson.sentences : PLACEHOLDER_SENTENCES),
@@ -89,12 +98,20 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>(
     'Intermediate',
   );
+  const [userInputs, setUserInputs] = useState<string[]>([]);
+  const [isChecked, setIsChecked] = useState(false);
+  const [isAllCorrect, setIsAllCorrect] = useState(false);
+  const [hintLevels, setHintLevels] = useState<Record<number, number>>({});
+  const [hiddenIndices, setHiddenIndices] = useState<Set<number>>(new Set());
   const [revealedWords, setRevealedWords] = useState<Set<number>>(new Set());
   const [sentenceCorrect, setSentenceCorrect] = useState(false);
 
   const currentSentenceWords = useMemo(() => {
+    if (current?.words && Array.isArray(current.words) && current.words.length > 0) {
+      return current.words;
+    }
     return (current?.english || '').split(/\s+/).filter((w: string) => w.length > 0);
-  }, [current?.english]);
+  }, [current]);
 
   const normalizeWord = useCallback(
     (w: string) =>
@@ -105,47 +122,58 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     [],
   );
 
-  // Phase 2: Apply difficulty
+  // Phase 2: Apply difficulty and initialize sentence states
   useEffect(() => {
+    if (!current) return;
+
+    setIsChecked(false);
+    setIsAllCorrect(false);
+    setSentenceCorrect(false);
+    setHintLevels({});
+    setShowAnswer(false);
+    setSpokenTranscript('');
+    pronunciationChecker.reset();
+    setCurrentTime(current.audioStart);
+
+    // Initialize userInputs to match word count
+    const wordsCount = currentSentenceWords.length;
+    setUserInputs(new Array(wordsCount).fill(''));
+
+    // Determine hidden indices based on difficulty
     const totalWords = currentSentenceWords.length;
-    const newRevealed = new Set<number>();
+    const nonPunctuationIndices: number[] = [];
     currentSentenceWords.forEach((w: string, i: number) => {
-      if (/^[.,!?'"]+$/.test(w)) newRevealed.add(i);
+      if (/[a-zA-Z0-9]/.test(w)) {
+        nonPunctuationIndices.push(i);
+      }
     });
 
-    let targetPercent = 0;
-    if (difficulty === 'Beginner') targetPercent = 0.7;
-    else if (difficulty === 'Intermediate') targetPercent = 0.5;
-    else if (difficulty === 'Advanced') targetPercent = 0.3;
+    let ratio = 0.5;
+    if (difficulty === 'Beginner') ratio = 0.3;
+    else if (difficulty === 'Intermediate') ratio = 0.5;
+    else if (difficulty === 'Advanced') ratio = 0.7;
+    else if (difficulty === 'Expert') ratio = 1.0;
 
-    if (targetPercent > 0) {
-      const targetCount = Math.floor(totalWords * targetPercent);
-      const indices = Array.from({ length: totalWords }, (_, i) => i).filter(
-        (i) => !newRevealed.has(i),
-      );
-      indices.sort((a, b) => currentSentenceWords[a].length - currentSentenceWords[b].length);
-      for (let i = 0; i < targetCount && i < indices.length; i++) {
-        newRevealed.add(indices[i]);
+    const numToHide = Math.max(1, Math.floor(nonPunctuationIndices.length * ratio));
+    const indices = [...nonPunctuationIndices];
+    // basic shuffle to hide random words
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    const newHidden = new Set(indices.slice(0, numToHide));
+    setHiddenIndices(newHidden);
+
+    // Backwards compatibility for revealedWords
+    const backCompatRevealed = new Set<number>();
+    currentSentenceWords.forEach((_: string, i: number) => {
+      if (!newHidden.has(i)) {
+        backCompatRevealed.add(i);
       }
-    }
-
-    setRevealedWords(newRevealed);
-    setDictationInput('');
-    setSentenceCorrect(false);
+    });
+    setRevealedWords(backCompatRevealed);
   }, [currentIdx, difficulty, currentSentenceWords]);
-
-  useEffect(() => {
-    if (current) {
-      setCurrentTime(current.audioStart);
-      setRevealedWords(new Set());
-      setDictationInput('');
-      setSentenceCorrect(false);
-      pronunciationChecker.reset();
-      setShowAnswer(false);
-      setSpokenTranscript('');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIdx]);
 
   const handleSeek = useCallback(
     (value: number) => {
@@ -180,11 +208,32 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  // Phase 2: Evaluate Input Real-time
-  const userWords = useMemo(
-    () => dictationInput.split(/\s+/).filter((w) => w.length > 0),
-    [dictationInput],
-  );
+  const handleInputChange = useCallback((index: number, value: string) => {
+    setUserInputs((prev) => {
+      const copy = [...prev];
+      copy[index] = value;
+      return copy;
+    });
+  }, []);
+
+  const requestHint = useCallback((wordIndex: number) => {
+    if (isChecked || !hiddenIndices.has(wordIndex) || !currentSentenceWords?.[wordIndex]) return;
+
+    setHintLevels((prev) => {
+      const currentLevel = prev[wordIndex] ?? 0;
+      if (currentLevel >= 3) return prev;
+
+      const nextLevel = currentLevel + 1;
+      const next = { ...prev, [wordIndex]: nextLevel };
+
+      if (nextLevel >= 3) {
+        // Auto fill
+        handleInputChange(wordIndex, currentSentenceWords[wordIndex]);
+      }
+
+      return next;
+    });
+  }, [isChecked, hiddenIndices, currentSentenceWords, handleInputChange]);
 
   const markCompleted = useCallback((idx: number) => {
     setCompleted((prev) => {
@@ -195,18 +244,39 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     });
   }, []);
 
-  useEffect(() => {
-    if (sentenceCorrect) return;
-    if (userWords.length === currentSentenceWords.length) {
-      const allCorrect = currentSentenceWords.every(
-        (w: string, i: number) => normalizeWord(userWords[i] || '') === normalizeWord(w),
-      );
-      if (allCorrect) {
-        setSentenceCorrect(true);
-        markCompleted(currentIdx);
+  const checkAnswers = useCallback(() => {
+    if (!current) return;
+
+    let correctCount = 0;
+    const totalHidden = hiddenIndices.size;
+
+    currentSentenceWords.forEach((word: string, idx: number) => {
+      if (!hiddenIndices.has(idx)) return;
+
+      const isMatch = normalizeWord(userInputs[idx] || '') === normalizeWord(word);
+      if (isMatch) {
+        correctCount++;
       }
+    });
+
+    const isAllCorrect = correctCount === totalHidden;
+
+    setIsChecked(true);
+    setIsAllCorrect(isAllCorrect);
+
+    if (isAllCorrect) {
+      setSentenceCorrect(true);
+      markCompleted(currentIdx);
     }
-  }, [userWords, currentSentenceWords, sentenceCorrect, currentIdx, normalizeWord, markCompleted]);
+  }, [current, currentSentenceWords, hiddenIndices, userInputs, normalizeWord, markCompleted, currentIdx]);
+
+  const retry = useCallback(() => {
+    setIsChecked(false);
+    setIsAllCorrect(false);
+    setSentenceCorrect(false);
+  }, []);
+
+  const userWords = userInputs;
 
   // Phase 3: Speech Recognition + AI Scoring
   const [isRecording, setIsRecording] = useState(false);
@@ -383,15 +453,13 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
         type: isShadowing ? 'shadowing' : 'dictation',
         completedSentences: [...new Set([...completed, currentIdx])],
       });
-      Alert.alert('Well done! 🎉', `You completed all ${sentences.length} sentences.`, [
-        { text: 'Back', onPress: () => router.back() },
-      ]);
+      setShowFinishDialog(true);
     } catch (e) {
       console.error(e);
     } finally {
       setSaving(false);
     }
-  }, [lessonId, isShadowing, completed, currentIdx, sentences.length, router]);
+  }, [lessonId, isShadowing, completed, currentIdx]);
 
   const handleNext = useCallback(() => {
     markCompleted(currentIdx);
@@ -410,6 +478,19 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   }, [currentIdx, sentences.length, isRecording, stopRecording, handleFinish, markCompleted]);
 
   return {
+    userInputs,
+    setUserInputs,
+    isChecked,
+    setIsChecked,
+    isAllCorrect,
+    setIsAllCorrect,
+    hintLevels,
+    setHintLevels,
+    hiddenIndices,
+    requestHint,
+    checkAnswers,
+    retry,
+    handleInputChange,
     isShadowing,
     lesson,
     loading,
@@ -467,5 +548,7 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     audioRecorder,
     pronunciationChecker,
     handleYoutubeStateChange,
+    showFinishDialog,
+    setShowFinishDialog,
   };
 }

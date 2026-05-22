@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
-  Alert,
   Modal,
   Pressable,
 } from 'react-native';
@@ -17,9 +16,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
-import { EmptyState, Button } from '@/components/ui';
+import { EmptyState, Button, toast } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Breadcrumb } from '@/components';
+import { Breadcrumb, ConfirmDialog } from '@/components';
 
 const createStyles = (colors: any) =>
   StyleSheet.create({
@@ -143,6 +142,8 @@ export default function DeckDetailScreen() {
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
   const [adding, setAdding] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -172,28 +173,26 @@ export default function DeckDetailScreen() {
       setAddModal(false);
       fetchData();
     } catch {
-      Alert.alert('Error', 'Failed to add card.');
+      toast.error('Error', 'Failed to add card.');
     } finally {
       setAdding(false);
     }
   };
 
   const handleDeleteCard = (cardId: string) => {
-    Alert.alert('Delete Card?', 'This card will be permanently removed.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await vocabLabApi.deleteFlashcard(cardId);
-            fetchData();
-          } catch {
-            Alert.alert('Error', 'Failed to delete card.');
-          }
-        },
-      },
-    ]);
+    setCardToDelete(cardId);
+    setDeleteConfirmVisible(true);
+  };
+
+  const confirmDeleteCard = async () => {
+    if (!cardToDelete) return;
+    try {
+      await vocabLabApi.deleteFlashcard(cardToDelete);
+      toast.success('Success', 'Card deleted successfully.');
+      fetchData();
+    } catch {
+      toast.error('Error', 'Failed to delete card.');
+    }
   };
 
   const STATE_COLORS: Record<string, string> = {
@@ -217,13 +216,26 @@ export default function DeckDetailScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Go back to Vocab Lab dashboard"
+        >
           <Ionicons name="chevron-back" size={24} color={colors.onPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text style={styles.headerTitle} numberOfLines={1} allowFontScaling={true}>
           {deck?.name ?? 'Deck'}
         </Text>
-        <TouchableOpacity style={styles.addCardBtn} onPress={() => setAddModal(true)}>
+        <TouchableOpacity
+          style={styles.addCardBtn}
+          onPress={() => setAddModal(true)}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Add Flashcard"
+          accessibilityHint="Open a popup to add a new card to this deck"
+        >
           <Ionicons name="add" size={22} color={colors.onPrimary} />
         </TouchableOpacity>
       </View>
@@ -231,14 +243,14 @@ export default function DeckDetailScreen() {
       {/* Deck stats */}
       <View style={styles.statsRow}>
         <View style={styles.statItem}>
-          <Text style={styles.statVal}>{cards.length}</Text>
-          <Text style={styles.statLabel}>Cards</Text>
+          <Text style={styles.statVal} allowFontScaling={true}>{cards.length}</Text>
+          <Text style={styles.statLabel} allowFontScaling={true}>Cards</Text>
         </View>
         <View style={[styles.statItem, styles.statMid]}>
-          <Text style={[styles.statVal, { color: dueCount > 0 ? COLORS.error : COLORS.success }]}>
+          <Text style={[styles.statVal, { color: dueCount > 0 ? COLORS.error : COLORS.success }]} allowFontScaling={true}>
             {dueCount}
           </Text>
-          <Text style={styles.statLabel}>Due</Text>
+          <Text style={styles.statLabel} allowFontScaling={true}>Due</Text>
         </View>
         <View style={styles.statItem}>
           <Button
@@ -246,7 +258,7 @@ export default function DeckDetailScreen() {
             onPress={() =>
               dueCount > 0
                 ? router.push(ROUTES.vocabLabStudy(deckId))
-                : Alert.alert('All caught up! 🎉', 'No cards due.')
+                : toast.info('All caught up! 🎉', 'No cards due.')
             }
             size="sm"
             variant={dueCount > 0 ? 'primary' : 'outline'}
@@ -299,6 +311,8 @@ export default function DeckDetailScreen() {
                       }
                     : null,
                 ]}
+                accessible={true}
+                accessibilityLabel={`Flashcard, Front: ${frontText}. Back: ${backText}. State: ${state}.`}
               >
                 <View style={styles.cardContent}>
                   <View style={styles.cardTexts}>
@@ -310,6 +324,7 @@ export default function DeckDetailScreen() {
                           : null,
                       ]}
                       numberOfLines={2}
+                      allowFontScaling={true}
                     >
                       {frontText}
                     </Text>
@@ -321,17 +336,22 @@ export default function DeckDetailScreen() {
                           : null,
                       ]}
                       numberOfLines={2}
+                      allowFontScaling={true}
                     >
                       {backText}
                     </Text>
                   </View>
                   <View style={[styles.stateBadge, { backgroundColor: stateColor + '1A' }]}>
-                    <Text style={[styles.stateLabel, { color: stateColor }]}>{state}</Text>
+                    <Text style={[styles.stateLabel, { color: stateColor }]} allowFontScaling={true}>{state}</Text>
                   </View>
                 </View>
                 <TouchableOpacity
                   style={styles.deleteBtn}
                   onPress={() => handleDeleteCard(card.id)}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Delete card: ${frontText}`}
+                  accessibilityHint="Removes this flashcard from the deck permanently"
                 >
                   <Ionicons
                     name="trash-outline"
@@ -388,6 +408,22 @@ export default function DeckDetailScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Card?"
+        message="This card will be permanently removed."
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: confirmDeleteCard,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => {},
+        }}
+      />
     </SafeAreaView>
   );
 }

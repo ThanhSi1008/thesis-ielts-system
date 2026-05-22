@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
-  Alert,
   Animated,
   ScrollView,
   Platform,
@@ -19,11 +18,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
-import { Badge, ScoreBadge } from '@/components/ui';
+import { Badge, ScoreBadge, toast } from '@/components/ui';
 import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTabBarVisibility } from '@/hooks';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getBand(score: number) {
@@ -97,8 +97,17 @@ function SortPicker({ value, onChange }: { value: SortKey; onChange: (k: SortKey
   const curr = SORT_OPTS.find((o) => o.key === value)!;
   return (
     <View style={{ position: 'relative', zIndex: 200 }}>
-      <TouchableOpacity style={sp.trigger} onPress={() => setOpen((v) => !v)} activeOpacity={0.8}>
-        <Text style={sp.triggerText}>{curr.label}</Text>
+      <TouchableOpacity
+        style={sp.trigger}
+        onPress={() => setOpen((v) => !v)}
+        activeOpacity={0.8}
+        accessible={true}
+        accessibilityRole="combobox"
+        accessibilityLabel={`Sort order: ${curr.label}`}
+        accessibilityHint="Double tap to open sort options list"
+        accessibilityState={{ expanded: open }}
+      >
+        <Text style={sp.triggerText} allowFontScaling={true}>{curr.label}</Text>
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={12} color={COLORS.textMuted} />
       </TouchableOpacity>
       {open && (
@@ -111,12 +120,17 @@ function SortPicker({ value, onChange }: { value: SortKey; onChange: (k: SortKey
                 onChange(opt.key);
                 setOpen(false);
               }}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={opt.label}
+              accessibilityState={{ selected: value === opt.key }}
             >
               <Text
                 style={[
                   sp.itemText,
                   value === opt.key && { color: COLORS.primary, fontFamily: FONTS.bold },
                 ]}
+                allowFontScaling={true}
               >
                 {opt.label}
               </Text>
@@ -211,15 +225,21 @@ function HistoryCard({
         onLongPress={onLongPress}
         delayLongPress={450}
         activeOpacity={0.85}
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={`${item.skill} test, ${title}. Taken on ${date}. Score: ${
+          mode === 'mock' ? `Band ${band}` : item.isAdvanced ? `${item.rawScore ?? 0}` : `${item.rawScore ?? 0} out of 10`
+        }.`}
+        accessibilityHint={item.isAdvanced ? "Double tap to view results." : "Double tap to view results, or double tap and hold to delete."}
       >
         <View style={[hc.stripe, { backgroundColor: color }]} />
         <View style={hc.body}>
           <View style={hc.top}>
             <View style={{ flex: 1, marginRight: SPACING.sm }}>
-              <Text style={hc.title} numberOfLines={2}>
+              <Text style={hc.title} numberOfLines={2} allowFontScaling={true}>
                 {title}
               </Text>
-              <Text style={hc.date}>{date}</Text>
+              <Text style={hc.date} allowFontScaling={true}>{date}</Text>
             </View>
             <View style={hc.right}>
               {deleting ? (
@@ -238,16 +258,16 @@ function HistoryCard({
               <View
                 style={[hc.partBadge, { borderColor: color + '60', backgroundColor: color + '10' }]}
               >
-                <Text style={[hc.partText, { color }]}>Part {item.practicePart}</Text>
+                <Text style={[hc.partText, { color }]} allowFontScaling={true}>Part {item.practicePart}</Text>
               </View>
             )}
             <Badge label={item.skill} color={color} />
             {mm && (
-              <Text style={hc.metaText}>
+              <Text style={hc.metaText} allowFontScaling={true}>
                 ⏱ {mm}:{ss}
               </Text>
             )}
-            {!item.isAdvanced && <Text style={hc.hint}>Hold to delete</Text>}
+            {!item.isAdvanced && <Text style={hc.hint} allowFontScaling={true}>Hold to delete</Text>}
           </View>
         </View>
       </TouchableOpacity>
@@ -287,6 +307,7 @@ type Mode = 'mock' | 'practice';
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -437,45 +458,92 @@ export default function HistoryScreen() {
     .filter((h) => h.skill === skill).length;
 
   return (
-    <SafeAreaView style={s.container} edges={['top']}>
-      {/* Header */}
-      <View style={s.header}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* ── Synchronized Theme-Aware Header ── */}
+      <View
+        style={{
+          backgroundColor: colors.background,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          paddingTop: insets.top + 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
         <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={{
+            width: 52,
+            height: 44,
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+          }}
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
         >
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>Test History</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Text style={s.headerCount}>
+        
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text
+            style={{
+              color: colors.text,
+              fontSize: FONT_SIZES.lg,
+              fontFamily: FONTS.bold,
+              textAlign: 'center',
+            }}
+            allowFontScaling={true}
+          >
+            Test History
+          </Text>
+        </View>
+        
+        <View
+          style={{
+            width: 52,
+            height: 44,
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 11, color: colors.textSecondary, fontFamily: FONTS.semibold }} allowFontScaling={true}>
             {displayed.length}/{totalForMode}
           </Text>
-          <TouchableOpacity onPress={openDrawer}>
-            <Ionicons name="menu" size={24} color="#fff" />
-          </TouchableOpacity>
         </View>
       </View>
 
       {/* Mode Tabs: Mock / Practice */}
       <View style={s.modeTabs}>
-        {(['mock', 'practice'] as Mode[]).map((m) => (
-          <TouchableOpacity
-            key={m}
-            style={[s.modeTab, mode === m && s.modeTabActive]}
-            onPress={() => setMode(m)}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name={m === 'mock' ? 'clipboard-outline' : 'barbell-outline'}
-              size={14}
-              color={mode === m ? COLORS.primary : COLORS.textMuted}
-            />
-            <Text style={[s.modeTabText, mode === m && s.modeTabTextActive]}>
-              {m === 'mock' ? 'Mock Tests' : 'Practice'}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {(['mock', 'practice'] as Mode[]).map((m) => {
+          const isActive = mode === m;
+          return (
+            <TouchableOpacity
+              key={m}
+              style={[s.modeTab, isActive && s.modeTabActive]}
+              onPress={() => setMode(m)}
+              activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+              accessibilityLabel={m === 'mock' ? 'Mock Tests Tab' : 'Practice Tab'}
+              accessibilityHint={m === 'mock' ? 'Show mock test records' : 'Show practice tool sessions'}
+            >
+              <Ionicons
+                name={m === 'mock' ? 'clipboard-outline' : 'barbell-outline'}
+                size={14}
+                color={isActive ? COLORS.primary : COLORS.textMuted}
+              />
+              <Text style={[s.modeTabText, isActive && s.modeTabTextActive]} allowFontScaling={true}>
+                {m === 'mock' ? 'Mock Tests' : 'Practice'}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* Skill Tabs */}
@@ -494,9 +562,14 @@ export default function HistoryScreen() {
               style={[s.skillTab, active && { borderBottomColor: color, borderBottomWidth: 2.5 }]}
               onPress={() => setSkill(t.key)}
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={`${t.label} tab`}
+              accessibilityHint={`Show ${t.label.toLowerCase()} history`}
             >
               <Ionicons name={t.icon} size={14} color={active ? color : COLORS.textMuted} />
-              <Text style={[s.skillTabText, active && { color, fontFamily: FONTS.bold }]}>
+              <Text style={[s.skillTabText, active && { color, fontFamily: FONTS.bold }]} allowFontScaling={true}>
                 {t.label}
               </Text>
             </TouchableOpacity>
@@ -526,10 +599,15 @@ export default function HistoryScreen() {
                 ]}
                 onPress={() => setActivePart(part)}
                 activeOpacity={0.8}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                accessibilityLabel={`${label}${sublabel ? `, ${sublabel}` : ''}`}
+                accessibilityHint={`Filter history by ${label.toLowerCase()}`}
               >
-                <Text style={[s.partChipLabel, active && { color }]}>{label}</Text>
+                <Text style={[s.partChipLabel, active && { color }]} allowFontScaling={true}>{label}</Text>
                 {sublabel && (
-                  <Text style={[s.partChipSub, active && { color: color + 'CC' }]}>{sublabel}</Text>
+                  <Text style={[s.partChipSub, active && { color: color + 'CC' }]} allowFontScaling={true}>{sublabel}</Text>
                 )}
               </TouchableOpacity>
             );
@@ -554,9 +632,18 @@ export default function HistoryScreen() {
             onChangeText={setSearch}
             returnKeyType="search"
             clearButtonMode="while-editing"
+            accessible={true}
+            accessibilityLabel="Search exam title"
+            accessibilityHint="Search your test history by name"
+            allowFontScaling={true}
           />
           {search.length > 0 && Platform.OS === 'android' && (
-            <TouchableOpacity onPress={() => setSearch('')}>
+            <TouchableOpacity
+              onPress={() => setSearch('')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Clear search text"
+            >
               <Ionicons name="close-circle" size={15} color={COLORS.textMuted} />
             </TouchableOpacity>
           )}
@@ -641,7 +728,7 @@ export default function HistoryScreen() {
               await ieltsExamsApi.deleteSession(id);
               setHistory((prev) => prev.filter((h) => (h.id ?? h.sessionId) !== id));
             } catch {
-              Alert.alert('Error', 'Failed to delete. Try again.');
+              toast.error('Failed to delete. Try again.');
             } finally {
               setDeletingId(null);
               setDeleteItem(null);
@@ -662,7 +749,7 @@ export default function HistoryScreen() {
         onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 

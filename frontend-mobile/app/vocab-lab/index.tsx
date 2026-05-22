@@ -87,10 +87,17 @@ export default function VocabLabScreen() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
       <View style={[s.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity style={s.menuBtn} onPress={openDrawer}>
+        <TouchableOpacity
+          style={s.menuBtn}
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Menu"
+          accessibilityHint="Open sidebar navigation menu"
+        >
           <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>Vocab Lab</Text>
+        <Text style={s.headerTitle} allowFontScaling={true}>Vocab Lab</Text>
         <View style={{ width: 40 }} />
       </View>
 

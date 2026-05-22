@@ -19,7 +19,10 @@ import { apiClient } from '@/services/api-client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 
-import { Badge, ConfirmDialog, BottomSheet, Avatar, Card, Text } from '@/components';
+import { Badge, Avatar, Text } from '../atoms';
+import { Card } from '../molecules';
+import { BottomSheet } from '../organisms';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 
 export function ProfileAccountTab() {
   const router = useRouter();

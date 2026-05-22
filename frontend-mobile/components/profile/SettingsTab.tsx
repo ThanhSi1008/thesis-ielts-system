@@ -19,7 +19,9 @@ import { toast } from '@/components/ui/index';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 
-import { Switch, ListItem, Card, Text, ConfirmDialog } from '@/components';
+import { Switch, Text } from '../atoms';
+import { Card, ListItem } from '../molecules';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 
 const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: string }[] = [
   { mode: 'light', label: 'Light', icon: 'sunny-outline' },
@@ -143,6 +145,11 @@ export function ProfileSettingsTab() {
                     active && { backgroundColor: colors.primary },
                   ]}
                   activeOpacity={0.8}
+                  accessible={true}
+                  accessibilityRole="radio"
+                  accessibilityLabel={`${label} theme`}
+                  accessibilityState={{ checked: active }}
+                  accessibilityHint={`Double tap to apply ${label} theme mode`}
                 >
                   <Ionicons
                     name={icon as any}
@@ -188,6 +195,10 @@ export function ProfileSettingsTab() {
           <TouchableOpacity
             style={styles.notifDeniedPanel}
             onPress={() => Linking.openSettings()}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications denied warning button"
+            accessibilityHint="Double tap to open device settings and permit notification access"
           >
             <Ionicons name="warning-outline" size={20} color="#EF4444" />
             <Text variant="caption" weight="medium" style={styles.notifDeniedText}>
@@ -229,6 +240,8 @@ export function ProfileSettingsTab() {
               placeholder="Current Password"
               placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
               secureTextEntry
+              accessibilityLabel="Current password input field"
+              accessibilityHint="Double tap to enter your current password"
             />
           </View>
           <View style={styles.inputGroup}>
@@ -239,12 +252,19 @@ export function ProfileSettingsTab() {
               placeholder="New Password"
               placeholderTextColor={isDarkMode ? '#64748B' : '#94A3B8'}
               secureTextEntry
+              accessibilityLabel="New password input field"
+              accessibilityHint="Double tap to enter your new password"
             />
           </View>
           <TouchableOpacity
             style={styles.outlineBtn}
             onPress={handleChangePassword}
             disabled={saving}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Update Password button"
+            accessibilityHint="Double tap to submit your new password"
+            accessibilityState={{ disabled: saving }}
           >
             {saving ? (
               <ActivityIndicator color={colors.primary} size="small" />
@@ -262,7 +282,14 @@ export function ProfileSettingsTab() {
         <Text variant="body" weight="bold" style={styles.dangerTitle}>
           Danger Zone
         </Text>
-        <TouchableOpacity style={styles.dangerBtn} onPress={() => setShowDeleteAccountConfirm(true)}>
+        <TouchableOpacity
+          style={styles.dangerBtn}
+          onPress={() => setShowDeleteAccountConfirm(true)}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Delete Account button"
+          accessibilityHint="Double tap to open account deletion confirmation dialog"
+        >
           <Ionicons name="trash-outline" size={20} color="#EF4444" />
           <Text variant="body" weight="bold" style={styles.dangerBtnText}>
             Delete Account

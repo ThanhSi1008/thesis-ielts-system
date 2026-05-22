@@ -1,90 +1,74 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { useRouter, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FONTS, SPACING, FONT_SIZES, ROUTES, navigation } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/contexts/ThemeContext';
+import { apiClient } from '@/services/api-client';
 
 // Sub-components
-import { LibraryContent } from '@/components/ielts/LibraryContent';
+import { RoadmapItem } from '@/components/ielts/LessonRow';
+import { RoadmapSummary } from '@/components/ielts/RoadmapSummary';
+import { RoadmapStepSection } from '@/components/ielts/RoadmapStepSection';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
 
-/* ─── Nav items (Synced with web sidebar) ─── */
-const NAV_ITEMS = [
-  {
-    key: 'dashboard',
-    label: 'Dashboard',
-    icon: 'grid-outline' as const,
-    route: ROUTES.ieltsDashboard,
-  },
-  {
-    key: 'foundation',
-    label: 'Foundation',
-    icon: 'book-outline' as const,
-    route: '#',
-    children: [
-      { key: 'pronunciation', label: 'Pronunciation', route: ROUTES.foundationPronunciation },
-      { key: 'vocabulary', label: 'Vocabulary', route: ROUTES.foundationVocabulary },
-      { key: 'grammar', label: 'Grammar', route: ROUTES.foundationGrammar },
-    ],
-  },
-  {
-    key: 'basic',
-    label: 'IELTS Basic',
-    icon: 'information-circle-outline' as const,
-    route: ROUTES.ieltsBasic,
-    isActive: true,
-  },
-  {
-    key: 'advanced',
-    label: 'IELTS Advanced',
-    icon: 'trending-up-outline' as const,
-    route: ROUTES.ieltsAdvanced,
-  },
-  {
-    key: 'intensive',
-    label: 'IELTS Intensive',
-    icon: 'flash-outline' as const,
-    route: ROUTES.ieltsIntensive,
-  },
-  { key: 'roadmap', label: 'Roadmap', icon: 'map-outline' as const, route: ROUTES.ieltsRoadmap },
-  {
-    key: 'calculator',
-    label: 'Calculator',
-    icon: 'calculator-outline' as const,
-    route: ROUTES.ieltsCalculator,
-  },
-  {
-    key: 'history',
-    label: 'Test History',
-    icon: 'time-outline' as const,
-    route: ROUTES.ieltsHistory,
-  },
-  {
-    key: 'statistics',
-    label: 'Statistics',
-    icon: 'bar-chart-outline' as const,
-    route: ROUTES.ieltsStatistics,
-  },
-  {
-    key: 'student-teacher',
-    label: 'Student/Teacher',
-    icon: 'people-outline' as const,
-    route: ROUTES.ieltsStudentTeacher,
-  },
-];
+interface RoadmapStep {
+  step: number;
+  items: RoadmapItem[];
+  isLocked: boolean;
+  isCompleted: boolean;
+}
 
-export default function IeltsBasicTab() {
+export default function IeltsRoadmapTab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
+  const [steps, setSteps] = useState<RoadmapStep[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const drawerAnim = useRef(new Animated.Value(-280)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const fetchRoadmap = async () => {
+    try {
+      const data = await apiClient.get<{
+        steps: RoadmapStep[];
+        currentStep: number;
+        requiresOnboarding?: boolean;
+      }>('/ielts/roadmap');
+
+      if (data.requiresOnboarding) {
+        navigation.replace(ROUTES.ieltsOnboarding);
+        return;
+      }
+      setSteps(data.steps ?? []);
+      setCurrentStep(data.currentStep ?? 1);
+    } catch (e: any) {
+      if (__DEV__) console.error('Roadmap fetch error:', e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoadmap();
+  }, []);
 
   const openDrawer = () => {
     setDrawerOpen(true);
@@ -93,6 +77,7 @@ export default function IeltsBasicTab() {
       Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
     ]).start();
   };
+
   const closeDrawer = () => {
     Animated.parallel([
       Animated.spring(drawerAnim, {
@@ -104,10 +89,51 @@ export default function IeltsBasicTab() {
       Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
     ]).start(() => setDrawerOpen(false));
   };
+
   const handleNavPress = (route: string) => {
     closeDrawer();
-    if (route !== ROUTES.ieltsBasic) {
+    if (route !== ROUTES.ieltsRoadmap && route !== '/(tabs)/ielts') {
       navigation.push(route);
+    }
+  };
+
+  let nextItem: RoadmapItem | null = null;
+  for (const step of steps) {
+    for (const item of step.items) {
+      if (!item.isCompleted && !item.isLocked) {
+        nextItem = item;
+        break;
+      }
+    }
+    if (nextItem) break;
+  }
+
+  const totalLessons = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'lesson').length,
+    0,
+  );
+  const completedLessons = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'lesson' && i.isCompleted).length,
+    0,
+  );
+  const totalExercises = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'exercise').length,
+    0,
+  );
+  const completedExercises = steps.reduce(
+    (a, s) => a + s.items.filter((i) => i.type === 'exercise' && i.isCompleted).length,
+    0,
+  );
+
+  const handleItemPress = (item: RoadmapItem) => {
+    if (item.isLocked) return;
+    if (item.type === 'lesson') {
+      navigation.push(ROUTES.ieltsBasicLesson(item.id) + `?skill=${item.skill.toLowerCase()}`);
+    } else {
+      const q = item.lessonId
+        ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}`
+        : `?skill=${item.skill.toLowerCase()}`;
+      navigation.push(ROUTES.ieltsBasicExercise(item.id) + q);
     }
   };
 
@@ -115,7 +141,7 @@ export default function IeltsBasicTab() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Tabs.Screen options={{ headerShown: false }} />
 
-      {/* ── Custom Header ── */}
+      {/* ── Custom Theme-Aware Header ── */}
       <View
         style={{
           backgroundColor: colors.background,
@@ -135,9 +161,12 @@ export default function IeltsBasicTab() {
             height: 44,
             alignItems: 'center',
             justifyContent: 'center',
-            marginRight: 4,
           }}
           onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
         >
           <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
@@ -150,18 +179,49 @@ export default function IeltsBasicTab() {
             textAlign: 'center',
           }}
         >
-          IELTS Basic
+          Your Roadmap
         </Text>
-        <TouchableOpacity
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-          onPress={() => navigation.push(ROUTES.ieltsRoadmap)}
-        >
-          <Ionicons name="map-outline" size={22} color={colors.text} />
-        </TouchableOpacity>
+        <View style={{ width: 44 }} />
       </View>
 
-      {/* ── Library Content ── */}
-      <LibraryContent />
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading your roadmap…</Text>
+        </View>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchRoadmap();
+              }}
+            />
+          }
+        >
+          <RoadmapSummary
+            totalLessons={totalLessons}
+            completedLessons={completedLessons}
+            totalExercises={totalExercises}
+            completedExercises={completedExercises}
+          />
+
+          {steps.map((step) => (
+            <RoadmapStepSection
+              key={step.step}
+              step={step}
+              currentStep={currentStep}
+              nextItemId={nextItem?.id}
+              onItemPress={handleItemPress}
+            />
+          ))}
+        </ScrollView>
+      )}
 
       {/* ── Drawer ── */}
       <SharedDrawer
@@ -169,7 +229,6 @@ export default function IeltsBasicTab() {
         drawerAnim={drawerAnim}
         backdropAnim={backdropAnim}
         insetsTop={insets.top}
-        navItems={NAV_ITEMS}
         onClose={closeDrawer}
         onOpen={openDrawer}
         onNavPress={handleNavPress}
@@ -177,3 +236,8 @@ export default function IeltsBasicTab() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: SPACING.md },
+  loadingText: { fontFamily: FONTS.medium, color: COLORS.textSecondary, fontSize: FONT_SIZES.sm },
+});

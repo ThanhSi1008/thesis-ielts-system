@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "code-review-graph": {
+      "command": "/Users/xis108/.pyenv/versions/3.12.8/bin/python",
+      "args": [
+        "-m",
+        "code_review_graph",
+        "serve"
+      ],
+      "cwd": "/Users/xis108/Desktop/thesis-ielts-system",
+      "type": "stdio"
+    }
+  }
+}

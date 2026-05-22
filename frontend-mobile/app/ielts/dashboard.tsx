@@ -197,15 +197,50 @@ export default function DashboardScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* ── Synchronized Theme-Aware Header ── */}
+      <View
+        style={{
+          backgroundColor: colors.background,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          paddingTop: insets.top + 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
+        >
+          <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity onPress={openDrawer}>
-          <Ionicons name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
+        
+        <Text
+          style={{
+            flex: 1,
+            color: colors.text,
+            fontSize: FONT_SIZES.lg,
+            fontFamily: FONTS.bold,
+            textAlign: 'center',
+          }}
+        >
+          Dashboard
+        </Text>
+        
+        <View style={{ width: 44 }} />
       </View>
 
       <ScrollView
@@ -279,6 +314,10 @@ export default function DashboardScreen() {
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={() => navigation.push(ROUTES.ieltsStatistics)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="View progress button"
+            accessibilityHint="Double tap to open your advanced analytics and target band statistics"
           >
             <Text style={styles.primaryButtonText}>VIEW PROGRESS</Text>
             <Ionicons name="arrow-forward" size={18} color="#fff" />
@@ -294,6 +333,6 @@ export default function DashboardScreen() {
         onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
-    </SafeAreaView>
+    </View>
   );
 }

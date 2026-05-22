@@ -38,13 +38,13 @@ export const ROUTES = {
   ieltsIntensiveResult: (sessionId: string) => `/ielts/intensive/result/${sessionId}`,
   ieltsIntensiveCustom: '/ielts/intensive/custom',
 
-  ieltsBasic: '/(tabs)/ielts',
+  ieltsBasic: '/ielts/basic',
   ieltsBasicLesson: (lessonId: string) => `/ielts/basic/lesson/${lessonId}`,
   ieltsBasicExercise: (exerciseId: string) => `/ielts/basic/exercise/${exerciseId}`,
   ieltsBasicLibraryExercises: (skill: string) => `/ielts/basic/library/${skill}/exercises`,
   ieltsBasicLibraryLessons: (skill: string) => `/ielts/basic/library/${skill}/lessons`,
 
-  ieltsRoadmap: '/ielts/roadmap',
+  ieltsRoadmap: '/(tabs)/ielts',
   ieltsHistory: '/ielts/history',
   ieltsStatistics: '/ielts/statistics',
   ieltsCalculator: '/ielts/calculator',

@@ -82,6 +82,7 @@ export default function ChatAIScreen() {
 
   const scrollViewRef = useRef<ScrollView>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load chat history from AsyncStorage on mount
   useEffect(() => {
@@ -135,6 +136,9 @@ export default function ChatAIScreen() {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
     };
   }, []);
 
@@ -156,7 +160,9 @@ export default function ChatAIScreen() {
   const handleWordExplanation = async (word: string, context: string) => {
     if (isTyping) return;
 
-    // Abort any ongoing stream
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+    }
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -166,7 +172,7 @@ export default function ChatAIScreen() {
     setMessages(newMessages);
     setIsTyping(true);
 
-    // Add empty model message for streaming
+    // Add empty model message for typing effect
     setMessages((prev) => [...prev, { role: 'model', content: '' }]);
 
     const abortController = new AbortController();
@@ -175,94 +181,74 @@ export default function ChatAIScreen() {
     const detailedPrompt = `Act as an expert English Teacher. Explain the word "${word}" from the sentence: "${context}". Explain its meaning, word class, pronunciation, how it fits in this specific context, and how it is used in the IELTS exam. Keep it clean, structured, and highly conversational.`;
 
     try {
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-      const response = await fetch(`${API_BASE_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: detailedPrompt }],
-          stream: true,
-        }),
-        signal: abortController.signal,
+      const res = await apiClient.post<{ response: string }>('/chat', {
+        messages: [{ role: 'user', content: detailedPrompt }],
+        stream: false,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      if (!response.body) {
-        throw new Error('ReadableStream not supported on response');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
+      const fullText = res.response;
       let text = '';
-      let buffer = '';
+      let index = 0;
+      const charsPerStep = fullText.length > 500 ? 5 : 2;
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        let newlineIndex;
-        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-          const line = buffer.slice(0, newlineIndex).trim();
-          buffer = buffer.slice(newlineIndex + 1);
-
-          if (line.startsWith('data: ')) {
-            const content = line.slice(6);
-            text += content;
-
-            setMessages((prev) => {
-              const next = [...prev];
-              if (next.length > 0 && next[next.length - 1].role === 'model') {
-                next[next.length - 1] = {
-                  ...next[next.length - 1],
-                  content: text,
-                };
-              }
-              return next;
-            });
+      typingIntervalRef.current = setInterval(() => {
+        index += charsPerStep;
+        if (index >= fullText.length) {
+          if (typingIntervalRef.current) {
+            clearInterval(typingIntervalRef.current);
           }
+          setMessages((prev) => {
+            const next = [...prev];
+            if (next.length > 0 && next[next.length - 1].role === 'model') {
+              const backupDefinition = fullText.length > 120 ? fullText.substring(0, 120) + '...' : fullText;
+              next[next.length - 1] = {
+                role: 'model',
+                content: fullText,
+                suggestions: [
+                  {
+                    id: `add-vocab-${Date.now()}`,
+                    label: `⭐ Save "${word}" to Vocab Lab`,
+                    actionType: 'ADD_VOCAB',
+                    payload: { word, definition: backupDefinition },
+                  },
+                  {
+                    id: `explain-more-${Date.now()}`,
+                    label: `📖 Give example sentences for "${word}"`,
+                    actionType: 'EXPLAIN_NOTE',
+                    payload: {
+                      query: `Give me 3 example sentences using the word "${word}" in IELTS contexts.`,
+                    },
+                  },
+                  {
+                    id: `synonyms-${Date.now()}`,
+                    label: `🔄 Synonyms & Antonyms of "${word}"`,
+                    actionType: 'EXPLAIN_NOTE',
+                    payload: { query: `What are some common IELTS synonyms and antonyms for "${word}"?` },
+                  },
+                ],
+              };
+            }
+            return next;
+          });
+          setIsTyping(false);
+        } else {
+          text = fullText.substring(0, index);
+          setMessages((prev) => {
+            const next = [...prev];
+            if (next.length > 0 && next[next.length - 1].role === 'model') {
+              next[next.length - 1] = {
+                ...next[next.length - 1],
+                content: text,
+              };
+            }
+            return next;
+          });
         }
-      }
+      }, 12);
 
-      // Complete lookup with custom suggestions
-      setMessages((prev) => {
-        const next = [...prev];
-        if (next.length > 0 && next[next.length - 1].role === 'model') {
-          const backupDefinition = text.length > 120 ? text.substring(0, 120) + '...' : text;
-          next[next.length - 1].suggestions = [
-            {
-              id: `add-vocab-${Date.now()}`,
-              label: `⭐ Save "${word}" to Vocab Lab`,
-              actionType: 'ADD_VOCAB',
-              payload: { word, definition: backupDefinition },
-            },
-            {
-              id: `explain-more-${Date.now()}`,
-              label: `📖 Give example sentences for "${word}"`,
-              actionType: 'EXPLAIN_NOTE',
-              payload: {
-                query: `Give me 3 example sentences using the word "${word}" in IELTS contexts.`,
-              },
-            },
-            {
-              id: `synonyms-${Date.now()}`,
-              label: `🔄 Synonyms & Antonyms of "${word}"`,
-              actionType: 'EXPLAIN_NOTE',
-              payload: { query: `What are some common IELTS synonyms and antonyms for "${word}"?` },
-            },
-          ];
-        }
-        return next;
-      });
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        if (__DEV__) console.log('Lookup stream aborted');
+        if (__DEV__) console.log('Lookup aborted');
         return;
       }
       if (__DEV__) console.error('Lexon AI lookup error:', error);
@@ -276,8 +262,8 @@ export default function ChatAIScreen() {
         }
         return next;
       });
-    } finally {
       setIsTyping(false);
+    } finally {
       abortControllerRef.current = null;
     }
   };
@@ -293,6 +279,9 @@ export default function ChatAIScreen() {
     }
     Keyboard.dismiss();
 
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+    }
     // Abort any ongoing stream
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -302,139 +291,89 @@ export default function ChatAIScreen() {
     setMessages(newMessages);
     setIsTyping(true);
 
-    // Add empty model message for streaming
+    // Add empty model message
     setMessages((prev) => [...prev, { role: 'model', content: '' }]);
 
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
     try {
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-
-      const response = await fetch(`${API_BASE_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          messages: newMessages,
-          stream: true,
-        }),
-        signal: abortController.signal,
+      const res = await apiClient.post<{ response: string }>('/chat', {
+        messages: newMessages,
+        stream: false,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      if (!response.body) {
-        throw new Error('ReadableStream not supported on response');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
+      const fullText = res.response;
       let text = '';
-      let buffer = '';
+      let index = 0;
+      const charsPerStep = fullText.length > 500 ? 5 : 2;
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        let newlineIndex;
-        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-          const line = buffer.slice(0, newlineIndex).trim();
-          buffer = buffer.slice(newlineIndex + 1);
-
-          if (line.startsWith('data: ')) {
-            const content = line.slice(6);
-            text += content;
-
-            setMessages((prev) => {
-              const next = [...prev];
-              if (next.length > 0 && next[next.length - 1].role === 'model') {
-                next[next.length - 1] = {
-                  ...next[next.length - 1],
-                  content: text,
-                };
-              }
-              return next;
-            });
+      typingIntervalRef.current = setInterval(() => {
+        index += charsPerStep;
+        if (index >= fullText.length) {
+          if (typingIntervalRef.current) {
+            clearInterval(typingIntervalRef.current);
           }
+          setMessages((prev) => {
+            const next = [...prev];
+            if (next.length > 0 && next[next.length - 1].role === 'model') {
+              next[next.length - 1] = {
+                role: 'model',
+                content: fullText,
+                suggestions: [
+                  {
+                    id: `suggest-more-${Date.now()}`,
+                    label: '📈 Ask for IELTS preparation tips',
+                    actionType: 'EXPLAIN_NOTE',
+                    payload: { query: 'Can you give me some tips to improve my overall IELTS score?' },
+                  },
+                  {
+                    id: `suggest-quiz-${Date.now()}`,
+                    label: '🎯 Quiz me on IELTS Vocabulary',
+                    actionType: 'EXPLAIN_NOTE',
+                    payload: {
+                      query: 'Quiz me on 5 essential IELTS vocabulary words. Show one at a time.',
+                    },
+                  },
+                ],
+              };
+            }
+            return next;
+          });
+          setIsTyping(false);
+        } else {
+          text = fullText.substring(0, index);
+          setMessages((prev) => {
+            const next = [...prev];
+            if (next.length > 0 && next[next.length - 1].role === 'model') {
+              next[next.length - 1] = {
+                ...next[next.length - 1],
+                content: text,
+              };
+            }
+            return next;
+          });
         }
-      }
+      }, 12);
 
-      // Completed normal stream, let's offer interactive IELTS suggestions!
-      setMessages((prev) => {
-        const next = [...prev];
-        if (next.length > 0 && next[next.length - 1].role === 'model') {
-          next[next.length - 1].suggestions = [
-            {
-              id: `suggest-more-${Date.now()}`,
-              label: '📈 Ask for IELTS preparation tips',
-              actionType: 'EXPLAIN_NOTE',
-              payload: { query: 'Can you give me some tips to improve my overall IELTS score?' },
-            },
-            {
-              id: `suggest-quiz-${Date.now()}`,
-              label: '🎯 Quiz me on IELTS Vocabulary',
-              actionType: 'EXPLAIN_NOTE',
-              payload: {
-                query: 'Quiz me on 5 essential IELTS vocabulary words. Show one at a time.',
-              },
-            },
-          ];
-        }
-        return next;
-      });
     } catch (error: any) {
       if (error.name === 'AbortError') {
         if (__DEV__) console.log('Stream aborted');
         return;
       }
-      if (__DEV__) console.error('Lexon AI streaming error:', error);
-
-      // Fallback to standard non-streaming API call
-      try {
-        const res = await apiClient.post<{ response: string }>('/chat', {
-          messages: newMessages,
-          stream: false,
-        });
-        setMessages((prev) => {
-          const next = [...prev];
-          if (next.length > 0 && next[next.length - 1].role === 'model') {
-            next[next.length - 1] = {
-              role: 'model',
-              content: res.response,
-              suggestions: [
-                {
-                  id: `suggest-retry-${Date.now()}`,
-                  label: '🔄 Try asking again',
-                  actionType: 'EXPLAIN_NOTE',
-                  payload: { query: userText },
-                },
-              ],
-            };
-          }
-          return next;
-        });
-      } catch (fallbackError) {
-        if (__DEV__) console.error('Fallback error:', fallbackError);
-        setMessages((prev) => {
-          const next = [...prev];
-          if (next.length > 0 && next[next.length - 1].role === 'model') {
-            next[next.length - 1] = {
-              role: 'model',
-              content:
-                'Sorry, I encountered an error. Please check your internet connection and try again.',
-            };
-          }
-          return next;
-        });
-      }
-    } finally {
+      if (__DEV__) console.error('Lexon AI chat error:', error);
+      setMessages((prev) => {
+        const next = [...prev];
+        if (next.length > 0 && next[next.length - 1].role === 'model') {
+          next[next.length - 1] = {
+            role: 'model',
+            content: 'Sorry, I encountered an error. Please check your internet connection and try again.',
+          };
+        }
+        return next;
+      });
       setIsTyping(false);
+    } finally {
       abortControllerRef.current = null;
     }
   };
@@ -582,17 +521,6 @@ export default function ChatAIScreen() {
               </View>
             );
           })}
-
-          {isTyping && messages[messages.length - 1]?.content === '' && (
-            <View style={[styles.messageRow, styles.messageRowAI]}>
-              <View style={styles.aiAvatar}>
-                <Ionicons name="sparkles" size={14} color="#FFF" />
-              </View>
-              <View style={[styles.messageBubble, styles.messageBubbleAI, styles.typingBubble]}>
-                <ActivityIndicator size="small" color="#9C6FEF" />
-              </View>
-            </View>
-          )}
         </ScrollView>
 
         {/* Input Area */}

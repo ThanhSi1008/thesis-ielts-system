@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  Alert,
   Image,
   useWindowDimensions,
 } from 'react-native';
@@ -21,7 +20,7 @@ import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import Markdown from 'react-native-markdown-display';
 import { ContentGroupView } from '@/components/ielts/exercise/ContentGroupView';
 import { TextWithLookup } from '@/components/global/TextWithLookup';
-import { Breadcrumb } from '@/components';
+import { Breadcrumb, ConfirmDialog } from '@/components';
 
 /* ─── Mobile-friendly Markdown Table Override ─── */
 function buildMarkdownRules(): any {
@@ -344,6 +343,7 @@ export default function ExerciseViewerScreen() {
   const [answers, setAnswers] = useState<Record<string | number, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [marking, setMarking] = useState(false);
+  const [confirmSubmitVisible, setConfirmSubmitVisible] = useState(false);
 
   const breadcrumbItems = useMemo(() => {
     const skillName = skill ? skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase() : '';
@@ -388,41 +388,37 @@ export default function ExerciseViewerScreen() {
     setAnswers((prev) => ({ ...prev, [key]: val }));
 
   const handleSubmit = () => {
-    Alert.alert('Submit answers?', 'You cannot change answers after submitting.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Submit',
-        onPress: async () => {
-          setSubmitted(true);
-          const finalScore = exercise ? calcScore(exercise.content, answers) : 0;
-          const finalTotal = exercise ? getTotalQuestions(exercise.content) : 0;
+    setConfirmSubmitVisible(true);
+  };
 
-          const skillLc = skill?.toLowerCase() ?? '';
-          const isWriting = skillLc === 'writing';
-          const shouldMarkComplete = isWriting || (finalScore === finalTotal && finalTotal > 0);
+  const executeSubmit = async () => {
+    setSubmitted(true);
+    const finalScore = exercise ? calcScore(exercise.content, answers) : 0;
+    const finalTotal = exercise ? getTotalQuestions(exercise.content) : 0;
 
-          if (shouldMarkComplete) {
-            setMarking(true);
-            try {
-              const fieldName = isWriting
-                ? 'writingExerciseId'
-                : skillLc === 'reading'
-                  ? 'readingExerciseId'
-                  : 'listeningExerciseId';
+    const skillLc = skill?.toLowerCase() ?? '';
+    const isWriting = skillLc === 'writing';
+    const shouldMarkComplete = isWriting || (finalScore === finalTotal && finalTotal > 0);
 
-              if (isWriting) {
-                await apiClient.post(`/ielts/writing-exercises/${exerciseId}/save-answer`, answers);
-              }
-              await apiClient.post('/ielts/progress/mark-completed', { [fieldName]: exerciseId });
-            } catch (e) {
-              if (__DEV__) console.error('mark-completed failed:', e);
-            } finally {
-              setMarking(false);
-            }
-          }
-        },
-      },
-    ]);
+    if (shouldMarkComplete) {
+      setMarking(true);
+      try {
+        const fieldName = isWriting
+          ? 'writingExerciseId'
+          : skillLc === 'reading'
+            ? 'readingExerciseId'
+            : 'listeningExerciseId';
+
+        if (isWriting) {
+          await apiClient.post(`/ielts/writing-exercises/${exerciseId}/save-answer`, answers);
+        }
+        await apiClient.post('/ielts/progress/mark-completed', { [fieldName]: exerciseId });
+      } catch (e) {
+        if (__DEV__) console.error('mark-completed failed:', e);
+      } finally {
+        setMarking(false);
+      }
+    }
   };
 
   const handleNext = async () => {
@@ -651,6 +647,23 @@ export default function ExerciseViewerScreen() {
           </View>
         )}
       </View>
+      <ConfirmDialog
+        visible={confirmSubmitVisible}
+        onClose={() => setConfirmSubmitVisible(false)}
+        title="Submit answers?"
+        message="You cannot change answers after submitting."
+        primaryAction={{
+          title: 'Submit',
+          onPress: () => {
+            setConfirmSubmitVisible(false);
+            executeSubmit();
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setConfirmSubmitVisible(false),
+        }}
+      />
     </View>
   );
 }

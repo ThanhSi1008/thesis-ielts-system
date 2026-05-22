@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Modal,
 } from 'react-native';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -15,7 +15,7 @@ import { COLORS, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Post, PostType } from '@/types';
-import { Avatar } from './Avatar';
+import Avatar from '../atoms/Avatar';
 
 // ─── TypePill ──────────────────────────────────────────────────
 function TypePill({ type }: { type: PostType }) {
@@ -54,6 +54,7 @@ export const PostCard = React.memo(function PostCard({
   const { colors } = useTheme();
   const [viewerVisible, setViewerVisible] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const authorName =
     [post.author.firstName, post.author.lastName].filter(Boolean).join(' ') || 'Anonymous';
@@ -74,12 +75,7 @@ export const PostCard = React.memo(function PostCard({
         </View>
         {isOwner && (
           <TouchableOpacity
-            onPress={() =>
-              Alert.alert('Delete Post?', '', [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Delete', style: 'destructive', onPress: () => onDelete(post.id) },
-              ])
-            }
+            onPress={() => setShowDeleteConfirm(true)}
           >
             <Ionicons name="trash-outline" size={18} color="#ef4444" />
           </TouchableOpacity>
@@ -187,6 +183,21 @@ export const PostCard = React.memo(function PostCard({
           />
         </TouchableOpacity>
       </View>
+      <ConfirmDialog
+        visible={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        variant="destructive"
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        primaryAction={{
+          title: 'Delete',
+          onPress: () => onDelete(post.id),
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setShowDeleteConfirm(false),
+        }}
+      />
     </View>
   );
 });

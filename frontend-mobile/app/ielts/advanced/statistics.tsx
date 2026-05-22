@@ -799,10 +799,17 @@ export default function StatisticsScreen() {
     >
       {/* Header */}
       <View style={[styles.header, { backgroundColor: activeColor }]}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Go back to the previous screen"
+        >
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Advanced Statistics</Text>
+        <Text style={styles.headerTitle} allowFontScaling={true}>Advanced Statistics</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -815,36 +822,45 @@ export default function StatisticsScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.tabContent}
         >
-          {SKILLS.map((s) => (
-            <TouchableOpacity
-              key={s.key}
-              style={[
-                styles.tabChip,
-                { backgroundColor: colors.card, borderColor: colors.border },
-                activeSkill === s.key && {
-                  backgroundColor: s.color,
-                  borderColor: s.color,
-                },
-              ]}
-              onPress={() => setActiveSkill(s.key)}
-            >
-              <Ionicons
-                name={s.icon}
-                size={14}
-                color={activeSkill === s.key ? '#fff' : colors.textSecondary}
-                style={{ marginRight: 6 }}
-              />
-              <Text
+          {SKILLS.map((s) => {
+            const isActive = activeSkill === s.key;
+            return (
+              <TouchableOpacity
+                key={s.key}
                 style={[
-                  styles.tabChipText,
-                  { color: colors.textSecondary },
-                  activeSkill === s.key && { color: '#fff' },
+                  styles.tabChip,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  isActive && {
+                    backgroundColor: s.color,
+                    borderColor: s.color,
+                  },
                 ]}
+                onPress={() => setActiveSkill(s.key)}
+                accessible={true}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={`${s.label} skill tab`}
+                accessibilityHint={`Show advanced statistics for ${s.label.toLowerCase()}`}
               >
-                {s.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Ionicons
+                  name={s.icon}
+                  size={14}
+                  color={isActive ? '#fff' : colors.textSecondary}
+                  style={{ marginRight: 6 }}
+                />
+                <Text
+                  style={[
+                    styles.tabChipText,
+                    { color: colors.textSecondary },
+                    isActive && { color: '#fff' },
+                  ]}
+                  allowFontScaling={true}
+                >
+                  {s.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
 
@@ -883,10 +899,10 @@ export default function StatisticsScreen() {
             >
               <View style={[styles.summaryRow, { borderColor: colors.border }]}>
                 <View style={styles.summaryLeft}>
-                  <Text style={[styles.summaryTitle, { color: colors.text }]}>
+                  <Text style={[styles.summaryTitle, { color: colors.text }]} allowFontScaling={true}>
                     Overall Performance
                   </Text>
-                  <Text style={[styles.summarySub, { color: colors.textSecondary }]}>
+                  <Text style={[styles.summarySub, { color: colors.textSecondary }]} allowFontScaling={true}>
                     {summaryMetrics.highlightText}
                   </Text>
                 </View>
@@ -896,10 +912,10 @@ export default function StatisticsScreen() {
                     { backgroundColor: activeColor + (isDark ? '25' : '10') },
                   ]}
                 >
-                  <Text style={[styles.summaryBadgeScore, { color: activeColor }]}>
+                  <Text style={[styles.summaryBadgeScore, { color: activeColor }]} allowFontScaling={true}>
                     {summaryMetrics.avgBand.toFixed(1)}
                   </Text>
-                  <Text style={[styles.summaryBadgeLabel, { color: colors.textSecondary }]}>
+                  <Text style={[styles.summaryBadgeLabel, { color: colors.textSecondary }]} allowFontScaling={true}>
                     Avg. Band
                   </Text>
                 </View>
@@ -907,26 +923,26 @@ export default function StatisticsScreen() {
 
               <View style={styles.metricsRow}>
                 <View style={styles.metricItem}>
-                  <Text style={[styles.metricVal, { color: colors.text }]}>
+                  <Text style={[styles.metricVal, { color: colors.text }]} allowFontScaling={true}>
                     {summaryMetrics.customMetric1.value}
                   </Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]} allowFontScaling={true}>
                     {summaryMetrics.customMetric1.label}
                   </Text>
                 </View>
                 <View style={[styles.metricItem, styles.metricMid, { borderColor: colors.border }]}>
-                  <Text style={[styles.metricVal, { color: colors.text }]}>
+                  <Text style={[styles.metricVal, { color: colors.text }]} allowFontScaling={true}>
                     {activeHistory.length}
                   </Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]} allowFontScaling={true}>
                     Sessions
                   </Text>
                 </View>
                 <View style={styles.metricItem}>
-                  <Text style={[styles.metricVal, { color: colors.text }]}>
+                  <Text style={[styles.metricVal, { color: colors.text }]} allowFontScaling={true}>
                     {summaryMetrics.customMetric2.value}
                   </Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]} allowFontScaling={true}>
                     {summaryMetrics.customMetric2.label}
                   </Text>
                 </View>
@@ -942,8 +958,8 @@ export default function StatisticsScreen() {
             ]}
           >
             <View style={styles.chartHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Band Score Trend</Text>
-              <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]} allowFontScaling={true}>Band Score Trend</Text>
+              <Text style={[styles.sectionSub, { color: colors.textSecondary }]} allowFontScaling={true}>
                 Progress over last 10 sessions
               </Text>
             </View>
@@ -958,12 +974,12 @@ export default function StatisticsScreen() {
             ]}
           >
             <View style={styles.chartHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]} allowFontScaling={true}>
                 {activeSkill === 'listening' || activeSkill === 'reading'
                   ? 'Part Accuracy Breakdown'
                   : 'Rubric Criteria Averages'}
               </Text>
-              <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
+              <Text style={[styles.sectionSub, { color: colors.textSecondary }]} allowFontScaling={true}>
                 {activeSkill === 'listening' || activeSkill === 'reading'
                   ? 'Average percentage correct per part'
                   : 'Average band score across core assessment parameters'}
@@ -988,10 +1004,10 @@ export default function StatisticsScreen() {
                 ]}
               >
                 <View style={styles.chartHeader}>
-                  <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  <Text style={[styles.sectionTitle, { color: colors.text }]} allowFontScaling={true}>
                     Question Type Breakdown
                   </Text>
-                  <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
+                  <Text style={[styles.sectionSub, { color: colors.textSecondary }]} allowFontScaling={true}>
                     Attempt ratio and correctness per question category
                   </Text>
                 </View>

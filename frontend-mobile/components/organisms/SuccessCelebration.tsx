@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Modal } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Modal, Pressable, TouchableOpacity } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -35,6 +35,12 @@ export default function SuccessCelebration({
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
 
+  // Store the latest onClose callback in a ref to avoid resetting the auto-dismiss timer on render
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (visible) {
       scale.value = withSpring(1, { damping: 10, stiffness: 80 });
@@ -45,12 +51,14 @@ export default function SuccessCelebration({
         opacity.value = withTiming(0, { duration: 300 }, () => {
           scale.value = 0;
         });
-        setTimeout(onClose, 300);
+        setTimeout(() => {
+          onCloseRef.current();
+        }, 300);
       }, 2200);
 
       return () => clearTimeout(timer);
     }
-  }, [visible, onClose]);
+  }, [visible]);
 
   const animatedCircleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -124,7 +132,8 @@ export default function SuccessCelebration({
   return (
     <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
       <Animated.View style={[styles.overlay, animatedContainerStyle]}>
-        <View style={styles.backdrop} />
+        {/* Make the backdrop pressable so tapping outside dismisses the celebration card */}
+        <Pressable style={styles.backdrop} onPress={onClose} />
 
         {visible && confettiArray}
 
@@ -139,6 +148,21 @@ export default function SuccessCelebration({
           <Text variant="body" color="textSecondary" style={styles.message}>
             {message}
           </Text>
+
+          {/* Manual dismiss button */}
+          <TouchableOpacity
+            style={styles.continueButton}
+            onPress={onClose}
+            activeOpacity={0.8}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Continue"
+            accessibilityHint="Double tap to close the congratulations dialog"
+          >
+            <Text style={styles.continueText} allowFontScaling={true}>
+              Continue
+            </Text>
+          </TouchableOpacity>
         </View>
       </Animated.View>
     </Modal>
@@ -198,5 +222,25 @@ function createStyles(colors: any) {
       position: 'absolute',
       zIndex: 50,
     },
+    continueButton: {
+      marginTop: spacing[5],
+      width: '100%',
+      backgroundColor: colors.primary || COLORS.primary,
+      borderRadius: radius.lg || 12,
+      paddingVertical: spacing[3],
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary || COLORS.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    continueText: {
+      color: '#FFFFFF',
+      fontSize: 16,
+      fontWeight: '700',
+    },
   });
 }
+

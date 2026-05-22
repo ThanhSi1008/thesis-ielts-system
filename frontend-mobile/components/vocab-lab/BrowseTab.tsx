@@ -7,14 +7,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  Alert,
   DeviceEventEmitter,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, toast } from '@/components/ui';
 import { CardDetailSheet } from '@/components/vocab-lab/CardDetailSheet';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATE_FILTERS = [
@@ -65,6 +65,8 @@ export function BrowseTab() {
   const [loading, setLoading] = useState(false);
   const [tagsExpanded, setTagsExpanded] = useState(false);
   const [selectedCard, setSelectedCard] = useState<any | null>(null);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
 
   // Load decks + tags + types once
   useEffect(() => {
@@ -117,21 +119,19 @@ export function BrowseTab() {
   });
 
   const handleDeleteCard = (id: string) => {
-    Alert.alert('Delete Card', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await vocabLabApi.deleteFlashcard(id);
-            setCards((prev) => prev.filter((c) => c.id !== id));
-          } catch {
-            Alert.alert('Error', 'Failed to delete card.');
-          }
-        },
-      },
-    ]);
+    setCardToDelete(id);
+    setDeleteConfirmVisible(true);
+  };
+
+  const confirmDeleteCard = async () => {
+    if (!cardToDelete) return;
+    try {
+      await vocabLabApi.deleteFlashcard(cardToDelete);
+      setCards((prev) => prev.filter((c) => c.id !== cardToDelete));
+      toast.success('Success', 'Card deleted successfully.');
+    } catch {
+      toast.error('Error', 'Failed to delete card.');
+    }
   };
 
   const handleCardSaved = (updatedCard: any) => {
@@ -382,6 +382,22 @@ export function BrowseTab() {
         onClose={() => setSelectedCard(null)}
         onSaved={handleCardSaved}
         onDeleted={handleCardDeleted}
+      />
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Card"
+        message="Are you sure you want to delete this card?"
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: confirmDeleteCard,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => {},
+        }}
       />
     </View>
   );

@@ -132,3 +132,5 @@ _extras/research_paper/**/*.pdf
 _extras/research_paper/**/*.run.xml
 _extras/research_paper/**/*.synctex.gz
 _extras/research_paper/**/*.toc
+# Added by code-review-graph
+.code-review-graph/
