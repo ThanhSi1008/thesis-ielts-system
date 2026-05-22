@@ -50,25 +50,53 @@ export const ROUTES = {
   ieltsStudentTeacher: '/ielts/student-teacher',
   ieltsStudentDetail: (studentId: string) => `/ielts/student-teacher/${studentId}`,
   
+  /** @deprecated Use foundationGrammar instead */
   ieltsGrammar: '/ielts/grammar',
+  /** @deprecated Use foundationGrammarBook instead */
   ieltsGrammarBook: (bookSlug: string) => `/ielts/grammar/${bookSlug}`,
+  /** @deprecated Use foundationGrammarUnit instead */
   ieltsGrammarUnit: (bookSlug: string, unitId: string) => `/ielts/grammar/${bookSlug}/${unitId}`,
   
+  /** @deprecated Use foundationPronunciation instead */
   ieltsPronunciation: '/ielts/pronunciation',
+  /** @deprecated Use foundationPronunciationSymbol instead */
   ieltsPronunciationSymbol: (symbol: string) => `/ielts/pronunciation/${symbol}`,
   
-  // Vocabulary
+  // Foundation (IELTS Foundation Modules)
+  foundationVocabulary: '/ielts/foundation/vocabulary',
+  foundationVocabularyBook: (bookId: string) => `/ielts/foundation/vocabulary/${bookId}`,
+  foundationVocabularyUnit: (bookId: string, unitId: string) => `/ielts/foundation/vocabulary/${bookId}/${unitId}`,
+
+  foundationGrammar: '/ielts/foundation/grammar',
+  foundationGrammarBook: (bookSlug: string) => `/ielts/foundation/grammar/${bookSlug}`,
+  foundationGrammarUnit: (bookSlug: string, unitId: string) => `/ielts/foundation/grammar/${bookSlug}/${unitId}`,
+
+  foundationPronunciation: '/ielts/foundation/pronunciation',
+  foundationPronunciationSymbol: (symbol: string) => `/ielts/foundation/pronunciation/${symbol}`,
+
+  // Practice Tools
+  practiceTools: '/practice-tools',
+  practiceToolsShadowing: '/practice-tools/shadowing',
+  practiceToolsShadowingLesson: (lessonId: string, mode: 'shadowing' | 'dictation') => `/practice-tools/shadowing/${lessonId}/${mode}`,
+  practiceToolsDictation: '/practice-tools/dictation',
+  
+  /** @deprecated Use foundationVocabulary instead */
   vocabulary: '/(tabs)/vocabulary',
+  /** @deprecated Use foundationVocabularyBook instead */
   vocabularyBook: (bookId: string) => `/vocabulary/${bookId}`,
+  /** @deprecated Use foundationVocabularyUnit instead */
   vocabularyUnit: (bookId: string, unitId: string) => `/vocabulary/${bookId}/${unitId}`,
   
-  // Grammar
+  /** @deprecated Use foundationGrammar instead */
   grammar: '/(tabs)/grammar',
+  /** @deprecated Use foundationGrammarBook instead */
   grammarBook: (bookSlug: string) => `/grammar/${bookSlug}`,
+  /** @deprecated Use foundationGrammarUnit instead */
   grammarUnit: (bookSlug: string, unitId: string) => `/grammar/${bookSlug}/${unitId}`,
   
-  // Shadowing
+  /** @deprecated Use practiceToolsShadowing instead */
   shadowing: '/shadowing',
+  /** @deprecated Use practiceToolsShadowingLesson instead */
   shadowingLesson: (lessonId: string, mode: 'shadowing' | 'dictation') => `/shadowing/${lessonId}/${mode}`,
   
   // Vocab Lab

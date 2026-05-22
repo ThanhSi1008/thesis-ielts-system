@@ -85,43 +85,31 @@ function RootNavigator() {
         <Stack.Screen name="notification" options={{ presentation: 'modal' }} />
         <Stack.Screen name="chat-ai" options={{ presentation: 'modal' }} />
 
-        {/* Vocabulary nested */}
+        {/* Vocabulary nested (legacy redirect paths) */}
         <Stack.Screen
           name="vocabulary/[bookId]"
           options={{
-            headerShown: true,
-            title: 'Units',
-            headerStyle: { backgroundColor: '#FFC600' },
-            headerTintColor: '#FFFFFF',
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="vocabulary/[bookId]/[unitId]"
           options={{
-            headerShown: true,
-            title: 'Learning',
-            headerStyle: { backgroundColor: '#FFC600' },
-            headerTintColor: '#FFFFFF',
+            headerShown: false,
           }}
         />
 
-        {/* Grammar nested */}
+        {/* Grammar nested (legacy redirect paths) */}
         <Stack.Screen
           name="grammar/[bookSlug]"
           options={{
-            headerShown: true,
-            title: 'Units',
-            headerStyle: { backgroundColor: '#5B9557' },
-            headerTintColor: '#FFFFFF',
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="grammar/[bookSlug]/[unitId]"
           options={{
-            headerShown: true,
-            title: 'Lesson',
-            headerStyle: { backgroundColor: '#5B9557' },
-            headerTintColor: '#FFFFFF',
+            headerShown: false,
           }}
         />
 
@@ -146,15 +134,33 @@ function RootNavigator() {
         <Stack.Screen name="ielts/intensive/custom" />
         <Stack.Screen name="ielts/student-teacher/index" />
         <Stack.Screen name="ielts/student-teacher/[studentId]" />
-        <Stack.Screen name="ielts/grammar/index" />
-        <Stack.Screen name="ielts/grammar/[bookSlug]" />
-        <Stack.Screen name="ielts/grammar/[bookSlug]/[unitId]" />
-        <Stack.Screen name="ielts/pronunciation/index" />
-        <Stack.Screen name="ielts/pronunciation/[symbol]" />
 
-        {/* Shadowing */}
-        <Stack.Screen name="shadowing/index" />
-        <Stack.Screen name="shadowing/[lessonId]/[mode]" />
+        {/* Foundation (IELTS Foundation Modules) */}
+        <Stack.Screen name="ielts/foundation/vocabulary/index" />
+        <Stack.Screen name="ielts/foundation/vocabulary/[bookId]" />
+        <Stack.Screen name="ielts/foundation/vocabulary/[bookId]/[unitId]" />
+        <Stack.Screen name="ielts/foundation/grammar/index" />
+        <Stack.Screen name="ielts/foundation/grammar/[bookSlug]" />
+        <Stack.Screen name="ielts/foundation/grammar/[bookSlug]/[unitId]" />
+        <Stack.Screen name="ielts/foundation/pronunciation/index" />
+        <Stack.Screen name="ielts/foundation/pronunciation/[symbol]" />
+
+        {/* Practice Tools */}
+        <Stack.Screen name="practice-tools/index" />
+        <Stack.Screen name="practice-tools/dictation/index" />
+        <Stack.Screen name="practice-tools/shadowing/index" />
+        <Stack.Screen name="practice-tools/shadowing/[lessonId]/[mode]" />
+
+        {/* Legacy redirects */}
+        <Stack.Screen name="ielts/grammar/index" options={{ headerShown: false }} />
+        <Stack.Screen name="ielts/grammar/[bookSlug]" options={{ headerShown: false }} />
+        <Stack.Screen name="ielts/grammar/[bookSlug]/[unitId]" options={{ headerShown: false }} />
+        <Stack.Screen name="ielts/pronunciation/index" options={{ headerShown: false }} />
+        <Stack.Screen name="ielts/pronunciation/[symbol]" options={{ headerShown: false }} />
+
+        {/* Shadowing (legacy redirect paths) */}
+        <Stack.Screen name="shadowing/index" options={{ headerShown: false }} />
+        <Stack.Screen name="shadowing/[lessonId]/[mode]" options={{ headerShown: false }} />
 
         {/* Vocab Lab */}
         <Stack.Screen name="vocab-lab/index" />

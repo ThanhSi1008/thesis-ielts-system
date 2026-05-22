@@ -30,7 +30,7 @@ const MODULES = [
     icon: 'book',
     color: '#FF9800',
     gradient: ['#FBBF24', '#F59E0B'],
-    link: ROUTES.vocabulary,
+    link: ROUTES.foundationVocabulary,
   },
   {
     id: 'shadowing',
@@ -39,7 +39,7 @@ const MODULES = [
     icon: 'headset',
     color: '#3B82F6',
     gradient: ['#60A5FA', '#3B82F6'],
-    link: ROUTES.shadowing,
+    link: ROUTES.practiceTools,
   },
   {
     id: 'grammar',
@@ -48,7 +48,7 @@ const MODULES = [
     icon: 'text',
     color: '#10B981',
     gradient: ['#34D399', '#10B981'],
-    link: ROUTES.grammar,
+    link: ROUTES.foundationGrammar,
   },
   {
     id: 'pronunciation',
@@ -57,7 +57,7 @@ const MODULES = [
     icon: 'mic',
     color: '#8B5CF6',
     gradient: ['#A78BFA', '#8B5CF6'],
-    link: ROUTES.ieltsPronunciation,
+    link: ROUTES.foundationPronunciation,
   },
 ];
 

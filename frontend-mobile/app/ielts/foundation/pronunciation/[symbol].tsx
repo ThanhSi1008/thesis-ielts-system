@@ -1,10 +1,7 @@
 /**
- * Pronunciation Detail Screen — /pronunciation/[symbol]
- * Shows example words for a phonetic symbol with AI recorder + smart polling + backend data
- *
- * Polling strategy: Exponential backoff (1s → 2s → 4s → 4s… max 4s)
- * Rationale: Fast first check (AI sometimes returns in <2s), then backs off
- * to avoid hammering the server. Timeout 60s. Cleans up on unmount.
+ * IELTS Pronunciation Detail — /ielts/foundation/pronunciation/[symbol]
+ * Same AI recorder + scoring as (tabs)/pronunciation/[symbol]
+ * Back button navigates to /ielts/foundation/pronunciation (IELTS context)
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -372,7 +369,7 @@ function WordCard({
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-export default function SoundDetailScreen() {
+export default function IeltsSoundDetailScreen() {
   const { symbol } = useLocalSearchParams<{ symbol: string }>();
   const router = useRouter();
   const { user } = useAuth();
@@ -399,7 +396,7 @@ export default function SoundDetailScreen() {
         setWordProgresses(progressList || []);
       }
     } catch (err: any) {
-      console.error('[SoundDetailScreen] Error fetching sound:', err);
+      console.error('[IeltsSoundDetailScreen] Error fetching sound:', err);
       setError(err?.message || 'Failed to load sound detail');
     } finally {
       setLoading(false);
@@ -417,11 +414,10 @@ export default function SoundDetailScreen() {
   }, [fetchSoundData]);
 
   const handleWordSuccess = useCallback(() => {
-    // Silent refetch word progress after successful attempt
     if (user && sound?.id) {
       pronunciationApi.getWordProgress(sound.id)
         .then((progressList) => setWordProgresses(progressList || []))
-        .catch((err) => console.error('[SoundDetailScreen] Silent progress update failed:', err));
+        .catch((err) => console.error('[IeltsSoundDetailScreen] Silent progress update failed:', err));
     }
   }, [user, sound]);
 
@@ -437,14 +433,17 @@ export default function SoundDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* ── Header ── */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
           <Ionicons name="chevron-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
-        <View style={[styles.symbolBadge, { backgroundColor: colors.bg }]}>
+        <Animated.View
+          entering={FadeIn}
+          style={[styles.symbolBadge, { backgroundColor: colors.bg }]}
+        >
           <Text style={[styles.symbolText, { color: colors.text }]}>{decoded}</Text>
-        </View>
+        </Animated.View>
         <View style={styles.headerMeta}>
           <Text style={styles.symbolLabel}>/{decoded}/</Text>
           <Text style={styles.typeLabel}>{typeLabel}</Text>
@@ -460,7 +459,7 @@ export default function SoundDetailScreen() {
         </View>
       )}
 
-      {/* ── Tip banner ── */}
+      {/* Tip */}
       <View style={styles.tipBanner}>
         <Ionicons name="bulb-outline" size={16} color={COLORS.primary} />
         <Text style={styles.tipText}>
@@ -468,7 +467,7 @@ export default function SoundDetailScreen() {
         </Text>
       </View>
 
-      {/* ── Practice words ── */}
+      {/* Practice words */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -478,7 +477,6 @@ export default function SoundDetailScreen() {
         }
       >
         <Text style={styles.sectionLabel}>PRACTICE WORDS</Text>
-
         {loading && !refreshing ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={COLORS.primary} />
@@ -520,7 +518,6 @@ export default function SoundDetailScreen() {
             <Text style={styles.loginSub}>Create an account to get AI pronunciation feedback.</Text>
           </View>
         )}
-
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
@@ -695,10 +692,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: COLORS.primary + '40',
   },
-  micBtnActive: {
-    backgroundColor: '#EF4444',
-    borderColor: '#DC2626',
-  },
+  micBtnActive: { backgroundColor: '#EF4444', borderColor: '#DC2626' },
   recordingDot: {
     position: 'absolute',
     top: 6,
@@ -736,11 +730,7 @@ const styles = StyleSheet.create({
   emptyContainer: { paddingVertical: 40, alignItems: 'center' },
   emptyText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm, fontFamily: FONTS.regular },
 
-  loginPrompt: {
-    alignItems: 'center',
-    paddingVertical: 48,
-    gap: SPACING.sm,
-  },
+  loginPrompt: { alignItems: 'center', paddingVertical: 48, gap: SPACING.sm },
   loginTitle: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, color: COLORS.text },
   loginSub: {
     fontSize: FONT_SIZES.sm,

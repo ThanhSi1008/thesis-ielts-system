@@ -44,9 +44,9 @@ const NAV_ITEMS = [
     icon: 'book-outline' as const,
     route: '#',
     children: [
-      { key: 'pronunciation', label: 'Pronunciation', route: '/(tabs)/pronunciation' },
-      { key: 'vocabulary', label: 'Vocabulary', route: '/(tabs)/vocabulary' },
-      { key: 'grammar', label: 'Grammar', route: '/(tabs)/grammar' },
+      { key: 'pronunciation', label: 'Pronunciation', route: ROUTES.foundationPronunciation },
+      { key: 'vocabulary', label: 'Vocabulary', route: ROUTES.foundationVocabulary },
+      { key: 'grammar', label: 'Grammar', route: ROUTES.foundationGrammar },
     ],
   },
   {
