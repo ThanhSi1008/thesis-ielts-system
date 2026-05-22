@@ -15,7 +15,8 @@ import {
   Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import {COLORS, FONTS, ROUTES, RADIUS} from '@/constants';
+import {FONTS, ROUTES, RADIUS, ThemeTokens} from '@/constants';
+import { useThemedStyles } from '@/hooks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -99,7 +100,7 @@ export default function ProfileScreen() {
     setTheme(value ? 'dark' : 'light');
   };
 
-  const styles = dynamicStyles(isDarkMode);
+  const styles = useThemedStyles(createStyles);
 
   // Data states
   const [stats, setStats] = useState({ streak: 0, words: 0, accuracy: 0 });
@@ -284,7 +285,7 @@ export default function ProfileScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[COLORS.primary]}
+              colors={[colors.primary]}
             />
           }
         >
@@ -351,34 +352,35 @@ export default function ProfileScreen() {
   );
 }
 
-function dynamicStyles(isDark: boolean) {
+const createStyles = (colors: ThemeTokens) => {
+  const isDark = colors.statusBar === 'light-content';
   return StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: isDark ? '#0F172A' : '#FFF',
+      backgroundColor: colors.background,
     },
     flex1: { flex: 1 },
     container: {
       flex: 1,
-      backgroundColor: isDark ? '#020617' : '#F8F9FA',
+      backgroundColor: colors.bgSubtle,
     },
     header: {
       paddingHorizontal: 20,
       paddingTop: 16,
       paddingBottom: 12,
-      backgroundColor: isDark ? '#0F172A' : '#FFF',
+      backgroundColor: colors.background,
     },
     pageTitle: {
       fontFamily: FONTS.bold,
       fontSize: 28,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
     },
     tabContainer: {
       flexDirection: 'row',
-      backgroundColor: isDark ? '#0F172A' : '#FFF',
+      backgroundColor: colors.background,
       paddingHorizontal: 16,
       borderBottomWidth: 1,
-      borderBottomColor: isDark ? '#1E293B' : '#F1F5F9',
+      borderBottomColor: colors.border,
     },
     tab: {
       paddingVertical: 12,
@@ -387,15 +389,15 @@ function dynamicStyles(isDark: boolean) {
       borderBottomColor: 'transparent',
     },
     activeTab: {
-      borderBottomColor: COLORS.primary,
+      borderBottomColor: colors.primary,
     },
     tabText: {
       fontFamily: FONTS.medium,
       fontSize: 15,
-      color: '#64748B',
+      color: colors.textSecondary,
     },
     activeTabText: {
-      color: COLORS.primary,
+      color: colors.primary,
       fontFamily: FONTS.bold,
     },
     section: {
@@ -418,7 +420,7 @@ function dynamicStyles(isDark: boolean) {
       position: 'absolute',
       bottom: 0,
       right: 0,
-      backgroundColor: COLORS.primary,
+      backgroundColor: colors.primary,
       padding: 6,
       borderRadius: 16,
       borderWidth: 2,
@@ -432,7 +434,7 @@ function dynamicStyles(isDark: boolean) {
     name: {
       fontFamily: FONTS.bold,
       fontSize: 22,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
     },
     badge: {
       flexDirection: 'row',
@@ -456,14 +458,14 @@ function dynamicStyles(isDark: boolean) {
     email: {
       fontFamily: FONTS.regular,
       fontSize: 14,
-      color: isDark ? '#94A3B8' : '#64748B',
+      color: colors.textSecondary,
       marginTop: 2,
       marginBottom: 12,
     },
     streakBadge: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: isDark ? '#450a0a' : '#FEF2F2',
+      backgroundColor: colors.errorBg,
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 16,
@@ -472,15 +474,15 @@ function dynamicStyles(isDark: boolean) {
     streakBadgeText: {
       fontFamily: FONTS.bold,
       fontSize: 13,
-      color: isDark ? '#f87171' : '#EF4444',
+      color: colors.error,
     },
     card: {
-      backgroundColor: isDark ? '#1E293B' : '#FFF',
+      backgroundColor: colors.card,
       borderRadius: 16,
       padding: 20,
       marginBottom: 16,
       borderWidth: 1,
-      borderColor: isDark ? '#334155' : '#E2E8F0',
+      borderColor: colors.border,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: isDark ? 0.3 : 0.03,
@@ -490,7 +492,7 @@ function dynamicStyles(isDark: boolean) {
     cardTitle: {
       fontFamily: FONTS.bold,
       fontSize: 16,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
       marginBottom: 16,
     },
     inputGroup: {
@@ -499,26 +501,26 @@ function dynamicStyles(isDark: boolean) {
     label: {
       fontFamily: FONTS.medium,
       fontSize: 13,
-      color: isDark ? '#94A3B8' : '#475569',
+      color: colors.textSecondary,
       marginBottom: 6,
     },
     input: {
-      backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+      backgroundColor: colors.bgSubtle,
       borderWidth: 1,
-      borderColor: isDark ? '#334155' : '#E2E8F0',
+      borderColor: colors.border,
       borderRadius: 12,
       paddingHorizontal: 16,
       paddingVertical: 12,
       fontFamily: FONTS.regular,
       fontSize: 15,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
     },
     inputDisabled: {
-      backgroundColor: isDark ? '#1E293B' : '#F1F5F9',
-      color: isDark ? '#64748B' : '#94A3B8',
+      backgroundColor: isDark ? colors.surface : colors.bgSubtle,
+      color: colors.textDisabled,
     },
     saveBtn: {
-      backgroundColor: COLORS.primary,
+      backgroundColor: colors.primary,
       borderRadius: 12,
       paddingVertical: 14,
       alignItems: 'center',
@@ -533,21 +535,21 @@ function dynamicStyles(isDark: boolean) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+      backgroundColor: colors.bgSubtle,
       padding: 16,
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: isDark ? '#334155' : '#E2E8F0',
+      borderColor: colors.border,
     },
     subTier: {
       fontFamily: FONTS.bold,
       fontSize: 15,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
     },
     subDesc: {
       fontFamily: FONTS.regular,
       fontSize: 12,
-      color: isDark ? '#94A3B8' : '#64748B',
+      color: colors.textSecondary,
       marginTop: 2,
     },
     upgradeBtn: {
@@ -611,7 +613,7 @@ function dynamicStyles(isDark: boolean) {
     sectionTitle: {
       fontFamily: FONTS.bold,
       fontSize: 18,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
       marginTop: 8,
       marginBottom: 16,
       paddingHorizontal: 4,
@@ -625,11 +627,11 @@ function dynamicStyles(isDark: boolean) {
     statBox: {
       flex: 1,
       minWidth: '45%',
-      backgroundColor: isDark ? '#1E293B' : '#FFF',
+      backgroundColor: colors.card,
       padding: 16,
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: isDark ? '#334155' : '#E2E8F0',
+      borderColor: colors.border,
       alignItems: 'center',
     },
     statIcon: {
@@ -638,12 +640,12 @@ function dynamicStyles(isDark: boolean) {
     statValue: {
       fontFamily: FONTS.bold,
       fontSize: 20,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
     },
     statLabel: {
       fontFamily: FONTS.regular,
       fontSize: 12,
-      color: isDark ? '#94A3B8' : '#64748B',
+      color: colors.textSecondary,
       marginTop: 4,
     },
     achievementsList: {
@@ -651,11 +653,11 @@ function dynamicStyles(isDark: boolean) {
     },
     achCard: {
       flexDirection: 'row',
-      backgroundColor: isDark ? '#1E293B' : '#FFF',
+      backgroundColor: colors.card,
       padding: 16,
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: isDark ? '#334155' : '#E2E8F0',
+      borderColor: colors.border,
       alignItems: 'center',
     },
     achCardLocked: {
@@ -665,7 +667,7 @@ function dynamicStyles(isDark: boolean) {
       width: 48,
       height: 48,
       borderRadius: 12,
-      backgroundColor: isDark ? '#422006' : '#FEF3C7',
+      backgroundColor: colors.warningBg,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: 16,
@@ -679,17 +681,17 @@ function dynamicStyles(isDark: boolean) {
     achTitle: {
       fontFamily: FONTS.bold,
       fontSize: 15,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
     },
     achDesc: {
       fontFamily: FONTS.regular,
       fontSize: 13,
-      color: isDark ? '#94A3B8' : '#64748B',
+      color: colors.textSecondary,
       marginTop: 2,
     },
     achProgressBg: {
       height: 4,
-      backgroundColor: isDark ? '#334155' : '#E2E8F0',
+      backgroundColor: colors.border,
       borderRadius: 2,
       marginTop: 8,
       width: '80%',
@@ -713,7 +715,7 @@ function dynamicStyles(isDark: boolean) {
       alignItems: 'center',
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderBottomColor: isDark ? '#334155' : '#F1F5F9',
+      borderBottomColor: colors.border,
     },
     settingLeft: {
       flexDirection: 'row',
@@ -723,11 +725,11 @@ function dynamicStyles(isDark: boolean) {
     settingText: {
       fontFamily: FONTS.medium,
       fontSize: 15,
-      color: isDark ? '#F8FAFC' : '#1E293B',
+      color: colors.text,
     },
     outlineBtn: {
       borderWidth: 1,
-      borderColor: COLORS.primary,
+      borderColor: colors.primary,
       borderRadius: 12,
       paddingVertical: 14,
       alignItems: 'center',
@@ -736,7 +738,7 @@ function dynamicStyles(isDark: boolean) {
     outlineBtnText: {
       fontFamily: FONTS.bold,
       fontSize: 15,
-      color: COLORS.primary,
+      color: colors.primary,
     },
     dangerCard: {
       borderColor: isDark ? '#7f1d1d' : '#FECACA',
@@ -812,20 +814,20 @@ function dynamicStyles(isDark: boolean) {
     guestTitle: {
       fontFamily: FONTS.bold,
       fontSize: 24,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
       marginTop: 16,
       marginBottom: 8,
     },
     guestDesc: {
       fontFamily: FONTS.regular,
       fontSize: 15,
-      color: isDark ? '#94A3B8' : '#64748B',
+      color: colors.textSecondary,
       textAlign: 'center',
       marginBottom: 32,
       lineHeight: 22,
     },
     primaryBtn: {
-      backgroundColor: COLORS.primary,
+      backgroundColor: colors.primary,
       paddingHorizontal: 32,
       paddingVertical: 16,
       borderRadius: RADIUS.full,
@@ -848,12 +850,12 @@ function dynamicStyles(isDark: boolean) {
     googleTitle: {
       fontFamily: FONTS.bold,
       fontSize: 15,
-      color: isDark ? '#F8FAFC' : '#0F172A',
+      color: colors.text,
     },
     googleDesc: {
       fontFamily: FONTS.regular,
       fontSize: 13,
-      color: isDark ? '#94A3B8' : '#64748B',
+      color: colors.textSecondary,
     },
   });
-}
+};

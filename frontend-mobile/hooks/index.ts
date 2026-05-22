@@ -8,3 +8,5 @@ export { useWritingAutosave } from './useWritingAutosave';
 export { useTimer } from './useTimer';
 
 export { useShadowingLessons } from './useShadowingLessons';
+export { useThemedStyles } from './useThemedStyles';
+

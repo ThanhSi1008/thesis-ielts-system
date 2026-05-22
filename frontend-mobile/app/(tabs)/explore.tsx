@@ -124,7 +124,11 @@ export default function ExploreTab() {
           }}
         >
           <LinearGradient
-            colors={['#1E293B', '#0F172A']}
+            colors={
+              (colors.statusBar === 'light-content'
+                ? ['#1E293B', '#0F172A']
+                : [colors.primary, '#FFA000']) as [string, string]
+            }
             style={{ ...fillObject }}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -132,7 +136,10 @@ export default function ExploreTab() {
           <View style={{ zIndex: 2 }}>
             <View
               style={{
-                backgroundColor: 'rgba(255,255,255,0.15)',
+                backgroundColor:
+                  colors.statusBar === 'light-content'
+                    ? 'rgba(255,255,255,0.15)'
+                    : 'rgba(0,0,0,0.1)',
                 paddingHorizontal: 8,
                 paddingVertical: 4,
                 borderRadius: 6,
@@ -141,13 +148,23 @@ export default function ExploreTab() {
               }}
             >
               <Text
-                style={{ fontFamily: FONTS.bold, fontSize: 10, color: '#E2E8F0', letterSpacing: 1 }}
+                style={{
+                  fontFamily: FONTS.bold,
+                  fontSize: 10,
+                  color: colors.statusBar === 'light-content' ? '#E2E8F0' : '#FFF',
+                  letterSpacing: 1,
+                }}
               >
                 FEATURED
               </Text>
             </View>
             <Text
-              style={{ fontFamily: FONTS.bold, fontSize: 22, color: '#FFF', marginBottom: 8 }}
+              style={{
+                fontFamily: FONTS.bold,
+                fontSize: 22,
+                color: colors.statusBar === 'light-content' ? '#FFF' : '#1E293B',
+                marginBottom: 8,
+              }}
             >
               Vocab Lab is here!
             </Text>
@@ -155,7 +172,7 @@ export default function ExploreTab() {
               style={{
                 fontFamily: FONTS.regular,
                 fontSize: 14,
-                color: '#94A3B8',
+                color: colors.statusBar === 'light-content' ? '#94A3B8' : '#475569',
                 marginBottom: 20,
                 lineHeight: 20,
                 width: '85%',
@@ -166,7 +183,7 @@ export default function ExploreTab() {
             <Link href={ROUTES.vocabLab} asChild>
               <TouchableOpacity
                 style={{
-                  backgroundColor: '#FFF',
+                  backgroundColor: colors.statusBar === 'light-content' ? '#FFF' : '#1E293B',
                   paddingVertical: 10,
                   paddingHorizontal: 16,
                   borderRadius: 12,
@@ -176,18 +193,36 @@ export default function ExploreTab() {
                   gap: 6,
                 }}
               >
-                <Text style={{ fontFamily: FONTS.bold, fontSize: 14, color: '#0F172A' }}>
+                <Text
+                  style={{
+                    fontFamily: FONTS.bold,
+                    fontSize: 14,
+                    color: colors.statusBar === 'light-content' ? '#0F172A' : '#FFF',
+                  }}
+                >
                   Try it now
                 </Text>
-                <Ionicons name="arrow-forward" size={14} color="#0F172A" />
+                <Ionicons
+                  name="arrow-forward"
+                  size={14}
+                  color={colors.statusBar === 'light-content' ? '#0F172A' : '#FFF'}
+                />
               </TouchableOpacity>
             </Link>
           </View>
           <Ionicons
             name="flask"
             size={100}
-            color="rgba(255,255,255,0.05)"
-            style={{ position: 'absolute', right: -20, bottom: -20, zIndex: 1, transform: [{ rotate: '-10deg' }] }}
+            color={
+              colors.statusBar === 'light-content' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'
+            }
+            style={{
+              position: 'absolute',
+              right: -20,
+              bottom: -20,
+              zIndex: 1,
+              transform: [{ rotate: '-10deg' }],
+            }}
           />
         </View>
 

@@ -2,7 +2,7 @@ import { Tabs, Link } from 'expo-router';
 import React from 'react';
 import { Platform, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONTS } from '@/constants';
+import { FONTS } from '@/constants';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -16,7 +16,7 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: COLORS.primary,
+          tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.textSecondary,
           tabBarStyle: {
             height: Platform.OS === 'ios' ? 88 : 64,

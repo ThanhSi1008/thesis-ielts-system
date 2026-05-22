@@ -25,6 +25,16 @@ export interface ThemeTokens {
   
   // Platform preferences
   statusBar: 'dark-content' | 'light-content';
+
+  // New Semantic Tokens
+  bgElevated: string;
+  bgSubtle: string;
+  bgInverse: string;
+  textOnAccent: string;
+  textInverse: string;
+  borderStrong: string;
+  borderInteractive: string;
+  overlay: string;
 }
 
 export const LIGHT_TOKENS: ThemeTokens = {
@@ -52,6 +62,16 @@ export const LIGHT_TOKENS: ThemeTokens = {
   infoBg: '#E0F2FE',
   
   statusBar: 'dark-content',
+
+  // New Semantic Tokens
+  bgElevated: '#FFFFFF',
+  bgSubtle: '#F1F5F9',
+  bgInverse: '#0F172A',
+  textOnAccent: '#212529',
+  textInverse: '#F8FAFC',
+  borderStrong: '#94A3B8',
+  borderInteractive: '#FFC600',
+  overlay: 'rgba(0, 0, 0, 0.5)',
 };
 
 export const DARK_TOKENS: ThemeTokens = {
@@ -79,4 +99,15 @@ export const DARK_TOKENS: ThemeTokens = {
   infoBg: '#0C4A6E', // Deep rich blue
   
   statusBar: 'light-content',
+
+  // New Semantic Tokens
+  bgElevated: '#1E293B',
+  bgSubtle: '#0F172A',
+  bgInverse: '#FFFFFF',
+  textOnAccent: '#0F172A',
+  textInverse: '#0F172A',
+  borderStrong: '#475569',
+  borderInteractive: '#FFC600',
+  overlay: 'rgba(0, 0, 0, 0.7)',
 };
+

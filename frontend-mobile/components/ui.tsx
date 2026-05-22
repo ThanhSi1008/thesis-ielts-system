@@ -17,6 +17,9 @@ interface ButtonProps {
   fullWidth?: boolean;
 }
 
+/**
+ * @deprecated Use AppButton from '@/components/ui' or appropriate button from '@/components/atoms' instead
+ */
 export function Button({
   title,
   onPress,
@@ -73,6 +76,9 @@ interface BadgeProps {
   bg?: string;
 }
 
+/**
+ * @deprecated Use Badge from '@/components/atoms' instead
+ */
 export function Badge({ label, color = COLORS.primary, bg }: BadgeProps) {
   return (
     <View style={[styles.badge, { backgroundColor: bg || color + '18' }]}>
@@ -88,6 +94,9 @@ interface SectionHeaderProps {
   right?: React.ReactNode;
 }
 
+/**
+ * @deprecated Use SectionHeader from '@/components/atoms' instead
+ */
 export function SectionHeader({ title, subtitle, right }: SectionHeaderProps) {
   return (
     <View style={styles.sectionHeader}>
@@ -108,6 +117,9 @@ interface EmptyStateProps {
   action?: { label: string; onPress: () => void };
 }
 
+/**
+ * @deprecated Use EmptyState from '@/components/atoms' instead
+ */
 export function EmptyState({ icon = '📭', title, subtitle, action }: EmptyStateProps) {
   return (
     <View style={styles.emptyState}>
@@ -124,6 +136,9 @@ export function EmptyState({ icon = '📭', title, subtitle, action }: EmptyStat
 }
 
 // ─── Divider ──────────────────────────────────────────────────────────────────
+/**
+ * @deprecated Use Divider from '@/components/atoms' instead
+ */
 export function Divider({ vertical = false }: { vertical?: boolean }) {
   return <View style={vertical ? styles.dividerVertical : styles.dividerHorizontal} />;
 }
@@ -136,6 +151,9 @@ interface ChipProps {
   icon?: string;
 }
 
+/**
+ * @deprecated Use Chip from '@/components/atoms' instead
+ */
 export function Chip({ label, active, onPress, icon }: ChipProps) {
   return (
     <TouchableOpacity
@@ -150,6 +168,9 @@ export function Chip({ label, active, onPress, icon }: ChipProps) {
 }
 
 // ─── Score Badge ──────────────────────────────────────────────────────────────
+/**
+ * @deprecated Use ScoreBadge from '@/components/atoms' instead
+ */
 export function ScoreBadge({ band }: { band: number }) {
   const color = band >= 7 ? COLORS.success : band >= 5.5 ? COLORS.primary : COLORS.warning;
   return (
