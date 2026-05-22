@@ -9,7 +9,7 @@ import {
   TextInput,
   RefreshControl,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,6 +29,7 @@ const STATUS_FILTERS = [
 
 export default function ShadowingScreen() {
   const router = useRouter();
+  const { mode: initialMode } = useLocalSearchParams<{ mode: 'shadowing' | 'dictation' }>();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
@@ -56,7 +57,7 @@ export default function ShadowingScreen() {
     setDeleteConfirmVisible,
     videoToDelete,
     executeDeleteVideo,
-  } = useShadowingLessons();
+  } = useShadowingLessons(initialMode);
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.surface },

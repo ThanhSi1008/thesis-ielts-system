@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useShadowingMode } from '@/hooks';
+import { useShadowingMode, getHintText } from '@/hooks';
 import { ConfirmDialog } from '@/components';
 import { Waveform } from '@/components/voice/Waveform';
 import { RecordButton } from '@/components/voice/RecordButton';
@@ -38,17 +38,32 @@ export default function ShadowingPracticeScreen() {
   const { lessonId, mode } = useLocalSearchParams<{ lessonId: string; mode: string }>();
 
   const {
+    userInputs,
+    setUserInputs,
+    isChecked,
+    setIsChecked,
+    isAllCorrect,
+    setIsAllCorrect,
+    hintLevels,
+    setHintLevels,
+    hiddenIndices,
+    requestHint,
+    checkAnswers,
+    retry,
+    handleInputChange,
     isShadowing,
     lesson,
     loading,
     currentIdx,
     setCurrentIdx,
     completed,
+    setCompleted,
     dictationInput,
     setDictationInput,
     showAnswer,
     setShowAnswer,
     saving,
+    setSaving,
     sentences,
     current,
     progress,
@@ -61,8 +76,11 @@ export default function ShadowingPracticeScreen() {
     difficulty,
     setDifficulty,
     revealedWords,
+    setRevealedWords,
     sentenceCorrect,
+    setSentenceCorrect,
     currentSentenceWords,
+    normalizeWord,
     handleSeekPress,
     formatTimeStr,
     userWords,
@@ -78,11 +96,14 @@ export default function ShadowingPracticeScreen() {
     handleNext,
     audioRecorder,
     pronunciationChecker,
-    normalizeWord,
     handleYoutubeStateChange,
     showFinishDialog,
     setShowFinishDialog,
   } = useShadowingMode({ lessonId, mode, userId: user?.id });
+
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [showPhonetics, setShowPhonetics] = useState(true);
+  const inputsRef = useRef<Record<number, TextInput | null>>({});
 
   const styles = createStyles(colors);
 
@@ -250,7 +271,40 @@ export default function ShadowingPracticeScreen() {
         <View style={styles.sentenceCard}>
           {isShadowing ? (
             <>
-              {/* Shadowing: show English, tap word to dictionary */}
+              {/* Sleek toggles */}
+              <View style={styles.toggleRow}>
+                {current?.phonetic ? (
+                  <TouchableOpacity
+                    style={[styles.toggleBtn, showPhonetics && styles.toggleBtnActive]}
+                    onPress={() => setShowPhonetics(!showPhonetics)}
+                  >
+                    <Ionicons
+                      name="language"
+                      size={16}
+                      color={showPhonetics ? '#fff' : colors.textSecondary}
+                    />
+                    <Text style={[styles.toggleBtnText, showPhonetics && styles.toggleBtnTextActive]}>
+                      IPA
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+
+                <TouchableOpacity
+                  style={[styles.toggleBtn, showTranslation && styles.toggleBtnActive]}
+                  onPress={() => setShowTranslation(!showTranslation)}
+                >
+                  <Ionicons
+                    name={showTranslation ? 'eye' : 'eye-off'}
+                    size={16}
+                    color={showTranslation ? '#fff' : colors.textSecondary}
+                  />
+                  <Text style={[styles.toggleBtnText, showTranslation && styles.toggleBtnTextActive]}>
+                    Dịch
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* English sentence with word-by-word coloring against spoken transcript */}
               <View
                 style={styles.clickableSentence}
                 accessible={true}
@@ -258,28 +312,54 @@ export default function ShadowingPracticeScreen() {
                 accessibilityLabel={`Target English sentence: ${sentences[currentIdx]?.english || ''}`}
                 accessibilityHint="Review this sentence. Tap individual words below to look them up in the dictionary."
               >
-                {currentSentenceWords.map((word: string, i: number) => (
-                  <TouchableOpacity
-                    key={i}
-                    onPress={() => handleWordTap(word)}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel={word}
-                    accessibilityHint="Tap to lookup word in dictionary"
-                  >
-                    <Text style={styles.sentenceEnglishWord} allowFontScaling={true}>{word}</Text>
-                  </TouchableOpacity>
-                ))}
+                {currentSentenceWords.map((word: string, i: number) => {
+                  const spokenWords = spokenTranscript.trim().split(/\s+/).filter(w => w.length > 0);
+                  let wordColor = colors.text;
+                  let decorationLine: 'none' | 'underline' = 'none';
+
+                  if (spokenWords.length > 0) {
+                    const typed = normalizeWord(spokenWords[i] || '');
+                    const correct = normalizeWord(word);
+                    if (typed === correct) {
+                      wordColor = '#10B981'; // Emerald Green
+                    } else if (i < spokenWords.length) {
+                      wordColor = '#EF4444'; // Crimson Red
+                      decorationLine = 'underline';
+                    }
+                  }
+
+                  return (
+                    <TouchableOpacity
+                      key={i}
+                      onPress={() => handleWordTap(word)}
+                      accessible={true}
+                      accessibilityRole="button"
+                      accessibilityLabel={word}
+                      accessibilityHint="Tap to lookup word in dictionary"
+                    >
+                      <Text
+                        style={[
+                          styles.sentenceEnglishWord,
+                          { color: wordColor, textDecorationLine: decorationLine },
+                        ]}
+                        allowFontScaling={true}
+                      >
+                        {word}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-              {current?.phonetic && (
+
+              {showPhonetics && current?.phonetic ? (
                 <Text
                   style={styles.phonetic}
                   allowFontScaling={true}
                   accessibilityLabel={`Phonetic transcription: ${current.phonetic}`}
                 >
-                  {current.phonetic}
+                  /{current.phonetic}/
                 </Text>
-              )}
+              ) : null}
 
               {/* AI Waveform when recording */}
               {(isRecording || audioRecorder.isRecording) && (
@@ -356,19 +436,7 @@ export default function ShadowingPracticeScreen() {
                 </View>
               )}
 
-              <TouchableOpacity
-                style={styles.revealBtn}
-                onPress={() => setShowAnswer((v) => !v)}
-                accessible={true}
-                accessibilityRole="button"
-                accessibilityLabel={showAnswer ? 'Hide translation' : 'Show translation'}
-                accessibilityHint="Toggles visibility of the Vietnamese translation for this sentence"
-              >
-                <Text style={styles.revealLabel} allowFontScaling={true}>
-                  {showAnswer ? 'Hide translation' : 'Show translation'}
-                </Text>
-              </TouchableOpacity>
-              {showAnswer && (
+              {showTranslation && current?.vietnamese ? (
                 <Text
                   style={styles.sentenceViet}
                   allowFontScaling={true}
@@ -376,7 +444,7 @@ export default function ShadowingPracticeScreen() {
                 >
                   {current?.vietnamese}
                 </Text>
-              )}
+              ) : null}
             </>
           ) : (
             <>
@@ -410,96 +478,199 @@ export default function ShadowingPracticeScreen() {
                 </View>
               </View>
 
-              <View
-                style={styles.wordList}
-                accessible={true}
-                accessibilityLabel="Dictation target words"
-                accessibilityHint="Review correct and incorrect words in the dictated sentence below"
-              >
-                {currentSentenceWords.map((word: string, i: number) => {
-                  const isRevealed = revealedWords.has(i);
-                  const isPending = i >= userWords.length;
-                  const typed = normalizeWord(userWords[i] || '');
-                  const correct = normalizeWord(word);
-                  const isCorrect = typed === correct;
+              {/* Inline flow dictation words */}
+              <View style={styles.dictationFlowContainer}>
+                {currentSentenceWords.map((word: string, idx: number) => {
+                  const isHidden = hiddenIndices.has(idx);
+                  const rawCorrect = word;
+                  const normCorrect = normalizeWord(word);
+                  const userInput = userInputs[idx] || '';
+                  const isMatch = normalizeWord(userInput) === normCorrect;
+                  const wordHintLevel = hintLevels[idx] ?? 0;
 
-                  let boxStyle: any = styles.wordBoxPending;
-                  let textColor: string = COLORS.text;
-                  let displayText = isRevealed ? word : '*'.repeat(word.length);
-                  let stateText = "pending";
+                  if (!isHidden) {
+                    return (
+                      <Text
+                        key={idx}
+                        style={styles.dictationStaticText}
+                        allowFontScaling={true}
+                      >
+                        {rawCorrect}
+                      </Text>
+                    );
+                  }
 
-                  if (!isRevealed && !isPending) {
-                    if (isCorrect) {
-                      boxStyle = styles.wordBoxCorrect;
-                      displayText = word;
-                      textColor = COLORS.success;
-                      stateText = "correct";
+                  let inputBg = colors.surface;
+                  let inputBorder = colors.border;
+                  let inputTextColor = colors.text;
+
+                  if (!isChecked && wordHintLevel > 0) {
+                    // Amber/Orange for hints
+                    inputBg = '#FFF8E1';
+                    inputBorder = '#FFE082';
+                  }
+
+                  if (isChecked) {
+                    if (isMatch) {
+                      // Correct: green
+                      inputBg = '#E8F5E9';
+                      inputBorder = '#81C784';
+                      inputTextColor = '#2E7D32';
                     } else {
-                      boxStyle = styles.wordBoxIncorrect;
-                      displayText = userWords[i];
-                      textColor = COLORS.error;
-                      stateText = `incorrect: you typed ${userWords[i] || 'nothing'}`;
+                      // Incorrect: red
+                      inputBg = '#FFEBEE';
+                      inputBorder = '#E57373';
+                      inputTextColor = '#C62828';
                     }
                   }
 
-                  if (sentenceCorrect) {
-                    boxStyle = styles.wordBoxCorrect;
-                    displayText = word;
-                    textColor = COLORS.success;
-                    stateText = "correct";
-                  }
+                  const charWidth = 13; // average width of character
+                  const computedWidth = Math.max(rawCorrect.length, userInput.length, 3) * charWidth + 24;
 
                   return (
-                    <TouchableOpacity
-                      key={i}
-                      onPress={() => handleWordTap(word)}
-                      style={[styles.wordBox, boxStyle]}
-                      accessible={true}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Word ${i + 1}: ${displayText}`}
-                      accessibilityHint={`Status: ${stateText}. Double tap to look up word definition.`}
-                    >
-                      <Text style={[styles.wordText, { color: textColor }]} allowFontScaling={true}>{displayText}</Text>
-                    </TouchableOpacity>
+                    <View key={idx} style={styles.dictationWordWrapper}>
+                      <View style={styles.dictationInputContainer}>
+                        <TextInput
+                          ref={(el) => {
+                            inputsRef.current[idx] = el;
+                          }}
+                          value={userInput}
+                          onChangeText={(val) => {
+                            if (val.endsWith(' ')) {
+                              const cleanVal = val.trim();
+                              handleInputChange(idx, cleanVal);
+                              // Focus next
+                              const nextIndex = Array.from(hiddenIndices)
+                                .sort((a, b) => a - b)
+                                .find((i) => i > idx);
+                              if (nextIndex !== undefined) {
+                                inputsRef.current[nextIndex]?.focus();
+                              }
+                            } else {
+                              handleInputChange(idx, val);
+                            }
+                          }}
+                          onSubmitEditing={() => {
+                            const nextIndex = Array.from(hiddenIndices)
+                              .sort((a, b) => a - b)
+                              .find((i) => i > idx);
+                            if (nextIndex !== undefined) {
+                              inputsRef.current[nextIndex]?.focus();
+                            }
+                          }}
+                          onKeyPress={({ nativeEvent }) => {
+                            if (nativeEvent.key === 'Backspace' && userInput === '') {
+                              const prevIndex = Array.from(hiddenIndices)
+                                .sort((a, b) => b - a)
+                                .find((i) => i < idx);
+                              if (prevIndex !== undefined) {
+                                inputsRef.current[prevIndex]?.focus();
+                              }
+                            }
+                          }}
+                          editable={!isChecked}
+                          style={[
+                            styles.dictationInlineInput,
+                            {
+                              width: computedWidth,
+                              backgroundColor: inputBg,
+                              borderColor: inputBorder,
+                              color: inputTextColor,
+                            },
+                          ]}
+                          placeholder={getHintText(rawCorrect, wordHintLevel)}
+                          placeholderTextColor="#94A3B8"
+                          autoCapitalize="none"
+                          autoCorrect={false}
+                          spellCheck={false}
+                          accessible={true}
+                          accessibilityLabel={`Word ${idx + 1} dictation input`}
+                        />
+
+                        {!isChecked && (
+                          <TouchableOpacity
+                            style={[
+                              styles.hintBulbBtn,
+                              wordHintLevel > 0 && styles.hintBulbBtnActive,
+                            ]}
+                            onPress={() => requestHint(idx)}
+                          >
+                            <Ionicons
+                              name="bulb"
+                              size={12}
+                              color={wordHintLevel > 0 ? '#F59E0B' : colors.textMuted}
+                            />
+                            {wordHintLevel > 0 && wordHintLevel < 3 ? (
+                              <Text style={styles.hintLevelText}>{wordHintLevel}</Text>
+                            ) : null}
+                          </TouchableOpacity>
+                        )}
+                      </View>
+
+                      {isChecked && !isMatch && (
+                        <View style={styles.dictCorrectTooltip}>
+                          <Text style={styles.dictCorrectTooltipText}>{rawCorrect}</Text>
+                        </View>
+                      )}
+                    </View>
                   );
                 })}
               </View>
 
-              <TextInput
-                style={[styles.dictationInput, sentenceCorrect && styles.dictationInputCorrect]}
-                value={dictationInput}
-                onChangeText={setDictationInput}
-                placeholder="Type the sentence here…"
-                placeholderTextColor={COLORS.textMuted}
-                multiline
-                editable={!sentenceCorrect}
-                autoCorrect={false}
-                spellCheck={false}
-                accessible={true}
-                accessibilityLabel="Dictation sentence input box"
-                accessibilityHint="Type what you hear in the audio, word by word"
-              />
+              {/* Action Buttons */}
+              <View style={styles.dictActionContainer}>
+                {!isChecked ? (
+                  <TouchableOpacity
+                    style={styles.checkAnswersBtn}
+                    onPress={checkAnswers}
+                  >
+                    <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
+                    <Text style={styles.checkAnswersBtnText}>Kiểm tra đáp án</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={styles.dictResultsContainer}>
+                    {!isAllCorrect ? (
+                      <TouchableOpacity
+                        style={styles.dictRetryBtn}
+                        onPress={retry}
+                      >
+                        <Ionicons name="refresh" size={20} color={COLORS.primary} />
+                        <Text style={styles.dictRetryBtnText}>Thử lại</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.successBannerInline}>
+                        <Ionicons name="checkmark-circle" size={24} color={SUCCESS_COLOR} />
+                        <Text style={styles.successTextInline}>Chính xác! Hoàn thành xuất sắc 🎉</Text>
+                      </View>
+                    )}
 
-              {sentenceCorrect && (
-                <View
-                  style={styles.successBanner}
-                  accessible={true}
-                  accessibilityLabel="Verification correct banner success"
-                >
-                  <Ionicons name="checkmark-circle" size={24} color={SUCCESS_COLOR} />
-                  <Text style={styles.successText} allowFontScaling={true}>Correct! Well done 🎉</Text>
-                </View>
-              )}
+                    <TouchableOpacity
+                      style={[
+                        styles.dictNextBtn,
+                        isAllCorrect && styles.dictNextBtnSuccess,
+                      ]}
+                      onPress={handleNext}
+                      disabled={saving}
+                    >
+                      <Text style={styles.dictNextBtnText}>
+                        {currentIdx === sentences.length - 1
+                          ? saving
+                            ? 'Đang lưu…'
+                            : 'Hoàn thành ✓'
+                          : 'Câu tiếp theo →'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
 
-              {sentenceCorrect && (
-                <View
-                  style={styles.answerReveal}
-                  accessible={true}
-                  accessibilityLabel={`Vietnamese Translation: ${current?.vietnamese}`}
-                >
-                  <Text style={styles.translateText} allowFontScaling={true}>{current?.vietnamese}</Text>
+              {isChecked && current?.vietnamese ? (
+                <View style={styles.answerReveal}>
+                  <Text style={styles.translateText} allowFontScaling={true}>
+                    {current?.vietnamese}
+                  </Text>
                 </View>
-              )}
+              ) : null}
             </>
           )}
         </View>
@@ -953,5 +1124,193 @@ const createStyles = (colors: any) =>
       color: colors.textSecondary,
       lineHeight: 28,
       fontFamily: FONTS.regular,
+    },
+
+    toggleRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: SPACING.md,
+      alignSelf: 'flex-start',
+    },
+    toggleBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: RADIUS.md,
+      backgroundColor: colors.surface,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+    },
+    toggleBtnActive: {
+      backgroundColor: COLORS.primary,
+      borderColor: COLORS.primary,
+    },
+    toggleBtnText: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+      color: colors.textSecondary,
+    },
+    toggleBtnTextActive: {
+      color: '#fff',
+    },
+
+    dictationFlowContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: SPACING.xl,
+    },
+    dictationStaticText: {
+      fontSize: 20,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+      marginVertical: 4,
+    },
+    dictationWordWrapper: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      position: 'relative',
+    },
+    dictationInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      position: 'relative',
+    },
+    dictationInlineInput: {
+      height: 38,
+      borderWidth: 1.5,
+      borderRadius: RADIUS.md,
+      paddingHorizontal: 8,
+      fontSize: 18,
+      fontFamily: FONTS.bold,
+      textAlign: 'center',
+      paddingVertical: 0,
+    },
+    hintBulbBtn: {
+      marginLeft: 4,
+      padding: 4,
+      borderRadius: RADIUS.sm,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+    },
+    hintBulbBtnActive: {
+      backgroundColor: '#FFFBEB',
+      borderColor: '#FCD34D',
+    },
+    hintLevelText: {
+      fontSize: 10,
+      fontFamily: FONTS.bold,
+      color: '#D97706',
+    },
+    dictCorrectTooltip: {
+      position: 'absolute',
+      top: 42,
+      alignSelf: 'center',
+      backgroundColor: colors.text,
+      borderRadius: RADIUS.sm,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      zIndex: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    dictCorrectTooltipText: {
+      fontSize: 12,
+      fontFamily: FONTS.bold,
+      color: colors.card,
+    },
+    dictActionContainer: {
+      marginTop: SPACING.md,
+      marginBottom: SPACING.md,
+    },
+    checkAnswersBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      backgroundColor: COLORS.primary,
+      height: 50,
+      borderRadius: RADIUS.xl,
+      shadowColor: COLORS.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    checkAnswersBtnText: {
+      color: '#fff',
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+    },
+    dictResultsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      width: '100%',
+    },
+    dictRetryBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      borderWidth: 1.5,
+      borderColor: COLORS.primary,
+      height: 50,
+      borderRadius: RADIUS.xl,
+      paddingHorizontal: 20,
+      backgroundColor: colors.card,
+    },
+    dictRetryBtnText: {
+      color: COLORS.primary,
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
+    },
+    successBannerInline: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: '#E8F5E9',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      borderColor: '#C8E6C9',
+      flex: 1,
+    },
+    successTextInline: {
+      fontSize: 13,
+      fontFamily: FONTS.bold,
+      color: '#2E7D32',
+    },
+    dictNextBtn: {
+      flex: 1,
+      height: 50,
+      borderRadius: RADIUS.xl,
+      backgroundColor: colors.textSecondary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dictNextBtnSuccess: {
+      backgroundColor: SUCCESS_COLOR,
+      shadowColor: SUCCESS_COLOR,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    dictNextBtnText: {
+      color: '#fff',
+      fontFamily: FONTS.bold,
+      fontSize: FONT_SIZES.md,
     },
   });

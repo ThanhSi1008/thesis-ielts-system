@@ -5,8 +5,14 @@ import { toast } from '@/components/ui/index';
 
 const POLL_INTERVAL_MS = 5000;
 
-export function useShadowingLessons() {
-  const [mode, setMode] = useState<'shadowing' | 'dictation'>('shadowing');
+export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
+  const [mode, setMode] = useState<'shadowing' | 'dictation'>(initialMode || 'shadowing');
+
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [initialMode]);
   const [tab, setTab] = useState<'library' | 'my-videos'>('library');
   const [status, setStatus] = useState('all');
   const [showSearch, setShowSearch] = useState(false);

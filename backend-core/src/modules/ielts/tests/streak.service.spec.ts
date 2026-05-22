@@ -367,4 +367,80 @@ describe('TC_STREAK', () => {
       });
     });
   });
+
+  describe('getStreak', () => {
+    it('returns default values if profile does not exist', async () => {
+      const prisma = makePrismaMock();
+      prisma.ieltsProfile.findUnique.mockResolvedValue(null);
+
+      const service = await buildService(prisma, makeNotificationsMock(), makeGamificationMock());
+      const result = await service.getStreak(USER_ID);
+
+      expect(result).toEqual({ currentStreak: 0, longestStreak: 0, lastActiveDate: null });
+      expect(prisma.ieltsProfile.findUnique).toHaveBeenCalledWith({
+        where: { userId: USER_ID },
+        select: {
+          currentStreak: true,
+          longestStreak: true,
+          lastActiveDate: true,
+        },
+      });
+    });
+
+    it('returns streak unmodified if lastActiveDate is null', async () => {
+      const prisma = makePrismaMock();
+      prisma.ieltsProfile.findUnique.mockResolvedValue({
+        currentStreak: 5,
+        longestStreak: 8,
+        lastActiveDate: null,
+      });
+
+      const service = await buildService(prisma, makeNotificationsMock(), makeGamificationMock());
+      const result = await service.getStreak(USER_ID);
+
+      expect(result).toEqual({ currentStreak: 5, longestStreak: 8, lastActiveDate: null });
+    });
+
+    it('returns streak unmodified if lastActiveDate is within 1 day (today)', async () => {
+      const prisma = makePrismaMock();
+      prisma.ieltsProfile.findUnique.mockResolvedValue({
+        currentStreak: 5,
+        longestStreak: 8,
+        lastActiveDate: TODAY,
+      });
+
+      const service = await buildService(prisma, makeNotificationsMock(), makeGamificationMock());
+      const result = await service.getStreak(USER_ID);
+
+      expect(result).toEqual({ currentStreak: 5, longestStreak: 8, lastActiveDate: TODAY });
+    });
+
+    it('returns streak unmodified if lastActiveDate is within 1 day (yesterday)', async () => {
+      const prisma = makePrismaMock();
+      prisma.ieltsProfile.findUnique.mockResolvedValue({
+        currentStreak: 5,
+        longestStreak: 8,
+        lastActiveDate: YESTERDAY,
+      });
+
+      const service = await buildService(prisma, makeNotificationsMock(), makeGamificationMock());
+      const result = await service.getStreak(USER_ID);
+
+      expect(result).toEqual({ currentStreak: 5, longestStreak: 8, lastActiveDate: YESTERDAY });
+    });
+
+    it('returns currentStreak = 0 if lastActiveDate is more than 1 day ago', async () => {
+      const prisma = makePrismaMock();
+      prisma.ieltsProfile.findUnique.mockResolvedValue({
+        currentStreak: 5,
+        longestStreak: 8,
+        lastActiveDate: TWO_DAYS_AGO,
+      });
+
+      const service = await buildService(prisma, makeNotificationsMock(), makeGamificationMock());
+      const result = await service.getStreak(USER_ID);
+
+      expect(result).toEqual({ currentStreak: 0, longestStreak: 8, lastActiveDate: TWO_DAYS_AGO });
+    });
+  });
 });
