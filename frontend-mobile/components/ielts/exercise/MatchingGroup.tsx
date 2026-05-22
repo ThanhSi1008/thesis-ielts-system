@@ -127,17 +127,33 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                 padding: SPACING.md,
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}
+              >
                 <View
                   style={{
                     minWidth: 24,
                     height: 24,
                     borderRadius: 6,
                     borderWidth: 1,
-                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : (isDark ? colors.border : '#BFDBFE'),
+                    borderColor: submitted
+                      ? isCorrect
+                        ? '#86EFAC'
+                        : '#FCA5A5'
+                      : isDark
+                        ? colors.border
+                        : '#BFDBFE',
                     backgroundColor: submitted
-                      ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
-                      : isDark ? colors.infoBg : '#EFF6FF',
+                      ? isCorrect
+                        ? isDark
+                          ? colors.successBg
+                          : '#DCFCE7'
+                        : isDark
+                          ? colors.errorBg
+                          : '#FEE2E2'
+                      : isDark
+                        ? colors.infoBg
+                        : '#EFF6FF',
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingHorizontal: 4,
@@ -216,7 +232,13 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                             justifyContent: 'center',
                           }}
                         >
-                          <Text style={{ fontSize: hasFill ? 13 : 12, fontWeight: '700', color: hasFill ? fillColor : textColor }}>
+                          <Text
+                            style={{
+                              fontSize: hasFill ? 13 : 12,
+                              fontWeight: '700',
+                              color: hasFill ? fillColor : textColor,
+                            }}
+                          >
                             {opt.letter}
                           </Text>
                         </View>
@@ -259,7 +281,13 @@ export function MatchingGroup({ group, answers, submitted, onAnswer }: any) {
                         padding: SPACING.md,
                       }}
                     >
-                      <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: isDark ? colors.info : '#1E40AF',
+                          lineHeight: 20,
+                        }}
+                      >
                         {getExplanationText(qData.explanation)}
                       </Text>
                     </View>

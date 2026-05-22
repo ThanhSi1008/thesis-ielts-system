@@ -52,7 +52,13 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
             borderWidth: 1,
             borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
             backgroundColor: submitted
-              ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
+              ? isCorrect
+                ? isDark
+                  ? colors.successBg
+                  : '#DCFCE7'
+                : isDark
+                  ? colors.errorBg
+                  : '#FEE2E2'
               : colors.card,
             borderRadius: RADIUS.sm,
             paddingHorizontal: 4,
@@ -122,9 +128,7 @@ export function FormGroupView({ group, answers, submitted, onAnswer }: any) {
 
       <View
         style={{
-          backgroundColor: isFlowchart
-            ? isDark ? colors.successBg : '#F0FDF4'
-            : colors.surface,
+          backgroundColor: isFlowchart ? (isDark ? colors.successBg : '#F0FDF4') : colors.surface,
           padding: 16,
           borderRadius: RADIUS.md,
           borderWidth: 1,

@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -190,8 +183,8 @@ export default function PracticeToolsDashboard() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity 
-            style={styles.backBtn} 
+          <TouchableOpacity
+            style={styles.backBtn}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               router.push(ROUTES.ielts);
@@ -206,14 +199,14 @@ export default function PracticeToolsDashboard() {
         </View>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 60 }}
       >
         {/* Welcome Section */}
-        <LinearGradient 
-          colors={['#FFD93D', '#FFC600']} 
+        <LinearGradient
+          colors={['#FFD93D', '#FFC600']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.welcomeCard}
@@ -221,7 +214,8 @@ export default function PracticeToolsDashboard() {
           <View style={styles.welcomeGlow} />
           <Text style={styles.welcomeTitle}>Interactive Training Lab</Text>
           <Text style={styles.welcomeDesc}>
-            Elevate your IELTS listening & speaking performance. Pick a dedicated tool below to start practicing with dynamic feedback loop.
+            Elevate your IELTS listening & speaking performance. Pick a dedicated tool below to
+            start practicing with dynamic feedback loop.
           </Text>
         </LinearGradient>
 
@@ -229,8 +223,8 @@ export default function PracticeToolsDashboard() {
 
         <View style={styles.cardsContainer}>
           {/* Shadowing Card */}
-          <TouchableOpacity 
-            style={styles.toolCard} 
+          <TouchableOpacity
+            style={styles.toolCard}
             onPress={() => handlePress(ROUTES.practiceToolsShadowing)}
             activeOpacity={0.9}
           >
@@ -243,7 +237,8 @@ export default function PracticeToolsDashboard() {
                   <Text style={styles.cardTitle}>Shadowing Practitioner</Text>
                 </View>
                 <Text style={styles.cardDesc}>
-                  Sharpen speaking pronunciation, speed, and accent by echoing native speakers with real-time AI phoneme analysis.
+                  Sharpen speaking pronunciation, speed, and accent by echoing native speakers with
+                  real-time AI phoneme analysis.
                 </Text>
               </View>
             </View>
@@ -254,8 +249,8 @@ export default function PracticeToolsDashboard() {
           </TouchableOpacity>
 
           {/* Dictation Card */}
-          <TouchableOpacity 
-            style={styles.toolCard} 
+          <TouchableOpacity
+            style={styles.toolCard}
             onPress={() => handlePress(ROUTES.practiceToolsDictation)}
             activeOpacity={0.9}
           >
@@ -268,7 +263,8 @@ export default function PracticeToolsDashboard() {
                   <Text style={styles.cardTitle}>Dictation Lab</Text>
                 </View>
                 <Text style={styles.cardDesc}>
-                  Improve listening comprehension, phonetic spelling, and grammar by writing down spoken sentences exactly as heard.
+                  Improve listening comprehension, phonetic spelling, and grammar by writing down
+                  spoken sentences exactly as heard.
                 </Text>
               </View>
             </View>

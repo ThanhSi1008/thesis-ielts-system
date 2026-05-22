@@ -57,21 +57,23 @@ export function FeatureLock({
         >
           <View style={styles.card}>
             {/* Crown Icon with Golden Gradient */}
-            <LinearGradient
-              colors={['#FFE082', '#FFC600', '#FFA000']}
-              style={styles.iconWrapper}
-            >
+            <LinearGradient colors={['#FFE082', '#FFC600', '#FFA000']} style={styles.iconWrapper}>
               <Ionicons name="lock-closed" size={24} color="#0F172A" />
             </LinearGradient>
 
             <Text style={styles.title}>Unlock Premium Feature</Text>
-            
+
             <Text style={styles.description}>
-              {featureName} is exclusive to <Text style={styles.highlightText}>{requiredTier}</Text> members. Upgrade now to get full unlimited access.
+              {featureName} is exclusive to <Text style={styles.highlightText}>{requiredTier}</Text>{' '}
+              members. Upgrade now to get full unlimited access.
             </Text>
 
             {/* CTAs */}
-            <TouchableOpacity style={styles.primaryButton} onPress={handleUpgrade} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleUpgrade}
+              activeOpacity={0.8}
+            >
               <LinearGradient
                 colors={['#FFD54F', '#FFC600', '#FFB300']}
                 start={{ x: 0, y: 0 }}
@@ -79,12 +81,21 @@ export function FeatureLock({
                 style={styles.gradientButton}
               >
                 <Text style={styles.primaryButtonText}>Upgrade to Premium</Text>
-                <Ionicons name="arrow-forward" size={16} color="#0F172A" style={styles.buttonIcon} />
+                <Ionicons
+                  name="arrow-forward"
+                  size={16}
+                  color="#0F172A"
+                  style={styles.buttonIcon}
+                />
               </LinearGradient>
             </TouchableOpacity>
 
             {!trialUsed && (
-              <TouchableOpacity style={styles.secondaryButton} onPress={handleUpgrade} activeOpacity={0.8}>
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={handleUpgrade}
+                activeOpacity={0.8}
+              >
                 <Text style={styles.secondaryButtonText}>Start 7-Day Free Trial</Text>
               </TouchableOpacity>
             )}
@@ -194,4 +205,3 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
 });
-

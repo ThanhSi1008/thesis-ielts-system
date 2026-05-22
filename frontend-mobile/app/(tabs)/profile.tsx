@@ -15,7 +15,7 @@ import {
   Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import {FONTS, ROUTES, RADIUS, ThemeTokens} from '@/constants';
+import { FONTS, ROUTES, RADIUS, ThemeTokens } from '@/constants';
 import { useThemedStyles } from '@/hooks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -66,8 +66,8 @@ export default function ProfileScreen() {
           'Please enable notifications in system settings to receive streak reminders and grading results.',
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => Linking.openSettings() }
-          ]
+            { text: 'Open Settings', onPress: () => Linking.openSettings() },
+          ],
         );
       } else {
         const granted = await requestPushPermission();

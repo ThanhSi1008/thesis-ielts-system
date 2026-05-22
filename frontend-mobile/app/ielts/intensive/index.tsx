@@ -159,7 +159,12 @@ function AccordionGroup({
     stats: { flexDirection: 'row', gap: SPACING.sm, marginBottom: 6 },
     statPill: { flexDirection: 'row', alignItems: 'center', gap: 3 },
     statText: { fontSize: 10, color: colors.textSecondary },
-    progressTrack: { height: 4, backgroundColor: isDark ? colors.background : colors.border, borderRadius: 2, overflow: 'hidden' },
+    progressTrack: {
+      height: 4,
+      backgroundColor: isDark ? colors.background : colors.border,
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
     progressFill: { height: '100%', borderRadius: 2 },
     testRow: {
       flexDirection: 'row',
@@ -195,7 +200,12 @@ function AccordionGroup({
       paddingVertical: 4,
       minWidth: 56,
     },
-    bandPillLabel: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+    bandPillLabel: {
+      fontSize: 9,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
     bandPillScore: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, lineHeight: 20 },
   });
 
@@ -391,7 +401,11 @@ export default function IntensiveScreen() {
       borderBottomColor: colors.border,
     },
     backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-    headerTitle: { color: isDark ? colors.text : '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '700',
+    },
     customBtn: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -406,7 +420,7 @@ export default function IntensiveScreen() {
     customBtnText: { color: isDark ? colors.text : '#fff', fontSize: 12, fontFamily: FONTS.bold },
     tabs: { borderBottomWidth: 1, borderColor: colors.border, maxHeight: 56 },
     loadingText: { marginTop: SPACING.md, color: colors.textSecondary, fontSize: FONT_SIZES.sm },
-    
+
     // Search + filter
     searchRow: {
       flexDirection: 'row',
@@ -605,7 +619,9 @@ export default function IntensiveScreen() {
                   onToggle={() => toggleGroup(group.id)}
                   skillColor={skillInfo.color}
                   activeSkill={activeSkill}
-                  onTestPress={(examId: string) => router.push(ROUTES.ieltsIntensiveExam(examId) as any)}
+                  onTestPress={(examId: string) =>
+                    router.push(ROUTES.ieltsIntensiveExam(examId) as any)
+                  }
                 />
               ))
             )}

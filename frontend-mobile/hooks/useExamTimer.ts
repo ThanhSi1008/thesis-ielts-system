@@ -1,11 +1,7 @@
 import { useEffect } from 'react';
 import { useTimer } from './useTimer';
 
-export function useExamTimer(
-  durationMinutes: number,
-  running: boolean,
-  onExpire?: () => void
-) {
+export function useExamTimer(durationMinutes: number, running: boolean, onExpire?: () => void) {
   const initialSeconds = durationMinutes * 60;
   const timer = useTimer(initialSeconds, running);
 

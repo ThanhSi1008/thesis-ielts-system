@@ -11,11 +11,7 @@ export interface ScoreBadgeProps {
   variant?: 'outline' | 'solid';
 }
 
-export default function ScoreBadge({
-  band,
-  size = 'md',
-  variant = 'outline',
-}: ScoreBadgeProps) {
+export default function ScoreBadge({ band, size = 'md', variant = 'outline' }: ScoreBadgeProps) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
 
@@ -57,7 +53,12 @@ export default function ScoreBadge({
 
   const activeTextStyle = {
     fontSize,
-    color: variant === 'solid' ? (band >= 5.5 && band < 7.0 ? (colors.textOnAccent || '#1E293B') : '#FFFFFF') : activeColor,
+    color:
+      variant === 'solid'
+        ? band >= 5.5 && band < 7.0
+          ? colors.textOnAccent || '#1E293B'
+          : '#FFFFFF'
+        : activeColor,
   };
 
   return (
@@ -71,14 +72,7 @@ export default function ScoreBadge({
         variant === 'solid' ? solidStyle : outlineStyle,
       ]}
     >
-      <Text
-        style={[
-          styles.text,
-          activeTextStyle,
-        ]}
-      >
-        {formattedScore}
-      </Text>
+      <Text style={[styles.text, activeTextStyle]}>{formattedScore}</Text>
     </View>
   );
 }

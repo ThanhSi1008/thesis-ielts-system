@@ -32,7 +32,14 @@ type ActionMenuProps = {
   onPublish: () => void;
 };
 
-function DeckActionMenu({ visible, deck, onClose, onRename, onDelete, onPublish }: ActionMenuProps) {
+function DeckActionMenu({
+  visible,
+  deck,
+  onClose,
+  onRename,
+  onDelete,
+  onPublish,
+}: ActionMenuProps) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={m.overlay} onPress={onClose}>
@@ -254,7 +261,13 @@ export function DecksTab() {
       const fileContent = await FileSystem.readAsStringAsync(fileUri);
       const parsed = JSON.parse(fileContent);
 
-      if (!parsed || typeof parsed !== 'object' || !parsed.deck || !parsed.cards || !Array.isArray(parsed.cards)) {
+      if (
+        !parsed ||
+        typeof parsed !== 'object' ||
+        !parsed.deck ||
+        !parsed.cards ||
+        !Array.isArray(parsed.cards)
+      ) {
         Alert.alert('Invalid Format', 'This file is not a valid Vocab Lab deck file.');
         return;
       }
@@ -281,7 +294,7 @@ export function DecksTab() {
       const res = await vocabLabApi.importDeck(payload);
       Alert.alert(
         'Import Success',
-        `Successfully imported deck "${res.deckName}" with ${res.cardsImported} cards!`
+        `Successfully imported deck "${res.deckName}" with ${res.cardsImported} cards!`,
       );
       setImportModalVisible(false);
       setLexonData(null);
@@ -349,7 +362,10 @@ export function DecksTab() {
 
       {/* Action buttons row */}
       <View style={s.actionHeaderRow}>
-        <TouchableOpacity style={[s.importDeckBtn, { backgroundColor: colors.card }]} onPress={handleImportFile}>
+        <TouchableOpacity
+          style={[s.importDeckBtn, { backgroundColor: colors.card }]}
+          onPress={handleImportFile}
+        >
           <Ionicons name="download-outline" size={16} color={COLORS.primary} />
           <Text style={s.importDeckBtnText}>Import Deck</Text>
         </TouchableOpacity>

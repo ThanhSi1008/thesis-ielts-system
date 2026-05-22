@@ -23,7 +23,12 @@ import { useTheme } from '@/contexts/ThemeContext';
 const createStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
     header: {
       backgroundColor: colors.primary,
       flexDirection: 'row',

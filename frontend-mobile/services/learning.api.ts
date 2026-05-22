@@ -45,8 +45,14 @@ export const vocabularyApi = {
     return apiClient.post('/foundationVocabWord/progress/words', { unitId, wordsLearned });
   },
 
-  submitQuestions: async (unitId: string, answers: { questionId: string; answer: string }[]): Promise<SubmitQuestionsResponse> => {
-    return apiClient.post<SubmitQuestionsResponse>('/foundationVocabWord/progress/questions', { unitId, answers });
+  submitQuestions: async (
+    unitId: string,
+    answers: { questionId: string; answer: string }[],
+  ): Promise<SubmitQuestionsResponse> => {
+    return apiClient.post<SubmitQuestionsResponse>('/foundationVocabWord/progress/questions', {
+      unitId,
+      answers,
+    });
   },
 };
 
@@ -64,13 +70,19 @@ export const grammarApi = {
   getUnit: async (id: string): Promise<GrammarUnitWithContent> => {
     return apiClient.get<GrammarUnitWithContent>(`/grammar/units/${id}`);
   },
-  getUnitByOrder: async (bookSlug: string, order: string | number): Promise<GrammarUnitWithContent> => {
+  getUnitByOrder: async (
+    bookSlug: string,
+    order: string | number,
+  ): Promise<GrammarUnitWithContent> => {
     return apiClient.get<GrammarUnitWithContent>(`/grammar/books/${bookSlug}/units/${order}`);
   },
   getProgress: async (bookSlug: string): Promise<GrammarUnitProgress[]> => {
     return apiClient.get<GrammarUnitProgress[]>(`/grammar/progress/${bookSlug}`);
   },
-  updateProgress: async (unitId: string, payload: { theoryCompleted?: boolean; exerciseScore?: number; exerciseTotal?: number }): Promise<any> => {
+  updateProgress: async (
+    unitId: string,
+    payload: { theoryCompleted?: boolean; exerciseScore?: number; exerciseTotal?: number },
+  ): Promise<any> => {
     return apiClient.post('/grammar/progress', { unitId, ...payload });
   },
 };
@@ -84,7 +96,9 @@ export const pronunciationApi = {
     return apiClient.get<PronunciationData>('/pronunciation/sounds');
   },
   getSound: async (symbol: string): Promise<FoundationPronunciationSound> => {
-    return apiClient.get<FoundationPronunciationSound>(`/pronunciation/sounds/${encodeURIComponent(symbol)}`);
+    return apiClient.get<FoundationPronunciationSound>(
+      `/pronunciation/sounds/${encodeURIComponent(symbol)}`,
+    );
   },
   getProgress: async (): Promise<SoundProgress[]> => {
     return apiClient.get<SoundProgress[]>('/pronunciation/progress');

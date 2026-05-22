@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Alert, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+  Modal,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { COLORS, FONTS } from '@/constants';
@@ -82,7 +91,11 @@ export function PostCard({
 
       {post.imageUrls?.length > 0 && (
         <>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ marginBottom: 10 }}
+          >
             {post.imageUrls.map((url, i) => (
               <TouchableOpacity
                 key={i}

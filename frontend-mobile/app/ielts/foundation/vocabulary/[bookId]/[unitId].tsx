@@ -152,7 +152,7 @@ function FlashCard({
           <ScrollView contentContainerStyle={fc.scrollBody} showsVerticalScrollIndicator={false}>
             <Text style={fc.wordTextSmall}>{word.word}</Text>
             {word.ipa ? <Text style={fc.pronTextSmall}>[{word.ipa}]</Text> : null}
-            
+
             <View style={fc.meaningWrapper}>
               <Text style={fc.defText}>{word.meaning}</Text>
             </View>
@@ -230,7 +230,12 @@ const fc = StyleSheet.create({
   },
   cardFront: { zIndex: 1 },
   cardBack: { zIndex: 0 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   posBadge: {
     backgroundColor: 'rgba(33,150,243,0.1)',
     paddingHorizontal: 12,
@@ -279,7 +284,13 @@ const fc = StyleSheet.create({
     textAlign: 'center',
   },
   pronText: { fontSize: 16, color: COLORS.gray[400], marginTop: 6, fontFamily: FONTS.medium },
-  pronTextSmall: { fontSize: 15, color: COLORS.gray[400], marginTop: 4, textAlign: 'center', fontFamily: FONTS.medium },
+  pronTextSmall: {
+    fontSize: 15,
+    color: COLORS.gray[400],
+    marginTop: 4,
+    textAlign: 'center',
+    fontFamily: FONTS.medium,
+  },
   scrollBody: { flexGrow: 1, alignItems: 'center', paddingBottom: 16 },
   meaningWrapper: {
     marginTop: 16,
@@ -363,13 +374,13 @@ export default function VocabularyUnitScreen() {
       // Load progress to resume
       try {
         const progressData = await vocabularyApi.getProgress(bookId!);
-        const unitProgress = progressData.units.find(u => u.id === unitId);
+        const unitProgress = progressData.units.find((u) => u.id === unitId);
         if (unitProgress) {
           if (unitProgress.wordsLearned > 0) {
             const initialLearned = Math.min(unitProgress.wordsLearned, data.words.length);
             setWordsLearned(initialLearned);
             setCardIndex(Math.min(initialLearned, data.words.length - 1));
-            
+
             if (initialLearned >= data.words.length) {
               setWordListComplete(true);
               setActiveTab('reading');
@@ -380,7 +391,7 @@ export default function VocabularyUnitScreen() {
             setQuestionsCompleted(unitProgress.isCompleted);
             const totalQ = data.questions?.length ?? 0;
             const correctCount = Math.round((unitProgress.questionScore / 100) * totalQ);
-            
+
             setQuestionResult({
               score: unitProgress.questionScore,
               correctCount,
@@ -440,10 +451,8 @@ export default function VocabularyUnitScreen() {
       }
       Alert.alert(
         '🎉 Flashcards Completed!',
-        'You have successfully learned all vocabulary words in this unit! Next, let\'s read the comprehension story.',
-        [
-          { text: 'Go to Reading', onPress: () => setActiveTab('reading') },
-        ]
+        "You have successfully learned all vocabulary words in this unit! Next, let's read the comprehension story.",
+        [{ text: 'Go to Reading', onPress: () => setActiveTab('reading') }],
       );
     }
   };
@@ -476,9 +485,7 @@ export default function VocabularyUnitScreen() {
       Alert.alert(
         isPerfect ? '🎉 Perfect Score!' : '💪 Keep Trying!',
         `You got ${res.correctCount} out of ${res.totalQuestions} questions correct.`,
-        [
-          { text: 'OK' }
-        ]
+        [{ text: 'OK' }],
       );
     } catch (err) {
       Alert.alert('Error', 'Failed to submit answers. Please try again.');
@@ -529,7 +536,8 @@ export default function VocabularyUnitScreen() {
 
   const questions = unit?.questions ?? [];
   const currentWord = wordsState[cardIndex];
-  const progressPercent = originalWordsCount > 0 ? Math.min((wordsLearned / originalWordsCount) * 100, 100) : 0;
+  const progressPercent =
+    originalWordsCount > 0 ? Math.min((wordsLearned / originalWordsCount) * 100, 100) : 0;
 
   const tabs: { key: Tab; label: string; icon: any; locked: boolean }[] = [
     { key: 'flashcard', label: 'Flashcards', icon: 'albums-outline', locked: false },
@@ -549,7 +557,7 @@ export default function VocabularyUnitScreen() {
             {unit?.title ?? 'Unit Detail'}
           </Text>
           <Text style={styles.headerSub}>
-            {activeTab === 'flashcard' 
+            {activeTab === 'flashcard'
               ? `${Math.min(cardIndex + 1, wordsState.length)} / ${wordsState.length} cards`
               : `Unit ${unit?.order ?? 1} · Vocabulary`}
           </Text>
@@ -576,13 +584,19 @@ export default function VocabularyUnitScreen() {
               {tab.locked ? (
                 <Ionicons name="lock-closed" size={14} color={COLORS.gray[300]} />
               ) : (
-                <Ionicons name={tab.icon} size={15} color={active ? COLORS.primary : COLORS.gray[400]} />
+                <Ionicons
+                  name={tab.icon}
+                  size={15}
+                  color={active ? COLORS.primary : COLORS.gray[400]}
+                />
               )}
-              <Text style={[
-                styles.tabLabel, 
-                active && styles.tabLabelActive,
-                tab.locked && { color: COLORS.gray[300] }
-              ]}>
+              <Text
+                style={[
+                  styles.tabLabel,
+                  active && styles.tabLabelActive,
+                  tab.locked && { color: COLORS.gray[300] },
+                ]}
+              >
                 {tab.label}
               </Text>
             </TouchableOpacity>
@@ -613,14 +627,18 @@ export default function VocabularyUnitScreen() {
 
         {/* ── Tab 2: Reading Story */}
         {activeTab === 'reading' && (
-          <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+            showsVerticalScrollIndicator={false}
+          >
             <Text style={styles.readingTitle}>{unit?.storyTitle || unit?.title}</Text>
             <View style={styles.storyCard}>
-              <Text style={styles.readingPara}>
-                {renderStoryContent(unit?.storyContent)}
-              </Text>
+              <Text style={styles.readingPara}>{renderStoryContent(unit?.storyContent)}</Text>
             </View>
-            <TouchableOpacity style={styles.startExerciseBtn} onPress={() => setActiveTab('exercise')}>
+            <TouchableOpacity
+              style={styles.startExerciseBtn}
+              onPress={() => setActiveTab('exercise')}
+            >
               <Text style={styles.startExerciseText}>Start Comprehension Exercises</Text>
               <Ionicons name="create-outline" size={18} color="#fff" />
             </TouchableOpacity>
@@ -629,14 +647,19 @@ export default function VocabularyUnitScreen() {
 
         {/* ── Tab 3: Exercise Questions */}
         {activeTab === 'exercise' && (
-          <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.exHeaderRow}>
               <Text style={styles.exMainTitle}>Comprehension Test</Text>
               {questionResult && (
-                <View style={[
-                  styles.scoreBadge,
-                  questionsCompleted ? styles.scoreBadgePerfect : styles.scoreBadgeNormal
-                ]}>
+                <View
+                  style={[
+                    styles.scoreBadge,
+                    questionsCompleted ? styles.scoreBadgePerfect : styles.scoreBadgeNormal,
+                  ]}
+                >
                   <Text style={styles.scoreBadgeText}>
                     {questionResult.correctCount} / {questionResult.totalQuestions} Correct
                   </Text>
@@ -652,26 +675,26 @@ export default function VocabularyUnitScreen() {
             ) : (
               <View style={styles.questionsList}>
                 {questions.map((q, idx) => {
-                  const res = questionResult?.results?.find(r => r.questionId === q.id);
+                  const res = questionResult?.results?.find((r) => r.questionId === q.id);
                   const isCorrect = res?.isCorrect;
                   const isAnswered = questionAnswers[q.id] !== undefined;
 
                   return (
-                    <View 
-                      key={q.id} 
+                    <View
+                      key={q.id}
                       style={[
                         styles.questionCard,
-                        questionResult && (isCorrect ? styles.qCardCorrect : styles.qCardIncorrect)
+                        questionResult && (isCorrect ? styles.qCardCorrect : styles.qCardIncorrect),
                       ]}
                     >
                       {/* Question Text */}
                       <View style={styles.qNumRow}>
                         <Text style={styles.qNum}>Question {idx + 1}</Text>
                         {questionResult && (
-                          <Ionicons 
-                            name={isCorrect ? "checkmark-circle" : "close-circle"} 
-                            size={20} 
-                            color={isCorrect ? "#16A34A" : "#EF4444"} 
+                          <Ionicons
+                            name={isCorrect ? 'checkmark-circle' : 'close-circle'}
+                            size={20}
+                            color={isCorrect ? '#16A34A' : '#EF4444'}
                           />
                         )}
                       </View>
@@ -683,14 +706,15 @@ export default function VocabularyUnitScreen() {
                           <TextInput
                             style={[
                               styles.textInput,
-                              questionResult && (isCorrect ? styles.inputCorrect : styles.inputIncorrect)
+                              questionResult &&
+                                (isCorrect ? styles.inputCorrect : styles.inputIncorrect),
                             ]}
                             placeholder="Type your answer here..."
                             placeholderTextColor={COLORS.gray[400]}
                             value={questionAnswers[q.id] || ''}
                             onChangeText={(text) => {
                               if (!questionResult) {
-                                setQuestionAnswers(prev => ({ ...prev, [q.id]: text }));
+                                setQuestionAnswers((prev) => ({ ...prev, [q.id]: text }));
                               }
                             }}
                             editable={!questionResult}
@@ -699,9 +723,14 @@ export default function VocabularyUnitScreen() {
                           />
                           {questionResult && !isCorrect && (
                             <View style={styles.correctAnswerRow}>
-                              <Ionicons name="information-circle-outline" size={14} color="#16A34A" />
+                              <Ionicons
+                                name="information-circle-outline"
+                                size={14}
+                                color="#16A34A"
+                              />
                               <Text style={styles.correctAnswerText}>
-                                Correct answer: <Text style={{ fontFamily: FONTS.bold }}>{q.answer}</Text>
+                                Correct answer:{' '}
+                                <Text style={{ fontFamily: FONTS.bold }}>{q.answer}</Text>
                               </Text>
                             </View>
                           )}
@@ -710,8 +739,10 @@ export default function VocabularyUnitScreen() {
                         <View style={styles.optionsWrapper}>
                           {q.options?.map((opt, optIdx) => {
                             const isSelected = questionAnswers[q.id] === opt;
-                            const isCorrectOpt = q.answer.toLowerCase() === opt.toLowerCase() || (res && res.correctAnswer.toLowerCase() === opt.toLowerCase());
-                            
+                            const isCorrectOpt =
+                              q.answer.toLowerCase() === opt.toLowerCase() ||
+                              (res && res.correctAnswer.toLowerCase() === opt.toLowerCase());
+
                             let optionStyle: any = styles.optionItem;
                             let optionTextStyle: any = styles.optionText;
 
@@ -736,16 +767,21 @@ export default function VocabularyUnitScreen() {
                                 style={optionStyle}
                                 disabled={!!questionResult}
                                 onPress={() => {
-                                  setQuestionAnswers(prev => ({ ...prev, [q.id]: opt }));
+                                  setQuestionAnswers((prev) => ({ ...prev, [q.id]: opt }));
                                 }}
                               >
                                 <View style={styles.optionDotRow}>
-                                  <View style={[
-                                    styles.optionDot,
-                                    isSelected && styles.optionDotSelected,
-                                    questionResult && isCorrectOpt && styles.optionDotCorrect,
-                                    questionResult && isSelected && !isCorrect && styles.optionDotIncorrect,
-                                  ]} />
+                                  <View
+                                    style={[
+                                      styles.optionDot,
+                                      isSelected && styles.optionDotSelected,
+                                      questionResult && isCorrectOpt && styles.optionDotCorrect,
+                                      questionResult &&
+                                        isSelected &&
+                                        !isCorrect &&
+                                        styles.optionDotIncorrect,
+                                    ]}
+                                  />
                                   <Text style={optionTextStyle}>{opt}</Text>
                                 </View>
                               </TouchableOpacity>
@@ -762,9 +798,12 @@ export default function VocabularyUnitScreen() {
                   <TouchableOpacity
                     style={[
                       styles.submitBtn,
-                      Object.keys(questionAnswers).length < questions.length && styles.submitBtnDisabled
+                      Object.keys(questionAnswers).length < questions.length &&
+                        styles.submitBtnDisabled,
                     ]}
-                    disabled={questionSubmitting || Object.keys(questionAnswers).length < questions.length}
+                    disabled={
+                      questionSubmitting || Object.keys(questionAnswers).length < questions.length
+                    }
                     onPress={handleSubmitQuestions}
                   >
                     {questionSubmitting ? (
@@ -782,22 +821,21 @@ export default function VocabularyUnitScreen() {
                       <View style={styles.successWrapper}>
                         <Text style={styles.successEmoji}>🏆</Text>
                         <Text style={styles.successTitle}>Perfect Score!</Text>
-                        <Text style={styles.successDesc}>Excellent! You've mastered all vocabulary words and comprehension exercises in this unit.</Text>
-                        <TouchableOpacity 
-                          style={styles.doneBtn} 
-                          onPress={() => router.back()}
-                        >
+                        <Text style={styles.successDesc}>
+                          Excellent! You've mastered all vocabulary words and comprehension
+                          exercises in this unit.
+                        </Text>
+                        <TouchableOpacity style={styles.doneBtn} onPress={() => router.back()}>
                           <Text style={styles.doneBtnText}>Return to Unit List</Text>
                         </TouchableOpacity>
                       </View>
                     ) : (
                       <View style={styles.retryWrapper}>
                         <Text style={styles.retryTitle}>Almost there!</Text>
-                        <Text style={styles.retryDesc}>Review the correct answers above and try again to master this unit.</Text>
-                        <TouchableOpacity 
-                          style={styles.retryBtn} 
-                          onPress={handleRetryQuestions}
-                        >
+                        <Text style={styles.retryDesc}>
+                          Review the correct answers above and try again to master this unit.
+                        </Text>
+                        <TouchableOpacity style={styles.retryBtn} onPress={handleRetryQuestions}>
                           <Text style={styles.retryBtnText}>Try Again</Text>
                         </TouchableOpacity>
                       </View>
@@ -815,8 +853,19 @@ export default function VocabularyUnitScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.surface },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 100 },
-  emptyText: { fontSize: 14, color: COLORS.gray[400], textAlign: 'center', fontFamily: FONTS.regular },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 100,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.gray[400],
+    textAlign: 'center',
+    fontFamily: FONTS.regular,
+  },
 
   header: {
     flexDirection: 'row',
@@ -871,7 +920,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.bold,
   },
 
-  readingTitle: { fontSize: 22, fontFamily: FONTS.bold, color: COLORS.text, marginBottom: 14, textAlign: 'center' },
+  readingTitle: {
+    fontSize: 22,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: 14,
+    textAlign: 'center',
+  },
   storyCard: {
     backgroundColor: COLORS.background,
     borderRadius: 20,

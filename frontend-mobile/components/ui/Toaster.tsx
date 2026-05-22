@@ -14,10 +14,12 @@ export const toast = {
       position: 'top',
       visibilityTime: 4000,
       autoHide: true,
-      onPress: onPress ? () => {
-        onPress();
-        Toast.hide();
-      } : undefined,
+      onPress: onPress
+        ? () => {
+            onPress();
+            Toast.hide();
+          }
+        : undefined,
     });
   },
   error: (title: string, message?: string, onPress?: () => void) => {
@@ -28,10 +30,12 @@ export const toast = {
       position: 'top',
       visibilityTime: 5000,
       autoHide: true,
-      onPress: onPress ? () => {
-        onPress();
-        Toast.hide();
-      } : undefined,
+      onPress: onPress
+        ? () => {
+            onPress();
+            Toast.hide();
+          }
+        : undefined,
     });
   },
   info: (title: string, message?: string, onPress?: () => void) => {
@@ -42,10 +46,12 @@ export const toast = {
       position: 'top',
       visibilityTime: 4000,
       autoHide: true,
-      onPress: onPress ? () => {
-        onPress();
-        Toast.hide();
-      } : undefined,
+      onPress: onPress
+        ? () => {
+            onPress();
+            Toast.hide();
+          }
+        : undefined,
     });
   },
   loading: (title: string, message?: string, onPress?: () => void) => {
@@ -55,13 +61,23 @@ export const toast = {
       text2: message,
       position: 'top',
       autoHide: false,
-      onPress: onPress ? () => {
-        onPress();
-        Toast.hide();
-      } : undefined,
+      onPress: onPress
+        ? () => {
+            onPress();
+            Toast.hide();
+          }
+        : undefined,
     });
   },
-  update: (id: string, options: { type?: 'success' | 'error' | 'info' | 'loading'; title: string; message?: string; onPress?: () => void }) => {
+  update: (
+    id: string,
+    options: {
+      type?: 'success' | 'error' | 'info' | 'loading';
+      title: string;
+      message?: string;
+      onPress?: () => void;
+    },
+  ) => {
     Toast.show({
       type: options.type || 'success',
       text1: options.title,
@@ -69,10 +85,12 @@ export const toast = {
       position: 'top',
       visibilityTime: options.type === 'loading' ? undefined : 4000,
       autoHide: options.type !== 'loading',
-      onPress: options.onPress ? () => {
-        options.onPress!();
-        Toast.hide();
-      } : undefined,
+      onPress: options.onPress
+        ? () => {
+            options.onPress!();
+            Toast.hide();
+          }
+        : undefined,
     });
   },
   hide: () => {

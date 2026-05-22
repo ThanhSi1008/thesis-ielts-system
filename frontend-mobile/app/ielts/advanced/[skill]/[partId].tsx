@@ -62,7 +62,12 @@ const createQBlockStyles = (colors: any) =>
       color: colors.primary,
       textTransform: 'uppercase',
     },
-    qText: { fontSize: FONT_SIZES.md, color: colors.text, marginBottom: SPACING.md, lineHeight: 22 },
+    qText: {
+      fontSize: FONT_SIZES.md,
+      color: colors.text,
+      marginBottom: SPACING.md,
+      lineHeight: 22,
+    },
     option: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -245,9 +250,7 @@ function renderGroup(
 
   return (
     <View key={baseKey}>
-      {group.instructions && (
-        <Text style={qBlockStyles.instructions}>{group.instructions}</Text>
-      )}
+      {group.instructions && <Text style={qBlockStyles.instructions}>{group.instructions}</Text>}
       {qs.map((q: any) => {
         const num = String(q.question_number);
         const handleLocate = q.question_number
@@ -281,7 +284,12 @@ function renderGroup(
 const createStyles = (colors: any) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.background },
-    center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
 
     header: {
       flexDirection: 'row',
@@ -421,7 +429,9 @@ export default function AdvancedPartScreen() {
               ? await ieltsAdvancedApi.submitListening(partId, answers)
               : await ieltsAdvancedApi.submitReading(partId, answers);
             console.log('[SUBMIT] response:', JSON.stringify(result)); // DEBUG
-            router.replace(ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id));
+            router.replace(
+              ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id),
+            );
           } catch (err) {
             console.error('[SUBMIT] error:', err);
             Alert.alert('Error', 'Submission failed.');
@@ -459,13 +469,20 @@ export default function AdvancedPartScreen() {
             {part?.title}
           </Text>
           <Text style={styles.headerSub}>
-            Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}{qNumbers.length > 0 ? ` · Questions ${qNumbers[0]} - ${qNumbers[qNumbers.length - 1]}` : ''}
+            Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}
+            {qNumbers.length > 0
+              ? ` · Questions ${qNumbers[0]} - ${qNumbers[qNumbers.length - 1]}`
+              : ''}
           </Text>
         </View>
         <View style={styles.headerActions}>
-          <Text style={styles.ansCount}>{Object.keys(answers).length}/{qNumbers.length} ans</Text>
+          <Text style={styles.ansCount}>
+            {Object.keys(answers).length}/{qNumbers.length} ans
+          </Text>
           <TouchableOpacity
-            onPress={() => router.push(ROUTES.ieltsAdvancedSkillPartHistory(skill as string, partId as string))}
+            onPress={() =>
+              router.push(ROUTES.ieltsAdvancedSkillPartHistory(skill as string, partId as string))
+            }
             hitSlop={8}
             style={styles.historyBtn}
           >
@@ -531,7 +548,9 @@ export default function AdvancedPartScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
       >
-        {content.map((g: any, gi: number) => renderGroup(g, answers, setAnswer, handleLocate, gi, colors, isDark))}
+        {content.map((g: any, gi: number) =>
+          renderGroup(g, answers, setAnswer, handleLocate, gi, colors, isDark),
+        )}
       </ScrollView>
 
       {/* Submit bar */}

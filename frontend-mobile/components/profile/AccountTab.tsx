@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator, Modal, StyleSheet, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  Modal,
+  StyleSheet,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ROUTES, FONTS, COLORS } from '@/constants';
@@ -63,23 +74,24 @@ export function ProfileAccountTab({
   ];
 
   const handleEditAvatar = () => {
-    Alert.alert(
-      'Profile Photo',
-      'Choose an option to update your profile photo:',
-      [
-        { text: 'Cancel', style: 'cancel' as const },
-        { text: 'Take Photo', onPress: handleTakePhoto },
-        { text: 'Choose from Gallery', onPress: handleChooseFromGallery },
-        ...(user.avatar ? [{ text: 'Remove Photo', style: 'destructive' as const, onPress: handleRemoveAvatar }] : [])
-      ]
-    );
+    Alert.alert('Profile Photo', 'Choose an option to update your profile photo:', [
+      { text: 'Cancel', style: 'cancel' as const },
+      { text: 'Take Photo', onPress: handleTakePhoto },
+      { text: 'Choose from Gallery', onPress: handleChooseFromGallery },
+      ...(user.avatar
+        ? [{ text: 'Remove Photo', style: 'destructive' as const, onPress: handleRemoveAvatar }]
+        : []),
+    ]);
   };
 
   const handleTakePhoto = async () => {
     try {
       const perm = await ImagePicker.requestCameraPermissionsAsync();
       if (!perm.granted) {
-        toast.error('Permission Required', 'Please allow camera access in settings to take a photo.');
+        toast.error(
+          'Permission Required',
+          'Please allow camera access in settings to take a photo.',
+        );
         return;
       }
 
@@ -102,7 +114,10 @@ export function ProfileAccountTab({
     try {
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        toast.error('Permission Required', 'Please allow photo library access in settings to choose a photo.');
+        toast.error(
+          'Permission Required',
+          'Please allow photo library access in settings to choose a photo.',
+        );
         return;
       }
 
@@ -143,29 +158,25 @@ export function ProfileAccountTab({
   };
 
   const handleRemoveAvatar = () => {
-    Alert.alert(
-      'Remove Photo',
-      'Are you sure you want to remove your profile photo?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            setUploadingAvatar(true);
-            try {
-              await apiClient.delete('/users/me/avatar');
-              await refreshUser();
-              toast.success('Success', 'Profile picture removed successfully.');
-            } catch (err: any) {
-              toast.error('Removal Failed', err?.message || 'Could not remove avatar.');
-            } finally {
-              setUploadingAvatar(false);
-            }
+    Alert.alert('Remove Photo', 'Are you sure you want to remove your profile photo?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          setUploadingAvatar(true);
+          try {
+            await apiClient.delete('/users/me/avatar');
+            await refreshUser();
+            toast.success('Success', 'Profile picture removed successfully.');
+          } catch (err: any) {
+            toast.error('Removal Failed', err?.message || 'Could not remove avatar.');
+          } finally {
+            setUploadingAvatar(false);
           }
-        }
-      ]
-    );
+        },
+      },
+    ]);
   };
 
   const handleCancelSubscription = async () => {
@@ -185,7 +196,7 @@ export function ProfileAccountTab({
       setShowCancelModal(false);
       setCancelReason('');
       setCustomReason('');
-      
+
       // Refresh contexts
       await refreshGlobalSub();
       if (refreshSubscription) {
@@ -234,12 +245,22 @@ export function ProfileAccountTab({
             style={parentStyles.avatar}
           />
           {uploadingAvatar && (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(15, 23, 42, 0.4)', borderRadius: 44, justifyContent: 'center', alignItems: 'center' }]}>
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                {
+                  backgroundColor: 'rgba(15, 23, 42, 0.4)',
+                  borderRadius: 44,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                },
+              ]}
+            >
               <ActivityIndicator color="#fff" size="small" />
             </View>
           )}
-          <TouchableOpacity 
-            style={parentStyles.editAvatarButton} 
+          <TouchableOpacity
+            style={parentStyles.editAvatarButton}
             onPress={handleEditAvatar}
             disabled={uploadingAvatar}
           >
@@ -287,7 +308,11 @@ export function ProfileAccountTab({
             editable={false}
           />
         </View>
-        <TouchableOpacity style={parentStyles.saveBtn} onPress={handleUpdateProfile} disabled={saving}>
+        <TouchableOpacity
+          style={parentStyles.saveBtn}
+          onPress={handleUpdateProfile}
+          disabled={saving}
+        >
           {saving ? (
             <ActivityIndicator color="#FFF" size="small" />
           ) : (
@@ -302,7 +327,9 @@ export function ProfileAccountTab({
         <View style={parentStyles.subscriptionBox}>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <Text style={parentStyles.subTier}>{tier === 'FREE' ? 'Free Plan' : `${tier} Plan`}</Text>
+              <Text style={parentStyles.subTier}>
+                {tier === 'FREE' ? 'Free Plan' : `${tier} Plan`}
+              </Text>
               {tier !== 'FREE' && (
                 <View
                   style={{
@@ -346,10 +373,7 @@ export function ProfileAccountTab({
 
         {/* Cancellation Button Trigger */}
         {tier !== 'FREE' && !isCanceled && (
-          <TouchableOpacity
-            style={localStyles.cancelLink}
-            onPress={() => setShowCancelModal(true)}
-          >
+          <TouchableOpacity style={localStyles.cancelLink} onPress={() => setShowCancelModal(true)}>
             <Ionicons name="close-circle-outline" size={16} color="#EF4444" />
             <Text style={localStyles.cancelLinkText}>Cancel Subscription</Text>
           </TouchableOpacity>
@@ -374,7 +398,8 @@ export function ProfileAccountTab({
 
             <ScrollView style={localStyles.modalContent} showsVerticalScrollIndicator={false}>
               <Text style={localStyles.modalDesc}>
-                We are sorry to see you go. Please let us know why you are canceling so we can improve the platform:
+                We are sorry to see you go. Please let us know why you are canceling so we can
+                improve the platform:
               </Text>
 
               {REASONS.map((reason) => (
@@ -389,10 +414,12 @@ export function ProfileAccountTab({
                   <View style={localStyles.radioButton}>
                     {cancelReason === reason && <View style={localStyles.radioButtonInner} />}
                   </View>
-                  <Text style={[
-                    localStyles.reasonText,
-                    cancelReason === reason && localStyles.reasonTextActive,
-                  ]}>
+                  <Text
+                    style={[
+                      localStyles.reasonText,
+                      cancelReason === reason && localStyles.reasonTextActive,
+                    ]}
+                  >
                     {reason}
                   </Text>
                 </TouchableOpacity>
@@ -603,4 +630,3 @@ const localStyles = StyleSheet.create({
     color: '#FFFFFF',
   },
 });
-

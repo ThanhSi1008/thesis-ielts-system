@@ -21,4 +21,3 @@ export {
   /** @deprecated Use EmptyState from '@/components/atoms' instead */
   EmptyState,
 } from '../ui';
-

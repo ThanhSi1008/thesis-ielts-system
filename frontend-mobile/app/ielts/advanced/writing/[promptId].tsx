@@ -65,7 +65,7 @@ export default function AdvancedWritingPracticeScreen() {
           setTopHeight(newHeight);
         }
       },
-    })
+    }),
   ).current;
 
   // Verify subscription status
@@ -108,10 +108,12 @@ export default function AdvancedWritingPracticeScreen() {
 
   // Hook integrations
   const suggestedTime = prompt?.suggestedTime ?? (prompt?.taskType === 'TASK1' ? 20 : 40);
-  const { elapsed, display: timerDisplay, remaining, isExpired } = useTimer(
-    suggestedTime * 60,
-    timerRunning
-  );
+  const {
+    elapsed,
+    display: timerDisplay,
+    remaining,
+    isExpired,
+  } = useTimer(suggestedTime * 60, timerRunning);
   const { lastSavedAt, isSaving, error: saveError } = useWritingAutosave(sessionId, essay);
 
   const isTimeCritical = isExpired || remaining < 120; // Highlight if expired or < 2 min left
@@ -144,7 +146,10 @@ export default function AdvancedWritingPracticeScreen() {
       router.replace(`/ielts/advanced/writing/result/${sessionId}`);
     } catch (err: any) {
       console.error('[WritingPractice] Submit failed:', err);
-      Alert.alert('Submit Failed', err?.message ?? 'Could not submit your essay. Please try again.');
+      Alert.alert(
+        'Submit Failed',
+        err?.message ?? 'Could not submit your essay. Please try again.',
+      );
       setTimerRunning(true);
       setIsSubmitting(false);
     }
@@ -431,37 +436,41 @@ export default function AdvancedWritingPracticeScreen() {
     },
   });
 
-  const markdownStyles = useMemo(() => StyleSheet.create({
-    body: {
-      fontFamily: FONTS.medium,
-      fontSize: FONT_SIZES.sm,
-      color: colors.text,
-      lineHeight: 20,
-    },
-    strong: {
-      fontFamily: FONTS.bold,
-      fontWeight: '700',
-      color: colors.text,
-    },
-    em: {
-      fontStyle: 'italic',
-      color: colors.text,
-    },
-    paragraph: {
-      marginBottom: SPACING.sm,
-      color: colors.text,
-    },
-    list_item: {
-      flexDirection: 'row',
-      marginBottom: 4,
-      color: colors.text,
-    },
-    bullet_list: {
-      marginTop: 4,
-      marginBottom: 8,
-      color: colors.text,
-    },
-  }), [colors]);
+  const markdownStyles = useMemo(
+    () =>
+      StyleSheet.create({
+        body: {
+          fontFamily: FONTS.medium,
+          fontSize: FONT_SIZES.sm,
+          color: colors.text,
+          lineHeight: 20,
+        },
+        strong: {
+          fontFamily: FONTS.bold,
+          fontWeight: '700',
+          color: colors.text,
+        },
+        em: {
+          fontStyle: 'italic',
+          color: colors.text,
+        },
+        paragraph: {
+          marginBottom: SPACING.sm,
+          color: colors.text,
+        },
+        list_item: {
+          flexDirection: 'row',
+          marginBottom: 4,
+          color: colors.text,
+        },
+        bullet_list: {
+          marginTop: 4,
+          marginBottom: 8,
+          color: colors.text,
+        },
+      }),
+    [colors],
+  );
 
   if (loading) {
     return (
@@ -497,7 +506,11 @@ export default function AdvancedWritingPracticeScreen() {
           </Text>
         </View>
         <View style={[styles.timerContainer, isTimeCritical && styles.timerContainerCritical]}>
-          <Ionicons name="time-outline" size={16} color={isTimeCritical ? colors.error : (isDark ? colors.text : '#fff')} />
+          <Ionicons
+            name="time-outline"
+            size={16}
+            color={isTimeCritical ? colors.error : isDark ? colors.text : '#fff'}
+          />
           <Text style={[styles.timerText, isTimeCritical && styles.timerTextCritical]}>
             {timerDisplay}
           </Text>
@@ -538,7 +551,11 @@ export default function AdvancedWritingPracticeScreen() {
             <View style={styles.autosaveContainer}>
               {isSaving ? (
                 <>
-                  <ActivityIndicator size="small" color={COLORS.skill.writing} style={{ marginRight: 4 }} />
+                  <ActivityIndicator
+                    size="small"
+                    color={COLORS.skill.writing}
+                    style={{ marginRight: 4 }}
+                  />
                   <Text style={styles.autosaveText}>Saving...</Text>
                 </>
               ) : saveError ? (
@@ -588,10 +605,7 @@ export default function AdvancedWritingPracticeScreen() {
           {/* Bottom Action Section */}
           <View style={styles.bottomBar}>
             <TouchableOpacity
-              style={[
-                styles.submitBtn,
-                essay.trim().length === 0 && styles.submitBtnDisabled,
-              ]}
+              style={[styles.submitBtn, essay.trim().length === 0 && styles.submitBtnDisabled]}
               onPress={() => setShowSubmitModal(true)}
               disabled={essay.trim().length === 0}
             >

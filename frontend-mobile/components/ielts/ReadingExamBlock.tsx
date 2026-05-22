@@ -91,9 +91,14 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
         if (sectionMatch) {
           return (
             <View key={key} style={pr.sectionBlock}>
-              <Text style={[pr.sectionLetter, { color: colors.text }]}>{sectionMatch[1].toUpperCase()}</Text>
+              <Text style={[pr.sectionLetter, { color: colors.text }]}>
+                {sectionMatch[1].toUpperCase()}
+              </Text>
               {sectionMatch[2].trim().length > 0 && (
-                <TextWithLookup style={[pr.paragraph, { color: colors.text }]} content={sectionMatch[2].trim()} />
+                <TextWithLookup
+                  style={[pr.paragraph, { color: colors.text }]}
+                  content={sectionMatch[2].trim()}
+                />
               )}
             </View>
           );
@@ -105,7 +110,11 @@ function PassageRenderer({ text, topic }: { text: string; topic?: string }) {
           const inner = headingMatch[1].trim();
           if (inner.toLowerCase() !== (topic || '').toLowerCase()) {
             return (
-              <TextWithLookup key={key} style={[pr.heading, { color: colors.text }]} content={inner} />
+              <TextWithLookup
+                key={key}
+                style={[pr.heading, { color: colors.text }]}
+                content={inner}
+              />
             );
           }
           return null;
@@ -146,7 +155,15 @@ interface Props {
   parts: any[];
   answers: Record<string, string>;
   onChange: (key: string, value: string) => void;
-  renderGroup: (g: any, answers: any, setAnswer: any, gi: number, pi: number, colors: any, isDark: boolean) => React.ReactNode;
+  renderGroup: (
+    g: any,
+    answers: any,
+    setAnswer: any,
+    gi: number,
+    pi: number,
+    colors: any,
+    isDark: boolean,
+  ) => React.ReactNode;
 }
 
 export default function ReadingExamBlock({ parts, answers, onChange, renderGroup }: Props) {
@@ -196,7 +213,13 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
               onPress={() => setActivePartIdx(idx)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.tabLabel, { color: colors.textSecondary }, active && { color: colors.primary }]}>
+              <Text
+                style={[
+                  styles.tabLabel,
+                  { color: colors.textSecondary },
+                  active && { color: colors.primary },
+                ]}
+              >
                 Part {part.part_number || idx + 1}
               </Text>
             </TouchableOpacity>
@@ -206,13 +229,22 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
 
       {/* Context bar: topic + question range */}
       {(currentPart?.topic || qRange) && (
-        <View style={[styles.contextBar, { backgroundColor: isDark ? colors.surface : '#F2F1EF', borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.contextBar,
+            { backgroundColor: isDark ? colors.surface : '#F2F1EF', borderColor: colors.border },
+          ]}
+        >
           {currentPart?.topic && (
             <Text style={[styles.contextTopic, { color: colors.text }]} numberOfLines={1}>
               {currentPart.topic}
             </Text>
           )}
-          {qRange && <Text style={[styles.contextRange, { color: colors.textSecondary }]}>Questions {qRange}</Text>}
+          {qRange && (
+            <Text style={[styles.contextRange, { color: colors.textSecondary }]}>
+              Questions {qRange}
+            </Text>
+          )}
         </View>
       )}
 
@@ -229,9 +261,13 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
           <ScrollView style={styles.scroll} nestedScrollEnabled showsVerticalScrollIndicator>
             <View style={[styles.paneHeader, { borderColor: colors.border + '40' }]}>
               <Ionicons name="book-outline" size={16} color={colors.primary} />
-              <Text style={[styles.paneHeaderText, { color: colors.primary }]}>Reading Passage</Text>
+              <Text style={[styles.paneHeaderText, { color: colors.primary }]}>
+                Reading Passage
+              </Text>
             </View>
-            {currentPart?.topic && <Text style={[styles.passageTopic, { color: colors.text }]}>{currentPart.topic}</Text>}
+            {currentPart?.topic && (
+              <Text style={[styles.passageTopic, { color: colors.text }]}>{currentPart.topic}</Text>
+            )}
             <PassageRenderer
               text={currentPart?.passage_text || currentPart?.passage || ''}
               topic={currentPart?.topic}
@@ -241,13 +277,30 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
 
         {/* DRAG SPLITTER (phone) */}
         {!isTablet && (
-          <View style={[styles.splitter, { backgroundColor: isDark ? colors.surface : '#E8E8E8', borderColor: colors.border }]} {...panResponder.panHandlers}>
-            <View style={[styles.splitterHandle, { backgroundColor: isDark ? colors.border : '#B0B0B0' }]} />
+          <View
+            style={[
+              styles.splitter,
+              { backgroundColor: isDark ? colors.surface : '#E8E8E8', borderColor: colors.border },
+            ]}
+            {...panResponder.panHandlers}
+          >
+            <View
+              style={[
+                styles.splitterHandle,
+                { backgroundColor: isDark ? colors.border : '#B0B0B0' },
+              ]}
+            />
           </View>
         )}
 
         {/* QUESTIONS PANE */}
-        <View style={[styles.pane, { backgroundColor: colors.background }, !isTablet && { flex: 1 - topFlex }]}>
+        <View
+          style={[
+            styles.pane,
+            { backgroundColor: colors.background },
+            !isTablet && { flex: 1 - topFlex },
+          ]}
+        >
           <ScrollView
             style={styles.scroll}
             nestedScrollEnabled

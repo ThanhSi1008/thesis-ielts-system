@@ -94,10 +94,7 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
         folder: folder || 'General',
       });
 
-      toast.info(
-        'Importing Video',
-        `Transcribing "${trimmedTitle}" in the background… ETA ~1min.`
-      );
+      toast.info('Importing Video', `Transcribing "${trimmedTitle}" in the background… ETA ~1min.`);
 
       onSuccess();
       onClose();
@@ -110,12 +107,7 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
@@ -139,7 +131,12 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
                 <View style={styles.formGroup}>
                   <Text style={styles.label}>YouTube URL</Text>
                   <View style={styles.inputContainer}>
-                    <Ionicons name="logo-youtube" size={18} color="#FF0000" style={styles.inputIcon} />
+                    <Ionicons
+                      name="logo-youtube"
+                      size={18}
+                      color="#FF0000"
+                      style={styles.inputIcon}
+                    />
                     <TextInput
                       style={styles.input}
                       placeholder="Paste YouTube link here..."
@@ -173,7 +170,12 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
                 <View style={styles.formGroup}>
                   <Text style={styles.label}>Video Title</Text>
                   <View style={styles.inputContainer}>
-                    <Ionicons name="document-text-outline" size={18} color={COLORS.gray[500]} style={styles.inputIcon} />
+                    <Ionicons
+                      name="document-text-outline"
+                      size={18}
+                      color={COLORS.gray[500]}
+                      style={styles.inputIcon}
+                    />
                     <TextInput
                       style={styles.input}
                       placeholder="Give this video a memorable title..."
@@ -185,10 +187,7 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
                 </View>
 
                 {/* 3. Folder Management Integration */}
-                <FolderPicker
-                  selectedFolder={folder}
-                  onSelectFolder={setFolder}
-                />
+                <FolderPicker selectedFolder={folder} onSelectFolder={setFolder} />
 
                 {/* 4. Category Pills Selector */}
                 <View style={styles.formGroup}>
@@ -235,7 +234,12 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
                     ) : (
                       <>
                         <Text style={styles.btnTextSubmit}>Import Video</Text>
-                        <Ionicons name="cloud-download" size={16} color={COLORS.text} style={{ marginLeft: 6 }} />
+                        <Ionicons
+                          name="cloud-download"
+                          size={16}
+                          color={COLORS.text}
+                          style={{ marginLeft: 6 }}
+                        />
                       </>
                     )}
                   </TouchableOpacity>

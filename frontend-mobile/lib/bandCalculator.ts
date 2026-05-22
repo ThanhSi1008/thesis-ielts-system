@@ -212,7 +212,7 @@ export const bandUtils = {
 export function calculateListeningReadingBand(
   correctCount: number,
   moduleType: 'listening' | 'reading',
-  subtype: 'academic' | 'general' = 'academic'
+  subtype: 'academic' | 'general' = 'academic',
 ): number {
   if (correctCount < 0) return 0;
   if (correctCount > 40) correctCount = 40;

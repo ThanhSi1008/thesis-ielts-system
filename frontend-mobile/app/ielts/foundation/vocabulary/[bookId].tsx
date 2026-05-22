@@ -63,7 +63,12 @@ function UnitGroup({
           </Text>
         </View>
         <View style={styles.groupProgressCol}>
-          <Text style={[styles.groupProgressText, completedCount > 0 && { color: COLORS.textSecondary }]}>
+          <Text
+            style={[
+              styles.groupProgressText,
+              completedCount > 0 && { color: COLORS.textSecondary },
+            ]}
+          >
             {completedCount}/{units.length}
           </Text>
           {completedCount > 0 && (
@@ -113,7 +118,10 @@ function UnitGroup({
 
                 {/* Info */}
                 <View style={styles.unitMain}>
-                  <Text style={[styles.unitName, isComp && { color: COLORS.text }]} numberOfLines={1}>
+                  <Text
+                    style={[styles.unitName, isComp && { color: COLORS.text }]}
+                    numberOfLines={1}
+                  >
                     {unit.title}
                   </Text>
 
@@ -455,5 +463,10 @@ const styles = StyleSheet.create({
 
   unitStats: { alignItems: 'flex-end' },
   unitStatsCount: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.gray[400] },
-  unitStatsStatus: { fontFamily: FONTS.regular, fontSize: 9, color: COLORS.gray[400], marginTop: 2 },
+  unitStatsStatus: {
+    fontFamily: FONTS.regular,
+    fontSize: 9,
+    color: COLORS.gray[400],
+    marginTop: 2,
+  },
 });

@@ -74,9 +74,12 @@ export default function Button({
     iconColor = colors.text;
   }
 
-  const spinnerColor = (variant === 'outline' || variant === 'ghost')
-    ? colors.primary
-    : (variant === 'secondary' ? colors.text : '#FFFFFF');
+  const spinnerColor =
+    variant === 'outline' || variant === 'ghost'
+      ? colors.primary
+      : variant === 'secondary'
+        ? colors.text
+        : '#FFFFFF';
 
   return (
     <AnimatedPressable
@@ -103,23 +106,20 @@ export default function Button({
       ) : (
         <View style={styles.content}>
           {leftIcon && (
-            <Ionicons
-              name={leftIcon}
-              size={iconSize}
-              color={iconColor}
-              style={styles.leftIcon}
-            />
+            <Ionicons name={leftIcon} size={iconSize} color={iconColor} style={styles.leftIcon} />
           )}
-          <Text style={[styles.text, styles[`text_${variant}`], styles[`text_${size}`], isDisabled && styles.textDisabled]}>
+          <Text
+            style={[
+              styles.text,
+              styles[`text_${variant}`],
+              styles[`text_${size}`],
+              isDisabled && styles.textDisabled,
+            ]}
+          >
             {title}
           </Text>
           {rightIcon && (
-            <Ionicons
-              name={rightIcon}
-              size={iconSize}
-              color={iconColor}
-              style={styles.rightIcon}
-            />
+            <Ionicons name={rightIcon} size={iconSize} color={iconColor} style={styles.rightIcon} />
           )}
         </View>
       )}

@@ -4,7 +4,7 @@ import type { ThemeTokens } from '@/constants';
 
 /**
  * Custom hook to generate theme-aware memoized styles.
- * 
+ *
  * @param factory A function that takes ThemeTokens and returns a stylesheet or style objects.
  * @returns The memoized style object returned by the factory.
  */

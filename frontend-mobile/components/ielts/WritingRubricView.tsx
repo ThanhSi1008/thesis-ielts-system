@@ -166,7 +166,10 @@ function MistakesTable({
     <View style={[mt.container, { borderColor: colors.border }]}>
       <Text style={mt.label}>Annotated Mistakes</Text>
       {mistakes.map((m, i) => (
-        <View key={i} style={[mt.row, { borderColor: colors.border, backgroundColor: colors.card }]}>
+        <View
+          key={i}
+          style={[mt.row, { borderColor: colors.border, backgroundColor: colors.card }]}
+        >
           <View style={[mt.original, { borderColor: colors.border }]}>
             <Text style={[mt.originalText, { color: colors.text }]}>{m.original}</Text>
           </View>
@@ -420,7 +423,9 @@ function AnswerPreview({
       >
         <View style={ap.headerLeft}>
           <Ionicons name="document-text-outline" size={16} color={colors.textSecondary} />
-          <Text style={[ap.headerTitle, { color: colors.text }]}>Task {taskNum} — Your Response</Text>
+          <Text style={[ap.headerTitle, { color: colors.text }]}>
+            Task {taskNum} — Your Response
+          </Text>
         </View>
         <View style={ap.headerRight}>
           <View style={[ap.wordBadge, { backgroundColor: colors.surface }]}>
@@ -436,14 +441,21 @@ function AnswerPreview({
       {expanded && (
         <View style={[ap.body, { borderColor: colors.border }]}>
           {prompt ? (
-            <View style={[ap.promptBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View
+              style={[
+                ap.promptBox,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+            >
               <Text style={[ap.promptLabel, { color: colors.textMuted }]}>Prompt</Text>
               <Text style={[ap.promptText, { color: colors.text }]}>{prompt}</Text>
             </View>
           ) : null}
           <View style={[ap.answerBox, { backgroundColor: colors.surface }]}>
             <Text style={[ap.answerText, { color: colors.text }]}>
-              {answer || <Text style={[ap.emptyText, { color: colors.textMuted }]}>No answer provided.</Text>}
+              {answer || (
+                <Text style={[ap.emptyText, { color: colors.textMuted }]}>No answer provided.</Text>
+              )}
             </Text>
           </View>
         </View>
@@ -516,11 +528,15 @@ export default function WritingRubricView({
   return (
     <View style={wr.container}>
       {/* Overall Band */}
-      <View style={[wr.overallCard, { backgroundColor: colors.card, borderColor: overallColor + '40' }]}>
+      <View
+        style={[wr.overallCard, { backgroundColor: colors.card, borderColor: overallColor + '40' }]}
+      >
         <BandCircle band={feedback.overall_band} size={64} />
         <View style={wr.overallInfo}>
           <Text style={[wr.overallTitle, { color: colors.text }]}>Overall Writing Band</Text>
-          <Text style={[wr.overallSub, { color: colors.textSecondary }]}>Task 1 · Task 2 Combined</Text>
+          <Text style={[wr.overallSub, { color: colors.textSecondary }]}>
+            Task 1 · Task 2 Combined
+          </Text>
           <View style={wr.overallRow}>
             {showTask1 && (
               <View
@@ -564,7 +580,15 @@ export default function WritingRubricView({
               size={14}
               color={activeTask === 1 ? '#fff' : colors.textSecondary}
             />
-            <Text style={[wr.tabText, { color: colors.textSecondary }, activeTask === 1 && wr.tabTextActive]}>Task 1</Text>
+            <Text
+              style={[
+                wr.tabText,
+                { color: colors.textSecondary },
+                activeTask === 1 && wr.tabTextActive,
+              ]}
+            >
+              Task 1
+            </Text>
           </TouchableOpacity>
         )}
         {showTask2 && (
@@ -578,7 +602,15 @@ export default function WritingRubricView({
               size={14}
               color={activeTask === 2 ? '#fff' : colors.textSecondary}
             />
-            <Text style={[wr.tabText, { color: colors.textSecondary }, activeTask === 2 && wr.tabTextActive]}>Task 2</Text>
+            <Text
+              style={[
+                wr.tabText,
+                { color: colors.textSecondary },
+                activeTask === 2 && wr.tabTextActive,
+              ]}
+            >
+              Task 2
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -587,7 +619,9 @@ export default function WritingRubricView({
       <AnswerPreview taskNum={activeTask} answer={currentAnswer} prompt={currentPrompt?.prompt} />
 
       {/* Criteria Cards */}
-      <Text style={[wr.sectionHeader, { color: colors.textSecondary }]}>Detailed Feedback — Task {activeTask}</Text>
+      <Text style={[wr.sectionHeader, { color: colors.textSecondary }]}>
+        Detailed Feedback — Task {activeTask}
+      </Text>
       {CRITERIA_KEYS.map((key) => (
         <CriterionCard
           key={`${activeTask}-${key}`}

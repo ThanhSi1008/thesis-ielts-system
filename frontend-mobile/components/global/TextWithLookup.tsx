@@ -37,7 +37,7 @@ export function TextWithLookup({ content, style, selectable = true }: TextWithLo
 
     // Find the sentence that contains this word.
     const cleanWord = word.toLowerCase();
-    const matchingSentence = sentences.find(s => s.toLowerCase().includes(cleanWord)) || content;
+    const matchingSentence = sentences.find((s) => s.toLowerCase().includes(cleanWord)) || content;
 
     // Emit event to open dictionary
     DeviceEventEmitter.emit('OPEN_DICTIONARY', {

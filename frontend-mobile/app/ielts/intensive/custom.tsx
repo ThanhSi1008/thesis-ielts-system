@@ -68,11 +68,16 @@ function OptionChip({
   const styles = createStyles(colors, isDark);
   return (
     <TouchableOpacity
-      style={[styles.optChip, active && { borderColor: activeColor, backgroundColor: activeColor + '15' }]}
+      style={[
+        styles.optChip,
+        active && { borderColor: activeColor, backgroundColor: activeColor + '15' },
+      ]}
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <Text style={[styles.optChipText, active && { color: activeColor, fontFamily: FONTS.bold }]}>{label}</Text>
+      <Text style={[styles.optChipText, active && { color: activeColor, fontFamily: FONTS.bold }]}>
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -180,7 +185,9 @@ export default function CustomPracticeScreen() {
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.subtitle}>Build your own practice session exactly the way you want.</Text>
+        <Text style={styles.subtitle}>
+          Build your own practice session exactly the way you want.
+        </Text>
 
         {/* ── Step 1: Skill ─────────────────────────────────────────────── */}
         <StepLabel num={1} text="Select Skill" />
@@ -190,12 +197,17 @@ export default function CustomPracticeScreen() {
               key={sk.key}
               style={[
                 styles.optChip,
-                skill === sk.key && { borderColor: sk.color, backgroundColor: sk.color + '15' }
+                skill === sk.key && { borderColor: sk.color, backgroundColor: sk.color + '15' },
               ]}
               onPress={() => setSkill(sk.key)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.optChipText, skill === sk.key && { color: sk.color, fontFamily: FONTS.bold }]}>
+              <Text
+                style={[
+                  styles.optChipText,
+                  skill === sk.key && { color: sk.color, fontFamily: FONTS.bold },
+                ]}
+              >
                 {sk.icon} {sk.label}
               </Text>
             </TouchableOpacity>
@@ -273,12 +285,20 @@ export default function CustomPracticeScreen() {
           <TouchableOpacity
             style={[
               styles.optChip,
-              part === 'all' && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+              part === 'all' && {
+                borderColor: skillInfo.color,
+                backgroundColor: skillInfo.color + '15',
+              },
             ]}
             onPress={() => setPart('all')}
             activeOpacity={0.8}
           >
-            <Text style={[styles.optChipText, part === 'all' && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+            <Text
+              style={[
+                styles.optChipText,
+                part === 'all' && { color: skillInfo.color, fontFamily: FONTS.bold },
+              ]}
+            >
               All Parts
             </Text>
           </TouchableOpacity>
@@ -287,12 +307,20 @@ export default function CustomPracticeScreen() {
               key={n}
               style={[
                 styles.optChip,
-                part === n && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+                part === n && {
+                  borderColor: skillInfo.color,
+                  backgroundColor: skillInfo.color + '15',
+                },
               ]}
               onPress={() => setPart(n)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.optChipText, part === n && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+              <Text
+                style={[
+                  styles.optChipText,
+                  part === n && { color: skillInfo.color, fontFamily: FONTS.bold },
+                ]}
+              >
                 Part {n}
               </Text>
             </TouchableOpacity>
@@ -307,7 +335,11 @@ export default function CustomPracticeScreen() {
               key={mins}
               style={[
                 styles.optChip,
-                !isCustomTime && timeLimit === mins && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+                !isCustomTime &&
+                  timeLimit === mins && {
+                    borderColor: skillInfo.color,
+                    backgroundColor: skillInfo.color + '15',
+                  },
               ]}
               onPress={() => {
                 setIsCustomTime(false);
@@ -315,7 +347,13 @@ export default function CustomPracticeScreen() {
               }}
               activeOpacity={0.8}
             >
-              <Text style={[styles.optChipText, !isCustomTime && timeLimit === mins && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+              <Text
+                style={[
+                  styles.optChipText,
+                  !isCustomTime &&
+                    timeLimit === mins && { color: skillInfo.color, fontFamily: FONTS.bold },
+                ]}
+              >
                 {mins} min
               </Text>
             </TouchableOpacity>
@@ -323,12 +361,20 @@ export default function CustomPracticeScreen() {
           <TouchableOpacity
             style={[
               styles.optChip,
-              isCustomTime && { borderColor: skillInfo.color, backgroundColor: skillInfo.color + '15' }
+              isCustomTime && {
+                borderColor: skillInfo.color,
+                backgroundColor: skillInfo.color + '15',
+              },
             ]}
             onPress={() => setIsCustomTime(true)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.optChipText, isCustomTime && { color: skillInfo.color, fontFamily: FONTS.bold }]}>
+            <Text
+              style={[
+                styles.optChipText,
+                isCustomTime && { color: skillInfo.color, fontFamily: FONTS.bold },
+              ]}
+            >
               Custom
             </Text>
           </TouchableOpacity>
@@ -408,199 +454,212 @@ export default function CustomPracticeScreen() {
 }
 
 // ─── Styles Factory ──────────────────────────────────────────────────────────
-const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    backgroundColor: isDark ? colors.surface : colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: isDark ? 1 : 0,
-    borderBottomColor: colors.border,
-  },
-  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { color: isDark ? colors.text : '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
-  subtitle: {
-    fontSize: FONT_SIZES.sm,
-    color: colors.textSecondary,
-    marginBottom: SPACING.xl,
-    lineHeight: 20,
-  },
+const createStyles = (colors: any, isDark: boolean) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      backgroundColor: isDark ? colors.surface : colors.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+      borderBottomWidth: isDark ? 1 : 0,
+      borderBottomColor: colors.border,
+    },
+    backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.lg,
+      fontFamily: FONTS.bold,
+    },
+    subtitle: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      marginBottom: SPACING.xl,
+      lineHeight: 20,
+    },
 
-  // Step label
-  stepLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    marginBottom: SPACING.md,
-    marginTop: SPACING.xl,
-  },
-  stepBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepNum: { color: isDark ? colors.background : '#fff', fontSize: 12, fontFamily: FONTS.bold },
-  stepText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
+    // Step label
+    stepLabel: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      marginBottom: SPACING.md,
+      marginTop: SPACING.xl,
+    },
+    stepBadge: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stepNum: { color: isDark ? colors.background : '#fff', fontSize: 12, fontFamily: FONTS.bold },
+    stepText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
 
-  // Option chips
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, marginBottom: SPACING.sm },
-  optChip: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.xl,
-    borderWidth: 2,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-  optChipText: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
+    // Option chips
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, marginBottom: SPACING.sm },
+    optChip: {
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm,
+      borderRadius: RADIUS.xl,
+      borderWidth: 2,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    optChipText: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
 
-  // Exam picker
-  loadingBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    padding: SPACING.lg,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  loadingText: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
-  examSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    borderWidth: 2,
-    borderColor: colors.border,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: isDark ? 0.2 : 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  examSelectorText: {
-    flex: 1,
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONTS.bold,
-    color: colors.text,
-    marginRight: SPACING.sm,
-  },
-  examPickerDropdown: {
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginTop: SPACING.xs,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: isDark ? 0.3 : 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  examPickerItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-  },
-  examPickerItemActive: { backgroundColor: colors.surface },
-  examPickerText: { fontSize: FONT_SIZES.sm, color: colors.text, flex: 1, marginRight: SPACING.sm },
-  examPickerEmpty: {
-    padding: SPACING.lg,
-    textAlign: 'center',
-    color: colors.textMuted,
-    fontSize: FONT_SIZES.sm,
-  },
+    // Exam picker
+    loadingBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      padding: SPACING.lg,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    loadingText: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
+    examSelector: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      borderWidth: 2,
+      borderColor: colors.border,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.2 : 0.06,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    examSelectorText: {
+      flex: 1,
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+      marginRight: SPACING.sm,
+    },
+    examPickerDropdown: {
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginTop: SPACING.xs,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: isDark ? 0.3 : 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    examPickerItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    examPickerItemActive: { backgroundColor: colors.surface },
+    examPickerText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      flex: 1,
+      marginRight: SPACING.sm,
+    },
+    examPickerEmpty: {
+      padding: SPACING.lg,
+      textAlign: 'center',
+      color: colors.textMuted,
+      fontSize: FONT_SIZES.sm,
+    },
 
-  // Custom time
-  customTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    marginTop: SPACING.sm,
-    marginBottom: SPACING.sm,
-  },
-  customTimeInput: {
-    width: 72,
-    height: 44,
-    borderRadius: RADIUS.lg,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    textAlign: 'center',
-    fontSize: FONT_SIZES.lg,
-    fontFamily: FONTS.bold,
-    color: colors.text,
-    backgroundColor: colors.card,
-  },
-  customTimeLabel: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
+    // Custom time
+    customTimeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.md,
+      marginTop: SPACING.sm,
+      marginBottom: SPACING.sm,
+    },
+    customTimeInput: {
+      width: 72,
+      height: 44,
+      borderRadius: RADIUS.lg,
+      borderWidth: 2,
+      borderColor: colors.primary,
+      textAlign: 'center',
+      fontSize: FONT_SIZES.lg,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+      backgroundColor: colors.card,
+    },
+    customTimeLabel: { fontSize: FONT_SIZES.sm, color: colors.textSecondary },
 
-  // Auto submit
-  divider: { height: 1, backgroundColor: colors.border, marginVertical: SPACING.xl },
-  autoSubmitRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.lg },
-  autoSubmitTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: colors.text },
-  autoSubmitSub: {
-    fontSize: FONT_SIZES.xs,
-    color: colors.textSecondary,
-    marginTop: 3,
-    lineHeight: 18,
-  },
+    // Auto submit
+    divider: { height: 1, backgroundColor: colors.border, marginVertical: SPACING.xl },
+    autoSubmitRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.lg },
+    autoSubmitTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: colors.text },
+    autoSubmitSub: {
+      fontSize: FONT_SIZES.xs,
+      color: colors.textSecondary,
+      marginTop: 3,
+      lineHeight: 18,
+    },
 
-  // Summary
-  summaryCard: {
-    marginTop: SPACING.xl,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: isDark ? 0.2 : 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  summaryTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, marginBottom: 6 },
-  summaryDetail: { fontSize: FONT_SIZES.sm, color: colors.textSecondary, marginTop: 3 },
+    // Summary
+    summaryCard: {
+      marginTop: SPACING.xl,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderLeftWidth: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.2 : 0.04,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    summaryTitle: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, marginBottom: 6 },
+    summaryDetail: { fontSize: FONT_SIZES.sm, color: colors.textSecondary, marginTop: 3 },
 
-  // Start bar
-  startBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xl,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderColor: colors.border,
-  },
-  startBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.lg,
-    borderRadius: RADIUS.xl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  startBtnDisabled: { opacity: 0.7 },
-  startBtnText: { color: isDark ? colors.background : '#fff', fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
-});
-
+    // Start bar
+    startBar: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: SPACING.lg,
+      paddingBottom: SPACING.xl,
+      backgroundColor: colors.background,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+    },
+    startBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: SPACING.lg,
+      borderRadius: RADIUS.xl,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    startBtnDisabled: { opacity: 0.7 },
+    startBtnText: {
+      color: isDark ? colors.background : '#fff',
+      fontSize: FONT_SIZES.md,
+      fontFamily: FONTS.bold,
+    },
+  });

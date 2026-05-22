@@ -9,10 +9,7 @@ export interface DividerProps {
   size?: number; // Optional margin space surrounding divider
 }
 
-export default function Divider({
-  vertical = false,
-  size = 2,
-}: DividerProps) {
+export default function Divider({ vertical = false, size = 2 }: DividerProps) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
 

@@ -64,14 +64,22 @@ export default function Avatar({
   const styles = useThemedStyles(createStyles);
 
   const isNumberSize = typeof size === 'number';
-  const dimension = isNumberSize ? (size as number) : SIZE_MAP[size as AvatarSize || 'md'];
+  const dimension = isNumberSize ? (size as number) : SIZE_MAP[(size as AvatarSize) || 'md'];
   const initials = getInitials(name);
   const fallbackBg = color || getPastelColor(name);
 
   // Font size relative to avatar size
   const fontSize = isNumberSize
     ? (size as number) * 0.38
-    : size === 'xs' ? 10 : size === 'sm' ? 12 : size === 'md' ? 18 : size === 'lg' ? 24 : 36;
+    : size === 'xs'
+      ? 10
+      : size === 'sm'
+        ? 12
+        : size === 'md'
+          ? 18
+          : size === 'lg'
+            ? 24
+            : 36;
   const initialsColor = '#1E293B'; // High-contrast dark text on light pastel colors
 
   const activeSource = source || avatar;
@@ -82,7 +90,10 @@ export default function Avatar({
       {hasImage ? (
         <Image
           source={activeSource as any}
-          style={[styles.image, { width: dimension, height: dimension, borderRadius: dimension / 2 }]}
+          style={[
+            styles.image,
+            { width: dimension, height: dimension, borderRadius: dimension / 2 },
+          ]}
           contentFit="cover"
           transition={200}
         />

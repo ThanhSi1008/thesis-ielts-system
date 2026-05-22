@@ -47,24 +47,23 @@ export default function ExamPlayerScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const partOffsetsRef = useRef<Record<number, number>>({});
 
-  const onGradingDone = useCallback((sid: string) => {
-    router.replace(ROUTES.ieltsIntensiveResult(sid) as any);
-  }, [router]);
+  const onGradingDone = useCallback(
+    (sid: string) => {
+      router.replace(ROUTES.ieltsIntensiveResult(sid) as any);
+    },
+    [router],
+  );
 
-  const onGradingError = useCallback((msg: string) => {
-    Alert.alert('Grading Error', msg, [
-      { text: 'View History', onPress: () => router.replace(ROUTES.ielts) },
-    ]);
-  }, [router]);
+  const onGradingError = useCallback(
+    (msg: string) => {
+      Alert.alert('Grading Error', msg, [
+        { text: 'View History', onPress: () => router.replace(ROUTES.ielts) },
+      ]);
+    },
+    [router],
+  );
 
-  const {
-    exam,
-    session,
-    loading,
-    submitting,
-    isAiGrading,
-    submitSession,
-  } = useExamSession({
+  const { exam, session, loading, submitting, isAiGrading, submitSession } = useExamSession({
     examId,
     userId: user?.id,
     onGradingDone,
@@ -109,14 +108,16 @@ export default function ExamPlayerScreen() {
     (n: number) => {
       if (!exam) return;
       const questionsData = exam.questions as any;
-      const partsData = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
+      const partsData =
+        questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
       if (partsData.length === 0) {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
         return;
       }
       let targetPartIndex = 0;
       for (let pi = 0; pi < partsData.length; pi++) {
-        const groups = partsData[pi].question_groups || partsData[pi].groups || partsData[pi].content || [];
+        const groups =
+          partsData[pi].question_groups || partsData[pi].groups || partsData[pi].content || [];
         for (const g of groups) {
           const allNums: number[] = [];
           const collectNums = (obj: any) => {
@@ -224,7 +225,9 @@ export default function ExamPlayerScreen() {
   }
 
   if (!examReady) {
-    return <PreparationScreen exam={exam} onStartExam={handleStartExam} onBack={() => router.back()} />;
+    return (
+      <PreparationScreen exam={exam} onStartExam={handleStartExam} onBack={() => router.back()} />
+    );
   }
 
   const examType: string = exam.type || 'LISTENING';
@@ -253,11 +256,7 @@ export default function ExamPlayerScreen() {
       />
 
       {audioUrl && (
-        <ExamAudioPlayer
-          isPlaying={player.playing}
-          volume={volume}
-          onVolumeChange={setVolume}
-        />
+        <ExamAudioPlayer isPlaying={player.playing} volume={volume} onVolumeChange={setVolume} />
       )}
 
       {isWriting && (
@@ -289,7 +288,12 @@ export default function ExamPlayerScreen() {
       {!isWriting && !isSpeaking && !isReading && (
         <>
           {parts.length > 1 && (
-            <View style={[styles.listeningPartTabs, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View
+              style={[
+                styles.listeningPartTabs,
+                { backgroundColor: colors.card, borderColor: colors.border },
+              ]}
+            >
               {parts.map((part: any, pi: number) => {
                 const isActive = activeListeningPartIndex === pi;
                 return (
@@ -365,9 +369,17 @@ export default function ExamPlayerScreen() {
         </>
       )}
 
-      <View style={[styles.submitBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+      <View
+        style={[styles.submitBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}
+      >
         <TouchableOpacity
-          style={[styles.navToggleBtn, { backgroundColor: isDark ? colors.surface : COLORS.primary + '12', borderColor: isDark ? colors.border : COLORS.primary + '30' }]}
+          style={[
+            styles.navToggleBtn,
+            {
+              backgroundColor: isDark ? colors.surface : COLORS.primary + '12',
+              borderColor: isDark ? colors.border : COLORS.primary + '30',
+            },
+          ]}
           onPress={() => setNavOpen((v) => !v)}
           activeOpacity={0.8}
         >
@@ -395,87 +407,91 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {isAiGrading && (
-        <AIGradingOverlay onGoBack={() => router.replace(ROUTES.ieltsIntensive)} />
-      )}
+      {isAiGrading && <AIGradingOverlay onGoBack={() => router.replace(ROUTES.ieltsIntensive)} />}
     </SafeAreaView>
   );
 }
 
-const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
-  loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
-  errorText: { fontSize: FONT_SIZES.lg, color: colors.error, marginBottom: SPACING.md },
-  scrollArea: { flex: 1 },
-  partSection: { marginBottom: SPACING.xxl },
-  partTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: SPACING.lg,
-    paddingBottom: SPACING.sm,
-    borderBottomWidth: 2,
-    borderColor: colors.primary,
-  },
-  instructions: {
-    fontSize: FONT_SIZES.sm,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-    marginBottom: SPACING.md,
-    padding: SPACING.md,
-    backgroundColor: isDark ? colors.surface : '#FFF9C4',
-    borderRadius: RADIUS.md,
-    borderLeftWidth: 3,
-    borderLeftColor: isDark ? colors.border : colors.warning,
-  },
-  submitBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    backgroundColor: colors.card,
-    borderTopWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  navToggleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    borderRadius: RADIUS.xl,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1.5,
-  },
-  navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
-  listeningPartTabs: {
-    flexDirection: 'row',
-    backgroundColor: colors.card,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-  },
-  listeningPartTab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
-  },
-  listeningPartTabActive: { borderBottomColor: colors.primary },
-  listeningPartTabLabel: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  listeningPartTabLabelActive: { color: colors.primary },
-});
+const createStyles = (colors: any, isDark: boolean) =>
+  StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
+    errorText: { fontSize: FONT_SIZES.lg, color: colors.error, marginBottom: SPACING.md },
+    scrollArea: { flex: 1 },
+    partSection: { marginBottom: SPACING.xxl },
+    partTitle: {
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '800',
+      color: colors.text,
+      marginBottom: SPACING.lg,
+      paddingBottom: SPACING.sm,
+      borderBottomWidth: 2,
+      borderColor: colors.primary,
+    },
+    instructions: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+      marginBottom: SPACING.md,
+      padding: SPACING.md,
+      backgroundColor: isDark ? colors.surface : '#FFF9C4',
+      borderRadius: RADIUS.md,
+      borderLeftWidth: 3,
+      borderLeftColor: isDark ? colors.border : colors.warning,
+    },
+    submitBar: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
+      backgroundColor: colors.card,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    navToggleBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      borderRadius: RADIUS.xl,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderWidth: 1.5,
+    },
+    navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
+    listeningPartTabs: {
+      flexDirection: 'row',
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    listeningPartTab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 3,
+      borderBottomColor: 'transparent',
+    },
+    listeningPartTabActive: { borderBottomColor: colors.primary },
+    listeningPartTabLabel: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    listeningPartTabLabelActive: { color: colors.primary },
+  });

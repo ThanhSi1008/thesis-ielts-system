@@ -169,7 +169,12 @@ export default function DiagnosticScreen() {
   const [blankPickerVisible, setBlankPickerVisible] = useState(false);
 
   // Final Scores
-  const [scores, setScores] = useState<Scores>({ listening: 0, reading: 0, writing: 0, overall: 0 });
+  const [scores, setScores] = useState<Scores>({
+    listening: 0,
+    reading: 0,
+    writing: 0,
+    overall: 0,
+  });
 
   useEffect(() => {
     const fetchPlacement = async () => {
@@ -256,7 +261,9 @@ export default function DiagnosticScreen() {
 
   const activeBlankOptions = useMemo(() => {
     if (activeBlankId === null) return [];
-    const blank = writingClozeData.paragraph.find((p) => p.type === 'blank' && p.id === activeBlankId);
+    const blank = writingClozeData.paragraph.find(
+      (p) => p.type === 'blank' && p.id === activeBlankId,
+    );
     return blank ? (blank.options as string[]) : [];
   }, [activeBlankId]);
 
@@ -269,10 +276,25 @@ export default function DiagnosticScreen() {
   };
 
   const getQuality = (score: number) => {
-    if (score >= 90) return { text: 'Excellent', color: '#16A34A', desc: "You'll skip basic lessons entirely." };
-    if (score >= 70) return { text: 'Good', color: '#2563EB', desc: "You'll practice 1 focused exercise per lesson." };
-    if (score >= 50) return { text: 'Moderate', color: '#D97706', desc: "You'll practice 2 core exercises per lesson." };
-    return { text: 'Beginner', color: '#DC2626', desc: "You'll cover all standard step lessons & exercises." };
+    if (score >= 90)
+      return { text: 'Excellent', color: '#16A34A', desc: "You'll skip basic lessons entirely." };
+    if (score >= 70)
+      return {
+        text: 'Good',
+        color: '#2563EB',
+        desc: "You'll practice 1 focused exercise per lesson.",
+      };
+    if (score >= 50)
+      return {
+        text: 'Moderate',
+        color: '#D97706',
+        desc: "You'll practice 2 core exercises per lesson.",
+      };
+    return {
+      text: 'Beginner',
+      color: '#DC2626',
+      desc: "You'll cover all standard step lessons & exercises.",
+    };
   };
 
   if (loading) {
@@ -315,9 +337,7 @@ export default function DiagnosticScreen() {
                     </Text>
                   )}
                 </View>
-                <Text style={[styles.stepLabel, isActive && styles.stepLabelActive]}>
-                  {label}
-                </Text>
+                <Text style={[styles.stepLabel, isActive && styles.stepLabelActive]}>{label}</Text>
               </View>
             );
           })}
@@ -335,7 +355,9 @@ export default function DiagnosticScreen() {
             >
               <View style={styles.stageIntro}>
                 <Ionicons name="headset-outline" size={24} color={COLORS.skill.listening} />
-                <Text style={styles.stageTitle}>{exercises.listening.topic ?? 'Listening Placement'}</Text>
+                <Text style={styles.stageTitle}>
+                  {exercises.listening.topic ?? 'Listening Placement'}
+                </Text>
               </View>
 
               {exercises.listening.audioUrl && (
@@ -382,7 +404,9 @@ export default function DiagnosticScreen() {
             >
               <View style={styles.stageIntro}>
                 <Ionicons name="book-outline" size={24} color={COLORS.skill.reading} />
-                <Text style={styles.stageTitle}>{exercises.reading.topic ?? 'Reading Placement'}</Text>
+                <Text style={styles.stageTitle}>
+                  {exercises.reading.topic ?? 'Reading Placement'}
+                </Text>
               </View>
 
               {exercises.reading.passage && (
@@ -499,7 +523,8 @@ export default function DiagnosticScreen() {
 
               <Text style={styles.finishTitle}>Diagnostic Complete!</Text>
               <Text style={styles.finishSubtitle}>
-                We've evaluated your English proficiency level and optimized your personalized roadmap study tasks.
+                We've evaluated your English proficiency level and optimized your personalized
+                roadmap study tasks.
               </Text>
 
               {/* Breakdown Cards */}
@@ -580,8 +605,7 @@ export default function DiagnosticScreen() {
 
             <View style={styles.modalBody}>
               {activeBlankOptions.map((opt) => {
-                const isSelected =
-                  activeBlankId !== null && writingAnswers[activeBlankId] === opt;
+                const isSelected = activeBlankId !== null && writingAnswers[activeBlankId] === opt;
                 return (
                   <TouchableOpacity
                     key={opt}

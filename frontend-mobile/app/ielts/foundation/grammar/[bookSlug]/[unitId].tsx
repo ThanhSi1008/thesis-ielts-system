@@ -88,7 +88,12 @@ function TheoryTab({ unit, onComplete }: { unit: any; onComplete: () => void }) 
 
 const th = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 40 },
-  emptyText: { fontSize: 14, color: COLORS.textSecondary, textAlign: 'center', fontFamily: FONTS.medium },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    fontFamily: FONTS.medium,
+  },
   block: {
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -99,16 +104,35 @@ const th = StyleSheet.create({
   },
   noteBlock: { backgroundColor: '#FFFBEB', borderColor: 'rgba(217, 119, 6, 0.25)' },
   blockHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
-  blockTitle: { fontSize: 12, fontFamily: FONTS.bold, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 },
+  blockTitle: {
+    fontSize: 12,
+    fontFamily: FONTS.bold,
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   explanation: { fontSize: 14, color: COLORS.text, lineHeight: 24, fontFamily: FONTS.medium },
   exampleRow: { flexDirection: 'row', gap: 8, marginBottom: 6 },
   exampleBullet: { fontSize: 14, color: '#059669', fontFamily: FONTS.bold },
-  exampleText: { flex: 1, fontSize: 14, color: COLORS.text, lineHeight: 22, fontStyle: 'italic', fontFamily: FONTS.medium },
+  exampleText: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.text,
+    lineHeight: 22,
+    fontStyle: 'italic',
+    fontFamily: FONTS.medium,
+  },
   noteText: { fontSize: 14, color: '#92400E', lineHeight: 22, fontFamily: FONTS.medium },
 });
 
 // ─── Exercises Tab Component ────────────────────────────────────────────────
-function ExercisesTab({ exercises, onSubmitScore }: { exercises: any[]; onSubmitScore: (correct: number) => void }) {
+function ExercisesTab({
+  exercises,
+  onSubmitScore,
+}: {
+  exercises: any[];
+  onSubmitScore: (correct: number) => void;
+}) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showAnswerMap, setShowAnswerMap] = useState<Record<string, boolean>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -161,7 +185,9 @@ function ExercisesTab({ exercises, onSubmitScore }: { exercises: any[]; onSubmit
           <Text style={[ex.resultScore, { color: score >= 70 ? '#059669' : '#EF4444' }]}>
             {score}%
           </Text>
-          <Text style={ex.resultLabel}>{score >= 70 ? '✨ Excellent work!' : 'Keep practicing!'}</Text>
+          <Text style={ex.resultLabel}>
+            {score >= 70 ? '✨ Excellent work!' : 'Keep practicing!'}
+          </Text>
         </View>
       )}
 
@@ -267,7 +293,12 @@ function ExercisesTab({ exercises, onSubmitScore }: { exercises: any[]; onSubmit
 
 const ex = StyleSheet.create({
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 40 },
-  emptyText: { fontSize: 14, color: COLORS.textSecondary, textAlign: 'center', fontFamily: FONTS.medium },
+  emptyText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    fontFamily: FONTS.medium,
+  },
   resultBanner: {
     borderRadius: 20,
     padding: 16,
@@ -275,7 +306,12 @@ const ex = StyleSheet.create({
     alignItems: 'center',
   },
   resultScore: { fontSize: 36, fontFamily: FONTS.bold },
-  resultLabel: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2, fontFamily: FONTS.medium },
+  resultLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    fontFamily: FONTS.medium,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -337,7 +373,14 @@ const ex = StyleSheet.create({
     padding: 12,
     marginTop: 8,
   },
-  answerTitle: { fontSize: 10, fontFamily: FONTS.bold, color: '#1B5E20', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 },
+  answerTitle: {
+    fontSize: 10,
+    fontFamily: FONTS.bold,
+    color: '#1B5E20',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
   answerText: { fontSize: 14, fontFamily: FONTS.bold, color: '#2E7D32' },
 });
 
@@ -375,19 +418,31 @@ export default function GrammarLessonScreen() {
     }
   }, [unitId]);
 
-  const submitExerciseScore = useCallback(async (correct: number) => {
-    if (!unitId || !unit) return;
-    try {
-      await grammarApi.updateProgress(unitId, {
-        exerciseScore: correct,
-        exerciseTotal: unit.exercises.length,
-      });
-    } catch {
-      /* silent progress update */
-    }
-  }, [unitId, unit]);
+  const submitExerciseScore = useCallback(
+    async (correct: number) => {
+      if (!unitId || !unit) return;
+      try {
+        await grammarApi.updateProgress(unitId, {
+          exerciseScore: correct,
+          exerciseTotal: unit.exercises.length,
+        });
+      } catch {
+        /* silent progress update */
+      }
+    },
+    [unitId, unit],
+  );
 
-  const accentColor = LEVEL_COLOR[unit?.book?.name ? (unit.book.name.includes('Advanced') ? 'Advanced' : unit.book.name.includes('Intermediate') ? 'Intermediate' : 'Elementary') : ''] ?? COLORS.primary;
+  const accentColor =
+    LEVEL_COLOR[
+      unit?.book?.name
+        ? unit.book.name.includes('Advanced')
+          ? 'Advanced'
+          : unit.book.name.includes('Intermediate')
+            ? 'Intermediate'
+            : 'Elementary'
+        : ''
+    ] ?? COLORS.primary;
   const exercises = unit?.exercises ?? [];
 
   const tabs: { key: Tab; label: string; icon: any }[] = [

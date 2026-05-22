@@ -27,7 +27,7 @@ export function useExamSession({
       setLoading(true);
       const examData = await ieltsExamsApi.getExam(examId);
       setExam(examData);
-      
+
       if (userId) {
         const sess = await ieltsExamsApi.createSession(examId, userId);
         setSession(sess);
@@ -57,26 +57,29 @@ export function useExamSession({
     },
   });
 
-  const submitSession = useCallback(async (payload: any, elapsedSeconds: number) => {
-    if (!session) return;
-    try {
-      setSubmitting(true);
-      const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
-      if (isAiType) {
-        setIsAiGrading(true);
+  const submitSession = useCallback(
+    async (payload: any, elapsedSeconds: number) => {
+      if (!session) return;
+      try {
+        setSubmitting(true);
+        const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
+        if (isAiType) {
+          setIsAiGrading(true);
+        }
+
+        await ieltsExamsApi.submitSession(session.id, payload, elapsedSeconds);
+
+        return { success: true, isAiType, sessionId: session.id };
+      } catch (e) {
+        console.error('Failed to submit session:', e);
+        setIsAiGrading(false);
+        throw e;
+      } finally {
+        setSubmitting(false);
       }
-      
-      await ieltsExamsApi.submitSession(session.id, payload, elapsedSeconds);
-      
-      return { success: true, isAiType, sessionId: session.id };
-    } catch (e) {
-      console.error('Failed to submit session:', e);
-      setIsAiGrading(false);
-      throw e;
-    } finally {
-      setSubmitting(false);
-    }
-  }, [session, exam]);
+    },
+    [session, exam],
+  );
 
   return {
     exam,

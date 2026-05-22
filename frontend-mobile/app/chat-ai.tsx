@@ -49,7 +49,9 @@ export default function ChatAIScreen() {
       id: 'welcome-suggest-1',
       label: '📝 Practice IELTS Writing Task 2',
       actionType: 'EXPLAIN_NOTE',
-      payload: { query: 'Give me an IELTS Writing Task 2 prompt and guide me on how to structure it.' },
+      payload: {
+        query: 'Give me an IELTS Writing Task 2 prompt and guide me on how to structure it.',
+      },
     },
     {
       id: 'welcome-suggest-2',
@@ -61,7 +63,10 @@ export default function ChatAIScreen() {
       id: 'welcome-suggest-3',
       label: '💡 Explain Active vs Passive Voice',
       actionType: 'EXPLAIN_NOTE',
-      payload: { query: 'Can you explain the difference between active and passive voice with IELTS examples?' },
+      payload: {
+        query:
+          'Can you explain the difference between active and passive voice with IELTS examples?',
+      },
     },
   ];
 
@@ -74,7 +79,7 @@ export default function ChatAIScreen() {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  
+
   const scrollViewRef = useRef<ScrollView>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -100,7 +105,11 @@ export default function ChatAIScreen() {
   useEffect(() => {
     const saveHistory = async () => {
       try {
-        if (messages.length === 1 && messages[0].suggestions?.length === 3 && messages[0].suggestions[0].id.startsWith('welcome-')) {
+        if (
+          messages.length === 1 &&
+          messages[0].suggestions?.length === 3 &&
+          messages[0].suggestions[0].id.startsWith('welcome-')
+        ) {
           return; // Don't save initial default screen state
         }
         const historyToSave = messages.slice(-50);
@@ -146,7 +155,7 @@ export default function ChatAIScreen() {
 
   const handleWordExplanation = async (word: string, context: string) => {
     if (isTyping) return;
-    
+
     // Abort any ongoing stream
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -171,7 +180,7 @@ export default function ChatAIScreen() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           messages: [{ role: 'user', content: detailedPrompt }],
@@ -237,7 +246,9 @@ export default function ChatAIScreen() {
               id: `explain-more-${Date.now()}`,
               label: `📖 Give example sentences for "${word}"`,
               actionType: 'EXPLAIN_NOTE',
-              payload: { query: `Give me 3 example sentences using the word "${word}" in IELTS contexts.` },
+              payload: {
+                query: `Give me 3 example sentences using the word "${word}" in IELTS contexts.`,
+              },
             },
             {
               id: `synonyms-${Date.now()}`,
@@ -249,7 +260,6 @@ export default function ChatAIScreen() {
         }
         return next;
       });
-
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Lookup stream aborted');
@@ -300,12 +310,12 @@ export default function ChatAIScreen() {
 
     try {
       const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-      
+
       const response = await fetch(`${API_BASE_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           messages: newMessages,
@@ -370,20 +380,21 @@ export default function ChatAIScreen() {
               id: `suggest-quiz-${Date.now()}`,
               label: '🎯 Quiz me on IELTS Vocabulary',
               actionType: 'EXPLAIN_NOTE',
-              payload: { query: 'Quiz me on 5 essential IELTS vocabulary words. Show one at a time.' },
+              payload: {
+                query: 'Quiz me on 5 essential IELTS vocabulary words. Show one at a time.',
+              },
             },
           ];
         }
         return next;
       });
-      
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Stream aborted');
         return;
       }
       console.error('Lexon AI streaming error:', error);
-      
+
       // Fallback to standard non-streaming API call
       try {
         const res = await apiClient.post<{ response: string }>('/chat', {
@@ -402,8 +413,8 @@ export default function ChatAIScreen() {
                   label: '🔄 Try asking again',
                   actionType: 'EXPLAIN_NOTE',
                   payload: { query: userText },
-                }
-              ]
+                },
+              ],
             };
           }
           return next;
@@ -415,7 +426,8 @@ export default function ChatAIScreen() {
           if (next.length > 0 && next[next.length - 1].role === 'model') {
             next[next.length - 1] = {
               role: 'model',
-              content: 'Sorry, I encountered an error. Please check your internet connection and try again.',
+              content:
+                'Sorry, I encountered an error. Please check your internet connection and try again.',
             };
           }
           return next;
@@ -469,7 +481,7 @@ export default function ChatAIScreen() {
           </Svg>
           <Text style={styles.headerTitle}>Lexon AI</Text>
         </View>
-        
+
         <View style={styles.headerActions}>
           {messages.length > 1 && (
             <TouchableOpacity
@@ -480,7 +492,7 @@ export default function ChatAIScreen() {
               <Ionicons name="trash-outline" size={20} color="#ef4444" />
             </TouchableOpacity>
           )}
-          
+
           <TouchableOpacity
             style={styles.closeBtn}
             onPress={() => router.back()}
@@ -537,11 +549,17 @@ export default function ChatAIScreen() {
                     ]}
                   >
                     {isUser ? (
-                      <Text style={[styles.messageText, styles.messageTextUser]}>{msg.content}</Text>
+                      <Text style={[styles.messageText, styles.messageTextUser]}>
+                        {msg.content}
+                      </Text>
                     ) : msg.content ? (
                       <Markdown style={markdownStyles}>{msg.content}</Markdown>
                     ) : (
-                      <ActivityIndicator size="small" color="#9C6FEF" style={{ alignSelf: 'flex-start' }} />
+                      <ActivityIndicator
+                        size="small"
+                        color="#9C6FEF"
+                        style={{ alignSelf: 'flex-start' }}
+                      />
                     )}
                   </View>
                 </View>

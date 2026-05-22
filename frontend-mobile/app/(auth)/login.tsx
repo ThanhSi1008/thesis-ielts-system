@@ -1,11 +1,5 @@
 import { useState } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
@@ -79,8 +73,12 @@ export default function LoginScreen() {
       <StatusBar style="dark" />
 
       <View style={styles.header}>
-        <Text variant="display" color="primary" weight="bold" style={styles.title}>Welcome Back!</Text>
-        <Text variant="body" color="textSecondary" style={styles.subtitle}>Sign in to continue your learning journey</Text>
+        <Text variant="display" color="primary" weight="bold" style={styles.title}>
+          Welcome Back!
+        </Text>
+        <Text variant="body" color="textSecondary" style={styles.subtitle}>
+          Sign in to continue your learning journey
+        </Text>
       </View>
 
       <View style={styles.form}>
@@ -104,16 +102,13 @@ export default function LoginScreen() {
           secureTextEntry
         />
 
-        <Button
-          title="Log In"
-          onPress={handleLogin}
-          loading={isLoading}
-          fullWidth
-        />
+        <Button title="Log In" onPress={handleLogin} loading={isLoading} fullWidth />
 
         <View style={styles.dividerContainer}>
           <View style={styles.divider} />
-          <Text variant="caption" color="textSecondary" style={styles.dividerText}>OR</Text>
+          <Text variant="caption" color="textSecondary" style={styles.dividerText}>
+            OR
+          </Text>
           <View style={styles.divider} />
         </View>
 
@@ -129,10 +124,14 @@ export default function LoginScreen() {
         />
 
         <View style={styles.footer}>
-          <Text variant="body" color="textSecondary">Don't have an account? </Text>
+          <Text variant="body" color="textSecondary">
+            Don't have an account?{' '}
+          </Text>
           <Link href="/(auth)/register" asChild>
             <TouchableOpacity>
-              <Text variant="body" color="primary" weight="bold">Sign Up</Text>
+              <Text variant="body" color="primary" weight="bold">
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </Link>
         </View>

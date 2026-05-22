@@ -206,8 +206,7 @@ export function CreatePostModal({
 
             {/* ── Title ── */}
             <Text style={styles.sectionLabel}>
-              Title{' '}
-              <Text style={{ color: '#9ca3af', fontFamily: FONTS.regular }}>(optional)</Text>
+              Title <Text style={{ color: '#9ca3af', fontFamily: FONTS.regular }}>(optional)</Text>
             </Text>
             <TextInput
               value={title}
@@ -281,7 +280,9 @@ export function CreatePostModal({
                       },
                     ]}
                   >
-                    <Text style={[styles.tagChipText, active && { color: COLORS.primary }]}>{tag}</Text>
+                    <Text style={[styles.tagChipText, active && { color: COLORS.primary }]}>
+                      {tag}
+                    </Text>
                   </TouchableOpacity>
                 );
               })}

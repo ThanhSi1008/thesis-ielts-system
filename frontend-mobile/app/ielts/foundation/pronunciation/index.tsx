@@ -4,7 +4,15 @@
  * Tapping a symbol navigates to /ielts/foundation/pronunciation/[symbol]
  */
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,31 +37,34 @@ export default function IeltsPronunciationScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async (showSkeleton = true) => {
-    if (showSkeleton) setLoading(true);
-    setError(null);
-    try {
-      // 1. Fetch sounds
-      const soundsData = await pronunciationApi.getAllSounds();
-      setSounds(soundsData);
+  const fetchData = useCallback(
+    async (showSkeleton = true) => {
+      if (showSkeleton) setLoading(true);
+      setError(null);
+      try {
+        // 1. Fetch sounds
+        const soundsData = await pronunciationApi.getAllSounds();
+        setSounds(soundsData);
 
-      // 2. Fetch progress & stats if logged in
-      if (user) {
-        const [progressData, statsData] = await Promise.all([
-          pronunciationApi.getProgress(),
-          pronunciationApi.getStats(),
-        ]);
-        setProgress(progressData);
-        setStats(statsData);
+        // 2. Fetch progress & stats if logged in
+        if (user) {
+          const [progressData, statsData] = await Promise.all([
+            pronunciationApi.getProgress(),
+            pronunciationApi.getStats(),
+          ]);
+          setProgress(progressData);
+          setStats(statsData);
+        }
+      } catch (err: any) {
+        console.error('[IeltsPronunciationScreen] Error fetching data:', err);
+        setError(err?.message || 'Failed to load IPA data');
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-    } catch (err: any) {
-      console.error('[IeltsPronunciationScreen] Error fetching data:', err);
-      setError(err?.message || 'Failed to load IPA data');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [user]);
+    },
+    [user],
+  );
 
   useEffect(() => {
     fetchData();
@@ -108,7 +119,9 @@ export default function IeltsPronunciationScreen() {
         ) : error ? (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>⚠️ {error}</Text>
-            <Text style={styles.retryText} onPress={() => fetchData()}>Tap here to retry</Text>
+            <Text style={styles.retryText} onPress={() => fetchData()}>
+              Tap here to retry
+            </Text>
           </View>
         ) : sounds ? (
           <>
@@ -116,18 +129,29 @@ export default function IeltsPronunciationScreen() {
             {user && stats && <ProgressSummary stats={stats} />}
 
             {/* Daily Pronunciation Usage Indicator */}
-            {user && usage?.PRONUNCIATION_ATTEMPT && usage.PRONUNCIATION_ATTEMPT.limit !== Infinity && (
-              <View style={{ backgroundColor: '#fff', padding: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.md }}>
-                <UsageIndicator
-                  label="Daily AI Pronunciation Drills"
-                  used={usage.PRONUNCIATION_ATTEMPT.used}
-                  limit={usage.PRONUNCIATION_ATTEMPT.limit}
-                />
-              </View>
-            )}
+            {user &&
+              usage?.PRONUNCIATION_ATTEMPT &&
+              usage.PRONUNCIATION_ATTEMPT.limit !== Infinity && (
+                <View
+                  style={{
+                    backgroundColor: '#fff',
+                    padding: SPACING.md,
+                    borderRadius: RADIUS.xl,
+                    borderWidth: 1,
+                    borderColor: COLORS.border,
+                    marginBottom: SPACING.md,
+                  }}
+                >
+                  <UsageIndicator
+                    label="Daily AI Pronunciation Drills"
+                    used={usage.PRONUNCIATION_ATTEMPT.used}
+                    limit={usage.PRONUNCIATION_ATTEMPT.limit}
+                  />
+                </View>
+              )}
 
             <IpaChart sounds={sounds} progress={progress} onSymbolPress={go} />
-            
+
             {/* Stats footer (shown as additional info) */}
             <View style={styles.footer}>
               <View style={styles.footerStat}>

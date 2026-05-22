@@ -35,7 +35,7 @@ export function ExamHeader({
       >
         <Ionicons name="close" size={24} color="#fff" />
       </TouchableOpacity>
-      
+
       <View style={styles.examTitleContainer}>
         <Text style={styles.examTitle} numberOfLines={1}>
           {displayTitle}
@@ -44,10 +44,7 @@ export function ExamHeader({
       </View>
 
       <View
-        style={[
-          styles.timerBadge,
-          isTimerWarning && styles.timerWarning,
-        ]}
+        style={[styles.timerBadge, isTimerWarning && styles.timerWarning]}
         accessibilityLabel={`Time remaining: ${timerDisplay}`}
         accessibilityLiveRegion="polite"
       >

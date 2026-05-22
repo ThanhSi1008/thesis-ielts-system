@@ -88,9 +88,7 @@ export default function FolderPicker({ selectedFolder, onSelectFolder }: FolderP
     }
   };
 
-  const filteredFolders = folders.filter((f) =>
-    f.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredFolders = folders.filter((f) => f.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <View style={styles.container}>
@@ -134,7 +132,12 @@ export default function FolderPicker({ selectedFolder, onSelectFolder }: FolderP
                 <View style={styles.modalBody}>
                   {/* Search Input */}
                   <View style={styles.searchBar}>
-                    <Ionicons name="search" size={16} color={COLORS.gray[400]} style={{ marginRight: 8 }} />
+                    <Ionicons
+                      name="search"
+                      size={16}
+                      color={COLORS.gray[400]}
+                      style={{ marginRight: 8 }}
+                    />
                     <TextInput
                       style={styles.searchInput}
                       placeholder="Search folders..."
@@ -185,7 +188,12 @@ export default function FolderPicker({ selectedFolder, onSelectFolder }: FolderP
                       style={styles.addFolderBtn}
                       onPress={() => setShowCreateInput(true)}
                     >
-                      <Ionicons name="add-circle" size={18} color={COLORS.primary} style={{ marginRight: 6 }} />
+                      <Ionicons
+                        name="add-circle"
+                        size={18}
+                        color={COLORS.primary}
+                        style={{ marginRight: 6 }}
+                      />
                       <Text style={styles.addFolderBtnText}>Create New Folder</Text>
                     </TouchableOpacity>
                   )}
@@ -219,7 +227,9 @@ export default function FolderPicker({ selectedFolder, onSelectFolder }: FolderP
                                 color={isSelected ? COLORS.primary : COLORS.gray[400]}
                                 style={{ marginRight: 10 }}
                               />
-                              <Text style={[styles.folderName, isSelected && styles.folderNameSelected]}>
+                              <Text
+                                style={[styles.folderName, isSelected && styles.folderNameSelected]}
+                              >
                                 {item}
                               </Text>
                             </View>

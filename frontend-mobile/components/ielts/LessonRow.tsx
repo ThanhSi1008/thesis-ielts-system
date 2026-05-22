@@ -83,7 +83,10 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
 
         {/* Text section */}
         <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { color: colors.text }, isNext && styles.titleNext]} numberOfLines={2}>
+          <Text
+            style={[styles.title, { color: colors.text }, isNext && styles.titleNext]}
+            numberOfLines={2}
+          >
             {item.title}
           </Text>
           <Text style={styles.meta}>

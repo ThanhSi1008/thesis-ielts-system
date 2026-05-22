@@ -414,7 +414,10 @@ export default function StudyScreen() {
         <View style={styles.loadingContainer}>
           <Ionicons name="alert-circle-outline" size={48} color={COLORS.error} />
           <Text style={styles.errorText}>{error}</Text>
-          <Pressable style={[styles.retryBtn, { backgroundColor: colors.primary }]} onPress={fetchCards}>
+          <Pressable
+            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+            onPress={fetchCards}
+          >
             <Text style={styles.retryBtnText}>Try Again</Text>
           </Pressable>
         </View>

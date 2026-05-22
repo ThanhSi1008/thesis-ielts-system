@@ -100,7 +100,7 @@ export function GlobalVocabFab() {
           friction: 10,
         }).start(() => {
           AsyncStorage.setItem(ASYNC_STORAGE_KEY, JSON.stringify({ x: targetX, y: targetY })).catch(
-            () => {}
+            () => {},
           );
         });
 
@@ -114,7 +114,7 @@ export function GlobalVocabFab() {
           });
         }
       },
-    })
+    }),
   ).current;
 
   if (shouldHide) return null;

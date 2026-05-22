@@ -54,9 +54,9 @@ export default function AdvancedWritingIndexScreen() {
       if (selectedSubType) {
         params.subType = selectedSubType;
       }
-      
+
       const res = await ieltsAdvancedApi.getWritingPrompts(params);
-      setPrompts(Array.isArray(res) ? res : res?.data ?? []);
+      setPrompts(Array.isArray(res) ? res : (res?.data ?? []));
     } catch (err) {
       console.error('[AdvancedWritingIndex] Failed to fetch prompts:', err);
     } finally {
@@ -94,7 +94,11 @@ export default function AdvancedWritingIndexScreen() {
   const filteredPrompts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return prompts.filter((p) => {
-      if (q && !(p.title ?? '').toLowerCase().includes(q) && !(p.subType ?? '').toLowerCase().includes(q)) {
+      if (
+        q &&
+        !(p.title ?? '').toLowerCase().includes(q) &&
+        !(p.subType ?? '').toLowerCase().includes(q)
+      ) {
         return false;
       }
       return true;
@@ -245,157 +249,152 @@ export default function AdvancedWritingIndexScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color={isDark ? colors.text : "#fff"} />
+          <Ionicons name="chevron-back" size={22} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Advanced Writing</Text>
         <TouchableOpacity
           style={styles.headerBtn}
           onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
         >
-          <Ionicons name="time-outline" size={22} color={isDark ? colors.text : "#fff"} />
+          <Ionicons name="time-outline" size={22} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
       </View>
 
       <FeatureLock requiredTier="PREMIUM" featureName="Advanced Writing Evaluation">
         {/* Tabs */}
-      <View style={styles.tabBar}>
-        {TABS.map((t) => (
-          <TouchableOpacity
-            key={t.key}
-            style={[styles.tab, activeTab === t.key && styles.activeTab]}
-            onPress={() => handleTabChange(t.key as any)}
-          >
-            <Text
-              style={[
-                styles.tabLabel,
-                activeTab === t.key && styles.activeTabLabel,
-              ]}
-            >
-              {t.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Search and SubType filters */}
-      <View style={styles.searchRow}>
-        <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={16} color={COLORS.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search prompts..."
-            placeholderTextColor={COLORS.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-            clearButtonMode="while-editing"
-          />
-        </View>
-      </View>
-
-      {/* Subtype chips */}
-      {!loading && subTypes.length > 0 && (
-        <View style={styles.filterContainer}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filterContent}
-          >
+        <View style={styles.tabBar}>
+          {TABS.map((t) => (
             <TouchableOpacity
-              style={[
-                styles.filterChip,
-                !selectedSubType && styles.activeFilterChip,
-              ]}
-              onPress={() => setSelectedSubType(null)}
+              key={t.key}
+              style={[styles.tab, activeTab === t.key && styles.activeTab]}
+              onPress={() => handleTabChange(t.key as any)}
             >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  !selectedSubType && styles.activeFilterChipText,
-                ]}
-              >
-                All Types
+              <Text style={[styles.tabLabel, activeTab === t.key && styles.activeTabLabel]}>
+                {t.label}
               </Text>
             </TouchableOpacity>
-            {subTypes.map((type) => (
+          ))}
+        </View>
+
+        {/* Search and SubType filters */}
+        <View style={styles.searchRow}>
+          <View style={styles.searchBox}>
+            <Ionicons name="search-outline" size={16} color={COLORS.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search prompts..."
+              placeholderTextColor={COLORS.textMuted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+            />
+          </View>
+        </View>
+
+        {/* Subtype chips */}
+        {!loading && subTypes.length > 0 && (
+          <View style={styles.filterContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterContent}
+            >
               <TouchableOpacity
-                key={type}
-                style={[
-                  styles.filterChip,
-                  selectedSubType === type && styles.activeFilterChip,
-                ]}
-                onPress={() => setSelectedSubType(type)}
+                style={[styles.filterChip, !selectedSubType && styles.activeFilterChip]}
+                onPress={() => setSelectedSubType(null)}
               >
                 <Text
-                  style={[
-                    styles.filterChipText,
-                    selectedSubType === type && styles.activeFilterChipText,
-                  ]}
+                  style={[styles.filterChipText, !selectedSubType && styles.activeFilterChipText]}
                 >
-                  {type}
+                  All Types
                 </Text>
               </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
+              {subTypes.map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.filterChip, selectedSubType === type && styles.activeFilterChip]}
+                  onPress={() => setSelectedSubType(type)}
+                >
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      selectedSubType === type && styles.activeFilterChipText,
+                    ]}
+                  >
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
-      {/* Main Content */}
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.skill.writing} />
-          <Text style={styles.loadingText}>Loading prompts...</Text>
-        </View>
-      ) : filteredPrompts.length === 0 ? (
-        <EmptyState
-          icon="✍️"
-          title="No prompts found"
-          subtitle="Try search with another query or reset the filters."
-        />
-      ) : (
-        <FlatList
-          data={filteredPrompts}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={
-            usage?.AI_WRITING_GRADING && usage.AI_WRITING_GRADING.limit !== Infinity ? (
-              <View style={{ backgroundColor: colors.card, padding: SPACING.md, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: colors.border, marginBottom: SPACING.md }}>
-                <UsageIndicator
-                  label="Monthly AI Writing Evaluations"
-                  used={usage.AI_WRITING_GRADING.used}
-                  limit={usage.AI_WRITING_GRADING.limit}
-                />
-              </View>
-            ) : null
-          }
-          renderItem={({ item, index }) => (
-            <AdvancedWritingPromptCard
-              prompt={{
-                id: item.id,
-                taskType: item.taskType,
-                subType: item.subType ?? 'Essay',
-                category: item.category ?? 'General',
-                title: item.title,
-                suggestedTime: item.suggestedTime ?? (item.taskType === 'TASK1' ? 20 : 40),
-                minimumWords: item.minimumWords ?? (item.taskType === 'TASK1' ? 150 : 250),
-                source: item.source,
-                imageUrl: item.imageUrl,
-                bestScore: item.bestScore ?? null,
-                lastAttempt: item.lastAttempt ?? null,
-              }}
-              index={index}
-              onPress={() => handlePromptPress(item.id)}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={COLORS.skill.writing}
-            />
-          }
-        />
-      )}
+        {/* Main Content */}
+        {loading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={COLORS.skill.writing} />
+            <Text style={styles.loadingText}>Loading prompts...</Text>
+          </View>
+        ) : filteredPrompts.length === 0 ? (
+          <EmptyState
+            icon="✍️"
+            title="No prompts found"
+            subtitle="Try search with another query or reset the filters."
+          />
+        ) : (
+          <FlatList
+            data={filteredPrompts}
+            keyExtractor={(item) => item.id}
+            ListHeaderComponent={
+              usage?.AI_WRITING_GRADING && usage.AI_WRITING_GRADING.limit !== Infinity ? (
+                <View
+                  style={{
+                    backgroundColor: colors.card,
+                    padding: SPACING.md,
+                    borderRadius: RADIUS.xl,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    marginBottom: SPACING.md,
+                  }}
+                >
+                  <UsageIndicator
+                    label="Monthly AI Writing Evaluations"
+                    used={usage.AI_WRITING_GRADING.used}
+                    limit={usage.AI_WRITING_GRADING.limit}
+                  />
+                </View>
+              ) : null
+            }
+            renderItem={({ item, index }) => (
+              <AdvancedWritingPromptCard
+                prompt={{
+                  id: item.id,
+                  taskType: item.taskType,
+                  subType: item.subType ?? 'Essay',
+                  category: item.category ?? 'General',
+                  title: item.title,
+                  suggestedTime: item.suggestedTime ?? (item.taskType === 'TASK1' ? 20 : 40),
+                  minimumWords: item.minimumWords ?? (item.taskType === 'TASK1' ? 150 : 250),
+                  source: item.source,
+                  imageUrl: item.imageUrl,
+                  bestScore: item.bestScore ?? null,
+                  lastAttempt: item.lastAttempt ?? null,
+                }}
+                index={index}
+                onPress={() => handlePromptPress(item.id)}
+              />
+            )}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                tintColor={COLORS.skill.writing}
+              />
+            }
+          />
+        )}
       </FeatureLock>
     </SafeAreaView>
   );

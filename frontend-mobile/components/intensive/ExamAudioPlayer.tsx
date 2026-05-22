@@ -10,11 +10,7 @@ interface ExamAudioPlayerProps {
   onVolumeChange: (vol: number) => void;
 }
 
-export function ExamAudioPlayer({
-  isPlaying,
-  volume,
-  onVolumeChange,
-}: ExamAudioPlayerProps) {
+export function ExamAudioPlayer({ isPlaying, volume, onVolumeChange }: ExamAudioPlayerProps) {
   const { colors, isDark } = useTheme();
 
   const handleDecreaseVolume = () => {
@@ -37,10 +33,7 @@ export function ExamAudioPlayer({
     >
       <View style={styles.audioBanner}>
         <View
-          style={[
-            styles.audioStatusDot,
-            { backgroundColor: isDark ? colors.border : '#C7D2FE' },
-          ]}
+          style={[styles.audioStatusDot, { backgroundColor: isDark ? colors.border : '#C7D2FE' }]}
         >
           <View
             style={[
@@ -53,7 +46,7 @@ export function ExamAudioPlayer({
         <Text style={[styles.audioLabel, { color: colors.primary }]}>
           {isPlaying ? 'Audio playing…' : 'Preparing audio…'}
         </Text>
-        
+
         <View style={styles.volumeControl}>
           <TouchableOpacity
             onPress={handleDecreaseVolume}
@@ -64,10 +57,7 @@ export function ExamAudioPlayer({
             <Ionicons name="volume-low" size={18} color={colors.textSecondary} />
           </TouchableOpacity>
           <View
-            style={[
-              styles.volumeTrack,
-              { backgroundColor: isDark ? colors.border : '#C7D2FE' },
-            ]}
+            style={[styles.volumeTrack, { backgroundColor: isDark ? colors.border : '#C7D2FE' }]}
           >
             <View
               style={[

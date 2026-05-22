@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -22,6 +22,7 @@ export interface IconButtonProps {
   hasBadge?: boolean;
   badgeColor?: string;
   accessibilityLabel: string;
+  style?: ViewStyle;
 }
 
 export default function IconButton({
@@ -34,6 +35,7 @@ export default function IconButton({
   hasBadge = false,
   badgeColor,
   accessibilityLabel,
+  style,
 }: IconButtonProps) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
@@ -90,20 +92,21 @@ export default function IconButton({
         styles[variant],
         disabled && styles.disabled,
         animatedStyle,
+        style,
       ]}
       accessible
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
     >
       <Ionicons name={icon} size={iconSize} color={iconColor} />
-      
+
       {hasBadge && (
-        <View 
+        <View
           style={[
-            styles.badge, 
+            styles.badge,
             { backgroundColor: badgeColor || colors.error },
-            styles[`badge_${size}`]
-          ]} 
+            styles[`badge_${size}`],
+          ]}
         />
       )}
     </AnimatedPressable>

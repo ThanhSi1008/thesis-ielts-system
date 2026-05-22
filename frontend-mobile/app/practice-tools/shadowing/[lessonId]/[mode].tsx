@@ -433,7 +433,12 @@ export default function ShadowingPracticeScreen() {
 const createStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.surface },
-    center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
     header: {
       backgroundColor: colors.card,
       flexDirection: 'row',
@@ -565,7 +570,12 @@ const createStyles = (colors: any) =>
       elevation: 3,
     },
     clickableSentence: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: SPACING.sm, gap: 6 },
-    sentenceEnglishWord: { fontSize: 24, fontFamily: FONTS.bold, color: colors.text, lineHeight: 34 },
+    sentenceEnglishWord: {
+      fontSize: 24,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+      lineHeight: 34,
+    },
     phonetic: {
       fontSize: FONT_SIZES.md,
       color: colors.textSecondary,
@@ -591,7 +601,11 @@ const createStyles = (colors: any) =>
       justifyContent: 'space-between',
       marginBottom: SPACING.lg,
     },
-    difficultyLabel: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: colors.textSecondary },
+    difficultyLabel: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+      color: colors.textSecondary,
+    },
     diffGroup: { flexDirection: 'row', gap: 6 },
     diffBtn: {
       width: 36,
@@ -763,7 +777,12 @@ const createStyles = (colors: any) =>
       textTransform: 'uppercase',
       letterSpacing: 1,
     },
-    dictWord: { fontSize: 28, fontFamily: FONTS.bold, color: colors.text, marginBottom: SPACING.md },
+    dictWord: {
+      fontSize: 28,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+      marginBottom: SPACING.md,
+    },
     dictDef: {
       fontSize: FONT_SIZES.lg,
       color: colors.textSecondary,

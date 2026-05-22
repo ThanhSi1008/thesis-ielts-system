@@ -29,9 +29,7 @@ function buildMarkdownRules(): any {
       // Vì markdown-it mặc định tắt HTML, <br> sẽ bị parse thành text thường.
       // Ta replace nó thành \n ở bước render này để không làm vỡ cấu trúc Markdown Table lúc parse.
       const content = (node.content || '').replace(/<br\s*\/?>/gi, '\n');
-      return (
-        <TextWithLookup key={node.key} style={styles.text} content={content} />
-      );
+      return <TextWithLookup key={node.key} style={styles.text} content={content} />;
     },
     image: (node: any) => (
       <Image
@@ -573,7 +571,9 @@ export default function ExerciseViewerScreen() {
         )}
       </ScrollView>
 
-      <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+      <View
+        style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}
+      >
         {!submitted ? (
           <TouchableOpacity
             style={[styles.submitBtn, !isWriting && answeredCount === 0 && { opacity: 0.5 }]}

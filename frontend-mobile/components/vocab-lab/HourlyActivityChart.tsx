@@ -13,8 +13,30 @@ interface HourlyActivityChartProps {
 }
 
 const HOUR_LABELS = [
-  '12a', '', '', '3a', '', '', '6a', '', '', '9a', '', '',
-  '12p', '', '', '3p', '', '', '6p', '', '', '9p', '', ''
+  '12a',
+  '',
+  '',
+  '3a',
+  '',
+  '',
+  '6a',
+  '',
+  '',
+  '9a',
+  '',
+  '',
+  '12p',
+  '',
+  '',
+  '3p',
+  '',
+  '',
+  '6p',
+  '',
+  '',
+  '9p',
+  '',
+  '',
 ];
 
 export function HourlyActivityChart({ hourlyData = [] }: HourlyActivityChartProps) {

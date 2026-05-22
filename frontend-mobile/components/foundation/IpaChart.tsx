@@ -123,7 +123,9 @@ export default function IpaChart({ sounds, progress, onSymbolPress }: IpaChartPr
         <View style={styles.legendRow}>
           <View style={[styles.legendDot, { backgroundColor: '#fff', borderColor: '#D1D5DB' }]} />
           <Text style={styles.legendLabel}>Voiced</Text>
-          <View style={[styles.legendDot, { backgroundColor: '#F3F4F6', borderColor: '#E5E7EB' }]} />
+          <View
+            style={[styles.legendDot, { backgroundColor: '#F3F4F6', borderColor: '#E5E7EB' }]}
+          />
           <Text style={styles.legendLabel}>Unvoiced</Text>
         </View>
         <View style={styles.grid}>

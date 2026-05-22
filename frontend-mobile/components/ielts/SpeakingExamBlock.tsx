@@ -315,16 +315,22 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
     useImperativeHandle(ref, () => ({ start, stopAndUpload }), [start, stopAndUpload]);
 
     return (
-      <View style={[aq.controlsPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View
+        style={[aq.controlsPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}
+      >
         <View style={aq.statusArea}>
           {currentStep === 'PLAYING' || currentStep === 'PLAYING_2' ? (
-            <Text style={[aq.statusText, { color: colors.textSecondary }]}>Listen to the examiner...</Text>
+            <Text style={[aq.statusText, { color: colors.textSecondary }]}>
+              Listen to the examiner...
+            </Text>
           ) : isRecording ? (
             <RecordingTimer seconds={recordTimeElapsed} />
           ) : isUploading ? (
             <View style={aq.recordStatus}>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={[aq.statusText, { color: colors.textSecondary }]}>Uploading audio...</Text>
+              <Text style={[aq.statusText, { color: colors.textSecondary }]}>
+                Uploading audio...
+              </Text>
             </View>
           ) : audioUploaded ? (
             <View style={aq.recordStatus}>
@@ -336,7 +342,9 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
           ) : uploadError ? (
             <Text style={[aq.statusText, { color: colors.error }]}>{uploadError}</Text>
           ) : (
-            <Text style={[aq.statusText, { color: colors.textSecondary }]}>Tap mic to start recording</Text>
+            <Text style={[aq.statusText, { color: colors.textSecondary }]}>
+              Tap mic to start recording
+            </Text>
           )}
         </View>
 
@@ -470,7 +478,9 @@ function ActiveQuestionBlock({
 
       {isCueCard && step === 'THINKING' && (
         <View style={aq.notesWrap}>
-          <Text style={[aq.notesLabel, { color: colors.textSecondary }]}>Your Notes (optional, not graded)</Text>
+          <Text style={[aq.notesLabel, { color: colors.textSecondary }]}>
+            Your Notes (optional, not graded)
+          </Text>
           <TextInput
             style={[
               aq.notesInput,
@@ -515,7 +525,9 @@ function ActiveQuestionBlock({
                 },
           ]}
         >
-          {isCueCard && <Text style={[aq.cueLabel, { color: colors.warning }]}>Cue Card Topic</Text>}
+          {isCueCard && (
+            <Text style={[aq.cueLabel, { color: colors.warning }]}>Cue Card Topic</Text>
+          )}
           <Text style={[isCueCard ? aq.cueText : aq.questionText, { color: colors.text }]}>
             {questionText}
           </Text>
@@ -720,13 +732,7 @@ function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
           const active = activePartIdx === idx;
           return (
             <View key={idx} style={[styles.tab, active && { borderBottomColor: color }]}>
-              <Text
-                style={[
-                  styles.tabLabel,
-                  { color: colors.textSecondary },
-                  active && { color },
-                ]}
-              >
+              <Text style={[styles.tabLabel, { color: colors.textSecondary }, active && { color }]}>
                 Part {part.part_number || idx + 1}
               </Text>
             </View>

@@ -126,19 +126,11 @@ function AudioPlayButton({ url }: AudioPlayButtonProps) {
 
   return (
     <View style={audioStyles.container}>
-      <TouchableOpacity
-        style={audioStyles.button}
-        onPress={handlePlay}
-        disabled={isLoading}
-      >
+      <TouchableOpacity style={audioStyles.button} onPress={handlePlay} disabled={isLoading}>
         {isLoading ? (
           <ActivityIndicator size="small" color={activeColor} />
         ) : (
-          <Ionicons
-            name={player.playing ? 'pause' : 'play'}
-            size={16}
-            color={activeColor}
-          />
+          <Ionicons name={player.playing ? 'pause' : 'play'} size={16} color={activeColor} />
         )}
       </TouchableOpacity>
       <Text style={audioStyles.time}>
@@ -570,7 +562,11 @@ export default function AdvancedSpeakingResultScreen() {
         const res = await ieltsAdvancedApi.getSpeakingSession(sessionId);
         setSession(res);
 
-        if (res.status === 'IN_PROGRESS' || res.status === 'SUBMITTED' || res.status === 'GRADING') {
+        if (
+          res.status === 'IN_PROGRESS' ||
+          res.status === 'SUBMITTED' ||
+          res.status === 'GRADING'
+        ) {
           setPollingActive(true);
         }
       } catch (err) {
@@ -616,9 +612,8 @@ export default function AdvancedSpeakingResultScreen() {
   const normalizedFeedback = useMemo(() => {
     if (!session?.feedback) return null;
     try {
-      const rawFeedback = typeof session.feedback === 'string'
-        ? JSON.parse(session.feedback)
-        : session.feedback;
+      const rawFeedback =
+        typeof session.feedback === 'string' ? JSON.parse(session.feedback) : session.feedback;
 
       const overall_band = session.bandScore ?? rawFeedback.overall_band ?? rawFeedback.band ?? 6.0;
       return {
@@ -660,7 +655,8 @@ export default function AdvancedSpeakingResultScreen() {
           <ActivityIndicator size="large" color={activeColor} />
           <Text style={styles.pendingTitle}>Evaluating Your Speaking...</Text>
           <Text style={styles.pendingSubtitle}>
-            Our AI engine is currently grading your speaking answers against standard IELTS rubrics (Fluency, Vocabulary, Grammar, Pronunciation). This usually takes 30 to 90 seconds.
+            Our AI engine is currently grading your speaking answers against standard IELTS rubrics
+            (Fluency, Vocabulary, Grammar, Pronunciation). This usually takes 30 to 90 seconds.
           </Text>
 
           {/* Tips Carousel */}
@@ -684,7 +680,8 @@ export default function AdvancedSpeakingResultScreen() {
           <Ionicons name="alert-circle" size={54} color={colors.error} />
           <Text style={styles.errorText}>AI Grading Failed</Text>
           <Text style={styles.errorSub}>
-            We were unable to successfully grade your speaking audio. Please try practicing again or reviewing your speaking history.
+            We were unable to successfully grade your speaking audio. Please try practicing again or
+            reviewing your speaking history.
           </Text>
           <TouchableOpacity style={styles.actionBtn} onPress={() => router.back()}>
             <Text style={styles.actionBtnText}>Go Back</Text>
@@ -700,8 +697,11 @@ export default function AdvancedSpeakingResultScreen() {
 
       {/* Dynamic Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBack} onPress={() => router.replace('/ielts/advanced/speaking')}>
-          <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : "#fff"} />
+        <TouchableOpacity
+          style={styles.headerBack}
+          onPress={() => router.replace('/ielts/advanced/speaking')}
+        >
+          <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Evaluation Results</Text>
         <View style={{ width: 24 }} />
@@ -714,54 +714,81 @@ export default function AdvancedSpeakingResultScreen() {
             <Text style={[styles.certHeader, { color: bandColor }]}>
               {isPending ? '⏳ GRADING IN PROGRESS' : '🏆 IELTS SPEAKING PRACTICE CERTIFICATE'}
             </Text>
-            
+
             <Text style={[styles.certSubText, { color: colors.textSecondary }]}>
-              {isPending 
+              {isPending
                 ? 'Your practice session has been recorded. AI scoring engine is evaluating your performance...'
-                : `This is to certify that you have successfully completed the practice of Advanced Speaking`
-              }
+                : `This is to certify that you have successfully completed the practice of Advanced Speaking`}
             </Text>
-            
+
             <Text style={[styles.certExamTitle, { color: colors.text }]} numberOfLines={2}>
               {part?.topic ?? part?.title ?? 'IELTS Speaking Practice'}
             </Text>
-            
+
             <View style={styles.certBody}>
               <View style={styles.certScoreContainer}>
                 {/* Beautiful Gold/Skill Color Score Seal */}
-                <View style={[styles.certSeal, { borderColor: bandColor, backgroundColor: colors.card }]}>
+                <View
+                  style={[
+                    styles.certSeal,
+                    { borderColor: bandColor, backgroundColor: colors.card },
+                  ]}
+                >
                   <Text style={[styles.certSealBand, { color: bandColor }]}>{bandStr}</Text>
-                  <Text style={[styles.certSealText, { color: colors.textSecondary }]}>BAND SCORE</Text>
+                  <Text style={[styles.certSealText, { color: colors.textSecondary }]}>
+                    BAND SCORE
+                  </Text>
                 </View>
-                
+
                 {/* Verification Stamp & Signature */}
                 <View style={styles.certStampContainer}>
-                  <View style={[styles.certStamp, isPending && { borderColor: colors.border, backgroundColor: colors.surface }]}>
-                    <Ionicons 
-                      name={isPending ? "hourglass-outline" : "ribbon-outline"} 
-                      size={18} 
-                      color={isPending ? colors.textMuted : bandColor} 
+                  <View
+                    style={[
+                      styles.certStamp,
+                      isPending && { borderColor: colors.border, backgroundColor: colors.surface },
+                    ]}
+                  >
+                    <Ionicons
+                      name={isPending ? 'hourglass-outline' : 'ribbon-outline'}
+                      size={18}
+                      color={isPending ? colors.textMuted : bandColor}
                     />
-                    <Text style={[styles.certStampText, { color: isPending ? colors.textSecondary : bandColor }]}>
+                    <Text
+                      style={[
+                        styles.certStampText,
+                        { color: isPending ? colors.textSecondary : bandColor },
+                      ]}
+                    >
                       {isPending ? 'PROCESSING' : 'AI EVALUATED'}
                     </Text>
                   </View>
-                  
+
                   <View style={styles.certSignatureLine}>
-                    <Text style={[styles.certSignature, { color: colors.text, fontFamily: FONTS.medium }]}>
+                    <Text
+                      style={[
+                        styles.certSignature,
+                        { color: colors.text, fontFamily: FONTS.medium },
+                      ]}
+                    >
                       IELTS Master AI
                     </Text>
                     <View style={[styles.certLine, { backgroundColor: colors.border }]} />
-                    <Text style={[styles.certSignatureLabel, { color: colors.textMuted }]}>VERIFIED BY</Text>
+                    <Text style={[styles.certSignatureLabel, { color: colors.textMuted }]}>
+                      VERIFIED BY
+                    </Text>
                   </View>
                 </View>
               </View>
             </View>
-            
+
             {/* Metadata Info Row */}
-            <View style={[styles.promptMetaRow, { marginTop: SPACING.md, marginBottom: SPACING.sm }]}>
+            <View
+              style={[styles.promptMetaRow, { marginTop: SPACING.md, marginBottom: SPACING.sm }]}
+            >
               <View style={[styles.metaBadge, { backgroundColor: bandColor + '15' }]}>
-                <Text style={[styles.metaBadgeText, { color: bandColor }]}>PART {part?.partNumber ?? 1}</Text>
+                <Text style={[styles.metaBadgeText, { color: bandColor }]}>
+                  PART {part?.partNumber ?? 1}
+                </Text>
               </View>
               <Text style={styles.metaItem}>
                 <Ionicons name="time-outline" size={14} color={colors.textSecondary} />{' '}
@@ -771,7 +798,12 @@ export default function AdvancedSpeakingResultScreen() {
 
             {/* Descriptive Performance Band Badge */}
             {!isPending && description && (
-              <View style={[styles.certBadge, { backgroundColor: bandColor + '15', borderColor: bandColor }]}>
+              <View
+                style={[
+                  styles.certBadge,
+                  { backgroundColor: bandColor + '15', borderColor: bandColor },
+                ]}
+              >
                 <Text style={[styles.certBadgeText, { color: bandColor }]}>{description}</Text>
               </View>
             )}
@@ -813,10 +845,7 @@ export default function AdvancedSpeakingResultScreen() {
 
         {/* Rubric View Section */}
         {normalizedFeedback ? (
-          <SpeakingRubricView
-            feedback={normalizedFeedback}
-            exam={part}
-          />
+          <SpeakingRubricView feedback={normalizedFeedback} exam={part} />
         ) : (
           <View style={styles.noFeedbackBox}>
             <Ionicons name="alert-circle-outline" size={24} color={colors.textMuted} />

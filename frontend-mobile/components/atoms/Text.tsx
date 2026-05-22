@@ -6,7 +6,15 @@ import { typography, FONTS } from '@/constants';
 
 export type TextVariant = 'display' | 'headline' | 'title' | 'body' | 'label' | 'caption';
 export type TextWeight = 'light' | 'regular' | 'medium' | 'bold';
-export type TextColor = 'text' | 'textSecondary' | 'textMuted' | 'primary' | 'error' | 'success' | 'white' | 'onPrimary';
+export type TextColor =
+  | 'text'
+  | 'textSecondary'
+  | 'textMuted'
+  | 'primary'
+  | 'error'
+  | 'success'
+  | 'white'
+  | 'onPrimary';
 
 export interface TextProps extends RNTextProps {
   variant?: TextVariant;
@@ -28,7 +36,9 @@ export default function Text({
 
   // Determine font family based on weight and fallback to variant preset default
   let fontFamily: string = FONTS.regular;
-  const activeWeight = weight || (variant === 'display' || variant === 'headline' || variant === 'title' ? 'bold' : 'regular');
+  const activeWeight =
+    weight ||
+    (variant === 'display' || variant === 'headline' || variant === 'title' ? 'bold' : 'regular');
 
   if (activeWeight === 'bold') {
     fontFamily = FONTS.bold;
@@ -58,12 +68,7 @@ export default function Text({
 
   return (
     <RNText
-      style={[
-        styles.text,
-        styles[variant],
-        { fontFamily, color: textColor },
-        style,
-      ]}
+      style={[styles.text, styles[variant], { fontFamily, color: textColor }, style]}
       {...props}
     >
       {children}

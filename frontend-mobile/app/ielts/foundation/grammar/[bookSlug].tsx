@@ -89,7 +89,13 @@ export default function GrammarBookScreen() {
         </View>
         <View style={s.center}>
           <Text style={s.errorText}>{error || 'Book not found'}</Text>
-          <TouchableOpacity style={s.retryButton} onPress={() => { setLoading(true); load(); }}>
+          <TouchableOpacity
+            style={s.retryButton}
+            onPress={() => {
+              setLoading(true);
+              load();
+            }}
+          >
             <Text style={s.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
@@ -139,7 +145,9 @@ export default function GrammarBookScreen() {
           </View>
           <View style={s.statDivider} />
           <View style={s.statItem}>
-            <Text style={[s.statValue, { color: accentColor }]}>{book.author ?? 'Raymond Murphy'}</Text>
+            <Text style={[s.statValue, { color: accentColor }]}>
+              {book.author ?? 'Raymond Murphy'}
+            </Text>
             <Text style={s.statLabel}>Author</Text>
           </View>
           <View style={s.statDivider} />
@@ -161,9 +169,7 @@ export default function GrammarBookScreen() {
             >
               {/* Unit number badge */}
               <View style={[s.unitNumBadge, { backgroundColor: accentColor + '18' }]}>
-                <Text style={[s.unitNumText, { color: accentColor }]}>
-                  {unit.order ?? idx + 1}
-                </Text>
+                <Text style={[s.unitNumText, { color: accentColor }]}>{unit.order ?? idx + 1}</Text>
               </View>
 
               {/* Unit title */}
@@ -189,7 +195,13 @@ export default function GrammarBookScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.surface },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
-  errorText: { color: COLORS.error, fontSize: 14, fontFamily: FONTS.medium, marginBottom: 16, textAlign: 'center' },
+  errorText: {
+    color: COLORS.error,
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
   retryButton: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: 24,
@@ -323,6 +335,18 @@ const s = StyleSheet.create({
     flexShrink: 0,
   },
   unitNumText: { fontSize: 13, fontFamily: FONTS.bold },
-  unitTitle: { flex: 1, fontSize: 13, color: COLORS.text, fontFamily: FONTS.semibold, lineHeight: 18 },
-  emptyText: { fontSize: 13, color: COLORS.textSecondary, fontFamily: FONTS.medium, textAlign: 'center', marginTop: 20 },
+  unitTitle: {
+    flex: 1,
+    fontSize: 13,
+    color: COLORS.text,
+    fontFamily: FONTS.semibold,
+    lineHeight: 18,
+  },
+  emptyText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontFamily: FONTS.medium,
+    textAlign: 'center',
+    marginTop: 20,
+  },
 });

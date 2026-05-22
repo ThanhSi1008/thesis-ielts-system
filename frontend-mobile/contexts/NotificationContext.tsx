@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { useAuth } from './AuthContext';
 import { notificationsApi } from '@/services';
 import { toast } from '@/components/ui/Toaster';
@@ -65,7 +73,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
 
   // Push notifications state
-  const [permissionStatus, setPermissionStatus] = useState<Notifications.PermissionStatus | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<Notifications.PermissionStatus | null>(
+    null,
+  );
   const [showPermissionBanner, setShowPermissionBanner] = useState(false);
   const [pushToken, setPushToken] = useState<string | null>(null);
 
@@ -81,12 +91,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     try {
       const res = await notificationsApi.getUnreadCount();
       const newCount = res.count ?? 0;
-      
+
       // If the unread count has increased, check for new notifications to toast
       if (newCount > prevUnreadCountRef.current) {
         checkForNewNotifications();
       }
-      
+
       prevUnreadCountRef.current = newCount;
       setUnreadCount(newCount);
     } catch (e) {
@@ -95,57 +105,56 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   // Fetch full notification list
-  const fetchNotifications = useCallback(async (page = 1, append = false) => {
-    if (!user) return [];
-    setLoading(true);
-    try {
-      const res = await notificationsApi.getNotifications(page, 20);
-      const newItems: Notification[] = res.notifications ?? [];
-      
-      setNotifications((prev) => {
-        if (append) {
-          // Filter duplicates
-          const prevIds = new Set(prev.map(item => item.id));
-          const filteredNew = newItems.filter(item => !prevIds.has(item.id));
-          return [...prev, ...filteredNew];
-        }
-        return newItems;
-      });
+  const fetchNotifications = useCallback(
+    async (page = 1, append = false) => {
+      if (!user) return [];
+      setLoading(true);
+      try {
+        const res = await notificationsApi.getNotifications(page, 20);
+        const newItems: Notification[] = res.notifications ?? [];
 
-      return newItems;
-    } catch (e) {
-      console.error('Failed to fetch notifications:', e);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+        setNotifications((prev) => {
+          if (append) {
+            // Filter duplicates
+            const prevIds = new Set(prev.map((item) => item.id));
+            const filteredNew = newItems.filter((item) => !prevIds.has(item.id));
+            return [...prev, ...filteredNew];
+          }
+          return newItems;
+        });
+
+        return newItems;
+      } catch (e) {
+        console.error('Failed to fetch notifications:', e);
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user],
+  );
 
   // Helper to check for new notifications and show toasts
   const checkForNewNotifications = async () => {
     try {
       const res = await notificationsApi.getNotifications(1, 5);
       const latestNotifications: Notification[] = res.notifications ?? [];
-      
+
       // Find unread notifications that haven't been toasted yet
       const newUnread = latestNotifications.filter(
-        n => !n.isRead && !toastedIdsRef.current.has(n.id)
+        (n) => !n.isRead && !toastedIdsRef.current.has(n.id),
       );
 
       // Toast the newest ones (in reverse order, so the absolute newest shows last/top)
       newUnread.reverse().forEach((n) => {
         toastedIdsRef.current.add(n.id);
-        toast.info(
-          n.title || 'New Notification',
-          n.body || 'You have a new notification.',
-          () => {
-            if (n.link) {
-              router.push(n.link as any);
-            } else {
-              router.push('/notification');
-            }
+        toast.info(n.title || 'New Notification', n.body || 'You have a new notification.', () => {
+          if (n.link) {
+            router.push(n.link as any);
+          } else {
+            router.push('/notification');
           }
-        );
+        });
       });
     } catch (e) {
       console.error('Failed to check for new notifications:', e);
@@ -155,9 +164,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Actions
   const markAsRead = async (id: string) => {
     // Optimistic update
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
     setUnreadCount((c) => Math.max(0, c - 1));
     prevUnreadCountRef.current = Math.max(0, prevUnreadCountRef.current - 1);
 
@@ -184,7 +191,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const deleteNotification = async (id: string) => {
     const target = notifications.find((n) => n.id === id);
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-    
+
     if (target && !target.isRead) {
       setUnreadCount((c) => Math.max(0, c - 1));
       prevUnreadCountRef.current = Math.max(0, prevUnreadCountRef.current - 1);
@@ -205,7 +212,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+      const projectId =
+        Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
       if (!projectId) {
         console.warn('EAS Project ID not found. Skipping push token registration.');
         return;
@@ -227,8 +235,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setShowPermissionBanner(false);
     const now = Date.now().toString();
     await AsyncStorage.setItem('notif-soft-dismissed-at', now);
-    
-    const countStr = await AsyncStorage.getItem('notif-soft-dismiss-count') ?? '0';
+
+    const countStr = (await AsyncStorage.getItem('notif-soft-dismiss-count')) ?? '0';
     const newCount = parseInt(countStr, 10) + 1;
     await AsyncStorage.setItem('notif-soft-dismiss-count', newCount.toString());
     console.log(`Push banner soft dismissed. Total dismiss count: ${newCount}`);
@@ -240,7 +248,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     try {
       const { status } = await Notifications.requestPermissionsAsync();
       setPermissionStatus(status);
-      
+
       if (status === 'granted') {
         await registerPushToken();
         return true;
@@ -270,7 +278,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       prevUnreadCountRef.current = 0;
       toastedIdsRef.current.clear();
       setShowPermissionBanner(false);
-      
+
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
@@ -288,28 +296,24 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     // 3. Setup listeners
     // Foreground listener
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
       const { title, body, data } = notification.request.content;
-      
+
       // Custom inside-app Toast UI on foreground push
-      toast.info(
-        title || 'New Notification',
-        body || 'You have a new message.',
-        () => {
-          if (data?.link) {
-            router.push(data.link as any);
-          } else {
-            router.push('/notification');
-          }
+      toast.info(title || 'New Notification', body || 'You have a new message.', () => {
+        if (data?.link) {
+          router.push(data.link as any);
+        } else {
+          router.push('/notification');
         }
-      );
-      
+      });
+
       // Update unread badge/lists
       fetchUnreadCount();
     });
 
     // Tap/Interaction response listener (when tapping background push notifications)
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
       if (data?.link) {
         router.push(data.link as any);
@@ -320,7 +324,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     // 4. Soft-prompt permission timing logic (2 minutes delay)
     let bannerTimer: NodeJS.Timeout;
-    
+
     const checkShouldShowBanner = async () => {
       try {
         const { status } = await Notifications.getPermissionsAsync();
@@ -337,7 +341,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
         // Check AsyncStorage rules for re-prompt
         const lastDismissedStr = await AsyncStorage.getItem('notif-soft-dismissed-at');
-        const dismissCountStr = await AsyncStorage.getItem('notif-soft-dismiss-count') ?? '0';
+        const dismissCountStr = (await AsyncStorage.getItem('notif-soft-dismiss-count')) ?? '0';
         const dismissCount = parseInt(dismissCountStr, 10);
 
         if (dismissCount >= 3) {

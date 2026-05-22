@@ -60,7 +60,7 @@ export default function IELTSCalculatorScreen() {
         Number(bands.listening),
         Number(bands.reading),
         Number(bands.writing),
-        Number(bands.speaking)
+        Number(bands.speaking),
       )
     : null;
 
@@ -79,7 +79,10 @@ export default function IELTSCalculatorScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Overall Calculator Widget */}
-        <Card variant="elevated" style={{ backgroundColor: colors.card, borderColor: colors.border, marginBottom: 20 }}>
+        <Card
+          variant="elevated"
+          style={{ backgroundColor: colors.card, borderColor: colors.border, marginBottom: 20 }}
+        >
           <View style={styles.overallHeader}>
             <Ionicons name="calculator" size={16} color={colors.textSecondary} />
             <Text style={{ fontFamily: FONTS.bold, fontSize: 14, color: colors.text }}>
@@ -105,7 +108,12 @@ export default function IELTSCalculatorScreen() {
               <Text style={styles.resultCardLabel}>ESTIMATED</Text>
               <Text style={styles.resultCardTitle}>Overall Band</Text>
               {allFilled && overall !== null && (
-                <Text style={[styles.resultCardBadge, { color: overall >= 6.5 ? '#10b981' : '#f59e0b' }]}>
+                <Text
+                  style={[
+                    styles.resultCardBadge,
+                    { color: overall >= 6.5 ? '#10b981' : '#f59e0b' },
+                  ]}
+                >
                   {getBandLabel(overall)}
                 </Text>
               )}
@@ -119,7 +127,12 @@ export default function IELTSCalculatorScreen() {
         </Card>
 
         {/* Tab Strip */}
-        <View style={[styles.tabStrip, { backgroundColor: colors.surface === '#ffffff' ? '#e8e8e8' : '#27272a' }]}>
+        <View
+          style={[
+            styles.tabStrip,
+            { backgroundColor: colors.surface === '#ffffff' ? '#e8e8e8' : '#27272a' },
+          ]}
+        >
           {TABS.map((tab) => {
             const on = activeTab === tab;
             return (
@@ -169,7 +182,12 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerTitleContainer: { flex: 1, marginLeft: 8 },
-  headerSubtitle: { fontFamily: FONTS.bold, fontSize: 10, color: COLORS.gray[400], letterSpacing: 1 },
+  headerSubtitle: {
+    fontFamily: FONTS.bold,
+    fontSize: 10,
+    color: COLORS.gray[400],
+    letterSpacing: 1,
+  },
   headerTitle: { fontFamily: FONTS.bold, fontSize: 22 },
 
   scrollContent: { padding: 16, paddingBottom: 40 },

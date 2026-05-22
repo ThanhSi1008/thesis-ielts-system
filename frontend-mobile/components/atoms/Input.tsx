@@ -1,11 +1,5 @@
 import React, { useState, forwardRef } from 'react';
-import {
-  TextInput,
-  TextInputProps,
-  View,
-  StyleSheet,
-  Pressable,
-} from 'react-native';
+import { TextInput, TextInputProps, View, StyleSheet, Pressable } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { spacing, radius, typography, FONTS } from '@/constants';
@@ -33,7 +27,7 @@ const Input = forwardRef<TextInput, InputProps>(
       placeholderTextColor,
       ...props
     },
-    ref
+    ref,
   ) => {
     const { colors } = useTheme();
     const styles = useThemedStyles(createStyles);
@@ -48,13 +42,7 @@ const Input = forwardRef<TextInput, InputProps>(
     };
 
     return (
-      <View
-        style={[
-          styles.container,
-          isFocused && styles.focused,
-          error && styles.error,
-        ]}
-      >
+      <View style={[styles.container, isFocused && styles.focused, error && styles.error]}>
         {leftIcon && (
           <Ionicons
             name={leftIcon}
@@ -84,8 +72,8 @@ const Input = forwardRef<TextInput, InputProps>(
 
         {/* Clear Button */}
         {hasValue && !secureTextEntry && onClear && (
-          <Pressable 
-            onPress={handleClear} 
+          <Pressable
+            onPress={handleClear}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={styles.rightIconWrapper}
           >
@@ -119,7 +107,7 @@ const Input = forwardRef<TextInput, InputProps>(
         )}
       </View>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';

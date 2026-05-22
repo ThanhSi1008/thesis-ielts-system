@@ -9,11 +9,7 @@ export interface SwitchProps {
   disabled?: boolean;
 }
 
-export default function Switch({
-  value,
-  onValueChange,
-  disabled = false,
-}: SwitchProps) {
+export default function Switch({ value, onValueChange, disabled = false }: SwitchProps) {
   const { colors } = useTheme();
 
   const handleValueChange = (newValue: boolean) => {

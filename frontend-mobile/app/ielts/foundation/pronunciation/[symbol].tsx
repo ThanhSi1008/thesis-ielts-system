@@ -148,28 +148,25 @@ const SYMBOL_COLORS: Record<string, { bg: string; text: string }> = {
 function useExponentialPoller() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const startPolling = useCallback(
-    (fn: () => Promise<boolean>, opts: { maxMs?: number } = {}) => {
-      const maxMs = opts.maxMs ?? 60_000;
-      const start = Date.now();
-      let delay = 1_000;
+  const startPolling = useCallback((fn: () => Promise<boolean>, opts: { maxMs?: number } = {}) => {
+    const maxMs = opts.maxMs ?? 60_000;
+    const start = Date.now();
+    let delay = 1_000;
 
-      const tick = async () => {
-        if (Date.now() - start >= maxMs) {
-          fn(); // final attempt
-          return;
-        }
-        const done = await fn();
-        if (!done) {
-          delay = Math.min(delay * 2, 4_000); // exponential backoff, cap at 4s
-          timerRef.current = setTimeout(tick, delay);
-        }
-      };
+    const tick = async () => {
+      if (Date.now() - start >= maxMs) {
+        fn(); // final attempt
+        return;
+      }
+      const done = await fn();
+      if (!done) {
+        delay = Math.min(delay * 2, 4_000); // exponential backoff, cap at 4s
+        timerRef.current = setTimeout(tick, delay);
+      }
+    };
 
-      timerRef.current = setTimeout(tick, delay);
-    },
-    [],
-  );
+    timerRef.current = setTimeout(tick, delay);
+  }, []);
 
   const stopPolling = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -273,7 +270,17 @@ function WordCard({
       setErrMsg(null);
       await startRecording();
     }
-  }, [status, isRecording, word, userId, soundId, startRecording, stopRecording, startPolling, onSuccess]);
+  }, [
+    status,
+    isRecording,
+    word,
+    userId,
+    soundId,
+    startRecording,
+    stopRecording,
+    startPolling,
+    onSuccess,
+  ]);
 
   const reset = useCallback(() => {
     stopPolling();
@@ -382,27 +389,30 @@ export default function IeltsSoundDetailScreen() {
 
   const decoded = decodeURIComponent(symbol ?? '');
 
-  const fetchSoundData = useCallback(async (showSkeleton = true) => {
-    if (showSkeleton) setLoading(true);
-    setError(null);
-    try {
-      // 1. Fetch sound details from backend
-      const detail = await pronunciationApi.getSound(decoded);
-      setSound(detail);
+  const fetchSoundData = useCallback(
+    async (showSkeleton = true) => {
+      if (showSkeleton) setLoading(true);
+      setError(null);
+      try {
+        // 1. Fetch sound details from backend
+        const detail = await pronunciationApi.getSound(decoded);
+        setSound(detail);
 
-      // 2. Fetch word progress if user is logged in
-      if (user && detail?.id) {
-        const progressList = await pronunciationApi.getWordProgress(detail.id);
-        setWordProgresses(progressList || []);
+        // 2. Fetch word progress if user is logged in
+        if (user && detail?.id) {
+          const progressList = await pronunciationApi.getWordProgress(detail.id);
+          setWordProgresses(progressList || []);
+        }
+      } catch (err: any) {
+        console.error('[IeltsSoundDetailScreen] Error fetching sound:', err);
+        setError(err?.message || 'Failed to load sound detail');
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-    } catch (err: any) {
-      console.error('[IeltsSoundDetailScreen] Error fetching sound:', err);
-      setError(err?.message || 'Failed to load sound detail');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [decoded, user]);
+    },
+    [decoded, user],
+  );
 
   useEffect(() => {
     fetchSoundData();
@@ -415,9 +425,12 @@ export default function IeltsSoundDetailScreen() {
 
   const handleWordSuccess = useCallback(() => {
     if (user && sound?.id) {
-      pronunciationApi.getWordProgress(sound.id)
+      pronunciationApi
+        .getWordProgress(sound.id)
         .then((progressList) => setWordProgresses(progressList || []))
-        .catch((err) => console.error('[IeltsSoundDetailScreen] Silent progress update failed:', err));
+        .catch((err) =>
+          console.error('[IeltsSoundDetailScreen] Silent progress update failed:', err),
+        );
     }
   }, [user, sound]);
 
@@ -485,13 +498,18 @@ export default function IeltsSoundDetailScreen() {
         ) : error ? (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>⚠️ {error}</Text>
-            <Text style={styles.retryText} onPress={() => fetchSoundData()}>Tap to retry</Text>
+            <Text style={styles.retryText} onPress={() => fetchSoundData()}>
+              Tap to retry
+            </Text>
           </View>
         ) : user && sound ? (
           sound.exampleWords && sound.exampleWords.length > 0 ? (
             sound.exampleWords.map((ex, i) => {
-              const localSentence = SENTENCE_FALLBACKS[ex.word.toLowerCase()] ?? `Practice saying the word: ${ex.word}`;
-              const progressObj = wordProgresses.find((p) => p.word.toLowerCase() === ex.word.toLowerCase());
+              const localSentence =
+                SENTENCE_FALLBACKS[ex.word.toLowerCase()] ?? `Practice saying the word: ${ex.word}`;
+              const progressObj = wordProgresses.find(
+                (p) => p.word.toLowerCase() === ex.word.toLowerCase(),
+              );
 
               return (
                 <WordCard

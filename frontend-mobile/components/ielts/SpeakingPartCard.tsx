@@ -36,25 +36,25 @@ export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps
         return {
           bg: isDark ? '#1e1b4b' : '#EEF2FF',
           text: isDark ? '#818cf8' : '#4F46E5',
-          label: 'Part 1: Interview'
+          label: 'Part 1: Interview',
         };
       case 2:
         return {
           bg: isDark ? '#50072b' : '#FDF2F8',
           text: isDark ? '#f472b6' : '#DB2777',
-          label: 'Part 2: Cue Card'
+          label: 'Part 2: Cue Card',
         };
       case 3:
         return {
           bg: isDark ? '#064e3b' : '#ECFDF5',
           text: isDark ? '#34d399' : '#059669',
-          label: 'Part 3: Discussion'
+          label: 'Part 3: Discussion',
         };
       default:
         return {
           bg: isDark ? colors.surface : '#F3F4F6',
           text: colors.textSecondary,
-          label: `Part ${num}`
+          label: `Part ${num}`,
         };
     }
   };
@@ -62,10 +62,7 @@ export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps
   const partStyle = getPartBadgeColor(part.partNumber);
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(index * 50).duration(400)}
-      style={styles.cardWrapper}
-    >
+    <Animated.View entering={FadeInDown.delay(index * 50).duration(400)} style={styles.cardWrapper}>
       <TouchableOpacity
         style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
         onPress={onPress}
@@ -79,16 +76,34 @@ export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps
                 {partStyle.label}
               </Text>
             </View>
-            <View style={[styles.categoryChip, { backgroundColor: isDark ? colors.surface : '#F3F4F6' }]}>
-              <Text style={[styles.categoryChipText, { color: colors.textSecondary }]}>{part.category}</Text>
+            <View
+              style={[
+                styles.categoryChip,
+                { backgroundColor: isDark ? colors.surface : '#F3F4F6' },
+              ]}
+            >
+              <Text style={[styles.categoryChipText, { color: colors.textSecondary }]}>
+                {part.category}
+              </Text>
             </View>
           </View>
 
           <View style={styles.rightTags}>
             {part.source ? (
-              <View style={[styles.sourceBadge, { backgroundColor: isDark ? colors.surface : '#F9FAFB', borderColor: colors.border }]}>
+              <View
+                style={[
+                  styles.sourceBadge,
+                  {
+                    backgroundColor: isDark ? colors.surface : '#F9FAFB',
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
                 <Ionicons name="book-outline" size={11} color={colors.textSecondary} />
-                <Text style={[styles.sourceText, { color: colors.textSecondary }]} numberOfLines={1}>
+                <Text
+                  style={[styles.sourceText, { color: colors.textSecondary }]}
+                  numberOfLines={1}
+                >
                   {part.source}
                 </Text>
               </View>
@@ -113,23 +128,40 @@ export function SpeakingPartCard({ part, index, onPress }: SpeakingPartCardProps
           {part.bestScore !== null ? (
             <View style={styles.scoreContainer}>
               <Text style={[styles.scoreLabel, { color: colors.textMuted }]}>Best Band</Text>
-              <View style={[styles.scoreBadge, { backgroundColor: isDark ? '#3b0764' : '#F3E8FF' }]}>
-                <Ionicons name="sparkles" size={12} color={isDark ? '#c084fc' : '#7C3AED'} style={{ marginRight: 4 }} />
-                <Text style={[styles.scoreValue, { color: isDark ? '#c084fc' : '#7C3AED' }]}>Band {part.bestScore}</Text>
+              <View
+                style={[styles.scoreBadge, { backgroundColor: isDark ? '#3b0764' : '#F3E8FF' }]}
+              >
+                <Ionicons
+                  name="sparkles"
+                  size={12}
+                  color={isDark ? '#c084fc' : '#7C3AED'}
+                  style={{ marginRight: 4 }}
+                />
+                <Text style={[styles.scoreValue, { color: isDark ? '#c084fc' : '#7C3AED' }]}>
+                  Band {part.bestScore}
+                </Text>
               </View>
             </View>
           ) : (
             <View style={styles.unattemptedContainer}>
               <Ionicons name="mic-outline" size={16} color={colors.textSecondary} />
-              <Text style={[styles.unattemptedText, { color: colors.textSecondary }]}>Not practiced yet</Text>
+              <Text style={[styles.unattemptedText, { color: colors.textSecondary }]}>
+                Not practiced yet
+              </Text>
             </View>
           )}
 
-          <View style={[styles.actionBtn, { backgroundColor: isDark ? colors.primary : '#7C3AED' }]}>
+          <View
+            style={[styles.actionBtn, { backgroundColor: isDark ? colors.primary : '#7C3AED' }]}
+          >
             <Text style={[styles.actionBtnText, { color: isDark ? colors.onPrimary : '#ffffff' }]}>
               {part.bestScore !== null ? 'Practice Again' : 'Start Practice'}
             </Text>
-            <Ionicons name="arrow-forward" size={14} color={isDark ? colors.onPrimary : '#ffffff'} />
+            <Ionicons
+              name="arrow-forward"
+              size={14}
+              color={isDark ? colors.onPrimary : '#ffffff'}
+            />
           </View>
         </View>
       </TouchableOpacity>

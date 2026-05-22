@@ -18,7 +18,8 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
 
   const questions: any[] = group.questions || [];
   const options: any[] = group.options || [];
-  const instruction: string = group.instruction || group.instructions || 'Complete each sentence with the correct ending.';
+  const instruction: string =
+    group.instruction || group.instructions || 'Complete each sentence with the correct ending.';
   const qNums = questions.map((q: any) => q.question_number);
 
   const usedIds = questions
@@ -52,7 +53,13 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
               key={q.question_number}
               style={{
                 backgroundColor: submitted
-                  ? isCorrect ? (isDark ? colors.successBg : '#F0FDF4') : (isDark ? colors.errorBg : '#FFF5F5')
+                  ? isCorrect
+                    ? isDark
+                      ? colors.successBg
+                      : '#F0FDF4'
+                    : isDark
+                      ? colors.errorBg
+                      : '#FFF5F5'
                   : colors.card,
                 borderRadius: RADIUS.lg,
                 borderWidth: 1,
@@ -63,19 +70,53 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
                 <View
                   style={{
-                    minWidth: 26, height: 26, borderRadius: 6, borderWidth: 1,
-                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : (isDark ? colors.border : '#BFDBFE'),
+                    minWidth: 26,
+                    height: 26,
+                    borderRadius: 6,
+                    borderWidth: 1,
+                    borderColor: submitted
+                      ? isCorrect
+                        ? '#86EFAC'
+                        : '#FCA5A5'
+                      : isDark
+                        ? colors.border
+                        : '#BFDBFE',
                     backgroundColor: submitted
-                      ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
-                      : isDark ? colors.infoBg : '#EFF6FF',
-                    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4, marginTop: 2,
+                      ? isCorrect
+                        ? isDark
+                          ? colors.successBg
+                          : '#DCFCE7'
+                        : isDark
+                          ? colors.errorBg
+                          : '#FEE2E2'
+                      : isDark
+                        ? colors.infoBg
+                        : '#EFF6FF',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 4,
+                    marginTop: 2,
                   }}
                 >
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : '#1D4ED8' }}>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '700',
+                      color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : '#1D4ED8',
+                    }}
+                  >
                     {q.question_number}
                   </Text>
                 </View>
-                <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 22, fontWeight: '500' }}>
+                <Text
+                  style={{
+                    flex: 1,
+                    fontSize: FONT_SIZES.sm,
+                    color: colors.text,
+                    lineHeight: 22,
+                    fontWeight: '500',
+                  }}
+                >
                   {q.text}
                 </Text>
               </View>
@@ -84,18 +125,43 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                 <View style={{ marginLeft: 34, gap: 6 }}>
                   <View
                     style={{
-                      flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      alignSelf: 'flex-start',
                       borderWidth: 1,
                       borderColor: isCorrect ? '#86EFAC' : '#FCA5A5',
-                      backgroundColor: isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2'),
-                      borderRadius: RADIUS.sm, paddingHorizontal: 10, paddingVertical: 5, gap: 6,
+                      backgroundColor: isCorrect
+                        ? isDark
+                          ? colors.successBg
+                          : '#DCFCE7'
+                        : isDark
+                          ? colors.errorBg
+                          : '#FEE2E2',
+                      borderRadius: RADIUS.sm,
+                      paddingHorizontal: 10,
+                      paddingVertical: 5,
+                      gap: 6,
                     }}
                   >
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: isCorrect ? '#16A34A' : '#DC2626', textDecorationLine: isCorrect ? 'none' : 'line-through' }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        fontWeight: '800',
+                        color: isCorrect ? '#16A34A' : '#DC2626',
+                        textDecorationLine: isCorrect ? 'none' : 'line-through',
+                      }}
+                    >
                       {selected || '—'}
                     </Text>
                     {selectedOpt && (
-                      <Text style={{ fontSize: 12, color: isCorrect ? '#15803D' : '#DC2626', textDecorationLine: isCorrect ? 'none' : 'line-through', flexShrink: 1 }}>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: isCorrect ? '#15803D' : '#DC2626',
+                          textDecorationLine: isCorrect ? 'none' : 'line-through',
+                          flexShrink: 1,
+                        }}
+                      >
                         · {selectedOpt.text}
                       </Text>
                     )}
@@ -104,17 +170,34 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                   {!isCorrect && q.answer && (
                     <View
                       style={{
-                        flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start',
-                        borderWidth: 1, borderColor: '#86EFAC',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        alignSelf: 'flex-start',
+                        borderWidth: 1,
+                        borderColor: '#86EFAC',
                         backgroundColor: isDark ? colors.successBg : '#DCFCE7',
-                        borderRadius: RADIUS.sm, paddingHorizontal: 10, paddingVertical: 5, gap: 6,
+                        borderRadius: RADIUS.sm,
+                        paddingHorizontal: 10,
+                        paddingVertical: 5,
+                        gap: 6,
                       }}
                     >
                       <Text style={{ fontSize: 11, fontWeight: '700', color: '#16A34A' }}>→</Text>
-                      <Text style={{ fontSize: 13, fontWeight: '800', color: '#16A34A' }}>{q.answer}</Text>
-                      {options.find((o: any) => (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase()) && (
+                      <Text style={{ fontSize: 13, fontWeight: '800', color: '#16A34A' }}>
+                        {q.answer}
+                      </Text>
+                      {options.find(
+                        (o: any) =>
+                          (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase(),
+                      ) && (
                         <Text style={{ fontSize: 12, color: '#15803D', flexShrink: 1 }}>
-                          · {options.find((o: any) => (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase())?.text}
+                          ·{' '}
+                          {
+                            options.find(
+                              (o: any) =>
+                                (o.id ?? o.letter ?? '').toUpperCase() === q.answer?.toUpperCase(),
+                            )?.text
+                          }
                         </Text>
                       )}
                     </View>
@@ -132,17 +215,35 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                         key={optId}
                         onPress={() => !submitted && onAnswer(q.question_number, optId)}
                         style={{
-                          flexDirection: 'row', alignItems: 'center',
+                          flexDirection: 'row',
+                          alignItems: 'center',
                           borderWidth: 1.5,
-                          borderColor: isSelected ? colors.warning : isUsedElsewhere ? colors.border : colors.border,
+                          borderColor: isSelected
+                            ? colors.warning
+                            : isUsedElsewhere
+                              ? colors.border
+                              : colors.border,
                           backgroundColor: isSelected
-                            ? isDark ? colors.warningBg : '#FEF3C7'
-                            : isUsedElsewhere ? colors.surface : colors.card,
-                          borderRadius: RADIUS.md, paddingHorizontal: 10, paddingVertical: 6, gap: 4,
+                            ? isDark
+                              ? colors.warningBg
+                              : '#FEF3C7'
+                            : isUsedElsewhere
+                              ? colors.surface
+                              : colors.card,
+                          borderRadius: RADIUS.md,
+                          paddingHorizontal: 10,
+                          paddingVertical: 6,
+                          gap: 4,
                           opacity: isUsedElsewhere ? 0.5 : 1,
                         }}
                       >
-                        <Text style={{ fontSize: 13, fontWeight: '800', color: isSelected ? colors.warning : colors.textSecondary }}>
+                        <Text
+                          style={{
+                            fontSize: 13,
+                            fontWeight: '800',
+                            color: isSelected ? colors.warning : colors.textSecondary,
+                          }}
+                        >
                           {optId}
                         </Text>
                       </TouchableOpacity>
@@ -154,13 +255,21 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
               {submitted && q.explanation && (
                 <>
                   <TouchableOpacity
-                    onPress={() => setShowExplanation(showExplanation === q.question_number ? null : q.question_number)}
+                    onPress={() =>
+                      setShowExplanation(
+                        showExplanation === q.question_number ? null : q.question_number,
+                      )
+                    }
                     style={{
-                      marginTop: 10, marginLeft: 34, alignSelf: 'flex-start',
+                      marginTop: 10,
+                      marginLeft: 34,
+                      alignSelf: 'flex-start',
                       backgroundColor: isDark ? colors.infoBg : '#EFF6FF',
-                      borderRadius: RADIUS.sm, borderWidth: 1,
+                      borderRadius: RADIUS.sm,
+                      borderWidth: 1,
                       borderColor: isDark ? colors.border : '#BFDBFE',
-                      paddingHorizontal: 10, paddingVertical: 4,
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
                     }}
                   >
                     <Text style={{ fontSize: 11, fontWeight: '700', color: '#1D4ED8' }}>
@@ -169,7 +278,10 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                   </TouchableOpacity>
                   {showExplanation === q.question_number && (
                     <View style={{ marginLeft: 34, marginTop: 8 }}>
-                      <ExplanationView explanation={getExplanationText(q.explanation)} isCorrect={isCorrect} />
+                      <ExplanationView
+                        explanation={getExplanationText(q.explanation)}
+                        isCorrect={isCorrect}
+                      />
                     </View>
                   )}
                 </>
@@ -192,8 +304,12 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
         >
           <Text
             style={{
-              fontSize: 11, fontWeight: '800', color: colors.textMuted,
-              textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: SPACING.sm,
+              fontSize: 11,
+              fontWeight: '800',
+              color: colors.textMuted,
+              textTransform: 'uppercase',
+              letterSpacing: 0.8,
+              marginBottom: SPACING.sm,
             }}
           >
             Options
@@ -201,16 +317,22 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
           {options.map((opt: any) => {
             const optId = (opt.id ?? opt.letter ?? '').toUpperCase();
             const isUsed = !submitted && usedIds.includes(optId);
-            const isCorrectAns = submitted && questions.some((q: any) => q.answer?.toUpperCase() === optId);
+            const isCorrectAns =
+              submitted && questions.some((q: any) => q.answer?.toUpperCase() === optId);
 
             return (
               <View key={optId} style={{ flexDirection: 'row', gap: 8, marginBottom: 6 }}>
                 <Text
                   style={{
-                    fontSize: 13, fontWeight: '800',
+                    fontSize: 13,
+                    fontWeight: '800',
                     color: submitted
-                      ? isCorrectAns ? '#16A34A' : colors.textMuted
-                      : isUsed ? colors.warning : colors.text,
+                      ? isCorrectAns
+                        ? '#16A34A'
+                        : colors.textMuted
+                      : isUsed
+                        ? colors.warning
+                        : colors.text,
                     width: 20,
                   }}
                 >
@@ -218,10 +340,17 @@ export function SentenceEndingsGroupView({ group, answers, submitted, onAnswer }
                 </Text>
                 <Text
                   style={{
-                    flex: 1, fontSize: FONT_SIZES.sm,
+                    flex: 1,
+                    fontSize: FONT_SIZES.sm,
                     color: submitted
-                      ? isCorrectAns ? '#16A34A' : colors.textMuted
-                      : isUsed ? isDark ? colors.warning : '#92400E' : colors.text,
+                      ? isCorrectAns
+                        ? '#16A34A'
+                        : colors.textMuted
+                      : isUsed
+                        ? isDark
+                          ? colors.warning
+                          : '#92400E'
+                        : colors.text,
                     fontWeight: submitted ? (isCorrectAns ? '700' : '400') : '500',
                     lineHeight: 20,
                   }}

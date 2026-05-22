@@ -9,10 +9,7 @@ export interface SpacerProps {
   horizontal?: boolean;
 }
 
-export default function Spacer({
-  size = 4,
-  horizontal = false,
-}: SpacerProps) {
+export default function Spacer({ size = 4, horizontal = false }: SpacerProps) {
   const gutter = spacing[size];
 
   return (

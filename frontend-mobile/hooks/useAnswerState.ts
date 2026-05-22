@@ -9,16 +9,19 @@ export function useAnswerState(examType?: string) {
     setAnswers((prev) => ({ ...prev, [key]: value }));
   }, []);
 
-  const getAnsweredCount = useCallback((type: string) => {
-    const canonicalType = (type || '').toUpperCase();
-    if (canonicalType === 'WRITING') {
-      return [writingAnswers.task1, writingAnswers.task2].filter((v) => v.trim()).length;
-    }
-    if (canonicalType === 'SPEAKING') {
-      return Object.values(speakingAnswers).filter((v) => v.trim()).length;
-    }
-    return Object.keys(answers).length;
-  }, [answers, writingAnswers, speakingAnswers]);
+  const getAnsweredCount = useCallback(
+    (type: string) => {
+      const canonicalType = (type || '').toUpperCase();
+      if (canonicalType === 'WRITING') {
+        return [writingAnswers.task1, writingAnswers.task2].filter((v) => v.trim()).length;
+      }
+      if (canonicalType === 'SPEAKING') {
+        return Object.values(speakingAnswers).filter((v) => v.trim()).length;
+      }
+      return Object.keys(answers).length;
+    },
+    [answers, writingAnswers, speakingAnswers],
+  );
 
   const getTotalCount = useCallback((type: string, exam: any) => {
     const canonicalType = (type || '').toUpperCase();
@@ -29,10 +32,10 @@ export function useAnswerState(examType?: string) {
       const speakingParts = exam?.questions?.parts || [];
       return speakingParts.reduce(
         (s: number, p: any) => s + (p.questions?.length || (p.cue_card ? 1 : 0)),
-        0
+        0,
       );
     }
-    
+
     // For Listening and Reading, we can count the question numbers in groups
     const parts = exam?.questions?.parts || exam?.questions?.passages || [];
     if (parts.length > 0) {
@@ -63,20 +66,23 @@ export function useAnswerState(examType?: string) {
       });
       if (count > 0) return count;
     }
-    
+
     return undefined;
   }, []);
 
-  const buildSubmitPayload = useCallback((type: string) => {
-    const canonicalType = (type || '').toUpperCase();
-    if (canonicalType === 'WRITING') {
-      return { task1: writingAnswers.task1, task2: writingAnswers.task2 };
-    }
-    if (canonicalType === 'SPEAKING') {
-      return speakingAnswers;
-    }
-    return answers;
-  }, [answers, writingAnswers, speakingAnswers]);
+  const buildSubmitPayload = useCallback(
+    (type: string) => {
+      const canonicalType = (type || '').toUpperCase();
+      if (canonicalType === 'WRITING') {
+        return { task1: writingAnswers.task1, task2: writingAnswers.task2 };
+      }
+      if (canonicalType === 'SPEAKING') {
+        return speakingAnswers;
+      }
+      return answers;
+    },
+    [answers, writingAnswers, speakingAnswers],
+  );
 
   return {
     answers,

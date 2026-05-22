@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import Svg, { Rect, Path, G, Line, Text as SvgText, Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
+import Svg, {
+  Rect,
+  Path,
+  G,
+  Line,
+  Text as SvgText,
+  Defs,
+  LinearGradient,
+  Stop,
+  Circle,
+} from 'react-native-svg';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 
 interface ForecastDay {
@@ -66,7 +76,12 @@ export function ForecastChart({ forecastData = [] }: ForecastChartProps) {
   let linePath = '';
 
   if (pts.length > 0) {
-    linePath = `M ${pts[0].x} ${pts[0].y} ` + pts.slice(1).map((p) => `L ${p.x} ${p.y}`).join(' ');
+    linePath =
+      `M ${pts[0].x} ${pts[0].y} ` +
+      pts
+        .slice(1)
+        .map((p) => `L ${p.x} ${p.y}`)
+        .join(' ');
     areaPath =
       `M ${pts[0].x} ${PAD.t + chartH} ` +
       pts.map((p) => `L ${p.x} ${p.y}`).join(' ') +

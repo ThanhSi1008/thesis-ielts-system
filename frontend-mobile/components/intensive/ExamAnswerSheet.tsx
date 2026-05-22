@@ -52,7 +52,7 @@ export function ExamAnswerSheet({
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
       )}
-      
+
       {/* Sheet */}
       <Animated.View
         style={[
@@ -63,7 +63,7 @@ export function ExamAnswerSheet({
       >
         {/* Handle */}
         <View style={[styles.handle, { backgroundColor: isDark ? colors.border : '#D1D5DB' }]} />
-        
+
         {/* Header */}
         <View style={styles.sheetHeader}>
           <Text style={[styles.sheetTitle, { color: colors.text }]}>Question Navigator</Text>

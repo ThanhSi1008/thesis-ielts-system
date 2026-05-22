@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
@@ -73,7 +66,14 @@ export function MCQQuestion({
     <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
       {isMulti && (
-        <Text style={[qStyles.multiHint, isDark ? { backgroundColor: 'rgba(217, 119, 6, 0.15)', color: '#fbbf24' } : { backgroundColor: '#FEF3C7', color: '#D97706' }]}>
+        <Text
+          style={[
+            qStyles.multiHint,
+            isDark
+              ? { backgroundColor: 'rgba(217, 119, 6, 0.15)', color: '#fbbf24' }
+              : { backgroundColor: '#FEF3C7', color: '#D97706' },
+          ]}
+        >
           Choose {qNums.length} letters
         </Text>
       )}
@@ -86,7 +86,7 @@ export function MCQQuestion({
             style={[
               qStyles.option,
               { backgroundColor: colors.surface, borderColor: colors.border },
-              sel && { borderColor: colors.primary, backgroundColor: colors.primary + '18' }
+              sel && { borderColor: colors.primary, backgroundColor: colors.primary + '18' },
             ]}
             onPress={() => handlePress(letter)}
             activeOpacity={0.8}
@@ -103,10 +103,26 @@ export function MCQQuestion({
               {isMulti && sel ? (
                 <Ionicons name="checkmark" size={12} color="#fff" />
               ) : (
-                <Text style={[qStyles.optionLetter, { color: colors.textSecondary }, sel && { color: '#fff' }]}>{letter}</Text>
+                <Text
+                  style={[
+                    qStyles.optionLetter,
+                    { color: colors.textSecondary },
+                    sel && { color: '#fff' },
+                  ]}
+                >
+                  {letter}
+                </Text>
               )}
             </View>
-            <Text style={[qStyles.optionText, { color: colors.text }, sel && { color: colors.primary, fontWeight: '600' }]}>{label}</Text>
+            <Text
+              style={[
+                qStyles.optionText,
+                { color: colors.text },
+                sel && { color: colors.primary, fontWeight: '600' },
+              ]}
+            >
+              {label}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -137,11 +153,20 @@ export function FillQuestion({
   return (
     <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
-      {questionText ? <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text> : null}
+      {questionText ? (
+        <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
+      ) : null}
       {contextNote ? (
-        <View style={[qStyles.contextNote, { backgroundColor: colors.surface, borderColor: colors.border + '80' }]}>
+        <View
+          style={[
+            qStyles.contextNote,
+            { backgroundColor: colors.surface, borderColor: colors.border + '80' },
+          ]}
+        >
           <Ionicons name="information-circle-outline" size={13} color={colors.textSecondary} />
-          <Text style={[qStyles.contextNoteText, { color: colors.textSecondary }]}>{contextNote}</Text>
+          <Text style={[qStyles.contextNoteText, { color: colors.textSecondary }]}>
+            {contextNote}
+          </Text>
         </View>
       ) : null}
       <TextInput
@@ -181,7 +206,9 @@ export function SummaryBlankSelector({
   const usedLetters = new Set(Object.values(answers).filter((v) => v && v !== value));
 
   return (
-    <View style={[qStyles.selectorRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
+    <View
+      style={[qStyles.selectorRow, { backgroundColor: colors.card, borderColor: colors.border }]}
+    >
       <TouchableOpacity
         style={[qStyles.selectorChip, filled && { backgroundColor: colors.primary + '08' }]}
         onPress={() => setOpen((o) => !o)}
@@ -192,9 +219,13 @@ export function SummaryBlankSelector({
             <Text style={[qStyles.summaryQBadgeText, { color: colors.primary }]}>{qNum}</Text>
           </View>
           {filled ? (
-            <Text style={[qStyles.selectorChipValue, { color: colors.primary }]}>{displayLabel}</Text>
+            <Text style={[qStyles.selectorChipValue, { color: colors.primary }]}>
+              {displayLabel}
+            </Text>
           ) : (
-            <Text style={[qStyles.selectorChipPlaceholder, { color: colors.textSecondary }]}>Tap to select an answer…</Text>
+            <Text style={[qStyles.selectorChipPlaceholder, { color: colors.textSecondary }]}>
+              Tap to select an answer…
+            </Text>
           )}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -210,12 +241,19 @@ export function SummaryBlankSelector({
               <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
-          <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textSecondary} />
+          <Ionicons
+            name={open ? 'chevron-up' : 'chevron-down'}
+            size={16}
+            color={colors.textSecondary}
+          />
         </View>
       </TouchableOpacity>
 
       {open && (
-        <ScrollView style={[qStyles.selectorList, { borderTopColor: colors.border + '80' }]} nestedScrollEnabled>
+        <ScrollView
+          style={[qStyles.selectorList, { borderTopColor: colors.border + '80' }]}
+          nestedScrollEnabled
+        >
           {Object.entries(options).map(([letter, text]) => {
             const isActive = value === letter;
             const isUsed = !isActive && usedLetters.has(letter);
@@ -225,7 +263,7 @@ export function SummaryBlankSelector({
                 style={[
                   qStyles.selectorListItem,
                   { borderBottomColor: colors.border + '40' },
-                  isActive && { backgroundColor: colors.primary + '15' }
+                  isActive && { backgroundColor: colors.primary + '15' },
                 ]}
                 onPress={() => {
                   onSelect(letter);
@@ -238,14 +276,26 @@ export function SummaryBlankSelector({
                   style={[
                     qStyles.selectorListLetter,
                     { backgroundColor: isDark ? colors.surface : '#EFF6FF' },
-                    isActive && { backgroundColor: colors.primary }
+                    isActive && { backgroundColor: colors.primary },
                   ]}
                 >
-                  <Text style={[qStyles.selectorListLetterText, { color: colors.primary }, isActive && { color: '#fff' }]}>
+                  <Text
+                    style={[
+                      qStyles.selectorListLetterText,
+                      { color: colors.primary },
+                      isActive && { color: '#fff' },
+                    ]}
+                  >
                     {letter}
                   </Text>
                 </View>
-                <Text style={[qStyles.selectorListText, { color: colors.text }, isUsed && { color: colors.textDisabled }]}>
+                <Text
+                  style={[
+                    qStyles.selectorListText,
+                    { color: colors.text },
+                    isUsed && { color: colors.textDisabled },
+                  ]}
+                >
                   {String(text)}
                 </Text>
                 {isActive && <Ionicons name="checkmark" size={16} color={colors.primary} />}
@@ -258,8 +308,19 @@ export function SummaryBlankSelector({
   );
 }
 
-const DIAGRAM_TYPES = new Set(['diagram_labelling', 'diagram_completion', 'map_labelling', 'plan_labelling']);
-const MATCHING_TYPES = new Set(['matching', 'matching_headings', 'matching_features', 'matching_information', 'matching_sentence_endings']);
+const DIAGRAM_TYPES = new Set([
+  'diagram_labelling',
+  'diagram_completion',
+  'map_labelling',
+  'plan_labelling',
+]);
+const MATCHING_TYPES = new Set([
+  'matching',
+  'matching_headings',
+  'matching_features',
+  'matching_information',
+  'matching_sentence_endings',
+]);
 
 // ─── Render question groups ──────────────────────────────────────────────────
 export function renderGroup(
@@ -332,12 +393,25 @@ export function renderGroup(
     }
 
     return (
-      <View style={[qStyles.passageContextWrap, colors && { backgroundColor: isDark ? colors.surface : '#F8F9FA', borderColor: colors.border, borderLeftColor: colors.primary + '80' }]}>
+      <View
+        style={[
+          qStyles.passageContextWrap,
+          colors && {
+            backgroundColor: isDark ? colors.surface : '#F8F9FA',
+            borderColor: colors.border,
+            borderLeftColor: colors.primary + '80',
+          },
+        ]}
+      >
         <Text style={[qStyles.passageContextText, colors && { color: colors.text }]}>
           {segments.map((seg, i) =>
             seg.type === 'badge' ? (
-              <Text key={`${cKey}-seg${i}`} style={[qStyles.blankBadge, colors && { backgroundColor: colors.primary }]}>
-                {' '}{seg.content}{' '}
+              <Text
+                key={`${cKey}-seg${i}`}
+                style={[qStyles.blankBadge, colors && { backgroundColor: colors.primary }]}
+              >
+                {' '}
+                {seg.content}{' '}
               </Text>
             ) : (
               <Text key={`${cKey}-seg${i}`}>{seg.content}</Text>
@@ -358,7 +432,12 @@ export function renderGroup(
     return (
       <View key={sKey} style={qStyles.sectionBlock}>
         {section.heading && (
-          <Text style={[qStyles.sectionHeading, colors && { color: colors.primary, borderBottomColor: colors.border + '60' }]}>
+          <Text
+            style={[
+              qStyles.sectionHeading,
+              colors && { color: colors.primary, borderBottomColor: colors.border + '60' },
+            ]}
+          >
             {section.heading}
           </Text>
         )}
@@ -388,12 +467,28 @@ export function renderGroup(
             }
 
             return (
-              <View key={qKey} style={[qStyles.summaryAnswerRow, colors && { backgroundColor: colors.card, borderColor: colors.border }]}>
-                <View style={[qStyles.summaryQBadge, colors && { backgroundColor: colors.primary + '18' }]}>
-                  <Text style={[qStyles.summaryQBadgeText, colors && { color: colors.primary }]}>{qNum}</Text>
+              <View
+                key={qKey}
+                style={[
+                  qStyles.summaryAnswerRow,
+                  colors && { backgroundColor: colors.card, borderColor: colors.border },
+                ]}
+              >
+                <View
+                  style={[
+                    qStyles.summaryQBadge,
+                    colors && { backgroundColor: colors.primary + '18' },
+                  ]}
+                >
+                  <Text style={[qStyles.summaryQBadgeText, colors && { color: colors.primary }]}>
+                    {qNum}
+                  </Text>
                 </View>
                 <TextInput
-                  style={[qStyles.summaryAnswerInput, colors && { color: colors.text, borderBottomColor: colors.border }]}
+                  style={[
+                    qStyles.summaryAnswerInput,
+                    colors && { color: colors.text, borderBottomColor: colors.border },
+                  ]}
                   value={currentVal}
                   onChangeText={(v) => setAnswer(qKey, v)}
                   placeholder="Type answer..."
@@ -410,17 +505,14 @@ export function renderGroup(
 
   return (
     <View key={baseKey}>
-      {group.instructions && (
-        <Text style={[qStyles.instructions]}>
-          {group.instructions}
-        </Text>
-      )}
+      {group.instructions && <Text style={[qStyles.instructions]}>{group.instructions}</Text>}
 
       {hasSections
         ? group.content.map((section: any, si: number) => {
             const sKey = `${baseKey}-s${si}`;
             const sectionPoints = section.points ?? [];
-            const hasSummaryText = typeof section.text === 'string' && section.text.includes('[blank]');
+            const hasSummaryText =
+              typeof section.text === 'string' && section.text.includes('[blank]');
 
             if (hasSummaryText) {
               return renderSummaryInline(section, sKey);
@@ -429,208 +521,254 @@ export function renderGroup(
             return (
               <View key={sKey} style={qStyles.sectionBlock}>
                 {section.heading && (
-                  <Text style={[qStyles.sectionHeading, colors && { color: colors.primary, borderBottomColor: colors.border + '60' }]}>
+                  <Text
+                    style={[
+                      qStyles.sectionHeading,
+                      colors && { color: colors.primary, borderBottomColor: colors.border + '60' },
+                    ]}
+                  >
                     {section.heading}
                   </Text>
                 )}
-                {section.text && <Text style={[qStyles.sectionText, colors && { color: colors.text }]}>{section.text}</Text>}
+                {section.text && (
+                  <Text style={[qStyles.sectionText, colors && { color: colors.text }]}>
+                    {section.text}
+                  </Text>
+                )}
                 {sectionPoints
                   .filter((q: any) => q.question_number != null)
                   .map((q: any) => {
                     const num = String(q.question_number);
                     const qKey = `${sKey}-${num}`;
                     if (isTFNG) {
-                      return <MCQQuestion key={qKey} q={{ ...q, options: tfOptions }} answers={answers} onAnswer={setAnswer} />;
+                      return (
+                        <MCQQuestion
+                          key={qKey}
+                          q={{ ...q, options: tfOptions }}
+                          answers={answers}
+                          onAnswer={setAnswer}
+                        />
+                      );
                     }
                     if (optionsBox) {
-                      return <MCQQuestion key={qKey} q={{ ...q, options: optionsBox.options }} answers={answers} onAnswer={setAnswer} />;
+                      return (
+                        <MCQQuestion
+                          key={qKey}
+                          q={{ ...q, options: optionsBox.options }}
+                          answers={answers}
+                          onAnswer={setAnswer}
+                        />
+                      );
                     }
-                    return <FillQuestion key={qKey} q={q} answer={answers[num] || ''} onAnswer={(v) => setAnswer(num, v)} />;
+                    return (
+                      <FillQuestion
+                        key={qKey}
+                        q={q}
+                        answer={answers[num] || ''}
+                        onAnswer={(v) => setAnswer(num, v)}
+                      />
+                    );
                   })}
               </View>
             );
           })
         : answerableQuestions.map((q: any, qi: number) => {
-            const num = q.question_number != null ? String(q.question_number) : `${baseKey}-qi${qi}`;
+            const num =
+              q.question_number != null ? String(q.question_number) : `${baseKey}-qi${qi}`;
             const qKey = `${baseKey}-${num}`;
 
             if (isTFNG) {
-              return <MCQQuestion key={qKey} q={{ ...q, options: tfOptions }} answers={answers} onAnswer={setAnswer} />;
+              return (
+                <MCQQuestion
+                  key={qKey}
+                  q={{ ...q, options: tfOptions }}
+                  answers={answers}
+                  onAnswer={setAnswer}
+                />
+              );
             }
             if (isMCQ) {
               return <MCQQuestion key={qKey} q={q} answers={answers} onAnswer={setAnswer} />;
             }
-            return <FillQuestion key={qKey} q={q} answer={answers[num] || ''} onAnswer={(v) => setAnswer(num, v)} />;
+            return (
+              <FillQuestion
+                key={qKey}
+                q={q}
+                answer={answers[num] || ''}
+                onAnswer={(v) => setAnswer(num, v)}
+              />
+            );
           })}
     </View>
   );
 }
 
-const createQStyles = (colors: any, isDark: boolean) => StyleSheet.create({
-  block: {
-    marginBottom: SPACING.xl,
-    padding: SPACING.lg,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-  },
-  qNumber: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  multiHint: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '600',
-    marginBottom: SPACING.sm,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 99,
-  },
-  qText: { fontSize: FONT_SIZES.md, marginBottom: SPACING.md, lineHeight: 22 },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.md,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    marginBottom: SPACING.sm,
-  },
-  optionBullet: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.md,
-  },
-  optionBulletMulti: { borderRadius: 6 },
-  optionLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm },
-  optionText: { flex: 1, fontSize: FONT_SIZES.md },
-  input: {
-    borderWidth: 1,
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
-    fontSize: FONT_SIZES.md,
-  },
-  contextNote: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 4,
-    marginBottom: SPACING.sm,
-    padding: SPACING.sm,
-    borderRadius: RADIUS.sm,
-    borderWidth: 1,
-  },
-  contextNoteText: {
-    flex: 1,
-    fontSize: FONT_SIZES.xs,
-    lineHeight: 18,
-  },
-  sectionBlock: { marginBottom: SPACING.lg },
-  sectionHeading: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '700',
-    marginBottom: SPACING.sm,
-    paddingBottom: 4,
-    borderBottomWidth: 1,
-  },
-  sectionText: {
-    fontSize: FONT_SIZES.sm,
-    lineHeight: 22,
-    marginBottom: SPACING.md,
-  },
-  passageContextWrap: {
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderLeftWidth: 3,
-    padding: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-  passageContextText: {
-    fontSize: FONT_SIZES.sm,
-    lineHeight: 26,
-  },
-  blankBadge: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 11,
-    borderRadius: 4,
-    paddingHorizontal: 5,
-    overflow: 'hidden',
-  },
-  summaryAnswerList: { gap: SPACING.sm, marginTop: SPACING.sm },
-  summaryAnswerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-  },
-  summaryQBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  summaryQBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800' },
-  summaryAnswerInput: {
-    flex: 1,
-    fontSize: FONT_SIZES.sm,
-    paddingVertical: 4,
-    borderBottomWidth: 1.5,
-  },
-  selectorRow: {
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    marginBottom: SPACING.sm,
-    overflow: 'hidden',
-  },
-  selectorChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-  },
-  selectorChipLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flex: 1 },
-  selectorChipLabel: { fontSize: FONT_SIZES.sm },
-  selectorChipValue: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
-  selectorChipPlaceholder: { fontSize: FONT_SIZES.sm },
-  selectorList: {
-    borderTopWidth: 1,
-    maxHeight: 220,
-  },
-  selectorListItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-  },
-  selectorListLetter: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectorListLetterText: { fontSize: 13, fontWeight: '800' },
-  selectorListText: { flex: 1, fontSize: FONT_SIZES.sm },
-  instructions: {
-    fontSize: FONT_SIZES.sm,
-    fontStyle: 'italic',
-    marginBottom: SPACING.md,
-    padding: SPACING.md,
-    borderRadius: RADIUS.md,
-    borderLeftWidth: 3,
-  },
-});
+const createQStyles = (colors: any, isDark: boolean) =>
+  StyleSheet.create({
+    block: {
+      marginBottom: SPACING.xl,
+      padding: SPACING.lg,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+    },
+    qNumber: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '700',
+      marginBottom: 4,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    multiHint: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '600',
+      marginBottom: SPACING.sm,
+      alignSelf: 'flex-start',
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 99,
+    },
+    qText: { fontSize: FONT_SIZES.md, marginBottom: SPACING.md, lineHeight: 22 },
+    option: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: SPACING.md,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1,
+      marginBottom: SPACING.sm,
+    },
+    optionBullet: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: SPACING.md,
+    },
+    optionBulletMulti: { borderRadius: 6 },
+    optionLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm },
+    optionText: { flex: 1, fontSize: FONT_SIZES.md },
+    input: {
+      borderWidth: 1,
+      borderRadius: RADIUS.md,
+      padding: SPACING.md,
+      fontSize: FONT_SIZES.md,
+    },
+    contextNote: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 4,
+      marginBottom: SPACING.sm,
+      padding: SPACING.sm,
+      borderRadius: RADIUS.sm,
+      borderWidth: 1,
+    },
+    contextNoteText: {
+      flex: 1,
+      fontSize: FONT_SIZES.xs,
+      lineHeight: 18,
+    },
+    sectionBlock: { marginBottom: SPACING.lg },
+    sectionHeading: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '700',
+      marginBottom: SPACING.sm,
+      paddingBottom: 4,
+      borderBottomWidth: 1,
+    },
+    sectionText: {
+      fontSize: FONT_SIZES.sm,
+      lineHeight: 22,
+      marginBottom: SPACING.md,
+    },
+    passageContextWrap: {
+      borderRadius: RADIUS.lg,
+      borderWidth: 1,
+      borderLeftWidth: 3,
+      padding: SPACING.md,
+      marginBottom: SPACING.lg,
+    },
+    passageContextText: {
+      fontSize: FONT_SIZES.sm,
+      lineHeight: 26,
+    },
+    blankBadge: {
+      color: '#fff',
+      fontWeight: '800',
+      fontSize: 11,
+      borderRadius: 4,
+      paddingHorizontal: 5,
+      overflow: 'hidden',
+    },
+    summaryAnswerList: { gap: SPACING.sm, marginTop: SPACING.sm },
+    summaryAnswerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm,
+    },
+    summaryQBadge: {
+      width: 30,
+      height: 30,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    summaryQBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800' },
+    summaryAnswerInput: {
+      flex: 1,
+      fontSize: FONT_SIZES.sm,
+      paddingVertical: 4,
+      borderBottomWidth: 1.5,
+    },
+    selectorRow: {
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      marginBottom: SPACING.sm,
+      overflow: 'hidden',
+    },
+    selectorChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+    },
+    selectorChipLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flex: 1 },
+    selectorChipLabel: { fontSize: FONT_SIZES.sm },
+    selectorChipValue: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
+    selectorChipPlaceholder: { fontSize: FONT_SIZES.sm },
+    selectorList: {
+      borderTopWidth: 1,
+      maxHeight: 220,
+    },
+    selectorListItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.md,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+    },
+    selectorListLetter: {
+      width: 28,
+      height: 28,
+      borderRadius: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    selectorListLetterText: { fontSize: 13, fontWeight: '800' },
+    selectorListText: { flex: 1, fontSize: FONT_SIZES.sm },
+    instructions: {
+      fontSize: FONT_SIZES.sm,
+      fontStyle: 'italic',
+      marginBottom: SPACING.md,
+      padding: SPACING.md,
+      borderRadius: RADIUS.md,
+      borderLeftWidth: 3,
+    },
+  });

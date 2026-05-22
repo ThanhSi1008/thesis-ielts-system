@@ -299,16 +299,18 @@ export default function HistoryScreen() {
         ieltsAdvancedApi.getWritingHistory(),
       ]);
       const normalizedMock = Array.isArray(mockHistory) ? mockHistory : [];
-      const normalizedWriting = (Array.isArray(writingHistory) ? writingHistory : []).map((s: any) => ({
-        id: s.id,
-        skill: 'WRITING',
-        dateTaken: s.createdAt,
-        examTitle: s.prompt?.title ?? 'Writing Practice',
-        practicePart: s.prompt?.taskType === 'TASK1' ? 1 : 2,
-        rawScore: s.bandScore ?? null,
-        totalQuestions: null,
-        isAdvanced: true,
-      }));
+      const normalizedWriting = (Array.isArray(writingHistory) ? writingHistory : []).map(
+        (s: any) => ({
+          id: s.id,
+          skill: 'WRITING',
+          dateTaken: s.createdAt,
+          examTitle: s.prompt?.title ?? 'Writing Practice',
+          practicePart: s.prompt?.taskType === 'TASK1' ? 1 : 2,
+          rawScore: s.bandScore ?? null,
+          totalQuestions: null,
+          isAdvanced: true,
+        }),
+      );
       setHistory([...normalizedMock, ...normalizedWriting]);
     } catch (e) {
       console.error(e);

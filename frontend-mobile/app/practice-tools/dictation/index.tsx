@@ -51,7 +51,7 @@ export default function DictationPlaceholderScreen() {
           title="Dictation Module In Progress"
           subtitle="We are currently crafting a premium dictation playground integrated with our AI spelling analyzer. It will be launched in the next update!"
           action={{
-            label: "Back to Tools",
+            label: 'Back to Tools',
             onPress: () => router.push(ROUTES.practiceTools),
           }}
         />

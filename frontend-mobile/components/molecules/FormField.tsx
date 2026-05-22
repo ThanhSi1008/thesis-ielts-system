@@ -42,7 +42,7 @@ const FormField = forwardRef<TextInput, FormFieldProps>(
         ) : null}
       </View>
     );
-  }
+  },
 );
 
 FormField.displayName = 'FormField';

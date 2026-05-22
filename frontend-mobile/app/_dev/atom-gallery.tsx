@@ -19,7 +19,16 @@ import {
   ProgressCircle,
   ScoreBadge,
   FormField,
+  Card,
+  PressableCard,
+  ListItem,
+  SearchBar,
+  ErrorState,
+  BottomSheet,
+  ConfirmDialog,
+  Header,
 } from '@/components';
+import EmptyState from '@/components/molecules/EmptyState';
 
 export default function AtomGalleryScreen() {
   const { colors, isDark, setTheme, theme } = useTheme();
@@ -38,6 +47,19 @@ export default function AtomGalleryScreen() {
 
   // Progress values
   const [progressVal, setProgressVal] = useState(42);
+
+  // Molecules & Organisms states
+  const [searchVal, setSearchVal] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogVariant, setDialogVariant] = useState<
+    'destructive' | 'warning' | 'confirm' | 'info'
+  >('confirm');
+  const [activeErrorVariant, setActiveErrorVariant] = useState<
+    'network' | 'server' | 'unknown' | 'empty-permission'
+  >('network');
+  const [pressCount, setPressCount] = useState(0);
 
   // Theme toggle helper
   const handleToggleTheme = () => {
@@ -82,7 +104,9 @@ export default function AtomGalleryScreen() {
           5 variants, 3 sizes, haptic light on tap, pressed scaling scale down (0.98).
         </Text>
 
-        <Text variant="label" style={styles.subLabel}>Variants (Medium)</Text>
+        <Text variant="label" style={styles.subLabel}>
+          Variants (Medium)
+        </Text>
         <View style={styles.rowGrid}>
           <Button title="Primary" onPress={() => {}} variant="primary" />
           <Button title="Secondary" onPress={() => {}} variant="secondary" />
@@ -91,14 +115,18 @@ export default function AtomGalleryScreen() {
           <Button title="Danger" onPress={() => {}} variant="danger" />
         </View>
 
-        <Text variant="label" style={styles.subLabel}>Sizes (Primary)</Text>
+        <Text variant="label" style={styles.subLabel}>
+          Sizes (Primary)
+        </Text>
         <View style={styles.rowWrap}>
           <Button title="Small Button" onPress={() => {}} size="sm" />
           <Button title="Medium Button" onPress={() => {}} size="md" />
           <Button title="Large Button" onPress={() => {}} size="lg" />
         </View>
 
-        <Text variant="label" style={styles.subLabel}>States</Text>
+        <Text variant="label" style={styles.subLabel}>
+          States
+        </Text>
         <View style={styles.rowWrap}>
           <Button title="Disabled" onPress={() => {}} disabled />
           <Button title="Loading State" onPress={() => {}} loading />
@@ -118,11 +146,38 @@ export default function AtomGalleryScreen() {
           Square / circle options, hitSlop expansion, and red badge dots.
         </Text>
         <View style={styles.rowWrap}>
-          <IconButton icon="notifications-outline" onPress={() => {}} accessibilityLabel="Notifications" />
-          <IconButton icon="chatbubble-ellipses-outline" onPress={() => {}} hasBadge accessibilityLabel="Chats" />
-          <IconButton icon="settings-outline" onPress={() => {}} size="lg" accessibilityLabel="Settings" />
-          <IconButton icon="search" onPress={() => {}} size="sm" variant="solid" accessibilityLabel="Search" />
-          <IconButton icon="trash-outline" onPress={() => {}} variant="outline" shape="square" size="md" accessibilityLabel="Trash" />
+          <IconButton
+            icon="notifications-outline"
+            onPress={() => {}}
+            accessibilityLabel="Notifications"
+          />
+          <IconButton
+            icon="chatbubble-ellipses-outline"
+            onPress={() => {}}
+            hasBadge
+            accessibilityLabel="Chats"
+          />
+          <IconButton
+            icon="settings-outline"
+            onPress={() => {}}
+            size="lg"
+            accessibilityLabel="Settings"
+          />
+          <IconButton
+            icon="search"
+            onPress={() => {}}
+            size="sm"
+            variant="solid"
+            accessibilityLabel="Search"
+          />
+          <IconButton
+            icon="trash-outline"
+            onPress={() => {}}
+            variant="outline"
+            shape="square"
+            size="md"
+            accessibilityLabel="Trash"
+          />
         </View>
       </View>
 
@@ -138,9 +193,15 @@ export default function AtomGalleryScreen() {
           <Text variant="display">Display Text (36px)</Text>
           <Text variant="headline">Headline Text (30px)</Text>
           <Text variant="title">Title Text (24px)</Text>
-          <Text variant="body">Body Text (16px) - regular standard reading weight for paragraphs.</Text>
-          <Text variant="label" color="primary">Label Text (14px) - colored primary</Text>
-          <Text variant="caption" color="textSecondary">Caption Text (12px) - secondary mute</Text>
+          <Text variant="body">
+            Body Text (16px) - regular standard reading weight for paragraphs.
+          </Text>
+          <Text variant="label" color="primary">
+            Label Text (14px) - colored primary
+          </Text>
+          <Text variant="caption" color="textSecondary">
+            Caption Text (12px) - secondary mute
+          </Text>
         </View>
         <Spacer size={2} />
         <View style={styles.rowWrap}>
@@ -203,7 +264,9 @@ export default function AtomGalleryScreen() {
           Pastel color hash backup scales when source image is empty.
         </Text>
 
-        <Text variant="label" style={styles.subLabel}>Sizes with Web Source</Text>
+        <Text variant="label" style={styles.subLabel}>
+          Sizes with Web Source
+        </Text>
         <View style={styles.rowWrap}>
           <Avatar size="xs" source="https://picsum.photos/100" />
           <Avatar size="sm" source="https://picsum.photos/100" />
@@ -212,7 +275,9 @@ export default function AtomGalleryScreen() {
           <Avatar size="xl" source="https://picsum.photos/100" hasBadge />
         </View>
 
-        <Text variant="label" style={styles.subLabel}>Hash Initial Fallbacks (Stable pastel coloring)</Text>
+        <Text variant="label" style={styles.subLabel}>
+          Hash Initial Fallbacks (Stable pastel coloring)
+        </Text>
         <View style={styles.rowWrap}>
           <Avatar size="sm" name="An Nguyen" />
           <Avatar size="md" name="Thanh Si" />
@@ -264,10 +329,10 @@ export default function AtomGalleryScreen() {
                 skill === 'Listening'
                   ? 'headset-outline'
                   : skill === 'Reading'
-                  ? 'book-outline'
-                  : skill === 'Writing'
-                  ? 'create-outline'
-                  : 'mic-outline'
+                    ? 'book-outline'
+                    : skill === 'Writing'
+                      ? 'create-outline'
+                      : 'mic-outline'
               }
               onPress={() => setActiveChip(skill)}
             />
@@ -319,10 +384,13 @@ export default function AtomGalleryScreen() {
           </View>
           <View style={styles.switchRow}>
             <Text variant="body">Dark Mode Toggle</Text>
-            <Switch value={switchVal2} onValueChange={(val: boolean) => {
-              setSwitchVal2(val);
-              setTheme(val ? 'dark' : 'light');
-            }} />
+            <Switch
+              value={switchVal2}
+              onValueChange={(val: boolean) => {
+                setSwitchVal2(val);
+                setTheme(val ? 'dark' : 'light');
+              }}
+            />
           </View>
           <View style={styles.switchRow}>
             <Text variant="body">Disabled Switch</Text>
@@ -345,7 +413,9 @@ export default function AtomGalleryScreen() {
           <Text variant="body">Segment B (Horizontal split margin spacing size = 2)</Text>
           <Divider size={6} />
           <Text variant="body">Segment C (Vertical split next)</Text>
-          <View style={{ flexDirection: 'row', height: 24, alignItems: 'center', marginVertical: 8 }}>
+          <View
+            style={{ flexDirection: 'row', height: 24, alignItems: 'center', marginVertical: 8 }}
+          >
             <Text variant="body">Col 1</Text>
             <Divider vertical size={4} />
             <Text variant="body">Col 2</Text>
@@ -367,7 +437,9 @@ export default function AtomGalleryScreen() {
           <Text variant="label">Linear Progress: {progressVal}/100</Text>
           <ProgressBar value={progressVal} />
           <Spacer size={4} />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}
+          >
             <ProgressCircle value={progressVal} />
             <ProgressCircle value={75} color={colors.success} size={80} strokeWidth={8} />
             <ProgressCircle value={20} color={colors.error} size={50} strokeWidth={4} />
@@ -413,6 +485,479 @@ export default function AtomGalleryScreen() {
             <ScoreBadge band={4.5} variant="solid" />
           </View>
         </View>
+      </View>
+
+      <Divider size={4} />
+
+      {/* ================================================================= */}
+      {/* MOLECULES SECTION */}
+      {/* ================================================================= */}
+      <View style={styles.headerRow}>
+        <View style={{ flex: 1 }}>
+          <Text variant="title" color="primary" weight="bold">
+            UI Molecules Gallery
+          </Text>
+          <Text variant="caption" color="textSecondary">
+            Intermediate-level responsive components
+          </Text>
+        </View>
+      </View>
+
+      <Divider size={2} />
+
+      {/* 13. CARDS & PRESSABLE CARDS */}
+      <View style={styles.section}>
+        <Text variant="headline" weight="bold" style={styles.sectionTitle}>
+          13. Cards & Pressable Cards
+        </Text>
+        <Text variant="body" color="textSecondary" style={styles.sectionDesc}>
+          Flexible Card molecule supports four styling variants and custom slots. PressableCard
+          includes active scale-down spring feedback (0.98) and light haptic feedback.
+        </Text>
+
+        <Text variant="label" style={styles.subLabel}>
+          Elevated Variant (Default)
+        </Text>
+        <Card
+          variant="elevated"
+          header={
+            <Text variant="body" weight="bold">
+              Elevated Card Header
+            </Text>
+          }
+          body={
+            <Text variant="caption" color="textSecondary">
+              Elevated cards feature a premium soft shadow system with responsive dark/light depth
+              settings.
+            </Text>
+          }
+          footer={<Badge label="Active Card Slot" variant="info" />}
+        />
+
+        <Text variant="label" style={styles.subLabel}>
+          Outlined & Tonal Variants
+        </Text>
+        <View style={{ gap: spacing[3] }}>
+          <Card
+            variant="outlined"
+            body={
+              <Text variant="caption" color="textSecondary">
+                Outlined Card is ideal for subtle non-intrusive container divisions with border
+                color mappings.
+              </Text>
+            }
+          />
+          <Card
+            variant="tonal"
+            body={
+              <Text variant="caption" color="textSecondary">
+                Tonal Card uses subtle surface fills mapping to theme color tokens.
+              </Text>
+            }
+          />
+        </View>
+
+        <Text variant="label" style={styles.subLabel}>
+          Gradient & Accessory Slots
+        </Text>
+        <Card
+          variant="gradient"
+          leftAccessory={
+            <IconButton
+              icon="trophy-outline"
+              onPress={() => {}}
+              variant="solid"
+              accessibilityLabel="Trophy"
+            />
+          }
+          rightAccessory={
+            <IconButton icon="arrow-forward" onPress={() => {}} accessibilityLabel="Next" />
+          }
+          body={
+            <View>
+              <Text variant="body" weight="bold" color="primary">
+                Gradient Trophies Card
+              </Text>
+              <Text variant="caption" color="textSecondary">
+                Supports custom left/right accessory slots directly.
+              </Text>
+            </View>
+          }
+        />
+
+        <Text variant="label" style={styles.subLabel}>
+          PressableCard Haptic Showcase
+        </Text>
+        <PressableCard
+          variant="elevated"
+          onPress={() => setPressCount((c) => c + 1)}
+          body={
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text variant="body" weight="bold">
+                  Interactive Press Area
+                </Text>
+                <Text variant="caption" color="textSecondary">
+                  Tap to trigger animated scaling + light haptic.
+                </Text>
+              </View>
+              <Badge label={`Taps: ${pressCount}`} variant="success" />
+            </View>
+          }
+        />
+      </View>
+
+      {/* 14. LIST ITEMS */}
+      <View style={styles.section}>
+        <Text variant="headline" weight="bold" style={styles.sectionTitle}>
+          14. List Items
+        </Text>
+        <Text variant="body" color="textSecondary" style={styles.sectionDesc}>
+          Optimized for setting drawers, notifications, and menu links. Fully customizable titles,
+          subtitles, leading icons/avatars, trailing controls, chevron decorators, and interactive
+          selections.
+        </Text>
+
+        <Text variant="label" style={styles.subLabel}>
+          Variants
+        </Text>
+        <ListItem
+          variant="default"
+          title="Default List Item"
+          subtitle="Simple text title and subtitle mapping"
+          onPress={() => {}}
+        />
+        <ListItem
+          variant="with-icon"
+          title="Icon Accessory List Item"
+          subtitle="Themed background container wrapper"
+          leftIcon="settings-outline"
+          onPress={() => {}}
+        />
+        <ListItem
+          variant="with-avatar"
+          title="Avatar Visual List Item"
+          subtitle="Hash initial placeholder fallback avatar"
+          avatarName="Thanh Si"
+          onPress={() => {}}
+        />
+
+        <Text variant="label" style={styles.subLabel}>
+          Trailing Control & Selected State
+        </Text>
+        <ListItem
+          variant="with-icon"
+          title="Selected Option Style"
+          subtitle="Highlights primary borders and subtle background tinting"
+          leftIcon="checkmark-circle"
+          selected
+          onPress={() => {}}
+        />
+        <ListItem
+          variant="with-icon"
+          title="Toggle Notifications"
+          subtitle="Integrates trailing control elements nicely"
+          leftIcon="notifications-outline"
+          rightElement={<Switch value={switchVal1} onValueChange={setSwitchVal1} />}
+        />
+      </View>
+
+      {/* 15. SEARCH BAR */}
+      <View style={styles.section}>
+        <Text variant="headline" weight="bold" style={styles.sectionTitle}>
+          15. Search Bar
+        </Text>
+        <Text variant="body" color="textSecondary" style={styles.sectionDesc}>
+          Clean search bar input with internal 300ms debouncing logic. Showcases a voice input mic
+          accessory and reset clearing widget triggers.
+        </Text>
+
+        <SearchBar
+          value={searchVal}
+          onChangeText={setSearchVal}
+          onSearch={(query) => setSearchQuery(query)}
+          showVoice
+          onVoicePress={() => {
+            alert('Voice microphone activated! Start speaking to search.');
+          }}
+        />
+        <Spacer size={2} />
+        <View style={styles.boxBorder}>
+          <Text variant="caption" color="textSecondary">
+            Realtime typing value:{' '}
+            <Text variant="caption" weight="bold" color="primary">
+              {searchVal || 'Empty'}
+            </Text>
+          </Text>
+          <Spacer size={1} />
+          <Text variant="caption" color="textSecondary">
+            Debounced search result:{' '}
+            <Text variant="caption" weight="bold" color="success">
+              {searchQuery || 'Pending...'}
+            </Text>
+          </Text>
+        </View>
+      </View>
+
+      {/* 16. EMPTY & ERROR STATES */}
+      <View style={styles.section}>
+        <Text variant="headline" weight="bold" style={styles.sectionTitle}>
+          16. Empty & Error States
+        </Text>
+        <Text variant="body" color="textSecondary" style={styles.sectionDesc}>
+          Consistent layouts mapping semantic failures. Used across lists when data states fail to
+          load.
+        </Text>
+
+        <Text variant="label" style={styles.subLabel}>
+          EmptyState (Inline Mock Preview)
+        </Text>
+        <View style={[styles.boxBorder, { paddingVertical: spacing[4] }]}>
+          <EmptyState
+            illustration="search-outline"
+            title="No Results Found"
+            description="We searched all exams but found no matches for your search term. Please try another query."
+            primaryAction={{
+              title: 'Clear Search',
+              onPress: () => {
+                setSearchVal('');
+                setSearchQuery('');
+              },
+            }}
+          />
+        </View>
+
+        <Text variant="label" style={styles.subLabel}>
+          ErrorState Variants Selector
+        </Text>
+        <View style={styles.rowWrap}>
+          {(['network', 'server', 'empty-permission', 'unknown'] as const).map((v) => (
+            <Chip
+              key={v}
+              label={v}
+              active={activeErrorVariant === v}
+              onPress={() => setActiveErrorVariant(v)}
+            />
+          ))}
+        </View>
+        <Spacer size={3} />
+        <View style={[styles.boxBorder, { paddingVertical: spacing[4] }]}>
+          <ErrorState
+            variant={activeErrorVariant}
+            onRetry={() => {
+              alert(`Retrying load for: ${activeErrorVariant} state!`);
+            }}
+          />
+        </View>
+      </View>
+
+      <Divider size={4} />
+
+      {/* ================================================================= */}
+      {/* ORGANISMS SECTION */}
+      {/* ================================================================= */}
+      <View style={styles.headerRow}>
+        <View style={{ flex: 1 }}>
+          <Text variant="title" color="primary" weight="bold">
+            UI Organisms Gallery
+          </Text>
+          <Text variant="caption" color="textSecondary">
+            Actionable composite high-level layouts
+          </Text>
+        </View>
+      </View>
+
+      <Divider size={2} />
+
+      {/* 17. HEADERS */}
+      <View style={styles.section}>
+        <Text variant="headline" weight="bold" style={styles.sectionTitle}>
+          17. Navigation Headers
+        </Text>
+        <Text variant="body" color="textSecondary" style={styles.sectionDesc}>
+          Safe-area computed action headers with support for transparent, large, centered, and
+          standard layouts.
+        </Text>
+
+        <Text variant="label" style={styles.subLabel}>
+          Standard Layout (Default)
+        </Text>
+        <Header
+          title="IELTS Prep Core"
+          subtitle="Listening Practice #42"
+          leftAction={{ icon: 'arrow-back', onPress: () => {} }}
+          rightActions={[
+            { icon: 'notifications-outline', accessibilityLabel: 'Alerts', onPress: () => {} },
+            { icon: 'settings-outline', accessibilityLabel: 'Settings', onPress: () => {} },
+          ]}
+          style={{ borderBottomWidth: 1.5 }} // Overwrite safe inset height for inline showcase
+        />
+
+        <Text variant="label" style={styles.subLabel}>
+          Centered Variant Layout
+        </Text>
+        <Header
+          variant="centered"
+          title="Account Verification"
+          leftAction={{ label: 'Cancel', onPress: () => {} }}
+          style={{ borderBottomWidth: 1.5 }}
+        />
+
+        <Text variant="label" style={styles.subLabel}>
+          Large Variant Layout
+        </Text>
+        <Header
+          variant="large"
+          title="Explore Library"
+          subtitle="Select from 1,200 intensive IELTS practice modules"
+          leftAction={{ icon: 'menu-outline', onPress: () => {} }}
+          style={{ borderBottomWidth: 1.5 }}
+        />
+      </View>
+
+      {/* 18. BOTTOM SHEET & DIALOGS */}
+      <View style={styles.section}>
+        <Text variant="headline" weight="bold" style={styles.sectionTitle}>
+          18. Bottom Sheets & Dialogs
+        </Text>
+        <Text variant="body" color="textSecondary" style={styles.sectionDesc}>
+          BottomSheet implements pure RN swipe-to-dismiss gesture spring offset modals.
+          ConfirmDialog completely replaces generic Alert blocks with premium custom themed
+          warning/error actions.
+        </Text>
+
+        <Text variant="label" style={styles.subLabel}>
+          Interactive Prompts
+        </Text>
+        <View style={{ gap: spacing[3] }}>
+          <Button
+            title="Open Gesture BottomSheet"
+            onPress={() => setSheetVisible(true)}
+            leftIcon="arrow-up-circle-outline"
+          />
+
+          <Spacer size={4} />
+
+          <Text variant="caption" color="textSecondary">
+            Confirm Dialog Variants (Triggers Modal Overlay):
+          </Text>
+          <View style={styles.rowWrap}>
+            {(['destructive', 'warning', 'info', 'confirm'] as const).map((variant) => (
+              <Button
+                key={variant}
+                title={variant.toUpperCase()}
+                onPress={() => {
+                  setDialogVariant(variant);
+                  setDialogVisible(true);
+                }}
+                variant={
+                  variant === 'destructive'
+                    ? 'danger'
+                    : variant === 'info'
+                      ? 'outline'
+                      : 'secondary'
+                }
+                size="sm"
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* Modal Sheet organism */}
+        <BottomSheet
+          visible={sheetVisible}
+          onClose={() => setSheetVisible(false)}
+          title="Vocabulary Details"
+          snapPointHeight={0.6}
+        >
+          <ScrollView contentContainerStyle={{ paddingVertical: spacing[3], gap: spacing[3] }}>
+            <Card
+              variant="tonal"
+              body={
+                <View>
+                  <Text variant="body" weight="bold" color="primary">
+                    Antigravity (noun)
+                  </Text>
+                  <Spacer size={1} />
+                  <Text variant="caption" color="textSecondary">
+                    Definition: A hypothetical force or state in which the pull of gravity is
+                    canceled or opposed.
+                  </Text>
+                </View>
+              }
+            />
+            <ListItem
+              variant="with-icon"
+              title="Add to wordlist"
+              leftIcon="add-circle-outline"
+              onPress={() => {
+                alert('Word added!');
+                setSheetVisible(false);
+              }}
+            />
+            <ListItem
+              variant="with-icon"
+              title="Speak Pronunciation"
+              leftIcon="volume-high-outline"
+              onPress={() => {}}
+            />
+            <Button
+              title="Dismiss Sheet Details"
+              onPress={() => setSheetVisible(false)}
+              variant="primary"
+            />
+          </ScrollView>
+        </BottomSheet>
+
+        {/* Custom dialog organism */}
+        <ConfirmDialog
+          visible={dialogVisible}
+          onClose={() => setDialogVisible(false)}
+          variant={dialogVariant}
+          title={
+            dialogVariant === 'destructive'
+              ? 'Discard Changes?'
+              : dialogVariant === 'warning'
+                ? 'Confirm Account Deletion'
+                : dialogVariant === 'info'
+                  ? 'About Vocabulary Lab'
+                  : 'Synchronized Successfully!'
+          }
+          message={
+            dialogVariant === 'destructive'
+              ? 'You have unsaved edits in your speaking attempt. Leaving now will erase your current recording draft.'
+              : dialogVariant === 'warning'
+                ? 'This action is irreversible. All of your historical test statistics, bands, and premium purchases will be cleared.'
+                : dialogVariant === 'info'
+                  ? 'Vocabulary Lab is an AI-powered dictionary helping you master band 7.0+ advanced idioms with responsive daily flashcards.'
+                  : 'All your intensive preparation exam results have been saved to our server. You can check them in your profile history tab.'
+          }
+          primaryAction={{
+            title:
+              dialogVariant === 'destructive'
+                ? 'Discard Draft'
+                : dialogVariant === 'warning'
+                  ? 'Delete Forever'
+                  : 'Got It',
+            onPress: () => {
+              alert(`Executed: ${dialogVariant} action`);
+            },
+          }}
+          secondaryAction={
+            dialogVariant !== 'confirm'
+              ? {
+                  title: 'Keep Editing',
+                  onPress: () => {},
+                }
+              : undefined
+          }
+        />
       </View>
     </ScrollView>
   );

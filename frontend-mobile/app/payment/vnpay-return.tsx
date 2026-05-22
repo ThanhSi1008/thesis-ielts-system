@@ -98,7 +98,9 @@ export default function VnpayReturnScreen() {
       } catch (err: any) {
         setStatus('failed');
         setErrorMessage(
-          err?.response?.data?.message || err?.message || 'Payment verification failed. Please try again.'
+          err?.response?.data?.message ||
+            err?.message ||
+            'Payment verification failed. Please try again.',
         );
       }
     };
@@ -163,7 +165,9 @@ export default function VnpayReturnScreen() {
     }
   };
 
-  const txnRefVal = Array.isArray(params['vnp_TxnRef']) ? params['vnp_TxnRef'][0] : params['vnp_TxnRef'];
+  const txnRefVal = Array.isArray(params['vnp_TxnRef'])
+    ? params['vnp_TxnRef'][0]
+    : params['vnp_TxnRef'];
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>

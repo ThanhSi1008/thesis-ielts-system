@@ -56,7 +56,12 @@ const NAV_ITEMS = [
     icon: 'calculator-outline' as const,
     route: ROUTES.ieltsCalculator,
   },
-  { key: 'history', label: 'Test History', icon: 'time-outline' as const, route: ROUTES.ieltsHistory },
+  {
+    key: 'history',
+    label: 'Test History',
+    icon: 'time-outline' as const,
+    route: ROUTES.ieltsHistory,
+  },
   {
     key: 'statistics',
     label: 'Statistics',
@@ -125,7 +130,13 @@ export default function IeltsBasicTab() {
         }}
       >
         <TouchableOpacity
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 }}
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 4,
+          }}
           onPress={openDrawer}
         >
           <Ionicons name="menu" size={24} color={colors.text} />

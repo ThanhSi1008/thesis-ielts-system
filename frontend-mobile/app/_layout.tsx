@@ -8,7 +8,12 @@ import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { StatusBar } from 'expo-status-bar';
 import { Toaster, UpgradeModal } from '@/components/ui/index';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { DictionaryPopup, GlobalVocabFab, GlobalAddCardFab, NotificationPermissionBanner } from '@/components';
+import {
+  DictionaryPopup,
+  GlobalVocabFab,
+  GlobalAddCardFab,
+  NotificationPermissionBanner,
+} from '@/components';
 import { useFonts } from 'expo-font';
 
 import {
@@ -187,4 +192,3 @@ function RootNavigator() {
     </>
   );
 }
-

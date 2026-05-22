@@ -175,10 +175,19 @@ export default function CommunityScreen() {
           }}
         >
           <View>
-            <Text style={{ fontFamily: FONTS.bold, fontSize: 10, color: colors.textMuted, letterSpacing: 1 }}>
+            <Text
+              style={{
+                fontFamily: FONTS.bold,
+                fontSize: 10,
+                color: colors.textMuted,
+                letterSpacing: 1,
+              }}
+            >
               LEXON
             </Text>
-            <Text style={{ fontFamily: FONTS.bold, fontSize: 24, color: colors.text }}>Community</Text>
+            <Text style={{ fontFamily: FONTS.bold, fontSize: 24, color: colors.text }}>
+              Community
+            </Text>
           </View>
           <TouchableOpacity
             onPress={() => setShowCreate(true)}
@@ -219,7 +228,11 @@ export default function CommunityScreen() {
                   borderColor: active ? COLORS.primary : colors.border,
                 }}
               >
-                <Ionicons name={tab.icon as any} size={14} color={active ? '#212529' : colors.textSecondary} />
+                <Ionicons
+                  name={tab.icon as any}
+                  size={14}
+                  color={active ? '#212529' : colors.textSecondary}
+                />
                 <Text
                   style={{
                     fontFamily: FONTS.bold,
@@ -287,7 +300,9 @@ export default function CommunityScreen() {
             onPress={() => setShowCreate(true)}
           >
             <Avatar name={authorName} avatar={user?.avatar} size={34} />
-            <Text style={{ flex: 1, fontFamily: FONTS.medium, fontSize: 14, color: colors.textMuted }}>
+            <Text
+              style={{ flex: 1, fontFamily: FONTS.medium, fontSize: 14, color: colors.textMuted }}
+            >
               Share with the community…
             </Text>
             <View

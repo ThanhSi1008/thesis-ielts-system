@@ -43,7 +43,7 @@ export function useShadowingLessons() {
         if (wasProcessing && isReady) {
           toast.success(
             'Video Ready! 🎉',
-            `"${video.title}" has been transcribed and is ready for practice.`
+            `"${video.title}" has been transcribed and is ready for practice.`,
           );
           processingRef.current.delete(video.id);
         }
@@ -73,7 +73,7 @@ export function useShadowingLessons() {
       });
       setProgress(computed);
     },
-    []
+    [],
   );
 
   // Background silent polling fetch
@@ -140,33 +140,30 @@ export function useShadowingLessons() {
   }, [fetchData]);
 
   // Delete video handler
-  const handleDeleteVideo = useCallback(
-    (id: string, title: string) => {
-      Alert.alert(
-        'Delete Video',
-        `Are you sure you want to delete "${title}"? This action cannot be undone.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                await shadowingApi.deleteVideo(id);
-                toast.success('Deleted', `"${title}" has been deleted.`);
-                setUserVideos((prev) => prev.filter((v) => v.id !== id));
-                processingRef.current.delete(id);
-              } catch (e) {
-                console.error('Failed to delete video:', e);
-                toast.error('Error', 'Failed to delete video.');
-              }
-            },
+  const handleDeleteVideo = useCallback((id: string, title: string) => {
+    Alert.alert(
+      'Delete Video',
+      `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await shadowingApi.deleteVideo(id);
+              toast.success('Deleted', `"${title}" has been deleted.`);
+              setUserVideos((prev) => prev.filter((v) => v.id !== id));
+              processingRef.current.delete(id);
+            } catch (e) {
+              console.error('Failed to delete video:', e);
+              toast.error('Error', 'Failed to delete video.');
+            }
           },
-        ]
-      );
-    },
-    []
-  );
+        },
+      ],
+    );
+  }, []);
 
   // Build the list based on current tab and filters
   const allLessons = [

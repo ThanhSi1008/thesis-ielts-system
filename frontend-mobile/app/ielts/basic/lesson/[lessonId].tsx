@@ -355,14 +355,8 @@ const qStyles = StyleSheet.create({
 
 const markdownRules = {
   text: (node: any, children: any, parent: any, styles: any) => {
-    return (
-      <TextWithLookup
-        key={node.key}
-        content={node.content}
-        style={styles.text}
-      />
-    );
-  }
+    return <TextWithLookup key={node.key} content={node.content} style={styles.text} />;
+  },
 };
 
 /* ─── Main screen ─── */
@@ -493,7 +487,9 @@ export default function LessonViewerScreen() {
                   <View
                     style={[isSection && { paddingLeft: 0 }, !isSection && { paddingLeft: 26 }]}
                   >
-                    <Markdown style={markdownStyles} rules={markdownRules}>{block.content}</Markdown>
+                    <Markdown style={markdownStyles} rules={markdownRules}>
+                      {block.content}
+                    </Markdown>
                   </View>
                 ) : null}
               </Animated.View>

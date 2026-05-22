@@ -15,7 +15,7 @@ export interface BadgeProps {
   dotOnly?: boolean;
   value?: 'FREE' | 'PREMIUM' | 'PRO' | string;
   color?: string; // Legacy compatibility
-  bg?: string;    // Legacy compatibility
+  bg?: string; // Legacy compatibility
 }
 
 export default function Badge({
@@ -95,11 +95,7 @@ export default function Badge({
     <View style={[styles.badge, styles[size], { backgroundColor: bgVal }]}>
       <Text
         variant="caption"
-        style={[
-          styles.text,
-          styles[`text_${size}`],
-          { color: textValColor },
-        ]}
+        style={[styles.text, styles[`text_${size}`], { color: textValColor }]}
       >
         {badgeText}
       </Text>

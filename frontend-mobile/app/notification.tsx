@@ -221,8 +221,13 @@ export default function NotificationScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
+      <View
+        style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}
+      >
         <View style={styles.headerLeft}>
           <TouchableOpacity
             onPress={() => router.back()}

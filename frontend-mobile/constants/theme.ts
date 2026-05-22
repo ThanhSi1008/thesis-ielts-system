@@ -16,13 +16,13 @@ export interface ThemeTokens {
   error: string;
   warning: string;
   info: string;
-  
+
   // Alert backgrounds
   successBg: string;
   warningBg: string;
   errorBg: string;
   infoBg: string;
-  
+
   // Platform preferences
   statusBar: 'dark-content' | 'light-content';
 
@@ -55,12 +55,12 @@ export const LIGHT_TOKENS: ThemeTokens = {
   error: '#F44336',
   warning: '#FF9800',
   info: '#2196F3',
-  
+
   successBg: '#E8F5E9',
   warningBg: '#FFF3E0',
   errorBg: '#FFEBEE',
   infoBg: '#E0F2FE',
-  
+
   statusBar: 'dark-content',
 
   // New Semantic Tokens
@@ -92,12 +92,12 @@ export const DARK_TOKENS: ThemeTokens = {
   error: '#EF4444', // Red 500
   warning: '#F59E0B', // Amber 500
   info: '#3B82F6', // Blue 500
-  
+
   successBg: '#064E3B', // Deep rich green
   warningBg: '#78350F', // Deep rich amber
   errorBg: '#450A0A', // Deep rich red
   infoBg: '#0C4A6E', // Deep rich blue
-  
+
   statusBar: 'light-content',
 
   // New Semantic Tokens
@@ -110,4 +110,3 @@ export const DARK_TOKENS: ThemeTokens = {
   borderInteractive: '#FFC600',
   overlay: 'rgba(0, 0, 0, 0.7)',
 };
-

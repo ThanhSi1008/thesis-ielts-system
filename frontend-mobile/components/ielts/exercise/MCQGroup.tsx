@@ -30,7 +30,9 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
         </Text>
       )}
       {instruction && (
-        <Text style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 16, lineHeight: 20 }}>
+        <Text
+          style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 16, lineHeight: 20 }}
+        >
           {instruction}
         </Text>
       )}
@@ -42,7 +44,9 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
 
           return (
             <View key={q.question_number}>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}
+              >
                 <Text
                   style={{
                     fontSize: 13,
@@ -118,7 +122,14 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                         }}
                       >
                         {circleFill && (
-                          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: colors.card }} />
+                          <View
+                            style={{
+                              width: 9,
+                              height: 9,
+                              borderRadius: 5,
+                              backgroundColor: colors.card,
+                            }}
+                          />
                         )}
                       </View>
                       <Text
@@ -141,7 +152,11 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
               {submitted && q.explanation && (
                 <View style={{ paddingLeft: 30, marginTop: 10 }}>
                   <TouchableOpacity
-                    onPress={() => setShowExplanation(showExplanation === q.question_number ? null : q.question_number)}
+                    onPress={() =>
+                      setShowExplanation(
+                        showExplanation === q.question_number ? null : q.question_number,
+                      )
+                    }
                     style={{
                       alignSelf: 'flex-start',
                       backgroundColor: isDark ? colors.surface : '#F3F4F6',
@@ -165,7 +180,13 @@ export function MCQGroup({ group, answers, submitted, onAnswer }: any) {
                         padding: SPACING.md,
                       }}
                     >
-                      <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: isDark ? colors.info : '#1E40AF',
+                          lineHeight: 20,
+                        }}
+                      >
                         {getExplanationText(q.explanation)}
                       </Text>
                     </View>

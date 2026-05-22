@@ -324,9 +324,7 @@ export default function ShadowingScreen() {
 
   const renderLessonList = () => {
     if (loading) {
-      return (
-        <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
-      );
+      return <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />;
     }
 
     return (
@@ -347,7 +345,7 @@ export default function ShadowingScreen() {
           const isIP = p > 0 && p < 100;
           const isProcessing = (lesson as any).status === 'PROCESSING';
           const accent = mode === 'shadowing' ? COLORS.info : COLORS.warning;
-          const cat = lesson.category || (lesson.tags?.[0] || 'English');
+          const cat = lesson.category || lesson.tags?.[0] || 'English';
 
           return (
             <View key={lesson.id} style={styles.lessonCard}>
@@ -387,7 +385,12 @@ export default function ShadowingScreen() {
                   </View>
                   {lesson.folder && (
                     <View style={[styles.catWrap, styles.folderBadge]}>
-                      <Ionicons name="folder-outline" size={10} color={colors.textSecondary} style={{ marginRight: 2 }} />
+                      <Ionicons
+                        name="folder-outline"
+                        size={10}
+                        color={colors.textSecondary}
+                        style={{ marginRight: 2 }}
+                      />
                       <Text style={styles.catText}>{lesson.folder}</Text>
                     </View>
                   )}
@@ -406,7 +409,11 @@ export default function ShadowingScreen() {
                   <View style={{ flex: 1 }}>
                     {isProcessing ? (
                       <View style={styles.processingWrap}>
-                        <ActivityIndicator size="small" color={COLORS.primary} style={{ marginRight: 4 }} />
+                        <ActivityIndicator
+                          size="small"
+                          color={COLORS.primary}
+                          style={{ marginRight: 4 }}
+                        />
                         <Text style={styles.processingText}>Transcribing...</Text>
                       </View>
                     ) : p === 0 ? (
@@ -434,9 +441,15 @@ export default function ShadowingScreen() {
                       disabled={isProcessing}
                       style={[
                         styles.actionBtn,
-                        isProcessing ? styles.actionBtnDisabled : isComp ? styles.actionBtnComp : styles.actionBtnStart,
+                        isProcessing
+                          ? styles.actionBtnDisabled
+                          : isComp
+                            ? styles.actionBtnComp
+                            : styles.actionBtnStart,
                       ]}
-                      onPress={() => router.push(ROUTES.practiceToolsShadowingLesson(lesson.id, mode))}
+                      onPress={() =>
+                        router.push(ROUTES.practiceToolsShadowingLesson(lesson.id, mode))
+                      }
                     >
                       <Text
                         style={[
@@ -444,8 +457,8 @@ export default function ShadowingScreen() {
                           isProcessing
                             ? styles.actionBtnTextDisabled
                             : isComp
-                            ? styles.actionBtnTextComp
-                            : styles.actionBtnTextStart,
+                              ? styles.actionBtnTextComp
+                              : styles.actionBtnTextStart,
                         ]}
                       >
                         {isProcessing ? 'ETA ~1M' : isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
@@ -466,8 +479,8 @@ export default function ShadowingScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity 
-            style={{ marginRight: 12, paddingVertical: 4 }} 
+          <TouchableOpacity
+            style={{ marginRight: 12, paddingVertical: 4 }}
             onPress={() => router.push(ROUTES.practiceTools)}
           >
             <Ionicons name="chevron-back" size={24} color={colors.text} />

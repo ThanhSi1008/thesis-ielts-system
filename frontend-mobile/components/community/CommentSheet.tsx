@@ -100,10 +100,21 @@ export function CommentSection({
             <Text style={styles.commentAuthor}>{name}</Text>
             <Text style={styles.commentBody}>{c.body}</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4, marginLeft: 4 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              marginTop: 4,
+              marginLeft: 4,
+            }}
+          >
             <Text style={styles.commentTime}>{timeAgo(c.createdAt)}</Text>
-            
-            <TouchableOpacity onPress={() => toggleLike(c.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+
+            <TouchableOpacity
+              onPress={() => toggleLike(c.id)}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}
+            >
               <Ionicons
                 name={isLiked ? 'heart' : 'heart-outline'}
                 size={13}

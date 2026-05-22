@@ -44,15 +44,15 @@ export const semanticColors = {
   primaryHover: 'rgba(255, 198, 0, 0.9)',
   secondaryLight: '#EDEDED',
   secondaryDark: palette.slate[700],
-  
+
   bgLight: '#FFFFFF',
   bgDark: palette.slate[900],
   surfaceLight: palette.slate[50],
   surfaceDark: palette.slate[800],
-  
+
   textLight: '#212529',
   textDark: '#F8FAFC',
-  
+
   success: palette.emerald[500],
   error: palette.rose[500],
   warning: palette.amber[500],

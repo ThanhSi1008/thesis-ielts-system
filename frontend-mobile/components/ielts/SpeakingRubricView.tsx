@@ -173,7 +173,10 @@ function MistakesTable({ mistakes }: { mistakes: Mistake[] }) {
     <View style={[mt.container, { borderColor: colors.border }]}>
       <Text style={mt.title}>Annotated Mistakes</Text>
       {mistakes.map((m, i) => (
-        <View key={i} style={[mt.row, { borderColor: colors.border, backgroundColor: colors.card }]}>
+        <View
+          key={i}
+          style={[mt.row, { borderColor: colors.border, backgroundColor: colors.card }]}
+        >
           <View style={[mt.original, { borderColor: colors.border }]}>
             <Text style={[mt.originalText, { color: colors.text }]}>{m.original}</Text>
           </View>
@@ -357,7 +360,9 @@ function ScoreSummaryCard({ feedback }: { feedback: SpeakingFeedback }) {
           <View key={key} style={ss.row}>
             <View style={ss.rowLeft}>
               <Ionicons name={CRITERIA_ICONS[key] as any} size={13} color={cColor} />
-              <Text style={[ss.rowLabel, { color: colors.textSecondary }]}>{CRITERIA_SHORT[key]}</Text>
+              <Text style={[ss.rowLabel, { color: colors.textSecondary }]}>
+                {CRITERIA_SHORT[key]}
+              </Text>
             </View>
             <View style={[ss.barTrack, { backgroundColor: colors.border }]}>
               <View
@@ -436,8 +441,12 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
           </Text>
         </View>
         <View style={ap.headerRight}>
-          <View style={[ap.wordBadge, { backgroundColor: colors.surface }, isAudioUrl && ap.audioBadge]}>
-            <Text style={[ap.wordCount, { color: isAudioUrl ? colors.primary : colors.textSecondary }]}>
+          <View
+            style={[ap.wordBadge, { backgroundColor: colors.surface }, isAudioUrl && ap.audioBadge]}
+          >
+            <Text
+              style={[ap.wordCount, { color: isAudioUrl ? colors.primary : colors.textSecondary }]}
+            >
               {isAudioUrl ? 'Audio recorded' : `${wordCount(answer)} words`}
             </Text>
           </View>

@@ -64,15 +64,21 @@ function StageBox({
         borderWidth: hasBlank ? 1.5 : 1,
         borderColor: hasBlank ? colors.border : colors.border,
         backgroundColor: hasBlank ? colors.card : colors.surface,
-        borderRadius: RADIUS.md, paddingHorizontal: SPACING.md,
-        paddingVertical: 12, alignItems: 'center',
+        borderRadius: RADIUS.md,
+        paddingHorizontal: SPACING.md,
+        paddingVertical: 12,
+        alignItems: 'center',
       }}
     >
       {stage.stage_name ? (
         <Text
           style={{
-            fontSize: 10, fontWeight: '800', color: colors.textMuted,
-            textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6,
+            fontSize: 10,
+            fontWeight: '800',
+            color: colors.textMuted,
+            textTransform: 'uppercase',
+            letterSpacing: 0.8,
+            marginBottom: 6,
           }}
         >
           {stage.stage_name}
@@ -81,8 +87,11 @@ function StageBox({
 
       <View
         style={{
-          flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center',
-          justifyContent: 'center', gap: 2,
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 2,
         }}
       >
         {segments.map((seg, si) => {
@@ -90,7 +99,12 @@ function StageBox({
             return (
               <Text
                 key={si}
-                style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26, textAlign: 'center' }}
+                style={{
+                  fontSize: FONT_SIZES.sm,
+                  color: colors.text,
+                  lineHeight: 26,
+                  textAlign: 'center',
+                }}
               >
                 {seg.value}
               </Text>
@@ -106,19 +120,30 @@ function StageBox({
             <View
               key={si}
               style={{
-                flexDirection: 'row', alignItems: 'center',
+                flexDirection: 'row',
+                alignItems: 'center',
                 borderWidth: 1,
                 borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
                 backgroundColor: submitted
-                  ? isCorrect ? (isDark ? colors.successBg : '#F0FDF4') : (isDark ? colors.errorBg : '#FFF5F5')
+                  ? isCorrect
+                    ? isDark
+                      ? colors.successBg
+                      : '#F0FDF4'
+                    : isDark
+                      ? colors.errorBg
+                      : '#FFF5F5'
                   : colors.card,
-                borderRadius: RADIUS.sm, paddingHorizontal: 6, paddingVertical: 3,
-                marginHorizontal: 2, minWidth: 90,
+                borderRadius: RADIUS.sm,
+                paddingHorizontal: 6,
+                paddingVertical: 3,
+                marginHorizontal: 2,
+                minWidth: 90,
               }}
             >
               <Text
                 style={{
-                  fontSize: 10, fontWeight: '700',
+                  fontSize: 10,
+                  fontWeight: '700',
                   color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.textMuted,
                   marginRight: 4,
                 }}
@@ -127,10 +152,13 @@ function StageBox({
               </Text>
 
               {submitted ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}
+                >
                   <Text
                     style={{
-                      fontSize: 12, fontWeight: '600',
+                      fontSize: 12,
+                      fontWeight: '600',
                       color: isCorrect ? '#15803D' : '#DC2626',
                       textDecorationLine: isCorrect ? 'none' : 'line-through',
                     }}
@@ -145,7 +173,15 @@ function StageBox({
                 </View>
               ) : (
                 <TextInput
-                  style={{ padding: 0, margin: 0, fontSize: 12, color: colors.text, minWidth: 70, fontWeight: '500', textAlign: 'center' }}
+                  style={{
+                    padding: 0,
+                    margin: 0,
+                    fontSize: 12,
+                    color: colors.text,
+                    minWidth: 70,
+                    fontWeight: '500',
+                    textAlign: 'center',
+                  }}
                   value={userAnswer}
                   onChangeText={(v) => onAnswer(qNum, v)}
                   editable={!submitted}
@@ -169,10 +205,15 @@ function ArrowDown({ color }: { color: string }) {
       <View style={{ width: 2, height: 14, backgroundColor: color }} />
       <View
         style={{
-          width: 0, height: 0,
-          borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 8,
-          borderLeftColor: 'transparent', borderRightColor: 'transparent',
-          borderTopColor: color, marginTop: -1,
+          width: 0,
+          height: 0,
+          borderLeftWidth: 6,
+          borderRightWidth: 6,
+          borderTopWidth: 8,
+          borderLeftColor: 'transparent',
+          borderRightColor: 'transparent',
+          borderTopColor: color,
+          marginTop: -1,
         }}
       />
     </View>
@@ -206,16 +247,21 @@ export function ReadingFlowchartGroupView({ group, answers, submitted, onAnswer 
 
       <View
         style={{
-          borderWidth: 1, borderColor: colors.border,
-          borderRadius: RADIUS.lg, overflow: 'hidden',
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: RADIUS.lg,
+          overflow: 'hidden',
         }}
       >
         {flowchartTitle ? (
           <View
             style={{
               backgroundColor: isDark ? colors.surface : '#F3F4F6',
-              borderBottomWidth: 1, borderBottomColor: colors.border,
-              paddingHorizontal: SPACING.md, paddingVertical: 10, alignItems: 'center',
+              borderBottomWidth: 1,
+              borderBottomColor: colors.border,
+              paddingHorizontal: SPACING.md,
+              paddingVertical: 10,
+              alignItems: 'center',
             }}
           >
             <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text }}>
@@ -226,16 +272,22 @@ export function ReadingFlowchartGroupView({ group, answers, submitted, onAnswer 
 
         <View
           style={{
-            paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, alignItems: 'center',
+            paddingHorizontal: SPACING.lg,
+            paddingVertical: SPACING.md,
+            alignItems: 'center',
             backgroundColor: colors.card,
           }}
         >
           {stages.map((stage, si) => (
             <View key={si} style={{ width: '100%', alignItems: 'center' }}>
               <StageBox
-                stage={stage} qMap={qMap}
-                answers={answers} submitted={submitted}
-                onAnswer={onAnswer} colors={colors} isDark={isDark}
+                stage={stage}
+                qMap={qMap}
+                answers={answers}
+                submitted={submitted}
+                onAnswer={onAnswer}
+                colors={colors}
+                isDark={isDark}
               />
               {si < stages.length - 1 && <ArrowDown color={colors.textMuted} />}
             </View>
@@ -250,12 +302,20 @@ export function ReadingFlowchartGroupView({ group, answers, submitted, onAnswer 
               <View key={q.question_number}>
                 <TouchableOpacity
                   onPress={() =>
-                    setShowExplanation(showExplanation === q.question_number ? null : q.question_number)
+                    setShowExplanation(
+                      showExplanation === q.question_number ? null : q.question_number,
+                    )
                   }
                   style={{
-                    flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
+                    alignSelf: 'flex-start',
                     backgroundColor: isDark ? colors.surface : '#F3F4F6',
-                    borderRadius: RADIUS.sm, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 4,
+                    borderRadius: RADIUS.sm,
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                    marginBottom: 4,
                   }}
                 >
                   <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textMuted }}>
@@ -269,11 +329,20 @@ export function ReadingFlowchartGroupView({ group, answers, submitted, onAnswer 
                   <View
                     style={{
                       backgroundColor: isDark ? colors.infoBg : '#EFF6FF',
-                      borderWidth: 1, borderColor: isDark ? colors.border : '#BFDBFE',
-                      borderRadius: RADIUS.md, padding: SPACING.md, marginBottom: 4,
+                      borderWidth: 1,
+                      borderColor: isDark ? colors.border : '#BFDBFE',
+                      borderRadius: RADIUS.md,
+                      padding: SPACING.md,
+                      marginBottom: 4,
                     }}
                   >
-                    <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: isDark ? colors.info : '#1E40AF',
+                        lineHeight: 20,
+                      }}
+                    >
                       {getExplanationText(q.explanation)}
                     </Text>
                   </View>

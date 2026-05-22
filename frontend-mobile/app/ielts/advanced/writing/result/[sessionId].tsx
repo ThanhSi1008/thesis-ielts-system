@@ -88,7 +88,11 @@ export default function AdvancedWritingResultScreen() {
         const res = await ieltsAdvancedApi.getWritingSession(sessionId);
         setSession(res);
 
-        if (res.status === 'IN_PROGRESS' || res.status === 'SUBMITTED' || res.status === 'GRADING') {
+        if (
+          res.status === 'IN_PROGRESS' ||
+          res.status === 'SUBMITTED' ||
+          res.status === 'GRADING'
+        ) {
           setPollingActive(true);
         }
       } catch (err) {
@@ -140,9 +144,8 @@ export default function AdvancedWritingResultScreen() {
   const normalizedFeedback = useMemo(() => {
     if (!session?.feedback) return null;
 
-    const rawFeedback = typeof session.feedback === 'string' 
-      ? JSON.parse(session.feedback) 
-      : session.feedback;
+    const rawFeedback =
+      typeof session.feedback === 'string' ? JSON.parse(session.feedback) : session.feedback;
 
     if (rawFeedback.task1 || rawFeedback.task2) {
       return rawFeedback;
@@ -167,9 +170,7 @@ export default function AdvancedWritingResultScreen() {
   // Prepare answers dict for WritingRubricView
   const answersDict = useMemo(() => {
     if (!session?.essay) return {};
-    return prompt?.taskType === 'TASK1'
-      ? { task1: session.essay }
-      : { task2: session.essay };
+    return prompt?.taskType === 'TASK1' ? { task1: session.essay } : { task2: session.essay };
   }, [session, prompt]);
 
   const band = session?.bandScore ?? 0;
@@ -520,7 +521,8 @@ export default function AdvancedWritingResultScreen() {
           <ActivityIndicator size="large" color={activeColor} />
           <Text style={styles.pendingTitle}>Evaluating Your Essay...</Text>
           <Text style={styles.pendingSubtitle}>
-            Our AI engine is currently grading your writing against standard IELTS rubrics. This usually takes 10 to 60 seconds.
+            Our AI engine is currently grading your writing against standard IELTS rubrics. This
+            usually takes 10 to 60 seconds.
           </Text>
 
           {/* Tips Carousel */}
@@ -544,7 +546,8 @@ export default function AdvancedWritingResultScreen() {
           <Ionicons name="alert-circle" size={54} color={colors.error} />
           <Text style={styles.errorText}>AI Grading Failed</Text>
           <Text style={styles.errorSub}>
-            We were unable to successfully grade your essay. Please try retaking or reviewing your essay history.
+            We were unable to successfully grade your essay. Please try retaking or reviewing your
+            essay history.
           </Text>
           <TouchableOpacity style={styles.actionBtn} onPress={() => router.back()}>
             <Text style={styles.actionBtnText}>Go Back</Text>
@@ -560,8 +563,11 @@ export default function AdvancedWritingResultScreen() {
 
       {/* Dynamic Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBack} onPress={() => router.replace('/ielts/advanced/writing')}>
-          <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : "#fff"} />
+        <TouchableOpacity
+          style={styles.headerBack}
+          onPress={() => router.replace('/ielts/advanced/writing')}
+        >
+          <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Evaluation Results</Text>
         <View style={{ width: 24 }} />
@@ -574,54 +580,81 @@ export default function AdvancedWritingResultScreen() {
             <Text style={[styles.certHeader, { color: bandColor }]}>
               {isPending ? '⏳ GRADING IN PROGRESS' : '🏆 IELTS WRITING PRACTICE CERTIFICATE'}
             </Text>
-            
+
             <Text style={[styles.certSubText, { color: colors.textSecondary }]}>
-              {isPending 
+              {isPending
                 ? 'Your practice session has been recorded. AI scoring engine is evaluating your performance...'
-                : `This is to certify that you have successfully completed the practice of Advanced Writing`
-              }
+                : `This is to certify that you have successfully completed the practice of Advanced Writing`}
             </Text>
-            
+
             <Text style={[styles.certExamTitle, { color: colors.text }]} numberOfLines={2}>
               {prompt?.title ?? 'IELTS Essay'}
             </Text>
-            
+
             <View style={styles.certBody}>
               <View style={styles.certScoreContainer}>
                 {/* Beautiful Gold/Skill Color Score Seal */}
-                <View style={[styles.certSeal, { borderColor: bandColor, backgroundColor: colors.card }]}>
+                <View
+                  style={[
+                    styles.certSeal,
+                    { borderColor: bandColor, backgroundColor: colors.card },
+                  ]}
+                >
                   <Text style={[styles.certSealBand, { color: bandColor }]}>{bandStr}</Text>
-                  <Text style={[styles.certSealText, { color: colors.textSecondary }]}>BAND SCORE</Text>
+                  <Text style={[styles.certSealText, { color: colors.textSecondary }]}>
+                    BAND SCORE
+                  </Text>
                 </View>
-                
+
                 {/* Verification Stamp & Signature */}
                 <View style={styles.certStampContainer}>
-                  <View style={[styles.certStamp, isPending && { borderColor: colors.border, backgroundColor: colors.surface }]}>
-                    <Ionicons 
-                      name={isPending ? "hourglass-outline" : "ribbon-outline"} 
-                      size={18} 
-                      color={isPending ? colors.textMuted : bandColor} 
+                  <View
+                    style={[
+                      styles.certStamp,
+                      isPending && { borderColor: colors.border, backgroundColor: colors.surface },
+                    ]}
+                  >
+                    <Ionicons
+                      name={isPending ? 'hourglass-outline' : 'ribbon-outline'}
+                      size={18}
+                      color={isPending ? colors.textMuted : bandColor}
                     />
-                    <Text style={[styles.certStampText, { color: isPending ? colors.textSecondary : bandColor }]}>
+                    <Text
+                      style={[
+                        styles.certStampText,
+                        { color: isPending ? colors.textSecondary : bandColor },
+                      ]}
+                    >
                       {isPending ? 'PROCESSING' : 'AI EVALUATED'}
                     </Text>
                   </View>
-                  
+
                   <View style={styles.certSignatureLine}>
-                    <Text style={[styles.certSignature, { color: colors.text, fontFamily: FONTS.medium }]}>
+                    <Text
+                      style={[
+                        styles.certSignature,
+                        { color: colors.text, fontFamily: FONTS.medium },
+                      ]}
+                    >
                       IELTS Master AI
                     </Text>
                     <View style={[styles.certLine, { backgroundColor: colors.border }]} />
-                    <Text style={[styles.certSignatureLabel, { color: colors.textMuted }]}>VERIFIED BY</Text>
+                    <Text style={[styles.certSignatureLabel, { color: colors.textMuted }]}>
+                      VERIFIED BY
+                    </Text>
                   </View>
                 </View>
               </View>
             </View>
-            
+
             {/* Metadata Info Row */}
-            <View style={[styles.promptMetaRow, { marginTop: SPACING.md, marginBottom: SPACING.sm }]}>
+            <View
+              style={[styles.promptMetaRow, { marginTop: SPACING.md, marginBottom: SPACING.sm }]}
+            >
               <View style={[styles.metaBadge, { backgroundColor: bandColor + '15' }]}>
-                <Text style={[styles.metaBadgeText, { color: bandColor }]}>{prompt?.taskType ?? 'TASK'}</Text>
+                <Text style={[styles.metaBadgeText, { color: bandColor }]}>
+                  {prompt?.taskType ?? 'TASK'}
+                </Text>
               </View>
               <Text style={styles.metaItem}>
                 <Ionicons name="document-text-outline" size={14} color={colors.textSecondary} />{' '}
@@ -635,7 +668,12 @@ export default function AdvancedWritingResultScreen() {
 
             {/* Descriptive Performance Band Badge */}
             {!isPending && description && (
-              <View style={[styles.certBadge, { backgroundColor: bandColor + '15', borderColor: bandColor }]}>
+              <View
+                style={[
+                  styles.certBadge,
+                  { backgroundColor: bandColor + '15', borderColor: bandColor },
+                ]}
+              >
                 <Text style={[styles.certBadgeText, { color: bandColor }]}>{description}</Text>
               </View>
             )}

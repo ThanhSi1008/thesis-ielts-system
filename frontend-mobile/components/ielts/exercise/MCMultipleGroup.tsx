@@ -46,7 +46,9 @@ export function MCMultipleGroup({ group, gi, answers, submitted, onAnswer }: any
             ))}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '600', color: colors.text }}>{group.text}</Text>
+            <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '600', color: colors.text }}>
+              {group.text}
+            </Text>
           </View>
         </View>
         <Text style={{ fontSize: FONT_SIZES.xs, color: colors.textMuted, marginBottom: 12 }}>
@@ -85,7 +87,8 @@ export function MCMultipleGroup({ group, gi, answers, submitted, onAnswer }: any
               <View
                 style={[
                   styles.mcmCheckbox,
-                  isSelected && !submitted && { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
+                  isSelected &&
+                    !submitted && { backgroundColor: '#3B82F6', borderColor: '#3B82F6' },
                   submitted && isCorrect && { backgroundColor: '#16A34A', borderColor: '#16A34A' },
                 ]}
               >

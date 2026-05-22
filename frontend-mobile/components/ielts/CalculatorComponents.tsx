@@ -71,7 +71,12 @@ export function ScoreTable({
   const { colors } = useTheme();
   return (
     <View style={[styles.scoreTable, { borderColor: colors.border }]}>
-      <View style={[styles.scoreTableHeader, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+      <View
+        style={[
+          styles.scoreTableHeader,
+          { backgroundColor: colors.surface, borderBottomColor: colors.border },
+        ]}
+      >
         <Text style={styles.scoreTableHeaderTextRaw}>Raw Score</Text>
         <Text style={styles.scoreTableHeaderTextBand}>Band</Text>
       </View>
@@ -182,7 +187,11 @@ export function BandDescriptorView({
                 key={key}
                 style={[
                   styles.criteriaCard,
-                  { backgroundColor: colors.card, borderColor: colors.border, borderLeftColor: color },
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
+                    borderLeftColor: color,
+                  },
                 ]}
               >
                 <Text style={[styles.criteriaLabel, { color }]}>{label}</Text>
@@ -294,10 +303,18 @@ export function ReadingTab() {
     <View style={{ gap: 16 }}>
       <View>
         <Text style={styles.fieldLabel}>TEST TYPE</Text>
-        <View style={[styles.segmentControl, { backgroundColor: colors.surface === '#ffffff' ? '#ebebeb' : '#27272a' }]}>
+        <View
+          style={[
+            styles.segmentControl,
+            { backgroundColor: colors.surface === '#ffffff' ? '#ebebeb' : '#27272a' },
+          ]}
+        >
           <TouchableOpacity
             onPress={() => handleType('ACADEMIC')}
-            style={[styles.segmentBtn, type === 'ACADEMIC' && [styles.segmentBtnActive, { backgroundColor: colors.card }]]}
+            style={[
+              styles.segmentBtn,
+              type === 'ACADEMIC' && [styles.segmentBtnActive, { backgroundColor: colors.card }],
+            ]}
           >
             <Text style={[styles.segmentText, type === 'ACADEMIC' && { color: colors.text }]}>
               Academic
@@ -305,7 +322,10 @@ export function ReadingTab() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleType('GENERAL')}
-            style={[styles.segmentBtn, type === 'GENERAL' && [styles.segmentBtnActive, { backgroundColor: colors.card }]]}
+            style={[
+              styles.segmentBtn,
+              type === 'GENERAL' && [styles.segmentBtnActive, { backgroundColor: colors.card }],
+            ]}
           >
             <Text style={[styles.segmentText, type === 'GENERAL' && { color: colors.text }]}>
               General
@@ -362,10 +382,18 @@ export function WritingTab() {
     <View style={{ gap: 16 }}>
       <View>
         <Text style={styles.fieldLabel}>TASK TYPE</Text>
-        <View style={[styles.segmentControl, { backgroundColor: colors.surface === '#ffffff' ? '#ebebeb' : '#27272a' }]}>
+        <View
+          style={[
+            styles.segmentControl,
+            { backgroundColor: colors.surface === '#ffffff' ? '#ebebeb' : '#27272a' },
+          ]}
+        >
           <TouchableOpacity
             onPress={() => setTask('task1')}
-            style={[styles.segmentBtn, task === 'task1' && [styles.segmentBtnActive, { backgroundColor: colors.card }]]}
+            style={[
+              styles.segmentBtn,
+              task === 'task1' && [styles.segmentBtnActive, { backgroundColor: colors.card }],
+            ]}
           >
             <Text style={[styles.segmentText, task === 'task1' && { color: colors.text }]}>
               Task 1
@@ -373,7 +401,10 @@ export function WritingTab() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setTask('task2')}
-            style={[styles.segmentBtn, task === 'task2' && [styles.segmentBtnActive, { backgroundColor: colors.card }]]}
+            style={[
+              styles.segmentBtn,
+              task === 'task2' && [styles.segmentBtnActive, { backgroundColor: colors.card }],
+            ]}
           >
             <Text style={[styles.segmentText, task === 'task2' && { color: colors.text }]}>
               Task 2
@@ -436,7 +467,13 @@ export function BandStepper({
         <Ionicons name="remove" size={18} color={value !== '' ? color : colors.textSecondary} />
       </TouchableOpacity>
       <View style={styles.bandStepperVal}>
-        <Text style={[styles.bandStepperText, { color: colors.textSecondary }, value !== '' && { color, fontFamily: FONTS.bold }]}>
+        <Text
+          style={[
+            styles.bandStepperText,
+            { color: colors.textSecondary },
+            value !== '' && { color, fontFamily: FONTS.bold },
+          ]}
+        >
           {displayVal}
         </Text>
       </View>
@@ -516,7 +553,12 @@ const styles = StyleSheet.create({
   },
   bandSummaryScore: { fontFamily: FONTS.bold, fontSize: 32, lineHeight: 36 },
   bandSummaryTitle: { fontFamily: FONTS.bold, fontSize: 14 },
-  bandSummaryDesc: { fontFamily: FONTS.medium, fontSize: 12, color: COLORS.gray[400], marginTop: 2 },
+  bandSummaryDesc: {
+    fontFamily: FONTS.medium,
+    fontSize: 12,
+    color: COLORS.gray[400],
+    marginTop: 2,
+  },
 
   criteriaCard: {
     padding: 14,

@@ -67,20 +67,15 @@ export default function Chip({
       disabled={disabled}
       style={[
         styles.chip,
-        active ? { backgroundColor: activeBgColor, borderColor: activeBgColor } : { backgroundColor: inactiveBgColor, borderColor: colors.border },
+        active
+          ? { backgroundColor: activeBgColor, borderColor: activeBgColor }
+          : { backgroundColor: inactiveBgColor, borderColor: colors.border },
         disabled && styles.disabled,
         animatedStyle,
       ]}
     >
-      {leftIcon && (
-        <Ionicons
-          name={leftIcon}
-          size={16}
-          color={iconColor}
-          style={styles.leftIcon}
-        />
-      )}
-      
+      {leftIcon && <Ionicons name={leftIcon} size={16} color={iconColor} style={styles.leftIcon} />}
+
       <Text
         variant="label"
         style={[
@@ -102,11 +97,7 @@ export default function Chip({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           style={styles.closeWrapper}
         >
-          <Ionicons
-            name="close"
-            size={16}
-            color={iconColor}
-          />
+          <Ionicons name="close" size={16} color={iconColor} />
         </Pressable>
       )}
     </AnimatedPressable>

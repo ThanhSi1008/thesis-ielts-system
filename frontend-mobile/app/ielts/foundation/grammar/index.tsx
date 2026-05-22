@@ -76,7 +76,13 @@ export default function GrammarScreen() {
         </View>
         <View style={styles.center}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => { setLoading(true); load(); }}>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => {
+              setLoading(true);
+              load();
+            }}
+          >
             <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
@@ -186,7 +192,13 @@ export default function GrammarScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.surface },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
-  errorText: { color: COLORS.error, fontSize: 14, fontFamily: FONTS.medium, marginBottom: 16, textAlign: 'center' },
+  errorText: {
+    color: COLORS.error,
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
   retryButton: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: 24,
@@ -302,5 +314,10 @@ const styles = StyleSheet.create({
   },
   actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.5 },
   actionBtnTextNew: { color: COLORS.text },
-  emptyText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.textSecondary, textAlign: 'center' },
+  emptyText: {
+    fontFamily: FONTS.medium,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
 });

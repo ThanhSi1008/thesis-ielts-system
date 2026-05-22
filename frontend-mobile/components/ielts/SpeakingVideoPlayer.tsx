@@ -238,7 +238,9 @@ function VideoPlaceholder({ height }: { height: number }) {
         <Ionicons name="mic-outline" size={28} color={colors.primary} />
       </View>
       <Text style={[pStyles.placeholderTitle, { color: colors.text }]}>Speaking Test</Text>
-      <Text style={[pStyles.placeholderSub, { color: colors.textSecondary }]}>No video for this question</Text>
+      <Text style={[pStyles.placeholderSub, { color: colors.textSecondary }]}>
+        No video for this question
+      </Text>
     </View>
   );
 }

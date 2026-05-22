@@ -34,7 +34,7 @@ export default function Skeleton({
 }: SkeletonProps) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
-  
+
   const opacity = useSharedValue(0.35);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function Skeleton({
         easing: Easing.bezier(0.4, 0, 0.6, 1),
       }),
       -1,
-      true // Reverse direction on repeat (shimmer pulse effect)
+      true, // Reverse direction on repeat (shimmer pulse effect)
     );
   }, []);
 
@@ -58,13 +58,7 @@ export default function Skeleton({
   const isCard = variant === 'card';
 
   // Base dimensions based on variants
-  const defaultHeight = isCircle
-    ? 44
-    : isText
-    ? 14
-    : isCard
-    ? 120
-    : 48;
+  const defaultHeight = isCircle ? 44 : isText ? 14 : isCard ? 120 : 48;
   const defaultWidth = isCircle ? 44 : '100%';
 
   const activeHeight = height !== undefined ? height : defaultHeight;
@@ -73,10 +67,10 @@ export default function Skeleton({
   const skeletonRadius = isCircle
     ? radius.full
     : isText
-    ? radius.sm
-    : isCard
-    ? radius.xl
-    : radius.md;
+      ? radius.sm
+      : isCard
+        ? radius.xl
+        : radius.md;
 
   const renderSingleSkeleton = (index: number) => {
     return (
