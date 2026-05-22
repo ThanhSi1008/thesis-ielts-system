@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
   TextInput,
   ActivityIndicator,
   Alert,
-  Modal,
-  KeyboardAvoidingView,
-  Platform,
   Image,
-  SafeAreaView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { postsApi } from '@/services';
 import type { Post, PostType } from '@/types';
-import { Avatar } from './Avatar';
+import Avatar from '../atoms/Avatar';
+import Text from '../atoms/Text';
+import Button from '../atoms/Button';
+import Chip from '../atoms/Chip';
+import BottomSheet from '../organisms/BottomSheet';
 
 const TAGS = [
   'Listening',
@@ -49,6 +50,9 @@ export function CreatePostModal({
   onCreated: (p: Post) => void;
   user: any;
 }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
+
   const [type, setType] = useState<PostType>('GENERAL');
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -92,7 +96,6 @@ export function CreatePostModal({
     if (!body.trim()) return;
     setLoading(true);
     try {
-      // Upload images first
       let imageUrls: string[] = [];
       if (images.length > 0) {
         setUploading(true);
@@ -128,304 +131,243 @@ export function CreatePostModal({
   const canPost = body.trim().length > 0 && !loading;
 
   return (
-    <Modal
+    <BottomSheet
       visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
+      onClose={() => {
+        reset();
+        onClose();
+      }}
+      title="New Post"
+      snapPointHeight={0.9}
     >
-      <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: '#fff' }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-          {/* ── Header ── */}
-          <View style={styles.modalHeader}>
-            <TouchableOpacity
-              onPress={() => {
-                reset();
-                onClose();
-              }}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="close" size={24} color="#374151" />
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>New Post</Text>
-            <TouchableOpacity
-              onPress={submit}
-              disabled={!canPost}
-              style={[styles.postBtn, !canPost && { opacity: 0.45 }]}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#212529" />
-              ) : (
-                <Text style={styles.postBtnText}>{uploading ? 'Uploading…' : 'POST'}</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* ── Author row ── */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <Avatar name={authorName} avatar={user?.avatar} size={44} />
-              <View>
-                <Text style={{ fontFamily: FONTS.bold, fontSize: 15, color: '#212529' }}>
-                  {authorName}
-                </Text>
-                <Text style={{ fontFamily: FONTS.medium, fontSize: 12, color: '#9ca3af' }}>
-                  Public post
-                </Text>
-              </View>
-            </View>
-
-            {/* ── Post type chips ── */}
-            <Text style={styles.sectionLabel}>Post type</Text>
-            <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-              {POST_TYPES.map((t) => (
-                <TouchableOpacity
-                  key={t.value}
-                  onPress={() => setType(t.value)}
-                  style={[
-                    styles.typeChip,
-                    type === t.value && {
-                      backgroundColor: COLORS.primary,
-                      borderColor: COLORS.primary,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.typeChipText, type === t.value && { color: '#212529' }]}>
-                    {t.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* ── Title ── */}
-            <Text style={styles.sectionLabel}>
-              Title <Text style={{ color: '#9ca3af', fontFamily: FONTS.regular }}>(optional)</Text>
-            </Text>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Give your post a title…"
-              placeholderTextColor="#9ca3af"
-              style={[styles.fieldInput, { marginBottom: 16 }]}
-            />
-
-            {/* ── Body ── */}
-            <Text style={styles.sectionLabel}>
-              Content <Text style={{ color: '#ef4444' }}>*</Text>
-            </Text>
-            <TextInput
-              value={body}
-              onChangeText={setBody}
-              multiline
-              placeholder="What's on your mind? Share tips, ask questions…"
-              placeholderTextColor="#9ca3af"
-              style={[styles.bodyInput, { marginBottom: 16 }]}
-            />
-
-            {/* ── Image previews ── */}
-            {images.length > 0 && (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-                {images.map((img, i) => (
-                  <View key={i} style={{ position: 'relative' }}>
-                    <Image
-                      source={{ uri: img.uri }}
-                      style={{ width: 100, height: 100, borderRadius: 12 }}
-                    />
-                    <TouchableOpacity
-                      onPress={() => removeImage(i)}
-                      style={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        backgroundColor: 'rgba(0,0,0,0.55)',
-                        borderRadius: 10,
-                        padding: 2,
-                      }}
-                    >
-                      <Ionicons name="close" size={14} color="#fff" />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-                {images.length < 4 && (
-                  <TouchableOpacity onPress={pickImages} style={styles.addImageBox}>
-                    <Ionicons name="add" size={28} color="#9ca3af" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-
-            {/* ── Tags ── */}
-            <Text style={styles.sectionLabel}>Topics & Tags</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
-              {TAGS.map((tag) => {
-                const active = tags.includes(tag);
-                return (
-                  <TouchableOpacity
-                    key={tag}
-                    onPress={() =>
-                      setTags((p) => (active ? p.filter((t) => t !== tag) : [...p, tag]))
-                    }
-                    style={[
-                      styles.tagChip,
-                      active && {
-                        backgroundColor: COLORS.primary + '22',
-                        borderColor: COLORS.primary,
-                      },
-                    ]}
-                  >
-                    <Text style={[styles.tagChipText, active && { color: COLORS.primary }]}>
-                      {tag}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </ScrollView>
-
-          {/* ── Bottom toolbar ── */}
-          <View style={styles.modalToolbar}>
-            <TouchableOpacity
-              onPress={pickImages}
-              disabled={images.length >= 4}
-              style={[styles.toolbarBtn, images.length >= 4 && { opacity: 0.4 }]}
-            >
-              <Ionicons name="image-outline" size={22} color={COLORS.primary} />
-              <Text style={styles.toolbarBtnText}>
-                Photo{images.length > 0 ? ` (${images.length}/4)` : ''}
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 32 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Author row */}
+          <View style={styles.authorRow}>
+            <Avatar name={authorName} avatar={user?.avatar} size="md" />
+            <View>
+              <Text variant="body" weight="bold" style={{ color: colors.text }}>
+                {authorName}
               </Text>
-            </TouchableOpacity>
-            <View style={{ flex: 1 }} />
-            <Text
-              style={{
-                fontFamily: FONTS.medium,
-                fontSize: 12,
-                color: body.length > 1000 ? '#ef4444' : '#9ca3af',
-              }}
-            >
-              {body.length}/1000
-            </Text>
+              <Text variant="caption" style={{ color: colors.textMuted }}>
+                Public post
+              </Text>
+            </View>
           </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
-    </Modal>
+
+          {/* Post type chips */}
+          <Text variant="label" weight="bold" style={styles.sectionLabel}>Post type</Text>
+          <View style={styles.chipRow}>
+            {POST_TYPES.map((t) => (
+              <Chip
+                key={t.value}
+                label={t.label}
+                active={type === t.value}
+                onPress={() => setType(t.value)}
+              />
+            ))}
+          </View>
+
+          {/* Title */}
+          <Text variant="label" weight="bold" style={styles.sectionLabel}>
+            Title <Text variant="caption" style={{ color: colors.textMuted }}>(optional)</Text>
+          </Text>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Give your post a title…"
+            placeholderTextColor={colors.textMuted}
+            style={styles.fieldInput}
+          />
+
+          {/* Body */}
+          <Text variant="label" weight="bold" style={styles.sectionLabel}>
+            Content <Text style={{ color: '#ef4444' }}>*</Text>
+          </Text>
+          <TextInput
+            value={body}
+            onChangeText={setBody}
+            multiline
+            placeholder="What's on your mind? Share tips, ask questions…"
+            placeholderTextColor={colors.textMuted}
+            style={styles.bodyInput}
+          />
+
+          {/* Image previews */}
+          {images.length > 0 && (
+            <View style={styles.imageGrid}>
+              {images.map((img, i) => (
+                <View key={i} style={{ position: 'relative' }}>
+                  <Image
+                    source={{ uri: img.uri }}
+                    style={styles.previewImage}
+                  />
+                  <TouchableOpacity
+                    onPress={() => removeImage(i)}
+                    style={styles.removeImageBtn}
+                  >
+                    <Ionicons name="close" size={14} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {images.length < 4 && (
+                <TouchableOpacity onPress={pickImages} style={styles.addImageBox}>
+                  <Ionicons name="add" size={28} color={colors.textMuted} />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          {/* Tags */}
+          <Text variant="label" weight="bold" style={styles.sectionLabel}>Topics & Tags</Text>
+          <View style={styles.tagGrid}>
+            {TAGS.map((tag) => {
+              const active = tags.includes(tag);
+              return (
+                <Chip
+                  key={tag}
+                  label={`#${tag}`}
+                  active={active}
+                  onPress={() =>
+                    setTags((p) => (active ? p.filter((t) => t !== tag) : [...p, tag]))
+                  }
+                />
+              );
+            })}
+          </View>
+        </ScrollView>
+
+        {/* Bottom toolbar & Actions */}
+        <View style={styles.modalToolbar}>
+          <TouchableOpacity
+            onPress={pickImages}
+            disabled={images.length >= 4}
+            style={[styles.toolbarBtn, images.length >= 4 && { opacity: 0.4 }]}
+          >
+            <Ionicons name="image-outline" size={22} color={COLORS.primary} />
+            <Text variant="label" weight="bold" style={{ color: COLORS.primary }}>
+              Photo{images.length > 0 ? ` (${images.length}/4)` : ''}
+            </Text>
+          </TouchableOpacity>
+          <View style={{ flex: 1 }} />
+          <Text
+            variant="caption"
+            style={{
+              color: body.length > 1000 ? '#ef4444' : colors.textMuted,
+              marginRight: 12,
+            }}
+          >
+            {body.length}/1000
+          </Text>
+          <Button
+            title={uploading ? 'Uploading…' : 'POST'}
+            disabled={!canPost}
+            onPress={submit}
+            loading={loading}
+            size="sm"
+          />
+        </View>
+      </View>
+    </BottomSheet>
   );
 }
 
-const styles = StyleSheet.create({
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#fff',
-  },
-  modalTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 17,
-    color: '#212529',
-  },
-  postBtn: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-  },
-  postBtnText: {
-    fontFamily: FONTS.bold,
-    fontSize: 12,
-    color: '#212529',
-  },
-  bodyInput: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    padding: 14,
-    fontFamily: FONTS.regular,
-    fontSize: 15,
-    color: '#212529',
-    minHeight: 120,
-    textAlignVertical: 'top',
-  },
-  typeChip: {
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  typeChipText: {
-    fontFamily: FONTS.bold,
-    fontSize: 12,
-    color: '#64748b',
-  },
-  tagChip: {
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  tagChipText: {
-    fontFamily: FONTS.medium,
-    fontSize: 12,
-    color: '#64748b',
-  },
-  sectionLabel: {
-    fontFamily: FONTS.bold,
-    fontSize: 13,
-    color: '#374151',
-    marginBottom: 8,
-  },
-  fieldInput: {
-    backgroundColor: '#f9fafb',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontFamily: FONTS.regular,
-    fontSize: 15,
-    color: '#212529',
-  },
-  addImageBox: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#d1d5db',
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f9fafb',
-  },
-  modalToolbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    backgroundColor: '#fff',
-  },
-  toolbarBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  toolbarBtnText: {
-    fontFamily: FONTS.bold,
-    fontSize: 14,
-    color: COLORS.primary,
-  },
-});
+function makeStyles(colors: any) {
+  return StyleSheet.create({
+    authorRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 16,
+    },
+    sectionLabel: {
+      color: colors.text,
+      marginTop: 12,
+      marginBottom: 8,
+    },
+    chipRow: {
+      flexDirection: 'row',
+      gap: 8,
+      flexWrap: 'wrap',
+      marginBottom: 12,
+    },
+    tagGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+      marginBottom: 12,
+    },
+    fieldInput: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      fontFamily: FONTS.regular,
+      fontSize: 15,
+      color: colors.text,
+      marginBottom: 12,
+    },
+    bodyInput: {
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 14,
+      fontFamily: FONTS.regular,
+      fontSize: 15,
+      color: colors.text,
+      minHeight: 120,
+      textAlignVertical: 'top',
+      marginBottom: 12,
+    },
+    imageGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 16,
+    },
+    previewImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+    },
+    removeImageBtn: {
+      position: 'absolute',
+      top: 4,
+      right: 4,
+      backgroundColor: 'rgba(0,0,0,0.55)',
+      borderRadius: 10,
+      padding: 2,
+    },
+    addImageBox: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderStyle: 'dashed',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surface,
+    },
+    modalToolbar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      backgroundColor: colors.bgElevated || colors.card,
+    },
+    toolbarBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+  });
+}

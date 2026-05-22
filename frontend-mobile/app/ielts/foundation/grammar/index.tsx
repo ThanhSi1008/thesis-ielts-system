@@ -1,15 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, ROUTES } from '@/constants';
 import { grammarApi } from '@/services';
 import type { FoundationGrammarBook } from '@/types';
-import { DataScreen, BookListSkeleton, EmptyState } from '@/components';
+import { DataScreen, BookListSkeleton, EmptyState, Card, ProgressBar, Chip, Text } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTabBarVisibility } from '@/hooks';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const LEVEL_THEMES: Record<string, { stage: string; colors: readonly [string, string] }> = {
   Elementary: { stage: 'Basic', colors: ['#10b981', '#0d9488'] },
@@ -21,10 +21,12 @@ const FALLBACK_THEME = { stage: 'Expert', colors: ['#8b5cf6', '#6d28d9'] as cons
 
 export default function GrammarScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [books, setBooks] = useState<FoundationGrammarBook[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<string>('All');
   const { handleScroll } = useTabBarVisibility();
 
   const load = useCallback(async () => {
@@ -45,34 +47,64 @@ export default function GrammarScreen() {
     load();
   }, [load]);
 
+  // Filter books based on selected level chip
+  const filteredBooks = useMemo(() => {
+    if (selectedLevel === 'All') return books;
+    return books.filter((book) => book.level === selectedLevel);
+  }, [books, selectedLevel]);
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={['top']}>
       {/* Title */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.eyebrow}>IELTS · Lexon</Text>
-          <Text style={styles.title}>Grammar</Text>
+          <Text variant="caption" weight="bold" style={styles.eyebrow}>
+            IELTS · Lexon
+          </Text>
+          <Text variant="title" weight="bold" style={[styles.title, { color: colors.text }]}>
+            Grammar
+          </Text>
         </View>
       </View>
 
       {/* Count */}
       <View style={styles.countRow}>
-        <Text style={styles.countText}>
-          {books.length > 0 ? `${books.length} reference books` : 'Grammar'}
+        <Text variant="caption" weight="bold" style={styles.countText}>
+          {filteredBooks.length > 0 ? `${filteredBooks.length} reference books` : 'Grammar'}
         </Text>
+      </View>
+
+      {/* Category Filter Chips */}
+      <View style={styles.filterWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipsContainer}
+        >
+          {['All', 'Elementary', 'Intermediate', 'Advanced'].map((level) => (
+            <Chip
+              key={level}
+              label={level}
+              active={selectedLevel === level}
+              onPress={() => setSelectedLevel(level)}
+            />
+          ))}
+        </ScrollView>
       </View>
 
       <DataScreen
         loading={loading}
         error={error}
-        empty={books.length === 0}
+        empty={filteredBooks.length === 0}
         onRetry={load}
         skeleton={<BookListSkeleton count={3} />}
         emptyState={
           <EmptyState
             illustration={EmptyStates.bookmarks}
-            title="No Grammar Books"
-            description="You don't have any grammar books assigned yet."
+            title={selectedLevel === 'All' ? "No Grammar Books" : `No ${selectedLevel} Books`}
+            description={selectedLevel === 'All'
+              ? "You don't have any grammar books assigned yet."
+              : `You don't have any ${selectedLevel.toLowerCase()} grammar books assigned.`}
             primaryAction={{
               title: 'Try Again',
               onPress: load,
@@ -87,6 +119,7 @@ export default function GrammarScreen() {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
+              tintColor={colors.primary}
               onRefresh={() => {
                 setRefreshing(true);
                 load();
@@ -95,61 +128,90 @@ export default function GrammarScreen() {
           }
           contentContainerStyle={styles.listContent}
         >
-          {books.map((book) => {
+          {filteredBooks.map((book) => {
             const theme = LEVEL_THEMES[book.level] ?? FALLBACK_THEME;
             const totalUnits = book.unitCount ?? 0;
+            const pct = (book as any).progress ?? 0;
+            const started = pct > 0;
 
             return (
-              <View key={book.id} style={styles.card}>
-                {/* Cover Gradient */}
-                <LinearGradient
-                  colors={theme.colors}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.cardHero}
-                >
-                  {/* Level Badge */}
-                  <View style={styles.badge}>
-                    <Ionicons name="ribbon" size={10} color="rgba(255,255,255,0.8)" />
-                    <Text style={styles.badgeText}>{book.level}</Text>
+              <Card
+                key={book.id}
+                variant="gradient"
+                gradientColors={theme.colors as unknown as string[]}
+                onPress={() => router.push(ROUTES.foundationGrammarBook(book.slug))}
+                style={styles.card}
+              >
+                {/* Level Badge */}
+                <View style={styles.badge}>
+                  <Ionicons name="ribbon" size={10} color="rgba(255,255,255,0.85)" />
+                  <Text variant="caption" weight="bold" style={styles.badgeText}>
+                    {book.level}
+                  </Text>
+                </View>
+
+                {/* Hero section */}
+                <View style={styles.heroRow}>
+                  {/* Icon Tile */}
+                  <View style={styles.iconTile}>
+                    <Ionicons name="school" size={24} color="#ffffff" />
                   </View>
 
-                  <View style={styles.heroRow}>
-                    {/* Icon Tile */}
-                    <View style={styles.iconTile}>
-                      <Ionicons name="school" size={26} color="rgba(255,255,255,0.9)" />
-                    </View>
-
-                    {/* Info block */}
-                    <View style={styles.heroTextCol}>
-                      <Text style={styles.heroStage}>{book.author}</Text>
-                      <Text style={styles.heroTitle} numberOfLines={2}>
-                        {book.name}
-                      </Text>
-                    </View>
-                  </View>
-                </LinearGradient>
-
-                {/* Card body */}
-                <View style={styles.cardBody}>
-                  <View style={styles.actionRow}>
-                    <View style={styles.unitInfo}>
-                      <Ionicons name="layers" size={12} color={COLORS.gray[400]} />
-                      <Text style={styles.unitText}>{totalUnits} units</Text>
-                    </View>
-
-                    <TouchableOpacity
-                      style={[styles.actionBtn, styles.actionBtnNew]}
-                      onPress={() => router.push(ROUTES.foundationGrammarBook(book.slug))}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[styles.actionBtnText, styles.actionBtnTextNew]}>
-                        START LEARNING
-                      </Text>
-                    </TouchableOpacity>
+                  {/* Info block */}
+                  <View style={styles.heroTextCol}>
+                    <Text variant="caption" weight="bold" style={styles.heroStage}>
+                      {book.author}
+                    </Text>
+                    <Text variant="title" weight="bold" style={styles.heroTitle} numberOfLines={2}>
+                      {book.name}
+                    </Text>
                   </View>
                 </View>
-              </View>
+
+                {/* Divider */}
+                <View style={styles.divider} />
+
+                {/* Progress (if started) */}
+                {started && (
+                  <View style={styles.progressSection}>
+                    <View style={styles.progressRow}>
+                      <Text variant="label" weight="bold" style={styles.progressLabel}>
+                        Progress
+                      </Text>
+                      <Text variant="label" weight="bold" style={styles.progressValue}>
+                        {pct}%
+                      </Text>
+                    </View>
+                    <ProgressBar
+                      value={pct}
+                      height={6}
+                      color="#ffffff"
+                      trackColor="rgba(255,255,255,0.25)"
+                    />
+                  </View>
+                )}
+
+                {/* Footer action row */}
+                <View style={styles.actionRow}>
+                  <View style={styles.unitInfo}>
+                    <Ionicons name="layers" size={14} color="rgba(255,255,255,0.85)" />
+                    <Text variant="body" weight="medium" style={styles.unitText}>
+                      {totalUnits} units
+                    </Text>
+                  </View>
+
+                  <View style={styles.actionBtn}>
+                    <Text
+                      variant="label"
+                      weight="bold"
+                      style={[styles.actionBtnText, { color: theme.colors[1] }]}
+                    >
+                      {started ? 'CONTINUE' : 'START'}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={12} color={theme.colors[1]} />
+                  </View>
+                </View>
+              </Card>
             );
           })}
         </ScrollView>
@@ -159,28 +221,7 @@ export default function GrammarScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.surface },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
-  errorText: {
-    color: COLORS.error,
-    fontSize: 14,
-    fontFamily: FONTS.medium,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 20,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  retryButtonText: { color: COLORS.text, fontWeight: '700', fontSize: 13, letterSpacing: 0.5 },
-
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -190,16 +231,13 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   eyebrow: {
-    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     color: COLORS.gray[400],
   },
   title: {
-    fontFamily: FONTS.bold,
     fontSize: 22,
-    color: COLORS.text,
     letterSpacing: -0.25,
     lineHeight: 24,
     marginTop: 2,
@@ -207,33 +245,31 @@ const styles = StyleSheet.create({
 
   countRow: { paddingHorizontal: 16, paddingBottom: 8 },
   countText: {
-    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     color: COLORS.gray[400],
   },
 
+  filterWrapper: {
+    marginBottom: 8,
+  },
+  chipsContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 4,
+    gap: 8,
+  },
+
   listContent: { paddingHorizontal: 16, paddingBottom: 30, gap: 12 },
 
   card: {
-    backgroundColor: COLORS.background,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 2,
+    marginBottom: 0,
   },
-  cardHero: { height: 116, justifyContent: 'center', paddingHorizontal: 18 },
   badge: {
     position: 'absolute',
-    top: 10,
-    right: 12,
-    backgroundColor: 'rgba(0,0,0,0.22)',
+    top: 14,
+    right: 14,
+    backgroundColor: 'rgba(0,0,0,0.18)',
     borderRadius: 12,
     paddingVertical: 3,
     paddingHorizontal: 9,
@@ -241,52 +277,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  badgeText: { fontFamily: FONTS.bold, fontSize: 10, color: 'rgba(255,255,255,0.92)' },
-  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  badgeText: { fontSize: 10, color: 'rgba(255,255,255,0.92)' },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 4 },
   iconTile: {
-    width: 58,
-    height: 58,
+    width: 48,
+    height: 48,
     borderRadius: 14,
     backgroundColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heroTextCol: { flex: 1 },
+  heroTextCol: { flex: 1, paddingRight: 80 },
   heroStage: {
-    fontFamily: FONTS.bold,
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
-    color: 'rgba(255,255,255,0.65)',
-    marginBottom: 4,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   heroTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 15,
+    fontSize: 16,
     color: '#fff',
-    lineHeight: 19.5,
+    lineHeight: 20,
     letterSpacing: -0.1,
   },
 
-  cardBody: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 14 },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    marginVertical: 14,
+  },
+
+  progressSection: { marginBottom: 12 },
+  progressRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  progressLabel: { fontSize: 10, color: 'rgba(255,255,255,0.8)' },
+  progressValue: { fontSize: 10, color: '#ffffff' },
+
   actionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  unitInfo: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  unitText: { fontFamily: FONTS.medium, fontSize: 11, color: COLORS.gray[400] },
-  actionBtn: { paddingVertical: 8, paddingHorizontal: 18, borderRadius: 20 },
-  actionBtnNew: {
-    backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
+  unitInfo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  unitText: { fontSize: 12, color: 'rgba(255,255,255,0.9)' },
+  actionBtn: {
+    backgroundColor: '#ffffff',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  actionBtnText: { fontFamily: FONTS.bold, fontSize: 11, letterSpacing: 0.5 },
-  actionBtnTextNew: { color: COLORS.text },
-  emptyText: {
-    fontFamily: FONTS.medium,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-  },
+  actionBtnText: { fontSize: 10, letterSpacing: 0.5 },
 });

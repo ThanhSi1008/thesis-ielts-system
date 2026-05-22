@@ -33,6 +33,7 @@ export {
   EmptyState,
   ErrorState,
   Breadcrumb,
+  TabPill,
 } from './molecules';
 export * from './organisms';
 export * from './templates';
