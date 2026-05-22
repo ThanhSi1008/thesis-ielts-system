@@ -17,7 +17,6 @@ import Animated, {
   withSpring,
   withSequence,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -29,12 +28,16 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Custom Spring Configuration for Premium Feel
 const SPRING_CONFIG = {
-  damping: 15,
-  stiffness: 120,
+  damping: 18,
+  stiffness: 140,
   mass: 0.8,
 };
+
+// Tab bar dimensions — floating pill, no safe-area padding needed
+const TAB_HEIGHT = 62;
+const TAB_BOTTOM = Platform.OS === 'ios' ? 26 : 10;
+const TAB_SIDE_MARGIN = 16;
 
 interface QuickMenuOption {
   label: string;
@@ -50,57 +53,49 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   const { jobs } = useGrading();
   const { tier } = useSubscription();
 
-  const [tabBarWidth, setTabBarWidth] = useState(SCREEN_WIDTH);
+  const [tabBarWidth, setTabBarWidth] = useState(SCREEN_WIDTH - TAB_SIDE_MARGIN * 2);
   const [quickMenuVisible, setQuickMenuVisible] = useState(false);
   const [quickMenuType, setQuickMenuType] = useState<'ielts' | 'profile' | null>(null);
 
-  // Reanimated Tab Bar Visibility (for scroll hiding)
   const translateY = useSharedValue(0);
-  const [visibleState, setVisibleState] = useState(true);
-
-  // Reanimated Active Indicator Position
   const indicatorTranslateX = useSharedValue(0);
 
-  // Compute pending grading jobs count for IELTS Badge
   const pendingGradingCount = jobs.filter(
     (j) => j.status === 'SUBMITTING' || j.status === 'GRADING'
   ).length;
 
-  // Derive Community comments unread notifications
   const unreadCommunityCount = notifications.filter(
     (n) => !n.isRead && n.type.toLowerCase().includes('comment')
   ).length;
 
-  // Filter out tabs with options.href === null
   const visibleRoutes = state.routes.filter((route) => {
     const { options } = descriptors[route.key];
-    return (options as any).href !== null;
+    const MAIN_TABS = ['index', 'explore', 'ielts', 'community', 'profile'];
+    return (options as any).href !== null && MAIN_TABS.includes(route.name);
   });
 
   const activeIndex = visibleRoutes.findIndex((r) => r.name === state.routes[state.index].name);
   const totalTabs = visibleRoutes.length;
   const tabWidth = tabBarWidth / (totalTabs || 1);
 
-  // Handle Event for Hiding/Showing Tab Bar on Scroll
   useEffect(() => {
     const visibilityListener = DeviceEventEmitter.addListener(
       'SET_TAB_BAR_VISIBILITY',
       ({ visible }: { visible: boolean }) => {
-        setVisibleState(visible);
-        translateY.value = withTiming(visible ? 0 : 120, { duration: 250 });
+        translateY.value = withTiming(visible ? 0 : TAB_HEIGHT + TAB_BOTTOM + 20, {
+          duration: 250,
+        });
       }
     );
     return () => visibilityListener.remove();
   }, []);
 
-  // Animate active pill indicator when index or widths change
   useEffect(() => {
     if (activeIndex !== -1) {
       indicatorTranslateX.value = withSpring(activeIndex * tabWidth, SPRING_CONFIG);
     }
   }, [activeIndex, tabWidth]);
 
-  // Tab Item Mappings for Icons
   const getTabIcon = (routeName: string, focused: boolean) => {
     switch (routeName) {
       case 'index':
@@ -148,38 +143,17 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
     }
   };
 
-  // Quick Menu Action Options
   const ieltsMenuOptions: QuickMenuOption[] = [
-    {
-      label: 'Mock Exam',
-      icon: 'flash',
-      route: ROUTES.ieltsIntensive,
-      color: '#F59E0B',
-    },
-    {
-      label: 'Continue Lesson',
-      icon: 'book',
-      route: ROUTES.ieltsBasic,
-      color: '#10B981',
-    },
-    {
-      label: 'Vocab Quiz',
-      icon: 'shapes',
-      route: ROUTES.vocabLab,
-      color: '#3B82F6',
-    },
+    { label: 'Mock Exam', icon: 'flash', route: ROUTES.ieltsIntensive, color: '#F59E0B' },
+    { label: 'Continue Lesson', icon: 'book', route: ROUTES.ieltsBasic, color: '#10B981' },
+    { label: 'Vocab Quiz', icon: 'shapes', route: ROUTES.vocabLab, color: '#3B82F6' },
     {
       label: 'Speaking Test',
       icon: 'mic',
       route: ROUTES.ieltsAdvancedSpeakingIndex,
       color: '#8B5CF6',
     },
-    {
-      label: 'Statistics',
-      icon: 'bar-chart',
-      route: ROUTES.ieltsStatistics,
-      color: '#EF4444',
-    },
+    { label: 'Statistics', icon: 'bar-chart', route: ROUTES.ieltsStatistics, color: '#EF4444' },
     {
       label: 'Band Calculator',
       icon: 'calculator',
@@ -189,12 +163,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   ];
 
   const profileMenuOptions: QuickMenuOption[] = [
-    {
-      label: 'Subscription',
-      icon: 'diamond',
-      route: ROUTES.pricing,
-      color: '#F59E0B',
-    },
+    { label: 'Subscription', icon: 'diamond', route: ROUTES.pricing, color: '#F59E0B' },
     {
       label: 'Edit Profile',
       icon: 'create',
@@ -225,20 +194,15 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
     navigation.navigate(option.route as any);
   };
 
-  // Reanimated style for scroll-hiding container
-  const containerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
-  // Reanimated style for horizontal indicator pill sliding
-  const indicatorAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: indicatorTranslateX.value }],
-      width: tabWidth,
-    };
-  });
+  // Sliding pill indicator behind active tab
+  const pillAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: indicatorTranslateX.value }],
+    width: tabWidth,
+  }));
 
   return (
     <>
@@ -246,21 +210,26 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         style={[
           styles.container,
           {
-            backgroundColor: colors.background,
+            backgroundColor: colors.card,
             borderColor: colors.border,
-            shadowColor: isDark ? '#000000' : '#475569',
-            shadowOpacity: isDark ? 0.4 : 0.08,
+            shadowColor: isDark ? '#000000' : '#334155',
+            shadowOpacity: isDark ? 0.5 : 0.12,
           },
           containerAnimatedStyle,
         ]}
         onLayout={(e) => setTabBarWidth(e.nativeEvent.layout.width)}
       >
-        {/* Animated Horizontal Active Pill Indicator (Top edge placement) */}
-        <Animated.View style={[styles.indicatorContainer, indicatorAnimatedStyle]}>
-          <View style={[styles.indicatorPill, { backgroundColor: colors.primary }]} />
-        </Animated.View>
+        {/* Sliding active-tab pill background */}
+        <Animated.View
+          style={[
+            styles.activePill,
+            { backgroundColor: colors.primary + '22' },
+            pillAnimatedStyle,
+          ]}
+          pointerEvents="none"
+        />
 
-        {/* Tab Items Layout */}
+        {/* Tab items */}
         <View style={styles.tabBarItems}>
           {visibleRoutes.map((route, index) => {
             const isFocused = activeIndex === index;
@@ -282,7 +251,6 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                     target: route.key,
                     canPreventDefault: true,
                   });
-
                   if (!isFocused && !event.defaultPrevented) {
                     navigation.navigate(route.name, route.params);
                   }
@@ -291,11 +259,8 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                   DeviceEventEmitter.emit('SCROLL_TO_TOP', { target: route.name });
                 }}
                 onLongPress={() => {
-                  if (route.name === 'ielts') {
-                    openQuickMenu('ielts');
-                  } else if (route.name === 'profile') {
-                    openQuickMenu('profile');
-                  }
+                  if (route.name === 'ielts') openQuickMenu('ielts');
+                  else if (route.name === 'profile') openQuickMenu('profile');
                 }}
               />
             );
@@ -303,7 +268,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
         </View>
       </Animated.View>
 
-      {/* Global Quick Action Sheet Modal (Block A8) */}
+      {/* Quick-action sheet */}
       <Modal
         visible={quickMenuVisible}
         transparent
@@ -377,9 +342,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   );
 }
 
-// ==========================================
-// INDIVIDUAL BOUNCY TAB BUTTON COMPONENT
-// ==========================================
+// ─── Individual Tab Button ────────────────────────────────────────────────────
 
 interface TabButtonProps {
   title: string;
@@ -409,26 +372,19 @@ function TabButton({
   const lastPress = useRef<number>(0);
   const scale = useSharedValue(1);
 
-  // Animated scale spring when tab active state changes or pressed
-  const animatedScaleStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
+  const animatedScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   const handlePress = () => {
     const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
-
-    if (now - lastPress.current < DOUBLE_PRESS_DELAY) {
-      // Double tap triggered
+    if (now - lastPress.current < 300) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       onDoublePress();
     } else {
-      // Single tap bounce animation
       scale.value = withSequence(
-        withSpring(1.18, { damping: 6, stiffness: 180 }),
-        withSpring(1, { damping: 8, stiffness: 120 })
+        withSpring(1.15, { damping: 6, stiffness: 200 }),
+        withSpring(1, { damping: 10, stiffness: 160 })
       );
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       onPress();
@@ -440,33 +396,29 @@ function TabButton({
     <Pressable
       style={styles.tabButton}
       onPress={handlePress}
-      onLongPress={() => {
-        onLongPress();
-      }}
+      onLongPress={onLongPress}
       delayLongPress={450}
     >
       <Animated.View style={[styles.tabContent, animatedScaleStyle]}>
-        {/* Dynamic Badge Component */}
         {badgeCount > 0 && (
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {badgeCount > 99 ? '99+' : badgeCount}
-            </Text>
+            <Text style={styles.badgeText}>{badgeCount > 99 ? '99+' : badgeCount}</Text>
           </View>
         )}
 
         <Ionicons
           name={iconName}
-          size={24}
+          size={focused ? 24 : 22}
           color={focused ? activeColor : inactiveColor}
         />
-        
+
         <Text
           style={[
             styles.tabTitle,
             {
               color: focused ? activeTitleColor : inactiveColor,
               fontFamily: focused ? FONTS.bold : FONTS.medium,
+              opacity: focused ? 1 : 0.75,
             },
           ]}
         >
@@ -477,75 +429,80 @@ function TabButton({
   );
 }
 
-// ==========================================
-// STYLES
-// ==========================================
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+  // Floating pill container
   container: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: Platform.OS === 'ios' ? 88 : 64,
-    borderTopWidth: 1,
+    bottom: TAB_BOTTOM,
+    left: TAB_SIDE_MARGIN,
+    right: TAB_SIDE_MARGIN,
+    height: TAB_HEIGHT,
+    borderRadius: 22,
+    borderWidth: 1,
     flexDirection: 'column',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     zIndex: 99,
-    shadowOffset: { width: 0, height: -4 },
-    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 20,
     elevation: 24,
   },
-  indicatorContainer: {
+
+  // Sliding background pill for the active tab
+  activePill: {
     position: 'absolute',
-    top: 0,
-    height: 3.5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    top: 8,
+    bottom: 8,
+    borderRadius: 14,
+    zIndex: 0,
   },
-  indicatorPill: {
-    width: 28,
-    height: 3.5,
-    borderRadius: 1.75,
-  },
+
   tabBarItems: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: Platform.OS === 'ios' ? 24 : 0,
+    zIndex: 1,
   },
+
   tabButton: {
     flex: 1,
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   tabContent: {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     paddingVertical: 4,
+    gap: 2,
   },
+
   tabTitle: {
     fontSize: 10,
-    marginTop: 3,
+    marginTop: 1,
+    letterSpacing: 0.1,
   },
+
   badge: {
     position: 'absolute',
-    top: -4,
+    top: 0,
     right: -10,
-    backgroundColor: '#EF4444', // Red-500 semantic accent for critical notifications
+    backgroundColor: '#EF4444',
     minWidth: 16,
     height: 16,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 4,
-    zIndex: 100,
+    zIndex: 10,
     borderWidth: 1.5,
-    borderColor: '#FFFFFF', // Clean contrast barrier border
+    borderColor: '#FFFFFF',
   },
+
   badgeText: {
     color: '#FFFFFF',
     fontSize: 8,
@@ -554,10 +511,10 @@ const styles = StyleSheet.create({
     lineHeight: 11,
   },
 
-  // Modal Action Sheet Styles
+  // Quick-action sheet
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)', // Sleek dark slate tint backdrop overlay
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
     justifyContent: 'flex-end',
   },
   modalSheet: {

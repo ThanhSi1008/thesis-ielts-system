@@ -44,6 +44,11 @@ export class UsersController {
     return this.usersService.getRecentActivity(req.user.id);
   }
 
+  @Get("me/recommended")
+  getRecommended(@Req() req: any) {
+    return this.usersService.getRecommended(req.user.id);
+  }
+
   @Patch("me")
   updateMe(@Req() req: any, @Body() dto: UpdateUserDto) {
     return this.usersService.update(req.user.id, dto);

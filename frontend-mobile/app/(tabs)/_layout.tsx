@@ -81,7 +81,7 @@ export default function TabLayout() {
         style={[
           {
             position: 'absolute',
-            bottom: Platform.OS === 'ios' ? 105 : 85,
+            bottom: Platform.OS === 'ios' ? 100 : 80,
             right: 20,
             zIndex: 100,
           },

@@ -33,13 +33,18 @@ export default function HomeTab() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [smartRecommendations, setSmartRecommendations] = useState<any[]>([]);
 
-  const fetchActivity = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const res = await ieltsProfileApi.getRecentActivity();
-      setData(res.data);
+      const [activityRes, recsRes] = await Promise.all([
+        ieltsProfileApi.getRecentActivity(),
+        ieltsProfileApi.getRecommended(),
+      ]);
+      setData(activityRes);
+      setSmartRecommendations(recsRes || []);
     } catch (e) {
-      console.error('Failed to fetch recent activity:', e);
+      console.error('Failed to fetch dashboard data:', e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -47,12 +52,12 @@ export default function HomeTab() {
   };
 
   useEffect(() => {
-    fetchActivity();
+    fetchDashboardData();
   }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchActivity();
+    fetchDashboardData();
   };
 
   // Scroll to top on double tap active tab
@@ -164,7 +169,7 @@ export default function HomeTab() {
     progressPercent: 0,
   };
   const recentActivities = data?.recentActivities || [];
-  const recommendations = data?.recommendations || [];
+  const recommendations = smartRecommendations.length > 0 ? smartRecommendations : (data?.recommendations || []);
 
   return (
     <View style={styles.container}>

@@ -648,4 +648,9 @@ export class UsersService {
       recommendations,
     };
   }
+
+  async getRecommended(userId: string) {
+    const activityData = await this.getRecentActivity(userId);
+    return activityData.recommendations;
+  }
 }

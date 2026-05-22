@@ -11,6 +11,7 @@ export const ieltsProfileApi = {
   getPlacementExercises: () =>
     apiClient.get<{ listening: any; reading: any; writing: any }>('/ielts/placement-exercises'),
   getRecentActivity: () => apiClient.get<any>('/users/me/recent-activity'),
+  getRecommended: () => apiClient.get<any[]>('/users/me/recommended'),
 };
 
 // ==================== IELTS ADVANCED ====================
