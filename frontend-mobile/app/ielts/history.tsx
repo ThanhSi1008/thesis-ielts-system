@@ -12,15 +12,18 @@ import {
   Animated,
   ScrollView,
   Platform,
+  DeviceEventEmitter,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { Badge, ScoreBadge } from '@/components/ui';
 import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
+import { useTabBarVisibility } from '@/hooks';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getBand(score: number) {
@@ -286,6 +289,22 @@ export default function HistoryScreen() {
   const router = useRouter();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const { handleScroll } = useTabBarVisibility();
+  const flatListRef = useRef<FlatList>(null);
+
+  // Scroll to top on active tab double press
+  useEffect(() => {
+    const listener = DeviceEventEmitter.addListener(
+      'SCROLL_TO_TOP',
+      ({ target }: { target: string }) => {
+        if (target === 'ielts') {
+          flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+        }
+      }
+    );
+    return () => listener.remove();
+  }, []);
   const [refreshing, setRefreshing] = useState(false);
   const [mode, setMode] = useState<Mode>('mock');
   const [skill, setSkill] = useState<string>('LISTENING');
@@ -294,6 +313,36 @@ export default function HistoryScreen() {
   const [sort, setSort] = useState<SortKey>('date_desc');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteItem, setDeleteItem] = useState<any>(null);
+
+  const insets = useSafeAreaInsets();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== ROUTES.ieltsHistory) {
+      router.push(route as any);
+    }
+  };
 
   const fetchHistory = async () => {
     try {
@@ -398,9 +447,14 @@ export default function HistoryScreen() {
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Test History</Text>
-        <Text style={s.headerCount}>
-          {displayed.length}/{totalForMode}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Text style={s.headerCount}>
+            {displayed.length}/{totalForMode}
+          </Text>
+          <TouchableOpacity onPress={openDrawer}>
+            <Ionicons name="menu" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Mode Tabs: Mock / Practice */}
@@ -542,10 +596,13 @@ export default function HistoryScreen() {
         }
       >
         <FlatList
+          ref={flatListRef}
           data={displayed}
           keyExtractor={(item, i) => String(item.id ?? item.sessionId ?? i)}
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
           showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -595,6 +652,15 @@ export default function HistoryScreen() {
           title: 'Cancel',
           onPress: () => setDeleteItem(null),
         }}
+      />
+      <SharedDrawer
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        onClose={closeDrawer}
+        onOpen={openDrawer}
+        onNavPress={handleNavPress}
       />
     </SafeAreaView>
   );

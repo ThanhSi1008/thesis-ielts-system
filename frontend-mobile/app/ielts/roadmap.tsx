@@ -156,7 +156,7 @@ export default function IeltsRoadmapScreen() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== '/ielts/roadmap') {
-      setTimeout(() => router.push(route as any), 200);
+      router.push(route as any);
     }
   };
 
@@ -271,6 +271,7 @@ export default function IeltsRoadmapScreen() {
         insetsTop={insets.top}
         navItems={NAV_ITEMS}
         onClose={closeDrawer}
+        onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
     </View>

@@ -11,7 +11,9 @@ import {
   ActivityIndicator,
   Animated,
   Alert,
+  DeviceEventEmitter,
 } from 'react-native';
+import { useTabBarVisibility } from '@/hooks';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -149,6 +151,22 @@ export default function NotificationScreen() {
   const router = useRouter();
   const { colors } = useTheme();
 
+  const { handleScroll } = useTabBarVisibility();
+  const flatListRef = useRef<FlatList>(null);
+
+  // Scroll to top on active tab double press
+  useEffect(() => {
+    const listener = DeviceEventEmitter.addListener(
+      'SCROLL_TO_TOP',
+      ({ target }: { target: string }) => {
+        if (target === 'profile' || target === 'notification') {
+          flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+        }
+      }
+    );
+    return () => listener.remove();
+  }, []);
+
   const LIMIT = 20;
 
   const loadData = useCallback(
@@ -284,6 +302,7 @@ export default function NotificationScreen() {
           }
         >
           <FlatList
+            ref={flatListRef}
             data={notifications}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
@@ -297,6 +316,8 @@ export default function NotificationScreen() {
             onEndReachedThreshold={0.3}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 30 }}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
           />
         </DataScreen>
       )}

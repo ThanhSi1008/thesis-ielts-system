@@ -8,6 +8,7 @@ import { COLORS, FONTS, ROUTES } from '@/constants';
 import { vocabularyApi } from '@/services/ielts.api';
 import { DataScreen, BookListSkeleton, EmptyState } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
+import { useTabBarVisibility } from '@/hooks';
 
 const BOOK_THEMES: { stage: string; colors: readonly [string, string] }[] = [
   { stage: 'Foundation', colors: ['#10b981', '#0d9488'] },
@@ -23,6 +24,7 @@ export default function VocabularyScreen() {
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { handleScroll } = useTabBarVisibility();
 
   const load = useCallback(async () => {
     try {
@@ -79,6 +81,8 @@ export default function VocabularyScreen() {
         }
       >
         <ScrollView
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl

@@ -1,11 +1,12 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, useWindowDimensions, DeviceEventEmitter } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import { RADIUS, SPACING, FONTS, ROUTES } from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useTabBarVisibility } from '@/hooks';
 
 const MODULES = [
   {
@@ -58,6 +59,21 @@ const MODULES = [
 export default function ExploreTab() {
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
+  const { handleScroll } = useTabBarVisibility();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Scroll to top on double tap active tab
+  useEffect(() => {
+    const listener = DeviceEventEmitter.addListener(
+      'SCROLL_TO_TOP',
+      ({ target }: { target: string }) => {
+        if (target === 'explore') {
+          scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+        }
+      }
+    );
+    return () => listener.remove();
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
@@ -95,12 +111,15 @@ export default function ExploreTab() {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         contentContainerStyle={{
           paddingHorizontal: 16,
           paddingVertical: 20,
           paddingBottom: 100,
         }}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         {/* Featured Banner */}
         <View

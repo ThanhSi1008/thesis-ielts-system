@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState, useRef } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { COLORS, FONTS, SPACING } from '@/constants';
+import { COLORS, FONTS, SPACING, ROUTES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, ScoreBadge, Text } from '@/components';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { bandUtils } from '@/lib/bandCalculator';
 import {
   ListeningTab,
@@ -47,6 +48,36 @@ export default function IELTSCalculatorScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState('listening');
+
+  const insets = useSafeAreaInsets();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== ROUTES.ieltsCalculator) {
+      router.push(route as any);
+    }
+  };
   const [bands, setBands] = useState<Record<string, string>>({
     listening: '',
     reading: '',
@@ -75,6 +106,9 @@ export default function IELTSCalculatorScreen() {
           <Text style={styles.headerSubtitle}>IELTS · LEXON</Text>
           <Text style={[styles.headerTitle, { color: colors.text }]}>Calculator</Text>
         </View>
+        <TouchableOpacity onPress={openDrawer} style={styles.backBtn}>
+          <Ionicons name="menu" size={24} color={colors.text} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -168,6 +202,15 @@ export default function IELTSCalculatorScreen() {
           {activeTab === 'speaking' && <SpeakingTab />}
         </Card>
       </ScrollView>
+      <SharedDrawer
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        onClose={closeDrawer}
+        onOpen={openDrawer}
+        onNavPress={handleNavPress}
+      />
     </SafeAreaView>
   );
 }

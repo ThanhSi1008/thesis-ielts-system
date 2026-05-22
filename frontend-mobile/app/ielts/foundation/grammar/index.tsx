@@ -9,6 +9,7 @@ import { grammarApi } from '@/services';
 import type { FoundationGrammarBook } from '@/types';
 import { DataScreen, BookListSkeleton, EmptyState } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
+import { useTabBarVisibility } from '@/hooks';
 
 const LEVEL_THEMES: Record<string, { stage: string; colors: readonly [string, string] }> = {
   Elementary: { stage: 'Basic', colors: ['#10b981', '#0d9488'] },
@@ -24,6 +25,7 @@ export default function GrammarScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { handleScroll } = useTabBarVisibility();
 
   const load = useCallback(async () => {
     try {
@@ -79,6 +81,8 @@ export default function GrammarScreen() {
         }
       >
         <ScrollView
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl

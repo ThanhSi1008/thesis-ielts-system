@@ -107,7 +107,7 @@ export default function IeltsBasicTab() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== ROUTES.ieltsBasic) {
-      setTimeout(() => router.push(route as any), 200);
+      router.push(route as any);
     }
   };
 
@@ -171,6 +171,7 @@ export default function IeltsBasicTab() {
         insetsTop={insets.top}
         navItems={NAV_ITEMS}
         onClose={closeDrawer}
+        onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
     </View>

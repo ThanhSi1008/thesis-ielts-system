@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,16 @@ import {
   TouchableOpacity,
   RefreshControl,
   Dimensions,
+  Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-native-svg';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CHART_W = SCREEN_W - SPACING.lg * 2 - SPACING.lg * 2;
@@ -141,6 +143,36 @@ export default function StatisticsScreen() {
   const [activeSkill, setActiveSkill] = useState('LISTENING');
   const [volumeSkill, setVolumeSkill] = useState('ALL');
 
+  const insets = useSafeAreaInsets();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== ROUTES.ieltsStatistics) {
+      router.push(route as any);
+    }
+  };
+
   const fetchData = async () => {
     try {
       const [profileRes, streakRes, historyRes, advListRes, advReadRes, statsRes] =
@@ -198,7 +230,9 @@ export default function StatisticsScreen() {
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Statistics</Text>
-        <View style={{ width: 24 }} />
+        <TouchableOpacity onPress={openDrawer}>
+          <Ionicons name="menu" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -341,6 +375,15 @@ export default function StatisticsScreen() {
           )}
         </View>
       </ScrollView>
+      <SharedDrawer
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        onClose={closeDrawer}
+        onOpen={openDrawer}
+        onNavPress={handleNavPress}
+      />
     </SafeAreaView>
   );
 }

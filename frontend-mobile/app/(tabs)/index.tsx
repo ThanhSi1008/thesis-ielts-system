@@ -7,6 +7,7 @@ import {
   ScrollView,
   useWindowDimensions,
   Animated,
+  DeviceEventEmitter,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
@@ -15,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useThemedStyles } from '@/hooks';
+import { useThemedStyles, useTabBarVisibility } from '@/hooks';
 import type { ThemeTokens } from '@/constants';
 
 export default function HomeTab() {
@@ -24,6 +25,21 @@ export default function HomeTab() {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
   const isDark = colors.statusBar === 'light-content';
+  const { handleScroll } = useTabBarVisibility();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Scroll to top on double tap active tab
+  useEffect(() => {
+    const listener = DeviceEventEmitter.addListener(
+      'SCROLL_TO_TOP',
+      ({ target }: { target: string }) => {
+        if (target === 'index') {
+          scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+        }
+      }
+    );
+    return () => listener.remove();
+  }, []);
 
   // Animations
   const floatAnim1 = useRef(new Animated.Value(0)).current;
@@ -71,7 +87,13 @@ export default function HomeTab() {
         />
       )}
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
         {/* Header / Notifications */}
         <View style={styles.headerArea}>
           <View style={{ flex: 1 }} />

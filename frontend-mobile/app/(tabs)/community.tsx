@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,14 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  DeviceEventEmitter,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useTabBarVisibility } from '@/hooks';
 import { postsApi } from '@/services';
 import type { Post, PostType } from '@/types';
 import {
@@ -48,6 +50,27 @@ export default function CommunityScreen() {
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<TabId>('all');
   const [posts, setPosts] = useState<Post[]>([]);
+  
+  const { handleScroll } = useTabBarVisibility();
+  const postsScrollViewRef = useRef<ScrollView>(null);
+  const leaderboardScrollViewRef = useRef<ScrollView>(null);
+
+  // Scroll to top on active tab double press
+  useEffect(() => {
+    const listener = DeviceEventEmitter.addListener(
+      'SCROLL_TO_TOP',
+      ({ target }: { target: string }) => {
+        if (target === 'community') {
+          if (activeTab === 'leaderboard') {
+            leaderboardScrollViewRef.current?.scrollTo({ y: 0, animated: true });
+          } else {
+            postsScrollViewRef.current?.scrollTo({ y: 0, animated: true });
+          }
+        }
+      }
+    );
+    return () => listener.remove();
+  }, [activeTab]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -261,6 +284,7 @@ export default function CommunityScreen() {
       {/* Content */}
       {activeTab === 'leaderboard' ? (
         <ScrollView
+          ref={leaderboardScrollViewRef}
           contentContainerStyle={{ padding: 16 }}
           refreshControl={
             <RefreshControl
@@ -269,11 +293,14 @@ export default function CommunityScreen() {
               tintColor={COLORS.primary}
             />
           }
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
         >
           <LeaderboardView currentUserId={user?.id} refreshTrigger={refreshing} />
         </ScrollView>
       ) : (
         <ScrollView
+          ref={postsScrollViewRef}
           contentContainerStyle={{ padding: 16, gap: 12 }}
           refreshControl={
             <RefreshControl
@@ -282,12 +309,14 @@ export default function CommunityScreen() {
               tintColor={COLORS.primary}
             />
           }
-          onScroll={({ nativeEvent: e }) => {
+          onScroll={(event) => {
+            handleScroll(event);
+            const { nativeEvent: e } = event;
             const near =
               e.layoutMeasurement.height + e.contentOffset.y >= e.contentSize.height - 200;
             if (near) loadMore();
           }}
-          scrollEventThrottle={400}
+          scrollEventThrottle={16}
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets
         >

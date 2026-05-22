@@ -12,3 +12,4 @@ export { useThemedStyles } from './useThemedStyles';
 export { useAnswerState } from './useAnswerState';
 export { useExamSession } from './useExamSession';
 export { useExamTimer } from './useExamTimer';
+export { useTabBarVisibility } from './useTabBarVisibility';
