@@ -197,27 +197,50 @@ export default function DashboardScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* ── Synchronized Theme-Aware Header ── */}
+      <View
+        style={{
+          backgroundColor: colors.background,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          paddingTop: insets.top + 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
         <TouchableOpacity
-          onPress={() => router.back()}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel="Back button"
-          accessibilityHint="Double tap to return to the previous screen"
-        >
-          <Ionicons name="chevron-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
           onPress={openDrawer}
           accessible={true}
           accessibilityRole="button"
           accessibilityLabel="Open menu drawer"
           accessibilityHint="Double tap to open the navigation menu"
         >
-          <Ionicons name="menu" size={24} color="#fff" />
+          <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
+        
+        <Text
+          style={{
+            flex: 1,
+            color: colors.text,
+            fontSize: FONT_SIZES.lg,
+            fontFamily: FONTS.bold,
+            textAlign: 'center',
+          }}
+        >
+          Dashboard
+        </Text>
+        
+        <View style={{ width: 44 }} />
       </View>
 
       <ScrollView
@@ -310,6 +333,6 @@ export default function DashboardScreen() {
         onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
-    </SafeAreaView>
+    </View>
   );
 }

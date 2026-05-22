@@ -19,7 +19,9 @@ import { toast } from '@/components/ui/index';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 
-import { Switch, ListItem, Card, Text, ConfirmDialog } from '@/components';
+import { Switch, Text } from '../atoms';
+import { Card, ListItem } from '../molecules';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 
 const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: string }[] = [
   { mode: 'light', label: 'Light', icon: 'sunny-outline' },

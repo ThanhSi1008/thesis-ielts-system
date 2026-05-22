@@ -71,7 +71,6 @@ export default function TabLayout() {
         {/* Ẩn các màn hình khác khỏi bottom tab bar */}
         <Tabs.Screen name="vocablab" options={{ href: null }} />
         <Tabs.Screen name="shadowing" options={{ href: null }} />
-        <Tabs.Screen name="pronunciation" options={{ href: null }} />
         <Tabs.Screen name="vocabulary" options={{ href: null }} />
         <Tabs.Screen name="grammar" options={{ href: null }} />
       </Tabs>

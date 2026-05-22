@@ -10,7 +10,6 @@ import { Toaster, UpgradeModal } from '@/components/ui/index';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import {
   DictionaryPopup,
-  GlobalVocabFab,
   GlobalAddCardFab,
   NotificationPermissionBanner,
 } from '@/components';
@@ -157,9 +156,6 @@ function RootNavigator() {
         <Stack.Screen name="practice-tools/shadowing/[lessonId]/[mode]" />
 
         {/* Legacy redirects */}
-        <Stack.Screen name="ielts/grammar/index" options={{ headerShown: false }} />
-        <Stack.Screen name="ielts/grammar/[bookSlug]" options={{ headerShown: false }} />
-        <Stack.Screen name="ielts/grammar/[bookSlug]/[unitId]" options={{ headerShown: false }} />
         <Stack.Screen name="ielts/pronunciation/index" options={{ headerShown: false }} />
         <Stack.Screen name="ielts/pronunciation/[symbol]" options={{ headerShown: false }} />
 
@@ -172,9 +168,6 @@ function RootNavigator() {
         <Stack.Screen name="vocab-lab/[deckId]" />
         <Stack.Screen name="vocab-lab/study/[deckId]" />
 
-        {/* Student / Teacher */}
-        <Stack.Screen name="student-teacher/index" />
-        <Stack.Screen name="student-teacher/[studentId]" />
 
         {/* Pricing / Subscription */}
         <Stack.Screen name="pricing" options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }} />
@@ -186,7 +179,6 @@ function RootNavigator() {
       <Toaster />
       <UpgradeModal />
       <GlobalAddCardFab hideFab={true} />
-      <GlobalVocabFab />
       <DictionaryPopup />
       <NotificationPermissionBanner />
     </>

@@ -7,7 +7,7 @@ import {
   ScrollView,
   Modal,
 } from 'react-native';
-import { ConfirmDialog } from '@/components';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -15,7 +15,7 @@ import { COLORS, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Post, PostType } from '@/types';
-import { Avatar } from './Avatar';
+import Avatar from '../atoms/Avatar';
 
 // ─── TypePill ──────────────────────────────────────────────────
 function TypePill({ type }: { type: PostType }) {

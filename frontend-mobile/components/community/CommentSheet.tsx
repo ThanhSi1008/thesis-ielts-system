@@ -16,7 +16,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { postsApi } from '@/services';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Comment } from '@/types';
-import { Avatar } from './Avatar';
+import Avatar from '../atoms/Avatar';
 import Text from '../atoms/Text';
 import BottomSheet from '../organisms/BottomSheet';
 

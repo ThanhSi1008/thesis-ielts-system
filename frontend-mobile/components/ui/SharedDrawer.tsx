@@ -86,7 +86,7 @@ const DRAWER_GROUPS: DrawerGroup[] = [
         label: 'IELTS Basic',
         iconOutline: 'information-circle-outline',
         iconFilled: 'information-circle',
-        route: '/(tabs)/ielts',
+        route: '/ielts/basic',
       },
       {
         key: 'advanced',
@@ -148,7 +148,7 @@ const DRAWER_GROUPS: DrawerGroup[] = [
         label: 'Roadmap',
         iconOutline: 'map-outline',
         iconFilled: 'map',
-        route: '/ielts/roadmap',
+        route: '/(tabs)/ielts',
       },
       {
         key: 'student-teacher',
@@ -167,7 +167,7 @@ const ROUTE_METADATA: Record<string, { label: string; iconOutline: React.Compone
   '/ielts/foundation/pronunciation': { label: 'Pronunciation', iconOutline: 'volume-medium-outline', iconFilled: 'volume-medium' },
   '/ielts/foundation/vocabulary': { label: 'Vocabulary', iconOutline: 'book-outline', iconFilled: 'book' },
   '/ielts/foundation/grammar': { label: 'Grammar', iconOutline: 'text-outline', iconFilled: 'text' },
-  '/(tabs)/ielts': { label: 'IELTS Basic', iconOutline: 'information-circle-outline', iconFilled: 'information-circle' },
+  '/(tabs)/ielts': { label: 'Roadmap', iconOutline: 'map-outline', iconFilled: 'map' },
   '/ielts/basic': { label: 'IELTS Basic', iconOutline: 'information-circle-outline', iconFilled: 'information-circle' },
   '/ielts/advanced': { label: 'IELTS Advanced', iconOutline: 'trending-up-outline', iconFilled: 'trending-up' },
   '/ielts/intensive': { label: 'IELTS Intensive', iconOutline: 'flash-outline', iconFilled: 'flash' },

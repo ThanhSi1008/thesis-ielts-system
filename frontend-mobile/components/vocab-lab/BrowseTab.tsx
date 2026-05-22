@@ -14,7 +14,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, toast } from '@/components/ui';
 import { CardDetailSheet } from '@/components/vocab-lab/CardDetailSheet';
-import { ConfirmDialog } from '@/components';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATE_FILTERS = [

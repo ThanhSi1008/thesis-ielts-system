@@ -14,7 +14,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { ConfirmDialog } from '@/components';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 import { toast } from '@/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';

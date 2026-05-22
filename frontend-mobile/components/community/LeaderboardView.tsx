@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
 import { gamificationApi } from '@/services';
 import type { LeaderboardEntry } from '@/types';
-import { Avatar } from './Avatar';
+import Avatar from '../atoms/Avatar';
 
 export function LeaderboardView({
   currentUserId,

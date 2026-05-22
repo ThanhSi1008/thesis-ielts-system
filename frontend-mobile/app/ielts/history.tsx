@@ -23,6 +23,7 @@ import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/com
 import { EmptyStates } from '@/assets/empty-states';
 import { useTabBarVisibility } from '@/hooks';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getBand(score: number) {
@@ -306,6 +307,7 @@ type Mode = 'mock' | 'practice';
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -456,33 +458,62 @@ export default function HistoryScreen() {
     .filter((h) => h.skill === skill).length;
 
   return (
-    <SafeAreaView style={s.container} edges={['top']}>
-      {/* Header */}
-      <View style={s.header}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* ── Synchronized Theme-Aware Header ── */}
+      <View
+        style={{
+          backgroundColor: colors.background,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          paddingTop: insets.top + 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
         <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={{
+            width: 52,
+            height: 44,
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+          }}
+          onPress={openDrawer}
           accessible={true}
           accessibilityRole="button"
-          accessibilityLabel="Back"
-          accessibilityHint="Go back to the previous screen"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
         >
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={s.headerTitle} allowFontScaling={true}>Test History</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Text style={s.headerCount} allowFontScaling={true}>
+        
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text
+            style={{
+              color: colors.text,
+              fontSize: FONT_SIZES.lg,
+              fontFamily: FONTS.bold,
+              textAlign: 'center',
+            }}
+            allowFontScaling={true}
+          >
+            Test History
+          </Text>
+        </View>
+        
+        <View
+          style={{
+            width: 52,
+            height: 44,
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 11, color: colors.textSecondary, fontFamily: FONTS.semibold }} allowFontScaling={true}>
             {displayed.length}/{totalForMode}
           </Text>
-          <TouchableOpacity
-            onPress={openDrawer}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Menu"
-            accessibilityHint="Open sidebar navigation menu"
-          >
-            <Ionicons name="menu" size={24} color="#fff" />
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -718,7 +749,7 @@ export default function HistoryScreen() {
         onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
