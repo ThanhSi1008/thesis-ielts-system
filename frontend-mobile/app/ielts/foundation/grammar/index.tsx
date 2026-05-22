@@ -1,13 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, ROUTES } from '@/constants';
 import { grammarApi } from '@/services';
 import type { FoundationGrammarBook } from '@/types';
+import { DataScreen, BookListSkeleton, EmptyState } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 
 const LEVEL_THEMES: Record<string, { stage: string; colors: readonly [string, string] }> = {
   Elementary: { stage: 'Basic', colors: ['#10b981', '#0d9488'] },
@@ -49,47 +43,6 @@ export default function GrammarScreen() {
     load();
   }, [load]);
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.eyebrow}>IELTS · Lexon</Text>
-            <Text style={styles.title}>Grammar</Text>
-          </View>
-        </View>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.eyebrow}>IELTS · Lexon</Text>
-            <Text style={styles.title}>Grammar</Text>
-          </View>
-        </View>
-        <View style={styles.center}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => {
-              setLoading(true);
-              load();
-            }}
-          >
-            <Text style={styles.retryButtonText}>Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Title */}
@@ -103,88 +56,100 @@ export default function GrammarScreen() {
       {/* Count */}
       <View style={styles.countRow}>
         <Text style={styles.countText}>
-          {books.length > 0 ? `${books.length} reference books` : 'Loading...'}
+          {books.length > 0 ? `${books.length} reference books` : 'Grammar'}
         </Text>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              load();
+      <DataScreen
+        loading={loading}
+        error={error}
+        empty={books.length === 0}
+        onRetry={load}
+        skeleton={<BookListSkeleton count={3} />}
+        emptyState={
+          <EmptyState
+            illustration={EmptyStates.bookmarks}
+            title="No Grammar Books"
+            description="You don't have any grammar books assigned yet."
+            primaryAction={{
+              title: 'Try Again',
+              onPress: load,
             }}
           />
         }
-        contentContainerStyle={styles.listContent}
       >
-        {books.map((book) => {
-          const theme = LEVEL_THEMES[book.level] ?? FALLBACK_THEME;
-          const totalUnits = book.unitCount ?? 0;
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                load();
+              }}
+            />
+          }
+          contentContainerStyle={styles.listContent}
+        >
+          {books.map((book) => {
+            const theme = LEVEL_THEMES[book.level] ?? FALLBACK_THEME;
+            const totalUnits = book.unitCount ?? 0;
 
-          return (
-            <View key={book.id} style={styles.card}>
-              {/* Cover Gradient */}
-              <LinearGradient
-                colors={theme.colors}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cardHero}
-              >
-                {/* Level Badge */}
-                <View style={styles.badge}>
-                  <Ionicons name="ribbon" size={10} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.badgeText}>{book.level}</Text>
-                </View>
-
-                <View style={styles.heroRow}>
-                  {/* Icon Tile */}
-                  <View style={styles.iconTile}>
-                    <Ionicons name="school" size={26} color="rgba(255,255,255,0.9)" />
+            return (
+              <View key={book.id} style={styles.card}>
+                {/* Cover Gradient */}
+                <LinearGradient
+                  colors={theme.colors}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.cardHero}
+                >
+                  {/* Level Badge */}
+                  <View style={styles.badge}>
+                    <Ionicons name="ribbon" size={10} color="rgba(255,255,255,0.8)" />
+                    <Text style={styles.badgeText}>{book.level}</Text>
                   </View>
 
-                  {/* Info block */}
-                  <View style={styles.heroTextCol}>
-                    <Text style={styles.heroStage}>{book.author}</Text>
-                    <Text style={styles.heroTitle} numberOfLines={2}>
-                      {book.name}
-                    </Text>
-                  </View>
-                </View>
-              </LinearGradient>
+                  <View style={styles.heroRow}>
+                    {/* Icon Tile */}
+                    <View style={styles.iconTile}>
+                      <Ionicons name="school" size={26} color="rgba(255,255,255,0.9)" />
+                    </View>
 
-              {/* Card body */}
-              <View style={styles.cardBody}>
-                <View style={styles.actionRow}>
-                  <View style={styles.unitInfo}>
-                    <Ionicons name="layers" size={12} color={COLORS.gray[400]} />
-                    <Text style={styles.unitText}>{totalUnits} units</Text>
+                    {/* Info block */}
+                    <View style={styles.heroTextCol}>
+                      <Text style={styles.heroStage}>{book.author}</Text>
+                      <Text style={styles.heroTitle} numberOfLines={2}>
+                        {book.name}
+                      </Text>
+                    </View>
                   </View>
+                </LinearGradient>
 
-                  <TouchableOpacity
-                    style={[styles.actionBtn, styles.actionBtnNew]}
-                    onPress={() => router.push(ROUTES.foundationGrammarBook(book.slug))}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={[styles.actionBtnText, styles.actionBtnTextNew]}>
-                      START LEARNING
-                    </Text>
-                  </TouchableOpacity>
+                {/* Card body */}
+                <View style={styles.cardBody}>
+                  <View style={styles.actionRow}>
+                    <View style={styles.unitInfo}>
+                      <Ionicons name="layers" size={12} color={COLORS.gray[400]} />
+                      <Text style={styles.unitText}>{totalUnits} units</Text>
+                    </View>
+
+                    <TouchableOpacity
+                      style={[styles.actionBtn, styles.actionBtnNew]}
+                      onPress={() => router.push(ROUTES.foundationGrammarBook(book.slug))}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.actionBtnText, styles.actionBtnTextNew]}>
+                        START LEARNING
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-          );
-        })}
-
-        {books.length === 0 && (
-          <View style={styles.center}>
-            <Text style={{ fontSize: 40, marginBottom: 12 }}>📚</Text>
-            <Text style={styles.emptyText}>No grammar books available yet.</Text>
-          </View>
-        )}
-      </ScrollView>
+            );
+          })}
+        </ScrollView>
+      </DataScreen>
     </SafeAreaView>
   );
 }

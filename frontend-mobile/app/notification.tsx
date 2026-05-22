@@ -18,6 +18,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import { apiClient } from '@/services/api-client';
 import { useRouter } from 'expo-router';
+import { DataScreen, LessonListSkeleton, EmptyState } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
+import { ROUTES } from '@/constants';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type NotificationType =
@@ -200,21 +203,6 @@ export default function NotificationScreen() {
     }
   };
 
-  const renderEmpty = () => {
-    if (loading) return null;
-    return (
-      <View style={styles.emptyWrap}>
-        <View style={styles.emptyIcon}>
-          <Ionicons name="notifications-off-outline" size={48} color="#d1d5db" />
-        </View>
-        <Text style={styles.emptyTitle}>All caught up!</Text>
-        <Text style={styles.emptySubtitle}>
-          You have no notifications right now.{'\n'}We'll notify you when something happens.
-        </Text>
-      </View>
-    );
-  };
-
   const renderFooter = () => {
     if (!loadingMore) return null;
     return <ActivityIndicator style={{ paddingVertical: 16 }} color="#FFC600" />;
@@ -269,38 +257,48 @@ export default function NotificationScreen() {
         </View>
       )}
 
-      {/* Guest state */}
+      {/* Guest or authenticated states */}
       {!user ? (
-        <View style={styles.emptyWrap}>
-          <View style={styles.emptyIcon}>
-            <Ionicons name="lock-closed-outline" size={48} color="#d1d5db" />
-          </View>
-          <Text style={styles.emptyTitle}>Sign in to see notifications</Text>
-          <Text style={styles.emptySubtitle}>
-            Log in to receive updates about your progress, streaks, and more.
-          </Text>
-        </View>
-      ) : loading ? (
-        <View style={styles.centerLoad}>
-          <ActivityIndicator size="large" color="#FFC600" />
-        </View>
-      ) : (
-        <FlatList
-          data={notifications}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <NotificationItem item={item} onRead={handleRead} onDelete={handleDelete} />
-          )}
-          ListEmptyComponent={renderEmpty}
-          ListFooterComponent={renderFooter}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFC600" />
-          }
-          onEndReached={onLoadMore}
-          onEndReachedThreshold={0.3}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={notifications.length === 0 ? { flex: 1 } : { paddingBottom: 30 }}
+        <EmptyState
+          illustration="lock-closed-outline"
+          title="Sign in to see notifications"
+          description="Log in to receive updates about your progress, streaks, and more."
+          primaryAction={{
+            title: 'Log In / Sign Up',
+            onPress: () => router.push(ROUTES.login),
+          }}
         />
+      ) : (
+        <DataScreen
+          loading={loading}
+          error={null}
+          empty={notifications.length === 0}
+          onRetry={onRefresh}
+          skeleton={<LessonListSkeleton count={5} />}
+          emptyState={
+            <EmptyState
+              illustration={EmptyStates.notifications}
+              title="All caught up!"
+              description={`You have no notifications right now.\nWe'll notify you when something happens.`}
+            />
+          }
+        >
+          <FlatList
+            data={notifications}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <NotificationItem item={item} onRead={handleRead} onDelete={handleDelete} />
+            )}
+            ListFooterComponent={renderFooter}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFC600" />
+            }
+            onEndReached={onLoadMore}
+            onEndReachedThreshold={0.3}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 30 }}
+          />
+        </DataScreen>
       )}
     </SafeAreaView>
   );

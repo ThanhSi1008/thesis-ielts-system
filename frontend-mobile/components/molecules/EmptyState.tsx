@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Image, ViewStyle, ImageSourcePropType } from 'react-native';
+import { View, StyleSheet, ViewStyle, ImageSourcePropType } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
@@ -8,7 +9,7 @@ import Text from '../atoms/Text';
 import Button from '../atoms/Button';
 
 export interface EmptyStateProps {
-  illustration?: keyof typeof Ionicons.glyphMap | ImageSourcePropType;
+  illustration?: keyof typeof Ionicons.glyphMap | any;
   title: string;
   description?: string;
   primaryAction?: {

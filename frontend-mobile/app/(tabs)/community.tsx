@@ -15,7 +15,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { postsApi } from '@/services';
 import type { Post, PostType } from '@/types';
-import { Avatar, PostCard, CreatePostModal, CommentSection, LeaderboardView } from '@/components';
+import {
+  Avatar,
+  PostCard,
+  CreatePostModal,
+  CommentSection,
+  LeaderboardView,
+  DataScreen,
+  PostCardSkeleton,
+  EmptyState,
+} from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 
 // ─── Main Screen ───────────────────────────────────────────────
 const TABS = [
@@ -262,10 +272,6 @@ export default function CommunityScreen() {
         >
           <LeaderboardView currentUserId={user?.id} refreshTrigger={refreshing} />
         </ScrollView>
-      ) : loading ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
       ) : (
         <ScrollView
           contentContainerStyle={{ padding: 16, gap: 12 }}
@@ -317,16 +323,32 @@ export default function CommunityScreen() {
             </View>
           </TouchableOpacity>
 
-          {posts.length === 0 ? (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <Ionicons name="albums-outline" size={48} color={colors.border} />
-              <Text style={{ fontFamily: FONTS.medium, color: colors.textMuted, marginTop: 12 }}>
-                No posts yet. Be the first!
-              </Text>
-            </View>
-          ) : (
-            posts.map((post) => (
-              <View key={post.id}>
+          <DataScreen
+            loading={loading}
+            error={null}
+            empty={posts.length === 0}
+            onRetry={onRefresh}
+            skeleton={
+              <View style={{ gap: 12, marginTop: 12 }}>
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+              </View>
+            }
+            emptyState={
+              <EmptyState
+                illustration={EmptyStates.search}
+                title="No posts yet"
+                description="Be the first to share something with the community!"
+                primaryAction={{
+                  title: 'Create Post',
+                  onPress: () => setShowCreate(true),
+                }}
+              />
+            }
+          >
+            {posts.map((post) => (
+              <View key={post.id} style={{ marginBottom: 12 }}>
                 <PostCard
                   post={post}
                   currentUserId={user?.id}
@@ -343,8 +365,8 @@ export default function CommunityScreen() {
                   />
                 )}
               </View>
-            ))
-          )}
+            ))}
+          </DataScreen>
 
           {loadingMore && (
             <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 12 }} />

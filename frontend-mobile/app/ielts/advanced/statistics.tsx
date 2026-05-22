@@ -17,7 +17,8 @@ import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-nat
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ieltsAdvancedApi } from '@/services';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, StatsSkeleton } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W - SPACING.lg * 2;
@@ -848,12 +849,9 @@ export default function StatisticsScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={activeColor} />
-          <Text style={[styles.loadingText, { color: activeColor }]}>
-            Loading stats for {activeSkill}...
-          </Text>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <StatsSkeleton />
+        </ScrollView>
       ) : activeHistory.length === 0 ? (
         <ScrollView
           contentContainerStyle={styles.center}
@@ -862,9 +860,9 @@ export default function StatisticsScreen() {
           }
         >
           <EmptyState
-            icon="📊"
+            illustration={EmptyStates.leaderboard}
             title="No sessions found"
-            subtitle={`You haven't completed any advanced ${activeSkill} sessions yet.`}
+            description={`You haven't completed any advanced ${activeSkill} sessions yet.`}
           />
         </ScrollView>
       ) : (

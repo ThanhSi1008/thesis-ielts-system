@@ -21,7 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/services/api-client';
 
-import { Badge } from '@/components';
+import { Badge, ConfirmDialog } from '@/components';
 
 interface AccountTabProps {
   user: any;
@@ -64,6 +64,7 @@ export function ProfileAccountTab({
   const [customReason, setCustomReason] = useState('');
   const [canceling, setCanceling] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showRemoveAvatarConfirm, setShowRemoveAvatarConfirm] = useState(false);
 
   const REASONS = [
     'Too expensive',
@@ -158,25 +159,7 @@ export function ProfileAccountTab({
   };
 
   const handleRemoveAvatar = () => {
-    Alert.alert('Remove Photo', 'Are you sure you want to remove your profile photo?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          setUploadingAvatar(true);
-          try {
-            await apiClient.delete('/users/me/avatar');
-            await refreshUser();
-            toast.success('Success', 'Profile picture removed successfully.');
-          } catch (err: any) {
-            toast.error('Removal Failed', err?.message || 'Could not remove avatar.');
-          } finally {
-            setUploadingAvatar(false);
-          }
-        },
-      },
-    ]);
+    setShowRemoveAvatarConfirm(true);
   };
 
   const handleCancelSubscription = async () => {
@@ -467,6 +450,33 @@ export function ProfileAccountTab({
           </View>
         </View>
       </Modal>
+      <ConfirmDialog
+        visible={showRemoveAvatarConfirm}
+        onClose={() => setShowRemoveAvatarConfirm(false)}
+        variant="destructive"
+        title="Remove Photo"
+        message="Are you sure you want to remove your profile photo?"
+        primaryAction={{
+          title: 'Remove',
+          onPress: async () => {
+            setShowRemoveAvatarConfirm(false);
+            setUploadingAvatar(true);
+            try {
+              await apiClient.delete('/users/me/avatar');
+              await refreshUser();
+              toast.success('Success', 'Profile picture removed successfully.');
+            } catch (err: any) {
+              toast.error('Removal Failed', err?.message || 'Could not remove avatar.');
+            } finally {
+              setUploadingAvatar(false);
+            }
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setShowRemoveAvatarConfirm(false),
+        }}
+      />
     </View>
   );
 }

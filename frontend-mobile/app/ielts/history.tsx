@@ -18,7 +18,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
-import { Badge, ScoreBadge, EmptyState } from '@/components/ui';
+import { Badge, ScoreBadge } from '@/components/ui';
+import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getBand(score: number) {
@@ -291,6 +293,7 @@ export default function HistoryScreen() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('date_desc');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteItem, setDeleteItem] = useState<any>(null);
 
   const fetchHistory = async () => {
     try {
@@ -330,25 +333,7 @@ export default function HistoryScreen() {
   }, [skill, mode]);
 
   const handleDelete = useCallback((item: any) => {
-    Alert.alert('Delete Record', `Remove "${item.examTitle ?? 'this test'}"? Cannot be undone.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          const id = item.id ?? item.sessionId;
-          setDeletingId(id);
-          try {
-            await ieltsExamsApi.deleteSession(id);
-            setHistory((prev) => prev.filter((h) => (h.id ?? h.sessionId) !== id));
-          } catch {
-            Alert.alert('Error', 'Failed to delete. Try again.');
-          } finally {
-            setDeletingId(null);
-          }
-        },
-      },
-    ]);
+    setDeleteItem(item);
   }, []);
 
   const displayed = useMemo(() => {
@@ -526,11 +511,36 @@ export default function HistoryScreen() {
       </View>
 
       {/* List */}
-      {loading ? (
-        <View style={s.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : (
+      <DataScreen
+        loading={loading}
+        error={null}
+        empty={displayed.length === 0}
+        onRetry={fetchHistory}
+        skeleton={<LessonListSkeleton count={4} />}
+        emptyState={
+          <EmptyState
+            illustration={EmptyStates.history}
+            title={search ? 'No matches' : 'No history yet'}
+            description={
+              search
+                ? `No results found for "${search}"`
+                : mode === 'mock'
+                  ? `No ${skill.toLowerCase()} mock tests completed.`
+                  : activePart !== null
+                    ? `No Part ${activePart} practice sessions.`
+                    : `No ${skill.toLowerCase()} practice sessions.`
+            }
+            primaryAction={
+              search
+                ? { title: 'Clear search', onPress: () => setSearch('') }
+                : {
+                    title: mode === 'mock' ? 'Take a Test' : 'Start Practice',
+                    onPress: () => router.push(ROUTES.ieltsIntensive),
+                  }
+            }
+          />
+        }
+      >
         <FlatList
           data={displayed}
           keyExtractor={(item, i) => String(item.id ?? item.sessionId ?? i)}
@@ -546,29 +556,6 @@ export default function HistoryScreen() {
               tintColor={COLORS.primary}
             />
           }
-          ListEmptyComponent={
-            <EmptyState
-              icon={mode === 'mock' ? '📋' : '🏋️'}
-              title={search ? 'No matches' : 'No history yet'}
-              subtitle={
-                search
-                  ? `No results for "${search}"`
-                  : mode === 'mock'
-                    ? `No ${skill.toLowerCase()} mock tests completed.`
-                    : activePart !== null
-                      ? `No Part ${activePart} practice sessions.`
-                      : `No ${skill.toLowerCase()} practice sessions.`
-              }
-              action={
-                search
-                  ? { label: 'Clear search', onPress: () => setSearch('') }
-                  : {
-                      label: mode === 'mock' ? 'Take a Test' : 'Start Practice',
-                      onPress: () => router.push(ROUTES.ieltsIntensive),
-                    }
-              }
-            />
-          }
           renderItem={({ item }) => (
             <HistoryCard
               item={item}
@@ -579,7 +566,36 @@ export default function HistoryScreen() {
             />
           )}
         />
-      )}
+      </DataScreen>
+
+      <ConfirmDialog
+        visible={!!deleteItem}
+        onClose={() => setDeleteItem(null)}
+        variant="destructive"
+        title="Delete Record"
+        message={`Remove "${deleteItem?.examTitle ?? 'this test'}"? Cannot be undone.`}
+        primaryAction={{
+          title: 'Delete',
+          onPress: async () => {
+            if (!deleteItem) return;
+            const id = deleteItem.id ?? deleteItem.sessionId;
+            setDeletingId(id);
+            try {
+              await ieltsExamsApi.deleteSession(id);
+              setHistory((prev) => prev.filter((h) => (h.id ?? h.sessionId) !== id));
+            } catch {
+              Alert.alert('Error', 'Failed to delete. Try again.');
+            } finally {
+              setDeletingId(null);
+              setDeleteItem(null);
+            }
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setDeleteItem(null),
+        }}
+      />
     </SafeAreaView>
   );
 }

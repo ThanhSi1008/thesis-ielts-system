@@ -16,7 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
-import { Chip, EmptyState } from '@/components/ui';
+import { Chip, EmptyState, ExamCardSkeleton } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const SKILLS = [
@@ -512,10 +513,12 @@ export default function IntensiveScreen() {
       </ScrollView>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading {skillInfo.label} tests…</Text>
-        </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: SPACING.lg }}
+        >
+          <ExamCardSkeleton count={3} />
+        </ScrollView>
       ) : (
         <>
           {/* Search bar */}
@@ -602,9 +605,9 @@ export default function IntensiveScreen() {
           >
             {filteredGroups.length === 0 ? (
               <EmptyState
-                icon={hasActiveFilter ? '🔍' : '📭'}
+                illustration={hasActiveFilter ? EmptyStates.search : EmptyStates.bookmarks}
                 title={hasActiveFilter ? 'No matches' : 'No tests available'}
-                subtitle={
+                description={
                   hasActiveFilter
                     ? 'Try adjusting your search or filter.'
                     : `No ${skillInfo.label} tests found.`

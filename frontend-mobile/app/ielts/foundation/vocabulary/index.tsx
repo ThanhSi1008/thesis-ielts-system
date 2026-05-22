@@ -1,19 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, ROUTES } from '@/constants';
 import { vocabularyApi } from '@/services/ielts.api';
+import { DataScreen, BookListSkeleton, EmptyState } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 
 const BOOK_THEMES: { stage: string; colors: readonly [string, string] }[] = [
   { stage: 'Foundation', colors: ['#10b981', '#0d9488'] },
@@ -62,15 +56,28 @@ export default function VocabularyScreen() {
       {/* Count */}
       <View style={styles.countRow}>
         <Text style={styles.countText}>
-          {books.length > 0 ? `${books.length} books available` : 'Loading...'}
+          {books.length > 0 ? `${books.length} books available` : 'Vocabulary'}
         </Text>
       </View>
 
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : (
+      <DataScreen
+        loading={loading}
+        error={null}
+        empty={books.length === 0}
+        onRetry={load}
+        skeleton={<BookListSkeleton count={3} />}
+        emptyState={
+          <EmptyState
+            illustration={EmptyStates.bookmarks}
+            title="No Vocabulary Books"
+            description="You don't have any vocabulary books assigned yet."
+            primaryAction={{
+              title: 'Try Again',
+              onPress: load,
+            }}
+          />
+        }
+      >
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -165,7 +172,7 @@ export default function VocabularyScreen() {
             );
           })}
         </ScrollView>
-      )}
+      </DataScreen>
     </SafeAreaView>
   );
 }

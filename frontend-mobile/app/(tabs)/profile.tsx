@@ -28,7 +28,12 @@ import { vocabLabApi, gamificationApi, subscriptionsApi, notificationsApi } from
 import { apiClient } from '@/services/api-client';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GamificationProfile, AchievementItem } from '@/types';
-import { ProfileAccountTab, ProfileStatsTab, ProfileSettingsTab } from '@/components';
+import {
+  ProfileAccountTab,
+  ProfileStatsTab,
+  ProfileSettingsTab,
+  ConfirmDialog,
+} from '@/components';
 
 type TabType = 'account' | 'stats' | 'settings';
 
@@ -43,6 +48,9 @@ export default function ProfileScreen() {
   // Notification states & hooks
   const { permissionStatus, requestPushPermission, pushToken } = useNotification();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
+  const [showNotifDeniedConfirm, setShowNotifDeniedConfirm] = useState(false);
 
   // Sync notificationsEnabled with actual permissions and user settings
   useEffect(() => {
@@ -61,14 +69,7 @@ export default function ProfileScreen() {
   const handleToggleNotifications = async (value: boolean) => {
     if (value) {
       if (permissionStatus === 'denied') {
-        Alert.alert(
-          'Notifications Denied',
-          'Please enable notifications in system settings to receive streak reminders and grading results.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => Linking.openSettings() },
-          ],
-        );
+        setShowNotifDeniedConfirm(true);
       } else {
         const granted = await requestPushPermission();
         if (granted) {
@@ -198,42 +199,11 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
-      'Delete Account',
-      'Are you sure you want to permanently delete your account? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await apiClient.delete('/users/me');
-              await logout();
-            } catch (error: any) {
-              toast.error('Error', error.message || 'Failed to delete account');
-            }
-          },
-        },
-      ],
-    );
+    setShowDeleteAccountConfirm(true);
   };
 
   const handleLogout = () => {
-    Alert.alert('Log Out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log Out',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await logout();
-          } catch (error) {
-            console.error('Logout failed', error);
-          }
-        },
-      },
-    ]);
+    setShowLogoutConfirm(true);
   };
 
   if (!user) {
@@ -348,6 +318,72 @@ export default function ProfileScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <ConfirmDialog
+        visible={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        variant="destructive"
+        title="Log Out"
+        message="Are you sure you want to log out?"
+        primaryAction={{
+          title: 'Log Out',
+          onPress: async () => {
+            setShowLogoutConfirm(false);
+            try {
+              await logout();
+            } catch (error) {
+              console.error('Logout failed', error);
+            }
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setShowLogoutConfirm(false),
+        }}
+      />
+
+      <ConfirmDialog
+        visible={showDeleteAccountConfirm}
+        onClose={() => setShowDeleteAccountConfirm(false)}
+        variant="destructive"
+        title="Delete Account"
+        message="Are you sure you want to permanently delete your account? This action cannot be undone."
+        primaryAction={{
+          title: 'Delete',
+          onPress: async () => {
+            setShowDeleteAccountConfirm(false);
+            try {
+              await apiClient.delete('/users/me');
+              await logout();
+            } catch (error: any) {
+              toast.error('Error', error.message || 'Failed to delete account');
+            }
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setShowDeleteAccountConfirm(false),
+        }}
+      />
+
+      <ConfirmDialog
+        visible={showNotifDeniedConfirm}
+        onClose={() => setShowNotifDeniedConfirm(false)}
+        variant="info"
+        title="Notifications Denied"
+        message="Please enable notifications in system settings to receive streak reminders and grading results."
+        primaryAction={{
+          title: 'Open Settings',
+          onPress: () => {
+            setShowNotifDeniedConfirm(false);
+            Linking.openSettings();
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setShowNotifDeniedConfirm(false),
+        }}
+      />
     </SafeAreaView>
   );
 }

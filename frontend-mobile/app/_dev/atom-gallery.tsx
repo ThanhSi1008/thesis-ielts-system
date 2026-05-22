@@ -12,6 +12,12 @@ import {
   Badge,
   Chip,
   Skeleton,
+  BookListSkeleton,
+  LessonListSkeleton,
+  ExamCardSkeleton,
+  PostCardSkeleton,
+  StatsSkeleton,
+  DeckCardSkeleton,
   Switch,
   Divider,
   Spacer,
@@ -366,6 +372,46 @@ export default function AtomGalleryScreen() {
           <Spacer size={3} />
           <Text variant="label">Multiple Skeleton Stack Helper (count = 3)</Text>
           <Skeleton variant="text" count={3} gap={8} height={12} />
+
+          <Spacer size={4} />
+          <Text variant="title" weight="bold" style={{ marginBottom: 12 }}>
+            Custom Pattern Presets
+          </Text>
+
+          <Text variant="label" style={{ marginBottom: 4 }}>
+            BookListSkeleton (count = 1)
+          </Text>
+          <BookListSkeleton count={1} />
+
+          <Spacer size={3} />
+          <Text variant="label" style={{ marginBottom: 4 }}>
+            LessonListSkeleton (count = 1)
+          </Text>
+          <LessonListSkeleton count={1} />
+
+          <Spacer size={3} />
+          <Text variant="label" style={{ marginBottom: 4 }}>
+            ExamCardSkeleton (count = 1)
+          </Text>
+          <ExamCardSkeleton count={1} />
+
+          <Spacer size={3} />
+          <Text variant="label" style={{ marginBottom: 4 }}>
+            PostCardSkeleton (count = 1)
+          </Text>
+          <PostCardSkeleton count={1} />
+
+          <Spacer size={3} />
+          <Text variant="label" style={{ marginBottom: 4 }}>
+            StatsSkeleton
+          </Text>
+          <StatsSkeleton />
+
+          <Spacer size={3} />
+          <Text variant="label" style={{ marginBottom: 4 }}>
+            DeckCardSkeleton (count = 1)
+          </Text>
+          <DeckCardSkeleton count={1} />
         </View>
       </View>
 

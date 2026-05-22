@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <circle cx="50" cy="50" r="40" fill="none" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="4 4" />
+  <!-- Background Card -->
+  <rect x="36" y="28" width="30" height="42" rx="4" fill="none" stroke="#CBD5E1" stroke-width="2.5" transform="rotate(-8 51 49)" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Foreground Card -->
+  <rect x="38" y="32" width="30" height="42" rx="4" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Card internal decorative lines -->
+  <line x1="44" y1="42" x2="62" y2="42" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+  <line x1="44" y1="50" x2="56" y2="50" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+  <circle cx="60" cy="62" r="2" fill="#FBBF24" />
+  <circle cx="28" cy="38" r="3" fill="#3B82F6" opacity="0.3" />
+</svg>
