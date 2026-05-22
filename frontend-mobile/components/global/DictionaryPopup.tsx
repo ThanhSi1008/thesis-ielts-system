@@ -50,7 +50,7 @@ export function DictionaryPopup() {
           friction: 11,
           useNativeDriver: true,
         }).start();
-      }
+      },
     );
     return () => sub.remove();
   }, []);
@@ -74,7 +74,7 @@ export function DictionaryPopup() {
 
         // 2. Fetch Vietnamese Translation (MyMemory API - free tier)
         const viRes = await fetch(
-          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|vi`
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|vi`,
         );
         let viText = '';
         if (viRes.ok) {
@@ -88,7 +88,7 @@ export function DictionaryPopup() {
           setLoading(false);
         }
       } catch (error) {
-        console.error('Failed to fetch dictionary data', error);
+        if (__DEV__) console.error('Failed to fetch dictionary data', error);
         if (isMounted) setLoading(false);
       }
     };
@@ -109,7 +109,8 @@ export function DictionaryPopup() {
   }, []);
 
   // Extract phonetic audio URL
-  const audioUrl = dictData?.phonetics?.find((p: any) => p.audio && p.audio.length > 0)?.audio || '';
+  const audioUrl =
+    dictData?.phonetics?.find((p: any) => p.audio && p.audio.length > 0)?.audio || '';
   const player = useAudioPlayer(audioUrl);
 
   const playAudio = () => {
@@ -120,15 +121,14 @@ export function DictionaryPopup() {
         player.play();
       }
     } catch (e) {
-      console.log('Phonetic audio playback error', e);
+      if (__DEV__) console.log('Phonetic audio playback error', e);
     }
   };
 
   const handleAddToVocabLab = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    const definition =
-      dictData?.meanings?.[0]?.definitions?.[0]?.definition || viTranslation || '';
-    
+    const definition = dictData?.meanings?.[0]?.definitions?.[0]?.definition || viTranslation || '';
+
     // Emit quick add event to be captured by GlobalVocabFab
     DeviceEventEmitter.emit('OPEN_QUICK_ADD_CARD', {
       front: word,

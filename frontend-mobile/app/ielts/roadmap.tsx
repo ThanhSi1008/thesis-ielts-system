@@ -12,7 +12,7 @@ import {
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -44,9 +44,9 @@ const NAV_ITEMS = [
     icon: 'book-outline' as const,
     route: '#',
     children: [
-      { key: 'pronunciation', label: 'Pronunciation', route: '/(tabs)/pronunciation' },
-      { key: 'vocabulary', label: 'Vocabulary', route: '/(tabs)/vocabulary' },
-      { key: 'grammar', label: 'Grammar', route: '/(tabs)/grammar' },
+      { key: 'pronunciation', label: 'Pronunciation', route: ROUTES.foundationPronunciation },
+      { key: 'vocabulary', label: 'Vocabulary', route: ROUTES.foundationVocabulary },
+      { key: 'grammar', label: 'Grammar', route: ROUTES.foundationGrammar },
     ],
   },
   {
@@ -118,13 +118,13 @@ export default function IeltsRoadmapScreen() {
       }>('/ielts/roadmap');
 
       if (data.requiresOnboarding) {
-        router.replace(ROUTES.ieltsOnboarding);
+        navigation.replace(ROUTES.ieltsOnboarding);
         return;
       }
       setSteps(data.steps ?? []);
       setCurrentStep(data.currentStep ?? 1);
     } catch (e: any) {
-      console.error('Roadmap fetch error:', e);
+      if (__DEV__) console.error('Roadmap fetch error:', e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -156,7 +156,7 @@ export default function IeltsRoadmapScreen() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== '/ielts/roadmap') {
-      setTimeout(() => router.push(route as any), 200);
+      navigation.push(route);
     }
   };
 
@@ -191,12 +191,12 @@ export default function IeltsRoadmapScreen() {
   const handleItemPress = (item: RoadmapItem) => {
     if (item.isLocked) return;
     if (item.type === 'lesson') {
-      router.push((ROUTES.ieltsBasicLesson(item.id) + `?skill=${item.skill.toLowerCase()}`) as any);
+      navigation.push(ROUTES.ieltsBasicLesson(item.id) + `?skill=${item.skill.toLowerCase()}`);
     } else {
       const q = item.lessonId
         ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}`
         : `?skill=${item.skill.toLowerCase()}`;
-      router.push((ROUTES.ieltsBasicExercise(item.id) + q) as any);
+      navigation.push(ROUTES.ieltsBasicExercise(item.id) + q);
     }
   };
 
@@ -271,6 +271,7 @@ export default function IeltsRoadmapScreen() {
         insetsTop={insets.top}
         navItems={NAV_ITEMS}
         onClose={closeDrawer}
+        onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
     </View>

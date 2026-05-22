@@ -30,7 +30,15 @@ export default function AnswerSheet({
       </View>
 
       {/* Column headers */}
-      <View style={[s.colHeader, { backgroundColor: isDark ? colors.background : colors.surface, borderBottomColor: colors.border }]}>
+      <View
+        style={[
+          s.colHeader,
+          {
+            backgroundColor: isDark ? colors.background : colors.surface,
+            borderBottomColor: colors.border,
+          },
+        ]}
+      >
         <Text style={[s.colText, s.numCol, { color: colors.textSecondary }]}>Q</Text>
         <Text style={[s.colText, s.ansCol, { color: colors.textSecondary }]}>Your Answer</Text>
         <Text style={[s.colText, s.ansCol, { color: colors.textSecondary }]}>Correct</Text>
@@ -46,19 +54,23 @@ export default function AnswerSheet({
           const correct = answered && isCorrect(userAns, correctAns);
           const wrong = answered && !correct;
 
-          const rowBg = correct 
-            ? (isDark ? 'rgba(22, 163, 74, 0.12)' : '#F0FDF4') 
-            : wrong 
-              ? (isDark ? 'rgba(239, 68, 68, 0.12)' : '#FFF1F2') 
+          const rowBg = correct
+            ? isDark
+              ? 'rgba(22, 163, 74, 0.12)'
+              : '#F0FDF4'
+            : wrong
+              ? isDark
+                ? 'rgba(239, 68, 68, 0.12)'
+                : '#FFF1F2'
               : colors.card;
 
           return (
             <View
               key={num}
               style={[
-                s.row, 
-                { backgroundColor: rowBg }, 
-                idx < totalQuestions - 1 && [s.rowBorder, { borderBottomColor: colors.border }]
+                s.row,
+                { backgroundColor: rowBg },
+                idx < totalQuestions - 1 && [s.rowBorder, { borderBottomColor: colors.border }],
               ]}
             >
               {/* Q number */}
@@ -71,10 +83,10 @@ export default function AnswerSheet({
                 ) : (
                   <Text
                     style={[
-                      s.ansText, 
+                      s.ansText,
                       { color: colors.text },
-                      correct && [s.correctText, { color: colors.success || '#16A34A' }], 
-                      !answered && [s.unansweredText, { color: colors.textMuted }]
+                      correct && [s.correctText, { color: colors.success || '#16A34A' }],
+                      !answered && [s.unansweredText, { color: colors.textMuted }],
                     ]}
                   >
                     {answered ? userAns : '—'}
@@ -85,16 +97,30 @@ export default function AnswerSheet({
               {/* Correct answer */}
               <View style={s.ansCol}>
                 {wrong ? (
-                  <View style={[s.correctBadge, { backgroundColor: isDark ? 'rgba(22, 163, 74, 0.2)' : 'rgba(22, 163, 74, 0.1)' }]}>
-                    <Text style={[s.correctBadgeText, { color: isDark ? '#4ADE80' : '#16A34A' }]}>{correctAns || '—'}</Text>
+                  <View
+                    style={[
+                      s.correctBadge,
+                      {
+                        backgroundColor: isDark
+                          ? 'rgba(22, 163, 74, 0.2)'
+                          : 'rgba(22, 163, 74, 0.1)',
+                      },
+                    ]}
+                  >
+                    <Text style={[s.correctBadgeText, { color: isDark ? '#4ADE80' : '#16A34A' }]}>
+                      {correctAns || '—'}
+                    </Text>
                   </View>
                 ) : (
-                  <Text style={[
-                    s.ansText, 
-                    { color: colors.text },
-                    correct && [s.correctText, { color: colors.success || '#16A34A' }]
-                  ]}>
-                    {correctAns || '—'}</Text>
+                  <Text
+                    style={[
+                      s.ansText,
+                      { color: colors.text },
+                      correct && [s.correctText, { color: colors.success || '#16A34A' }],
+                    ]}
+                  >
+                    {correctAns || '—'}
+                  </Text>
                 )}
               </View>
 

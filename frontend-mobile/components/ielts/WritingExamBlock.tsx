@@ -130,12 +130,7 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
                 },
               ]}
             >
-              <Text
-                style={[
-                  styles.instructionText,
-                  { color: isDark ? colors.text : '#1E3A8A' },
-                ]}
-              >
+              <Text style={[styles.instructionText, { color: isDark ? colors.text : '#1E3A8A' }]}>
                 You should spend about{' '}
                 <Text style={{ fontWeight: '700' }}>
                   {current.time_advice || (activeTask === 1 ? '20' : '40')}
@@ -183,7 +178,9 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
           ]}
           {...panResponder.panHandlers}
         >
-          <View style={[styles.dividerBar, { backgroundColor: isDark ? colors.border : '#cbd5e1' }]}>
+          <View
+            style={[styles.dividerBar, { backgroundColor: isDark ? colors.border : '#cbd5e1' }]}
+          >
             <Ionicons name="reorder-two" size={20} color={colors.textMuted} />
           </View>
         </View>
@@ -219,9 +216,7 @@ function WritingExamBlock({ tasks, answers, onChange }: Props) {
           >
             {wordCount} words
           </Text>
-          <Text style={[styles.wordCountTarget, { color: colors.textMuted }]}>
-            min {minWords}
-          </Text>
+          <Text style={[styles.wordCountTarget, { color: colors.textMuted }]}>min {minWords}</Text>
         </View>
         <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
           <View

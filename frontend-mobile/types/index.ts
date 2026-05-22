@@ -167,7 +167,6 @@ export interface SubmitQuestionsResponse {
   results: QuestionResult[];
 }
 
-
 // ==================== GRAMMAR ====================
 
 export interface GrammarBook {
@@ -208,6 +207,7 @@ export interface GrammarBookWithUnits {
 export interface GrammarUnitWithContent {
   id: string;
   title: string;
+  order?: number;
   theoryContent?: string;
   explanation?: string;
   theory?: string;
@@ -244,7 +244,6 @@ export interface GrammarUnitProgress {
   isCompleted: boolean;
   completedAt: string | null;
 }
-
 
 // ==================== PRONUNCIATION ====================
 
@@ -344,7 +343,6 @@ export interface PronunciationData {
   diphthongs: FoundationPronunciationSound[];
   consonants: FoundationPronunciationSound[];
 }
-
 
 // ==================== EXAMS ====================
 

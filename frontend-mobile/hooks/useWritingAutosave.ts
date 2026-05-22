@@ -5,10 +5,10 @@ export function useWritingAutosave(sessionId: string | null, essay: string) {
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const essayRef = useRef(essay);
   essayRef.current = essay;
-  
+
   const savedEssayRef = useRef('');
 
   useEffect(() => {
@@ -37,7 +37,11 @@ export function useWritingAutosave(sessionId: string | null, essay: string) {
         await ieltsAdvancedApi.saveWritingDraft(sessionId, currentEssay);
         savedEssayRef.current = currentEssay;
         const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const timeString = now.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
         setLastSavedAt(timeString);
       } catch (err: any) {
         console.error('[useWritingAutosave] Failed to autosave:', err);

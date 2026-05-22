@@ -11,12 +11,7 @@ interface UsageIndicatorProps {
   color?: string;
 }
 
-export function UsageIndicator({
-  label,
-  used,
-  limit,
-  color,
-}: UsageIndicatorProps) {
+export function UsageIndicator({ label, used, limit, color }: UsageIndicatorProps) {
   const { colors } = useTheme();
   const percentage = Math.min(100, Math.max(0, limit > 0 ? (used / limit) * 100 : 0));
   const isNearLimit = percentage >= 80;
@@ -26,10 +21,10 @@ export function UsageIndicator({
   const gradientColors: [string, string] = color
     ? [color, color]
     : isAtLimit
-    ? [COLORS.errorScale?.[500] || '#ef4444', COLORS.errorScale?.[700] || '#b91c1c']
-    : isNearLimit
-    ? [COLORS.warningScale?.[500] || '#f59e0b', COLORS.warningScale?.[700] || '#b45309']
-    : [COLORS.primary, '#E0A300']; // Premium golden brand colors
+      ? [COLORS.errorScale?.[500] || '#ef4444', COLORS.errorScale?.[700] || '#b91c1c']
+      : isNearLimit
+        ? [COLORS.warningScale?.[500] || '#f59e0b', COLORS.warningScale?.[700] || '#b45309']
+        : [COLORS.primary, '#E0A300']; // Premium golden brand colors
 
   const styles = StyleSheet.create({
     container: {

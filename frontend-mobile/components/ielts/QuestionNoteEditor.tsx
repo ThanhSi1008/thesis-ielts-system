@@ -85,10 +85,10 @@ export default function QuestionNoteEditor({
   const triggerBorder = isDark ? 'rgba(217, 119, 6, 0.3)' : '#FDE68A';
   const amberText = isDark ? '#FBBF24' : '#B45309';
   const amberDot = isDark ? '#F59E0B' : '#D97706';
-  
+
   const containerBg = isDark ? '#1C1917' : '#FFFBEB';
   const containerBorder = isDark ? 'rgba(217, 119, 6, 0.25)' : '#FDE68A';
-  
+
   const textInputColor = isDark ? '#F5F5F4' : '#78350F';
   const textPlaceholder = isDark ? '#78716C' : '#D97706';
 
@@ -102,13 +102,15 @@ export default function QuestionNoteEditor({
   // Collapsed state — show note toggle button
   if (!open) {
     return (
-      <TouchableOpacity 
-        style={[ne.trigger, { backgroundColor: triggerBg, borderColor: triggerBorder }]} 
-        onPress={() => setOpen(true)} 
+      <TouchableOpacity
+        style={[ne.trigger, { backgroundColor: triggerBg, borderColor: triggerBorder }]}
+        onPress={() => setOpen(true)}
         activeOpacity={0.7}
       >
         <Ionicons name="create-outline" size={13} color={amberText} />
-        <Text style={[ne.triggerText, { color: amberText }]}>{savedNote ? 'View note' : 'Add note'}</Text>
+        <Text style={[ne.triggerText, { color: amberText }]}>
+          {savedNote ? 'View note' : 'Add note'}
+        </Text>
         {savedNote && <View style={[ne.noteDot, { backgroundColor: amberDot }]} />}
       </TouchableOpacity>
     );
@@ -157,7 +159,11 @@ export default function QuestionNoteEditor({
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={[ne.saveBtn, { backgroundColor: saveBg }, (!hasText || !isDirty) && ne.saveBtnDisabled]}
+          style={[
+            ne.saveBtn,
+            { backgroundColor: saveBg },
+            (!hasText || !isDirty) && ne.saveBtnDisabled,
+          ]}
           onPress={handleSave}
           disabled={saving || !hasText || !isDirty}
           activeOpacity={0.8}
@@ -165,7 +171,9 @@ export default function QuestionNoteEditor({
           {saving ? (
             <ActivityIndicator size="small" color={saveText} />
           ) : (
-            <Text style={[ne.saveBtnText, { color: saveText }]}>{savedNote ? 'Update' : 'Save'}</Text>
+            <Text style={[ne.saveBtnText, { color: saveText }]}>
+              {savedNote ? 'Update' : 'Save'}
+            </Text>
           )}
         </TouchableOpacity>
       </View>

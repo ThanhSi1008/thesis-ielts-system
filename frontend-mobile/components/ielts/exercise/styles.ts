@@ -36,7 +36,12 @@ export function createExerciseStyles(colors: ThemeTokens) {
       textTransform: 'uppercase',
       marginBottom: 4,
     },
-    qText: { fontSize: FONT_SIZES.md, color: colors.text, marginBottom: SPACING.md, lineHeight: 22 },
+    qText: {
+      fontSize: FONT_SIZES.md,
+      color: colors.text,
+      marginBottom: SPACING.md,
+      lineHeight: 22,
+    },
     option: {
       flexDirection: 'row',
       alignItems: 'center',

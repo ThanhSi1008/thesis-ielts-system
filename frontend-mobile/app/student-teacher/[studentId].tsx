@@ -108,7 +108,7 @@ export default function StudentDetailScreen() {
     studentTeacherApi
       .getStudentStats(studentId)
       .then(setData)
-      .catch(console.error)
+      .catch((e) => { if (__DEV__) console.error(e); })
       .finally(() => setLoading(false));
   }, [studentId]);
 

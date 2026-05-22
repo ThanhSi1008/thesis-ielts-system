@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
@@ -15,16 +17,24 @@ import { postsApi } from '@/services';
 import { timeAgo } from '@/utils/timeAgo';
 import type { Comment } from '@/types';
 import { Avatar } from './Avatar';
+import Text from '../atoms/Text';
+import BottomSheet from '../organisms/BottomSheet';
 
-export function CommentSection({
-  postId,
-  currentUserId,
-  onCommentAdded,
-}: {
+export interface CommentSheetProps {
+  visible: boolean;
   postId: string;
   currentUserId?: string;
+  onClose: () => void;
   onCommentAdded: () => void;
-}) {
+}
+
+export function CommentSheet({
+  visible,
+  postId,
+  currentUserId,
+  onClose,
+  onCommentAdded,
+}: CommentSheetProps) {
   const { colors } = useTheme();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +55,9 @@ export function CommentSection({
   };
 
   const fetchComments = useCallback(async () => {
+    if (!postId) return;
     try {
+      setLoading(true);
       const post = await postsApi.getPost(postId);
       setComments(post.comments ?? []);
     } catch {
@@ -56,8 +68,14 @@ export function CommentSection({
   }, [postId]);
 
   useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+    if (visible && postId) {
+      fetchComments();
+    } else {
+      setComments([]);
+      setText('');
+      setReplyTo(null);
+    }
+  }, [visible, postId, fetchComments]);
 
   const submit = async () => {
     if (!text.trim()) return;
@@ -66,7 +84,7 @@ export function CommentSection({
       await postsApi.createComment(postId, { body: text.trim(), parentId: replyTo?.id });
       setText('');
       setReplyTo(null);
-      fetchComments();
+      await fetchComments();
       onCommentAdded();
     } catch {
       Alert.alert('Error', 'Failed to post comment');
@@ -79,10 +97,10 @@ export function CommentSection({
     setComments((prev) => prev.filter((c) => c.id !== commentId && c.parentId !== commentId));
     try {
       await postsApi.deleteComment(commentId);
-      fetchComments();
+      await fetchComments();
       onCommentAdded();
     } catch {
-      fetchComments();
+      await fetchComments();
     }
   };
 
@@ -97,31 +115,42 @@ export function CommentSection({
         <Avatar name={name} avatar={c.author.avatar} size={36} />
         <View style={{ flex: 1 }}>
           <View style={styles.commentBubble}>
-            <Text style={styles.commentAuthor}>{name}</Text>
-            <Text style={styles.commentBody}>{c.body}</Text>
+            <Text variant="body" weight="bold" style={styles.commentAuthor}>{name}</Text>
+            <Text variant="body" style={styles.commentBody}>{c.body}</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4, marginLeft: 4 }}>
-            <Text style={styles.commentTime}>{timeAgo(c.createdAt)}</Text>
-            
-            <TouchableOpacity onPress={() => toggleLike(c.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              marginTop: 4,
+              marginLeft: 4,
+            }}
+          >
+            <Text variant="caption" style={styles.commentTime}>{timeAgo(c.createdAt)}</Text>
+
+            <TouchableOpacity
+              onPress={() => toggleLike(c.id)}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}
+            >
               <Ionicons
                 name={isLiked ? 'heart' : 'heart-outline'}
                 size={13}
-                color={isLiked ? '#ef4444' : '#9ca3af'}
+                color={isLiked ? '#ef4444' : colors.textMuted}
               />
-              <Text style={[styles.commentTime, isLiked && { color: '#ef4444' }]}>
+              <Text variant="caption" style={[styles.commentTime, isLiked && { color: '#ef4444' }]}>
                 {likeCount > 0 ? `${likeCount} ` : ''}Like
               </Text>
             </TouchableOpacity>
 
             {!isReply && (
               <TouchableOpacity onPress={() => setReplyTo({ id: c.id, name })}>
-                <Text style={[styles.commentTime, { color: COLORS.primary }]}>Reply</Text>
+                <Text variant="caption" style={[styles.commentTime, { color: COLORS.primary }]}>Reply</Text>
               </TouchableOpacity>
             )}
             {c.authorId === currentUserId && (
               <TouchableOpacity onPress={() => handleDelete(c.id)}>
-                <Text style={[styles.commentTime, { color: '#ef4444' }]}>Delete</Text>
+                <Text variant="caption" style={[styles.commentTime, { color: '#ef4444' }]}>Delete</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -132,74 +161,89 @@ export function CommentSection({
   };
 
   return (
-    <View style={styles.commentSection}>
-      {loading ? (
-        <ActivityIndicator size="small" color={COLORS.primary} style={{ marginVertical: 8 }} />
-      ) : comments.length === 0 ? (
-        <Text
-          style={{
-            fontFamily: FONTS.regular,
-            fontSize: 13,
-            color: colors.textMuted,
-            textAlign: 'center',
-            paddingVertical: 12,
-          }}
-        >
-          No comments yet. Be the first!
-        </Text>
-      ) : (
-        comments.map((c) => renderComment(c))
-      )}
-      {replyTo && (
-        <View style={styles.replyBanner}>
-          <Text style={{ fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primary }}>
-            Replying to {replyTo.name}
-          </Text>
-          <TouchableOpacity onPress={() => setReplyTo(null)}>
-            <Ionicons name="close" size={16} color={COLORS.primary} />
+    <BottomSheet
+      visible={visible}
+      onClose={onClose}
+      title="Comments"
+      snapPointHeight={0.65}
+    >
+      <View style={{ flex: 1 }}>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          </View>
+        ) : (
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+            {comments.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text variant="body" style={{ color: colors.textMuted }}>
+                  No comments yet. Be the first to reply!
+                </Text>
+              </View>
+            ) : (
+              comments.map((c) => renderComment(c))
+            )}
+          </ScrollView>
+        )}
+
+        {replyTo && (
+          <View style={styles.replyBanner}>
+            <Text variant="label" style={{ color: COLORS.primary }}>
+              Replying to {replyTo.name}
+            </Text>
+            <TouchableOpacity onPress={() => setReplyTo(null)}>
+              <Ionicons name="close" size={16} color={COLORS.primary} />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={styles.commentInputRow}>
+          <TextInput
+            value={text}
+            onChangeText={setText}
+            placeholder={replyTo ? 'Write a reply…' : 'Write a comment…'}
+            placeholderTextColor={colors.textMuted}
+            style={styles.commentInput}
+            returnKeyType="send"
+            onSubmitEditing={submit}
+          />
+          <TouchableOpacity
+            onPress={submit}
+            disabled={!text.trim() || submitting}
+            style={[styles.sendBtn, (!text.trim() || submitting) && { opacity: 0.45 }]}
+          >
+            {submitting ? (
+              <ActivityIndicator size="small" color="#212529" />
+            ) : (
+              <Ionicons name="send" size={18} color="#212529" />
+            )}
           </TouchableOpacity>
         </View>
-      )}
-      <View style={styles.commentInputRow}>
-        <TextInput
-          value={text}
-          onChangeText={setText}
-          placeholder={replyTo ? 'Write a reply…' : 'Write a comment…'}
-          placeholderTextColor={colors.textMuted}
-          style={styles.commentInput}
-          returnKeyType="send"
-          onSubmitEditing={submit}
-        />
-        <TouchableOpacity
-          onPress={submit}
-          disabled={!text.trim() || submitting}
-          style={[styles.sendBtn, (!text.trim() || submitting) && { opacity: 0.45 }]}
-        >
-          {submitting ? (
-            <ActivityIndicator size="small" color={colors.text} />
-          ) : (
-            <Ionicons name="send" size={18} color={colors.text} />
-          )}
-        </TouchableOpacity>
       </View>
-    </View>
+    </BottomSheet>
   );
 }
 
 function makeStyles(colors: ReturnType<typeof useTheme>['colors']) {
   return StyleSheet.create({
-    commentSection: {
-      backgroundColor: colors.card,
-      marginTop: -10,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      paddingHorizontal: 16,
-      paddingTop: 16,
-      paddingBottom: 20,
-      borderBottomLeftRadius: 18,
-      borderBottomRightRadius: 18,
-      borderWidth: 1,
-      borderColor: colors.border,
+    scrollContainer: {
+      paddingVertical: 12,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 40,
     },
     commentRow: {
       flexDirection: 'row',
@@ -215,43 +259,40 @@ function makeStyles(colors: ReturnType<typeof useTheme>['colors']) {
       maxWidth: '100%',
     },
     commentAuthor: {
-      fontFamily: FONTS.bold,
-      fontSize: 15,
       color: colors.text,
       marginBottom: 4,
     },
     commentBody: {
-      fontFamily: FONTS.regular,
-      fontSize: 15,
       color: colors.textSecondary,
       lineHeight: 22,
     },
     commentTime: {
-      fontFamily: FONTS.medium,
-      fontSize: 13,
       color: colors.textMuted,
     },
     commentInputRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
-      marginTop: 12,
+      paddingTop: 10,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      backgroundColor: colors.bgElevated || colors.card,
     },
     commentInput: {
       flex: 1,
       backgroundColor: colors.surface,
-      borderRadius: 28,
-      paddingHorizontal: 18,
-      paddingVertical: 13,
+      borderRadius: 24,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
       fontFamily: FONTS.regular,
       fontSize: 15,
       color: colors.text,
-      minHeight: 48,
+      minHeight: 44,
     },
     sendBtn: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
+      width: 44,
+      height: 44,
+      borderRadius: 22,
       backgroundColor: COLORS.primary,
       alignItems: 'center',
       justifyContent: 'center',
@@ -262,9 +303,9 @@ function makeStyles(colors: ReturnType<typeof useTheme>['colors']) {
       justifyContent: 'space-between',
       backgroundColor: COLORS.primary + '18',
       paddingHorizontal: 14,
-      paddingVertical: 10,
+      paddingVertical: 8,
       borderRadius: 12,
-      marginBottom: 10,
+      marginBottom: 8,
     },
   });
 }

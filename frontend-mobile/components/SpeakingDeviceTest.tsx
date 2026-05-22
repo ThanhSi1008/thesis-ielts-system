@@ -94,7 +94,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
           });
         }, 1000);
       } catch (err) {
-        console.error('Mic error:', err);
+        if (__DEV__) console.error('Mic error:', err);
         Alert.alert('Permission Denied', 'Microphone access is required to run the test.');
       }
     } else if (micState === 'RECORDING') {
@@ -151,13 +151,15 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
       await AsyncStorage.setItem('speaking-device-tested-v1', 'true');
       onComplete();
     } catch (e) {
-      console.error('Failed to save device test flag', e);
+      if (__DEV__) console.error('Failed to save device test flag', e);
       onComplete();
     }
   };
 
   const headphoneProgress =
-    headphoneStatus.duration > 0 ? (headphoneStatus.currentTime / headphoneStatus.duration) * 100 : 0;
+    headphoneStatus.duration > 0
+      ? (headphoneStatus.currentTime / headphoneStatus.duration) * 100
+      : 0;
   const playbackProgress =
     playbackStatus.duration > 0 ? (playbackStatus.currentTime / playbackStatus.duration) * 100 : 0;
 
@@ -180,7 +182,9 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
       <View style={styles.card}>
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle}>Device Test</Text>
-          <Text style={styles.cardSubtitle}>Confirm your hardware is working properly before practicing.</Text>
+          <Text style={styles.cardSubtitle}>
+            Confirm your hardware is working properly before practicing.
+          </Text>
         </View>
 
         <View style={styles.stepsContainer}>
@@ -195,7 +199,8 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
             <View style={styles.stepContent}>
               <Text style={styles.stepTitle}>1. Headphone check</Text>
               <Text style={styles.stepDescription}>
-                Make sure your headphone's audio is good enough before taking the test. Please click on the play icon to check the sound quality.
+                Make sure your headphone's audio is good enough before taking the test. Please click
+                on the play icon to check the sound quality.
               </Text>
 
               {/* Audio Playback Box */}
@@ -273,7 +278,8 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
                 2. Microphone check
               </Text>
               <Text style={styles.stepDescription}>
-                Make sure your microphone works well before taking the test. Record audio and play to go next.
+                Make sure your microphone works well before taking the test. Record audio and play
+                to go next.
               </Text>
 
               {hasCompletedStep1 && (
@@ -389,7 +395,8 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
                 3. Waiting room
               </Text>
               <Text style={styles.stepDescription}>
-                You are in the waiting room now. The examiner will enter the meeting soon. Please wait for a while.
+                You are in the waiting room now. The examiner will enter the meeting soon. Please
+                wait for a while.
               </Text>
 
               {hasCompletedStep2 && (

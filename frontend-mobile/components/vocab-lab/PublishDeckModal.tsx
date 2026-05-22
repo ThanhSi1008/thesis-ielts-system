@@ -53,7 +53,7 @@ export function PublishDeckModal({ visible, onClose, deck, onSuccess }: PublishD
         description: description.trim() || undefined,
         tags: tags.length > 0 ? tags : undefined,
       });
-      
+
       Alert.alert('Success', 'Deck has been successfully published to the community marketplace!');
       onSuccess();
       onClose();
@@ -128,20 +128,20 @@ export function PublishDeckModal({ visible, onClose, deck, onSuccess }: PublishD
 
               {/* Warning/Info message */}
               <View style={s.infoBox}>
-                <Ionicons name="information-circle-outline" size={16} color={COLORS.textSecondary} />
+                <Ionicons
+                  name="information-circle-outline"
+                  size={16}
+                  color={COLORS.textSecondary}
+                />
                 <Text style={s.infoText}>
-                  By publishing, a snapshot of your deck will be shared with the community. Future changes to your local deck will not automatically update the published version.
+                  By publishing, a snapshot of your deck will be shared with the community. Future
+                  changes to your local deck will not automatically update the published version.
                 </Text>
               </View>
 
               {/* Actions */}
               <View style={s.actions}>
-                <Button
-                  title="Cancel"
-                  variant="ghost"
-                  onPress={onClose}
-                  disabled={isPublishing}
-                />
+                <Button title="Cancel" variant="ghost" onPress={onClose} disabled={isPublishing} />
                 <Button
                   title="Publish Deck"
                   onPress={handleSubmit}

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { useRouter, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FONTS, SPACING, FONT_SIZES, ROUTES } from '@/constants';
+import { FONTS, SPACING, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -25,9 +25,9 @@ const NAV_ITEMS = [
     icon: 'book-outline' as const,
     route: '#',
     children: [
-      { key: 'pronunciation', label: 'Pronunciation', route: ROUTES.ieltsPronunciation },
-      { key: 'vocabulary', label: 'Vocabulary', route: ROUTES.vocabulary },
-      { key: 'grammar', label: 'Grammar', route: ROUTES.ieltsGrammar },
+      { key: 'pronunciation', label: 'Pronunciation', route: ROUTES.foundationPronunciation },
+      { key: 'vocabulary', label: 'Vocabulary', route: ROUTES.foundationVocabulary },
+      { key: 'grammar', label: 'Grammar', route: ROUTES.foundationGrammar },
     ],
   },
   {
@@ -56,7 +56,12 @@ const NAV_ITEMS = [
     icon: 'calculator-outline' as const,
     route: ROUTES.ieltsCalculator,
   },
-  { key: 'history', label: 'Test History', icon: 'time-outline' as const, route: ROUTES.ieltsHistory },
+  {
+    key: 'history',
+    label: 'Test History',
+    icon: 'time-outline' as const,
+    route: ROUTES.ieltsHistory,
+  },
   {
     key: 'statistics',
     label: 'Statistics',
@@ -102,7 +107,7 @@ export default function IeltsBasicTab() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== ROUTES.ieltsBasic) {
-      setTimeout(() => router.push(route as any), 200);
+      navigation.push(route);
     }
   };
 
@@ -125,7 +130,13 @@ export default function IeltsBasicTab() {
         }}
       >
         <TouchableOpacity
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: 4 }}
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 4,
+          }}
           onPress={openDrawer}
         >
           <Ionicons name="menu" size={24} color={colors.text} />
@@ -143,7 +154,7 @@ export default function IeltsBasicTab() {
         </Text>
         <TouchableOpacity
           style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-          onPress={() => router.push(ROUTES.ieltsRoadmap)}
+          onPress={() => navigation.push(ROUTES.ieltsRoadmap)}
         >
           <Ionicons name="map-outline" size={22} color={colors.text} />
         </TouchableOpacity>
@@ -160,6 +171,7 @@ export default function IeltsBasicTab() {
         insetsTop={insets.top}
         navItems={NAV_ITEMS}
         onClose={closeDrawer}
+        onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
     </View>

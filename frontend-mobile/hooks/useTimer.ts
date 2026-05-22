@@ -25,11 +25,11 @@ export function useTimer(initialSeconds: number, running: boolean) {
   const remaining = Math.max(0, initialSeconds - elapsed);
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
   const ss = String(remaining % 60).padStart(2, '0');
-  return { 
-    elapsed, 
-    remaining, 
-    display: `${mm}:${ss}`, 
+  return {
+    elapsed,
+    remaining,
+    display: `${mm}:${ss}`,
     isExpired: remaining === 0,
-    reset: () => setElapsed(0)
+    reset: () => setElapsed(0),
   };
 }

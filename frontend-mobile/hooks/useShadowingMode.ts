@@ -68,10 +68,7 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     () => (lesson?.sentences?.length ? lesson.sentences : PLACEHOLDER_SENTENCES),
     [lesson],
   );
-  const current = useMemo(
-    () => sentences[currentIdx] || sentences[0],
-    [sentences, currentIdx],
-  );
+  const current = useMemo(() => sentences[currentIdx] || sentences[0], [sentences, currentIdx]);
   const progress = Math.round((completed.length / sentences.length) * 100);
 
   // Phase 1: Media Sync States
@@ -79,14 +76,14 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [currentTime, setCurrentTime] = useState(0);
   const [trackWidth, setTrackWidth] = useState(0);
-  
+
   const playerRef = useRef<any>(null);
   const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // JS-clock based tracking
-  const playStartTimeRef = useRef<number>(0); 
-  const sentenceStartSecRef = useRef<number>(0); 
+  const playStartTimeRef = useRef<number>(0);
+  const sentenceStartSecRef = useRef<number>(0);
 
   // Phase 2: Dictation States
   const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'>(
@@ -99,11 +96,14 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     return (current?.english || '').split(/\s+/).filter((w: string) => w.length > 0);
   }, [current?.english]);
 
-  const normalizeWord = useCallback((w: string) =>
-    w
-      .toLowerCase()
-      .replace(/[.,!?'"]/g, '')
-      .trim(), []);
+  const normalizeWord = useCallback(
+    (w: string) =>
+      w
+        .toLowerCase()
+        .replace(/[.,!?'"]/g, '')
+        .trim(),
+    [],
+  );
 
   // Phase 2: Apply difficulty
   useEffect(() => {
@@ -147,25 +147,31 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIdx]);
 
-  const handleSeek = useCallback((value: number) => {
-    setCurrentTime(value);
-    sentenceStartSecRef.current = value;
-    playStartTimeRef.current = Date.now();
-    if (lesson?.youtubeVideoId && playerRef.current) {
-      playerRef.current.seekTo(value, true);
-    } else if (lesson?.audioUrl) {
-      audioPlayer.seekTo(value * 1000);
-    }
-  }, [lesson, audioPlayer]);
+  const handleSeek = useCallback(
+    (value: number) => {
+      setCurrentTime(value);
+      sentenceStartSecRef.current = value;
+      playStartTimeRef.current = Date.now();
+      if (lesson?.youtubeVideoId && playerRef.current) {
+        playerRef.current.seekTo(value, true);
+      } else if (lesson?.audioUrl) {
+        audioPlayer.seekTo(value * 1000);
+      }
+    },
+    [lesson, audioPlayer],
+  );
 
-  const handleSeekPress = useCallback((locationX: number) => {
-    if (trackWidth > 0 && current) {
-      const duration = current.audioEnd - current.audioStart;
-      const seekTime =
-        current.audioStart + Math.max(0, Math.min(1, locationX / trackWidth)) * duration;
-      handleSeek(seekTime);
-    }
-  }, [trackWidth, current, handleSeek]);
+  const handleSeekPress = useCallback(
+    (locationX: number) => {
+      if (trackWidth > 0 && current) {
+        const duration = current.audioEnd - current.audioStart;
+        const seekTime =
+          current.audioStart + Math.max(0, Math.min(1, locationX / trackWidth)) * duration;
+        handleSeek(seekTime);
+      }
+    },
+    [trackWidth, current, handleSeek],
+  );
 
   const formatTimeStr = useCallback((seconds: number) => {
     if (!seconds || isNaN(seconds)) return '0:00';
@@ -260,9 +266,12 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   // Phase 4: Dictionary State
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
 
-  const handleWordTap = useCallback((word: string) => {
-    setSelectedWord(normalizeWord(word));
-  }, [normalizeWord]);
+  const handleWordTap = useCallback(
+    (word: string) => {
+      setSelectedWord(normalizeWord(word));
+    },
+    [normalizeWord],
+  );
 
   // Cleanup on unmount
   useEffect(() => {

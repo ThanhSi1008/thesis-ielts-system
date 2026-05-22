@@ -87,7 +87,7 @@ export class ApiClient {
         }
         return false;
       } catch (error) {
-        console.error('Refresh token failed:', error);
+        if (__DEV__) console.error('Refresh token failed:', error);
         return false;
       } finally {
         this.isRefreshing = false;

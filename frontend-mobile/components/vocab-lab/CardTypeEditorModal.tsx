@@ -239,7 +239,7 @@ export function CardTypeEditorModal({
       onSaved(cardType);
       onClose();
     } catch (e: any) {
-      console.error('Save CardType Error:', e?.response?.data || e.message || e);
+      if (__DEV__) console.error('Save CardType Error:', e?.response?.data || e.message || e);
       Alert.alert(
         'Error',
         `Failed to save card type: ${e?.response?.data?.message || e.message || 'Unknown error'}`,

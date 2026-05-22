@@ -94,7 +94,11 @@ function CircularProgressLink({
 
   return (
     <View style={staticStyles.progLinkWrapper}>
-      <TouchableOpacity onPress={handlePress} style={staticStyles.progLinkCircle} activeOpacity={0.7}>
+      <TouchableOpacity
+        onPress={handlePress}
+        style={staticStyles.progLinkCircle}
+        activeOpacity={0.7}
+      >
         <Svg width={size} height={size} style={staticStyles.svgRotate}>
           <Circle
             cx={size / 2}
@@ -142,7 +146,7 @@ export function LibraryContent() {
         const res = await apiClient.get<LibraryStats[]>('/ielts/library/stats');
         setStats(res || []);
       } catch (error) {
-        console.error('Failed to fetch library stats', error);
+        if (__DEV__) console.error('Failed to fetch library stats', error);
         setStats([]);
       } finally {
         setLoading(false);
@@ -198,7 +202,9 @@ export function LibraryContent() {
                   color={theme.fillColor}
                   style={{ fontWeight: '800' }}
                 />
-                <Text style={[staticStyles.cardTitle, { color: theme.fillColor }]}>{stat.skill}</Text>
+                <Text style={[staticStyles.cardTitle, { color: theme.fillColor }]}>
+                  {stat.skill}
+                </Text>
               </View>
 
               <View style={staticStyles.progressRow}>

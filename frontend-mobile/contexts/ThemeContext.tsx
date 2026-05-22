@@ -57,11 +57,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Determine the active resolved theme
   const resolvedTheme: 'light' | 'dark' =
-    theme === 'system'
-      ? systemScheme === 'dark'
-        ? 'dark'
-        : 'light'
-      : theme;
+    theme === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : theme;
 
   // Resolve the current active token palette
   const colors: ThemeTokens = resolvedTheme === 'dark' ? DARK_TOKENS : LIGHT_TOKENS;

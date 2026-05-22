@@ -70,7 +70,10 @@ function LabelWithBlanks({
   while ((match = regex.exec(label)) !== null) {
     if (match.index > lastIndex) {
       segments.push(
-        <Text key={`t-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 22 }}>
+        <Text
+          key={`t-${lastIndex}`}
+          style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 22 }}
+        >
           {label.slice(lastIndex, match.index)}
         </Text>,
       );
@@ -78,18 +81,23 @@ function LabelWithBlanks({
     const qNum = Number(match[1]);
     const val = answers[String(qNum)] || '';
     segments.push(
-      <View key={`b-${qNum}`} style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: colors.primary,
-        borderRadius: RADIUS.sm,
-        paddingHorizontal: SPACING.sm,
-        marginHorizontal: 2,
-        minWidth: 80,
-        backgroundColor: isDark ? colors.surface : '#F0F7FF',
-      }}>
-        <Text style={{ fontSize: 10, fontWeight: '700', color: colors.primary, marginRight: 4 }}>{qNum}</Text>
+      <View
+        key={`b-${qNum}`}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderWidth: 1,
+          borderColor: colors.primary,
+          borderRadius: RADIUS.sm,
+          paddingHorizontal: SPACING.sm,
+          marginHorizontal: 2,
+          minWidth: 80,
+          backgroundColor: isDark ? colors.surface : '#F0F7FF',
+        }}
+      >
+        <Text style={{ fontSize: 10, fontWeight: '700', color: colors.primary, marginRight: 4 }}>
+          {qNum}
+        </Text>
         <TextInput
           style={{ fontSize: FONT_SIZES.sm, color: colors.text, minWidth: 60, paddingVertical: 2 }}
           value={val}
@@ -110,7 +118,18 @@ function LabelWithBlanks({
     );
   }
 
-  return <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginBottom: SPACING.sm }}>{segments}</View>;
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        marginBottom: SPACING.sm,
+      }}
+    >
+      {segments}
+    </View>
+  );
 }
 
 // ─── Radio-grid table (diagram_labelling & map_labelling with items+options) ──
@@ -127,13 +146,48 @@ function RadioGrid({
 }) {
   const { colors, isDark } = useTheme();
   return (
-    <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: RADIUS.md, overflow: 'hidden', backgroundColor: colors.card }}>
+    <View
+      style={{
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: RADIUS.md,
+        overflow: 'hidden',
+        backgroundColor: colors.card,
+      }}
+    >
       {/* Header row */}
-      <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderBottomWidth: 1, borderColor: colors.border }}>
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', padding: SPACING.sm, gap: SPACING.sm }} />
+      <View
+        style={{
+          flexDirection: 'row',
+          backgroundColor: colors.surface,
+          borderBottomWidth: 1,
+          borderColor: colors.border,
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: SPACING.sm,
+            gap: SPACING.sm,
+          }}
+        />
         {labels.map((l) => (
-          <View key={l} style={{ width: 44, alignItems: 'center', justifyContent: 'center', padding: SPACING.sm, borderLeftWidth: 1, borderColor: colors.border + '60' }}>
-            <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.text }}>{l}</Text>
+          <View
+            key={l}
+            style={{
+              width: 44,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: SPACING.sm,
+              borderLeftWidth: 1,
+              borderColor: colors.border + '60',
+            }}
+          >
+            <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.text }}>
+              {l}
+            </Text>
           </View>
         ))}
       </View>
@@ -142,14 +196,45 @@ function RadioGrid({
         const num = String(item.question_number);
         const selected = answers[num] || '';
         return (
-          <View key={num} style={{ flexDirection: 'row', borderBottomWidth: 1, borderColor: colors.border + '80' }}>
+          <View
+            key={num}
+            style={{
+              flexDirection: 'row',
+              borderBottomWidth: 1,
+              borderColor: colors.border + '80',
+            }}
+          >
             {/* Question number (+ optional text) */}
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', padding: SPACING.sm, gap: SPACING.sm }}>
-              <View style={{ width: 24, height: 24, borderRadius: 4, borderWidth: 1, borderColor: colors.primary + '40', backgroundColor: isDark ? colors.surface : '#EFF6FF', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: colors.primary }}>{item.question_number}</Text>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: SPACING.sm,
+                gap: SPACING.sm,
+              }}
+            >
+              <View
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 4,
+                  borderWidth: 1,
+                  borderColor: colors.primary + '40',
+                  backgroundColor: isDark ? colors.surface : '#EFF6FF',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 11, fontWeight: '700', color: colors.primary }}>
+                  {item.question_number}
+                </Text>
               </View>
               {item.text ? (
-                <Text style={{ flex: 1, fontSize: FONT_SIZES.xs, color: colors.text }} numberOfLines={2}>
+                <Text
+                  style={{ flex: 1, fontSize: FONT_SIZES.xs, color: colors.text }}
+                  numberOfLines={2}
+                >
                   {item.text}
                 </Text>
               ) : null}
@@ -161,12 +246,39 @@ function RadioGrid({
               return (
                 <TouchableOpacity
                   key={l}
-                  style={{ width: 44, alignItems: 'center', justifyContent: 'center', padding: SPACING.sm, borderLeftWidth: 1, borderColor: colors.border + '60' }}
+                  style={{
+                    width: 44,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: SPACING.sm,
+                    borderLeftWidth: 1,
+                    borderColor: colors.border + '60',
+                  }}
                   onPress={() => onAnswer(num, l)}
                   activeOpacity={0.7}
                 >
-                  <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: isSelected ? colors.primary : colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card }}>
-                    {isSelected && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.primary }} />}
+                  <View
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      borderWidth: 2,
+                      borderColor: isSelected ? colors.primary : colors.border,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: colors.card,
+                    }}
+                  >
+                    {isSelected && (
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: colors.primary,
+                        }}
+                      />
+                    )}
                   </View>
                 </TouchableOpacity>
               );
@@ -190,17 +302,61 @@ function FillList({
 }) {
   const { colors, isDark } = useTheme();
   return (
-    <View style={{ backgroundColor: isDark ? colors.surface : '#EFF6FF', borderRadius: RADIUS.lg, padding: SPACING.md, borderWidth: 1, borderColor: isDark ? colors.border : '#BFDBFE', gap: SPACING.md }}>
+    <View
+      style={{
+        backgroundColor: isDark ? colors.surface : '#EFF6FF',
+        borderRadius: RADIUS.lg,
+        padding: SPACING.md,
+        borderWidth: 1,
+        borderColor: isDark ? colors.border : '#BFDBFE',
+        gap: SPACING.md,
+      }}
+    >
       {questions.map((q) => {
         const num = String(q.question_number);
         return (
           <View key={num} style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm }}>
-            <View style={{ width: 28, height: 28, borderRadius: 6, borderWidth: 1, borderColor: isDark ? colors.border : '#93C5FD', backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: colors.primary }}>{q.question_number}</Text>
+            <View
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                borderWidth: 1,
+                borderColor: isDark ? colors.border : '#93C5FD',
+                backgroundColor: colors.card,
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: '700', color: colors.primary }}>
+                {q.question_number}
+              </Text>
             </View>
-            {q.label_context ? <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text, fontWeight: '500', flexShrink: 1 }}>{q.label_context}</Text> : null}
+            {q.label_context ? (
+              <Text
+                style={{
+                  fontSize: FONT_SIZES.sm,
+                  color: colors.text,
+                  fontWeight: '500',
+                  flexShrink: 1,
+                }}
+              >
+                {q.label_context}
+              </Text>
+            ) : null}
             <TextInput
-              style={{ flex: 1, borderBottomWidth: 2, borderColor: colors.primary, fontSize: FONT_SIZES.sm, color: colors.text, paddingVertical: 4, paddingHorizontal: SPACING.sm, backgroundColor: colors.card, minWidth: 80 }}
+              style={{
+                flex: 1,
+                borderBottomWidth: 2,
+                borderColor: colors.primary,
+                fontSize: FONT_SIZES.sm,
+                color: colors.text,
+                paddingVertical: 4,
+                paddingHorizontal: SPACING.sm,
+                backgroundColor: colors.card,
+                minWidth: 80,
+              }}
               value={answers[num] || ''}
               onChangeText={(v) => onAnswer(num, v)}
               placeholder="Answer…"
@@ -217,12 +373,44 @@ function FillList({
 function OptionsBank({ options }: { options: OptionItem[] }) {
   const { colors, isDark } = useTheme();
   return (
-    <View style={{ backgroundColor: isDark ? colors.surface : '#EFF6FF', borderRadius: RADIUS.md, padding: SPACING.md, borderWidth: 1, borderColor: isDark ? colors.border : '#BFDBFE', marginBottom: SPACING.md }}>
-      <Text style={{ fontSize: FONT_SIZES.xs, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: SPACING.sm, borderBottomWidth: 1, borderColor: isDark ? colors.border : '#BFDBFE', paddingBottom: SPACING.xs }}>Options Box</Text>
+    <View
+      style={{
+        backgroundColor: isDark ? colors.surface : '#EFF6FF',
+        borderRadius: RADIUS.md,
+        padding: SPACING.md,
+        borderWidth: 1,
+        borderColor: isDark ? colors.border : '#BFDBFE',
+        marginBottom: SPACING.md,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: FONT_SIZES.xs,
+          fontWeight: '700',
+          color: colors.primary,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+          marginBottom: SPACING.sm,
+          borderBottomWidth: 1,
+          borderColor: isDark ? colors.border : '#BFDBFE',
+          paddingBottom: SPACING.xs,
+        }}
+      >
+        Options Box
+      </Text>
       <View style={{ gap: SPACING.sm }}>
         {options.map((opt) => (
           <View key={opt.letter} style={{ flexDirection: 'row', gap: SPACING.sm }}>
-            <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.primary, width: 18 }}>{opt.letter}</Text>
+            <Text
+              style={{
+                fontSize: FONT_SIZES.sm,
+                fontWeight: '700',
+                color: colors.primary,
+                width: 18,
+              }}
+            >
+              {opt.letter}
+            </Text>
             <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, color: colors.text }}>{opt.text}</Text>
           </View>
         ))}
@@ -255,22 +443,85 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
   const tagColor = isDiagramCompletion ? '#059669' : isDiagramLabelling ? '#2563EB' : '#D97706';
 
   return (
-    <View style={{ marginBottom: SPACING.xl, backgroundColor: colors.card, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
+    <View
+      style={{
+        marginBottom: SPACING.xl,
+        backgroundColor: colors.card,
+        borderRadius: RADIUS.xl,
+        borderWidth: 1,
+        borderColor: colors.border,
+        overflow: 'hidden',
+      }}
+    >
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, padding: SPACING.md, borderBottomWidth: 1, borderColor: colors.border + '60', backgroundColor: colors.surface }}>
-        <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: RADIUS.sm, borderWidth: 1, backgroundColor: tagColor + '18', borderColor: tagColor + '40' }}>
-          <Text style={{ fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase', color: tagColor }}>{typeTag}</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: SPACING.sm,
+          padding: SPACING.md,
+          borderBottomWidth: 1,
+          borderColor: colors.border + '60',
+          backgroundColor: colors.surface,
+        }}
+      >
+        <View
+          style={{
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: RADIUS.sm,
+            borderWidth: 1,
+            backgroundColor: tagColor + '18',
+            borderColor: tagColor + '40',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: '800',
+              letterSpacing: 0.8,
+              textTransform: 'uppercase',
+              color: tagColor,
+            }}
+          >
+            {typeTag}
+          </Text>
         </View>
-        {title ? <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.text }}>{title}</Text> : null}
+        {title ? (
+          <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.text }}>
+            {title}
+          </Text>
+        ) : null}
       </View>
 
       {/* Instruction */}
-      {group.instruction && <Text style={{ fontSize: FONT_SIZES.sm, color: colors.textSecondary, fontStyle: 'italic', marginHorizontal: SPACING.md, marginTop: SPACING.sm, lineHeight: 20 }}>{group.instruction}</Text>}
+      {group.instruction && (
+        <Text
+          style={{
+            fontSize: FONT_SIZES.sm,
+            color: colors.textSecondary,
+            fontStyle: 'italic',
+            marginHorizontal: SPACING.md,
+            marginTop: SPACING.sm,
+            lineHeight: 20,
+          }}
+        >
+          {group.instruction}
+        </Text>
+      )}
 
       {/* Image */}
       {group.image_url ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ maxHeight: 260, marginVertical: SPACING.md }}>
-          <Image source={{ uri: group.image_url }} style={{ width: 340, height: 240, marginHorizontal: SPACING.md }} resizeMode="contain" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ maxHeight: 260, marginVertical: SPACING.md }}
+        >
+          <Image
+            source={{ uri: group.image_url }}
+            style={{ width: 340, height: 240, marginHorizontal: SPACING.md }}
+            resizeMode="contain"
+          />
         </ScrollView>
       ) : null}
 
@@ -289,13 +540,53 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
 
       {/* ── diagram_completion: labels with inline blanks ── */}
       {isDiagramCompletion && group.labels && group.questions && (
-        <View style={{ margin: SPACING.md, backgroundColor: isDark ? colors.surface : '#EFF6FF', borderRadius: RADIUS.md, padding: SPACING.md, borderWidth: 1, borderColor: isDark ? colors.border : '#BFDBFE' }}>
-          <Text style={{ fontSize: FONT_SIZES.xs, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: SPACING.md, borderBottomWidth: 1, borderColor: isDark ? colors.border : '#BFDBFE', paddingBottom: SPACING.xs }}>Labels</Text>
+        <View
+          style={{
+            margin: SPACING.md,
+            backgroundColor: isDark ? colors.surface : '#EFF6FF',
+            borderRadius: RADIUS.md,
+            padding: SPACING.md,
+            borderWidth: 1,
+            borderColor: isDark ? colors.border : '#BFDBFE',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: FONT_SIZES.xs,
+              fontWeight: '700',
+              color: colors.primary,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              marginBottom: SPACING.md,
+              borderBottomWidth: 1,
+              borderColor: isDark ? colors.border : '#BFDBFE',
+              paddingBottom: SPACING.xs,
+            }}
+          >
+            Labels
+          </Text>
           {group.labels.map((label, li) => {
             const qMap = Object.fromEntries(group.questions!.map((q) => [q.question_number, q]));
             return (
-              <View key={li} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: SPACING.sm, marginBottom: SPACING.sm }}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary + '80', marginTop: 8, flexShrink: 0 }} />
+              <View
+                key={li}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'flex-start',
+                  gap: SPACING.sm,
+                  marginBottom: SPACING.sm,
+                }}
+              >
+                <View
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                    backgroundColor: colors.primary + '80',
+                    marginTop: 8,
+                    flexShrink: 0,
+                  }}
+                />
                 <LabelWithBlanks label={label} qMap={qMap} answers={answers} onAnswer={onAnswer} />
               </View>
             );

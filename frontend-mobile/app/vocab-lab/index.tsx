@@ -111,6 +111,7 @@ export default function VocabLabScreen() {
         insetsTop={insets.top}
         navItems={NAV_ITEMS.map((item) => ({ ...item, isActive: activeTab === item.key }))}
         onClose={closeDrawer}
+        onOpen={openDrawer}
         onNavPress={handleNavPress}
       />
 

@@ -60,7 +60,9 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ fontWeight: 'bold', marginRight: 4, color: colors.text }}>{opt.letter}</Text>
+              <Text style={{ fontWeight: 'bold', marginRight: 4, color: colors.text }}>
+                {opt.letter}
+              </Text>
               <Text style={{ color: colors.textMuted }}>· {opt.text}</Text>
             </View>
           ))}
@@ -85,7 +87,9 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
               borderBottomColor: colors.border,
             }}
           >
-            <View style={{ flex: 2, padding: 12, borderRightWidth: 1, borderRightColor: colors.border }}>
+            <View
+              style={{ flex: 2, padding: 12, borderRightWidth: 1, borderRightColor: colors.border }}
+            >
               <Text style={{ fontWeight: 'bold', color: colors.text }}>Question</Text>
             </View>
             <View style={{ flex: 3, padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -110,7 +114,11 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                   <View style={styles.qNumBadge}>
                     <Text style={styles.qNumBadgeText}>{qNum}</Text>
                   </View>
-                  <Text style={{ flex: 1, marginLeft: 8, fontSize: FONT_SIZES.sm, color: colors.text }}>{q.text}</Text>
+                  <Text
+                    style={{ flex: 1, marginLeft: 8, fontSize: FONT_SIZES.sm, color: colors.text }}
+                  >
+                    {q.text}
+                  </Text>
                 </View>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {labels.map((lbl: string) => {
@@ -217,16 +225,18 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                     style={[
                       styles.input,
                       { paddingVertical: 6, paddingHorizontal: 10, minHeight: 36, marginTop: 0 },
-                      submitted && isCorrect && {
-                        borderColor: '#86EFAC',
-                        backgroundColor: isDark ? colors.successBg : '#DCFCE7',
-                        color: '#16A34A',
-                      },
-                      submitted && !isCorrect && {
-                        borderColor: '#FCA5A5',
-                        backgroundColor: isDark ? colors.errorBg : '#FEE2E2',
-                        color: '#DC2626',
-                      },
+                      submitted &&
+                        isCorrect && {
+                          borderColor: '#86EFAC',
+                          backgroundColor: isDark ? colors.successBg : '#DCFCE7',
+                          color: '#16A34A',
+                        },
+                      submitted &&
+                        !isCorrect && {
+                          borderColor: '#FCA5A5',
+                          backgroundColor: isDark ? colors.errorBg : '#FEE2E2',
+                          color: '#DC2626',
+                        },
                     ]}
                     value={val}
                     onChangeText={(v) => !submitted && onAnswer(qNum, v)}
@@ -235,7 +245,14 @@ export function MapLabellingGroupView({ group, answers, submitted, onAnswer }: a
                     placeholderTextColor={colors.textMuted}
                   />
                   {submitted && !isCorrect && (
-                    <Text style={{ fontSize: FONT_SIZES.xs, color: '#16A34A', fontWeight: 'bold', marginTop: 4 }}>
+                    <Text
+                      style={{
+                        fontSize: FONT_SIZES.xs,
+                        color: '#16A34A',
+                        fontWeight: 'bold',
+                        marginTop: 4,
+                      }}
+                    >
                       → {q.answer}
                     </Text>
                   )}

@@ -41,8 +41,23 @@ function OptionBank({ options, title }: { options: LetterOption[] | IdOption[]; 
   if (!hasContent) return null;
 
   return (
-    <View style={[ob.container, { backgroundColor: isDark ? colors.surface : '#EFF6FF', borderColor: isDark ? colors.border : '#BFDBFE' }]}>
-      <Text style={[ob.title, { color: colors.primary, borderColor: isDark ? colors.border : '#BFDBFE' }]}>{title}</Text>
+    <View
+      style={[
+        ob.container,
+        {
+          backgroundColor: isDark ? colors.surface : '#EFF6FF',
+          borderColor: isDark ? colors.border : '#BFDBFE',
+        },
+      ]}
+    >
+      <Text
+        style={[
+          ob.title,
+          { color: colors.primary, borderColor: isDark ? colors.border : '#BFDBFE' },
+        ]}
+      >
+        {title}
+      </Text>
       {items.map((item) => (
         <View key={item.key} style={ob.row}>
           <Text style={[ob.letter, { color: colors.primary }]}>{item.key}</Text>
@@ -105,7 +120,15 @@ function MatchRow({
     <View style={[mr.wrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
       {/* Question */}
       <View style={mr.questionRow}>
-        <View style={[mr.numBadge, { backgroundColor: isDark ? colors.surface : '#EFF6FF', borderColor: isDark ? colors.border : '#93C5FD' }]}>
+        <View
+          style={[
+            mr.numBadge,
+            {
+              backgroundColor: isDark ? colors.surface : '#EFF6FF',
+              borderColor: isDark ? colors.border : '#93C5FD',
+            },
+          ]}
+        >
           <Text style={[mr.numText, { color: colors.primary }]}>{qNum}</Text>
         </View>
         <Text style={[mr.questionText, { color: colors.text }]}>{text}</Text>
@@ -114,19 +137,19 @@ function MatchRow({
       {/* Picker trigger */}
       <TouchableOpacity
         style={[
-          mr.picker, 
+          mr.picker,
           { backgroundColor: colors.surface, borderColor: colors.border },
-          value && { borderColor: colors.primary, backgroundColor: colors.primary + '0A' }
+          value && { borderColor: colors.primary, backgroundColor: colors.primary + '0A' },
         ]}
         onPress={() => setOpen((v) => !v)}
         activeOpacity={0.8}
       >
-        <Text 
+        <Text
           style={[
-            mr.pickerText, 
+            mr.pickerText,
             { color: colors.primary },
-            !value && { color: colors.textMuted, fontWeight: '400' }
-          ]} 
+            !value && { color: colors.textMuted, fontWeight: '400' },
+          ]}
           numberOfLines={1}
         >
           {selectedLabel}
@@ -156,9 +179,9 @@ function MatchRow({
               <TouchableOpacity
                 key={k}
                 style={[
-                  mr.dropItem, 
+                  mr.dropItem,
                   { borderColor: colors.border + '60' },
-                  isSelected && { backgroundColor: colors.primary + '0E' }
+                  isSelected && { backgroundColor: colors.primary + '0E' },
                 ]}
                 onPress={() => {
                   onSelect(k);
@@ -166,9 +189,21 @@ function MatchRow({
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={[mr.dropItemLetter, { color: colors.textSecondary }, isSelected && { color: colors.primary }]}>{k}</Text>
                 <Text
-                  style={[mr.dropItemText, { color: colors.text }, isSelected && { color: colors.primary, fontWeight: '600' }]}
+                  style={[
+                    mr.dropItemLetter,
+                    { color: colors.textSecondary },
+                    isSelected && { color: colors.primary },
+                  ]}
+                >
+                  {k}
+                </Text>
+                <Text
+                  style={[
+                    mr.dropItemText,
+                    { color: colors.text },
+                    isSelected && { color: colors.primary, fontWeight: '600' },
+                  ]}
                   numberOfLines={2}
                 >
                   {resolveOption(options, k)}
@@ -448,16 +483,33 @@ export default function MatchingBlock({ group, answers, onAnswer }: Props) {
   return (
     <View style={[s.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
       {/* Header */}
-      <View style={[s.header, { borderColor: colors.border + '60', backgroundColor: colors.surface }]}>
-        <View style={[s.tag, { backgroundColor: isDark ? colors.surface : '#1D4ED818', borderColor: isDark ? colors.border : '#1D4ED840' }]}>
-          <Text style={[s.tagText, { color: isDark ? colors.primary : tagColor }]}>{TYPE_TAGS[type] || 'MATCHING'}</Text>
+      <View
+        style={[s.header, { borderColor: colors.border + '60', backgroundColor: colors.surface }]}
+      >
+        <View
+          style={[
+            s.tag,
+            {
+              backgroundColor: isDark ? colors.surface : '#1D4ED818',
+              borderColor: isDark ? colors.border : '#1D4ED840',
+            },
+          ]}
+        >
+          <Text style={[s.tagText, { color: isDark ? colors.primary : tagColor }]}>
+            {TYPE_TAGS[type] || 'MATCHING'}
+          </Text>
         </View>
         {heading ? <Text style={[s.heading, { color: colors.text }]}>{heading}</Text> : null}
       </View>
 
       {/* Instruction */}
       {instruction ? (
-        <View style={[s.instructionBox, { backgroundColor: colors.surface, borderColor: colors.border + '40' }]}>
+        <View
+          style={[
+            s.instructionBox,
+            { backgroundColor: colors.surface, borderColor: colors.border + '40' },
+          ]}
+        >
           <Ionicons name="information-circle-outline" size={14} color={colors.textSecondary} />
           <Text style={[s.instructionText, { color: colors.textSecondary }]}>{instruction}</Text>
         </View>

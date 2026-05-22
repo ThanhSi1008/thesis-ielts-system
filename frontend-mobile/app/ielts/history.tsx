@@ -12,13 +12,18 @@ import {
   Animated,
   ScrollView,
   Platform,
+  DeviceEventEmitter,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
-import { Badge, ScoreBadge, EmptyState } from '@/components/ui';
+import { Badge, ScoreBadge } from '@/components/ui';
+import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
+import { useTabBarVisibility } from '@/hooks';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getBand(score: number) {
@@ -284,6 +289,22 @@ export default function HistoryScreen() {
   const router = useRouter();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const { handleScroll } = useTabBarVisibility();
+  const flatListRef = useRef<FlatList>(null);
+
+  // Scroll to top on active tab double press
+  useEffect(() => {
+    const listener = DeviceEventEmitter.addListener(
+      'SCROLL_TO_TOP',
+      ({ target }: { target: string }) => {
+        if (target === 'ielts') {
+          flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+        }
+      }
+    );
+    return () => listener.remove();
+  }, []);
   const [refreshing, setRefreshing] = useState(false);
   const [mode, setMode] = useState<Mode>('mock');
   const [skill, setSkill] = useState<string>('LISTENING');
@@ -291,6 +312,37 @@ export default function HistoryScreen() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('date_desc');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteItem, setDeleteItem] = useState<any>(null);
+
+  const insets = useSafeAreaInsets();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== ROUTES.ieltsHistory) {
+      navigation.push(route);
+    }
+  };
 
   const fetchHistory = async () => {
     try {
@@ -299,19 +351,21 @@ export default function HistoryScreen() {
         ieltsAdvancedApi.getWritingHistory(),
       ]);
       const normalizedMock = Array.isArray(mockHistory) ? mockHistory : [];
-      const normalizedWriting = (Array.isArray(writingHistory) ? writingHistory : []).map((s: any) => ({
-        id: s.id,
-        skill: 'WRITING',
-        dateTaken: s.createdAt,
-        examTitle: s.prompt?.title ?? 'Writing Practice',
-        practicePart: s.prompt?.taskType === 'TASK1' ? 1 : 2,
-        rawScore: s.bandScore ?? null,
-        totalQuestions: null,
-        isAdvanced: true,
-      }));
+      const normalizedWriting = (Array.isArray(writingHistory) ? writingHistory : []).map(
+        (s: any) => ({
+          id: s.id,
+          skill: 'WRITING',
+          dateTaken: s.createdAt,
+          examTitle: s.prompt?.title ?? 'Writing Practice',
+          practicePart: s.prompt?.taskType === 'TASK1' ? 1 : 2,
+          rawScore: s.bandScore ?? null,
+          totalQuestions: null,
+          isAdvanced: true,
+        }),
+      );
       setHistory([...normalizedMock, ...normalizedWriting]);
     } catch (e) {
-      console.error(e);
+      if (__DEV__) console.error(e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -328,25 +382,7 @@ export default function HistoryScreen() {
   }, [skill, mode]);
 
   const handleDelete = useCallback((item: any) => {
-    Alert.alert('Delete Record', `Remove "${item.examTitle ?? 'this test'}"? Cannot be undone.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          const id = item.id ?? item.sessionId;
-          setDeletingId(id);
-          try {
-            await ieltsExamsApi.deleteSession(id);
-            setHistory((prev) => prev.filter((h) => (h.id ?? h.sessionId) !== id));
-          } catch {
-            Alert.alert('Error', 'Failed to delete. Try again.');
-          } finally {
-            setDeletingId(null);
-          }
-        },
-      },
-    ]);
+    setDeleteItem(item);
   }, []);
 
   const displayed = useMemo(() => {
@@ -381,19 +417,19 @@ export default function HistoryScreen() {
       const id = item.id ?? item.sessionId;
       if (!id) return;
       if (item.isAdvanced && item.skill === 'WRITING') {
-        router.push(`/ielts/advanced/writing/result/${id}` as any);
+        navigation.push(`/ielts/advanced/writing/result/${id}`);
         return;
       }
       if (item.practicePart) {
         // Practice → advanced result
         const skillPath = item.skill?.toLowerCase() ?? 'listening';
-        router.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.examId, id) as any);
+        navigation.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.examId, id));
       } else {
         // Mock → intensive result
-        router.push(ROUTES.ieltsIntensiveResult(id) as any);
+        navigation.push(ROUTES.ieltsIntensiveResult(id));
       }
     },
-    [router],
+    [],
   );
 
   const totalForMode = history
@@ -411,9 +447,14 @@ export default function HistoryScreen() {
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={s.headerTitle}>Test History</Text>
-        <Text style={s.headerCount}>
-          {displayed.length}/{totalForMode}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Text style={s.headerCount}>
+            {displayed.length}/{totalForMode}
+          </Text>
+          <TouchableOpacity onPress={openDrawer}>
+            <Ionicons name="menu" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Mode Tabs: Mock / Practice */}
@@ -524,16 +565,44 @@ export default function HistoryScreen() {
       </View>
 
       {/* List */}
-      {loading ? (
-        <View style={s.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : (
+      <DataScreen
+        loading={loading}
+        error={null}
+        empty={displayed.length === 0}
+        onRetry={fetchHistory}
+        skeleton={<LessonListSkeleton count={4} />}
+        emptyState={
+          <EmptyState
+            illustration={EmptyStates.history}
+            title={search ? 'No matches' : 'No history yet'}
+            description={
+              search
+                ? `No results found for "${search}"`
+                : mode === 'mock'
+                  ? `No ${skill.toLowerCase()} mock tests completed.`
+                  : activePart !== null
+                    ? `No Part ${activePart} practice sessions.`
+                    : `No ${skill.toLowerCase()} practice sessions.`
+            }
+            primaryAction={
+              search
+                ? { title: 'Clear search', onPress: () => setSearch('') }
+                : {
+                    title: mode === 'mock' ? 'Take a Test' : 'Start Practice',
+                    onPress: () => router.push(ROUTES.ieltsIntensive),
+                  }
+            }
+          />
+        }
+      >
         <FlatList
+          ref={flatListRef}
           data={displayed}
           keyExtractor={(item, i) => String(item.id ?? item.sessionId ?? i)}
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
           showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -542,29 +611,6 @@ export default function HistoryScreen() {
                 fetchHistory();
               }}
               tintColor={COLORS.primary}
-            />
-          }
-          ListEmptyComponent={
-            <EmptyState
-              icon={mode === 'mock' ? '📋' : '🏋️'}
-              title={search ? 'No matches' : 'No history yet'}
-              subtitle={
-                search
-                  ? `No results for "${search}"`
-                  : mode === 'mock'
-                    ? `No ${skill.toLowerCase()} mock tests completed.`
-                    : activePart !== null
-                      ? `No Part ${activePart} practice sessions.`
-                      : `No ${skill.toLowerCase()} practice sessions.`
-              }
-              action={
-                search
-                  ? { label: 'Clear search', onPress: () => setSearch('') }
-                  : {
-                      label: mode === 'mock' ? 'Take a Test' : 'Start Practice',
-                      onPress: () => router.push(ROUTES.ieltsIntensive),
-                    }
-              }
             />
           }
           renderItem={({ item }) => (
@@ -577,7 +623,45 @@ export default function HistoryScreen() {
             />
           )}
         />
-      )}
+      </DataScreen>
+
+      <ConfirmDialog
+        visible={!!deleteItem}
+        onClose={() => setDeleteItem(null)}
+        variant="destructive"
+        title="Delete Record"
+        message={`Remove "${deleteItem?.examTitle ?? 'this test'}"? Cannot be undone.`}
+        primaryAction={{
+          title: 'Delete',
+          onPress: async () => {
+            if (!deleteItem) return;
+            const id = deleteItem.id ?? deleteItem.sessionId;
+            setDeletingId(id);
+            try {
+              await ieltsExamsApi.deleteSession(id);
+              setHistory((prev) => prev.filter((h) => (h.id ?? h.sessionId) !== id));
+            } catch {
+              Alert.alert('Error', 'Failed to delete. Try again.');
+            } finally {
+              setDeletingId(null);
+              setDeleteItem(null);
+            }
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setDeleteItem(null),
+        }}
+      />
+      <SharedDrawer
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        onClose={closeDrawer}
+        onOpen={openDrawer}
+        onNavPress={handleNavPress}
+      />
     </SafeAreaView>
   );
 }

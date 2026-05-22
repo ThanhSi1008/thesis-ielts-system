@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { subscriptionsApi } from '@/services/features.api';
 import { useAuth } from './AuthContext';

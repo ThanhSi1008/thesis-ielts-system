@@ -27,10 +27,25 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SKILLS = [
-  { key: 'LISTENING', label: 'Listening', icon: 'headset-outline' as const, color: COLORS.skill.listening },
+  {
+    key: 'LISTENING',
+    label: 'Listening',
+    icon: 'headset-outline' as const,
+    color: COLORS.skill.listening,
+  },
   { key: 'READING', label: 'Reading', icon: 'book-outline' as const, color: COLORS.skill.reading },
-  { key: 'WRITING', label: 'Writing', icon: 'create-outline' as const, color: COLORS.skill.writing },
-  { key: 'SPEAKING', label: 'Speaking', icon: 'mic-outline' as const, color: COLORS.skill.speaking },
+  {
+    key: 'WRITING',
+    label: 'Writing',
+    icon: 'create-outline' as const,
+    color: COLORS.skill.writing,
+  },
+  {
+    key: 'SPEAKING',
+    label: 'Speaking',
+    icon: 'mic-outline' as const,
+    color: COLORS.skill.speaking,
+  },
 ];
 
 const PART_LABEL: Record<string, Record<number, string>> = {
@@ -72,7 +87,12 @@ const createScStyles = (colors: any) =>
     scoreText: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, lineHeight: 24 },
     bandText: { fontSize: 9, fontFamily: FONTS.medium },
     meta: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flexWrap: 'wrap' },
-    partBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: RADIUS.sm, borderWidth: 1 },
+    partBadge: {
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: RADIUS.sm,
+      borderWidth: 1,
+    },
     partText: { fontSize: 10, fontFamily: FONTS.bold },
   });
 
@@ -351,7 +371,7 @@ export default function AdvancedHistoryScreen() {
       );
       setAllHistory(merged);
     } catch (err) {
-      console.error('[AdvancedHistory] load failed:', err);
+      if (__DEV__) console.error('[AdvancedHistory] load failed:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -513,6 +533,9 @@ export default function AdvancedHistoryScreen() {
               onCardPress={handleCardPress}
             />
           )}
+          initialNumToRender={10}
+          windowSize={10}
+          removeClippedSubviews={true}
         />
       )}
     </SafeAreaView>

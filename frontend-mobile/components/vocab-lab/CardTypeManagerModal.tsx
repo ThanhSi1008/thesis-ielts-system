@@ -75,7 +75,7 @@ export function CardTypeManagerModal({
       const data = await vocabLabApi.getCardTypes();
       setTypes(data);
     } catch (e) {
-      console.error(e);
+      if (__DEV__) console.error(e);
     } finally {
       setLoading(false);
     }

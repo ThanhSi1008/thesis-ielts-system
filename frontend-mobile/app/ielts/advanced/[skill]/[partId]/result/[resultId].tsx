@@ -121,7 +121,11 @@ const createStyles = (colors: any, isDark: boolean) =>
       borderRadius: RADIUS.xl,
       backgroundColor: colors.text,
     },
-    retryBtnText: { color: isDark ? colors.background : '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
+    retryBtnText: {
+      color: isDark ? colors.background : '#fff',
+      fontSize: FONT_SIZES.md,
+      fontWeight: '700',
+    },
 
     // Header
     header: {
@@ -299,10 +303,10 @@ export default function AdvancedResultScreen() {
           skill === 'listening'
             ? await ieltsAdvancedApi.getListeningHistoryDetail(resultId)
             : await ieltsAdvancedApi.getReadingHistoryDetail(resultId);
-        console.log('[RESULT] raw response:', JSON.stringify(data, null, 2)); // DEBUG
+        if (__DEV__) console.log('[RESULT] raw response:', JSON.stringify(data, null, 2));
         setResult(data);
       } catch (e) {
-        console.error('[Result] load failed:', e);
+        if (__DEV__) console.error('[Result] load failed:', e);
       } finally {
         setLoading(false);
       }
@@ -468,13 +472,21 @@ export default function AdvancedResultScreen() {
                           backgroundColor: !answered
                             ? colors.surface
                             : ok
-                              ? isDark ? 'rgba(22,163,74,0.15)' : '#F0FDF4'
-                              : isDark ? 'rgba(220,38,38,0.15)' : '#FFF1F2',
+                              ? isDark
+                                ? 'rgba(22,163,74,0.15)'
+                                : '#F0FDF4'
+                              : isDark
+                                ? 'rgba(220,38,38,0.15)'
+                                : '#FFF1F2',
                           borderColor: !answered
                             ? colors.border
                             : ok
-                              ? isDark ? '#22c55e' : '#86EFAC'
-                              : isDark ? '#f87171' : '#FCA5A5',
+                              ? isDark
+                                ? '#22c55e'
+                                : '#86EFAC'
+                              : isDark
+                                ? '#f87171'
+                                : '#FCA5A5',
                         },
                       ]}
                       onPress={() => handleLocate(q)}
@@ -507,7 +519,9 @@ export default function AdvancedResultScreen() {
             <View style={{ flex: 1 }}>
               <Button
                 title="Try Again"
-                onPress={() => router.replace(ROUTES.ieltsAdvancedSkillPart(skill as string, partId as string))}
+                onPress={() =>
+                  router.replace(ROUTES.ieltsAdvancedSkillPart(skill as string, partId as string))
+                }
                 fullWidth
               />
             </View>

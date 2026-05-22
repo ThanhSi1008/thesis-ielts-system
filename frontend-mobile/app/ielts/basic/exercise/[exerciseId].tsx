@@ -21,6 +21,7 @@ import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import Markdown from 'react-native-markdown-display';
 import { ContentGroupView } from '@/components/ielts/exercise/ContentGroupView';
 import { TextWithLookup } from '@/components/global/TextWithLookup';
+import { Breadcrumb } from '@/components';
 
 /* ─── Mobile-friendly Markdown Table Override ─── */
 function buildMarkdownRules(): any {
@@ -29,9 +30,7 @@ function buildMarkdownRules(): any {
       // Vì markdown-it mặc định tắt HTML, <br> sẽ bị parse thành text thường.
       // Ta replace nó thành \n ở bước render này để không làm vỡ cấu trúc Markdown Table lúc parse.
       const content = (node.content || '').replace(/<br\s*\/?>/gi, '\n');
-      return (
-        <TextWithLookup key={node.key} style={styles.text} content={content} />
-      );
+      return <TextWithLookup key={node.key} style={styles.text} content={content} />;
     },
     image: (node: any) => (
       <Image
@@ -346,6 +345,16 @@ export default function ExerciseViewerScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [marking, setMarking] = useState(false);
 
+  const breadcrumbItems = useMemo(() => {
+    const skillName = skill ? skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase() : '';
+    return [
+      { label: 'IELTS', route: '/(tabs)/ielts' },
+      { label: 'Basic', route: '/(tabs)/ielts' },
+      { label: skillName, route: `/ielts/basic/library/${skill}/exercises` },
+      { label: exercise?.topic || 'Exercise' },
+    ];
+  }, [skill, exercise?.topic]);
+
   useEffect(() => {
     const fetch = async () => {
       try {
@@ -359,7 +368,7 @@ export default function ExerciseViewerScreen() {
         const data = await apiClient.get<Exercise>(`/ielts/${endpoint}/${exerciseId}`);
         setExercise(data);
       } catch (e) {
-        console.error('Failed to fetch exercise:', e);
+        if (__DEV__) console.error('Failed to fetch exercise:', e);
       } finally {
         setLoading(false);
       }
@@ -406,7 +415,7 @@ export default function ExerciseViewerScreen() {
               }
               await apiClient.post('/ielts/progress/mark-completed', { [fieldName]: exerciseId });
             } catch (e) {
-              console.error('mark-completed failed:', e);
+              if (__DEV__) console.error('mark-completed failed:', e);
             } finally {
               setMarking(false);
             }
@@ -501,6 +510,9 @@ export default function ExerciseViewerScreen() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
+        <View style={{ marginBottom: SPACING.md }}>
+          <Breadcrumb items={breadcrumbItems} />
+        </View>
         {exercise.passage && (
           <View style={styles.passageBox}>
             <Text style={styles.passageLabel}>📖 Passage</Text>
@@ -573,7 +585,9 @@ export default function ExerciseViewerScreen() {
         )}
       </ScrollView>
 
-      <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+      <View
+        style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}
+      >
         {!submitted ? (
           <TouchableOpacity
             style={[styles.submitBtn, !isWriting && answeredCount === 0 && { opacity: 0.5 }]}

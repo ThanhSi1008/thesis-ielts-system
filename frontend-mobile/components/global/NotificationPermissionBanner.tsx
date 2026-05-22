@@ -1,5 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Animated, Dimensions, Platform } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+  Platform,
+} from 'react-native';
 import { useNotification } from '@/contexts/NotificationContext';
 import { Ionicons } from '@expo/vector-icons';
 import { FONTS } from '@/constants';
@@ -8,7 +16,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 const { width } = Dimensions.get('window');
 
 export function NotificationPermissionBanner() {
-  const { showPermissionBanner, dismissPermissionBanner, requestPushPermission } = useNotification();
+  const { showPermissionBanner, dismissPermissionBanner, requestPushPermission } =
+    useNotification();
   const { colors } = useTheme();
   const slideAnim = useRef(new Animated.Value(-300)).current;
 
@@ -137,16 +146,25 @@ export function NotificationPermissionBanner() {
           <View style={styles.textColumn}>
             <Text style={styles.title}>Reminders &amp; Results</Text>
             <Text style={styles.description}>
-              Get real-time streak reminders, instant feedback on speaking/writing tests, and special AI announcements!
+              Get real-time streak reminders, instant feedback on speaking/writing tests, and
+              special AI announcements!
             </Text>
           </View>
         </View>
 
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.laterButton} onPress={dismissPermissionBanner} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.laterButton}
+            onPress={dismissPermissionBanner}
+            activeOpacity={0.8}
+          >
             <Text style={styles.laterText}>Maybe Later</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.enableButton} onPress={requestPushPermission} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.enableButton}
+            onPress={requestPushPermission}
+            activeOpacity={0.8}
+          >
             <Text style={styles.enableText}>Enable</Text>
           </TouchableOpacity>
         </View>

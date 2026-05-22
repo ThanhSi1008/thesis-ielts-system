@@ -12,7 +12,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {COLORS, SPACING, FONTS} from '@/constants';
+import { COLORS, SPACING, FONTS } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { FeatureLock } from '@/components/ui/index';
@@ -233,132 +233,140 @@ export function MarketplaceTab() {
     <FeatureLock requiredTier="PREMIUM" featureName="Community Marketplace">
       <ScrollView
         style={{ flex: 1, backgroundColor: '#f8f9fa' }}
-      contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
-      }
-      keyboardShouldPersistTaps="handled"
-    >
-      {/* Header */}
-      <Text style={s.title}>Community Marketplace</Text>
-      <Text style={s.subtitle}>Discover and import flashcard decks shared by other learners.</Text>
+        contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+          />
+        }
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <Text style={s.title}>Community Marketplace</Text>
+        <Text style={s.subtitle}>
+          Discover and import flashcard decks shared by other learners.
+        </Text>
 
-      {/* Tabs */}
-      <View style={s.tabRow}>
-        {(['explore', ...(user ? ['my-published'] : [])] as PageTab[]).map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setPageTab(tab)}
-            style={[s.tabBtn, pageTab === tab && s.tabBtnActive]}
-          >
-            <Text style={[s.tabBtnText, pageTab === tab && s.tabBtnTextActive]}>
-              {tab === 'explore' ? 'Explore' : 'My Published'}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+        {/* Tabs */}
+        <View style={s.tabRow}>
+          {(['explore', ...(user ? ['my-published'] : [])] as PageTab[]).map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => setPageTab(tab)}
+              style={[s.tabBtn, pageTab === tab && s.tabBtnActive]}
+            >
+              <Text style={[s.tabBtnText, pageTab === tab && s.tabBtnTextActive]}>
+                {tab === 'explore' ? 'Explore' : 'My Published'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Featured (explore + no filters) */}
-      {pageTab === 'explore' && !search && !category && (
-        <View style={{ marginBottom: 24 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-            <Ionicons name="flame" size={18} color="#f97316" />
-            <Text style={s.sectionTitle}>Featured Decks</Text>
+        {/* Featured (explore + no filters) */}
+        {pageTab === 'explore' && !search && !category && (
+          <View style={{ marginBottom: 24 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <Ionicons name="flame" size={18} color="#f97316" />
+              <Text style={s.sectionTitle}>Featured Decks</Text>
+            </View>
+            {loadingFeatured ? (
+              <ActivityIndicator color={COLORS.primary} />
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 12 }}
+              >
+                {featured.map((deck) => (
+                  <View key={deck.id} style={{ width: 280 }}>
+                    <SharedDeckCard deck={deck} />
+                  </View>
+                ))}
+              </ScrollView>
+            )}
           </View>
-          {loadingFeatured ? (
-            <ActivityIndicator color={COLORS.primary} />
-          ) : (
+        )}
+
+        {/* Explore: category + search + sort */}
+        {pageTab === 'explore' && (
+          <>
+            {/* Category pills */}
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 12 }}
+              contentContainerStyle={s.categoryScroll}
             >
-              {featured.map((deck) => (
-                <View key={deck.id} style={{ width: 280 }}>
-                  <SharedDeckCard deck={deck} />
-                </View>
+              <TouchableOpacity
+                onPress={() => setCategory('')}
+                style={[s.catChip, category === '' && s.catChipActive]}
+              >
+                <Text style={[s.catChipText, category === '' && s.catChipTextActive]}>All</Text>
+              </TouchableOpacity>
+              {CATEGORIES.map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  onPress={() => setCategory(cat)}
+                  style={[s.catChip, category === cat && s.catChipActive]}
+                >
+                  <Text style={[s.catChipText, category === cat && s.catChipTextActive]}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </ScrollView>
-          )}
-        </View>
-      )}
 
-      {/* Explore: category + search + sort */}
-      {pageTab === 'explore' && (
-        <>
-          {/* Category pills */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={s.categoryScroll}
-          >
-            <TouchableOpacity
-              onPress={() => setCategory('')}
-              style={[s.catChip, category === '' && s.catChipActive]}
-            >
-              <Text style={[s.catChipText, category === '' && s.catChipTextActive]}>All</Text>
-            </TouchableOpacity>
-            {CATEGORIES.map((cat) => (
+            {/* Search */}
+            <View style={s.searchRow}>
+              <View style={s.searchBox}>
+                <Ionicons name="search-outline" size={18} color="#9ca3af" />
+                <TextInput
+                  value={search}
+                  onChangeText={setSearch}
+                  placeholder="Search decks by name, tags…"
+                  placeholderTextColor="#9ca3af"
+                  style={s.searchInput}
+                />
+                {search ? (
+                  <TouchableOpacity onPress={() => setSearch('')}>
+                    <Ionicons name="close-circle" size={18} color="#9ca3af" />
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+
+              {/* Sort toggle */}
               <TouchableOpacity
-                key={cat}
-                onPress={() => setCategory(cat)}
-                style={[s.catChip, category === cat && s.catChipActive]}
+                onPress={() => setSort((s) => (s === 'popular' ? 'newest' : 'popular'))}
+                style={s.sortBtn}
               >
-                <Text style={[s.catChipText, category === cat && s.catChipTextActive]}>{cat}</Text>
+                <Ionicons
+                  name={sort === 'popular' ? 'trending-up' : 'time-outline'}
+                  size={16}
+                  color={COLORS.primary}
+                />
+                <Text style={s.sortBtnText}>{sort === 'popular' ? 'Popular' : 'Newest'}</Text>
               </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Search */}
-          <View style={s.searchRow}>
-            <View style={s.searchBox}>
-              <Ionicons name="search-outline" size={18} color="#9ca3af" />
-              <TextInput
-                value={search}
-                onChangeText={setSearch}
-                placeholder="Search decks by name, tags…"
-                placeholderTextColor="#9ca3af"
-                style={s.searchInput}
-              />
-              {search ? (
-                <TouchableOpacity onPress={() => setSearch('')}>
-                  <Ionicons name="close-circle" size={18} color="#9ca3af" />
-                </TouchableOpacity>
-              ) : null}
             </View>
+          </>
+        )}
 
-            {/* Sort toggle */}
-            <TouchableOpacity
-              onPress={() => setSort((s) => (s === 'popular' ? 'newest' : 'popular'))}
-              style={s.sortBtn}
-            >
-              <Ionicons
-                name={sort === 'popular' ? 'trending-up' : 'time-outline'}
-                size={16}
-                color={COLORS.primary}
-              />
-              <Text style={s.sortBtnText}>{sort === 'popular' ? 'Popular' : 'Newest'}</Text>
-            </TouchableOpacity>
+        {/* Deck list */}
+        {loading ? (
+          <ActivityIndicator color={COLORS.primary} style={{ marginTop: 40 }} size="large" />
+        ) : decks.length === 0 ? (
+          <View style={s.emptyBox}>
+            <Ionicons name="albums-outline" size={48} color="#d1d5db" />
+            <Text style={s.emptyTitle}>No decks found</Text>
+            <Text style={s.emptyDesc}>
+              {pageTab === 'my-published'
+                ? "You haven't published any decks yet."
+                : 'Try adjusting your search or be the first to share!'}
+            </Text>
           </View>
-        </>
-      )}
-
-      {/* Deck list */}
-      {loading ? (
-        <ActivityIndicator color={COLORS.primary} style={{ marginTop: 40 }} size="large" />
-      ) : decks.length === 0 ? (
-        <View style={s.emptyBox}>
-          <Ionicons name="albums-outline" size={48} color="#d1d5db" />
-          <Text style={s.emptyTitle}>No decks found</Text>
-          <Text style={s.emptyDesc}>
-            {pageTab === 'my-published'
-              ? "You haven't published any decks yet."
-              : 'Try adjusting your search or be the first to share!'}
-          </Text>
-        </View>
-      ) : (
-        decks.map((deck) => <SharedDeckCard key={deck.id} deck={deck} onImported={fetchDecks} />)
-      )}
+        ) : (
+          decks.map((deck) => <SharedDeckCard key={deck.id} deck={deck} onImported={fetchDecks} />)
+        )}
       </ScrollView>
     </FeatureLock>
   );

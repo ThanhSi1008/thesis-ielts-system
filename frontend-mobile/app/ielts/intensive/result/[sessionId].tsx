@@ -16,7 +16,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
@@ -224,20 +224,32 @@ function AnswerSheet({
                   else blank++;
 
                   const bg = isCorrect
-                    ? (isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7')
+                    ? isDark
+                      ? 'rgba(34, 205, 94, 0.15)'
+                      : '#DCFCE7'
                     : isWrong
-                    ? (isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2')
-                    : colors.surface;
+                      ? isDark
+                        ? 'rgba(239, 68, 68, 0.15)'
+                        : '#FEE2E2'
+                      : colors.surface;
                   const border = isCorrect
-                    ? (isDark ? '#22c55e' : '#16a34a')
+                    ? isDark
+                      ? '#22c55e'
+                      : '#16a34a'
                     : isWrong
-                    ? (isDark ? '#ef4444' : colors.error)
-                    : colors.border;
+                      ? isDark
+                        ? '#ef4444'
+                        : colors.error
+                      : colors.border;
                   const color = isCorrect
-                    ? (isDark ? '#4ade80' : '#15803D')
+                    ? isDark
+                      ? '#4ade80'
+                      : '#15803D'
                     : isWrong
-                    ? (isDark ? '#f87171' : '#B91C1C')
-                    : colors.textMuted;
+                      ? isDark
+                        ? '#f87171'
+                        : '#B91C1C'
+                      : colors.textMuted;
 
                   return (
                     <View key={n} style={[as.cell, { backgroundColor: bg, borderColor: border }]}>
@@ -252,11 +264,27 @@ function AnswerSheet({
       </View>
       <View style={as.legend}>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7', borderColor: isDark ? '#22c55e' : '#16a34a' }]} />
+          <View
+            style={[
+              as.legendDot,
+              {
+                backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
+                borderColor: isDark ? '#22c55e' : '#16a34a',
+              },
+            ]}
+          />
           <Text style={as.legendText}>{correct} Correct</Text>
         </View>
         <View style={as.legendItem}>
-          <View style={[as.legendDot, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2', borderColor: isDark ? '#ef4444' : colors.error }]} />
+          <View
+            style={[
+              as.legendDot,
+              {
+                backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2',
+                borderColor: isDark ? '#ef4444' : colors.error,
+              },
+            ]}
+          />
           <Text style={as.legendText}>{wrong} Wrong</Text>
         </View>
         <View style={as.legendItem}>
@@ -270,45 +298,46 @@ function AnswerSheet({
   );
 }
 
-const createAsStyles = (colors: any) => StyleSheet.create({
-  container: {
-    margin: SPACING.lg,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  title: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: SPACING.md,
-  },
-  columnsContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: SPACING.sm },
-  column: { flex: 1, alignItems: 'center' },
-  colTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.textSecondary,
-    marginBottom: SPACING.sm,
-    textTransform: 'uppercase',
-  },
-  colGrid: { flexDirection: 'column', gap: 6 },
-  cell: {
-    width: 36,
-    height: 36,
-    borderRadius: RADIUS.sm,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cellNum: { fontSize: 11, fontWeight: '700' },
-  legend: { flexDirection: 'row', gap: SPACING.lg, marginTop: SPACING.md },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  legendDot: { width: 12, height: 12, borderRadius: 3, borderWidth: 1.5 },
-  legendText: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, fontWeight: '600' },
-});
+const createAsStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      margin: SPACING.lg,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    title: {
+      fontSize: FONT_SIZES.md,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: SPACING.md,
+    },
+    columnsContainer: { flexDirection: 'row', justifyContent: 'space-between', gap: SPACING.sm },
+    column: { flex: 1, alignItems: 'center' },
+    colTitle: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: colors.textSecondary,
+      marginBottom: SPACING.sm,
+      textTransform: 'uppercase',
+    },
+    colGrid: { flexDirection: 'column', gap: 6 },
+    cell: {
+      width: 36,
+      height: 36,
+      borderRadius: RADIUS.sm,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cellNum: { fontSize: 11, fontWeight: '700' },
+    legend: { flexDirection: 'row', gap: SPACING.lg, marginTop: SPACING.md },
+    legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    legendDot: { width: 12, height: 12, borderRadius: 3, borderWidth: 1.5 },
+    legendText: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, fontWeight: '600' },
+  });
 
 // ─── Question Review Row ──────────────────────────────────────────────────────
 function QuestionReviewRow({
@@ -395,81 +424,90 @@ function QuestionReviewRow({
   );
 }
 
-const createQrStyles = (colors: any, isDark: boolean) => StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderColor: colors.border + '60',
-    gap: SPACING.md,
-  },
-  numBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  numText: { fontSize: 11, fontWeight: '700', color: colors.textSecondary },
-  right: { flex: 1 },
-  correctPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
-    borderRadius: RADIUS.sm,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: isDark ? '#22c55e' : '#86EFAC',
-  },
-  correctText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: isDark ? '#4ade80' : '#15803D' },
-  listenBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    alignSelf: 'flex-start',
-    marginTop: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EFF6FF',
-    borderRadius: RADIUS.sm,
-    borderWidth: 1,
-    borderColor: isDark ? colors.border : '#BFDBFE',
-  },
-  listenText: { fontSize: 11, fontWeight: '700', color: colors.primary },
-  wrongRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  wrongPill: {
-    backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2',
-    borderRadius: RADIUS.sm,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: isDark ? '#ef4444' : '#FECACA',
-  },
-  wrongText: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '700',
-    color: isDark ? '#f87171' : '#B91C1C',
-    textDecorationLine: 'line-through',
-  },
-  answerPill: {
-    backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
-    borderRadius: RADIUS.sm,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: isDark ? '#22c55e' : '#86EFAC',
-  },
-  answerText: { fontSize: FONT_SIZES.sm, fontWeight: '700', color: isDark ? '#4ade80' : '#15803D' },
-  blankText: { fontSize: FONT_SIZES.sm, color: colors.textMuted, fontWeight: '600' },
-});
+const createQrStyles = (colors: any, isDark: boolean) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: SPACING.sm,
+      borderBottomWidth: 1,
+      borderColor: colors.border + '60',
+      gap: SPACING.md,
+    },
+    numBadge: {
+      width: 28,
+      height: 28,
+      borderRadius: 6,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    numText: { fontSize: 11, fontWeight: '700', color: colors.textSecondary },
+    right: { flex: 1 },
+    correctPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
+      borderRadius: RADIUS.sm,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      alignSelf: 'flex-start',
+      borderWidth: 1,
+      borderColor: isDark ? '#22c55e' : '#86EFAC',
+    },
+    correctText: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '700',
+      color: isDark ? '#4ade80' : '#15803D',
+    },
+    listenBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      alignSelf: 'flex-start',
+      marginTop: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EFF6FF',
+      borderRadius: RADIUS.sm,
+      borderWidth: 1,
+      borderColor: isDark ? colors.border : '#BFDBFE',
+    },
+    listenText: { fontSize: 11, fontWeight: '700', color: colors.primary },
+    wrongRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    wrongPill: {
+      backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2',
+      borderRadius: RADIUS.sm,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderWidth: 1,
+      borderColor: isDark ? '#ef4444' : '#FECACA',
+    },
+    wrongText: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '700',
+      color: isDark ? '#f87171' : '#B91C1C',
+      textDecorationLine: 'line-through',
+    },
+    answerPill: {
+      backgroundColor: isDark ? 'rgba(34, 205, 94, 0.15)' : '#DCFCE7',
+      borderRadius: RADIUS.sm,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderWidth: 1,
+      borderColor: isDark ? '#22c55e' : '#86EFAC',
+    },
+    answerText: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '700',
+      color: isDark ? '#4ade80' : '#15803D',
+    },
+    blankText: { fontSize: FONT_SIZES.sm, color: colors.textMuted, fontWeight: '600' },
+  });
 
 // ─── Question Review Section (collapsible) ────────────────────────────────────
 function QuestionReviewSection({
@@ -532,24 +570,25 @@ function QuestionReviewSection({
   );
 }
 
-const createRevStyles = (colors: any) => StyleSheet.create({
-  container: {
-    margin: SPACING.lg,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: SPACING.lg,
-  },
-  headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
-  body: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md },
-});
+const createRevStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      margin: SPACING.lg,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: SPACING.lg,
+    },
+    headerTitle: { fontSize: FONT_SIZES.md, fontWeight: '700', color: colors.text },
+    body: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md },
+  });
 
 // ─── Main Result Screen ───────────────────────────────────────────────────────
 export default function ResultScreen() {
@@ -593,7 +632,7 @@ export default function ResultScreen() {
             .catch(() => {});
         }
       })
-      .catch(console.error)
+      .catch((e) => { if (__DEV__) console.error(e); })
       .finally(() => setLoading(false));
   }, [sessionId]);
 
@@ -617,7 +656,9 @@ export default function ResultScreen() {
     try {
       setRetaking(true);
       const newSession = await ieltsExamsApi.createSession(session.exam.id, session.userId ?? '');
-      router.replace((ROUTES.ieltsIntensiveExam(session.exam.id) + `?sessionId=${newSession.id}`) as any);
+      router.replace(
+        (ROUTES.ieltsIntensiveExam(session.exam.id) + `?sessionId=${newSession.id}`) as any,
+      );
     } catch {
       Alert.alert('Error', 'Could not start a new session. Please try again.');
     } finally {
@@ -729,22 +770,91 @@ export default function ResultScreen() {
           <Text style={[styles.bcText, styles.bcActive]}>Result</Text>
         </View>
 
-        <View style={[styles.hero, { backgroundColor: bandColor + (isDark ? '24' : '18') }]}>
-          <View style={[styles.bandCircle, { borderColor: bandColor }]}>
-            <Text style={[styles.bandScore, { color: bandColor }]}>{bandStr}</Text>
-            <Text style={[styles.bandLabel, { color: bandColor }]}>Band</Text>
+        {/* Polished Exam Certificate Hero */}
+        <View style={[styles.certContainer, { borderColor: bandColor }]}>
+          <View style={[styles.certInnerFrame, { borderColor: bandColor + '40' }]}>
+            <Text style={[styles.certHeader, { color: bandColor }]}>
+              {isPending ? '⏳ GRADING IN PROGRESS' : '🏆 IELTS MOCK EXAM CERTIFICATE'}
+            </Text>
+
+            <Text style={[styles.certSubText, { color: colors.textSecondary }]}>
+              {isPending
+                ? 'Your practice session has been recorded. AI scoring engine is evaluating your performance...'
+                : `This is to certify that you have successfully completed the practice mock exam of ${examType.toUpperCase()}`}
+            </Text>
+
+            <Text style={[styles.certExamTitle, { color: colors.text }]} numberOfLines={2}>
+              {session.exam?.title}
+            </Text>
+
+            <View style={styles.certBody}>
+              <View style={styles.certScoreContainer}>
+                {/* Beautiful Gold/Skill Color Score Seal */}
+                <View
+                  style={[
+                    styles.certSeal,
+                    { borderColor: bandColor, backgroundColor: colors.card },
+                  ]}
+                >
+                  <Text style={[styles.certSealBand, { color: bandColor }]}>{bandStr}</Text>
+                  <Text style={[styles.certSealText, { color: colors.textSecondary }]}>
+                    BAND SCORE
+                  </Text>
+                </View>
+
+                {/* Verification Stamp & Signature */}
+                <View style={styles.certStampContainer}>
+                  <View
+                    style={[
+                      styles.certStamp,
+                      isPending && { borderColor: colors.border, backgroundColor: colors.surface },
+                    ]}
+                  >
+                    <Ionicons
+                      name={isPending ? 'hourglass-outline' : 'ribbon-outline'}
+                      size={18}
+                      color={isPending ? colors.textMuted : bandColor}
+                    />
+                    <Text
+                      style={[
+                        styles.certStampText,
+                        { color: isPending ? colors.textSecondary : bandColor },
+                      ]}
+                    >
+                      {isPending ? 'PROCESSING' : 'AI EVALUATED'}
+                    </Text>
+                  </View>
+
+                  <View style={styles.certSignatureLine}>
+                    <Text
+                      style={[
+                        styles.certSignature,
+                        { color: colors.text, fontFamily: FONTS.medium },
+                      ]}
+                    >
+                      IELTS Master AI
+                    </Text>
+                    <View style={[styles.certLine, { backgroundColor: colors.border }]} />
+                    <Text style={[styles.certSignatureLabel, { color: colors.textMuted }]}>
+                      VERIFIED BY
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Descriptive Performance Band Badge */}
+            {!isPending && description && (
+              <View
+                style={[
+                  styles.certBadge,
+                  { backgroundColor: bandColor + '15', borderColor: bandColor },
+                ]}
+              >
+                <Text style={[styles.certBadgeText, { color: bandColor }]}>{description}</Text>
+              </View>
+            )}
           </View>
-          <Text style={styles.resultTitle}>
-            {isPending ? '⏳ Grading in Progress' : '✅ Test Complete'}
-          </Text>
-          <Text style={styles.description}>
-            {isPending
-              ? 'Your writing/speaking is being graded by AI. Check back soon.'
-              : description}
-          </Text>
-          <Text style={styles.examTitle} numberOfLines={2}>
-            {session.exam?.title}
-          </Text>
         </View>
 
         {!isPending && (
@@ -911,145 +1021,292 @@ export default function ResultScreen() {
   );
 }
 
-const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
-  loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
-  breadcrumb: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.md,
-  },
-  bcText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
-  bcActive: { color: colors.primary, fontWeight: '700' },
-  hero: { alignItems: 'center', padding: SPACING.xxxl, paddingTop: SPACING.lg },
-  bandCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.lg,
-    backgroundColor: colors.card,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  bandScore: { fontSize: 40, fontWeight: '900', lineHeight: 44 },
-  bandLabel: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  resultTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: FONT_SIZES.sm,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  audioBannerContainer: {
-    marginHorizontal: SPACING.lg,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: isDark ? colors.border : '#C7D2FE',
-    backgroundColor: isDark ? colors.card : '#EEF2FF',
-    overflow: 'hidden',
-  },
-  audioBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-    padding: SPACING.md,
-  },
-  playBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  audioBannerText: { fontSize: FONT_SIZES.sm, color: isDark ? colors.text : colors.primary, fontWeight: '600' },
-  volumeControl: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.md,
-  },
-  volumeTrack: {
-    flex: 1,
-    height: 6,
-    backgroundColor: isDark ? colors.border : '#E0E7FF',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  volumeFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 3 },
-  examTitle: { fontSize: FONT_SIZES.sm, color: colors.textMuted, textAlign: 'center' },
-  statsRow: {
-    flexDirection: 'row',
-    marginHorizontal: SPACING.lg,
-    marginTop: SPACING.md,
-    backgroundColor: colors.card,
-    borderRadius: RADIUS.xl,
-    padding: SPACING.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statCard: { flex: 1, alignItems: 'center' },
-  statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
-  statValue: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 2 },
-  section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.xl },
-  sectionTitle: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: SPACING.md,
-  },
-  barBg: { height: 12, backgroundColor: colors.border, borderRadius: 6, overflow: 'hidden' },
-  barFill: { height: '100%', borderRadius: 6 },
-  barLabel: {
-    marginTop: SPACING.sm,
-    fontSize: FONT_SIZES.sm,
-    color: colors.textSecondary,
-    textAlign: 'right',
-  },
-  actions: { padding: SPACING.xl, marginTop: SPACING.lg, gap: SPACING.sm },
-  // Retake button
-  actionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.sm,
-    borderRadius: RADIUS.xl,
-    paddingVertical: 14,
-  },
-  retakeBtn: { backgroundColor: colors.primary },
-  retakeBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
-  // Share button
-  shareBtn: {
-    backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : colors.primary + '12',
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-  },
-  shareBtnText: { color: colors.primary, fontSize: FONT_SIZES.md, fontWeight: '700' },
-});
+const createStyles = (colors: any, isDark: boolean) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    loadingText: { marginTop: SPACING.md, color: colors.textSecondary },
+    breadcrumb: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: SPACING.lg,
+      paddingTop: SPACING.md,
+    },
+    bcText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
+    bcActive: { color: colors.primary, fontWeight: '700' },
+    certContainer: {
+      margin: SPACING.lg,
+      borderWidth: 3,
+      borderRadius: RADIUS.xl,
+      padding: 6,
+      backgroundColor: isDark ? 'rgba(30, 27, 20, 0.4)' : '#FCFAF6',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.1,
+      shadowRadius: 16,
+      elevation: 4,
+    },
+    certInnerFrame: {
+      borderWidth: 1,
+      borderRadius: RADIUS.lg,
+      padding: SPACING.xl,
+      alignItems: 'center',
+    },
+    certHeader: {
+      fontSize: 12,
+      fontFamily: FONTS.bold,
+      fontWeight: '800',
+      textTransform: 'uppercase',
+      letterSpacing: 2.5,
+      marginBottom: SPACING.sm,
+      textAlign: 'center',
+    },
+    certSubText: {
+      fontSize: 11,
+      fontFamily: FONTS.regular,
+      textAlign: 'center',
+      marginBottom: SPACING.md,
+      lineHeight: 16,
+    },
+    certExamTitle: {
+      fontSize: FONT_SIZES.lg,
+      fontFamily: FONTS.bold,
+      fontWeight: '800',
+      textAlign: 'center',
+      marginBottom: SPACING.xl,
+      paddingHorizontal: SPACING.sm,
+    },
+    certBody: {
+      width: '100%',
+      marginBottom: SPACING.lg,
+    },
+    certScoreContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      width: '100%',
+      gap: SPACING.md,
+    },
+    certSeal: {
+      width: 90,
+      height: 90,
+      borderRadius: 45,
+      borderWidth: 3,
+      borderStyle: 'dashed',
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    certSealBand: {
+      fontSize: 28,
+      fontFamily: FONTS.bold,
+      fontWeight: '900',
+      lineHeight: 30,
+    },
+    certSealText: {
+      fontSize: 8,
+      fontFamily: FONTS.bold,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    certStampContainer: {
+      alignItems: 'center',
+      gap: SPACING.sm,
+    },
+    certStamp: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: RADIUS.sm,
+      borderWidth: 1,
+      borderColor: 'rgba(34, 197, 94, 0.3)',
+      backgroundColor: 'rgba(34, 197, 94, 0.06)',
+    },
+    certStampText: {
+      fontSize: 10,
+      fontFamily: FONTS.bold,
+      fontWeight: '800',
+      letterSpacing: 0.5,
+    },
+    certSignatureLine: {
+      alignItems: 'center',
+      width: 110,
+    },
+    certSignature: {
+      fontSize: 13,
+      fontStyle: 'italic',
+      marginBottom: 2,
+    },
+    certLine: {
+      height: 1,
+      width: '100%',
+      marginBottom: 4,
+    },
+    certSignatureLabel: {
+      fontSize: 9,
+      fontFamily: FONTS.bold,
+      fontWeight: '700',
+      letterSpacing: 1,
+    },
+    certBadge: {
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: SPACING.sm,
+    },
+    certBadgeText: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.8,
+    },
+    hero: { alignItems: 'center', padding: SPACING.xxxl, paddingTop: SPACING.lg },
+    bandCircle: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      borderWidth: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: SPACING.lg,
+      backgroundColor: colors.card,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    bandScore: { fontSize: 40, fontWeight: '900', lineHeight: 44 },
+    bandLabel: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    },
+    resultTitle: {
+      fontSize: 24,
+      fontWeight: '800',
+      color: colors.text,
+      marginBottom: 8,
+      textAlign: 'center',
+    },
+    description: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    audioBannerContainer: {
+      marginHorizontal: SPACING.lg,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1,
+      borderColor: isDark ? colors.border : '#C7D2FE',
+      backgroundColor: isDark ? colors.card : '#EEF2FF',
+      overflow: 'hidden',
+    },
+    audioBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.md,
+      padding: SPACING.md,
+    },
+    playBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    audioBannerText: {
+      fontSize: FONT_SIZES.sm,
+      color: isDark ? colors.text : colors.primary,
+      fontWeight: '600',
+    },
+    volumeControl: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      paddingHorizontal: SPACING.md,
+      paddingBottom: SPACING.md,
+    },
+    volumeTrack: {
+      flex: 1,
+      height: 6,
+      backgroundColor: isDark ? colors.border : '#E0E7FF',
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    volumeFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 3 },
+    examTitle: { fontSize: FONT_SIZES.sm, color: colors.textMuted, textAlign: 'center' },
+    statsRow: {
+      flexDirection: 'row',
+      marginHorizontal: SPACING.lg,
+      marginTop: SPACING.md,
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.04,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    statCard: { flex: 1, alignItems: 'center' },
+    statMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
+    statValue: { fontSize: FONT_SIZES.xxl, fontWeight: '800', color: colors.text },
+    statLabel: { fontSize: FONT_SIZES.xs, color: colors.textSecondary, marginTop: 2 },
+    section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.xl },
+    sectionTitle: {
+      fontSize: FONT_SIZES.md,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: SPACING.md,
+    },
+    barBg: { height: 12, backgroundColor: colors.border, borderRadius: 6, overflow: 'hidden' },
+    barFill: { height: '100%', borderRadius: 6 },
+    barLabel: {
+      marginTop: SPACING.sm,
+      fontSize: FONT_SIZES.sm,
+      color: colors.textSecondary,
+      textAlign: 'right',
+    },
+    actions: { padding: SPACING.xl, marginTop: SPACING.lg, gap: SPACING.sm },
+    // Retake button
+    actionBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: SPACING.sm,
+      borderRadius: RADIUS.xl,
+      paddingVertical: 14,
+    },
+    retakeBtn: { backgroundColor: colors.primary },
+    retakeBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
+    // Share button
+    shareBtn: {
+      backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : colors.primary + '12',
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+    },
+    shareBtnText: { color: colors.primary, fontSize: FONT_SIZES.md, fontWeight: '700' },
+  });

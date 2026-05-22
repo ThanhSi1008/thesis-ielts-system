@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { API_BASE_URL } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { Stack } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Breadcrumb } from '@/components';
 
 /* ─── Types ─── */
 interface LessonBlock {
@@ -355,14 +356,8 @@ const qStyles = StyleSheet.create({
 
 const markdownRules = {
   text: (node: any, children: any, parent: any, styles: any) => {
-    return (
-      <TextWithLookup
-        key={node.key}
-        content={node.content}
-        style={styles.text}
-      />
-    );
-  }
+    return <TextWithLookup key={node.key} content={node.content} style={styles.text} />;
+  },
 };
 
 /* ─── Main screen ─── */
@@ -374,13 +369,23 @@ export default function LessonViewerScreen() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const breadcrumbItems = useMemo(() => {
+    const skillName = skill ? skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase() : '';
+    return [
+      { label: 'IELTS', route: '/(tabs)/ielts' },
+      { label: 'Basic', route: '/(tabs)/ielts' },
+      { label: skillName, route: `/ielts/basic/library/${skill}/lessons` },
+      { label: lesson?.title || 'Lesson' },
+    ];
+  }, [skill, lesson?.title]);
+
   useEffect(() => {
     const fetch = async () => {
       try {
         const res = await apiClient.get<Lesson>(`/ielts/lessons/${lessonId}`);
         setLesson(res);
       } catch (e) {
-        console.error(e);
+        if (__DEV__) console.error(e);
       } finally {
         setLoading(false);
       }
@@ -392,7 +397,7 @@ export default function LessonViewerScreen() {
     try {
       await apiClient.post('/ielts/progress/mark-completed', { lessonId });
     } catch (e) {
-      console.error('Failed to mark lesson complete', e);
+      if (__DEV__) console.error('Failed to mark lesson complete', e);
     }
   };
 
@@ -466,6 +471,10 @@ export default function LessonViewerScreen() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
+        <View style={{ marginBottom: SPACING.md }}>
+          <Breadcrumb items={breadcrumbItems} />
+        </View>
+
         {/* Content blocks */}
         {Array.isArray(lesson.content) &&
           lesson.content.map((block, idx) => {
@@ -493,7 +502,9 @@ export default function LessonViewerScreen() {
                   <View
                     style={[isSection && { paddingLeft: 0 }, !isSection && { paddingLeft: 26 }]}
                   >
-                    <Markdown style={markdownStyles} rules={markdownRules}>{block.content}</Markdown>
+                    <Markdown style={markdownStyles} rules={markdownRules}>
+                      {block.content}
+                    </Markdown>
                   </View>
                 ) : null}
               </Animated.View>

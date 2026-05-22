@@ -1,21 +1,36 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
   RefreshControl,
+  DeviceEventEmitter,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useTabBarVisibility } from '@/hooks';
 import { postsApi } from '@/services';
 import type { Post, PostType } from '@/types';
-import { Avatar, PostCard, CreatePostModal, CommentSection, LeaderboardView } from '@/components';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  Avatar,
+  PostCard,
+  CreatePostModal,
+  CommentSheet,
+  LeaderboardView,
+  DataScreen,
+  PostCardSkeleton,
+  EmptyState,
+  TabPill,
+  Text,
+} from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 
 // ─── Main Screen ───────────────────────────────────────────────
 const TABS = [
@@ -26,6 +41,7 @@ const TABS = [
   { id: 'saved', icon: 'bookmark-outline', label: 'Saved' },
   { id: 'leaderboard', icon: 'bar-chart-outline', label: 'Leaderboard' },
 ] as const;
+
 type TabId = (typeof TABS)[number]['id'];
 
 const TAB_TYPE_MAP: Record<string, PostType | undefined> = {
@@ -38,6 +54,28 @@ export default function CommunityScreen() {
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<TabId>('all');
   const [posts, setPosts] = useState<Post[]>([]);
+  
+  const { handleScroll } = useTabBarVisibility();
+  const postsScrollViewRef = useRef<ScrollView>(null);
+  const leaderboardScrollViewRef = useRef<ScrollView>(null);
+
+  // Scroll to top on active tab double press
+  useEffect(() => {
+    const listener = DeviceEventEmitter.addListener(
+      'SCROLL_TO_TOP',
+      ({ target }: { target: string }) => {
+        if (target === 'community') {
+          if (activeTab === 'leaderboard') {
+            leaderboardScrollViewRef.current?.scrollTo({ y: 0, animated: true });
+          } else {
+            postsScrollViewRef.current?.scrollTo({ y: 0, animated: true });
+          }
+        }
+      }
+    );
+    return () => listener.remove();
+  }, [activeTab]);
+
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -45,15 +83,15 @@ export default function CommunityScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [openedCommentPostId, setOpenedCommentPostId] = useState<string | null>(null);
 
-  const handleOpenComments = (postId: string) => {
-    setOpenedCommentPostId((prev) => (prev === postId ? null : postId));
-  };
+  const handleOpenComments = useCallback((postId: string) => {
+    setOpenedCommentPostId(postId);
+  }, []);
 
-  const handleCommentAdded = (postId: string) => {
+  const handleCommentAdded = useCallback((postId: string) => {
     setPosts((prev) =>
       prev.map((p) => (p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p)),
     );
-  };
+  }, []);
 
   const fetchPosts = useCallback(
     async (cursor?: string) => {
@@ -87,25 +125,24 @@ export default function CommunityScreen() {
     fetchPosts().finally(() => setLoading(false));
   }, [activeTab]);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     if (activeTab === 'leaderboard') {
-      // LeaderboardView fetches automatically when refreshing/refreshTrigger transitions
       await new Promise((resolve) => setTimeout(resolve, 800));
     } else {
       await fetchPosts();
     }
     setRefreshing(false);
-  };
+  }, [activeTab, fetchPosts]);
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return;
     setLoadingMore(true);
     await fetchPosts(nextCursor);
     setLoadingMore(false);
-  };
+  }, [nextCursor, loadingMore, fetchPosts]);
 
-  const handleLike = async (postId: string) => {
+  const handleLike = useCallback(async (postId: string) => {
     setPosts((prev) =>
       prev.map((p) =>
         p.id === postId
@@ -124,9 +161,9 @@ export default function CommunityScreen() {
         ),
       );
     }
-  };
+  }, []);
 
-  const handleBookmark = async (postId: string) => {
+  const handleBookmark = useCallback(async (postId: string) => {
     setPosts((prev) =>
       prev.map((p) => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p)),
     );
@@ -137,32 +174,33 @@ export default function CommunityScreen() {
         prev.map((p) => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p)),
       );
     }
-  };
+  }, []);
 
-  const handleDelete = async (postId: string) => {
+  const handleDelete = useCallback(async (postId: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
     try {
       await postsApi.deletePost(postId);
     } catch {
       Alert.alert('Error', 'Failed to delete post');
     }
-  };
+  }, []);
 
-  const handleCreated = (post: Post) => {
+  const handleCreated = useCallback((post: Post) => {
     setPosts((prev) => [post, ...prev]);
     setActiveTab('all');
-  };
+  }, []);
 
   const authorName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Me';
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top', 'left', 'right']}>
       {/* Header */}
       <View
         style={{
           backgroundColor: colors.background,
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
+          paddingTop: 8,
         }}
       >
         <View
@@ -171,73 +209,38 @@ export default function CommunityScreen() {
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingHorizontal: 16,
-            paddingVertical: 10,
+            paddingBottom: 12,
           }}
         >
           <View>
-            <Text style={{ fontFamily: FONTS.bold, fontSize: 10, color: colors.textMuted, letterSpacing: 1 }}>
+            <Text
+              variant="caption"
+              weight="bold"
+              style={{
+                color: colors.textMuted,
+                letterSpacing: 1,
+              }}
+            >
               LEXON
             </Text>
-            <Text style={{ fontFamily: FONTS.bold, fontSize: 24, color: colors.text }}>Community</Text>
+            <Text variant="display" weight="bold" style={{ color: colors.text }}>
+              Community
+            </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => setShowCreate(true)}
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 12,
-              backgroundColor: COLORS.primary,
-              borderWidth: 1,
-              borderColor: COLORS.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="create" size={20} color="#212529" />
-          </TouchableOpacity>
         </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12, gap: 8 }}
-        >
-          {TABS.map((tab) => {
-            const active = activeTab === tab.id;
-            return (
-              <TouchableOpacity
-                key={tab.id}
-                onPress={() => setActiveTab(tab.id)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 6,
-                  paddingVertical: 8,
-                  paddingHorizontal: 14,
-                  borderRadius: 20,
-                  backgroundColor: active ? COLORS.primary : colors.card,
-                  borderWidth: 1,
-                  borderColor: active ? COLORS.primary : colors.border,
-                }}
-              >
-                <Ionicons name={tab.icon as any} size={14} color={active ? '#212529' : colors.textSecondary} />
-                <Text
-                  style={{
-                    fontFamily: FONTS.bold,
-                    fontSize: 13,
-                    color: active ? '#212529' : colors.textSecondary,
-                  }}
-                >
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+
+        {/* TabPill Category Filters */}
+        <TabPill
+          tabs={TABS}
+          activeTab={activeTab}
+          onChange={setActiveTab}
+        />
       </View>
 
       {/* Content */}
       {activeTab === 'leaderboard' ? (
         <ScrollView
+          ref={leaderboardScrollViewRef}
           contentContainerStyle={{ padding: 16 }}
           refreshControl={
             <RefreshControl
@@ -246,16 +249,15 @@ export default function CommunityScreen() {
               tintColor={COLORS.primary}
             />
           }
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
         >
           <LeaderboardView currentUserId={user?.id} refreshTrigger={refreshing} />
         </ScrollView>
-      ) : loading ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
       ) : (
         <ScrollView
-          contentContainerStyle={{ padding: 16, gap: 12 }}
+          ref={postsScrollViewRef}
+          contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -263,16 +265,18 @@ export default function CommunityScreen() {
               tintColor={COLORS.primary}
             />
           }
-          onScroll={({ nativeEvent: e }) => {
+          onScroll={(event) => {
+            handleScroll(event);
+            const { nativeEvent: e } = event;
             const near =
               e.layoutMeasurement.height + e.contentOffset.y >= e.contentSize.height - 200;
             if (near) loadMore();
           }}
-          scrollEventThrottle={400}
+          scrollEventThrottle={16}
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets
         >
-          {/* Create box */}
+          {/* Share Box Card */}
           <TouchableOpacity
             style={{
               flexDirection: 'row',
@@ -286,8 +290,11 @@ export default function CommunityScreen() {
             }}
             onPress={() => setShowCreate(true)}
           >
-            <Avatar name={authorName} avatar={user?.avatar} size={34} />
-            <Text style={{ flex: 1, fontFamily: FONTS.medium, fontSize: 14, color: colors.textMuted }}>
+            <Avatar name={authorName} avatar={user?.avatar} size="sm" />
+            <Text
+              variant="body"
+              style={{ flex: 1, color: colors.textMuted }}
+            >
               Share with the community…
             </Text>
             <View
@@ -298,20 +305,36 @@ export default function CommunityScreen() {
                 borderRadius: 20,
               }}
             >
-              <Text style={{ fontFamily: FONTS.bold, fontSize: 12, color: '#212529' }}>POST</Text>
+              <Text variant="label" weight="bold" style={{ color: '#212529' }}>POST</Text>
             </View>
           </TouchableOpacity>
 
-          {posts.length === 0 ? (
-            <View style={{ alignItems: 'center', padding: 40 }}>
-              <Ionicons name="albums-outline" size={48} color={colors.border} />
-              <Text style={{ fontFamily: FONTS.medium, color: colors.textMuted, marginTop: 12 }}>
-                No posts yet. Be the first!
-              </Text>
-            </View>
-          ) : (
-            posts.map((post) => (
-              <View key={post.id}>
+          <DataScreen
+            loading={loading}
+            error={null}
+            empty={posts.length === 0}
+            onRetry={onRefresh}
+            skeleton={
+              <View style={{ gap: 12, marginTop: 12 }}>
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+              </View>
+            }
+            emptyState={
+              <EmptyState
+                illustration={EmptyStates.search}
+                title="No posts yet"
+                description="Be the first to share something with the community!"
+                primaryAction={{
+                  title: 'Create Post',
+                  onPress: () => setShowCreate(true),
+                }}
+              />
+            }
+          >
+            {posts.map((post) => (
+              <View key={post.id} style={{ marginBottom: 12 }}>
                 <PostCard
                   post={post}
                   currentUserId={user?.id}
@@ -320,16 +343,9 @@ export default function CommunityScreen() {
                   onDelete={handleDelete}
                   onOpenComments={handleOpenComments}
                 />
-                {openedCommentPostId === post.id && (
-                  <CommentSection
-                    postId={post.id}
-                    currentUserId={user?.id}
-                    onCommentAdded={() => handleCommentAdded(post.id)}
-                  />
-                )}
               </View>
-            ))
-          )}
+            ))}
+          </DataScreen>
 
           {loadingMore && (
             <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 12 }} />
@@ -337,6 +353,50 @@ export default function CommunityScreen() {
         </ScrollView>
       )}
 
+      {/* Floating Create Post FAB (Stacked safely above global Lexon AI FAB in bottom-right) */}
+      <TouchableOpacity
+        onPress={() => setShowCreate(true)}
+        style={{
+          position: 'absolute',
+          bottom: Platform.OS === 'ios' ? 175 : 155,
+          right: 20,
+          zIndex: 99,
+        }}
+        activeOpacity={0.8}
+      >
+        <LinearGradient
+          colors={['#FFE082', '#FFC600', '#FFA000']}
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+        >
+          <Ionicons name="create" size={24} color="#212529" />
+        </LinearGradient>
+      </TouchableOpacity>
+
+      {/* Comment Section Sheet Modal */}
+      <CommentSheet
+        visible={openedCommentPostId !== null}
+        postId={openedCommentPostId || ''}
+        currentUserId={user?.id}
+        onClose={() => setOpenedCommentPostId(null)}
+        onCommentAdded={() => {
+          if (openedCommentPostId) {
+            handleCommentAdded(openedCommentPostId);
+          }
+        }}
+      />
+
+      {/* Create Post Sheet Modal */}
       <CreatePostModal
         visible={showCreate}
         onClose={() => setShowCreate(false)}

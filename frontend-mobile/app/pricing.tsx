@@ -26,7 +26,6 @@ const CARD_WIDTH = SCREEN_WIDTH * 0.82;
 const CARD_MARGIN = 6;
 const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN * 2;
 
-
 const TIER_LEVEL: Record<string, number> = { FREE: 0, PREMIUM: 1, PRO: 2 };
 
 // Free plan is always hardcoded on frontend (same as web)
@@ -167,11 +166,8 @@ export default function PricingScreen() {
         const result = await subscriptionsApi.checkout(plan.id);
         if (result.redirectUrl) {
           const returnUrl = Linking.createURL('payment/vnpay-return');
-          const authResult = await WebBrowser.openAuthSessionAsync(
-            result.redirectUrl,
-            returnUrl
-          );
-          
+          const authResult = await WebBrowser.openAuthSessionAsync(result.redirectUrl, returnUrl);
+
           if (authResult.type === 'success' && authResult.url) {
             // Parse URL and navigate to vnpay-return with search params
             const queryString = authResult.url.split('?')[1] || '';
@@ -185,14 +181,14 @@ export default function PricingScreen() {
                 }
               }
             }
-            
+
             router.replace({
               pathname: '/payment/vnpay-return',
               params: queryParams,
             });
             return;
           }
-          
+
           await fetchData();
           return;
         }

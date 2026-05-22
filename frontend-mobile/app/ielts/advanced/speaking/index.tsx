@@ -48,7 +48,7 @@ export default function AdvancedSpeakingIndexScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'ALL' | 'PART1' | 'PART2' | 'PART3'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Device Test Overlay State
   const [isDeviceTested, setIsDeviceTested] = useState<boolean | null>(null);
 
@@ -80,13 +80,13 @@ export default function AdvancedSpeakingIndexScreen() {
 
       if (partsRes.status === 'fulfilled') {
         const val = partsRes.value;
-        setParts(Array.isArray(val) ? val : val?.data ?? []);
+        setParts(Array.isArray(val) ? val : (val?.data ?? []));
       }
       if (statsRes.status === 'fulfilled') {
         setStats(statsRes.value ?? []);
       }
     } catch (err) {
-      console.error('[AdvancedSpeakingIndex] Error fetching speaking data:', err);
+      if (__DEV__) console.error('[AdvancedSpeakingIndex] Error fetching speaking data:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -112,7 +112,12 @@ export default function AdvancedSpeakingIndexScreen() {
   const filteredParts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return parts.filter((p) => {
-      if (q && !(p.title ?? '').toLowerCase().includes(q) && !(p.topic ?? '').toLowerCase().includes(q) && !(p.category ?? '').toLowerCase().includes(q)) {
+      if (
+        q &&
+        !(p.title ?? '').toLowerCase().includes(q) &&
+        !(p.topic ?? '').toLowerCase().includes(q) &&
+        !(p.category ?? '').toLowerCase().includes(q)
+      ) {
         return false;
       }
       return true;
@@ -140,10 +145,10 @@ export default function AdvancedSpeakingIndexScreen() {
       const partNum = s.title?.toLowerCase().includes('part 1')
         ? 1
         : s.title?.toLowerCase().includes('part 2')
-        ? 2
-        : s.title?.toLowerCase().includes('part 3')
-        ? 3
-        : null;
+          ? 2
+          : s.title?.toLowerCase().includes('part 3')
+            ? 3
+            : null;
 
       if (partNum !== null) {
         if (!partScores[partNum]) partScores[partNum] = { sum: 0, count: 0 };
@@ -387,119 +392,114 @@ export default function AdvancedSpeakingIndexScreen() {
 
       <FeatureLock requiredTier="PREMIUM" featureName="Advanced Speaking Evaluation">
         {/* Tabs */}
-      <View style={styles.tabBar}>
-        {TABS.map((t) => (
-          <TouchableOpacity
-            key={t.key}
-            style={[styles.tab, activeTab === t.key && styles.activeTab]}
-            onPress={() => handleTabChange(t.key as any)}
-          >
-            <Text
-              style={[
-                styles.tabLabel,
-                activeTab === t.key && styles.activeTabLabel,
-              ]}
+        <View style={styles.tabBar}>
+          {TABS.map((t) => (
+            <TouchableOpacity
+              key={t.key}
+              style={[styles.tab, activeTab === t.key && styles.activeTab]}
+              onPress={() => handleTabChange(t.key as any)}
             >
-              {t.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text style={[styles.tabLabel, activeTab === t.key && styles.activeTabLabel]}>
+                {t.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Stats Summary Banner (Premium aesthetic details) */}
-      {!loading && statsSummary.totalAttempts > 0 && activeTab === 'ALL' && (
-        <Animated.View entering={FadeInUp.duration(400)} style={styles.statsBanner}>
-          <View style={styles.statsBannerHeader}>
-            <View style={styles.statsBannerTitleRow}>
-              <Ionicons name="trophy" size={18} color={isDark ? '#C084FC' : '#7C3AED'} />
-              <Text style={styles.statsBannerTitle}>Speaking Performance</Text>
+        {/* Stats Summary Banner (Premium aesthetic details) */}
+        {!loading && statsSummary.totalAttempts > 0 && activeTab === 'ALL' && (
+          <Animated.View entering={FadeInUp.duration(400)} style={styles.statsBanner}>
+            <View style={styles.statsBannerHeader}>
+              <View style={styles.statsBannerTitleRow}>
+                <Ionicons name="trophy" size={18} color={isDark ? '#C084FC' : '#7C3AED'} />
+                <Text style={styles.statsBannerTitle}>Speaking Performance</Text>
+              </View>
+              <Text style={styles.statsBannerSubtitle}>Calculated from graded practices</Text>
             </View>
-            <Text style={styles.statsBannerSubtitle}>Calculated from graded practices</Text>
-          </View>
-          <View style={styles.statsGrid}>
-            <View style={styles.statBox}>
-              <Text style={styles.statVal}>{statsSummary.averageBand}</Text>
-              <Text style={styles.statLbl}>Average Band</Text>
+            <View style={styles.statsGrid}>
+              <View style={styles.statBox}>
+                <Text style={styles.statVal}>{statsSummary.averageBand}</Text>
+                <Text style={styles.statLbl}>Average Band</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <View style={styles.statBox}>
+                <Text style={styles.statVal}>{statsSummary.totalAttempts}</Text>
+                <Text style={styles.statLbl}>Practiced Decks</Text>
+              </View>
+              {statsSummary.weakestPart && (
+                <>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statBox}>
+                    <Text style={[styles.statVal, { color: '#EF4444' }]}>
+                      {statsSummary.weakestPart}
+                    </Text>
+                    <Text style={styles.statLbl}>Focus Area</Text>
+                  </View>
+                </>
+              )}
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statBox}>
-              <Text style={styles.statVal}>{statsSummary.totalAttempts}</Text>
-              <Text style={styles.statLbl}>Practiced Decks</Text>
-            </View>
-            {statsSummary.weakestPart && (
-              <>
-                <View style={styles.statDivider} />
-                <View style={styles.statBox}>
-                  <Text style={[styles.statVal, { color: '#EF4444' }]}>
-                    {statsSummary.weakestPart}
-                  </Text>
-                  <Text style={styles.statLbl}>Focus Area</Text>
-                </View>
-              </>
-            )}
-          </View>
-        </Animated.View>
-      )}
+          </Animated.View>
+        )}
 
-      {/* Search Bar */}
-      <View style={styles.searchRow}>
-        <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={16} color={colors.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search topics or categories..."
-            placeholderTextColor={colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-            clearButtonMode="while-editing"
+        {/* Search Bar */}
+        <View style={styles.searchRow}>
+          <View style={styles.searchBox}>
+            <Ionicons name="search-outline" size={16} color={colors.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search topics or categories..."
+              placeholderTextColor={colors.textMuted}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+            />
+          </View>
+        </View>
+
+        {/* Main Content */}
+        {loading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={COLORS.skill.speaking} />
+            <Text style={styles.loadingText}>Loading speaking topics...</Text>
+          </View>
+        ) : filteredParts.length === 0 ? (
+          <EmptyState
+            icon="🗣️"
+            title="No speaking parts found"
+            subtitle="Try searching for another topic or check your network connection."
           />
-        </View>
-      </View>
-
-      {/* Main Content */}
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.skill.speaking} />
-          <Text style={styles.loadingText}>Loading speaking topics...</Text>
-        </View>
-      ) : filteredParts.length === 0 ? (
-        <EmptyState
-          icon="🗣️"
-          title="No speaking parts found"
-          subtitle="Try searching for another topic or check your network connection."
-        />
-      ) : (
-        <FlatList
-          data={filteredParts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => (
-            <SpeakingPartCard
-              part={{
-                id: item.id,
-                partNumber: item.partNumber as 1 | 2 | 3,
-                partType: item.partType,
-                title: item.title,
-                topic: item.topic,
-                category: item.category ?? 'General',
-                source: item.source,
-                bestScore: item.bestScore ?? null,
-                lastAttempt: item.lastAttempt ?? null,
-              }}
-              index={index}
-              onPress={() => handlePartPress(item.id)}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={COLORS.skill.speaking}
-            />
-          }
-        />
-      )}
+        ) : (
+          <FlatList
+            data={filteredParts}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item, index }) => (
+              <SpeakingPartCard
+                part={{
+                  id: item.id,
+                  partNumber: item.partNumber as 1 | 2 | 3,
+                  partType: item.partType,
+                  title: item.title,
+                  topic: item.topic,
+                  category: item.category ?? 'General',
+                  source: item.source,
+                  bestScore: item.bestScore ?? null,
+                  lastAttempt: item.lastAttempt ?? null,
+                }}
+                index={index}
+                onPress={() => handlePartPress(item.id)}
+              />
+            )}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                tintColor={COLORS.skill.speaking}
+              />
+            }
+          />
+        )}
       </FeatureLock>
     </SafeAreaView>
   );

@@ -31,7 +31,7 @@ interface LessonRowProps {
 }
 
 /** Matches web's RoadmapContent item card design exactly */
-export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
+export const LessonRow = React.memo(function LessonRow({ item, isNext, onPress }: LessonRowProps) {
   const skillIcon = SKILL_ICON[item.skill] ?? 'book-outline';
   const { colors } = useTheme();
 
@@ -83,7 +83,10 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
 
         {/* Text section */}
         <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { color: colors.text }, isNext && styles.titleNext]} numberOfLines={2}>
+          <Text
+            style={[styles.title, { color: colors.text }, isNext && styles.titleNext]}
+            numberOfLines={2}
+          >
             {item.title}
           </Text>
           <Text style={styles.meta}>
@@ -106,7 +109,7 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
       </TouchableOpacity>
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

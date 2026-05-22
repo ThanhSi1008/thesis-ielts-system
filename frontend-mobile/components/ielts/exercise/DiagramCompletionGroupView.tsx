@@ -60,15 +60,24 @@ function LabelLine({
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginBottom: 10 }}>
       <View
         style={{
-          width: 6, height: 6, borderRadius: 3,
-          backgroundColor: '#60A5FA', marginTop: 10, flexShrink: 0,
+          width: 6,
+          height: 6,
+          borderRadius: 3,
+          backgroundColor: '#60A5FA',
+          marginTop: 10,
+          flexShrink: 0,
         }}
       />
-      <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}>
+      <View
+        style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}
+      >
         {segments.map((seg, si) => {
           if (seg.type === 'text') {
             return (
-              <Text key={si} style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}>
+              <Text
+                key={si}
+                style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}
+              >
                 {seg.value}
               </Text>
             );
@@ -83,19 +92,30 @@ function LabelLine({
             <View
               key={si}
               style={{
-                flexDirection: 'row', alignItems: 'center',
+                flexDirection: 'row',
+                alignItems: 'center',
                 borderWidth: 1,
                 borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
                 backgroundColor: submitted
-                  ? isCorrect ? (isDark ? colors.successBg : '#F0FDF4') : (isDark ? colors.errorBg : '#FFF5F5')
+                  ? isCorrect
+                    ? isDark
+                      ? colors.successBg
+                      : '#F0FDF4'
+                    : isDark
+                      ? colors.errorBg
+                      : '#FFF5F5'
                   : colors.card,
-                borderRadius: RADIUS.sm, paddingHorizontal: 6, paddingVertical: 3,
-                marginHorizontal: 2, minWidth: 90,
+                borderRadius: RADIUS.sm,
+                paddingHorizontal: 6,
+                paddingVertical: 3,
+                marginHorizontal: 2,
+                minWidth: 90,
               }}
             >
               <Text
                 style={{
-                  fontSize: 10, fontWeight: '700',
+                  fontSize: 10,
+                  fontWeight: '700',
                   color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.textMuted,
                   marginRight: 4,
                 }}
@@ -107,7 +127,8 @@ function LabelLine({
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <Text
                     style={{
-                      fontSize: 12, fontWeight: '600',
+                      fontSize: 12,
+                      fontWeight: '600',
                       color: isCorrect ? '#15803D' : '#DC2626',
                       textDecorationLine: isCorrect ? 'none' : 'line-through',
                     }}
@@ -122,7 +143,14 @@ function LabelLine({
                 </View>
               ) : (
                 <TextInput
-                  style={{ padding: 0, margin: 0, fontSize: 12, color: colors.text, minWidth: 70, fontWeight: '500' }}
+                  style={{
+                    padding: 0,
+                    margin: 0,
+                    fontSize: 12,
+                    color: colors.text,
+                    minWidth: 70,
+                    fontWeight: '500',
+                  }}
                   value={userAnswer}
                   onChangeText={(v) => onAnswer(qNum, v)}
                   editable={!submitted}
@@ -168,9 +196,14 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
       {imageUrl ? (
         <View
           style={{
-            backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border,
-            borderRadius: RADIUS.lg, overflow: 'hidden', marginBottom: 14,
-            alignItems: 'center', padding: 8,
+            backgroundColor: colors.card,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: RADIUS.lg,
+            overflow: 'hidden',
+            marginBottom: 14,
+            alignItems: 'center',
+            padding: 8,
           }}
         >
           <Image
@@ -187,14 +220,19 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
           backgroundColor: isDark ? colors.infoBg : '#EFF6FF',
           borderWidth: 1,
           borderColor: isDark ? colors.border : '#BFDBFE',
-          borderRadius: RADIUS.lg, padding: SPACING.md,
+          borderRadius: RADIUS.lg,
+          padding: SPACING.md,
         }}
       >
         {diagramTitle ? (
           <Text
             style={{
-              fontSize: 13, fontWeight: '700', color: colors.text, marginBottom: 12,
-              borderBottomWidth: 1, borderBottomColor: isDark ? colors.border : '#BFDBFE',
+              fontSize: 13,
+              fontWeight: '700',
+              color: colors.text,
+              marginBottom: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: isDark ? colors.border : '#BFDBFE',
               paddingBottom: 8,
             }}
           >
@@ -204,8 +242,12 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
 
         <Text
           style={{
-            fontSize: 11, fontWeight: '800', color: colors.textMuted,
-            textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10,
+            fontSize: 11,
+            fontWeight: '800',
+            color: colors.textMuted,
+            textTransform: 'uppercase',
+            letterSpacing: 0.8,
+            marginBottom: 10,
           }}
         >
           Labels
@@ -213,9 +255,14 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
 
         {labels.map((label, li) => (
           <LabelLine
-            key={li} label={label} qMap={qMap}
-            answers={answers} submitted={submitted}
-            onAnswer={onAnswer} colors={colors} isDark={isDark}
+            key={li}
+            label={label}
+            qMap={qMap}
+            answers={answers}
+            submitted={submitted}
+            onAnswer={onAnswer}
+            colors={colors}
+            isDark={isDark}
           />
         ))}
 
@@ -226,24 +273,59 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
             const isCorrect = submitted && checkAnswer(q, val);
 
             return (
-              <View key={qNum} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <View
+                key={qNum}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}
+              >
                 <View
                   style={{
-                    width: 28, height: 28, borderRadius: 7, borderWidth: 1,
-                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : (isDark ? colors.border : '#BFDBFE'),
+                    width: 28,
+                    height: 28,
+                    borderRadius: 7,
+                    borderWidth: 1,
+                    borderColor: submitted
+                      ? isCorrect
+                        ? '#86EFAC'
+                        : '#FCA5A5'
+                      : isDark
+                        ? colors.border
+                        : '#BFDBFE',
                     backgroundColor: submitted
-                      ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
-                      : isDark ? colors.infoBg : '#EFF6FF',
-                    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                      ? isCorrect
+                        ? isDark
+                          ? colors.successBg
+                          : '#DCFCE7'
+                        : isDark
+                          ? colors.errorBg
+                          : '#FEE2E2'
+                      : isDark
+                        ? colors.infoBg
+                        : '#EFF6FF',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
                   }}
                 >
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : '#1D4ED8' }}>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '700',
+                      color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : '#1D4ED8',
+                    }}
+                  >
                     {qNum}
                   </Text>
                 </View>
 
                 {q.text ? (
-                  <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text, fontWeight: '500', flexShrink: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: FONT_SIZES.sm,
+                      color: colors.text,
+                      fontWeight: '500',
+                      flexShrink: 1,
+                    }}
+                  >
                     {q.text}
                   </Text>
                 ) : null}
@@ -253,7 +335,8 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
                     <View>
                       <Text
                         style={{
-                          fontSize: 13, fontWeight: '600',
+                          fontSize: 13,
+                          fontWeight: '600',
                           color: isCorrect ? '#15803D' : '#DC2626',
                           textDecorationLine: isCorrect ? 'none' : 'line-through',
                         }}
@@ -261,7 +344,14 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
                         {val || '—'}
                       </Text>
                       {!isCorrect && q.answer && (
-                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#16A34A', marginTop: 2 }}>
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            fontWeight: '700',
+                            color: '#16A34A',
+                            marginTop: 2,
+                          }}
+                        >
                           → {q.answer}
                         </Text>
                       )}
@@ -269,9 +359,14 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
                   ) : (
                     <TextInput
                       style={{
-                        borderWidth: 1.5, borderColor: colors.border,
-                        borderRadius: RADIUS.sm, paddingHorizontal: 8, paddingVertical: 6,
-                        fontSize: 13, color: colors.text, backgroundColor: colors.card,
+                        borderWidth: 1.5,
+                        borderColor: colors.border,
+                        borderRadius: RADIUS.sm,
+                        paddingHorizontal: 8,
+                        paddingVertical: 6,
+                        fontSize: 13,
+                        color: colors.text,
+                        backgroundColor: colors.card,
                       }}
                       value={val}
                       onChangeText={(v) => onAnswer(qNum, v)}
@@ -294,12 +389,20 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
               <View key={q.question_number}>
                 <TouchableOpacity
                   onPress={() =>
-                    setShowExplanation(showExplanation === q.question_number ? null : q.question_number)
+                    setShowExplanation(
+                      showExplanation === q.question_number ? null : q.question_number,
+                    )
                   }
                   style={{
-                    flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
+                    alignSelf: 'flex-start',
                     backgroundColor: isDark ? colors.surface : '#F3F4F6',
-                    borderRadius: RADIUS.sm, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 4,
+                    borderRadius: RADIUS.sm,
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                    marginBottom: 4,
                   }}
                 >
                   <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textMuted }}>
@@ -313,11 +416,20 @@ export function DiagramCompletionGroupView({ group, answers, submitted, onAnswer
                   <View
                     style={{
                       backgroundColor: isDark ? colors.infoBg : '#EFF6FF',
-                      borderWidth: 1, borderColor: isDark ? colors.border : '#BFDBFE',
-                      borderRadius: RADIUS.md, padding: SPACING.md, marginBottom: 4,
+                      borderWidth: 1,
+                      borderColor: isDark ? colors.border : '#BFDBFE',
+                      borderRadius: RADIUS.md,
+                      padding: SPACING.md,
+                      marginBottom: 4,
                     }}
                   >
-                    <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: isDark ? colors.info : '#1E40AF',
+                        lineHeight: 20,
+                      }}
+                    >
                       {getExplanationText(q.explanation)}
                     </Text>
                   </View>

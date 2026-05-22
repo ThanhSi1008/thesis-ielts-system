@@ -60,17 +60,33 @@ export function FillGroup({
 
           return (
             <View key={qNum}>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}
+              >
                 <View
                   style={{
                     minWidth: 28,
                     height: 28,
                     borderRadius: 8,
                     borderWidth: 1,
-                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : (isDark ? colors.border : '#BFDBFE'),
+                    borderColor: submitted
+                      ? isCorrect
+                        ? '#86EFAC'
+                        : '#FCA5A5'
+                      : isDark
+                        ? colors.border
+                        : '#BFDBFE',
                     backgroundColor: submitted
-                      ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
-                      : isDark ? colors.infoBg : '#EFF6FF',
+                      ? isCorrect
+                        ? isDark
+                          ? colors.successBg
+                          : '#DCFCE7'
+                        : isDark
+                          ? colors.errorBg
+                          : '#FEE2E2'
+                      : isDark
+                        ? colors.infoBg
+                        : '#EFF6FF',
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingHorizontal: 4,
@@ -106,7 +122,13 @@ export function FillGroup({
                         alignSelf: 'flex-start',
                         borderWidth: 1,
                         borderColor: isCorrect ? '#86EFAC' : '#FCA5A5',
-                        backgroundColor: isCorrect ? (isDark ? colors.successBg : '#F0FDF4') : (isDark ? colors.errorBg : '#FFF5F5'),
+                        backgroundColor: isCorrect
+                          ? isDark
+                            ? colors.successBg
+                            : '#F0FDF4'
+                          : isDark
+                            ? colors.errorBg
+                            : '#FFF5F5',
                         borderRadius: RADIUS.md,
                         paddingHorizontal: 12,
                         paddingVertical: 7,
@@ -138,8 +160,14 @@ export function FillGroup({
                           alignSelf: 'flex-start',
                         }}
                       >
-                        <Text style={{ fontSize: 11, color: '#16A34A', fontWeight: '600' }}>Correct answer:</Text>
-                        <Text style={{ fontSize: FONT_SIZES.sm, color: '#16A34A', fontWeight: '700' }}>{q.answer}</Text>
+                        <Text style={{ fontSize: 11, color: '#16A34A', fontWeight: '600' }}>
+                          Correct answer:
+                        </Text>
+                        <Text
+                          style={{ fontSize: FONT_SIZES.sm, color: '#16A34A', fontWeight: '700' }}
+                        >
+                          {q.answer}
+                        </Text>
                       </View>
                     )}
                   </View>
@@ -193,7 +221,13 @@ export function FillGroup({
                         padding: SPACING.md,
                       }}
                     >
-                      <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: isDark ? colors.info : '#1E40AF',
+                          lineHeight: 20,
+                        }}
+                      >
                         {getExplanationText(q.explanation)}
                       </Text>
                     </View>

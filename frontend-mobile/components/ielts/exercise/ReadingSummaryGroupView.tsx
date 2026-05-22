@@ -27,7 +27,8 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
   };
 
   const summaryText: string = group.summary || group.text || '';
-  const instruction: string = group.instruction || group.instructions || 'Complete the summary below.';
+  const instruction: string =
+    group.instruction || group.instructions || 'Complete the summary below.';
 
   const renderSummaryText = () => {
     const blankRegex = /\{\{(\d+)\}\}/g;
@@ -52,7 +53,10 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
 
       if ((match.index ?? 0) > lastIndex) {
         parts.push(
-          <Text key={`t-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}>
+          <Text
+            key={`t-${lastIndex}`}
+            style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}
+          >
             {summaryText.slice(lastIndex, match.index)}
           </Text>,
         );
@@ -67,7 +71,13 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
             borderWidth: 1,
             borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
             backgroundColor: submitted
-              ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
+              ? isCorrect
+                ? isDark
+                  ? colors.successBg
+                  : '#DCFCE7'
+                : isDark
+                  ? colors.errorBg
+                  : '#FEE2E2'
               : colors.card,
             borderRadius: RADIUS.sm,
             paddingHorizontal: 6,
@@ -78,7 +88,9 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
         >
           <Text
             style={{
-              fontSize: 10, fontWeight: 'bold', marginRight: 4,
+              fontSize: 10,
+              fontWeight: 'bold',
+              marginRight: 4,
               color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.textMuted,
             }}
           >
@@ -88,7 +100,8 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
             <>
               <Text
                 style={{
-                  fontSize: FONT_SIZES.sm, fontWeight: '600',
+                  fontSize: FONT_SIZES.sm,
+                  fontWeight: '600',
                   color: isCorrect ? '#15803D' : '#DC2626',
                   textDecorationLine: isCorrect ? 'none' : 'line-through',
                 }}
@@ -103,7 +116,14 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
             </>
           ) : (
             <TextInput
-              style={{ padding: 0, margin: 0, fontSize: FONT_SIZES.sm, color: colors.text, minWidth: 60, fontWeight: '500' }}
+              style={{
+                padding: 0,
+                margin: 0,
+                fontSize: FONT_SIZES.sm,
+                color: colors.text,
+                minWidth: 60,
+                fontWeight: '500',
+              }}
               value={userAnswer}
               onChangeText={(v) => onAnswer(qNum, v)}
               editable={!submitted}
@@ -119,7 +139,10 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
 
     if (lastIndex < summaryText.length) {
       parts.push(
-        <Text key={`end-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}>
+        <Text
+          key={`end-${lastIndex}`}
+          style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 26 }}
+        >
           {summaryText.slice(lastIndex)}
         </Text>,
       );
@@ -162,7 +185,9 @@ export function ReadingSummaryGroupView({ group, answers, submitted, onAnswer }:
         questions.map((q: any) =>
           q.explanation ? (
             <View key={q.question_number} style={{ marginTop: SPACING.sm }}>
-              <Text style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.textSecondary }}>
+              <Text
+                style={{ fontSize: FONT_SIZES.sm, fontWeight: '700', color: colors.textSecondary }}
+              >
                 Q{q.question_number} Explanation:
               </Text>
               <ExplanationView

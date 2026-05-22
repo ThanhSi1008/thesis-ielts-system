@@ -27,7 +27,9 @@ const TABS = [
 export default function AdvancedScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const [activeTab, setActiveTab] = useState<'listening' | 'reading' | 'writing' | 'speaking'>('listening');
+  const [activeTab, setActiveTab] = useState<'listening' | 'reading' | 'writing' | 'speaking'>(
+    'listening',
+  );
   const [listeningParts, setListeningParts] = useState<any[]>([]);
   const [readingParts, setReadingParts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,7 +101,11 @@ export default function AdvancedScreen() {
       borderBottomWidth: isDark ? 1 : 0,
       borderBottomColor: colors.border,
     },
-    headerTitle: { color: isDark ? colors.text : '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '700',
+    },
     headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
 
     tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderColor: colors.border },
@@ -295,14 +301,14 @@ export default function AdvancedScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
           refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => {
-                  setRefreshing(true);
-                  fetchData();
-                }}
-              />
-            }
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchData();
+              }}
+            />
+          }
         >
           {/* History banner */}
           <TouchableOpacity

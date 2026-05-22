@@ -61,7 +61,7 @@ export function ImportDeckModal({
   const nameConflict = existingDeckNames.includes(deckName.trim());
   const previewCards = lexonData.cards.slice(0, 3);
   const remainingCount = Math.max(0, lexonData.cards.length - 3);
-  
+
   const exportDate = new Date(lexonData.exportedAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -148,16 +148,18 @@ export function ImportDeckModal({
                   <View style={s.previewList}>
                     {previewCards.map((card, i) => (
                       <View key={i} style={s.previewCard}>
-                        {Object.entries(card.fieldValues).slice(0, 3).map(([key, value]) => (
-                          <View key={key} style={s.previewRow}>
-                            <Text style={s.previewKey} numberOfLines={1}>
-                              {key}:
-                            </Text>
-                            <Text style={s.previewValue} numberOfLines={1}>
-                              {stripHtml(value)}
-                            </Text>
-                          </View>
-                        ))}
+                        {Object.entries(card.fieldValues)
+                          .slice(0, 3)
+                          .map(([key, value]) => (
+                            <View key={key} style={s.previewRow}>
+                              <Text style={s.previewKey} numberOfLines={1}>
+                                {key}:
+                              </Text>
+                              <Text style={s.previewValue} numberOfLines={1}>
+                                {stripHtml(value)}
+                              </Text>
+                            </View>
+                          ))}
                       </View>
                     ))}
                   </View>
@@ -170,12 +172,7 @@ export function ImportDeckModal({
 
             {/* Actions */}
             <View style={s.actions}>
-              <Button
-                title="Cancel"
-                variant="ghost"
-                onPress={onClose}
-                disabled={isImporting}
-              />
+              <Button title="Cancel" variant="ghost" onPress={onClose} disabled={isImporting} />
               <Button
                 title={isImporting ? 'Importing...' : `Import ${lexonData.cards.length} cards`}
                 onPress={handleConfirm}
@@ -192,7 +189,10 @@ export function ImportDeckModal({
 
 function stripHtml(html: string): string {
   if (typeof html !== 'string') return String(html);
-  return html.replace(/<[^>]*>/g, '').trim().substring(0, 80);
+  return html
+    .replace(/<[^>]*>/g, '')
+    .trim()
+    .substring(0, 80);
 }
 
 const s = StyleSheet.create({

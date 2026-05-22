@@ -1,4 +1,5 @@
 import { apiClient } from './api-client';
+import { clientCache } from './cache';
 
 // ==================== IELTS PROFILE ====================
 export const ieltsProfileApi = {
@@ -7,7 +8,8 @@ export const ieltsProfileApi = {
   update: (data: any) => apiClient.patch<any>('/ielts/profile', data),
   onboarding: (data: any) => apiClient.post<any>('/ielts/onboarding', data),
   getStreak: () => apiClient.get<{ currentStreak: number; longestStreak: number }>('/ielts/streak'),
-  getPlacementExercises: () => apiClient.get<{ listening: any; reading: any; writing: any }>('/ielts/placement-exercises'),
+  getPlacementExercises: () =>
+    apiClient.get<{ listening: any; reading: any; writing: any }>('/ielts/placement-exercises'),
 };
 
 // ==================== IELTS ADVANCED ====================
@@ -47,7 +49,13 @@ export const ieltsAdvancedApi = {
     ),
 
   // --- IELTS Advanced Writing ---
-  getWritingPrompts: (params?: { taskType?: 'TASK1' | 'TASK2'; subType?: string; category?: string; page?: number; limit?: number }) => {
+  getWritingPrompts: (params?: {
+    taskType?: 'TASK1' | 'TASK2';
+    subType?: string;
+    category?: string;
+    page?: number;
+    limit?: number;
+  }) => {
     const q = new URLSearchParams();
     if (params?.taskType) q.set('taskType', params.taskType);
     if (params?.subType) q.set('subType', params.subType);
@@ -58,15 +66,26 @@ export const ieltsAdvancedApi = {
     return apiClient.get<any>(`/ielts/advanced/writing/prompts${qs ? `?${qs}` : ''}`);
   },
   getWritingPrompt: (id: string) => apiClient.get<any>(`/ielts/advanced/writing/prompts/${id}`),
-  getWritingSessionsByPrompt: (promptId: string) => apiClient.get<any[]>(`/ielts/advanced/writing/prompts/${promptId}/sessions`),
-  createWritingSession: (promptId: string) => apiClient.post<any>('/ielts/advanced/writing/sessions', { promptId }),
-  saveWritingDraft: (sessionId: string, draftEssay: string) => apiClient.patch<any>(`/ielts/advanced/writing/sessions/${sessionId}/draft`, { draftEssay }),
-  submitWritingSession: (sessionId: string, payload: { essay: string; timeTaken?: number }) => apiClient.post<any>(`/ielts/advanced/writing/sessions/${sessionId}/submit`, payload),
-  getWritingSession: (sessionId: string) => apiClient.get<any>(`/ielts/advanced/writing/sessions/${sessionId}`),
+  getWritingSessionsByPrompt: (promptId: string) =>
+    apiClient.get<any[]>(`/ielts/advanced/writing/prompts/${promptId}/sessions`),
+  createWritingSession: (promptId: string) =>
+    apiClient.post<any>('/ielts/advanced/writing/sessions', { promptId }),
+  saveWritingDraft: (sessionId: string, draftEssay: string) =>
+    apiClient.patch<any>(`/ielts/advanced/writing/sessions/${sessionId}/draft`, { draftEssay }),
+  submitWritingSession: (sessionId: string, payload: { essay: string; timeTaken?: number }) =>
+    apiClient.post<any>(`/ielts/advanced/writing/sessions/${sessionId}/submit`, payload),
+  getWritingSession: (sessionId: string) =>
+    apiClient.get<any>(`/ielts/advanced/writing/sessions/${sessionId}`),
   getWritingHistory: () => apiClient.get<any[]>('/ielts/advanced/writing/history'),
 
   // --- IELTS Advanced Speaking ---
-  getSpeakingParts: (params?: { partNumber?: 1 | 2 | 3; category?: string; topic?: string; page?: number; limit?: number }) => {
+  getSpeakingParts: (params?: {
+    partNumber?: 1 | 2 | 3;
+    category?: string;
+    topic?: string;
+    page?: number;
+    limit?: number;
+  }) => {
     const q = new URLSearchParams();
     if (params?.partNumber) q.set('partNumber', String(params.partNumber));
     if (params?.category) q.set('category', params.category);
@@ -77,11 +96,16 @@ export const ieltsAdvancedApi = {
     return apiClient.get<any>(`/ielts/advanced/speaking/parts${qs ? `?${qs}` : ''}`);
   },
   getSpeakingPart: (id: string) => apiClient.get<any>(`/ielts/advanced/speaking/parts/${id}`),
-  getSpeakingSessionsByPart: (partId: string) => apiClient.get<any[]>(`/ielts/advanced/speaking/parts/${partId}/sessions`),
-  createSpeakingSession: (partId: string) => apiClient.post<any>('/ielts/advanced/speaking/sessions', { partId }),
-  submitSpeakingSession: (sessionId: string, payload: { audioAnswers: Record<string, string>; timeTaken?: number }) =>
-    apiClient.post<any>(`/ielts/advanced/speaking/sessions/${sessionId}/submit`, payload),
-  getSpeakingSession: (sessionId: string) => apiClient.get<any>(`/ielts/advanced/speaking/sessions/${sessionId}`),
+  getSpeakingSessionsByPart: (partId: string) =>
+    apiClient.get<any[]>(`/ielts/advanced/speaking/parts/${partId}/sessions`),
+  createSpeakingSession: (partId: string) =>
+    apiClient.post<any>('/ielts/advanced/speaking/sessions', { partId }),
+  submitSpeakingSession: (
+    sessionId: string,
+    payload: { audioAnswers: Record<string, string>; timeTaken?: number },
+  ) => apiClient.post<any>(`/ielts/advanced/speaking/sessions/${sessionId}/submit`, payload),
+  getSpeakingSession: (sessionId: string) =>
+    apiClient.get<any>(`/ielts/advanced/speaking/sessions/${sessionId}`),
   getSpeakingHistory: () => apiClient.get<any[]>('/ielts/advanced/speaking/history'),
   getSpeakingStats: () => apiClient.get<any>('/ielts/advanced/speaking/stats'),
 };
@@ -89,8 +113,16 @@ export const ieltsAdvancedApi = {
 // ==================== IELTS EXAMS (Mock Tests) ====================
 export const ieltsExamsApi = {
   getHistory: () => apiClient.get<any[]>('/exams/history'),
-  getIntensiveCatalog: (skill: string) =>
-    apiClient.get<any>(`/exams/intensive/catalog?skill=${skill}`),
+  getIntensiveCatalog: async (skill: string, bypassCache = false): Promise<any> => {
+    const cacheKey = `intensive_catalog_${skill}`;
+    if (!bypassCache) {
+      const cached = await clientCache.get<any>(cacheKey);
+      if (cached) return cached;
+    }
+    const data = await apiClient.get<any>(`/exams/intensive/catalog?skill=${skill}`);
+    await clientCache.set(cacheKey, data);
+    return data;
+  },
   getExam: (id: string) => apiClient.get<any>(`/exams/${id}`),
   createSession: (examId: string, userId: string, practicePart?: number) =>
     apiClient.post<any>(`/exams/${examId}/sessions`, { userId, practicePart }),
@@ -126,4 +158,3 @@ export const vocabularyApi = newVocabularyApi;
  * @deprecated Use grammarApi from @/services instead
  */
 export const grammarApi = newGrammarApi;
-

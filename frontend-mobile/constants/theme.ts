@@ -16,15 +16,25 @@ export interface ThemeTokens {
   error: string;
   warning: string;
   info: string;
-  
+
   // Alert backgrounds
   successBg: string;
   warningBg: string;
   errorBg: string;
   infoBg: string;
-  
+
   // Platform preferences
   statusBar: 'dark-content' | 'light-content';
+
+  // New Semantic Tokens
+  bgElevated: string;
+  bgSubtle: string;
+  bgInverse: string;
+  textOnAccent: string;
+  textInverse: string;
+  borderStrong: string;
+  borderInteractive: string;
+  overlay: string;
 }
 
 export const LIGHT_TOKENS: ThemeTokens = {
@@ -45,13 +55,23 @@ export const LIGHT_TOKENS: ThemeTokens = {
   error: '#F44336',
   warning: '#FF9800',
   info: '#2196F3',
-  
+
   successBg: '#E8F5E9',
   warningBg: '#FFF3E0',
   errorBg: '#FFEBEE',
   infoBg: '#E0F2FE',
-  
+
   statusBar: 'dark-content',
+
+  // New Semantic Tokens
+  bgElevated: '#FFFFFF',
+  bgSubtle: '#F1F5F9',
+  bgInverse: '#0F172A',
+  textOnAccent: '#212529',
+  textInverse: '#F8FAFC',
+  borderStrong: '#94A3B8',
+  borderInteractive: '#FFC600',
+  overlay: 'rgba(0, 0, 0, 0.5)',
 };
 
 export const DARK_TOKENS: ThemeTokens = {
@@ -72,11 +92,21 @@ export const DARK_TOKENS: ThemeTokens = {
   error: '#EF4444', // Red 500
   warning: '#F59E0B', // Amber 500
   info: '#3B82F6', // Blue 500
-  
+
   successBg: '#064E3B', // Deep rich green
   warningBg: '#78350F', // Deep rich amber
   errorBg: '#450A0A', // Deep rich red
   infoBg: '#0C4A6E', // Deep rich blue
-  
+
   statusBar: 'light-content',
+
+  // New Semantic Tokens
+  bgElevated: '#1E293B',
+  bgSubtle: '#0F172A',
+  bgInverse: '#FFFFFF',
+  textOnAccent: '#0F172A',
+  textInverse: '#0F172A',
+  borderStrong: '#475569',
+  borderInteractive: '#FFC600',
+  overlay: 'rgba(0, 0, 0, 0.7)',
 };

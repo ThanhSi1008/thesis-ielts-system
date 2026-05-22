@@ -90,7 +90,7 @@ export default function OnboardingScreen() {
       });
       router.replace(ROUTES.ieltsRoadmap);
     } catch (e: any) {
-      console.error('Onboarding Save Error:', e?.response?.data || e.message || e);
+      if (__DEV__) console.error('Onboarding Save Error:', e?.response?.data || e.message || e);
       Alert.alert('Error', 'Could not save profile. Try again.');
     } finally {
       setSaving(false);
@@ -271,38 +271,58 @@ export default function OnboardingScreen() {
             <View style={styles.stepContent}>
               <Text style={styles.stepTitle}>Accelerate your learning</Text>
               <Text style={styles.stepSubtitle}>
-                Spend just 5 minutes on our placement test to tailor your exact training path. You'll skip the lessons you've already mastered.
+                Spend just 5 minutes on our placement test to tailor your exact training path.
+                You'll skip the lessons you've already mastered.
               </Text>
 
               <View style={styles.pitchContainer}>
                 {/* Benefits cards */}
                 <View style={styles.benefitItem}>
-                  <View style={[styles.benefitIconWrap, { backgroundColor: COLORS.primary + '15' }]}>
+                  <View
+                    style={[styles.benefitIconWrap, { backgroundColor: COLORS.primary + '15' }]}
+                  >
                     <Ionicons name="flash-outline" size={24} color={COLORS.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.benefitTitle}>Save 40+ Hours</Text>
-                    <Text style={styles.benefitDesc}>Skip standard basic lessons and material you already know.</Text>
+                    <Text style={styles.benefitDesc}>
+                      Skip standard basic lessons and material you already know.
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.benefitItem}>
-                  <View style={[styles.benefitIconWrap, { backgroundColor: COLORS.skill.reading + '15' }]}>
+                  <View
+                    style={[
+                      styles.benefitIconWrap,
+                      { backgroundColor: COLORS.skill.reading + '15' },
+                    ]}
+                  >
                     <Ionicons name="git-branch-outline" size={24} color={COLORS.skill.reading} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.benefitTitle}>Personalized Roadmap</Text>
-                    <Text style={styles.benefitDesc}>Study custom exercises matching your precise band goal of {targetBand.toFixed(1)}.</Text>
+                    <Text style={styles.benefitDesc}>
+                      Study custom exercises matching your precise band goal of{' '}
+                      {targetBand.toFixed(1)}.
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.benefitItem}>
-                  <View style={[styles.benefitIconWrap, { backgroundColor: COLORS.skill.writing + '15' }]}>
+                  <View
+                    style={[
+                      styles.benefitIconWrap,
+                      { backgroundColor: COLORS.skill.writing + '15' },
+                    ]}
+                  >
                     <Ionicons name="checkbox-outline" size={24} color={COLORS.skill.writing} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.benefitTitle}>Direct Weakness Focus</Text>
-                    <Text style={styles.benefitDesc}>Get specialized drills to quickly scale your writing & reading levels.</Text>
+                    <Text style={styles.benefitDesc}>
+                      Get specialized drills to quickly scale your writing & reading levels.
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -331,11 +351,7 @@ export default function OnboardingScreen() {
               variant="primary"
               size="lg"
             />
-            <TouchableOpacity 
-              style={styles.skipPitchBtn} 
-              onPress={handleFinish} 
-              disabled={saving}
-            >
+            <TouchableOpacity style={styles.skipPitchBtn} onPress={handleFinish} disabled={saving}>
               {saving ? (
                 <ActivityIndicator size="small" color={COLORS.textMuted} />
               ) : (
@@ -352,12 +368,7 @@ export default function OnboardingScreen() {
               </TouchableOpacity>
             )}
             <View style={{ flex: 1 }}>
-              <Button
-                title="Continue"
-                onPress={handleNext}
-                variant="primary"
-                size="lg"
-              />
+              <Button title="Continue" onPress={handleNext} variant="primary" size="lg" />
             </View>
           </View>
         )}

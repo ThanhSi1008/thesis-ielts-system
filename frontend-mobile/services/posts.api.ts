@@ -39,7 +39,9 @@ export const postsApi = {
     return apiClient.get<PostListResponse>(`/posts${qs ? `?${qs}` : ''}`);
   },
 
-  getBookmarks: async (params?: Omit<PostListParams, 'bookmarkedOnly'>): Promise<PostListResponse> => {
+  getBookmarks: async (
+    params?: Omit<PostListParams, 'bookmarkedOnly'>,
+  ): Promise<PostListResponse> => {
     return postsApi.listPosts({ ...params, bookmarkedOnly: true });
   },
 

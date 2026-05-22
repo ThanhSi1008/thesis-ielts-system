@@ -17,7 +17,8 @@ import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-nat
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ieltsAdvancedApi } from '@/services';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, StatsSkeleton } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W - SPACING.lg * 2;
@@ -25,10 +26,25 @@ const CHART_W = CARD_W - SPACING.lg * 2;
 const CHART_H = 160;
 
 const SKILLS = [
-  { key: 'listening', label: 'Listening', color: COLORS.skill.listening, icon: 'headset-outline' as const },
+  {
+    key: 'listening',
+    label: 'Listening',
+    color: COLORS.skill.listening,
+    icon: 'headset-outline' as const,
+  },
   { key: 'reading', label: 'Reading', color: COLORS.skill.reading, icon: 'book-outline' as const },
-  { key: 'writing', label: 'Writing', color: COLORS.skill.writing, icon: 'create-outline' as const },
-  { key: 'speaking', label: 'Speaking', color: COLORS.skill.speaking, icon: 'mic-outline' as const },
+  {
+    key: 'writing',
+    label: 'Writing',
+    color: COLORS.skill.writing,
+    icon: 'create-outline' as const,
+  },
+  {
+    key: 'speaking',
+    label: 'Speaking',
+    color: COLORS.skill.speaking,
+    icon: 'mic-outline' as const,
+  },
 ] as const;
 
 type SkillKey = (typeof SKILLS)[number]['key'];
@@ -92,10 +108,13 @@ function extractWritingCriteria(h: any) {
     const raw = typeof h.feedback === 'string' ? JSON.parse(h.feedback) : h.feedback;
     const task1 = raw.task1 ?? (h.prompt?.taskType === 'TASK1' ? raw : null);
     const task2 = raw.task2 ?? (h.prompt?.taskType === 'TASK2' ? raw : null);
-    
-    let ta = 0, cc = 0, lr = 0, gra = 0;
+
+    let ta = 0,
+      cc = 0,
+      lr = 0,
+      gra = 0;
     let count = 0;
-    
+
     if (task1?.criteria) {
       const c = task1.criteria;
       ta += c.task_achievement?.band ?? 0;
@@ -112,21 +131,22 @@ function extractWritingCriteria(h: any) {
       gra += c.grammatical_range_and_accuracy?.band ?? 0;
       count++;
     }
-    
+
     if (count > 0) {
       return { ta: ta / count, cc: cc / count, lr: lr / count, gra: gra / count };
     }
-    
+
     if (raw.criteria) {
       const c = raw.criteria;
       return {
         ta: c.task_achievement?.band ?? raw.task_achievement?.band ?? 0,
         cc: c.coherence_and_cohesion?.band ?? raw.coherence_and_cohesion?.band ?? 0,
         lr: c.lexical_resource?.band ?? raw.lexical_resource?.band ?? 0,
-        gra: c.grammatical_range_and_accuracy?.band ?? raw.grammatical_range_and_accuracy?.band ?? 0,
+        gra:
+          c.grammatical_range_and_accuracy?.band ?? raw.grammatical_range_and_accuracy?.band ?? 0,
       };
     }
-    
+
     return {
       ta: raw.task_achievement?.band ?? raw.ta?.band ?? raw.task_response?.band ?? 0,
       cc: raw.coherence_and_cohesion?.band ?? raw.cc?.band ?? 0,
@@ -167,7 +187,9 @@ function BandChart({
   if (points.length < 2) {
     return (
       <View style={chartStyles.empty}>
-        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>Not enough sessions completed yet (min. 2)</Text>
+        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>
+          Not enough sessions completed yet (min. 2)
+        </Text>
       </View>
     );
   }
@@ -271,7 +293,7 @@ function BarChart({
   const PAD_B = 24;
   const PAD_L = 32;
   const PAD_R = 8;
-  
+
   const w = CHART_W - PAD_L - PAD_R;
   const h = BAR_H - PAD_T - PAD_B;
   const colW = w / data.length;
@@ -280,7 +302,9 @@ function BarChart({
   if (data.length === 0) {
     return (
       <View style={chartStyles.empty}>
-        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>No data available for criteria analysis</Text>
+        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>
+          No data available for criteria analysis
+        </Text>
       </View>
     );
   }
@@ -327,25 +351,9 @@ function BarChart({
           return (
             <G key={item.label}>
               {/* Background Track */}
-              <Rect
-                x={x}
-                y={PAD_T}
-                width={barWidth}
-                height={h}
-                rx={4}
-                fill={color + '0E'}
-              />
+              <Rect x={x} y={PAD_T} width={barWidth} height={h} rx={4} fill={color + '0E'} />
               {/* Filled Bar */}
-              {barH > 0 && (
-                <Rect
-                  x={x}
-                  y={y}
-                  width={barWidth}
-                  height={barH}
-                  rx={4}
-                  fill={color}
-                />
-              )}
+              {barH > 0 && <Rect x={x} y={y} width={barWidth} height={barH} rx={4} fill={color} />}
               {/* Value Label above Bar */}
               {item.value > 0 && (
                 <SvgText
@@ -404,7 +412,9 @@ function DonutChart({
   if (slices.length === 0 || totalAttempted === 0) {
     return (
       <View style={chartStyles.empty}>
-        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>No question-type breakdown available</Text>
+        <Text style={[chartStyles.emptyText, { color: colors.textSecondary }]}>
+          No question-type breakdown available
+        </Text>
       </View>
     );
   }
@@ -435,7 +445,7 @@ function DonutChart({
             {slices.map((slice) => {
               const sliceLength = slice.share * C;
               const strokeDasharray = `${sliceLength} ${C}`;
-              const strokeDashoffset = C - (accumulatedPercent * C);
+              const strokeDashoffset = C - accumulatedPercent * C;
               accumulatedPercent += slice.share;
 
               return (
@@ -455,11 +465,13 @@ function DonutChart({
             })}
           </G>
         </Svg>
-        
+
         {/* Core display */}
         <View style={donutStyles.centerLabel}>
           <Text style={[donutStyles.overallPctText, { color: colors.text }]}>{overallPct}%</Text>
-          <Text style={[donutStyles.overallSubText, { color: colors.textSecondary }]}>Accuracy</Text>
+          <Text style={[donutStyles.overallSubText, { color: colors.textSecondary }]}>
+            Accuracy
+          </Text>
         </View>
       </View>
 
@@ -489,7 +501,7 @@ export default function StatisticsScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const [activeSkill, setActiveSkill] = useState<SkillKey>('listening');
-  
+
   // States
   const [histories, setHistories] = useState<Record<SkillKey, any[]>>({
     listening: [],
@@ -511,33 +523,36 @@ export default function StatisticsScreen() {
     return SKILLS.find((s) => s.key === activeSkill)?.color ?? COLORS.primary;
   }, [activeSkill]);
 
-  const loadData = useCallback(async (skill: SkillKey, isRefresh = false) => {
-    if (!isRefresh && histories[skill].length > 0) return; // cache
+  const loadData = useCallback(
+    async (skill: SkillKey, isRefresh = false) => {
+      if (!isRefresh && histories[skill].length > 0) return; // cache
 
-    setLoadingMap((prev) => ({ ...prev, [skill]: !isRefresh }));
-    try {
-      let data: any[] = [];
-      if (skill === 'listening') {
-        data = await ieltsAdvancedApi.getListeningHistory();
-      } else if (skill === 'reading') {
-        data = await ieltsAdvancedApi.getReadingHistory();
-      } else if (skill === 'writing') {
-        data = await ieltsAdvancedApi.getWritingHistory();
-      } else if (skill === 'speaking') {
-        data = await ieltsAdvancedApi.getSpeakingHistory();
+      setLoadingMap((prev) => ({ ...prev, [skill]: !isRefresh }));
+      try {
+        let data: any[] = [];
+        if (skill === 'listening') {
+          data = await ieltsAdvancedApi.getListeningHistory();
+        } else if (skill === 'reading') {
+          data = await ieltsAdvancedApi.getReadingHistory();
+        } else if (skill === 'writing') {
+          data = await ieltsAdvancedApi.getWritingHistory();
+        } else if (skill === 'speaking') {
+          data = await ieltsAdvancedApi.getSpeakingHistory();
+        }
+
+        setHistories((prev) => ({
+          ...prev,
+          [skill]: Array.isArray(data) ? data : [],
+        }));
+      } catch (err) {
+        if (__DEV__) console.error(`[AdvancedStats] Fetch history for ${skill} failed:`, err);
+      } finally {
+        setLoadingMap((prev) => ({ ...prev, [skill]: false }));
+        if (isRefresh) setRefreshing(false);
       }
-      
-      setHistories((prev) => ({
-        ...prev,
-        [skill]: Array.isArray(data) ? data : [],
-      }));
-    } catch (err) {
-      console.error(`[AdvancedStats] Fetch history for ${skill} failed:`, err);
-    } finally {
-      setLoadingMap((prev) => ({ ...prev, [skill]: false }));
-      if (isRefresh) setRefreshing(false);
-    }
-  }, [histories]);
+    },
+    [histories],
+  );
 
   // Lazy tabs trigger
   useEffect(() => {
@@ -558,7 +573,7 @@ export default function StatisticsScreen() {
   const skillTrendData = useMemo(() => {
     if (!activeHistory || activeHistory.length === 0) return [];
     const sorted = [...activeHistory].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
     const limited = sorted.slice(-10);
     return limited.map((h) => {
@@ -574,11 +589,14 @@ export default function StatisticsScreen() {
   // Criteria averages Bar Chart (W/S)
   const criteriaData = useMemo(() => {
     if (activeSkill !== 'writing' && activeSkill !== 'speaking') return [];
-    
+
     if (activeSkill === 'writing') {
-      let sumTA = 0, sumCC = 0, sumLR = 0, sumGRA = 0;
+      let sumTA = 0,
+        sumCC = 0,
+        sumLR = 0,
+        sumGRA = 0;
       let count = 0;
-      
+
       activeHistory.forEach((h) => {
         const criteria = extractWritingCriteria(h);
         if (criteria) {
@@ -589,13 +607,13 @@ export default function StatisticsScreen() {
           count++;
         }
       });
-      
+
       if (count === 0) return [];
       const avgTA = Number((sumTA / count).toFixed(1));
       const avgCC = Number((sumCC / count).toFixed(1));
       const avgLR = Number((sumLR / count).toFixed(1));
       const avgGRA = Number((sumGRA / count).toFixed(1));
-      
+
       return [
         { label: 'TA', value: avgTA, displayValue: avgTA.toFixed(1) },
         { label: 'C&C', value: avgCC, displayValue: avgCC.toFixed(1) },
@@ -603,9 +621,12 @@ export default function StatisticsScreen() {
         { label: 'GRA', value: avgGRA, displayValue: avgGRA.toFixed(1) },
       ];
     } else {
-      let sumFC = 0, sumLR = 0, sumGRA = 0, sumPRO = 0;
+      let sumFC = 0,
+        sumLR = 0,
+        sumGRA = 0,
+        sumPRO = 0;
       let count = 0;
-      
+
       activeHistory.forEach((h) => {
         const criteria = extractSpeakingCriteria(h);
         if (criteria) {
@@ -616,13 +637,13 @@ export default function StatisticsScreen() {
           count++;
         }
       });
-      
+
       if (count === 0) return [];
       const avgFC = Number((sumFC / count).toFixed(1));
       const avgLR = Number((sumLR / count).toFixed(1));
       const avgGRA = Number((sumGRA / count).toFixed(1));
       const avgPRO = Number((sumPRO / count).toFixed(1));
-      
+
       return [
         { label: 'F&C', value: avgFC, displayValue: avgFC.toFixed(1) },
         { label: 'LR', value: avgLR, displayValue: avgLR.toFixed(1) },
@@ -636,7 +657,7 @@ export default function StatisticsScreen() {
   const partsData = useMemo(() => {
     if (activeSkill !== 'listening' && activeSkill !== 'reading') return [];
     const sums: Record<number, { correct: number; total: number }> = {};
-    
+
     activeHistory.forEach((h) => {
       const partNum = h.part?.partNumber ?? h.practicePart;
       if (!partNum) return;
@@ -646,7 +667,7 @@ export default function StatisticsScreen() {
       sums[partNum].correct += h.totalScore ?? 0;
       sums[partNum].total += h.totalQuestions ?? 0;
     });
-    
+
     const maxPart = activeSkill === 'listening' ? 4 : 3;
     const list: BarChartData[] = [];
     for (let p = 1; p <= maxPart; p++) {
@@ -666,17 +687,16 @@ export default function StatisticsScreen() {
     if (activeSkill !== 'listening' && activeSkill !== 'reading') {
       return { slices: [], totalCorrect: 0, totalAttempted: 0 };
     }
-    
+
     const aggregated: Record<string, { correct: number; total: number }> = {};
     activeHistory.forEach((session) => {
       if (!session.scoreData) return;
       try {
-        const data = typeof session.scoreData === 'string' 
-          ? JSON.parse(session.scoreData) 
-          : session.scoreData;
-        
+        const data =
+          typeof session.scoreData === 'string' ? JSON.parse(session.scoreData) : session.scoreData;
+
         if (!data) return;
-        
+
         for (const [type, stats] of Object.entries(data)) {
           const correct = (stats as any).correct ?? 0;
           const total = (stats as any).total ?? 0;
@@ -700,7 +720,13 @@ export default function StatisticsScreen() {
     const totalCorrect = entries.reduce((s, [, v]) => s + v.correct, 0);
 
     const DONUT_COLORS = [
-      '#2563EB', '#10B981', '#D97706', '#7C3AED', '#EC4899', '#06B6D4', '#F43F5E'
+      '#2563EB',
+      '#10B981',
+      '#D97706',
+      '#7C3AED',
+      '#EC4899',
+      '#06B6D4',
+      '#F43F5E',
     ];
 
     const slices: DonutSlice[] = entries.map(([type, v], index) => {
@@ -726,7 +752,7 @@ export default function StatisticsScreen() {
     if (!activeHistory || activeHistory.length === 0) return null;
 
     const count = activeHistory.length;
-    const bands = activeHistory.map(h => getBandForSession(h, activeSkill));
+    const bands = activeHistory.map((h) => getBandForSession(h, activeSkill));
     const avgBand = Number((bands.reduce((sum, b) => sum + b, 0) / count).toFixed(2));
     const maxBand = Math.max(...bands);
 
@@ -738,7 +764,7 @@ export default function StatisticsScreen() {
       const totalCorrect = activeHistory.reduce((sum, h) => sum + (h.totalScore ?? 0), 0);
       const totalQs = activeHistory.reduce((sum, h) => sum + (h.totalQuestions ?? 0), 0);
       const overallAccuracy = totalQs > 0 ? Math.round((totalCorrect / totalQs) * 100) : 0;
-      
+
       customMetric1 = { label: 'Overall Acc.', value: `${overallAccuracy}%` };
       highlightText = `Attempted ${totalQs} questions across ${count} advanced sessions.`;
     } else {
@@ -747,7 +773,7 @@ export default function StatisticsScreen() {
         const sorted = [...criteria].sort((a, b) => b.value - a.value);
         const strongest = sorted[0];
         const weakest = sorted[sorted.length - 1];
-        
+
         if (strongest && strongest.value > 0) {
           customMetric1 = { label: 'Strongest', value: strongest.label };
         }
@@ -767,7 +793,10 @@ export default function StatisticsScreen() {
   }, [activeHistory, activeSkill, criteriaData]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top', 'bottom']}
+    >
       {/* Header */}
       <View style={[styles.header, { backgroundColor: activeColor }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
@@ -778,7 +807,9 @@ export default function StatisticsScreen() {
       </View>
 
       {/* Skills Tab List */}
-      <View style={[styles.tabContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <View
+        style={[styles.tabContainer, { backgroundColor: colors.card, borderColor: colors.border }]}
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -818,27 +849,20 @@ export default function StatisticsScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={activeColor} />
-          <Text style={[styles.loadingText, { color: activeColor }]}>
-            Loading stats for {activeSkill}...
-          </Text>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <StatsSkeleton />
+        </ScrollView>
       ) : activeHistory.length === 0 ? (
         <ScrollView
           contentContainerStyle={styles.center}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={activeColor}
-            />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={activeColor} />
           }
         >
           <EmptyState
-            icon="📊"
+            illustration={EmptyStates.leaderboard}
             title="No sessions found"
-            subtitle={`You haven't completed any advanced ${activeSkill} sessions yet.`}
+            description={`You haven't completed any advanced ${activeSkill} sessions yet.`}
           />
         </ScrollView>
       ) : (
@@ -846,92 +870,138 @@ export default function StatisticsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={activeColor}
-            />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={activeColor} />
           }
         >
           {/* Summary Overview Card */}
           {summaryMetrics && (
-            <View style={[styles.summaryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View
+              style={[
+                styles.summaryCard,
+                { backgroundColor: colors.card, borderColor: colors.border },
+              ]}
+            >
               <View style={[styles.summaryRow, { borderColor: colors.border }]}>
                 <View style={styles.summaryLeft}>
-                  <Text style={[styles.summaryTitle, { color: colors.text }]}>Overall Performance</Text>
-                  <Text style={[styles.summarySub, { color: colors.textSecondary }]}>{summaryMetrics.highlightText}</Text>
+                  <Text style={[styles.summaryTitle, { color: colors.text }]}>
+                    Overall Performance
+                  </Text>
+                  <Text style={[styles.summarySub, { color: colors.textSecondary }]}>
+                    {summaryMetrics.highlightText}
+                  </Text>
                 </View>
-                <View style={[styles.summaryBadge, { backgroundColor: activeColor + (isDark ? '25' : '10') }]}>
+                <View
+                  style={[
+                    styles.summaryBadge,
+                    { backgroundColor: activeColor + (isDark ? '25' : '10') },
+                  ]}
+                >
                   <Text style={[styles.summaryBadgeScore, { color: activeColor }]}>
                     {summaryMetrics.avgBand.toFixed(1)}
                   </Text>
-                  <Text style={[styles.summaryBadgeLabel, { color: colors.textSecondary }]}>Avg. Band</Text>
+                  <Text style={[styles.summaryBadgeLabel, { color: colors.textSecondary }]}>
+                    Avg. Band
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.metricsRow}>
                 <View style={styles.metricItem}>
-                  <Text style={[styles.metricVal, { color: colors.text }]}>{summaryMetrics.customMetric1.value}</Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{summaryMetrics.customMetric1.label}</Text>
+                  <Text style={[styles.metricVal, { color: colors.text }]}>
+                    {summaryMetrics.customMetric1.value}
+                  </Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
+                    {summaryMetrics.customMetric1.label}
+                  </Text>
                 </View>
                 <View style={[styles.metricItem, styles.metricMid, { borderColor: colors.border }]}>
-                  <Text style={[styles.metricVal, { color: colors.text }]}>{activeHistory.length}</Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Sessions</Text>
+                  <Text style={[styles.metricVal, { color: colors.text }]}>
+                    {activeHistory.length}
+                  </Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
+                    Sessions
+                  </Text>
                 </View>
                 <View style={styles.metricItem}>
-                  <Text style={[styles.metricVal, { color: colors.text }]}>{summaryMetrics.customMetric2.value}</Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{summaryMetrics.customMetric2.label}</Text>
+                  <Text style={[styles.metricVal, { color: colors.text }]}>
+                    {summaryMetrics.customMetric2.value}
+                  </Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
+                    {summaryMetrics.customMetric2.label}
+                  </Text>
                 </View>
               </View>
             </View>
           )}
 
           {/* Line Chart: Band score trend */}
-          <View style={[styles.chartSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View
+            style={[
+              styles.chartSection,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+          >
             <View style={styles.chartHeader}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Band Score Trend</Text>
-              <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>Progress over last 10 sessions</Text>
+              <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
+                Progress over last 10 sessions
+              </Text>
             </View>
             <BandChart points={skillTrendData} color={activeColor} />
           </View>
 
           {/* Bar Chart: Part Accuracy (L/R) vs Criteria averages (W/S) */}
-          <View style={[styles.chartSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View
+            style={[
+              styles.chartSection,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+          >
             <View style={styles.chartHeader}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                {activeSkill === 'listening' || activeSkill === 'reading' 
-                  ? 'Part Accuracy Breakdown' 
-                  : 'Rubric Criteria Averages'
-                }
+                {activeSkill === 'listening' || activeSkill === 'reading'
+                  ? 'Part Accuracy Breakdown'
+                  : 'Rubric Criteria Averages'}
               </Text>
               <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
                 {activeSkill === 'listening' || activeSkill === 'reading'
                   ? 'Average percentage correct per part'
-                  : 'Average band score across core assessment parameters'
-                }
+                  : 'Average band score across core assessment parameters'}
               </Text>
             </View>
-            <BarChart 
-              data={activeSkill === 'listening' || activeSkill === 'reading' ? partsData : criteriaData} 
+            <BarChart
+              data={
+                activeSkill === 'listening' || activeSkill === 'reading' ? partsData : criteriaData
+              }
               color={activeColor}
               maxScale={activeSkill === 'listening' || activeSkill === 'reading' ? 100 : 9}
             />
           </View>
 
           {/* Donut Chart: Question type breakdown (L/R only) */}
-          {(activeSkill === 'listening' || activeSkill === 'reading') && donutData.slices.length > 0 && (
-            <View style={[styles.chartSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <View style={styles.chartHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Question Type Breakdown</Text>
-                <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>Attempt ratio and correctness per question category</Text>
+          {(activeSkill === 'listening' || activeSkill === 'reading') &&
+            donutData.slices.length > 0 && (
+              <View
+                style={[
+                  styles.chartSection,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                ]}
+              >
+                <View style={styles.chartHeader}>
+                  <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                    Question Type Breakdown
+                  </Text>
+                  <Text style={[styles.sectionSub, { color: colors.textSecondary }]}>
+                    Attempt ratio and correctness per question category
+                  </Text>
+                </View>
+                <DonutChart
+                  slices={donutData.slices}
+                  totalCorrect={donutData.totalCorrect}
+                  totalAttempted={donutData.totalAttempted}
+                />
               </View>
-              <DonutChart 
-                slices={donutData.slices}
-                totalCorrect={donutData.totalCorrect}
-                totalAttempted={donutData.totalAttempted}
-              />
-            </View>
-          )}
+            )}
         </ScrollView>
       )}
     </SafeAreaView>
@@ -1063,7 +1133,7 @@ const styles = StyleSheet.create({
   tabChipText: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.semibold, color: COLORS.textSecondary },
 
   scrollContent: { padding: SPACING.lg, paddingBottom: 120, gap: SPACING.lg },
-  
+
   summaryCard: {
     backgroundColor: '#fff',
     borderRadius: RADIUS.xl,

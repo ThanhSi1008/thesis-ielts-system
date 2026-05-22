@@ -38,7 +38,8 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
   const options: any[] = group.options || [];
   const optionLetters: string[] = options.map((o: any) => o.letter);
   const typeLabel = LABEL_BY_TYPE[group.type] ?? group.type?.replace(/_/g, ' ');
-  const instruction = group.instruction || group.instructions || DEFAULT_INSTRUCTION[group.type] || '';
+  const instruction =
+    group.instruction || group.instructions || DEFAULT_INSTRUCTION[group.type] || '';
   const qNums = questions.map((q: any) => q.question_number);
 
   return (
@@ -68,7 +69,13 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
               key={q.question_number}
               style={{
                 backgroundColor: submitted
-                  ? isCorrect ? (isDark ? colors.successBg : '#F0FDF4') : (isDark ? colors.errorBg : '#FFF5F5')
+                  ? isCorrect
+                    ? isDark
+                      ? colors.successBg
+                      : '#F0FDF4'
+                    : isDark
+                      ? colors.errorBg
+                      : '#FFF5F5'
                   : colors.card,
                 borderRadius: RADIUS.lg,
                 borderWidth: 1,
@@ -80,7 +87,15 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                 <View style={styles.qNumBadge}>
                   <Text style={styles.qNumBadgeText}>{q.question_number}</Text>
                 </View>
-                <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 22, fontWeight: '500' }}>
+                <Text
+                  style={{
+                    flex: 1,
+                    fontSize: FONT_SIZES.sm,
+                    color: colors.text,
+                    lineHeight: 22,
+                    fontWeight: '500',
+                  }}
+                >
                   {q.text}
                 </Text>
               </View>
@@ -89,7 +104,8 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {optionLetters.map((letter) => {
                     const isSelected = selected === letter.toUpperCase();
-                    const isCorrectCell = submitted && letter.toUpperCase() === q.answer?.toUpperCase();
+                    const isCorrectCell =
+                      submitted && letter.toUpperCase() === q.answer?.toUpperCase();
                     let bg: string = colors.card;
                     let border: string = colors.border;
                     let textColor: string = colors.text;
@@ -123,7 +139,9 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
                           justifyContent: 'center',
                         }}
                       >
-                        <Text style={{ fontSize: FONT_SIZES.md, fontWeight: '800', color: textColor }}>
+                        <Text
+                          style={{ fontSize: FONT_SIZES.md, fontWeight: '800', color: textColor }}
+                        >
                           {letter}
                         </Text>
                       </TouchableOpacity>
@@ -139,11 +157,18 @@ export function ReadingMatchingGroupView({ group, answers, submitted, onAnswer }
               )}
 
               {submitted && q.explanation && showExplanation === q.question_number && (
-                <ExplanationView explanation={getExplanationText(q.explanation)} isCorrect={isCorrect} />
+                <ExplanationView
+                  explanation={getExplanationText(q.explanation)}
+                  isCorrect={isCorrect}
+                />
               )}
               {submitted && q.explanation && (
                 <TouchableOpacity
-                  onPress={() => setShowExplanation(showExplanation === q.question_number ? null : q.question_number)}
+                  onPress={() =>
+                    setShowExplanation(
+                      showExplanation === q.question_number ? null : q.question_number,
+                    )
+                  }
                   style={{
                     marginTop: 8,
                     alignSelf: 'flex-start',

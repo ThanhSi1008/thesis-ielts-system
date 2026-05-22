@@ -17,7 +17,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
-import { EmptyState, Button } from '@/components/ui';
+import { EmptyState, Button, DeckCardSkeleton, ConfirmDialog } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 import { useTheme } from '@/contexts/ThemeContext';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -32,7 +33,14 @@ type ActionMenuProps = {
   onPublish: () => void;
 };
 
-function DeckActionMenu({ visible, deck, onClose, onRename, onDelete, onPublish }: ActionMenuProps) {
+function DeckActionMenu({
+  visible,
+  deck,
+  onClose,
+  onRename,
+  onDelete,
+  onPublish,
+}: ActionMenuProps) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Pressable style={m.overlay} onPress={onClose}>
@@ -201,6 +209,7 @@ export function DecksTab() {
   const [actionDeck, setActionDeck] = useState<any>(null);
   const [renameModalVisible, setRenameModalVisible] = useState(false);
   const [publishModalVisible, setPublishModalVisible] = useState(false);
+  const [deleteDeck, setDeleteDeck] = useState<any>(null);
 
   // Import file modal
   const [lexonData, setLexonData] = useState<any>(null);
@@ -254,7 +263,13 @@ export function DecksTab() {
       const fileContent = await FileSystem.readAsStringAsync(fileUri);
       const parsed = JSON.parse(fileContent);
 
-      if (!parsed || typeof parsed !== 'object' || !parsed.deck || !parsed.cards || !Array.isArray(parsed.cards)) {
+      if (
+        !parsed ||
+        typeof parsed !== 'object' ||
+        !parsed.deck ||
+        !parsed.cards ||
+        !Array.isArray(parsed.cards)
+      ) {
         Alert.alert('Invalid Format', 'This file is not a valid Vocab Lab deck file.');
         return;
       }
@@ -281,7 +296,7 @@ export function DecksTab() {
       const res = await vocabLabApi.importDeck(payload);
       Alert.alert(
         'Import Success',
-        `Successfully imported deck "${res.deckName}" with ${res.cardsImported} cards!`
+        `Successfully imported deck "${res.deckName}" with ${res.cardsImported} cards!`,
       );
       setImportModalVisible(false);
       setLexonData(null);
@@ -296,26 +311,16 @@ export function DecksTab() {
 
   const handleDelete = (deck: any) => {
     setActionDeck(null);
-    Alert.alert('Delete Deck', `Delete "${deck.name}"? All cards will be removed.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          await vocabLabApi.deleteDeck(deck.id);
-          fetchData();
-        },
-      },
-    ]);
+    setDeleteDeck(deck);
   };
 
   const openActionMenu = (deck: any) => setActionDeck(deck);
 
   if (loading)
     return (
-      <View style={s.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </View>
+      <ScrollView contentContainerStyle={{ padding: SPACING.lg }}>
+        <DeckCardSkeleton count={3} />
+      </ScrollView>
     );
 
   return (
@@ -349,7 +354,10 @@ export function DecksTab() {
 
       {/* Action buttons row */}
       <View style={s.actionHeaderRow}>
-        <TouchableOpacity style={[s.importDeckBtn, { backgroundColor: colors.card }]} onPress={handleImportFile}>
+        <TouchableOpacity
+          style={[s.importDeckBtn, { backgroundColor: colors.card }]}
+          onPress={handleImportFile}
+        >
           <Ionicons name="download-outline" size={16} color={COLORS.primary} />
           <Text style={s.importDeckBtnText}>Import Deck</Text>
         </TouchableOpacity>
@@ -362,10 +370,10 @@ export function DecksTab() {
       {/* Deck list */}
       {decks.length === 0 ? (
         <EmptyState
-          icon="📦"
+          illustration={EmptyStates.deck}
           title="No decks yet"
-          subtitle="Create your first flashcard deck."
-          action={{ label: 'Create Deck', onPress: () => setCreateModal(true) }}
+          description="Create your first flashcard deck to start learning vocabulary."
+          primaryAction={{ title: 'Create Deck', onPress: () => setCreateModal(true) }}
         />
       ) : (
         decks.map((deck) => {
@@ -510,6 +518,26 @@ export function DecksTab() {
         lexonData={lexonData}
         isImporting={importing}
         existingDeckNames={decks.map((d) => d.name)}
+      />
+      <ConfirmDialog
+        visible={!!deleteDeck}
+        onClose={() => setDeleteDeck(null)}
+        variant="destructive"
+        title="Delete Deck"
+        message={`Delete "${deleteDeck?.name}"? All cards will be removed.`}
+        primaryAction={{
+          title: 'Delete',
+          onPress: async () => {
+            if (!deleteDeck) return;
+            await vocabLabApi.deleteDeck(deleteDeck.id);
+            setDeleteDeck(null);
+            fetchData();
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setDeleteDeck(null),
+        }}
       />
     </ScrollView>
   );

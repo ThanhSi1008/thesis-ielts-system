@@ -1,5 +1,6 @@
-import ShadowingScreen from '../shadowing/index';
+import React from 'react';
+import { Redirect } from 'expo-router';
 
-export default function TabShadowing() {
-  return <ShadowingScreen />;
+export default function TabShadowingRedirect() {
+  return <Redirect href="/practice-tools/shadowing" />;
 }

@@ -30,7 +30,13 @@ interface UseGradingPollOptions {
   pollFn?: (sessionId: string) => Promise<any>;
 }
 
-export function useGradingPoll({ sessionId, enabled, onDone, onError, pollFn }: UseGradingPollOptions) {
+export function useGradingPoll({
+  sessionId,
+  enabled,
+  onDone,
+  onError,
+  pollFn,
+}: UseGradingPollOptions) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const attemptsRef = useRef(0);
   const doneCalledRef = useRef(false);
@@ -60,7 +66,7 @@ export function useGradingPoll({ sessionId, enabled, onDone, onError, pollFn }: 
       }
 
       try {
-        const session = pollFn 
+        const session = pollFn
           ? await pollFn(sessionId)
           : await ieltsExamsApi.getSession(sessionId);
 

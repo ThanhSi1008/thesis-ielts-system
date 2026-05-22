@@ -89,77 +89,86 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   const [dataLoaded, setDataLoaded] = useState(false);
 
   // Open / close animations
-  const openSheet = useCallback((prefill?: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
-    const prefillData = (prefill && typeof prefill === 'object' && 'front' in prefill) ? prefill : undefined;
+  const openSheet = useCallback(
+    (prefill?: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+      const prefillData =
+        prefill && typeof prefill === 'object' && 'front' in prefill ? prefill : undefined;
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setOpen(true);
-    Animated.parallel([
-      Animated.spring(slideAnim, { toValue: 0, tension: 65, friction: 11, useNativeDriver: true }),
-      Animated.spring(fabScale, {
-        toValue: 0.92,
-        tension: 200,
-        friction: 10,
-        useNativeDriver: true,
-      }),
-    ]).start();
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      setOpen(true);
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          tension: 65,
+          friction: 11,
+          useNativeDriver: true,
+        }),
+        Animated.spring(fabScale, {
+          toValue: 0.92,
+          tension: 200,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
-    const loadAndPrefill = async () => {
-      let currentDecks = decks;
-      let currentCardTypes = cardTypes;
+      const loadAndPrefill = async () => {
+        let currentDecks = decks;
+        let currentCardTypes = cardTypes;
 
-      if (!dataLoaded) {
-        try {
-          const [d, ct] = await Promise.all([vocabLabApi.getDecks(), vocabLabApi.getCardTypes()]);
-          currentDecks = d;
-          currentCardTypes = ct;
-          setDecks(d);
-          setCardTypes(ct);
-          if (d.length > 0) setSelectedDeckId(d[0].id);
-          setDataLoaded(true);
-        } catch (e) {
-          console.error('Failed to load decks/cardTypes in Fab', e);
-        }
-      }
-
-      if (currentCardTypes.length > 0) {
-        const dt = currentCardTypes.find((t) => t.isBuiltIn) || currentCardTypes[0];
-        setCardTypeId(dt.id);
-        
-        const sortedFields = [...dt.fields].sort((a: any, b: any) => a.order - b.order);
-        const iv: Record<string, string> = {};
-        dt.fields.forEach((f: any) => (iv[f.id] = ''));
-        
-        if (prefillData) {
-          if (sortedFields[0]) {
-            iv[sortedFields[0].id] = prefillData.front;
+        if (!dataLoaded) {
+          try {
+            const [d, ct] = await Promise.all([vocabLabApi.getDecks(), vocabLabApi.getCardTypes()]);
+            currentDecks = d;
+            currentCardTypes = ct;
+            setDecks(d);
+            setCardTypes(ct);
+            if (d.length > 0) setSelectedDeckId(d[0].id);
+            setDataLoaded(true);
+          } catch (e) {
+            if (__DEV__) console.error('Failed to load decks/cardTypes in Fab', e);
           }
-          if (sortedFields[1]) {
-            let backVal = prefillData.back;
-            if (prefillData.audioUrl) {
-              backVal = `${backVal}\n<audio src="${prefillData.audioUrl}"></audio>`;
+        }
+
+        if (currentCardTypes.length > 0) {
+          const dt = currentCardTypes.find((t) => t.isBuiltIn) || currentCardTypes[0];
+          setCardTypeId(dt.id);
+
+          const sortedFields = [...dt.fields].sort((a: any, b: any) => a.order - b.order);
+          const iv: Record<string, string> = {};
+          dt.fields.forEach((f: any) => (iv[f.id] = ''));
+
+          if (prefillData) {
+            if (sortedFields[0]) {
+              iv[sortedFields[0].id] = prefillData.front;
             }
-            iv[sortedFields[1].id] = backVal;
+            if (sortedFields[1]) {
+              let backVal = prefillData.back;
+              if (prefillData.audioUrl) {
+                backVal = `${backVal}\n<audio src="${prefillData.audioUrl}"></audio>`;
+              }
+              iv[sortedFields[1].id] = backVal;
+            }
+            if (prefillData.tags) {
+              setTagsList(prefillData.tags);
+            }
+          } else {
+            setTagsList([]);
           }
-          if (prefillData.tags) {
-            setTagsList(prefillData.tags);
-          }
-        } else {
-          setTagsList([]);
+          setFieldValues(iv);
         }
-        setFieldValues(iv);
-      }
-    };
+      };
 
-    loadAndPrefill();
-  }, [dataLoaded, decks, cardTypes]);
+      loadAndPrefill();
+    },
+    [dataLoaded, decks, cardTypes],
+  );
 
   useEffect(() => {
     const sub = DeviceEventEmitter.addListener(
       'OPEN_QUICK_ADD_CARD',
       (payload: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
         openSheet(payload);
-      }
+      },
     );
     return () => sub.remove();
   }, [openSheet]);

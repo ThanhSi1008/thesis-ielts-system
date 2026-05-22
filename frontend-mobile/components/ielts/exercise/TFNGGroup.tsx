@@ -45,17 +45,33 @@ export function TFNGGroup({ group, answers, submitted, onAnswer }: any) {
 
           return (
             <View key={q.question_number}>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
+              <View
+                style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}
+              >
                 <View
                   style={{
                     minWidth: 24,
                     height: 24,
                     borderRadius: 6,
                     borderWidth: 1,
-                    borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : (isDark ? colors.border : '#BFDBFE'),
+                    borderColor: submitted
+                      ? isCorrect
+                        ? '#86EFAC'
+                        : '#FCA5A5'
+                      : isDark
+                        ? colors.border
+                        : '#BFDBFE',
                     backgroundColor: submitted
-                      ? isCorrect ? (isDark ? colors.successBg : '#DCFCE7') : (isDark ? colors.errorBg : '#FEE2E2')
-                      : isDark ? colors.infoBg : '#EFF6FF',
+                      ? isCorrect
+                        ? isDark
+                          ? colors.successBg
+                          : '#DCFCE7'
+                        : isDark
+                          ? colors.errorBg
+                          : '#FEE2E2'
+                      : isDark
+                        ? colors.infoBg
+                        : '#EFF6FF',
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingHorizontal: 4,
@@ -122,7 +138,12 @@ export function TFNGGroup({ group, answers, submitted, onAnswer }: any) {
                       key={opt}
                       onPress={() => !submitted && onAnswer(q.question_number, opt)}
                       activeOpacity={submitted ? 1 : 0.6}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                        marginBottom: 4,
+                      }}
                     >
                       <View
                         style={{
@@ -137,7 +158,14 @@ export function TFNGGroup({ group, answers, submitted, onAnswer }: any) {
                         }}
                       >
                         {hasFill && (
-                          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: circleBorder }} />
+                          <View
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: 4,
+                              backgroundColor: circleBorder,
+                            }}
+                          />
                         )}
                       </View>
                       <Text
@@ -160,7 +188,11 @@ export function TFNGGroup({ group, answers, submitted, onAnswer }: any) {
               {submitted && q.explanation && (
                 <View style={{ paddingLeft: 32, marginTop: 8 }}>
                   <TouchableOpacity
-                    onPress={() => setShowExplanation(showExplanation === q.question_number ? null : q.question_number)}
+                    onPress={() =>
+                      setShowExplanation(
+                        showExplanation === q.question_number ? null : q.question_number,
+                      )
+                    }
                     style={{
                       alignSelf: 'flex-start',
                       backgroundColor: isDark ? colors.surface : '#F3F4F6',
@@ -184,7 +216,13 @@ export function TFNGGroup({ group, answers, submitted, onAnswer }: any) {
                         padding: SPACING.md,
                       }}
                     >
-                      <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: isDark ? colors.info : '#1E40AF',
+                          lineHeight: 20,
+                        }}
+                      >
                         {getExplanationText(q.explanation)}
                       </Text>
                     </View>

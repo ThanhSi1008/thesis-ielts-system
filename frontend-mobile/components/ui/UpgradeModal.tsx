@@ -64,21 +64,16 @@ export function UpgradeModal() {
             <Ionicons name="close" size={22} color={COLORS.textSecondary} />
           </TouchableOpacity>
 
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.content}
-          >
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
             {/* Visual Gold Crown */}
-            <LinearGradient
-              colors={['#FFE082', '#FFC600', '#FFA000']}
-              style={styles.crownWrapper}
-            >
+            <LinearGradient colors={['#FFE082', '#FFC600', '#FFA000']} style={styles.crownWrapper}>
               <Ionicons name="ribbon" size={28} color="#0F172A" />
             </LinearGradient>
 
             <Text style={styles.title}>Unlock IELTS Master Premium</Text>
             <Text style={styles.subtitle}>
-              Take your exam preparation to the next level with our complete suite of AI-driven premium capabilities.
+              Take your exam preparation to the next level with our complete suite of AI-driven
+              premium capabilities.
             </Text>
 
             {/* Benefits List */}
@@ -89,7 +84,10 @@ export function UpgradeModal() {
                 </View>
                 <View style={styles.benefitTextCol}>
                   <Text style={styles.benefitTitle}>Unlimited AI Essay & Speaking Grading</Text>
-                  <Text style={styles.benefitDesc}>Get detailed IELTS band score breakdown, grammar fixes, and vocab alternatives instantly.</Text>
+                  <Text style={styles.benefitDesc}>
+                    Get detailed IELTS band score breakdown, grammar fixes, and vocab alternatives
+                    instantly.
+                  </Text>
                 </View>
               </View>
 
@@ -99,7 +97,9 @@ export function UpgradeModal() {
                 </View>
                 <View style={styles.benefitTextCol}>
                   <Text style={styles.benefitTitle}>Complete Vocab & Grammar Vaults</Text>
-                  <Text style={styles.benefitDesc}>Unlock community marketplaces, premium flashcards, and advanced exercises.</Text>
+                  <Text style={styles.benefitDesc}>
+                    Unlock community marketplaces, premium flashcards, and advanced exercises.
+                  </Text>
                 </View>
               </View>
 
@@ -109,13 +109,20 @@ export function UpgradeModal() {
                 </View>
                 <View style={styles.benefitTextCol}>
                   <Text style={styles.benefitTitle}>Advanced Shadowing Video Practices</Text>
-                  <Text style={styles.benefitDesc}>Record, repeat, and let the AI grade your pronunciation and fluency in real-time.</Text>
+                  <Text style={styles.benefitDesc}>
+                    Record, repeat, and let the AI grade your pronunciation and fluency in
+                    real-time.
+                  </Text>
                 </View>
               </View>
             </View>
 
             {/* Premium CTA Button */}
-            <TouchableOpacity style={styles.primaryButton} onPress={handleUpgrade} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleUpgrade}
+              activeOpacity={0.8}
+            >
               <LinearGradient
                 colors={['#FFD54F', '#FFC600', '#FFB300']}
                 start={{ x: 0, y: 0 }}
@@ -123,7 +130,12 @@ export function UpgradeModal() {
                 style={styles.gradientButton}
               >
                 <Text style={styles.primaryButtonText}>View Subscription Pricing</Text>
-                <Ionicons name="chevron-forward" size={16} color="#0F172A" style={styles.btnArrow} />
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color="#0F172A"
+                  style={styles.btnArrow}
+                />
               </LinearGradient>
             </TouchableOpacity>
 
@@ -267,4 +279,3 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
 });
-

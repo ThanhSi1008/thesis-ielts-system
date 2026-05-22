@@ -57,8 +57,12 @@ function NoteLine({
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
         <View
           style={{
-            width: 5, height: 5, borderRadius: 3,
-            backgroundColor: colors.textMuted, marginTop: 9, flexShrink: 0,
+            width: 5,
+            height: 5,
+            borderRadius: 3,
+            backgroundColor: colors.textMuted,
+            marginTop: 9,
+            flexShrink: 0,
           }}
         />
         <Text style={{ flex: 1, fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 24 }}>
@@ -72,15 +76,24 @@ function NoteLine({
     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
       <View
         style={{
-          width: 5, height: 5, borderRadius: 3,
-          backgroundColor: colors.textMuted, marginTop: 9, flexShrink: 0,
+          width: 5,
+          height: 5,
+          borderRadius: 3,
+          backgroundColor: colors.textMuted,
+          marginTop: 9,
+          flexShrink: 0,
         }}
       />
-      <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}>
+      <View
+        style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 2 }}
+      >
         {segments.map((seg, si) => {
           if (seg.type === 'text') {
             return (
-              <Text key={si} style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 24 }}>
+              <Text
+                key={si}
+                style={{ fontSize: FONT_SIZES.sm, color: colors.text, lineHeight: 24 }}
+              >
                 {seg.value}
               </Text>
             );
@@ -103,7 +116,13 @@ function NoteLine({
                 borderWidth: 1,
                 borderColor: submitted ? (isCorrect ? '#86EFAC' : '#FCA5A5') : colors.border,
                 backgroundColor: submitted
-                  ? isCorrect ? (isDark ? colors.successBg : '#F0FDF4') : (isDark ? colors.errorBg : '#FFF5F5')
+                  ? isCorrect
+                    ? isDark
+                      ? colors.successBg
+                      : '#F0FDF4'
+                    : isDark
+                      ? colors.errorBg
+                      : '#FFF5F5'
                   : colors.card,
                 borderRadius: RADIUS.sm,
                 paddingHorizontal: 6,
@@ -114,7 +133,8 @@ function NoteLine({
             >
               <Text
                 style={{
-                  fontSize: 10, fontWeight: '700',
+                  fontSize: 10,
+                  fontWeight: '700',
                   color: submitted ? (isCorrect ? '#16A34A' : '#DC2626') : colors.textMuted,
                   marginRight: 4,
                 }}
@@ -126,7 +146,8 @@ function NoteLine({
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <Text
                     style={{
-                      fontSize: 13, fontWeight: '600',
+                      fontSize: 13,
+                      fontWeight: '600',
                       color: isCorrect ? '#15803D' : '#DC2626',
                       textDecorationLine: isCorrect ? 'none' : 'line-through',
                     }}
@@ -141,7 +162,14 @@ function NoteLine({
                 </View>
               ) : (
                 <TextInput
-                  style={{ padding: 0, margin: 0, fontSize: 13, color: colors.text, minWidth: 70, fontWeight: '500' }}
+                  style={{
+                    padding: 0,
+                    margin: 0,
+                    fontSize: 13,
+                    color: colors.text,
+                    minWidth: 70,
+                    fontWeight: '500',
+                  }}
                   value={userAnswer}
                   onChangeText={(v) => onAnswer(qNum, v)}
                   editable={!submitted}
@@ -168,7 +196,8 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
   const qMap: Record<number, any> = Object.fromEntries(
     questions.map((q: any) => [q.question_number, q]),
   );
-  const instruction: string = group.instruction || group.instructions || 'Complete the notes below.';
+  const instruction: string =
+    group.instruction || group.instructions || 'Complete the notes below.';
   const noteTitle: string = group.note_title || group.heading || '';
   const qNums = questions.map((q: any) => q.question_number);
 
@@ -183,7 +212,14 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
         {instruction}
       </Text>
 
-      <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: RADIUS.lg, overflow: 'hidden' }}>
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: RADIUS.lg,
+          overflow: 'hidden',
+        }}
+      >
         {noteTitle ? (
           <View
             style={{
@@ -207,8 +243,11 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
                     <View key={ni} style={{ marginBottom: 14 }}>
                       <Text
                         style={{
-                          fontSize: 13, fontWeight: '600', color: colors.textSecondary,
-                          fontStyle: 'italic', marginBottom: 8,
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: colors.textSecondary,
+                          fontStyle: 'italic',
+                          marginBottom: 8,
                         }}
                       >
                         {entry.subheading}
@@ -216,9 +255,14 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
                       <View style={{ paddingLeft: 4 }}>
                         {entry.points.map((point, pi) => (
                           <NoteLine
-                            key={pi} note={point} qMap={qMap}
-                            answers={answers} submitted={submitted}
-                            onAnswer={onAnswer} colors={colors} isDark={isDark}
+                            key={pi}
+                            note={point}
+                            qMap={qMap}
+                            answers={answers}
+                            submitted={submitted}
+                            onAnswer={onAnswer}
+                            colors={colors}
+                            isDark={isDark}
                           />
                         ))}
                       </View>
@@ -227,9 +271,14 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
                 }
                 return (
                   <NoteLine
-                    key={ni} note={entry as string} qMap={qMap}
-                    answers={answers} submitted={submitted}
-                    onAnswer={onAnswer} colors={colors} isDark={isDark}
+                    key={ni}
+                    note={entry as string}
+                    qMap={qMap}
+                    answers={answers}
+                    submitted={submitted}
+                    onAnswer={onAnswer}
+                    colors={colors}
+                    isDark={isDark}
                   />
                 );
               })
@@ -239,7 +288,12 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
                   return (
                     <Text
                       key={idx}
-                      style={{ fontSize: 13, fontWeight: '700', color: colors.text, marginBottom: 8 }}
+                      style={{
+                        fontSize: 13,
+                        fontWeight: '700',
+                        color: colors.text,
+                        marginBottom: 8,
+                      }}
                     >
                       {point.text}
                     </Text>
@@ -247,9 +301,14 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
                 }
                 return (
                   <NoteLine
-                    key={idx} note={point.text || ''} qMap={qMap}
-                    answers={answers} submitted={submitted}
-                    onAnswer={onAnswer} colors={colors} isDark={isDark}
+                    key={idx}
+                    note={point.text || ''}
+                    qMap={qMap}
+                    answers={answers}
+                    submitted={submitted}
+                    onAnswer={onAnswer}
+                    colors={colors}
+                    isDark={isDark}
                   />
                 );
               })}
@@ -262,13 +321,21 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
             q.explanation ? (
               <View key={q.question_number}>
                 <TouchableOpacity
-                  onPress={() => setShowExplanation(showExplanation === q.question_number ? null : q.question_number)}
+                  onPress={() =>
+                    setShowExplanation(
+                      showExplanation === q.question_number ? null : q.question_number,
+                    )
+                  }
                   style={{
-                    flexDirection: 'row', alignItems: 'center', gap: 6,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
                     alignSelf: 'flex-start',
                     backgroundColor: isDark ? colors.surface : '#F3F4F6',
                     borderRadius: RADIUS.sm,
-                    paddingHorizontal: 10, paddingVertical: 4, marginBottom: 4,
+                    paddingHorizontal: 10,
+                    paddingVertical: 4,
+                    marginBottom: 4,
                   }}
                 >
                   <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textMuted }}>
@@ -289,7 +356,13 @@ export function NoteCompletionGroupView({ group, answers, submitted, onAnswer }:
                       marginBottom: 4,
                     }}
                   >
-                    <Text style={{ fontSize: 13, color: isDark ? colors.info : '#1E40AF', lineHeight: 20 }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: isDark ? colors.info : '#1E40AF',
+                        lineHeight: 20,
+                      }}
+                    >
                       {getExplanationText(q.explanation)}
                     </Text>
                   </View>

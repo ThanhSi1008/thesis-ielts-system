@@ -8,15 +8,16 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
-  Image,
   Animated,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
-import { Chip, EmptyState } from '@/components/ui';
+import { Chip, EmptyState, ExamCardSkeleton } from '@/components';
+import { EmptyStates } from '@/assets/empty-states';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const SKILLS = [
@@ -159,7 +160,12 @@ function AccordionGroup({
     stats: { flexDirection: 'row', gap: SPACING.sm, marginBottom: 6 },
     statPill: { flexDirection: 'row', alignItems: 'center', gap: 3 },
     statText: { fontSize: 10, color: colors.textSecondary },
-    progressTrack: { height: 4, backgroundColor: isDark ? colors.background : colors.border, borderRadius: 2, overflow: 'hidden' },
+    progressTrack: {
+      height: 4,
+      backgroundColor: isDark ? colors.background : colors.border,
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
     progressFill: { height: '100%', borderRadius: 2 },
     testRow: {
       flexDirection: 'row',
@@ -195,7 +201,12 @@ function AccordionGroup({
       paddingVertical: 4,
       minWidth: 56,
     },
-    bandPillLabel: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+    bandPillLabel: {
+      fontSize: 9,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
     bandPillScore: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, lineHeight: 20 },
   });
 
@@ -205,7 +216,7 @@ function AccordionGroup({
       <TouchableOpacity style={acc.header} onPress={onToggle} activeOpacity={0.8}>
         {/* Book cover or placeholder */}
         {group.imageUrl ? (
-          <Image source={{ uri: group.imageUrl }} style={acc.cover} resizeMode="cover" />
+          <Image source={{ uri: group.imageUrl }} style={acc.cover} contentFit="cover" cachePolicy="memory-disk" />
         ) : (
           <View style={acc.coverPlaceholder}>
             <Text style={acc.coverPlaceholderText} numberOfLines={3}>
@@ -322,7 +333,7 @@ export default function IntensiveScreen() {
       const data = await ieltsExamsApi.getIntensiveCatalog(skill);
       setCatalog(data);
     } catch (e) {
-      console.error(e);
+      if (__DEV__) console.error(e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -391,7 +402,11 @@ export default function IntensiveScreen() {
       borderBottomColor: colors.border,
     },
     backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-    headerTitle: { color: isDark ? colors.text : '#fff', fontSize: FONT_SIZES.lg, fontWeight: '700' },
+    headerTitle: {
+      color: isDark ? colors.text : '#fff',
+      fontSize: FONT_SIZES.lg,
+      fontWeight: '700',
+    },
     customBtn: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -406,7 +421,7 @@ export default function IntensiveScreen() {
     customBtnText: { color: isDark ? colors.text : '#fff', fontSize: 12, fontFamily: FONTS.bold },
     tabs: { borderBottomWidth: 1, borderColor: colors.border, maxHeight: 56 },
     loadingText: { marginTop: SPACING.md, color: colors.textSecondary, fontSize: FONT_SIZES.sm },
-    
+
     // Search + filter
     searchRow: {
       flexDirection: 'row',
@@ -498,10 +513,12 @@ export default function IntensiveScreen() {
       </ScrollView>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading {skillInfo.label} tests…</Text>
-        </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: SPACING.lg }}
+        >
+          <ExamCardSkeleton count={3} />
+        </ScrollView>
       ) : (
         <>
           {/* Search bar */}
@@ -588,9 +605,9 @@ export default function IntensiveScreen() {
           >
             {filteredGroups.length === 0 ? (
               <EmptyState
-                icon={hasActiveFilter ? '🔍' : '📭'}
+                illustration={hasActiveFilter ? EmptyStates.search : EmptyStates.bookmarks}
                 title={hasActiveFilter ? 'No matches' : 'No tests available'}
-                subtitle={
+                description={
                   hasActiveFilter
                     ? 'Try adjusting your search or filter.'
                     : `No ${skillInfo.label} tests found.`
@@ -605,7 +622,9 @@ export default function IntensiveScreen() {
                   onToggle={() => toggleGroup(group.id)}
                   skillColor={skillInfo.color}
                   activeSkill={activeSkill}
-                  onTestPress={(examId: string) => router.push(ROUTES.ieltsIntensiveExam(examId) as any)}
+                  onTestPress={(examId: string) =>
+                    router.push(ROUTES.ieltsIntensiveExam(examId) as any)
+                  }
                 />
               ))
             )}

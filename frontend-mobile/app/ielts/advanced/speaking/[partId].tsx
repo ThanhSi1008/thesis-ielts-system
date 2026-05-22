@@ -1,12 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -140,7 +133,7 @@ export default function AdvancedSpeakingPracticeScreen() {
 
         startTimeRef.current = Date.now();
       } catch (err) {
-        console.error('[SpeakingPractice] Failed to initialize:', err);
+        if (__DEV__) console.error('[SpeakingPractice] Failed to initialize:', err);
         Alert.alert('Error', 'Failed to load speaking session. Please try again.', [
           { text: 'Go Back', onPress: () => router.back() },
         ]);
@@ -177,10 +170,10 @@ export default function AdvancedSpeakingPracticeScreen() {
       // Navigate to polling/results screen
       router.replace(`/ielts/advanced/speaking/result/${sessionId}`);
     } catch (err: any) {
-      console.error('[SpeakingPractice] Submit failed:', err);
+      if (__DEV__) console.error('[SpeakingPractice] Submit failed:', err);
       Alert.alert(
         'Submit Failed',
-        err?.message ?? 'Could not submit your speaking practice. Please try again.'
+        err?.message ?? 'Could not submit your speaking practice. Please try again.',
       );
       setIsSubmitting(false);
     }
@@ -224,12 +217,15 @@ export default function AdvancedSpeakingPracticeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header Bar */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() =>
-          Alert.alert('Exit Practice?', 'Your progress will be saved.', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Exit', style: 'destructive', onPress: () => router.back() },
-          ])
-        }>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() =>
+            Alert.alert('Exit Practice?', 'Your progress will be saved.', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Exit', style: 'destructive', onPress: () => router.back() },
+            ])
+          }
+        >
           <Ionicons name="close" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>

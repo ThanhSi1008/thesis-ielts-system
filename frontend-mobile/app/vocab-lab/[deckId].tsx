@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,11 +19,17 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { EmptyState, Button } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Breadcrumb } from '@/components';
 
 const createStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
     header: {
       backgroundColor: colors.primary,
       flexDirection: 'row',
@@ -127,6 +133,11 @@ export default function DeckDetailScreen() {
   const [deck, setDeck] = useState<any>(null);
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const breadcrumbItems = useMemo(() => [
+    { label: 'Vocab Lab', route: '/vocab-lab' },
+    { label: deck?.name || 'Deck' },
+  ], [deck?.name]);
   const [refreshing, setRefreshing] = useState(false);
   const [addModal, setAddModal] = useState(false);
   const [front, setFront] = useState('');
@@ -257,6 +268,10 @@ export default function DeckDetailScreen() {
           />
         }
       >
+        <View style={{ marginBottom: SPACING.md }}>
+          <Breadcrumb items={breadcrumbItems} />
+        </View>
+
         {cards.length === 0 ? (
           <EmptyState
             icon="🃏"

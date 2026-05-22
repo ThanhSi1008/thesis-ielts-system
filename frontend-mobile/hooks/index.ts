@@ -8,3 +8,9 @@ export { useWritingAutosave } from './useWritingAutosave';
 export { useTimer } from './useTimer';
 
 export { useShadowingLessons } from './useShadowingLessons';
+export { useThemedStyles } from './useThemedStyles';
+export { useAnswerState } from './useAnswerState';
+export { useExamSession } from './useExamSession';
+export { useExamTimer } from './useExamTimer';
+export { useTabBarVisibility } from './useTabBarVisibility';
+export { useExitConfirm } from './useExitConfirm';

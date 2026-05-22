@@ -173,10 +173,10 @@ export default function PartHistoryScreen() {
       const data = isListening
         ? await ieltsAdvancedApi.getListeningHistoryByPart(partId)
         : await ieltsAdvancedApi.getReadingHistoryByPart(partId);
-      console.log('[PartHistory] raw response:', JSON.stringify(data));
+      if (__DEV__) console.log('[PartHistory] raw response:', JSON.stringify(data));
       setSessions(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('[PartHistory] load failed:', err);
+      if (__DEV__) console.error('[PartHistory] load failed:', err);
       setLoadError('Could not load history. Please try again.');
     } finally {
       setLoading(false);
@@ -190,7 +190,9 @@ export default function PartHistoryScreen() {
 
   const goToResult = useCallback(
     (sessionId: string) => {
-      router.push(ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, sessionId));
+      router.push(
+        ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, sessionId),
+      );
     },
     [router, skill, partId],
   );
@@ -211,7 +213,9 @@ export default function PartHistoryScreen() {
         </View>
         <TouchableOpacity
           style={styles.practiceBtn}
-          onPress={() => router.replace(ROUTES.ieltsAdvancedSkillPart(skill as string, partId as string))}
+          onPress={() =>
+            router.replace(ROUTES.ieltsAdvancedSkillPart(skill as string, partId as string))
+          }
         >
           <Ionicons name="play-circle-outline" size={22} color="#fff" />
         </TouchableOpacity>
@@ -245,7 +249,9 @@ export default function PartHistoryScreen() {
           </Text>
           <TouchableOpacity
             style={[styles.startBtn, { backgroundColor: accentColor }]}
-            onPress={() => router.replace(ROUTES.ieltsAdvancedSkillPart(skill as string, partId as string))}
+            onPress={() =>
+              router.replace(ROUTES.ieltsAdvancedSkillPart(skill as string, partId as string))
+            }
           >
             <Text style={styles.startBtnText}>Start Practice</Text>
           </TouchableOpacity>
