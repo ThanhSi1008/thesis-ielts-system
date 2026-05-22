@@ -2,11 +2,13 @@ import React from 'react';
 import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { spacing, radius, FONTS } from '@/constants';
 import Text from '../atoms/Text';
 import IconButton from '../atoms/IconButton';
+import Breadcrumb from '../molecules/Breadcrumb';
 
 export type HeaderVariant = 'default' | 'large' | 'transparent' | 'centered';
 
@@ -14,10 +16,12 @@ export interface HeaderProps {
   variant?: HeaderVariant;
   title: string;
   subtitle?: string;
+  breadcrumb?: { label: string; route?: string }[] | null;
   leftAction?: {
     icon?: keyof typeof Ionicons.glyphMap;
     label?: string;
     onPress: () => void;
+    onLongPress?: () => void;
   };
   rightActions?: {
     icon: keyof typeof Ionicons.glyphMap;
@@ -31,6 +35,7 @@ export default function Header({
   variant = 'default',
   title,
   subtitle,
+  breadcrumb,
   leftAction,
   rightActions,
   style,
@@ -52,6 +57,12 @@ export default function Header({
 
   return (
     <View style={containerStyle}>
+      {breadcrumb && breadcrumb.length > 0 && (
+        <View style={styles.breadcrumbWrapper}>
+          <Breadcrumb items={breadcrumb} />
+        </View>
+      )}
+
       {/* Upper action row */}
       <View style={styles.actionRow}>
         {/* Left Action slot */}
@@ -61,6 +72,18 @@ export default function Header({
               <IconButton
                 icon={leftAction.icon}
                 onPress={leftAction.onPress}
+                onLongPress={
+                  leftAction.onLongPress ||
+                  ((leftAction.icon === 'arrow-back' || leftAction.icon === 'chevron-back' || leftAction.icon === 'arrow-back-outline' || leftAction.icon === 'chevron-back-outline' || leftAction.icon === 'arrow-back-sharp' || leftAction.icon === 'chevron-back-sharp')
+                    ? () => {
+                        try {
+                          router.dismissAll();
+                        } catch (e) {
+                          router.replace('/(tabs)/ielts');
+                        }
+                      }
+                    : undefined)
+                }
                 size="md"
                 accessibilityLabel={leftAction.label || 'Go back'}
               />
@@ -131,6 +154,11 @@ function createStyles(colors: any) {
       width: '100%',
       paddingHorizontal: spacing[4],
       paddingBottom: spacing[3],
+    },
+    breadcrumbWrapper: {
+      paddingHorizontal: spacing[1],
+      paddingTop: spacing[2],
+      paddingBottom: spacing[1],
     },
     solidBackground: {
       backgroundColor: colors.bgElevated || colors.card || '#FFFFFF',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Breadcrumb } from '@/components';
 
 interface Exercise {
   id: string;
@@ -45,6 +46,14 @@ export default function SkillExercisesScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const skillName = skill ? skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase() : '';
+
+  const breadcrumbItems = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Basic', route: '/(tabs)/ielts' },
+    { label: skillName, route: `/ielts/basic/library/${skill}/exercises` },
+    { label: 'Exercises' }
+  ], [skillName, skill]);
+
   const isListening = skill?.toLowerCase() === 'listening';
   const isReading = skill?.toLowerCase() === 'reading';
   const isWriting = skill?.toLowerCase() === 'writing';
@@ -232,6 +241,9 @@ export default function SkillExercisesScreen() {
         contentInsetAdjustmentBehavior="automatic"
       >
         <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
+          <View style={{ marginBottom: SPACING.md }}>
+            <Breadcrumb items={breadcrumbItems} />
+          </View>
           <Text style={styles.subtitle}>Practice Lab</Text>
           <Text style={styles.title}>{skillName} Training</Text>
           <Text style={styles.description}>

@@ -32,6 +32,7 @@ export {
   SearchBar,
   EmptyState,
   ErrorState,
+  Breadcrumb,
 } from './molecules';
 export * from './organisms';
 export * from './templates';

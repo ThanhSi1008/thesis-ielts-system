@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, ActivityIndicator, StyleSheet, View, Text } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import { haptics } from '@/utils/haptics';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { spacing, radius, typography, FONTS } from '@/constants';
@@ -47,7 +47,7 @@ export default function Button({
 
   const handlePressIn = () => {
     if (isDisabled) return;
-    scale.value = withTiming(0.98, { duration: 100 });
+    scale.value = withTiming(0.96, { duration: 100 });
   };
 
   const handlePressOut = () => {
@@ -57,7 +57,7 @@ export default function Button({
 
   const handlePress = (event: any) => {
     if (isDisabled) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    haptics.light();
     onPress(event);
   };
 

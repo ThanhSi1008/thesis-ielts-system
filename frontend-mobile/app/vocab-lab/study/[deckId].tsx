@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import { vocabLabApi } from '@/services/features.api';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { FlashcardViewer } from '@/components/vocab-lab/FlashcardViewer';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Breadcrumb } from '@/components';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface StudyCard {
@@ -302,6 +303,17 @@ export default function StudyScreen() {
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
+  const [deck, setDeck] = useState<any>(null);
+  useEffect(() => {
+    vocabLabApi.getDeckDetail(deckId).then(setDeck).catch(() => {});
+  }, [deckId]);
+
+  const breadcrumbItems = useMemo(() => [
+    { label: 'Vocab Lab', route: '/vocab-lab' },
+    { label: deck?.name || 'Deck', route: `/vocab-lab/${deckId}` },
+    { label: 'Study' }
+  ], [deck?.name, deckId]);
+
   const [cards, setCards] = useState<StudyCard[]>([]);
   const [index, setIndex] = useState(0);
   const [showBack, setShowBack] = useState(false);
@@ -526,6 +538,10 @@ export default function StudyScreen() {
             },
           ]}
         />
+      </View>
+
+      <View style={{ paddingHorizontal: SPACING.lg, paddingTop: SPACING.md }}>
+        <Breadcrumb items={breadcrumbItems} />
       </View>
 
       {/* Card area */}

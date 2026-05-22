@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import { haptics } from '@/utils/haptics';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { spacing, radius } from '@/constants';
@@ -15,6 +15,7 @@ export type IconButtonShape = 'circle' | 'square';
 export interface IconButtonProps {
   icon: keyof typeof Ionicons.glyphMap;
   onPress: (event: any) => void;
+  onLongPress?: (event: any) => void;
   size?: IconButtonSize;
   shape?: IconButtonShape;
   variant?: 'solid' | 'outline' | 'ghost';
@@ -28,6 +29,7 @@ export interface IconButtonProps {
 export default function IconButton({
   icon,
   onPress,
+  onLongPress,
   size = 'md',
   shape = 'circle',
   variant = 'ghost',
@@ -43,7 +45,7 @@ export default function IconButton({
 
   const handlePressIn = () => {
     if (disabled) return;
-    scale.value = withTiming(0.92, { duration: 100 });
+    scale.value = withTiming(0.90, { duration: 100 });
   };
 
   const handlePressOut = () => {
@@ -53,8 +55,14 @@ export default function IconButton({
 
   const handlePress = (event: any) => {
     if (disabled) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    haptics.light();
     onPress(event);
+  };
+
+  const handleLongPress = (event: any) => {
+    if (disabled || !onLongPress) return;
+    haptics.medium();
+    onLongPress(event);
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -83,6 +91,8 @@ export default function IconButton({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       onPress={handlePress}
+      onLongPress={onLongPress ? handleLongPress : undefined}
+      delayLongPress={500}
       disabled={disabled}
       hitSlop={hitSlop}
       style={[

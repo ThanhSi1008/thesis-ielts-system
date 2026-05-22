@@ -21,6 +21,7 @@ import { AudioPlayer } from '@/components/ui/AudioPlayer';
 import Markdown from 'react-native-markdown-display';
 import { ContentGroupView } from '@/components/ielts/exercise/ContentGroupView';
 import { TextWithLookup } from '@/components/global/TextWithLookup';
+import { Breadcrumb } from '@/components';
 
 /* ─── Mobile-friendly Markdown Table Override ─── */
 function buildMarkdownRules(): any {
@@ -344,6 +345,16 @@ export default function ExerciseViewerScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [marking, setMarking] = useState(false);
 
+  const breadcrumbItems = useMemo(() => {
+    const skillName = skill ? skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase() : '';
+    return [
+      { label: 'IELTS', route: '/(tabs)/ielts' },
+      { label: 'Basic', route: '/(tabs)/ielts' },
+      { label: skillName, route: `/ielts/basic/library/${skill}/exercises` },
+      { label: exercise?.topic || 'Exercise' },
+    ];
+  }, [skill, exercise?.topic]);
+
   useEffect(() => {
     const fetch = async () => {
       try {
@@ -499,6 +510,9 @@ export default function ExerciseViewerScreen() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
+        <View style={{ marginBottom: SPACING.md }}>
+          <Breadcrumb items={breadcrumbItems} />
+        </View>
         {exercise.passage && (
           <View style={styles.passageBox}>
             <Text style={styles.passageLabel}>📖 Passage</Text>

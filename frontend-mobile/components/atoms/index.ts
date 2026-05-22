@@ -12,3 +12,4 @@ export { default as Spacer } from './Spacer';
 export { default as ProgressBar } from './ProgressBar';
 export { default as ProgressCircle } from './ProgressCircle';
 export { default as ScoreBadge } from './ScoreBadge';
+export { default as AnimatedNumber } from './AnimatedNumber';

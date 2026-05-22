@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { grammarApi } from '@/services';
 import type { GrammarBookWithUnits } from '@/types';
+import { Breadcrumb } from '@/components';
 
 const LEVEL_COLOR: Record<string, string> = {
   Elementary: '#10b981',
@@ -29,6 +30,18 @@ export default function GrammarBookScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const loadingBreadcrumb = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Grammar', route: '/ielts/foundation/grammar' },
+    { label: 'Loading...' }
+  ], []);
+
+  const breadcrumbItems = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Grammar', route: '/ielts/foundation/grammar' },
+    { label: book?.name ?? 'Book' }
+  ], [book?.name]);
 
   const load = useCallback(async () => {
     if (!bookSlug) return;
@@ -60,7 +73,7 @@ export default function GrammarBookScreen() {
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerCenter}>
-            <Text style={s.headerEyebrow}>Grammar</Text>
+            <Breadcrumb items={loadingBreadcrumb} />
             <Text style={s.headerTitle} numberOfLines={1}>
               Loading...
             </Text>
@@ -106,20 +119,20 @@ export default function GrammarBookScreen() {
   return (
     <View style={s.container}>
       {/* Dynamic Colored Header wrapper */}
-      <SafeAreaView style={[s.headerWrapper, { backgroundColor: accentColor }]} edges={['top']}>
+      <SafeAreaView style={[s.headerWrapper, { backgroundColor: '#fff', borderBottomColor: '#f0f0f0', borderBottomWidth: 1 }]} edges={['top']}>
         <View style={s.header}>
-          <TouchableOpacity style={s.backBtnWhite} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
+          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerTitleCol}>
-            <Text style={s.headerEyebrowWhite}>Grammar Series</Text>
-            <Text style={s.headerTitleWhite} numberOfLines={1}>
+            <Breadcrumb items={breadcrumbItems} />
+            <Text style={s.headerTitle} numberOfLines={1}>
               {book.name}
             </Text>
           </View>
-          <View style={s.headerBadge}>
-            <Text style={s.headerBadgeVal}>{units.length}</Text>
-            <Text style={s.headerBadgeLbl}>UNITS</Text>
+          <View style={[s.headerBadge, { backgroundColor: accentColor + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, flexDirection: 'column', alignItems: 'center' }]}>
+            <Text style={[s.headerBadgeVal, { color: accentColor, fontFamily: FONTS.bold }]}>{units.length}</Text>
+            <Text style={[s.headerBadgeLbl, { color: accentColor, fontFamily: FONTS.regular, fontSize: 8 }]}>UNITS</Text>
           </View>
         </View>
       </SafeAreaView>

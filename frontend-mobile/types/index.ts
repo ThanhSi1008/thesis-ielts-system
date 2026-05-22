@@ -207,6 +207,7 @@ export interface GrammarBookWithUnits {
 export interface GrammarUnitWithContent {
   id: string;
   title: string;
+  order?: number;
   theoryContent?: string;
   explanation?: string;
   theory?: string;

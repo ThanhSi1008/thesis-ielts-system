@@ -84,11 +84,11 @@ function RootNavigator() {
   return (
     <>
       <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', animationDuration: 250 }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="notification" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="chat-ai" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="notification" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="chat-ai" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
 
         {/* Vocabulary nested (legacy redirect paths) */}
         <Stack.Screen
@@ -177,7 +177,7 @@ function RootNavigator() {
         <Stack.Screen name="student-teacher/[studentId]" />
 
         {/* Pricing / Subscription */}
-        <Stack.Screen name="pricing" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="pricing" options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }} />
         <Stack.Screen name="payment/vnpay-return" options={{ headerShown: false }} />
 
         {/* Dev Sandbox Route */}

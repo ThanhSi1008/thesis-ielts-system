@@ -3,7 +3,7 @@
  * Same AI recorder + scoring as (tabs)/pronunciation/[symbol]
  * Back button navigates to /ielts/foundation/pronunciation (IELTS context)
  */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAudioRecorderHook } from '@/hooks/useAudioRecorder';
 import { learningApi, pronunciationApi } from '@/services/learning.api';
 import type { FoundationPronunciationSound, WordProgress } from '@/types';
+import { Breadcrumb } from '@/components';
 
 // ─── Local fallback example sentences (to enrich UI) ───────────────────────────
 const SENTENCE_FALLBACKS: Record<string, string> = {
@@ -389,6 +390,12 @@ export default function IeltsSoundDetailScreen() {
 
   const decoded = decodeURIComponent(symbol ?? '');
 
+  const breadcrumbItems = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Pronunciation', route: '/ielts/foundation/pronunciation' },
+    { label: `/${decoded}/` }
+  ], [decoded]);
+
   const fetchSoundData = useCallback(
     async (showSkeleton = true) => {
       if (showSkeleton) setLoading(true);
@@ -449,17 +456,22 @@ export default function IeltsSoundDetailScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.text} />
+          <Ionicons name="chevron-back" size={20} color={COLORS.text} />
         </TouchableOpacity>
-        <Animated.View
-          entering={FadeIn}
-          style={[styles.symbolBadge, { backgroundColor: colors.bg }]}
-        >
-          <Text style={[styles.symbolText, { color: colors.text }]}>{decoded}</Text>
-        </Animated.View>
-        <View style={styles.headerMeta}>
-          <Text style={styles.symbolLabel}>/{decoded}/</Text>
-          <Text style={styles.typeLabel}>{typeLabel}</Text>
+        <View style={styles.headerCenter}>
+          <Breadcrumb items={breadcrumbItems} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+            <Animated.View
+              entering={FadeIn}
+              style={[styles.symbolBadgeMini, { backgroundColor: colors.bg }]}
+            >
+              <Text style={[styles.symbolTextMini, { color: colors.text }]}>{decoded}</Text>
+            </Animated.View>
+            <View style={styles.headerMeta}>
+              <Text style={styles.symbolLabelMini}>/{decoded}/</Text>
+              <Text style={styles.typeLabelMini}>{typeLabel}</Text>
+            </View>
+          </View>
         </View>
       </View>
 
@@ -577,6 +589,17 @@ const styles = StyleSheet.create({
   },
   symbolText: { fontSize: 26, fontFamily: FONTS.bold },
   headerMeta: { flex: 1 },
+  headerCenter: { flex: 1, marginLeft: 4 },
+  symbolBadgeMini: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  symbolTextMini: { fontSize: 18, fontFamily: FONTS.bold },
+  symbolLabelMini: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
+  typeLabelMini: { fontSize: 10, color: COLORS.textSecondary, fontFamily: FONTS.regular },
   symbolLabel: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
   typeLabel: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontFamily: FONTS.regular },
 

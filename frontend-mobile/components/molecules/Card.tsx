@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import { haptics } from '@/utils/haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
@@ -54,7 +54,7 @@ export default function Card({
 
   const handlePress = () => {
     if (!onPress) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    haptics.light();
     onPress();
   };
 

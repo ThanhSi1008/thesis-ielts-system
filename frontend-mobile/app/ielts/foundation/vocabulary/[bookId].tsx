@@ -13,6 +13,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { vocabularyApi } from '@/services/ielts.api';
 import { COLORS, FONTS, ROUTES } from '@/constants';
+import { Breadcrumb } from '@/components';
 
 // Group component for 10 units
 function UnitGroup({
@@ -174,6 +175,18 @@ export default function VocabularyBookScreen() {
   // Track expanded groups (index based)
   const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({ 0: true });
 
+  const loadingBreadcrumb = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Vocabulary', route: '/ielts/foundation/vocabulary' },
+    { label: 'Loading...' }
+  ], []);
+
+  const breadcrumbItems = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Vocabulary', route: '/ielts/foundation/vocabulary' },
+    { label: book?.name ?? 'Book' }
+  ], [book?.name]);
+
   const load = useCallback(async () => {
     try {
       const [bookData, progressData] = await Promise.allSettled([
@@ -202,7 +215,7 @@ export default function VocabularyBookScreen() {
             <Ionicons name="chevron-back" size={18} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleCol}>
-            <Text style={styles.headerEyebrow}>Vocabulary</Text>
+            <Breadcrumb items={loadingBreadcrumb} />
             <Text style={styles.headerTitle} numberOfLines={1}>
               Loading...
             </Text>
@@ -243,7 +256,7 @@ export default function VocabularyBookScreen() {
             <Ionicons name="chevron-back" size={18} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleCol}>
-            <Text style={styles.headerEyebrow}>Vocabulary</Text>
+            <Breadcrumb items={breadcrumbItems} />
             <Text style={styles.headerTitle} numberOfLines={1}>
               {book?.name ?? 'Word List'}
             </Text>

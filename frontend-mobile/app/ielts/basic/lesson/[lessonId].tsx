@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { API_BASE_URL } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { Stack } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Breadcrumb } from '@/components';
 
 /* ─── Types ─── */
 interface LessonBlock {
@@ -368,6 +369,16 @@ export default function LessonViewerScreen() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const breadcrumbItems = useMemo(() => {
+    const skillName = skill ? skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase() : '';
+    return [
+      { label: 'IELTS', route: '/(tabs)/ielts' },
+      { label: 'Basic', route: '/(tabs)/ielts' },
+      { label: skillName, route: `/ielts/basic/library/${skill}/lessons` },
+      { label: lesson?.title || 'Lesson' },
+    ];
+  }, [skill, lesson?.title]);
+
   useEffect(() => {
     const fetch = async () => {
       try {
@@ -460,6 +471,10 @@ export default function LessonViewerScreen() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
+        <View style={{ marginBottom: SPACING.md }}>
+          <Breadcrumb items={breadcrumbItems} />
+        </View>
+
         {/* Content blocks */}
         {Array.isArray(lesson.content) &&
           lesson.content.map((block, idx) => {

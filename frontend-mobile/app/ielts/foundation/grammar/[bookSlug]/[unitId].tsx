@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { grammarApi } from '@/services';
 import type { GrammarUnitWithContent } from '@/types';
+import { Breadcrumb } from '@/components';
 
 type Tab = 'theory' | 'exercises';
 
@@ -393,6 +394,19 @@ export default function GrammarLessonScreen() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('theory');
 
+  const loadingBreadcrumb = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Grammar', route: '/ielts/foundation/grammar' },
+    { label: 'Loading...' }
+  ], []);
+
+  const breadcrumbItems = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Grammar', route: '/ielts/foundation/grammar' },
+    { label: unit?.book?.name ?? 'Book', route: `/ielts/foundation/grammar/${bookSlug}` },
+    { label: unit?.title ?? 'Unit' }
+  ], [unit, bookSlug]);
+
   const load = useCallback(async () => {
     if (!unitId) return;
     try {
@@ -458,7 +472,7 @@ export default function GrammarLessonScreen() {
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerCenter}>
-            <Text style={s.headerEyebrow}>Grammar Unit</Text>
+            <Breadcrumb items={loadingBreadcrumb} />
             <Text style={s.headerTitle} numberOfLines={1}>
               Loading...
             </Text>
@@ -479,7 +493,7 @@ export default function GrammarLessonScreen() {
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerCenter}>
-            <Text style={s.headerEyebrow}>Grammar Unit</Text>
+            <Breadcrumb items={loadingBreadcrumb} />
             <Text style={s.headerTitle} numberOfLines={1}>
               Not Found
             </Text>
@@ -495,18 +509,21 @@ export default function GrammarLessonScreen() {
   return (
     <View style={s.container}>
       {/* Header */}
-      <SafeAreaView style={[s.headerWrapper, { backgroundColor: accentColor }]} edges={['top']}>
+      <SafeAreaView style={[s.headerWrapper, { backgroundColor: '#fff', borderBottomColor: '#f0f0f0', borderBottomWidth: 1 }]} edges={['top']}>
         <View style={s.header}>
-          <TouchableOpacity style={s.backBtnWhite} onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
+          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerTitleCol}>
-            <Text style={s.headerEyebrowWhite}>Grammar Unit</Text>
-            <Text style={s.headerTitleWhite} numberOfLines={1}>
+            <Breadcrumb items={breadcrumbItems} />
+            <Text style={s.headerTitle} numberOfLines={1}>
               {unit.title}
             </Text>
           </View>
-          <View style={{ width: 40 }} />
+          <View style={[s.headerBadge, { backgroundColor: accentColor + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, flexDirection: 'column', alignItems: 'center' }]}>
+            <Text style={[s.headerBadgeVal, { color: accentColor, fontFamily: FONTS.bold }]}>{unit.order ?? 1}</Text>
+            <Text style={[s.headerBadgeLbl, { color: accentColor, fontFamily: FONTS.regular, fontSize: 8 }]}>UNIT</Text>
+          </View>
         </View>
       </SafeAreaView>
 
@@ -602,6 +619,14 @@ const s = StyleSheet.create({
     paddingTop: 8,
   },
   headerTitleCol: { flex: 1 },
+  headerBadge: { alignItems: 'center' },
+  headerBadgeVal: { fontFamily: FONTS.bold, fontSize: 14 },
+  headerBadgeLbl: {
+    fontFamily: FONTS.regular,
+    fontSize: 8,
+    letterSpacing: 0.5,
+    marginTop: 1,
+  },
   headerEyebrowWhite: {
     fontFamily: FONTS.bold,
     fontSize: 10,

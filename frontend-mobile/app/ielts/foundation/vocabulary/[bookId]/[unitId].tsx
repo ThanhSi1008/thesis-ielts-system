@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { vocabularyApi } from '@/services';
 import { COLORS, FONTS } from '@/constants';
 import { useAudioPlayer } from 'expo-audio';
 import type { VocabularyUnitWithContent, SubmitQuestionsResponse } from '@/types';
+import { Breadcrumb } from '@/components';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tab = 'flashcard' | 'reading' | 'exercise';
@@ -364,6 +365,20 @@ export default function VocabularyUnitScreen() {
   // Tab unlocking
   const [wordListComplete, setWordListComplete] = useState(false);
 
+  const loadingBreadcrumb = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Vocabulary', route: '/ielts/foundation/vocabulary' },
+    { label: 'Book', route: `/ielts/foundation/vocabulary/${bookId}` },
+    { label: 'Loading...' }
+  ], [bookId]);
+
+  const breadcrumbItems = useMemo(() => [
+    { label: 'IELTS', route: '/(tabs)/ielts' },
+    { label: 'Vocabulary', route: '/ielts/foundation/vocabulary' },
+    { label: 'Book', route: `/ielts/foundation/vocabulary/${bookId}` },
+    { label: unit?.title ?? 'Unit' }
+  ], [bookId, unit?.title]);
+
   const load = useCallback(async () => {
     try {
       const data = await vocabularyApi.getUnit(unitId!);
@@ -523,6 +538,7 @@ export default function VocabularyUnitScreen() {
             <Ionicons name="close" size={28} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
+            <Breadcrumb items={loadingBreadcrumb} />
             <Text style={styles.headerTitle}>Loading…</Text>
           </View>
           <View style={{ width: 40 }} />
@@ -553,6 +569,7 @@ export default function VocabularyUnitScreen() {
           <Ionicons name="close" size={28} color={COLORS.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
+          <Breadcrumb items={breadcrumbItems} />
           <Text style={styles.headerTitle} numberOfLines={1}>
             {unit?.title ?? 'Unit Detail'}
           </Text>

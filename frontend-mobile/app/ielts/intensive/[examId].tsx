@@ -17,7 +17,8 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
-import { useAnswerState, useExamSession, useExamTimer } from '@/hooks';
+import { ConfirmDialog, SuccessCelebration } from '@/components';
+import { useAnswerState, useExamSession, useExamTimer, useExitConfirm } from '@/hooks';
 import {
   ExamHeader,
   ExamAudioPlayer,
@@ -44,6 +45,9 @@ export default function ExamPlayerScreen() {
   const [activeListeningPartIndex, setActiveListeningPartIndex] = useState(0);
   const [volume, setVolume] = useState(1.0);
 
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [pendingResultSessionId, setPendingResultSessionId] = useState<string | null>(null);
+
   const scrollViewRef = useRef<ScrollView>(null);
   const partOffsetsRef = useRef<Record<number, number>>({});
 
@@ -69,6 +73,14 @@ export default function ExamPlayerScreen() {
     onGradingDone,
     onGradingError,
   });
+
+  const {
+    isVisible: exitConfirmVisible,
+    showDialog: showExitConfirm,
+    hideDialog: hideExitConfirm,
+    confirmSave: handleExitSave,
+    confirmDiscard: handleExitDiscard,
+  } = useExitConfirm(examReady && !submitting && !isAiGrading);
 
   const handleExpire = useCallback(() => {
     Alert.alert('Time Expired', 'Your exam is being automatically submitted.', [
@@ -175,10 +187,14 @@ export default function ExamPlayerScreen() {
   };
 
   const handleExitPress = () => {
-    Alert.alert('Exit Test?', 'Progress will be saved.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Exit', style: 'destructive', onPress: () => router.back() },
-    ]);
+    showExitConfirm();
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    if (pendingResultSessionId) {
+      router.replace(ROUTES.ieltsIntensiveResult(pendingResultSessionId) as any);
+    }
   };
 
   const handleSubmit = async () => {
@@ -193,8 +209,15 @@ export default function ExamPlayerScreen() {
             if (player && player.playing) player.pause();
             const payload = buildSubmitPayload(exam?.type);
             const res = await submitSession(payload, elapsed);
-            if (res && !res.isAiType) {
-              router.replace(ROUTES.ieltsIntensiveResult(res.sessionId) as any);
+            if (res) {
+              setExamReady(false); // disable exit intercept
+              if (!res.isAiType) {
+                setPendingResultSessionId(res.sessionId);
+                setShowSuccess(true);
+              } else {
+                setPendingResultSessionId(null);
+                setShowSuccess(true);
+              }
             }
           } catch (e) {
             Alert.alert('Error', 'Failed to submit. Try again.');
@@ -408,6 +431,27 @@ export default function ExamPlayerScreen() {
       )}
 
       {isAiGrading && <AIGradingOverlay onGoBack={() => router.replace(ROUTES.ieltsIntensive)} />}
+
+      <ConfirmDialog
+        visible={exitConfirmVisible}
+        onClose={hideExitConfirm}
+        title="Exit Exam?"
+        message="You are currently in an active exam session. Do you want to save your progress and exit, or discard your answers?"
+        variant="warning"
+        primaryAction={{
+          title: "Save & Exit",
+          onPress: handleExitSave,
+        }}
+        secondaryAction={{
+          title: "Discard & Exit",
+          onPress: handleExitDiscard,
+        }}
+      />
+
+      <SuccessCelebration
+        visible={showSuccess}
+        onClose={handleSuccessClose}
+      />
     </SafeAreaView>
   );
 }
