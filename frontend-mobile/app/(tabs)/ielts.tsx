@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { useRouter, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FONTS, SPACING, FONT_SIZES, ROUTES } from '@/constants';
+import { FONTS, SPACING, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -107,7 +107,7 @@ export default function IeltsBasicTab() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== ROUTES.ieltsBasic) {
-      router.push(route as any);
+      navigation.push(route);
     }
   };
 
@@ -154,7 +154,7 @@ export default function IeltsBasicTab() {
         </Text>
         <TouchableOpacity
           style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-          onPress={() => router.push(ROUTES.ieltsRoadmap)}
+          onPress={() => navigation.push(ROUTES.ieltsRoadmap)}
         >
           <Ionicons name="map-outline" size={22} color={colors.text} />
         </TouchableOpacity>

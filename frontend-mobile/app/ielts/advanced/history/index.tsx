@@ -371,7 +371,7 @@ export default function AdvancedHistoryScreen() {
       );
       setAllHistory(merged);
     } catch (err) {
-      console.error('[AdvancedHistory] load failed:', err);
+      if (__DEV__) console.error('[AdvancedHistory] load failed:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -533,6 +533,9 @@ export default function AdvancedHistoryScreen() {
               onCardPress={handleCardPress}
             />
           )}
+          initialNumToRender={10}
+          windowSize={10}
+          removeClippedSubviews={true}
         />
       )}
     </SafeAreaView>

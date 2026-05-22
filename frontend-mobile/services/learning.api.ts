@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from './api-client';
+import { clientCache } from './cache';
 import type {
   FoundationVocabBook,
   VocabularyBookWithUnits,
@@ -27,8 +28,15 @@ import type {
 // ============================================================
 
 export const vocabularyApi = {
-  getBooks: async (): Promise<FoundationVocabBook[]> => {
-    return apiClient.get<FoundationVocabBook[]>('/foundationVocabWord/books');
+  getBooks: async (bypassCache = false): Promise<FoundationVocabBook[]> => {
+    const cacheKey = 'vocab_books';
+    if (!bypassCache) {
+      const cached = await clientCache.get<FoundationVocabBook[]>(cacheKey);
+      if (cached) return cached;
+    }
+    const data = await apiClient.get<FoundationVocabBook[]>('/foundationVocabWord/books');
+    await clientCache.set(cacheKey, data);
+    return data;
   },
   getBook: async (id: string): Promise<VocabularyBookWithUnits> => {
     return apiClient.get<VocabularyBookWithUnits>(`/foundationVocabWord/books/${id}`);
@@ -61,8 +69,15 @@ export const vocabularyApi = {
 // ============================================================
 
 export const grammarApi = {
-  getBooks: async (): Promise<FoundationGrammarBook[]> => {
-    return apiClient.get<FoundationGrammarBook[]>('/grammar/books');
+  getBooks: async (bypassCache = false): Promise<FoundationGrammarBook[]> => {
+    const cacheKey = 'grammar_books';
+    if (!bypassCache) {
+      const cached = await clientCache.get<FoundationGrammarBook[]>(cacheKey);
+      if (cached) return cached;
+    }
+    const data = await apiClient.get<FoundationGrammarBook[]>('/grammar/books');
+    await clientCache.set(cacheKey, data);
+    return data;
   },
   getBook: async (slug: string): Promise<GrammarBookWithUnits> => {
     return apiClient.get<GrammarBookWithUnits>(`/grammar/books/${slug}`);
@@ -150,8 +165,8 @@ export const learningApi = {
     const fileType = extensionMimeMap[ext] ?? 'audio/wav';
 
     // DEBUG: shows actual URI & MIME in Metro console so we can verify iOS output
-    console.log(`[PronunciationAPI] uri=${audioUri}`);
-    console.log(`[PronunciationAPI] fileName=${fileName} | ext=${ext} | mimeType=${fileType}`);
+    if (__DEV__) console.log(`[PronunciationAPI] uri=${audioUri}`);
+    if (__DEV__) console.log(`[PronunciationAPI] fileName=${fileName} | ext=${ext} | mimeType=${fileType}`);
 
     // @ts-ignore - React Native FormData accepts {uri, name, type} for files
     formData.append('audio', {

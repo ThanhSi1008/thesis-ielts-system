@@ -385,7 +385,7 @@ export default function LessonViewerScreen() {
         const res = await apiClient.get<Lesson>(`/ielts/lessons/${lessonId}`);
         setLesson(res);
       } catch (e) {
-        console.error(e);
+        if (__DEV__) console.error(e);
       } finally {
         setLoading(false);
       }
@@ -397,7 +397,7 @@ export default function LessonViewerScreen() {
     try {
       await apiClient.post('/ielts/progress/mark-completed', { lessonId });
     } catch (e) {
-      console.error('Failed to mark lesson complete', e);
+      if (__DEV__) console.error('Failed to mark lesson complete', e);
     }
   };
 

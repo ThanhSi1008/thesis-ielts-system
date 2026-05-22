@@ -368,7 +368,7 @@ export default function ExerciseViewerScreen() {
         const data = await apiClient.get<Exercise>(`/ielts/${endpoint}/${exerciseId}`);
         setExercise(data);
       } catch (e) {
-        console.error('Failed to fetch exercise:', e);
+        if (__DEV__) console.error('Failed to fetch exercise:', e);
       } finally {
         setLoading(false);
       }
@@ -415,7 +415,7 @@ export default function ExerciseViewerScreen() {
               }
               await apiClient.post('/ielts/progress/mark-completed', { [fieldName]: exerciseId });
             } catch (e) {
-              console.error('mark-completed failed:', e);
+              if (__DEV__) console.error('mark-completed failed:', e);
             } finally {
               setMarking(false);
             }

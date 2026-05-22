@@ -12,7 +12,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { SectionHeader } from '@/components/ui';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -80,7 +80,7 @@ export default function DashboardScreen() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== ROUTES.ieltsDashboard) {
-      router.push(route as any);
+      navigation.push(route);
     }
   };
 
@@ -278,7 +278,7 @@ export default function DashboardScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => router.push(ROUTES.ieltsStatistics)}
+            onPress={() => navigation.push(ROUTES.ieltsStatistics)}
           >
             <Text style={styles.primaryButtonText}>VIEW PROGRESS</Text>
             <Ionicons name="arrow-forward" size={18} color="#fff" />

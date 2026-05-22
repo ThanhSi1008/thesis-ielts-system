@@ -56,7 +56,7 @@ export default function IeltsPronunciationScreen() {
           setStats(statsData);
         }
       } catch (err: any) {
-        console.error('[IeltsPronunciationScreen] Error fetching data:', err);
+        if (__DEV__) console.error('[IeltsPronunciationScreen] Error fetching data:', err);
         setError(err?.message || 'Failed to load IPA data');
       } finally {
         setLoading(false);

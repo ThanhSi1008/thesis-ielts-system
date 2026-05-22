@@ -99,7 +99,7 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
       onSuccess();
       onClose();
     } catch (e: any) {
-      console.error('Failed to import YouTube video', e);
+      if (__DEV__) console.error('Failed to import YouTube video', e);
       toast.error('Import Failed', e.message || 'Something went wrong while importing.');
     } finally {
       setLoading(false);

@@ -632,7 +632,7 @@ export default function ResultScreen() {
             .catch(() => {});
         }
       })
-      .catch(console.error)
+      .catch((e) => { if (__DEV__) console.error(e); })
       .finally(() => setLoading(false));
   }, [sessionId]);
 

@@ -72,7 +72,7 @@ function FlashCard({
         player.play();
       }
     } catch (e) {
-      console.log('Audio playback error', e);
+      if (__DEV__) console.log('Audio playback error', e);
     }
   };
 
@@ -418,10 +418,10 @@ export default function VocabularyUnitScreen() {
           }
         }
       } catch (err) {
-        console.log('No unit progress or user offline', err);
+        if (__DEV__) console.log('No unit progress or user offline', err);
       }
     } catch (err) {
-      console.log('Failed to load vocabulary unit details', err);
+      if (__DEV__) console.log('Failed to load vocabulary unit details', err);
     } finally {
       setLoading(false);
     }
@@ -451,7 +451,7 @@ export default function VocabularyUnitScreen() {
     try {
       await vocabularyApi.updateWordProgress(unitId!, Math.min(newLearned, originalWordsCount));
     } catch (err) {
-      console.log('Failed to update progress', err);
+      if (__DEV__) console.log('Failed to update progress', err);
     }
 
     if (nextIndex < nextWords.length) {
@@ -462,7 +462,7 @@ export default function VocabularyUnitScreen() {
       try {
         await vocabularyApi.updateWordProgress(unitId!, originalWordsCount);
       } catch (err) {
-        console.log('Failed to update progress', err);
+        if (__DEV__) console.log('Failed to update progress', err);
       }
       Alert.alert(
         '🎉 Flashcards Completed!',
@@ -478,7 +478,7 @@ export default function VocabularyUnitScreen() {
     try {
       await vocabularyApi.updateWordProgress(unitId!, originalWordsCount);
     } catch (err) {
-      console.log('Failed to update progress', err);
+      if (__DEV__) console.log('Failed to update progress', err);
     }
     setActiveTab('reading');
   };
@@ -504,7 +504,7 @@ export default function VocabularyUnitScreen() {
       );
     } catch (err) {
       Alert.alert('Error', 'Failed to submit answers. Please try again.');
-      console.error(err);
+      if (__DEV__) console.error(err);
     } finally {
       setQuestionSubmitting(false);
     }

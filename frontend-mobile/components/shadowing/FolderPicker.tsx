@@ -39,7 +39,7 @@ export default function FolderPicker({ selectedFolder, onSelectFolder }: FolderP
       const list = res && res.length > 0 ? res : ['General'];
       setFolders(list);
     } catch (e) {
-      console.error('Failed to fetch folders', e);
+      if (__DEV__) console.error('Failed to fetch folders', e);
       setFolders(['General']);
     } finally {
       setLoading(false);
@@ -78,7 +78,7 @@ export default function FolderPicker({ selectedFolder, onSelectFolder }: FolderP
       onSelectFolder(trimmedName);
       setModalVisible(false);
     } catch (e: any) {
-      console.error('Failed to create folder', e);
+      if (__DEV__) console.error('Failed to create folder', e);
       // Fallback local support just in case the API endpoint has restrictions
       setFolders((prev) => [...prev, trimmedName]);
       onSelectFolder(trimmedName);

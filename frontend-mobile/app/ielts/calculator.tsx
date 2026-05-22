@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { COLORS, FONTS, SPACING, ROUTES } from '@/constants';
+import { COLORS, FONTS, SPACING, ROUTES, navigation } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Card, ScoreBadge, Text } from '@/components';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
@@ -75,7 +75,7 @@ export default function IELTSCalculatorScreen() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== ROUTES.ieltsCalculator) {
-      router.push(route as any);
+      navigation.push(route);
     }
   };
   const [bands, setBands] = useState<Record<string, string>>({

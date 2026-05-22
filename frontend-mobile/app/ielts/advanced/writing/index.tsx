@@ -58,7 +58,7 @@ export default function AdvancedWritingIndexScreen() {
       const res = await ieltsAdvancedApi.getWritingPrompts(params);
       setPrompts(Array.isArray(res) ? res : (res?.data ?? []));
     } catch (err) {
-      console.error('[AdvancedWritingIndex] Failed to fetch prompts:', err);
+      if (__DEV__) console.error('[AdvancedWritingIndex] Failed to fetch prompts:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);

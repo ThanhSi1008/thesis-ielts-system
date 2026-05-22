@@ -303,10 +303,10 @@ export default function AdvancedResultScreen() {
           skill === 'listening'
             ? await ieltsAdvancedApi.getListeningHistoryDetail(resultId)
             : await ieltsAdvancedApi.getReadingHistoryDetail(resultId);
-        console.log('[RESULT] raw response:', JSON.stringify(data, null, 2)); // DEBUG
+        if (__DEV__) console.log('[RESULT] raw response:', JSON.stringify(data, null, 2));
         setResult(data);
       } catch (e) {
-        console.error('[Result] load failed:', e);
+        if (__DEV__) console.error('[Result] load failed:', e);
       } finally {
         setLoading(false);
       }

@@ -96,7 +96,7 @@ export default function AdvancedWritingResultScreen() {
           setPollingActive(true);
         }
       } catch (err) {
-        console.error('[WritingResult] Fetch failed:', err);
+        if (__DEV__) console.error('[WritingResult] Fetch failed:', err);
         Alert.alert('Error', 'Failed to load session details.');
       } finally {
         setLoading(false);

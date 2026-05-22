@@ -1,4 +1,5 @@
 import { apiClient } from './api-client';
+import { clientCache } from './cache';
 
 // ==================== IELTS PROFILE ====================
 export const ieltsProfileApi = {
@@ -112,8 +113,16 @@ export const ieltsAdvancedApi = {
 // ==================== IELTS EXAMS (Mock Tests) ====================
 export const ieltsExamsApi = {
   getHistory: () => apiClient.get<any[]>('/exams/history'),
-  getIntensiveCatalog: (skill: string) =>
-    apiClient.get<any>(`/exams/intensive/catalog?skill=${skill}`),
+  getIntensiveCatalog: async (skill: string, bypassCache = false): Promise<any> => {
+    const cacheKey = `intensive_catalog_${skill}`;
+    if (!bypassCache) {
+      const cached = await clientCache.get<any>(cacheKey);
+      if (cached) return cached;
+    }
+    const data = await apiClient.get<any>(`/exams/intensive/catalog?skill=${skill}`);
+    await clientCache.set(cacheKey, data);
+    return data;
+  },
   getExam: (id: string) => apiClient.get<any>(`/exams/${id}`),
   createSession: (examId: string, userId: string, practicePart?: number) =>
     apiClient.post<any>(`/exams/${examId}/sessions`, { userId, practicePart }),

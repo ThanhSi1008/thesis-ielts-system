@@ -47,7 +47,7 @@ export function RoadmapContent() {
       setSteps(res.steps || []);
       setCurrentStep(res.currentStep || 1);
     } catch (err) {
-      console.error('Failed to fetch roadmap', err);
+      if (__DEV__) console.error('Failed to fetch roadmap', err);
     } finally {
       setLoading(false);
       setRefreshing(false);

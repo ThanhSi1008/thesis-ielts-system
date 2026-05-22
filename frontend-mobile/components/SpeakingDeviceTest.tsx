@@ -94,7 +94,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
           });
         }, 1000);
       } catch (err) {
-        console.error('Mic error:', err);
+        if (__DEV__) console.error('Mic error:', err);
         Alert.alert('Permission Denied', 'Microphone access is required to run the test.');
       }
     } else if (micState === 'RECORDING') {
@@ -151,7 +151,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
       await AsyncStorage.setItem('speaking-device-tested-v1', 'true');
       onComplete();
     } catch (e) {
-      console.error('Failed to save device test flag', e);
+      if (__DEV__) console.error('Failed to save device test flag', e);
       onComplete();
     }
   };

@@ -95,7 +95,7 @@ export default function ChatAIScreen() {
           }
         }
       } catch (e) {
-        console.error('Failed to load chat history:', e);
+        if (__DEV__) console.error('Failed to load chat history:', e);
       }
     };
     loadHistory();
@@ -115,7 +115,7 @@ export default function ChatAIScreen() {
         const historyToSave = messages.slice(-50);
         await AsyncStorage.setItem('chat-ai-history', JSON.stringify(historyToSave));
       } catch (e) {
-        console.error('Failed to save chat history:', e);
+        if (__DEV__) console.error('Failed to save chat history:', e);
       }
     };
     saveHistory();
@@ -149,7 +149,7 @@ export default function ChatAIScreen() {
         },
       ]);
     } catch (e) {
-      console.error('Failed to clear chat history:', e);
+      if (__DEV__) console.error('Failed to clear chat history:', e);
     }
   };
 
@@ -262,10 +262,10 @@ export default function ChatAIScreen() {
       });
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        console.log('Lookup stream aborted');
+        if (__DEV__) console.log('Lookup stream aborted');
         return;
       }
-      console.error('Lexon AI lookup error:', error);
+      if (__DEV__) console.error('Lexon AI lookup error:', error);
       setMessages((prev) => {
         const next = [...prev];
         if (next.length > 0 && next[next.length - 1].role === 'model') {
@@ -390,10 +390,10 @@ export default function ChatAIScreen() {
       });
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        console.log('Stream aborted');
+        if (__DEV__) console.log('Stream aborted');
         return;
       }
-      console.error('Lexon AI streaming error:', error);
+      if (__DEV__) console.error('Lexon AI streaming error:', error);
 
       // Fallback to standard non-streaming API call
       try {
@@ -420,7 +420,7 @@ export default function ChatAIScreen() {
           return next;
         });
       } catch (fallbackError) {
-        console.error('Fallback error:', fallbackError);
+        if (__DEV__) console.error('Fallback error:', fallbackError);
         setMessages((prev) => {
           const next = [...prev];
           if (next.length > 0 && next[next.length - 1].role === 'model') {

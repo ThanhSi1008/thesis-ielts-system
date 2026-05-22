@@ -133,7 +133,7 @@ export default function AdvancedSpeakingPracticeScreen() {
 
         startTimeRef.current = Date.now();
       } catch (err) {
-        console.error('[SpeakingPractice] Failed to initialize:', err);
+        if (__DEV__) console.error('[SpeakingPractice] Failed to initialize:', err);
         Alert.alert('Error', 'Failed to load speaking session. Please try again.', [
           { text: 'Go Back', onPress: () => router.back() },
         ]);
@@ -170,7 +170,7 @@ export default function AdvancedSpeakingPracticeScreen() {
       // Navigate to polling/results screen
       router.replace(`/ielts/advanced/speaking/result/${sessionId}`);
     } catch (err: any) {
-      console.error('[SpeakingPractice] Submit failed:', err);
+      if (__DEV__) console.error('[SpeakingPractice] Submit failed:', err);
       Alert.alert(
         'Submit Failed',
         err?.message ?? 'Could not submit your speaking practice. Please try again.',

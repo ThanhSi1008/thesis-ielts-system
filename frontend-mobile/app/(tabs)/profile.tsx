@@ -127,7 +127,7 @@ export default function ProfileScreen() {
             try {
               await logout();
             } catch (error) {
-              console.error('Logout failed', error);
+              if (__DEV__) console.error('Logout failed', error);
             }
           },
         }}

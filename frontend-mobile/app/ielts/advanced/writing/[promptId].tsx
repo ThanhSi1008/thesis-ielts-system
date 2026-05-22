@@ -94,7 +94,7 @@ export default function AdvancedWritingPracticeScreen() {
         }
         setTimerRunning(true);
       } catch (err) {
-        console.error('[WritingPractice] Failed to initialize:', err);
+        if (__DEV__) console.error('[WritingPractice] Failed to initialize:', err);
         Alert.alert('Error', 'Failed to load writing session. Please try again.', [
           { text: 'Go Back', onPress: () => router.back() },
         ]);
@@ -145,7 +145,7 @@ export default function AdvancedWritingPracticeScreen() {
       // Replace practice with results screen immediately
       router.replace(`/ielts/advanced/writing/result/${sessionId}`);
     } catch (err: any) {
-      console.error('[WritingPractice] Submit failed:', err);
+      if (__DEV__) console.error('[WritingPractice] Submit failed:', err);
       Alert.alert(
         'Submit Failed',
         err?.message ?? 'Could not submit your essay. Please try again.',

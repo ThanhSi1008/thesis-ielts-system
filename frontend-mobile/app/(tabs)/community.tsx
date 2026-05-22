@@ -83,15 +83,15 @@ export default function CommunityScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [openedCommentPostId, setOpenedCommentPostId] = useState<string | null>(null);
 
-  const handleOpenComments = (postId: string) => {
+  const handleOpenComments = useCallback((postId: string) => {
     setOpenedCommentPostId(postId);
-  };
+  }, []);
 
-  const handleCommentAdded = (postId: string) => {
+  const handleCommentAdded = useCallback((postId: string) => {
     setPosts((prev) =>
       prev.map((p) => (p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p)),
     );
-  };
+  }, []);
 
   const fetchPosts = useCallback(
     async (cursor?: string) => {
@@ -125,7 +125,7 @@ export default function CommunityScreen() {
     fetchPosts().finally(() => setLoading(false));
   }, [activeTab]);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     if (activeTab === 'leaderboard') {
       await new Promise((resolve) => setTimeout(resolve, 800));
@@ -133,16 +133,16 @@ export default function CommunityScreen() {
       await fetchPosts();
     }
     setRefreshing(false);
-  };
+  }, [activeTab, fetchPosts]);
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return;
     setLoadingMore(true);
     await fetchPosts(nextCursor);
     setLoadingMore(false);
-  };
+  }, [nextCursor, loadingMore, fetchPosts]);
 
-  const handleLike = async (postId: string) => {
+  const handleLike = useCallback(async (postId: string) => {
     setPosts((prev) =>
       prev.map((p) =>
         p.id === postId
@@ -161,9 +161,9 @@ export default function CommunityScreen() {
         ),
       );
     }
-  };
+  }, []);
 
-  const handleBookmark = async (postId: string) => {
+  const handleBookmark = useCallback(async (postId: string) => {
     setPosts((prev) =>
       prev.map((p) => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p)),
     );
@@ -174,21 +174,21 @@ export default function CommunityScreen() {
         prev.map((p) => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p)),
       );
     }
-  };
+  }, []);
 
-  const handleDelete = async (postId: string) => {
+  const handleDelete = useCallback(async (postId: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
     try {
       await postsApi.deletePost(postId);
     } catch {
       Alert.alert('Error', 'Failed to delete post');
     }
-  };
+  }, []);
 
-  const handleCreated = (post: Post) => {
+  const handleCreated = useCallback((post: Post) => {
     setPosts((prev) => [post, ...prev]);
     setActiveTab('all');
-  };
+  }, []);
 
   const authorName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Me';
 

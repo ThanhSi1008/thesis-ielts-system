@@ -31,7 +31,7 @@ interface LessonRowProps {
 }
 
 /** Matches web's RoadmapContent item card design exactly */
-export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
+export const LessonRow = React.memo(function LessonRow({ item, isNext, onPress }: LessonRowProps) {
   const skillIcon = SKILL_ICON[item.skill] ?? 'book-outline';
   const { colors } = useTheme();
 
@@ -109,7 +109,7 @@ export function LessonRow({ item, isNext, onPress }: LessonRowProps) {
       </TouchableOpacity>
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   row: {

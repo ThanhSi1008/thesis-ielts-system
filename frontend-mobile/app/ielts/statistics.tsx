@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-native-svg';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
@@ -169,7 +169,7 @@ export default function StatisticsScreen() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== ROUTES.ieltsStatistics) {
-      router.push(route as any);
+      navigation.push(route);
     }
   };
 

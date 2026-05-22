@@ -125,7 +125,7 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
             if (d.length > 0) setSelectedDeckId(d[0].id);
             setDataLoaded(true);
           } catch (e) {
-            console.error('Failed to load decks/cardTypes in Fab', e);
+            if (__DEV__) console.error('Failed to load decks/cardTypes in Fab', e);
           }
         }
 

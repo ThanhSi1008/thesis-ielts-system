@@ -36,7 +36,7 @@ export default function GrammarScreen() {
       setBooks(data);
     } catch (err) {
       setError('Unable to load grammar books. Please try again.');
-      console.error(err);
+      if (__DEV__) console.error(err);
     } finally {
       setLoading(false);
       setRefreshing(false);

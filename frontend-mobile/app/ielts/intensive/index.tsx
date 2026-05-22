@@ -8,9 +8,9 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
-  Image,
   Animated,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -216,7 +216,7 @@ function AccordionGroup({
       <TouchableOpacity style={acc.header} onPress={onToggle} activeOpacity={0.8}>
         {/* Book cover or placeholder */}
         {group.imageUrl ? (
-          <Image source={{ uri: group.imageUrl }} style={acc.cover} resizeMode="cover" />
+          <Image source={{ uri: group.imageUrl }} style={acc.cover} contentFit="cover" cachePolicy="memory-disk" />
         ) : (
           <View style={acc.coverPlaceholder}>
             <Text style={acc.coverPlaceholderText} numberOfLines={3}>
@@ -333,7 +333,7 @@ export default function IntensiveScreen() {
       const data = await ieltsExamsApi.getIntensiveCatalog(skill);
       setCatalog(data);
     } catch (e) {
-      console.error(e);
+      if (__DEV__) console.error(e);
     } finally {
       setLoading(false);
       setRefreshing(false);

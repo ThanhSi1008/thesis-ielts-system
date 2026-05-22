@@ -545,7 +545,7 @@ export default function StatisticsScreen() {
           [skill]: Array.isArray(data) ? data : [],
         }));
       } catch (err) {
-        console.error(`[AdvancedStats] Fetch history for ${skill} failed:`, err);
+        if (__DEV__) console.error(`[AdvancedStats] Fetch history for ${skill} failed:`, err);
       } finally {
         setLoadingMap((prev) => ({ ...prev, [skill]: false }));
         if (isRefresh) setRefreshing(false);

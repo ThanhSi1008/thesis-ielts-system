@@ -12,7 +12,7 @@ import {
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { apiClient } from '@/services/api-client';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -118,13 +118,13 @@ export default function IeltsRoadmapScreen() {
       }>('/ielts/roadmap');
 
       if (data.requiresOnboarding) {
-        router.replace(ROUTES.ieltsOnboarding);
+        navigation.replace(ROUTES.ieltsOnboarding);
         return;
       }
       setSteps(data.steps ?? []);
       setCurrentStep(data.currentStep ?? 1);
     } catch (e: any) {
-      console.error('Roadmap fetch error:', e);
+      if (__DEV__) console.error('Roadmap fetch error:', e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -156,7 +156,7 @@ export default function IeltsRoadmapScreen() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== '/ielts/roadmap') {
-      router.push(route as any);
+      navigation.push(route);
     }
   };
 
@@ -191,12 +191,12 @@ export default function IeltsRoadmapScreen() {
   const handleItemPress = (item: RoadmapItem) => {
     if (item.isLocked) return;
     if (item.type === 'lesson') {
-      router.push((ROUTES.ieltsBasicLesson(item.id) + `?skill=${item.skill.toLowerCase()}`) as any);
+      navigation.push(ROUTES.ieltsBasicLesson(item.id) + `?skill=${item.skill.toLowerCase()}`);
     } else {
       const q = item.lessonId
         ? `?lessonId=${item.lessonId}&skill=${item.skill.toLowerCase()}`
         : `?skill=${item.skill.toLowerCase()}`;
-      router.push((ROUTES.ieltsBasicExercise(item.id) + q) as any);
+      navigation.push(ROUTES.ieltsBasicExercise(item.id) + q);
     }
   };
 

@@ -86,7 +86,7 @@ export default function AdvancedSpeakingIndexScreen() {
         setStats(statsRes.value ?? []);
       }
     } catch (err) {
-      console.error('[AdvancedSpeakingIndex] Error fetching speaking data:', err);
+      if (__DEV__) console.error('[AdvancedSpeakingIndex] Error fetching speaking data:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);

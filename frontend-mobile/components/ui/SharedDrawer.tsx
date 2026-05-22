@@ -264,7 +264,7 @@ export function SharedDrawer({
         loading: false,
       });
     } catch (error) {
-      console.error('Failed to load drawer progress:', error);
+      if (__DEV__) console.error('Failed to load drawer progress:', error);
       setProgressData((p) => ({ ...p, loading: false }));
     }
   };
@@ -277,7 +277,7 @@ export function SharedDrawer({
         setRecentRoutes(JSON.parse(stored));
       }
     } catch (error) {
-      console.error('Failed to load recent routes:', error);
+      if (__DEV__) console.error('Failed to load recent routes:', error);
     }
   };
 
@@ -296,7 +296,7 @@ export function SharedDrawer({
       await AsyncStorage.setItem('@recent_drawer_visits', JSON.stringify(list));
       setRecentRoutes(list);
     } catch (error) {
-      console.error('Failed to save recent route:', error);
+      if (__DEV__) console.error('Failed to save recent route:', error);
     }
   };
 

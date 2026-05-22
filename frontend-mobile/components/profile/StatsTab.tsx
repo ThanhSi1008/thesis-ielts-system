@@ -39,7 +39,7 @@ export function ProfileStatsTab() {
       if (gamData) setGamProfile(gamData);
       if (achData) setAchievements(achData);
     } catch (error) {
-      console.error('Failed to fetch stats data:', error);
+      if (__DEV__) console.error('Failed to fetch stats data:', error);
     } finally {
       setLoading(false);
     }

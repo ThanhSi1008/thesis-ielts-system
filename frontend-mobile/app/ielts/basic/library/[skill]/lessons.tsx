@@ -52,7 +52,7 @@ export default function SkillLessonsScreen() {
       const res = await apiClient.get<Lesson[]>(`/ielts/skills/${skillName}/lessons`);
       setLessons(res || []);
     } catch (error) {
-      console.error('Failed to fetch lessons', error);
+      if (__DEV__) console.error('Failed to fetch lessons', error);
     } finally {
       setLoading(false);
       setRefreshing(false);

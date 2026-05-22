@@ -31,6 +31,7 @@ export const gamificationApi = {
 
 // Re-export new unified APIs from learning.api
 export { vocabularyApi, grammarApi, pronunciationApi } from './learning.api';
+export { clientCache } from './cache';
 
 // Re-export types for convenience
 export type {

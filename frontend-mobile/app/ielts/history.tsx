@@ -17,7 +17,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { Badge, ScoreBadge } from '@/components/ui';
 import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/components';
@@ -340,7 +340,7 @@ export default function HistoryScreen() {
   const handleNavPress = (route: string) => {
     closeDrawer();
     if (route !== ROUTES.ieltsHistory) {
-      router.push(route as any);
+      navigation.push(route);
     }
   };
 
@@ -365,7 +365,7 @@ export default function HistoryScreen() {
       );
       setHistory([...normalizedMock, ...normalizedWriting]);
     } catch (e) {
-      console.error(e);
+      if (__DEV__) console.error(e);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -417,19 +417,19 @@ export default function HistoryScreen() {
       const id = item.id ?? item.sessionId;
       if (!id) return;
       if (item.isAdvanced && item.skill === 'WRITING') {
-        router.push(`/ielts/advanced/writing/result/${id}` as any);
+        navigation.push(`/ielts/advanced/writing/result/${id}`);
         return;
       }
       if (item.practicePart) {
         // Practice → advanced result
         const skillPath = item.skill?.toLowerCase() ?? 'listening';
-        router.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.examId, id) as any);
+        navigation.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.examId, id));
       } else {
         // Mock → intensive result
-        router.push(ROUTES.ieltsIntensiveResult(id) as any);
+        navigation.push(ROUTES.ieltsIntensiveResult(id));
       }
     },
-    [router],
+    [],
   );
 
   const totalForMode = history

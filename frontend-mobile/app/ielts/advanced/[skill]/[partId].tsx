@@ -393,7 +393,7 @@ export default function AdvancedPartScreen() {
           : await ieltsAdvancedApi.getReadingPart(partId);
         setPart(data);
       } catch (e) {
-        console.error(e);
+        if (__DEV__) console.error(e);
       } finally {
         setLoading(false);
       }
@@ -424,16 +424,16 @@ export default function AdvancedPartScreen() {
         onPress: async () => {
           setSubmitting(true);
           try {
-            console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers })); // DEBUG
+            if (__DEV__) console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers }));
             const result = isListening
               ? await ieltsAdvancedApi.submitListening(partId, answers)
               : await ieltsAdvancedApi.submitReading(partId, answers);
-            console.log('[SUBMIT] response:', JSON.stringify(result)); // DEBUG
+            if (__DEV__) console.log('[SUBMIT] response:', JSON.stringify(result));
             router.replace(
               ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id),
             );
           } catch (err) {
-            console.error('[SUBMIT] error:', err);
+            if (__DEV__) console.error('[SUBMIT] error:', err);
             Alert.alert('Error', 'Submission failed.');
           } finally {
             setSubmitting(false);

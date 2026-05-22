@@ -146,7 +146,7 @@ export function LibraryContent() {
         const res = await apiClient.get<LibraryStats[]>('/ielts/library/stats');
         setStats(res || []);
       } catch (error) {
-        console.error('Failed to fetch library stats', error);
+        if (__DEV__) console.error('Failed to fetch library stats', error);
         setStats([]);
       } finally {
         setLoading(false);

@@ -413,7 +413,7 @@ export default function GrammarLessonScreen() {
       const data = await grammarApi.getUnit(unitId);
       setUnit(data);
     } catch (err) {
-      console.error(err);
+      if (__DEV__) console.error(err);
     } finally {
       setLoading(false);
     }

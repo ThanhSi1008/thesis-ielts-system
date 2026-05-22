@@ -182,7 +182,7 @@ export default function DiagnosticScreen() {
         const res = await ieltsProfileApi.getPlacementExercises();
         setExercises(res);
       } catch (err) {
-        console.error('Failed to load placement exercises:', err);
+        if (__DEV__) console.error('Failed to load placement exercises:', err);
         Alert.alert('Error', 'Could not load diagnostic test. Please check your connection.');
       } finally {
         setLoading(false);
@@ -253,7 +253,7 @@ export default function DiagnosticScreen() {
       });
       router.replace(ROUTES.ieltsRoadmap);
     } catch (e: any) {
-      console.error('Diagnostic Complete Error:', e?.response?.data || e.message || e);
+      if (__DEV__) console.error('Diagnostic Complete Error:', e?.response?.data || e.message || e);
       Alert.alert('Error', 'Could not generate your custom roadmap. Try again.');
       setSubmitting(false);
     }

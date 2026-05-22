@@ -76,7 +76,7 @@ export function ProfileAccountTab() {
         setSubscription(subData);
       }
     } catch (error) {
-      console.error('Failed to fetch account tab data:', error);
+      if (__DEV__) console.error('Failed to fetch account tab data:', error);
     } finally {
       setLoading(false);
     }

@@ -82,7 +82,7 @@ export function ProfileSettingsTab() {
         await AsyncStorage.setItem('notifications-local-enabled', 'false');
         toast.success('Disabled', 'Notifications have been disabled');
       } catch (error) {
-        console.error('Failed to disable notifications:', error);
+        if (__DEV__) console.error('Failed to disable notifications:', error);
         toast.error('Error', 'Failed to disable notifications');
       }
     }

@@ -90,7 +90,7 @@ export default function OnboardingScreen() {
       });
       router.replace(ROUTES.ieltsRoadmap);
     } catch (e: any) {
-      console.error('Onboarding Save Error:', e?.response?.data || e.message || e);
+      if (__DEV__) console.error('Onboarding Save Error:', e?.response?.data || e.message || e);
       Alert.alert('Error', 'Could not save profile. Try again.');
     } finally {
       setSaving(false);

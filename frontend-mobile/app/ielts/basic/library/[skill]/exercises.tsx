@@ -98,7 +98,7 @@ export default function SkillExercisesScreen() {
       }
       setGroups(grouped);
     } catch (error) {
-      console.error('Failed to fetch exercises', error);
+      if (__DEV__) console.error('Failed to fetch exercises', error);
     } finally {
       setLoading(false);
       setRefreshing(false);

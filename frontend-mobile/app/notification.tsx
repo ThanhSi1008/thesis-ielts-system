@@ -318,6 +318,9 @@ export default function NotificationScreen() {
             contentContainerStyle={{ paddingBottom: 30 }}
             onScroll={handleScroll}
             scrollEventThrottle={16}
+            initialNumToRender={10}
+            windowSize={10}
+            removeClippedSubviews={true}
           />
         </DataScreen>
       )}

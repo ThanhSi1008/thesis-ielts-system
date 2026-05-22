@@ -5,10 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
   Alert,
   Modal,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { COLORS, FONTS } from '@/constants';
@@ -36,7 +36,7 @@ function TypePill({ type }: { type: PostType }) {
   return null;
 }
 
-export function PostCard({
+export const PostCard = React.memo(function PostCard({
   post,
   currentUserId,
   onLike,
@@ -107,6 +107,7 @@ export function PostCard({
               >
                 <Image
                   source={{ uri: url }}
+                  cachePolicy="memory-disk"
                   style={{ width: 200, height: 140, borderRadius: 12, marginRight: 8 }}
                 />
               </TouchableOpacity>
@@ -188,7 +189,7 @@ export function PostCard({
       </View>
     </View>
   );
-}
+});
 
 function makeStyles(colors: ReturnType<typeof useTheme>['colors']) {
   return StyleSheet.create({

@@ -1,3 +1,5 @@
+import { router, Href } from 'expo-router';
+
 /**
  * Typed Routes for Expo Router - Consistency Baseline
  */
@@ -121,3 +123,18 @@ export const ROUTES = {
 } as const;
 
 export type RoutesType = typeof ROUTES;
+
+export const navigation = {
+  push: (href: string | Href<string>) => {
+    router.push(href as any);
+  },
+  replace: (href: string | Href<string>) => {
+    router.replace(href as any);
+  },
+  back: () => {
+    router.back();
+  },
+  dismissAll: () => {
+    router.dismissAll();
+  }
+};

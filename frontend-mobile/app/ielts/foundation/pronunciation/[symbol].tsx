@@ -236,7 +236,7 @@ function WordCard({
                 try {
                   await pronunciationApi.updateProgress(soundId, pronScore);
                 } catch (e) {
-                  console.error('[WordCard] Failed to update overall sound progress:', e);
+                  if (__DEV__) console.error('[WordCard] Failed to update overall sound progress:', e);
                 }
 
                 if (pronScore >= 80) {
@@ -411,7 +411,7 @@ export default function IeltsSoundDetailScreen() {
           setWordProgresses(progressList || []);
         }
       } catch (err: any) {
-        console.error('[IeltsSoundDetailScreen] Error fetching sound:', err);
+        if (__DEV__) console.error('[IeltsSoundDetailScreen] Error fetching sound:', err);
         setError(err?.message || 'Failed to load sound detail');
       } finally {
         setLoading(false);
@@ -435,9 +435,9 @@ export default function IeltsSoundDetailScreen() {
       pronunciationApi
         .getWordProgress(sound.id)
         .then((progressList) => setWordProgresses(progressList || []))
-        .catch((err) =>
-          console.error('[IeltsSoundDetailScreen] Silent progress update failed:', err),
-        );
+        .catch((err) => {
+            if (__DEV__) console.error('[IeltsSoundDetailScreen] Silent progress update failed:', err);
+          });
     }
   }, [user, sound]);
 

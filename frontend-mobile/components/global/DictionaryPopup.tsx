@@ -88,7 +88,7 @@ export function DictionaryPopup() {
           setLoading(false);
         }
       } catch (error) {
-        console.error('Failed to fetch dictionary data', error);
+        if (__DEV__) console.error('Failed to fetch dictionary data', error);
         if (isMounted) setLoading(false);
       }
     };
@@ -121,7 +121,7 @@ export function DictionaryPopup() {
         player.play();
       }
     } catch (e) {
-      console.log('Phonetic audio playback error', e);
+      if (__DEV__) console.log('Phonetic audio playback error', e);
     }
   };
 

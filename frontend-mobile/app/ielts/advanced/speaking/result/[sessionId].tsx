@@ -570,7 +570,7 @@ export default function AdvancedSpeakingResultScreen() {
           setPollingActive(true);
         }
       } catch (err) {
-        console.error('[SpeakingResult] Fetch failed:', err);
+        if (__DEV__) console.error('[SpeakingResult] Fetch failed:', err);
         Alert.alert('Error', 'Failed to load session details.');
       } finally {
         setLoading(false);
@@ -621,7 +621,7 @@ export default function AdvancedSpeakingResultScreen() {
         criteria: rawFeedback.criteria ?? {},
       };
     } catch (e) {
-      console.error('[SpeakingResult] Parse feedback failed:', e);
+      if (__DEV__) console.error('[SpeakingResult] Parse feedback failed:', e);
       return null;
     }
   }, [session]);
