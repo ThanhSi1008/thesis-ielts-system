@@ -14,8 +14,8 @@ import { Button, FormField, Text } from '@/components';
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('test1@gmail.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const { login, loginWithGoogle, isLoading } = useAuth();
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     webClientId:
