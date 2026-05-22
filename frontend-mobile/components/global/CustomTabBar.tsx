@@ -10,7 +10,6 @@ import {
   Modal,
   TouchableOpacity,
 } from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,6 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { usePathname, useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useGrading } from '@/contexts/GradingContext';
@@ -47,11 +47,105 @@ interface QuickMenuOption {
   color?: string;
 }
 
-export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+// 5 core tabs
+const TABS = [
+  { name: 'index', title: 'Home', icon: 'home', iconOutline: 'home-outline' },
+  { name: 'explore', title: 'Explore', icon: 'compass', iconOutline: 'compass-outline' },
+  { name: 'ielts', title: 'IELTS', icon: 'school', iconOutline: 'school-outline' },
+  { name: 'community', title: 'Community', icon: 'people', iconOutline: 'people-outline' },
+  { name: 'profile', title: 'Profile', icon: 'person', iconOutline: 'person-outline' },
+] as const;
+
+// Strict rules to determine if we should hide the navigation tab bar during exams, lessons, quizzes, or other high-focus modules
+const isPracticeOrExamOrAuth = (path: string): boolean => {
+  if (!path) return false;
+
+  // 1. Auth routes
+  if (path.includes('/login') || path.includes('/register') || path.includes('/(auth)')) {
+    return true;
+  }
+  
+  // 2. Active Exam taking (e.g. /ielts/intensive/123, but not /ielts/intensive or /ielts/intensive/custom or result)
+  const isIntensiveExam = /^\/ielts\/intensive\/[^/]+$/.test(path) && 
+    !path.endsWith('/custom') && 
+    !path.endsWith('/index');
+  if (isIntensiveExam) return true;
+
+  // 3. Active Advanced skill practice (e.g. /ielts/advanced/writing/123, /ielts/advanced/speaking/123)
+  // But not the index (/ielts/advanced/speaking) or results
+  const isAdvancedSkillPractice = /^\/ielts\/advanced\/(writing|speaking)\/[^/]+$/.test(path) &&
+    !path.includes('/result');
+  if (isAdvancedSkillPractice) return true;
+
+  // 4. Dynamic skill part taking (e.g. /ielts/advanced/listening/part-1, but not /ielts/advanced/listening/part-1/result/...)
+  const isAdvancedSkillPart = /^\/ielts\/advanced\/(listening|reading|writing|speaking)\/[^/]+$/.test(path) &&
+    !path.includes('/result') &&
+    !path.includes('/history');
+  if (isAdvancedSkillPart) return true;
+
+  // 5. Sibling skill part routing (e.g. /ielts/advanced/[skill]/[partId])
+  const isAdvancedGenericPart = /^\/ielts\/advanced\/[^/]+\/[^/]+$/.test(path) &&
+    !path.includes('/result') &&
+    !path.includes('/history') &&
+    !path.includes('/index');
+  if (isAdvancedGenericPart) return true;
+
+  // 6. Basic lessons and exercises (e.g. /ielts/basic/lesson/123, /ielts/basic/exercise/123)
+  if (/^\/ielts\/basic\/(lesson|exercise)\/[^/]+$/.test(path)) {
+    return true;
+  }
+
+  // 7. Active Shadowing/Dictation lesson (/practice-tools/shadowing/[lessonId]/[mode])
+  if (/^\/practice-tools\/shadowing\/[^/]+\/[^/]+$/.test(path)) {
+    return true;
+  }
+
+  // 8. Active Vocab Lab study (/vocab-lab/study/[deckId])
+  if (path.includes('/vocab-lab/study/')) {
+    return true;
+  }
+
+  // 9. Other focused system screens
+  if (
+    path === '/chat-ai' ||
+    path === '/notification' ||
+    path === '/pricing' ||
+    path.includes('/payment') ||
+    path.includes('/onboarding')
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+// Map current pathname to one of our five core tabs
+const getActiveTab = (path: string): string => {
+  if (path === '/' || path === '/(tabs)' || path === '/index' || path === '') {
+    return 'index';
+  }
+  if (path.startsWith('/explore') || path.startsWith('/(tabs)/explore') || path.startsWith('/practice-tools')) {
+    return 'explore';
+  }
+  if (path.startsWith('/ielts') || path.startsWith('/(tabs)/ielts')) {
+    return 'ielts';
+  }
+  if (path.startsWith('/community') || path.startsWith('/(tabs)/community')) {
+    return 'community';
+  }
+  if (path.startsWith('/profile') || path.startsWith('/(tabs)/profile')) {
+    return 'profile';
+  }
+  return 'index';
+};
+
+export function CustomTabBar({ state, descriptors, navigation }: { state?: any; descriptors?: any; navigation?: any } = {}) {
   const { colors, isDark } = useTheme();
   const { unreadCount, notifications } = useNotification();
   const { jobs } = useGrading();
   const { tier } = useSubscription();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const [tabBarWidth, setTabBarWidth] = useState(SCREEN_WIDTH - TAB_SIDE_MARGIN * 2);
   const [quickMenuVisible, setQuickMenuVisible] = useState(false);
@@ -68,27 +162,38 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
     (n) => !n.isRead && n.type.toLowerCase().includes('comment')
   ).length;
 
-  const visibleRoutes = state.routes.filter((route) => {
-    const { options } = descriptors[route.key];
-    const MAIN_TABS = ['index', 'explore', 'ielts', 'community', 'profile'];
-    return (options as any).href !== null && MAIN_TABS.includes(route.name);
-  });
-
-  const activeIndex = visibleRoutes.findIndex((r) => r.name === state.routes[state.index].name);
-  const totalTabs = visibleRoutes.length;
+  const activeTabName = getActiveTab(pathname);
+  const activeIndex = TABS.findIndex((t) => t.name === activeTabName);
+  const totalTabs = TABS.length;
   const tabWidth = tabBarWidth / (totalTabs || 1);
+
+  const shouldHideRoute = isPracticeOrExamOrAuth(pathname);
+  const scrollVisible = useRef(true);
+
+  // Sync scroll visibility and route visibility
+  const updateVisibility = (visible: boolean) => {
+    const isVisible = visible && !shouldHideRoute;
+    translateY.value = withTiming(isVisible ? 0 : TAB_HEIGHT + TAB_BOTTOM + 50, {
+      duration: 250,
+    });
+  };
+
+  useEffect(() => {
+    // Reset scroll visibility on route change
+    scrollVisible.current = true;
+    updateVisibility(true);
+  }, [pathname, shouldHideRoute]);
 
   useEffect(() => {
     const visibilityListener = DeviceEventEmitter.addListener(
       'SET_TAB_BAR_VISIBILITY',
       ({ visible }: { visible: boolean }) => {
-        translateY.value = withTiming(visible ? 0 : TAB_HEIGHT + TAB_BOTTOM + 20, {
-          duration: 250,
-        });
+        scrollVisible.current = visible;
+        updateVisibility(visible);
       }
     );
     return () => visibilityListener.remove();
-  }, []);
+  }, [shouldHideRoute]);
 
   useEffect(() => {
     if (activeIndex !== -1) {
@@ -191,7 +296,22 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
   const handleQuickMenuSelect = (option: QuickMenuOption) => {
     closeQuickMenu();
-    navigation.navigate(option.route as any);
+    if (navigation && typeof navigation.navigate === 'function') {
+      navigation.navigate(option.route as any);
+    } else {
+      router.navigate(option.route as any);
+    }
+  };
+
+  const handleTabPress = (tabName: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const targetRoute = tabName === 'index' ? '/(tabs)' : `/(tabs)/${tabName}`;
+    
+    if (navigation && typeof navigation.navigate === 'function') {
+      navigation.navigate(tabName);
+    } else {
+      router.navigate(targetRoute as any);
+    }
   };
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
@@ -231,36 +351,27 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
         {/* Tab items */}
         <View style={styles.tabBarItems}>
-          {visibleRoutes.map((route, index) => {
-            const isFocused = activeIndex === index;
-            const badgeCount = getTabBadge(route.name);
+          {TABS.map((tab) => {
+            const isFocused = activeTabName === tab.name;
+            const badgeCount = getTabBadge(tab.name);
 
             return (
               <TabButton
-                key={route.key}
-                title={getTabTitle(route.name)}
-                iconName={getTabIcon(route.name, isFocused)}
+                key={tab.name}
+                title={getTabTitle(tab.name)}
+                iconName={getTabIcon(tab.name, isFocused)}
                 badgeCount={badgeCount}
                 focused={isFocused}
                 activeColor={colors.primary}
                 inactiveColor={colors.textSecondary}
                 activeTitleColor={colors.text}
-                onPress={() => {
-                  const event = navigation.emit({
-                    type: 'tabPress',
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
-                  if (!isFocused && !event.defaultPrevented) {
-                    navigation.navigate(route.name, route.params);
-                  }
-                }}
+                onPress={() => handleTabPress(tab.name)}
                 onDoublePress={() => {
-                  DeviceEventEmitter.emit('SCROLL_TO_TOP', { target: route.name });
+                  DeviceEventEmitter.emit('SCROLL_TO_TOP', { target: tab.name });
                 }}
                 onLongPress={() => {
-                  if (route.name === 'ielts') openQuickMenu('ielts');
-                  else if (route.name === 'profile') openQuickMenu('profile');
+                  if (tab.name === 'ielts') openQuickMenu('ielts');
+                  else if (tab.name === 'profile') openQuickMenu('profile');
                 }}
               />
             );

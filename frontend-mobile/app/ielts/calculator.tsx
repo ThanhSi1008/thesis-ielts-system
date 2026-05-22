@@ -97,18 +97,41 @@ export default function IELTSCalculatorScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerSubtitle}>IELTS · LEXON</Text>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Calculator</Text>
-        </View>
-        <TouchableOpacity onPress={openDrawer} style={styles.backBtn}>
+      {/* ── Theme-Aware Header ── */}
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
+        >
           <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
+
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={styles.headerSubtitle}>IELTS · LEXON</Text>
+          <Text style={[styles.headerTitle, { color: colors.text, fontSize: 18, marginTop: 1 }]}>Calculator</Text>
+        </View>
+
+        <View style={{ width: 44 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

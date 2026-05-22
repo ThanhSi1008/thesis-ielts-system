@@ -1,14 +1,15 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Animated } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONTS, ROUTES } from '@/constants';
+import { COLORS, FONTS, ROUTES, navigation } from '@/constants';
 import { vocabularyApi } from '@/services/ielts.api';
 import { DataScreen, BookListSkeleton, EmptyState, Card, ProgressBar, Chip, Text } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTabBarVisibility } from '@/hooks';
 import { useTheme } from '@/contexts/ThemeContext';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 
 const BOOK_THEMES: { stage: string; colors: readonly [string, string] }[] = [
   { stage: 'Foundation', colors: ['#10b981', '#0d9488'] },
@@ -22,6 +23,37 @@ const BOOK_THEMES: { stage: string; colors: readonly [string, string] }[] = [
 export default function VocabularyScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== '/ielts/foundation/vocabulary') {
+      navigation.push(route);
+    }
+  };
+
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -64,9 +96,20 @@ export default function VocabularyScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={['top']}>
-      {/* Title */}
-      <View style={styles.header}>
-        <View>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity
+          style={styles.menuBtn}
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
+        >
+          <Ionicons name="menu" size={24} color={colors.text} />
+        </TouchableOpacity>
+
+        <View style={styles.headerTitleContainer}>
           <Text variant="caption" weight="bold" style={styles.eyebrow} allowFontScaling={true}>
             IELTS · Lexon
           </Text>
@@ -74,15 +117,18 @@ export default function VocabularyScreen() {
             Vocabulary
           </Text>
         </View>
-        <TouchableOpacity
-          style={[styles.searchBtn, { backgroundColor: colors.bgElevated, borderColor: colors.border }]}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel="Search vocabulary"
-          accessibilityHint="Double tap to search vocabulary books"
-        >
-          <Ionicons name="search" size={17} color={colors.text} />
-        </TouchableOpacity>
+
+        <View style={styles.rightActionContainer}>
+          <TouchableOpacity
+            style={[styles.searchBtn, { backgroundColor: colors.bgElevated, borderColor: colors.border }]}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Search vocabulary"
+            accessibilityHint="Double tap to search vocabulary books"
+          >
+            <Ionicons name="search" size={17} color={colors.text} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Count */}
@@ -241,6 +287,15 @@ export default function VocabularyScreen() {
           })}
         </ScrollView>
       </DataScreen>
+      <SharedDrawer
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        onClose={closeDrawer}
+        onOpen={openDrawer}
+        onNavPress={handleNavPress}
+      />
     </SafeAreaView>
   );
 }
@@ -254,18 +309,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 4,
     paddingBottom: 10,
+    borderBottomWidth: 1,
+  },
+  menuBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rightActionContainer: {
+    width: 44,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   eyebrow: {
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     color: COLORS.gray[400],
+    textAlign: 'center',
   },
   title: {
     fontSize: 22,
     letterSpacing: -0.25,
     lineHeight: 24,
     marginTop: 2,
+    textAlign: 'center',
   },
   searchBtn: {
     width: 36,

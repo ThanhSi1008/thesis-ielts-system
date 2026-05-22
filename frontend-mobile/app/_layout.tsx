@@ -14,6 +14,7 @@ import {
   NotificationPermissionBanner,
 } from '@/components';
 import { useFonts } from 'expo-font';
+import { CustomTabBar } from '@/components/global/CustomTabBar';
 
 import {
   Farro_300Light,
@@ -181,6 +182,7 @@ function RootNavigator() {
       <GlobalAddCardFab hideFab={true} />
       <DictionaryPopup />
       <NotificationPermissionBanner />
+      <CustomTabBar />
     </>
   );
 }

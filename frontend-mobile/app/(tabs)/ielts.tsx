@@ -181,16 +181,7 @@ export default function IeltsRoadmapTab() {
         >
           Your Roadmap
         </Text>
-        <TouchableOpacity
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-          onPress={() => navigation.push(ROUTES.ieltsBasic)}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel="Go to IELTS Basic library"
-          accessibilityHint="Double tap to open the IELTS Basic library screen"
-        >
-          <Ionicons name="information-circle-outline" size={24} color={colors.text} />
-        </TouchableOpacity>
+        <View style={{ width: 44 }} />
       </View>
 
       {loading ? (

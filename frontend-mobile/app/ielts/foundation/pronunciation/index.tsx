@@ -1,9 +1,4 @@
-/**
- * IELTS Pronunciation — IPA Phonetic Chart (IELTS sidebar context)
- * Same chart as (tabs)/pronunciation but with IELTS header + back navigation.
- * Tapping a symbol navigates to /ielts/foundation/pronunciation/[symbol]
- */
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,24 +7,58 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES, navigation } from '@/constants';
 import { pronunciationApi } from '@/services/learning.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { UsageIndicator } from '@/components/ui/index';
 import type { PronunciationData, SoundProgress, PronunciationStats } from '@/types';
 import ProgressSummary from '@/components/foundation/ProgressSummary';
 import IpaChart from '@/components/foundation/IpaChart';
+import { SharedDrawer } from '@/components/ui/SharedDrawer';
 
 export default function IeltsPronunciationScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { usage } = useSubscription();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-280)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -280,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+  const handleNavPress = (route: string) => {
+    closeDrawer();
+    if (route !== '/ielts/foundation/pronunciation') {
+      navigation.push(route);
+    }
+  };
   const [sounds, setSounds] = useState<PronunciationData | null>(null);
   const [progress, setProgress] = useState<SoundProgress[]>([]);
   const [stats, setStats] = useState<PronunciationStats | null>(null);
@@ -80,19 +109,53 @@ export default function IeltsPronunciationScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header — IELTS styled */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color="#fff" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      {/* ── Theme-Aware Header ── */}
+      <View
+        style={{
+          backgroundColor: colors.background,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SPACING.md,
+          paddingBottom: SPACING.sm,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            width: 44,
+            height: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
+        >
+          <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>🗣️ Pronunciation</Text>
-          <Text style={styles.headerSub}>IPA Phonetic Chart · AI Feedback</Text>
+
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{
+            fontSize: 10,
+            fontFamily: FONTS.bold,
+            color: colors.textSecondary,
+            textTransform: 'uppercase',
+            letterSpacing: 0.6,
+          }}>IELTS · LEXON</Text>
+          <Text style={{
+            color: colors.text,
+            fontSize: 18,
+            fontFamily: FONTS.bold,
+            marginTop: 1,
+          }}>Pronunciation</Text>
         </View>
-        <View style={styles.backBtn}>
-          <Ionicons name="mic-outline" size={20} color="rgba(255,255,255,0.7)" />
-        </View>
+
+        <View style={{ width: 44 }} />
       </View>
 
       {/* Intro banner */}
@@ -172,8 +235,16 @@ export default function IeltsPronunciationScreen() {
           </>
         ) : null}
 
-        <View style={{ height: 32 }} />
       </ScrollView>
+      <SharedDrawer
+        drawerOpen={drawerOpen}
+        drawerAnim={drawerAnim}
+        backdropAnim={backdropAnim}
+        insetsTop={insets.top}
+        onClose={closeDrawer}
+        onOpen={openDrawer}
+        onNavPress={handleNavPress}
+      />
     </SafeAreaView>
   );
 }
