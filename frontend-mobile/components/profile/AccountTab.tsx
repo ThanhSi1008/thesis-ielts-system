@@ -10,6 +10,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/services/api-client';
 
+import { Badge } from '@/components';
+
 interface AccountTabProps {
   user: any;
   displayName: string;
@@ -196,16 +198,6 @@ export function ProfileAccountTab({
     }
   };
 
-  const renderBadge = () => {
-    if (tier === 'FREE') return null;
-    return (
-      <View style={[parentStyles.badge, tier === 'PRO' ? parentStyles.badgePro : parentStyles.badgePremium]}>
-        <Ionicons name="star" size={10} color="#FFF" />
-        <Text style={parentStyles.badgeText}>{tier}</Text>
-      </View>
-    );
-  };
-
   const isCanceled = status === 'CANCELED';
   const isTrial = status === 'TRIALING';
   const endDate = isTrial ? subscription?.trialEndsAt : subscription?.currentPeriodEnd;
@@ -257,7 +249,7 @@ export function ProfileAccountTab({
 
         <View style={parentStyles.nameRow}>
           <Text style={parentStyles.name}>{displayName}</Text>
-          {renderBadge()}
+          {tier !== 'FREE' && <Badge variant="tier" value={tier} />}
         </View>
         <Text style={parentStyles.email}>{user.email}</Text>
 

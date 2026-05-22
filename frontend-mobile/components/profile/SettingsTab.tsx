@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, Switch, TextInput, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
+import { Switch } from '@/components';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { ThemeMode } from '@/contexts/ThemeContext';
 
@@ -118,7 +119,6 @@ export function ProfileSettingsTab({
             value={notificationsEnabled}
             onValueChange={setNotificationsEnabled}
             disabled={permissionStatus === 'denied'}
-            trackColor={{ false: '#CBD5E1', true: COLORS.primary }}
           />
         </View>
 

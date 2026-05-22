@@ -168,6 +168,9 @@ function RootNavigator() {
         {/* Pricing / Subscription */}
         <Stack.Screen name="pricing" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="payment/vnpay-return" options={{ headerShown: false }} />
+
+        {/* Dev Sandbox Route */}
+        <Stack.Screen name="_dev/atom-gallery" options={{ headerShown: true }} />
       </Stack>
       <Toaster />
       <UpgradeModal />

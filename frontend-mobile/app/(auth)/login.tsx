@@ -1,15 +1,10 @@
 import { useState } from 'react';
 import {
   View,
-  Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,9 +14,8 @@ import { toast } from '@/components/ui/index';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { makeRedirectUri } from 'expo-auth-session';
 import { useEffect } from 'react';
-import Constants from 'expo-constants';
+import { Button, FormField, Text } from '@/components';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -85,68 +79,60 @@ export default function LoginScreen() {
       <StatusBar style="dark" />
 
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome Back!</Text>
-        <Text style={styles.subtitle}>Sign in to continue your learning journey</Text>
+        <Text variant="display" color="primary" weight="bold" style={styles.title}>Welcome Back!</Text>
+        <Text variant="body" color="textSecondary" style={styles.subtitle}>Sign in to continue your learning journey</Text>
       </View>
 
       <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-        </View>
+        <FormField
+          label="Email"
+          placeholder="Enter your email"
+          value={email}
+          onChangeText={setEmail}
+          leftIcon="mail-outline"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          onClear={() => setEmail('')}
+        />
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
+        <FormField
+          label="Password"
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={setPassword}
+          leftIcon="lock-closed-outline"
+          secureTextEntry
+        />
 
-        <TouchableOpacity
-          style={[styles.button, isLoading && styles.buttonDisabled]}
+        <Button
+          title="Log In"
           onPress={handleLogin}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>Log In</Text>
-          )}
-        </TouchableOpacity>
+          loading={isLoading}
+          fullWidth
+        />
 
         <View style={styles.dividerContainer}>
           <View style={styles.divider} />
-          <Text style={styles.dividerText}>OR</Text>
+          <Text variant="caption" color="textSecondary" style={styles.dividerText}>OR</Text>
           <View style={styles.divider} />
         </View>
 
-        <TouchableOpacity
-          style={styles.googleButton}
+        <Button
+          title="Continue with Google"
           onPress={() => {
             if (request) promptAsync();
           }}
+          variant="outline"
+          leftIcon="logo-google"
           disabled={!request || isLoading}
-        >
-          <Ionicons name="logo-google" size={20} color="#4285F4" style={styles.googleIcon} />
-          <Text style={styles.googleButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
+          fullWidth
+        />
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text variant="body" color="textSecondary">Don't have an account? </Text>
           <Link href="/(auth)/register" asChild>
             <TouchableOpacity>
-              <Text style={styles.link}>Sign Up</Text>
+              <Text variant="body" color="primary" weight="bold">Sign Up</Text>
             </TouchableOpacity>
           </Link>
         </View>

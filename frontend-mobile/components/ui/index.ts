@@ -7,21 +7,18 @@ export { Toaster, toast } from './Toaster';
 export { UpgradeModal } from './UpgradeModal';
 export { UsageIndicator } from './UsageIndicator';
 
+// Re-export new atoms under deprecated names for seamless backwards compatibility
+export { default as Button } from '../atoms/Button';
+export { default as Badge } from '../atoms/Badge';
+export { default as Divider } from '../atoms/Divider';
+export { default as Chip } from '../atoms/Chip';
+export { default as ScoreBadge } from '../atoms/ScoreBadge';
+
 // Legacy UI components (DEPRECATED)
 export {
-  /** @deprecated Use AppButton from '@/components/ui' or appropriate button from '@/components/atoms' instead */
-  Button,
-  /** @deprecated Use Badge from '@/components/atoms' instead */
-  Badge,
   /** @deprecated Use SectionHeader from '@/components/atoms' instead */
   SectionHeader,
   /** @deprecated Use EmptyState from '@/components/atoms' instead */
   EmptyState,
-  /** @deprecated Use Divider from '@/components/atoms' instead */
-  Divider,
-  /** @deprecated Use Chip from '@/components/atoms' instead */
-  Chip,
-  /** @deprecated Use ScoreBadge from '@/components/atoms' instead */
-  ScoreBadge,
 } from '../ui';
 
