@@ -1,15 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { BackHandler } from 'react-native';
 import { useNavigation } from 'expo-router';
 
-export function useExitConfirm(hasUnsavedChanges: boolean, onSave?: () => Promise<void>) {
+export function useExitConfirm(
+  hasUnsavedChanges: boolean,
+  onSave?: () => Promise<void> | void,
+  onDiscard?: () => Promise<void> | void
+) {
   const navigation = useNavigation();
   const [isVisible, setIsVisible] = useState(false);
   const [pendingAction, setPendingAction] = useState<any>(null);
+  const isConfirmedRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      if (!hasUnsavedChanges) {
+      if (!hasUnsavedChanges || isConfirmedRef.current) {
         return;
       }
 
@@ -25,7 +30,7 @@ export function useExitConfirm(hasUnsavedChanges: boolean, onSave?: () => Promis
   // Handle hardware back on Android too
   useEffect(() => {
     const handleHardwareBack = () => {
-      if (hasUnsavedChanges) {
+      if (hasUnsavedChanges && !isConfirmedRef.current) {
         setIsVisible(true);
         return true; // prevent default behavior (exit app or screen)
       }
@@ -39,6 +44,7 @@ export function useExitConfirm(hasUnsavedChanges: boolean, onSave?: () => Promis
   }, [hasUnsavedChanges]);
 
   const handleConfirmSave = async () => {
+    isConfirmedRef.current = true;
     setIsVisible(false);
     if (onSave) {
       try {
@@ -54,8 +60,16 @@ export function useExitConfirm(hasUnsavedChanges: boolean, onSave?: () => Promis
     }
   };
 
-  const handleConfirmDiscard = () => {
+  const handleConfirmDiscard = async () => {
+    isConfirmedRef.current = true;
     setIsVisible(false);
+    if (onDiscard) {
+      try {
+        await onDiscard();
+      } catch (err) {
+        console.error('Failed to discard on exit confirm:', err);
+      }
+    }
     if (pendingAction) {
       navigation.dispatch(pendingAction);
     } else {
@@ -66,6 +80,7 @@ export function useExitConfirm(hasUnsavedChanges: boolean, onSave?: () => Promis
   const handleCancel = () => {
     setIsVisible(false);
     setPendingAction(null);
+    isConfirmedRef.current = false;
   };
 
   return {
@@ -76,3 +91,4 @@ export function useExitConfirm(hasUnsavedChanges: boolean, onSave?: () => Promis
     confirmDiscard: handleConfirmDiscard,
   };
 }
+

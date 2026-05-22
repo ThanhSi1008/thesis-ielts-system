@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ROUTES } from '@/constants';
 import { useThemedStyles } from '@/hooks';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +26,7 @@ type TabType = 'account' | 'stats' | 'settings';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { tab } = useLocalSearchParams<{ tab?: TabType }>();
   const { user, logout } = useAuth();
   const { colors, resolvedTheme } = useTheme();
   const styles = useThemedStyles(createStyles);
@@ -33,6 +34,12 @@ export default function ProfileScreen() {
 
   const [activeTab, setActiveTab] = useState<TabType>('account');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  React.useEffect(() => {
+    if (tab && ['account', 'stats', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [tab]);
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);

@@ -20,6 +20,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
 import { ConfirmDialog, SuccessCelebration } from '@/components';
 import { useAnswerState, useExamSession, useExamTimer, useExitConfirm } from '@/hooks';
+import { ieltsExamsApi } from '@/services';
 import {
   ExamHeader,
   ExamAudioPlayer,
@@ -90,14 +91,6 @@ export default function ExamPlayerScreen() {
     buildSubmitPayload,
   } = useAnswerState(exam?.type);
 
-  const {
-    isVisible: exitConfirmVisible,
-    showDialog: showExitConfirm,
-    hideDialog: hideExitConfirm,
-    confirmSave: handleExitSave,
-    confirmDiscard: handleExitDiscard,
-  } = useExitConfirm(examReady && !submitting && !isAiGrading);
-
   const handleExpire = useCallback(async () => {
     toast.info('Your exam is being automatically submitted.');
     if (!session) return;
@@ -113,6 +106,39 @@ export default function ExamPlayerScreen() {
     display: timerDisplay,
     isWarning: isTimerWarning,
   } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire);
+
+  const handleSaveProgress = useCallback(async () => {
+    if (!session) return;
+    try {
+      const payload = buildSubmitPayload(exam?.type);
+      await ieltsExamsApi.saveProgress(session.id, payload, elapsed);
+      toast.success('Progress saved successfully.');
+    } catch (e) {
+      toast.error('Failed to save progress.');
+    }
+  }, [session, exam, buildSubmitPayload, elapsed]);
+
+  const handleDiscardProgress = useCallback(async () => {
+    if (!session) return;
+    try {
+      await ieltsExamsApi.deleteSession(session.id);
+      toast.info('Exam session discarded.');
+    } catch (e) {
+      console.error('Failed to discard session:', e);
+    }
+  }, [session]);
+
+  const {
+    isVisible: exitConfirmVisible,
+    showDialog: showExitConfirm,
+    hideDialog: hideExitConfirm,
+    confirmSave: handleExitSave,
+    confirmDiscard: handleExitDiscard,
+  } = useExitConfirm(
+    examReady && !submitting && !isAiGrading,
+    handleSaveProgress,
+    handleDiscardProgress
+  );
 
   const scrollToQuestion = useCallback(
     (n: number) => {
@@ -188,12 +214,24 @@ export default function ExamPlayerScreen() {
     showExitConfirm();
   };
 
-  const handleSuccessClose = () => {
+  const handleSuccessClose = useCallback(() => {
     setShowSuccess(false);
-    if (pendingResultSessionId) {
+
+    // If it's a standard Listening/Reading exam (non-AI), redirect to results instantly
+    if (pendingResultSessionId && exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
+      setExamReady(false); // disable exit intercept
       router.replace(ROUTES.ieltsIntensiveResult(pendingResultSessionId) as any);
+    } else if (exam?.type === 'WRITING' || exam?.type === 'SPEAKING') {
+      // For Writing/Speaking (AI graded) exams, they will stay on this screen
+      // which shows the AIGradingOverlay while polling in the background.
+      // Do NOT set examReady to false yet, because we need to render the grading overlay!
+      // Once grading completes, useExamSession will call onGradingDone which redirects them.
+    } else {
+      // Fallback: if no pending ID (e.g. error or unknown state), exit to intensive dashboard
+      setExamReady(false);
+      router.replace(ROUTES.ieltsIntensive as any);
     }
-  };
+  }, [pendingResultSessionId, exam?.type, router]);
 
   const handleSubmit = async () => {
     setSubmitConfirmVisible(true);
@@ -207,14 +245,13 @@ export default function ExamPlayerScreen() {
       const payload = buildSubmitPayload(exam?.type);
       const res = await submitSession(payload, elapsed);
       if (res) {
-        setExamReady(false); // disable exit intercept
-        if (!res.isAiType) {
+        // Do NOT call setExamReady(false) here, because we want the page to stay active
+        // so that SuccessCelebration is NOT unmounted prematurely,
+        // and AIGradingOverlay renders correctly when SuccessCelebration closes.
+        if (res.sessionId) {
           setPendingResultSessionId(res.sessionId);
-          setShowSuccess(true);
-        } else {
-          setPendingResultSessionId(null);
-          setShowSuccess(true);
         }
+        setShowSuccess(true);
       }
     } catch (e) {
       toast.error('Failed to submit. Try again.');
@@ -446,7 +483,14 @@ export default function ExamPlayerScreen() {
         />
       )}
 
-      {isAiGrading && <AIGradingOverlay onGoBack={() => router.replace(ROUTES.ieltsIntensive)} />}
+      {isAiGrading && (
+        <AIGradingOverlay
+          onGoBack={() => {
+            setExamReady(false);
+            router.replace(ROUTES.ieltsIntensive as any);
+          }}
+        />
+      )}
 
       <ConfirmDialog
         visible={exitConfirmVisible}
@@ -467,6 +511,37 @@ export default function ExamPlayerScreen() {
       <SuccessCelebration
         visible={showSuccess}
         onClose={handleSuccessClose}
+      />
+
+      <ConfirmDialog
+        visible={submitConfirmVisible}
+        onClose={() => setSubmitConfirmVisible(false)}
+        title="Submit Exam?"
+        message="Are you sure you want to submit your answers for grading?"
+        variant="info"
+        primaryAction={{
+          title: "Submit",
+          onPress: () => {
+            setSubmitConfirmVisible(false);
+            executeSubmit();
+          },
+        }}
+        secondaryAction={{
+          title: "Cancel",
+          onPress: () => setSubmitConfirmVisible(false),
+        }}
+      />
+
+      <ConfirmDialog
+        visible={gradingErrorVisible}
+        onClose={() => setGradingErrorVisible(false)}
+        title="Grading Error"
+        message={gradingErrorMessage || "An error occurred while grading your exam. Please try again."}
+        variant="destructive"
+        primaryAction={{
+          title: "OK",
+          onPress: () => setGradingErrorVisible(false),
+        }}
       />
     </SafeAreaView>
   );

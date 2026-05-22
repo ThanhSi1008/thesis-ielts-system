@@ -20,7 +20,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { usePathname, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { openUpgradeModal } from './UpgradeModal';
 import { ieltsProfileApi, vocabularyApi, grammarApi, ieltsExamsApi } from '@/services';
 
@@ -161,22 +161,7 @@ const DRAWER_GROUPS: DrawerGroup[] = [
   },
 ];
 
-// Helper to resolve route metadata for "Recently Visited" section
-const ROUTE_METADATA: Record<string, { label: string; iconOutline: React.ComponentProps<typeof Ionicons>['name']; iconFilled: React.ComponentProps<typeof Ionicons>['name'] }> = {
-  '/ielts/dashboard': { label: 'Dashboard', iconOutline: 'grid-outline', iconFilled: 'grid' },
-  '/ielts/foundation/pronunciation': { label: 'Pronunciation', iconOutline: 'volume-medium-outline', iconFilled: 'volume-medium' },
-  '/ielts/foundation/vocabulary': { label: 'Vocabulary', iconOutline: 'book-outline', iconFilled: 'book' },
-  '/ielts/foundation/grammar': { label: 'Grammar', iconOutline: 'text-outline', iconFilled: 'text' },
-  '/(tabs)/ielts': { label: 'Roadmap', iconOutline: 'map-outline', iconFilled: 'map' },
-  '/ielts/basic': { label: 'IELTS Basic', iconOutline: 'information-circle-outline', iconFilled: 'information-circle' },
-  '/ielts/advanced': { label: 'IELTS Advanced', iconOutline: 'trending-up-outline', iconFilled: 'trending-up' },
-  '/ielts/intensive': { label: 'IELTS Intensive', iconOutline: 'flash-outline', iconFilled: 'flash' },
-  '/ielts/roadmap': { label: 'Roadmap', iconOutline: 'map-outline', iconFilled: 'map' },
-  '/ielts/calculator': { label: 'Calculator', iconOutline: 'calculator-outline', iconFilled: 'calculator' },
-  '/ielts/history': { label: 'Test History', iconOutline: 'time-outline', iconFilled: 'time' },
-  '/ielts/statistics': { label: 'Statistics', iconOutline: 'bar-chart-outline', iconFilled: 'bar-chart' },
-  '/ielts/student-teacher': { label: 'Student/Teacher', iconOutline: 'people-outline', iconFilled: 'people' },
-};
+
 
 export function SharedDrawer({
   drawerOpen,
@@ -203,7 +188,7 @@ export function SharedDrawer({
   const [streakCount, setStreakCount] = useState<number | null>(null);
   const [targetBand, setTargetBand] = useState<number | null>(null);
   const [bestBand, setBestBand] = useState<number | null>(null);
-  const [recentRoutes, setRecentRoutes] = useState<string[]>([]);
+
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     '📚 Foundation': true,
     '🎓 Practice': true,
@@ -269,36 +254,7 @@ export function SharedDrawer({
     }
   };
 
-  // Load recently visited routes from AsyncStorage
-  const loadRecentRoutes = async () => {
-    try {
-      const stored = await AsyncStorage.getItem('@recent_drawer_visits');
-      if (stored) {
-        setRecentRoutes(JSON.parse(stored));
-      }
-    } catch (error) {
-      if (__DEV__) console.error('Failed to load recent routes:', error);
-    }
-  };
 
-  // Save recently visited routes to AsyncStorage
-  const saveRecentRoute = async (path: string) => {
-    // Check if path matches any valid drawer item
-    const matchingKey = Object.keys(ROUTE_METADATA).find((k) => path === k || path.startsWith(k));
-    if (!matchingKey) return;
-
-    try {
-      const stored = await AsyncStorage.getItem('@recent_drawer_visits');
-      let list: string[] = stored ? JSON.parse(stored) : [];
-      list = list.filter((p) => p !== matchingKey);
-      list.unshift(matchingKey);
-      list = list.slice(0, 3); // Limit to top 3
-      await AsyncStorage.setItem('@recent_drawer_visits', JSON.stringify(list));
-      setRecentRoutes(list);
-    } catch (error) {
-      if (__DEV__) console.error('Failed to save recent route:', error);
-    }
-  };
 
   // Trigger loading data on Drawer Open
   useEffect(() => {
@@ -321,11 +277,6 @@ export function SharedDrawer({
         .catch(() => {});
 
       loadProgress();
-      loadRecentRoutes();
-
-      if (pathname) {
-        saveRecentRoute(pathname);
-      }
     }
   }, [drawerOpen]);
 
@@ -797,38 +748,7 @@ export function SharedDrawer({
 
         {/* Menu Scroller */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          {/* Recently Visited Section (Block B6) */}
-          {isIeltsDrawer && recentRoutes.length > 0 && searchQuery === '' && (
-            <View style={styles.groupWrapper}>
-              <View style={styles.groupHeader}>
-                <Text style={styles.groupTitle}>🕒 Recently Visited</Text>
-              </View>
-              {recentRoutes.map((route) => {
-                const meta = ROUTE_METADATA[route];
-                if (!meta) return null;
-                const active = isRouteActive(route);
 
-                return (
-                  <TouchableOpacity
-                    key={`recent-${route}`}
-                    style={[styles.navItem, active && styles.navItemActive]}
-                    onPress={() => onNavPress(route)}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons
-                      name={active ? meta.iconFilled : meta.iconOutline}
-                      size={20}
-                      color={active ? colors.primary : colors.textSecondary}
-                    />
-                    <Text style={[styles.navLabel, active && styles.navLabelActive]}>
-                      {meta.label}
-                    </Text>
-                    <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
 
           {/* Grouped menu navigation list (Block B2) */}
           {filteredGroups.map((group) => {

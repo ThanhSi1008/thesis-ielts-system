@@ -99,8 +99,10 @@ export default function HomeTab() {
         }
         break;
       case 'VOCABULARY':
+        router.push('/ielts/foundation/vocabulary');
+        break;
       case 'GRAMMAR':
-        router.push('/ielts/foundation');
+        router.push('/ielts/foundation/grammar');
         break;
       case 'SHADOWING':
         if (meta.lessonId) {
@@ -280,13 +282,13 @@ export default function HomeTab() {
               </Pressable>
             </Link>
 
-            <Link href="/vocab-lab/study" asChild>
+            <Link href="/vocab-lab" asChild>
               <Pressable
                 style={styles.actionBtn}
                 accessible={true}
                 accessibilityRole="button"
                 accessibilityLabel="Vocab Quiz"
-                accessibilityHint="Takes you to the Vocab Lab study interface"
+                accessibilityHint="Takes you to the Vocab Lab dashboard"
               >
                 <View style={[styles.actionIconContainer, { backgroundColor: '#ecfdf5' }]}>
                   <Ionicons name="school" size={24} color="#10b981" />
@@ -314,7 +316,7 @@ export default function HomeTab() {
               </Pressable>
             </Link>
 
-            <Link href="/ielts/foundation" asChild>
+            <Link href="/ielts/foundation/grammar" asChild>
               <Pressable
                 style={styles.actionBtn}
                 accessible={true}

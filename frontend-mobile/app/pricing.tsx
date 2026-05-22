@@ -22,9 +22,10 @@ import { toast } from '@/components/ui/index';
 import { COLORS, FONTS, ROUTES } from '@/constants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = SCREEN_WIDTH * 0.82;
+const CARD_WIDTH = SCREEN_WIDTH < 360 ? SCREEN_WIDTH * 0.86 : SCREEN_WIDTH * 0.82;
 const CARD_MARGIN = 6;
 const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN * 2;
+const SCROLL_PADDING = (SCREEN_WIDTH - CARD_WIDTH) / 2 - CARD_MARGIN;
 
 const TIER_LEVEL: Record<string, number> = { FREE: 0, PREMIUM: 1, PRO: 2 };
 
@@ -72,7 +73,16 @@ const CVal = ({ v }: { v: string | boolean }) => {
   if (v === true)
     return <Text style={{ color: '#22c55e', fontSize: 14, fontWeight: '800' }}>✓</Text>;
   if (v === false) return <Text style={{ color: '#d1d5db', fontSize: 14 }}>✗</Text>;
-  return <Text style={{ color: '#6b7280', fontSize: 10.5, fontWeight: '600' }}>{v}</Text>;
+  return (
+    <Text
+      numberOfLines={1}
+      adjustsFontSizeToFit
+      minimumFontScale={0.7}
+      style={{ color: '#6b7280', fontSize: 11, fontWeight: '600', textAlign: 'center' }}
+    >
+      {v}
+    </Text>
+  );
 };
 
 export default function PricingScreen() {
@@ -80,7 +90,6 @@ export default function PricingScreen() {
   const { user } = useAuth();
   const [billing, setBilling] = useState<'month' | 'year'>('month');
   const [activeIdx, setActiveIdx] = useState(1);
-  const [showCompare, setShowCompare] = useState(false);
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
@@ -391,49 +400,41 @@ export default function PricingScreen() {
           </View>
         )}
 
-        {/* Compare Features Toggle */}
-        <View style={styles.compareWrap}>
-          <TouchableOpacity style={styles.compareBtn} onPress={() => setShowCompare(!showCompare)}>
-            <Text style={styles.compareBtnText}>Compare all features</Text>
-            <Ionicons
-              name={showCompare ? 'chevron-up' : 'chevron-down'}
-              size={18}
-              color="#9ca3af"
-            />
-          </TouchableOpacity>
+        {/* Compare Features Header */}
+        <View style={styles.compareHeader}>
+          <Ionicons name="list" size={16} color="#d97706" />
+          <Text style={styles.compareHeaderText}>Compare all features</Text>
         </View>
 
         {/* Compare Table */}
-        {showCompare && (
-          <View style={styles.cmpTable}>
-            <View style={styles.cmpHead}>
-              <Text style={styles.cmpHeadLeft}>Feature</Text>
-              <Text style={[styles.cvalText, { color: '#6b7280' }]}>Free</Text>
-              <Text style={[styles.cvalText, { color: '#d97706' }]}>Prem.</Text>
-              <Text style={[styles.cvalText, { color: '#6b7280' }]}>Pro</Text>
-            </View>
-            {COMPARE.map((row, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.cmpRow,
-                  i % 2 === 0 ? { backgroundColor: '#fff' } : { backgroundColor: '#fafafa' },
-                ]}
-              >
-                <Text style={styles.cmpRowLabel}>{row.label}</Text>
-                <View style={styles.cval}>
-                  <CVal v={row.free} />
-                </View>
-                <View style={styles.cval}>
-                  <CVal v={row.prem} />
-                </View>
-                <View style={styles.cval}>
-                  <CVal v={row.pro} />
-                </View>
-              </View>
-            ))}
+        <View style={styles.cmpTable}>
+          <View style={styles.cmpHead}>
+            <Text style={styles.cmpHeadLeft}>Feature</Text>
+            <Text style={[styles.cvalText, { color: '#6b7280' }]}>Free</Text>
+            <Text style={[styles.cvalText, { color: '#d97706' }]}>Prem.</Text>
+            <Text style={[styles.cvalText, { color: '#6b7280' }]}>Pro</Text>
           </View>
-        )}
+          {COMPARE.map((row, i) => (
+            <View
+              key={i}
+              style={[
+                styles.cmpRow,
+                i % 2 === 0 ? { backgroundColor: '#fff' } : { backgroundColor: '#fafafa' },
+              ]}
+            >
+              <Text style={styles.cmpRowLabel}>{row.label}</Text>
+              <View style={styles.cval}>
+                <CVal v={row.free} />
+              </View>
+              <View style={styles.cval}>
+                <CVal v={row.prem} />
+              </View>
+              <View style={styles.cval}>
+                <CVal v={row.pro} />
+              </View>
+            </View>
+          ))}
+        </View>
 
         {/* Footer Note */}
         <Text style={styles.footerNote}>
@@ -544,7 +545,7 @@ const styles = StyleSheet.create({
   skeletonRow: { flexDirection: 'row', justifyContent: 'center', gap: 12, padding: 20 },
   skeleton: { width: CARD_WIDTH, height: 380, borderRadius: 20, backgroundColor: '#f3f4f6' },
 
-  cardsScroll: { paddingHorizontal: SCREEN_WIDTH * 0.09, paddingVertical: 20, paddingBottom: 28 },
+  cardsScroll: { paddingHorizontal: SCROLL_PADDING, paddingVertical: 20, paddingBottom: 28 },
   priceCard: {
     width: CARD_WIDTH,
     marginHorizontal: CARD_MARGIN,
@@ -552,9 +553,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    paddingTop: 26,
-    paddingHorizontal: 20,
-    paddingBottom: 22,
+    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -587,14 +588,14 @@ const styles = StyleSheet.create({
 
   planName: {
     fontFamily: FONTS.bold,
-    fontSize: 20,
+    fontSize: 19,
     color: '#111',
     letterSpacing: -0.25,
     marginBottom: 4,
   },
-  planDesc: { fontSize: 12.5, color: '#64748b', lineHeight: 18, marginBottom: 14 },
-  priceRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 16 },
-  priceVal: { fontSize: 42, fontWeight: '800', color: '#111', letterSpacing: -0.25 },
+  planDesc: { fontSize: 12.5, color: '#64748b', lineHeight: 17, marginBottom: 12 },
+  priceRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 12 },
+  priceVal: { fontSize: 38, fontWeight: '800', color: '#111', letterSpacing: -0.25 },
   pricePeriod: { fontSize: 13, color: '#9ca3af', marginLeft: 4 },
   priceSaveBadge: {
     backgroundColor: '#dcfce7',
@@ -632,12 +633,12 @@ const styles = StyleSheet.create({
   featRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 9,
-    paddingVertical: 8,
+    gap: 8,
+    paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },
-  featText: { fontSize: 12.5, color: '#374151', flex: 1, lineHeight: 18 },
+  featText: { fontSize: 12.5, color: '#374151', flex: 1, lineHeight: 16 },
 
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, paddingBottom: 16 },
   dot: { width: 6, height: 6, borderRadius: 999, backgroundColor: '#d1d5db' },
@@ -664,25 +665,21 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 
-  compareWrap: { paddingHorizontal: 16, paddingBottom: 8 },
-  compareBtn: {
+  compareHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 14,
-    paddingVertical: 13,
+    gap: 8,
     paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 10,
   },
-  compareBtnText: { fontFamily: FONTS.bold, fontSize: 14, color: '#111' },
+  compareHeaderText: { fontFamily: FONTS.bold, fontSize: 14, color: '#1f2937' },
 
   cmpTable: {
-    marginHorizontal: 16,
+    marginHorizontal: 12,
     marginBottom: 16,
     backgroundColor: '#fff',
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     overflow: 'hidden',
@@ -691,8 +688,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f9fafb',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
@@ -705,7 +702,7 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
   },
   cvalText: {
-    width: 52,
+    width: 50,
     textAlign: 'center',
     fontFamily: FONTS.bold,
     fontSize: 11,
@@ -715,8 +712,8 @@ const styles = StyleSheet.create({
   cmpRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f3f4f6',
   },
@@ -725,9 +722,9 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.medium,
     fontSize: 12,
     color: '#374151',
-    paddingRight: 8,
+    paddingRight: 6,
   },
-  cval: { width: 52, alignItems: 'center' },
+  cval: { width: 50, alignItems: 'center' },
 
   footerNote: {
     textAlign: 'center',
