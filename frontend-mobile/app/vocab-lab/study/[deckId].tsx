@@ -106,7 +106,14 @@ function FlipCard({
   const containerStyle = parseStyle(cardStyle);
 
   return (
-    <Pressable onPress={onFlip} style={{ width: CARD_W, minHeight: CARD_H }}>
+    <Pressable
+      onPress={onFlip}
+      style={{ width: CARD_W, minHeight: CARD_H }}
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={`Flashcard. Side: ${showBack ? 'Back' : 'Front'}. Content: ${getDisplayText(card, showBack ? 'back' : 'front')}`}
+      accessibilityHint="Double tap to flip the card"
+    >
       {/* Front face */}
       <Animated.View
         style={[
@@ -116,6 +123,7 @@ function FlipCard({
         ]}
       >
         <Text
+          allowFontScaling={true}
           style={[
             styles.cardSideLabel,
             containerStyle.color ? { color: containerStyle.color, opacity: 0.5 } : null,
@@ -125,6 +133,7 @@ function FlipCard({
         </Text>
         <FlashcardViewer card={card} side="front" width={CARD_W} cardStyle={cardStyle} />
         <Text
+          allowFontScaling={true}
           style={[
             styles.tapHint,
             containerStyle.color ? { color: containerStyle.color, opacity: 0.4 } : null,
@@ -144,6 +153,7 @@ function FlipCard({
         ]}
       >
         <Text
+          allowFontScaling={true}
           style={[
             styles.cardSideLabel,
             { color: containerStyle.color || COLORS.primary, opacity: 0.5 },
@@ -225,47 +235,60 @@ function AllDoneScreen({
   return (
     <Animated.View style={[styles.allDoneContainer, { opacity: fadeAnim }]}>
       <Animated.View style={[styles.allDoneCard, { transform: [{ scale: scaleAnim }] }]}>
-        <Text style={styles.allDoneEmoji}>🎉</Text>
-        <Text style={styles.allDoneTitle}>Session Complete!</Text>
-        <Text style={styles.allDoneSubtitle}>
-          You reviewed <Text style={{ fontWeight: '800', color: colors.primary }}>{reviewed}</Text>{' '}
+        <Text allowFontScaling={true} style={styles.allDoneEmoji}>🎉</Text>
+        <Text allowFontScaling={true} style={styles.allDoneTitle}>Session Complete!</Text>
+        <Text allowFontScaling={true} style={styles.allDoneSubtitle}>
+          You reviewed <Text allowFontScaling={true} style={{ fontWeight: '800', color: colors.primary }}>{reviewed}</Text>{' '}
           {reviewed === 1 ? 'card' : 'cards'}
           {timeSpentSeconds > 0 ? ` in ${formatDuration(timeSpentSeconds)}` : ''}.
         </Text>
 
         {/* Summary stats */}
-        <View style={styles.summaryRow}>
+        <View
+          style={styles.summaryRow}
+          accessible={true}
+          accessibilityLabel={`Session Stats. Cards reviewed: ${reviewed}. Time spent: ${formatDuration(timeSpentSeconds)}. Average time per card: ${reviewed > 0 ? formatDuration(Math.round(timeSpentSeconds / reviewed)) : 'none'}`}
+        >
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryVal}>{reviewed}</Text>
-            <Text style={styles.summaryLabel}>Reviewed</Text>
+            <Text allowFontScaling={true} style={styles.summaryVal}>{reviewed}</Text>
+            <Text allowFontScaling={true} style={styles.summaryLabel}>Reviewed</Text>
           </View>
           <View style={styles.summaryDivider} />
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryVal}>{formatDuration(timeSpentSeconds)}</Text>
-            <Text style={styles.summaryLabel}>Time</Text>
+            <Text allowFontScaling={true} style={styles.summaryVal}>{formatDuration(timeSpentSeconds)}</Text>
+            <Text allowFontScaling={true} style={styles.summaryLabel}>Time</Text>
           </View>
           <View style={styles.summaryDivider} />
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryVal}>
+            <Text allowFontScaling={true} style={styles.summaryVal}>
               {reviewed > 0 ? formatDuration(Math.round(timeSpentSeconds / reviewed)) : '—'}
             </Text>
-            <Text style={styles.summaryLabel}>Per card</Text>
+            <Text allowFontScaling={true} style={styles.summaryLabel}>Per card</Text>
           </View>
         </View>
 
         {/* Rating breakdown */}
         {hasBreakdown && (
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>Rating Breakdown</Text>
+          <View
+            style={styles.breakdownCard}
+            accessible={true}
+            accessibilityLabel="Rating breakdown details"
+          >
+            <Text allowFontScaling={true} style={styles.breakdownTitle}>Rating Breakdown</Text>
             {[1, 2, 3, 4].map((r) => {
               const cnt = ratingBreakdown[r] ?? 0;
               if (cnt === 0) return null;
               const meta = ratingLabels[r];
               const pct = totalRatings > 0 ? (cnt / totalRatings) * 100 : 0;
               return (
-                <View key={r} style={styles.breakdownRow}>
-                  <Text style={{ fontSize: 14 }}>{meta.emoji}</Text>
-                  <Text style={[styles.breakdownLabel, { color: meta.color }]}>{meta.label}</Text>
+                <View
+                  key={r}
+                  style={styles.breakdownRow}
+                  accessible={true}
+                  accessibilityLabel={`${meta.label}: ${cnt} reviews, ${Math.round(pct)}%`}
+                >
+                  <Text allowFontScaling={true} style={{ fontSize: 14 }}>{meta.emoji}</Text>
+                  <Text allowFontScaling={true} style={[styles.breakdownLabel, { color: meta.color }]}>{meta.label}</Text>
                   <View style={styles.breakdownBarBg}>
                     <View
                       style={[
@@ -274,7 +297,7 @@ function AllDoneScreen({
                       ]}
                     />
                   </View>
-                  <Text style={[styles.breakdownCount, { color: meta.color }]}>{cnt}</Text>
+                  <Text allowFontScaling={true} style={[styles.breakdownCount, { color: meta.color }]}>{cnt}</Text>
                 </View>
               );
             })}
@@ -282,13 +305,27 @@ function AllDoneScreen({
         )}
 
         <View style={styles.allDoneActions}>
-          <Pressable style={[styles.allDoneBtn, styles.allDoneBtnOutline]} onPress={onStudyAgain}>
+          <Pressable
+            style={[styles.allDoneBtn, styles.allDoneBtnOutline]}
+            onPress={onStudyAgain}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Study Again"
+            accessibilityHint="Double tap to restart studying this deck"
+          >
             <Ionicons name="refresh" size={16} color={colors.primary} />
-            <Text style={[styles.allDoneBtnText, { color: colors.primary }]}>Study Again</Text>
+            <Text allowFontScaling={true} style={[styles.allDoneBtnText, { color: colors.primary }]}>Study Again</Text>
           </Pressable>
-          <Pressable style={[styles.allDoneBtn, styles.allDoneBtnPrimary]} onPress={onGoBack}>
+          <Pressable
+            style={[styles.allDoneBtn, styles.allDoneBtnPrimary]}
+            onPress={onGoBack}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Finish and go back"
+            accessibilityHint="Double tap to save your session and return to the deck details"
+          >
             <Ionicons name="checkmark" size={16} color={colors.onPrimary} />
-            <Text style={[styles.allDoneBtnText, { color: colors.onPrimary }]}>Finish</Text>
+            <Text allowFontScaling={true} style={[styles.allDoneBtnText, { color: colors.onPrimary }]}>Finish</Text>
           </Pressable>
         </View>
       </Animated.View>
@@ -489,10 +526,17 @@ export default function StudyScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <Pressable onPress={() => router.back()} style={styles.headerClose}>
+          <Pressable
+            onPress={() => router.back()}
+            style={styles.headerClose}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Close study session"
+            accessibilityHint="Double tap to exit this study session"
+          >
             <Ionicons name="close" size={24} color={colors.text} />
           </Pressable>
-          <Text style={styles.headerTitle}>Study Session</Text>
+          <Text allowFontScaling={true} style={styles.headerTitle}>Study Session</Text>
           <View style={{ width: 40 }} />
         </View>
         <AllDoneScreen
@@ -513,12 +557,24 @@ export default function StudyScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.headerClose}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.headerClose}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Close study session"
+          accessibilityHint="Double tap to exit this study session"
+        >
           <Ionicons name="close" size={24} color={colors.text} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Study Session</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text allowFontScaling={true} style={styles.headerTitle}>Study Session</Text>
+          <Text
+            allowFontScaling={true}
+            style={styles.headerSubtitle}
+            accessible={true}
+            accessibilityLabel={`Card ${index + 1} of ${cards.length}`}
+          >
             {index + 1} / {cards.length}
           </Text>
         </View>
@@ -526,7 +582,18 @@ export default function StudyScreen() {
       </View>
 
       {/* Progress bar */}
-      <View style={styles.progressTrack}>
+      <View
+        style={styles.progressTrack}
+        accessible={true}
+        accessibilityRole="progressbar"
+        accessibilityLabel="Study session progress"
+        accessibilityValue={{
+          min: 0,
+          max: cards.length,
+          now: index + 1,
+          text: `${Math.round(progress * 100)}% complete`
+        }}
+      >
         <Animated.View
           style={[
             styles.progressFill,
@@ -553,9 +620,16 @@ export default function StudyScreen() {
       <View style={styles.actionArea}>
         {!showBack ? (
           /* Show Answer button */
-          <Pressable style={styles.showAnswerBtn} onPress={handleFlip}>
+          <Pressable
+            style={styles.showAnswerBtn}
+            onPress={handleFlip}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Show Answer"
+            accessibilityHint="Double tap to reveal the back of the flashcard"
+          >
             <Ionicons name="eye-outline" size={18} color={colors.text} />
-            <Text style={styles.showAnswerText}>Show Answer</Text>
+            <Text allowFontScaling={true} style={styles.showAnswerText}>Show Answer</Text>
           </Pressable>
         ) : (
           /* Rating buttons */
@@ -570,13 +644,18 @@ export default function StudyScreen() {
                 ]}
                 onPress={() => handleRating(r.value)}
                 disabled={submitting}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel={`Mark as ${r.label}`}
+                accessibilityHint={`Schedules this card to review again in ${intervalLabel(r.value, currentCard?.scheduledDays)}`}
+                accessibilityState={{ disabled: submitting }}
               >
                 {submitting ? (
                   <ActivityIndicator size="small" color={r.color} />
                 ) : (
                   <>
-                    <Text style={[styles.ratingLabel, { color: r.color }]}>{r.label}</Text>
-                    <Text style={[styles.ratingInterval, { color: r.color }]}>
+                    <Text allowFontScaling={true} style={[styles.ratingLabel, { color: r.color }]}>{r.label}</Text>
+                    <Text allowFontScaling={true} style={[styles.ratingInterval, { color: r.color }]}>
                       {intervalLabel(r.value, currentCard?.scheduledDays)}
                     </Text>
                   </>

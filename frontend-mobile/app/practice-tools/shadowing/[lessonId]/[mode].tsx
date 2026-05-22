@@ -109,19 +109,40 @@ export default function ShadowingPracticeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => router.back()}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          accessibilityHint="Return to the practice list screen"
+        >
           <Ionicons name="chevron-back" size={28} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text
+          style={styles.headerTitle}
+          numberOfLines={1}
+          allowFontScaling={true}
+          accessibilityRole="header"
+        >
           {isShadowing ? '🗣 Shadowing' : '✏️ Dictation'} — {lesson?.title}
         </Text>
-        <Text style={styles.headerProg}>
+        <Text
+          style={styles.headerProg}
+          allowFontScaling={true}
+          accessibilityLabel={`Sentence ${currentIdx + 1} of ${sentences.length}`}
+        >
           {currentIdx + 1}/{sentences.length}
         </Text>
       </View>
 
       {/* Progress bar */}
-      <View style={styles.progressBg}>
+      <View
+        style={styles.progressBg}
+        accessible={true}
+        accessibilityRole="progressbar"
+        accessibilityLabel={`Lesson progress: ${Math.round(progress)}%`}
+      >
         <View style={[styles.progressFill, { width: `${progress}%` as any }]} />
       </View>
 
@@ -149,9 +170,14 @@ export default function ShadowingPracticeScreen() {
               />
             </View>
           ) : (
-            <View style={styles.audioPlaceholder}>
+            <View
+              style={styles.audioPlaceholder}
+              accessible={true}
+              accessibilityRole="image"
+              accessibilityLabel={lesson?.audioUrl ? 'Audio Lesson Media File' : 'No media available'}
+            >
               <Ionicons name="musical-notes-outline" size={40} color={COLORS.textMuted} />
-              <Text style={styles.videoPlaceholderText}>
+              <Text style={styles.videoPlaceholderText} allowFontScaling={true}>
                 {lesson?.audioUrl ? 'Audio Lesson' : 'No media available'}
               </Text>
             </View>
@@ -162,6 +188,10 @@ export default function ShadowingPracticeScreen() {
             <TouchableOpacity
               style={[styles.playBtn, playing && styles.playingBtn]}
               onPress={togglePlay}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={playing ? "Pause lesson audio" : "Play lesson audio"}
+              accessibilityHint={playing ? "Double tap to pause the playback" : "Double tap to resume the playback"}
             >
               <Ionicons
                 name={playing ? 'pause' : 'play'}
@@ -177,24 +207,41 @@ export default function ShadowingPracticeScreen() {
                 onStartShouldSetResponder={() => true}
                 onResponderGrant={(e) => handleSeekPress(e.nativeEvent.locationX)}
                 onResponderMove={(e) => handleSeekPress(e.nativeEvent.locationX)}
+                accessible={true}
+                accessibilityRole="adjustable"
+                accessibilityLabel="Audio timeline progress"
+                accessibilityHint="Drag or double tap to change playback position"
+                accessibilityValue={{
+                  min: 0,
+                  max: 100,
+                  now: Math.round(progressPercent),
+                  text: `${Math.round(progressPercent)}%`
+                }}
               >
                 <View style={styles.track}>
                   <View style={[styles.fill, { width: `${progressPercent}%` }]} />
                 </View>
               </View>
-              <View style={styles.timeContainer}>
-                <Text style={styles.currentTimeText}>
+              <View style={styles.timeContainer} accessible={true} accessibilityLabel="Elapsed and total duration">
+                <Text style={styles.currentTimeText} allowFontScaling={true}>
                   {formatTimeStr(currentTime - (current?.audioStart || 0))}
                 </Text>
-                <Text style={styles.durationText}>
+                <Text style={styles.durationText} allowFontScaling={true}>
                   {' '}
                   / {formatTimeStr((current?.audioEnd || 0) - (current?.audioStart || 0))}
                 </Text>
               </View>
             </View>
 
-            <TouchableOpacity style={styles.speedBtn} onPress={cycleSpeed}>
-              <Text style={styles.speedText}>{playbackSpeed}x</Text>
+            <TouchableOpacity
+              style={styles.speedBtn}
+              onPress={cycleSpeed}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={`Playback speed is ${playbackSpeed}x`}
+              accessibilityHint="Double tap to cycle between speeds: 0.75, 1, 1.25, or 1.5 times"
+            >
+              <Text style={styles.speedText} allowFontScaling={true}>{playbackSpeed}x</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -204,14 +251,35 @@ export default function ShadowingPracticeScreen() {
           {isShadowing ? (
             <>
               {/* Shadowing: show English, tap word to dictionary */}
-              <View style={styles.clickableSentence}>
+              <View
+                style={styles.clickableSentence}
+                accessible={true}
+                accessibilityRole="text"
+                accessibilityLabel={`Target English sentence: ${sentences[currentIdx]?.english || ''}`}
+                accessibilityHint="Review this sentence. Tap individual words below to look them up in the dictionary."
+              >
                 {currentSentenceWords.map((word: string, i: number) => (
-                  <TouchableOpacity key={i} onPress={() => handleWordTap(word)}>
-                    <Text style={styles.sentenceEnglishWord}>{word}</Text>
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => handleWordTap(word)}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel={word}
+                    accessibilityHint="Tap to lookup word in dictionary"
+                  >
+                    <Text style={styles.sentenceEnglishWord} allowFontScaling={true}>{word}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
-              {current?.phonetic && <Text style={styles.phonetic}>{current.phonetic}</Text>}
+              {current?.phonetic && (
+                <Text
+                  style={styles.phonetic}
+                  allowFontScaling={true}
+                  accessibilityLabel={`Phonetic transcription: ${current.phonetic}`}
+                >
+                  {current.phonetic}
+                </Text>
+              )}
 
               {/* AI Waveform when recording */}
               {(isRecording || audioRecorder.isRecording) && (
@@ -235,7 +303,7 @@ export default function ShadowingPracticeScreen() {
                     size={64}
                   />
                 )}
-                <Text style={styles.recordText}>
+                <Text style={styles.recordText} allowFontScaling={true}>
                   {pronunciationChecker.isChecking
                     ? 'AI scoring…'
                     : audioRecorder.isRecording
@@ -246,9 +314,13 @@ export default function ShadowingPracticeScreen() {
 
               {/* Transcript (speech-recognition) */}
               {spokenTranscript ? (
-                <View style={styles.transcriptBox}>
-                  <Text style={styles.transcriptLabel}>You said:</Text>
-                  <Text style={styles.transcriptText}>{spokenTranscript}</Text>
+                <View
+                  style={styles.transcriptBox}
+                  accessible={true}
+                  accessibilityLabel={`Speech transcription: You said: ${spokenTranscript}`}
+                >
+                  <Text style={styles.transcriptLabel} allowFontScaling={true}>You said:</Text>
+                  <Text style={styles.transcriptText} allowFontScaling={true}>{spokenTranscript}</Text>
                 </View>
               ) : null}
 
@@ -259,7 +331,7 @@ export default function ShadowingPracticeScreen() {
                   {pronunciationChecker.result.score.words &&
                     pronunciationChecker.result.score.words.length > 0 && (
                       <View style={styles.transcriptBox}>
-                        <Text style={styles.transcriptLabel}>WORD FEEDBACK</Text>
+                        <Text style={styles.transcriptLabel} allowFontScaling={true}>WORD FEEDBACK</Text>
                         <TranscriptFeedback words={pronunciationChecker.result.score.words} />
                       </View>
                     )}
@@ -269,38 +341,67 @@ export default function ShadowingPracticeScreen() {
               {/* AI error */}
               {pronunciationChecker.error && (
                 <Animated.View entering={FadeIn} style={styles.aiErrorBox}>
-                  <Text style={styles.aiErrorText}>{pronunciationChecker.error}</Text>
+                  <Text style={styles.aiErrorText} allowFontScaling={true}>{pronunciationChecker.error}</Text>
                 </Animated.View>
               )}
 
               {sentenceCorrect && (
-                <View style={styles.successBanner}>
+                <View
+                  style={styles.successBanner}
+                  accessible={true}
+                  accessibilityLabel="Great pronunciation check passed"
+                >
                   <Ionicons name="checkmark-circle" size={24} color={SUCCESS_COLOR} />
-                  <Text style={styles.successText}>Great pronunciation! 🎉</Text>
+                  <Text style={styles.successText} allowFontScaling={true}>Great pronunciation! 🎉</Text>
                 </View>
               )}
 
-              <TouchableOpacity style={styles.revealBtn} onPress={() => setShowAnswer((v) => !v)}>
-                <Text style={styles.revealLabel}>
+              <TouchableOpacity
+                style={styles.revealBtn}
+                onPress={() => setShowAnswer((v) => !v)}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel={showAnswer ? 'Hide translation' : 'Show translation'}
+                accessibilityHint="Toggles visibility of the Vietnamese translation for this sentence"
+              >
+                <Text style={styles.revealLabel} allowFontScaling={true}>
                   {showAnswer ? 'Hide translation' : 'Show translation'}
                 </Text>
               </TouchableOpacity>
-              {showAnswer && <Text style={styles.sentenceViet}>{current?.vietnamese}</Text>}
+              {showAnswer && (
+                <Text
+                  style={styles.sentenceViet}
+                  allowFontScaling={true}
+                  accessibilityLabel={`Vietnamese translation: ${current?.vietnamese}`}
+                >
+                  {current?.vietnamese}
+                </Text>
+              )}
             </>
           ) : (
             <>
               {/* Dictation Mode */}
-              <View style={styles.difficultyRow}>
-                <Text style={styles.difficultyLabel}>Difficulty:</Text>
+              <View
+                style={styles.difficultyRow}
+                accessible={true}
+                accessibilityRole="tablist"
+                accessibilityLabel="Difficulty settings"
+              >
+                <Text style={styles.difficultyLabel} allowFontScaling={true}>Difficulty:</Text>
                 <View style={styles.diffGroup}>
                   {(['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const).map((level) => (
                     <TouchableOpacity
                       key={level}
                       onPress={() => setDifficulty(level)}
                       style={[styles.diffBtn, difficulty === level && styles.diffActive]}
+                      accessible={true}
+                      accessibilityRole="tab"
+                      accessibilityLabel={`${level} difficulty mode`}
+                      accessibilityState={{ selected: difficulty === level }}
                     >
                       <Text
                         style={[styles.diffText, difficulty === level && styles.diffTextActive]}
+                        allowFontScaling={true}
                       >
                         {level[0]}
                       </Text>
@@ -309,7 +410,12 @@ export default function ShadowingPracticeScreen() {
                 </View>
               </View>
 
-              <View style={styles.wordList}>
+              <View
+                style={styles.wordList}
+                accessible={true}
+                accessibilityLabel="Dictation target words"
+                accessibilityHint="Review correct and incorrect words in the dictated sentence below"
+              >
                 {currentSentenceWords.map((word: string, i: number) => {
                   const isRevealed = revealedWords.has(i);
                   const isPending = i >= userWords.length;
@@ -320,16 +426,19 @@ export default function ShadowingPracticeScreen() {
                   let boxStyle: any = styles.wordBoxPending;
                   let textColor: string = COLORS.text;
                   let displayText = isRevealed ? word : '*'.repeat(word.length);
+                  let stateText = "pending";
 
                   if (!isRevealed && !isPending) {
                     if (isCorrect) {
                       boxStyle = styles.wordBoxCorrect;
                       displayText = word;
                       textColor = COLORS.success;
+                      stateText = "correct";
                     } else {
                       boxStyle = styles.wordBoxIncorrect;
                       displayText = userWords[i];
                       textColor = COLORS.error;
+                      stateText = `incorrect: you typed ${userWords[i] || 'nothing'}`;
                     }
                   }
 
@@ -337,6 +446,7 @@ export default function ShadowingPracticeScreen() {
                     boxStyle = styles.wordBoxCorrect;
                     displayText = word;
                     textColor = COLORS.success;
+                    stateText = "correct";
                   }
 
                   return (
@@ -344,8 +454,12 @@ export default function ShadowingPracticeScreen() {
                       key={i}
                       onPress={() => handleWordTap(word)}
                       style={[styles.wordBox, boxStyle]}
+                      accessible={true}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Word ${i + 1}: ${displayText}`}
+                      accessibilityHint={`Status: ${stateText}. Double tap to look up word definition.`}
                     >
-                      <Text style={[styles.wordText, { color: textColor }]}>{displayText}</Text>
+                      <Text style={[styles.wordText, { color: textColor }]} allowFontScaling={true}>{displayText}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -361,18 +475,29 @@ export default function ShadowingPracticeScreen() {
                 editable={!sentenceCorrect}
                 autoCorrect={false}
                 spellCheck={false}
+                accessible={true}
+                accessibilityLabel="Dictation sentence input box"
+                accessibilityHint="Type what you hear in the audio, word by word"
               />
 
               {sentenceCorrect && (
-                <View style={styles.successBanner}>
+                <View
+                  style={styles.successBanner}
+                  accessible={true}
+                  accessibilityLabel="Verification correct banner success"
+                >
                   <Ionicons name="checkmark-circle" size={24} color={SUCCESS_COLOR} />
-                  <Text style={styles.successText}>Correct! Well done 🎉</Text>
+                  <Text style={styles.successText} allowFontScaling={true}>Correct! Well done 🎉</Text>
                 </View>
               )}
 
               {sentenceCorrect && (
-                <View style={styles.answerReveal}>
-                  <Text style={styles.translateText}>{current?.vietnamese}</Text>
+                <View
+                  style={styles.answerReveal}
+                  accessible={true}
+                  accessibilityLabel={`Vietnamese Translation: ${current?.vietnamese}`}
+                >
+                  <Text style={styles.translateText} allowFontScaling={true}>{current?.vietnamese}</Text>
                 </View>
               )}
             </>
@@ -391,6 +516,10 @@ export default function ShadowingPracticeScreen() {
               }
             }}
             disabled={currentIdx === 0}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Previous sentence"
+            accessibilityState={{ disabled: currentIdx === 0 }}
           >
             <Ionicons
               name="chevron-back"
@@ -403,8 +532,12 @@ export default function ShadowingPracticeScreen() {
             style={[styles.nextBtn, completed.includes(currentIdx) && styles.nextBtnCompleted]}
             onPress={handleNext}
             disabled={saving}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel={currentIdx === sentences.length - 1 ? (saving ? 'Saving score progress' : 'Finish practice lesson') : 'Next sentence'}
+            accessibilityState={{ disabled: saving }}
           >
-            <Text style={styles.nextBtnText}>
+            <Text style={styles.nextBtnText} allowFontScaling={true}>
               {currentIdx === sentences.length - 1 ? (saving ? 'Saving…' : 'Finish ✓') : 'Next →'}
             </Text>
           </TouchableOpacity>
@@ -414,16 +547,26 @@ export default function ShadowingPracticeScreen() {
       {/* Dictionary Modal */}
       {selectedWord && (
         <View style={styles.dictModalOverlay}>
-          <TouchableOpacity style={styles.dictModalBg} onPress={() => setSelectedWord(null)} />
-          <View style={styles.dictModalContent}>
+          <TouchableOpacity
+            style={styles.dictModalBg}
+            onPress={() => setSelectedWord(null)}
+            accessible={true}
+            accessibilityLabel="Close overlay modal background"
+          />
+          <View style={styles.dictModalContent} accessible={true} accessibilityRole="alert">
             <View style={styles.dictModalHeader}>
-              <Text style={styles.dictModalTitle}>Dictionary lookup</Text>
-              <TouchableOpacity onPress={() => setSelectedWord(null)}>
+              <Text style={styles.dictModalTitle} allowFontScaling={true} accessibilityRole="header">Dictionary lookup</Text>
+              <TouchableOpacity
+                onPress={() => setSelectedWord(null)}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Close lookup modal"
+              >
                 <Ionicons name="close" size={24} color={COLORS.text} />
               </TouchableOpacity>
             </View>
-            <Text style={styles.dictWord}>{selectedWord}</Text>
-            <Text style={styles.dictDef}>
+            <Text style={styles.dictWord} allowFontScaling={true}>{selectedWord}</Text>
+            <Text style={styles.dictDef} allowFontScaling={true}>
               Definition and phonetics for "{selectedWord}" will be loaded from the backend.
             </Text>
           </View>

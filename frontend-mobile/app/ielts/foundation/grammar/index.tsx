@@ -58,10 +58,10 @@ export default function GrammarScreen() {
       {/* Title */}
       <View style={styles.header}>
         <View>
-          <Text variant="caption" weight="bold" style={styles.eyebrow}>
+          <Text variant="caption" weight="bold" style={styles.eyebrow} allowFontScaling={true}>
             IELTS · Lexon
           </Text>
-          <Text variant="title" weight="bold" style={[styles.title, { color: colors.text }]}>
+          <Text variant="title" weight="bold" style={[styles.title, { color: colors.text }]} allowFontScaling={true} accessibilityRole="header">
             Grammar
           </Text>
         </View>
@@ -69,13 +69,18 @@ export default function GrammarScreen() {
 
       {/* Count */}
       <View style={styles.countRow}>
-        <Text variant="caption" weight="bold" style={styles.countText}>
+        <Text variant="caption" weight="bold" style={styles.countText} allowFontScaling={true}>
           {filteredBooks.length > 0 ? `${filteredBooks.length} reference books` : 'Grammar'}
         </Text>
       </View>
 
       {/* Category Filter Chips */}
-      <View style={styles.filterWrapper}>
+      <View
+        style={styles.filterWrapper}
+        accessible={true}
+        accessibilityRole="tablist"
+        accessibilityLabel="Filter books by proficiency levels"
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -87,6 +92,9 @@ export default function GrammarScreen() {
               label={level}
               active={selectedLevel === level}
               onPress={() => setSelectedLevel(level)}
+              accessibilityRole="tab"
+              accessibilityLabel={`${level} level filter`}
+              accessibilityHint={`Double tap to show only ${level === 'All' ? 'all' : level} reference books`}
             />
           ))}
         </ScrollView>
@@ -141,11 +149,13 @@ export default function GrammarScreen() {
                 gradientColors={theme.colors as unknown as string[]}
                 onPress={() => router.push(ROUTES.foundationGrammarBook(book.slug))}
                 style={styles.card}
+                accessibilityLabel={`Grammar reference book: ${book.name} by author ${book.author || 'unknown'}. Difficulty level: ${book.level}. Contain ${totalUnits} study units. Progress is ${started ? pct + ' percent completed' : 'not started'}.`}
+                accessibilityHint="Double tap to open this reference book to view its chapters list"
               >
                 {/* Level Badge */}
                 <View style={styles.badge}>
                   <Ionicons name="ribbon" size={10} color="rgba(255,255,255,0.85)" />
-                  <Text variant="caption" weight="bold" style={styles.badgeText}>
+                  <Text variant="caption" weight="bold" style={styles.badgeText} allowFontScaling={true}>
                     {book.level}
                   </Text>
                 </View>
@@ -159,10 +169,10 @@ export default function GrammarScreen() {
 
                   {/* Info block */}
                   <View style={styles.heroTextCol}>
-                    <Text variant="caption" weight="bold" style={styles.heroStage}>
+                    <Text variant="caption" weight="bold" style={styles.heroStage} allowFontScaling={true}>
                       {book.author}
                     </Text>
-                    <Text variant="title" weight="bold" style={styles.heroTitle} numberOfLines={2}>
+                    <Text variant="title" weight="bold" style={styles.heroTitle} numberOfLines={2} allowFontScaling={true}>
                       {book.name}
                     </Text>
                   </View>
@@ -175,10 +185,10 @@ export default function GrammarScreen() {
                 {started && (
                   <View style={styles.progressSection}>
                     <View style={styles.progressRow}>
-                      <Text variant="label" weight="bold" style={styles.progressLabel}>
+                      <Text variant="label" weight="bold" style={styles.progressLabel} allowFontScaling={true}>
                         Progress
                       </Text>
-                      <Text variant="label" weight="bold" style={styles.progressValue}>
+                      <Text variant="label" weight="bold" style={styles.progressValue} allowFontScaling={true}>
                         {pct}%
                       </Text>
                     </View>
@@ -195,7 +205,7 @@ export default function GrammarScreen() {
                 <View style={styles.actionRow}>
                   <View style={styles.unitInfo}>
                     <Ionicons name="layers" size={14} color="rgba(255,255,255,0.85)" />
-                    <Text variant="body" weight="medium" style={styles.unitText}>
+                    <Text variant="body" weight="medium" style={styles.unitText} allowFontScaling={true}>
                       {totalUnits} units
                     </Text>
                   </View>
@@ -205,6 +215,7 @@ export default function GrammarScreen() {
                       variant="label"
                       weight="bold"
                       style={[styles.actionBtnText, { color: theme.colors[1] }]}
+                      allowFontScaling={true}
                     >
                       {started ? 'CONTINUE' : 'START'}
                     </Text>

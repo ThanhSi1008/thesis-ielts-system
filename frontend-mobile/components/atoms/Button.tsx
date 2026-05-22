@@ -24,6 +24,7 @@ export interface ButtonProps {
   fullWidth?: boolean;
   accessibilityLabel?: string;
   accessibilityHint?: string;
+  style?: any;
 }
 
 export default function Button({
@@ -38,6 +39,7 @@ export default function Button({
   fullWidth = false,
   accessibilityLabel,
   accessibilityHint,
+  style,
 }: ButtonProps) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
@@ -94,6 +96,7 @@ export default function Button({
         fullWidth && styles.fullWidth,
         isDisabled && styles.disabled,
         animatedStyle,
+        style,
       ]}
       accessible
       accessibilityRole="button"

@@ -49,6 +49,11 @@ function UnitGroup({
         onPress={onToggle}
         style={[styles.groupHeader, isExpanded && styles.groupHeaderExpanded]}
         activeOpacity={0.7}
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={`${groupTitle}. ${units.length} units, ${totalWords} words. Completed ${completedCount} out of ${units.length}.`}
+        accessibilityState={{ expanded: isExpanded }}
+        accessibilityHint={isExpanded ? 'Double tap to collapse this section' : 'Double tap to expand this section'}
       >
         <View style={[styles.groupToggleBtn, isExpanded && styles.groupToggleBtnActive]}>
           <Ionicons
@@ -58,8 +63,8 @@ function UnitGroup({
           />
         </View>
         <View style={styles.groupInfo}>
-          <Text style={styles.groupTitle}>{groupTitle}</Text>
-          <Text style={styles.groupSubtitle}>
+          <Text style={styles.groupTitle} allowFontScaling={true}>{groupTitle}</Text>
+          <Text style={styles.groupSubtitle} allowFontScaling={true}>
             {units.length} units · {totalWords} words
           </Text>
         </View>
@@ -69,6 +74,7 @@ function UnitGroup({
               styles.groupProgressText,
               completedCount > 0 && { color: COLORS.textSecondary },
             ]}
+            allowFontScaling={true}
           >
             {completedCount}/{units.length}
           </Text>
@@ -102,6 +108,10 @@ function UnitGroup({
                 style={[styles.unitRow, isComp ? styles.unitRowCompleted : styles.unitRowDefault]}
                 onPress={() => router.push(ROUTES.foundationVocabularyUnit(bookId, unit.id))}
                 activeOpacity={0.8}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel={`Unit ${orderNum}: ${unit.title}. Status: ${isComp ? 'Completed' : isIP ? 'In Progress' : 'Not started'}. Progress ${wordsLearned} of ${totalWords} words.`}
+                accessibilityHint="Double tap to open vocabulary study interface for this unit"
               >
                 {/* Badge */}
                 <View
@@ -113,7 +123,7 @@ function UnitGroup({
                   {isComp ? (
                     <Ionicons name="checkmark" size={14} color={COLORS.text} />
                   ) : (
-                    <Text style={styles.unitBadgeText}>{orderNum}</Text>
+                    <Text style={styles.unitBadgeText} allowFontScaling={true}>{orderNum}</Text>
                   )}
                 </View>
 
@@ -122,11 +132,12 @@ function UnitGroup({
                   <Text
                     style={[styles.unitName, isComp && { color: COLORS.text }]}
                     numberOfLines={1}
+                    allowFontScaling={true}
                   >
                     {unit.title}
                   </Text>
 
-                  {isComp && <Text style={styles.unitCompletedLabel}>COMPLETED</Text>}
+                  {isComp && <Text style={styles.unitCompletedLabel} allowFontScaling={true}>COMPLETED</Text>}
 
                   {isIP && (
                     <View style={styles.unitIPRow}>
@@ -138,7 +149,7 @@ function UnitGroup({
                           ]}
                         />
                       </View>
-                      <Text style={styles.unitIPText}>
+                      <Text style={styles.unitIPText} allowFontScaling={true}>
                         {wordsLearned}/{totalWords}
                       </Text>
                     </View>
@@ -147,10 +158,10 @@ function UnitGroup({
 
                 {/* Stats */}
                 <View style={styles.unitStats}>
-                  <Text style={[styles.unitStatsCount, isComp && { color: 'rgba(0,0,0,0.45)' }]}>
+                  <Text style={[styles.unitStatsCount, isComp && { color: 'rgba(0,0,0,0.45)' }]} allowFontScaling={true}>
                     {wordsLearned}/{totalWords}
                   </Text>
-                  <Text style={[styles.unitStatsStatus, isComp && { color: 'rgba(0,0,0,0.35)' }]}>
+                  <Text style={[styles.unitStatsStatus, isComp && { color: 'rgba(0,0,0,0.35)' }]} allowFontScaling={true}>
                     {isComp ? '✓ Reading' : isIP ? 'Pending' : '—'}
                   </Text>
                 </View>
@@ -211,12 +222,19 @@ export default function VocabularyBookScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backBtn}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Navigates back to the previous screen"
+          >
             <Ionicons name="chevron-back" size={18} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleCol}>
             <Breadcrumb items={loadingBreadcrumb} />
-            <Text style={styles.headerTitle} numberOfLines={1}>
+            <Text style={styles.headerTitle} numberOfLines={1} allowFontScaling={true}>
               Loading...
             </Text>
           </View>
@@ -252,20 +270,31 @@ export default function VocabularyBookScreen() {
     <View style={styles.container}>
       <SafeAreaView style={styles.headerWrapper} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backBtn}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Navigates back to the previous screen"
+          >
             <Ionicons name="chevron-back" size={18} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleCol}>
             <Breadcrumb items={breadcrumbItems} />
-            <Text style={styles.headerTitle} numberOfLines={1}>
+            <Text style={styles.headerTitle} numberOfLines={1} allowFontScaling={true}>
               {book?.name ?? 'Word List'}
             </Text>
           </View>
-          <View style={styles.headerBadge}>
-            <Text style={styles.headerBadgeVal}>
+          <View
+            style={styles.headerBadge}
+            accessible={true}
+            accessibilityLabel={`${completedCount} of ${totalUnits} units completed`}
+          >
+            <Text style={styles.headerBadgeVal} allowFontScaling={true}>
               {completedCount}/{totalUnits}
             </Text>
-            <Text style={styles.headerBadgeLbl}>UNITS</Text>
+            <Text style={styles.headerBadgeLbl} allowFontScaling={true}>UNITS</Text>
           </View>
         </View>
       </SafeAreaView>

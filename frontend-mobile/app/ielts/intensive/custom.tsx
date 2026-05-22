@@ -173,10 +173,17 @@ export default function CustomPracticeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backBtn}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Navigate back to intensive dashboard"
+        >
           <Ionicons name="chevron-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Custom Practice</Text>
+        <Text style={styles.headerTitle} allowFontScaling={true}>Custom Practice</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -185,7 +192,7 @@ export default function CustomPracticeScreen() {
         contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.subtitle}>
+        <Text style={styles.subtitle} allowFontScaling={true}>
           Build your own practice session exactly the way you want.
         </Text>
 
@@ -201,12 +208,18 @@ export default function CustomPracticeScreen() {
               ]}
               onPress={() => setSkill(sk.key)}
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="radio"
+              accessibilityLabel={sk.label}
+              accessibilityState={{ checked: skill === sk.key }}
+              accessibilityHint={`Selects ${sk.label} skill for this custom exam`}
             >
               <Text
                 style={[
                   styles.optChipText,
                   skill === sk.key && { color: sk.color, fontFamily: FONTS.bold },
                 ]}
+                allowFontScaling={true}
               >
                 {sk.icon} {sk.label}
               </Text>
@@ -219,7 +232,7 @@ export default function CustomPracticeScreen() {
         {loadingCatalog ? (
           <View style={styles.loadingBox}>
             <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.loadingText}>Loading exams…</Text>
+            <Text style={styles.loadingText} allowFontScaling={true}>Loading exams…</Text>
           </View>
         ) : (
           <>
@@ -227,10 +240,16 @@ export default function CustomPracticeScreen() {
               style={styles.examSelector}
               onPress={() => setShowExamPicker((v) => !v)}
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={`Exam source. Currently selected: ${selectedExamLabel}`}
+              accessibilityHint="Double tap to open or close the exam selection dropdown list"
+              accessibilityState={{ expanded: showExamPicker }}
             >
               <Text
                 style={[styles.examSelectorText, !selectedExamId && { color: colors.textMuted }]}
                 numberOfLines={1}
+                allowFontScaling={true}
               >
                 {selectedExamLabel}
               </Text>
@@ -257,12 +276,18 @@ export default function CustomPracticeScreen() {
                           setShowExamPicker(false);
                         }}
                         activeOpacity={0.7}
+                        accessible={true}
+                        accessibilityRole="button"
+                        accessibilityLabel={exam.label}
+                        accessibilityState={{ selected: active }}
+                        accessibilityHint="Selects this exam source"
                       >
                         <Text
                           style={[
                             styles.examPickerText,
                             active && { color: skillInfo.color, fontFamily: FONTS.bold },
                           ]}
+                          allowFontScaling={true}
                         >
                           {exam.label}
                         </Text>
@@ -271,7 +296,7 @@ export default function CustomPracticeScreen() {
                     );
                   })}
                   {allExams.length === 0 && (
-                    <Text style={styles.examPickerEmpty}>No exams available for this skill.</Text>
+                    <Text style={styles.examPickerEmpty} allowFontScaling={true}>No exams available for this skill.</Text>
                   )}
                 </ScrollView>
               </View>
@@ -292,12 +317,18 @@ export default function CustomPracticeScreen() {
             ]}
             onPress={() => setPart('all')}
             activeOpacity={0.8}
+            accessible={true}
+            accessibilityRole="radio"
+            accessibilityLabel="All Parts"
+            accessibilityState={{ checked: part === 'all' }}
+            accessibilityHint="Selects all parts of the practice exam"
           >
             <Text
               style={[
                 styles.optChipText,
                 part === 'all' && { color: skillInfo.color, fontFamily: FONTS.bold },
               ]}
+              allowFontScaling={true}
             >
               All Parts
             </Text>
@@ -314,12 +345,18 @@ export default function CustomPracticeScreen() {
               ]}
               onPress={() => setPart(n)}
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="radio"
+              accessibilityLabel={`Part ${n}`}
+              accessibilityState={{ checked: part === n }}
+              accessibilityHint={`Selects part ${n} only`}
             >
               <Text
                 style={[
                   styles.optChipText,
                   part === n && { color: skillInfo.color, fontFamily: FONTS.bold },
                 ]}
+                allowFontScaling={true}
               >
                 Part {n}
               </Text>
@@ -346,6 +383,11 @@ export default function CustomPracticeScreen() {
                 setTimeLimit(mins);
               }}
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="radio"
+              accessibilityLabel={`${mins} minutes`}
+              accessibilityState={{ checked: !isCustomTime && timeLimit === mins }}
+              accessibilityHint={`Sets practice duration to ${mins} minutes`}
             >
               <Text
                 style={[
@@ -353,6 +395,7 @@ export default function CustomPracticeScreen() {
                   !isCustomTime &&
                     timeLimit === mins && { color: skillInfo.color, fontFamily: FONTS.bold },
                 ]}
+                allowFontScaling={true}
               >
                 {mins} min
               </Text>
@@ -368,12 +411,18 @@ export default function CustomPracticeScreen() {
             ]}
             onPress={() => setIsCustomTime(true)}
             activeOpacity={0.8}
+            accessible={true}
+            accessibilityRole="radio"
+            accessibilityLabel="Custom duration"
+            accessibilityState={{ checked: isCustomTime }}
+            accessibilityHint="Enables manual custom duration input in minutes"
           >
             <Text
               style={[
                 styles.optChipText,
                 isCustomTime && { color: skillInfo.color, fontFamily: FONTS.bold },
               ]}
+              allowFontScaling={true}
             >
               Custom
             </Text>
@@ -393,8 +442,12 @@ export default function CustomPracticeScreen() {
               maxLength={3}
               placeholder="30"
               placeholderTextColor={colors.textMuted}
+              accessible={true}
+              accessibilityLabel="Custom time in minutes"
+              accessibilityHint="Type practice duration in minutes. Maximum 180 minutes"
+              allowFontScaling={true}
             />
-            <Text style={styles.customTimeLabel}>minutes (max 180)</Text>
+            <Text style={styles.customTimeLabel} allowFontScaling={true}>minutes (max 180)</Text>
           </View>
         )}
 
@@ -402,8 +455,8 @@ export default function CustomPracticeScreen() {
         <View style={styles.divider} />
         <View style={styles.autoSubmitRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.autoSubmitTitle}>Auto-Submit when time is up</Text>
-            <Text style={styles.autoSubmitSub}>
+            <Text style={styles.autoSubmitTitle} allowFontScaling={true}>Auto-Submit when time is up</Text>
+            <Text style={styles.autoSubmitSub} allowFontScaling={true}>
               If off, you can keep practicing after the timer reaches zero.
             </Text>
           </View>
@@ -412,17 +465,24 @@ export default function CustomPracticeScreen() {
             onValueChange={setAutoSubmit}
             trackColor={{ false: colors.border, true: skillInfo.color }}
             thumbColor="#fff"
+            accessible={true}
+            accessibilityLabel="Auto-Submit when time is up"
+            accessibilityHint="Toggle automatic submission when the practice timer ends"
           />
         </View>
 
         {/* ── Summary card ─────────────────────────────────────────────── */}
         {canStart && (
-          <View style={[styles.summaryCard, { borderLeftColor: skillInfo.color }]}>
-            <Text style={[styles.summaryTitle, { color: skillInfo.color }]}>
+          <View
+            style={[styles.summaryCard, { borderLeftColor: skillInfo.color }]}
+            accessible={true}
+            accessibilityLabel={`Session summary. Skill: ${skillInfo.label}, Parts: ${part === 'all' ? 'All Parts' : 'Part ' + part}, Source: ${selectedExamLabel}, Duration: ${timeLimit} minutes, Auto-Submit is ${autoSubmit ? 'enabled' : 'disabled'}`}
+          >
+            <Text style={[styles.summaryTitle, { color: skillInfo.color }]} allowFontScaling={true}>
               {skillInfo.icon} {skillInfo.label} · {part === 'all' ? 'All Parts' : `Part ${part}`}
             </Text>
-            <Text style={styles.summaryDetail}>{selectedExamLabel}</Text>
-            <Text style={styles.summaryDetail}>
+            <Text style={styles.summaryDetail} allowFontScaling={true}>{selectedExamLabel}</Text>
+            <Text style={styles.summaryDetail} allowFontScaling={true}>
               ⏱ {timeLimit} min · {autoSubmit ? 'Auto-submit on' : 'No auto-submit'}
             </Text>
           </View>
@@ -440,8 +500,13 @@ export default function CustomPracticeScreen() {
           onPress={handleStart}
           disabled={!canStart}
           activeOpacity={0.85}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={canStart ? 'Start Custom Practice' : 'Select an exam to start'}
+          accessibilityHint="Launches the simulated practice test session with current options"
+          accessibilityState={{ disabled: !canStart }}
         >
-          <Text style={styles.startBtnText}>
+          <Text style={styles.startBtnText} allowFontScaling={true}>
             {canStart ? 'Start Custom Practice' : 'Select an exam to start'}
           </Text>
           {canStart && (

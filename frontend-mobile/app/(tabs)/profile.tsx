@@ -49,7 +49,14 @@ export default function ProfileScreen() {
           <Text variant="body" color="textSecondary" style={styles.guestDesc}>
             Sign in to save your progress, sync across devices, and earn achievements.
           </Text>
-          <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push(ROUTES.login)}>
+          <TouchableOpacity
+            style={styles.primaryBtn}
+            onPress={() => router.push(ROUTES.login)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Log In or Sign Up button"
+            accessibilityHint="Double tap to navigate to the authentication screen"
+          >
             <Text variant="body" weight="bold" style={styles.primaryBtnText}>
               Log In / Sign Up
             </Text>
@@ -66,6 +73,11 @@ export default function ProfileScreen() {
           key={tab}
           style={[styles.tab, activeTab === tab && styles.activeTab]}
           onPress={() => setActiveTab(tab)}
+          accessible={true}
+          accessibilityRole="tab"
+          accessibilityLabel={`${tab.charAt(0).toUpperCase() + tab.slice(1)} tab`}
+          accessibilityHint={`Double tap to switch to the ${tab} tab view`}
+          accessibilityState={{ selected: activeTab === tab }}
         >
           <Text
             variant="body"
@@ -104,7 +116,14 @@ export default function ProfileScreen() {
           {activeTab === 'settings' && <ProfileSettingsTab />}
 
           <View style={styles.logoutWrapper}>
-            <TouchableOpacity style={styles.fullLogoutBtn} onPress={handleLogout}>
+            <TouchableOpacity
+              style={styles.fullLogoutBtn}
+              onPress={handleLogout}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Log Out button"
+              accessibilityHint="Double tap to open log out confirmation dialog"
+            >
               <Ionicons name="log-out-outline" size={24} color="#EF4444" />
               <Text variant="body" weight="bold" style={styles.fullLogoutBtnText}>
                 Log Out

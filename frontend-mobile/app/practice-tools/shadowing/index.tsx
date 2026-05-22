@@ -353,7 +353,14 @@ export default function ShadowingScreen() {
           const cat = lesson.category || lesson.tags?.[0] || 'English';
 
           return (
-            <View key={lesson.id} style={styles.lessonCard}>
+            <View
+              key={lesson.id}
+              style={styles.lessonCard}
+              accessible={true}
+              accessibilityLabel={`Lesson: ${lesson.title}. Category: ${cat}. ${
+                isProcessing ? 'Transcribing and processing' : `Duration: ${lesson.duration || '5 min'}`
+              }. Status: ${isComp ? 'Completed' : isIP ? `${p} percent completed` : 'Not started'}`}
+            >
               {/* Thumbnail */}
               <View style={styles.thumbWrap}>
                 <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
@@ -375,18 +382,18 @@ export default function ShadowingScreen() {
 
               {/* Meta */}
               <View style={styles.metaWrap}>
-                <Text style={styles.lessonTitle} numberOfLines={2}>
+                <Text style={styles.lessonTitle} numberOfLines={2} allowFontScaling={true}>
                   {lesson.title}
                 </Text>
                 <View style={styles.metaRow}>
                   <View style={styles.durWrap}>
                     <Ionicons name="time-outline" size={11} color={colors.textMuted} />
-                    <Text style={styles.durText}>
+                    <Text style={styles.durText} allowFontScaling={true}>
                       {isProcessing ? 'Analyzing...' : lesson.duration || '5 min'}
                     </Text>
                   </View>
                   <View style={styles.catWrap}>
-                    <Text style={styles.catText}>{cat}</Text>
+                    <Text style={styles.catText} allowFontScaling={true}>{cat}</Text>
                   </View>
                   {lesson.folder && (
                     <View style={[styles.catWrap, styles.folderBadge]}>
@@ -396,7 +403,7 @@ export default function ShadowingScreen() {
                         color={colors.textSecondary}
                         style={{ marginRight: 2 }}
                       />
-                      <Text style={styles.catText}>{lesson.folder}</Text>
+                      <Text style={styles.catText} allowFontScaling={true}>{lesson.folder}</Text>
                     </View>
                   )}
                 </View>
@@ -406,7 +413,7 @@ export default function ShadowingScreen() {
                     <View style={styles.progBarBg}>
                       <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
                     </View>
-                    <Text style={styles.progBarText}>{p}%</Text>
+                    <Text style={styles.progBarText} allowFontScaling={true}>{p}%</Text>
                   </View>
                 )}
 
@@ -419,14 +426,14 @@ export default function ShadowingScreen() {
                           color={COLORS.primary}
                           style={{ marginRight: 4 }}
                         />
-                        <Text style={styles.processingText}>Transcribing...</Text>
+                        <Text style={styles.processingText} allowFontScaling={true}>Transcribing...</Text>
                       </View>
                     ) : p === 0 ? (
-                      <Text style={styles.statusText}>Not started</Text>
+                      <Text style={styles.statusText} allowFontScaling={true}>Not started</Text>
                     ) : isComp ? (
                       <View style={styles.compWrap}>
                         <Ionicons name="checkmark" size={11} color={COLORS.success} />
-                        <Text style={styles.compText}>Completed</Text>
+                        <Text style={styles.compText} allowFontScaling={true}>Completed</Text>
                       </View>
                     ) : null}
                   </View>
@@ -437,6 +444,10 @@ export default function ShadowingScreen() {
                         style={styles.deleteBtn}
                         onPress={() => handleDeleteVideo(lesson.id, lesson.title)}
                         activeOpacity={0.7}
+                        accessible={true}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Delete ${lesson.title}`}
+                        accessibilityHint="Double tap to remove this imported video"
                       >
                         <Ionicons name="trash-outline" size={15} color={COLORS.error} />
                       </TouchableOpacity>
@@ -453,8 +464,12 @@ export default function ShadowingScreen() {
                             : styles.actionBtnStart,
                       ]}
                       onPress={() =>
-                        router.push(ROUTES.practiceToolsShadowingLesson(lesson.id, mode))
+                        router.push(ROUTES.practiceToolsShadowingLesson(lesson.id, mode) as any)
                       }
+                      accessible={true}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${isComp ? 'Redo' : isIP ? 'Continue' : 'Start'} lesson ${lesson.title}`}
+                      accessibilityHint="Double tap to open shadowing exercise"
                     >
                       <Text
                         style={[
@@ -465,6 +480,7 @@ export default function ShadowingScreen() {
                               ? styles.actionBtnTextComp
                               : styles.actionBtnTextStart,
                         ]}
+                        allowFontScaling={true}
                       >
                         {isProcessing ? 'ETA ~1M' : isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
                       </Text>
@@ -487,14 +503,26 @@ export default function ShadowingScreen() {
           <TouchableOpacity
             style={{ marginRight: 12, paddingVertical: 4 }}
             onPress={() => router.push(ROUTES.practiceTools)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+            accessibilityHint="Navigate back to practice tools screen"
           >
             <Ionicons name="chevron-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={styles.eyebrow}>Lexon Practice Tools</Text>
-            <Text style={styles.headerTitle}>Shadowing & Dictation</Text>
+            <Text style={styles.eyebrow} allowFontScaling={true}>Lexon Practice Tools</Text>
+            <Text style={styles.headerTitle} allowFontScaling={true}>Shadowing & Dictation</Text>
           </View>
-          <TouchableOpacity style={styles.searchBtn} onPress={() => setShowSearch(!showSearch)}>
+          <TouchableOpacity
+            style={styles.searchBtn}
+            onPress={() => setShowSearch(!showSearch)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Search lessons"
+            accessibilityHint="Double tap to toggle search input bar"
+            accessibilityState={{ expanded: showSearch }}
+          >
             <Ionicons name="search" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -508,9 +536,18 @@ export default function ShadowingScreen() {
               value={search}
               onChangeText={setSearch}
               placeholderTextColor={colors.textMuted}
+              accessible={true}
+              accessibilityLabel="Search lessons"
+              accessibilityHint="Type keywords here to filter shadowed lessons list"
+              allowFontScaling={true}
             />
             {search.length > 0 && (
-              <TouchableOpacity onPress={() => setSearch('')}>
+              <TouchableOpacity
+                onPress={() => setSearch('')}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Clear Search"
+              >
                 <Ionicons name="close-circle" size={16} color={colors.textMuted} />
               </TouchableOpacity>
             )}
@@ -518,50 +555,82 @@ export default function ShadowingScreen() {
         )}
 
         {/* Mode toggle */}
-        <View style={styles.modeToggle}>
+        <View style={styles.modeToggle} accessible={true} accessibilityRole="tablist">
           <TouchableOpacity
             style={[styles.modeBtn, mode === 'shadowing' && styles.modeBtnActive]}
             onPress={() => setMode('shadowing')}
+            accessible={true}
+            accessibilityRole="tab"
+            accessibilityLabel="Shadowing mode active"
+            accessibilityState={{ selected: mode === 'shadowing' }}
+            accessibilityHint="Enables vocal microphone mirroring and shadowing training mode"
           >
             <Ionicons
               name="volume-high"
               size={14}
               color={mode === 'shadowing' ? COLORS.info : COLORS.gray[400]}
             />
-            <Text style={[styles.modeBtnText, mode === 'shadowing' && styles.modeBtnTextActive]}>
+            <Text
+              style={[styles.modeBtnText, mode === 'shadowing' && styles.modeBtnTextActive]}
+              allowFontScaling={true}
+            >
               Shadowing
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.modeBtn, mode === 'dictation' && styles.modeBtnActive]}
             onPress={() => setMode('dictation')}
+            accessible={true}
+            accessibilityRole="tab"
+            accessibilityLabel="Dictation mode"
+            accessibilityState={{ selected: mode === 'dictation' }}
+            accessibilityHint="Enables keyboard spelling typing training mode"
           >
             <Ionicons
               name="pencil"
               size={14}
               color={mode === 'dictation' ? COLORS.warning : COLORS.gray[400]}
             />
-            <Text style={[styles.modeBtnText, mode === 'dictation' && styles.modeBtnTextActive]}>
+            <Text
+              style={[styles.modeBtnText, mode === 'dictation' && styles.modeBtnTextActive]}
+              allowFontScaling={true}
+            >
               Dictation
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Sub-tabs */}
-        <View style={styles.subTabs}>
+        <View style={styles.subTabs} accessible={true} accessibilityRole="tablist">
           <TouchableOpacity
             style={[styles.subTab, tab === 'library' && styles.subTabActive]}
             onPress={() => setTab('library')}
+            accessible={true}
+            accessibilityRole="tab"
+            accessibilityLabel="Library tab"
+            accessibilityState={{ selected: tab === 'library' }}
+            accessibilityHint="Lists default application lessons library"
           >
-            <Text style={[styles.subTabText, tab === 'library' && styles.subTabTextActive]}>
+            <Text
+              style={[styles.subTabText, tab === 'library' && styles.subTabTextActive]}
+              allowFontScaling={true}
+            >
               Library
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.subTab, tab === 'my-videos' && styles.subTabActive]}
             onPress={() => setTab('my-videos')}
+            accessible={true}
+            accessibilityRole="tab"
+            accessibilityLabel="My Videos tab"
+            accessibilityState={{ selected: tab === 'my-videos' }}
+            accessibilityHint="Lists your custom imported YouTube videos. Requires premium tier."
           >
-            <Text style={[styles.subTabText, tab === 'my-videos' && styles.subTabTextActive]}>
+            <Text
+              style={[styles.subTabText, tab === 'my-videos' && styles.subTabTextActive]}
+              allowFontScaling={true}
+            >
               My Videos
             </Text>
             <Ionicons name="lock-closed" size={10} color="#d97706" style={{ marginLeft: 4 }} />
@@ -573,6 +642,9 @@ export default function ShadowingScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.statusFilters}
+          accessible={true}
+          accessibilityRole="radiogroup"
+          accessibilityLabel="Status filters"
         >
           {STATUS_FILTERS.map((f) => {
             const on = status === f.id;
@@ -581,8 +653,18 @@ export default function ShadowingScreen() {
                 key={f.id}
                 onPress={() => setStatus(f.id)}
                 style={[styles.chip, on && styles.chipActive]}
+                accessible={true}
+                accessibilityRole="radio"
+                accessibilityLabel={f.label}
+                accessibilityState={{ checked: on }}
+                accessibilityHint={`Filters practice lessons list by progress status ${f.label}`}
               >
-                <Text style={[styles.chipText, on && styles.chipTextActive]}>{f.label}</Text>
+                <Text
+                  style={[styles.chipText, on && styles.chipTextActive]}
+                  allowFontScaling={true}
+                >
+                  {f.label}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -591,7 +673,7 @@ export default function ShadowingScreen() {
 
       {/* List content */}
       <View style={styles.listWrap}>
-        <Text style={styles.countText}>
+        <Text style={styles.countText} allowFontScaling={true}>
           {filtered.length} of {tabLessons.length} lessons
         </Text>
 
@@ -606,6 +688,10 @@ export default function ShadowingScreen() {
                   style={styles.fab}
                   onPress={() => setShowAddModal(true)}
                   activeOpacity={0.85}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Import new video"
+                  accessibilityHint="Double tap to open YouTube link import window"
                 >
                   <Ionicons name="add" size={24} color="#FFF" />
                 </TouchableOpacity>

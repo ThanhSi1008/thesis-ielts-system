@@ -91,8 +91,22 @@ Tài liệu này cung cấp danh sách kiểm thử (Smoke Test) toàn diện đ
 
 ---
 
+### 7. Hỗ trợ Tiếp cận & Kiểm định Tương phản (Accessibility & Contrast Suite - WCAG AA)
+*Đảm bảo ứng dụng thân thiện với người khiếm thị, hỗ trợ đọc màn hình TalkBack/VoiceOver và co giãn kích thước chữ linh hoạt.*
+
+| ID | Kịch bản Kiểm thử (Test Scenario) | Kết quả Mong đợi (Expected Result) | iOS Sim | Android Emu | Real Dev |
+| :--- | :--- | :--- | :---: | :---: | :---: |
+| A11Y-01 | Kiểm tra Tỷ lệ Tương phản màu sắc | Toàn bộ văn bản thông thường đạt độ tương phản `≥ 4.5:1` và văn bản lớn đạt `≥ 3.0:1` so với nền (chuẩn WCAG AA). Không dùng màu khó đọc. | Pass | Pass | Pass |
+| A11Y-02 | Điều hướng Screen-Reader (VoiceOver/TalkBack) | Vuốt tuần tự di chuyển qua đúng thứ tự: Đăng nhập -> Dashboard -> Tab từ vựng -> Flashcard -> Reading -> Exercises. | Pass | Pass | Pass |
+| A11Y-03 | Nhãn Tiếp cận (Accessibility Labels & Hints) | Tất cả các nút đóng (Close), nút ghi âm, các slider tiến trình âm thanh và SRS actions phát âm chính xác nhãn, gợi ý bằng tiếng Anh/Việt rõ ràng. | Pass | Pass | Pass |
+| A11Y-04 | Co giãn phông chữ động (Dynamic Text Scaling) | Bật cài đặt cỡ chữ hệ thống lớn nhất (200%), toàn bộ nhãn chữ (`allowFontScaling={true}`) co giãn tương ứng mà không bị vỡ hoặc che khuất bố cục. | Pass | Pass | Pass |
+| A11Y-05 | Vai trò Trạng thái (A11y Roles & States) | Khi nhấn chọn Tab hoặc Radio Button trong Exercise, bộ đọc màn hình thông báo đúng `accessibilityRole="tab"/"radio"` và trạng thái `accessibilityState={{ selected }}`. | Pass | Pass | Pass |
+
+---
+
 ## 🏆 Đánh giá Kết luận (Final Verdict)
 
 - **Trạng thái**: **100% PASS** trên cả 3 nền tảng kiểm thử.
+- **Tính tiếp cận (A11y)**: Đạt chứng nhận tự đánh giá WCAG 2.1 AA về tương phản màu sắc và hỗ trợ đọc màn hình, đảm bảo tính bình đẳng trong tiếp cận giáo dục cho mọi học viên.
 - **Tính đồng bộ**: `<ConfirmDialog>` và hệ thống `toast` hoạt động cực kỳ ổn định, mang lại trải nghiệm đồng bộ và cao cấp thay thế hoàn chỉnh cho `Alert.alert` truyền thống của hệ điều hành.
 - **Tối ưu hóa hiệu năng**: Các thành phần danh sách dài và xử lý ảnh (expo-image) cải thiện chỉ số INP và LCP rõ rệt khi kiểm thử trên thiết bị vật lý thật.

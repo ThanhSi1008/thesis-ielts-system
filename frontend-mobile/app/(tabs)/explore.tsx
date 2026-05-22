@@ -207,6 +207,8 @@ export default function ExploreTab() {
                   alignSelf: 'flex-start',
                   marginBottom: 0,
                 }}
+                accessibilityLabel="Try Vocab Lab featured module now"
+                accessibilityHint="Double tap to open the Vocab Lab SRS study tool"
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                   <Text
@@ -261,6 +263,8 @@ export default function ExploreTab() {
               <PressableCard
                 onPress={() => {}}
                 variant="elevated"
+                accessibilityLabel={`${mod.title} learning module. ${mod.desc}`}
+                accessibilityHint={`Double tap to enter the ${mod.title} section`}
                 leftAccessory={
                   <LinearGradient
                     colors={mod.gradient as [string, string]}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -21,6 +21,7 @@ import Text from '../atoms/Text';
 import Button from '../atoms/Button';
 import Chip from '../atoms/Chip';
 import BottomSheet from '../organisms/BottomSheet';
+import * as Haptics from 'expo-haptics';
 
 const TAGS = [
   'Listening',
@@ -60,6 +61,12 @@ export function CreatePostModal({
   const [images, setImages] = useState<{ uri: string; name: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  }, [visible]);
 
   const reset = () => {
     setType('GENERAL');
@@ -116,6 +123,7 @@ export function CreatePostModal({
         tags,
         imageUrls,
       });
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onCreated(post);
       reset();
       onClose();

@@ -189,12 +189,16 @@ export default function PracticeToolsDashboard() {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               router.push(ROUTES.ielts);
             }}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+            accessibilityHint="Close Practice Tools dashboard and return to IELTS screen"
           >
             <Ionicons name="close" size={20} color={colors.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleWrap}>
-            <Text style={styles.eyebrow}>Lexon AI Suite</Text>
-            <Text style={styles.headerTitle}>Practice Tools</Text>
+            <Text style={styles.eyebrow} allowFontScaling={true}>Lexon AI Suite</Text>
+            <Text style={styles.headerTitle} allowFontScaling={true}>Practice Tools</Text>
           </View>
         </View>
       </View>
@@ -210,16 +214,18 @@ export default function PracticeToolsDashboard() {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.welcomeCard}
+          accessible={true}
+          accessibilityLabel="Interactive Training Lab. Elevate your IELTS listening and speaking performance. Pick a dedicated tool below to start practicing with dynamic feedback loop."
         >
           <View style={styles.welcomeGlow} />
-          <Text style={styles.welcomeTitle}>Interactive Training Lab</Text>
-          <Text style={styles.welcomeDesc}>
+          <Text style={styles.welcomeTitle} allowFontScaling={true}>Interactive Training Lab</Text>
+          <Text style={styles.welcomeDesc} allowFontScaling={true}>
             Elevate your IELTS listening & speaking performance. Pick a dedicated tool below to
             start practicing with dynamic feedback loop.
           </Text>
         </LinearGradient>
 
-        <Text style={styles.sectionTitle}>Select Practice Module</Text>
+        <Text style={styles.sectionTitle} allowFontScaling={true}>Select Practice Module</Text>
 
         <View style={styles.cardsContainer}>
           {/* Shadowing Card */}
@@ -227,6 +233,10 @@ export default function PracticeToolsDashboard() {
             style={styles.toolCard}
             onPress={() => handlePress(ROUTES.practiceToolsShadowing)}
             activeOpacity={0.9}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Shadowing Practitioner, Enter Studio. Sharpen speaking pronunciation, speed, and accent by echoing native speakers with real-time AI phoneme analysis."
+            accessibilityHint="Double tap to open shadowing lessons list"
           >
             <View style={styles.cardContent}>
               <View style={[styles.iconWrapper, styles.shadowingIcon]}>
@@ -234,16 +244,16 @@ export default function PracticeToolsDashboard() {
               </View>
               <View style={styles.infoWrapper}>
                 <View style={styles.cardTitleRow}>
-                  <Text style={styles.cardTitle}>Shadowing Practitioner</Text>
+                  <Text style={styles.cardTitle} allowFontScaling={true}>Shadowing Practitioner</Text>
                 </View>
-                <Text style={styles.cardDesc}>
+                <Text style={styles.cardDesc} allowFontScaling={true}>
                   Sharpen speaking pronunciation, speed, and accent by echoing native speakers with
                   real-time AI phoneme analysis.
                 </Text>
               </View>
             </View>
             <View style={styles.cardFooter}>
-              <Text style={styles.cardFooterText}>Enter Studio</Text>
+              <Text style={styles.cardFooterText} allowFontScaling={true}>Enter Studio</Text>
               <Ionicons name="arrow-forward" size={14} color={COLORS.primary} />
             </View>
           </TouchableOpacity>
@@ -253,6 +263,10 @@ export default function PracticeToolsDashboard() {
             style={styles.toolCard}
             onPress={() => handlePress(ROUTES.practiceToolsDictation)}
             activeOpacity={0.9}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Dictation Lab, Start Practice. Improve listening comprehension, phonetic spelling, and grammar by writing down spoken sentences exactly as heard."
+            accessibilityHint="Double tap to open dictation exercises"
           >
             <View style={styles.cardContent}>
               <View style={[styles.iconWrapper, styles.dictationIcon]}>
@@ -260,16 +274,16 @@ export default function PracticeToolsDashboard() {
               </View>
               <View style={styles.infoWrapper}>
                 <View style={styles.cardTitleRow}>
-                  <Text style={styles.cardTitle}>Dictation Lab</Text>
+                  <Text style={styles.cardTitle} allowFontScaling={true}>Dictation Lab</Text>
                 </View>
-                <Text style={styles.cardDesc}>
+                <Text style={styles.cardDesc} allowFontScaling={true}>
                   Improve listening comprehension, phonetic spelling, and grammar by writing down
                   spoken sentences exactly as heard.
                 </Text>
               </View>
             </View>
             <View style={styles.cardFooter}>
-              <Text style={styles.cardFooterText}>Start Practice</Text>
+              <Text style={styles.cardFooterText} allowFontScaling={true}>Start Practice</Text>
               <Ionicons name="arrow-forward" size={14} color={COLORS.primary} />
             </View>
           </TouchableOpacity>

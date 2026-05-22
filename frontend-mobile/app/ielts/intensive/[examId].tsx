@@ -223,19 +223,25 @@ export default function ExamPlayerScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <View style={[styles.center, { backgroundColor: colors.background }]} accessible={true} accessibilityLabel="Loading exam player, please wait.">
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading exam…</Text>
+        <Text allowFontScaling={true} style={[styles.loadingText, { color: colors.textSecondary }]}>Loading exam…</Text>
       </View>
     );
   }
 
   if (!exam) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={styles.errorText}>Exam not found.</Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: colors.primary }}>Go back</Text>
+      <View style={[styles.center, { backgroundColor: colors.background }]} accessible={true} accessibilityLabel="Exam not found.">
+        <Text allowFontScaling={true} style={styles.errorText}>Exam not found.</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          accessibilityHint="Double tap to return to the previous screen"
+        >
+          <Text allowFontScaling={true} style={{ color: colors.primary }}>Go back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -310,6 +316,9 @@ export default function ExamPlayerScreen() {
                 styles.listeningPartTabs,
                 { backgroundColor: colors.card, borderColor: colors.border },
               ]}
+              accessible={true}
+              accessibilityRole="tablist"
+              accessibilityLabel="Listening parts navigation"
             >
               {parts.map((part: any, pi: number) => {
                 const isActive = activeListeningPartIndex === pi;
@@ -319,8 +328,14 @@ export default function ExamPlayerScreen() {
                     style={[styles.listeningPartTab, isActive && styles.listeningPartTabActive]}
                     onPress={() => handleListeningPartChange(pi)}
                     activeOpacity={0.8}
+                    accessible={true}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: isActive }}
+                    accessibilityLabel={`Part ${part.part_number || pi + 1}`}
+                    accessibilityHint="Double tap to switch to this section of the listening test"
                   >
                     <Text
+                      allowFontScaling={true}
                       style={[
                         styles.listeningPartTabLabel,
                         { color: colors.textSecondary },
@@ -354,13 +369,16 @@ export default function ExamPlayerScreen() {
                       onLayout={(e) => {
                         partOffsetsRef.current[pi] = e.nativeEvent.layout.y;
                       }}
+                      accessible={true}
+                      accessibilityLabel={`Listening Section Part ${part.part_number || pi + 1}${part.topic ? ', Topic: ' + part.topic : ''}`}
                     >
-                      <Text style={[styles.partTitle, { color: colors.text }]}>
+                      <Text allowFontScaling={true} style={[styles.partTitle, { color: colors.text }]}>
                         Part {part.part_number || pi + 1}
                         {part.topic ? ` — ${part.topic}` : ''}
                       </Text>
                       {part.part_type && (
                         <Text
+                          allowFontScaling={true}
                           style={[
                             styles.instructions,
                             {
@@ -399,9 +417,13 @@ export default function ExamPlayerScreen() {
           ]}
           onPress={() => setNavOpen((v) => !v)}
           activeOpacity={0.8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={`Answer sheet: ${answeredCount} of ${totalCount ?? '?'} answered`}
+          accessibilityHint="Double tap to toggle the interactive answer sheet drawer"
         >
           <Ionicons name="grid-outline" size={18} color={colors.primary} />
-          <Text style={[styles.navToggleText, { color: colors.primary }]}>
+          <Text allowFontScaling={true} style={[styles.navToggleText, { color: colors.primary }]}>
             {answeredCount}/{totalCount ?? '?'}
           </Text>
         </TouchableOpacity>

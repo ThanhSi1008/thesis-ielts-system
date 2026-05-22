@@ -39,6 +39,11 @@ export class UsersController {
     return this.usersService.findOne(req.user.id);
   }
 
+  @Get("me/recent-activity")
+  getRecentActivity(@Req() req: any) {
+    return this.usersService.getRecentActivity(req.user.id);
+  }
+
   @Patch("me")
   updateMe(@Req() req: any, @Body() dto: UpdateUserDto) {
     return this.usersService.update(req.user.id, dto);

@@ -41,7 +41,14 @@ export default function DictationPlaceholderScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.push(ROUTES.practiceTools)}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => router.push(ROUTES.practiceTools)}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Navigate back to the practice tools menu"
+        >
           <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>

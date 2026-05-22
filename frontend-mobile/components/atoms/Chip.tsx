@@ -17,6 +17,9 @@ export interface ChipProps {
   leftIcon?: keyof typeof Ionicons.glyphMap;
   onClose?: () => void;
   disabled?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  accessibilityRole?: 'button' | 'tab' | 'checkbox' | 'radio' | 'imagebutton';
 }
 
 export default function Chip({
@@ -26,6 +29,9 @@ export default function Chip({
   leftIcon,
   onClose,
   disabled = false,
+  accessibilityLabel,
+  accessibilityHint,
+  accessibilityRole = 'button',
 }: ChipProps) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
@@ -65,6 +71,14 @@ export default function Chip({
       onPressOut={handlePressOut}
       onPress={handlePress}
       disabled={disabled}
+      accessible={true}
+      accessibilityRole={accessibilityRole}
+      accessibilityLabel={accessibilityLabel || `${label} chip`}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{
+        selected: active,
+        disabled: disabled,
+      }}
       style={[
         styles.chip,
         active

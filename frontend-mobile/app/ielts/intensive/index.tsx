@@ -213,13 +213,22 @@ function AccordionGroup({
   return (
     <View style={acc.card}>
       {/* ── Header (always visible, tappable) ─── */}
-      <TouchableOpacity style={acc.header} onPress={onToggle} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={acc.header}
+        onPress={onToggle}
+        activeOpacity={0.8}
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={`${group.title}, ${completedCount} of ${totalTests} tests completed`}
+        accessibilityHint="Double tap to expand or collapse the test list under this book"
+        accessibilityState={{ expanded: !isCollapsed }}
+      >
         {/* Book cover or placeholder */}
         {group.imageUrl ? (
           <Image source={{ uri: group.imageUrl }} style={acc.cover} contentFit="cover" cachePolicy="memory-disk" />
         ) : (
           <View style={acc.coverPlaceholder}>
-            <Text style={acc.coverPlaceholderText} numberOfLines={3}>
+            <Text style={acc.coverPlaceholderText} numberOfLines={3} allowFontScaling={true}>
               {group.title.replace('Cambridge IELTS ', 'IELTS\n')}
             </Text>
           </View>
@@ -227,17 +236,17 @@ function AccordionGroup({
 
         {/* Group info */}
         <View style={acc.headerInfo}>
-          <Text style={acc.groupTitle} numberOfLines={2}>
+          <Text style={acc.groupTitle} numberOfLines={2} allowFontScaling={true}>
             {group.title}
           </Text>
           <View style={acc.stats}>
             <View style={acc.statPill}>
               <Ionicons name="checkmark-circle-outline" size={11} color="#16a34a" />
-              <Text style={acc.statText}>{completedCount} completed</Text>
+              <Text style={acc.statText} allowFontScaling={true}>{completedCount} completed</Text>
             </View>
             <View style={acc.statPill}>
               <Ionicons name="documents-outline" size={11} color={colors.textMuted} />
-              <Text style={acc.statText}>
+              <Text style={acc.statText} allowFontScaling={true}>
                 {totalTests} test{totalTests !== 1 ? 's' : ''}
               </Text>
             </View>
@@ -265,51 +274,61 @@ function AccordionGroup({
       {/* ── Tests list (hidden when collapsed) ─── */}
       {!isCollapsed && (
         <View>
-          {group.tests?.map((test: any) => (
-            <TouchableOpacity
-              key={test.examId}
-              style={acc.testRow}
-              onPress={() => onTestPress(test.examId)}
-              activeOpacity={0.8}
-            >
-              <View style={acc.testLeft}>
-                <View style={[acc.testNumBadge, { backgroundColor: skillColor + '18' }]}>
-                  <Text style={[acc.testNum, { color: skillColor }]}>{test.testNumber}</Text>
+          {group.tests?.map((test: any) => {
+            const scoreVal = test.myScore as number;
+            const derivedBand = isWS
+              ? scoreVal
+              : activeSkill === 'READING'
+                ? rawToReadingBand(scoreVal)
+                : rawToListeningBand(scoreVal);
+            return (
+              <TouchableOpacity
+                key={test.examId}
+                style={acc.testRow}
+                onPress={() => onTestPress(test.examId)}
+                activeOpacity={0.8}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel={`Test ${test.testNumber}, ${test.durationMinutes} minutes. ${
+                  test.myScore !== undefined
+                    ? 'Completed, Band score ' + derivedBand.toFixed(1)
+                    : 'Not attempted'
+                }`}
+                accessibilityHint="Double tap to start this test"
+              >
+                <View style={acc.testLeft}>
+                  <View style={[acc.testNumBadge, { backgroundColor: skillColor + '18' }]}>
+                    <Text style={[acc.testNum, { color: skillColor }]} allowFontScaling={true}>{test.testNumber}</Text>
+                  </View>
+                  <View>
+                    <Text style={acc.testTitle} allowFontScaling={true}>Test {test.testNumber}</Text>
+                    <Text style={acc.testMeta} allowFontScaling={true}>{test.durationMinutes} min</Text>
+                  </View>
                 </View>
-                <View>
-                  <Text style={acc.testTitle}>Test {test.testNumber}</Text>
-                  <Text style={acc.testMeta}>{test.durationMinutes} min</Text>
+                <View style={acc.testRight}>
+                  {test.myScore !== undefined ? (
+                    (() => {
+                      const color = getBandColor(derivedBand);
+                      return (
+                        <View
+                          style={[
+                            acc.bandPill,
+                            { backgroundColor: color + '18', borderColor: color },
+                          ]}
+                        >
+                          <Text style={[acc.bandPillLabel, { color }]} allowFontScaling={true}>Band</Text>
+                          <Text style={[acc.bandPillScore, { color }]} allowFontScaling={true}>{derivedBand.toFixed(1)}</Text>
+                        </View>
+                      );
+                    })()
+                  ) : (
+                    <Text style={acc.notAttempted} allowFontScaling={true}>Not tried</Text>
+                  )}
+                  <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
                 </View>
-              </View>
-              <View style={acc.testRight}>
-                {test.myScore !== undefined ? (
-                  (() => {
-                    // Derive band float from myScore depending on skill
-                    const band = isWS
-                      ? (test.myScore as number)
-                      : activeSkill === 'READING'
-                        ? rawToReadingBand(test.myScore as number)
-                        : rawToListeningBand(test.myScore as number);
-                    const color = getBandColor(band);
-                    return (
-                      <View
-                        style={[
-                          acc.bandPill,
-                          { backgroundColor: color + '18', borderColor: color },
-                        ]}
-                      >
-                        <Text style={[acc.bandPillLabel, { color }]}>Band</Text>
-                        <Text style={[acc.bandPillScore, { color }]}>{band.toFixed(1)}</Text>
-                      </View>
-                    );
-                  })()
-                ) : (
-                  <Text style={acc.notAttempted}>Not tried</Text>
-                )}
-                <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       )}
     </View>
@@ -481,17 +500,28 @@ export default function IntensiveScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backBtn}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Go back to the previous screen"
+        >
           <Ionicons name="chevron-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mock Tests</Text>
+        <Text style={styles.headerTitle} allowFontScaling={true}>Mock Tests</Text>
         <TouchableOpacity
           style={styles.customBtn}
           onPress={() => router.push(ROUTES.ieltsIntensiveCustom)}
           activeOpacity={0.8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Custom intensive exam"
+          accessibilityHint="Configure and build a custom simulated exam"
         >
           <Ionicons name="construct-outline" size={15} color={isDark ? colors.text : '#fff'} />
-          <Text style={styles.customBtnText}>Custom</Text>
+          <Text style={styles.customBtnText} allowFontScaling={true}>Custom</Text>
         </TouchableOpacity>
       </View>
 
@@ -538,6 +568,10 @@ export default function IntensiveScreen() {
                 onChangeText={setSearch}
                 returnKeyType="search"
                 clearButtonMode="while-editing"
+                accessible={true}
+                accessibilityLabel="Search tests"
+                accessibilityHint="Type here to filter Mock Tests by name or number"
+                allowFontScaling={true}
               />
             </View>
             {hasActiveFilter && (
@@ -548,8 +582,12 @@ export default function IntensiveScreen() {
                 }}
                 style={styles.clearBtn}
                 activeOpacity={0.7}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Clear Search"
+                accessibilityHint="Resets the search query and status filters"
               >
-                <Text style={styles.clearBtnText}>Clear</Text>
+                <Text style={styles.clearBtnText} allowFontScaling={true}>Clear</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -574,9 +612,15 @@ export default function IntensiveScreen() {
                   ]}
                   onPress={() => setStatusFilter(f)}
                   activeOpacity={0.8}
+                  accessible={true}
+                  accessibilityRole="radio"
+                  accessibilityLabel={labels[f]}
+                  accessibilityState={{ checked: active }}
+                  accessibilityHint={`Filter results by status ${labels[f]}`}
                 >
                   <Text
                     style={[styles.filterChipText, active && { color, fontFamily: FONTS.bold }]}
+                    allowFontScaling={true}
                   >
                     {labels[f]}
                   </Text>
@@ -584,7 +628,7 @@ export default function IntensiveScreen() {
               );
             })}
             {hasActiveFilter && (
-              <Text style={styles.resultCount}>
+              <Text style={styles.resultCount} allowFontScaling={true}>
                 {totalVisible} test{totalVisible !== 1 ? 's' : ''}
               </Text>
             )}

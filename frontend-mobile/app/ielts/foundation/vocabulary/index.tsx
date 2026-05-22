@@ -67,21 +67,27 @@ export default function VocabularyScreen() {
       {/* Title */}
       <View style={styles.header}>
         <View>
-          <Text variant="caption" weight="bold" style={styles.eyebrow}>
+          <Text variant="caption" weight="bold" style={styles.eyebrow} allowFontScaling={true}>
             IELTS · Lexon
           </Text>
-          <Text variant="title" weight="bold" style={[styles.title, { color: colors.text }]}>
+          <Text variant="title" weight="bold" style={[styles.title, { color: colors.text }]} allowFontScaling={true} accessibilityRole="header">
             Vocabulary
           </Text>
         </View>
-        <TouchableOpacity style={[styles.searchBtn, { backgroundColor: colors.bgElevated, borderColor: colors.border }]}>
+        <TouchableOpacity
+          style={[styles.searchBtn, { backgroundColor: colors.bgElevated, borderColor: colors.border }]}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Search vocabulary"
+          accessibilityHint="Double tap to search vocabulary books"
+        >
           <Ionicons name="search" size={17} color={colors.text} />
         </TouchableOpacity>
       </View>
 
       {/* Count */}
       <View style={styles.countRow}>
-        <Text variant="caption" weight="bold" style={styles.countText}>
+        <Text variant="caption" weight="bold" style={styles.countText} allowFontScaling={true}>
           {filteredBooks.length > 0 ? `${filteredBooks.length} books available` : 'Vocabulary'}
         </Text>
       </View>
@@ -92,6 +98,7 @@ export default function VocabularyScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.chipsContainer}
+          accessibilityRole="tablist"
         >
           {['All', 'Foundation', 'Basic', 'Advanced', 'Intensive', 'Master', 'Expert'].map((stage) => (
             <Chip
@@ -99,6 +106,9 @@ export default function VocabularyScreen() {
               label={stage}
               active={selectedStage === stage}
               onPress={() => setSelectedStage(stage)}
+              accessibilityRole="tab"
+              accessibilityLabel={`${stage} category filter`}
+              accessibilityHint={`Double tap to view ${stage} books`}
             />
           ))}
         </ScrollView>
@@ -153,11 +163,13 @@ export default function VocabularyScreen() {
                 gradientColors={book.theme.colors as unknown as string[]}
                 onPress={() => router.push(ROUTES.foundationVocabularyBook(book.id))}
                 style={styles.card}
+                accessibilityLabel={`Vocabulary book: ${book.name}. Stage: ${book.stage}. Total words: ${wordCount}. Total units: ${totalUnits}. Progress: ${pct} percent. ${started ? 'Double tap to continue learning.' : 'Double tap to start learning.'}`}
+                accessibilityHint={started ? 'Continue vocabulary practice' : 'Start vocabulary practice'}
               >
                 {/* Word count badge */}
                 <View style={styles.badge}>
                   <Ionicons name="text" size={10} color="rgba(255,255,255,0.85)" />
-                  <Text variant="caption" weight="bold" style={styles.badgeText}>
+                  <Text variant="caption" weight="bold" style={styles.badgeText} allowFontScaling={true}>
                     {wordCount} words
                   </Text>
                 </View>
@@ -171,10 +183,10 @@ export default function VocabularyScreen() {
 
                   {/* Text labels */}
                   <View style={styles.heroTextCol}>
-                    <Text variant="caption" weight="bold" style={styles.heroStage}>
+                    <Text variant="caption" weight="bold" style={styles.heroStage} allowFontScaling={true}>
                       Stage · {book.stage}
                     </Text>
-                    <Text variant="title" weight="bold" style={styles.heroTitle} numberOfLines={2}>
+                    <Text variant="title" weight="bold" style={styles.heroTitle} numberOfLines={2} allowFontScaling={true}>
                       {book.name}
                     </Text>
                   </View>
@@ -187,10 +199,10 @@ export default function VocabularyScreen() {
                 {started && (
                   <View style={styles.progressSection}>
                     <View style={styles.progressRow}>
-                      <Text variant="label" weight="bold" style={styles.progressLabel}>
+                      <Text variant="label" weight="bold" style={styles.progressLabel} allowFontScaling={true}>
                         Progress
                       </Text>
-                      <Text variant="label" weight="bold" style={styles.progressValue}>
+                      <Text variant="label" weight="bold" style={styles.progressValue} allowFontScaling={true}>
                         {pct}%
                       </Text>
                     </View>
@@ -207,7 +219,7 @@ export default function VocabularyScreen() {
                 <View style={styles.actionRow}>
                   <View style={styles.unitInfo}>
                     <Ionicons name="layers" size={14} color="rgba(255,255,255,0.85)" />
-                    <Text variant="body" weight="medium" style={styles.unitText}>
+                    <Text variant="body" weight="medium" style={styles.unitText} allowFontScaling={true}>
                       {totalUnits} units
                     </Text>
                   </View>
@@ -217,6 +229,7 @@ export default function VocabularyScreen() {
                       variant="label"
                       weight="bold"
                       style={[styles.actionBtnText, { color: book.theme.colors[1] }]}
+                      allowFontScaling={true}
                     >
                       {started ? 'CONTINUE' : 'START'}
                     </Text>

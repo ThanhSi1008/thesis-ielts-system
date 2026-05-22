@@ -69,12 +69,19 @@ export default function GrammarBookScreen() {
     return (
       <SafeAreaView style={s.container} edges={['top']}>
         <View style={s.headerContainer}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => router.back()}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Return to the books list"
+          >
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerCenter}>
             <Breadcrumb items={loadingBreadcrumb} />
-            <Text style={s.headerTitle} numberOfLines={1}>
+            <Text style={s.headerTitle} numberOfLines={1} allowFontScaling={true}>
               Loading...
             </Text>
           </View>
@@ -90,26 +97,36 @@ export default function GrammarBookScreen() {
     return (
       <SafeAreaView style={s.container} edges={['top']}>
         <View style={s.headerContainer}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => router.back()}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Return to the books list"
+          >
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerCenter}>
-            <Text style={s.headerEyebrow}>Grammar</Text>
-            <Text style={s.headerTitle} numberOfLines={1}>
+            <Text style={s.headerEyebrow} allowFontScaling={true}>Grammar</Text>
+            <Text style={s.headerTitle} numberOfLines={1} allowFontScaling={true}>
               Error
             </Text>
           </View>
         </View>
         <View style={s.center}>
-          <Text style={s.errorText}>{error || 'Book not found'}</Text>
+          <Text style={s.errorText} allowFontScaling={true}>{error || 'Book not found'}</Text>
           <TouchableOpacity
             style={s.retryButton}
             onPress={() => {
               setLoading(true);
               load();
             }}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Try loading again"
           >
-            <Text style={s.retryButtonText}>Try Again</Text>
+            <Text style={s.retryButtonText} allowFontScaling={true}>Try Again</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -121,18 +138,25 @@ export default function GrammarBookScreen() {
       {/* Dynamic Colored Header wrapper */}
       <SafeAreaView style={[s.headerWrapper, { backgroundColor: '#fff', borderBottomColor: '#f0f0f0', borderBottomWidth: 1 }]} edges={['top']}>
         <View style={s.header}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => router.back()}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Return to the books list"
+          >
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerTitleCol}>
             <Breadcrumb items={breadcrumbItems} />
-            <Text style={s.headerTitle} numberOfLines={1}>
+            <Text style={s.headerTitle} numberOfLines={1} allowFontScaling={true} accessibilityRole="header">
               {book.name}
             </Text>
           </View>
           <View style={[s.headerBadge, { backgroundColor: accentColor + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, flexDirection: 'column', alignItems: 'center' }]}>
-            <Text style={[s.headerBadgeVal, { color: accentColor, fontFamily: FONTS.bold }]}>{units.length}</Text>
-            <Text style={[s.headerBadgeLbl, { color: accentColor, fontFamily: FONTS.regular, fontSize: 8 }]}>UNITS</Text>
+            <Text style={[s.headerBadgeVal, { color: accentColor, fontFamily: FONTS.bold }]} allowFontScaling={true}>{units.length}</Text>
+            <Text style={[s.headerBadgeLbl, { color: accentColor, fontFamily: FONTS.regular, fontSize: 8 }]} allowFontScaling={true}>UNITS</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -151,42 +175,50 @@ export default function GrammarBookScreen() {
         contentContainerStyle={s.content}
       >
         {/* Stats banner */}
-        <View style={[s.statsBanner, { backgroundColor: accentColor + '10' }]}>
+        <View
+          style={[s.statsBanner, { backgroundColor: accentColor + '10' }]}
+          accessible={true}
+          accessibilityLabel={`Book info banner: ${units.length} lessons available. Author is ${book.author ?? 'Raymond Murphy'}. Level is ${book.level ?? 'General'}.`}
+        >
           <View style={s.statItem}>
-            <Text style={[s.statValue, { color: accentColor }]}>{units.length}</Text>
-            <Text style={s.statLabel}>Lessons</Text>
+            <Text style={[s.statValue, { color: accentColor }]} allowFontScaling={true}>{units.length}</Text>
+            <Text style={s.statLabel} allowFontScaling={true}>Lessons</Text>
           </View>
           <View style={s.statDivider} />
           <View style={s.statItem}>
-            <Text style={[s.statValue, { color: accentColor }]}>
+            <Text style={[s.statValue, { color: accentColor }]} allowFontScaling={true}>
               {book.author ?? 'Raymond Murphy'}
             </Text>
-            <Text style={s.statLabel}>Author</Text>
+            <Text style={s.statLabel} allowFontScaling={true}>Author</Text>
           </View>
           <View style={s.statDivider} />
           <View style={s.statItem}>
-            <Text style={[s.statValue, { color: accentColor }]}>{book.level ?? 'General'}</Text>
-            <Text style={s.statLabel}>Level</Text>
+            <Text style={[s.statValue, { color: accentColor }]} allowFontScaling={true}>{book.level ?? 'General'}</Text>
+            <Text style={s.statLabel} allowFontScaling={true}>Level</Text>
           </View>
         </View>
 
         {/* Unit list */}
         <View style={s.listSection}>
-          <Text style={s.sectionTitle}>Course Syllabus</Text>
+          <Text style={s.sectionTitle} allowFontScaling={true} accessibilityRole="header">Course Syllabus</Text>
           {units.map((unit, idx) => (
             <TouchableOpacity
               key={unit.id}
               style={s.unitCard}
               onPress={() => router.push(ROUTES.foundationGrammarUnit(bookSlug, unit.id))}
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={`Unit ${unit.order ?? idx + 1}: ${unit.title}`}
+              accessibilityHint="Double tap to open this unit study panel"
             >
               {/* Unit number badge */}
               <View style={[s.unitNumBadge, { backgroundColor: accentColor + '18' }]}>
-                <Text style={[s.unitNumText, { color: accentColor }]}>{unit.order ?? idx + 1}</Text>
+                <Text style={[s.unitNumText, { color: accentColor }]} allowFontScaling={true}>{unit.order ?? idx + 1}</Text>
               </View>
 
               {/* Unit title */}
-              <Text style={s.unitTitle} numberOfLines={2}>
+              <Text style={s.unitTitle} numberOfLines={2} allowFontScaling={true}>
                 {unit.title}
               </Text>
 
@@ -196,7 +228,7 @@ export default function GrammarBookScreen() {
 
           {units.length === 0 && (
             <View style={s.center}>
-              <Text style={s.emptyText}>No lessons available in this book yet.</Text>
+              <Text style={s.emptyText} allowFontScaling={true}>No lessons available in this book yet.</Text>
             </View>
           )}
         </View>

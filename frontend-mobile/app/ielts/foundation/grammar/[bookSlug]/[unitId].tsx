@@ -37,9 +37,14 @@ function TheoryTab({ unit, onComplete }: { unit: any; onComplete: () => void }) 
 
   if (!explanation && examples.length === 0) {
     return (
-      <View style={th.empty}>
+      <View
+        style={th.empty}
+        accessible={true}
+        accessibilityRole="image"
+        accessibilityLabel="No theory notes contents available"
+      >
         <Ionicons name="book-outline" size={48} color={COLORS.gray[300]} />
-        <Text style={th.emptyText}>No theory content yet for this unit.</Text>
+        <Text style={th.emptyText} allowFontScaling={true}>No theory content yet for this unit.</Text>
       </View>
     );
   }
@@ -48,26 +53,26 @@ function TheoryTab({ unit, onComplete }: { unit: any; onComplete: () => void }) 
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
       {/* Explanation */}
       {!!explanation && (
-        <View style={th.block}>
+        <View style={th.block} accessible={true} accessibilityLabel={`Explanation: ${explanation}`}>
           <View style={th.blockHeader}>
             <Ionicons name="document-text-outline" size={16} color={COLORS.textSecondary} />
-            <Text style={th.blockTitle}>Explanation</Text>
+            <Text style={th.blockTitle} allowFontScaling={true} accessibilityRole="header">Explanation</Text>
           </View>
-          <Text style={th.explanation}>{explanation}</Text>
+          <Text style={th.explanation} allowFontScaling={true}>{explanation}</Text>
         </View>
       )}
 
       {/* Examples */}
       {examples.length > 0 && (
-        <View style={th.block}>
+        <View style={th.block} accessible={true} accessibilityLabel={`Grammar Examples list. Contains ${examples.length} bullet points.`}>
           <View style={th.blockHeader}>
             <Ionicons name="chatbubbles-outline" size={16} color="#059669" />
-            <Text style={[th.blockTitle, { color: '#059669' }]}>Examples</Text>
+            <Text style={[th.blockTitle, { color: '#059669' }]} allowFontScaling={true} accessibilityRole="header">Examples</Text>
           </View>
           {examples.map((exText, i) => (
-            <View key={i} style={th.exampleRow}>
-              <Text style={th.exampleBullet}>→</Text>
-              <Text style={th.exampleText}>{exText}</Text>
+            <View key={i} style={th.exampleRow} accessible={true} accessibilityLabel={`Example ${i + 1}: ${exText}`}>
+              <Text style={th.exampleBullet} allowFontScaling={true}>→</Text>
+              <Text style={th.exampleText} allowFontScaling={true}>{exText}</Text>
             </View>
           ))}
         </View>
@@ -75,12 +80,12 @@ function TheoryTab({ unit, onComplete }: { unit: any; onComplete: () => void }) 
 
       {/* Notes */}
       {!!notes && (
-        <View style={[th.block, th.noteBlock]}>
+        <View style={[th.block, th.noteBlock]} accessible={true} accessibilityLabel={`Important Study Note: ${notes}`}>
           <View style={th.blockHeader}>
             <Ionicons name="information-circle-outline" size={16} color="#D97706" />
-            <Text style={[th.blockTitle, { color: '#92400E' }]}>Important Note</Text>
+            <Text style={[th.blockTitle, { color: '#92400E' }]} allowFontScaling={true} accessibilityRole="header">Important Note</Text>
           </View>
-          <Text style={th.noteText}>{notes}</Text>
+          <Text style={th.noteText} allowFontScaling={true}>{notes}</Text>
         </View>
       )}
     </ScrollView>
@@ -172,9 +177,14 @@ function ExercisesTab({
 
   if (exercises.length === 0) {
     return (
-      <View style={ex.empty}>
+      <View
+        style={ex.empty}
+        accessible={true}
+        accessibilityRole="image"
+        accessibilityLabel="No exercises available for this unit yet."
+      >
         <Ionicons name="construct-outline" size={48} color={COLORS.gray[300]} />
-        <Text style={ex.emptyText}>No exercises available for this unit yet.</Text>
+        <Text style={ex.emptyText} allowFontScaling={true}>No exercises available for this unit yet.</Text>
       </View>
     );
   }
@@ -182,11 +192,15 @@ function ExercisesTab({
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
       {submitted && (
-        <View style={[ex.resultBanner, { backgroundColor: score >= 70 ? '#ECFDF5' : '#FEF2F2' }]}>
-          <Text style={[ex.resultScore, { color: score >= 70 ? '#059669' : '#EF4444' }]}>
+        <View
+          style={[ex.resultBanner, { backgroundColor: score >= 70 ? '#ECFDF5' : '#FEF2F2' }]}
+          accessible={true}
+          accessibilityLabel={`Quiz score: ${score} percent. ${score >= 70 ? 'Excellent work!' : 'Keep practicing!'}`}
+        >
+          <Text style={[ex.resultScore, { color: score >= 70 ? '#059669' : '#EF4444' }]} allowFontScaling={true}>
             {score}%
           </Text>
-          <Text style={ex.resultLabel}>
+          <Text style={ex.resultLabel} allowFontScaling={true}>
             {score >= 70 ? '✨ Excellent work!' : 'Keep practicing!'}
           </Text>
         </View>
@@ -200,10 +214,10 @@ function ExercisesTab({
 
         return (
           <View key={exercise.id} style={ex.card}>
-            <View style={ex.qHeader}>
-              <Text style={ex.qBadge}>QUESTION {idx + 1}</Text>
+            <View style={ex.qHeader} accessible={true} accessibilityLabel={`Question ${idx + 1}`}>
+              <Text style={ex.qBadge} allowFontScaling={true}>QUESTION {idx + 1}</Text>
             </View>
-            <Text style={ex.qText}>{exercise.question}</Text>
+            <Text style={ex.qText} allowFontScaling={true} accessibilityRole="header">{exercise.question}</Text>
 
             {hasOptions ? (
               // Multiple Choice
@@ -222,6 +236,11 @@ function ExercisesTab({
                     ]}
                     onPress={() => selectOption(exercise.id, opt)}
                     activeOpacity={0.8}
+                    accessible={true}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isChosen, disabled: submitted }}
+                    accessibilityLabel={`Option: ${opt}${isCorrect ? '. Correct.' : ''}${isWrong ? '. Incorrect.' : ''}`}
+                    accessibilityHint={submitted ? '' : 'Double tap to select this option.'}
                   >
                     <Text
                       style={[
@@ -229,6 +248,7 @@ function ExercisesTab({
                         isCorrect && { color: '#059669', fontFamily: FONTS.bold },
                         isWrong && { color: '#EF4444', fontFamily: FONTS.bold },
                       ]}
+                      allowFontScaling={true}
                     >
                       {opt}
                     </Text>
@@ -244,8 +264,12 @@ function ExercisesTab({
                   style={ex.toggleAnswerBtn}
                   onPress={() => toggleShowAnswer(exercise.id)}
                   activeOpacity={0.85}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={showAnswerMap[exercise.id] ? 'Hide Answer' : 'Show Answer'}
+                  accessibilityHint="Double tap to toggle answer visibility"
                 >
-                  <Text style={ex.toggleAnswerBtnText}>
+                  <Text style={ex.toggleAnswerBtnText} allowFontScaling={true}>
                     {showAnswerMap[exercise.id] ? 'Hide Answer' : 'Show Answer'}
                   </Text>
                   <Ionicons
@@ -256,9 +280,13 @@ function ExercisesTab({
                 </TouchableOpacity>
 
                 {showAnswerMap[exercise.id] && (
-                  <View style={ex.answerBlock}>
-                    <Text style={ex.answerTitle}>Correct Answer:</Text>
-                    <Text style={ex.answerText}>{correctAns}</Text>
+                  <View
+                    style={ex.answerBlock}
+                    accessible={true}
+                    accessibilityLabel={`Correct Answer is: ${correctAns}`}
+                  >
+                    <Text style={ex.answerTitle} allowFontScaling={true}>Correct Answer:</Text>
+                    <Text style={ex.answerText} allowFontScaling={true}>{correctAns}</Text>
                   </View>
                 )}
               </View>
@@ -271,8 +299,15 @@ function ExercisesTab({
       {exercises.some((e) => e.options && e.options.length > 0) && (
         <View style={{ marginTop: 8 }}>
           {!submitted ? (
-            <TouchableOpacity style={ex.submitBtn} onPress={handleSubmit}>
-              <Text style={ex.submitTxt}>Submit Answers</Text>
+            <TouchableOpacity
+              style={ex.submitBtn}
+              onPress={handleSubmit}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Submit Answers"
+              accessibilityHint="Double tap to submit your answers for evaluation."
+            >
+              <Text style={ex.submitTxt} allowFontScaling={true}>Submit Answers</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -282,8 +317,12 @@ function ExercisesTab({
                 setSubmitted(false);
                 setScore(0);
               }}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Reset Quiz"
+              accessibilityHint="Double tap to reset the quiz and try again."
             >
-              <Text style={ex.submitTxt}>Reset Quiz</Text>
+              <Text style={ex.submitTxt} allowFontScaling={true}>Reset Quiz</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -468,12 +507,19 @@ export default function GrammarLessonScreen() {
     return (
       <SafeAreaView style={s.container} edges={['top']}>
         <View style={s.headerContainer}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => router.back()}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Navigates back to the previous screen"
+          >
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerCenter}>
             <Breadcrumb items={loadingBreadcrumb} />
-            <Text style={s.headerTitle} numberOfLines={1}>
+            <Text style={s.headerTitle} numberOfLines={1} allowFontScaling={true}>
               Loading...
             </Text>
           </View>
@@ -489,18 +535,25 @@ export default function GrammarLessonScreen() {
     return (
       <SafeAreaView style={s.container} edges={['top']}>
         <View style={s.headerContainer}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => router.back()}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Navigates back to the previous screen"
+          >
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerCenter}>
             <Breadcrumb items={loadingBreadcrumb} />
-            <Text style={s.headerTitle} numberOfLines={1}>
+            <Text style={s.headerTitle} numberOfLines={1} allowFontScaling={true}>
               Not Found
             </Text>
           </View>
         </View>
         <View style={s.center}>
-          <Text style={s.emptyText}>Lesson not found.</Text>
+          <Text style={s.emptyText} allowFontScaling={true}>Lesson not found.</Text>
         </View>
       </SafeAreaView>
     );
@@ -511,24 +564,35 @@ export default function GrammarLessonScreen() {
       {/* Header */}
       <SafeAreaView style={[s.headerWrapper, { backgroundColor: '#fff', borderBottomColor: '#f0f0f0', borderBottomWidth: 1 }]} edges={['top']}>
         <View style={s.header}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={s.backBtn}
+            onPress={() => router.back()}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Navigates back to the previous screen"
+          >
             <Ionicons name="chevron-back" size={20} color={COLORS.text} />
           </TouchableOpacity>
           <View style={s.headerTitleCol}>
             <Breadcrumb items={breadcrumbItems} />
-            <Text style={s.headerTitle} numberOfLines={1}>
+            <Text style={s.headerTitle} numberOfLines={1} allowFontScaling={true}>
               {unit.title}
             </Text>
           </View>
-          <View style={[s.headerBadge, { backgroundColor: accentColor + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, flexDirection: 'column', alignItems: 'center' }]}>
-            <Text style={[s.headerBadgeVal, { color: accentColor, fontFamily: FONTS.bold }]}>{unit.order ?? 1}</Text>
-            <Text style={[s.headerBadgeLbl, { color: accentColor, fontFamily: FONTS.regular, fontSize: 8 }]}>UNIT</Text>
+          <View
+            style={[s.headerBadge, { backgroundColor: accentColor + '15', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, flexDirection: 'column', alignItems: 'center' }]}
+            accessible={true}
+            accessibilityLabel={`Unit ${unit.order ?? 1}`}
+          >
+            <Text style={[s.headerBadgeVal, { color: accentColor, fontFamily: FONTS.bold }]} allowFontScaling={true}>{unit.order ?? 1}</Text>
+            <Text style={[s.headerBadgeLbl, { color: accentColor, fontFamily: FONTS.regular, fontSize: 8 }]} allowFontScaling={true}>UNIT</Text>
           </View>
         </View>
       </SafeAreaView>
 
       {/* Tabs */}
-      <View style={s.tabBar}>
+      <View style={s.tabBar} accessibilityRole="tablist">
         {tabs.map((tab) => {
           const active = activeTab === tab.key;
           return (
@@ -537,14 +601,19 @@ export default function GrammarLessonScreen() {
               style={[s.tabItem, active && { borderBottomColor: accentColor }]}
               onPress={() => setActiveTab(tab.key)}
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={tab.key === 'exercises' ? `${tab.label}, ${exercises.length} items.` : tab.label}
+              accessibilityHint={`Double tap to view ${tab.label}`}
             >
               <Ionicons name={tab.icon} size={15} color={active ? accentColor : COLORS.gray[400]} />
-              <Text style={[s.tabLabel, active && { color: accentColor, fontFamily: FONTS.bold }]}>
+              <Text style={[s.tabLabel, active && { color: accentColor, fontFamily: FONTS.bold }]} allowFontScaling={true}>
                 {tab.label}
               </Text>
               {tab.key === 'exercises' && exercises.length > 0 && (
                 <View style={[s.badge, { backgroundColor: accentColor }]}>
-                  <Text style={s.badgeText}>{exercises.length}</Text>
+                  <Text style={s.badgeText} allowFontScaling={true}>{exercises.length}</Text>
                 </View>
               )}
             </TouchableOpacity>

@@ -84,7 +84,15 @@ function FlashCard({
 
   return (
     <View style={fc.wrap}>
-      <TouchableOpacity onPress={flip} activeOpacity={0.95} style={{ flex: 1 }}>
+      <TouchableOpacity
+        onPress={flip}
+        activeOpacity={0.95}
+        style={{ flex: 1 }}
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={`Flashcard. Word: ${word.word}. ${word.partOfSpeech ? 'Part of speech: ' + word.partOfSpeech : ''}. ${word.ipa ? 'Pronunciation: ' + word.ipa : ''}. ${flipped ? 'Flipped. Meaning: ' + word.meaning : 'Card is face down. Double tap to flip and read meaning.'}`}
+        accessibilityHint={flipped ? '' : 'Double tap to flip card'}
+      >
         {/* Front */}
         <Animated.View
           style={[
@@ -98,13 +106,20 @@ function FlashCard({
           <View style={fc.cardHeader}>
             {word.partOfSpeech ? (
               <View style={fc.posBadge}>
-                <Text style={fc.posText}>{word.partOfSpeech}</Text>
+                <Text style={fc.posText} allowFontScaling={true}>{word.partOfSpeech}</Text>
               </View>
             ) : (
               <View />
             )}
             {word.audioUrl ? (
-              <TouchableOpacity style={fc.audioBtn} onPress={handleSpeak}>
+              <TouchableOpacity
+                style={fc.audioBtn}
+                onPress={handleSpeak}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Speak word"
+                accessibilityHint="Double tap to play the audio pronunciation for this word"
+              >
                 <Ionicons name="volume-high" size={24} color={COLORS.primary} />
               </TouchableOpacity>
             ) : null}
@@ -119,11 +134,11 @@ function FlashCard({
                 <Ionicons name="book-outline" size={48} color={COLORS.gray[300]} />
               </View>
             )}
-            <Text style={fc.wordText}>{word.word}</Text>
-            {word.ipa ? <Text style={fc.pronText}>[{word.ipa}]</Text> : null}
+            <Text style={fc.wordText} allowFontScaling={true}>{word.word}</Text>
+            {word.ipa ? <Text style={fc.pronText} allowFontScaling={true}>[{word.ipa}]</Text> : null}
           </View>
 
-          <Text style={fc.hintText}>Tap card to flip and see meaning</Text>
+          <Text style={fc.hintText} allowFontScaling={true}>Tap card to flip and see meaning</Text>
         </Animated.View>
 
         {/* Back */}
@@ -138,30 +153,37 @@ function FlashCard({
           <View style={fc.cardHeader}>
             {word.partOfSpeech ? (
               <View style={fc.posBadge}>
-                <Text style={fc.posText}>{word.partOfSpeech}</Text>
+                <Text style={fc.posText} allowFontScaling={true}>{word.partOfSpeech}</Text>
               </View>
             ) : (
               <View />
             )}
             {word.audioUrl ? (
-              <TouchableOpacity style={fc.audioBtn} onPress={handleSpeak}>
+              <TouchableOpacity
+                style={fc.audioBtn}
+                onPress={handleSpeak}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Speak word"
+                accessibilityHint="Double tap to play the audio pronunciation for this word"
+              >
                 <Ionicons name="volume-high" size={24} color={COLORS.primary} />
               </TouchableOpacity>
             ) : null}
           </View>
 
           <ScrollView contentContainerStyle={fc.scrollBody} showsVerticalScrollIndicator={false}>
-            <Text style={fc.wordTextSmall}>{word.word}</Text>
-            {word.ipa ? <Text style={fc.pronTextSmall}>[{word.ipa}]</Text> : null}
+            <Text style={fc.wordTextSmall} allowFontScaling={true}>{word.word}</Text>
+            {word.ipa ? <Text style={fc.pronTextSmall} allowFontScaling={true}>[{word.ipa}]</Text> : null}
 
             <View style={fc.meaningWrapper}>
-              <Text style={fc.defText}>{word.meaning}</Text>
+              <Text style={fc.defText} allowFontScaling={true}>{word.meaning}</Text>
             </View>
 
             {word.example && (
               <View style={fc.exampleBox}>
-                <Text style={fc.exampleLabel}>Example Sentence</Text>
-                <Text style={fc.exampleText}>"{word.example}"</Text>
+                <Text style={fc.exampleLabel} allowFontScaling={true}>Example Sentence</Text>
+                <Text style={fc.exampleText} allowFontScaling={true}>"{word.example}"</Text>
               </View>
             )}
           </ScrollView>
@@ -174,33 +196,49 @@ function FlashCard({
           <TouchableOpacity
             style={[fc.srsBtn, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}
             onPress={() => onEvaluate('again')}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Again, repeat this card in less than 1 minute"
+            accessibilityHint="Mark this card for immediate review"
           >
-            <Text style={[fc.srsLabel, { color: '#EF4444' }]}>Again</Text>
-            <Text style={[fc.srsTime, { color: '#F87171' }]}>&lt;1m</Text>
+            <Text style={[fc.srsLabel, { color: '#EF4444' }]} allowFontScaling={true}>Again</Text>
+            <Text style={[fc.srsTime, { color: '#F87171' }]} allowFontScaling={true}>&lt;1m</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[fc.srsBtn, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}
             onPress={() => onEvaluate('hard')}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Hard, repeat this card in 10 minutes"
+            accessibilityHint="Mark this card as hard"
           >
-            <Text style={[fc.srsLabel, { color: '#F97316' }]}>Hard</Text>
-            <Text style={[fc.srsTime, { color: '#FDBA74' }]}>10m</Text>
+            <Text style={[fc.srsLabel, { color: '#F97316' }]} allowFontScaling={true}>Hard</Text>
+            <Text style={[fc.srsTime, { color: '#FDBA74' }]} allowFontScaling={true}>10m</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[fc.srsBtn, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}
             onPress={() => onEvaluate('good')}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Good, repeat this card in 3 days"
+            accessibilityHint="Mark this card as learned"
           >
-            <Text style={[fc.srsLabel, { color: '#0EA5E9' }]}>Good</Text>
-            <Text style={[fc.srsTime, { color: '#7DD3FC' }]}>3d</Text>
+            <Text style={[fc.srsLabel, { color: '#0EA5E9' }]} allowFontScaling={true}>Good</Text>
+            <Text style={[fc.srsTime, { color: '#7DD3FC' }]} allowFontScaling={true}>3d</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[fc.srsBtn, { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' }]}
             onPress={() => onEvaluate('easy')}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Easy, repeat this card in 5 days"
+            accessibilityHint="Mark this card as easy"
           >
-            <Text style={[fc.srsLabel, { color: '#22C55E' }]}>Easy</Text>
-            <Text style={[fc.srsTime, { color: '#86EFAC' }]}>5d</Text>
+            <Text style={[fc.srsLabel, { color: '#22C55E' }]} allowFontScaling={true}>Easy</Text>
+            <Text style={[fc.srsTime, { color: '#86EFAC' }]} allowFontScaling={true}>5d</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -528,13 +566,20 @@ export default function VocabularyUnitScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
+        <View style={styles.header} accessible={false}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.closeBtn}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Close unit details"
+            accessibilityHint="Double tap to return to unit list"
+          >
             <Ionicons name="close" size={28} color={COLORS.text} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Breadcrumb items={loadingBreadcrumb} />
-            <Text style={styles.headerTitle}>Loading…</Text>
+            <Text style={styles.headerTitle} allowFontScaling={true}>Loading…</Text>
           </View>
           <View style={{ width: 40 }} />
         </View>
@@ -559,16 +604,23 @@ export default function VocabularyUnitScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
+      <View style={styles.header} accessible={false}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.closeBtn}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Close unit details"
+          accessibilityHint="Double tap to return to unit list"
+        >
           <Ionicons name="close" size={28} color={COLORS.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Breadcrumb items={breadcrumbItems} />
-          <Text style={styles.headerTitle} numberOfLines={1}>
+          <Text style={styles.headerTitle} numberOfLines={1} allowFontScaling={true}>
             {unit?.title ?? 'Unit Detail'}
           </Text>
-          <Text style={styles.headerSub}>
+          <Text style={styles.headerSub} allowFontScaling={true}>
             {activeTab === 'flashcard'
               ? `${Math.min(cardIndex + 1, wordsState.length)} / ${wordsState.length} cards`
               : `Unit ${unit?.order ?? 1} · Vocabulary`}
@@ -578,12 +630,23 @@ export default function VocabularyUnitScreen() {
       </View>
 
       {/* Progress Bar */}
-      <View style={styles.progressBar}>
+      <View
+        style={styles.progressBar}
+        accessible={true}
+        accessibilityRole="progressbar"
+        accessibilityLabel="Vocabulary unit overall progress"
+        accessibilityValue={{
+          min: 0,
+          max: 100,
+          now: Math.round(progressPercent),
+          text: `${Math.round(progressPercent)}% complete`,
+        }}
+      >
         <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
       </View>
 
       {/* Tab bar */}
-      <View style={styles.tabBar}>
+      <View style={styles.tabBar} accessibilityRole="tablist">
         {tabs.map((tab) => {
           const active = activeTab === tab.key;
           return (
@@ -592,6 +655,11 @@ export default function VocabularyUnitScreen() {
               style={[styles.tabItem, active && styles.tabItemActive]}
               disabled={tab.locked}
               onPress={() => setActiveTab(tab.key)}
+              accessible={true}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active, disabled: tab.locked }}
+              accessibilityLabel={`${tab.label} tab`}
+              accessibilityHint={tab.locked ? 'Locked. Learn all flashcards to unlock.' : `Double tap to switch to ${tab.label}`}
             >
               {tab.locked ? (
                 <Ionicons name="lock-closed" size={14} color={COLORS.gray[300]} />
@@ -608,6 +676,7 @@ export default function VocabularyUnitScreen() {
                   active && styles.tabLabelActive,
                   tab.locked && { color: COLORS.gray[300] },
                 ]}
+                allowFontScaling={true}
               >
                 {tab.label}
               </Text>
@@ -622,15 +691,22 @@ export default function VocabularyUnitScreen() {
         {activeTab === 'flashcard' &&
           (wordsState.length === 0 ? (
             <View style={styles.center}>
-              <Text style={{ fontSize: 32 }}>📭</Text>
-              <Text style={styles.emptyText}>No flashcards available yet.</Text>
+              <Text style={{ fontSize: 32 }} allowFontScaling={true}>📭</Text>
+              <Text style={styles.emptyText} allowFontScaling={true}>No flashcards available yet.</Text>
             </View>
           ) : (
             <View style={{ flex: 1 }}>
               {currentWord && <FlashCard word={currentWord} onEvaluate={handleEvaluate} />}
               {!wordListComplete && (
-                <TouchableOpacity style={styles.skipBtn} onPress={handleSkipWordList}>
-                  <Text style={styles.skipBtnText}>Skip learning & go to reading</Text>
+                <TouchableOpacity
+                  style={styles.skipBtn}
+                  onPress={handleSkipWordList}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Skip learning and go to reading"
+                  accessibilityHint="Double tap to skip flashcards and proceed to the reading activity"
+                >
+                  <Text style={styles.skipBtnText} allowFontScaling={true}>Skip learning & go to reading</Text>
                   <Ionicons name="arrow-forward" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
               )}
@@ -643,15 +719,23 @@ export default function VocabularyUnitScreen() {
             contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
-            <Text style={styles.readingTitle}>{unit?.storyTitle || unit?.title}</Text>
-            <View style={styles.storyCard}>
-              <Text style={styles.readingPara}>{renderStoryContent(unit?.storyContent)}</Text>
+            <Text style={styles.readingTitle} allowFontScaling={true}>
+              {unit?.storyTitle || unit?.title}
+            </Text>
+            <View style={styles.storyCard} accessible={true} accessibilityLabel="Reading story content">
+              <Text style={styles.readingPara} allowFontScaling={true}>
+                {renderStoryContent(unit?.storyContent)}
+              </Text>
             </View>
             <TouchableOpacity
               style={styles.startExerciseBtn}
               onPress={() => setActiveTab('exercise')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Start Comprehension Exercises"
+              accessibilityHint="Double tap to switch to the exercises tab"
             >
-              <Text style={styles.startExerciseText}>Start Comprehension Exercises</Text>
+              <Text style={styles.startExerciseText} allowFontScaling={true}>Start Comprehension Exercises</Text>
               <Ionicons name="create-outline" size={18} color="#fff" />
             </TouchableOpacity>
           </ScrollView>
@@ -663,16 +747,18 @@ export default function VocabularyUnitScreen() {
             contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.exHeaderRow}>
-              <Text style={styles.exMainTitle}>Comprehension Test</Text>
+            <View style={styles.exHeaderRow} accessible={false}>
+              <Text style={styles.exMainTitle} allowFontScaling={true}>Comprehension Test</Text>
               {questionResult && (
                 <View
                   style={[
                     styles.scoreBadge,
                     questionsCompleted ? styles.scoreBadgePerfect : styles.scoreBadgeNormal,
                   ]}
+                  accessible={true}
+                  accessibilityLabel={`Score badge: ${questionResult.correctCount} correct out of ${questionResult.totalQuestions} questions`}
                 >
-                  <Text style={styles.scoreBadgeText}>
+                  <Text style={styles.scoreBadgeText} allowFontScaling={true}>
                     {questionResult.correctCount} / {questionResult.totalQuestions} Correct
                   </Text>
                 </View>
@@ -681,8 +767,8 @@ export default function VocabularyUnitScreen() {
 
             {questions.length === 0 ? (
               <View style={styles.center}>
-                <Text style={{ fontSize: 32 }}>📝</Text>
-                <Text style={styles.emptyText}>No exercises for this unit.</Text>
+                <Text style={{ fontSize: 32 }} allowFontScaling={true}>📝</Text>
+                <Text style={styles.emptyText} allowFontScaling={true}>No exercises for this unit.</Text>
               </View>
             ) : (
               <View style={styles.questionsList}>
@@ -698,10 +784,12 @@ export default function VocabularyUnitScreen() {
                         styles.questionCard,
                         questionResult && (isCorrect ? styles.qCardCorrect : styles.qCardIncorrect),
                       ]}
+                      accessible={true}
+                      accessibilityLabel={`Question ${idx + 1}. ${q.question}. ${questionResult ? (isCorrect ? 'Correct answer' : 'Incorrect answer') : ''}`}
                     >
                       {/* Question Text */}
-                      <View style={styles.qNumRow}>
-                        <Text style={styles.qNum}>Question {idx + 1}</Text>
+                      <View style={styles.qNumRow} accessible={false}>
+                        <Text style={styles.qNum} allowFontScaling={true}>Question {idx + 1}</Text>
                         {questionResult && (
                           <Ionicons
                             name={isCorrect ? 'checkmark-circle' : 'close-circle'}
@@ -710,7 +798,7 @@ export default function VocabularyUnitScreen() {
                           />
                         )}
                       </View>
-                      <Text style={styles.qText}>{q.question}</Text>
+                      <Text style={styles.qText} allowFontScaling={true}>{q.question}</Text>
 
                       {/* Question Answer Render */}
                       {q.type === 'fill_blank' ? (
@@ -732,23 +820,26 @@ export default function VocabularyUnitScreen() {
                             editable={!questionResult}
                             autoCapitalize="none"
                             autoCorrect={false}
+                            accessible={true}
+                            accessibilityLabel={`Answer input for question ${idx + 1}`}
+                            accessibilityHint={questionResult ? "Answer submitted and cannot be edited" : "Type your answer here"}
                           />
                           {questionResult && !isCorrect && (
-                            <View style={styles.correctAnswerRow}>
+                            <View style={styles.correctAnswerRow} accessible={true} accessibilityLabel={`Correct answer is: ${q.answer}`}>
                               <Ionicons
                                 name="information-circle-outline"
                                 size={14}
                                 color="#16A34A"
                               />
-                              <Text style={styles.correctAnswerText}>
+                              <Text style={styles.correctAnswerText} allowFontScaling={true}>
                                 Correct answer:{' '}
-                                <Text style={{ fontFamily: FONTS.bold }}>{q.answer}</Text>
+                                <Text style={{ fontFamily: FONTS.bold }} allowFontScaling={true}>{q.answer}</Text>
                               </Text>
                             </View>
                           )}
                         </View>
                       ) : (
-                        <View style={styles.optionsWrapper}>
+                        <View style={styles.optionsWrapper} accessibilityRole="radiogroup" accessibilityLabel={`Options for question ${idx + 1}`}>
                           {q.options?.map((opt, optIdx) => {
                             const isSelected = questionAnswers[q.id] === opt;
                             const isCorrectOpt =
@@ -773,6 +864,10 @@ export default function VocabularyUnitScreen() {
                               }
                             }
 
+                            const accessibilityLabelText = questionResult
+                              ? `${opt}. ${isCorrectOpt ? 'Correct option' : ''} ${isSelected && !isCorrect ? 'Selected incorrect option' : ''}`
+                              : `${opt}`;
+
                             return (
                               <TouchableOpacity
                                 key={optIdx}
@@ -781,8 +876,13 @@ export default function VocabularyUnitScreen() {
                                 onPress={() => {
                                   setQuestionAnswers((prev) => ({ ...prev, [q.id]: opt }));
                                 }}
+                                accessible={true}
+                                accessibilityRole="radio"
+                                accessibilityState={{ selected: isSelected, disabled: !!questionResult }}
+                                accessibilityLabel={accessibilityLabelText}
+                                accessibilityHint={questionResult ? "" : `Double tap to select ${opt}`}
                               >
-                                <View style={styles.optionDotRow}>
+                                <View style={styles.optionDotRow} accessible={false}>
                                   <View
                                     style={[
                                       styles.optionDot,
@@ -794,7 +894,7 @@ export default function VocabularyUnitScreen() {
                                         styles.optionDotIncorrect,
                                     ]}
                                   />
-                                  <Text style={optionTextStyle}>{opt}</Text>
+                                  <Text style={optionTextStyle} allowFontScaling={true}>{opt}</Text>
                                 </View>
                               </TouchableOpacity>
                             );
@@ -817,12 +917,17 @@ export default function VocabularyUnitScreen() {
                       questionSubmitting || Object.keys(questionAnswers).length < questions.length
                     }
                     onPress={handleSubmitQuestions}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel="Submit Answers"
+                    accessibilityState={{ disabled: questionSubmitting || Object.keys(questionAnswers).length < questions.length }}
+                    accessibilityHint="Double tap to submit your answers for evaluation"
                   >
                     {questionSubmitting ? (
                       <ActivityIndicator size="small" color="#fff" />
                     ) : (
                       <>
-                        <Text style={styles.submitBtnText}>Submit Answers</Text>
+                        <Text style={styles.submitBtnText} allowFontScaling={true}>Submit Answers</Text>
                         <Ionicons name="checkmark-done" size={20} color="#fff" />
                       </>
                     )}
@@ -830,25 +935,37 @@ export default function VocabularyUnitScreen() {
                 ) : (
                   <View style={styles.resultBox}>
                     {questionsCompleted ? (
-                      <View style={styles.successWrapper}>
-                        <Text style={styles.successEmoji}>🏆</Text>
-                        <Text style={styles.successTitle}>Perfect Score!</Text>
-                        <Text style={styles.successDesc}>
+                      <View style={styles.successWrapper} accessible={true} accessibilityLabel="Congratulations! Perfect Score.">
+                        <Text style={styles.successEmoji} allowFontScaling={true}>🏆</Text>
+                        <Text style={styles.successTitle} allowFontScaling={true}>Perfect Score!</Text>
+                        <Text style={styles.successDesc} allowFontScaling={true}>
                           Excellent! You've mastered all vocabulary words and comprehension
                           exercises in this unit.
                         </Text>
-                        <TouchableOpacity style={styles.doneBtn} onPress={() => router.back()}>
-                          <Text style={styles.doneBtnText}>Return to Unit List</Text>
+                        <TouchableOpacity
+                          style={styles.doneBtn}
+                          onPress={() => router.back()}
+                          accessible={true}
+                          accessibilityRole="button"
+                          accessibilityLabel="Return to Unit List"
+                        >
+                          <Text style={styles.doneBtnText} allowFontScaling={true}>Return to Unit List</Text>
                         </TouchableOpacity>
                       </View>
                     ) : (
-                      <View style={styles.retryWrapper}>
-                        <Text style={styles.retryTitle}>Almost there!</Text>
-                        <Text style={styles.retryDesc}>
+                      <View style={styles.retryWrapper} accessible={true} accessibilityLabel="Almost there. Review and try again.">
+                        <Text style={styles.retryTitle} allowFontScaling={true}>Almost there!</Text>
+                        <Text style={styles.retryDesc} allowFontScaling={true}>
                           Review the correct answers above and try again to master this unit.
                         </Text>
-                        <TouchableOpacity style={styles.retryBtn} onPress={handleRetryQuestions}>
-                          <Text style={styles.retryBtnText}>Try Again</Text>
+                        <TouchableOpacity
+                          style={styles.retryBtn}
+                          onPress={handleRetryQuestions}
+                          accessible={true}
+                          accessibilityRole="button"
+                          accessibilityLabel="Try Again"
+                        >
+                          <Text style={styles.retryBtnText} allowFontScaling={true}>Try Again</Text>
                         </TouchableOpacity>
                       </View>
                     )}

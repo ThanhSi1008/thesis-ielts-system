@@ -124,13 +124,18 @@ function Quiz({
 
   return (
     <View style={qStyles.container}>
-      <Text style={qStyles.header}>Check Your Understanding</Text>
+      <Text allowFontScaling={true} style={qStyles.header}>Check Your Understanding</Text>
       {questions.map((q, idx) => {
         const sel = answers[idx];
         return (
-          <View key={idx} style={qStyles.qCard}>
-            <Text style={qStyles.qNum}>{idx + 1}.</Text>
-            <Text style={qStyles.qText}>{q.question}</Text>
+          <View
+            key={idx}
+            style={qStyles.qCard}
+            accessible={true}
+            accessibilityLabel={`Question ${idx + 1}: ${q.question}`}
+          >
+            <Text allowFontScaling={true} style={qStyles.qNum}>{idx + 1}.</Text>
+            <Text allowFontScaling={true} style={qStyles.qText}>{q.question}</Text>
             {q.options.map((opt, i) => {
               const letter = opt.match(/^([A-D])[.)]/)?.[1] ?? String.fromCharCode(65 + i);
               const label = opt.replace(/^([A-D])[.)]\s*/, '');
@@ -153,12 +158,22 @@ function Quiz({
                 borderColor = '#FCD34D';
               }
 
+              let stateHint = '';
+              if (submitted) {
+                stateHint = isThisCorrect ? ', Correct Answer' : (isThisSelected ? ', Incorrect selection' : '');
+              }
+
               return (
                 <TouchableOpacity
                   key={letter}
                   style={[qStyles.option, { backgroundColor: bg, borderColor }]}
                   onPress={() => !submitted && setAnswers((p) => ({ ...p, [idx]: letter }))}
                   activeOpacity={submitted ? 1 : 0.8}
+                  accessible={true}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: isThisSelected, disabled: submitted }}
+                  accessibilityLabel={`Option ${letter}: ${label}${stateHint}`}
+                  accessibilityHint={submitted ? '' : 'Double tap to select this option'}
                 >
                   <View
                     style={[
@@ -171,6 +186,7 @@ function Quiz({
                     ]}
                   >
                     <Text
+                      allowFontScaling={true}
                       style={[
                         qStyles.bulletLetter,
                         isThisSelected && !submitted && { color: '#fff' },
@@ -179,7 +195,7 @@ function Quiz({
                       {letter}
                     </Text>
                   </View>
-                  <Text style={[qStyles.optText, { color: textColor }]}>{label}</Text>
+                  <Text allowFontScaling={true} style={[qStyles.optText, { color: textColor }]}>{label}</Text>
                   {submitted && isThisCorrect && (
                     <Ionicons name="checkmark-circle" size={18} color="#16A34A" />
                   )}
@@ -195,8 +211,10 @@ function Quiz({
                   qStyles.explanation,
                   { backgroundColor: score === questions.length ? '#F0FDF4' : '#FEF2F2' },
                 ]}
+                accessible={true}
+                accessibilityLabel={`Explanation: ${q.explanation}`}
               >
-                <Text style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 }}>
+                <Text allowFontScaling={true} style={{ fontSize: FONT_SIZES.sm, color: COLORS.text, lineHeight: 20 }}>
                   {score === questions.length ? '✅ Correct! ' : '❌ '}
                   {q.explanation}
                 </Text>
@@ -208,7 +226,7 @@ function Quiz({
 
       {/* Submit bar */}
       <View style={qStyles.bar}>
-        <Text style={qStyles.answered}>
+        <Text allowFontScaling={true} style={qStyles.answered}>
           {Object.keys(answers).length} / {questions.length} answered
         </Text>
         {!submitted ? (
@@ -219,9 +237,14 @@ function Quiz({
             ]}
             onPress={() => setSubmitted(true)}
             disabled={Object.keys(answers).length < questions.length}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Submit quiz"
+            accessibilityHint="Double tap to submit your answers for verification"
+            accessibilityState={{ disabled: Object.keys(answers).length < questions.length }}
           >
             <Ionicons name="checkmark-circle-outline" size={16} color={COLORS.text} />
-            <Text style={qStyles.submitText}>Submit</Text>
+            <Text allowFontScaling={true} style={qStyles.submitText}>Submit</Text>
           </TouchableOpacity>
         ) : (
           <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
@@ -231,13 +254,24 @@ function Quiz({
                 setAnswers({});
                 setSubmitted(false);
               }}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Retry quiz"
+              accessibilityHint="Double tap to reset the quiz and start over"
             >
               <Ionicons name="refresh" size={14} color={COLORS.textSecondary} />
-              <Text style={qStyles.retryText}>Retry</Text>
+              <Text allowFontScaling={true} style={qStyles.retryText}>Retry</Text>
             </TouchableOpacity>
             {passed && (
-              <TouchableOpacity style={qStyles.nextBtn} onPress={onNext}>
-                <Text style={qStyles.nextText}>Next Step</Text>
+              <TouchableOpacity
+                style={qStyles.nextBtn}
+                onPress={onNext}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Next Step"
+                accessibilityHint="Double tap to load the next recommended activity"
+              >
+                <Text allowFontScaling={true} style={qStyles.nextText}>Next Step</Text>
                 <Ionicons name="chevron-forward" size={14} color={COLORS.text} />
               </TouchableOpacity>
             )}
@@ -436,18 +470,25 @@ export default function LessonViewerScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={styles.center} accessible={true} accessibilityLabel="Loading lesson details, please wait.">
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Loading lesson…</Text>
+        <Text allowFontScaling={true} style={styles.loadingText}>Loading lesson…</Text>
       </View>
     );
   }
   if (!lesson) {
     return (
-      <View style={styles.center}>
-        <Text style={{ color: COLORS.status.error, fontWeight: '700' }}>Lesson not found.</Text>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: SPACING.md }}>
-          <Text style={{ color: COLORS.primary }}>Go back</Text>
+      <View style={styles.center} accessible={true} accessibilityLabel="Lesson not found.">
+        <Text allowFontScaling={true} style={{ color: COLORS.status.error, fontWeight: '700' }}>Lesson not found.</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{ marginTop: SPACING.md }}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          accessibilityHint="Double tap to return to the library"
+        >
+          <Text allowFontScaling={true} style={{ color: COLORS.primary }}>Go back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -489,11 +530,13 @@ export default function LessonViewerScreen() {
                   { backgroundColor: cfg.bg, borderColor: cfg.border },
                   isSection && styles.blockSection,
                 ]}
+                accessible={true}
+                accessibilityLabel={`${cfg.label ? cfg.label + ': ' : ''}${block.title || ''}`}
               >
                 {block.title || cfg.label ? (
                   <View style={styles.blockHeader}>
                     {!isSection && <Ionicons name={cfg.iconName} size={18} color={cfg.iconColor} />}
-                    <Text style={[styles.blockTitle, isSection && styles.blockTitleSection]}>
+                    <Text allowFontScaling={true} style={[styles.blockTitle, isSection && styles.blockTitleSection]}>
                       {block.title || cfg.label}
                     </Text>
                   </View>

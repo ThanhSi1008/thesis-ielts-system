@@ -199,11 +199,23 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Back button"
+          accessibilityHint="Double tap to return to the previous screen"
+        >
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity onPress={openDrawer}>
+        <TouchableOpacity
+          onPress={openDrawer}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu drawer"
+          accessibilityHint="Double tap to open the navigation menu"
+        >
           <Ionicons name="menu" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -279,6 +291,10 @@ export default function DashboardScreen() {
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={() => navigation.push(ROUTES.ieltsStatistics)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="View progress button"
+            accessibilityHint="Double tap to open your advanced analytics and target band statistics"
           >
             <Text style={styles.primaryButtonText}>VIEW PROGRESS</Text>
             <Ionicons name="arrow-forward" size={18} color="#fff" />

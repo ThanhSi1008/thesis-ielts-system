@@ -94,6 +94,10 @@ function NotificationItem({
         onPress={() => {
           if (!item.isRead) onRead(item.id);
         }}
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={`${item.isRead ? 'Read' : 'Unread'} notification. Title: ${item.title}. Body: ${item.body}. Sent ${formatTime(item.createdAt)}`}
+        accessibilityHint={item.isRead ? undefined : "Double tap to mark this notification as read"}
       >
         {/* Icon */}
         <View style={[styles.iconWrap, { backgroundColor: meta.bg }]}>
@@ -122,6 +126,10 @@ function NotificationItem({
           style={styles.deleteBtn}
           onPress={handleDelete}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={`Delete notification: ${item.title}`}
+          accessibilityHint="Double tap to remove this notification"
         >
           <Ionicons name="close" size={16} color="#9ca3af" />
         </TouchableOpacity>
@@ -239,6 +247,10 @@ export default function NotificationScreen() {
             onPress={() => router.back()}
             style={styles.backBtn}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Close button"
+            accessibilityHint="Double tap to close notification center and return to profile"
           >
             <Ionicons name="close" size={24} color="#111" />
           </TouchableOpacity>
@@ -252,6 +264,11 @@ export default function NotificationScreen() {
             style={styles.markAllBtn}
             onPress={handleMarkAllRead}
             disabled={markingAll}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Mark all as read"
+            accessibilityHint="Double tap to mark all unread notifications as read"
+            accessibilityState={{ disabled: markingAll }}
           >
             {markingAll ? (
               <ActivityIndicator size="small" color="#FFC600" />
