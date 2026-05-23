@@ -86,17 +86,23 @@ function OptionChip({
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function CustomPracticeScreen() {
   const router = useRouter();
-  const { isPremium } = useSubscription();
+  const { isPremium, loading: subLoading } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = createStyles(colors, isDark);
 
   // Verify subscription status
   useEffect(() => {
-    if (!isPremium) {
+    if (!subLoading && !isPremium) {
       router.replace(ROUTES.pricing);
     }
-  }, [isPremium]);
-
+  }, [isPremium, subLoading]);
+  if (subLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
   const [skill, setSkill] = useState<IeltsSkill>('LISTENING');
   const [catalog, setCatalog] = useState<any>(null);
   const [loadingCatalog, setLoadingCatalog] = useState(false);

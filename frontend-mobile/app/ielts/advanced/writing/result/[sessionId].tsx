@@ -56,7 +56,7 @@ export default function AdvancedWritingResultScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
-  const { isPremium } = useSubscription();
+  const { isPremium, loading: subLoading } = useSubscription();
 
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -65,10 +65,10 @@ export default function AdvancedWritingResultScreen() {
 
   // Verify Premium Tier
   useEffect(() => {
-    if (!isPremium) {
+    if (!subLoading && !isPremium) {
       router.replace(ROUTES.pricing);
     }
-  }, [isPremium]);
+  }, [isPremium, subLoading]);
 
   // Tip slider logic
   useEffect(() => {
@@ -492,7 +492,7 @@ export default function AdvancedWritingResultScreen() {
     },
   });
 
-  if (loading) {
+  if (subLoading || loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={activeColor} />
